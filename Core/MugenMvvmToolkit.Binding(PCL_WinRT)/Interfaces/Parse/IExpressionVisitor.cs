@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IExpressionVisitor.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -21,16 +21,10 @@ using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
 
 namespace MugenMvvmToolkit.Binding.Interfaces.Parse
 {
-    /// <summary>
-    ///     Represents a visitor or rewriter for expression trees.
-    /// </summary>
     public interface IExpressionVisitor
     {
-        /// <summary>
-        ///     Dispatches the expression.
-        /// </summary>
-        /// <param name="node">The expression to visit.</param>
-        /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+        bool IsPostOrder { get; }
+
         IExpressionNode Visit([NotNull] IExpressionNode node);
     }
 }

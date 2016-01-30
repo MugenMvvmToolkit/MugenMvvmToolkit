@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ResourceExpressionNode.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -42,9 +42,6 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
             DynamicInstance = new ResourceExpressionNode("$", true);
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ResourceExpressionNode" /> class.
-        /// </summary>
         private ResourceExpressionNode(string name, bool @dynamic)
             : base(ExpressionNodeType.DynamicMember)
         {
@@ -56,29 +53,16 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Properties
 
-        public bool Dynamic
-        {
-            get { return _dynamic; }
-        }
+        public bool Dynamic => _dynamic;
 
         #endregion
 
         #region Overrides of ExpressionNode
 
-        /// <summary>
-        ///     Dispatches to the specific visit method for this node type.
-        /// </summary>
-        /// <param name="visitor">The visitor to visit this node with.</param>
         protected override void AcceptInternal(IExpressionVisitor visitor)
         {
         }
 
-        /// <summary>
-        ///     Creates a new object that is a copy of the current instance.
-        /// </summary>
-        /// <returns>
-        ///     A new object that is a copy of this instance.
-        /// </returns>
         protected override IExpressionNode CloneInternal()
         {
             return this;
@@ -88,12 +72,6 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Overrides of Object
 
-        /// <summary>
-        ///     Returns a string that represents the current object.
-        /// </summary>
-        /// <returns>
-        ///     A string that represents the current object.
-        /// </returns>
         public override string ToString()
         {
             return _name;

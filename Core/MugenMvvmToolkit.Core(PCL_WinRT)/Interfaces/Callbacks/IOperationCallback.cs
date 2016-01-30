@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IOperationCallback.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,19 +18,10 @@
 
 namespace MugenMvvmToolkit.Interfaces.Callbacks
 {
-    /// <summary>
-    ///     Represents the operation callback.
-    /// </summary>
     public interface IOperationCallback
     {
-        /// <summary>
-        ///     Gets a value indicating whether the <see cref="IOperationCallback" /> is serializable.
-        /// </summary>
         bool IsSerializable { get; }
 
-        /// <summary>
-        ///     Invokes the callback using the specified operation result.
-        /// </summary>
         void Invoke(IOperationResult result);
     }
 }

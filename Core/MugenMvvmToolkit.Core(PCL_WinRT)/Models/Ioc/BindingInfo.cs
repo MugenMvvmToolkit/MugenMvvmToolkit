@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="BindingInfo.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,46 +18,24 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using MugenMvvmToolkit.Interfaces;
 
 namespace MugenMvvmToolkit.Models.IoC
 {
-    /// <summary>
-    ///     Represents an information about binding.
-    /// </summary>
+    [StructLayout(LayoutKind.Auto)]
     public struct BindingInfo<T>
     {
         #region Fields
 
-        /// <summary>
-        ///     Gets the empty instance of BindingInfo.
-        /// </summary>
         public static readonly BindingInfo<T> Empty;
 
-        /// <summary>
-        ///     Gets the constant instance.
-        /// </summary>
         public readonly T Instance;
-
-        /// <summary>
-        ///     Gets the dependecy lifecycle of service.
-        /// </summary>
         public readonly DependencyLifecycle Lifecycle;
-
-        /// <summary>
-        ///     Gets the method binding delegate.
-        /// </summary>
         public readonly Func<IIocContainer, IList<IIocParameter>, T> MethodBindingDelegate;
-
-        /// <summary>
-        ///     Gets the name of binding.
-        /// </summary>
         public readonly string Name;
-
-        /// <summary>
-        ///     Gets the type of service.
-        /// </summary>
         public readonly Type Type;
+        public readonly IIocParameter[] Parameters;
 
         private readonly bool _notEmpty;
 
@@ -70,17 +48,15 @@ namespace MugenMvvmToolkit.Models.IoC
             Empty = default(BindingInfo<T>);
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingInfo{T}" /> class.
-        /// </summary>
         private BindingInfo(Type type, Func<IIocContainer, IList<IIocParameter>, T> methodBindingDelegate, T instance,
-            DependencyLifecycle lifecycle, string name)
+            DependencyLifecycle lifecycle, string name, IIocParameter[] parameters)
         {
             Type = type;
             MethodBindingDelegate = methodBindingDelegate;
             Instance = instance;
             Lifecycle = lifecycle;
             Name = name;
+            Parameters = parameters ?? Empty.Parameters;
             _notEmpty = true;
         }
 
@@ -88,69 +64,47 @@ namespace MugenMvvmToolkit.Models.IoC
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the value that indicates that binding info is empty.
-        /// </summary>
-        public bool IsEmpty
-        {
-            get { return !_notEmpty; }
-        }
+        public bool IsEmpty => !_notEmpty;
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Creates an instance of BindingInfo from an instance of service.
-        /// </summary>
         public static BindingInfo<T> FromInstance(T instance, string name = null)
         {
-            Should.NotBeNull(instance, "instance");
-            return new BindingInfo<T>(null, null, instance, DependencyLifecycle.SingleInstance, name);
+            Should.NotBeNull(instance, nameof(instance));
+            return new BindingInfo<T>(null, null, instance, DependencyLifecycle.SingleInstance, name, null);
         }
 
-        /// <summary>
-        ///     Creates an instance of BindingInfo from a type.
-        /// </summary>
-        public static BindingInfo<T> FromType<TService>(DependencyLifecycle lifecycle, string name = null)
+        public static BindingInfo<T> FromType<TService>(DependencyLifecycle lifecycle, string name = null, params IIocParameter[] parameters)
             where TService : T
         {
-            return new BindingInfo<T>(typeof(TService), null, default(T), lifecycle, name);
+            return new BindingInfo<T>(typeof(TService), null, default(T), lifecycle, name, parameters);
         }
 
-        /// <summary>
-        ///     Creates an instance of BindingInfo from a type.
-        /// </summary>
-        public static BindingInfo<T> FromType(Type serviceType, DependencyLifecycle lifecycle, string name = null)
+        public static BindingInfo<T> FromType(Type serviceType, DependencyLifecycle lifecycle, string name = null, params IIocParameter[] parameters)
         {
-            Should.NotBeNull(serviceType, "serviceType");
+            Should.NotBeNull(serviceType, nameof(serviceType));
             Should.BeOfType<T>(serviceType, "serviceType");
-            return new BindingInfo<T>(serviceType, null, default(T), lifecycle, name);
+            return new BindingInfo<T>(serviceType, null, default(T), lifecycle, name, parameters);
         }
 
-        /// <summary>
-        ///     Creates an instance of BindingInfo from a method.
-        /// </summary>
         public static BindingInfo<T> FromMethod(Func<IIocContainer, IList<IIocParameter>, T> methodBindingDelegate,
-            DependencyLifecycle lifecycle, string name = null)
+            DependencyLifecycle lifecycle, string name = null, params IIocParameter[] parameters)
         {
-            Should.NotBeNull(methodBindingDelegate, "methodBindingDelegate");
-            return new BindingInfo<T>(null, methodBindingDelegate, default(T), lifecycle, name);
+            Should.NotBeNull(methodBindingDelegate, nameof(methodBindingDelegate));
+            return new BindingInfo<T>(null, methodBindingDelegate, default(T), lifecycle, name, parameters);
         }
 
-        /// <summary>
-        ///     Sets the current binding.
-        /// </summary>
-        /// <param name="iocContainer"></param>
         public void SetBinding(IIocContainer iocContainer)
         {
-            Should.NotBeNull(iocContainer, "iocContainer");
+            Should.NotBeNull(iocContainer, nameof(iocContainer));
             if (IsEmpty)
                 return;
             if (MethodBindingDelegate != null)
-                iocContainer.BindToMethod(MethodBindingDelegate, Lifecycle, Name);
+                iocContainer.BindToMethod(MethodBindingDelegate, Lifecycle, Name, Parameters);
             else if (Type != null)
-                iocContainer.Bind(typeof(T), Type, Lifecycle, Name);
+                iocContainer.Bind(typeof(T), Type, Lifecycle, Name, Parameters);
             else
                 iocContainer.BindToConstant(typeof(T), Instance, Name);
         }

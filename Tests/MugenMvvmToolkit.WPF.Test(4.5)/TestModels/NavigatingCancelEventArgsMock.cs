@@ -1,6 +1,9 @@
 ﻿using System;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
+using MugenMvvmToolkit.Silverlight.Models.EventArg;
+using MugenMvvmToolkit.WinRT.Models.EventArg;
+using MugenMvvmToolkit.WPF.Models.EventArg;
 
 namespace MugenMvvmToolkit.Test.TestModels
 {
@@ -25,29 +28,11 @@ namespace MugenMvvmToolkit.Test.TestModels
 
         #region Overrides of NavigatingCancelEventArgsBase
 
-        /// <summary>
-        ///     Specifies whether a pending navigation should be canceled.
-        /// </summary>
-        /// <returns>
-        ///     true to cancel the pending cancelable navigation; false to continue with navigation.
-        /// </returns>
         public override bool Cancel { get; set; }
 
-        /// <summary>
-        ///     Gets a value that indicates the type of navigation that is occurring.
-        /// </summary>
-        public override NavigationMode NavigationMode
-        {
-            get { return _mode; }
-        }
+        public override NavigationMode NavigationMode => _mode;
 
-        /// <summary>
-        ///     Gets a value that indicates whether you can cancel the navigation.
-        /// </summary>
-        public override bool IsCancelable
-        {
-            get { return _isCancelable; }
-        }
+        public override bool IsCancelable => _isCancelable;
 
         #endregion
     }

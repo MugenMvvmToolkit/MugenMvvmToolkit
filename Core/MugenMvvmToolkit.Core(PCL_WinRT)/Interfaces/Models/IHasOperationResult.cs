@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IHasOperationResult.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -16,18 +16,10 @@
 
 #endregion
 
-using System.ComponentModel;
-
 namespace MugenMvvmToolkit.Interfaces.Models
 {
-    /// <summary>
-    ///     Represents the model that has operation result.
-    /// </summary>
-    public interface IHasOperationResult : INotifyPropertyChanged
+    public interface IHasOperationResult
     {
-        /// <summary>
-        ///     Gets or sets the operation result value.
-        /// </summary>
-        bool? OperationResult { get; set; }
+        bool? OperationResult { get; }
     }
 }

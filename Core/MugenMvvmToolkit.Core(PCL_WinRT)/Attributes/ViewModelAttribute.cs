@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ViewModelAttribute.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -23,9 +23,6 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 
 namespace MugenMvvmToolkit.Attributes
 {
-    /// <summary>
-    ///     Attribute class used to specify a specific View Model derivement or visual representation to be used on the target element.
-    /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
     public class ViewModelAttribute : Attribute
     {
@@ -38,14 +35,9 @@ namespace MugenMvvmToolkit.Attributes
 
         #region Constructor
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ViewModelAttribute" /> class.
-        /// </summary>
-        /// <param name="viewModelType">The specified type of view model.</param>
-        /// <param name="name">The name of view mapping</param>
         public ViewModelAttribute([NotNull, ViewModelTypeRequired] Type viewModelType, string name = null)
         {
-            Should.NotBeNull(viewModelType, "viewModelType");
+            Should.NotBeNull(viewModelType, nameof(viewModelType));
             Should.BeOfType<IViewModel>(viewModelType, "viewModelType");
             _viewModelType = viewModelType;
             _name = name;
@@ -55,33 +47,14 @@ namespace MugenMvvmToolkit.Attributes
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the url.
-        /// </summary>
-        [NotNull]
         public string Uri { get; set; }
 
-        /// <summary>
-        ///     Gets the type of view model.
-        /// </summary>
         [NotNull]
-        public Type ViewModelType
-        {
-            get { return _viewModelType; }            
-        }
+        public Type ViewModelType => _viewModelType;
 
-        /// <summary>
-        ///     Gets or sets the <see cref="UriKind" />.
-        /// </summary>
         public UriKind UriKind { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the name of view binding.
-        /// </summary>
-        public string Name
-        {
-            get { return _name; }
-        }
+        public string Name => _name;
 
         #endregion
     }

@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ISelectable.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -20,14 +20,8 @@ using System.ComponentModel;
 
 namespace MugenMvvmToolkit.Interfaces.Models
 {
-    /// <summary>
-    ///     Represents the model that can be selected.
-    /// </summary>
     public interface ISelectable : INotifyPropertyChanged
     {
-        /// <summary>
-        ///     Gets or sets the property that indicates that current model is selected.
-        /// </summary>
         bool IsSelected { get; set; }
     }
 }

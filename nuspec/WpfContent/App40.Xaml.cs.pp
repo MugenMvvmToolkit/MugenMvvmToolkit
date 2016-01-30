@@ -1,6 +1,6 @@
+using Core.ViewModels;
 using System.Windows;
-using MugenMvvmToolkit.Infrastructure;
-using $rootnamespace$.ViewModels;
+using MugenMvvmToolkit.WPF.Infrastructure;
 
 namespace $rootnamespace$
 {

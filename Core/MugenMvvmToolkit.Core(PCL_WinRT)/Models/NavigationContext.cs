@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="NavigationContext.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,15 +17,11 @@
 #endregion
 
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 
 namespace MugenMvvmToolkit.Models
 {
-    /// <summary>
-    ///     Represents the base navigation context implementation.
-    /// </summary>
     public class NavigationContext : DataContext, INavigationContext
     {
         #region Fields
@@ -33,7 +29,6 @@ namespace MugenMvvmToolkit.Models
         private readonly NavigationMode _navigationMode;
         private readonly object _navigationProvider;
         private readonly NavigationType _type;
-        private readonly IDataContext _parameters;
         private readonly IViewModel _viewModelFrom;
         private readonly IViewModel _viewModelTo;
 
@@ -41,15 +36,11 @@ namespace MugenMvvmToolkit.Models
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NavigationContext" /> class.
-        /// </summary>
         public NavigationContext([NotNull] NavigationType type, NavigationMode navigationMode, [CanBeNull] IViewModel viewModelFrom, [CanBeNull] IViewModel viewModelTo,
-             [CanBeNull] object navigationProvider, [CanBeNull] IDataContext parameters = null)
+             [CanBeNull] object navigationProvider)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             _type = type;
-            _parameters = parameters;
             _navigationMode = navigationMode;
             _navigationProvider = navigationProvider;
             _viewModelFrom = viewModelFrom;
@@ -60,53 +51,15 @@ namespace MugenMvvmToolkit.Models
 
         #region Implementation of INavigationContext
 
-        /// <summary>
-        ///     Gets the value of the mode parameter from the originating Navigate call.
-        /// </summary>
-        public NavigationMode NavigationMode
-        {
-            get { return _navigationMode; }
-        }
+        public NavigationMode NavigationMode => _navigationMode;
 
-        /// <summary>
-        /// Gets the previously navigate view model.
-        /// </summary>
-        public IViewModel ViewModelFrom
-        {
-            get { return _viewModelFrom; }
-        }
+        public IViewModel ViewModelFrom => _viewModelFrom;
 
-        /// <summary>
-        ///     Gets the view model to navigate.
-        /// </summary>
-        public IViewModel ViewModelTo
-        {
-            get { return _viewModelTo; }
-        }
+        public IViewModel ViewModelTo => _viewModelTo;
 
-        /// <summary>
-        ///     Gets the navigation parameters.
-        /// </summary>
-        public IDataContext Parameters
-        {
-            get { return _parameters ?? Empty; }
-        }
+        public NavigationType NavigationType => _type;
 
-        /// <summary>
-        ///     Gets the navigation type.
-        /// </summary>
-        public NavigationType NavigationType
-        {
-            get { return _type; }
-        }
-
-        /// <summary>
-        ///     Gets the navigation provider that creates this context.
-        /// </summary>
-        public object NavigationProvider
-        {
-            get { return _navigationProvider; }
-        }
+        public object NavigationProvider => _navigationProvider;
 
         #endregion
     }

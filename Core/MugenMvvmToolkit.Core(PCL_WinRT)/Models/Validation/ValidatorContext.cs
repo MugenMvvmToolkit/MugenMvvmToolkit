@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ValidatorContext.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -23,9 +23,6 @@ using MugenMvvmToolkit.Interfaces.Validation;
 
 namespace MugenMvvmToolkit.Models.Validation
 {
-    /// <summary>
-    ///     Represents the validation context.
-    /// </summary>
     public class ValidatorContext : IValidatorContext
     {
         #region Fields
@@ -40,22 +37,16 @@ namespace MugenMvvmToolkit.Models.Validation
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ValidatorContext" /> class.
-        /// </summary>
         public ValidatorContext(object instanceToValidate, IServiceProvider serviceProvider = null)
             : this(instanceToValidate, null, null, null, serviceProvider)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ValidatorContext" /> class.
-        /// </summary>
         public ValidatorContext(object instanceToValidate, IDictionary<string, ICollection<string>> propertyMappings,
             ICollection<string> ignoredProperties, IDataContext validationMetadata = null,
             IServiceProvider serviceProvider = null)
         {
-            Should.NotBeNull(instanceToValidate, "instanceToValidate");
+            Should.NotBeNull(instanceToValidate, nameof(instanceToValidate));
             _instance = instanceToValidate;
             _propertyMappings = propertyMappings ?? new Dictionary<string, ICollection<string>>();
             _ignoreProperties = ignoredProperties ?? new HashSet<string>();
@@ -67,58 +58,20 @@ namespace MugenMvvmToolkit.Models.Validation
 
         #region Implementation of IValidatorContext
 
-        /// <summary>
-        ///     Gets the object to validate.
-        /// </summary>
-        public object Instance
-        {
-            get { return _instance; }
-        }
+        public object Instance => _instance;
 
-        /// <summary>
-        ///     Gets or sets the validation metadata.
-        /// </summary>
-        public IDataContext ValidationMetadata
-        {
-            get { return _validationMetadata; }
-        }
+        public IDataContext ValidationMetadata => _validationMetadata;
 
-        /// <summary>
-        ///     Gets the error properties mapping.
-        /// </summary>
-        public IDictionary<string, ICollection<string>> PropertyMappings
-        {
-            get { return _propertyMappings; }
-        }
+        public IDictionary<string, ICollection<string>> PropertyMappings => _propertyMappings;
 
-        /// <summary>
-        ///     Gets the list of properties that will not be validated.
-        /// </summary>
-        public ICollection<string> IgnoreProperties
-        {
-            get { return _ignoreProperties; }
-        }
+        public ICollection<string> IgnoreProperties => _ignoreProperties;
 
-        /// <summary>
-        ///     Gets the service provider.
-        /// </summary>
-        public IServiceProvider ServiceProvider
-        {
-            get { return _serviceProvider; }
-        }
+        public IServiceProvider ServiceProvider => _serviceProvider;
 
         #endregion
 
         #region Implementation of IServiceProvider
 
-        /// <summary>
-        ///     Gets the service object of the specified type.
-        /// </summary>
-        /// <returns>
-        ///     A service object of type <paramref name="serviceType" />.-or- null if there is no service object of type
-        ///     <paramref name="serviceType" />.
-        /// </returns>
-        /// <param name="serviceType">An object that specifies the type of service object to get. </param>
         object IServiceProvider.GetService(Type serviceType)
         {
             if (ServiceProvider == null)

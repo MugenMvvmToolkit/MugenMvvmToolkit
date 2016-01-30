@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="NavigationEventArgsWrapper.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,58 +18,50 @@
 
 using Windows.UI.Xaml.Navigation;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Models.EventArg;
+using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
 
-namespace MugenMvvmToolkit.Models.EventArg
+namespace MugenMvvmToolkit.WinRT.Models.EventArg
 {
     public sealed class NavigationEventArgsWrapper : NavigationEventArgsBase
     {
         #region Fields
 
         private readonly NavigationEventArgs _args;
+        private readonly bool _bringToFront;
 
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NavigatingCancelEventArgsWrapper" /> class.
-        /// </summary>
-        public NavigationEventArgsWrapper([NotNull] NavigationEventArgs args)
+        public NavigationEventArgsWrapper([NotNull] NavigationEventArgs args, bool bringToFront)
         {
-            Should.NotBeNull(args, "args");
+            Should.NotBeNull(args, nameof(args));
             _args = args;
+            _bringToFront = bringToFront;
         }
 
         #endregion
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the original args.
-        /// </summary>
-        public NavigationEventArgs Args
-        {
-            get { return _args; }
-        }
+        public NavigationEventArgs Args => _args;
 
         #endregion
 
         #region Overrides of NavigationEventArgsBase
 
-        /// <summary>
-        ///     Gets the content of the target being navigated to.
-        /// </summary>
-        public override object Content
-        {
-            get { return _args.Content; }
-        }
+        public override object Content => _args.Content;
 
-        /// <summary>
-        ///     Gets a value that indicates the type of navigation that is occurring.
-        /// </summary>
         public override NavigationMode Mode
         {
-            get { return _args.NavigationMode.ToNavigationMode(); }
+            get
+            {
+                var mode = _args.NavigationMode.ToNavigationMode();
+                if (_bringToFront && mode == NavigationMode.New)
+                    return NavigationMode.Refresh;
+                return mode;
+            }
         }
 
         #endregion

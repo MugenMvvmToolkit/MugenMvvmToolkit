@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="MediatorBase.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -20,10 +20,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Xml;
+using System.Xml.Linq;
+using Android.Content;
 using Android.OS;
+using Android.Preferences;
+using Android.Runtime;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -31,15 +36,58 @@ using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
-using IViewManager = MugenMvvmToolkit.Interfaces.IViewManager;
 
-namespace MugenMvvmToolkit.Infrastructure.Mediators
+namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 {
     public abstract class MediatorBase<TTarget>
         where TTarget : class
     {
+        #region Nested types
+
+        private sealed class PreferenceChangeListener : Java.Lang.Object, ISharedPreferencesOnSharedPreferenceChangeListener
+        {
+            #region Fields
+
+            private readonly PreferenceManager _preferenceManager;
+            public bool State;
+
+            #endregion
+
+            #region Constructors
+
+            public PreferenceChangeListener(IntPtr handle, JniHandleOwnership transfer) : base(handle, transfer)
+            {
+            }
+
+            public PreferenceChangeListener(PreferenceManager preferenceManager)
+            {
+                _preferenceManager = preferenceManager;
+            }
+
+            #endregion
+
+            #region Implementation of ISharedPreferencesOnSharedPreferenceChangeListener
+
+            public void OnSharedPreferenceChanged(ISharedPreferences sharedPreferences, string key)
+            {
+                if (_preferenceManager == null)
+                {
+                    sharedPreferences.UnregisterOnSharedPreferenceChangeListener(this);
+                    return;
+                }
+                var preference = _preferenceManager.FindPreference(key);
+                if (preference != null)
+                    preference.TryRaiseAttachedEvent(AttachedMembers.Preference.ValueChangedEvent);
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Fields
 
+        internal const string IgnoreStateKey = "#$@noState";
         // ReSharper disable StaticFieldInGenericType
         private static readonly Dictionary<Guid, object> ContextCache;
         private static readonly string StateKey;
@@ -48,11 +96,11 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         private static readonly EventHandler<IDisposableObject, EventArgs> ClearCacheOnDisposeDelegate;
         // ReSharper restore StaticFieldInGenericType
 
-        private IBindingContext _context;
-        private readonly TTarget _target;
         private Guid _id;
         private object _dataContext;
         private bool _isDestroyed;
+        private PreferenceChangeListener _preferenceChangeListener;
+        private readonly TTarget _target;
 
         #endregion
 
@@ -64,15 +112,12 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             StateKey = "!~state" + typeof(TTarget).Name;
             ViewModelTypeNameKey = "~vmtype" + typeof(TTarget).Name;
             IdKey = "~ctxid~" + typeof(TTarget).Name;
-            ClearCacheOnDisposeDelegate = ClearCacheOnDispose;
+            ClearCacheOnDisposeDelegate = ClearCacheOnDisposeViewModel;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="MediatorBase{TTarget}" /> class.
-        /// </summary>
         protected MediatorBase([NotNull] TTarget target)
         {
-            Should.NotBeNull(target, "target");
+            Should.NotBeNull(target, nameof(target));
             _target = target;
         }
 
@@ -80,9 +125,6 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the data context.
-        /// </summary>
         public virtual object DataContext
         {
             get { return _dataContext; }
@@ -93,135 +135,153 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 var oldValue = _dataContext;
                 _dataContext = value;
                 OnDataContextChanged(oldValue, _dataContext);
-                var handler = DataContextChanged;
-                if (handler != null)
-                    handler(Target, EventArgs.Empty);
+                DataContextChanged?.Invoke(Target, EventArgs.Empty);
             }
         }
 
-        /// <summary>
-        /// Returns true if the final <c>OnDestroy</c> call has been made on the Target, so this instance is now dead.
-        /// </summary>
-        public bool IsDestroyed
-        {
-            get { return _isDestroyed; }
-        }
+        public bool IsDestroyed => _isDestroyed;
 
-        protected TTarget Target
-        {
-            get { return _target; }
-        }
+        [NotNull]
+        protected TTarget Target => _target;
 
-        protected IBindingContext BindingContext
-        {
-            get
-            {
-                if (_context == null)
-                    _context = BindingServiceProvider.ContextManager.GetBindingContext(_target);
-                return _context;
-            }
-        }
+        [CanBeNull]
+        protected abstract PreferenceManager PreferenceManager { get; }
 
         #endregion
 
         #region Events
 
-        /// <summary>
-        ///     Occurs when the DataContext property changed.
-        /// </summary>
-        public event EventHandler<TTarget, EventArgs> DataContextChanged;
+        public virtual event EventHandler<TTarget, EventArgs> DataContextChanged;
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Perform any final cleanup before an activity is destroyed.
-        /// </summary>
+        public virtual void OnPause(Action baseOnPause)
+        {
+            var manager = PreferenceManager;
+            if (manager != null)
+            {
+                if (_preferenceChangeListener != null)
+                {
+                    manager.SharedPreferences.UnregisterOnSharedPreferenceChangeListener(_preferenceChangeListener);
+                    _preferenceChangeListener.State = false;
+                }
+            }
+            baseOnPause();
+        }
+
+        public virtual void OnResume(Action baseOnResume)
+        {
+            baseOnResume();
+            SetPreferenceListener();
+        }
+
         public virtual void OnDestroy(Action baseOnDestroy)
         {
-            _isDestroyed = true;
-            var viewModel = BindingContext.Value as IViewModel;
-            if (viewModel != null && !viewModel.IsDisposed)
+            var viewModel = DataContext as IViewModel;
+            if (viewModel != null && !viewModel.IsDisposed && viewModel.IocContainer != null && !viewModel.IocContainer.IsDisposed)
                 Get<IViewManager>().CleanupViewAsync(viewModel);
+            if (_preferenceChangeListener != null)
+            {
+                _preferenceChangeListener.Dispose();
+                _preferenceChangeListener = null;
+            }
+            DataContext = null;
+            DataContextChanged = null;
+            _isDestroyed = true;
             baseOnDestroy();
         }
 
-        /// <summary>
-        ///     Called after <c>OnCreate(Android.OS.Bundle)</c> or after <c>OnRestart</c> when the activity had been stopped, but is now again being displayed to the user.
-        /// </summary>
         public virtual void OnSaveInstanceState(Bundle outState, Action<Bundle> baseOnSaveInstanceState)
         {
             lock (ContextCache)
-                ContextCache[_id] = BindingContext.Value;
+                ContextCache[_id] = DataContext;
             outState.PutString(IdKey, _id.ToString());
-            var viewModel = BindingContext.Value as IViewModel;
+            var viewModel = DataContext as IViewModel;
             if (viewModel != null)
             {
                 viewModel.Disposed += ClearCacheOnDisposeDelegate;
-                object currentStateManager;
-                if (!viewModel.Settings.Metadata.TryGetData(ViewModelConstants.StateManager, out currentStateManager) || currentStateManager == this)
+                outState.PutString(ViewModelTypeNameKey, viewModel.GetType().AssemblyQualifiedName);
+
+                bool saved = false;
+                bool data;
+                if (!viewModel.Settings.Metadata.TryGetData(ViewModelConstants.StateNotNeeded, out data) || !data)
                 {
-                    bool data;
-                    if (!viewModel.Settings.Metadata.TryGetData(ViewModelConstants.StateNotNeeded, out data) || !data)
-                    {
-                        outState.PutString(ViewModelTypeNameKey, viewModel.GetType().AssemblyQualifiedName);
-                        PreserveState(outState, viewModel);
-                    }
+                    PreserveViewModel(viewModel, outState);
+                    saved = true;
                 }
+                if (!saved)
+                    outState.PutString(IgnoreStateKey, null);
             }
             baseOnSaveInstanceState(outState);
         }
 
-        /// <summary>
-        ///     Called when the target is starting.
-        /// </summary>
-        protected void OnCreate(Bundle savedInstanceState)
+        protected void OnCreate(Bundle bundle)
         {
-            if (_context == null)
-                _context = BindingServiceProvider.ContextManager.GetBindingContext(_target);
-            if (savedInstanceState != null)
-            {
-                var oldId = savedInstanceState.GetString(IdKey);
-                if (!string.IsNullOrEmpty(oldId))
-                {
-                    var oldContext = RestoreState(savedInstanceState, GetFromCache(Guid.Parse(oldId)));
-                    if (!ReferenceEquals(BindingContext.Value, oldContext))
-                        RestoreContext(oldContext);
-                }
-            }
             if (_id == Guid.Empty)
                 _id = Guid.NewGuid();
+            if (bundle == null)
+                return;
+            var oldId = bundle.GetString(IdKey);
+            if (string.IsNullOrEmpty(oldId))
+                return;
+            var cacheDataContext = GetFromCache(Guid.Parse(oldId));
+            var vmTypeName = bundle.GetString(ViewModelTypeNameKey);
+            if (vmTypeName == null)
+                return;
+            bundle.Remove(ViewModelTypeNameKey);
+            var vmType = Type.GetType(vmTypeName, false);
+            if (vmType != null && (cacheDataContext == null || !cacheDataContext.GetType().Equals(vmType)))
+            {
+                if (!bundle.ContainsKey(IgnoreStateKey))
+                    cacheDataContext = RestoreViewModel(vmType, bundle);
+            }
+            if (!ReferenceEquals(DataContext, cacheDataContext))
+                RestoreContext(Target, cacheDataContext);
         }
 
-        /// <summary>
-        ///     Tries to restore instance context.
-        /// </summary>
-        protected virtual void RestoreContext(object dataContext)
+        protected virtual void RestoreContext(TTarget target, object dataContext)
         {
             var viewModel = dataContext as IViewModel;
             if (viewModel == null)
-                BindingContext.Value = dataContext;
+                DataContext = dataContext;
             else
             {
-                Get<IViewManager>().InitializeViewAsync(viewModel, Target).WithTaskExceptionHandler(this);
+                Get<IViewManager>().InitializeViewAsync(viewModel, target).WithTaskExceptionHandler(this);
                 viewModel.Disposed -= ClearCacheOnDisposeDelegate;
-                Get<IViewModelPresenter>().Restore(viewModel, CreateRestorePresenterContext());
+                Get<IViewModelPresenter>().Restore(viewModel, CreateRestorePresenterContext(target));
             }
         }
 
-        /// <summary>
-        ///     Occurs when the DataContext property changed.
-        /// </summary>
         protected virtual void OnDataContextChanged(object oldValue, object newValue)
         {
         }
 
-        protected virtual void PreserveState(Bundle bundle, IViewModel viewModel)
+        [CanBeNull]
+        protected virtual IViewModel RestoreViewModel([NotNull] Type viewModelType, [NotNull] Bundle bundle)
         {
-            if (viewModel == null || bundle == null)
-                return;
-            var state = Get<IViewModelProvider>().PreserveViewModel(viewModel, Models.DataContext.Empty);
+            var context = new DataContext
+            {
+                {InitializationConstants.ViewModelType, viewModelType}
+            };
+            return Get<IViewModelProvider>().RestoreViewModel(RestoreViewModelState(bundle), context, false);
+        }
+
+        [NotNull]
+        protected virtual IDataContext RestoreViewModelState([NotNull] Bundle bundle)
+        {
+            var bytes = bundle.GetByteArray(StateKey);
+            if (bytes == null)
+                return MugenMvvmToolkit.Models.DataContext.Empty;
+            bundle.Remove(StateKey);
+            using (var ms = new MemoryStream(bytes))
+                return (IDataContext)Get<ISerializer>().Deserialize(ms);
+        }
+
+        protected virtual void PreserveViewModel([NotNull] IViewModel viewModel, [NotNull] Bundle bundle)
+        {
+            var state = Get<IViewModelProvider>().PreserveViewModel(viewModel, MugenMvvmToolkit.Models.DataContext.Empty);
             if (state.Count == 0)
                 bundle.Remove(StateKey);
             else
@@ -231,36 +291,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             }
         }
 
-        protected virtual object RestoreState(Bundle bundle, object dataContext)
-        {
-            if (bundle == null)
-                return dataContext;
-
-            var vmTypeName = bundle.GetString(ViewModelTypeNameKey);
-            if (vmTypeName == null)
-                return dataContext;
-
-            bundle.Remove(ViewModelTypeNameKey);
-            var vmType = Type.GetType(vmTypeName, false);
-            if (vmType == null || (dataContext != null && dataContext.GetType().Equals(vmType)))
-                return dataContext;
-
-            IDataContext state = null;
-            var bytes = bundle.GetByteArray(StateKey);
-            if (bytes != null)
-            {
-                bundle.Remove(StateKey);
-                using (var ms = new MemoryStream(bytes))
-                    state = (IDataContext)Get<ISerializer>().Deserialize(ms);
-            }
-            var context = new DataContext
-            {
-                {InitializationConstants.ViewModelType, vmType}
-            };
-            return Get<IViewModelProvider>().RestoreViewModel(state, context, false);
-        }
-
-        protected virtual IDataContext CreateRestorePresenterContext()
+        protected virtual IDataContext CreateRestorePresenterContext(TTarget target)
         {
             return new DataContext
             {
@@ -268,11 +299,40 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             };
         }
 
+        protected virtual void InitializePreferences(PreferenceScreen preferenceScreen, int preferencesResId)
+        {
+            preferenceScreen.SetBindingMemberValue(AttachedMembers.Object.Parent, Target);
+            SetPreferenceParent(preferenceScreen);
+            using (XmlReader reader = preferenceScreen.Context.Resources.GetXml(preferencesResId))
+            {
+                var document = new XmlDocument();
+                document.Load(reader);
+                var xDocument = XDocument.Parse(document.InnerXml);
+                foreach (var descendant in xDocument.Descendants())
+                {
+                    var bindAttr = descendant
+                        .Attributes()
+                        .FirstOrDefault(xAttribute => xAttribute.Name.LocalName.Equals("bind", StringComparison.OrdinalIgnoreCase));
+                    if (bindAttr == null)
+                        continue;
+                    var attribute = descendant.Attribute(XName.Get("key", "http://schemas.android.com/apk/res/android"));
+                    if (attribute == null)
+                    {
+                        Tracer.Error("Preference {0} must have a key to use it with bindings", descendant);
+                        continue;
+                    }
+                    var preference = preferenceScreen.FindPreference(attribute.Value);
+                    BindingServiceProvider.BindingProvider.CreateBindingsFromString(preference, bindAttr.Value);
+                }
+            }
+            SetPreferenceListener();
+        }
+
         protected T Get<T>()
         {
-            var viewModel = BindingContext.Value as IViewModel;
+            var viewModel = DataContext as IViewModel;
             if (viewModel == null)
-                return ServiceProvider.IocContainer.Get<T>();
+                return ServiceProvider.Get<T>();
             return viewModel.GetIocContainer(true).Get<T>();
         }
 
@@ -284,14 +344,42 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 ContextCache.Remove(_id);
         }
 
-        protected static void ClearCacheOnDispose(IDisposableObject sender, EventArgs args)
+        private void SetPreferenceListener()
+        {
+            var manager = PreferenceManager;
+            if (manager != null)
+            {
+                if (_preferenceChangeListener == null)
+                    _preferenceChangeListener = new PreferenceChangeListener(manager);
+                if (!_preferenceChangeListener.State)
+                {
+                    manager.SharedPreferences.RegisterOnSharedPreferenceChangeListener(_preferenceChangeListener);
+                    _preferenceChangeListener.State = true;
+                }
+            }
+        }
+
+        protected static void ClearCacheOnDisposeViewModel(IDisposableObject sender, EventArgs args)
         {
             sender.Disposed -= ClearCacheOnDisposeDelegate;
             lock (ContextCache)
             {
-                var pairs = ContextCache.Where(pair => ReferenceEquals(pair.Value, sender)).ToArray();
+                var pairs = ContextCache.Where(pair => ReferenceEquals(pair.Value, sender)).ToList();
                 foreach (var pair in pairs)
                     ContextCache.Remove(pair.Key);
+            }
+        }
+
+        private static void SetPreferenceParent(Preference preference)
+        {
+            var @group = preference as PreferenceGroup;
+            if (@group == null)
+                return;
+            for (int i = 0; i < @group.PreferenceCount; i++)
+            {
+                var p = @group.GetPreference(i);
+                p.SetBindingMemberValue(AttachedMembers.Object.Parent, @group);
+                SetPreferenceParent(p);
             }
         }
 

@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="XmlInvalidExpressionNode.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -20,7 +20,7 @@ using System.Collections.Generic;
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
 
-namespace MugenMvvmToolkit.Binding.Parse.Nodes
+namespace MugenMvvmToolkit.WinForms.Binding.Parse.Nodes
 {
     internal enum XmlInvalidExpressionType
     {
@@ -58,15 +58,9 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Properties
 
-        public XmlInvalidExpressionType Type
-        {
-            get { return _type; }
-        }
+        public XmlInvalidExpressionType Type => _type;
 
-        public IList<XmlExpressionNode> Nodes
-        {
-            get { return _nodes; }
-        }
+        public IList<XmlExpressionNode> Nodes => _nodes;
 
         #endregion
 

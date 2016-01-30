@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="TabHostItemsSourceGenerator.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -24,18 +24,20 @@ using Android.OS;
 using Android.Views;
 using Android.Widget;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Android.Binding.Interfaces;
+using MugenMvvmToolkit.Android.Interfaces.Views;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models.EventArg;
 using Object = Java.Lang.Object;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 {
-    internal sealed class TabHostItemsSourceGenerator : ItemsSourceGeneratorBase
+    internal sealed class TabHostItemsSourceGenerator : ItemsSourceGeneratorBase, IItemsSourceGeneratorEx
     {
         #region Nested types
 
@@ -51,7 +53,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             public TabFactory([NotNull] TabHostItemsSourceGenerator generator)
             {
-                Should.NotBeNull(generator, "generator");
+                Should.NotBeNull(generator, nameof(generator));
                 _generator = generator;
             }
 
@@ -136,6 +138,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         private readonly TabFactory _tabFactory;
         private readonly Dictionary<string, TabInfo> _tabToContent;
         private readonly IBindingMemberInfo _selectedItemMember;
+        private readonly IBindingMemberInfo _collectionViewManagerMember;
         private bool _ingoreTabChanged;
 
         private readonly DataTemplateProvider _itemTemplateProvider;
@@ -153,9 +156,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             RemoveTabDelegate = RemoveTab;
         }
 
-        private TabHostItemsSourceGenerator([NotNull] TabHost tabHost)
+        internal TabHostItemsSourceGenerator([NotNull] TabHost tabHost)
         {
-            Should.NotBeNull(tabHost, "tabHost");
+            Should.NotBeNull(tabHost, nameof(tabHost));
             TabHost = tabHost;
             TabHost.Setup();
             _tabToContent = new Dictionary<string, TabInfo>();
@@ -167,6 +170,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             _selectedItemMember = BindingServiceProvider
                                                  .MemberProvider
                                                  .GetBindingMember(tabHost.GetType(), AttachedMemberConstants.SelectedItem, false, false);
+            _collectionViewManagerMember = BindingServiceProvider
+                .MemberProvider
+                .GetBindingMember(tabHost.GetType(), AttachedMembers.ViewGroup.CollectionViewManager, false, false);
             TryListenActivity(tabHost.Context);
             TabHost.TabChanged += TabHostOnTabChanged;
         }
@@ -175,15 +181,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Overrides of ItemsSourceGeneratorBase
 
-        protected override bool IsTargetDisposed
-        {
-            get { return !TabHost.IsAlive(); }
-        }
+        protected override bool IsTargetDisposed => !TabHost.IsAlive();
 
         protected override void Update(IEnumerable itemsSource, IDataContext context = null)
         {
             base.Update(itemsSource, context);
-            if (!_isRestored)
+            if (itemsSource != null && !_isRestored && TabHost.GetBindingMemberValue(AttachedMembers.TabHost.RestoreSelectedIndex).GetValueOrDefault(true))
             {
                 _isRestored = true;
                 TryRestoreSelectedIndex();
@@ -194,23 +197,54 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         protected override void Add(int insertionIndex, int count)
         {
-            if (insertionIndex == TabHost.TabWidget.TabCount)
+            var manager = GetCollectionViewManager();
+            if (manager == null)
             {
-                for (int i = 0; i < count; i++)
-                    TabHost.AddTab(CreateTabSpec(insertionIndex + i));
+                if (insertionIndex == TabHost.TabWidget.TabCount)
+                {
+                    for (int i = 0; i < count; i++)
+                        TabHost.AddTab(CreateTabSpec(insertionIndex + i));
+                }
+                else
+                    Refresh();
             }
             else
-                Refresh();
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    int index = insertionIndex + i;
+                    manager.Insert(TabHost, index, CreateTabSpec(index));
+                }
+
+            }
         }
 
         protected override void Remove(int removalIndex, int count)
         {
-            Refresh();
+            var manager = GetCollectionViewManager();
+            if (manager == null)
+                Refresh();
+            else
+            {
+                for (int i = 0; i < count; i++)
+                    manager.RemoveAt(TabHost, removalIndex + i);
+            }
         }
 
         protected override void Replace(int startIndex, int count)
         {
-            Refresh();
+            var manager = GetCollectionViewManager();
+            if (manager == null)
+                Refresh();
+            else
+            {
+                for (int i = 0; i < count; i++)
+                {
+                    int index = startIndex + i;
+                    manager.RemoveAt(TabHost, index);
+                    manager.Insert(TabHost, index, CreateTabSpec(index));
+                }
+            }
         }
 
         protected override void Refresh()
@@ -218,20 +252,28 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             try
             {
                 _ingoreTabChanged = true;
-                string selectedTag = TabHost.CurrentTabTag;
+                string oldTag = TabHost.CurrentTabTag;
                 var oldValues = new Dictionary<string, TabInfo>(_tabToContent);
-                TabHost.CurrentTab = 0;
-                TabHost.ClearAllTabs();
+                var oldIndex = TabHost.CurrentTab;
                 _tabToContent.Clear();
 
+                var manager = GetCollectionViewManager();
+                if (manager == null)
+                {
+                    TabHost.CurrentTab = 0;
+                    TabHost.ClearAllTabs();
+                }
+                else
+                    manager.Clear(TabHost);
+
                 int count = ItemsSource.Count();
-                TabInfo firstTab = null;
                 for (int i = 0; i < count; i++)
                 {
                     var tabInfo = TryRecreateTabInfo(i, oldValues);
-                    TabHost.AddTab(tabInfo.TabSpec);
-                    if (i == 0)
-                        firstTab = tabInfo;
+                    if (manager == null)
+                        TabHost.AddTab(tabInfo.TabSpec);
+                    else
+                        manager.Insert(TabHost, i, tabInfo.TabSpec);
                 }
                 foreach (var oldValue in oldValues)
                     RemoveTabDelegate(this, oldValue.Value);
@@ -242,10 +284,18 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     OnEmptyTab();
                 else
                 {
-                    if (selectedTag == null || !_tabToContent.ContainsKey(selectedTag))
-                        selectedTag = firstTab.TabSpec.Tag;
-                    TabHost.SetCurrentTabByTag(selectedTag);
-                    OnTabChanged(selectedTag);
+                    if (oldTag != null && _tabToContent.ContainsKey(oldTag))
+                        TabHost.SetCurrentTabByTag(oldTag);
+                    else
+                    {
+                        var maxIndex = TabHost.TabWidget.TabCount - 1;
+                        while (oldIndex > maxIndex)
+                            --oldIndex;
+                        if (oldIndex >= 0)
+                            TabHost.CurrentTab = oldIndex;
+                        oldTag = TabHost.CurrentTabTag;
+                    }
+                    OnTabChanged(oldTag);
                 }
             }
             finally
@@ -266,13 +316,17 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #endregion
 
-        #region Methods
+        #region Implementation of IItemsSourceGeneratorEx
 
-        public static IItemsSourceGenerator GetOrAdd(TabHost tabHost)
+        public object SelectedItem
         {
-            return ServiceProvider.AttachedValueProvider.GetOrAdd(tabHost, Key,
-                (host, o) => new TabHostItemsSourceGenerator(host), null);
+            get { return TabHost.GetBindingMemberValue(AttachedMembers.TabHost.SelectedItem); }
+            set { SetSelectedItem(value); }
         }
+
+        #endregion
+
+        #region Methods
 
         public void SetSelectedItem(object selectedItem, IDataContext context = null)
         {
@@ -315,13 +369,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
                 TabChangedDelegate(this, oldValue, _currentTabContent, true, true);
                 if (_selectedItemMember != null)
-                    _selectedItemMember.SetValue(TabHost, new[] { info.Item });
+                    _selectedItemMember.SetSingleValue(TabHost, info.Item);
             }
             else
             {
                 _currentTabContent = TabHost.CurrentTabView;
                 if (_selectedItemMember != null)
-                    _selectedItemMember.SetValue(TabHost, new object[] { TabHost.CurrentTabView });
+                    _selectedItemMember.SetSingleValue(TabHost, TabHost.CurrentTabView);
             }
         }
 
@@ -361,7 +415,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             _tabToContent[id] = tabInfo;
             SetIndicator(spec, item);
             spec.SetContent(_tabFactory);
-            BindingServiceProvider.ContextManager.GetBindingContext(spec).Value = item;
+            spec.SetDataContext(item);
             return tabInfo;
         }
 
@@ -439,9 +493,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         private static void RemoveTab(TabHostItemsSourceGenerator generator, TabInfo tab)
         {
-            var view = tab.Content as View;
-            if (view != null)
-                view.ClearBindingsHierarchically(true, true);
+        }
+
+        private ICollectionViewManager GetCollectionViewManager()
+        {
+            return (ICollectionViewManager)_collectionViewManagerMember.GetValue(TabHost, Empty.Array<object>());
         }
 
         #endregion

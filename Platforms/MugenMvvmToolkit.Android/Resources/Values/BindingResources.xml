@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="Empty"></string>
   <item name="OptionsMenu" type="id" />
+  <item name="ListenParentChange" type="id" />
+  <item name="ListTemplateId" type="id" />
+  <item name="AttachedProperties" type="id" />
 
   <declare-styleable name="Binding">
     <attr name="Bind" format="string" />

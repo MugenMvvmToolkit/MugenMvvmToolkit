@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IBinaryExpressionNode.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -21,26 +21,14 @@ using MugenMvvmToolkit.Binding.Models;
 
 namespace MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes
 {
-    /// <summary>
-    ///     Represents an expression that has a binary operator.
-    /// </summary>
     public interface IBinaryExpressionNode : IExpressionNode
     {
-        /// <summary>
-        ///     Gets the left operand of the binary operation.
-        /// </summary>
         [NotNull]
         IExpressionNode Left { get; }
 
-        /// <summary>
-        ///     Gets the right operand of the binary operation.
-        /// </summary>
         [NotNull]
         IExpressionNode Right { get; }
 
-        /// <summary>
-        ///     Gets the implementing token for the binary operation.
-        /// </summary>
         TokenType Token { get; }
     }
 }

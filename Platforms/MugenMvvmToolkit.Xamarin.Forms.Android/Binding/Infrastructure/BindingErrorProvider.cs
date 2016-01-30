@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="BindingErrorProvider.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -21,17 +21,15 @@ using System.Collections.Generic;
 using System.Linq;
 using Android.Widget;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using Xamarin.Forms;
 using View = Android.Views.View;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.Xamarin.Forms.Android.Binding.Infrastructure
 {
-    /// <summary>
-    ///     Represents the class that provides a user interface for indicating that a control on a form has an error associated
-    ///     with it.
-    /// </summary>
     public class BindingErrorProvider : BindingErrorProviderBase
     {
         #region Fields
@@ -44,19 +42,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         static BindingErrorProvider()
         {
-            Forms.ViewInitialized += FormsOnViewInitialized;
+            global::Xamarin.Forms.Forms.ViewInitialized += FormsOnViewInitialized;
         }
 
         #endregion
 
         #region Overrides of BindingErrorProviderBase
 
-        /// <summary>
-        ///     Sets errors for binding target.
-        /// </summary>
-        /// <param name="target">The binding target object.</param>
-        /// <param name="errors">The collection of errors</param>
-        /// <param name="context">The specified context, if any.</param>
         protected override void SetErrors(object target, IList<object> errors, IDataContext context)
         {
             base.SetErrors(target, errors, context);
@@ -92,9 +84,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             var errorProvider = BindingServiceProvider.ErrorProvider;
             if (errorProvider == null)
                 return;
-            var dictionary = GetOrAddErrorsDictionary(view);
-            foreach (var item in dictionary)
-                errorProvider.SetErrors(view, item.Key, item.Value, DataContext.Empty);
+            var dictionary = GetErrorsDictionary(view);
+            if (dictionary != null)
+            {
+                foreach (var item in dictionary)
+                    errorProvider.SetErrors(view, item.Key, item.Value, DataContext.Empty);
+            }
         }
 
         #endregion

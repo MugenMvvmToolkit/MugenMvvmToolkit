@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ObserverProvider.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -16,30 +16,32 @@
 
 #endregion
 
+using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    /// <summary>
-    ///     Represents the observer provider that allows to create an observer.
-    /// </summary>
     public class ObserverProvider : IObserverProvider
     {
         #region Implementation of IObserverProvider
 
-        /// <summary>
-        ///     Attempts to track the value change using the binding path.
-        /// </summary>
-        public virtual IObserver Observe(object target, IBindingPath path, bool ignoreAttachedMembers)
+        public virtual IObserver Observe(object target, IBindingPath path, bool ignoreAttachedMembers, IDataContext context)
         {
-            Should.NotBeNull(target, "target");
-            Should.NotBeNull(path, "path");
+            Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(path, nameof(path));
+            bool hasStablePath;
+            bool observable;
+            if (context == null || !context.TryGetData(BindingBuilderConstants.HasStablePath, out hasStablePath))
+                hasStablePath = BindingServiceProvider.HasStablePathDefault;
+            if (context == null || !context.TryGetData(BindingBuilderConstants.Observable, out observable))
+                observable = BindingServiceProvider.ObservablePathDefault;
             if (path.IsSingle)
-                return new SinglePathObserver(target, path, ignoreAttachedMembers);
+                return new SinglePathObserver(target, path, ignoreAttachedMembers, hasStablePath, observable);
             if (path.IsEmpty)
                 return new EmptyPathObserver(target, path);
-            return new MultiPathObserver(target, path, ignoreAttachedMembers);
+            return new MultiPathObserver(target, path, ignoreAttachedMembers, hasStablePath, observable);
         }
 
         #endregion

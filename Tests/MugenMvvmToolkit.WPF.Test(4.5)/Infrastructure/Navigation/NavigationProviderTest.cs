@@ -7,9 +7,12 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
+using MugenMvvmToolkit.Silverlight.Infrastructure.Navigation;
 using MugenMvvmToolkit.Test.TestInfrastructure;
 using MugenMvvmToolkit.Test.TestModels;
 using MugenMvvmToolkit.Test.TestViewModels;
+using MugenMvvmToolkit.WinRT.Infrastructure.Navigation;
+using MugenMvvmToolkit.WPF.Infrastructure.Navigation;
 using Should;
 
 namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
@@ -48,7 +51,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             NavigationService.OnNavigated(new NavigationEventArgsMock(new ViewMock { DataContext = viewModel }, NavigationMode.New));
             NavigationProvider.CurrentViewModel.ShouldEqual(viewModel);
         }
-        
+
         [TestMethod]
         public void ProviderShouldNavigateToViewModelWithViewName()
         {
@@ -69,7 +72,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             {
                 var s = o as string;
                 s.ShouldNotBeNull();
-                s.ShouldEqual(typeof(NavigableViewModelMock).AssemblyQualifiedName);
+                s.ShouldContain(typeof(NavigableViewModelMock).AssemblyQualifiedName);
 
                 d.ShouldNotBeNull();
                 item.ShouldEqual(PageMapping);
@@ -82,7 +85,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
                 {NavigationConstants.ViewModel, viewModel},
                 {NavigationConstants.ViewName, viewName}
             };
-            NavigationProvider.Navigate(new OperationCallbackMock(), dataContext);
+            NavigationProvider.NavigateAsync(new OperationCallbackMock(), dataContext);
             isInvoked.ShouldBeTrue();
             isInvokedNavigate.ShouldBeTrue();
         }
@@ -106,7 +109,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             {
                 var s = o as string;
                 s.ShouldNotBeNull();
-                s.ShouldEqual(typeof(NavigableViewModelMock).AssemblyQualifiedName);
+                s.ShouldContain(typeof(NavigableViewModelMock).AssemblyQualifiedName);
 
                 d.ShouldNotBeNull();
                 item.ShouldEqual(PageMapping);
@@ -114,41 +117,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
                 return true;
             };
 
-            NavigationProvider.Navigate(new OperationCallbackMock(), new DataContext(NavigationConstants.ViewModel.ToValue(viewModel)));
-            isInvoked.ShouldBeTrue();
-            isInvokedNavigate.ShouldBeTrue();
-        }
-
-        [TestMethod]
-        public void ProviderShouldNavigateToViewModelWithParameters()
-        {
-            ThreadManager.ImmediateInvokeOnUiThreadAsync = true;
-            bool isInvoked = false;
-            bool isInvokedNavigate = false;
-            var viewModel = GetViewModel<NavigableViewModelMock>();
-            ViewPageMappingProvider.FindMappingForViewModel = (type, s, arg3) =>
-            {
-                viewModel.ShouldBeType(type);
-                s.ShouldBeNull();
-                arg3.ShouldBeTrue();
-                isInvoked = true;
-                return PageMapping;
-            };
-            NavigationService.Navigate = (item, o, d) =>
-            {
-                (o as IDataContext).ShouldNotBeNull();
-                d.ShouldNotBeNull();
-                item.ShouldEqual(PageMapping);
-                isInvokedNavigate = true;
-                return true;
-            };
-
-            var dataContext = new DataContext
-            {
-                {NavigationConstants.ViewModel, viewModel},
-                {NavigationConstants.Parameters, new DataContext()}
-            };
-            NavigationProvider.Navigate(new OperationCallbackMock(), dataContext);
+            NavigationProvider.NavigateAsync(new OperationCallbackMock(), new DataContext(NavigationConstants.ViewModel.ToValue(viewModel)));
             isInvoked.ShouldBeTrue();
             isInvokedNavigate.ShouldBeTrue();
         }
@@ -160,7 +129,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             bool isInvoked = false;
             var callbackMock = new OperationCallbackMock();
             var viewModel = GetViewModel<NavigableViewModelMock>();
-            object param = null;
+            string param = null;
             ViewPageMappingProvider.FindMappingForViewModel = (type, s, arg3) => PageMapping;
             NavigationService.Navigate = (item, o, d) =>
             {
@@ -175,7 +144,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
                 arg3.ShouldEqual(callbackMock);
                 isInvoked = true;
             };
-            NavigationProvider.Navigate(callbackMock, new DataContext(NavigationConstants.ViewModel.ToValue(viewModel)));
+            NavigationProvider.NavigateAsync(callbackMock, new DataContext(NavigationConstants.ViewModel.ToValue(viewModel)));
             NavigationService.OnNavigated(new NavigationEventArgsMock(new ViewMock(), NavigationMode.New));
             isInvoked.ShouldBeTrue();
         }
@@ -192,11 +161,16 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             NavigationService.OnNavigated(new NavigationEventArgsMock(testView, NavigationMode.New));
 
             viewModel.CloseCommand.CanExecute(null).ShouldBeFalse();
-            NavigationService.CanGoBack = true;
+            NavigationService.CanClose = (model, context) => true;
             viewModel.CloseCommand.CanExecute(null).ShouldBeTrue();
 
             bool isInvoked = false;
-            NavigationService.GoBack = () => isInvoked = true;
+            NavigationService.TryClose = (m, c) =>
+            {
+                m.ShouldEqual(viewModel);
+                isInvoked = true;
+                return true;
+            };
             viewModel.CloseCommand.Execute(null);
             isInvoked.ShouldBeTrue();
         }
@@ -208,12 +182,12 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             var relayCommandMock = new RelayCommandMock();
             var viewModel = GetViewModel<NavigableViewModelMock>();
             viewModel.CloseCommand = relayCommandMock;
-            
+
 
             NavigationService.OnNavigated(new NavigationEventArgsMock(new ViewMock { DataContext = viewModel }, NavigationMode.New));
             viewModel.CloseCommand.ShouldNotEqual(relayCommandMock);
 
-            NavigationService.OnNavigated(new NavigationEventArgsMock(null, NavigationMode.New));
+            NavigationService.OnNavigated(new NavigationEventArgsMock(null, NavigationMode.Back));
             viewModel.CloseCommand.ShouldEqual(relayCommandMock);
         }
 
@@ -327,20 +301,24 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
         }
 
         [TestMethod]
-        public void ProviderShouldGoBackIfViewModelClosedEvent()
+        public void ProviderShouldCloseViewModelOnClosedEvent()
         {
-            bool isGoBackInvoked = false;
+            bool isInvoked = false;
             ViewPageMappingProvider.FindMappingForView = (type, b) => PageMapping;
             NavigationProvider.CurrentViewModel.ShouldBeNull();
             var viewModel = GetViewModel<NavigableViewModelMock>();
             NavigationService.OnNavigated(new NavigationEventArgsMock(new ViewMock { DataContext = viewModel }, NavigationMode.New));
 
-            NavigationService.CanGoBack = true;
-            NavigationService.GoBack = () => isGoBackInvoked = true;
+            NavigationService.TryClose = (model, context) =>
+            {
+                isInvoked = true;
+                model.ShouldEqual(viewModel);
+                return true;
+            };
 
-            isGoBackInvoked.ShouldBeFalse();
+            isInvoked.ShouldBeFalse();
             viewModel.OnClosed(new ViewModelClosedEventArgs(viewModel, viewModel));
-            isGoBackInvoked.ShouldBeTrue();
+            isInvoked.ShouldBeTrue();
         }
 
         [TestMethod]
@@ -389,7 +367,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             bool isInvoked = false;
             var callbackMock = new OperationCallbackMock();
             var viewModel = GetViewModel<NavigableViewModelMock>();
-            object param = null;
+            string param = null;
             ViewPageMappingProvider.FindMappingForViewModel = (type, s, arg3) => PageMapping;
             NavigationService.Navigate = (item, o, d) =>
             {
@@ -402,7 +380,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             {
                 isInvoked = true;
             };
-            NavigationProvider.Navigate(callbackMock, new DataContext(NavigationConstants.ViewModel.ToValue(viewModel)));
+            NavigationProvider.NavigateAsync(callbackMock, new DataContext(NavigationConstants.ViewModel.ToValue(viewModel)));
             NavigationService.OnNavigated(new NavigationEventArgsMock(null, NavigationMode.New));
 
             NavigationService.OnNavigated(new NavigationEventArgsMock(null, NavigationMode.Back));
@@ -415,7 +393,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             bool isInvoked = false;
             var callbackMock = new OperationCallbackMock();
             var viewModel = GetViewModel<NavigableViewModelMock>();
-            object param = null;
+            string param = null;
             ViewPageMappingProvider.FindMappingForViewModel = (type, s, arg3) => PageMapping;
             NavigationService.Navigate = (item, o, d) =>
             {
@@ -428,7 +406,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             {
                 isInvoked = true;
             };
-            NavigationProvider.Navigate(callbackMock, new DataContext(NavigationConstants.ViewModel.ToValue(viewModel)));
+            NavigationProvider.NavigateAsync(callbackMock, new DataContext(NavigationConstants.ViewModel.ToValue(viewModel)));
             NavigationService.OnNavigated(new NavigationEventArgsMock(null, NavigationMode.New));
 
             NavigationService.OnNavigated(new NavigationEventArgsMock(null, NavigationMode.Refresh));

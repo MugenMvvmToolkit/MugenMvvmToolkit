@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IEntityStateEntry.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -21,19 +21,10 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Interfaces.Models
 {
-    /// <summary>
-    ///     Represents the entity state entry.
-    /// </summary>
     public interface IEntityStateEntry
     {
-        /// <summary>
-        ///     Gets or sets the state of the <see cref="EntityState" />.
-        /// </summary>
         EntityState State { get; }
 
-        /// <summary>
-        ///     Gets the entity object.
-        /// </summary>
         [NotNull]
         object Entity { get; }
     }

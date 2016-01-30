@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="XmlExpressionNode.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,8 +17,9 @@
 #endregion
 
 using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Binding.Parse.Nodes;
 
-namespace MugenMvvmToolkit.Binding.Parse.Nodes
+namespace MugenMvvmToolkit.WinForms.Binding.Parse.Nodes
 {
     internal abstract class XmlExpressionNode : ExpressionNode
     {
@@ -59,20 +60,11 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
             }
         }
 
-        public int Start
-        {
-            get { return _start; }
-        }
+        public int Start => _start;
 
-        public int End
-        {
-            get { return _end; }
-        }
+        public int End => _end;
 
-        public int Length
-        {
-            get { return _length; }
-        }
+        public int Length => _length;
 
         #endregion
 

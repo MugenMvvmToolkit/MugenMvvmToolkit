@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ItemsSourceChangedEventArgs.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -33,9 +33,6 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes the <see cref="ItemsSourceChangedEventArgs" />.
-        /// </summary>
         public ItemsSourceChangedEventArgs([CanBeNull]IEnumerable value)
         {
             _value = value;
@@ -45,14 +42,8 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the new value of items source.
-        /// </summary>
         [CanBeNull]
-        public IEnumerable Value
-        {
-            get { return _value; }
-        }
+        public IEnumerable Value => _value;
 
         #endregion
     }
@@ -61,9 +52,6 @@ namespace MugenMvvmToolkit.Models.EventArg
     {
         #region Constructors
 
-        /// <summary>
-        ///     Initializes the <see cref="ItemsSourceChangedEventArgs{T}" />.
-        /// </summary>
         public ItemsSourceChangedEventArgs([CanBeNull]IEnumerable<T> value)
             : base(value)
         {
@@ -73,14 +61,8 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the new value of items source.
-        /// </summary>
         [CanBeNull]
-        public new IEnumerable<T> Value
-        {
-            get { return (IEnumerable<T>) base.Value; }
-        }
+        public new IEnumerable<T> Value => (IEnumerable<T>) base.Value;
 
         #endregion
     }

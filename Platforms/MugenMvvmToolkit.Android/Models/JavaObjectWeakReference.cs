@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="JavaObjectWeakReference.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -16,20 +16,19 @@
 
 #endregion
 
-using Android.Views;
-using MugenMvvmToolkit.Interfaces.Views;
-using Object = Java.Lang.Object;
-using WeakReference = System.WeakReference;
+using System;
+using System.Runtime.CompilerServices;
+using Android.Runtime;
 
-namespace MugenMvvmToolkit.Models
+namespace MugenMvvmToolkit.Android.Models
 {
     //see https://bugzilla.xamarin.com/show_bug.cgi?id=16343
-    internal sealed class JavaObjectWeakReference : WeakReference
+    internal class JavaObjectWeakReference : WeakReference
     {
         #region Constructors
 
-        public JavaObjectWeakReference(Object item, bool trackResurrection)
-            : base(item, trackResurrection)
+        public JavaObjectWeakReference(IJavaObject item)
+            : base(item)
         {
         }
 
@@ -37,36 +36,56 @@ namespace MugenMvvmToolkit.Models
 
         #region Overrides of WeakReference
 
-        public override bool IsAlive
-        {
-            get { return Target != null; }
-        }
+        public override bool IsAlive => Target != null;
 
         public override object Target
         {
             get
             {
-                var target = (Object)base.Target;
-                if (target != null)
+                var target = (IJavaObject)base.Target;
+                if (target == null)
+                    return null;
+                if (target.Handle == IntPtr.Zero)
                 {
-                    if (target.IsAlive())
-                    {
-                        var activity = target as IActivityView;
-                        if (activity == null)
-                        {
-                            var view = target as View;
-                            if (view != null && view.Context != null)
-                                activity = view.Context.GetActivity() as IActivityView;
-                        }
-                        if (activity == null || !activity.Mediator.IsDestroyed)
-                            return target;
-                    }
                     base.Target = null;
                     return null;
                 }
-                return null;
+                return target;
             }
-            set { base.Target = value; }
+            set
+            {
+                if (value != null)
+                    throw new NotSupportedException();
+                base.Target = null;
+            }
+        }
+
+        #endregion
+    }
+
+    internal sealed class JavaObjectWeakReferenceWeakTable : JavaObjectWeakReference
+    {
+        #region Fields
+
+        private readonly int _hash;
+
+        #endregion
+
+        #region Constructors
+
+        public JavaObjectWeakReferenceWeakTable(IJavaObject item)
+            : base(item)
+        {
+            _hash = RuntimeHelpers.GetHashCode(item);
+        }
+
+        #endregion
+
+        #region Overrides of WeakReference
+
+        public override int GetHashCode()
+        {
+            return _hash;
         }
 
         #endregion

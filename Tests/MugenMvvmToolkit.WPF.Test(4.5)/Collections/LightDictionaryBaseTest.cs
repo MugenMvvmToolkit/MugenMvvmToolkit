@@ -25,17 +25,11 @@ namespace MugenMvvmToolkit.Test.Collections
 
             #region Overrides of LightDictionaryBase<TKey,TValue>
 
-            /// <summary>
-            ///     Determines whether the specified objects are equal.
-            /// </summary>
             protected override bool Equals(TKey x, TKey y)
             {
                 return _comparer.Equals(x, y);
             }
 
-            /// <summary>
-            ///     Returns a hash code for the specified object.
-            /// </summary>
             protected override int GetHashCode(TKey key)
             {
                 return _comparer.GetHashCode(key);

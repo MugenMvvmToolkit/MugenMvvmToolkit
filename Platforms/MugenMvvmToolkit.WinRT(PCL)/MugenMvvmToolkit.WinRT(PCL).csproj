@@ -8,7 +8,7 @@
     <ProjectGuid>{9E1FD76F-907F-480C-A0C5-D165E07AA566}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MugenMvvmToolkit</RootNamespace>
+    <RootNamespace>MugenMvvmToolkit.WinRT</RootNamespace>
     <AssemblyName>MugenMvvmToolkit.WinRT</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
@@ -17,7 +17,8 @@
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <NuGetPackageImportStamp>5e0f59c6</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -35,13 +36,8 @@
     <DefineConstants>TRACE;WINDOWSCOMMON</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\bin\Platforms\WinRT\PCL\MugenMvvmToolkit.WinRT.XML</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\..\Solution Items\sigkey.snk</AssemblyOriginatorKeyFile>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->
@@ -59,11 +55,11 @@
     <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\AttachedValueProvider.cs">
       <Link>Infrastructure\AttachedValueProvider.cs</Link>
     </Compile>
+    <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\Properties\AssemblyInfoCommon.cs">
+      <Link>Properties\AssemblyInfoCommon.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android\Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs">
       <Link>Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Silverlight%285.0%29\Infrastructure\Mediators\WindowViewMediator.cs">
-      <Link>Infrastructure\Mediators\WindowViewMediator.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\converters\InverseBooleanConverter.cs">
       <Link>Converters\InverseBooleanConverter.cs</Link>
@@ -86,9 +82,6 @@
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\Presenters\ToastPresenter.cs">
       <Link>Infrastructure\Presenters\ToastPresenter.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\VisualStateManager.cs">
-      <Link>Infrastructure\VisualStateManager.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Interfaces\Navigation\INavigationProviderEx.cs">
       <Link>Interfaces\Navigation\INavigationProviderEx.cs</Link>
     </Compile>
@@ -98,22 +91,21 @@
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\MarkupExtensions\View.cs">
       <Link>MarkupExtensions\View.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\models\eventarg\NavigatingCancelEventArgsBase.cs">
-      <Link>Models\EventArg\NavigatingCancelEventArgsBase.cs</Link>
-    </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\models\eventarg\NavigationEventArgsBase.cs">
-      <Link>Models\EventArg\NavigationEventArgsBase.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Modules\InitializationModule.cs">
       <Link>Modules\InitializationModule.cs</Link>
     </Compile>
     <Compile Include="Infrastructure\ApplicationStateManager.cs" />
+    <Compile Include="Infrastructure\Mediators\WindowViewMediator.cs" />
     <Compile Include="Infrastructure\Navigation\FrameNavigationService.cs" />
     <Compile Include="Infrastructure\Presenters\MessagePresenter.cs" />
     <Compile Include="Infrastructure\ThreadManager.cs" />
     <Compile Include="Infrastructure\WinRTBootstrapperBase.cs" />
     <Compile Include="Interfaces\IApplicationStateManager.cs" />
+    <Compile Include="Interfaces\Views\IPopupView.cs" />
     <Compile Include="Interfaces\Views\IWindowView.cs" />
+    <Compile Include="Models\EventArg\BackButtonNavigatingEventArgs.cs" />
+    <Compile Include="Models\EventArg\BackButtonNavigationEventArgs.cs" />
+    <Compile Include="Models\PopupSettings.cs" />
     <Compile Include="Models\EventArg\NavigatingCancelEventArgsWrapper.cs" />
     <Compile Include="Models\EventArg\NavigationEventArgsWrapper.cs" />
     <Compile Include="Modules\PlatformWrapperRegistrationModule.cs" />
@@ -121,19 +113,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="FodyWeavers.xml" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\..\Solution Items\MugenMvvmToolkit.licenseheader">
       <Link>MugenMvvmToolkit.licenseheader</Link>
     </None>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="JetBrains.Annotations">
-      <HintPath>..\..\packages\JetBrainsAnnotations.Fody.1.0.2\Lib\JetBrains.Annotations.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\license.txt">
@@ -141,15 +123,7 @@
     </None>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
-    <Error Condition="!Exists('..\..\packages\Fody.1.26.4\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Fody.1.26.4\build\Fody.targets'))" />
-  </Target>
-  <Import Project="..\..\packages\Fody.1.26.4\build\Fody.targets" Condition="Exists('..\..\packages\Fody.1.26.4\build\Fody.targets')" />
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />  
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

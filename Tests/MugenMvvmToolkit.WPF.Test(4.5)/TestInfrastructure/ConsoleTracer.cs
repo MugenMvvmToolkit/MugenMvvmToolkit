@@ -11,30 +11,16 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
     {
         #region Implementation of ITracer
 
-        /// <summary>
-        ///     Writes information about view-models.
-        /// </summary>
-        public void TraceViewModel(AuditAction auditAction, IViewModel viewModel)
+        public void TraceViewModel(ViewModelLifecycleType lifecycleType, IViewModel viewModel)
         {
-            Debug.WriteLine("{0}: {1}", auditAction, viewModel);
+            Debug.WriteLine("{0}: {1}", lifecycleType, viewModel);
         }
 
-        /// <summary>
-        ///     Writes an informational message to the trace listeners.
-        /// </summary>
-        /// <param name="level">The specified trace level.</param>
-        /// <param name="message">The message to write.</param>
         public void Trace(TraceLevel level, string message)
         {
             Debug.WriteLine("{0}: {1}", level, message);
         }
 
-        /// <summary>
-        ///     Writes an informational message to the trace listeners.
-        /// </summary>
-        /// <param name="level">The specified trace level.</param>
-        /// <param name="format">The message to write.</param>
-        /// <param name="args">The string format members.</param>
         public void Trace(TraceLevel level, string format, params object[] args)
         {
             Debug.WriteLine("{0}: {1}", level, string.Format(format, args));

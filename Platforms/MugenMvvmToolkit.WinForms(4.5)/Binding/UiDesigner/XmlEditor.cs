@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="XmlEditor.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -23,13 +23,13 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Xml.Linq;
-using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Binding.Parse;
-using MugenMvvmToolkit.Binding.Parse.Nodes;
+using MugenMvvmToolkit.WinForms.Binding.Interfaces;
+using MugenMvvmToolkit.WinForms.Binding.Models;
+using MugenMvvmToolkit.WinForms.Binding.Parse;
+using MugenMvvmToolkit.WinForms.Binding.Parse.Nodes;
 using Timer = System.Threading.Timer;
 
-namespace MugenMvvmToolkit.Binding.UiDesigner
+namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
 {
     internal partial class XmlEditor : RichTextBox
     {
@@ -153,15 +153,9 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
 
         #region Properties
 
-        public new bool CanUndo
-        {
-            get { return _undoList.Count > 0; }
-        }
+        public new bool CanUndo => _undoList.Count > 0;
 
-        public new bool CanRedo
-        {
-            get { return _redoStack.Count > 0; }
-        }
+        public new bool CanRedo => _redoStack.Count > 0;
 
         public new string Text
         {
@@ -178,10 +172,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
 
         internal IXmlHandler Handler { get; set; }
 
-        private int Delay
-        {
-            get { return Math.Min(Lines.Length * 4, 600); }
-        }
+        private int Delay => Math.Min(Lines.Length * 4, 600);
 
         #endregion
 
@@ -610,7 +601,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                         {
                             var newIndex = SelectionStart + 1;
                             SelectionLength = 0;
-                            SelectedText = string.Format("></{0}>", element.Name);
+                            SelectedText = $"></{element.Name}>";
                             SelectionStart = newIndex;
                             e.Handled = true;
                         }
@@ -631,7 +622,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
         private static extern short GetKeyState(int nVirtKey);
 
         [DllImport("user32")]
-        private extern static int GetCaretPos(out Point p);
+        private static extern int GetCaretPos(out Point p);
 
         [DllImport("user32.dll")]
         private static extern IntPtr SendMessage(IntPtr hWnd, Int32 wMsg, Int32 wParam, ref Point lParam);

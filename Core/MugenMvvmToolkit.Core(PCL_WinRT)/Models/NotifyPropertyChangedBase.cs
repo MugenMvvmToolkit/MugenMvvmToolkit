@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="NotifyPropertyChangedBase.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,33 +17,37 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Xml.Serialization;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Models
 {
-    /// <summary>
-    ///     Represents the base class which adds support <see cref="INotifyPropertyChanged" />.
-    /// </summary>
     [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true), Serializable]
-    public abstract class NotifyPropertyChangedBase : ISuspendNotifications
+    public abstract class NotifyPropertyChangedBase : ISuspendNotifications, IHasWeakReference
     {
         #region Fields
 
         private static readonly Action<NotifyPropertyChangedBase, PropertyChangedEventArgs> RaisePropertyChangedDelegate;
 
-        [XmlIgnore, NonSerialized]
+        [XmlIgnore, NonSerialized, IgnoreDataMember]
+        internal LightDictionaryBase<string, object> AttachedValues;
+
+        [XmlIgnore, NonSerialized, IgnoreDataMember]
+        private WeakReference _ref;
+
+        [XmlIgnore, NonSerialized, IgnoreDataMember]
         private bool _isNotificationsDirty;
 
-        [XmlIgnore, NonSerialized]
+        [XmlIgnore, NonSerialized, IgnoreDataMember]
         private int _suspendCount;
 
         #endregion
@@ -55,9 +59,6 @@ namespace MugenMvvmToolkit.Models
             RaisePropertyChangedDelegate = RaisePropertyChanged;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NotifyPropertyChangedBase" /> class.
-        /// </summary>
         protected NotifyPropertyChangedBase()
         {
             _isNotificationsDirty = false;
@@ -67,19 +68,13 @@ namespace MugenMvvmToolkit.Models
 
         #region Implementation of INotifyPropertyChanged
 
-        /// <summary>
-        ///     Occurs when a property value changes.
-        /// </summary>
-        [field: XmlIgnore, NonSerialized]
+        [field: XmlIgnore, NonSerialized, IgnoreDataMember]
         public event PropertyChangedEventHandler PropertyChanged;
 
         #endregion
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets a value indicating whether change to the collection is made when its notifications are suspended.
-        /// </summary>
         [IgnoreDataMember, XmlIgnore]
         protected bool IsNotificationsDirty
         {
@@ -87,140 +82,60 @@ namespace MugenMvvmToolkit.Models
             set { _isNotificationsDirty = value; }
         }
 
-        /// <summary>
-        ///     Gets the current <see cref="IThreadManager" />.
-        /// </summary>
-        protected virtual IThreadManager ThreadManager
-        {
-            get { return ServiceProvider.ThreadManager; }
-        }
+        protected virtual IThreadManager ThreadManager => ServiceProvider.ThreadManager;
 
-        /// <summary>
-        ///     Specifies the execution mode for raise property change event.
-        /// </summary>
-        protected virtual ExecutionMode PropertyChangeExecutionMode
-        {
-            get { return ApplicationSettings.PropertyChangeExecutionMode; }
-        }
+        protected virtual ExecutionMode PropertyChangeExecutionMode => ApplicationSettings.PropertyChangeExecutionMode;
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Calls the event for the specified property.
-        /// </summary>
-        [NotifyPropertyChangedInvocator("propName")]
-        protected internal void OnPropertyChanged([CallerMemberName] string propName = "")
+        public void InvalidateProperties(ExecutionMode? executionMode = null)
         {
-            OnPropertyChanged(propName, PropertyChangeExecutionMode);
+            OnPropertyChanged(Empty.EmptyPropertyChangedArgs, executionMode.GetValueOrDefault(PropertyChangeExecutionMode));
         }
 
-        /// <summary>
-        ///     Calls the event for the specified property.
-        /// </summary>
-        /// <param name="propName">Specified property name.</param>
-        /// <param name="executionMode">
-        ///     Specifies the execution mode for raise property changed event.
-        /// </param>
-        [NotifyPropertyChangedInvocator("propName")]
-        protected internal void OnPropertyChanged(string propName, ExecutionMode executionMode)
+        [NotifyPropertyChangedInvocator("propertyName")]
+        protected internal void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
-            OnPropertyChanged(new PropertyChangedEventArgs(propName ?? string.Empty), executionMode);
+            OnPropertyChanged(propertyName, PropertyChangeExecutionMode);
         }
 
-        /// <summary>
-        ///     Calls the event for the specified property.
-        /// </summary>
-        /// <param name="expression">Specified expression with property.</param>
-        [NotifyPropertyChangedInvocator("expression")]
-        protected void OnPropertyChanged<T>(Expression<Func<T>> expression)
+        [NotifyPropertyChangedInvocator("propertyName")]
+        protected internal void OnPropertyChanged(string propertyName, ExecutionMode executionMode)
         {
-            OnPropertyChanged(expression, PropertyChangeExecutionMode);
+            if (PropertyChanged != null)
+                OnPropertyChanged(string.IsNullOrEmpty(propertyName) ? Empty.EmptyPropertyChangedArgs : new PropertyChangedEventArgs(propertyName), executionMode);
         }
 
-        /// <summary>
-        ///     Calls the event for the specified property.
-        /// </summary>
-        /// <param name="expression">Specified expression with property.</param>
-        /// <param name="executionMode">
-        ///     Specifies the execution mode for raise property changed event.
-        /// </param>
-        [NotifyPropertyChangedInvocator("expression")]
-        protected void OnPropertyChanged<T>(Expression<Func<T>> expression, ExecutionMode executionMode)
+        [NotifyPropertyChangedInvocator("propertyName")]
+        protected internal void SetProperty<T>(ref T field, T newValue, [CallerMemberName] string propertyName = "", ExecutionMode? executionMode = null)
         {
-            Should.NotBeNull(expression, "expression");
-            OnPropertyChanged(expression.GetMemberInfo().Name, executionMode);
+            if (!EqualityComparer<T>.Default.Equals(field, newValue))
+            {
+                field = newValue;
+                OnPropertyChanged(propertyName, executionMode.GetValueOrDefault(PropertyChangeExecutionMode));
+            }
         }
 
-        /// <summary>
-        ///     Sets a property with calling property change event.
-        /// </summary>
-        /// <typeparam name="T">The type of property.</typeparam>
-        /// <param name="propertyValue">The property value.</param>
-        /// <param name="newValue">The new property value.</param>
-        /// <param name="propName">Specified expression with property.</param>
-        /// <param name="executionMode">
-        ///     Specifies the execution mode for raise property changed event.
-        /// </param>
-        [NotifyPropertyChangedInvocator("propName")]
-        protected void SetProperty<T>(ref T propertyValue, T newValue, [CallerMemberName] string propName = "",
-            ExecutionMode? executionMode = null)
+        protected void OnPropertyChanged(PropertyChangedEventArgs args)
         {
-            if (Equals(propertyValue, newValue)) return;
-            propertyValue = newValue;
-            if (executionMode == null)
-                executionMode = PropertyChangeExecutionMode;
-            OnPropertyChanged(propName, executionMode.Value);
+            OnPropertyChanged(args, PropertyChangeExecutionMode);
         }
 
-        /// <summary>
-        ///     Sets a property with calling property change event.
-        /// </summary>
-        /// <typeparam name="T">The type of property.</typeparam>
-        /// <param name="propertyValue">The property value.</param>
-        /// <param name="newValue">The new property value.</param>
-        /// <param name="expression">Specified expression with property.</param>
-        /// <param name="executionMode">
-        ///     Specifies the execution mode for raise property changed event.
-        /// </param>
-        [NotifyPropertyChangedInvocator("expression")]
-        protected void SetProperty<T>(ref T propertyValue, T newValue, Expression<Func<T>> expression,
-            ExecutionMode? executionMode = null)
-        {
-            if (Equals(propertyValue, newValue)) return;
-            propertyValue = newValue;
-            if (executionMode == null)
-                executionMode = PropertyChangeExecutionMode;
-            OnPropertyChanged(expression, executionMode.Value);
-        }
-
-        /// <summary>
-        ///     Calls the event for the specified property.
-        /// </summary>
-        /// <param name="args">The specified property args.</param>
-        /// <param name="executionMode">
-        ///     Specifies the execution mode for raise property changed event.
-        /// </param>
         protected virtual void OnPropertyChanged(PropertyChangedEventArgs args, ExecutionMode executionMode)
         {
-            Should.NotBeNull(args, "args");
+            Should.NotBeNull(args, nameof(args));
             if (IsNotificationsSuspended)
                 IsNotificationsDirty = true;
             else
                 ThreadManager.Invoke(executionMode, this, args, RaisePropertyChangedDelegate);
         }
 
-        /// <summary>
-        /// Occurs on end suspend notifications.
-        /// </summary>
         protected virtual void OnEndSuspendNotifications(bool isDirty)
         {
         }
 
-        /// <summary>
-        ///     Clears all <see cref="PropertyChanged" /> subscribers.
-        /// </summary>
         protected void ClearPropertyChangedSubscribers()
         {
             PropertyChanged = null;
@@ -232,9 +147,7 @@ namespace MugenMvvmToolkit.Models
 
         private static void RaisePropertyChanged(NotifyPropertyChangedBase @this, PropertyChangedEventArgs args)
         {
-            var handler = @this.PropertyChanged;
-            if (handler != null)
-                handler.Invoke(@this, args);
+            @this.PropertyChanged?.Invoke(@this, args);
             @this.OnPropertyChangedInternal(args);
         }
 
@@ -246,33 +159,35 @@ namespace MugenMvvmToolkit.Models
             if (IsNotificationsDirty)
             {
                 IsNotificationsDirty = false;
-                OnPropertyChanged(string.Empty);
+                InvalidateProperties();
             }
-            OnPropertyChanged("IsNotificationsSuspended");
+            OnPropertyChanged(Empty.IsNotificationsSuspendedChangedArgs);
         }
 
         #endregion
 
         #region Implementation of ISuspendNotifications
 
-        /// <summary>
-        ///     Gets or sets a value indicating whether change notifications are suspended. <c>True</c> if notifications are
-        ///     suspended, otherwise, <c>false</c>.
-        /// </summary>
-        public virtual bool IsNotificationsSuspended
-        {
-            get { return _suspendCount != 0; }
-        }
+        public virtual bool IsNotificationsSuspended => _suspendCount != 0;
 
-        /// <summary>
-        ///     Suspends the change notifications until the returned <see cref="IDisposable" /> is disposed.
-        /// </summary>
-        /// <returns>An instance of token.</returns>
         public virtual IDisposable SuspendNotifications()
         {
-            if (Interlocked.Increment(ref _suspendCount) == 1)
-                OnPropertyChanged("IsNotificationsSuspended");
+            Interlocked.Increment(ref _suspendCount);
             return WeakActionToken.Create(this, @base => @base.EndSuspendNotifications());
+        }
+
+        #endregion
+
+        #region Implementation of IHasWeakReference
+
+        WeakReference IHasWeakReference.WeakReference
+        {
+            get
+            {
+                if (_ref == null)
+                    Interlocked.CompareExchange(ref _ref, ServiceProvider.WeakReferenceFactory(this), null);
+                return _ref;
+            }
         }
 
         #endregion

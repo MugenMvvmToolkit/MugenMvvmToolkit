@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IocParameterType.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,21 +18,12 @@
 
 namespace MugenMvvmToolkit.Models.IoC
 {
-    /// <summary>
-    ///     Represents the parameter types.
-    /// </summary>
     public class IocParameterType : StringConstantBase<IocParameterType>
     {
         #region Fields
 
-        /// <summary>
-        ///     Constructor parameter.
-        /// </summary>
         public static readonly IocParameterType Constructor;
 
-        /// <summary>
-        ///     Property parameter.
-        /// </summary>
         public static readonly IocParameterType Property;
 
         #endregion
@@ -45,9 +36,6 @@ namespace MugenMvvmToolkit.Models.IoC
             Property = new IocParameterType("Property");
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="IocParameterType" /> class.
-        /// </summary>
         public IocParameterType(string id)
             : base(id)
         {

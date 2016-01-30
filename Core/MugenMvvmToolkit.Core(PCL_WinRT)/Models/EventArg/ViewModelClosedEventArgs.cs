@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ViewModelClosedEventArgs.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -33,12 +33,9 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ViewModelClosedEventArgs" /> class.
-        /// </summary>
         public ViewModelClosedEventArgs([NotNull] IViewModel viewModel, [CanBeNull] object parameter)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             _viewModel = viewModel;
             _parameter = parameter;
         }
@@ -47,22 +44,10 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the <see cref="IViewModel" />.
-        /// </summary>
-        public IViewModel ViewModel
-        {
-            get { return _viewModel; }
-        }
+        public IViewModel ViewModel => _viewModel;
 
-        /// <summary>
-        ///     The specified close parameter if any.
-        /// </summary>
         [CanBeNull]
-        public object Parameter
-        {
-            get { return _parameter; }
-        }
+        public object Parameter => _parameter;
 
         #endregion
     }

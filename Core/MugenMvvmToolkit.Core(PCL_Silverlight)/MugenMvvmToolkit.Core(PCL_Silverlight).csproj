@@ -11,18 +11,20 @@
     <RootNamespace>MugenMvvmToolkit</RootNamespace>
     <AssemblyName>MugenMvvmToolkit</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <TargetFrameworkProfile>Profile104</TargetFrameworkProfile>
+    <TargetFrameworkProfile>Profile158</TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;PCL_Silverlight</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;PCL_Silverlight;CORE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -30,18 +32,16 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\..\bin\Core\PCL_Silverlight\</OutputPath>
-    <DefineConstants>TRACE;PCL_Silverlight</DefineConstants>
+    <DefineConstants>TRACE;PCL_Silverlight;CORE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\bin\Core\PCL_Silverlight\MugenMvvmToolkit.XML</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\..\Solution Items\sigkey.snk</AssemblyOriginatorKeyFile>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Annotations\JetBrains.Annotations.cs">
+      <Link>Annotations\JetBrains.Annotations.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Annotations\Toolkit.Annotations.cs">
       <Link>Annotations\Toolkit.Annotations.cs</Link>
     </Compile>
@@ -68,9 +68,6 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Collections\FilterableNotifiableCollection.cs">
       <Link>Collections\FilterableNotifiableCollection.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Collections\HashSetInternal.cs">
-      <Link>Collections\HashSetInternal.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Collections\LightDictionaryBase.cs">
       <Link>Collections\LightDictionaryBase.cs</Link>
@@ -135,11 +132,17 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\Callbacks\DelegateContinuation.cs">
       <Link>Infrastructure\Callbacks\DelegateContinuation.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\Callbacks\NavigationOperation.cs">
+      <Link>Infrastructure\Callbacks\NavigationOperation.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\Callbacks\OperationCallbackManager.cs">
       <Link>Infrastructure\Callbacks\OperationCallbackManager.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\Callbacks\OperationResult.cs">
       <Link>Infrastructure\Callbacks\OperationResult.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\CompositeEqualityComparer.cs">
+      <Link>Infrastructure\CompositeEqualityComparer.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\DelegateComparer.cs">
       <Link>Infrastructure\DelegateComparer.cs</Link>
@@ -186,23 +189,17 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\Serializer.cs">
       <Link>Infrastructure\Serializer.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\StateTransitionManager.cs">
-      <Link>Infrastructure\StateTransitionManager.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\SynchronousThreadManager.cs">
       <Link>Infrastructure\SynchronousThreadManager.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\Validation\DynamicDataAnnotationsElementProvider.cs">
-      <Link>Infrastructure\Validation\DynamicDataAnnotationsElementProvider.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\Validation\DataAnnotationValidatior.cs">
+      <Link>Infrastructure\Validation\DataAnnotationValidatior.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\Validation\ManualValidator.cs">
       <Link>Infrastructure\Validation\ManualValidator.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\Validation\ValidatableViewModelValidator.cs">
       <Link>Infrastructure\Validation\ValidatableViewModelValidator.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\Validation\ValidationElementValidator.cs">
-      <Link>Infrastructure\Validation\ValidationElementValidator.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\Validation\ValidatorBase.cs">
       <Link>Infrastructure\Validation\ValidatorBase.cs</Link>
@@ -240,6 +237,9 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Callbacks\IFunctionContinuation.cs">
       <Link>Interfaces\Callbacks\IFunctionContinuation.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Callbacks\INavigationOperation.cs">
+      <Link>Interfaces\Callbacks\INavigationOperation.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Callbacks\IOperationCallback.cs">
       <Link>Interfaces\Callbacks\IOperationCallback.cs</Link>
     </Compile>
@@ -248,6 +248,9 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Callbacks\IOperationCallbackManager.cs">
       <Link>Interfaces\Callbacks\IOperationCallbackManager.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Callbacks\IOperationCallbackStateManager.cs">
+      <Link>Interfaces\Callbacks\IOperationCallbackStateManager.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Callbacks\IOperationResult.cs">
       <Link>Interfaces\Callbacks\IOperationResult.cs</Link>
@@ -291,6 +294,9 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\IModule.cs">
       <Link>Interfaces\IModule.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\IMvvmApplication.cs">
+      <Link>Interfaces\IMvvmApplication.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\IReflectionManager.cs">
       <Link>Interfaces\IReflectionManager.cs</Link>
     </Compile>
@@ -318,14 +324,17 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\IViewModelProvider.cs">
       <Link>Interfaces\IViewModelProvider.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\IVisualStateManager.cs">
-      <Link>Interfaces\IVisualStateManager.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\IWrapperManager.cs">
       <Link>Interfaces\IWrapperManager.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Mediators\IWindowViewMediator.cs">
       <Link>Interfaces\Mediators\IWindowViewMediator.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Models\IBusyInfo.cs">
+      <Link>Interfaces\Models\IBusyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Models\IBusyToken.cs">
+      <Link>Interfaces\Models\IBusyToken.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Models\IDataContext.cs">
       <Link>Interfaces\Models\IDataContext.cs</Link>
@@ -375,6 +384,9 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Models\ISuspendNotifications.cs">
       <Link>Interfaces\Models\ISuspendNotifications.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Models\IToast.cs">
+      <Link>Interfaces\Models\IToast.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Models\IViewMappingItem.cs">
       <Link>Interfaces\Models\IViewMappingItem.cs</Link>
     </Compile>
@@ -405,21 +417,6 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Validation\INotifyDataErrorInfo.cs">
       <Link>Interfaces\Validation\INotifyDataErrorInfo.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Validation\IValidatableObject.cs">
-      <Link>Interfaces\Validation\IValidatableObject.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Validation\IValidationContext.cs">
-      <Link>Interfaces\Validation\IValidationContext.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Validation\IValidationElement.cs">
-      <Link>Interfaces\Validation\IValidationElement.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Validation\IValidationElementProvider.cs">
-      <Link>Interfaces\Validation\IValidationElementProvider.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Validation\IValidationResult.cs">
-      <Link>Interfaces\Validation\IValidationResult.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Validation\IValidator.cs">
       <Link>Interfaces\Validation\IValidator.cs</Link>
     </Compile>
@@ -441,11 +438,17 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\ViewModels\IGridViewModel.cs">
       <Link>Interfaces\ViewModels\IGridViewModel.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\ViewModels\IIocContainerOwnerViewModel.cs">
+      <Link>Interfaces\ViewModels\IIocContainerOwnerViewModel.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\ViewModels\IMultiViewModel.cs">
       <Link>Interfaces\ViewModels\IMultiViewModel.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\ViewModels\INavigableViewModel.cs">
       <Link>Interfaces\ViewModels\INavigableViewModel.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\ViewModels\IParentAwareViewModel.cs">
+      <Link>Interfaces\ViewModels\IParentAwareViewModel.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\ViewModels\IValidatableViewModel.cs">
       <Link>Interfaces\ViewModels\IValidatableViewModel.cs</Link>
@@ -474,6 +477,9 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\ActionSubscriber.cs">
       <Link>Models\ActionSubscriber.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\AsyncRelayCommand.cs">
+      <Link>Models\AsyncRelayCommand.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\DataConstant.cs">
       <Link>Models\DataConstant.cs</Link>
     </Compile>
@@ -488,9 +494,6 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\Delegates.cs">
       <Link>Models\Delegates.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\DisposableObject.cs">
-      <Link>Models\DisposableObject.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EntityStateEntry.cs">
       <Link>Models\EntityStateEntry.cs</Link>
@@ -516,6 +519,12 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EventArg\NavigatedEventArgs.cs">
       <Link>Models\EventArg\NavigatedEventArgs.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EventArg\NavigatingCancelEventArgsBase.cs">
+      <Link>Models\EventArg\NavigatingCancelEventArgsBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EventArg\NavigationEventArgsBase.cs">
+      <Link>Models\EventArg\NavigationEventArgsBase.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EventArg\NotifyCollectionChangingEventArgs.cs">
       <Link>Models\EventArg\NotifyCollectionChangingEventArgs.cs</Link>
     </Compile>
@@ -533,6 +542,21 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EventArg\ViewModelClosingEventArgs.cs">
       <Link>Models\EventArg\ViewModelClosingEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EventArg\ViewModelInitializationEventArgs.cs">
+      <Link>Models\EventArg\ViewModelInitializationEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EventArg\ViewModelPreservedEventArgs.cs">
+      <Link>Models\EventArg\ViewModelPreservedEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EventArg\ViewModelPreservingEventArgs.cs">
+      <Link>Models\EventArg\ViewModelPreservingEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EventArg\ViewModelRestoredEventArgs.cs">
+      <Link>Models\EventArg\ViewModelRestoredEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EventArg\ViewModelRestoringEventArgs.cs">
+      <Link>Models\EventArg\ViewModelRestoringEventArgs.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\Exceptions\DesignTimeException.cs">
       <Link>Models\Exceptions\DesignTimeException.cs</Link>
@@ -554,15 +578,6 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\Messages\AsyncValidationMessage.cs">
       <Link>Models\Messages\AsyncValidationMessage.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\Messages\BeginBusyMessage.cs">
-      <Link>Models\Messages\BeginBusyMessage.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\Messages\DataErrorsChangedMessage.cs">
-      <Link>Models\Messages\DataErrorsChangedMessage.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\Messages\EndBusyMessage.cs">
-      <Link>Models\Messages\EndBusyMessage.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\Messages\StateChangedMessage.cs">
       <Link>Models\Messages\StateChangedMessage.cs</Link>
@@ -600,12 +615,6 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\TrackingEntity.cs">
       <Link>Models\TrackingEntity.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\Validation\ValidationContext.cs">
-      <Link>Models\Validation\ValidationContext.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\Validation\ValidationResult.cs">
-      <Link>Models\Validation\ValidationResult.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\Validation\ValidatorContext.cs">
       <Link>Models\Validation\ValidatorContext.cs</Link>
     </Compile>
@@ -624,8 +633,14 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Modules\WrapperRegistrationModuleBase.cs">
       <Link>Modules\WrapperRegistrationModuleBase.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\MvvmApplication.cs">
+      <Link>MvvmApplication.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Properties\AssemblyInfoCommon.cs">
+      <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\ServiceProvider.cs">
       <Link>ServiceProvider.cs</Link>
@@ -665,29 +680,22 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="FodyWeavers.xml" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\..\Solution Items\MugenMvvmToolkit.licenseheader">
       <Link>MugenMvvmToolkit.licenseheader</Link>
     </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="JetBrains.Annotations">
-      <HintPath>..\..\packages\JetBrainsAnnotations.Fody.1.0.2\Lib\JetBrains.Annotations.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="System.IO">
-      <HintPath>..\..\packages\Microsoft.Bcl.1.1.9\lib\portable-net40+sl4+win8+wp71+wpa81\System.IO.dll</HintPath>
+    <Reference Include="System.IO, Version=1.5.11.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.Bcl.1.1.10\lib\portable-net40+sl5+win8+wp8+wpa81\System.IO.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Runtime">
-      <HintPath>..\..\packages\Microsoft.Bcl.1.1.9\lib\portable-net40+sl4+win8+wp71+wpa81\System.Runtime.dll</HintPath>
+    <Reference Include="System.Runtime, Version=2.6.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.Bcl.1.1.10\lib\portable-net40+sl5+win8+wp8+wpa81\System.Runtime.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Threading.Tasks">
-      <HintPath>..\..\packages\Microsoft.Bcl.1.1.9\lib\portable-net40+sl4+win8+wp71+wpa81\System.Threading.Tasks.dll</HintPath>
+    <Reference Include="System.Threading.Tasks, Version=2.6.10.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Microsoft.Bcl.1.1.10\lib\portable-net40+sl5+win8+wp8+wpa81\System.Threading.Tasks.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
@@ -698,16 +706,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
-    <Error Condition="!Exists('..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets'))" />
-    <Error Condition="!Exists('..\..\packages\Fody.1.26.4\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Fody.1.26.4\build\Fody.targets'))" />
-  </Target>
   <Import Project="..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
-  <Import Project="..\..\packages\Fody.1.26.4\build\Fody.targets" Condition="Exists('..\..\packages\Fody.1.26.4\build\Fody.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="BindingSourceAccessorBase.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -24,23 +24,16 @@ using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Accessors
 {
-    /// <summary>
-    ///     Represents the base accessor for the binding source.
-    /// </summary>
     public abstract class BindingSourceAccessorBase : IBindingSourceAccessor
     {
         #region Nested types
 
-        /// <summary>
-        /// Represents the bindings parameters.
-        /// </summary>
         protected sealed class BindingParameters
         {
             #region Fields
@@ -48,6 +41,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
             private readonly Func<IDataContext, IBindingValueConverter> _converterDelegate;
             private readonly Func<IDataContext, CultureInfo> _converterCultureDelegate;
             private readonly Func<IDataContext, object> _converterParameterDelegate;
+            private readonly Func<IDataContext, object> _commandParameterDelegate;
             private readonly Func<IDataContext, object> _fallbackDelegate;
             private readonly object _targetNullValue;
 
@@ -55,66 +49,37 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
             #region Constructors
 
-            /// <summary>
-            /// Initializes a new instance of the <see cref="BindingParameters"/> class.
-            /// </summary>
-            internal BindingParameters(Func<IDataContext, IBindingValueConverter> converterDelegate, Func<IDataContext, CultureInfo> converterCultureDelegate, Func<IDataContext, object> converterParameterDelegate, Func<IDataContext, object> fallbackDelegate, object targetNullValue)
+            internal BindingParameters(Func<IDataContext, IBindingValueConverter> converterDelegate, Func<IDataContext, CultureInfo> converterCultureDelegate, Func<IDataContext, object> converterParameterDelegate, Func<IDataContext, object> fallbackDelegate, object targetNullValue, Func<IDataContext, object> commandParameterDelegate)
             {
                 _converterDelegate = converterDelegate;
                 _converterCultureDelegate = converterCultureDelegate;
                 _converterParameterDelegate = converterParameterDelegate;
                 _fallbackDelegate = fallbackDelegate;
                 _targetNullValue = targetNullValue;
+                _commandParameterDelegate = commandParameterDelegate;
             }
 
             #endregion
 
             #region Properties
 
-            /// <summary>
-            ///     Gets or sets the <see cref="IBindingValueConverter" /> delegate.
-            /// </summary>
             [CanBeNull]
-            public Func<IDataContext, IBindingValueConverter> ConverterDelegate
-            {
-                get { return _converterDelegate; }
-            }
+            public Func<IDataContext, IBindingValueConverter> ConverterDelegate => _converterDelegate;
 
-            /// <summary>
-            ///     Gets or sets the converter parameter delegate.
-            /// </summary>
             [CanBeNull]
-            public Func<IDataContext, object> ConverterParameterDelegate
-            {
-                get { return _converterParameterDelegate; }
-            }
+            public Func<IDataContext, object> ConverterParameterDelegate => _converterParameterDelegate;
 
-            /// <summary>
-            ///     Gets or sets the converter culture delegate.
-            /// </summary>
             [CanBeNull]
-            public Func<IDataContext, CultureInfo> ConverterCultureDelegate
-            {
-                get { return _converterCultureDelegate; }
-            }
+            public Func<IDataContext, CultureInfo> ConverterCultureDelegate => _converterCultureDelegate;
 
-            /// <summary>
-            ///     Gets the target null value.
-            /// </summary>
             [CanBeNull]
-            public object TargetNullValue
-            {
-                get { return _targetNullValue; }
-            }
+            public object TargetNullValue => _targetNullValue;
 
-            /// <summary>
-            ///     Gets or sets the fallback value delegate.
-            /// </summary>
             [CanBeNull]
-            public Func<IDataContext, object> FallbackDelegate
-            {
-                get { return _fallbackDelegate; }
-            }
+            public Func<IDataContext, object> FallbackDelegate => _fallbackDelegate;
+
+            [CanBeNull]
+            public Func<IDataContext, object> CommandParameterDelegate => _commandParameterDelegate;
 
             #endregion
         }
@@ -124,23 +89,15 @@ namespace MugenMvvmToolkit.Binding.Accessors
         #region Fields
 
         private readonly bool _isTarget;
-        private readonly BindingParameters _parameters;
+        private BindingParameters _parameters;
 
         #endregion
 
         #region Constructors
 
-        static BindingSourceAccessorBase()
-        {
-            AutoConvertValueDefault = true;
-        }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingSourceAccessorBase" /> class.
-        /// </summary>
         protected BindingSourceAccessorBase([NotNull] IDataContext context, bool isTarget)
         {
-            Should.NotBeNull(context, "context");
+            Should.NotBeNull(context, nameof(context));
             _isTarget = isTarget;
             bool hasValue = false;
             Func<IDataContext, IBindingValueConverter> converterDelegate;
@@ -158,61 +115,35 @@ namespace MugenMvvmToolkit.Binding.Accessors
             Func<IDataContext, object> fallbackDelegate = null;
             if (!isTarget && context.TryGetData(BindingBuilderConstants.Fallback, out fallbackDelegate))
                 hasValue = true;
+            Func<IDataContext, object> commandParameterDelegate = null;
+            if (isTarget && context.TryGetData(BindingBuilderConstants.CommandParameter, out commandParameterDelegate))
+                hasValue = true;
             if (hasValue)
                 _parameters = new BindingParameters(converterDelegate, converterCultureDelegate,
-                    converterParameterDelegate, fallbackDelegate, targetNullValue);
-            AutoConvertValue = AutoConvertValueDefault;
+                    converterParameterDelegate, fallbackDelegate, targetNullValue, commandParameterDelegate);
         }
 
         #endregion
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the property that is responsible for the automatic value conversion.
-        /// </summary>
-        public static bool AutoConvertValueDefault { get; set; }
+        protected bool IsTarget => _isTarget;
 
-        /// <summary>
-        /// Gets the value that indicats that accessor is a target.
-        /// </summary>
-        protected bool IsTarget
-        {
-            get { return _isTarget; }
-        }
-
-        /// <summary>
-        /// Gets the current binding parameters.
-        /// </summary>
         [CanBeNull]
-        protected BindingParameters Parameters
-        {
-            get { return _parameters; }
-        }
+        protected BindingParameters Parameters => _parameters;
 
         #endregion
 
         #region Implementation of IBindingSourceAccessor
 
-        /// <summary>
-        ///     Gets or sets the property that is responsible for the automatic value conversion.
-        /// </summary>
-        public bool AutoConvertValue { get; set; }
+        public abstract bool DisableEqualityChecking { get; set; }
 
-        /// <summary>
-        ///     Gets the underlying sources.
-        /// </summary>
-        public abstract IList<IBindingSource> Sources { get; }
+        public abstract bool CanRead { get; }
 
-        /// <summary>
-        ///     Gets the source value.
-        /// </summary>
-        /// <param name="targetMember">The specified member to set value.</param>
-        /// <param name="context">The specified operation context.</param>
-        /// <param name="throwOnError">
-        ///     true to throw an exception if the value cannot be obtained; false to return
-        ///     <see cref="BindingConstants.InvalidValue" /> if the value cannot be obtained.
-        /// </param>
+        public abstract bool CanWrite { get; }
+
+        public abstract IList<IObserver> Sources { get; }
+
         public object GetValue(IBindingMemberInfo targetMember, IDataContext context, bool throwOnError)
         {
             try
@@ -230,14 +161,6 @@ namespace MugenMvvmToolkit.Binding.Accessors
             }
         }
 
-        /// <summary>
-        ///     Sets the source value.
-        /// </summary>
-        /// <param name="targetAccessor">The specified accessor to get value.</param>
-        /// <param name="context">The specified operation context.</param>
-        /// <param name="throwOnError">
-        ///     true to throw an exception if the value cannot be set.
-        /// </param>
         public bool SetValue(IBindingSourceAccessor targetAccessor, IDataContext context, bool throwOnError)
         {
             try
@@ -252,45 +175,25 @@ namespace MugenMvvmToolkit.Binding.Accessors
             }
         }
 
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public abstract void Dispose();
+        public virtual void Dispose()
+        {
+            _parameters = null;
+        }
 
-        /// <summary>
-        ///     Occurs before the value changes.
-        /// </summary>
         public abstract event EventHandler<IBindingSourceAccessor, ValueAccessorChangingEventArgs> ValueChanging;
 
-        /// <summary>
-        ///     Occurs when value changed.
-        /// </summary>
         public abstract event EventHandler<IBindingSourceAccessor, ValueAccessorChangedEventArgs> ValueChanged;
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Gets the raw value from source.
-        /// </summary>
         protected abstract object GetRawValueInternal(IBindingMemberInfo targetMember, IDataContext context,
             bool throwOnError);
 
-        /// <summary>
-        ///     Sets the source value.
-        /// </summary>
-        /// <param name="targetAccessor">The specified accessor to get value.</param>
-        /// <param name="context">The specified operation context.</param>
-        /// <param name="throwOnError">
-        ///     true to throw an exception if the value cannot be set.
-        /// </param>
         protected abstract bool SetValueInternal(IBindingSourceAccessor targetAccessor, IDataContext context,
             bool throwOnError);
 
-        /// <summary>
-        ///     Gets the source value.
-        /// </summary>
         protected virtual object GetValueInternal(IBindingMemberInfo targetMember, IDataContext context,
             bool throwOnError)
         {
@@ -311,7 +214,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 IBindingValueConverter converter = _parameters.ConverterDelegate(context);
                 if (converter != null)
                 {
-                    CultureInfo culture = _parameters.ConverterCultureDelegate.GetValueOrDefault(context, CultureInfo.CurrentCulture);
+                    CultureInfo culture = _parameters.ConverterCultureDelegate.GetValueOrDefault(context, BindingServiceProvider.BindingCultureInfo());
                     object parameter = _parameters.ConverterParameterDelegate.GetValueOrDefault(context);
                     value = converter.ConvertBack(value, targetMember.Type, parameter, culture, context);
                 }
@@ -331,7 +234,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 IBindingValueConverter converter = _parameters.ConverterDelegate(context);
                 if (converter != null)
                 {
-                    CultureInfo culture = _parameters.ConverterCultureDelegate.GetValueOrDefault(context, CultureInfo.CurrentCulture);
+                    CultureInfo culture = _parameters.ConverterCultureDelegate.GetValueOrDefault(context, BindingServiceProvider.BindingCultureInfo());
                     object parameter = _parameters.ConverterParameterDelegate.GetValueOrDefault(context);
                     value = converter.Convert(value, targetMember.Type, parameter, culture, context);
                 }

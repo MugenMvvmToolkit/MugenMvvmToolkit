@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IExpressionInvoker.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -21,14 +21,8 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Interfaces.Parse
 {
-    /// <summary>
-    ///     Represents the node expression invoker.
-    /// </summary>
     public interface IExpressionInvoker
     {
-        /// <summary>
-        ///     Invokes an expression using specified context and source values.
-        /// </summary>
         object Invoke(IDataContext context, IList<object> sourceValues);
     }
 }

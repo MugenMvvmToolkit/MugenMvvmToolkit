@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="SerializableOperationCallbackFactory.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -16,13 +16,22 @@
 
 #endregion
 
+#if ANDROID || TOUCH || WPF || WINFORMS
+extern alias mscore;
+#endif
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using System.Threading;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.DataConstants;
+using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Infrastructure.Callbacks;
+using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
@@ -30,30 +39,45 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
 
-namespace MugenMvvmToolkit.Infrastructure.Callbacks
+#if ANDROID
+namespace MugenMvvmToolkit.Android.Infrastructure.Callbacks
+#elif TOUCH
+namespace MugenMvvmToolkit.iOS.Infrastructure.Callbacks
+#elif WINDOWSCOMMON
+namespace MugenMvvmToolkit.WinRT.Infrastructure.Callbacks
+#elif WINDOWS_PHONE
+namespace MugenMvvmToolkit.WinPhone.Infrastructure.Callbacks
+#elif XAMARIN_FORMS
+namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Callbacks
+#elif WPF
+namespace MugenMvvmToolkit.WPF.Infrastructure.Callbacks
+#elif WINFORMS
+namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
+#elif SILVERLIGHT
+namespace MugenMvvmToolkit.Silverlight.Infrastructure.Callbacks
+#endif
 {
     //NOTE do you want to see some magic? :)
-    /// <summary>
-    ///     Rerpresets the factory that allows to create serializable callback operations.
-    /// </summary>
     public class SerializableOperationCallbackFactory : IOperationCallbackFactory
     {
         #region Nested types
 
-        [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true)]
-#if ANDROID
-        [Serializable]
+        [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true, Name = "socffs")]
+#if ANDROID || TOUCH || WPF || WINFORMS
+        [mscore::System.Serializable]
 #endif
         internal sealed class FieldSnapshot
         {
             #region Fields
 
+            private const int AsyncOperationField = 0;
             private const int SerializableField = 1;
             private const int AwaiterField = 2;
             private const int NonSerializableField = 3;
             private const int ViewModelField = 4;
             private const int AnonymousClass = 5;
-            private const int BuilderField = 6;
+            private const int NavigationOperationField = 6;
+            private const int BuilderField = 7;
 
             #endregion
 
@@ -94,38 +118,44 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                     case BuilderField:
                         var type = Type.GetType(TypeName, true);
                         var createMethod = type.GetMethodEx("Create", MemberFlags.NonPublic | MemberFlags.Public | MemberFlags.Static);
-                        if (createMethod == null)
-                        {
-                            TraceError(field, targetType);
-                            return false;
-                        }
                         var startMethod = type.GetMethodEx("Start", MemberFlags.NonPublic | MemberFlags.Public | MemberFlags.Instance);
-                        if (startMethod == null || !startMethod.IsGenericMethodDefinition)
+                        if (createMethod == null || startMethod == null || !startMethod.IsGenericMethodDefinition)
                         {
-                            TraceError(field, targetType);
-                            return false;
+                            ((IAsyncStateMachine)target).MoveNext();
+                            return true;
                         }
                         var builder = createMethod.Invoke(null, Empty.Array<object>());
-                        field.SetValueEx(target, builder);
+                        SetValue(field, target, builder);
                         startMethod.MakeGenericMethod(typeof(IAsyncStateMachine))
                                    .Invoke(builder, new[] { target });
                         break;
                     case AwaiterField:
                         var awaiterType = typeof(SerializableAwaiter<>).MakeGenericType(Type.GetType(awaiterResultType, true));
                         var instance = Activator.CreateInstance(awaiterType, result);
-                        field.SetValueEx(target, instance);
+                        SetValue(field, target, instance);
+                        break;
+                    case AsyncOperationField:
+                        var opType = typeof(AsyncOperation<>).MakeGenericType(Type.GetType(awaiterResultType, true));
+                        var opInstance = (IAsyncOperation)Activator.CreateInstance(opType);
+                        AsyncOperation<object>.TrySetResult(opInstance, result);
+                        SetValue(field, target, opInstance);
                         break;
                     case AnonymousClass:
                         var anonType = Type.GetType(TypeName, true);
                         object anonClass;
                         if (!items.TryGetValue(anonType, out anonClass))
                         {
-                            anonClass = ServiceProvider.IocContainer.Get(anonType);
+                            anonClass = ServiceProvider.GetOrCreate(anonType);
                             foreach (var snapshot in Snapshots)
                                 snapshot.Restore(anonType, anonClass, items, viewModels, awaiterResultType, result);
                             items[anonType] = anonClass;
                         }
-                        field.SetValueEx(target, anonClass);
+                        SetValue(field, target, anonClass);
+                        break;
+                    case NavigationOperationField:
+                        var operation = new NavigationOperation();
+                        operation.SetResult(OperationResult.Convert<bool>(result));
+                        SetValue(field, target, operation);
                         break;
                     case NonSerializableField:
                         object service;
@@ -134,34 +164,40 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                             var serviceType = Type.GetType(TypeName, true);
                             if (!items.TryGetValue(serviceType, out service))
                             {
-                                service = ServiceProvider.IocContainer.Get(serviceType);
+                                if (field.Name.Contains("CachedAnonymousMethodDelegate"))
+                                    service = field.GetValueEx<object>(target);
+                                else if (!ServiceProvider.TryGet(serviceType, out service))
+                                {
+                                    service = field.GetValueEx<object>(target);
+                                    TraceError(field, targetType);
+                                }
                                 items[serviceType] = service;
                             }
                         }
                         else
                         {
-                            var restoreValueState = RestoreValueState;
-                            service = restoreValueState == null ? State : restoreValueState(State);
+                            var stateManager = ServiceProvider.OperationCallbackStateManager;
+                            service = stateManager == null ? State : stateManager.RestoreValue(State, field, items, viewModels, result, DataContext.Empty);
                         }
-                        field.SetValueEx(target, service);
+                        SetValue(field, target, service);
                         break;
                     case SerializableField:
-                        field.SetValueEx(target, IsType ? Type.GetType((string)State, false) : State);
+                        SetValue(field, target, IsType ? Type.GetType((string)State, false) : State);
                         break;
                     case ViewModelField:
-                        var viewModel = FindViewModel(viewModels);
+                        var viewModel = RestoreViewModel(viewModels, items, result);
                         if (viewModel == null)
                         {
                             TraceError(field, targetType);
                             return false;
                         }
-                        field.SetValueEx(target, viewModel);
+                        SetValue(field, target, viewModel);
                         break;
                 }
                 return true;
             }
 
-            public static FieldSnapshot Create(FieldInfo field, object target)
+            public static FieldSnapshot Create(FieldInfo field, object target, IAsyncOperation asyncOperation, ISerializer serializer)
             {
                 var isStateMachine = target is IAsyncStateMachine;
                 if (isStateMachine)
@@ -179,11 +215,40 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 if (value == null || value is IAsyncStateMachine)
                     return null;
 
-                if (isStateMachine && field.Name.Contains("$awaiter"))
+                if (isStateMachine && value is IAsyncOperationAwaiter)
+                    return new FieldSnapshot { Name = field.Name, FieldType = AwaiterField };
+
+                //NavigationOperation
+                if (value is INavigationOperation)
                 {
-                    if (value is IAsyncOperationAwaiter)
-                        return new FieldSnapshot { Name = field.Name, FieldType = AwaiterField };
-                    return null;
+                    return new FieldSnapshot
+                    {
+                        Name = field.Name,
+                        FieldType = NavigationOperationField
+                    };
+                }
+
+                //field is type.
+                if (typeof(Type).IsAssignableFrom(field.FieldType))
+                    return new FieldSnapshot
+                    {
+                        State = ((Type)value).AssemblyQualifiedName,
+                        FieldType = SerializableField,
+                        Name = field.Name,
+                        IsType = true
+                    };
+
+                var stateManager = ServiceProvider.OperationCallbackStateManager;
+                if (stateManager != null)
+                {
+                    var valueState = stateManager.SaveValue(value, field, asyncOperation, DataContext.Empty);
+                    if (valueState != null)
+                        return new FieldSnapshot
+                        {
+                            Name = field.Name,
+                            State = valueState,
+                            FieldType = NonSerializableField
+                        };
                 }
 
                 var viewModel = value as IViewModel;
@@ -197,17 +262,8 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                         State = viewModel.GetViewModelId()
                     };
                 }
-                //field is type.
-                if (typeof(Type).IsAssignableFrom(field.FieldType))
-                    return new FieldSnapshot
-                    {
-                        State = ((Type)value).AssemblyQualifiedName,
-                        FieldType = SerializableField,
-                        Name = field.Name,
-                        IsType = true
-                    };
 
-                if (field.FieldType.IsSerializable())
+                if (serializer.IsSerializable(field.FieldType) || value is string)
                     return new FieldSnapshot
                     {
                         State = value,
@@ -221,7 +277,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                     var snapshots = new List<FieldSnapshot>();
                     foreach (var anonymousField in type.GetFieldsEx(MemberFlags.Instance | MemberFlags.NonPublic | MemberFlags.Public))
                     {
-                        var snapshot = Create(anonymousField, value);
+                        var snapshot = Create(anonymousField, value, asyncOperation, serializer);
                         if (snapshot != null)
                             snapshots.Add(snapshot);
                     }
@@ -233,19 +289,12 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                         TypeName = type.AssemblyQualifiedName
                     };
                 }
-                var saveValueState = SaveValueState;
-                if (saveValueState != null)
-                {
-                    var valueState = saveValueState(value);
-                    if (valueState != null)
-                        return new FieldSnapshot
-                        {
-                            Name = field.Name,
-                            State = valueState,
-                            FieldType = NonSerializableField
-                        };
-                }
-
+                if (asyncOperation != null && Equals(value, asyncOperation))
+                    return new FieldSnapshot
+                    {
+                        Name = field.Name,
+                        FieldType = AsyncOperationField
+                    };
                 return new FieldSnapshot
                 {
                     Name = field.Name,
@@ -254,16 +303,24 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 };
             }
 
-            private IViewModel FindViewModel(ICollection<IViewModel> viewModels)
+            private IViewModel RestoreViewModel(ICollection<IViewModel> viewModels, Dictionary<Type, object> items, IOperationResult result)
             {
                 Guid id = Guid.Empty;
                 var vmType = Type.GetType(TypeName, true);
-                if (State is Guid)
-                    id = (Guid)State;
-
-                var vm = ViewModelProvider.TryGetViewModelById(id);
+                if (State != null)
+                    Guid.TryParse(State.ToString(), out id);
+                var vm = ServiceProvider.ViewModelProvider.TryGetViewModelById(id);
                 if (vm != null)
                     return vm;
+
+                var stateManager = ServiceProvider.OperationCallbackStateManager;
+                if (stateManager != null)
+                {
+                    vm = stateManager.RestoreViewModelValue(vmType, id, items, viewModels, result, DataContext.Empty);
+                    if (vm != null)
+                        return vm;
+                }
+
                 foreach (var viewModel in viewModels)
                 {
                     if (viewModel.GetViewModelId() == id)
@@ -277,47 +334,58 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             private void TraceError(FieldInfo field, Type stateMachineType)
             {
                 string fieldSt = field == null ? Name : field.ToString();
-                Tracer.Error("The field {0} cannot be restored on type {1}", fieldSt, stateMachineType);
+                Tracer.Error("The field '{0}' cannot be restored on type '{1}'", fieldSt, stateMachineType);
+            }
+
+            private static void SetValue(FieldInfo field, object target, object value)
+            {
+                value = ReflectionExtensions.Convert(value, field.FieldType);
+                field.SetValueEx(target, value);
             }
 
             #endregion
         }
 
-        /// <summary>
-        /// Rerpresents the serializable callback that allows to restore async callback.
-        /// </summary>
         [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true)]
-#if ANDROID
-        [Serializable]
+#if ANDROID || TOUCH || WPF || WINFORMS
+        [mscore::System.Serializable]
 #endif
         internal sealed class AwaiterSerializableCallback : ISerializableCallback
         {
             #region Constructors
 
-            public AwaiterSerializableCallback(Action continuation, IAsyncStateMachine stateMachine, string awaiterResultType)
+            //Only for serialization
+            internal AwaiterSerializableCallback() { }
+
+            public AwaiterSerializableCallback(Action continuation, IAsyncStateMachine stateMachine, string awaiterResultType, bool isUiThread,
+                IAsyncOperation asyncOperation, ISerializer serializer)
             {
+                IsUiThread = isUiThread;
                 AwaiterResultType = awaiterResultType;
-                Initialize(continuation, stateMachine);
+                Initialize(continuation, stateMachine, asyncOperation, serializer);
             }
 
             #endregion
 
             #region Properties
 
-            [DataMember(EmitDefaultValue = false)]
+            [DataMember(Name = "art", EmitDefaultValue = false)]
             public string AwaiterResultType { get; set; }
 
-            [DataMember(EmitDefaultValue = false)]
+            [DataMember(Name = "smt", EmitDefaultValue = false)]
             public string StateMachineType { get; set; }
 
-            [DataMember(EmitDefaultValue = false)]
+            [DataMember(Name = "fs", EmitDefaultValue = false)]
             public List<FieldSnapshot> FieldSnapshots { get; set; }
+
+            [DataMember(Name = "iut", EmitDefaultValue = false)]
+            public bool IsUiThread { get; set; }
 
             #endregion
 
             #region Methods
 
-            private void Initialize(Action continuation, IAsyncStateMachine stateMachine)
+            private void Initialize(Action continuation, IAsyncStateMachine stateMachine, IAsyncOperation asyncOperation, ISerializer serializer)
             {
                 const MemberFlags flags = MemberFlags.NonPublic | MemberFlags.Public | MemberFlags.Instance;
                 if (stateMachine == null)
@@ -353,47 +421,79 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
                 foreach (var field in type.GetFieldsEx(flags))
                 {
-                    var snapshot = FieldSnapshot.Create(field, stateMachine);
+                    var snapshot = FieldSnapshot.Create(field, stateMachine, asyncOperation, serializer);
                     if (snapshot != null)
                         FieldSnapshots.Add(snapshot);
                 }
             }
 
-            private static void TraceError(object target)
-            {
-                Tracer.Error("The serializable awaiter cannot get IAsyncStateMachine from target {0}",
-                    target);
-            }
-
-            #endregion
-
-            #region Implementation of ISerializableCallback
-
-            public object Invoke(IOperationResult result)
+            private void InvokeInternal(IOperationResult result)
             {
                 if (StateMachineType == null || FieldSnapshots == null)
                 {
-                    Tracer.Error("The await callback cannot be executed.");
-                    return null;
+                    Tracer.Error("The await callback cannot be executed empty serialization state property " +
+                                 (StateMachineType == null ? "StateMachineType" : "FieldSnapshots"));
+                    return;
                 }
                 var type = Type.GetType(StateMachineType, true);
-                IAsyncStateMachine stateMachine;
-#if NETFX_CORE || WINDOWSCOMMON
+                IAsyncStateMachine stateMachine = null;
+#if WINDOWSCOMMON || XAMARIN_FORMS
                 if (type.GetTypeInfo().IsValueType)
 #else
                 if (type.IsValueType)
 #endif
-
-                    stateMachine = (IAsyncStateMachine)GetDefault(type);
+                {
+                    try
+                    {
+#if WINDOWSCOMMON
+                        stateMachine = (IAsyncStateMachine)Activator.CreateInstance(type);
+#else
+                        stateMachine = (IAsyncStateMachine)GetDefault(type);
+#endif
+                    }
+                    catch
+                    {
+                        ;
+                    }
+                }
                 else
                 {
-                    var constructor = type.GetConstructor(Empty.Array<Type>());
-                    if (constructor == null)
+                    try
                     {
-                        Tracer.Error("The await callback cannot be executed.");
-                        return null;
+                        var constructor = type.GetConstructor(Empty.Array<Type>());
+                        if (constructor != null)
+                            stateMachine = (IAsyncStateMachine)constructor.InvokeEx();
                     }
-                    stateMachine = (IAsyncStateMachine)constructor.InvokeEx();
+                    catch
+                    {
+                        ;
+                    }
+                }
+
+                if (stateMachine == null)
+                {
+                    Exception e = null;
+                    try
+                    {
+#if WINDOWSCOMMON
+                        if (type.GetTypeInfo().IsValueType)
+                            stateMachine = (IAsyncStateMachine)GetDefault(type);
+                        else
+                            stateMachine = (IAsyncStateMachine)Activator.CreateInstance(type);
+#else
+                        stateMachine = (IAsyncStateMachine)Activator.CreateInstance(type);
+#endif
+                    }
+                    catch (Exception ex)
+                    {
+                        e = ex;
+                    }
+                    if (e != null)
+                    {
+                        Tracer.Error("The await callback cannot be executed missing constructor, state machine " + type +
+                                     " " + e.Flatten(true));
+                        return;
+                    }
                 }
 
                 var viewModels = CollectViewModels(result);
@@ -404,12 +504,32 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 FieldSnapshots.Sort((x1, x2) => x1.FieldType.CompareTo(x2.FieldType));
                 for (int index = 0; index < FieldSnapshots.Count; index++)
                 {
-                    if (!FieldSnapshots[index].Restore(type, stateMachine, items, viewModels, AwaiterResultType, result))
+                    var fieldSnapshot = FieldSnapshots[index];
+                    if (!fieldSnapshot.Restore(type, stateMachine, items, viewModels, AwaiterResultType, result))
                     {
-                        Tracer.Error("The await callback cannot be executed.");
+                        object fieldInfo = (object)type.GetFieldEx(fieldSnapshot.Name,
+                            MemberFlags.NonPublic | MemberFlags.Public | MemberFlags.Instance) ?? fieldSnapshot.Name;
+                        Tracer.Error("The await callback cannot be executed, field ({0}) cannot be restored source {1}", fieldInfo, result.Source);
                         break;
                     }
                 }
+            }
+
+            private static void TraceError(object target)
+            {
+                Tracer.Error("The serializable awaiter cannot get IAsyncStateMachine from target {0}", target);
+            }
+
+            #endregion
+
+            #region Implementation of ISerializableCallback
+
+            public object Invoke(IOperationResult result)
+            {
+                if (IsUiThread)
+                    ServiceProvider.ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, result, (callback, operationResult) => callback.InvokeInternal(operationResult));
+                else
+                    InvokeInternal(result);
                 return null;
             }
 
@@ -423,18 +543,30 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             private readonly Action _continuation;
             private readonly IHasStateMachine _hasStateMachine;
             private readonly Type _resultType;
+            private readonly IAsyncOperation _asyncOperation;
+            private readonly ISerializer _serializer;
             private ISerializableCallback _serializableCallback;
+            private readonly SynchronizationContext _context;
+            private readonly bool _isUiThread;
 
             #endregion
 
             #region Constructors
 
-            public AwaiterContinuation(Action continuation, IHasStateMachine hasStateMachine, Type resultType)
+            public AwaiterContinuation(Action continuation, IHasStateMachine hasStateMachine, Type resultType, bool continueOnCapturedContext,
+                IAsyncOperation asyncOperation, ISerializer serializer)
             {
-                Should.NotBeNull(continuation, "continuation");
+                Should.NotBeNull(continuation, nameof(continuation));
                 _continuation = continuation;
                 _hasStateMachine = hasStateMachine;
                 _resultType = resultType;
+                _asyncOperation = asyncOperation;
+                _serializer = serializer;
+                if (continueOnCapturedContext)
+                {
+                    _context = SynchronizationContext.Current;
+                    _isUiThread = ServiceProvider.ThreadManager.IsUiThread;
+                }
             }
 
             #endregion
@@ -444,14 +576,17 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             public ISerializableCallback ToSerializableCallback()
             {
                 if (_serializableCallback == null)
-                    _serializableCallback = new AwaiterSerializableCallback(_continuation, _hasStateMachine.StateMachine,
-                        _resultType.AssemblyQualifiedName);
+                    _serializableCallback = new AwaiterSerializableCallback(_continuation, _hasStateMachine.StateMachine, _resultType.AssemblyQualifiedName,
+                        _isUiThread, _asyncOperation, _serializer);
                 return _serializableCallback;
             }
 
             public void Invoke(IOperationResult result)
             {
-                _continuation();
+                if (_context == null || ReferenceEquals(SynchronizationContext.Current, _context))
+                    _continuation();
+                else
+                    _context.Post(state => ((Action)state).Invoke(), _continuation);
             }
 
             #endregion
@@ -468,21 +603,26 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
             private readonly IOperationResult _result;
             private readonly IAsyncOperation _operation;
+            private readonly bool _continueOnCapturedContext;
+            private readonly ISerializer _serializer;
             private IAsyncStateMachine _stateMachine;
 
             #endregion
 
             #region Constructors
 
-            public SerializableAwaiter(IAsyncOperation operation)
-            {
-                _operation = operation;
-            }
-
             [UsedImplicitly]
             public SerializableAwaiter(IOperationResult result)
             {
-                _result = result;
+                if (result != null)
+                    _result = OperationResult.Convert<TResult>(result);
+            }
+
+            public SerializableAwaiter(IAsyncOperation operation, bool continueOnCapturedContext, ISerializer serializer)
+            {
+                _operation = operation;
+                _continueOnCapturedContext = continueOnCapturedContext;
+                _serializer = serializer;
             }
 
             #endregion
@@ -491,13 +631,10 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
             public void OnCompleted(Action continuation)
             {
-                _operation.ContinueWith(new AwaiterContinuation(continuation, this, typeof(TResult)));
+                _operation.ContinueWith(new AwaiterContinuation(continuation, this, typeof(TResult), _continueOnCapturedContext, _operation, _serializer));
             }
 
-            public bool IsCompleted
-            {
-                get { return _result != null || _operation.IsCompleted; }
-            }
+            public bool IsCompleted => _result != null || _operation.IsCompleted;
 
             TResult IAsyncOperationAwaiter<TResult>.GetResult()
             {
@@ -508,6 +645,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             void IAsyncOperationAwaiter.GetResult()
             {
                 IOperationResult result = _result ?? _operation.Result;
+                // ReSharper disable once UnusedVariable
                 var o = result.Result;
             }
 
@@ -520,51 +658,48 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
             #region Implementation of IHasStateMachine
 
-            public IAsyncStateMachine StateMachine
-            {
-                get { return _stateMachine; }
-            }
+            public IAsyncStateMachine StateMachine => _stateMachine;
 
             #endregion
         }
 
-        /// <summary>
-        /// Rerpresents the serializable callback that allows to restore delegate callback.
-        /// </summary>
         [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true)]
-#if ANDROID
-        [Serializable]
+#if ANDROID || TOUCH || WPF || WINFORMS
+        [mscore::System.Serializable]
 #endif
         internal sealed class DelegateSerializableCallback : ISerializableCallback
         {
             #region Fields
 
-            [DataMember(EmitDefaultValue = false)]
+            [DataMember(Name = "tt", EmitDefaultValue = false)]
             internal string TargetType;
 
-            [DataMember(EmitDefaultValue = false)]
+            [DataMember(Name = "fps", EmitDefaultValue = false)]
             internal bool FirstParameterSource;
 
-            [DataMember(EmitDefaultValue = false)]
+            [DataMember(Name = "is", EmitDefaultValue = false)]
             internal bool IsStatic;
 
-            [DataMember(EmitDefaultValue = false)]
+            [DataMember(Name = "t", EmitDefaultValue = false)]
             internal object Target;
 
-            [DataMember(EmitDefaultValue = false)]
+            [DataMember(Name = "mn", EmitDefaultValue = false)]
             internal string MethodName;
 
-            [DataMember(EmitDefaultValue = false)]
+            [DataMember(Name = "s", EmitDefaultValue = false)]
             internal List<FieldSnapshot> Snapshots;
 
             #endregion
 
             #region Constructors
 
+            //Only for serialization
+            internal DelegateSerializableCallback() { }
+
             public DelegateSerializableCallback(string targetType, string methodName, bool firstParameterSource, bool isStatic, object target, List<FieldSnapshot> snapshots)
             {
-                Should.NotBeNull(targetType, "targetType");
-                Should.NotBeNull(methodName, "methodName");
+                Should.NotBeNull(targetType, nameof(targetType));
+                Should.NotBeNull(methodName, nameof(methodName));
                 Snapshots = snapshots;
                 TargetType = targetType;
                 MethodName = methodName;
@@ -577,13 +712,11 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
             #region Implementation of ISerializableCallback
 
-            /// <summary>
-            ///     Invokes the callback using the specified operation result.
-            /// </summary>
             public object Invoke(IOperationResult result)
             {
                 var invokeInternal = InvokeInternal(result);
-                Tracer.Info("The restored callback was invoked, target type '{0}', method '{1}'", TargetType, MethodName);
+                if (Tracer.TraceInformation)
+                    Tracer.Info("The restored callback was invoked, target type '{0}', method '{1}'", TargetType, MethodName);
                 return invokeInternal;
             }
 
@@ -623,7 +756,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 {
                     if (!items.TryGetValue(type, out target))
                     {
-                        target = ServiceProvider.IocContainer.Get(type);
+                        target = ServiceProvider.GetOrCreate(type);
                         items[type] = target;
                     }
                 }
@@ -661,6 +794,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         #region Fields
 
         private static readonly MethodInfo GetDefaultGenericMethod;
+        private readonly ISerializer _serializer;
 
         #endregion
 
@@ -669,54 +803,32 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         static SerializableOperationCallbackFactory()
         {
             GetDefaultGenericMethod = typeof(SerializableOperationCallbackFactory)
-                .GetMethodEx("GetDefaultGeneric", MemberFlags.Public | MemberFlags.NonPublic | MemberFlags.Static);
+                .GetMethodEx(nameof(GetDefaultGeneric), MemberFlags.Public | MemberFlags.NonPublic | MemberFlags.Static);
         }
 
-        #endregion
-
-        #region Properties
-
-        /// <summary>
-        /// Gets or sets the delegate that allows to convert non serializable value to serializable.
-        /// </summary>
-        [CanBeNull]
-        public static Func<object, object> SaveValueState { get; set; }
-
-        /// <summary>
-        /// Gets or sets the delegate that allows to convert from serializable value to original.
-        /// </summary>
-        [CanBeNull]
-        public static Func<object, object> RestoreValueState { get; set; }
+        public SerializableOperationCallbackFactory(ISerializer serializer)
+        {
+            Should.NotBeNull(serializer, nameof(serializer));
+            _serializer = serializer;
+        }
 
         #endregion
 
         #region Implementation of IOperationCallbackFactory
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IAsyncOperationAwaiter" />.
-        /// </summary>
         public IAsyncOperationAwaiter CreateAwaiter(IAsyncOperation operation, IDataContext context)
         {
-            Should.NotBeNull(operation, "operation");
-            return new SerializableAwaiter<object>(operation);
+            return CreateAwaiterInternal<object>(operation, context);
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IAsyncOperationAwaiter{TResult}" />.
-        /// </summary>
-        public IAsyncOperationAwaiter<TResult> CreateAwaiter<TResult>(IAsyncOperation<TResult> operation,
-            IDataContext context)
+        public IAsyncOperationAwaiter<TResult> CreateAwaiter<TResult>(IAsyncOperation<TResult> operation, IDataContext context)
         {
-            Should.NotBeNull(operation, "operation");
-            return new SerializableAwaiter<TResult>(operation);
+            return CreateAwaiterInternal<TResult>(operation, context);
         }
 
-        /// <summary>
-        ///     Tries to convert a delegate to an instance of <see cref="ISerializableCallback" />.
-        /// </summary>
         public ISerializableCallback CreateSerializableCallback(Delegate @delegate)
         {
-            Should.NotBeNull(@delegate, "delegate");
+            Should.NotBeNull(@delegate, nameof(@delegate));
             var method = @delegate.GetMethodInfo();
             bool firstParameterSource;
             if (!CheckMethodParameters(method, out firstParameterSource))
@@ -735,7 +847,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 var snapshots = new List<FieldSnapshot>();
                 foreach (var anonymousField in targetType.GetFieldsEx(MemberFlags.Instance | MemberFlags.NonPublic | MemberFlags.Public))
                 {
-                    var snapshot = FieldSnapshot.Create(anonymousField, target);
+                    var snapshot = FieldSnapshot.Create(anonymousField, target, null, _serializer);
                     if (snapshot != null)
                         snapshots.Add(snapshot);
                 }
@@ -743,12 +855,24 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                     false, null, snapshots);
             }
             return new DelegateSerializableCallback(targetType.AssemblyQualifiedName, method.Name, firstParameterSource,
-                false, targetType.IsSerializable() ? target : null, null);
+                false, _serializer.IsSerializable(targetType) ? target : null, null);
         }
 
         #endregion
 
         #region Methods
+
+        private SerializableAwaiter<TResult> CreateAwaiterInternal<TResult>(IAsyncOperation operation, IDataContext context)
+        {
+            Should.NotBeNull(operation, nameof(operation));
+            if (context == null)
+                context = DataContext.Empty;
+            bool continueOnCapturedContext;
+            if (!context.TryGetData(OpeartionCallbackConstants.ContinueOnCapturedContext, out continueOnCapturedContext))
+                continueOnCapturedContext = true;
+            return new SerializableAwaiter<TResult>(operation, continueOnCapturedContext, _serializer);
+        }
+
 
         private static object GetDefault(Type t)
         {
@@ -757,11 +881,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         private static ICollection<IViewModel> CollectViewModels(IOperationResult result)
         {
-#if (WINDOWS_PHONE && V71) || TEST
-            var viewModels = new List<IViewModel>();
-#else
-            var viewModels = new HashSet<IViewModel>();
-#endif
+            var viewModels = new HashSet<IViewModel>(ReferenceEqualityComparer.Instance);
             var context = result.OperationContext as INavigationContext;
             if (context != null)
             {

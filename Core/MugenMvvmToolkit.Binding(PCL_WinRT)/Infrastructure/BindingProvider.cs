@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="BindingProvider.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Accessors;
@@ -28,9 +29,7 @@ using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Parse;
-using MugenMvvmToolkit.Binding.Sources;
 using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -38,9 +37,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    /// <summary>
-    ///     Represents the binding provider that allows to create the data bindings.
-    /// </summary>
     public class BindingProvider : IBindingProvider
     {
         #region Fields
@@ -52,7 +48,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         private static readonly Func<IDataContext, IList<object>, object> FormatMembersExpressionDelegate;
 
         private readonly OrderedListInternal<IBindingBehavior> _defaultBehaviors;
-        private readonly IList<IBindingSourceDecorator> _decorators;
         private readonly Func<IDataContext, IDataBinding> _buildDelegate;
 
         private IBindingParser _parser;
@@ -61,26 +56,19 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingProvider" /> class.
-        /// </summary>
         static BindingProvider()
         {
             CreateInvalidaDataBindingDelegate = CreateInvalidaDataBinding;
             FormatMembersExpressionDelegate = FormatMembersExpression;
-            ProviderConstant = DataConstant.Create(() => ProviderConstant, true);
-            ExceptionConstant = DataConstant.Create(() => ExceptionConstant, true);
+            var type = typeof(BindingProvider);
+            ProviderConstant = DataConstant.Create<BindingProvider>(type, nameof(ProviderConstant), true);
+            ExceptionConstant = DataConstant.Create<Exception>(type, nameof(ExceptionConstant), true);
             BehaviorComparer = new DelegateComparer<IBindingBehavior>((behavior, bindingBehavior) => bindingBehavior.Priority.CompareTo(behavior.Priority));
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingProvider" /> class.
-        /// </summary>
         public BindingProvider(IBindingParser parser = null)
         {
             _parser = parser ?? new BindingParser();
-            var comparer = new DelegateComparer<IBindingSourceDecorator>((manager, targetManager) => targetManager.Priority.CompareTo(manager.Priority));
-            _decorators = new OrderedListInternal<IBindingSourceDecorator>(comparer);
             _defaultBehaviors = new OrderedListInternal<IBindingBehavior>(BehaviorComparer)
             {
                 new OneWayBindingMode()
@@ -92,57 +80,23 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Implementation of IBindingProvider
 
-        /// <summary>
-        ///     Gets the default behaviors.
-        /// </summary>
-        public ICollection<IBindingBehavior> DefaultBehaviors
-        {
-            get { return _defaultBehaviors; }
-        }
+        public ICollection<IBindingBehavior> DefaultBehaviors => _defaultBehaviors;
 
-        /// <summary>
-        ///     Gets the collection of <see cref="IBindingSourceDecorator" />.
-        /// </summary>
-        public ICollection<IBindingSourceDecorator> SourceDecorators
-        {
-            get { return _decorators; }
-        }
-
-        /// <summary>
-        ///     Gets or sets the <see cref="IBindingParser" />.
-        /// </summary>
         public IBindingParser Parser
         {
             get { return _parser; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _parser = value;
             }
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IBindingBuilder" />.
-        /// </summary>
-        /// <param name="context">The specified context.</param>
-        /// <returns>An instance of <see cref="IBindingBuilder" />.</returns>
-        public IBindingBuilder CreateBuilder(IDataContext context)
+        public IBindingBuilder CreateBuilder(IDataContext context = null)
         {
-            Should.NotBeNull(context, "context");
-            if (context.Contains(BindingBuilderConstants.BuildDelegate))
-                return new BindingBuilder(context);
-            if (context.IsReadOnly)
-                context = new DataContext(context);
-            var builder = new BindingBuilder(context);
-            builder.Add(BindingBuilderConstants.BuildDelegate, _buildDelegate);
-            return builder;
+            return CreateBuilderInternal(context.ToNonReadOnly());
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IDataBinding" />.
-        /// </summary>
-        /// <param name="context">The specified context.</param>
-        /// <returns>An instance of <see cref="IDataBinding" />.</returns>
         public IDataBinding CreateBinding(IDataContext context)
         {
             try
@@ -155,30 +109,17 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Creates a series of instances of <see cref="IBindingBuilder" />.
-        /// </summary>
-        /// <param name="target">The specified binding target.</param>
-        /// <param name="bindingExpression">The specified binding expression.</param>
-        /// <param name="sources">The specified sources, if any.</param>
-        /// <returns>An instance of <see cref="IBindingBuilder" />.</returns>
-        public IList<IBindingBuilder> CreateBuildersFromString(object target, string bindingExpression, IList<object> sources = null)
+        public IList<IBindingBuilder> CreateBuildersFromString(object target, string bindingExpression, IList<object> sources = null, IDataContext context = null)
         {
-            Should.NotBeNull(target, "target");
-            Should.NotBeNullOrWhitespace(bindingExpression, "bindingExpression");
+            Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(bindingExpression, nameof(bindingExpression));
             try
             {
-                var parserResult = Parser.Parse(bindingExpression, sources.IsNullOrEmpty()
-                    ? DataContext.Empty
-                    : new DataContext(1)
-                    {
-                        {BindingBuilderConstants.RawSources, sources}
-                    });
+                var parserResult = Parser.Parse(target, bindingExpression, sources, context);
                 var result = new IBindingBuilder[parserResult.Count];
                 for (int index = 0; index < parserResult.Count; index++)
                 {
                     var builder = new BindingBuilder(parserResult[index]);
-                    builder.Add(BindingBuilderConstants.Target, target);
                     builder.Add(BindingBuilderConstants.BuildDelegate, _buildDelegate);
                     result[index] = builder;
                 }
@@ -196,32 +137,16 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Creates a series of instances of <see cref="IDataBinding" />.
-        /// </summary>
-        /// <param name="target">The specified binding target.</param>
-        /// <param name="bindingExpression">The specified binding expression.</param>
-        /// <param name="sources">The specified sources, if any.</param>
-        /// <returns>An instance of <see cref="IDataBinding" />.</returns>
-        public IList<IDataBinding> CreateBindingsFromString(object target, string bindingExpression, IList<object> sources = null)
+        public IList<IDataBinding> CreateBindingsFromString(object target, string bindingExpression, IList<object> sources = null, IDataContext context = null)
         {
-            Should.NotBeNull(target, "target");
-            Should.NotBeNullOrWhitespace(bindingExpression, "bindingExpression");
+            Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(bindingExpression, nameof(bindingExpression));
             try
             {
-                IList<IDataContext> parserResult = Parser.Parse(bindingExpression, (sources == null || sources.Count == 0)
-                    ? DataContext.Empty
-                    : new DataContext(1)
-                    {
-                        {BindingBuilderConstants.RawSources, sources}
-                    });
+                IList<IDataContext> parserResult = Parser.Parse(target, bindingExpression, sources, context);
                 var result = new IDataBinding[parserResult.Count];
                 for (int index = 0; index < parserResult.Count; index++)
-                {
-                    IDataContext dataContext = parserResult[index];
-                    dataContext.Add(BindingBuilderConstants.Target, target);
-                    result[index] = BuildBinding(dataContext);
-                }
+                    result[index] = BuildBinding(parserResult[index]);
                 return result;
             }
             catch (Exception exception)
@@ -233,25 +158,66 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
+        public void BuildFromLambdaExpression(IBindingBuilder builder, Func<LambdaExpression> expression)
+        {
+            Should.NotBeNull(builder, nameof(builder));
+            Should.NotBeNull(expression, nameof(expression));
+            BuildFromLambdaExpressionInternal(builder, expression);
+        }
+
+        public void BuildParameterFromLambdaExpression<TValue>(IBindingBuilder builder, Func<LambdaExpression> expression,
+            DataConstant<Func<IDataContext, TValue>> parameterConstant)
+        {
+            Should.NotBeNull(builder, nameof(builder));
+            Should.NotBeNull(expression, nameof(expression));
+            Should.NotBeNull(parameterConstant, nameof(parameterConstant));
+            BuildParameterFromLambdaExpressionInternal(builder, expression, parameterConstant);
+        }
+
+        public event Action<IBindingProvider, IDataContext> BindingInitializing;
+
+        public event Action<IBindingProvider, IDataBinding> BindingInitialized;
+
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Builds an instance of <see cref="IDataBinding" />.
-        /// </summary>
-        /// <returns>
-        ///     The builded <see cref="IDataBinding" />.
-        /// </returns>
-        protected IDataBinding BuildBinding([NotNull] IDataContext context)
+        protected virtual void BuildFromLambdaExpressionInternal(IBindingBuilder builder, Func<LambdaExpression> expression)
+        {
+            LambdaExpressionToBindingExpressionConverter.Convert(builder, expression);
+        }
+
+        protected virtual void BuildParameterFromLambdaExpressionInternal<TValue>(IBindingBuilder builder, Func<LambdaExpression> expression, DataConstant<Func<IDataContext, TValue>> parameterConstant)
+        {
+            Func<IDataContext, TValue> value;
+            var func = LambdaExpressionToBindingExpressionConverter.ConvertParameter(builder, expression);
+            if (typeof(TValue) == typeof(object))
+                value = (Func<IDataContext, TValue>)(object)func;
+            else
+                value = func.CastFunc<TValue>;
+            builder.Add(parameterConstant, value);
+        }
+
+        [NotNull]
+        protected virtual IBindingBuilder CreateBuilderInternal([NotNull] IDataContext context)
+        {
+            if (!context.Contains(BindingBuilderConstants.BuildDelegate))
+                context.Add(BindingBuilderConstants.BuildDelegate, _buildDelegate);
+            return new BindingBuilder(context);
+        }
+
+        [NotNull]
+        protected virtual IDataBinding BuildBinding([NotNull] IDataContext context)
         {
             try
             {
+                RaiseInitializing(context);
                 object target;
                 IBindingPath targetPath;
                 IDataBinding binding = CreateBinding(context, out target, out targetPath);
                 if (!binding.IsDisposed)
                     BindingServiceProvider.BindingManager.Register(target, targetPath.Path, binding, context);
+                RaiseInitialized(binding);
                 return binding;
             }
             catch (Exception exception)
@@ -260,10 +226,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Creates the data binding.
-        /// </summary>
-        /// <returns>An instance of <see cref="IDataBinding" /></returns>
         [NotNull]
         protected virtual IDataBinding CreateBinding([NotNull] IDataContext context, out object target, out IBindingPath targetPath)
         {
@@ -273,38 +235,30 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (sourceDelegates.Count > 1 || formatExpression != null)
             {
                 formatExpression = formatExpression ?? FormatMembersExpressionDelegate;
-                var sources = new IBindingSource[sourceDelegates.Count];
+                var sources = new IObserver[sourceDelegates.Count];
                 for (int index = 0; index < sourceDelegates.Count; index++)
-                    sources[index] = Decorate(sourceDelegates[index].Invoke(context), false, context);
+                    sources[index] = sourceDelegates[index].Invoke(context);
                 sourceAccessor = new MultiBindingSourceAccessor(sources, formatExpression, context);
             }
             else
-                sourceAccessor = new BindingSourceAccessor(Decorate(sourceDelegates[0].Invoke(context), false, context), context, false);
+                sourceAccessor = new BindingSourceAccessor(sourceDelegates[0].Invoke(context), context, false);
             var binding = new DataBinding(new BindingSourceAccessor(GetBindingTarget(context, out target, out targetPath), context, true), sourceAccessor);
+            object source;
+            if (context.TryGetData(BindingBuilderConstants.Source, out source))
+                binding.Context.AddOrUpdate(BindingConstants.Source, ToolkitExtensions.GetWeakReference(source));
             AddBehaviors(binding, context);
             return binding;
         }
 
-        /// <summary>
-        ///     Creates the binding target.
-        /// </summary>
         [NotNull]
-        protected virtual IBindingSource GetBindingTarget([NotNull] IDataContext context, out object target, out IBindingPath targetPath)
+        protected virtual IObserver GetBindingTarget([NotNull] IDataContext context, out object target, out IBindingPath targetPath)
         {
             target = context.GetData(BindingBuilderConstants.Target, true);
             targetPath = context.GetData(BindingBuilderConstants.TargetPath, true);
-            IBindingSource bindingSource = new BindingTarget(BindingServiceProvider.ObserverProvider.Observe(target, targetPath, false))
-            {
-                CommandParameterDelegate = context.GetData(BindingBuilderConstants.CommandParameter)
-            };
-            if (_decorators.Count != 0)
-                return Decorate(bindingSource, true, context);
-            return bindingSource;
+            var src = context.GetData(BindingBuilderConstants.TargetSource);
+            return BindingServiceProvider.ObserverProvider.Observe(src ?? target, targetPath, false, context);
         }
 
-        /// <summary>
-        /// Adds the behaviors to the specified binding.
-        /// </summary>
         protected virtual void AddBehaviors(IDataBinding binding, IDataContext context)
         {
             List<IBindingBehavior> behaviors = context.GetData(BindingBuilderConstants.Behaviors);
@@ -336,6 +290,16 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 binding.Behaviors.Add(behaviors[index]);
         }
 
+        protected void RaiseInitializing(IDataContext context)
+        {
+            BindingInitializing?.Invoke(this, context);
+        }
+
+        protected void RaiseInitialized(IDataBinding binding)
+        {
+            BindingInitialized?.Invoke(this, binding);
+        }
+
         private static IDataBinding CreateInvalidaDataBinding(IDataContext dataContext)
         {
             var exception = dataContext.GetData(ExceptionConstant);
@@ -365,13 +329,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     builder.Append(o);
             }
             return builder.ToString();
-        }
-
-        private IBindingSource Decorate(IBindingSource source, bool isTarget, IDataContext context)
-        {
-            for (int index = 0; index < _decorators.Count; index++)
-                _decorators[index].Decorate(ref source, isTarget, context);
-            return source;
         }
 
         #endregion

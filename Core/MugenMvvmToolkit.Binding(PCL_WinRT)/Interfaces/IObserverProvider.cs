@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IObserverProvider.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,18 +18,13 @@
 
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Interfaces
 {
-    /// <summary>
-    ///     Represents the observer provider that allows to create an observer.
-    /// </summary>
     public interface IObserverProvider
     {
-        /// <summary>
-        ///     Attempts to track the value change using the binding path.
-        /// </summary>
         [NotNull]
-        IObserver Observe([NotNull] object target, [NotNull] IBindingPath path, bool ignoreAttachedMembers);
+        IObserver Observe([NotNull] object target, [NotNull] IBindingPath path, bool ignoreAttachedMembers, [CanBeNull] IDataContext context);
     }
 }

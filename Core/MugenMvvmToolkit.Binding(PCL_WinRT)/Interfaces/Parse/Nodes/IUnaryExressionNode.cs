@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IUnaryExressionNode.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -21,19 +21,10 @@ using MugenMvvmToolkit.Binding.Models;
 
 namespace MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes
 {
-    /// <summary>
-    ///     Represents an expression that has a unary operator.
-    /// </summary>
     public interface IUnaryExressionNode : IExpressionNode
     {
-        /// <summary>
-        ///     Gets the token of the unary operation.
-        /// </summary>
         TokenType Token { get; }
 
-        /// <summary>
-        ///     Gets the operand of the unary operation.
-        /// </summary>
         [NotNull]
         IExpressionNode Operand { get; }
     }

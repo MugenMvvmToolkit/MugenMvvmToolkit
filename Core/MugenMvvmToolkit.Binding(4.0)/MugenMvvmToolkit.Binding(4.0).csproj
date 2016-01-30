@@ -14,14 +14,15 @@
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <NuGetPackageImportStamp>cec93fb2</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NET4</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -29,22 +30,13 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\..\bin\Core\NET4.0\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <DefineConstants>TRACE;NET4</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\bin\Core\NET4.0\MugenMvvmToolkit.Binding.XML</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\..\Solution Items\sigkey.snk</AssemblyOriginatorKeyFile>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="JetBrains.Annotations">
-      <HintPath>..\..\packages\JetBrainsAnnotations.Fody.1.0.2\Lib\JetBrains.Annotations.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -60,13 +52,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="FodyWeavers.xml" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\..\Solution Items\MugenMvvmToolkit.licenseheader">
       <Link>MugenMvvmToolkit.licenseheader</Link>
     </None>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\accessors\BindingSourceAccessor.cs">
@@ -81,6 +69,9 @@
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\AttachedMemberConstants.cs">
       <Link>AttachedMemberConstants.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Attributes\BindingSyntaxExtensionsAttribute.cs">
+      <Link>Attributes\BindingSyntaxExtensionsAttribute.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\behaviors\BindingBehaviorBase.cs">
       <Link>Behaviors\BindingBehaviorBase.cs</Link>
     </Compile>
@@ -92,6 +83,9 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\behaviors\DelayBindingBehavior.cs">
       <Link>Behaviors\DelayBindingBehavior.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Behaviors\DisableEqualityCheckingBehavior.cs">
+      <Link>Behaviors\DisableEqualityCheckingBehavior.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\behaviors\LostFocusUpdateSourceBehavior.cs">
       <Link>Behaviors\LostFocusUpdateSourceBehavior.cs</Link>
@@ -110,9 +104,6 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\behaviors\OneWayToSourceBindingMode.cs">
       <Link>Behaviors\OneWayToSourceBindingMode.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Behaviors\RelativeSourceBehavior.cs">
-      <Link>Behaviors\RelativeSourceBehavior.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\behaviors\TwoWayBindingMode.cs">
       <Link>Behaviors\TwoWayBindingMode.cs</Link>
@@ -159,6 +150,12 @@
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Extensions\BindingReflectionExtensions.cs">
       <Link>Extensions\BindingReflectionExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Extensions\BindingReflectionExtensionsCommon.cs">
+      <Link>Extensions\BindingReflectionExtensionsCommon.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Extensions\BindingSyntaxEx.cs">
+      <Link>Extensions\BindingSyntaxEx.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\BindingContextManager.cs">
       <Link>Infrastructure\BindingContextManager.cs</Link>
     </Compile>
@@ -179,6 +176,9 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\DataBinding.cs">
       <Link>Infrastructure\DataBinding.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Infrastructure\DataTemplateSelectorBase.cs">
+      <Link>Infrastructure\DataTemplateSelectorBase.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\infrastructure\EmptyPathObserver.cs">
       <Link>Infrastructure\EmptyPathObserver.cs</Link>
@@ -237,14 +237,14 @@
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\interfaces\IBindingResourceResolver.cs">
       <Link>Interfaces\IBindingResourceResolver.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\IBindingSourceDecorator.cs">
-      <Link>Interfaces\IBindingSourceDecorator.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\IBindingValueConverter.cs">
       <Link>Interfaces\IBindingValueConverter.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\interfaces\IDataBinding.cs">
       <Link>Interfaces\IDataBinding.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\IDataTemplateSelector.cs">
+      <Link>Interfaces\IDataTemplateSelector.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\interfaces\IObserver.cs">
       <Link>Interfaces\IObserver.cs</Link>
@@ -275,9 +275,6 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\interfaces\models\IBindingResourceMethod.cs">
       <Link>Interfaces\Models\IBindingResourceMethod.cs</Link>
-    </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\interfaces\models\IBindingResourceObject.cs">
-      <Link>Interfaces\Models\IBindingResourceObject.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\interfaces\models\IDynamicObject.cs">
       <Link>Interfaces\Models\IDynamicObject.cs</Link>
@@ -333,12 +330,6 @@
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\interfaces\parse\nodes\IUnaryExressionNode.cs">
       <Link>Interfaces\Parse\Nodes\IUnaryExressionNode.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\interfaces\sources\IBindingSource.cs">
-      <Link>Interfaces\Sources\IBindingSource.cs</Link>
-    </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\interfaces\sources\IBindingTarget.cs">
-      <Link>Interfaces\Sources\IBindingTarget.cs</Link>
-    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\interfaces\syntax\IBindingBehaviorSyntax.cs">
       <Link>Interfaces\Syntax\IBindingBehaviorSyntax.cs</Link>
     </Compile>
@@ -354,11 +345,17 @@
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\interfaces\syntax\IBindingModeSyntax.cs">
       <Link>Interfaces\Syntax\IBindingModeSyntax.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Syntax\IBindingSyntaxContext.cs">
+      <Link>Interfaces\Syntax\IBindingSyntaxContext.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\interfaces\syntax\IBindingToSyntax.cs">
       <Link>Interfaces\Syntax\IBindingToSyntax.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\interfaces\syntax\IBuilderSyntax.cs">
       <Link>Interfaces\Syntax\IBuilderSyntax.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Interfaces\Syntax\IBuilderSyntaxContext.cs">
+      <Link>Interfaces\Syntax\IBuilderSyntaxContext.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\models\ArgumentData.cs">
       <Link>Models\ArgumentData.cs</Link>
@@ -366,14 +363,17 @@
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\models\AttachedBindingMember.cs">
       <Link>Models\AttachedBindingMember.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\BindingActionValue.cs">
+      <Link>Models\BindingActionValue.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\BindingMemberDescriptor.cs">
+      <Link>Models\BindingMemberDescriptor.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\models\BindingMemberInfo.cs">
       <Link>Models\BindingMemberInfo.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\models\BindingMemberType.cs">
       <Link>Models\BindingMemberType.cs</Link>
-    </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\models\BindingMemberValue.cs">
-      <Link>Models\BindingMemberValue.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\models\BindingPath.cs">
       <Link>Models\BindingPath.cs</Link>
@@ -384,6 +384,9 @@
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\models\BindingResourceObject.cs">
       <Link>Models\BindingResourceObject.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Models\DefaultAttachedMemberRegistration.cs">
+      <Link>Models\DefaultAttachedMemberRegistration.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\models\Enums.cs">
       <Link>Models\Enums.cs</Link>
     </Compile>
@@ -392,9 +395,6 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\models\eventarg\BindingEventArgs.cs">
       <Link>Models\EventArg\BindingEventArgs.cs</Link>
-    </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\models\eventarg\BindingExceptionEventArgs.cs">
-      <Link>Models\EventArg\BindingExceptionEventArgs.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\models\eventarg\MemberAttachedEventArgs.cs">
       <Link>Models\EventArg\MemberAttachedEventArgs.cs</Link>
@@ -444,6 +444,12 @@
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\parse\ExpressionCounterVisitor.cs">
       <Link>Parse\ExpressionCounterVisitor.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\LambdaExpressionToBindingExpressionConverter.cs">
+      <Link>Parse\LambdaExpressionToBindingExpressionConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\MacrosExpressionVisitor.cs">
+      <Link>Parse\MacrosExpressionVisitor.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\parse\nodes\BinaryExpressionNode.cs">
       <Link>Parse\Nodes\BinaryExpressionNode.cs</Link>
     </Compile>
@@ -480,8 +486,8 @@
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\parse\nodes\UnaryExressionNode.cs">
       <Link>Parse\Nodes\UnaryExressionNode.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\RelativeSourcePathMergerVisitor.cs">
-      <Link>Parse\RelativeSourcePathMergerVisitor.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Parse\NullConditionalOperatorVisitor.cs">
+      <Link>Parse\NullConditionalOperatorVisitor.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\parse\Tokenizer.cs">
       <Link>Parse\Tokenizer.cs</Link>
@@ -489,11 +495,8 @@
     <Compile Include="..\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\sources\BindingSource.cs">
-      <Link>Sources\BindingSource.cs</Link>
-    </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.binding%28pcl_winrt%29\sources\BindingTarget.cs">
-      <Link>Sources\BindingTarget.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Properties\AssemblyInfoCommon.cs">
+      <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -503,14 +506,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
-    <Error Condition="!Exists('..\..\packages\Fody.1.26.4\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Fody.1.26.4\build\Fody.targets'))" />
-  </Target>
-  <Import Project="..\..\packages\Fody.1.26.4\build\Fody.targets" Condition="Exists('..\..\packages\Fody.1.26.4\build\Fody.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

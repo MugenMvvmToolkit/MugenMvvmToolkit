@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ValueAccessorChangedEventArgs.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -35,15 +35,12 @@ namespace MugenMvvmToolkit.Binding.Models.EventArg
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ValueAccessorChangedEventArgs" /> class.
-        /// </summary>
         public ValueAccessorChangedEventArgs(IDataContext context, object penultimateValue,
             IBindingMemberInfo lastMember, object oldValue, object newValue)
             : base(oldValue, newValue)
         {
-            Should.NotBeNull(context, "context");
-            Should.NotBeNull(lastMember, "lastMember");
+            Should.NotBeNull(context, nameof(context));
+            Should.NotBeNull(lastMember, nameof(lastMember));
             _context = context;
             _penultimateValue = penultimateValue;
             _lastMember = lastMember;
@@ -53,32 +50,14 @@ namespace MugenMvvmToolkit.Binding.Models.EventArg
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the <see cref="IDataContext" />.
-        /// </summary>
         [NotNull]
-        public IDataContext Context
-        {
-            get { return _context; }
-        }
+        public IDataContext Context => _context;
 
-        /// <summary>
-        ///     Gets the penultimate value.
-        /// </summary>
         [CanBeNull]
-        public object PenultimateValue
-        {
-            get { return _penultimateValue; }
-        }
+        public object PenultimateValue => _penultimateValue;
 
-        /// <summary>
-        ///     Gets the last member.
-        /// </summary>
         [NotNull]
-        public IBindingMemberInfo LastMember
-        {
-            get { return _lastMember; }
-        }
+        public IBindingMemberInfo LastMember => _lastMember;
 
         #endregion
     }

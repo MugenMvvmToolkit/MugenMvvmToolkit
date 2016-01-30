@@ -1,4 +1,4 @@
-using MugenMvvmToolkit.ViewModels;
+﻿using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Test.TestViewModels
 {

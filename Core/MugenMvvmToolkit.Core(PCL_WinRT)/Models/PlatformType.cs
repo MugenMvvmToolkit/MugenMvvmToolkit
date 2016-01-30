@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="PlatformType.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,9 +18,6 @@
 
 namespace MugenMvvmToolkit.Models
 {
-    /// <summary>
-    ///     Represents the platform type.
-    /// </summary>
     public class PlatformType : StringConstantBase<PlatformType>
     {
         #region Fields
@@ -37,11 +34,23 @@ namespace MugenMvvmToolkit.Models
 
         public static readonly PlatformType WinRT;
 
+        public static readonly PlatformType WinRTPhone;
+
         public static readonly PlatformType WPF;
 
         public static readonly PlatformType Unknown;
 
         public static readonly PlatformType UnitTest;
+
+        public static readonly PlatformType XamarinFormsAndroid;
+
+        public static readonly PlatformType XamarinFormsiOS;
+
+        public static readonly PlatformType XamarinFormsWinPhone;
+
+        public static readonly PlatformType XamarinFormsWinRT;
+
+        public static readonly PlatformType XamarinFormsWinRTPhone;
 
         #endregion
 
@@ -55,14 +64,17 @@ namespace MugenMvvmToolkit.Models
             WinPhone = new PlatformType("WinPhone");
             WinForms = new PlatformType("WinForms");
             WinRT = new PlatformType("WinRT");
+            WinRTPhone = new PlatformType(WinRT.Id + ".Phone");
             WPF = new PlatformType("WPF");
+            XamarinFormsAndroid = new PlatformType("XamarinForms." + Android.Id);
+            XamarinFormsiOS = new PlatformType("XamarinForms." + iOS.Id);
+            XamarinFormsWinPhone = new PlatformType("XamarinForms." + WinPhone.Id);
+            XamarinFormsWinRT = new PlatformType("XamarinForms." + WinRT.Id);
+            XamarinFormsWinRTPhone = new PlatformType("XamarinForms." + WinRTPhone.Id);
             Unknown = new PlatformType("Unknown");
-            UnitTest = new PlatformType("UnitTest");            
+            UnitTest = new PlatformType("UnitTest");
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="PlatformType" /> class.
-        /// </summary>
         public PlatformType(string id)
             : base(id)
         {

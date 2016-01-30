@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="BindableMenuInflater.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,23 +18,22 @@
 
 using System;
 using System.IO;
-using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
 using Android.Content;
+using Android.Runtime;
 using Android.Views;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Android.Binding.Models;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 {
-    public class BindableMenuInflater : MenuInflater, IBindableMenuInflater
+    public class BindableMenuInflater : MenuInflater
     {
         #region Fields
 
-        private readonly Context _context;
         private static readonly XmlSerializer Serializer;
+        private readonly Context _context;
 
         #endregion
 
@@ -48,8 +47,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         public BindableMenuInflater([NotNull] Context context)
             : base(context)
         {
-            Should.NotBeNull(context, "context");
+            Should.NotBeNull(context, nameof(context));
             _context = context;
+        }
+
+        protected BindableMenuInflater(IntPtr javaReference, JniHandleOwnership transfer)
+            : base(javaReference, transfer)
+        {
         }
 
         #endregion
@@ -65,36 +69,30 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Implementation of IBindableMenuInflater
 
-        /// <summary>
-        ///     Gets or sets underlying menu inflater, if any.
-        /// </summary>
-        public MenuInflater MenuInflater { get; set; }
+        public virtual MenuInflater NestedMenuInflater { get; set; }
 
-        /// <summary>
-        ///     Inflate a menu hierarchy from the specified XML resource.
-        /// </summary>
-        public void Inflate(int menuRes, IMenu menu, object parent)
+        public virtual void Inflate(int menuRes, IMenu menu, object parent)
         {
             using (XmlReader reader = _context.Resources.GetLayout(menuRes))
             {
                 //NOTE XDocument throws an error.
                 var document = new XmlDocument();
                 document.Load(reader);
-                if (document.FirstChild != null && !IsDefaultMenu(document))
+                if (IsDefaultMenu(document))
+                {
+                    MenuInflater menuInflater = NestedMenuInflater;
+                    if (menuInflater == null)
+                        base.Inflate(menuRes, menu);
+                    else
+                        menuInflater.Inflate(menuRes, menu);
+                }
+                else
                 {
                     using (var stringReader = new StringReader(PlatformExtensions.XmlTagsToUpper(document.InnerXml)))
                     {
                         var menuWrapper = (MenuTemplate)Serializer.Deserialize(stringReader);
                         menuWrapper.Apply(menu, _context, parent);
                     }
-                }
-                else
-                {
-                    MenuInflater menuInflater = MenuInflater;
-                    if (menuInflater == null)
-                        base.Inflate(menuRes, menu);
-                    else
-                        menuInflater.Inflate(menuRes, menu);
                 }
             }
         }
@@ -105,16 +103,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         private static bool IsDefaultMenu(XmlDocument document)
         {
-            foreach (var attribute in document.FirstChild.Attributes.OfType<XmlAttribute>())
-            {
-                if (string.Equals(attribute.Value, "http://schemas.android.com/apk/res/android",
-                    StringComparison.InvariantCultureIgnoreCase))
-                    return true;
-            }
-            return false;
+            var value = document.NameTable.Get("http://schemas.android.com/apk/res/android");
+            return !string.IsNullOrEmpty(value);
+
         }
 
         #endregion
-
     }
 }

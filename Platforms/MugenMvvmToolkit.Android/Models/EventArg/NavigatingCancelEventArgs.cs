@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="NavigatingCancelEventArgs.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -16,29 +16,22 @@
 
 #endregion
 
-using Android.Content;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Models.EventArg;
 
-namespace MugenMvvmToolkit.Models.EventArg
+namespace MugenMvvmToolkit.Android.Models.EventArg
 {
-    /// <summary>
-    ///     Provides event data for the OnNavigatingFrom callback that can be used to cancel a navigation request from
-    ///     origination.
-    /// </summary>
     public class NavigatingCancelEventArgs : NavigatingCancelEventArgsBase
     {
         #region Fields
 
-        /// <summary>
-        /// Gets the non cancelable instance of <see cref="NavigatingCancelEventArgs"/>.
-        /// </summary>
         public static readonly NavigatingCancelEventArgs NonCancelableEventArgs;
 
-        private readonly Intent _intent;
         private readonly bool _isCancelable;
         private readonly IViewMappingItem _mapping;
         private readonly NavigationMode _navigationMode;
-        private readonly object _parameter;
+        private readonly string _parameter;
 
         #endregion
 
@@ -55,23 +48,13 @@ namespace MugenMvvmToolkit.Models.EventArg
             _isCancelable = false;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NavigatingCancelEventArgs" /> class with the
-        ///     <see cref="P:System.ComponentModel.CancelEventArgs.Cancel" /> property set to false.
-        /// </summary>
-        public NavigatingCancelEventArgs(Intent intent, NavigationMode navigationMode, object parameter)
+        public NavigatingCancelEventArgs(NavigationMode navigationMode)
         {
-            _intent = intent;
             _navigationMode = navigationMode;
-            _parameter = parameter;
             _isCancelable = true;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NavigatingCancelEventArgs" /> class with the
-        ///     <see cref="P:System.ComponentModel.CancelEventArgs.Cancel" /> property set to false.
-        /// </summary>
-        public NavigatingCancelEventArgs(IViewMappingItem mapping, NavigationMode navigationMode, object parameter)
+        public NavigatingCancelEventArgs(IViewMappingItem mapping, NavigationMode navigationMode, string parameter)
         {
             _mapping = mapping;
             _navigationMode = navigationMode;
@@ -83,57 +66,19 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the intent to navigate.
-        /// </summary>
-        public Intent Intent
-        {
-            get { return _intent; }
-        }
+        public IViewMappingItem Mapping => _mapping;
 
-        /// <summary>
-        ///     Gets the mapping item to navigate.
-        /// </summary>
-        public IViewMappingItem Mapping
-        {
-            get { return _mapping; }
-        }
-
-        /// <summary>
-        ///     Gets any Parameter object passed to the target page for the navigation.
-        /// </summary>
-        public object Parameter
-        {
-            get { return _parameter; }
-        }
+        public string Parameter => _parameter;
 
         #endregion
 
         #region Overrides of NavigatingCancelEventArgsBase
 
-        /// <summary>
-        ///     Specifies whether a pending navigation should be canceled.
-        /// </summary>
-        /// <returns>
-        ///     true to cancel the pending cancelable navigation; false to continue with navigation.
-        /// </returns>
         public override bool Cancel { get; set; }
 
-        /// <summary>
-        ///     Gets a value that indicates the type of navigation that is occurring.
-        /// </summary>
-        public override NavigationMode NavigationMode
-        {
-            get { return _navigationMode; }
-        }
+        public override NavigationMode NavigationMode => _navigationMode;
 
-        /// <summary>
-        ///     Gets a value that indicates whether you can cancel the navigation.
-        /// </summary>
-        public override bool IsCancelable
-        {
-            get { return _isCancelable; }
-        }
+        public override bool IsCancelable => _isCancelable;
 
         #endregion
     }

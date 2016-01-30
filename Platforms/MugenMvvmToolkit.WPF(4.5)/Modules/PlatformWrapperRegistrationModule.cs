@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="PlatformWrapperRegistrationModule.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -16,13 +16,14 @@
 
 #endregion
 
-using System;
 using System.ComponentModel;
 using System.Windows;
-using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Views;
+using MugenMvvmToolkit.Modules;
+using MugenMvvmToolkit.WPF.Interfaces.Views;
 
-namespace MugenMvvmToolkit.Modules
+namespace MugenMvvmToolkit.WPF.Modules
 {
     public class PlatformWrapperRegistrationModule : WrapperRegistrationModuleBase
     {
@@ -40,7 +41,7 @@ namespace MugenMvvmToolkit.Modules
 
             public WindowViewWrapper(Window window)
             {
-                Should.NotBeNull(window, "window");
+                Should.NotBeNull(window, nameof(window));
                 _window = window;
             }
 
@@ -48,15 +49,7 @@ namespace MugenMvvmToolkit.Modules
 
             #region Implementation of IWindowView
 
-            public Type ViewType
-            {
-                get { return _window.GetType(); }
-            }
-
-            public object View
-            {
-                get { return _window; }
-            }
+            public object View => _window;
 
             public void Show()
             {
@@ -73,6 +66,11 @@ namespace MugenMvvmToolkit.Modules
                 _window.Close();
             }
 
+            public bool Activate()
+            {
+                return _window.Activate();
+            }
+
             event CancelEventHandler IWindowView.Closing
             {
                 add { _window.Closing += value; }
@@ -86,14 +84,11 @@ namespace MugenMvvmToolkit.Modules
 
         #region Overrides of WrapperRegistrationModuleBase
 
-        /// <summary>
-        ///     Registers the wrappers using <see cref="WrapperManager" /> class.
-        /// </summary>
-        protected override void RegisterWrappers(WrapperManager wrapperManager)
+        protected override void RegisterWrappers(IConfigurableWrapperManager wrapperManager)
         {
             wrapperManager.AddWrapper<IWindowView, WindowViewWrapper>(
-                (type, context) => typeof (Window).IsAssignableFrom(type),
-                (o, context) => new WindowViewWrapper((Window) o));
+                (type, context) => typeof(Window).IsAssignableFrom(type),
+                (o, context) => new WindowViewWrapper((Window)o));
         }
 
         #endregion

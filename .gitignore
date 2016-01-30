@@ -155,3 +155,8 @@ $RECYCLE.BIN/
 # Mac desktop service store files
 .DS_Store
 /bin_tests
+*.nupkg
+/nuspec/push1.bat
+/nuspec/push.bat
+/.vs/config
+/packages

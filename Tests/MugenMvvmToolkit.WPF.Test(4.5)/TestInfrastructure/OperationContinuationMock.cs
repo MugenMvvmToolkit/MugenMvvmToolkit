@@ -13,9 +13,6 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         #region Implementation of IContinuation
 
-        /// <summary>
-        ///     Tries to convert current operation to an instance of <see cref="ISerializableCallback" />.
-        /// </summary>
         ISerializableCallback IContinuation.ToSerializableCallback()
         {
             if (ToSerializableCallback == null)
@@ -36,9 +33,6 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         #region Implementation of IContinuation
 
-        /// <summary>
-        ///     Invokes the action using the specified operation result.
-        /// </summary>
         void IActionContinuation.Invoke(IOperationResult result)
         {
             if (Invoke != null)
@@ -58,9 +52,6 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         #region Implementation of IContinuation
 
-        /// <summary>
-        ///     Invokes the action using the specified operation result.
-        /// </summary>
         void IActionContinuation<TResult>.Invoke(IOperationResult<TResult> result)
         {
             if (Invoke != null)
@@ -80,9 +71,6 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         #region Implementation of IContinuation
 
-        /// <summary>
-        ///     Invokes the action using the specified operation result.
-        /// </summary>
         TResult IFunctionContinuation<TResult>.Invoke(IOperationResult result)
         {
             if (Invoke == null)
@@ -103,9 +91,6 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         #region Implementation of IContinuation
 
-        /// <summary>
-        ///     Invokes the action using the specified operation result.
-        /// </summary>
         TOut IFunctionContinuation<TIn, TOut>.Invoke(IOperationResult<TIn> result)
         {
             if (Invoke == null)

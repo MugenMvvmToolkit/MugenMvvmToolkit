@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="LinkerInclude.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,11 +17,12 @@
 #endregion
 
 using Android.Content;
+using Android.Preferences;
 using Android.Views;
 using Android.Widget;
 using JetBrains.Annotations;
 
-namespace MugenMvvmToolkit
+namespace MugenMvvmToolkit.Android
 {
     [UsedImplicitly]
     internal static partial class LinkerInclude
@@ -74,12 +75,22 @@ namespace MugenMvvmToolkit
             rb.RatingBarChange += (sender, args) => { };
             rb.RatingBarChange -= (sender, args) => { };
 
+            Preference preference = new Preference(null);
+            preference.PreferenceClick += (sender, args) => { };
+            preference.PreferenceClick -= (sender, args) => { };
+            preference.Enabled = preference.Enabled;
+            preference.Title = preference.Title;
+
             var dp = new DatePicker(null);
             dp.DateTime = dp.DateTime;
 
             var tp = new TimePicker(null);
             tp.CurrentHour = tp.CurrentHour;
             tp.CurrentMinute = tp.CurrentMinute;
+
+            var searchView = new SearchView(null);
+            searchView.QueryTextChange += (sender, args) => { };
+            searchView.QueryTextChange -= (sender, args) => { };
         }
 
         [UsedImplicitly]

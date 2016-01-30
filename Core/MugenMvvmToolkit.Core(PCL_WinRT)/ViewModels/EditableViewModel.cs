@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="EditableViewModel.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -31,9 +31,6 @@ using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.ViewModels
 {
-    /// <summary>
-    ///     Represent the class for editable view models.
-    /// </summary>
     [BaseViewModel(Priority = 5)]
     public abstract class EditableViewModel<T> : ValidatableViewModel, IEditableViewModel<T> where T : class
     {
@@ -53,40 +50,19 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="EditableViewModel{T}" /> class.
-        /// </summary>
-        static EditableViewModel()
-        {
-            UpdateChangesOnPropertyChangedDefault = true;
-        }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="EditableViewModel{T}" /> class.
-        /// </summary>
         protected EditableViewModel()
         {
             Func<Type, object> entityFactory = ServiceProvider.DefaultEntityFactory;
             if (entityFactory != null)
                 Entity = (T)entityFactory(typeof(T));
-            UpdateChangesOnPropertyChanged = UpdateChangesOnPropertyChangedDefault;
         }
 
         #endregion
 
         #region Implementation of IEditableViewModel
 
-        /// <summary>
-        ///     Gets the type of model.
-        /// </summary>
-        public Type ModelType
-        {
-            get { return typeof(T); }
-        }
+        public Type ModelType => typeof(T);
 
-        /// <summary>
-        ///     Gets the value which indicates that is the new entity or not.
-        /// </summary>
         public bool IsNewRecord
         {
             get { return _isNewRecord; }
@@ -94,13 +70,10 @@ namespace MugenMvvmToolkit.ViewModels
             {
                 if (value.Equals(_isNewRecord)) return;
                 _isNewRecord = value;
-                OnPropertyChanged("IsNewRecord");
+                OnPropertyChanged();
             }
         }
 
-        /// <summary>
-        ///     Gets a value indicating whether the entity has changes.
-        /// </summary>
         public virtual bool HasChanges
         {
             get
@@ -115,42 +88,19 @@ namespace MugenMvvmToolkit.ViewModels
             {
                 if (value.Equals(_hasChanges)) return;
                 _hasChanges = value;
-                OnPropertyChanged("HasChanges");
+                OnPropertyChanged(Empty.HasChangesChangedArgs);
             }
         }
 
-        /// <summary>
-        ///     Gets a value indicating whether the entity is initialized.
-        /// </summary>
-        public virtual bool IsEntityInitialized
-        {
-            get { return _initializedEntity != null; }
-        }
+        public virtual bool IsEntityInitialized => _initializedEntity != null;
 
-        /// <summary>
-        ///     Gets the edited entity.
-        /// </summary>
-        object IEditableViewModel.Entity
-        {
-            get { return Entity; }
-        }
+        object IEditableViewModel.Entity => Entity;
 
-        /// <summary>
-        ///     Initializes the specified entity to edit.
-        /// </summary>
-        /// <param name="entity">The specified entity to edit.</param>
-        /// <param name="isNewRecord">
-        ///     If <c>true</c> is new entity;otherwise <c>false</c>.
-        /// </param>
         void IEditableViewModel.InitializeEntity(object entity, bool isNewRecord)
         {
             InitializeEntity((T)entity, isNewRecord);
         }
 
-        /// <summary>
-        ///     Applies the changes of entity.
-        /// </summary>
-        /// <returns>A series of instances of <see cref="IEntityStateEntry" />.</returns>
         public IList<IEntityStateEntry> ApplyChanges()
         {
             EnsureNotDisposed();
@@ -160,24 +110,18 @@ namespace MugenMvvmToolkit.ViewModels
             IList<IEntityStateEntry> result = ApplyChangesInternal(out entity) ??
                                               Empty.Array<IEntityStateEntry>();
             Entity = entity;
-            Should.PropertyBeNotNull(Entity, "Entity");
+            Should.PropertyNotBeNull(Entity, nameof(Entity));
             OnChangesApplied(result);
             RaiseChangesApplied(result);
+            InvalidateProperties();
             return result;
         }
 
-        /// <summary>
-        ///     Cancels the changes of entity.
-        /// </summary>
-        /// <returns>An instance of object.</returns>
         object IEditableViewModel.CancelChanges()
         {
             return CancelChanges();
         }
 
-        /// <summary>
-        ///     Gets the edited entity.
-        /// </summary>
         public T Entity
         {
             get { return _entity; }
@@ -186,20 +130,13 @@ namespace MugenMvvmToolkit.ViewModels
                 if (ReferenceEquals(value, _entity))
                     return;
                 _entity = value;
-                OnPropertyChanged("Entity");
+                OnPropertyChanged();
             }
         }
 
-        /// <summary>
-        ///     Initializes the specified entity to edit.
-        /// </summary>
-        /// <param name="entity">The specified entity to edit.</param>
-        /// <param name="isNewRecord">
-        ///     If <c>true</c> is new entity;otherwise <c>false</c>.
-        /// </param>
         public void InitializeEntity(T entity, bool isNewRecord)
         {
-            Should.NotBeNull(entity, "entity");
+            Should.NotBeNull(entity, nameof(entity));
             EnsureNotDisposed();
             IsNewRecord = isNewRecord;
             var saved = SaveEntityState(entity);
@@ -209,10 +146,6 @@ namespace MugenMvvmToolkit.ViewModels
             RaiseEntityInitialized(entity, saved);
         }
 
-        /// <summary>
-        ///     Cancels the changes of entity.
-        /// </summary>
-        /// <returns>An instance of object.</returns>
         public T CancelChanges()
         {
             EnsureNotDisposed();
@@ -222,101 +155,55 @@ namespace MugenMvvmToolkit.ViewModels
             Entity = cancel;
             OnChangesCanceled();
             RaiseChangesCanceled(cancel);
+            InvalidateProperties();
             return cancel;
         }
 
-        /// <summary>
-        ///     Occurs at the end of initialization the entity.
-        /// </summary>
         event EventHandler<IEditableViewModel, EntityInitializedEventArgs> IEditableViewModel.EntityInitialized
         {
             add { _entityEntityInitializedNonGeneric += value; }
             remove { _entityEntityInitializedNonGeneric -= value; }
         }
 
-        /// <summary>
-        ///     Occurs at the end of cancel entity changes.
-        /// </summary>
         event EventHandler<IEditableViewModel, ChangesCanceledEventArgs> IEditableViewModel.ChangesCanceled
         {
             add { _changesCanceledNonGeneric += value; }
             remove { _changesCanceledNonGeneric -= value; }
         }
 
-        /// <summary>
-        ///     Occurs at the end of initialization the entity.
-        /// </summary>
         public virtual event EventHandler<IEditableViewModel, EntityInitializedEventArgs<T>> EntityInitialized;
 
-        /// <summary>
-        ///     Occurs at the end of apply entity changes.
-        /// </summary>
         public virtual event EventHandler<IEditableViewModel, ChangesAppliedEventArgs> ChangesApplied;
 
-        /// <summary>
-        ///     Occurs at the end of cancel entity changes.
-        /// </summary>
         public virtual event EventHandler<IEditableViewModel, ChangesCanceledEventArgs<T>> ChangesCanceled;
 
         #endregion
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets a value indicating whether the editor should automatically update changes when an entity property is changed.
-        /// </summary>
-        public static bool UpdateChangesOnPropertyChangedDefault { get; set; }
-
-        /// <summary>
-        ///     Gets or sets a value indicating whether the editor should automatically update changes when an entity property is changed.
-        /// </summary>
-        public bool UpdateChangesOnPropertyChanged { get; set; }
-
-        /// <summary>
-        ///     Gets the entity state manager.
-        /// </summary>
         public virtual IEntityStateManager StateManager { get; protected set; }
 
-        /// <summary>
-        /// Gets the entity state snapshot, if any.
-        /// </summary>
         [CanBeNull]
-        protected IEntitySnapshot EntitySnapshot
-        {
-            get { return _entitySnapshot; }
-        }
+        protected IEntitySnapshot EntitySnapshot => _entitySnapshot;
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Adds a property name to the <see cref="ValidatableViewModel.IgnoreProperties" />.
-        /// </summary>
-        protected void AddIgnoreProperty<TValue>(Expression<Func<T, TValue>> getProperty)
+        protected void AddIgnoreProperty(Func<Expression<Func<T, object>>> getProperty)
         {
-            IgnoreProperties.Add(getProperty.GetMemberInfo().Name);
+            IgnoreProperties.Add(getProperty.GetMemberName());
         }
 
-        /// <summary>
-        ///     Removes a property name to the <see cref="ValidatableViewModel.IgnoreProperties" />.
-        /// </summary>
-        protected void RemoveIgnoreProperty<TValue>(Expression<Func<T, TValue>> getProperty)
+        protected void RemoveIgnoreProperty(Func<Expression<Func<T, object>>> getProperty)
         {
-            IgnoreProperties.Remove(getProperty.GetMemberInfo().Name);
+            IgnoreProperties.Remove(getProperty.GetMemberName());
         }
 
-        /// <summary>
-        ///     Occurs after an entity instance is initialized.
-        /// </summary>
         protected virtual void OnEntityInitialized()
         {
         }
 
-        /// <summary>
-        ///     Saves the state of entity.
-        /// </summary>
-        /// <returns>An instance of object.</returns>
         protected virtual T SaveEntityState(T entity)
         {
             if (StateManager != null)
@@ -324,21 +211,12 @@ namespace MugenMvvmToolkit.ViewModels
             return entity;
         }
 
-        /// <summary>
-        ///     Applies the changes of entity.
-        /// </summary>
-        /// <returns>A series of instances of <see cref="IEntityStateEntry" />.</returns>
         protected virtual IList<IEntityStateEntry> ApplyChangesInternal(out T entity)
         {
             entity = Entity;
             return GetChanges(entity);
         }
 
-        /// <summary>
-        ///     Gets the changes.
-        /// </summary>
-        /// <param name="entity">The saved entity.</param>
-        /// <returns>A series of instances of <see cref="IEntityStateEntry" />.</returns>
         protected virtual IList<IEntityStateEntry> GetChanges(T entity)
         {
             return new List<IEntityStateEntry>
@@ -347,18 +225,10 @@ namespace MugenMvvmToolkit.ViewModels
             };
         }
 
-        /// <summary>
-        ///     Occurs after applying changes.
-        /// </summary>
-        /// <param name="entityStateEntries">The entity state entries.</param>
         protected virtual void OnChangesApplied(IList<IEntityStateEntry> entityStateEntries)
         {
         }
 
-        /// <summary>
-        ///     Cancels the changes of entity.
-        /// </summary>
-        /// <returns>An instance of object.</returns>
         protected virtual T CancelChangesInternal()
         {
             if (_entitySnapshot != null)
@@ -366,17 +236,11 @@ namespace MugenMvvmToolkit.ViewModels
             return Entity;
         }
 
-        /// <summary>
-        ///     Occurs after canceling changes.
-        /// </summary>
         protected virtual void OnChangesCanceled()
         {
         }
 
-        /// <summary>
-        ///     Raises the <c>EntityInitialized</c> event
-        /// </summary>
-        protected void RaiseEntityInitialized(T originalEntity, T entity)
+        protected virtual void RaiseEntityInitialized(T originalEntity, T entity)
         {
             EntityInitializedEventArgs<T> args = null;
             var genericHandler = EntityInitialized;
@@ -385,25 +249,15 @@ namespace MugenMvvmToolkit.ViewModels
                 args = new EntityInitializedEventArgs<T>(originalEntity, entity);
                 genericHandler(this, args);
             }
-            var handler = _entityEntityInitializedNonGeneric;
-            if (handler != null)
-                handler(this, args ?? new EntityInitializedEventArgs<T>(originalEntity, entity));
+            _entityEntityInitializedNonGeneric?.Invoke(this, args ?? new EntityInitializedEventArgs<T>(originalEntity, entity));
         }
 
-        /// <summary>
-        ///     Raises the <c>ChangesApplied</c> event
-        /// </summary>
-        protected void RaiseChangesApplied(IList<IEntityStateEntry> entityStateEntries)
+        protected virtual void RaiseChangesApplied(IList<IEntityStateEntry> entityStateEntries)
         {
-            var handler = ChangesApplied;
-            if (handler != null)
-                handler(this, new ChangesAppliedEventArgs(entityStateEntries));
+            ChangesApplied?.Invoke(this, new ChangesAppliedEventArgs(entityStateEntries));
         }
 
-        /// <summary>
-        ///     Raises the <c>ChangesCanceled</c> event
-        /// </summary>
-        protected void RaiseChangesCanceled(T entity)
+        protected virtual void RaiseChangesCanceled(T entity)
         {
             ChangesCanceledEventArgs<T> args = null;
             var genericHandler = ChangesCanceled;
@@ -412,19 +266,14 @@ namespace MugenMvvmToolkit.ViewModels
                 args = new ChangesCanceledEventArgs<T>(entity);
                 genericHandler(this, args);
             }
-            var handler = _changesCanceledNonGeneric;
-            if (handler != null)
-                handler(this, args ?? new ChangesCanceledEventArgs<T>(entity));
+            _changesCanceledNonGeneric?.Invoke(this, args ?? new ChangesCanceledEventArgs<T>(entity));
         }
 
-        /// <summary>
-        ///     Adds a property mapping to the <see cref="ValidatableViewModel.PropertyMappings" /> dictionary.
-        /// </summary>
-        protected void AddPropertyMapping<T1, T2>([NotNull] Expression<Func<T1>> viewModelProperty,
-            [NotNull] Expression<Func<T, T2>> modelProperty)
+        protected void AddPropertyMapping<TViewModel>([NotNull] Func<Expression<Func<TViewModel, object>>> viewModelProperty,
+            [NotNull] Func<Expression<Func<T, object>>> modelProperty)
         {
-            var vmProperty = viewModelProperty.GetMemberInfo().Name;
-            var mProperty = modelProperty.GetMemberInfo().Name;
+            var vmProperty = viewModelProperty.GetMemberName();
+            var mProperty = modelProperty.GetMemberName();
             ICollection<string> value;
             if (!PropertyMappings.TryGetValue(vmProperty, out value))
             {
@@ -436,28 +285,26 @@ namespace MugenMvvmToolkit.ViewModels
 
         private void OnBeginEdit()
         {
-            Should.PropertyBeNotNull(Entity, "Entity");
-            if (_initializedEntity == null)
-                AddInstance(this);
-            else
+            Should.PropertyNotBeNull(Entity, nameof(Entity));
+            object oldInstance = _initializedEntity;
+            if (oldInstance != null)
             {
-                RemoveInstance(_initializedEntity);
+                RemoveInstance(oldInstance);
                 ClearErrors();
             }
             _initializedEntity = Entity;
             AddInstance(_initializedEntity);
+            if (oldInstance == null)
+                AddInstance(this);
             ValidateAsync();
             HasChanges = IsNewRecord;
-            OnPropertyChanged(string.Empty);
+            InvalidateProperties();
         }
 
         #endregion
 
         #region Overrides of ValidatableViewModel
 
-        /// <summary>
-        ///     Occurs after the initialization of the current <see cref="ViewModelBase" />.
-        /// </summary>
         internal override void OnInitializedInternal()
         {
             if (StateManager == null)
@@ -466,9 +313,6 @@ namespace MugenMvvmToolkit.ViewModels
                 ValidatorProvider = IocContainer.Get<IValidatorProvider>();
         }
 
-        /// <summary>
-        ///     Occurs after current view model disposed, use for clear resource and event listeners(Internal only).
-        /// </summary>
         internal override void OnDisposeInternal(bool disposing)
         {
             if (disposing)
@@ -485,9 +329,8 @@ namespace MugenMvvmToolkit.ViewModels
         internal override void OnPropertyChangedInternal(PropertyChangedEventArgs args)
         {
             base.OnPropertyChangedInternal(args);
-            if (IsEntityInitialized && UpdateChangesOnPropertyChanged &&
-                !IgnoreProperties.Contains(args.PropertyName) && !IsDisposed)
-                OnPropertyChanged("HasChanges");
+            if (IsEntityInitialized && !IgnoreProperties.Contains(args.PropertyName) && !IsDisposed)
+                OnPropertyChanged(Empty.HasChangesChangedArgs, ExecutionMode.None);
         }
 
         #endregion

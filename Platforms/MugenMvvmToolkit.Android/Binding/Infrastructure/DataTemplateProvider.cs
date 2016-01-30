@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="DataTemplateProvider.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,37 +17,53 @@
 #endregion
 
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Android.Binding.Interfaces;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 {
-    public sealed class DataTemplateProvider
+    public sealed class DataTemplateProvider : IEventListener
     {
         #region Fields
 
         private readonly object _container;
-        private readonly IBindingMemberInfo _templateIdMember;
+
+        private readonly IBindingMemberInfo _templateMember;
         private readonly IBindingMemberInfo _templateSelectorMember;
+        private IResourceDataTemplateSelector _resourceSelector;
+        private int? _templateId;
+        private IDataTemplateSelector _templateSelector;
 
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DataTemplateProvider" /> class.
-        /// </summary>
-        public DataTemplateProvider([NotNull] object container, [NotNull] string templateIdMember,
+        public DataTemplateProvider([NotNull] object container, [NotNull] string templateMember,
             [NotNull] string templateSelectorMember)
         {
-            Should.NotBeNull(container, "container");
-            Should.NotBeNull(templateIdMember, "templateIdMember");
-            Should.NotBeNull(templateSelectorMember, "templateSelectorMember");
+            Should.NotBeNull(container, nameof(container));
+            Should.NotBeNull(templateMember, nameof(templateMember));
+            Should.NotBeNull(templateSelectorMember, nameof(templateSelectorMember));
             var type = container.GetType();
             _container = container;
-            _templateIdMember = BindingServiceProvider.MemberProvider.GetBindingMember(type, templateIdMember, false, false);
+            _templateMember = BindingServiceProvider.MemberProvider.GetBindingMember(type, templateMember, false, false);
             _templateSelectorMember = BindingServiceProvider.MemberProvider.GetBindingMember(type, templateSelectorMember, false, false);
+            if (_templateMember != null)
+                _templateMember.TryObserve(container, this);
+            if (_templateSelectorMember != null)
+                _templateSelectorMember.TryObserve(container, this);
+            UpdateValues();
         }
+
+        #endregion
+
+        #region Properties
+
+        bool IEventListener.IsAlive => true;
+
+        bool IEventListener.IsWeak => false;
 
         #endregion
 
@@ -56,31 +72,51 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         public bool TrySelectResourceTemplate(object value, out int templateId)
         {
             templateId = 0;
-            var selector = GetDataTemplateSelector() as IResourceDataTemplateSelector;
-            if (selector == null)
+            if (_resourceSelector == null)
                 return false;
-            templateId = selector.SelectTemplate(value, _container);
+            templateId = _resourceSelector.SelectTemplate(value, _container);
             return true;
         }
 
         public bool TrySelectTemplate(object value, out object template)
         {
             template = null;
-            var selector = GetDataTemplateSelector();
-            if (selector == null)
+            if (_templateSelector == null)
                 return false;
-            template = selector.SelectTemplate(value, _container);
+            template = _templateSelector.SelectTemplate(value, _container);
             return true;
         }
 
         public IDataTemplateSelector GetDataTemplateSelector()
         {
-            return _templateSelectorMember.TryGetValue<IDataTemplateSelector>(_container);
+            return _templateSelector;
         }
 
         public int? GetTemplateId()
         {
-            return _templateIdMember.TryGetValue<int?>(_container);
+            return _templateId;
+        }
+
+        private void UpdateValues()
+        {
+            if (_templateSelectorMember != null)
+            {
+                var value = _templateSelectorMember.GetValue(_container, Empty.Array<object>());
+                _resourceSelector = value as IResourceDataTemplateSelector;
+                _templateSelector = value as IDataTemplateSelector;
+            }
+            if (_templateMember != null)
+                _templateId = _templateMember.GetValue(_container, Empty.Array<object>()) as int?;
+        }
+
+        #endregion
+
+        #region Implementation of interfaces
+
+        bool IEventListener.TryHandle(object sender, object message)
+        {
+            UpdateValues();
+            return true;
         }
 
         #endregion

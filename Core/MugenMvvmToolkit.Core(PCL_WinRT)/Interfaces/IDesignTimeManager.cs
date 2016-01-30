@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IDesignTimeManager.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -24,46 +24,22 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Interfaces
 {
-    /// <summary>
-    ///     Represents the interface for the design time manager.
-    /// </summary>
     public interface IDesignTimeManager : IDisposable
     {
-        /// <summary>
-        ///     Gets the value indicating whether the control is in design mode (running under Blend or Visual Studio).
-        /// </summary>
         bool IsDesignMode { get; }
 
-        /// <summary>
-        ///     Gets the load-priority.
-        /// </summary>
         int Priority { get; }
 
-        /// <summary>
-        ///     Gets the current platform.
-        /// </summary>
         PlatformInfo Platform { get; }
 
-        /// <summary>
-        ///     Gets the design time <see cref="IocContainer" />, if any.
-        /// </summary>
         [CanBeNull]
         IIocContainer IocContainer { get; }
 
-        /// <summary>
-        ///     Gets the design context.
-        /// </summary>
         [CanBeNull]
         IDataContext Context { get; }
 
-        /// <summary>
-        ///     Initializes the current design time manager.
-        /// </summary>
         void Initialize();
 
-        /// <summary>
-        ///     Initializes the view model in design mode.
-        /// </summary>
         void InitializeViewModel([NotNull] IViewModel viewModel);
     }
 }

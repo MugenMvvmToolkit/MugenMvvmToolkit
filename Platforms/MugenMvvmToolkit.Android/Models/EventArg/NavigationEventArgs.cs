@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="NavigationEventArgs.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,28 +17,24 @@
 #endregion
 
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Models.EventArg;
 
-namespace MugenMvvmToolkit.Models.EventArg
+namespace MugenMvvmToolkit.Android.Models.EventArg
 {
-    /// <summary>
-    ///     Provides data for navigation methods and event handlers that cannot cancel the navigation request.
-    /// </summary>
     public class NavigationEventArgs : NavigationEventArgsBase
     {
         #region Fields
 
         private readonly object _content;
         private readonly NavigationMode _navigationMode;
-        private readonly object _parameter;
+        private readonly string _parameter;
 
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NavigationEventArgs" /> class.
-        /// </summary>
-        public NavigationEventArgs([NotNull] object content, object parameter, NavigationMode navigationMode)
+        public NavigationEventArgs([NotNull] object content, string parameter, NavigationMode navigationMode)
         {
             _content = content;
             _navigationMode = navigationMode;
@@ -49,33 +45,15 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Properties
 
-        /// <summary>
-        ///     Gets any Parameter object passed to the target page for the navigation.
-        /// </summary>
-        public object Parameter
-        {
-            get { return _parameter; }
-        }
+        public string Parameter => _parameter;
 
         #endregion
 
         #region Overrides of NavigationEventArgsBase
 
-        /// <summary>
-        ///     Gets the content of the target being navigated to.
-        /// </summary>
-        public override object Content
-        {
-            get { return _content; }
-        }
+        public override object Content => _content;
 
-        /// <summary>
-        ///     Gets a value that indicates the type of navigation that is occurring.
-        /// </summary>
-        public override NavigationMode Mode
-        {
-            get { return _navigationMode; }
-        }
+        public override NavigationMode Mode => _navigationMode;
 
         #endregion
     }

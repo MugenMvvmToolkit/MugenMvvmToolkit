@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MugenMvvmToolkit.Binding;
@@ -13,10 +15,10 @@ using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Parse;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Test.TestInfrastructure;
 using MugenMvvmToolkit.Test.TestModels;
 using Should;
@@ -34,39 +36,54 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string targetPath = "Text";
             const string sourcePath = "IntProperty";
             const string binding = "Text IntProperty";
+            var target = new object();
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
-            var targetObj = new object();
-            context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-
-            IBindingSource source = sources.Single().Invoke(context);
-            BindingSourceShouldBeValidDataContext(targetObj, source, sourcePath);
+            IObserver source = sources.Single().Invoke(context);
+            BindingSourceShouldBeValidDataContext(target, source, sourcePath);
             var sourceObj = new BindingSourceModel();
-            BindingServiceProvider.ContextManager.GetBindingContext(targetObj).Value = sourceObj;
-            BindingSourceShouldBeValidDataContext(targetObj, source, sourcePath);
+            BindingServiceProvider.ContextManager.GetBindingContext(target).Value = sourceObj;
+            BindingSourceShouldBeValidDataContext(target, source, sourcePath);
         }
 
         [TestMethod]
-        public void ParserShouldParseSingleExpression()
+        public void ParserShouldParseSingleExpression1()
         {
             const string targetPath = "Text";
             const string sourcePath = "SourceText";
             const string binding = "Text SourceText";
+            var target = new object();
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath targetBPath = context.GetData(BindingBuilderConstants.TargetPath);
-            targetBPath.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
-            var target = new object();
-            context.Add(BindingBuilderConstants.Target, target);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(context);
+            IObserver source = sources.Single().Invoke(context);
+            BindingSourceShouldBeValidDataContext(target, source, sourcePath);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseSingleExpression2()
+        {
+            const string targetPath = "Text";
+            const string sourcePath = "SourceText";
+            const string binding = "Text $context.SourceText";
+            var target = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            IObserver source = sources.Single().Invoke(context);
             BindingSourceShouldBeValidDataContext(target, source, sourcePath);
         }
 
@@ -76,17 +93,16 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string targetPath = "Text";
             const string sourcePath = "StringProperty";
             const string binding = "Text {RelativeSource Self, Path=StringProperty}";
+            var target = new BindingSourceModel();
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
-            var targetObj = new BindingSourceModel();
-            context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(context);
-            BindingSourceShouldBeValid(source, sourcePath, targetObj);
+            IObserver source = sources.Single().Invoke(context);
+            BindingSourceShouldBeValid(source, sourcePath, target);
         }
 
         [TestMethod]
@@ -95,17 +111,52 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string targetPath = "Text";
             const string sourcePath = "StringProperty";
             const string binding = "Text {RelativeSource Self}.StringProperty";
+            var target = new BindingSourceModel();
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
-            var targetObj = new BindingSourceModel();
-            context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(context);
-            BindingSourceShouldBeValid(source, sourcePath, targetObj);
+            IObserver source = sources.Single().Invoke(context);
+            BindingSourceShouldBeValid(source, sourcePath, target);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseRelativeSourceSelfExpression3()
+        {
+            const string targetPath = "Text";
+            const string sourcePath = "StringProperty";
+            const string binding = "Text $self.StringProperty";
+            var target = new BindingSourceModel();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            IObserver source = sources.Single().Invoke(context);
+            BindingSourceShouldBeValid(source, sourcePath, target);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseRelativeSourceSelfExpression4()
+        {
+            const string targetPath = "Text";
+            const string sourcePath = "StringProperty";
+            const string binding = "Text $this.StringProperty";
+            var target = new BindingSourceModel();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            IObserver source = sources.Single().Invoke(context);
+            BindingSourceShouldBeValid(source, sourcePath, target);
         }
 
         [TestMethod]
@@ -117,7 +168,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string relativeSourceType = "type";
             const uint level = 10;
             const string binding = "Text {RelativeSource type, Path=StringProperty, Level=10}";
-            var targetObj = new BindingSourceModel();
+            var target = new BindingSourceModel();
             var relativeObj = new BindingSourceModel();
             IEventListener eventListener = null;
             var memberMock = new BindingMemberInfoMock
@@ -130,13 +181,13 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             };
             var providerMock = new ObserverProviderMock
             {
-                Observe = (o, path, arg3) => new MultiPathObserver(o, path, arg3)
+                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3, false, true)
             };
             var treeManagerMock = new VisualTreeManagerMock
             {
                 FindRelativeSource = (o, s, arg3) =>
                 {
-                    o.ShouldEqual(targetObj);
+                    o.ShouldEqual(target);
                     s.ShouldEqual(relativeSourceType);
                     arg3.ShouldEqual(level);
                     isInvoked = true;
@@ -147,14 +198,12 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
 
 
             IBindingParser bindingParser = CreateBindingParser(treeManagerMock, null, providerMock);
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
-
-            context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(context);
+            IObserver source = sources.Single().Invoke(context);
             source.Path.Path.ShouldContain(sourcePath);
             isInvoked.ShouldBeTrue();
 
@@ -173,7 +222,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string relativeSourceType = "type";
             const uint level = 10;
             const string binding = "Text {RelativeSource type, Level=10}.StringProperty";
-            var targetObj = new BindingSourceModel();
+            var target = new BindingSourceModel();
             var relativeObj = new BindingSourceModel();
             IEventListener eventListener = null;
             var memberMock = new BindingMemberInfoMock
@@ -186,13 +235,13 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             };
             var providerMock = new ObserverProviderMock
             {
-                Observe = (o, path, arg3) => new MultiPathObserver(o, path, arg3)
+                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3, false, true)
             };
             var treeManagerMock = new VisualTreeManagerMock
             {
                 FindRelativeSource = (o, s, arg3) =>
                 {
-                    o.ShouldEqual(targetObj);
+                    o.ShouldEqual(target);
                     s.ShouldEqual(relativeSourceType);
                     arg3.ShouldEqual(level);
                     isInvoked = true;
@@ -203,14 +252,12 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
 
 
             IBindingParser bindingParser = CreateBindingParser(treeManagerMock, null, providerMock);
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
-
-            context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(context);
+            IObserver source = sources.Single().Invoke(context);
             source.Path.Path.ShouldContain(sourcePath);
             isInvoked.ShouldBeTrue();
 
@@ -229,7 +276,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string relativeSourceType = "type";
             const uint level = 10;
             const string binding = "Text $Relative(type, 10).StringProperty";
-            var targetObj = new BindingSourceModel();
+            var target = new BindingSourceModel();
             var relativeObj = new BindingSourceModel();
             IEventListener eventListener = null;
             var memberMock = new BindingMemberInfoMock
@@ -242,13 +289,13 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             };
             var providerMock = new ObserverProviderMock
             {
-                Observe = (o, path, arg3) => new MultiPathObserver(o, path, arg3)
+                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3, false, true)
             };
             var treeManagerMock = new VisualTreeManagerMock
             {
                 FindRelativeSource = (o, s, arg3) =>
                 {
-                    o.ShouldEqual(targetObj);
+                    o.ShouldEqual(target);
                     s.ShouldEqual(relativeSourceType);
                     arg3.ShouldEqual(level);
                     isInvoked = true;
@@ -259,14 +306,12 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
 
 
             IBindingParser bindingParser = CreateBindingParser(treeManagerMock, null, providerMock);
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
-
-            context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(context);
+            IObserver source = sources.Single().Invoke(context);
             source.Path.Path.ShouldContain(sourcePath);
             isInvoked.ShouldBeTrue();
 
@@ -282,10 +327,10 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             bool isInvoked = false;
             const string targetPath = "Text";
             const string sourcePath = "StringProperty";
-            const string relativeSourceName = "type";
+            const string sourceName = "type";
             const string binding = "Text {ElementSource type, Path=StringProperty}";
 
-            var targetObj = new BindingSourceModel();
+            var target = new BindingSourceModel();
             var relativeObj = new BindingSourceModel();
             IEventListener eventListener = null;
             var memberMock = new BindingMemberInfoMock
@@ -298,14 +343,14 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             };
             var providerMock = new ObserverProviderMock
             {
-                Observe = (o, path, arg3) => new MultiPathObserver(o, path, arg3)
+                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3, false, true)
             };
             var treeManagerMock = new VisualTreeManagerMock
             {
                 FindByName = (o, s) =>
                 {
-                    o.ShouldEqual(targetObj);
-                    s.ShouldEqual(relativeSourceName);
+                    o.ShouldEqual(target);
+                    s.ShouldEqual(sourceName);
                     isInvoked = true;
                     return relativeObj;
                 },
@@ -313,14 +358,12 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             };
 
             IBindingParser bindingParser = CreateBindingParser(treeManagerMock, null, providerMock);
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
-
-            context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(context);
+            IObserver source = sources.Single().Invoke(context);
             source.Path.Path.ShouldContain(sourcePath);
             isInvoked.ShouldBeTrue();
 
@@ -336,10 +379,10 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             bool isInvoked = false;
             const string targetPath = "Text";
             const string sourcePath = "StringProperty";
-            const string relativeSourceName = "type";
+            const string sourceName = "type";
             const string binding = "Text {ElementSource type}.StringProperty";
 
-            var targetObj = new BindingSourceModel();
+            var target = new BindingSourceModel();
             var relativeObj = new BindingSourceModel();
             IEventListener eventListener = null;
             var memberMock = new BindingMemberInfoMock
@@ -352,14 +395,14 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             };
             var providerMock = new ObserverProviderMock
             {
-                Observe = (o, path, arg3) => new MultiPathObserver(o, path, arg3)
+                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3, false, true)
             };
             var treeManagerMock = new VisualTreeManagerMock
             {
                 FindByName = (o, s) =>
                 {
-                    o.ShouldEqual(targetObj);
-                    s.ShouldEqual(relativeSourceName);
+                    o.ShouldEqual(target);
+                    s.ShouldEqual(sourceName);
                     isInvoked = true;
                     return relativeObj;
                 },
@@ -367,14 +410,12 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             };
 
             IBindingParser bindingParser = CreateBindingParser(treeManagerMock, null, providerMock);
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
-
-            context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(context);
+            IObserver source = sources.Single().Invoke(context);
             source.Path.Path.ShouldContain(sourcePath);
             isInvoked.ShouldBeTrue();
 
@@ -390,10 +431,10 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             bool isInvoked = false;
             const string targetPath = "Text";
             const string sourcePath = "StringProperty";
-            const string relativeSourceName = "type";
+            const string sourceName = "type";
             const string binding = "Text $Element(type).StringProperty";
 
-            var targetObj = new BindingSourceModel();
+            var target = new BindingSourceModel();
             var relativeObj = new BindingSourceModel();
             IEventListener eventListener = null;
             var memberMock = new BindingMemberInfoMock
@@ -406,14 +447,14 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             };
             var providerMock = new ObserverProviderMock
             {
-                Observe = (o, path, arg3) => new MultiPathObserver(o, path, arg3)
+                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3, false, true)
             };
             var treeManagerMock = new VisualTreeManagerMock
             {
                 FindByName = (o, s) =>
                 {
-                    o.ShouldEqual(targetObj);
-                    s.ShouldEqual(relativeSourceName);
+                    o.ShouldEqual(target);
+                    s.ShouldEqual(sourceName);
                     isInvoked = true;
                     return relativeObj;
                 },
@@ -421,14 +462,12 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             };
 
             IBindingParser bindingParser = CreateBindingParser(treeManagerMock, null, providerMock);
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
-
-            context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            IBindingSource source = sources.Single().Invoke(context);
+            IObserver source = sources.Single().Invoke(context);
             source.Path.Path.ShouldContain(sourcePath);
             isInvoked.ShouldBeTrue();
 
@@ -446,23 +485,22 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string sourcePath2 = "SourceText2";
             const string format = "{0} - {1}";
             const string binding = "Text $Format('{0} - {1}', SourceText1, SourceText2)";
+            var target = new object();
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             var expression = context.GetData(BindingBuilderConstants.MultiExpression);
             expression(context, new object[] { 1, 2 }).ShouldEqual(string.Format(format, 1, 2));
             expression(context, new object[] { sourcePath1, sourcePath2 })
                 .ShouldEqual(string.Format(format, sourcePath1, sourcePath2));
 
-            var objTarget = new object();
-            context.Add(BindingBuilderConstants.Target, objTarget);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(objTarget, sources[0].Invoke(context),
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context),
                 sourcePath1);
-            BindingSourceShouldBeValidDataContext(objTarget, sources[1].Invoke(context),
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context),
                 sourcePath2);
         }
 
@@ -474,24 +512,314 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string sourcePath2 = "SourceText2";
             const string format = "{0} - {1}";
             const string binding = "Text $Format('{0} - {1}', SourceText1, SourceText2).Length";
+            var target = new object();
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             var expression = context.GetData(BindingBuilderConstants.MultiExpression);
             expression(context, new object[] { 1, 2 }).ShouldEqual(string.Format(format, 1, 2).Length);
             expression(context, new object[] { sourcePath1, sourcePath2 })
                 .ShouldEqual(string.Format(format, sourcePath1, sourcePath2).Length);
 
-            var objTarget = new object();
-            context.Add(BindingBuilderConstants.Target, objTarget);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(objTarget, sources[0].Invoke(context),
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context),
                 sourcePath1);
-            BindingSourceShouldBeValidDataContext(objTarget, sources[1].Invoke(context),
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context),
                 sourcePath2);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseMultiExpressionWithFormatMethod3()
+        {
+            const string targetPath = "Text";
+            const string sourcePath1 = "SourceText1";
+            const string sourcePath2 = "SourceText2";
+            const string format = "{0:d} - {1}";
+            const string binding = "Text $string.Format('{0:d} - {1}', SourceText1, SourceText2)";
+            var target = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            var dateTime = DateTime.Now;
+            expression(context, new object[] { dateTime, 2 }).ShouldEqual(string.Format(format, dateTime, 2));
+            expression(context, new object[] { dateTime, sourcePath2 }).ShouldEqual(string.Format(format, dateTime, sourcePath2));
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context),
+                sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context),
+                sourcePath2);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseInterpolatedStrings0()
+        {
+            const string targetPath = "Text";
+            const string sourcePath1 = "SourceText1";
+            const string sourcePath2 = "SourceText2";
+            const string format = "Test {0} - {1}";
+            const string binding = "Text $'Test {SourceText1} - {SourceText2}'";
+            var target = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, new object[] { 1, 2 }).ShouldEqual(string.Format(format, 1, 2));
+            expression(context, new object[] { sourcePath1, sourcePath2 })
+                .ShouldEqual(string.Format(format, sourcePath1, sourcePath2));
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context),
+                sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context),
+                sourcePath2);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseInterpolatedStrings1()
+        {
+            const string targetPath = "Text";
+            const string sourcePath1 = "SourceText1";
+            const string sourcePath2 = "SourceText2";
+            const string format = "{0} - {1}";
+            const string binding = "Text $'{SourceText1} - {SourceText2}'";
+            var target = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, new object[] { 1, 2 }).ShouldEqual(string.Format(format, 1, 2));
+            expression(context, new object[] { sourcePath1, sourcePath2 })
+                .ShouldEqual(string.Format(format, sourcePath1, sourcePath2));
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context),
+                sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context),
+                sourcePath2);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseInterpolatedStrings2()
+        {
+            const string targetPath = "Text";
+            const string sourcePath1 = "SourceText1";
+            const string sourcePath2 = "SourceText2";
+            const string format = "{0:d} - {1}";
+            const string binding = "Text $'{SourceText1:d} - {SourceText2}'";
+            var target = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            var dateTime = DateTime.Now;
+            expression(context, new object[] { dateTime, 2 }).ShouldEqual(string.Format(format, dateTime, 2));
+            expression(context, new object[] { dateTime, sourcePath2 }).ShouldEqual(string.Format(format, dateTime, sourcePath2));
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context),
+                sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context),
+                sourcePath2);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseInterpolatedStrings3()
+        {
+            const string targetPath = "Text";
+            const string sourcePath1 = "SourceText1";
+            const string sourcePath2 = "SourceText2";
+            const string format = "{0:d,2} - {1,2} - {0:HH:mm:ss tt zz} - {1:0,0}";
+            const string binding = "Text $'{SourceText1:d,2} - {SourceText2,2} - {SourceText1:HH:mm:ss tt zz} - {SourceText2:0,0}'";
+            var target = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            var dateTime = DateTime.Now;
+            const float value = 2.33333f;
+            const decimal d = 44.44440M;
+            expression(context, new object[] { dateTime, value }).ShouldEqual(string.Format(format, dateTime, value));
+            expression(context, new object[] { dateTime, d }).ShouldEqual(string.Format(format, dateTime, d));
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context),
+                sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context),
+                sourcePath2);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseInterpolatedStrings4()
+        {
+            const string targetPath = "Text";
+            const string sourcePath1 = "SourceText1";
+            const string sourcePath2 = "SourceText2";
+            const string format = "{0} - {1} + {{test}}";
+            const string binding = "Text $'{SourceText1} - {SourceText2} + {{test}}'";
+            var target = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, new object[] { 1, 2 }).ShouldEqual(string.Format(format, 1, 2));
+            expression(context, new object[] { sourcePath1, sourcePath2 })
+                .ShouldEqual(string.Format(format, sourcePath1, sourcePath2));
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context),
+                sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context),
+                sourcePath2);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseInterpolatedStrings5()
+        {
+            var target = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+            ShouldThrow(() => new BindingBuilder(bindingParser.Parse(target, "Text ${Path,}", null, null).Single()));
+            ShouldThrow(() => new BindingBuilder(bindingParser.Parse(target, "Text ${Path:}", null, null).Single()));
+            ShouldThrow(() => new BindingBuilder(bindingParser.Parse(target, "Text ${Path,$}", null, null).Single()));
+            ShouldThrow(() => new BindingBuilder(bindingParser.Parse(target, "Text ${Path:d,}", null, null).Single()));
+            ShouldThrow(() => new BindingBuilder(bindingParser.Parse(target, "Text ${Path", null, null).Single()));
+            ShouldThrow(() => new BindingBuilder(bindingParser.Parse(target, "Text $Path}", null, null).Single()));
+            ShouldThrow(() => new BindingBuilder(bindingParser.Parse(target, "Text ${(Path", null, null).Single()));
+        }
+
+        [TestMethod]
+        public void ParserShouldParseInterpolatedStrings6()
+        {
+            const string targetPath = "Text";
+            const string sourcePath1 = "SourceText1";
+            const string sourcePath2 = "SourceText2";
+            const string format = "{0:d,2} - {1,2} - {0:HH:mm:ss tt zz} - {1:0,0} - {2}";
+            const string binding = "Text $'{SourceText1:d,2} - {SourceText2,2} - {SourceText1:HH:mm:ss tt zz} - {SourceText2:0,0} - {(SourceText2 > 3 ? '1' : '2')}'";
+            var target = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            var dateTime = DateTime.Now;
+            const float value = 2.33333f;
+            const decimal d = 44.44440M;
+            expression(context, new object[] { dateTime, value }).ShouldEqual(string.Format(format, dateTime, value, value > 3 ? '1' : '2'));
+            expression(context, new object[] { dateTime, d }).ShouldEqual(string.Format(format, dateTime, d, d > 3 ? '1' : '2'));
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context),
+                sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context),
+                sourcePath2);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseInterpolatedStrings7()
+        {
+            const string targetPath = "Text";
+            const string sourcePath1 = "SourceText1";
+            const string sourcePath2 = "SourceText2";
+            const string format = "{0:d,2} - {1,2} - {0:HH:mm:ss tt zz} - {1:0,0} - {2}";
+            const string binding = "Text $'{SourceText1:d,2} - {SourceText2,2}' + $' - {SourceText1:HH:mm:ss tt zz} - {SourceText2:0,0} - {(SourceText2 > 3 ? '1' : '2')}'";
+            var target = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            var dateTime = DateTime.Now;
+            const float value = 2.33333f;
+            const decimal d = 44.44440M;
+            expression(context, new object[] { dateTime, value }).ShouldEqual(string.Format(format, dateTime, value, value > 3 ? '1' : '2'));
+            expression(context, new object[] { dateTime, d }).ShouldEqual(string.Format(format, dateTime, d, d > 3 ? '1' : '2'));
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context),
+                sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context),
+                sourcePath2);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseInterpolatedStrings8()
+        {
+            const string targetPath = "Text";
+            const string sourcePath1 = "SourceText1";
+            const string sourcePath2 = "SourceText2";
+            const string binding = "Text $'{SourceText1 + $'{SourceText2}'}'";
+            var target = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, new object[] { 1, 2 }).ShouldEqual(1 + 2.ToString());
+            expression(context, new object[] { sourcePath1, sourcePath2 }).ShouldEqual(sourcePath1 + sourcePath2);
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context),
+                sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context),
+                sourcePath2);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseInterpolatedStrings9()
+        {
+            const string targetPath = "Text";
+            const string sourcePath1 = "SourceText1";
+            const string sourcePath2 = "Value";
+            const string binding = "Text $'{SourceText1:d,2} - {$Rel(View).Value,2}' + $' - {SourceText1:HH:mm:ss tt zz} - {$Rel(View).Value + $'{($Rel(View).Value > 3 ? '1' : '2')}':0,0}'";
+            var target = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            var dateTime = DateTime.Now;
+            const float value = 2.33333f;
+            const decimal d = 44.44440M;
+            expression(context, new object[] { dateTime, value })
+                .ShouldEqual($"{dateTime:d,2} - {value,2}" +
+                             $" - {dateTime:HH:mm:ss tt zz} - {value + $"{(value > 3 ? "1" : "2")}":0,0}");
+            expression(context, new object[] { dateTime, d })
+                .ShouldEqual($"{dateTime:d,2} - {d,2}" +
+                             $" - {dateTime:HH:mm:ss tt zz} - {d + $"{(d > 3 ? "1" : "2")}":0,0}");
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context),
+                sourcePath1);
+            sources[1].Invoke(context).Path.Path.ShouldEqual(sourcePath2);
         }
 
         [TestMethod]
@@ -499,20 +827,19 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
         {
             const string targetPath = "Text";
             const string binding = @"Text SourceText1 == 'a'";
+            var target = new object();
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             var expression = context.GetData(BindingBuilderConstants.MultiExpression);
             expression(context, new object[] { 'a' }).ShouldEqual(true);
             expression(context, new object[] { 'b' }).ShouldEqual(false);
 
-            var targetObj = new object();
-            context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), "SourceText1");
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context), "SourceText1");
         }
 
         [TestMethod]
@@ -522,21 +849,20 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string sourcePath1 = "SourceText1";
             const string sourcePath2 = "SourceText2";
             const string binding = "Text SourceText1 + SourceText2";
+            var target = new object();
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             var expression = context.GetData(BindingBuilderConstants.MultiExpression);
             expression(context, new object[] { 1, 2 }).ShouldEqual(3);
             expression(context, new object[] { sourcePath1, sourcePath2 }).ShouldEqual(sourcePath1 + sourcePath2);
 
-            var targetObj = new object();
-            context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(context), sourcePath2);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context), sourcePath2);
         }
 
         [TestMethod]
@@ -552,11 +878,12 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string sourcePath3 = "SourceText3";
             const string binding =
                 "Text SourceText1.IndexOf('1') == 0 ? $Format('{0} - {1}', SourceText2, SourceText3) : SourceText2 >= 10 ? 'test' : null ?? 'value'";
+            var target = new object();
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             var expression = context.GetData(BindingBuilderConstants.MultiExpression);
             var args = new object[] { "1", 1, 2 };
@@ -568,12 +895,10 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             args = new object[] { "0", 11, 2 };
             expression(context, args).ShouldEqual(expressionFunc(args));
 
-            var targetObj = new object();
-            context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(context), sourcePath2);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[2].Invoke(context), sourcePath3);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context), sourcePath2);
+            BindingSourceShouldBeValidDataContext(target, sources[2].Invoke(context), sourcePath3);
         }
 
         [TestMethod]
@@ -587,11 +912,12 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string sourcePath3 = "SourceText3";
             const string binding =
                 "Text ((SourceText1 - (SourceText2/SourceText3))*SourceText1) + ((1000*SourceText1) - 1) >= 100";
+            var target = new object();
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             var expression = context.GetData(BindingBuilderConstants.MultiExpression);
             var args = new object[] { 1, 1, 2 };
@@ -603,12 +929,10 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             args = new object[] { 2352345, 212, 234 };
             expression(context, args).ShouldEqual(expressionFunc(args));
 
-            var targetObj = new object();
-            context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(context), sourcePath2);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[2].Invoke(context), sourcePath3);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context), sourcePath2);
+            BindingSourceShouldBeValidDataContext(target, sources[2].Invoke(context), sourcePath3);
         }
 
         [TestMethod]
@@ -620,23 +944,22 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string sourcePath3 = "c";
             const string sourcePath4 = "d";
             const string binding = "Text a < b && c < d && (a == c || b == d)";
+            var target = new object();
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             var expression = context.GetData(BindingBuilderConstants.MultiExpression);
             expression(context, new object[] { 1, 2, 3, 4 }).ShouldEqual(1 < 2 && 3 < 4 && (1 == 3 || 2 == 4));
             expression(context, new object[] { 1, 4, 3, 4 }).ShouldEqual(1 < 4 && 3 < 4 && (1 == 3 || 4 == 4));
 
-            var targetObj = new object();
-            context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(context), sourcePath2);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[2].Invoke(context), sourcePath3);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[3].Invoke(context), sourcePath4);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context), sourcePath2);
+            BindingSourceShouldBeValidDataContext(target, sources[2].Invoke(context), sourcePath3);
+            BindingSourceShouldBeValidDataContext(target, sources[3].Invoke(context), sourcePath4);
         }
 
         [TestMethod]
@@ -648,23 +971,21 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string sourcePath3 = "c";
             const string sourcePath4 = "d";
             const string binding = "Text a + b + c == d ? false : true || true";
+            var target = new object();
             IBindingParser bindingParser = CreateBindingParser();
-
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             var expression = context.GetData(BindingBuilderConstants.MultiExpression);
             expression(context, new object[] { 0, 1, 0, 1 }).ShouldEqual(0 + 1 + 0 == 1 ? false : true || true);
             expression(context, new object[] { 0, 1, 1, 0 }).ShouldEqual(0 + 1 + 1 == 1 ? false : true || true);
 
-            var targetObj = new object();
-            context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(context), sourcePath2);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[2].Invoke(context), sourcePath3);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[3].Invoke(context), sourcePath4);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context), sourcePath2);
+            BindingSourceShouldBeValidDataContext(target, sources[2].Invoke(context), sourcePath3);
+            BindingSourceShouldBeValidDataContext(target, sources[3].Invoke(context), sourcePath4);
         }
 
         [TestMethod]
@@ -673,22 +994,21 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string targetPath = "Text";
             const string sourcePath1 = "x";
             const string binding = "Text x ?? 0 + 1 == 1 ? false : true || true";
+            var target = new object();
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             object x = null;
             var expression = context.GetData(BindingBuilderConstants.MultiExpression);
-            expression(context, new object[] { x }).ShouldEqual(x ?? (0 + 1 == 1 ? false : true || true));
+            expression(context, new[] { x }).ShouldEqual(x ?? (0 + 1 == 1 ? false : true || true));
             x = new object();
-            expression(context, new object[] { x }).ShouldEqual(x ?? (0 + 1 == 1 ? false : true || true));
+            expression(context, new[] { x }).ShouldEqual(x ?? (0 + 1 == 1 ? false : true || true));
 
-            var targetObj = new object();
-            context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context), sourcePath1);
         }
 
         [TestMethod]
@@ -697,11 +1017,12 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string targetPath = "Text";
             const string sourcePath1 = "x";
             const string binding = "Text x.Select(s => s == null ? 10 + 4 : 3 + 10).FirstOrDefault() == 0 ? false : true || true";
+            var target = new object();
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             IList<string> x = new string[0];
             var expression = context.GetData(BindingBuilderConstants.MultiExpression);
@@ -709,10 +1030,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             x = new string[] { null };
             expression(context, new object[] { x }).ShouldEqual(x.Select(s => s == null ? 10 + 4 : 3 + 10).FirstOrDefault() == 0 ? false : true || true);
 
-            var targetObj = new object();
-            context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context), sourcePath1);
         }
 
         [TestMethod]
@@ -722,12 +1041,86 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string binding = "Text 1 == 0 ? $param1 : $param2";
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath targetBPath = context.GetData(BindingBuilderConstants.TargetPath);
-            targetBPath.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             var expression = context.GetData(BindingBuilderConstants.MultiExpression);
             expression(context, new object[] { true, false }).ShouldEqual(false);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseMultiExpression9()
+        {
+            const string targetPath = "Text";
+            const string sourcePath1 = "x";
+            const string binding = "Text x/2-10";
+            var target = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, new object[] { 20 }).ShouldEqual(0);
+            expression(context, new object[] { 40 }).ShouldEqual(10);
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context), sourcePath1);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseMultiExpressionWithOneTimeScope()
+        {
+            const string targetPath = "Text";
+            const string sourcePath1 = "SourceText1";
+            const string sourcePath2 = "SourceText2";
+            const string sourcePath3 = "SourceText3";
+            const string methodName = "TestMethod";
+            const string binding = "Text $OneTime($TestMethod(SourceText1, SourceText2).IntProperty) + SourceText3";
+
+            const int firstValue = -1;
+            var ctx = new DataContext();
+            var bindingMock = new DataBindingMock { GetContext = () => ctx };
+            int executionCount = 0;
+            var target = new object();
+            var args = new object[] { "tset", 1, 3 };
+            var sourceModel = new BindingSourceModel { IntProperty = firstValue };
+
+            var provider = new BindingProvider();
+            var resolver = new BindingResourceResolver();
+            BindingServiceProvider.ResourceResolver = resolver;
+            var method = new BindingResourceMethod((list, objects, c) =>
+            {
+                ++executionCount;
+                objects[0].ShouldEqual(args[0]);
+                objects[1].ShouldEqual(args[1]);
+                return sourceModel;
+            }, typeof(BindingSourceModel));
+            resolver.AddMethod(methodName, method, true);
+            IBindingParser bindingParser = CreateBindingParser(bindingProvider: provider);
+
+
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            context.AddOrUpdate(BindingConstants.Binding, bindingMock);
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, args).ShouldEqual(firstValue + 3);
+            sourceModel.IntProperty = int.MinValue;
+            args[2] = 5;
+            expression(context, args).ShouldEqual(firstValue + 5);
+            args[2] = 6;
+            expression(context, args).ShouldEqual(firstValue + 6);
+
+            executionCount.ShouldEqual(1);
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context), sourcePath2);
+            BindingSourceShouldBeValidDataContext(target, sources[2].Invoke(context), sourcePath3);
         }
 
         [TestMethod]
@@ -738,6 +1131,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string sourcePath2 = "SourceText2";
             const string methodName = "TestMethod";
             const string binding = "Text $TestMethod(SourceText1, SourceText2).IntProperty";
+            var target = new object();
             var args = new object[] { "tset", 1 };
             var sourceModel = new BindingSourceModel { IntProperty = int.MaxValue };
 
@@ -754,18 +1148,16 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             IBindingParser bindingParser = CreateBindingParser(bindingProvider: provider);
 
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             var expression = context.GetData(BindingBuilderConstants.MultiExpression);
             expression(context, args).ShouldEqual(sourceModel.IntProperty);
 
-            var targetObj = new object();
-            context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(context), sourcePath2);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context), sourcePath2);
         }
 
         [TestMethod]
@@ -776,6 +1168,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string sourcePath2 = "SourceText2";
             const string objectName = "TestObject";
             const string binding = "Text SourceText1 + SourceText2 == $$TestObject";
+            var target = new object();
             var args = new object[] { 9, 1 };
 
             var provider = new BindingProvider();
@@ -784,18 +1177,16 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             resolver.AddObject(objectName, new BindingResourceObject(10), true);
             IBindingParser bindingParser = CreateBindingParser(bindingProvider: provider);
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             var expression = context.GetData(BindingBuilderConstants.MultiExpression);
             expression(context, args).ShouldEqual(true);
 
-            var targetObj = new object();
-            context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(context), sourcePath2);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context), sourcePath2);
         }
 
         [TestMethod]
@@ -806,6 +1197,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string sourcePath2 = "SourceText2";
             const string objectName = "TestObject";
             const string binding = "Text (SourceText1 + SourceText2).GetHashCode() == $$TestObject.GetHashCode()";
+            var target = new object();
             var args = new object[] { 9, 1 };
 
             var provider = new BindingProvider();
@@ -814,18 +1206,16 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             resolver.AddObject(objectName, new BindingResourceObject(10), true);
             IBindingParser bindingParser = CreateBindingParser(bindingProvider: provider);
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             var expression = context.GetData(BindingBuilderConstants.MultiExpression);
             expression(context, args).ShouldEqual(true);
 
-            var targetObj = new object();
-            context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(context), sourcePath2);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context), sourcePath2);
         }
 
         [TestMethod]
@@ -837,6 +1227,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string sourcePath3 = "Item1";
             const string objectName = "TestObject";
             const string binding = "Text SourceText1 + SourceText2 == $TestObject.Item1";
+            var target = new object();
             var tuple = new Tuple<int>(10);
             var expressionObject = new BindingResourceObject(tuple);
             var args = new object[] { 9, 1, tuple.Item1 };
@@ -847,18 +1238,16 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             resolver.AddObject(objectName, expressionObject, true);
             IBindingParser bindingParser = CreateBindingParser(bindingProvider: provider);
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             var expression = context.GetData(BindingBuilderConstants.MultiExpression);
             expression(context, args).ShouldEqual(true);
 
-            var targetObj = new object();
-            context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(context), sourcePath2);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context), sourcePath2);
             BindingSourceShouldBeValid(sources[2].Invoke(context), sourcePath3, tuple);
         }
 
@@ -870,6 +1259,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string sourcePath2 = "SourceText2";
             const string objectName = "TestObject";
             const string binding = "Text SourceText1 + SourceText2 == $TestObject.IntProperty";
+            var targetObj = new object();
             var model = new BindingSourceModel { IntProperty = 10 };
             var args = new object[] { 9, 1, model.IntProperty };
 
@@ -879,15 +1269,13 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             resolver.AddObject(objectName, new BindingResourceObject(model), true);
             IBindingParser bindingParser = CreateBindingParser(bindingProvider: provider);
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(targetObj, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             var expression = context.GetData(BindingBuilderConstants.MultiExpression);
             expression(context, args).ShouldEqual(true);
 
-            var targetObj = new object();
-            context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
             BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
             BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(context), sourcePath2);
@@ -903,15 +1291,16 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string sourcePath2 = "SourceText2";
             const string converterName = "TestConverter";
             const string binding = "Text $TestConverter(SourceText1, SourceText2)";
+            var target = new object();
             var args = new object[] { "tset", 1 };
             var sourceModel = new BindingSourceModel { IntProperty = int.MaxValue };
             var bindingMock = new DataBindingMock
             {
                 TargetAccessor = new BindingSourceAccessorMock
                 {
-                    Source = new BindingSourceMock
+                    Source = new ObserverMock
                     {
-                        GetPathMembers = b => new BindingPathMembersMock(this, BindingPath.Create("IntProperty"), new BindingMemberInfo("IntProperty", BindingSourceModel.IntPropertyInfo, typeof(BindingSourceModel)))
+                        GetPathMembers = b => new BindingPathMembersMock(this, new BindingPath("IntProperty"), new BindingMemberInfo("IntProperty", BindingSourceModel.IntPropertyInfo, typeof(BindingSourceModel)))
                     }
                 }
             };
@@ -932,20 +1321,18 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             resolver.AddConverter(converterName, converterMock, true);
             IBindingParser bindingParser = CreateBindingParser(bindingProvider: provider);
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
             context.Add(BindingConstants.Binding, bindingMock);
 
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             var expression = context.GetData(BindingBuilderConstants.MultiExpression);
             expression(context, args).ShouldEqual(sourceModel);
 
-            var targetObj = new object();
-            context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[1].Invoke(context), sourcePath2);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[1].Invoke(context), sourcePath2);
         }
 
         [TestMethod]
@@ -954,20 +1341,19 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string targetPath = "Text";
             const string sourcePath1 = "param";
             const string binding = "Text param.Where(x => x == 'test').FirstOrDefault()";
+            var target = new object();
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             var expression = context.GetData(BindingBuilderConstants.MultiExpression);
             expression(context, new object[] { new[] { "test" } }).ShouldEqual("test");
             expression(context, new object[] { new[] { string.Empty } }).ShouldBeNull();
 
-            var targetObj = new object();
-            context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context), sourcePath1);
         }
 
         [TestMethod]
@@ -976,20 +1362,19 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string targetPath = "Text";
             const string sourcePath1 = "param";
             const string binding = "Text param.Where(x => x == 'test').Aggregate('seed', (s1, s2) => s1 + s2, s1 => s1.Length)";
+            var target = new object();
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             var expression = context.GetData(BindingBuilderConstants.MultiExpression);
             expression(context, new object[] { new[] { "test" } }).ShouldEqual(8);
             expression(context, new object[] { new[] { string.Empty } }).ShouldEqual(4);
 
-            var targetObj = new object();
-            context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context), sourcePath1);
         }
 
         [TestMethod]
@@ -998,20 +1383,82 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string targetPath = "Text";
             const string sourcePath1 = "param";
             const string binding = "Text param.Where<string>(x => x == 'test').Aggregate<string, string, int>('seed', (s1, s2) => s1 + s2, s1 => s1.Length)";
+            var target = new object();
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             var expression = context.GetData(BindingBuilderConstants.MultiExpression);
             expression(context, new object[] { new[] { "test" } }).ShouldEqual(8);
             expression(context, new object[] { new[] { string.Empty } }).ShouldEqual(4);
 
-            var targetObj = new object();
-            context.Add(BindingBuilderConstants.Target, targetObj);
             var sources = context.GetData(BindingBuilderConstants.Sources);
-            BindingSourceShouldBeValidDataContext(targetObj, sources[0].Invoke(context), sourcePath1);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context), sourcePath1);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseExpressionWithLambdaTypeAccess1()
+        {
+            const string targetPath = "Text";
+            const string sourcePath1 = "param";
+            const string binding = "Text $Enumerable.FirstOrDefault($Enumerable.Where(param, x => x == 'test'))";
+            var target = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, new object[] { new[] { "test" } }).ShouldEqual("test");
+            expression(context, new object[] { new[] { string.Empty } }).ShouldBeNull();
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context), sourcePath1);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseExpressionWithLambdaTypeAccess2()
+        {
+            const string targetPath = "Text";
+            const string sourcePath1 = "param";
+            const string binding = "Text $Enumerable.Aggregate($Enumerable.Where(param, x => x == 'test'), 'seed', (s1, s2) => s1 + s2, s1 => s1.Length)";
+            var target = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, new object[] { new[] { "test" } }).ShouldEqual(8);
+            expression(context, new object[] { new[] { string.Empty } }).ShouldEqual(4);
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context), sourcePath1);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseExpressionWithLambdaTypeAccess3()
+        {
+            const string targetPath = "Text";
+            const string sourcePath1 = "param";
+            const string binding = "Text $Enumerable.Aggregate<string, string, int>($Enumerable.Where<string>(param, x => x == 'test'), 'seed', (s1, s2) => s1 + s2, s1 => s1.Length)";
+            var target = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, new object[] { new[] { "test" } }).ShouldEqual(8);
+            expression(context, new object[] { new[] { string.Empty } }).ShouldEqual(4);
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            BindingSourceShouldBeValidDataContext(target, sources[0].Invoke(context), sourcePath1);
         }
 
         [TestMethod]
@@ -1030,7 +1477,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             IBindingParser bindingParser = CreateBindingParser();
             foreach (var mode in modes)
             {
-                var context = new BindingBuilder(bindingParser.Parse(string.Format(binding, mode.Key), EmptyContext).Single());
+                var context = new BindingBuilder(bindingParser.Parse(new object(), string.Format(binding, mode.Key), null, null).Single());
                 var behaviors = context.GetData(BindingBuilderConstants.Behaviors) ?? new List<IBindingBehavior>();
                 mode.Value(behaviors, context);
             }
@@ -1052,7 +1499,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider());
             BindingServiceProvider.ResourceResolver = resolver;
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
             context.GetData(BindingBuilderConstants.Behaviors).Single().ShouldEqual(value);
         }
 
@@ -1072,7 +1519,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider());
             BindingServiceProvider.ResourceResolver = resolver;
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
             context.GetData(BindingBuilderConstants.Behaviors).Single().ShouldEqual(value);
         }
 
@@ -1092,7 +1539,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider());
             BindingServiceProvider.ResourceResolver = resolver;
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
             context.GetData(BindingBuilderConstants.Behaviors).OfType<TwoWayBindingMode>().Single().ShouldEqual(value);
         }
 
@@ -1116,7 +1563,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider());
             BindingServiceProvider.ResourceResolver = resolver;
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
             context.GetData(BindingBuilderConstants.Behaviors).OfType<TwoWayBindingMode>().Single().ShouldEqual(value);
         }
 
@@ -1126,7 +1573,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string binding = "Text SourceText, ValidatesOnNotifyDataErrors=true";
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
             context.GetData(BindingBuilderConstants.Behaviors)
                 .Single()
                 .ShouldBeType<ValidatesOnNotifyDataErrorsBehavior>();
@@ -1138,7 +1585,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string binding = "Text SourceText, ValidatesOnExceptions=true";
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
             context.GetData(BindingBuilderConstants.Behaviors)
                 .Single()
                 .ShouldBeType<ValidatesOnExceptionsBehavior>();
@@ -1150,7 +1597,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string binding = "Text SourceText, DefaultValueOnException=true";
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
             var behavior = (DefaultValueOnExceptionBehavior)context
                 .GetData(BindingBuilderConstants.Behaviors)
                 .Single();
@@ -1163,7 +1610,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string binding = "Text SourceText, DefaultValueOnException=10";
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
             var behavior = (DefaultValueOnExceptionBehavior)context
                 .GetData(BindingBuilderConstants.Behaviors)
                 .Single();
@@ -1176,7 +1623,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string binding = "Text SourceText, DefaultValueOnException=stringvalue, Mode=TwoWay";
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
             var behavior = context
                 .GetData(BindingBuilderConstants.Behaviors)
                 .OfType<DefaultValueOnExceptionBehavior>()
@@ -1191,7 +1638,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string binding = "Text SourceText, Delay=500";
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
             var bindingBehavior = (DelayBindingBehavior)context.GetData(BindingBuilderConstants.Behaviors).Single();
             bindingBehavior.Delay.ShouldEqual(delayValue);
             bindingBehavior.IsTarget.ShouldBeFalse();
@@ -1204,7 +1651,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string binding = "Text SourceText, SourceDelay=500";
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
             var bindingBehavior = (DelayBindingBehavior)context.GetData(BindingBuilderConstants.Behaviors).Single();
             bindingBehavior.Delay.ShouldEqual(delayValue);
             bindingBehavior.IsTarget.ShouldBeFalse();
@@ -1217,7 +1664,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string binding = "Text SourceText, TargetDelay=500";
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
             var bindingBehavior = (DelayBindingBehavior)context.GetData(BindingBuilderConstants.Behaviors).Single();
             bindingBehavior.Delay.ShouldEqual(delayValue);
             bindingBehavior.IsTarget.ShouldBeTrue();
@@ -1234,7 +1681,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider());
             BindingServiceProvider.ResourceResolver = resolver;
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
             context.GetData(BindingBuilderConstants.Converter).Invoke(EmptyContext).ShouldEqual(value);
         }
 
@@ -1244,18 +1691,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string binding = "Text Text, Converter={ObjectProperty}";
             var sourceObj = new BindingSourceModel { ObjectProperty = new ValueConverterCoreMock() };
             var target = new object();
-            var dataBinding = new DataBindingMock
-            {
-                TargetAccessor = new BindingSourceAccessorMock
-                {
-                    Source = new BindingSourceMock { GetSource = b => target }
-                }
-            };
             IBindingParser bindingParser = CreateBindingParser();
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            context
-                .GetData(BindingBuilderConstants.Behaviors)
-                .ForEach(behavior => behavior.Attach(dataBinding));
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
             context.GetData(BindingBuilderConstants.Converter)
                 .Invoke(EmptyContext)
                 .ShouldBeNull();
@@ -1275,7 +1712,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider());
             BindingServiceProvider.ResourceResolver = resolver;
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
             context.GetData(BindingBuilderConstants.Converter)
                 .Invoke(EmptyContext)
                 .ShouldEqual(value);
@@ -1287,18 +1724,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string binding = "Text Text, ConverterParameter={ObjectProperty}";
             var sourceObj = new BindingSourceModel { ObjectProperty = new object() };
             var target = new object();
-            var dataBinding = new DataBindingMock
-            {
-                TargetAccessor = new BindingSourceAccessorMock
-                {
-                    Source = new BindingSourceMock { GetSource = b => target }
-                }
-            };
             IBindingParser bindingParser = CreateBindingParser();
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            context
-                .GetData(BindingBuilderConstants.Behaviors)
-                .ForEach(behavior => behavior.Attach(dataBinding));
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
             context.GetData(BindingBuilderConstants.ConverterParameter)
                 .Invoke(EmptyContext)
                 .ShouldBeNull();
@@ -1314,18 +1741,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string binding = "Text Text, ConverterParameter=ObjectProperty";
             var sourceObj = new BindingSourceModel { ObjectProperty = new object() };
             var target = new object();
-            var dataBinding = new DataBindingMock
-            {
-                TargetAccessor = new BindingSourceAccessorMock
-                {
-                    Source = new BindingSourceMock { GetSource = b => target }
-                }
-            };
             IBindingParser bindingParser = CreateBindingParser();
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            context
-                .GetData(BindingBuilderConstants.Behaviors)
-                .ForEach(behavior => behavior.Attach(dataBinding));
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
             context.GetData(BindingBuilderConstants.ConverterParameter)
                 .Invoke(EmptyContext)
                 .ShouldBeNull();
@@ -1341,7 +1758,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string value = "value";
             const string binding = "Text Text, ConverterParameter='value'";
             IBindingParser bindingParser = CreateBindingParser();
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
             context.GetData(BindingBuilderConstants.ConverterParameter)
                 .Invoke(EmptyContext)
                 .ShouldEqual(value);
@@ -1357,7 +1774,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider());
             BindingServiceProvider.ResourceResolver = resolver;
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
             context.GetData(BindingBuilderConstants.ConverterParameter)
                 .Invoke(EmptyContext)
                 .ShouldEqual(value);
@@ -1369,18 +1786,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string binding = "Text Text, Fallback={ObjectProperty}";
             var sourceObj = new BindingSourceModel { ObjectProperty = new object() };
             var target = new object();
-            var dataBinding = new DataBindingMock
-            {
-                TargetAccessor = new BindingSourceAccessorMock
-                {
-                    Source = new BindingSourceMock { GetSource = b => target }
-                }
-            };
             IBindingParser bindingParser = CreateBindingParser();
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            context
-                .GetData(BindingBuilderConstants.Behaviors)
-                .ForEach(behavior => behavior.Attach(dataBinding));
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
             context.GetData(BindingBuilderConstants.Fallback)
                 .Invoke(EmptyContext)
                 .ShouldBeNull();
@@ -1396,7 +1803,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string value = "value";
             const string binding = "Text Text, Fallback=value";
             IBindingParser bindingParser = CreateBindingParser();
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
             context.GetData(BindingBuilderConstants.Fallback)
                 .Invoke(EmptyContext)
                 .ShouldEqual(value);
@@ -1412,7 +1819,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider());
             BindingServiceProvider.ResourceResolver = resolver;
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
             context.GetData(BindingBuilderConstants.Fallback)
                 .Invoke(EmptyContext)
                 .ShouldEqual(value);
@@ -1424,7 +1831,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string value = "value";
             const string binding = "Text Text, TargetNullValue=value";
             IBindingParser bindingParser = CreateBindingParser();
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
             context.GetData(BindingBuilderConstants.TargetNullValue)
                 .ShouldEqual(value);
         }
@@ -1439,7 +1846,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider());
             BindingServiceProvider.ResourceResolver = resolver;
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
             context.GetData(BindingBuilderConstants.TargetNullValue)
                 .ShouldEqual(value);
         }
@@ -1450,18 +1857,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string binding = "Text Text, CommandParameter={ObjectProperty}";
             var sourceObj = new BindingSourceModel { ObjectProperty = new object() };
             var target = new object();
-            var dataBinding = new DataBindingMock
-            {
-                TargetAccessor = new BindingSourceAccessorMock
-                {
-                    Source = new BindingSourceMock { GetSource = b => target }
-                }
-            };
             IBindingParser bindingParser = CreateBindingParser();
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            context
-                .GetData(BindingBuilderConstants.Behaviors)
-                .ForEach(behavior => behavior.Attach(dataBinding));
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
             context.GetData(BindingBuilderConstants.CommandParameter)
                 .Invoke(EmptyContext)
                 .ShouldBeNull();
@@ -1477,18 +1874,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string binding = "Text Text, CommandParameter=ObjectProperty";
             var sourceObj = new BindingSourceModel { ObjectProperty = new object() };
             var target = new object();
-            var dataBinding = new DataBindingMock
-            {
-                TargetAccessor = new BindingSourceAccessorMock
-                {
-                    Source = new BindingSourceMock { GetSource = b => target }
-                }
-            };
             IBindingParser bindingParser = CreateBindingParser();
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            context
-                .GetData(BindingBuilderConstants.Behaviors)
-                .ForEach(behavior => behavior.Attach(dataBinding));
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
             context.GetData(BindingBuilderConstants.CommandParameter)
                 .Invoke(EmptyContext)
                 .ShouldBeNull();
@@ -1504,7 +1891,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string value = "value";
             const string binding = "Text Text, CommandParameter='value'";
             IBindingParser bindingParser = CreateBindingParser();
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
             context.GetData(BindingBuilderConstants.CommandParameter)
                 .Invoke(EmptyContext)
                 .ShouldEqual(value);
@@ -1520,7 +1907,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider());
             BindingServiceProvider.ResourceResolver = resolver;
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
             context.GetData(BindingBuilderConstants.CommandParameter)
                 .Invoke(EmptyContext)
                 .ShouldEqual(value);
@@ -1532,18 +1919,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string binding = "Text Text, ConverterCulture={ObjectProperty}";
             var sourceObj = new BindingSourceModel { ObjectProperty = CultureInfo.InvariantCulture };
             var target = new object();
-            var dataBinding = new DataBindingMock
-            {
-                TargetAccessor = new BindingSourceAccessorMock
-                {
-                    Source = new BindingSourceMock { GetSource = b => target }
-                }
-            };
             IBindingParser bindingParser = CreateBindingParser();
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            context
-                .GetData(BindingBuilderConstants.Behaviors)
-                .ForEach(behavior => behavior.Attach(dataBinding));
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
             context.GetData(BindingBuilderConstants.ConverterCulture)
                 .Invoke(EmptyContext)
                 .ShouldBeNull();
@@ -1559,7 +1936,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var cultureInfo = new CultureInfo("ru-RU");
             const string binding = "Text Text, ConverterCulture='ru-RU'";
             IBindingParser bindingParser = CreateBindingParser();
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
             context.GetData(BindingBuilderConstants.ConverterCulture)
                 .Invoke(EmptyContext)
                 .Name
@@ -1576,7 +1953,23 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider());
             BindingServiceProvider.ResourceResolver = resolver;
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
+            context.GetData(BindingBuilderConstants.ConverterCulture)
+                .Invoke(EmptyContext)
+                .ShouldEqual(cultureInfo);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseConverterCultureFromStaticResource()
+        {
+            const string binding = "Text Text, ConverterCulture=$$param";
+            var cultureInfo = new CultureInfo("ru-RU");
+            var resolver = new BindingResourceResolver();
+            resolver.AddObject("param", new BindingResourceObject(cultureInfo), true);
+            IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider());
+            BindingServiceProvider.ResourceResolver = resolver;
+
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
             context.GetData(BindingBuilderConstants.ConverterCulture)
                 .Invoke(EmptyContext)
                 .ShouldEqual(cultureInfo);
@@ -1588,11 +1981,12 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string targetPath = "Text";
             const string sourcePath = "TestValue";
             const string binding = "Text TestValue";
+            var target = new object();
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             bool invokedObserve = false;
             var dynamicObject = new DynamicObjectMock
@@ -1610,13 +2004,14 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
                     return null;
                 }
             };
-            var targetObj = new object();
-            context.Add(BindingBuilderConstants.Target, targetObj);
-            var source = context.GetData(BindingBuilderConstants.Sources)[0].Invoke(context);
-            BindingSourceShouldBeValidDataContext(targetObj, source, sourcePath);
 
-            BindingServiceProvider.ContextManager.GetBindingContext(targetObj).Value = dynamicObject;
-            BindingSourceShouldBeValidDataContext(targetObj, source, sourcePath);
+            var source = context.GetData(BindingBuilderConstants.Sources)[0].Invoke(context);
+            source.GetPathMembers(true);
+            source.ValueChanged += (sender, args) => { };
+            BindingSourceShouldBeValidDataContext(target, source, sourcePath);
+
+            BindingServiceProvider.ContextManager.GetBindingContext(target).Value = dynamicObject;
+            BindingSourceShouldBeValidDataContext(target, source, sourcePath);
             invokedObserve.ShouldBeTrue();
 
             var pathMembers = source.GetPathMembers(true);
@@ -1628,13 +2023,14 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
         public void ParserShouldParseExpressionWithDynamicObjectIndexerAccessConstant()
         {
             const string targetPath = "Text";
-            const string sourcePath = "[value]";
+            const string sourcePath = "[\"value\"]";
             const string binding = "Text ['value']";
+            var target = new object();
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             bool invokedObserve = false;
             var dynamicObject = new DynamicObjectMock
@@ -1656,13 +2052,13 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
                     return context;
                 }
             };
-            var targetObj = new object();
-            context.Add(BindingBuilderConstants.Target, targetObj);
-            var source = context.GetData(BindingBuilderConstants.Sources)[0].Invoke(context);
-            BindingSourceShouldBeValidDataContext(targetObj, source, sourcePath);
 
-            BindingServiceProvider.ContextManager.GetBindingContext(targetObj).Value = dynamicObject;
-            BindingSourceShouldBeValidDataContext(targetObj, source, sourcePath);
+            var source = context.GetData(BindingBuilderConstants.Sources)[0].Invoke(context);
+            source.GetPathMembers(true);
+            BindingSourceShouldBeValidDataContext(target, source, sourcePath);
+
+            BindingServiceProvider.ContextManager.GetBindingContext(target).Value = dynamicObject;
+            BindingSourceShouldBeValidDataContext(target, source, sourcePath);
             invokedObserve.ShouldBeTrue();
 
             var pathMembers = source.GetPathMembers(true);
@@ -1677,9 +2073,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string binding = "Text $context[TestValue]";
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             var dynamicObject = new DynamicObjectMock
             {
@@ -1702,9 +2098,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string binding = "Text $context.InvokeMethod(TestValue)";
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             var dynamicObject = new DynamicObjectMock
             {
@@ -1729,9 +2125,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string binding = "Text $context.InvokeMethod<string>(TestValue)";
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             var dynamicObject = new DynamicObjectMock
             {
@@ -1757,9 +2153,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string binding = "Text 'Test'";
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             var expression = context.GetData(BindingBuilderConstants.MultiExpression);
             expression(context, Empty.Array<object>()).ShouldEqual("Test");
@@ -1772,9 +2168,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string binding = @"Text '\'T\''";
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             var expression = context.GetData(BindingBuilderConstants.MultiExpression);
             expression(context, Empty.Array<object>()).ShouldEqual("'T'");
@@ -1787,9 +2183,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string binding = @"Text '\""T\""'";
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             var expression = context.GetData(BindingBuilderConstants.MultiExpression);
             expression(context, Empty.Array<object>()).ShouldEqual("\"T\"");
@@ -1802,9 +2198,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string binding = @"Text 'T'";
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            IBindingPath target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             var expression = context.GetData(BindingBuilderConstants.MultiExpression);
             expression(context, Empty.Array<object>()).ShouldEqual('T');
@@ -1817,24 +2213,505 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             const string binding = @"Text $args";
             IBindingParser bindingParser = CreateBindingParser();
 
-            var context = new BindingBuilder(bindingParser.Parse(binding, EmptyContext).Single());
-            var target = context.GetData(BindingBuilderConstants.TargetPath);
-            target.Path.ShouldEqual(targetPath);
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
+            var path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
 
             context.Add(BindingConstants.CurrentEventArgs, EventArgs.Empty);
             var expression = context.GetData(BindingBuilderConstants.MultiExpression);
             expression(context, Empty.Array<object>()).ShouldEqual(EventArgs.Empty);
         }
 
-        private static void BindingSourceShouldBeValidDataContext(object target, IBindingSource bindingSource, string path)
+        [TestMethod]
+        public void ParserShouldParseExpressionWithBinding()
+        {
+            const string targetPath = "Text";
+            const string binding = @"Text $binding";
+            var dataContext = new DataContext();
+            var bindingMock = new DataBindingMock { GetContext = () => dataContext };
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
+            var path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            context.Add(BindingConstants.Binding, bindingMock);
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, Empty.Array<object>()).ShouldEqual(bindingMock);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseExpressionWithBindingSource1()
+        {
+            const string targetPath = "Text";
+            string binding = "Text $" + BindingServiceProvider.ResourceResolver.BindingSourceResourceName;
+            var target = new object();
+            var src = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, new[] { src }, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            IObserver source = sources.Single().Invoke(context);
+            var members = source.GetPathMembers(true);
+            members.LastMember.GetValue(members.PenultimateValue, null).ShouldEqual(src);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseExpressionWithBindingSource2()
+        {
+            const string targetPath = "Text";
+            string binding = "Text $" + BindingServiceProvider.ResourceResolver.BindingSourceResourceName;
+            var target = new object();
+            var src = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            IObserver source = sources.Single().Invoke(context);
+            var members = source.GetPathMembers(true);
+            members.LastMember.GetValue(members.PenultimateValue, null).ShouldBeNull();
+
+            BindingServiceProvider.ContextManager.GetBindingContext(target).Value = src;
+            members.LastMember.GetValue(members.PenultimateValue, null).ShouldEqual(src);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseExpressionWithBindingSource3()
+        {
+            string binding = "Text Text, CommandParameter=$" + BindingServiceProvider.ResourceResolver.BindingSourceResourceName;
+            var src = new object();
+
+            IBindingParser bindingParser = CreateBindingParser();
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, new[] { src }, null).Single());
+            context.GetData(BindingBuilderConstants.CommandParameter)
+                .Invoke(context)
+                .ShouldEqual(src);
+        }
+
+        [TestMethod]
+        public void MethodResoultionDynamicTest0()
+        {
+            const string targetPath = "Text";
+            const string binding = @"Text $Ext.This().Method(arg1, arg2)";
+            var instance = new ExtInstance();
+            BindingServiceProvider.ResourceResolver.AddObject("Ext", instance);
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            var args = new object[] { instance, 2M, 3M };
+            expression(context, args);
+            instance.Assert(() => instance.Method(2M, 3M), args);
+
+            args = new object[] { instance, 2, 3 };
+            expression(context, args);
+            instance.Assert(() => instance.Method(2, 3), args);
+
+            args = new object[] { instance, 2, 3 };
+            expression(context, args);
+            instance.Assert(() => instance.Method(2, 3), args);
+
+            args = new object[] { instance, 2M, "t" };
+            expression(context, args);
+            instance.Assert(() => instance.Method(2M, "t"), args);
+
+            args = new object[] { instance, 2, "t" };
+            expression(context, args);
+            instance.Assert(() => instance.Method(2M, "t"), args);
+
+            args = new object[] { instance, "t", 2M };
+            expression(context, args);
+            instance.Assert(() => instance.Method("t", 2M), args);
+
+            args = new object[] { instance, "t", 2 };
+            expression(context, args);
+            instance.Assert(() => instance.Method("t", 2), new object[] { instance, "t", 2M });
+        }
+
+        [TestMethod]
+        public void MethodResoultionDynamicTest1()
+        {
+            const string targetPath = "Text";
+            const string binding = @"Text $Ext.Method(arg1, arg2, arg3, arg4)";
+            var instance = new ExtInstance();
+            BindingServiceProvider.ResourceResolver.AddObject("Ext", instance);
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+
+            var args = new object[] { instance, 2, 3, "st", 3 };
+            expression(context, args);
+            instance.Assert(() => instance.Method(2, 3, "st", 3), args);
+
+            args = new object[] { instance, 2M, 3M, "st", 3 };
+            expression(context, args);
+            instance.Assert(() => instance.Method(2M, 3M, "st", 3), args);
+
+            args = new object[] { instance, 2M, "t", "st", 3 };
+            expression(context, args);
+            instance.Assert(() => instance.Method(2M, "t", "st", 3), args);
+
+            args = new object[] { instance, "t", 2M, "st", 3 };
+            expression(context, args);
+            instance.Assert(() => instance.Method("t", 2M, "st", 3), args);
+
+            args = new object[] { instance, "t", 2, "st", 3 };
+            expression(context, args);
+            instance.Assert(() => instance.Method("t", 2, "st", 3), new object[] { instance, "t", 2M, "st", 3 });
+        }
+
+        [TestMethod]
+        public void MethodResoultionDynamicTest2()
+        {
+            const string targetPath = "Text";
+            const string binding = @"Text $Ext.Method1(arg1)";
+            var instance = new ExtInstance();
+            BindingServiceProvider.ResourceResolver.AddObject("Ext", instance);
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            var args = new object[] { instance, "st" };
+            expression(context, args);
+            instance.Assert(() => instance.Method1("st", 0M, "", int.MaxValue), new object[] { instance, "st", 0M, "", int.MaxValue });
+        }
+
+        [TestMethod]
+        public void MethodResoultionDynamicTest3()
+        {
+            const string targetPath = "Text";
+            const string binding = @"Text $Ext.Method2(arg1)";
+            var instance = new ExtInstance();
+            BindingServiceProvider.ResourceResolver.AddObject("Ext", instance);
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            var args = new object[] { instance, 2 };
+            expression(context, args);
+            instance.Assert(() => instance.Method2(2, 1), new object[] { instance, 2, 1 });
+        }
+
+        [TestMethod]
+        public void MethodResoultionDynamicTest4()
+        {
+            const string targetPath = "Text";
+            const string binding = @"Text $Ext.Method2(arg1, arg2)";
+            var instance = new ExtInstance();
+            BindingServiceProvider.ResourceResolver.AddObject("Ext", instance);
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            var array = new[] { int.MinValue, int.MaxValue };
+            var args = new object[] { instance, 2, array };
+            expression(context, args);
+            instance.Assert(() => instance.Method2(2, array), new object[] { instance, 2, int.MinValue, int.MaxValue });
+
+            args = new object[] { instance, 2, 3 };
+            expression(context, args);
+            instance.Assert(() => instance.Method2(2, 3), args);
+        }
+
+        [TestMethod]
+        public void MethodResoultionTest0()
+        {
+            const string targetPath = "Text";
+            const string binding = @"Text $Ext.Method(arg1, arg2)";
+            BindingServiceProvider.ResourceResolver.AddType(typeof(Ext));
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            var args = new object[] { 2M, 3M };
+            expression(context, args);
+            Ext.Assert(() => Ext.Method(2M, 3M), args);
+
+            args = new object[] { 2, 3 };
+            expression(context, args);
+            Ext.Assert(() => Ext.Method(2, 3), args);
+
+            args = new object[] { 2, 3 };
+            expression(context, args);
+            Ext.Assert(() => Ext.Method(2, 3), args);
+
+            args = new object[] { 2M, "t" };
+            expression(context, args);
+            Ext.Assert(() => Ext.Method(2M, "t"), args);
+
+            args = new object[] { 2, "t" };
+            expression(context, args);
+            Ext.Assert(() => Ext.Method(2M, "t"), args);
+
+            args = new object[] { "t", 2M };
+            expression(context, args);
+            Ext.Assert(() => Ext.Method("t", 2M), args);
+
+            args = new object[] { "t", 2 };
+            expression(context, args);
+            Ext.Assert(() => Ext.Method("t", 2), new object[] { "t", 2M });
+        }
+
+        [TestMethod]
+        public void MethodResoultionTest1()
+        {
+            const string targetPath = "Text";
+            const string binding = @"Text $Ext.Method(arg1, arg2, arg3, arg4)";
+            BindingServiceProvider.ResourceResolver.AddType(typeof(Ext));
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+
+            var args = new object[] { 2, 3, "st", 3 };
+            expression(context, args);
+            Ext.Assert(() => Ext.Method(2, 3, "st", 3), args);
+
+            args = new object[] { 2M, 3M, "st", 3 };
+            expression(context, args);
+            Ext.Assert(() => Ext.Method(2M, 3M, "st", 3), args);
+
+            args = new object[] { 2M, "t", "st", 3 };
+            expression(context, args);
+            Ext.Assert(() => Ext.Method(2M, "t", "st", 3), args);
+
+            args = new object[] { "t", 2M, "st", 3 };
+            expression(context, args);
+            Ext.Assert(() => Ext.Method("t", 2M, "st", 3), args);
+
+            args = new object[] { "t", 2, "st", 3 };
+            expression(context, args);
+            Ext.Assert(() => Ext.Method("t", 2, "st", 3), new object[] { "t", 2M, "st", 3 });
+        }
+
+        [TestMethod]
+        public void MethodResoultionTest2()
+        {
+            const string targetPath = "Text";
+            const string binding = @"Text $Ext.Method1(arg1)";
+            BindingServiceProvider.ResourceResolver.AddType(typeof(Ext));
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            var args = new object[] { "st" };
+            expression(context, args);
+            Ext.Assert(() => Ext.Method1("st", 0M, "", int.MaxValue), new object[] { "st", 0M, "", int.MaxValue });
+        }
+
+        [TestMethod]
+        public void MethodResoultionTest3()
+        {
+            const string targetPath = "Text";
+            const string binding = @"Text $Ext.Method2(arg1)";
+            BindingServiceProvider.ResourceResolver.AddType(typeof(Ext));
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            var args = new object[] { 2 };
+            expression(context, args);
+            Ext.Assert(() => Ext.Method2(2, 1), new object[] { 2, 1 });
+        }
+
+        [TestMethod]
+        public void MethodResoultionTest4()
+        {
+            const string targetPath = "Text";
+            const string binding = @"Text $Ext.Method2(arg1, arg2)";
+            BindingServiceProvider.ResourceResolver.AddType(typeof(Ext));
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            var array = new[] { int.MinValue, int.MaxValue };
+            var args = new object[] { 2, array };
+            expression(context, args);
+            Ext.Assert(() => Ext.Method2(2, array), new object[] { 2, int.MinValue, int.MaxValue });
+
+            args = new object[] { 2, 3 };
+            expression(context, args);
+            Ext.Assert(() => Ext.Method2(2, 3), args);
+        }
+
+        [TestMethod]
+        public void MethodResoultionTest5()
+        {
+            const string targetPath = "Text";
+            const string binding = @"Text arg1.ExtMethod()";
+            BindingServiceProvider.ResourceResolver.AddType(typeof(Ext));
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            var args = new object[] { "st" };
+            expression(context, args);
+            Ext.Assert(() => "st".ExtMethod(0M, "", int.MaxValue), new object[] { "st", 0M, "", int.MaxValue });
+        }
+
+        [TestMethod]
+        public void ParserShouldParseNullConditionalOperator0()
+        {
+            const string targetPath = "Text";
+            const string binding = @"Text arg1?.NestedModel?.NestedModel?.StringProperty";
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var model = new BindingSourceModel();
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, new object[] { model }).ShouldBeNull();
+
+            model.NestedModel = new BindingSourceNestedModel { StringProperty = targetPath };
+            model.NestedModel.NestedModel = model.NestedModel;
+            expression(context, new object[] { model }).ShouldEqual(targetPath);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseNullConditionalOperator1()
+        {
+            const string targetPath = "Text";
+            const string binding = @"Text arg1?.NestedModel?['test']?.ToString()";
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var model = new BindingSourceModel();
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, new object[] { model }).ShouldBeNull();
+
+            model.NestedModel = new BindingSourceNestedModel();
+            expression(context, new object[] { model }).ShouldBeNull();
+
+            model.NestedModel["test"] = targetPath;
+            expression(context, new object[] { model }).ShouldEqual(targetPath);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseNullConditionalOperator2()
+        {
+            const string targetPath = "Text";
+            const string binding = @"Text arg1?.NestedModel?.IntProperty";
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var model = new BindingSourceModel();
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, new object[] { model }).ShouldBeNull();
+
+            model.NestedModel = new BindingSourceNestedModel();
+            expression(context, new object[] { model }).ShouldEqual(0);
+
+            model.NestedModel.IntProperty = int.MaxValue;
+            expression(context, new object[] { model }).ShouldEqual(int.MaxValue);
+        }
+
+        [TestMethod]
+        public void ParserShouldParseNullConditionalOperator3()
+        {
+            const string targetPath = "Text";
+            const string binding = @"Text $Relative(type)?.NestedModel?.IntProperty";
+            IBindingParser bindingParser = CreateBindingParser();
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            var model = new BindingSourceModel();
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, new object[] { model }).ShouldBeNull();
+
+            model.NestedModel = new BindingSourceNestedModel();
+            expression(context, new object[] { model }).ShouldEqual(0);
+
+            model.NestedModel.IntProperty = int.MaxValue;
+            expression(context, new object[] { model }).ShouldEqual(int.MaxValue);
+        }
+
+        [TestMethod]
+        public void ParserShouldUseSrcKeyword()
+        {
+            const string targetPath1 = "Text1";
+            const string targetPath2 = "DataContext";
+
+            const string binding = "Text1 $src; DataContext $src;";
+            IBindingParser bindingParser = CreateBindingParser();
+            var target = new object();
+            var src1 = new object();
+            var src2 = new object();
+
+            var contexts = bindingParser.Parse(target, binding, new[]
+            {
+                src1,
+                src2
+            }, null);
+            for (int i = 0; i < contexts.Count; i++)
+            {
+                var context = contexts[i];
+                IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+                path.Path.ShouldEqual(i == 1 ? targetPath1 : targetPath2);
+
+                var sources = context.GetData(BindingBuilderConstants.Sources);
+                IObserver source = sources.Single().Invoke(context);
+                source.GetActualSource(true).ShouldEqual(i == 1 ? src1 : src2);
+            }
+        }
+
+        internal static void BindingSourceShouldBeValidDataContext(object target, IObserver bindingSource, string path)
         {
             BindingSourceShouldBeValid(bindingSource, path,
                 BindingServiceProvider.ContextManager.GetBindingContext(target).Value);
         }
 
-        private static void BindingSourceShouldBeValid(IBindingSource bindingSource, string path, object source)
+        internal static void BindingSourceShouldBeValid(IObserver bindingSource, string path, object source)
         {
-            var src = bindingSource.GetSource(true);
+            var src = bindingSource.GetActualSource(true);
             var resourceObject = src as ISourceValue;
             if (resourceObject == null)
             {
@@ -1858,6 +2735,224 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             if (observerProvider != null)
                 BindingServiceProvider.ObserverProvider = observerProvider;
             return new BindingParser();
+        }
+
+        #endregion
+    }
+
+    public class ExtInstance
+    {
+        #region Properties
+
+        public static MethodInfo LastMethod { get; private set; }
+
+        public static object[] Args { get; private set; }
+
+        #endregion
+
+        #region Methods
+
+        public void Assert(Expression<Action> expression, params object[] args)
+        {
+            var m = GetMethodInfo(expression);
+            LastMethod.ShouldEqual(m);
+            args.SequenceEqual(Args).ShouldBeTrue();
+        }
+
+        public object This()
+        {
+            return this;
+        }
+
+        private void SetMethod(Expression<Action> expression, params object[] args)
+        {
+            LastMethod = GetMethodInfo(expression);
+            var objects = new List<object> { this };
+            foreach (var o in args)
+            {
+                var array = o as Array;
+                if (array == null)
+                    objects.Add(o);
+                else
+                    objects.AddRange(array.OfType<object>());
+            }
+            Args = objects.ToArray();
+        }
+
+        private MethodInfo GetMethodInfo(LambdaExpression expression)
+        {
+            var unaryExpression = expression.Body as UnaryExpression;
+            if (unaryExpression != null)
+            {
+                var memberExpression = unaryExpression.Operand as MethodCallExpression;
+                if (memberExpression != null)
+                    return memberExpression.Method;
+            }
+            return ((MethodCallExpression)expression.Body).Method;
+        }
+
+        public void Method(decimal x1, decimal x2)
+        {
+            SetMethod(() => Method(x1, x2), x1, x2);
+        }
+
+        public void Method(int x1, int x2)
+        {
+            SetMethod(() => Method(x1, x2), x1, x2);
+        }
+
+        public void Method(object x1, object x2)
+        {
+            SetMethod(() => Method(x1, x2), x1, x2);
+        }
+
+        public void Method(decimal x1, decimal x2, params object[] items)
+        {
+            SetMethod(() => Method(x1, x2, items), x1, x2, items);
+        }
+
+        public void Method(int x1, int x2, params object[] items)
+        {
+            SetMethod(() => Method(x1, x2, items), x1, x2, items);
+        }
+
+        public void Method(object x1, object x2, params object[] items)
+        {
+            SetMethod(() => Method(x1, x2, items), x1, x2, items);
+        }
+
+        public void Method(object item, decimal x = 0, params object[] items)
+        {
+            SetMethod(() => Method(item, x, items), item, x, items);
+        }
+
+        public void Method(string item, decimal x = 0)
+        {
+            SetMethod(() => Method(item, x), item, x);
+        }
+
+        public void Method1(string item, decimal x = 0, string st = "", int v = int.MaxValue, params int[] items)
+        {
+            SetMethod(() => Method1(item, x, st, v, items), item, x, st, v, items);
+        }
+
+        public void Method2(int x, int y = 1)
+        {
+            SetMethod(() => Method2(x, y), x, y);
+        }
+
+        public void Method2(int x, params int[] items)
+        {
+            SetMethod(() => Method2(x, items), x, items);
+        }
+
+        #endregion
+    }
+
+    public static class Ext
+    {
+        #region Properties
+
+        public static MethodInfo LastMethod { get; private set; }
+
+        public static object[] Args { get; private set; }
+
+        #endregion
+
+        #region Methods
+
+        public static void Assert(Expression<Action> expression, params object[] args)
+        {
+            var m = GetMethodInfo(expression);
+            LastMethod.ShouldEqual(m);
+            args.SequenceEqual(Args).ShouldBeTrue();
+        }
+
+        private static void SetMethod(Expression<Action> expression, params object[] args)
+        {
+            LastMethod = GetMethodInfo(expression);
+            var objects = new List<object>();
+            foreach (var o in args)
+            {
+                var array = o as Array;
+                if (array == null)
+                    objects.Add(o);
+                else
+                    objects.AddRange(array.OfType<object>());
+            }
+            Args = objects.ToArray();
+        }
+
+        private static MethodInfo GetMethodInfo(LambdaExpression expression)
+        {
+            var unaryExpression = expression.Body as UnaryExpression;
+            if (unaryExpression != null)
+            {
+                var memberExpression = unaryExpression.Operand as MethodCallExpression;
+                if (memberExpression != null)
+                    return memberExpression.Method;
+            }
+            return ((MethodCallExpression)expression.Body).Method;
+        }
+
+        public static void Method(decimal x1, decimal x2)
+        {
+            SetMethod(() => Method(x1, x2), x1, x2);
+        }
+
+        public static void Method(int x1, int x2)
+        {
+            SetMethod(() => Method(x1, x2), x1, x2);
+        }
+
+        public static void Method(object x1, object x2)
+        {
+            SetMethod(() => Method(x1, x2), x1, x2);
+        }
+
+        public static void Method(decimal x1, decimal x2, params object[] items)
+        {
+            SetMethod(() => Method(x1, x2, items), x1, x2, items);
+        }
+
+        public static void Method(int x1, int x2, params object[] items)
+        {
+            SetMethod(() => Method(x1, x2, items), x1, x2, items);
+        }
+
+        public static void Method(object x1, object x2, params object[] items)
+        {
+            SetMethod(() => Method(x1, x2, items), x1, x2, items);
+        }
+
+        public static void Method(object item, decimal x = 0, params object[] items)
+        {
+            SetMethod(() => Method(item, x, items), item, x, items);
+        }
+
+        public static void Method(string item, decimal x = 0)
+        {
+            SetMethod(() => Method(item, x), item, x);
+        }
+
+        public static void Method1(string item, decimal x = 0, string st = "", int v = int.MaxValue, params int[] items)
+        {
+            SetMethod(() => Method1(item, x, st, v, items), item, x, st, v, items);
+        }
+
+        public static void Method2(int x, int y = 1)
+        {
+            SetMethod(() => Method2(x, y), x, y);
+        }
+
+        public static void Method2(int x, params int[] items)
+        {
+            SetMethod(() => Method2(x, items), x, items);
+        }
+
+        public static void ExtMethod(this string item, decimal x = 0, string st = "", int v = int.MaxValue, params int[] items)
+        {
+            SetMethod(() => ExtMethod(item, x, st, v, items), item, x, st, v, items);
         }
 
         #endregion

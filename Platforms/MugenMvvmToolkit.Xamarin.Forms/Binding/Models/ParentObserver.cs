@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ParentObserver.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -22,12 +22,9 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using Xamarin.Forms;
 
-namespace MugenMvvmToolkit.Binding.Models
+namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Models
 {
-    /// <summary>
-    ///     Represents the weak parent observer.
-    /// </summary>
-    public sealed class ParentObserver : EventListenerList
+    internal sealed class ParentObserver : EventListenerList
     {
         #region Fields
 
@@ -41,7 +38,7 @@ namespace MugenMvvmToolkit.Binding.Models
 
         private ParentObserver(Element view)
         {
-            _view = ServiceProvider.WeakReferenceFactory(view, true);
+            _view = ServiceProvider.WeakReferenceFactory(view);
             _parent = ToolkitExtensions.GetWeakReferenceOrDefault(FindParent(view), Empty.WeakReference, false);
             view.PropertyChanged += OnPropertyChanged;
         }
@@ -50,18 +47,9 @@ namespace MugenMvvmToolkit.Binding.Models
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the source element.
-        /// </summary>
         [CanBeNull]
-        public Element Source
-        {
-            get { return (Element)_view.Target; }
-        }
+        public Element Source => (Element)_view.Target;
 
-        /// <summary>
-        ///     Gets or sets the parent of current element.
-        /// </summary>
         [CanBeNull]
         public object Parent
         {
@@ -71,7 +59,7 @@ namespace MugenMvvmToolkit.Binding.Models
                 if (!_isAttached)
                 {
                     _isAttached = true;
-                    var element = Source;
+                    var element = GetSource();
                     if (element != null)
                         element.PropertyChanged -= OnPropertyChanged;
                 }
@@ -83,9 +71,6 @@ namespace MugenMvvmToolkit.Binding.Models
 
         #region Methods
 
-        /// <summary>
-        ///     Gets or adds an instance of <see cref="ParentObserver" />.
-        /// </summary>
         public static ParentObserver GetOrAdd(Element element)
         {
             return ServiceProvider
@@ -112,14 +97,14 @@ namespace MugenMvvmToolkit.Binding.Models
             return source;
         }
 
-        private static Element FindParent(Element target)
+        private static object FindParent(Element target)
         {
-            return target.ParentView;
+            return target.Parent;
         }
 
         private void OnPropertyChanged(object sender, PropertyChangedEventArgs args)
         {
-            if (!_isAttached)
+            if (args.PropertyName == "Parent")
                 SetParent(sender, FindParent((Element)sender));
         }
 

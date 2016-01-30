@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ValidatesOnNotifyDataErrorsBehavior.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -22,10 +22,10 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Validation;
@@ -34,18 +34,12 @@ using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.Binding.Behaviors
 {
-    /// <summary>
-    ///     Represents the binding behavior that checks for errors that are raised by a data source that implements <see cref="INotifyDataErrorInfo" />.
-    /// </summary>
-    public class ValidatesOnNotifyDataErrorsBehavior : BindingBehaviorBase, IEventListener, IHasWeakReference
+    public class ValidatesOnNotifyDataErrorsBehavior : BindingBehaviorBase, IEventListener, IHasWeakReferenceInternal
     {
         #region Fields
 
         private const string Key = "@$be.";
 
-        /// <summary>
-        ///     Gets the id of behavior.
-        /// </summary>
         public static readonly Guid IdNotifyDataErrorInfoBindingBehavior;
         internal static readonly ValidatesOnNotifyDataErrorsBehavior Prototype;
         private static readonly EventInfo ErrorsChangedEvent;
@@ -60,7 +54,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         static ValidatesOnNotifyDataErrorsBehavior()
         {
-            ErrorsChangedEvent = typeof(INotifyDataErrorInfo).GetEventEx("ErrorsChanged", MemberFlags.Instance | MemberFlags.Public);
+            ErrorsChangedEvent = typeof(INotifyDataErrorInfo).GetEventEx(nameof(INotifyDataErrorInfo.ErrorsChanged), MemberFlags.Instance | MemberFlags.Public);
             IdNotifyDataErrorInfoBindingBehavior = new Guid("198CBAA2-CF75-4620-9BDD-A1EBF9B8B2F4");
             Prototype = new ValidatesOnNotifyDataErrorsBehavior();
         }
@@ -69,45 +63,27 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the error paths.
-        /// </summary>
         public string[] ErrorPaths { get; set; }
 
         #endregion
 
         #region Overrides of BindingBehaviorBase
 
-        /// <summary>
-        ///     Gets the id of behavior. Each <see cref="IDataBinding" /> can have only one instance with the same id.
-        /// </summary>
-        public override Guid Id
-        {
-            get { return IdNotifyDataErrorInfoBindingBehavior; }
-        }
+        public override Guid Id => IdNotifyDataErrorInfoBindingBehavior;
 
-        /// <summary>
-        ///     Gets the behavior priority.
-        /// </summary>
-        public override int Priority
-        {
-            get { return 0; }
-        }
+        public override int Priority => 0;
 
-        /// <summary>
-        ///     Attaches to the specified binding.
-        /// </summary>
         protected override bool OnAttached()
         {
             if (!CanAttach())
                 return false;
             _senderKey = Key + Binding.TargetAccessor.Source.Path.Path;
-            EventHandler<IBindingSource, ValueChangedEventArgs> handler = OnBindingSourceValueChanged;
+            EventHandler<IObserver, ValueChangedEventArgs> handler = OnBindingSourceValueChanged;
             var accessor = Binding.SourceAccessor as ISingleBindingSourceAccessor;
             if (_subscribers == null)
             {
                 _subscribers = new List<IDisposable>(accessor == null ? 1 : Binding.SourceAccessor.Sources.Count);
-                _selfReference = ServiceProvider.WeakReferenceFactory(this, true);
+                _selfReference = ServiceProvider.WeakReferenceFactory(this);
             }
 
             if (accessor == null)
@@ -119,16 +95,13 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             else
                 accessor.Source.ValueChanged += handler;
             UpdateSources(false);
-            UpdateErrors();
+            UpdateErrors(null);
             return true;
         }
 
-        /// <summary>
-        ///     Detaches this instance from its associated binding.
-        /// </summary>
         protected override void OnDetached()
         {
-            EventHandler<IBindingSource, ValueChangedEventArgs> handler = OnBindingSourceValueChanged;
+            EventHandler<IObserver, ValueChangedEventArgs> handler = OnBindingSourceValueChanged;
             var accessor = Binding.SourceAccessor as ISingleBindingSourceAccessor;
             if (accessor == null)
             {
@@ -141,14 +114,13 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             UpdateSources(true);
             lock (_subscribers)
             {
-                // Ensure that all concurrent adds have completed. 
+                // Ensure that all concurrent adds have completed.
             }
-            UpdateErrors(Empty.Array<object>());
+            var context = new DataContext(Binding.Context);
+            context.AddOrUpdate(BindingConstants.ClearErrors, true);
+            UpdateErrors(Empty.Array<object>(), context);
         }
 
-        /// <summary>
-        ///     Creates a new binding behavior that is a copy of the current instance.
-        /// </summary>
         protected override IBindingBehavior CloneInternal()
         {
             var errorPaths = ErrorPaths;
@@ -162,18 +134,12 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Methods
 
-        /// <summary>
-        /// Defines the method that determines whether the behavior can attach to binding.
-        /// </summary>
         protected virtual bool CanAttach()
         {
             return BindingServiceProvider.ErrorProvider != null;
         }
 
-        /// <summary>
-        /// Updates the current errors.
-        /// </summary>
-        protected virtual void UpdateErrors([CanBeNull] IList<object> errors)
+        protected virtual void UpdateErrors([CanBeNull] IList<object> errors, IDataContext context)
         {
             var errorProvider = BindingServiceProvider.ErrorProvider;
             var binding = Binding;
@@ -181,7 +147,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 return;
             var target = binding.TargetAccessor.Source.GetPathMembers(false).PenultimateValue;
             if (target != null && !target.IsUnsetValue())
-                errorProvider.SetErrors(target, _senderKey, errors ?? Empty.Array<object>(), binding.Context);
+                errorProvider.SetErrors(target, _senderKey, errors ?? Empty.Array<object>(), context ?? binding.Context);
         }
 
         private void UpdateSources(bool detach)
@@ -205,7 +171,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             }
         }
 
-        private void UpdateErrors()
+        private void UpdateErrors(IDataContext context)
         {
             List<object> errors = null;
             lock (_subscribers)
@@ -220,10 +186,10 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 else
                     CollectErrors(ref errors, accessor.Source);
             }
-            UpdateErrors(errors);
+            UpdateErrors(errors, context);
         }
 
-        private void TrySubscribe(IBindingSource source)
+        private void TrySubscribe(IObserver source)
         {
             var dataErrorInfo = source.GetPathMembers(false).PenultimateValue as INotifyDataErrorInfo;
             if (dataErrorInfo == null)
@@ -233,15 +199,15 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 _subscribers.Add(subscriber);
         }
 
-        private void OnBindingSourceValueChanged(IBindingSource sender, ValueChangedEventArgs args)
+        private void OnBindingSourceValueChanged(IObserver sender, ValueChangedEventArgs args)
         {
-            if (args.LastMemberChanged)
+            if (args.LastMemberChanged && !sender.Path.IsEmpty)
                 return;
             UpdateSources(false);
-            UpdateErrors();
+            UpdateErrors(null);
         }
 
-        private void CollectErrors(ref List<object> errors, IBindingSource bindingSource)
+        private void CollectErrors(ref List<object> errors, IObserver bindingSource)
         {
             var notifyDataErrorInfo = bindingSource.GetPathMembers(false).PenultimateValue as INotifyDataErrorInfo;
             if (notifyDataErrorInfo == null)
@@ -280,7 +246,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             if (message == null)
                 return true;
             if (MemberNameEqual(message.PropertyName, binding.SourceAccessor))
-                UpdateErrors();
+                UpdateErrors(null);
             return true;
         }
 
@@ -294,7 +260,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             {
                 for (int i = 0; i < paths.Length; i++)
                 {
-                    if (ToolkitExtensions.PropertyNameEqual(memberName, paths[i], true))
+                    if (ToolkitExtensions.MemberNameEqual(memberName, paths[i], true))
                         return true;
                 }
             }
@@ -305,14 +271,14 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 path = singleAccessor.Source.Path.Parts.LastOrDefault();
                 if (hasPaths && string.IsNullOrEmpty(path))
                     return false;
-                return ToolkitExtensions.PropertyNameEqual(memberName, path, true);
+                return ToolkitExtensions.MemberNameEqual(memberName, path, true);
             }
             for (int i = 0; i < accessor.Sources.Count; i++)
             {
                 path = accessor.Sources[i].Path.Parts.LastOrDefault();
                 if (hasPaths && string.IsNullOrEmpty(path))
                     continue;
-                if (ToolkitExtensions.PropertyNameEqual(memberName, path, true))
+                if (ToolkitExtensions.MemberNameEqual(memberName, path, true))
                     return true;
             }
             return false;
@@ -322,25 +288,16 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Implementation of interfaces
 
-        bool IEventListener.IsAlive
-        {
-            get { return Binding != null; }
-        }
+        bool IEventListener.IsAlive => Binding != null;
 
-        bool IEventListener.IsWeak
-        {
-            get { return false; }
-        }
+        bool IEventListener.IsWeak => false;
 
         bool IEventListener.TryHandle(object sender, object message)
         {
             return Handle(message as DataErrorsChangedEventArgs);
         }
 
-        WeakReference IHasWeakReference.WeakReference
-        {
-            get { return _selfReference; }
-        }
+        WeakReference IHasWeakReference.WeakReference => _selfReference;
 
         #endregion
     }

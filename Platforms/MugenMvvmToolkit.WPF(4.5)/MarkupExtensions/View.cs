@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="View.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,18 +18,27 @@
 
 using System;
 using System.Collections.Generic;
-#if NETFX_CORE || WINDOWSCOMMON
+#if WINDOWSCOMMON
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
 using BindingEx = Windows.UI.Xaml.Data.Binding;
 #else
-using System.Reflection;
 using System.Windows;
 using System.Windows.Data;
 using BindingEx = System.Windows.Data.Binding;
 #endif
 
-namespace MugenMvvmToolkit.MarkupExtensions
+#if WPF
+namespace MugenMvvmToolkit.WPF.MarkupExtensions
+#elif SILVERLIGHT
+namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
+#elif WINDOWSCOMMON
+namespace MugenMvvmToolkit.WinRT.MarkupExtensions
+#elif WINDOWS_PHONE
+using System.Reflection;
+
+namespace MugenMvvmToolkit.WinPhone.MarkupExtensions
+#endif
 {
     public static class View
     {
@@ -38,32 +47,29 @@ namespace MugenMvvmToolkit.MarkupExtensions
 #if WINDOWS_PHONE
         public sealed class BindingEventClosure
         {
-            #region Fields
+        #region Fields
 
             internal static readonly MethodInfo HandleMethod;
             private readonly DependencyProperty _property;
 
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             static BindingEventClosure()
             {
                 HandleMethod = typeof(BindingEventClosure).GetMethod("Handle", BindingFlags.Public | BindingFlags.Instance);
             }
 
-            /// <summary>
-            /// Initializes a new instance of the <see cref="BindingEventClosure"/> class.
-            /// </summary>
             public BindingEventClosure(DependencyProperty property)
             {
-                Should.NotBeNull(property, "property");
+                Should.NotBeNull(property, nameof(property));
                 _property = property;
             }
 
-            #endregion
+        #endregion
 
-            #region Methods
+        #region Methods
 
             public void Handle<TSender, TValue>(TSender sender, TValue value)
             {
@@ -73,7 +79,7 @@ namespace MugenMvvmToolkit.MarkupExtensions
                     bindingExpression.UpdateSource();
             }
 
-            #endregion
+        #endregion
         }
 #endif
 
@@ -96,27 +102,6 @@ namespace MugenMvvmToolkit.MarkupExtensions
         private static readonly DependencyProperty VisibilityInternalProperty = DependencyProperty.RegisterAttached(
             "VisibilityInternal", typeof(object), typeof(View),
             new PropertyMetadata(null, VisibilityInternalChanged));
-
-        public static readonly DependencyProperty ErrorsProperty = DependencyProperty.RegisterAttached(
-            "Errors", typeof(ICollection<object>), typeof(View), new PropertyMetadata(null, OnErrorsChanged));
-
-        public static readonly DependencyProperty HasErrorsProperty = DependencyProperty.RegisterAttached(
-            "HasErrors", typeof(bool), typeof(View), new PropertyMetadata(Empty.FalseObject));
-
-        public static void SetErrors(DependencyObject element, ICollection<object> value)
-        {
-            element.SetValue(ErrorsProperty, value);
-        }
-
-        public static ICollection<object> GetErrors(DependencyObject element)
-        {
-            return (ICollection<object>)element.GetValue(ErrorsProperty);
-        }
-
-        public static bool GetHasErrors(DependencyObject element)
-        {
-            return (bool)element.GetValue(HasErrorsProperty);
-        }
 
         public static void SetDesignDataContext(DependencyObject element, object value)
         {
@@ -183,8 +168,6 @@ namespace MugenMvvmToolkit.MarkupExtensions
 
         public static Action<DependencyObject, string> BindChanged { get; set; }
 
-        public static Action<DependencyObject, ICollection<object>> ErrorsChanged { get; set; }
-
         #endregion
 
         #region Methods
@@ -247,15 +230,6 @@ namespace MugenMvvmToolkit.MarkupExtensions
             return @event;
         }
 #endif
-        private static void OnErrorsChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
-        {
-            var newValue = (ICollection<object>)args.NewValue;
-            sender.SetValue(HasErrorsProperty, Empty.BooleanToObject(newValue != null && newValue.Count != 0));
-            var errorsChanged = ErrorsChanged;
-            if (errorsChanged != null)
-                errorsChanged(sender, newValue);
-        }
-
         private static void VisibilityInternalChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
         {
             if (args.NewValue == null)
@@ -303,7 +277,7 @@ namespace MugenMvvmToolkit.MarkupExtensions
                 {
                     Path = new PropertyPath("Visibility"),
                     Mode = BindingMode.OneWay,
-#if !NETFX_CORE && !WINDOWSCOMMON
+#if !WINDOWSCOMMON
 #if WINDOWS_PHONE
                     UpdateSourceTrigger = UpdateSourceTrigger.Default,
 #else

@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using MugenMvvmToolkit.Binding.DataConstants;
+using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Test.TestModels;
 
 namespace MugenMvvmToolkit.Test.TestInfrastructure
 {
@@ -14,7 +14,17 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
     {
         #region Fields
 
-        private IList<IBindingSource> _sources;
+        private IList<IObserver> _sources;
+
+        #endregion
+
+        #region Constructors
+
+        public BindingSourceAccessorMock()
+        {
+            CanRead = true;
+            CanWrite = true;
+        }
 
         #endregion
 
@@ -28,15 +38,13 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         #region Implementation of IBindingSourceAccessor
 
-        /// <summary>
-        ///     Gets or sets the property that is responsible for the automatic value conversion.
-        /// </summary>
-        public bool AutoConvertValue { get; set; }
+        public bool CanRead { get; set; }
 
-        /// <summary>
-        ///     Gets the underlying sources.
-        /// </summary>
-        public IList<IBindingSource> Sources
+        public bool CanWrite { get; set; }
+
+        public bool DisableEqualityChecking { get; set; }
+
+        public IList<IObserver> Sources
         {
             get
             {
@@ -47,44 +55,18 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
             set { _sources = value; }
         }
 
-        /// <summary>
-        ///     Occurs before the value changes.
-        /// </summary>
         public event EventHandler<IBindingSourceAccessor, ValueAccessorChangingEventArgs> ValueChanging;
 
-        /// <summary>
-        ///     Occurs when value changed.
-        /// </summary>
         public event EventHandler<IBindingSourceAccessor, ValueAccessorChangedEventArgs> ValueChanged;
 
-        /// <summary>
-        ///     Gets the underlying source.
-        /// </summary>
-        public IBindingSource Source { get; set; }
+        public IObserver Source { get; set; }
 
-        /// <summary>
-        ///     Sets the source value.
-        /// </summary>
-        /// <param name="targetAccessor">The specified accessor to get value.</param>
-        /// <param name="context">The specified operation context.</param>
-        /// <param name="throwOnError">
-        ///     true to throw an exception if the value cannot be set.
-        /// </param>
         bool IBindingSourceAccessor.SetValue(IBindingSourceAccessor targetAccessor, IDataContext context,
             bool throwOnError)
         {
             return SetValue(targetAccessor, context, throwOnError);
         }
 
-        /// <summary>
-        ///     Gets the source value.
-        /// </summary>
-        /// <param name="targetMember">The specified member to set value.</param>
-        /// <param name="context">The specified operation context.</param>
-        /// <param name="throwOnError">
-        ///     true to throw an exception if the value cannot be obtained; false to return
-        ///     <see cref="BindingConstants.InvalidValue" /> if the value cannot be obtained.
-        /// </param>
         object IBindingSourceAccessor.GetValue(IBindingMemberInfo targetMember, IDataContext context, bool throwOnError)
         {
             return GetValue(targetMember, context, throwOnError);

@@ -14,26 +14,17 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         #region Implementation of IOperationCallbackFactory
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IAsyncOperationAwaiter" />.
-        /// </summary>
         IAsyncOperationAwaiter IOperationCallbackFactory.CreateAwaiter(IAsyncOperation operation, IDataContext context)
         {
             throw new NotSupportedException();
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IAsyncOperationAwaiter{TResult}" />.
-        /// </summary>
         IAsyncOperationAwaiter<TResult> IOperationCallbackFactory.CreateAwaiter<TResult>(
             IAsyncOperation<TResult> operation, IDataContext context)
         {
             throw new NotSupportedException();
         }
 
-        /// <summary>
-        ///     Tries to convert a delegate to an instance of <see cref="ISerializableCallback" />.
-        /// </summary>
         ISerializableCallback IOperationCallbackFactory.CreateSerializableCallback(Delegate @delegate)
         {
             if (CreateSerializableCallback == null)

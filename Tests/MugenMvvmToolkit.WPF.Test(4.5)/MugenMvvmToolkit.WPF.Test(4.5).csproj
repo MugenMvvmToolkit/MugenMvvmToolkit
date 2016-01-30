@@ -31,19 +31,10 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\..\Solution Items\sigkey.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Autofac, Version=3.5.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Autofac.3.5.2\lib\net40\Autofac.dll</HintPath>
-    </Reference>
-    <Reference Include="JetBrains.Annotations">
-      <HintPath>..\..\packages\JetBrainsAnnotations.Fody.1.0.2\Lib\JetBrains.Annotations.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -51,12 +42,6 @@
     </Reference>
     <Reference Include="MugenInjection.Core">
       <HintPath>..\..\packages\MugenInjection.3.5.1\lib\net45-full\MugenInjection.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="MugenMvvmToolkit.MugenContainer">
-      <HintPath>..\..\bin\IocContainers\Mugen\NET4.0\MugenMvvmToolkit.MugenContainer.dll</HintPath>
-    </Reference>
-    <Reference Include="MugenMvvmToolkit.NinjectContainer">
-      <HintPath>..\..\bin\IocContainers\Ninject\NET4.0\MugenMvvmToolkit.NinjectContainer.dll</HintPath>
     </Reference>
     <Reference Include="Ninject">
       <HintPath>..\..\packages\Ninject.3.2.2.0\lib\net45-full\Ninject.dll</HintPath>
@@ -88,12 +73,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Platforms\MugenMvvmToolkit.Android\Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs">
-      <Link>TestInfrastructure\SerializableOperationCallbackFactory.cs</Link>
-    </Compile>
-    <Compile Include="..\..\Platforms\MugenMvvmToolkit.WinPhone%287.1%29\Infrastructure\WeakReferenceAttachedValueProvider.cs">
-      <Link>TestInfrastructure\WeakReferenceAttachedValueProvider.cs</Link>
-    </Compile>
     <Compile Include="Bindings\Accessors\MultiBindingSourceAccessorTest.cs" />
     <Compile Include="Bindings\Accessors\SingleBindingSourceAccessorTest.cs" />
     <Compile Include="Bindings\Behaviors\BindingBehaviorTestBase.cs" />
@@ -106,6 +85,7 @@
     <Compile Include="Bindings\Behaviors\TwoWayBindingModeTest.cs" />
     <Compile Include="Bindings\Core\BindingContextManagerTest.cs" />
     <Compile Include="Bindings\Core\BindingManagerTest.cs" />
+    <Compile Include="Bindings\Extensions\BindingSyntaxExtensionsTest.cs" />
     <Compile Include="Bindings\Infrastructure\ObserverProviderTest.cs" />
     <Compile Include="Bindings\Infrastructure\WeakEventManagerTest.cs" />
     <Compile Include="Bindings\Models\AttachedBindingMemberTest.cs" />
@@ -115,8 +95,6 @@
     <Compile Include="Bindings\Infrastructure\BindingResourceResolverTest.cs" />
     <Compile Include="Bindings\Infrastructure\ObserverTest.cs" />
     <Compile Include="Bindings\Parse\BindingParserTest.cs" />
-    <Compile Include="Bindings\Sources\BindingSourceTest.cs" />
-    <Compile Include="Bindings\Sources\BindingTargetTest.cs" />
     <Compile Include="BindingTestBase.cs" />
     <Compile Include="Collections\LightDictionaryBaseTest.cs" />
     <Compile Include="Collections\TrackingCollectionTest.cs" />
@@ -126,7 +104,6 @@
     <Compile Include="Infrastructure\ActionTokenTest.cs" />
     <Compile Include="Collections\CollectionTestBase.cs" />
     <Compile Include="Infrastructure\AttachedValueProviderTestBase.cs" />
-    <Compile Include="Infrastructure\AttachedValueProviderWindowsPhoneTest.cs" />
     <Compile Include="Infrastructure\Callbacks\AsyncOperationTest.cs" />
     <Compile Include="Infrastructure\Callbacks\DelegateSerializableCallbackTest.cs" />
     <Compile Include="Infrastructure\Callbacks\SerializableAsyncOperationTest.cs" />
@@ -142,9 +119,8 @@
     <Compile Include="Infrastructure\ViewModelProviderTest.cs" />
     <Compile Include="SerializationTestBase.cs" />
     <Compile Include="Collections\SynchronizedNotifiableCollectionTest.cs" />
-    <Compile Include="Infrastructure\Validation\DynamicDataAnnotationsElementProviderTest.cs" />
     <Compile Include="Infrastructure\Validation\ManualValidatorTest.cs" />
-    <Compile Include="Infrastructure\Validation\ValidationElementValidatorTest.cs" />
+    <Compile Include="Infrastructure\Validation\DataAnnotationValidatorTest.cs" />
     <Compile Include="Infrastructure\Validation\ValidatorBaseTest.cs" />
     <Compile Include="Infrastructure\ViewMappingProviderTestBase.cs" />
     <Compile Include="Ioc\AutofacIocAdapterTest.cs" />
@@ -171,13 +147,12 @@
     <Compile Include="TestInfrastructure\StateTransitionManagerMock.cs" />
     <Compile Include="TestInfrastructure\ThreadManagerMock.cs" />
     <Compile Include="TestInfrastructure\ValidationElementMock.cs" />
-    <Compile Include="TestInfrastructure\ValidationElementProviderMock.cs" />
     <Compile Include="TestInfrastructure\ViewManagerMock.cs" />
     <Compile Include="TestInfrastructure\ViewModelProviderMock.cs" />
-    <Compile Include="TestInfrastructure\ViewModelSettingsMock.cs" />
     <Compile Include="TestInfrastructure\ViewPageMappingProviderMock.cs" />
-    <Compile Include="TestInfrastructure\VisualStateManagerMock.cs" />
+    <Compile Include="TestModels\BusyTokenMock.cs" />
     <Compile Include="TestModels\DialogViewMock.cs" />
+    <Compile Include="TestModels\DisposableObject.cs" />
     <Compile Include="TestModels\DynamicObjectMock.cs" />
     <Compile Include="TestModels\EventListenerMock.cs" />
     <Compile Include="TestModels\GridModel.cs" />
@@ -201,7 +176,6 @@
     <Compile Include="TestModels\BindingBehaviorMock.cs" />
     <Compile Include="TestModels\BindingContextMock.cs" />
     <Compile Include="TestModels\BindingSourceModel.cs" />
-    <Compile Include="TestModels\BindingSourceMock.cs" />
     <Compile Include="TestModels\ValueConverterCoreMock.cs" />
     <Compile Include="TestModels\DataBindingMock.cs" />
     <Compile Include="TestModels\ExplicitDataContext.cs" />
@@ -241,9 +215,17 @@
       <Project>{c66077d8-dbfd-479d-adab-bf569263e914}</Project>
       <Name>MugenMvvmToolkit.AutofacContainer%28PCL%29</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Platforms\MugenMvvmToolkit.Binding.WPF%284.5%29\MugenMvvmToolkit.Binding.WPF%284.5%29.csproj">
+    <ProjectReference Include="..\..\IocContainers\MugenMvvmToolkit.MugenContainer%28NET4.0%29\MugenMvvmToolkit.MugenContainer%28NET4.0%29.csproj">
+      <Project>{048706a3-6ab2-47b3-9649-ad9d4f2b15bb}</Project>
+      <Name>MugenMvvmToolkit.MugenContainer%28NET4.0%29</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\IocContainers\MugenMvvmToolkit.NinjectContainer%28NET4%29\MugenMvvmToolkit.NinjectContainer%28NET4%29.csproj">
+      <Project>{1eb1a717-7102-4138-8a37-42dfd943e0f9}</Project>
+      <Name>MugenMvvmToolkit.NinjectContainer%28NET4%29</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Platforms\MugenMvvmToolkit.WPF.Binding%284.5%29\MugenMvvmToolkit.WPF.Binding%284.5%29.csproj">
       <Project>{215572d5-13a0-46eb-a983-a5433930b361}</Project>
-      <Name>MugenMvvmToolkit.Binding.WPF%284.5%29</Name>
+      <Name>MugenMvvmToolkit.WPF.Binding%284.5%29</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Platforms\MugenMvvmToolkit.WPF%284.5%29\MugenMvvmToolkit.WPF%284.5%29.csproj">
       <Project>{170a39d4-059b-4abf-b377-eed905d87ef4}</Project>
@@ -254,6 +236,9 @@
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

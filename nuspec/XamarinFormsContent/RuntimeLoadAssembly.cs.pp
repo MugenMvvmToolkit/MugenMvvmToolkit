@@ -1,7 +1,7 @@
-//NOTE This file uses to force load MugenMvvmToolkit.Xamarin.Forms.iOS.dll.
+//NOTE This file is used to force load MugenMvvmToolkit.Xamarin.Forms.iOS.dll.
 
 using System.Reflection;
-using MugenMvvmToolkit;
+using MugenMvvmToolkit.Xamarin.Forms.iOS;
 
 namespace $rootnamespace$
 {

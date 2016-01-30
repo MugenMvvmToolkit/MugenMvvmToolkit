@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="MessagePresenter.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,17 +17,20 @@
 #endregion
 
 using System.Threading.Tasks;
+using Windows.Foundation;
 using Windows.UI.Popups;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Infrastructure.Presenters
+#if XAMARIN_FORMS
+namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Infrastructure.Presenters
+#else
+namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
+#endif
+
 {
-    /// <summary>
-    ///     Represents the base implementation of <see cref="IMessagePresenter" />.
-    /// </summary>
     public class MessagePresenter : IMessagePresenter
     {
         #region Fields
@@ -38,12 +41,9 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="MessagePresenter" /> class.
-        /// </summary>
         public MessagePresenter(IThreadManager threadManager)
         {
-            Should.NotBeNull(threadManager, "threadManager");
+            Should.NotBeNull(threadManager, nameof(threadManager));
             _threadManager = threadManager;
         }
 
@@ -51,20 +51,6 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Implementation of IMessagePresenter
 
-        /// <summary>
-        ///     Displays a message box that has a message, title bar caption, button, and icon; and that accepts a default message
-        ///     box result and returns a result.
-        /// </summary>
-        /// <param name="messageBoxText">A <see cref="T:System.String" /> that specifies the text to display.</param>
-        /// <param name="caption">A <see cref="T:System.String" /> that specifies the title bar caption to display.</param>
-        /// <param name="button">A <see cref="MessageButton" /> value that specifies which button or buttons to display.</param>
-        /// <param name="icon">A <see cref="MessageImage" /> value that specifies the icon to display.</param>
-        /// <param name="defaultResult">
-        ///     A <see cref="MessageResult" /> value that specifies the default result of the message
-        ///     box.
-        /// </param>
-        /// <param name="context">The specified context.</param>
-        /// <returns>A <see cref="MessageResult" /> value that specifies which message box button is clicked by the user.</returns>
         public Task<MessageResult> ShowAsync(string messageBoxText, string caption = "",
             MessageButton button = MessageButton.Ok, MessageImage icon = MessageImage.None,
             MessageResult defaultResult = MessageResult.None, IDataContext context = null)
@@ -87,39 +73,39 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         }
 
         private void ShowMessage(string messageBoxText, string caption, MessageButton button,
-            MessageResult defaultResult,
-            TaskCompletionSource<MessageResult> tcs)
+            MessageResult defaultResult, TaskCompletionSource<MessageResult> tcs)
         {
             var messageDialog = new MessageDialog(messageBoxText, caption);
             switch (button)
             {
                 case MessageButton.Ok:
-                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Ok, tcs));
+                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Ok));
                     break;
                 case MessageButton.OkCancel:
-                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Ok, tcs));
-                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Cancel, tcs));
+                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Ok));
+                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Cancel));
                     break;
                 case MessageButton.YesNo:
-                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Yes, tcs));
-                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.No, tcs));
+                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Yes));
+                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.No));
                     break;
                 case MessageButton.YesNoCancel:
-                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Yes, tcs));
-                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.No, tcs));
-                    if (ApplicationSettings.Platform.Platform != PlatformType.WinPhone)
-                        messageDialog.Commands.Add(CreateUiCommand(MessageResult.Cancel, tcs));
+                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Yes));
+                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.No));
+                    if (MvvmApplication.Current.Platform.Platform != PlatformType.WinPhone)
+                        messageDialog.Commands.Add(CreateUiCommand(MessageResult.Cancel));
                     break;
                 case MessageButton.AbortRetryIgnore:
-                    if (ApplicationSettings.Platform.Platform == PlatformType.WinPhone)
+                    if (MvvmApplication.Current.Platform.Platform == PlatformType.WinPhone)
                         throw ExceptionManager.EnumOutOfRange("button", button);
-                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Abort, tcs));
-                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Retry, tcs));
-                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Ignore, tcs));
+
+                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Abort));
+                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Retry));
+                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Ignore));
                     break;
                 case MessageButton.RetryCancel:
-                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Retry, tcs));
-                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Cancel, tcs));
+                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Retry));
+                    messageDialog.Commands.Add(CreateUiCommand(MessageResult.Cancel));
                     break;
                 default:
                     tcs.SetResult(MessageResult.None);
@@ -133,13 +119,26 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                     break;
                 }
             }
-            messageDialog.ShowAsync();
+            var result = messageDialog.ShowAsync();
+            result.Completed = (info, status) =>
+            {
+                if (status == AsyncStatus.Canceled)
+                {
+                    tcs.TrySetCanceled();
+                    return;
+                }
+                var command = info.GetResults();
+                if (command == null || command.Id == null)
+                    tcs.TrySetResult(MessageResult.None);
+                else
+                    tcs.TrySetResult((MessageResult)command.Id);
+            };
         }
 
-        private IUICommand CreateUiCommand(MessageResult result, TaskCompletionSource<MessageResult> tcs)
+        private IUICommand CreateUiCommand(MessageResult result)
         {
             string text = GetButtonText(result);
-            return new UICommand(text, command => tcs.SetResult((MessageResult)command.Id)) { Id = result };
+            return new UICommand(text) { Id = result };
         }
 
         #endregion

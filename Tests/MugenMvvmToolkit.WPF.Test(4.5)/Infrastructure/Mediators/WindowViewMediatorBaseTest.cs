@@ -50,7 +50,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
                 return new DialogViewMock();
             };
 
-            windowMediator.Show(null, dataContext);
+            windowMediator.ShowAsync(null, dataContext);
             isInvoked.ShouldBeTrue();
         }
 
@@ -63,20 +63,22 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
             WindowViewMediatorBase<TView> windowMediator = Create(vm);
             windowMediator.IsOpen.ShouldBeFalse();
             view.IsShowAny.ShouldBeFalse();
-            windowMediator.Show(null, DataContext.Empty);
+            windowMediator.ShowAsync(null, DataContext.Empty);
             windowMediator.IsOpen.ShouldBeTrue();
             view.IsShowAny.ShouldBeTrue();
         }
 
         [TestMethod]
-        public virtual void ShowTwiceShouldThrowException()
+        public virtual void ShowTwiceShouldActivateWindow()
         {
             var view = new DialogViewMock();
             var vm = GetViewModel<NavigableViewModelMock>();
             ViewManager.GetViewDelegate = (model, s) => view;
             WindowViewMediatorBase<TView> windowMediator = Create(vm);
-            windowMediator.Show(null, DataContext.Empty);
-            ShouldThrow(() => windowMediator.Show(null, DataContext.Empty));
+            windowMediator.ShowAsync(null, DataContext.Empty);
+            view.IsActivated.ShouldBeFalse();
+            windowMediator.ShowAsync(null, DataContext.Empty);
+            view.IsActivated.ShouldBeTrue();
         }
 
         [TestMethod]
@@ -97,7 +99,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
             ViewManager.GetViewDelegate = (model, s) => view;
             WindowViewMediatorBase<TView> windowMediator = Create(vm);
             windowMediator.View.ShouldBeNull();
-            windowMediator.Show(null, DataContext.Empty);
+            windowMediator.ShowAsync(null, DataContext.Empty);
             windowMediator.View.ShouldEqual((TView)(object)view);
         }
 
@@ -109,7 +111,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
             ViewManager.GetViewDelegate = (model, s) => view;
             WindowViewMediatorBase<TView> windowMediator = Create(vm);
             windowMediator.View.ShouldBeNull();
-            windowMediator.Show(null, DataContext.Empty);
+            windowMediator.ShowAsync(null, DataContext.Empty);
             windowMediator.View.ShouldEqual((TView)(object)view);
             windowMediator.CloseAsync(null);
             windowMediator.View.ShouldBeNull();
@@ -140,7 +142,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
                 operationResult = result;
             };
 
-            windowMediator.Show(mockCallback, DataContext.Empty);
+            windowMediator.ShowAsync(mockCallback, DataContext.Empty);
             isRegistered.ShouldBeTrue();
             windowMediator.CloseAsync(null).Result.ShouldBeTrue();
             operationResult.ShouldNotBeNull();
@@ -172,7 +174,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
                 operationResult = result;
             };
 
-            windowMediator.Show(mockCallback, DataContext.Empty);
+            windowMediator.ShowAsync(mockCallback, DataContext.Empty);
             isRegistered.ShouldBeTrue();
 
             vm.OperationResult = true;
@@ -195,7 +197,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
                 isInvoked = true;
                 return ToolkitExtensions.FromResult(result);
             };
-            windowMediator.Show(null, DataContext.Empty);
+            windowMediator.ShowAsync(null, DataContext.Empty);
             windowMediator.CloseAsync(null).Result.ShouldBeFalse();
             isInvoked.ShouldBeTrue();
 
@@ -216,7 +218,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
             IOperationResult operationResult = null;
             OperationCallbackManager.SetResult = (o, result) => operationResult = result;
 
-            windowMediator.Show(null, DataContext.Empty);
+            windowMediator.ShowAsync(null, DataContext.Empty);
             vm.OnClosed(new ViewModelClosedEventArgs(vm, null));
             operationResult.ShouldNotBeNull();
             windowMediator.IsOpen.ShouldBeFalse();
@@ -233,7 +235,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
             IOperationResult operationResult = null;
             OperationCallbackManager.SetResult = (o, result) => operationResult = result;
 
-            windowMediator.Show(null, DataContext.Empty);
+            windowMediator.ShowAsync(null, DataContext.Empty);
             view.Close();
             operationResult.ShouldNotBeNull();
             windowMediator.IsOpen.ShouldBeFalse();
@@ -252,7 +254,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
                 isInvoked = true;
                 context.ShouldNotBeNull();
             };
-            windowMediator.Show(null, DataContext.Empty);
+            windowMediator.ShowAsync(null, DataContext.Empty);
             isInvoked.ShouldBeTrue();
         }
 
@@ -271,7 +273,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
                 isInvoked = true;
                 return ToolkitExtensions.FromResult(result);
             };
-            windowMediator.Show(null, DataContext.Empty);
+            windowMediator.ShowAsync(null, DataContext.Empty);
             windowMediator.CloseAsync(null).Result.ShouldBeFalse();
             isInvoked.ShouldBeTrue();
 
@@ -294,7 +296,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
                 o.ShouldNotBeNull();
                 isInvoked = true;
             };
-            windowMediator.Show(null, DataContext.Empty);
+            windowMediator.ShowAsync(null, DataContext.Empty);
             windowMediator.CloseAsync(null).Result.ShouldBeTrue();
             isInvoked.ShouldBeTrue();
         }

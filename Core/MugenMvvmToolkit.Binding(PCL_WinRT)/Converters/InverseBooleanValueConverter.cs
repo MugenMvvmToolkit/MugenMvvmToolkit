@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="InverseBooleanValueConverter.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -22,16 +22,10 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Converters
 {
-    /// <summary>
-    ///     This converter reverses a Boolean value (True == False, False == True).
-    /// </summary>
     public sealed class InverseBooleanValueConverter : ValueConverterBase<bool?, bool?>
     {
         #region Fields
 
-        /// <summary>
-        ///     Gets an instance of <see cref="InverseBooleanValueConverter" />.
-        /// </summary>
         public static readonly InverseBooleanValueConverter Instance;
 
         #endregion

@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ServiceProvider.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -27,39 +27,31 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
-using MugenMvvmToolkit.Interfaces.Collections;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
-#if NET4
-using AttachedValueProviderDefault = MugenMvvmToolkit.Infrastructure.AttachedValueProvider;    
-#endif
 
 namespace MugenMvvmToolkit
 {
-    /// <summary>
-    ///     Represents the service locator for MVVM infrastructure.
-    /// </summary>
     public static class ServiceProvider
     {
         #region Fields
 
         private static readonly Dictionary<Type, ConstructorInfo> EntityConstructorInfos;
 
-        private static IIocContainer _iocContainer;
         private static IThreadManager _threadManager;
-        private static IReflectionManager _reflectionManager;
         private static ITracer _tracer;
         private static IAttachedValueProvider _attachedValueProvider;
-        private static IValidatorProvider _validatorProvider;
         private static IOperationCallbackFactory _operationCallbackFactory;
+        private static IReflectionManager _reflectionManager;
+        private static IValidatorProvider _validatorProvider;
+        private static IEventAggregator _eventAggregator;
 
-        private static Func<ITrackingCollection, IStateTransitionManager> _trackingCollectionStateTransitionManagerFactory;
-        private static Func<ITrackingCollection, IEqualityComparer<object>> _trackingCollectionEqualityComparerFactory;
         private static Func<object, IEventAggregator> _instanceEventAggregatorFactory;
-        private static Func<object, bool, WeakReference> _weakReferenceFactory;
+        private static Func<object, WeakReference> _weakReferenceFactory;
         private static IDesignTimeManager _designTimeManager;
         private static IViewModelProvider _viewModelProvider;
-        private static IEventAggregator _eventAggregator;
+        private static Func<IViewModel, IViewModelSettings> _viewModelSettingsFactory;
 
         #endregion
 
@@ -67,48 +59,46 @@ namespace MugenMvvmToolkit
 
         static ServiceProvider()
         {
-            EntityConstructorInfos = new Dictionary<Type, ConstructorInfo>();
-            DefaultEntityFactory = DefaultEntityFactoryMethod;
             _weakReferenceFactory = CreateWeakReference;
             _instanceEventAggregatorFactory = GetInstanceEventAggregator;
+            _viewModelSettingsFactory = CreateViewModelSettings;
+            EntityConstructorInfos = new Dictionary<Type, ConstructorInfo>();
+            DefaultEntityFactory = DefaultEntityFactoryMethod;
             ObjectToSubscriberConverter = ObjectToSubscriberConverterImpl;
+
+            var current = MvvmApplication.Current;
+            if (current != null && current.IsInitialized)
+                Initialize(current);
+            MvvmApplication.Initialized += MvvmApplicationOnInitialized;
         }
 
         #endregion
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the delegate to convert an object to <see cref="ISubscriber" />.
-        /// </summary>
         [CanBeNull]
         public static Func<object, IDataContext, ISubscriber> ObjectToSubscriberConverter { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the factory that creates an empty instance of editable entity.
-        /// </summary>
         [CanBeNull]
         public static Func<Type, object> DefaultEntityFactory { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the metadata type provider.
-        /// </summary>
         [CanBeNull]
         public static Func<Type, IEnumerable<Type>> EntityMetadataTypeProvider { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the factory that creates a instance of <see cref="WeakReference" />.
-        /// </summary>
         [NotNull]
-        public static Func<object, bool, WeakReference> WeakReferenceFactory
+        public static Func<IViewModel, IViewModelSettings> ViewModelSettingsFactory
+        {
+            get { return _viewModelSettingsFactory; }
+            set { _viewModelSettingsFactory = value ?? CreateViewModelSettings; }
+        }
+
+        [NotNull]
+        public static Func<object, WeakReference> WeakReferenceFactory
         {
             get { return _weakReferenceFactory; }
             set { _weakReferenceFactory = value ?? CreateWeakReference; }
         }
 
-        /// <summary>
-        ///     Gets or sets the factory that creates an instance of <see cref="IEventAggregator" /> for the specified item.
-        /// </summary>
         [NotNull]
         public static Func<object, IEventAggregator> InstanceEventAggregatorFactory
         {
@@ -116,53 +106,22 @@ namespace MugenMvvmToolkit
             set { _instanceEventAggregatorFactory = value ?? GetInstanceEventAggregator; }
         }
 
-        /// <summary>
-        ///     Gets or sets the factory that creates an instance of <see cref="IEqualityComparer{T}" />
-        /// </summary>
-        [NotNull]
-        public static Func<ITrackingCollection, IEqualityComparer<object>> TrackingCollectionEqualityComparerFactory
-        {
-            get
-            {
-                if (_trackingCollectionEqualityComparerFactory == null)
-                    _trackingCollectionEqualityComparerFactory = collection => ReferenceEqualityComparer.Instance;
-                return _trackingCollectionEqualityComparerFactory;
-            }
-            set { _trackingCollectionEqualityComparerFactory = value; }
-        }
-
-        /// <summary>
-        ///     Gets or sets the factory that creates an instance of <see cref="IStateTransitionManager" />
-        /// </summary>
-        [NotNull]
-        public static Func<ITrackingCollection, IStateTransitionManager> TrackingCollectionStateTransitionManagerFactory
-        {
-            get
-            {
-                if (_trackingCollectionStateTransitionManagerFactory == null)
-                    _trackingCollectionStateTransitionManagerFactory = collection => StateTransitionManager.Instance;
-                return _trackingCollectionStateTransitionManagerFactory;
-            }
-            set { _trackingCollectionStateTransitionManagerFactory = value; }
-        }
-
-        /// <summary>
-        ///     Gets or sets the default <see cref="IItemsSourceDecorator" />.
-        /// </summary>
         [CanBeNull]
         public static IItemsSourceDecorator ItemsSourceDecorator { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the root <see cref="IIocContainer" />.
-        /// </summary>
+        [CanBeNull]
+        public static IOperationCallbackStateManager OperationCallbackStateManager { get; set; }
+
         public static IIocContainer IocContainer
         {
-            get { return _iocContainer; }
+            get
+            {
+                if (MvvmApplication.Current == null)
+                    return null;
+                return MvvmApplication.Current.IocContainer;
+            }
         }
 
-        /// <summary>
-        ///     Gets or sets the default <see cref="IThreadManager" />.
-        /// </summary>
         [NotNull]
         public static IThreadManager ThreadManager
         {
@@ -175,44 +134,18 @@ namespace MugenMvvmToolkit
             set { _threadManager = value; }
         }
 
-        /// <summary>
-        ///     Gets or sets the attached value provider.
-        /// </summary>
         [NotNull]
         public static IAttachedValueProvider AttachedValueProvider
         {
             get
             {
-#if PCL_Silverlight
-                if (_attachedValueProvider == null)
-                    throw ExceptionManager.ObjectNotInitialized("AttachedValueProvider", typeof(IAttachedValueProvider));
-#else
                 if (_attachedValueProvider == null)
                     Interlocked.CompareExchange(ref _attachedValueProvider, new AttachedValueProviderDefault(), null);
-#endif
                 return _attachedValueProvider;
             }
             set { _attachedValueProvider = value; }
         }
 
-        /// <summary>
-        ///     Gets the flag that indicates that the attached value provider is initialized.
-        /// </summary>
-        public static bool HasAttachedValueProvider
-        {
-            get
-            {
-#if PCL_Silverlight
-                return _attachedValueProvider != null;
-#else
-                return true;
-#endif
-            }
-        }
-
-        /// <summary>
-        ///     Gets or sets the default <see cref="IReflectionManager" />.
-        /// </summary>
         [NotNull]
         public static IReflectionManager ReflectionManager
         {
@@ -225,9 +158,6 @@ namespace MugenMvvmToolkit
             set { _reflectionManager = value; }
         }
 
-        /// <summary>
-        ///     Gets or sets the default tracer
-        /// </summary>
         [NotNull]
         public static ITracer Tracer
         {
@@ -240,9 +170,6 @@ namespace MugenMvvmToolkit
             set { _tracer = value; }
         }
 
-        /// <summary>
-        ///     Gets or sets the default <see cref="IOperationCallbackFactory" />.
-        /// </summary>
         [NotNull]
         public static IOperationCallbackFactory OperationCallbackFactory
         {
@@ -255,24 +182,18 @@ namespace MugenMvvmToolkit
             set { _operationCallbackFactory = value; }
         }
 
-        /// <summary>
-        ///     Gets or sets the default <see cref="IValidatorProvider" />.
-        /// </summary>
         [NotNull]
         public static IValidatorProvider ValidatorProvider
         {
             get
             {
                 if (_validatorProvider == null)
-                    _validatorProvider = new ValidatorProvider(true, _iocContainer);
+                    Interlocked.CompareExchange(ref _validatorProvider, new ValidatorProvider(), null);
                 return _validatorProvider;
             }
             set { _validatorProvider = value; }
         }
 
-        /// <summary>
-        ///     Gets or sets the default <see cref="IDesignTimeManager" />.
-        /// </summary>
         [NotNull]
         public static IDesignTimeManager DesignTimeManager
         {
@@ -285,13 +206,15 @@ namespace MugenMvvmToolkit
             set { _designTimeManager = value; }
         }
 
-        /// <summary>
-        ///     Gets or sets the default <see cref="IViewModelProvider" />.
-        /// </summary>
-        [CanBeNull]
+        [NotNull]
         public static IViewModelProvider ViewModelProvider
         {
-            get { return _viewModelProvider; }
+            get
+            {
+                if (_viewModelProvider == null)
+                    Interlocked.CompareExchange(ref _viewModelProvider, new ViewModelProvider(IocContainer), null);
+                return _viewModelProvider;
+            }
             set { _viewModelProvider = value; }
         }
 
@@ -311,14 +234,83 @@ namespace MugenMvvmToolkit
 
         #region Methods
 
-        /// <summary>
-        ///     Sets the <see cref="IocContainer" />.
-        /// </summary>
-        public static void Initialize(IIocContainer iocContainer, PlatformInfo platform)
+        [Pure]
+        public static bool TryGet(Type type, out object result, string name = null,
+            params IIocParameter[] parameters)
         {
-            Should.NotBeNull(iocContainer, "iocContainer");
-            ApplicationSettings.Platform = platform;
-            _iocContainer = iocContainer;
+            var iocContainer = IocContainer;
+            if (iocContainer == null)
+            {
+#if PCL_WINRT
+                result = type.GetTypeInfo().IsValueType ? Activator.CreateInstance(type) : null;
+#else
+                result = type.IsValueType ? Activator.CreateInstance(type) : null;
+#endif
+                return false;
+            }
+            return iocContainer.TryGet(type, out result, name, parameters);
+        }
+
+        [Pure]
+        public static bool TryGet<T>(out T result, string name = null,
+            params IIocParameter[] parameters)
+        {
+            var iocContainer = IocContainer;
+            if (iocContainer == null)
+            {
+                result = default(T);
+                return false;
+            }
+            return iocContainer.TryGet(out result, name, parameters);
+        }
+
+        [Pure]
+        public static T GetOrCreate<T>()
+        {
+            return (T)GetOrCreate(typeof(T));
+        }
+
+        [Pure]
+        public static object GetOrCreate(Type type)
+        {
+            var iocContainer = IocContainer;
+            if (iocContainer == null)
+                return Activator.CreateInstance(type);
+            return iocContainer.Get(type);
+        }
+
+        [Pure]
+        public static T Get<T>(string name = null, params IIocParameter[] parameters)
+        {
+            return (T)Get(typeof(T), name, parameters);
+        }
+
+        [Pure]
+        public static object Get(Type type, string name = null, params IIocParameter[] parameters)
+        {
+            var iocContainer = IocContainer;
+            if (iocContainer == null)
+                throw ExceptionManager.ObjectNotInitialized("MvvmApplication", null);
+            return iocContainer.Get(type, name, parameters);
+        }
+
+        internal static IList<T> TryDecorate<T>(object owner, IList<T> itemsSource)
+        {
+            var decorator = ItemsSourceDecorator;
+            if (decorator == null)
+                return itemsSource;
+            return decorator.Decorate(owner, itemsSource);
+        }
+
+        private static void MvvmApplicationOnInitialized(object sender, EventArgs eventArgs)
+        {
+            Initialize(MvvmApplication.Current);
+        }
+
+        private static void Initialize(IMvvmApplication application)
+        {
+            Should.NotBeNull(application, nameof(application));
+            var iocContainer = application.IocContainer;
             TryInitialize(iocContainer, ref _tracer);
             TryInitialize(iocContainer, ref _reflectionManager);
             TryInitialize(iocContainer, ref _attachedValueProvider);
@@ -327,25 +319,19 @@ namespace MugenMvvmToolkit
             TryInitialize(iocContainer, ref _validatorProvider);
             TryInitialize(iocContainer, ref _viewModelProvider);
             TryInitialize(iocContainer, ref _eventAggregator);
-            if (iocContainer.CanResolve<IViewModelSettings>())
-                ApplicationSettings.ViewModelSettings = iocContainer.Get<IViewModelSettings>();
-        }
 
-        /// <summary>
-        ///     Tries to initialize <see cref="IDesignTimeManager" />.
-        /// </summary>
-        public static void InitializeDesignTimeManager()
-        {
-            // ReSharper disable once UnusedVariable
-            var dummy = DesignTimeManager;
-        }
-
-        internal static IList<T> TryDecorate<T>(IList<T> itemsSource)
-        {
-            var decorator = ItemsSourceDecorator;
-            if (decorator == null)
-                return itemsSource;
-            return decorator.Decorate(itemsSource);
+            if (OperationCallbackStateManager == null)
+            {
+                IOperationCallbackStateManager stateManager = null;
+                TryInitialize(iocContainer, ref stateManager);
+                OperationCallbackStateManager = stateManager;
+            }
+            if (ItemsSourceDecorator == null)
+            {
+                IItemsSourceDecorator decorator = null;
+                TryInitialize(iocContainer, ref decorator);
+                ItemsSourceDecorator = decorator;
+            }
         }
 
         private static void TryInitialize<TService>(IIocContainer iocContainer, ref TService service)
@@ -355,14 +341,19 @@ namespace MugenMvvmToolkit
                 service = result;
         }
 
-        private static WeakReference CreateWeakReference(object o, bool b)
+        private static IViewModelSettings CreateViewModelSettings(IViewModel vm)
         {
-            return new WeakReference(o, b);
+            return new DefaultViewModelSettings();
+        }
+
+        private static WeakReference CreateWeakReference(object o)
+        {
+            return new WeakReference(o, true);
         }
 
         private static object DefaultEntityFactoryMethod(Type type)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             ConstructorInfo constructor;
             lock (EntityConstructorInfos)
             {
@@ -389,8 +380,7 @@ namespace MugenMvvmToolkit
         {
             if (o == null)
                 return null;
-            var subscriber = HandlerSubscriber.GetOrCreate(o);
-            return subscriber.IsEmpty ? null : subscriber;
+            return o as ISubscriber ?? HandlerSubscriber.Get(o);
         }
 
         #endregion

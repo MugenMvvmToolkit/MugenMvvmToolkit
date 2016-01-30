@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ValueChangedEventArgs.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -48,10 +48,7 @@ namespace MugenMvvmToolkit.Binding.Models.EventArg
 
         #region Properties
 
-        public bool LastMemberChanged
-        {
-            get { return _lastMemberChanged; }
-        }
+        public bool LastMemberChanged => _lastMemberChanged;
 
         #endregion
     }

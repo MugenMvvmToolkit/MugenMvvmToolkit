@@ -7,9 +7,8 @@ nuget pack MugenMvvmToolkit.NinjectContainer.nuspec
 nuget pack MugenMvvmToolkit.WinForms.nuspec
 nuget pack MugenMvvmToolkit.WPF.nuspec
 nuget pack MugenMvvmToolkit.Xamarin.Forms.nuspec
-nuget pack MugenMvvmToolkit.Android.ActionBar.nuspec
 nuget pack MugenMvvmToolkit.Android.AppCompat.nuspec
-nuget pack MugenMvvmToolkit.Android.Fragment.nuspec
+nuget pack MugenMvvmToolkit.Android.Design.nuspec
 nuget pack MugenMvvmToolkit.Android.RecyclerView.nuspec
 nuget pack MugenMvvmToolkit.StarterPack.nuspec
 nuget pack MugenMvvmToolkit.StarterPack.WPF.nuspec

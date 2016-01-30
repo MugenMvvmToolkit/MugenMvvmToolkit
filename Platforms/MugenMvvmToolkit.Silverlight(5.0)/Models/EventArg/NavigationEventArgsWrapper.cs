@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="NavigationEventArgsWrapper.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,8 +18,14 @@
 
 using System.Windows.Navigation;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Models.EventArg;
+using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
 
-namespace MugenMvvmToolkit.Models.EventArg
+#if SILVERLIGHT
+namespace MugenMvvmToolkit.Silverlight.Models.EventArg
+#elif WINDOWS_PHONE
+namespace MugenMvvmToolkit.WinPhone.Models.EventArg
+#endif
 {
     public sealed class NavigationEventArgsWrapper : NavigationEventArgsBase
     {
@@ -31,12 +37,9 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NavigatingCancelEventArgsWrapper" /> class.
-        /// </summary>
         public NavigationEventArgsWrapper([NotNull] NavigationEventArgs args)
         {
-            Should.NotBeNull(args, "args");
+            Should.NotBeNull(args, nameof(args));
             _args = args;
         }
 
@@ -44,33 +47,15 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the original args.
-        /// </summary>
-        public NavigationEventArgs Args
-        {
-            get { return _args; }
-        }
+        public NavigationEventArgs Args => _args;
 
         #endregion
 
         #region Overrides of NavigationEventArgsBase
 
-        /// <summary>
-        ///     Gets the content of the target being navigated to.
-        /// </summary>
-        public override object Content
-        {
-            get { return _args.Content; }
-        }
+        public override object Content => _args.Content;
 
-        /// <summary>
-        ///     Gets a value that indicates the type of navigation that is occurring.
-        /// </summary>
-        public override NavigationMode Mode
-        {
-            get { return _args.NavigationMode.ToNavigationMode(); }
-        }
+        public override NavigationMode Mode => _args.NavigationMode.ToNavigationMode();
 
         #endregion
     }

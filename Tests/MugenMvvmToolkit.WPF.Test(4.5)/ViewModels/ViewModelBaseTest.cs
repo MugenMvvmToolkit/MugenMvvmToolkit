@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Input;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -39,27 +41,18 @@ namespace MugenMvvmToolkit.Test.ViewModels
 
             #region Overrides of ViewModelBase
 
-            /// <summary>
-            ///     Occurs after the view model is fully loaded.
-            /// </summary>
             internal override void OnInitializedInternal()
             {
                 MethodCallCollection.Add(InitViewModelInternalKey);
                 base.OnInitializedInternal();
             }
 
-            /// <summary>
-            ///     Occurs during the initialization of the view model.
-            /// </summary>
             protected override void OnInitializing(IDataContext context)
             {
                 MethodCallCollection.Add(InititalizingViewModelKey);
                 base.OnInitializing(context);
             }
 
-            /// <summary>
-            ///     Occurs after the view model is fully loaded.
-            /// </summary>
             protected override void OnInitialized()
             {
                 MethodCallCollection.Add(InitViewModelKey);
@@ -72,18 +65,12 @@ namespace MugenMvvmToolkit.Test.ViewModels
                 MethodCallCollection.Add(OnDisposedKey);
             }
 
-            /// <summary>
-            ///     Occurs after the current view model is disposed, use for clear resource and event listeners(Internal only).
-            /// </summary>
             internal override void OnDisposeInternal(bool disposing)
             {
                 MethodCallCollection.Add(DisposeInternalKey);
                 base.OnDisposeInternal(disposing);
             }
 
-            /// <summary>
-            ///     Occurs after the current view model is disposed, use for clear resource and event listeners.
-            /// </summary>
             protected override void OnDispose(bool disposing)
             {
                 MethodCallCollection.Add(DisposeKey);
@@ -167,8 +154,9 @@ namespace MugenMvvmToolkit.Test.ViewModels
         public void DefaultBusyMessageShouldEqualsToSettingsDefaultBusyMessage()
         {
             const string busyMessage = "busy...";
-            Settings.WithoutClone = true;
-            Settings.DefaultBusyMessage = busyMessage;
+            var settings = new DefaultViewModelSettings { DefaultBusyMessage = busyMessage };
+            ServiceProvider.ViewModelSettingsFactory = model => settings;
+
             ViewModelBase viewModel = GetViewModelBase();
 
             viewModel.BeginBusy();
@@ -187,14 +175,20 @@ namespace MugenMvvmToolkit.Test.ViewModels
 
             viewModel.IsBusy.ShouldBeTrue();
             viewModel.BusyMessage.ShouldEqual(secondBusyMessage);
-            viewModel.EndBusy(secondId);
+            var messages = viewModel.BusyInfo.GetMessages();
+            messages.Count.ShouldEqual(2);
+            messages[0].ShouldEqual(firstBusyMessage);
+            messages[1].ShouldEqual(secondBusyMessage);
+            secondId.Dispose();
 
             viewModel.IsBusy.ShouldBeTrue();
             viewModel.BusyMessage.ShouldEqual(firstBusyMessage);
-            viewModel.EndBusy(firstId);
+            viewModel.BusyInfo.GetMessages().Single().ShouldEqual(firstBusyMessage);
+            firstId.Dispose();
 
             viewModel.IsBusy.ShouldBeFalse();
             viewModel.BusyMessage.ShouldBeNull();
+            viewModel.BusyInfo.ShouldBeNull();
         }
 
         [TestMethod]
@@ -203,11 +197,12 @@ namespace MugenMvvmToolkit.Test.ViewModels
             const string busyMessageString = "busy...";
             var viewModel = GetViewModelBase();
             viewModel.Settings.HandleBusyMessageMode = HandleMode.None;
-            var busyMessage = new BeginBusyMessage(Guid.NewGuid(), busyMessageString);
-            IHandler<BeginBusyMessage> beginBusyHandler = viewModel;
+            var busyMessage = new BusyTokenMock(busyMessageString);
+            IHandler<object> beginBusyHandler = viewModel;
 
             beginBusyHandler.Handle(this, busyMessage);
             viewModel.IsBusy.ShouldBeFalse();
+            viewModel.BusyInfo.ShouldBeNull();
             viewModel.BusyMessage.ShouldBeNull();
         }
 
@@ -217,15 +212,16 @@ namespace MugenMvvmToolkit.Test.ViewModels
             const string busyMessageString = "busy...";
             var viewModel = GetViewModelBase();
             viewModel.Settings.HandleBusyMessageMode = HandleMode.Handle;
-            var busyMessage = new BeginBusyMessage(Guid.NewGuid(), busyMessageString);
-            IHandler<BeginBusyMessage> beginBusyHandler = viewModel;
-            IHandler<EndBusyMessage> endBusyHandler = viewModel;
+            var busyMessage = new BusyTokenMock(busyMessageString);
+            IHandler<object> beginBusyHandler = viewModel;
 
             beginBusyHandler.Handle(this, busyMessage);
             viewModel.IsBusy.ShouldBeTrue();
+            viewModel.BusyInfo.GetMessages().Single().ShouldEqual(busyMessageString);
             viewModel.BusyMessage.ShouldEqual(busyMessageString);
 
-            endBusyHandler.Handle(this, busyMessage.ToEndBusyMessage());
+            busyMessage.Dispose();
+            viewModel.BusyInfo.ShouldBeNull();
             viewModel.IsBusy.ShouldBeFalse();
             viewModel.BusyMessage.ShouldBeNull();
         }
@@ -237,22 +233,25 @@ namespace MugenMvvmToolkit.Test.ViewModels
             var viewModel = GetViewModelBase();
             var childViewModel = viewModel.GetViewModel<TestViewModelBase>(observationMode: ObservationMode.None);
             viewModel.Subscribe(childViewModel);
-            viewModel.Settings.HandleBusyMessageMode = HandleMode.HandleAndNotifyObservers;
-            var busyMessage = new BeginBusyMessage(Guid.NewGuid(), busyMessageString);
-            IHandler<BeginBusyMessage> beginBusyHandler = viewModel;
-            IHandler<EndBusyMessage> endBusyHandler = viewModel;
+            viewModel.Settings.HandleBusyMessageMode = HandleMode.HandleAndNotifySubscribers;
+            var busyMessage = new BusyTokenMock(busyMessageString);
+            IHandler<object> beginBusyHandler = viewModel;
 
             beginBusyHandler.Handle(this, busyMessage);
             viewModel.IsBusy.ShouldBeTrue();
             viewModel.BusyMessage.ShouldEqual(busyMessageString);
+            viewModel.BusyInfo.GetMessages().Single().ShouldEqual(busyMessageString);
             childViewModel.IsBusy.ShouldBeTrue();
             childViewModel.BusyMessage.ShouldEqual(busyMessageString);
+            childViewModel.BusyInfo.GetMessages().Single().ShouldEqual(busyMessageString);
 
-            endBusyHandler.Handle(this, busyMessage.ToEndBusyMessage());
+            busyMessage.Dispose();
             viewModel.IsBusy.ShouldBeFalse();
             viewModel.BusyMessage.ShouldBeNull();
+            viewModel.BusyInfo.ShouldBeNull();
             childViewModel.IsBusy.ShouldBeFalse();
             childViewModel.BusyMessage.ShouldBeNull();
+            childViewModel.BusyInfo.ShouldBeNull();
         }
 
         [TestMethod]
@@ -262,19 +261,47 @@ namespace MugenMvvmToolkit.Test.ViewModels
             var viewModel = GetViewModelBase();
             var childViewModel = viewModel.GetViewModel<TestViewModelBase>(observationMode: ObservationMode.None);
             viewModel.Subscribe(childViewModel);
-            viewModel.Settings.HandleBusyMessageMode = HandleMode.HandleAndNotifyObservers;
+            viewModel.Settings.HandleBusyMessageMode = HandleMode.HandleAndNotifySubscribers;
 
             var beginBusy = viewModel.BeginBusy(busyMessageString);
             viewModel.IsBusy.ShouldBeTrue();
             viewModel.BusyMessage.ShouldEqual(busyMessageString);
+            viewModel.BusyInfo.GetMessages().Single().ShouldEqual(busyMessageString);
             childViewModel.IsBusy.ShouldBeTrue();
             childViewModel.BusyMessage.ShouldEqual(busyMessageString);
+            childViewModel.BusyInfo.GetMessages().Single().ShouldEqual(busyMessageString);
 
-            viewModel.EndBusy(beginBusy);
+            beginBusy.Dispose();
+            viewModel.BusyInfo.ShouldBeNull();
             viewModel.IsBusy.ShouldBeFalse();
             viewModel.BusyMessage.ShouldBeNull();
+            childViewModel.BusyInfo.ShouldBeNull();
             childViewModel.IsBusy.ShouldBeFalse();
             childViewModel.BusyMessage.ShouldBeNull();
+        }
+
+        [TestMethod]
+        public void GetBusyTokensShouldReturnAllBusyMessages()
+        {
+            const string firstBusyMessage = "busy1...";
+            const string secondBusyMessage = "busy2...";
+
+            ViewModelBase viewModel = GetViewModelBase();
+            viewModel.GetBusyTokens().ShouldBeEmpty();
+
+            viewModel.BeginBusy(firstBusyMessage);
+            viewModel.GetBusyTokens().Single().Message.ShouldEqual(firstBusyMessage);
+
+            viewModel.BeginBusy(secondBusyMessage);
+            var tokens = viewModel.GetBusyTokens();
+            tokens.Count.ShouldEqual(2);
+            tokens[1].Message.ShouldEqual(secondBusyMessage);
+
+            foreach (var token in tokens)
+                token.Dispose();
+            viewModel.GetBusyTokens().ShouldBeEmpty();
+            viewModel.IsBusy.ShouldBeFalse();
+            viewModel.BusyMessage.ShouldBeNull();
         }
 
         [TestMethod]
@@ -288,9 +315,11 @@ namespace MugenMvvmToolkit.Test.ViewModels
             viewModel.BeginBusy(secondBusyMessage);
 
             viewModel.IsBusy.ShouldBeTrue();
+            viewModel.BusyInfo.GetMessages().Count.ShouldEqual(2);
             viewModel.BusyMessage.ShouldEqual(secondBusyMessage);
             viewModel.ClearBusy();
 
+            viewModel.BusyInfo.ShouldBeNull();
             viewModel.IsBusy.ShouldBeFalse();
             viewModel.BusyMessage.ShouldBeNull();
         }
@@ -304,21 +333,25 @@ namespace MugenMvvmToolkit.Test.ViewModels
             ViewModelBase viewModel = GetViewModelBase();
             var childViewModel = viewModel.GetViewModel<TestViewModelBase>(observationMode: ObservationMode.None);
             viewModel.Subscribe(childViewModel);
-            viewModel.Settings.HandleBusyMessageMode = HandleMode.HandleAndNotifyObservers;
+            viewModel.Settings.HandleBusyMessageMode = HandleMode.HandleAndNotifySubscribers;
 
             viewModel.BeginBusy(firstBusyMessage);
             viewModel.BeginBusy(secondBusyMessage);
 
             viewModel.IsBusy.ShouldBeTrue();
             viewModel.BusyMessage.ShouldEqual(secondBusyMessage);
+            viewModel.BusyInfo.GetMessages().Count.ShouldEqual(2);
             childViewModel.BusyMessage.ShouldEqual(secondBusyMessage);
             childViewModel.IsBusy.ShouldBeTrue();
+            childViewModel.BusyInfo.GetMessages().Count.ShouldEqual(2);
             viewModel.ClearBusy();
 
             viewModel.IsBusy.ShouldBeFalse();
             viewModel.BusyMessage.ShouldBeNull();
+            viewModel.BusyInfo.ShouldBeNull();
             childViewModel.IsBusy.ShouldBeFalse();
             childViewModel.BusyMessage.ShouldBeNull();
+            childViewModel.BusyInfo.ShouldBeNull();
         }
 
         [TestMethod]
@@ -333,57 +366,20 @@ namespace MugenMvvmToolkit.Test.ViewModels
 
             viewModel.IsBusy.ShouldBeTrue();
             viewModel.BusyMessage.ShouldEqual(secondBusyMessage);
+            var messages = viewModel.BusyInfo.GetMessages();
+            messages.Count.ShouldEqual(2);
+            messages[0].ShouldEqual(firstBusyMessage);
+            messages[1].ShouldEqual(secondBusyMessage);
 
             var testViewModelBase = viewModel.GetViewModel<TestViewModelBase>(observationMode: ObservationMode.None);
             viewModel.Subscribe(testViewModelBase);
 
             testViewModelBase.IsBusy.ShouldBeTrue();
             testViewModelBase.BusyMessage.ShouldEqual(secondBusyMessage);
-        }
-
-        [TestMethod]
-        public void WhenVmRemovedFromListenersItShouldRemoveAllBusyMessageFromVm()
-        {
-            const string firstBusyMessage = "busy1...";
-            const string secondBusyMessage = "busy2...";
-
-            ViewModelBase viewModel = GetViewModelBase();
-            var childViewModel = viewModel.GetViewModel<TestViewModelBase>(observationMode: ObservationMode.None);
-            viewModel.Subscribe(childViewModel);
-
-            viewModel.Settings.HandleBusyMessageMode = HandleMode.HandleAndNotifyObservers;
-
-            viewModel.BeginBusy(firstBusyMessage);
-            viewModel.BeginBusy(secondBusyMessage);
-
-            viewModel.IsBusy.ShouldBeTrue();
-            viewModel.BusyMessage.ShouldEqual(secondBusyMessage);
-            childViewModel.BusyMessage.ShouldEqual(secondBusyMessage);
-            childViewModel.IsBusy.ShouldBeTrue();
-
-            viewModel.Unsubscribe(childViewModel);
-            viewModel.IsBusy.ShouldBeTrue();
-            viewModel.BusyMessage.ShouldEqual(secondBusyMessage);
-            childViewModel.IsBusy.ShouldBeFalse();
-            childViewModel.BusyMessage.ShouldBeNull();
-        }
-
-        [TestMethod]
-        public void VmShouldDisposeIocContainerIfSettingsTrue()
-        {
-            IViewModel viewModel = GetViewModelBase();
-            viewModel.Settings.DisposeIocContainer = true;
-            viewModel.Dispose();
-            ((IocContainerMock)viewModel.IocContainer).IsDisposed.ShouldBeTrue();
-        }
-
-        [TestMethod]
-        public void VmShouldNotDisposeIocContainerIfSettingsFalse()
-        {
-            IViewModel viewModel = GetViewModelBase();
-            viewModel.Settings.DisposeIocContainer = false;
-            viewModel.Dispose();
-            ((IocContainerMock)viewModel.IocContainer).IsDisposed.ShouldBeFalse();
+            messages = testViewModelBase.BusyInfo.GetMessages();
+            messages.Count.ShouldEqual(2);
+            messages[0].ShouldEqual(firstBusyMessage);
+            messages[1].ShouldEqual(secondBusyMessage);
         }
 
         [TestMethod]
@@ -401,6 +397,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             viewModelBaseWithCommand.Dispose();
             command.IsDisposed.ShouldBeTrue();
             withoutGetter.IsDisposed.ShouldBeTrue();
+            viewModelBaseWithCommand.IsDisposed.ShouldBeTrue();
         }
 
         [TestMethod]
@@ -418,6 +415,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             viewModelBaseWithCommand.Dispose();
             command.IsDisposed.ShouldBeFalse();
             withoutGetter.IsDisposed.ShouldBeFalse();
+            viewModelBaseWithCommand.IsDisposed.ShouldBeTrue();
         }
 
         [TestMethod]
@@ -429,17 +427,89 @@ namespace MugenMvvmToolkit.Test.ViewModels
             viewModel.LocalEventAggregator.GetObservers().Contains(spyHandler).ShouldBeTrue();
             viewModel.Dispose();
             viewModel.LocalEventAggregator.GetObservers().Contains(spyHandler).ShouldBeFalse();
+            viewModel.IsDisposed.ShouldBeTrue();
         }
 
         [TestMethod]
         public void VmShouldThrowsExceptionDisposed()
         {
+            IViewModel viewModel = GetViewModelBase();
+            viewModel.Dispose();
+            viewModel.IsDisposed.ShouldBeTrue();
+
+            ShouldThrow<ObjectDisposedException>(() => viewModel.InitializeViewModel(DataContext.Empty));
+        }
+
+        [TestMethod]
+        public void VmShouldCallDisposedOnce1()
+        {
+            int count = 0;
             ViewModelBase viewModel = GetViewModelBase();
+            viewModel.IsInitialized.ShouldBeTrue();
+            viewModel.IsDisposed.ShouldBeFalse();
+            viewModel.IsRestored.ShouldBeFalse();
+
+            viewModel.Disposed += (sender, args) => ++count;
             viewModel.Dispose();
 
-            ShouldThrow<ObjectDisposedException>(() => viewModel.GetViewModel<TestViewModelBase>());
-            ShouldThrow<ObjectDisposedException>(() => viewModel.GetViewModel(typeof(TestViewModelBase)));
-            ShouldThrow<ObjectDisposedException>(() => viewModel.GetViewModel(adapter => new TestViewModelBase()));
+            viewModel.Disposed += (sender, args) => ++count;
+            viewModel.Dispose();
+
+            viewModel.Disposed += (sender, args) => ++count;
+            viewModel.Dispose();
+
+            viewModel.IsDisposed.ShouldBeTrue();
+            viewModel.IsInitialized.ShouldBeTrue();
+            viewModel.IsRestored.ShouldBeFalse();
+            count.ShouldEqual(1);
+        }
+
+        [TestMethod]
+        public void VmShouldCallDisposedOnce2()
+        {
+            int count = 0;
+            ViewModelBase viewModel = new ViewModelBaseWithDisplayName();
+            viewModel.IsInitialized.ShouldBeFalse();
+            viewModel.IsDisposed.ShouldBeFalse();
+            viewModel.IsRestored.ShouldBeFalse();
+
+            viewModel.Disposed += (sender, args) => ++count;
+            viewModel.Dispose();
+
+            viewModel.Disposed += (sender, args) => ++count;
+            viewModel.Dispose();
+
+            viewModel.Disposed += (sender, args) => ++count;
+            viewModel.Dispose();
+
+            viewModel.IsDisposed.ShouldBeTrue();
+            viewModel.IsInitialized.ShouldBeTrue();
+            viewModel.IsRestored.ShouldBeFalse();
+            count.ShouldEqual(1);
+        }
+
+        [TestMethod]
+        public void VmShouldCallDisposedOnce3()
+        {
+            int count = 0;
+            ViewModelBase viewModel = GetViewModelBase(new DataContext(InitializationConstants.IsRestored.ToValue(true)));
+            viewModel.IsDisposed.ShouldBeFalse();
+            viewModel.IsInitialized.ShouldBeTrue();
+            viewModel.IsRestored.ShouldBeTrue();
+
+            viewModel.Disposed += (sender, args) => ++count;
+            viewModel.Dispose();
+
+            viewModel.Disposed += (sender, args) => ++count;
+            viewModel.Dispose();
+
+            viewModel.Disposed += (sender, args) => ++count;
+            viewModel.Dispose();
+
+            viewModel.IsDisposed.ShouldBeTrue();
+            viewModel.IsInitialized.ShouldBeTrue();
+            viewModel.IsRestored.ShouldBeTrue();
+            count.ShouldEqual(1);
         }
 
         [TestMethod]

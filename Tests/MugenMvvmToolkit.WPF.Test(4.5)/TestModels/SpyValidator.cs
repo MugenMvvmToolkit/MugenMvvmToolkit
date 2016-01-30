@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
+using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvmToolkit.Infrastructure.Validation;
 using MugenMvvmToolkit.Interfaces.Validation;
@@ -39,9 +39,6 @@ namespace MugenMvvmToolkit.Test.TestModels
 
         #region Overrides of ValidatorBase
 
-        /// <summary>
-        ///     Checks to see whether the validator can validate objects of the specified IValidatorContext.
-        /// </summary>
         protected override bool CanValidateInternal(IValidatorContext validatorContext)
         {
             if (CanValidate == null)
@@ -49,71 +46,35 @@ namespace MugenMvvmToolkit.Test.TestModels
             return CanValidate(validatorContext);
         }
 
-        /// <summary>
-        ///     Determines whether the current model is valid.
-        /// </summary>
-        /// <returns>
-        ///     If <c>true</c> current model is valid, otherwise <c>false</c>.
-        /// </returns>
         protected override bool IsValidInternal()
         {
             IsValidCount++;
             return base.IsValidInternal();
         }
 
-        /// <summary>
-        ///     Clears errors for a property.
-        /// </summary>
-        /// <param name="propertyName">The name of the property</param>
         protected override void ClearErrorsInternal(string propertyName)
         {
             base.ClearErrorsInternal(propertyName);
             ClearPropertyErrorsCount++;
         }
 
-        /// <summary>
-        ///     Clears all errors.
-        /// </summary>
         protected override void ClearErrorsInternal()
         {
             base.ClearErrorsInternal();
             ClearAllErrorsCount++;
         }
 
-        /// <summary>
-        ///     Updates information about errors in the specified property.
-        /// </summary>
-        /// <param name="propertyName">The specified property name.</param>
-        /// <returns>
-        ///     The result of validation.
-        /// </returns>
-        protected override Task<IDictionary<string, IEnumerable>> ValidateInternalAsync(string propertyName)
+        protected override Task<IDictionary<string, IEnumerable>> ValidateInternalAsync(string propertyName, CancellationToken token)
         {
             ValidateProperties.Add(propertyName);
             ValidateCount++;
-            return base.ValidateInternalAsync(propertyName);
+            return base.ValidateInternalAsync(propertyName, token);
         }
 
-        /// <summary>
-        ///     Updates information about all errors.
-        /// </summary>
-        /// <returns>
-        ///     The result of validation.
-        /// </returns>
-        protected override Task<IDictionary<string, IEnumerable>> ValidateInternalAsync()
+        protected override Task<IDictionary<string, IEnumerable>> ValidateInternalAsync(CancellationToken token)
         {
             ValidateAllCount++;
-            return base.ValidateInternalAsync();
-        }
-        /// <summary>
-        ///     Creates a new validator that is a copy of the current instance.
-        /// </summary>
-        /// <returns>
-        ///     A new validator that is a copy of this instance.
-        /// </returns>
-        protected override IValidator CloneInternal()
-        {
-            return new SpyValidator();
+            return base.ValidateInternalAsync(token);
         }
 
         #endregion

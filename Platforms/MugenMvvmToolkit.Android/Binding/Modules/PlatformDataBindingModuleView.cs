@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="PlatformDataBindingModuleView.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,20 +17,22 @@
 #endregion
 
 using System;
-using Android.App;
+using Android.OS;
+using Android.Runtime;
 using Android.Views;
+using MugenMvvmToolkit.Android.Binding.Models;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Binding.Modules
+namespace MugenMvvmToolkit.Android.Binding.Modules
 {
     public partial class PlatformDataBindingModule
     {
         #region Nested types
 
-        private abstract class LayoutObserver : DisposableObject
+        private abstract class LayoutObserver : Java.Lang.Object, View.IOnLayoutChangeListener, ViewTreeObserver.IOnGlobalLayoutListener
         {
             #region Fields
 
@@ -40,11 +42,21 @@ namespace MugenMvvmToolkit.Binding.Modules
 
             #region Constructors
 
-            protected LayoutObserver(View view)
+            protected LayoutObserver(IntPtr handle, JniHandleOwnership transfer) : base(handle, transfer)
             {
-                _viewReference = ServiceProvider.WeakReferenceFactory(view, true);
-                if (view.ViewTreeObserver.IsAlive)
-                    view.ViewTreeObserver.GlobalLayout += OnGlobalLayoutChanged;
+            }
+
+            protected LayoutObserver(View view, bool treeObserver)
+            {
+                _viewReference = ServiceProvider.WeakReferenceFactory(view);
+                if (!treeObserver && Build.VERSION.SdkInt >= BuildVersionCodes.Honeycomb)
+                    view.AddOnLayoutChangeListener(this);
+                else
+                {
+                    var viewTreeObserver = view.ViewTreeObserver;
+                    if (viewTreeObserver.IsAlive)
+                        viewTreeObserver.AddOnGlobalLayoutListener(this);
+                }
             }
 
             #endregion
@@ -59,38 +71,57 @@ namespace MugenMvvmToolkit.Binding.Modules
                 return (View)viewReference.Target;
             }
 
-            private void OnGlobalLayoutChanged(object sender, EventArgs eventArgs)
+            private void Raise()
             {
-                if (IsDisposed)
+                if (_viewReference == null)
                     return;
                 var view = GetView();
-                if (view == null)
-                    Dispose();
+                if (view.IsAlive())
+                    OnGlobalLayoutChangedInternal(view);
                 else
-                    OnGlobalLayoutChangedInternal(view, sender, eventArgs);
+                    Dispose();
             }
 
-            protected abstract void OnGlobalLayoutChangedInternal(View view, object sender, EventArgs eventArgs);
+            protected abstract void OnGlobalLayoutChangedInternal(View view);
 
             #endregion
 
-            #region Overrides of DisposableObjectBase
+            #region Implementation of interfaces
 
-            protected override bool TraceFinalized
+            public void OnLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop,
+                int oldRight,
+                int oldBottom)
             {
-                get { return false; }
+                Raise();
             }
 
-            protected override void OnDispose(bool disposing)
+            public void OnGlobalLayout()
             {
-                base.OnDispose(disposing);
+                Raise();
+            }
+
+            #endregion
+
+            #region Overrides
+
+            protected override void Dispose(bool disposing)
+            {
                 if (disposing)
                 {
                     try
                     {
-                        var view = (View)_viewReference.Target;
-                        if (view != null && view.ViewTreeObserver.IsAlive)
-                            view.ViewTreeObserver.GlobalLayout -= OnGlobalLayoutChanged;
+                        var view = GetView();
+                        if (view.IsAlive())
+                        {
+                            if (Build.VERSION.SdkInt >= BuildVersionCodes.Honeycomb)
+                                view.RemoveOnLayoutChangeListener(this);
+                            else
+                            {
+                                var viewTreeObserver = view.ViewTreeObserver;
+                                if (viewTreeObserver.IsAlive)
+                                    viewTreeObserver.RemoveOnGlobalLayoutListener(this);
+                            }
+                        }
                     }
                     catch (Exception e)
                     {
@@ -100,6 +131,50 @@ namespace MugenMvvmToolkit.Binding.Modules
                     {
                         _viewReference = null;
                     }
+                }
+                base.Dispose(disposing);
+            }
+
+            #endregion
+
+        }
+
+        private sealed class SizeObserver : LayoutObserver
+        {
+            #region Fields
+
+            private readonly WeakEventListenerWrapper _listenerRef;
+            private int _width;
+            private int _height;
+
+            #endregion
+
+            #region Constructors
+
+            public SizeObserver(IntPtr handle, JniHandleOwnership transfer) : base(handle, transfer)
+            {
+            }
+
+            public SizeObserver(View view, IEventListener handler)
+                : base(view, false)
+            {
+                _listenerRef = handler.ToWeakWrapper();
+                _height = view.Height;
+                _width = view.Width;
+            }
+
+            #endregion
+
+            #region Overrides of LayoutObserver
+
+            protected override void OnGlobalLayoutChangedInternal(View view)
+            {
+                if (view.Width != _width || view.Height != _height)
+                {
+                    _width = view.Width;
+                    _height = view.Height;
+                    if (!_listenerRef.EventListener.TryHandle(view, EventArgs.Empty))
+                        Dispose();
                 }
             }
 
@@ -117,8 +192,12 @@ namespace MugenMvvmToolkit.Binding.Modules
 
             #region Constructors
 
+            public VisiblityObserver(IntPtr handle, JniHandleOwnership transfer) : base(handle, transfer)
+            {
+            }
+
             public VisiblityObserver(View view, IEventListener handler)
-                : base(view)
+                : base(view, true)
             {
                 _listenerRef = handler.ToWeakWrapper();
                 _oldValue = view.Visibility;
@@ -128,13 +207,13 @@ namespace MugenMvvmToolkit.Binding.Modules
 
             #region Overrides of LayoutObserver
 
-            protected override void OnGlobalLayoutChangedInternal(View view, object sender, EventArgs eventArgs)
+            protected override void OnGlobalLayoutChangedInternal(View view)
             {
                 ViewStates visibility = view.Visibility;
                 if (_oldValue == visibility)
                     return;
                 _oldValue = visibility;
-                if (!_listenerRef.EventListener.TryHandle(view, eventArgs))
+                if (!_listenerRef.EventListener.TryHandle(view, EventArgs.Empty))
                     Dispose();
             }
 
@@ -147,28 +226,34 @@ namespace MugenMvvmToolkit.Binding.Modules
 
         private static void RegisterViewMembers(IBindingMemberProvider memberProvider)
         {
-            //Activity
-            memberProvider.Register(AttachedBindingMember.CreateMember<Activity, object>(AttachedMemberConstants.FindByNameMethod, ActivityFindByNameMember));
-
-            //View            
+            //View
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.View.Fragment));
             memberProvider.Register(AttachedBindingMember.CreateMember<View, object>(AttachedMemberConstants.FindByNameMethod, ViewFindByNameMember));
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<View, int>(AttachedMemberNames.MenuTemplate, MenuTemplateChanged));
-            memberProvider.Register(AttachedBindingMember.CreateMember<View, object>(AttachedMemberConstants.Parent, GetViewParentValue, null, ObserveViewParent));
+            memberProvider.Register(AttachedBindingMember.CreateMember<View, object>(AttachedMemberConstants.Parent, GetViewParentValue, SetViewParentValue, ObserveViewParent));
             memberProvider.Register(AttachedBindingMember.CreateMember<View, bool>(AttachedMemberConstants.Focused,
-                    (info, view) => view.IsFocused, null, "FocusChange"));
+                    (info, view) => view.IsFocused, (info, view, arg3) =>
+                    {
+                        if (arg3)
+                            view.RequestFocus();
+                        else
+                            view.ClearFocus();
+                    }, nameof(View.FocusChange)));
             memberProvider.Register(AttachedBindingMember.CreateMember<View, bool>(AttachedMemberConstants.Enabled,
                     (info, view) => view.Enabled, (info, view, value) => view.Enabled = value));
-            memberProvider.Register(AttachedBindingMember.CreateMember<View, ViewStates>("Visibility",
+            memberProvider.Register(AttachedBindingMember.CreateMember<View, ViewStates>(nameof(View.Visibility),
                 (info, view) => view.Visibility, (info, view, value) => view.Visibility = value,
                 ObserveViewVisibility));
-            memberProvider.Register(AttachedBindingMember.CreateMember<View, bool>("Visible",
+            memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.View.Visible,
                 (info, view) => view.Visibility == ViewStates.Visible,
                 (info, view, value) => view.Visibility = value ? ViewStates.Visible : ViewStates.Gone,
                 ObserveViewVisibility));
-            memberProvider.Register(AttachedBindingMember.CreateMember<View, bool>("Hidden",
+            memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.View.Hidden,
                 (info, view) => view.Visibility != ViewStates.Visible,
                 (info, view, value) => view.Visibility = value ? ViewStates.Gone : ViewStates.Visible,
                 ObserveViewVisibility));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<View, object>(AttachedMembers.Toolbar.MenuTemplate.Path));
+            memberProvider.Register(AttachedBindingMember.CreateEvent<View>("WidthChanged", (info, o, arg3) => new SizeObserver(o, arg3)));
+            memberProvider.Register(AttachedBindingMember.CreateEvent<View>("HeightChanged", (info, o, arg3) => new SizeObserver(o, arg3)));
         }
 
         private static IDisposable ObserveViewVisibility(IBindingMemberInfo bindingMemberInfo, View view, IEventListener arg3)
@@ -183,20 +268,21 @@ namespace MugenMvvmToolkit.Binding.Modules
 
         private static object GetViewParentValue(IBindingMemberInfo arg1, View view)
         {
-            if (view.Id == Android.Resource.Id.Content)
-                return view.Context.GetActivity();
             return ParentObserver.GetOrAdd(view).Parent;
         }
 
-        private static object ActivityFindByNameMember(IBindingMemberInfo bindingMemberInfo, Activity target, object[] arg3)
+        private static void SetViewParentValue(IBindingMemberInfo bindingMemberInfo, View view, object arg3)
         {
-            return ViewFindByNameMember(bindingMemberInfo, target.FindViewById(Android.Resource.Id.Content), arg3);
+            ParentObserver.GetOrAdd(view).Parent = arg3;
         }
 
         private static object ViewFindByNameMember(IBindingMemberInfo bindingMemberInfo, View target, object[] arg3)
         {
             if (target == null)
                 return null;
+            var rootView = target.RootView;
+            if (rootView != null)
+                target = rootView;
             var name = arg3[0].ToStringSafe();
             var result = target.FindViewWithTag(name);
             if (result == null)

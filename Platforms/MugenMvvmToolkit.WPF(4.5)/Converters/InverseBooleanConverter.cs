@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="InverseBooleanConverter.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,27 +17,27 @@
 #endregion
 
 using System;
-#if NETFX_CORE || WINDOWSCOMMON
-using Windows.UI.Xaml;
+#if WINDOWSCOMMON
 using Windows.UI.Xaml.Data;
 #else
 using System.Globalization;
 using System.Windows.Data;
 #endif
 
-// ReSharper disable once CheckNamespace
-namespace MugenMvvmToolkit.Binding.Converters
+#if WPF
+namespace MugenMvvmToolkit.WPF.Binding.Converters
+#elif SILVERLIGHT
+namespace MugenMvvmToolkit.Silverlight.Binding.Converters
+#elif WINDOWSCOMMON
+namespace MugenMvvmToolkit.WinRT.Binding.Converters
+#elif WINDOWS_PHONE
+namespace MugenMvvmToolkit.WinPhone.Binding.Converters
+#endif
 {
-    /// <summary>
-    ///     This converter reverses a Boolean value (True == False, False == True).
-    /// </summary>
     public sealed class InverseBooleanConverter : IValueConverter
     {
         #region Fields
 
-        /// <summary>
-        ///     Gets an instance of <see cref="InverseBooleanConverter" />.
-        /// </summary>
         public static readonly InverseBooleanConverter Instance;
 
         #endregion
@@ -53,7 +53,7 @@ namespace MugenMvvmToolkit.Binding.Converters
 
         #region Implementation of IValueConverter
 
-#if NETFX_CORE || WINDOWSCOMMON
+#if WINDOWSCOMMON
         public object Convert(object value, Type targetType, object parameter, string language)
 #else
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -63,10 +63,10 @@ namespace MugenMvvmToolkit.Binding.Converters
             var b = (bool?)value;
             if (b == null)
                 return null;
-            return Empty.BooleanToObject(!b.Value);            
+            return Empty.BooleanToObject(!b.Value);
         }
 
-#if NETFX_CORE || WINDOWSCOMMON
+#if WINDOWSCOMMON
         public object ConvertBack(object value, Type targetType, object parameter, string culture)
 #else
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -1,5 +1,5 @@
 using System.ComponentModel;
-using MugenMvvmToolkit.Binding.UiDesigner;
+using MugenMvvmToolkit.WinForms.Binding.UiDesigner;
 
 namespace $rootnamespace$
 {

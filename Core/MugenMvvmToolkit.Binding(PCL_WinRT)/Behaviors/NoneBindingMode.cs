@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="NoneBindingMode.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -21,16 +21,10 @@ using MugenMvvmToolkit.Binding.Interfaces;
 
 namespace MugenMvvmToolkit.Binding.Behaviors
 {
-    /// <summary>
-    ///     Updates the binding source only when you call the <see cref="IDataBinding.UpdateSource" /> method.
-    /// </summary>
     public sealed class NoneBindingMode : IBindingBehavior
     {
         #region Fields
 
-        /// <summary>
-        ///     Gets the instance of <see cref="NoneBindingMode" /> use this instance as prototype.
-        /// </summary>
         public static readonly NoneBindingMode Instance;
 
         #endregion
@@ -50,41 +44,19 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Implementation of IBindingBehavior
 
-        /// <summary>
-        ///     Gets the id of behavior. Each <see cref="IDataBinding" /> can have only one instance with the same id.
-        /// </summary>
-        public Guid Id
-        {
-            get { return BindingModeBase.IdBindingMode; }
-        }
+        public Guid Id => BindingModeBase.IdBindingMode;
 
-        /// <summary>
-        ///     Gets the behavior priority.
-        /// </summary>
-        public int Priority
-        {
-            get { return int.MinValue; }
-        }
+        public int Priority => BindingModeBase.DefaultPriority;
 
-        /// <summary>
-        ///     Attaches to the specified binding.
-        /// </summary>
-        /// <param name="binding">The binding to attach to.</param>
         bool IBindingBehavior.Attach(IDataBinding binding)
         {
             return true;
         }
 
-        /// <summary>
-        ///     Detaches this instance from its associated binding.
-        /// </summary>
         void IBindingBehavior.Detach(IDataBinding binding)
         {
         }
 
-        /// <summary>
-        ///     Creates a new binding behavior that is a copy of the current instance.
-        /// </summary>
         public IBindingBehavior Clone()
         {
             return this;

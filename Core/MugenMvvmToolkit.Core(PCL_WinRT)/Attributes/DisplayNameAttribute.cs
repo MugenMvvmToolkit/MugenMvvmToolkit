@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="DisplayNameAttribute.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -23,9 +23,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Attributes
 {
-    /// <summary>
-    ///     Specifies the display name for a property, event, or method.
-    /// </summary>
     [AttributeUsage(
         AttributeTargets.Class | AttributeTargets.Method | AttributeTargets.Property | AttributeTargets.Event | AttributeTargets.Field,
         AllowMultiple = false, Inherited = true)]
@@ -40,22 +37,16 @@ namespace MugenMvvmToolkit.Attributes
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DisplayNameAttribute" /> class.
-        /// </summary>
         public DisplayNameAttribute([NotNull] string displayName)
         {
-            Should.NotBeNullOrEmpty(displayName, "displayName");
+            Should.NotBeNullOrEmpty(displayName, nameof(displayName));
             _displayName = displayName;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DisplayNameAttribute" /> class.
-        /// </summary>
         public DisplayNameAttribute([NotNull] Type resourceType, [NotNull] string resourceName)
         {
-            Should.NotBeNull(resourceType, "resourceType");
-            Should.NotBeNullOrWhitespace(resourceName, "resourceName");
+            Should.NotBeNull(resourceType, nameof(resourceType));
+            Should.NotBeNullOrWhitespace(resourceName, nameof(resourceName));
             _resourceAccessor = FindResourceAccessor(resourceName, resourceType);
         }
 
@@ -63,9 +54,6 @@ namespace MugenMvvmToolkit.Attributes
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the display name.
-        /// </summary>
         public string DisplayName
         {
             get

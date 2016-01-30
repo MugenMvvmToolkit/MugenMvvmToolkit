@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="ModalViewMediator.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -16,112 +16,116 @@
 
 #endregion
 
+using System;
 using System.ComponentModel;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Infrastructure.Navigation;
+using MugenMvvmToolkit.DataConstants;
+using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
+using MugenMvvmToolkit.Xamarin.Forms.Interfaces.Navigation;
+using MugenMvvmToolkit.Xamarin.Forms.Interfaces.Views;
 using Xamarin.Forms;
 
-namespace MugenMvvmToolkit.Infrastructure.Mediators
+namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Mediators
 {
     public class ModalViewMediator : WindowViewMediatorBase<IModalView>
     {
         #region Fields
 
-        private readonly IViewMappingProvider _viewMappingProvider;
-        private readonly IViewModelProvider _viewModelProvider;
+        private readonly EventHandler<ModalPoppedEventArgs> _closedHandler;
         private readonly EventHandler<Page, CancelEventArgs> _backButtonHandler;
 
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ModalViewMediator" /> class.
-        /// </summary>
         public ModalViewMediator([NotNull] IViewModel viewModel, [NotNull] IThreadManager threadManager,
-            [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] IOperationCallbackManager operationCallbackManager,
-            [NotNull] IViewMappingProvider viewMappingProvider,
-            [NotNull] IViewModelProvider viewModelProvider)
+            [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] IOperationCallbackManager operationCallbackManager)
             : base(viewModel, threadManager, viewManager, wrapperManager, operationCallbackManager)
         {
-            Should.NotBeNull(viewMappingProvider, "viewMappingProvider");
-            Should.NotBeNull(viewModelProvider, "viewModelProvider");
-            _viewMappingProvider = viewMappingProvider;
-            _viewModelProvider = viewModelProvider;
             _backButtonHandler = ReflectionExtensions
                 .CreateWeakDelegate<ModalViewMediator, CancelEventArgs, EventHandler<Page, CancelEventArgs>>(this,
                     (service, o, arg3) => service.OnBackButtonPressed((Page)o, arg3),
                     (o, handler) => XamarinFormsExtensions.BackButtonPressed -= handler, handler => handler.Handle);
+            _closedHandler = ReflectionExtensions
+                .CreateWeakDelegate<ModalViewMediator, ModalPoppedEventArgs, EventHandler<ModalPoppedEventArgs>>(this,
+                    (mediator, o, arg3) => mediator.OnModalClosed(arg3), (o, handler) => Application.Current.ModalPopped -= handler, handler => handler.Handle);
+            UseAnimations = true;
         }
+
+        #endregion
+
+        #region Properties
+
+        public bool UseAnimations { get; set; }
 
         #endregion
 
         #region Methods
 
-        protected virtual INavigationProvider CreateNavigationProvider(INavigationService service)
+        private void OnBackButtonPressed(Page page, CancelEventArgs args)
         {
-            return new NavigationProvider(service, ThreadManager, _viewMappingProvider, ViewManager, _viewModelProvider,
-                OperationCallbackManager);
+            if (View.GetUnderlyingView<object>() == page)
+                OnViewClosing(page, args);
         }
 
-        private void OnBackButtonPressed(Page page, CancelEventArgs arg3)
+        private void OnModalClosed(ModalPoppedEventArgs args)
         {
-            if (View == page)
-                OnViewClosing(page, arg3);
+            if (View.GetUnderlyingView<object>() == args.Modal)
+                OnViewClosed(args.Modal, args);
         }
 
         #endregion
 
         #region Overrides of WindowViewMediatorBase<IModalView>
 
-        /// <summary>
-        ///     Shows the view in the specified mode.
-        /// </summary>
         protected override void ShowView(IModalView view, bool isDialog, IDataContext context)
         {
             var page = (Page)ViewModel
                 .GetIocContainer(true)
                 .Get<INavigationService>()
                 .CurrentContent;
-            page.Navigation.PushModalAsync(view.GetUnderlyingView<Page>());
+            bool animated;
+            if (context.TryGetData(NavigationConstants.UseAnimations, out animated))
+                ViewModel.Settings.State.AddOrUpdate(NavigationConstants.UseAnimations, animated);
+            else
+                animated = UseAnimations;
+            page.Navigation.PushModalAsync(view.GetUnderlyingView<Page>(), animated);
         }
 
-        /// <summary>
-        ///     Initializes the specified view.
-        /// </summary>
+        protected override void ActivateView(IModalView view, IDataContext context)
+        {
+            var supportActivationModalView = view as ISupportActivationModalView;
+            if (supportActivationModalView != null)
+                supportActivationModalView.Activate();
+        }
+
         protected override void InitializeView(IModalView view, IDataContext context)
         {
-            var page = view.GetUnderlyingView<Page>();
-            page.Disappearing += OnViewClosed;
             XamarinFormsExtensions.BackButtonPressed += _backButtonHandler;
+            Application.Current.ModalPopped += _closedHandler;
         }
 
-        /// <summary>
-        ///     Clears the event subscribtions from the specified view.
-        /// </summary>
-        /// <param name="view">The specified window-view to dispose.</param>
         protected override void CleanupView(IModalView view)
         {
-            var page = view.GetUnderlyingView<Page>();
-            page.Disappearing -= OnViewClosed;
             XamarinFormsExtensions.BackButtonPressed -= _backButtonHandler;
+            Application.Current.ModalPopped -= _closedHandler;
         }
 
-        /// <summary>
-        ///     Closes the view.
-        /// </summary>
         protected override void CloseView(IModalView view)
         {
             var page = view.GetUnderlyingView<Page>();
-            page.Navigation.PopModalAsync();
+            bool animated;
+            if (ViewModel.Settings.State.TryGetData(NavigationConstants.UseAnimations, out animated))
+                ViewModel.Settings.State.Remove(NavigationConstants.UseAnimations);
+            else
+                animated = UseAnimations;
+            page.Navigation.PopModalAsync(animated);
         }
 
         #endregion

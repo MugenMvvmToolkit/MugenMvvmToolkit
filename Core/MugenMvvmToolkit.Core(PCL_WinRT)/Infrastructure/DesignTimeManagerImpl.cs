@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="DesignTimeManagerImpl.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -48,30 +48,23 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Implementation of IDesignTimeManager
 
-        public bool IsDesignMode
-        {
-            get { return false; }
-        }
+        public bool IsDesignMode => false;
 
-        public int Priority
-        {
-            get { return int.MinValue; }
-        }
+        public int Priority => int.MinValue;
 
         public PlatformInfo Platform
         {
-            get { return _platform; }
+            get
+            {
+                if (_platform == null && MvvmApplication.Current != null)
+                    return MvvmApplication.Current.Platform;
+                return _platform;
+            }
         }
 
-        public IIocContainer IocContainer
-        {
-            get { return null; }
-        }
+        public IIocContainer IocContainer => null;
 
-        public IDataContext Context
-        {
-            get { return DataContext.Empty; }
-        }
+        public IDataContext Context => DataContext.Empty;
 
         public void Initialize()
         {
@@ -85,6 +78,6 @@ namespace MugenMvvmToolkit.Infrastructure
         {
         }
 
-        #endregion        
+        #endregion
     }
 }

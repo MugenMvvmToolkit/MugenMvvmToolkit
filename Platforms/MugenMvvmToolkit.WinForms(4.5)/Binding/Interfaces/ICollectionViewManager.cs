@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ICollectionViewManager.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,23 +18,20 @@
 
 using JetBrains.Annotations;
 
-namespace MugenMvvmToolkit.Binding.Interfaces
+#if WINFORMS
+namespace MugenMvvmToolkit.WinForms.Binding.Interfaces
+#elif ANDROID
+namespace MugenMvvmToolkit.Android.Binding.Interfaces
+#elif TOUCH
+namespace MugenMvvmToolkit.iOS.Binding.Interfaces
+#endif
 {
     public interface ICollectionViewManager
     {
-        /// <summary>
-        ///     Inserts an item to the specified index.
-        /// </summary>
-        void Insert([NotNull] object view, int index, object item);
+        void Insert([NotNull] object view, int index, object viewItem);
 
-        /// <summary>
-        ///     Removes an item.
-        /// </summary>
         void RemoveAt([NotNull] object view, int index);
 
-        /// <summary>
-        ///     Removes all items.
-        /// </summary>
         void Clear([NotNull] object view);
     }
 }

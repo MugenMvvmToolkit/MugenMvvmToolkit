@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ApplicationStateManager.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -30,22 +30,24 @@ using MugenMvvmToolkit.Models;
 #if WINDOWS_PHONE
 using System.Windows;
 using System.Windows.Navigation;
+using MugenMvvmToolkit.WinPhone.Interfaces;
+
+namespace MugenMvvmToolkit.WinPhone.Infrastructure
 #else
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Navigation;
-#endif
+using MugenMvvmToolkit.WinRT.Infrastructure.Presenters;
+using MugenMvvmToolkit.WinRT.Interfaces;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit.WinRT.Infrastructure
+#endif
 {
-    /// <summary>
-    ///     Represents the application state manager.
-    /// </summary>
     public class ApplicationStateManager : IApplicationStateManager
     {
         #region Nested types
 
         [DataContract]
-        internal sealed class LazySerializableContainer
+        protected internal sealed class LazySerializableContainer
         {
             #region Fields
 
@@ -54,6 +56,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             [IgnoreDataMember]
             private byte[] _bytes;
+
             [IgnoreDataMember]
             private IDataContext _context;
 
@@ -61,18 +64,20 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #region Constructors
 
-            public LazySerializableContainer(ISerializer serializer, IDataContext context, IViewModel viewModel)
+            //Only for serialization
+            internal LazySerializableContainer() { }
+
+            public LazySerializableContainer(ISerializer serializer, IDataContext context)
             {
                 _serializer = serializer;
                 _context = context;
-                ViewModelType = viewModel.GetType().AssemblyQualifiedName;
             }
 
             #endregion
 
             #region Properties
 
-            [DataMember]
+            [DataMember(Name = "b")]
             internal byte[] Bytes
             {
                 get
@@ -83,9 +88,6 @@ namespace MugenMvvmToolkit.Infrastructure
                 }
                 set { _bytes = value; }
             }
-
-            [DataMember]
-            public string ViewModelType { get; set; }
 
             #endregion
 
@@ -111,6 +113,7 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Fields
 
         private const string VmStateKey = "@`vmstate";
+        private const string VmTypeKey = "@`vmtype";
 
         private static readonly Type[] KnownTypesStatic;
 
@@ -125,19 +128,16 @@ namespace MugenMvvmToolkit.Infrastructure
 
         static ApplicationStateManager()
         {
-            KnownTypesStatic = new[] { typeof(LazySerializableContainer) };
+            KnownTypesStatic = new[] { typeof(LazySerializableContainer), typeof(DataContext) };
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ApplicationStateManager" /> class.
-        /// </summary>
         public ApplicationStateManager([NotNull] ISerializer serializer, [NotNull] IViewModelProvider viewModelProvider,
             [NotNull] IViewManager viewManager, [NotNull] IViewModelPresenter viewModelPresenter)
         {
-            Should.NotBeNull(serializer, "serializer");
-            Should.NotBeNull(viewModelProvider, "viewModelProvider");
-            Should.NotBeNull(viewManager, "viewManager");
-            Should.NotBeNull(viewModelPresenter, "viewModelPresenter");
+            Should.NotBeNull(serializer, nameof(serializer));
+            Should.NotBeNull(viewModelProvider, nameof(viewModelProvider));
+            Should.NotBeNull(viewManager, nameof(viewManager));
+            Should.NotBeNull(viewModelPresenter, nameof(viewModelPresenter));
             _serializer = serializer;
             _viewModelProvider = viewModelProvider;
             _viewManager = viewManager;
@@ -148,99 +148,94 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the <see cref="ISerializer" />.
-        /// </summary>
-        protected ISerializer Serializer
-        {
-            get { return _serializer; }
-        }
+        protected ISerializer Serializer => _serializer;
 
-        /// <summary>
-        ///     Gets the <see cref="IViewModelProvider" />.
-        /// </summary>
-        protected IViewModelProvider ViewModelProvider
-        {
-            get { return _viewModelProvider; }
-        }
+        protected IViewModelProvider ViewModelProvider => _viewModelProvider;
 
-        /// <summary>
-        ///     Gets the <see cref="IViewManager" />.
-        /// </summary>
-        protected IViewManager ViewManager
-        {
-            get { return _viewManager; }
-        }
+        protected IViewManager ViewManager => _viewManager;
 
-        /// <summary>
-        ///     Gets the <see cref="IViewModelPresenter" />.
-        /// </summary>
-        protected IViewModelPresenter ViewModelPresenter
-        {
-            get { return _viewModelPresenter; }
-        }
+        protected IViewModelPresenter ViewModelPresenter => _viewModelPresenter;
 
         #endregion
 
         #region Implementation of IApplicationStateManager
 
-        /// <summary>
-        ///     Gets the collection of known types.
-        /// </summary>
-        public virtual IList<Type> KnownTypes
-        {
-            get { return KnownTypesStatic; }
-        }
+        public virtual IList<Type> KnownTypes => KnownTypesStatic;
 
-        /// <summary>
-        ///     Occurs on save element state.
-        /// </summary>
-        public virtual void OnSaveState(FrameworkElement element, IDictionary<string, object> state, object args,
+        public void OnSaveState(FrameworkElement element, IDictionary<string, object> state, object args,
             IDataContext context = null)
         {
-            Should.NotBeNull(element, "element");
-            Should.NotBeNull(state, "state");
+            Should.NotBeNull(element, nameof(element));
+            Should.NotBeNull(state, nameof(state));
             var viewModel = element.DataContext as IViewModel;
             if (viewModel != null)
-                state[VmStateKey] = new LazySerializableContainer(_serializer,
-                    _viewModelProvider.PreserveViewModel(viewModel, context ?? DataContext.Empty), viewModel);
+            {
+                state[VmTypeKey] = viewModel.GetType().AssemblyQualifiedName;
+                PreserveViewModel(viewModel, element, state, args, context ?? DataContext.Empty);
+            }
         }
 
-        /// <summary>
-        ///     Occurs on load element state.
-        /// </summary>
-        public virtual void OnLoadState(FrameworkElement element, IDictionary<string, object> state, object args,
+        public void OnLoadState(FrameworkElement element, IDictionary<string, object> state, object args,
             IDataContext context = null)
         {
-            Should.NotBeNull(element, "element");
-            Should.NotBeNull(state, "state");
+            Should.NotBeNull(element, nameof(element));
+            Should.NotBeNull(state, nameof(state));
             object value;
-            if (!state.TryGetValue(VmStateKey, out value))
+            if (!state.TryGetValue(VmTypeKey, out value))
                 return;
-            state.Remove(VmStateKey);
-            var container = (LazySerializableContainer)value;
-            if (container == null)
-                return;
+            state.Remove(VmTypeKey);
             object dataContext = element.DataContext;
-            Type vmType = Type.GetType(container.ViewModelType, false);
+            Type vmType = Type.GetType(value as string, false);
             if (vmType == null || (dataContext != null && dataContext.GetType().Equals(vmType)))
                 return;
-            context = context.ToNonReadOnly();
-            context.AddOrUpdate(InitializationConstants.ViewModelType, vmType);
 
+            if (context == null)
+                context = DataContext.Empty;
+            var viewModelState = RestoreViewModelState(element, state, args, context);
             //The navigation is already handled.
             var eventArgs = args as NavigationEventArgs;
             if (eventArgs != null && eventArgs.GetHandled())
             {
                 eventArgs.SetHandled(false);
-                PlatformExtensions.SetViewModelState(eventArgs.Content, container.GetContext(_serializer));
+                PlatformExtensions.SetViewModelState(eventArgs.Content, viewModelState);
             }
             else
-            {
-                IViewModel viewModel = _viewModelProvider.RestoreViewModel(container.GetContext(_serializer), context, false);
-                _viewManager.InitializeViewAsync(viewModel, element, context).WithTaskExceptionHandler(this);
-                _viewModelPresenter.Restore(viewModel, context);
-            }
+                RestoreViewModel(vmType, viewModelState, element, state, args, context);
+        }
+
+        #endregion
+
+        #region Methods
+
+        [NotNull]
+        protected virtual IDataContext RestoreViewModelState([NotNull] FrameworkElement element, [NotNull] IDictionary<string, object> state,
+             [NotNull] object args, [NotNull] IDataContext context)
+        {
+            object value;
+            if (state.TryGetValue(VmStateKey, out value))
+                return ((LazySerializableContainer)value).GetContext(_serializer);
+            return DataContext.Empty;
+        }
+
+        protected virtual void RestoreViewModel([NotNull] Type viewModelType, [NotNull] IDataContext viewModelState, [NotNull] FrameworkElement element,
+            [NotNull] IDictionary<string, object> state, [NotNull] object args, [NotNull] IDataContext context)
+        {
+            context = context.ToNonReadOnly();
+            context.AddOrUpdate(InitializationConstants.ViewModelType, viewModelType);
+
+#if WINDOWSCOMMON
+            context.Add(DynamicViewModelWindowPresenter.RestoredViewConstant, element);
+            context.Add(DynamicViewModelWindowPresenter.IsOpenViewConstant, true);
+#endif
+            IViewModel viewModel = _viewModelProvider.RestoreViewModel(viewModelState, context, false);
+            _viewManager.InitializeViewAsync(viewModel, element, context).WithTaskExceptionHandler(this);
+            _viewModelPresenter.Restore(viewModel, context);
+        }
+
+        protected virtual void PreserveViewModel([NotNull] IViewModel viewModel, [NotNull] FrameworkElement element,
+             [NotNull] IDictionary<string, object> state, [NotNull] object args, [NotNull] IDataContext context)
+        {
+            state[VmStateKey] = new LazySerializableContainer(_serializer, _viewModelProvider.PreserveViewModel(viewModel, context));
         }
 
         #endregion

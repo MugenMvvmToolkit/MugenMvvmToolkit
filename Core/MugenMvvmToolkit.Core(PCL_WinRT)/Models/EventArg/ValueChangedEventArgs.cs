@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ValueChangedEventArgs.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -25,9 +25,6 @@ namespace MugenMvvmToolkit.Models.EventArg
     {
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ValueChangedEventArgs{T}" /> class.
-        /// </summary>
         protected ValueChangedEventArgs(T oldValue, T newValue)
         {
             OldValue = oldValue;
@@ -38,15 +35,9 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the old value.
-        /// </summary>
         [CanBeNull]
         public T OldValue { get; protected set; }
 
-        /// <summary>
-        ///     Gets the new value.
-        /// </summary>
         [CanBeNull]
         public T NewValue { get; protected set; }
 

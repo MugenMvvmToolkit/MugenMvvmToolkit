@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ExpressionReflectionManagerEx.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,15 +18,22 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
+using MugenMvvmToolkit.Infrastructure;
 
-namespace MugenMvvmToolkit.Infrastructure
+#if WPF
+namespace MugenMvvmToolkit.WPF.Infrastructure
+#elif ANDROID
+namespace MugenMvvmToolkit.Android.Infrastructure
+#elif WINFORMS
+namespace MugenMvvmToolkit.WinForms.Infrastructure
+#elif SILVERLIGHT
+namespace MugenMvvmToolkit.Silverlight.Infrastructure
+#elif WINDOWS_PHONE
+namespace MugenMvvmToolkit.WinPhone.Infrastructure
+#endif
 {
-    /// <summary>
-    ///     Represents the reflection access provider that uses the <see cref="Expression" />.
-    /// </summary>
     public class ExpressionReflectionManagerEx : ExpressionReflectionManager
     {
         #region Fields
@@ -39,28 +46,17 @@ namespace MugenMvvmToolkit.Infrastructure
 
         static ExpressionReflectionManagerEx()
         {
-            DelegatesCache = new Dictionary<MethodDelegateCacheKey, Func<object, Delegate>>(MethodDelegateCacheKeyComparer.Instance);
+            DelegatesCache = new Dictionary<MethodDelegateCacheKey, Func<object, Delegate>>(MemberCacheKeyComparer.Instance);
         }
 
         #endregion
 
         #region Overrides of ExpressionReflectionProvider
 
-        /// <summary>
-        ///     Tries to creates a delegate of the specified type that represents the specified static or instance method, with the
-        ///     specified first argument.
-        /// </summary>
-        /// <returns>
-        ///     A delegate of the specified type that represents the specified static method of the specified class.
-        /// </returns>
-        /// <param name="delegateType">The <see cref="T:System.Type" /> of delegate to create. </param>
-        /// <param name="target">
-        ///     The <see cref="T:System.Type" /> representing the class that implements <paramref name="method" />
-        ///     .
-        /// </param>
-        /// <param name="method">The name of the static method that the delegate is to represent. </param>
         public override Delegate TryCreateDelegate(Type delegateType, object target, MethodInfo method)
         {
+            Should.NotBeNull(delegateType, nameof(delegateType));
+            Should.NotBeNull(method, nameof(method));
             Func<object, Delegate> value;
             lock (DelegatesCache)
             {
@@ -70,7 +66,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     method = TryCreateMethodDelegate(delegateType, method);
                     if (method != null)
                     {
-                        Type type = method.DeclaringType ?? method.ReflectedType;
+                        Type type = method.DeclaringType;
                         DynamicMethod dynamicMethod = CreateDynamicMethod(type, new[] { typeof(object) },
                             typeof(Delegate));
                         ILGenerator ilGenerator = dynamicMethod.GetILGenerator();
@@ -104,9 +100,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Unbox or cast specified type.
-        /// </summary>
         private static void UnboxOrCast(ILGenerator il, Type type)
         {
             Type elementType = null;
@@ -117,26 +110,14 @@ namespace MugenMvvmToolkit.Infrastructure
             il.Emit(elementType.IsValueType ? OpCodes.Unbox_Any : OpCodes.Castclass, elementType);
         }
 
-        /// <summary>
-        ///     Creates dynamic method with skip visibility.
-        /// </summary>
         private static DynamicMethod CreateDynamicMethod(Type type, Type[] inputValue, Type outputValue)
         {
             if (type == null)
                 type = typeof(object);
-#if WPF
-#if NETFX_CORE
-            var typeInfo = type.GetTypeInfo();
+#if SILVERLIGHT
+            return new DynamicMethod("dynamic_" + type.Name + Guid.NewGuid().ToString("N"), outputValue, inputValue);
 #else
-            Type typeInfo = type;
-#endif
-            return
-                new DynamicMethod("dynamic_" + type.Name + Guid.NewGuid().ToString("N"), outputValue,
-                    inputValue, typeInfo.Module, true);
-#else
-            return new DynamicMethod("dynamic_" + type.Name + Guid.NewGuid().ToString("N"),
-                outputValue,
-                inputValue);
+            return new DynamicMethod("dynamic_" + type.Name + Guid.NewGuid().ToString("N"), outputValue, inputValue, type.Module, true);
 #endif
         }
 

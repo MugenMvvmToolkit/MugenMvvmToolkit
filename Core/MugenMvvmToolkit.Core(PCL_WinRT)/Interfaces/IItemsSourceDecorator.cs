@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IItemsSourceDecorator.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -21,15 +21,9 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Interfaces
 {
-    /// <summary>
-    ///     Represnets the interface that allows to decorate items source collection.
-    /// </summary>
     public interface IItemsSourceDecorator
     {
-        /// <summary>
-        ///     Decorates items source collection.
-        /// </summary>
         [NotNull]
-        IList<T> Decorate<T>([NotNull] IList<T> itemsSource);
+        IList<T> Decorate<T>([CanBeNull]object owner, [NotNull] IList<T> itemsSource);
     }
 }

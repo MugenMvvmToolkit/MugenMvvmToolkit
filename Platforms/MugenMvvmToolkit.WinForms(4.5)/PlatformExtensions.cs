@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="PlatformExtensions.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -22,16 +22,17 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Collections;
+using MugenMvvmToolkit.Interfaces.Collections;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.WinForms.Binding;
+using MugenMvvmToolkit.WinForms.Binding.Models;
+using MugenMvvmToolkit.WinForms.Collections;
 
-namespace MugenMvvmToolkit
+namespace MugenMvvmToolkit.WinForms
 {
-    public static class PlatformExtensions
+    public static partial class PlatformExtensions
     {
         #region Fields
 
@@ -50,9 +51,6 @@ namespace MugenMvvmToolkit
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the delegate that allows to get name from component.
-        /// </summary>
         [NotNull]
         public static Func<IComponent, string> GetComponentName
         {
@@ -64,57 +62,12 @@ namespace MugenMvvmToolkit
 
         #region Methods
 
-        public static IList<IDataBinding> SetBindings(this IComponent item, string bindingExpression,
-             IList<object> sources = null)
+        public static BindingListWrapper<T> ToBindingList<T>(this INotifiableCollection<T> collection)
         {
-            return BindingServiceProvider.BindingProvider.CreateBindingsFromString(item, bindingExpression, sources);
-        }
-
-        public static T SetBindings<T, TBindingSet>([NotNull] this T item, [NotNull] TBindingSet bindingSet,
-            [NotNull] string bindings)
-            where T : IComponent
-            where TBindingSet : BindingSet
-        {
-            Should.NotBeNull(item, "item");
-            Should.NotBeNull(bindingSet, "bindingSet");
-            Should.NotBeNull(bindings, "bindings");
-            bindingSet.BindFromExpression(item, bindings);
-            return item;
-        }
-
-
-        public static T SetBindings<T, TBindingSet>([NotNull] this T item, [NotNull] TBindingSet bindingSet,
-            [NotNull] Action<TBindingSet, T> setBinding)
-            where T : IComponent
-            where TBindingSet : BindingSet
-        {
-            Should.NotBeNull(item, "item");
-            Should.NotBeNull(bindingSet, "bindingSet");
-            Should.NotBeNull(setBinding, "setBinding");
-            setBinding(bindingSet, item);
-            return item;
-        }
-
-        public static void ClearBindings([CanBeNull] this IComponent component, bool clearDataContext, bool clearAttachedValues)
-        {
-            BindingExtensions.ClearBindings(component, clearDataContext, clearAttachedValues);
-        }
-
-        /// <summary>
-        ///     Converts a collection to the <see cref="BindingListWrapper{T}" /> collection.
-        /// </summary>
-        /// <typeparam name="T">The type of collection.</typeparam>
-        /// <param name="collection">The specified collection.</param>
-        /// <returns>An instance of <see cref="BindingListWrapper{T}" />.</returns>
-        public static BindingListWrapper<T> ToBindingList<T>(this SynchronizedNotifiableCollection<T> collection)
-        {
-            Should.NotBeNull(collection, "collection");
+            Should.NotBeNull(collection, nameof(collection));
             return new BindingListWrapper<T>(collection);
         }
 
-        /// <summary>
-        ///     Tries to get the root control.
-        /// </summary>
         public static Control GetRootControl([CanBeNull] Control target)
         {
             Control root = target;
@@ -130,8 +83,12 @@ namespace MugenMvvmToolkit
             [CanBeNull] object item, [NotNull] object container)
         {
             var template = selector.SelectTemplate(item, container);
-            if (template != null && item != null)
-                BindingServiceProvider.ContextManager.GetBindingContext(template).Value = item;
+            if (template != null)
+            {
+                template.SetDataContext(item);
+                if (!(template is Control) && !(template is ToolStripItem) && template.GetBindingMemberValue(AttachedMembers.Object.Parent) == null)
+                    template.SetBindingMemberValue(AttachedMembers.Object.Parent, container);
+            }
             return template;
         }
 

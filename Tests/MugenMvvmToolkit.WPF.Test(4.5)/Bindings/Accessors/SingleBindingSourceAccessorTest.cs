@@ -1,19 +1,22 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Globalization;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Accessors;
+using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Infrastructure;
+using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
+using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Binding.Sources;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Test.TestInfrastructure;
 using MugenMvvmToolkit.Test.TestModels;
-using MugenMvvmToolkit.ViewModels;
 using Should;
 
 namespace MugenMvvmToolkit.Test.Bindings.Accessors
@@ -21,6 +24,88 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
     [TestClass]
     public class SingleBindingSourceAccessorTest : BindingTestBase
     {
+#if !NETFX_CORE
+        #region Nested types
+
+        public sealed class DoubleConverter : TypeConverter
+        {
+            #region Overrides of TypeConverter
+
+            public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+            {
+                return sourceType == typeof(double) || base.CanConvertFrom(context, sourceType);
+            }
+
+
+            public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+            {
+                return new ConverterTestValue { Double = (double)value };
+            }
+
+            #endregion
+        }
+
+        public sealed class IntConverter : TypeConverter
+        {
+            #region Overrides of TypeConverter
+
+            public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+            {
+                return sourceType == typeof(int) || base.CanConvertFrom(context, sourceType);
+            }
+
+
+            public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+            {
+                return new ConverterTestValue { Int = (int)value };
+            }
+
+            #endregion
+        }
+
+        private sealed class StringConverter : TypeConverter
+        {
+            #region Overrides of TypeConverter
+
+            public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+            {
+                return sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
+            }
+
+
+            public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+            {
+                return new ConverterTestValue { String = (string)value };
+            }
+
+            #endregion
+        }
+
+        [TypeConverter(typeof(StringConverter))]
+        public class ConverterTestValue
+        {
+            public double Double;
+
+            public int Int;
+
+            public string String;
+        }
+
+        public class ConverterTestClass
+        {
+            public ConverterTestValue StringProperty { get; set; }
+
+            [TypeConverter(typeof(IntConverter))]
+            public ConverterTestValue IntField;
+
+            [TypeConverter(typeof(DoubleConverter))]
+            public ConverterTestValue DoubleProperty { get; set; }
+        }
+
+        #endregion
+#endif
+
+
         #region Methods
 
         [TestMethod]
@@ -36,7 +121,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
         }
 
         [TestMethod]
-        public void GetValueShouldReturnActualValueIndexer()
+        public void GetValueShouldReturnActualValueIndexer1()
         {
             var memberMock = new BindingMemberInfoMock();
             var sourceModel = new BindingSourceModel();
@@ -45,6 +130,16 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
             valueAccessor.GetValue(memberMock, EmptyContext, true).ShouldEqual(sourceModel["test"]);
             sourceModel["test"] = propertyName;
             valueAccessor.GetValue(memberMock, EmptyContext, true).ShouldEqual(propertyName);
+        }
+
+        [TestMethod]
+        public void GetValueShouldReturnActualValueIndexer2()
+        {
+            var memberMock = new BindingMemberInfoMock();
+            var sourceModel = new BindingSourceModel();
+            string propertyName = GetMemberPath<BindingSourceModel>(model => model[int.MaxValue]);
+            var valueAccessor = GetAccessor(sourceModel, propertyName, EmptyContext, true);
+            valueAccessor.GetValue(memberMock, EmptyContext, true).ShouldEqual(int.MaxValue);
         }
 
         [TestMethod]
@@ -234,7 +329,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
             var sourceModel = new BindingSourceModel { IntProperty = targetNullValue };
             var dataContext = new DataContext
             {
-                {BindingBuilderConstants.TargetNullValue, targetNullValue},                
+                {BindingBuilderConstants.TargetNullValue, targetNullValue},
             };
 
             string propertyName = GetMemberPath<BindingSourceModel>(model => model.IntProperty);
@@ -250,7 +345,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
             var sourceModel = new BindingSourceModel { ObjectProperty = null };
             var dataContext = new DataContext
             {
-                {BindingBuilderConstants.TargetNullValue, targetNullValue},                
+                {BindingBuilderConstants.TargetNullValue, targetNullValue},
             };
 
             string propertyName = GetMemberPath<BindingSourceModel>(model => model.ObjectProperty);
@@ -588,7 +683,6 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
             var sourceModel = new BindingSourceModel();
             string propertyName = GetMemberPath<BindingSourceModel>(model => model.IntProperty);
             var valueAccessor = GetAccessor(sourceModel, propertyName, EmptyContext, true);
-            valueAccessor.AutoConvertValue = true;
 
             srcAccessor.GetValue = (info, context, arg3) =>
             {
@@ -606,7 +700,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
             var sourceModel = new BindingSourceModel();
             string propertyName = GetMemberPath<BindingSourceModel>(model => model.IntProperty);
             var valueAccessor = GetAccessor(sourceModel, propertyName, EmptyContext, true);
-            valueAccessor.AutoConvertValue = false;
+            BindingServiceProvider.ValueConverter = null;
 
             srcAccessor.GetValue = (info, context, arg3) =>
             {
@@ -616,13 +710,69 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
             ShouldThrow<InvalidCastException>(() => valueAccessor.SetValue(srcAccessor, EmptyContext, true));
         }
 
+#if !NETFX_CORE
+        [TestMethod]
+        public void SetValueShouldAutoConvertValueTypeConverterOnType()
+        {
+            const string value = "value";
+            var srcAccessor = new BindingSourceAccessorMock();
+            var sourceModel = new ConverterTestClass();
+            string propertyName = GetMemberPath<ConverterTestClass>(model => model.StringProperty);
+            var valueAccessor = GetAccessor(sourceModel, propertyName, EmptyContext, true);
+
+            srcAccessor.GetValue = (info, context, arg3) =>
+            {
+                context.ShouldEqual(EmptyContext);
+                return value;
+            };
+            valueAccessor.SetValue(srcAccessor, EmptyContext, true);
+            sourceModel.StringProperty.ShouldNotBeNull();
+            sourceModel.StringProperty.String.ShouldEqual(value);
+        }
+
+        [TestMethod]
+        public void SetValueShouldAutoConvertValueTypeConverterOnField()
+        {
+            var srcAccessor = new BindingSourceAccessorMock();
+            var sourceModel = new ConverterTestClass();
+            string propertyName = GetMemberPath<ConverterTestClass>(model => model.IntField);
+            var valueAccessor = GetAccessor(sourceModel, propertyName, EmptyContext, true);
+
+            srcAccessor.GetValue = (info, context, arg3) =>
+            {
+                context.ShouldEqual(EmptyContext);
+                return int.MaxValue;
+            };
+            valueAccessor.SetValue(srcAccessor, EmptyContext, true);
+            sourceModel.IntField.ShouldNotBeNull();
+            sourceModel.IntField.Int.ShouldEqual(int.MaxValue);
+        }
+
+        [TestMethod]
+        public void SetValueShouldAutoConvertValueTypeConverterOnProperty()
+        {
+            var srcAccessor = new BindingSourceAccessorMock();
+            var sourceModel = new ConverterTestClass();
+            string propertyName = GetMemberPath<ConverterTestClass>(model => model.DoubleProperty);
+            var valueAccessor = GetAccessor(sourceModel, propertyName, EmptyContext, true);
+
+            srcAccessor.GetValue = (info, context, arg3) =>
+            {
+                context.ShouldEqual(EmptyContext);
+                return double.MaxValue;
+            };
+            valueAccessor.SetValue(srcAccessor, EmptyContext, true);
+            sourceModel.DoubleProperty.ShouldNotBeNull();
+            sourceModel.DoubleProperty.Double.ShouldEqual(double.MaxValue);
+        }
+#endif
         [TestMethod]
         public void GetEventValueShouldAlwaysReturnBindingMemberValue()
         {
             var memberMock = new BindingMemberInfoMock();
             var source = new BindingSourceModel();
             var accessor = GetAccessor(source, BindingSourceModel.EventName, EmptyContext, true);
-            var memberValue = (BindingMemberValue)accessor.GetValue(memberMock, EmptyContext, true);
+            var memberValue = (BindingActionValue)accessor.GetValue(memberMock, EmptyContext, true);
             memberValue.MemberSource.Target.ShouldEqual(source);
             memberValue.Member.MemberType.ShouldEqual(BindingMemberType.Event);
         }
@@ -658,8 +808,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
             }, this);
             var srcAccessor = new BindingSourceAccessorMock();
             var source = new BindingSourceModel();
-            var accessor = GetAccessor(source, BindingSourceModel.EventName, EmptyContext, false);
-            ((BindingTarget)accessor.Source).CommandParameterDelegate = d => parameter;
+            var accessor = GetAccessor(source, BindingSourceModel.EventName, EmptyContext, false, d => parameter);
             srcAccessor.GetValue = (info, context, arg3) => command;
 
             accessor.SetValue(srcAccessor, EmptyContext, true);
@@ -714,8 +863,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
             });
             var srcAccessor = new BindingSourceAccessorMock();
             var source = new BindingSourceModel();
-            var accessor = GetAccessor(source, BindingSourceModel.EventName, EmptyContext, false);
-            ((BindingTarget)accessor.Source).CommandParameterDelegate = d => parameter;
+            var accessor = GetAccessor(source, BindingSourceModel.EventName, EmptyContext, false, d => parameter);
             srcAccessor.GetValue = (info, context, arg3) => command;
             accessor.SetValue(srcAccessor, EmptyContext, true);
             source.RaiseEvent();
@@ -726,12 +874,173 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
             isInvoked.ShouldBeTrue();
         }
 
-        protected virtual ISingleBindingSourceAccessor GetAccessor(object model, string path, IDataContext context, bool isSource)
+        [TestMethod]
+        public void ExecuteShouldCallCmdExecuteMethodOneTimeModeAfterDispose()
         {
-            var observer = new MultiPathObserver(model, BindingPath.Create(path), false);
-            var source = isSource
-                ? new BindingSource(observer)
-                : new BindingTarget(observer);
+            var parameter = new object();
+            bool isInvoked = false;
+            var command = new RelayCommand(o =>
+            {
+                o.ShouldEqual(parameter);
+                isInvoked = true;
+            });
+            var srcAccessor = new BindingSourceAccessorMock();
+            var source = new BindingSourceModel();
+            var ctx = new DataContext(BindingBuilderConstants.Behaviors.ToValue(new List<IBindingBehavior> { new OneTimeBindingMode() }));
+            var accessor = GetAccessor(source, BindingSourceModel.EventName, ctx, false, d => parameter);
+            srcAccessor.GetValue = (info, context, arg3) => command;
+            accessor.SetValue(srcAccessor, EmptyContext, true);
+            accessor.Dispose();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+
+            source.RaiseEvent();
+            isInvoked.ShouldBeTrue();
+
+            isInvoked = false;
+            source.RaiseEvent();
+            isInvoked.ShouldBeTrue();
+        }
+
+        [TestMethod]
+        public void SetValueShouldUpdateIsEnabledPropertyOneTimeModeAfterDispose()
+        {
+            bool canExecute = false;
+            var command = new RelayCommand(o => { }, o => canExecute, this);
+
+            var srcAccessor = new BindingSourceAccessorMock();
+            var source = new BindingSourceModel();
+            var ctx = new DataContext(BindingBuilderConstants.Behaviors.ToValue(new List<IBindingBehavior> { new OneTimeBindingMode() }));
+            var accessor = GetAccessor(source, BindingSourceModel.EventName, ctx, false);
+            srcAccessor.GetValue = (info, context, arg3) => command;
+            accessor.SetValue(srcAccessor, EmptyContext, true);
+            accessor.Dispose();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+
+            source.IsEnabled.ShouldBeFalse();
+            canExecute = true;
+            command.RaiseCanExecuteChanged();
+            source.IsEnabled.ShouldBeTrue();
+        }
+
+        [TestMethod]
+        public void AccessorShouldUseCommandParameterCanExecuteOneTimeModeAfterDispose()
+        {
+            bool isInvoked = false;
+            var parameter = new object();
+            var command = new RelayCommand(o => { }, o =>
+            {
+                o.ShouldEqual(parameter);
+                isInvoked = true;
+                return false;
+            }, this);
+            var srcAccessor = new BindingSourceAccessorMock();
+            var source = new BindingSourceModel();
+            var ctx = new DataContext(BindingBuilderConstants.Behaviors.ToValue(new List<IBindingBehavior> { new OneTimeBindingMode() }));
+            var accessor = GetAccessor(source, BindingSourceModel.EventName, ctx, false, d => parameter);
+            srcAccessor.GetValue = (info, context, arg3) => command;
+
+            accessor.SetValue(srcAccessor, EmptyContext, true);
+            accessor.Dispose();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+
+            isInvoked.ShouldBeTrue();
+
+            isInvoked = false;
+            command.RaiseCanExecuteChanged();
+            isInvoked.ShouldBeTrue();
+            source.ToString();//TO KEEP ALIVE
+        }
+
+        [TestMethod]
+        public void AccessorShouldToggleEnabledTrue()
+        {
+            bool canExecute = false;
+            bool isInvoked = false;
+            var parameter = new object();
+            var command = new RelayCommand(o => { }, o =>
+            {
+                o.ShouldEqual(parameter);
+                isInvoked = true;
+                return canExecute;
+            }, this);
+            bool isEnabled = true;
+            IAttachedBindingMemberInfo<object, bool> member =
+                AttachedBindingMember.CreateMember<object, bool>(AttachedMemberConstants.Enabled,
+                    (info, o) => isEnabled,
+                    (info, o, v) => isEnabled = v);
+            var memberProvider = new BindingMemberProvider();
+            memberProvider.Register(typeof(object), member, false);
+            BindingServiceProvider.MemberProvider = memberProvider;
+
+            var srcAccessor = new BindingSourceAccessorMock();
+            var source = new BindingSourceModel();
+            var accessor = GetAccessor(source, BindingSourceModel.EventName, EmptyContext, false, d => parameter);
+            srcAccessor.GetValue = (info, context, arg3) => command;
+
+            isEnabled.ShouldBeTrue();
+            accessor.SetValue(srcAccessor, EmptyContext, true);
+            isInvoked.ShouldBeTrue();
+            isEnabled.ShouldBeFalse();
+
+            isInvoked = false;
+            canExecute = true;
+            command.RaiseCanExecuteChanged();
+            isInvoked.ShouldBeTrue();
+            isEnabled.ShouldBeTrue();
+        }
+
+        [TestMethod]
+        public void AccessorShouldToggleEnabledFalse()
+        {
+            bool canExecute = false;
+            bool isInvoked = false;
+            var parameter = new object();
+            var command = new RelayCommand(o => { }, o =>
+            {
+                o.ShouldEqual(parameter);
+                isInvoked = true;
+                return canExecute;
+            }, this);
+            bool isEnabled = true;
+            IAttachedBindingMemberInfo<object, bool> member =
+                AttachedBindingMember.CreateMember<object, bool>(AttachedMemberConstants.Enabled,
+                    (info, o) => isEnabled,
+                    (info, o, v) => isEnabled = v);
+            var memberProvider = new BindingMemberProvider();
+            memberProvider.Register(typeof(object), member, false);
+            BindingServiceProvider.MemberProvider = memberProvider;
+
+            var srcAccessor = new BindingSourceAccessorMock();
+            var source = new BindingSourceModel();
+            var accessor = GetAccessor(source, BindingSourceModel.EventName, new DataContext(BindingBuilderConstants.ToggleEnabledState.ToValue(false)), false, d => parameter);
+            srcAccessor.GetValue = (info, context, arg3) => command;
+
+            isEnabled.ShouldBeTrue();
+            accessor.SetValue(srcAccessor, EmptyContext, true);
+            isInvoked.ShouldBeFalse();
+            isEnabled.ShouldBeTrue();
+
+            isInvoked = false;
+            canExecute = true;
+            command.RaiseCanExecuteChanged();
+            isInvoked.ShouldBeFalse();
+            isEnabled.ShouldBeTrue();
+        }
+
+        protected virtual ISingleBindingSourceAccessor GetAccessor(object model, string path, IDataContext context, bool isSource, Func<IDataContext, object> commandParameterDelegate = null)
+        {
+            var source = new MultiPathObserver(model, new BindingPath(path), false, false, true);
+            if (commandParameterDelegate != null)
+            {
+                context = context.ToNonReadOnly();
+                context.AddOrUpdate(BindingBuilderConstants.CommandParameter, commandParameterDelegate);
+            }
             return new BindingSourceAccessor(source, context, !isSource);
         }
 

@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="BindingMemberInfo.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -116,30 +116,19 @@ namespace MugenMvvmToolkit.Binding.Models
 
         #region Fields
 
-        /// <summary>
-        ///     Gets the binding context member.
-        /// </summary>
         public static readonly BindingMemberInfo BindingContextMember;
 
-        /// <summary>
-        ///     Gets the empty member.
-        /// </summary>
         public static readonly IBindingMemberInfo Empty;
 
-        /// <summary>
-        ///     Gets the empty member.
-        /// </summary>
         public static readonly IBindingMemberInfo EmptyHasSetter;
 
-        /// <summary>
-        ///     Gets the unset member.
-        /// </summary>
         public static readonly IBindingMemberInfo Unset;
 
         internal static readonly IBindingMemberInfo MultiBindingSourceAccessorMember;
 
         private readonly bool _canRead;
         private readonly bool _canWrite;
+        private readonly bool _canObserve;
         private readonly bool _isDataContext;
         private readonly bool _isDynamic;
         private readonly bool _isSingleParameter;
@@ -152,7 +141,7 @@ namespace MugenMvvmToolkit.Binding.Models
         private readonly BindingMemberType _memberType;
         private readonly string _path;
         private readonly Type _type;
-
+        private readonly IBindingMemberInfo _observableMember;
         private readonly IBindingMemberInfo _memberEvent;
 
         #endregion
@@ -168,13 +157,10 @@ namespace MugenMvvmToolkit.Binding.Models
             MultiBindingSourceAccessorMember = new BindingMemberInfo();
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingMemberInfo" /> class.
-        /// </summary>
         private BindingMemberInfo(string path, BindingMemberType memberType, Type type)
         {
-            Should.NotBeNull(path, "path");
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(path, nameof(path));
+            Should.NotBeNull(type, nameof(type));
             _type = type;
             _memberType = memberType;
             _path = path;
@@ -197,16 +183,19 @@ namespace MugenMvvmToolkit.Binding.Models
             _canWrite = true;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingMemberInfo" /> class.
-        /// </summary>
         private BindingMemberInfo(string path, BindingMemberType memberType, bool hasSetter = false)
             : this(path, memberType, typeof(object))
         {
             if (memberType == BindingMemberType.BindingContext)
             {
+                _canObserve = true;
                 _isDataContext = true;
-                _getValueAccessorSingle = o => BindingServiceProvider.ContextManager.GetBindingContext(o).Value;
+                _getValueAccessorSingle = o =>
+                {
+                    if (o == null)
+                        return null;
+                    return BindingServiceProvider.ContextManager.GetBindingContext(o).Value;
+                };
                 _setValueAccessorSingle = (o, arg) => BindingServiceProvider.ContextManager.GetBindingContext(o).Value = arg;
                 _canRead = true;
                 _canWrite = true;
@@ -238,9 +227,6 @@ namespace MugenMvvmToolkit.Binding.Models
             }
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingMemberInfo" /> class.
-        /// </summary>
         public BindingMemberInfo([NotNull] string path, [NotNull] FieldInfo field, Type sourceType)
             : this(path, BindingMemberType.Field, field.FieldType)
         {
@@ -250,12 +236,10 @@ namespace MugenMvvmToolkit.Binding.Models
             _canRead = true;
             _canWrite = true;
             _isSingleParameter = true;
-            _memberEvent = BindingExtensions.TryFindMemberChangeEvent(BindingServiceProvider.MemberProvider, sourceType, field.Name);
+            _memberEvent = BindingServiceProvider.UpdateEventFinder(sourceType, field.Name);
+            _canObserve = _memberEvent != null;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingMemberInfo" /> class.
-        /// </summary>
         public BindingMemberInfo([NotNull] string path, [NotNull] PropertyInfo property, Type sourceType)
             : this(path, BindingMemberType.Property, property.PropertyType)
         {
@@ -283,27 +267,25 @@ namespace MugenMvvmToolkit.Binding.Models
                 _canWrite = true;
             }
             _isSingleParameter = true;
-
-            _memberEvent = BindingExtensions.TryFindMemberChangeEvent(BindingServiceProvider.MemberProvider, sourceType, property.Name);
+            _memberEvent = BindingServiceProvider.UpdateEventFinder(sourceType, property.Name);
+            _canObserve = _memberEvent != null;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingMemberInfo" /> class.
-        /// </summary>
-        public BindingMemberInfo(string path, EventInfo @event)
-            : this(path, BindingMemberType.Event, @event.EventHandlerType)
+        public BindingMemberInfo(string path, EventInfo @event, IBindingMemberInfo observableMember)
+            : this(path, BindingMemberType.Event, @event == null ? typeof(Delegate) : @event.EventHandlerType)
         {
             _member = @event;
+            _observableMember = observableMember;
             _getValueAccessorSingle = GetBindingMemberValue;
-            _setValueAccessorSingle = SetEventValue;
+            if (@event == null)
+                _setValueAccessorSingle = SetObservableMemberEventValue;
+            else
+                _setValueAccessorSingle = SetEventValue;
             _canRead = true;
             _canWrite = true;
             _isSingleParameter = true;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingMemberInfo" /> class.
-        /// </summary>
         public BindingMemberInfo(string path, Type type)
             : this(path, BindingMemberType.Array, type.GetElementType())
         {
@@ -313,95 +295,66 @@ namespace MugenMvvmToolkit.Binding.Models
             var arrayAccessor = new ArrayAccessor(indexes);
             _getValueAccessorSingle = arrayAccessor.GetValue;
             _setValueAccessorSingleAction = arrayAccessor.SetValue;
-
             _canRead = true;
             _canWrite = true;
             _isSingleParameter = true;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingMemberInfo" /> class.
-        /// </summary>
-        public BindingMemberInfo(string path)
+        public BindingMemberInfo(string path, bool expandoObject)
             : this(path, BindingMemberType.Dynamic, typeof(object))
         {
             object[] indexerValues = null;
-            if (path.StartsWith("Item[", StringComparison.Ordinal) || path.StartsWith("[", StringComparison.Ordinal))
-                indexerValues = BindingReflectionExtensions.GetIndexerValues(path, castType: typeof(string));
-            var accessor = new DynamicObjectAccessor(path, indexerValues);
-            if (indexerValues == null)
+            if (expandoObject)
             {
-                _getValueAccessor = accessor.GetValue;
-                _setValueAccessor = accessor.SetValue;
+                _isSingleParameter = true;
+                _getValueAccessorSingle = o =>
+                {
+                    object value;
+                    ((IDictionary<string, object>)o).TryGetValue(path, out value);
+                    return value;
+                };
+                _setValueAccessorSingleAction = (o, v) => ((IDictionary<string, object>)o)[path] = v;
             }
             else
             {
-                _getValueAccessor = accessor.GetValueIndex;
-                _setValueAccessor = accessor.SetValueIndex;
+                if (path.StartsWith("Item[", StringComparison.Ordinal) || path.StartsWith("[", StringComparison.Ordinal))
+                    indexerValues = BindingReflectionExtensions.GetIndexerValues(path, castType: typeof(string));
+                var accessor = new DynamicObjectAccessor(path, indexerValues);
+                if (indexerValues == null)
+                {
+                    _getValueAccessor = accessor.GetValue;
+                    _setValueAccessor = accessor.SetValue;
+                }
+                else
+                {
+                    _getValueAccessor = accessor.GetValueIndex;
+                    _setValueAccessor = accessor.SetValueIndex;
+                }
+                _isDynamic = true;
+                _canObserve = true;
             }
             _canRead = true;
             _canWrite = true;
-            _isDynamic = true;
         }
 
         #endregion
 
         #region Implementation of IBindingMemberInfo
 
-        /// <summary>
-        ///     Gets the path of member.
-        /// </summary>
-        public string Path
-        {
-            get { return _path; }
-        }
+        public string Path => _path;
 
-        /// <summary>
-        ///     Gets the type of member.
-        /// </summary>
-        public Type Type
-        {
-            get { return _type; }
-        }
+        public Type Type => _type;
 
-        /// <summary>
-        ///     Gets the underlying member.
-        /// </summary>
-        public MemberInfo Member
-        {
-            get { return _member; }
-        }
+        public MemberInfo Member => _member;
 
-        /// <summary>
-        ///     Gets the member type.
-        /// </summary>
-        public BindingMemberType MemberType
-        {
-            get { return _memberType; }
-        }
+        public BindingMemberType MemberType => _memberType;
 
-        /// <summary>
-        ///     Gets a value indicating whether the member can be read.
-        /// </summary>
-        public bool CanRead
-        {
-            get { return _canRead; }
-        }
+        public bool CanRead => _canRead;
 
-        /// <summary>
-        ///     Gets a value indicating whether the property can be written to.
-        /// </summary>
-        public bool CanWrite
-        {
-            get { return _canWrite; }
-        }
+        public bool CanWrite => _canWrite;
 
-        /// <summary>
-        ///     Returns the member value of a specified object.
-        /// </summary>
-        /// <param name="source">The object whose member value will be returned.</param>
-        /// <param name="args">Optional values for members.</param>
-        /// <returns>The member value of the specified object.</returns>
+        public bool CanObserve => _canObserve;
+
         public object GetValue(object source, object[] args)
         {
             if (_isSingleParameter)
@@ -409,11 +362,6 @@ namespace MugenMvvmToolkit.Binding.Models
             return _getValueAccessor(source, args);
         }
 
-        /// <summary>
-        ///     Sets the member value of a specified object.
-        /// </summary>
-        /// <param name="source">The object whose member value will be set.</param>
-        /// <param name="args">Optional values for members..</param>
         public object SetValue(object source, object[] args)
         {
             if (_isSingleParameter)
@@ -426,20 +374,29 @@ namespace MugenMvvmToolkit.Binding.Models
             return _setValueAccessor(source, args);
         }
 
-        /// <summary>
-        ///     Attempts to track the value change.
-        /// </summary>
+        public object SetSingleValue(object source, object value)
+        {
+            if (_isSingleParameter)
+            {
+                if (_setValueAccessorSingleAction == null)
+                    return _setValueAccessorSingle(source, value);
+                _setValueAccessorSingleAction(source, value);
+                return null;
+            }
+            return _setValueAccessor(source, new[] { value });
+        }
+
         public IDisposable TryObserve(object source, IEventListener listener)
         {
             if (_isDataContext)
-                return WeakEventManager.GetBindingContextListener(source).AddWithUnsubscriber(listener);
+                return WeakEventManager.AddBindingContextListener(BindingServiceProvider.ContextManager.GetBindingContext(source), listener, true);
             if (_memberEvent == null)
             {
                 if (_isDynamic)
                     return ((IDynamicObject)source).TryObserve(_path, listener);
                 return null;
             }
-            return _memberEvent.SetValue(source, new object[] { listener }) as IDisposable;
+            return _memberEvent.SetSingleValue(source, listener) as IDisposable;
         }
 
         #endregion
@@ -458,7 +415,15 @@ namespace MugenMvvmToolkit.Binding.Models
 
         private object GetBindingMemberValue(object o)
         {
-            return new BindingMemberValue(o, this);
+            return new BindingActionValue(o, this);
+        }
+
+        private object SetObservableMemberEventValue(object o, object arg)
+        {
+            var listener = arg as IEventListener;
+            if (listener == null)
+                throw BindingExceptionManager.BindingMemberMustBeWriteable(this);
+            return _observableMember.TryObserve(o, listener);
         }
 
         private object SetEventValue(object o, object arg)
@@ -473,15 +438,9 @@ namespace MugenMvvmToolkit.Binding.Models
 
         #region Overrides of Object
 
-        /// <summary>
-        ///     Returns a string that represents the current object.
-        /// </summary>
-        /// <returns>
-        ///     A string that represents the current object.
-        /// </returns>
         public override string ToString()
         {
-            return string.Format("{0}, {1}", MemberType, Member);
+            return $"{MemberType}, {Member}";
         }
 
         #endregion

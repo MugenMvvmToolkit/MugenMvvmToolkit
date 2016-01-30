@@ -1,4 +1,11 @@
 ﻿using System;
+using MugenMvvmToolkit.Interfaces.ViewModels;
+using MugenMvvmToolkit.Silverlight.Interfaces.Navigation;
+using MugenMvvmToolkit.Silverlight.Models.EventArg;
+using MugenMvvmToolkit.WinRT.Interfaces.Navigation;
+using MugenMvvmToolkit.WinRT.Models.EventArg;
+using MugenMvvmToolkit.WPF.Interfaces.Navigation;
+using MugenMvvmToolkit.WPF.Models.EventArg;
 #if NETFX_CORE || WINDOWSCOMMON
 using Windows.UI.Xaml.Navigation;
 #elif ANDROID
@@ -19,29 +26,23 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         public Action GoBack { get; set; }
 
-        public Func<EventArgs, object> GetParameterFromArgs { get; set; }
+        public Func<EventArgs, string> GetParameterFromArgs { get; set; }
 
         public Func<NavigatingCancelEventArgsBase, bool> NavigateArgs { get; set; }
 
-        public Func<IViewMappingItem, object, IDataContext, bool> Navigate { get; set; }
+        public Func<IViewMappingItem, string, IDataContext, bool> Navigate { get; set; }
+
+        public Func<IViewModel, IDataContext, bool> TryClose { get; set; }
+        public Func<IViewModel, IDataContext, bool> CanClose { get; set; }
 
         #endregion
 
         #region Implementation of INavigationService
 
-        /// <summary>
-        ///     Indicates whether the navigator can navigate back.
-        /// </summary>
         public bool CanGoBack { get; set; }
 
-        /// <summary>
-        ///     Indicates whether the navigator can navigate forward.
-        /// </summary>
         public bool CanGoForward { get; set; }
 
-        /// <summary>
-        ///     The current content.
-        /// </summary>
         public object CurrentContent { get; set; }
 
         void INavigationService.GoBack()
@@ -62,7 +63,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         }
 #endif
 
-        object INavigationService.GetParameterFromArgs(EventArgs args)
+        string INavigationService.GetParameterFromArgs(EventArgs args)
         {
             if (GetParameterFromArgs == null)
                 return null;
@@ -76,11 +77,23 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
             return NavigateArgs(args);
         }
 
-        bool INavigationService.Navigate(IViewMappingItem source, object parameter, IDataContext dataContext)
+        bool INavigationService.Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
             if (Navigate == null)
                 return false;
             return Navigate(source, parameter, dataContext);
+        }
+
+        bool INavigationService.CanClose(IViewModel viewModel, IDataContext dataContext)
+        {
+            return CanClose != null && CanClose(viewModel, dataContext);
+        }
+
+        bool INavigationService.TryClose(IViewModel viewModel, IDataContext dataContext)
+        {
+            if (TryClose == null)
+                return false;
+            return TryClose(viewModel, dataContext);
         }
 
         public event EventHandler<INavigationService, NavigatingCancelEventArgsBase> Navigating;

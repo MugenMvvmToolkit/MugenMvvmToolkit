@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="DynamicViewModelWindowPresenter.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,9 +17,11 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
+using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Mediators;
@@ -28,47 +30,55 @@ using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
+
 #if APPCOMPAT
-using MugenMvvmToolkit.Infrastructure.Presenters;
-using MugenMvvmToolkit.AppCompat.Infrastructure.Mediators;
-using MugenMvvmToolkit.AppCompat.Interfaces.Views;
-using Fragment = Android.Support.V4.App.Fragment;
-using FragmentTransaction = Android.Support.V4.App.FragmentTransaction;
+using MugenMvvmToolkit.Android.AppCompat.Infrastructure.Mediators;
+using MugenMvvmToolkit.Android.AppCompat.Interfaces.Views;
 
-namespace MugenMvvmToolkit.AppCompat.Infrastructure.Presenters
-#elif FRAGMENTSUPPORT
-using MugenMvvmToolkit.Infrastructure.Presenters;
-using MugenMvvmToolkit.FragmentSupport.Infrastructure.Mediators;
-using MugenMvvmToolkit.FragmentSupport.Interfaces.Views;
+namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure.Presenters
+#elif ANDROIDCORE
+using MugenMvvmToolkit.Android.Infrastructure.Mediators;
+using MugenMvvmToolkit.Android.Interfaces.Views;
 
-namespace MugenMvvmToolkit.FragmentSupport.Infrastructure.Presenters
-#else
-using MugenMvvmToolkit.Infrastructure.Mediators;
-using MugenMvvmToolkit.Interfaces.Views;
+namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
+#elif XAMARIN_FORMS
+using IWindowView = MugenMvvmToolkit.Xamarin.Forms.Interfaces.Views.IModalView;
+using WindowViewMediator = MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Mediators.ModalViewMediator;
 
-namespace MugenMvvmToolkit.Infrastructure.Presenters
+namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters
+#elif TOUCH
+using MugenMvvmToolkit.iOS.Interfaces.Views;
+using MugenMvvmToolkit.iOS.Infrastructure.Mediators;
+
+namespace MugenMvvmToolkit.iOS.Infrastructure.Presenters
+#elif WINFORMS
+using MugenMvvmToolkit.WinForms.Interfaces.Views;
+using MugenMvvmToolkit.WinForms.Infrastructure.Mediators;
+
+namespace MugenMvvmToolkit.WinForms.Infrastructure.Presenters
+#elif WPF
+using MugenMvvmToolkit.WPF.Infrastructure.Mediators;
+using MugenMvvmToolkit.WPF.Interfaces.Views;
+
+namespace MugenMvvmToolkit.WPF.Infrastructure.Presenters
+#elif SILVERLIGHT
+using MugenMvvmToolkit.Silverlight.Infrastructure.Mediators;
+using MugenMvvmToolkit.Silverlight.Interfaces.Views;
+
+namespace MugenMvvmToolkit.Silverlight.Infrastructure.Presenters
+#elif WINDOWSCOMMON
+using MugenMvvmToolkit.WinRT.Infrastructure.Mediators;
+using MugenMvvmToolkit.WinRT.Interfaces.Views;
+
+namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
 #endif
 {
-    /// <summary>
-    ///     Represents the service that allows to show a view model using <see cref="IWindowViewMediator" />.
-    /// </summary>
     public class DynamicViewModelWindowPresenter : IRestorableDynamicViewModelPresenter
     {
         #region Fields
 
-        /// <summary>
-        ///     Gets the window view mediator data constant.
-        /// </summary>
         public static readonly DataConstant<IWindowViewMediator> WindowViewMediatorConstant;
-
-        /// <summary>
-        ///     Gets the view data constant that allows to restore mediator state.
-        /// </summary>
         public static readonly DataConstant<object> RestoredViewConstant;
-
-        /// <summary>
-        ///     Gets the view data constant that allows to restore mediator state.
-        /// </summary>
         public static readonly DataConstant<bool> IsOpenViewConstant;
 
         private readonly IThreadManager _threadManager;
@@ -76,6 +86,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         private readonly IWrapperManager _wrapperManager;
         private readonly IViewMappingProvider _viewMappingProvider;
         private readonly IViewManager _viewManager;
+        private Task _currentTask;
 
         #endregion
 
@@ -83,24 +94,22 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         static DynamicViewModelWindowPresenter()
         {
-            WindowViewMediatorConstant = DataConstant.Create(() => WindowViewMediatorConstant, true);
-            RestoredViewConstant = DataConstant.Create(() => RestoredViewConstant, true);
-            IsOpenViewConstant = DataConstant.Create(() => IsOpenViewConstant);
+            var type = typeof(DynamicViewModelWindowPresenter);
+            WindowViewMediatorConstant = DataConstant.Create<IWindowViewMediator>(type, nameof(WindowViewMediatorConstant), true);
+            RestoredViewConstant = DataConstant.Create<object>(type, nameof(RestoredViewConstant), true);
+            IsOpenViewConstant = DataConstant.Create<bool>(type, nameof(IsOpenViewConstant));
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DynamicViewModelWindowPresenter" /> class.
-        /// </summary>
         public DynamicViewModelWindowPresenter([NotNull] IViewMappingProvider viewMappingProvider,
             [NotNull] IViewManager viewManager,
             [NotNull] IWrapperManager wrapperManager, [NotNull] IThreadManager threadManager,
             [NotNull] IOperationCallbackManager callbackManager)
         {
-            Should.NotBeNull(viewMappingProvider, "viewMappingProvider");
-            Should.NotBeNull(viewManager, "viewManager");
-            Should.NotBeNull(wrapperManager, "wrapperManager");
-            Should.NotBeNull(threadManager, "threadManager");
-            Should.NotBeNull(callbackManager, "callbackManager");
+            Should.NotBeNull(viewMappingProvider, nameof(viewMappingProvider));
+            Should.NotBeNull(viewManager, nameof(viewManager));
+            Should.NotBeNull(wrapperManager, nameof(wrapperManager));
+            Should.NotBeNull(threadManager, nameof(threadManager));
+            Should.NotBeNull(callbackManager, nameof(callbackManager));
             _viewMappingProvider = viewMappingProvider;
             _viewManager = viewManager;
             _wrapperManager = wrapperManager;
@@ -112,81 +121,38 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the <see cref="IViewMappingProvider" />.
-        /// </summary>
-        protected IViewMappingProvider ViewMappingProvider
-        {
-            get { return _viewMappingProvider; }
-        }
+        protected IViewMappingProvider ViewMappingProvider => _viewMappingProvider;
 
-        /// <summary>
-        ///     Gets the <see cref="IWrapperManager" />.
-        /// </summary>
-        protected IWrapperManager WrapperManager
-        {
-            get { return _wrapperManager; }
-        }
+        protected IWrapperManager WrapperManager => _wrapperManager;
 
-        /// <summary>
-        ///     Gets the <see cref="IThreadManager" />.
-        /// </summary>
-        protected IThreadManager ThreadManager
-        {
-            get { return _threadManager; }
-        }
+        protected IThreadManager ThreadManager => _threadManager;
 
-        /// <summary>
-        ///     Gets the <see cref="IOperationCallbackManager" />.
-        /// </summary>
-        protected IOperationCallbackManager CallbackManager
-        {
-            get { return _callbackManager; }
-        }
+        protected IOperationCallbackManager CallbackManager => _callbackManager;
 
-        /// <summary>
-        ///     Gets the <see cref="IViewManager" />.
-        /// </summary>
-        protected IViewManager ViewManager
-        {
-            get { return _viewManager; }
-        }
+        protected IViewManager ViewManager => _viewManager;
 
         #endregion
 
         #region Implementation of IDynamicViewModelPresenter
 
-        /// <summary>
-        ///     Gets the presenter priority.
-        /// </summary>
-        public virtual int Priority
-        {
-            get { return ViewModelPresenter.DefaultWindowPresenterPriority; }
-        }
+        public virtual int Priority => ViewModelPresenter.DefaultWindowPresenterPriority;
 
-        /// <summary>
-        ///     Tries to show the specified <see cref="IViewModel" />.
-        /// </summary>
-        /// <param name="viewModel">The specified <see cref="IViewModel" /> to show.</param>
-        /// <param name="context">The specified context.</param>
-        /// <param name="parentPresenter">The parent presenter, if any.</param>
-        public IAsyncOperation<bool?> TryShowAsync(IViewModel viewModel, IDataContext context,
+        public INavigationOperation TryShowAsync(IViewModel viewModel, IDataContext context,
             IViewModelPresenter parentPresenter)
         {
             var viewMediator = TryCreateWindowViewMediator(viewModel, context);
             if (viewMediator == null)
                 return null;
-            var operation = new AsyncOperation<bool?>();
-            viewMediator.Show(operation.ToOperationCallback(), context);
+            var tcs = new TaskCompletionSource<object>();
+            var operation = new NavigationOperation(tcs.Task);
+
+            if (_currentTask == null)
+                Show(viewMediator, operation, context, tcs);
+            else
+                _currentTask.TryExecuteSynchronously(_ => Show(viewMediator, operation, context, tcs));
             return operation;
         }
 
-        /// <summary>
-        /// Tries to restore the presenter state of the specified <see cref="IViewModel" />.
-        /// </summary>
-        /// <param name="viewModel">The specified <see cref="IViewModel" /> to show.</param>
-        /// <param name="context">The specified context.</param>
-        /// <param name="parentPresenter">The parent presenter, if any.</param>
         public bool Restore(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
         {
             var view = context.GetData(RestoredViewConstant);
@@ -203,14 +169,11 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Methods
 
-        /// <summary>
-        ///     Creates an instnace of <see cref="IWindowViewMediator" /> for the specified view model.
-        /// </summary>
         [CanBeNull]
         protected virtual IWindowViewMediator CreateWindowViewMediator([NotNull] IViewModel viewModel, Type viewType,
             [NotNull] IDataContext context)
         {
-#if TOUCH || XAMARIN_FORMS
+#if TOUCH
             var container = viewModel.GetIocContainer(true);
             if (_wrapperManager.CanWrap(viewType, typeof(IModalView), context))
                 return new ModalViewMediator(viewModel, ThreadManager, ViewManager, WrapperManager, CallbackManager, ViewMappingProvider, container.Get<IViewModelProvider>());
@@ -219,6 +182,21 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                 return new WindowViewMediator(viewModel, ThreadManager, ViewManager, WrapperManager, CallbackManager);
 #endif
             return null;
+        }
+
+        private void Show(IWindowViewMediator viewMediator, INavigationOperation operation, IDataContext context, TaskCompletionSource<object> tcs)
+        {
+            try
+            {
+                var task = viewMediator.ShowAsync(operation.ToOperationCallback(), context);
+                _currentTask = task;
+                tcs.TrySetFromTask(task);
+            }
+            catch (Exception e)
+            {
+                tcs.TrySetException(e);
+                throw;
+            }
         }
 
         private IWindowViewMediator TryCreateWindowViewMediator(IViewModel viewModel, IDataContext context)

@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="WeakActionToken.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -21,9 +21,6 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    /// <summary>
-    ///     Represents the weak action token.
-    /// </summary>
     public static class WeakActionToken
     {
         #region Nested types
@@ -42,16 +39,16 @@ namespace MugenMvvmToolkit.Infrastructure
 
             public WeakActionTokenInternal(Action<TTarget> action, TTarget target)
             {
-                Should.NotBeNull(action, "action");
-                Should.NotBeNull(target, "target");
+                Should.NotBeNull(action, nameof(action));
+                Should.NotBeNull(target, nameof(target));
                 _action = action;
                 _target = GetWeakReference(target);
             }
 
             public WeakActionTokenInternal(Action<TTarget, TArg1> action, TTarget target, TArg1 arg1)
             {
-                Should.NotBeNull(action, "action");
-                Should.NotBeNull(target, "target");
+                Should.NotBeNull(action, nameof(action));
+                Should.NotBeNull(target, nameof(target));
                 _action = action;
                 _target = new object[]
                 {
@@ -63,8 +60,8 @@ namespace MugenMvvmToolkit.Infrastructure
             public WeakActionTokenInternal(Action<TTarget, TArg1, TArg2> action, TTarget target, TArg1 arg1,
                 TArg2 arg2)
             {
-                Should.NotBeNull(action, "action");
-                Should.NotBeNull(target, "target");
+                Should.NotBeNull(action, nameof(action));
+                Should.NotBeNull(target, nameof(target));
                 _action = action;
                 _target = new object[]
                 {
@@ -128,18 +125,12 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Creates a new instance of the weak action token class.
-        /// </summary>
         public static IDisposable Create<TTarget>([NotNull] TTarget target, [NotNull] Action<TTarget> action)
             where TTarget : class
         {
             return new WeakActionTokenInternal<TTarget, object, object>(action, target);
         }
 
-        /// <summary>
-        ///     Creates a new instance of the weak action token class.
-        /// </summary>
         public static IDisposable Create<TTarget, TArg1>([NotNull] TTarget target, TArg1 arg1,
             [NotNull] Action<TTarget, TArg1> action)
             where TTarget : class
@@ -147,9 +138,6 @@ namespace MugenMvvmToolkit.Infrastructure
             return new WeakActionTokenInternal<TTarget, TArg1, object>(action, target, arg1);
         }
 
-        /// <summary>
-        ///     Creates a new instance of the weak action token class.
-        /// </summary>
         public static IDisposable Create<TTarget, TArg1, TArg2>([NotNull] TTarget target, TArg1 arg1, TArg2 arg2,
             [NotNull] Action<TTarget, TArg1, TArg2> action)
             where TTarget : class

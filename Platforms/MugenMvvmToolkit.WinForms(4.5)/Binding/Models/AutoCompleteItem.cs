@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="AutoCompleteItem.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -19,7 +19,7 @@
 using System;
 using System.Reflection;
 
-namespace MugenMvvmToolkit.Binding.Models
+namespace MugenMvvmToolkit.WinForms.Binding.Models
 {
     internal sealed class AutoCompleteItem
     {
@@ -51,12 +51,11 @@ namespace MugenMvvmToolkit.Binding.Models
 
         public AutoCompleteItem(string displayName, string value, MemberTypes? memberType = null, Type type = null)
         {
-            Should.NotBeNull(displayName, "displayName");
-            Should.NotBeNull(value, "value");
+            Should.NotBeNull(displayName, nameof(displayName));
+            Should.NotBeNull(value, nameof(value));
             Type = type ?? typeof(object);
             DisplayName = memberType.HasValue
-                ? string.Format("{0} ({1} - {2})", displayName, Type.Name,
-                    memberType.Value == MemberTypes.Custom ? "Attached" : memberType.Value.ToString())
+                ? $"{displayName} ({Type.Name} - {(memberType.Value == MemberTypes.Custom ? "Attached" : memberType.Value.ToString())})"
                 : displayName;
             Value = value;
             MemberType = memberType.GetValueOrDefault(MemberTypes.Custom);

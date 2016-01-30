@@ -124,6 +124,8 @@ namespace MugenMvvmToolkit.Test.TestModels
             set { IndexerValues[index] = value; }
         }
 
+        public int this[int index] => index;
+
         public string this[string index, int intValue]
         {
             get
@@ -162,6 +164,11 @@ namespace MugenMvvmToolkit.Test.TestModels
         #endregion
 
         #region Methods
+
+        public object GetObjectProperty()
+        {
+            return ObjectProperty;
+        }
 
         public void RaiseEvent(EventArgs args = null)
         {

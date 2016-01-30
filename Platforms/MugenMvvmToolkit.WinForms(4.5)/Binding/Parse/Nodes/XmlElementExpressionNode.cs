@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="XmlElementExpressionNode.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -21,7 +21,7 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
 
-namespace MugenMvvmToolkit.Binding.Parse.Nodes
+namespace MugenMvvmToolkit.WinForms.Binding.Parse.Nodes
 {
     internal class XmlElementExpressionNode : XmlExpressionNode
     {
@@ -41,8 +41,8 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
         public XmlElementExpressionNode([NotNull]XmlValueExpressionNode startTag, string name, int start, int end)
             : base(start, end)
         {
-            Should.NotBeNull(startTag, "startTag");
-            Should.NotBeNull(name, "name");
+            Should.NotBeNull(startTag, nameof(startTag));
+            Should.NotBeNull(name, nameof(name));
             StartTag = startTag;
             _name = name;
             _elements = new List<XmlExpressionNode>();
@@ -53,39 +53,21 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Properties
 
-        public bool IsComplex
-        {
-            get { return _startTagEnd != null; }
-        }
+        public bool IsComplex => _startTagEnd != null;
 
-        public bool IsValid
-        {
-            get { return EndTag != null; }
-        }
+        public bool IsValid => EndTag != null;
 
         [NotNull]
-        public string Name
-        {
-            get { return _name; }
-        }
+        public string Name => _name;
 
         [CanBeNull]
-        public new XmlElementExpressionNode Parent
-        {
-            get { return (XmlElementExpressionNode)base.Parent; }
-        }
+        public new XmlElementExpressionNode Parent => (XmlElementExpressionNode)base.Parent;
 
         [NotNull]
-        public IEnumerable<XmlExpressionNode> Elements
-        {
-            get { return _elements; }
-        }
+        public IEnumerable<XmlExpressionNode> Elements => _elements;
 
         [NotNull]
-        public IEnumerable<XmlExpressionNode> Attributes
-        {
-            get { return _attributes; }
-        }
+        public IEnumerable<XmlExpressionNode> Attributes => _attributes;
 
         [NotNull]
         public XmlValueExpressionNode StartTag
@@ -114,20 +96,20 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         public void UpdateStartTagEnd([NotNull]XmlValueExpressionNode startTagEnd)
         {
-            Should.NotBeNull(startTagEnd, "startTagEnd");
+            Should.NotBeNull(startTagEnd, nameof(startTagEnd));
             StartTagEnd = startTagEnd;
         }
 
         public void UpdateCloseTag([NotNull]XmlValueExpressionNode endTag, int endPosition)
         {
-            Should.NotBeNull(endTag, "endTag");
+            Should.NotBeNull(endTag, nameof(endTag));
             EndTag = endTag;
             UpdatePosition(Start, endPosition);
         }
 
         public void AddElement([NotNull] XmlExpressionNode node)
         {
-            Should.NotBeNull(node, "node");
+            Should.NotBeNull(node, nameof(node));
             if (_elements.Contains(node))
                 return;
             _elements.Add(node);
@@ -136,7 +118,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         public bool RemoveElement([NotNull]XmlExpressionNode node)
         {
-            Should.NotBeNull(node, "node");
+            Should.NotBeNull(node, nameof(node));
             if (_elements.Remove(node))
             {
                 UpdateParent(node, null);
@@ -154,7 +136,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         public void AddAttribute([NotNull] XmlExpressionNode node)
         {
-            Should.NotBeNull(node, "node");
+            Should.NotBeNull(node, nameof(node));
             if (_attributes.Contains(node))
                 return;
             _attributes.Add(node);
@@ -163,7 +145,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         public bool RemoveAttribute([NotNull] XmlExpressionNode node)
         {
-            Should.NotBeNull(node, "node");
+            Should.NotBeNull(node, nameof(node));
             if (_attributes.Remove(node))
             {
                 UpdateParent(node, null);

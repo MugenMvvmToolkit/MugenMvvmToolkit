@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IOperationCallbackManager.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -16,26 +16,19 @@
 
 #endregion
 
+using System;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Interfaces.Callbacks
 {
-    /// <summary>
-    ///     Represents the callback manager.
-    /// </summary>
     public interface IOperationCallbackManager
     {
-        /// <summary>
-        ///     Registers the specified operation callback.
-        /// </summary>
-        void Register([NotNull] OperationType operation, [NotNull] object source, [NotNull] IOperationCallback callback,
-            [CanBeNull] IDataContext context);
+        void Register([NotNull] OperationType operation, [NotNull] object target, [NotNull] IOperationCallback callback, [CanBeNull] IDataContext context);
 
-        /// <summary>
-        ///     Sets the result of operation.
-        /// </summary>
-        void SetResult(object source, [NotNull] IOperationResult result);
+        void SetResult([NotNull] IOperationResult result);
+
+        void SetResult([NotNull] object target, [CanBeNull] Func<OperationType, object, IOperationResult> getResult);
     }
 }

@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ActionSubscriber.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,11 +18,17 @@
 
 using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Models
 {
-    internal sealed class ActionSubscriber<T> : ISubscriber
+    internal interface IActionSubscriber : ISubscriber
+    {
+        MethodInfo Method { get; }
+    }
+
+    internal sealed class ActionSubscriber<T> : IActionSubscriber
     {
         #region Fields
 
@@ -35,30 +41,20 @@ namespace MugenMvvmToolkit.Models
 
         public ActionSubscriber(Action<object, T> action)
         {
-            Should.NotBeNull(action, "action");
+            Should.NotBeNull(action, nameof(action));
             _action = action;
-            object target = action.Target;
-            _hash = (target == null ? 0 : target.GetHashCode() * 397) ^ action.GetMethodInfo().GetHashCode();
+            _hash = ActionSubscriberGetHashCode(action.Target, action.GetMethodInfo());
         }
 
         #endregion
 
         #region Implementation of ISubscriber
 
-        public bool IsAlive
-        {
-            get { return true; }
-        }
+        public bool IsAlive => true;
 
-        public bool AllowDuplicate
-        {
-            get { return true; }
-        }
+        public bool AllowDuplicate => true;
 
-        public object Target
-        {
-            get { return _action.Target ?? _action.GetMethodInfo(); }
-        }
+        public object Target => _action.Target ?? Method;
 
         public HandlerResult Handle(object sender, object message)
         {
@@ -74,59 +70,40 @@ namespace MugenMvvmToolkit.Models
 
         #region Equality members
 
-        public static bool ActionSubscriberEquals(object x, object y)
+        public static bool ActionSubscriberEquals(IActionSubscriber x, IActionSubscriber y)
         {
             if (ReferenceEquals(x, y))
                 return true;
             if (x == null || y == null)
                 return false;
-            object xTarget;
-            MethodInfo xMethod;
-            if (!TryGetMethodAndTarget(x, out xTarget, out xMethod))
-                return false;
-
-            object yTarget;
-            MethodInfo yMethod;
-            if (!TryGetMethodAndTarget(y, out yTarget, out yMethod))
-                return false;
-            return Equals(xTarget, yTarget) && Equals(xMethod, yMethod);
+            return ReferenceEquals(x.Target, y.Target) && Equals(x.Method, y.Method);
         }
 
-        private static bool TryGetMethodAndTarget(object subscriber, out object target, out MethodInfo method)
+        public static int ActionSubscriberGetHashCode(object target, MethodInfo method)
         {
-            var actionSubscriber = subscriber as ActionSubscriber<T>;
-            if (actionSubscriber != null)
-            {
-                target = actionSubscriber.Target;
-                method = actionSubscriber._action.GetMethodInfo();
-                return true;
-            }
-            var weakActionSubscriber = subscriber as WeakActionSubscriber<T>;
-            if (weakActionSubscriber != null)
-            {
-                target = weakActionSubscriber.Target;
-                method = weakActionSubscriber.Method;
-                return true;
-            }
-            target = null;
-            method = null;
-            return false;
+            return (target == null ? 0 : RuntimeHelpers.GetHashCode(target) * 397) ^ method.GetHashCode();
         }
 
         public bool Equals(ISubscriber other)
         {
-            return ActionSubscriberEquals(this, other);
+            return ActionSubscriberEquals(this, other as IActionSubscriber);
         }
 
         public override bool Equals(object obj)
         {
-            return ActionSubscriberEquals(this, obj);
+            return ActionSubscriberEquals(this, obj as IActionSubscriber);
         }
 
         public override int GetHashCode()
         {
             return _hash;
         }
+
+        #endregion
+
+        #region Implementation of IActionSubscriber
+
+        public MethodInfo Method => _action.GetMethodInfo();
 
         #endregion
     }

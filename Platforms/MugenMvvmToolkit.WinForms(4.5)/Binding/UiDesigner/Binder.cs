@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="Binder.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -24,15 +24,13 @@ using System.Drawing.Design;
 using System.Windows.Forms;
 using System.Xml.Linq;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Binding.UiDesigner
+namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
 {
-    /// <summary>
-    ///     Represents the component that provides a data binding for controls.
-    /// </summary>
     [Description("Provides a data binding for controls."), ToolboxItem(true)]
     public class Binder : Component, ISupportInitialize
     {
@@ -48,9 +46,6 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="Binder" /> class.
-        /// </summary>
         public Binder()
         {
             _controlBindings = new Dictionary<object, Dictionary<string, string>>();
@@ -58,13 +53,10 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             IgnoreControlException = true;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="Binder" /> class.
-        /// </summary>
         public Binder([NotNull] IContainer container)
             : this()
         {
-            Should.NotBeNull(container, "container");
+            Should.NotBeNull(container, nameof(container));
             container.Add(this);
         }
 
@@ -134,8 +126,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                 XElement xElement = XElement.Parse(bindingsString);
                 XElement element = xElement.Name == RootTagName ? xElement : xElement.Element(RootTagName);
                 if (element == null)
-                    throw new ArgumentException(string.Format("The root tag: {0} is not found.", RootTagName),
-                        "bindingsString");
+                    throw new ArgumentException($"The root tag: {RootTagName} is not found.", nameof(bindingsString));
                 foreach (XElement descendant in element.Descendants())
                     UpdateControlBinding(descendant);
             }
@@ -155,7 +146,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             bool throwOnError = !DesignMode || !IgnoreControlException;
             if (component == null)
             {
-                var msg = string.Format("The control with name '{0}' is not found", name);
+                var msg = $"The control with name '{name}' is not found";
                 if (throwOnError)
                     throw new ArgumentException(msg);
                 Tracer.Error(msg);
@@ -163,7 +154,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             }
             var container = ContainerControl;
             if (container != null && !(component is Control))
-                BindingExtensions.AttachedParentMember.SetValue(component, container);
+                component.SetBindingMemberValue(AttachedMembers.Object.Parent, container);
 
             Dictionary<string, string> bindings;
             if (!_controlBindings.TryGetValue(component, out bindings))
@@ -194,7 +185,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             if (containerControl == null || containerControl.Name == name)
                 return containerControl;
             var field = _containerControlType.GetFieldEx(name, MemberFlags.Public | MemberFlags.NonPublic | MemberFlags.Instance);
-            if (field == null) 
+            if (field == null)
                 return BindingServiceProvider.VisualTreeManager.FindByName(containerControl, name);
             return field.GetValueEx<object>(containerControl);
         }

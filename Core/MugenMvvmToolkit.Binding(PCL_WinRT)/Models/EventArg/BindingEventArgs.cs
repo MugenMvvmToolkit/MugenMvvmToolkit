@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="BindingEventArgs.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Binding.Models.EventArg
 {
@@ -24,65 +25,48 @@ namespace MugenMvvmToolkit.Binding.Models.EventArg
     {
         #region Fields
 
-        /// <summary>
-        ///     Gets an instance of <see cref="BindingEventArgs" /> with Action = <see cref="BindingAction.UpdateSource" /> and
-        ///     Result = <c>true</c>.
-        /// </summary>
         public static BindingEventArgs SourceTrueArgs = new BindingEventArgs(BindingAction.UpdateSource, true);
-
-        /// <summary>
-        ///     Gets an instance of <see cref="BindingEventArgs" /> with Action = <see cref="BindingAction.UpdateSource" /> and
-        ///     Result = <c>false</c>.
-        /// </summary>
         public static BindingEventArgs SourceFalseArgs = new BindingEventArgs(BindingAction.UpdateSource, false);
-
-        /// <summary>
-        ///     Gets an instance of <see cref="BindingEventArgs" /> with Action = <see cref="BindingAction.UpdateTarget" /> and
-        ///     Result = <c>true</c>.
-        /// </summary>
         public static BindingEventArgs TargetTrueArgs = new BindingEventArgs(BindingAction.UpdateTarget, true);
-
-        /// <summary>
-        ///     Gets an instance of <see cref="BindingEventArgs" /> with Action = <see cref="BindingAction.UpdateTarget" /> and
-        ///     Result = <c>false</c>.
-        /// </summary>
         public static BindingEventArgs TargetFalseArgs = new BindingEventArgs(BindingAction.UpdateTarget, false);
 
         private readonly BindingAction _action;
         private readonly bool _result;
+        private readonly Exception _exception;
+        private readonly Exception _originalException;
 
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingEventArgs" /> class.
-        /// </summary>
         public BindingEventArgs(BindingAction action, bool result)
         {
             _action = action;
             _result = result;
         }
 
+        public BindingEventArgs(BindingAction action, [NotNull] Exception exception, [NotNull] Exception originalException)
+            : this(action, false)
+        {
+            Should.NotBeNull(exception, nameof(exception));
+            Should.NotBeNull(originalException, nameof(originalException));
+            _exception = exception;
+            _originalException = originalException;
+        }
+
         #endregion
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the current <see cref="BindingAction" />.
-        /// </summary>
-        public BindingAction Action
-        {
-            get { return _action; }
-        }
+        public BindingAction Action => _action;
 
-        /// <summary>
-        ///     Gets the result of operation.
-        /// </summary>
-        public bool Result
-        {
-            get { return _result; }
-        }
+        public bool Result => _result;
+
+        [CanBeNull]
+        public Exception Exception => _exception;
+
+        [CanBeNull]
+        public Exception OriginalException => _originalException;
 
         #endregion
     }

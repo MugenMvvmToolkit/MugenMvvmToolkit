@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="Empty.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,15 +17,17 @@
 #endregion
 
 using System;
+using System.Collections;
+using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Threading;
 using System.Threading.Tasks;
-using MugenMvvmToolkit.Annotations;
+using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.ViewModels;
+using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit
 {
-    /// <summary>
-    ///     Represents the empty values helper.
-    /// </summary>
     public static class Empty
     {
         #region Nested types
@@ -35,6 +37,8 @@ namespace MugenMvvmToolkit
             #region Fields
 
             public static readonly T[] ArrayInstance;
+            public static readonly Task<T> CanceledTaskField;
+
 
             #endregion
 
@@ -43,6 +47,9 @@ namespace MugenMvvmToolkit
             static Value()
             {
                 ArrayInstance = new T[0];
+                var tcs = new TaskCompletionSource<T>();
+                tcs.SetCanceled();
+                CanceledTaskField = tcs.Task;
             }
 
             #endregion
@@ -52,42 +59,27 @@ namespace MugenMvvmToolkit
 
         #region Fields
 
-        /// <summary>
-        ///     Gets the boxed true value.
-        /// </summary>
         public static readonly object TrueObject;
-
-        /// <summary>
-        ///     Gets the boxed false value.
-        /// </summary>
         public static readonly object FalseObject;
-
-        /// <summary>
-        ///     Gets the completed task with true result.
-        /// </summary>
-        [SuppressTaskBusyHandler]
         public static readonly Task<bool> TrueTask;
-
-        /// <summary>
-        ///     Gets the completed task with false result.
-        /// </summary>
-        [SuppressTaskBusyHandler]
         public static readonly Task<bool> FalseTask;
-
-        /// <summary>
-        ///     Gets the completed task.
-        /// </summary>
-        [SuppressTaskBusyHandler]
         public static readonly Task Task;
-
-        /// <summary>
-        ///     Gets the empty weak reference.
-        /// </summary>
         public static readonly WeakReference WeakReference;
 
-        internal static readonly PropertyChangedEventArgs CountPropertyChangedArgs;
-        internal static readonly PropertyChangedEventArgs NotificationCountPropertyChangedArgs;
+        internal static readonly NotifyCollectionChangedEventArgs ResetEventArgs;
+        internal static readonly ManualResetEvent CompletedEvent;
+        internal static readonly PropertyChangedEventArgs CountChangedArgs;
         internal static readonly PropertyChangedEventArgs IndexerPropertyChangedArgs;
+        internal static readonly PropertyChangedEventArgs IsNotificationsSuspendedChangedArgs;
+        internal static readonly PropertyChangedEventArgs HasChangesChangedArgs;
+        internal static readonly PropertyChangedEventArgs SelectedItemChangedArgs;
+        internal static readonly PropertyChangedEventArgs HasErrorsChangedArgs;
+        internal static readonly PropertyChangedEventArgs IsValidChangedArgs;
+        internal static readonly PropertyChangedEventArgs IsBusyChangedArgs;
+        internal static readonly PropertyChangedEventArgs BusyMessageChangedArgs;
+        internal static readonly PropertyChangedEventArgs BusyInfoChangedArgs;
+        internal static readonly PropertyChangedEventArgs EmptyPropertyChangedArgs;
+        internal static readonly DataErrorsChangedEventArgs EmptyDataErrorsChangedArgs;
 
         #endregion
 
@@ -95,32 +87,42 @@ namespace MugenMvvmToolkit
 
         static Empty()
         {
+            CompletedEvent = new ManualResetEvent(true);
             TrueObject = true;
             FalseObject = false;
             WeakReference = new WeakReference(null, false);
             TrueTask = ToolkitExtensions.FromResult(true);
             FalseTask = ToolkitExtensions.FromResult(false);
             Task = FalseTask;
-            CountPropertyChangedArgs = new PropertyChangedEventArgs("Count");
-            NotificationCountPropertyChangedArgs = new PropertyChangedEventArgs("NotificationCount");
-            IndexerPropertyChangedArgs = new PropertyChangedEventArgs("Item[]");
+            EmptyDataErrorsChangedArgs = new DataErrorsChangedEventArgs(string.Empty);
+            EmptyPropertyChangedArgs = new PropertyChangedEventArgs(string.Empty);
+            CountChangedArgs = new PropertyChangedEventArgs(nameof(ICollection.Count));
+            IndexerPropertyChangedArgs = new PropertyChangedEventArgs(ReflectionExtensions.IndexerName);
+            IsNotificationsSuspendedChangedArgs = new PropertyChangedEventArgs(nameof(ISuspendNotifications.IsNotificationsSuspended));
+            HasChangesChangedArgs = new PropertyChangedEventArgs(nameof(IEditableViewModel.HasChanges));
+            SelectedItemChangedArgs = new PropertyChangedEventArgs(nameof(IGridViewModel.SelectedItem));
+            HasErrorsChangedArgs = new PropertyChangedEventArgs(nameof(IValidatableViewModel.HasErrors));
+            IsValidChangedArgs = new PropertyChangedEventArgs(nameof(IValidatableViewModel.IsValid));
+            IsBusyChangedArgs = new PropertyChangedEventArgs(nameof(IViewModel.IsBusy));
+            BusyMessageChangedArgs = new PropertyChangedEventArgs(nameof(IViewModel.BusyMessage));
+            BusyInfoChangedArgs = new PropertyChangedEventArgs(nameof(IViewModel.BusyInfo));
+            ResetEventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
         }
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Gets the array instance.
-        /// </summary>
         public static T[] Array<T>()
         {
             return Value<T>.ArrayInstance;
         }
 
-        /// <summary>
-        ///     Converts a bool value to boxed value.
-        /// </summary>
+        public static Task<T> CanceledTask<T>()
+        {
+            return Value<T>.CanceledTaskField;
+        }
+
         public static object BooleanToObject(bool value)
         {
             if (value)

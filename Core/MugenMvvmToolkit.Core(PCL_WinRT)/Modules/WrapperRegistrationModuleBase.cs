@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="WrapperRegistrationModuleBase.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -16,31 +16,21 @@
 
 #endregion
 
-using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Modules
 {
-    /// <summary>
-    ///     Represents the module that allows to register wrappers using <see cref="WrapperManager" /> class.
-    /// </summary>
     public abstract class WrapperRegistrationModuleBase : ModuleBase
     {
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="WrapperRegistrationModuleBase" /> class.
-        /// </summary>
         protected WrapperRegistrationModuleBase()
             : this(LoadMode.All)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="WrapperRegistrationModuleBase" /> class.
-        /// </summary>
-        protected WrapperRegistrationModuleBase(LoadMode supportedModes, int priority = int.MinValue + 10)
+        protected WrapperRegistrationModuleBase(LoadMode supportedModes, int priority = WrapperRegistrationModulePriority)
             : base(false, supportedModes, priority)
         {
         }
@@ -49,25 +39,19 @@ namespace MugenMvvmToolkit.Modules
 
         #region Overrides of ModuleBase
 
-        /// <summary>
-        ///     Loads the current module.
-        /// </summary>
-        protected override sealed bool LoadInternal()
+        protected sealed override bool LoadInternal()
         {
             IWrapperManager wrapperManager;
             IocContainer.TryGet(out wrapperManager);
-            var manager = wrapperManager as WrapperManager;
+            var manager = wrapperManager as IConfigurableWrapperManager;
             if (manager == null)
-                Tracer.Warn("The WrapperManager is not registered, the '{0}' is ignored", GetType().FullName);
+                Tracer.Warn("The IConfigurableWrapperManager is not registered, the '{0}' is ignored", GetType().FullName);
             else
                 RegisterWrappers(manager);
             return true;
         }
 
-        /// <summary>
-        ///     Unloads the current module.
-        /// </summary>
-        protected override sealed void UnloadInternal()
+        protected sealed override void UnloadInternal()
         {
         }
 
@@ -75,10 +59,7 @@ namespace MugenMvvmToolkit.Modules
 
         #region Methods
 
-        /// <summary>
-        ///     Registers the wrappers using <see cref="WrapperManager" /> class.
-        /// </summary>
-        protected abstract void RegisterWrappers(WrapperManager wrapperManager);
+        protected abstract void RegisterWrappers(IConfigurableWrapperManager wrapperManager);
 
         #endregion
     }

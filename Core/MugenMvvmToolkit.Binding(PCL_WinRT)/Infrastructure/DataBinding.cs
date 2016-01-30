@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="DataBinding.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -19,7 +19,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using JetBrains.Annotations;
@@ -33,246 +32,46 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    /// <summary>
-    ///     Provides high-level access to the definition of a binding, which connects the properties of binding target objects
-    ///     and any data source
-    /// </summary>
-    public class DataBinding : IDataBinding, IDataContext
+    public class DataBinding : IDataBinding, IDataContext, ICollection<IBindingBehavior>
     {
-        #region Nested types
-
-        [DebuggerDisplay("Count = {Count}")]
-        private sealed class BehaviorCollection : ICollection<IBindingBehavior>
-        {
-            #region Fields
-
-            private IBindingBehavior[] _items;
-            private int _size;
-            private readonly DataBinding _dataBinding;
-
-            #endregion
-
-            #region Constructors
-
-            public BehaviorCollection(DataBinding dataBinding)
-            {
-                _items = Empty.Array<IBindingBehavior>();
-                _dataBinding = dataBinding;
-            }
-
-            #endregion
-
-            #region Properties
-
-            private int Capacity
-            {
-                set
-                {
-                    if (value < _size)
-                        throw ExceptionManager.CapacityLessThanCollection("Capacity");
-                    if (value == _items.Length)
-                        return;
-                    if (value > 0)
-                    {
-                        var objArray = new IBindingBehavior[value];
-                        if (_size > 0)
-                            Array.Copy(_items, 0, objArray, 0, _size);
-                        _items = objArray;
-                    }
-                    else
-                        _items = Empty.Array<IBindingBehavior>();
-                }
-            }
-
-            #endregion
-
-            #region Implementation of IEnumerable
-
-            public IEnumerator<IBindingBehavior> GetEnumerator()
-            {
-                return _items
-                    .OfType<IBindingBehavior>()
-                    .Take(_size)
-                    .GetEnumerator();
-            }
-
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
-
-            public void Add(IBindingBehavior item)
-            {
-                if (_dataBinding.IsDisposed)
-                    return;
-                CheckBehavior(item);
-                if (!item.Attach(_dataBinding))
-                    return;
-                if (_size == _items.Length)
-                    EnsureCapacity(_size + 1);
-                _items[_size++] = item;
-                _dataBinding.OnBehaviorAdded(item);
-            }
-
-            public void Clear()
-            {
-                for (int i = 0; i < _size; i++)
-                {
-                    var behavior = _items[i];
-                    behavior.Detach(_dataBinding);
-                    _dataBinding.OnBehaviorRemoved(behavior);
-                }
-                _size = 0;
-                _items = Empty.Array<IBindingBehavior>();
-            }
-
-            public bool Contains(IBindingBehavior item)
-            {
-                Should.NotBeNull(item, "item");
-                return IndexOf(item) >= 0;
-            }
-
-            public void CopyTo(IBindingBehavior[] array, int arrayIndex)
-            {
-                Array.Copy(_items, 0, array, arrayIndex, _size);
-            }
-
-            public bool Remove(IBindingBehavior item)
-            {
-                Should.NotBeNull(item, "item");
-                int index = IndexOf(item);
-                if (index < 0)
-                    return false;
-                IBindingBehavior behavior = _items[index];
-                --_size;
-                if (index < _size)
-                    Array.Copy(_items, index + 1, _items, index, _size - index);
-                _items[_size] = null;
-                behavior.Detach(_dataBinding);
-                _dataBinding.OnBehaviorRemoved(behavior);
-                return true;
-            }
-
-            public int Count
-            {
-                get { return _size; }
-            }
-
-            public bool IsReadOnly
-            {
-                get { return false; }
-            }
-
-            #endregion
-
-            #region Methods
-
-            private void CheckBehavior(IBindingBehavior newBehavior)
-            {
-                Should.NotBeNull(newBehavior, "newBehavior");
-                if (_size == 0)
-                    return;
-                for (int index = 0; index < _size; index++)
-                {
-                    if (_items[index].Id == newBehavior.Id)
-                        throw BindingExceptionManager.DuplicateBehavior(_items[index], newBehavior);
-                }
-            }
-
-            private void EnsureCapacity(int min)
-            {
-                if (_items.Length < min)
-                    Capacity = _items.Length == 0 ? 2 : _items.Length * 2;
-            }
-
-            private int IndexOf(IBindingBehavior item)
-            {
-                return Array.IndexOf(_items, item, 0, _size);
-            }
-
-            #endregion
-        }
-
-        #endregion
-
         #region Fields
 
-        private readonly BehaviorCollection _behaviors;
+        internal bool IsAssociated;
         private readonly IBindingSourceAccessor _sourceAccessor;
         private readonly ISingleBindingSourceAccessor _targetAccessor;
         private IDataContext _lazyContext;
         private bool _isSourceUpdating;
         private bool _isTargetUpdating;
+        private IBindingBehavior[] _items;
+        private int _size;
 
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DataBinding" /> class.
-        /// </summary>
         public DataBinding([NotNull] ISingleBindingSourceAccessor target, [NotNull] IBindingSourceAccessor source)
         {
-            Should.NotBeNull(target, "target");
-            Should.NotBeNull(source, "source");
+            Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(source, nameof(source));
             _targetAccessor = target;
             _sourceAccessor = source;
-            _behaviors = new BehaviorCollection(this);
+            _items = Empty.Array<IBindingBehavior>();
         }
-
-        #endregion
-
-        #region Properties
-
-        internal bool IsAssociated { get; set; }
 
         #endregion
 
         #region Implementation of IDataBinding
 
-        /// <summary>
-        ///     Gets the current <see cref="IDataContext" />.
-        /// </summary>
-        public IDataContext Context
-        {
-            get { return this; }
-        }
+        public IDataContext Context => this;
 
-        /// <summary>
-        ///     Gets the binding target accessor.
-        /// </summary>
-        public ISingleBindingSourceAccessor TargetAccessor
-        {
-            get { return _targetAccessor; }
-        }
+        public ISingleBindingSourceAccessor TargetAccessor => _targetAccessor;
 
-        /// <summary>
-        ///     Gets the binding source accessor.
-        /// </summary>
-        public IBindingSourceAccessor SourceAccessor
-        {
-            get { return _sourceAccessor; }
-        }
+        public IBindingSourceAccessor SourceAccessor => _sourceAccessor;
 
-        /// <summary>
-        ///     Gets the binding behaviors.
-        /// </summary>
-        public ICollection<IBindingBehavior> Behaviors
-        {
-            get { return _behaviors; }
-        }
+        public ICollection<IBindingBehavior> Behaviors => this;
 
-        /// <summary>
-        ///     Gets a value indicating whether this instance is disposed.
-        /// </summary>
-        public bool IsDisposed
-        {
-            get { return ReferenceEquals(DataContext.Empty, _lazyContext); }
-        }
+        public bool IsDisposed => ReferenceEquals(DataContext.Empty, _lazyContext);
 
-        /// <summary>
-        ///     Sends the current value back to the source.
-        /// </summary>
         public virtual bool UpdateSource()
         {
             //ignoring the concurrent access, there is no need to use Interlocked or lock
@@ -301,9 +100,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return false;
         }
 
-        /// <summary>
-        ///     Forces a data transfer from source to target.
-        /// </summary>
         public virtual bool UpdateTarget()
         {
             //ignoring the concurrent access, there is no need to use Interlocked or lock
@@ -332,9 +128,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return false;
         }
 
-        /// <summary>
-        ///     Validates the current binding and raises the BindingException event if needed.
-        /// </summary>
         public virtual bool Validate()
         {
             var action = BindingAction.UpdateTarget;
@@ -368,9 +161,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
         public void Dispose()
         {
             if (Interlocked.Exchange(ref _lazyContext, DataContext.Empty) == DataContext.Empty)
@@ -378,65 +168,46 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             OnDispose();
             BindingServiceProvider.BindingManager.Unregister(this);
             BindingUpdated = null;
-            BindingException = null;
-            _behaviors.Clear();
+            ((ICollection<IBindingBehavior>)this).Clear();
             _sourceAccessor.Dispose();
             _targetAccessor.Dispose();
         }
 
-        /// <summary>
-        ///     Occurs when the binding updates the values.
-        /// </summary>
         public event EventHandler<IDataBinding, BindingEventArgs> BindingUpdated;
-
-        /// <summary>
-        ///     Occurs when an exception is not caught.
-        /// </summary>
-        public event EventHandler<IDataBinding, BindingExceptionEventArgs> BindingException;
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Occurs when behavior added.
-        /// </summary>
         protected virtual void OnBehaviorAdded([NotNull] IBindingBehavior behavior)
         {
         }
 
-        /// <summary>
-        ///     Occurs when behavior removed.
-        /// </summary>
         protected virtual void OnBehaviorRemoved([NotNull] IBindingBehavior behavior)
         {
         }
 
 
-        /// <summary>
-        ///     Releases resources held by the object.
-        /// </summary>
         protected virtual void OnDispose()
         {
         }
 
-        /// <summary>
-        ///     Raises the <see cref="BindingException" /> event.
-        /// </summary>
         protected void RaiseBindingException(Exception exception, Exception originalException, BindingAction action)
         {
-            Tracer.Error(exception.Message);
-            var handler = BindingException;
-            if (handler != null) handler(this, new BindingExceptionEventArgs(action, exception, originalException));
+            BindingEventArgs args = null;
+            var handler = BindingUpdated;
+            if (handler != null)
+            {
+                args = new BindingEventArgs(action, exception, originalException);
+                handler(this, args);
+            }
+            if (BindingServiceProvider.BindingExceptionHandler != null)
+                BindingServiceProvider.RaiseBindingException(this, args ?? new BindingEventArgs(action, exception, originalException));
         }
 
-        /// <summary>
-        ///     Raises the <see cref="BindingUpdated" /> event.
-        /// </summary>
         protected void RaiseBindingUpdated(BindingEventArgs args)
         {
-            var handler = BindingUpdated;
-            if (handler != null) handler(this, args);
+            BindingUpdated?.Invoke(this, args);
         }
 
         private void InitializeContext()
@@ -448,16 +219,54 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
+        private void CheckBehavior(IBindingBehavior newBehavior)
+        {
+            Should.NotBeNull(newBehavior, nameof(newBehavior));
+            if (_size == 0)
+                return;
+            for (int index = 0; index < _size; index++)
+            {
+                if (_items[index].Id == newBehavior.Id)
+                    throw BindingExceptionManager.DuplicateBehavior(_items[index], newBehavior);
+            }
+        }
+
+        private void EnsureCapacity(int min)
+        {
+            if (_items.Length >= min)
+                return;
+            var value = _items.Length == 0 ? 2 : _items.Length + 1;
+            if (value < _size)
+                throw ExceptionManager.CapacityLessThanCollection("Capacity");
+            if (value == _items.Length)
+                return;
+            if (value > 0)
+            {
+                var objArray = new IBindingBehavior[value];
+                if (_size > 0)
+                    Array.Copy(_items, 0, objArray, 0, _size);
+                _items = objArray;
+            }
+            else
+                _items = Empty.Array<IBindingBehavior>();
+        }
+
+        private int IndexOf(IBindingBehavior item)
+        {
+            return Array.IndexOf(_items, item, 0, _size);
+        }
+
+        private IEnumerator<IBindingBehavior> GetBehaviorEnumerator()
+        {
+            return _items
+                .Take(_size)
+                .GetEnumerator();
+        }
+
         #endregion
 
         #region Implementation of IDataContext
 
-        /// <summary>
-        ///     Gets the number of elements contained in the <see cref="IDataContext" />.
-        /// </summary>
-        /// <returns>
-        ///     The number of elements contained in the <see cref="IDataContext" />.
-        /// </returns>
         int IDataContext.Count
         {
             get
@@ -468,38 +277,20 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Gets a value indicating whether the <see cref="IDataContext" /> is read-only.
-        /// </summary>
-        /// <returns>
-        ///     true if the <see cref="IDataContext" /> is read-only; otherwise, false.
-        /// </returns>
-        bool IDataContext.IsReadOnly
-        {
-            get { return false; }
-        }
+        bool IDataContext.IsReadOnly => false;
 
-        /// <summary>
-        ///     Adds the data constant value.
-        /// </summary>
         void IDataContext.Add<T>(DataConstant<T> dataConstant, T value)
         {
             InitializeContext();
             _lazyContext.Add(dataConstant, value);
         }
 
-        /// <summary>
-        ///     Adds the data constant value or update existing.
-        /// </summary>
         void IDataContext.AddOrUpdate<T>(DataConstant<T> dataConstant, T value)
         {
             InitializeContext();
             _lazyContext.AddOrUpdate(dataConstant, value);
         }
 
-        /// <summary>
-        ///     Gets the data using the specified data constant.
-        /// </summary>
         T IDataContext.GetData<T>(DataConstant<T> dataConstant)
         {
             if (_lazyContext == null)
@@ -511,9 +302,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return _lazyContext.GetData(dataConstant);
         }
 
-        /// <summary>
-        ///     Gets the data using the specified data constant.
-        /// </summary>
         bool IDataContext.TryGetData<T>(DataConstant<T> dataConstant, out T data)
         {
             if (_lazyContext == null)
@@ -529,9 +317,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return _lazyContext.TryGetData(dataConstant, out data);
         }
 
-        /// <summary>
-        ///     Determines whether the <see cref="IDataContext" /> contains the specified key.
-        /// </summary>
         bool IDataContext.Contains(DataConstant dataConstant)
         {
             if (_lazyContext == null)
@@ -539,9 +324,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return _lazyContext.Contains(dataConstant);
         }
 
-        /// <summary>
-        ///     Removes the data constant value.
-        /// </summary>
         bool IDataContext.Remove(DataConstant dataConstant)
         {
             if (_lazyContext == null)
@@ -549,33 +331,94 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return _lazyContext.Remove(dataConstant);
         }
 
-        /// <summary>
-        ///     Updates the current context.
-        /// </summary>
         void IDataContext.Merge(IDataContext context)
         {
             InitializeContext();
             _lazyContext.Merge(context);
         }
 
-        /// <summary>
-        /// Removes all values from current context.
-        /// </summary>
         void IDataContext.Clear()
         {
             if (_lazyContext != null)
                 _lazyContext.Clear();
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IList{DataConstantValue}" /> from current context.
-        /// </summary>
         IList<DataConstantValue> IDataContext.ToList()
         {
-            if (_lazyContext == null)
+            if (_lazyContext == null || _lazyContext == DataContext.Empty)
                 return new List<DataConstantValue> { BindingConstants.Binding.ToValue(this) };
             return _lazyContext.ToList();
         }
+
+        #endregion
+
+        #region Implementation of ICollection<IBindingBehavior>
+
+        IEnumerator<IBindingBehavior> IEnumerable<IBindingBehavior>.GetEnumerator()
+        {
+            return GetBehaviorEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetBehaviorEnumerator();
+        }
+
+        void ICollection<IBindingBehavior>.Add(IBindingBehavior item)
+        {
+            if (IsDisposed)
+                return;
+            CheckBehavior(item);
+            if (!item.Attach(this))
+                return;
+            if (_size == _items.Length)
+                EnsureCapacity(_size + 1);
+            _items[_size++] = item;
+            OnBehaviorAdded(item);
+        }
+
+        void ICollection<IBindingBehavior>.Clear()
+        {
+            for (int i = 0; i < _size; i++)
+            {
+                var behavior = _items[i];
+                behavior.Detach(this);
+                OnBehaviorRemoved(behavior);
+            }
+            _size = 0;
+            _items = Empty.Array<IBindingBehavior>();
+        }
+
+        bool ICollection<IBindingBehavior>.Contains(IBindingBehavior item)
+        {
+            Should.NotBeNull(item, nameof(item));
+            return IndexOf(item) >= 0;
+        }
+
+        void ICollection<IBindingBehavior>.CopyTo(IBindingBehavior[] array, int arrayIndex)
+        {
+            Array.Copy(_items, 0, array, arrayIndex, _size);
+        }
+
+        bool ICollection<IBindingBehavior>.Remove(IBindingBehavior item)
+        {
+            Should.NotBeNull(item, nameof(item));
+            int index = IndexOf(item);
+            if (index < 0)
+                return false;
+            IBindingBehavior behavior = _items[index];
+            --_size;
+            if (index < _size)
+                Array.Copy(_items, index + 1, _items, index, _size - index);
+            _items[_size] = null;
+            behavior.Detach(this);
+            OnBehaviorRemoved(behavior);
+            return true;
+        }
+
+        int ICollection<IBindingBehavior>.Count => _size;
+
+        bool ICollection<IBindingBehavior>.IsReadOnly => false;
 
         #endregion
     }

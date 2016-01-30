@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IContentViewManager.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,16 +18,21 @@
 
 using JetBrains.Annotations;
 
-namespace MugenMvvmToolkit.Binding.Interfaces
+#if WINFORMS
+namespace MugenMvvmToolkit.WinForms.Binding.Interfaces
+#elif ANDROID
+namespace MugenMvvmToolkit.Android.Binding.Interfaces
+#elif TOUCH
+namespace MugenMvvmToolkit.iOS.Binding.Interfaces
+#endif
+
 {
-    /// <summary>
-    ///     Represents the interface that allows to set content in the specified view.
-    /// </summary>
     public interface IContentViewManager
     {
-        /// <summary>
-        ///     Sets the specified content.
-        /// </summary>
+#if ANDROID
+        bool SetContent([NotNull] object view, [CanBeNull] object content);
+#else
         void SetContent([NotNull] object view, [CanBeNull] object content);
+#endif
     }
 }

@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IWindowView.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,29 +18,18 @@
 
 using System;
 using System.ComponentModel;
-using MugenMvvmToolkit.Annotations;
+using MugenMvvmToolkit.Interfaces.Views;
 
-namespace MugenMvvmToolkit.Interfaces.Views
+namespace MugenMvvmToolkit.Silverlight.Interfaces.Views
 {
-    /// <summary>
-    ///     Represent the base interface for child windows view.
-    /// </summary>
-    [BaseView(ViewTypeName = "System.Windows.Controls.ChildWindow")]
     public interface IWindowView : IView
     {
-        /// <summary>
-        ///     Shows dialog as a window.
-        /// </summary>
         void Show();
 
-        /// <summary>
-        ///     Closes the dialog.
-        /// </summary>
         void Close();
 
-        /// <summary>
-        ///     Occurred on closing.
-        /// </summary>
+        void Activate();
+
         event EventHandler<CancelEventArgs> Closing;
     }
 }

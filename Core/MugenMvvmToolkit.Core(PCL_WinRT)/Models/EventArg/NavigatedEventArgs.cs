@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="NavigatedEventArgs.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -19,7 +19,6 @@
 using System;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Navigation;
-using MugenMvvmToolkit.Interfaces.ViewModels;
 
 namespace MugenMvvmToolkit.Models.EventArg
 {
@@ -28,44 +27,23 @@ namespace MugenMvvmToolkit.Models.EventArg
         #region Fields
 
         private readonly INavigationContext _context;
-        private readonly IViewModel _viewModel;
 
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes the <see cref="NavigatedEventArgs" />.
-        /// </summary>
-        public NavigatedEventArgs([NotNull]INavigationContext context, [NotNull] IViewModel viewModel)
+        public NavigatedEventArgs([NotNull]INavigationContext context)
         {
-            Should.NotBeNull(context, "context");
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(context, nameof(context));
             _context = context;
-            _viewModel = viewModel;
         }
 
         #endregion
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the current <see cref="INavigationContext" />.
-        /// </summary>
         [NotNull]
-        public INavigationContext Context
-        {
-            get { return _context; }
-        }
-
-        /// <summary>
-        ///     Gets the navigated <see cref="IViewModel" />.
-        /// </summary>
-        [NotNull]
-        public IViewModel ViewModel
-        {
-            get { return _viewModel; }
-        }
+        public INavigationContext Context => _context;
 
         #endregion
     }

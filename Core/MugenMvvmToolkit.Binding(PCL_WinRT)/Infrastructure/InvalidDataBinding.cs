@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="InvalidDataBinding.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -20,14 +20,10 @@ using System;
 using MugenMvvmToolkit.Binding.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Binding.Sources;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    /// <summary>
-    ///     Represents the invalid data binding.
-    /// </summary>
     public sealed class InvalidDataBinding : DataBinding
     {
         #region Fields
@@ -39,19 +35,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="InvalidDataBinding" /> class.
-        /// </summary>
         static InvalidDataBinding()
         {
-            SourceAccessorStatic =
-                new BindingSourceAccessor(new BindingSource(new EmptyPathObserver(new object(), BindingPath.Empty)),
-                    DataContext.Empty, false);
+            SourceAccessorStatic = new BindingSourceAccessor(new EmptyPathObserver(new object(), BindingPath.Empty), DataContext.Empty, false);
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DataBinding" /> class.
-        /// </summary>
         public InvalidDataBinding(Exception exception)
             : base(SourceAccessorStatic, SourceAccessorStatic)
         {
@@ -62,39 +50,24 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the binding exception.
-        /// </summary>
-        public Exception Exception
-        {
-            get { return _exception; }
-        }
+        public Exception Exception => _exception;
 
         #endregion
 
         #region Overrides of DataBinding
 
-        /// <summary>
-        ///     Sends the current value back to the source.
-        /// </summary>
         public override bool UpdateSource()
         {
             RaiseBindingException(_exception, _exception, BindingAction.UpdateSource);
             return false;
         }
 
-        /// <summary>
-        ///     Forces a data transfer from source to target.
-        /// </summary>
         public override bool UpdateTarget()
         {
             RaiseBindingException(_exception, _exception, BindingAction.UpdateTarget);
             return false;
         }
 
-        /// <summary>
-        ///     Validates the current binding and raises the BindingException event if needed.
-        /// </summary>
         public override bool Validate()
         {
             RaiseBindingException(_exception, _exception, BindingAction.UpdateTarget);

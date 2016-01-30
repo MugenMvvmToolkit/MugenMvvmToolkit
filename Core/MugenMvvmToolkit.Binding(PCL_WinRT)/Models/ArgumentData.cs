@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ArgumentData.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -27,6 +27,7 @@ namespace MugenMvvmToolkit.Binding.Models
         #region Fields
 
         private readonly IExpressionNode _node;
+        private readonly bool _isTypeAccess;
         private Expression _expression;
         private Type _type;
 
@@ -34,39 +35,30 @@ namespace MugenMvvmToolkit.Binding.Models
 
         #region Constuctors
 
-        public ArgumentData(IExpressionNode node, Expression expression, Type type)
+        public ArgumentData(IExpressionNode node, Expression expression, Type type, bool isTypeAccess)
         {
-            Should.NotBeNull(node, "node");
+            Should.NotBeNull(node, nameof(node));
             _node = node;
             _expression = expression;
             if (type == null && expression != null)
                 type = expression.Type;
             _type = type;
+            _isTypeAccess = isTypeAccess;
         }
 
         #endregion
 
         #region Properties
 
-        public bool IsLambda
-        {
-            get { return Node.NodeType == ExpressionNodeType.Lambda; }
-        }
+        public bool IsLambda => Node.NodeType == ExpressionNodeType.Lambda;
 
-        public Type Type
-        {
-            get { return _type; }
-        }
+        public bool IsTypeAccess => _isTypeAccess;
 
-        public Expression Expression
-        {
-            get { return _expression; }
-        }
+        public Type Type => _type;
 
-        public IExpressionNode Node
-        {
-            get { return _node; }
-        }
+        public Expression Expression => _expression;
+
+        public IExpressionNode Node => _node;
 
         #endregion
 

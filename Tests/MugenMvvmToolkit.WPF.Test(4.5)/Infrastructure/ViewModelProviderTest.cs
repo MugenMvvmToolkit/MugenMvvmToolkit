@@ -7,6 +7,7 @@ using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.Test.TestInfrastructure;
 using MugenMvvmToolkit.ViewModels;
 using Should;
@@ -18,7 +19,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure
     {
         #region Nested types
 
-        protected class ViewModel : ViewModelBase, IViewModel, IHasState
+        protected class ViewModel : ViewModelBase, IViewModel, IHasState, IParentAwareViewModel
         {
             #region Properties
 
@@ -34,11 +35,17 @@ namespace MugenMvvmToolkit.Test.Infrastructure
 
             public IDataContext SaveStateContext { get; set; }
 
+            public IViewModel Parent { get; set; }
+
             #endregion
 
             #region Implementation of IViewModel
 
-            public new IIocContainer IocContainer { get; set; }
+            public IIocContainer IocContainer
+            {
+                get { return base.IocContainer; }
+                set { base.IocContainer = value; }
+            }
 
             void IViewModel.InitializeViewModel(IDataContext context)
             {
@@ -47,6 +54,11 @@ namespace MugenMvvmToolkit.Test.Infrastructure
                 IocContainer = context.GetData(InitializationConstants.IocContainer);
                 if (InitializeViewModelStatic != null)
                     InitializeViewModelStatic(context);
+            }
+
+            public void SetParent(IViewModel parent)
+            {
+                Parent = parent;
             }
 
             #endregion
@@ -88,6 +100,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure
                         ++initialize;
                     }
             };
+
             IViewModel viewModel = provider.GetViewModel(container => vm, context);
             viewModel.ShouldEqual(vm);
             initialize.ShouldEqual(1);
@@ -177,215 +190,6 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             provider.InitializeViewModel(vm, context);
             provider.InitializeViewModel(vm, context);
             initialize.ShouldEqual(2);
-        }
-
-        [TestMethod]
-        public void ProviderShouldCreateIocContainerDefaultMode()
-        {
-            var child = new IocContainerMock();
-            var iocContainer = new IocContainerMock
-            {
-                CreateChild = mock => child
-            };
-            var provider = GetViewModelProvider(iocContainer);
-            var context = new DataContext
-            {
-                {InitializationConstants.IocContainerCreationMode, IocContainerCreationMode.Application}
-            };
-
-            int initialize = 0;
-            var vm = new ViewModel
-            {
-                InitializeViewModel = dataContext =>
-                {
-                    dataContext.GetData(InitializationConstants.IocContainer).ShouldEqual(child);
-                    ++initialize;
-                }
-            };
-            provider.InitializeViewModel(vm, context);
-            initialize.ShouldEqual(1);
-        }
-
-        [TestMethod]
-        public void ProviderShouldCreateIocContainerParentViewModelModeWithoutParentViewModel()
-        {
-            var child = new IocContainerMock();
-            var iocContainer = new IocContainerMock
-            {
-                CreateChild = mock => child
-            };
-            var provider = GetViewModelProvider(iocContainer);
-            var context = new DataContext
-            {
-                {InitializationConstants.IocContainerCreationMode, IocContainerCreationMode.ParentViewModel}
-            };
-
-            int initialize = 0;
-            var vm = new ViewModel
-            {
-                InitializeViewModel = dataContext =>
-                {
-                    dataContext.GetData(InitializationConstants.IocContainer).ShouldEqual(child);
-                    ++initialize;
-                }
-            };
-            provider.InitializeViewModel(vm, context);
-            initialize.ShouldEqual(1);
-        }
-
-        [TestMethod]
-        public void ProviderShouldCreateIocContainerParentViewModelMode()
-        {
-            var iocContainer = new IocContainerMock();
-            var viewModel = new ViewModel
-            {
-                IocContainer = new IocContainerMock
-                {
-                    CreateChild = mock => iocContainer
-                }
-            };
-            var provider = GetViewModelProvider(iocContainer);
-            var context = new DataContext
-            {
-                {InitializationConstants.IocContainerCreationMode, IocContainerCreationMode.ParentViewModel},
-                {InitializationConstants.ParentViewModel, viewModel}
-            };
-
-            int initialize = 0;
-            var vm = new ViewModel
-            {
-                InitializeViewModel = dataContext =>
-                {
-                    dataContext.GetData(InitializationConstants.IocContainer).ShouldEqual(iocContainer);
-                    ++initialize;
-                }
-            };
-            provider.InitializeViewModel(vm, context);
-            initialize.ShouldEqual(1);
-        }
-
-        [TestMethod]
-        public void ProviderShouldCreateIocContainerMixedMode()
-        {
-            var parentViewModelIoc = new IocContainerMock();
-            var child = new IocContainerMock();
-            parentViewModelIoc.GetFunc = (type, s, arg3) => parentViewModelIoc;
-            child.GetFunc = (type, s, arg3) => child;
-
-            var iocContainer = new IocContainerMock
-            {
-                CreateChild = mock => child
-            };
-            var viewModel = new ViewModel
-            {
-                IocContainer = new IocContainerMock
-                {
-                    CreateChild = mock => parentViewModelIoc
-                }
-            };
-            var provider = GetViewModelProvider(iocContainer);
-            var context = new DataContext
-            {
-                {InitializationConstants.IocContainerCreationMode, IocContainerCreationMode.Mixed},
-                {InitializationConstants.ParentViewModel, viewModel}
-            };
-
-            int initialize = 0;
-            var vm = new ViewModel
-            {
-                InitializeViewModel = dataContext =>
-                {
-                    ++initialize;
-                }
-            };
-            provider.InitializeViewModel(vm, context);
-            initialize.ShouldEqual(1);
-
-            bool disposed = false;
-            vm.IocContainer.Disposed += (sender, args) => disposed = true;
-
-            vm.IocContainer.IsDisposed.ShouldBeFalse();
-            vm.IocContainer.Get(typeof(object)).ShouldEqual(parentViewModelIoc);
-            parentViewModelIoc.Dispose();
-
-            disposed.ShouldBeFalse();
-            vm.IocContainer.IsDisposed.ShouldBeFalse();
-            vm.IocContainer.Get(typeof(object)).ShouldEqual(child);
-
-            child.Dispose();
-            disposed.ShouldBeTrue();
-            vm.IocContainer.IsDisposed.ShouldBeTrue();
-        }
-
-        [TestMethod]
-        public void ProviderShouldCreateIocContainerMixedModeWithoutParentViewModel()
-        {
-            var child = new IocContainerMock();
-            var iocContainer = new IocContainerMock
-            {
-                CreateChild = mock => child
-            };
-            var provider = GetViewModelProvider(iocContainer);
-            var context = new DataContext
-            {
-                {InitializationConstants.IocContainerCreationMode, IocContainerCreationMode.Mixed}
-            };
-
-            int initialize = 0;
-            var vm = new ViewModel
-            {
-                InitializeViewModel = dataContext =>
-                {
-                    dataContext.GetData(InitializationConstants.IocContainer).ShouldEqual(child);
-                    ++initialize;
-                }
-            };
-            provider.InitializeViewModel(vm, context);
-            initialize.ShouldEqual(1);
-        }
-
-        [TestMethod]
-        public void ProviderShouldBindIocContainerBindIocContainerTrue()
-        {
-            Type typeFrom = null;
-            object item = null;
-            string name = null;
-            var iocContainer = new IocContainerMock
-            {
-                BindToConstantFunc = (type, arg2, arg3) =>
-                {
-                    typeFrom = type;
-                    item = arg2;
-                    name = arg3;
-                }
-            };
-            ViewModelProvider provider = GetViewModelProvider(iocContainer);
-            provider.BindIocContainer = true;
-            var context = new DataContext();
-
-            IViewModel viewModel = provider.GetViewModel(container => new ViewModel(), context);
-            typeFrom.ShouldEqual(typeof(IIocContainer));
-            item.ShouldEqual(viewModel.IocContainer);
-            name.ShouldBeNull();
-        }
-
-        [TestMethod]
-        public void ProviderShouldNotBindIocContainerBindIocContainerFalse()
-        {
-            bool isInvoked = false;
-            var iocContainer = new IocContainerMock
-            {
-                BindToConstantFunc = (type, arg2, arg3) =>
-                {
-                    isInvoked = true;
-                }
-            };
-            ViewModelProvider provider = GetViewModelProvider(iocContainer);
-            provider.BindIocContainer = false;
-            var context = new DataContext();
-
-            IViewModel viewModel = provider.GetViewModel(container => new ViewModel(), context);
-            isInvoked.ShouldBeFalse();
         }
 
         [TestMethod]
@@ -526,54 +330,92 @@ namespace MugenMvvmToolkit.Test.Infrastructure
         }
 
         [TestMethod]
-        public void ProviderShouldRestoreViewModelState()
+        public void ProviderShouldRestorePreserveViewModelState()
         {
+            bool restoringCalled = false;
+            bool restoredCalled = false;
+            bool preservingCalled = false;
+            bool preservedCalled = false;
+            var preserveCtx = new DataContext();
+            var restoreCtx = new DataContext();
             DataConstant<string> key = "key";
             const string value = "value";
             var loadViewModel = new ViewModel();
-            var childIoc = new IocContainerMock();
-            var iocContainer = new IocContainerMock
+
+            IocContainer.GetFunc = (type, s, arg3) =>
             {
-                GetFunc = (type, s, arg3) =>
-                {
-                    typeof(ViewModel).ShouldEqual(type);
-                    return loadViewModel;
-                },
-                CreateChild = mock => childIoc
+                typeof(ViewModel).ShouldEqual(type);
+                return loadViewModel;
             };
-            childIoc.GetFunc = iocContainer.GetFunc;
             var viewModel = new ViewModel();
             viewModel.Settings.State.Add(key, value);
-            ViewModelProvider provider = GetViewModelProvider(iocContainer);
+            ViewModelProvider provider = GetViewModelProvider(IocContainer);
 
-            var state = provider.PreserveViewModel(viewModel, DataContext.Empty);
-            var restoreViewModel = provider.RestoreViewModel(state, DataContext.Empty, true);
-            restoreViewModel.IocContainer.ShouldEqual(childIoc);
+            provider.Preserving += (sender, args) =>
+            {
+                sender.ShouldEqual(provider);
+                args.Context.ShouldEqual(preserveCtx);
+                args.ViewModel.ShouldEqual(viewModel);
+                preservingCalled = true;
+            };
+            ViewModelPreservedEventArgs preservedEventArgs = null;
+            provider.Preserved += (sender, args) =>
+            {
+                sender.ShouldEqual(provider);
+                args.Context.ShouldEqual(preserveCtx);
+                args.ViewModel.ShouldEqual(viewModel);
+                preservedEventArgs = args;
+                preservedCalled = true;
+            };
+
+            var state = provider.PreserveViewModel(viewModel, preserveCtx);
+            state.ShouldEqual(preservedEventArgs.State);
+            provider.Restoring += (sender, args) =>
+            {
+                sender.ShouldEqual(provider);
+                args.Context.ShouldEqual(restoreCtx);
+                args.ViewModelState.ShouldEqual(state);
+                restoringCalled = true;
+            };
+            ViewModelRestoredEventArgs restoredEventArgs = null;
+            provider.Restored += (sender, args) =>
+            {
+                sender.ShouldEqual(provider);
+                args.Context.ShouldEqual(restoreCtx);
+                args.ViewModelState.ShouldEqual(state);
+                restoredEventArgs = args;
+                restoredCalled = true;
+            };
+
+            var restoreViewModel = provider.RestoreViewModel(state, restoreCtx, true);
+            restoreViewModel.ShouldEqual(restoredEventArgs.ViewModel);
+            restoreViewModel.IocContainer.ShouldEqual(IocContainer);
             restoreViewModel.ShouldEqual(loadViewModel);
             restoreViewModel.Settings.State.GetData(key).ShouldEqual(value);
+            restoringCalled.ShouldBeTrue();
+            restoredCalled.ShouldBeTrue();
+            preservingCalled.ShouldBeTrue();
+            preservedCalled.ShouldBeTrue();
         }
 
         [TestMethod]
         public void ProviderShouldRestoreIocContainerParentViewModel()
         {
-            var childIoc = new IocContainerMock();
-            var parentIoc = new IocContainerMock
+            IocContainer.GetFunc = (type, s, arg3) =>
             {
-                GetFunc = (type, s, arg3) =>
-                {
-                    type.ShouldEqual(typeof(ViewModel));
-                    return new ViewModel();
-                },
-                CreateChild = mock => childIoc
+                type.ShouldEqual(typeof(ViewModel));
+                return new ViewModel();
             };
-            childIoc.GetFunc = parentIoc.GetFunc;
 
             var parentViewModel = new ViewModel { IocContainer = new IocContainerMock() };
-            var provider = GetViewModelProvider(new IocContainerMock { CreateChild = mock => parentIoc });
+            var provider = GetViewModelProvider(IocContainer);
             var context = new DataContext
             {
-                {InitializationConstants.IocContainerCreationMode, IocContainerCreationMode.ParentViewModel},
                 {InitializationConstants.ParentViewModel, parentViewModel}
+            };
+            var restoreContext = new DataContext
+            {
+                {InitializationConstants.IgnoreViewModelCache, true}
             };
 
             var vm = new ViewModel();
@@ -582,35 +424,36 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             var parentState = provider.PreserveViewModel(parentViewModel, DataContext.Empty);
             var state = provider.PreserveViewModel(vm, DataContext.Empty);
 
-            parentViewModel = (ViewModel)provider.RestoreViewModel(parentState, DataContext.Empty, true);
-            vm = (ViewModel)provider.RestoreViewModel(state, DataContext.Empty, true);
+            parentViewModel = (ViewModel)provider.RestoreViewModel(parentState, restoreContext, true);
+            vm = (ViewModel)provider.RestoreViewModel(state, restoreContext, true);
 
             vm.GetParentViewModel().ShouldEqual(parentViewModel);
-            parentViewModel.IocContainer.ShouldEqual(parentIoc);
-            vm.IocContainer.ShouldEqual(childIoc);
+            vm.Parent.ShouldEqual(parentViewModel);
+            parentViewModel.IocContainer.ShouldEqual(IocContainer);
+            vm.IocContainer.ShouldEqual(IocContainer);
         }
 
         [TestMethod]
         public void ProviderShouldRestoreIocContainerParentViewModelAfterChildViewModelRestore()
         {
-            var childIoc = new IocContainerMock();
             var parentIoc = new IocContainerMock
             {
                 GetFunc = (type, s, arg3) =>
                 {
                     type.ShouldEqual(typeof(ViewModel));
                     return new ViewModel();
-                },
-                CreateChild = mock => childIoc
+                }
             };
-            childIoc.GetFunc = parentIoc.GetFunc;
 
             var parentViewModel = new ViewModel { IocContainer = new IocContainerMock() };
-            var provider = GetViewModelProvider(new IocContainerMock { CreateChild = mock => parentIoc });
+            var provider = GetViewModelProvider(new IocContainerMock { GetFunc = parentIoc.GetFunc });
             var context = new DataContext
             {
-                {InitializationConstants.IocContainerCreationMode, IocContainerCreationMode.ParentViewModel},
                 {InitializationConstants.ParentViewModel, parentViewModel}
+            };
+            var restoreContext = new DataContext
+            {
+                {InitializationConstants.IgnoreViewModelCache, true}
             };
 
             var vm = new ViewModel();
@@ -619,38 +462,37 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             var parentState = provider.PreserveViewModel(parentViewModel, DataContext.Empty);
             var state = provider.PreserveViewModel(vm, DataContext.Empty);
 
-            vm = (ViewModel)provider.RestoreViewModel(state, DataContext.Empty, true);
-            parentViewModel = (ViewModel)provider.RestoreViewModel(parentState, DataContext.Empty, true);
+            vm = (ViewModel)provider.RestoreViewModel(state, restoreContext, true);
+            parentViewModel = (ViewModel)provider.RestoreViewModel(parentState, restoreContext, true);
+            parentViewModel.IocContainer = parentIoc;
 
             vm.GetParentViewModel().ShouldEqual(parentViewModel);
+            vm.Parent.ShouldEqual(parentViewModel);
             parentViewModel.IocContainer.ShouldEqual(parentIoc);
-            vm.IocContainer.ShouldNotEqual(childIoc);
-
-            childIoc.GetFunc = (type, s, arg3) => childIoc;
-            vm.IocContainer.Get(typeof(object)).ShouldEqual(childIoc);
+            vm.IocContainer.ShouldEqual(parentIoc);
         }
 
         [TestMethod]
         public void ProviderShouldRestoreIocContainerParentViewModelRestoreChildDuringRestoration()
         {
-            var childIoc = new IocContainerMock();
             var parentIoc = new IocContainerMock
             {
                 GetFunc = (type, s, arg3) =>
                 {
                     type.ShouldEqual(typeof(ViewModel));
                     return new ViewModel();
-                },
-                CreateChild = mock => childIoc
+                }
             };
-            childIoc.GetFunc = parentIoc.GetFunc;
 
             var parentViewModel = new ViewModel { IocContainer = new IocContainerMock() };
-            var provider = GetViewModelProvider(new IocContainerMock { CreateChild = mock => parentIoc });
+            var provider = GetViewModelProvider(new IocContainerMock { GetFunc = parentIoc.GetFunc });
             var context = new DataContext
             {
-                {InitializationConstants.IocContainerCreationMode, IocContainerCreationMode.ParentViewModel},
                 {InitializationConstants.ParentViewModel, parentViewModel}
+            };
+            var restoreContext = new DataContext
+            {
+                {InitializationConstants.IgnoreViewModelCache, true}
             };
 
             var vm = new ViewModel();
@@ -662,37 +504,39 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             ViewModel.InitializeViewModelStatic = dataContext =>
             {
                 ViewModel.InitializeViewModelStatic = null;
-                vm = (ViewModel)provider.RestoreViewModel(state, DataContext.Empty, true);
+                vm = (ViewModel)provider.RestoreViewModel(state, restoreContext, true);
             };
-            parentViewModel = (ViewModel)provider.RestoreViewModel(parentState, DataContext.Empty, true);
+            parentViewModel = (ViewModel)provider.RestoreViewModel(parentState, restoreContext, true);
+            parentViewModel.IocContainer = parentIoc;
 
             vm.GetParentViewModel().ShouldEqual(parentViewModel);
+            vm.Parent.ShouldEqual(parentViewModel);
             parentViewModel.IocContainer.ShouldEqual(parentIoc);
-            vm.IocContainer.ShouldEqual(childIoc);
+            vm.IocContainer.ShouldEqual(parentIoc);
         }
 
         [TestMethod]
         public void ProviderShouldRestoreObservationMode()
         {
-            var childIoc = new IocContainerMock();
             var parentIoc = new IocContainerMock
             {
                 GetFunc = (type, s, arg3) =>
                 {
                     type.ShouldEqual(typeof(ViewModel));
                     return new ViewModel();
-                },
-                CreateChild = mock => childIoc
+                }
             };
-            childIoc.GetFunc = parentIoc.GetFunc;
 
             var parentViewModel = new ViewModel { IocContainer = new IocContainerMock() };
-            var provider = GetViewModelProvider(new IocContainerMock { CreateChild = mock => parentIoc });
+            var provider = GetViewModelProvider(new IocContainerMock { GetFunc = parentIoc.GetFunc });
             var context = new DataContext
             {
                 {InitializationConstants.ObservationMode, ObservationMode.Both},
-                {InitializationConstants.IocContainerCreationMode, IocContainerCreationMode.Application},
                 {InitializationConstants.ParentViewModel, parentViewModel}
+            };
+            var restoreContext = new DataContext
+            {
+                {InitializationConstants.IgnoreViewModelCache, true}
             };
 
             var vm = new ViewModel();
@@ -701,8 +545,8 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             var parentState = provider.PreserveViewModel(parentViewModel, DataContext.Empty);
             var state = provider.PreserveViewModel(vm, DataContext.Empty);
 
-            parentViewModel = (ViewModel)provider.RestoreViewModel(parentState, DataContext.Empty, true);
-            vm = (ViewModel)provider.RestoreViewModel(state, DataContext.Empty, true);
+            parentViewModel = (ViewModel)provider.RestoreViewModel(parentState, restoreContext, true);
+            vm = (ViewModel)provider.RestoreViewModel(state, restoreContext, true);
 
             vm.LocalEventAggregator.GetObservers().Contains(parentViewModel).ShouldBeTrue();
             parentViewModel.LocalEventAggregator.GetObservers().Contains(vm).ShouldBeTrue();
@@ -735,7 +579,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             restoreViewModel2.ShouldEqual(restoreViewModel1);
 
             //No cache
-            var ctx = new DataContext { { InitializationConstants.IgnoreRestoredViewModelCache, true } };
+            var ctx = new DataContext { { InitializationConstants.IgnoreViewModelCache, true } };
             var restoreViewModel3 = provider.RestoreViewModel(state, ctx, true);
             restoreViewModel3.ShouldEqual(loadViewModel);
 
@@ -766,10 +610,9 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             provider.RestoreViewModel(DataContext.Empty, context, true).ShouldEqual(loadViewModel);
         }
 
-        protected virtual ViewModelProvider GetViewModelProvider(IIocContainer iocContainer,
-            bool bindIocContainer = false)
+        protected virtual ViewModelProvider GetViewModelProvider(IIocContainer iocContainer)
         {
-            return new ViewModelProvider(iocContainer, bindIocContainer);
+            return new ViewModelProvider(iocContainer);
         }
 
         #endregion

@@ -78,7 +78,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             var o = new object();
             ValidatableViewModel viewModel = GetValidatableViewModel();
             var validator = viewModel.AddValidator<SpyValidator>(o);
-            validator.IsInitialized.ShouldBeTrue();
+            validator.Context.ShouldNotBeNull();
             validator.Context.Instance.ShouldEqual(o);
             viewModel.GetValidators().Single(validator1 => validator1 != viewModel.Validator).ShouldEqual(validator);
         }
@@ -91,7 +91,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             var validator = new SpyValidator();
             validator.Initialize(viewModel.CreateContext(o));
             viewModel.AddValidator(validator);
-            validator.IsInitialized.ShouldBeTrue();
+            validator.Context.ShouldNotBeNull();
             validator.Context.Instance.ShouldEqual(o);
             viewModel.GetValidators().Single(validator1 => validator1 != viewModel.Validator).ShouldEqual(validator);
         }
@@ -403,10 +403,6 @@ namespace MugenMvvmToolkit.Test.ViewModels
             validator.SetErrors(PropToValidate1, PropToValidate2);
             countInvoke.ShouldEqual(2);
             notifyDataError.HasErrors.ShouldBeTrue();
-
-            //NOTE: Event is not invoked, if errors is not changed.
-            /*viewModel.ValidateAsync(PropToValidate1);
-            countInvoke.ShouldEqual(2);*/
         }
 
         #endregion
@@ -431,7 +427,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
 
         protected override void OnInit()
         {
-            ValidatorProvider = new ValidatorProvider(false, IocContainer);
+            ValidatorProvider = new ValidatorProvider(false);
         }
 
         #endregion

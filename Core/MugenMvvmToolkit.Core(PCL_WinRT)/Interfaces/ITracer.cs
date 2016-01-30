@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ITracer.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -22,29 +22,12 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Interfaces
 {
-    /// <summary>
-    ///     Represents the tracer interface.
-    /// </summary>
     public interface ITracer
     {
-        /// <summary>
-        ///     Writes information about view-models.
-        /// </summary>
-        void TraceViewModel(AuditAction auditAction, [NotNull] IViewModel viewModel);
+        void TraceViewModel(ViewModelLifecycleType lifecycleType, [NotNull] IViewModel viewModel);
 
-        /// <summary>
-        ///     Writes an informational message to the trace listeners.
-        /// </summary>
-        /// <param name="level">The specified trace level.</param>
-        /// <param name="message">The message to write.</param>
         void Trace(TraceLevel level, string message);
 
-        /// <summary>
-        ///     Writes an informational message to the trace listeners.
-        /// </summary>
-        /// <param name="level">The specified trace level.</param>
-        /// <param name="format">The message to write.</param>
-        /// <param name="args">The string format members.</param>
         [StringFormatMethod("format")]
         void Trace(TraceLevel level, string format, params object[] args);
     }

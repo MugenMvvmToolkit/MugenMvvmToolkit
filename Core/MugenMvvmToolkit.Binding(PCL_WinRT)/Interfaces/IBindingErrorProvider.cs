@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IBindingErrorProvider.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -22,19 +22,12 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Interfaces
 {
-    /// <summary>
-    ///     Represents the interfaces that provides a user interface for indicating that a control on a form has an error associated with it.
-    /// </summary>
     public interface IBindingErrorProvider
     {
-        /// <summary>
-        ///     Sets errors for binding target.
-        /// </summary>
-        /// <param name="target">The binding target object.</param>
-        /// <param name="senderKey">The source of the errors.</param>
-        /// <param name="errors">The collection of errors</param>
-        /// <param name="context">The specified context, if any.</param>
+        [NotNull]
+        IList<object> GetErrors([NotNull]object target, string key, [CanBeNull] IDataContext context);
+
         void SetErrors([NotNull]object target, [NotNull] string senderKey, [NotNull] IList<object> errors,
-            [NotNull] IDataContext context);
+            [CanBeNull] IDataContext context);
     }
 }

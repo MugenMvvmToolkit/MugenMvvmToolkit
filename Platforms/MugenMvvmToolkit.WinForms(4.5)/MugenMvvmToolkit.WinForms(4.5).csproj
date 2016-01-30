@@ -7,13 +7,14 @@
     <ProjectGuid>{652625DB-BF03-4898-BD59-22910508502B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MugenMvvmToolkit</RootNamespace>
+    <RootNamespace>MugenMvvmToolkit.WinForms</RootNamespace>
     <AssemblyName>MugenMvvmToolkit.WinForms</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <NuGetPackageImportStamp>0257a080</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,24 +32,18 @@
     <DefineConstants>TRACE;WINFORMS;NET45</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\bin\Platforms\WinForms\4.5\MugenMvvmToolkit.WinForms.XML</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\..\Solution Items\sigkey.snk</AssemblyOriginatorKeyFile>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="JetBrains.Annotations">
-      <HintPath>..\..\packages\JetBrainsAnnotations.Fody.1.0.2\Lib\JetBrains.Annotations.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System">
       <Aliases>global</Aliases>
     </Reference>
     <Reference Include="System.Core">
       <Aliases>global</Aliases>
+    </Reference>
+    <Reference Include="mscorlib">
+      <Aliases>global,mscore</Aliases>
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Design" />
@@ -60,29 +55,20 @@
     <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\AttachedValueProvider.cs">
-      <Link>Infrastructure\AttachedValueProvider.cs</Link>
+    <Compile Include="..\..\Core\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Extensions\BindingReflectionExtensionsCommon.cs">
+      <Link>BindingReflectionExtensionsCommon.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android\Binding\Infrastructure\DataTemplateSelectorBase.cs">
-      <Link>Binding\Infrastructure\DataTemplateSelectorBase.cs</Link>
+    <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\Properties\AssemblyInfoCommon.cs">
+      <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android\Binding\Infrastructure\ItemsSourceGeneratorBase.cs">
-      <Link>Binding\Infrastructure\ItemsSourceGeneratorBase.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android\Binding\Interfaces\IDataTemplateSelector.cs">
-      <Link>Binding\Interfaces\IDataTemplateSelector.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android\Binding\Interfaces\IItemsSourceGenerator.cs">
-      <Link>Binding\Interfaces\IItemsSourceGenerator.cs</Link>
+    <Compile Include="..\mugenmvvmtoolkit.android\infrastructure\callbacks\SerializableOperationCallbackFactory.cs">
+      <Link>Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\converters\ViewModelToViewConverter.cs">
       <Link>Converters\ViewModelToViewConverter.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\Bootstrapper.cs">
       <Link>Infrastructure\Bootstrapper.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\DebugTracer.cs">
-      <Link>Infrastructure\DebugTracer.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\DesignTimeManagerBase.cs">
       <Link>Infrastructure\DesignTimeManagerBase.cs</Link>
@@ -96,6 +82,12 @@
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\presenters\DynamicViewModelWindowPresenter.cs">
       <Link>Infrastructure\Presenters\DynamicViewModelWindowPresenter.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\TracerEx.cs">
+      <Link>Infrastructure\TracerEx.cs</Link>
+    </Compile>
+    <Compile Include="Binding\AttachedMembers.cs" />
+    <Compile Include="Binding\Infrastructure\ItemsSourceGeneratorBase.cs" />
+    <Compile Include="Binding\Interfaces\IItemsSourceGenerator.cs" />
     <Compile Include="Binding\Models\AutoCompleteItem.cs" />
     <Compile Include="Binding\Parse\Nodes\XmlAttributeExpressionNode.cs" />
     <Compile Include="Binding\Parse\Nodes\XmlCommentExpressionNode.cs" />
@@ -153,13 +145,9 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="FodyWeavers.xml" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\..\Solution Items\MugenMvvmToolkit.licenseheader">
       <Link>MugenMvvmToolkit.licenseheader</Link>
     </None>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Core\MugenMvvmToolkit.Binding%28PCL_WinRT%29\MugenMvvmToolkit.Binding%28PCL_WinRT%29.csproj">
@@ -180,14 +168,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
-    <Error Condition="!Exists('..\..\packages\Fody.1.26.4\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Fody.1.26.4\build\Fody.targets'))" />
-  </Target>
-  <Import Project="..\..\packages\Fody.1.26.4\build\Fody.targets" Condition="Exists('..\..\packages\Fody.1.26.4\build\Fody.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

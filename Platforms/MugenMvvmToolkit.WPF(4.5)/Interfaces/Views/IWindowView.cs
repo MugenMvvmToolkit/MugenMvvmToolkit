@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IWindowView.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,35 +17,20 @@
 #endregion
 
 using System.ComponentModel;
-using MugenMvvmToolkit.Annotations;
+using MugenMvvmToolkit.Interfaces.Views;
 
-namespace MugenMvvmToolkit.Interfaces.Views
+namespace MugenMvvmToolkit.WPF.Interfaces.Views
 {
-    /// <summary>
-    ///     Represent the base interface for dialog view.
-    /// </summary>
-    [BaseView(Priority = 1, ViewTypeName = "System.Windows.Window")]
     public interface IWindowView : IView
     {
-        /// <summary>
-        ///     Shows dialog as a window.
-        /// </summary>
         void Show();
 
-        /// <summary>
-        ///     Shows window as dialog.
-        /// </summary>
-        /// <returns></returns>
         bool? ShowDialog();
 
-        /// <summary>
-        ///     Closes the dialog.
-        /// </summary>
         void Close();
 
-        /// <summary>
-        ///     Occurred on closing window.
-        /// </summary>
+        bool Activate();
+
         event CancelEventHandler Closing;
     }
 }

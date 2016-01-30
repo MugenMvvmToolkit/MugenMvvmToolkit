@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IBindingParserHandler.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -23,34 +23,12 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Interfaces.Parse
 {
-    /// <summary>
-    ///     Represents the interface that allows to pre-process the binding text.
-    /// </summary>
     public interface IBindingParserHandler
     {
-        /// <summary>
-        ///     Prepares a string for the binding.
-        /// </summary>
-        /// <param name="bindingExpression">The specified binding expression.</param>
-        /// <param name="context">The specified context.</param>
-        /// <returns>An instance of <see cref="string" />.</returns>
         void Handle(ref string bindingExpression, IDataContext context);
 
-        /// <summary>
-        ///     Prepares a target path for the binding.
-        /// </summary>
-        /// <param name="targetPath">The specified target path.</param>
-        /// <param name="context">The specified context.</param>
-        /// <returns>An instance of <see cref="string" />.</returns>
         void HandleTargetPath(ref string targetPath, IDataContext context);
 
-        /// <summary>
-        ///     Prepares an <see cref="IExpressionNode" /> for the binding.
-        /// </summary>
-        /// <param name="expression">The specified binding expression.</param>
-        /// <param name="isPrimaryExpression">If <c>true</c> it's main binding expression; otherwise parameter expression.</param>
-        /// <param name="context">The specified context.</param>
-        /// <returns>An instance of delegate to update binding.</returns>
         [CanBeNull]
         Action<IDataContext> Handle([CanBeNull] ref IExpressionNode expression, bool isPrimaryExpression, IDataContext context);
     }

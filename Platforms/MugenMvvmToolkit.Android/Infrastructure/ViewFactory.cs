@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="ViewFactory.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -22,15 +22,16 @@ using Android.Content;
 using Android.Content.Res;
 using Android.Util;
 using Android.Views;
+using MugenMvvmToolkit.Android.Binding;
+using MugenMvvmToolkit.Android.DataConstants;
+using MugenMvvmToolkit.Android.Interfaces;
+using MugenMvvmToolkit.Android.Models;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.DataConstants;
-using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit.Android.Infrastructure
 {
     public class ViewFactory : IViewFactory
     {
@@ -51,26 +52,27 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Implementation of IViewFactory
 
-        /// <summary>
-        ///     Creates an instance of <see cref="ViewResult" /> using the view name.
-        /// </summary>
         public virtual ViewResult Create(string name, Context context, IAttributeSet attrs)
         {
-            Should.NotBeNullOrWhitespace(name, "name");
-            Type type = TypeCache<View>.Instance.GetTypeByName(name, false, true);
+            Should.NotBeNull(name, nameof(name));
+            Type type = TypeCache<View>.Instance.GetTypeByName(name, true, true);
             return Create(type, context, attrs);
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="ViewResult" /> using the view type.
-        /// </summary>
         public virtual ViewResult Create(Type type, Context context, IAttributeSet attrs)
         {
-            Should.NotBeNull(type, "type");
-            Should.NotBeNull(context, "context");
-            Should.NotBeNull(attrs, "attrs");
+            Should.NotBeNull(type, nameof(type));
+            Should.NotBeNull(context, nameof(context));
+            Should.NotBeNull(attrs, nameof(attrs));
             var view = type.CreateView(context, attrs);
-            return new ViewResult(view, GetDataContext(view, context, attrs));
+            return Initialize(view, attrs);
+        }
+
+        public virtual ViewResult Initialize(View view, IAttributeSet attrs)
+        {
+            Should.NotBeNull(view, nameof(view));
+            Should.NotBeNull(attrs, nameof(attrs));
+            return new ViewResult(view, GetDataContext(view, view.Context, attrs));
         }
 
         #endregion
@@ -89,7 +91,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 ViewFactoryConstants.ItemTemplateId);
 
             SetAttributeValue(view, context, attrs, Resource.Styleable.ItemsControl,
-                Resource.Styleable.ItemsControl_DropDownItemTemplate, AttachedMemberNames.DropDownItemTemplate,
+                Resource.Styleable.ItemsControl_DropDownItemTemplate, AttachedMembers.AdapterView.DropDownItemTemplate,
                 dataContext,
                 ViewFactoryConstants.DropDownItemTemplateId);
 
@@ -98,12 +100,12 @@ namespace MugenMvvmToolkit.Infrastructure
                 ViewFactoryConstants.ContentTemplateId);
 
             SetAttributeValue(view, context, attrs, Resource.Styleable.Menu,
-                Resource.Styleable.Menu_MenuTemplate, AttachedMemberNames.MenuTemplate, dataContext,
+                Resource.Styleable.Menu_MenuTemplate, AttachedMembers.Toolbar.MenuTemplate, dataContext,
                 ViewFactoryConstants.MenuTemplateId);
 
 
             SetAttributeValue(view, context, attrs, Resource.Styleable.Menu,
-                Resource.Styleable.Menu_PopupMenuTemplate, AttachedMemberNames.PopupMenuTemplate, dataContext,
+                Resource.Styleable.Menu_PopupMenuTemplate, AttachedMembers.View.PopupMenuTemplate, dataContext,
                 ViewFactoryConstants.PopupMenuTemplateId);
 
             strings = ReadStringAttributeValue(context, attrs, Resource.Styleable.Menu,
@@ -114,9 +116,9 @@ namespace MugenMvvmToolkit.Infrastructure
                 dataContext.Add(ViewFactoryConstants.PopupMenuEvent, eventName);
                 IBindingMemberInfo member = BindingServiceProvider
                     .MemberProvider
-                    .GetBindingMember(view.GetType(), AttachedMemberNames.PopupMenuEvent, false, false);
+                    .GetBindingMember(view.GetType(), AttachedMembers.View.PopupMenuEvent, false, false);
                 if (member != null)
-                    member.SetValue(view, new object[] { eventName });
+                    member.SetSingleValue(view, eventName);
             }
 
             strings = ReadStringAttributeValue(context, attrs, Resource.Styleable.Menu,
@@ -127,9 +129,9 @@ namespace MugenMvvmToolkit.Infrastructure
                 dataContext.Add(ViewFactoryConstants.PlacementTargetPath, path);
                 IBindingMemberInfo member = BindingServiceProvider
                     .MemberProvider
-                    .GetBindingMember(view.GetType(), AttachedMemberNames.PlacementTargetPath, false, false);
+                    .GetBindingMember(view.GetType(), AttachedMembers.View.PopupMenuPlacementTargetPath, false, false);
                 if (member != null)
-                    member.SetValue(view, new object[] { path });
+                    member.SetSingleValue(view, path);
             }
 
             return dataContext;
@@ -146,7 +148,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 .MemberProvider
                 .GetBindingMember(view.GetType(), attachedMemberName, false, false);
             if (member != null)
-                member.SetValue(view, new object[] { value });
+                member.SetSingleValue(view, value);
         }
 
         internal static List<string> ReadStringAttributeValue(Context context, IAttributeSet attrs, int[] groupId,

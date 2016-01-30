@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ModelPropertyAttribute.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -21,9 +21,6 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Attributes
 {
-    /// <summary>
-    ///     Attribute to link a property in a model to a view model.
-    /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true, Inherited = true)]
     public sealed class ModelPropertyAttribute : Attribute
     {
@@ -35,9 +32,6 @@ namespace MugenMvvmToolkit.Attributes
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ModelPropertyAttribute" /> class.
-        /// </summary>
         public ModelPropertyAttribute([NotNull] string modelProperty)
         {
             Should.NotBeNullOrWhitespace("model", modelProperty);
@@ -48,15 +42,8 @@ namespace MugenMvvmToolkit.Attributes
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the property name that holds the model object.
-        /// </summary>
-        /// <value>The model property name.</value>
         [NotNull]
-        public string Property
-        {
-            get { return _property; }
-        }
+        public string Property => _property;
 
         #endregion
     }

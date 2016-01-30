@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="MemberExpressionNode.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -23,9 +23,6 @@ using MugenMvvmToolkit.Binding.Models;
 
 namespace MugenMvvmToolkit.Binding.Parse.Nodes
 {
-    /// <summary>
-    ///     Represents accessing a field or property.
-    /// </summary>
     public class MemberExpressionNode : ExpressionNode, IMemberExpressionNode
     {
         #region Fields
@@ -37,13 +34,10 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="MemberExpressionNode" /> class.
-        /// </summary>
         public MemberExpressionNode(IExpressionNode target, [NotNull] string member)
             : base(ExpressionNodeType.Member)
         {
-            Should.NotBeNull(member, "member");
+            Should.NotBeNull(member, nameof(member));
             _target = target;
             _member = member;
         }
@@ -52,57 +46,30 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Implementation of IMemberExpressionNode
 
-        /// <summary>
-        ///     Gets the containing object of the field or property.
-        /// </summary>
-        public IExpressionNode Target
-        {
-            get { return _target; }
-        }
+        public IExpressionNode Target => _target;
 
-        /// <summary>
-        ///     Gets the field or property to be accessed.
-        /// </summary>
-        public string Member
-        {
-            get { return _member; }
-        }
+        public string Member => _member;
 
         #endregion
 
         #region Overrides of ExpressionNode
 
-        /// <summary>
-        ///     Calls the visitor on the expression.
-        /// </summary>
         protected override void AcceptInternal(IExpressionVisitor visitor)
         {
             if (Target != null)
                 _target = AcceptWithCheck(visitor, Target, false);
         }
 
-        /// <summary>
-        ///     Creates a new object that is a copy of the current instance.
-        /// </summary>
-        /// <returns>
-        ///     A new object that is a copy of this instance.
-        /// </returns>
         protected override IExpressionNode CloneInternal()
         {
             return new MemberExpressionNode(Target == null ? null : Target.Clone(), Member);
         }
 
-        /// <summary>
-        ///     Returns a string that represents the current object.
-        /// </summary>
-        /// <returns>
-        ///     A string that represents the current object.
-        /// </returns>
         public override string ToString()
         {
             if (Target == null)
                 return string.IsNullOrEmpty(Member) ? AttachedMemberConstants.DataContext : Member;
-            return string.Format("{0}.{1}", Target, Member);
+            return $"{Target}.{Member}";
         }
 
         #endregion

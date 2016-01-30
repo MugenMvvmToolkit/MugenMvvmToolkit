@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="OrderedNotifiableCollection.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -27,53 +27,32 @@ using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.Collections
 {
-    /// <summary>
-    ///     Represents the sorted syncronized observable collection, duplicate items (items that compare equal to each other)
-    ///     are allows in an OrderedNotifiableCollection.
-    /// </summary>
-    /// <typeparam name="T">The type of model.</typeparam>
     [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true), Serializable]
     public class OrderedNotifiableCollection<T> : SynchronizedNotifiableCollection<T>
     {
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="OrderedNotifiableCollection{T}" /> class.
-        /// </summary>
         public OrderedNotifiableCollection()
             : base(new OrderedListInternal<T>(), null)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="OrderedNotifiableCollection{T}" /> class.
-        /// </summary>
         public OrderedNotifiableCollection([NotNull] IEnumerable<T> collection, [NotNull] Comparison<T> comparison,
             IThreadManager threadManager = null)
             : base(new OrderedListInternal<T>(collection, new DelegateComparer<T>(comparison)), threadManager)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="OrderedNotifiableCollection{T}" /> class.
-        /// </summary>
         public OrderedNotifiableCollection([NotNull] Comparison<T> comparison, IThreadManager threadManager = null)
             : base(new OrderedListInternal<T>(new DelegateComparer<T>(comparison)), threadManager)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="OrderedNotifiableCollection{T}" /> class.
-        /// </summary>
         public OrderedNotifiableCollection(IComparer<T> comparer = null, IThreadManager threadManager = null)
             : base(new OrderedListInternal<T>(comparer), threadManager)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="OrderedNotifiableCollection{T}" /> class that contains elements
-        ///     copied from the specified collection.
-        /// </summary>
         public OrderedNotifiableCollection([NotNull] IEnumerable<T> collection, IComparer<T> comparer = null,
             IThreadManager threadManager = null)
             : base(new OrderedListInternal<T>(collection, comparer), threadManager)
@@ -84,100 +63,65 @@ namespace MugenMvvmToolkit.Collections
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the comparer.
-        /// </summary>
-        public IComparer<T> Comparer
-        {
-            get { return Items.Comparer; }
-        }
+        public IComparer<T> Comparer => ((OrderedListInternal<T>)Items).Comparer;
 
-        /// <summary>
-        ///     Gets or sets the value that indicates that collection should check index on insert.
-        /// </summary>
         public bool ValidateOnInsert { get; set; }
-
-        /// <summary>
-        ///     Gets the internal collection.
-        /// </summary>
-        private new OrderedListInternal<T> Items
-        {
-            get { return (OrderedListInternal<T>)base.Items; }
-        }
 
         #endregion
 
-        #region Overrides of SyncronizedNotifiableCollection<T>
+        #region Overrides of SynchronizedNotifiableCollection<T>
 
-        /// <summary>
-        ///     Initializes default values.
-        /// </summary>
-        protected override void OnInitialized()
+        protected override IList<T> OnItemsChanged(IList<T> items)
         {
-            base.OnInitialized();
-            if (!(base.Items is OrderedListInternal<T>))
-                base.Items = new OrderedListInternal<T>(base.Items);
+            if (items is OrderedListInternal<T>)
+                return items;
+            return new OrderedListInternal<T>(items);
         }
 
-        /// <summary>
-        ///     Replaces the element at the specified index.
-        /// </summary>
-        /// <param name="index">
-        ///     The zero-based index of the element to replace.
-        /// </param>
-        /// <param name="item">
-        ///     The new value for the element at the specified index.
-        /// </param>
-        /// <param name="shouldRaiseEvents"></param>
-        protected override void SetItemInternal(int index, T item, out bool shouldRaiseEvents)
+        protected override IList<T> CreateSnapshotCollection(IList<T> items)
         {
-            shouldRaiseEvents = false;
-            T oldItem = Items[index];
-            NotifyCollectionChangingEventArgs args = GetCollectionChangeArgs(NotifyCollectionChangedAction.Replace,
-                oldItem, item, index);
-            OnCollectionChanging(args);
-            if (args.Cancel) return;
-
-            Items.RemoveAt(index);
-            int newIndex = Items.Add(item);
-            EventsTracker.AddEvent(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, oldItem,
-                index));
-            EventsTracker.AddEvent(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item,
-                newIndex));
-            shouldRaiseEvents = true;
+            return new OrderedListInternal<T>(items, Comparer);
         }
 
-        /// <summary>
-        ///     Inserts an item into the collection at the specified index.
-        /// </summary>
-        /// <param name="index">
-        ///     The zero-based index at which <paramref name="item" /> should be inserted.
-        /// </param>
-        /// <param name="item">
-        ///     The object to insert.
-        /// </param>
-        /// <param name="isAdd"></param>
-        /// <param name="shouldRaiseEvents"></param>
-        protected override int InsertItemInternal(int index, T item, bool isAdd, out bool shouldRaiseEvents)
+        protected override bool SetItemInternal(IList<T> items, int index, T item, NotificationType notificationType)
         {
-            shouldRaiseEvents = false;
-            if (ValidateOnInsert)
+            var orderedList = (OrderedListInternal<T>)items;
+            T oldItem = orderedList[index];
+
+            if (HasChangingFlag(notificationType))
             {
-                if (isAdd)
-                    index = Items.GetInsertIndex(item);
+                NotifyCollectionChangingEventArgs args = GetCollectionChangeArgs(NotifyCollectionChangedAction.Replace, oldItem, item, index);
+                OnCollectionChanging(args);
+                if (args.Cancel)
+                    return false;
             }
-            else
-                index = Items.GetInsertIndex(item);
+            orderedList.RemoveAt(index);
+            int newIndex = orderedList.Add(item);
+            if (HasChangedFlag(notificationType))
+            {
+                OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, oldItem, index));
+                OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, newIndex));
+            }
+            return true;
+        }
 
-            NotifyCollectionChangingEventArgs args = GetCollectionChangeArgs(NotifyCollectionChangedAction.Add, item,
-                index);
-            OnCollectionChanging(args);
-            if (args.Cancel)
-                return -1;
+        protected override int InsertItemInternal(IList<T> items, int index, T item, bool isAdd, NotificationType notificationType)
+        {
+            var orderedList = (OrderedListInternal<T>)items;
+            if (isAdd || !ValidateOnInsert)
+                index = orderedList.GetInsertIndex(item);
 
-            Items.Insert(index, item);
-            EventsTracker.AddEvent(args.ChangedEventArgs);
-            shouldRaiseEvents = true;
+            NotifyCollectionChangingEventArgs args = null;
+            if (HasChangingFlag(notificationType))
+            {
+                args = GetCollectionChangeArgs(NotifyCollectionChangedAction.Add, item, index);
+                OnCollectionChanging(args);
+                if (args.Cancel)
+                    return -1;
+            }
+            orderedList.Insert(index, item);
+            if (HasChangedFlag(notificationType))
+                OnCollectionChanged(args?.ChangedEventArgs ?? new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
             return index;
         }
 

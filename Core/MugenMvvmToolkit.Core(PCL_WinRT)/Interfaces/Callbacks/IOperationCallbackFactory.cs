@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IOperationCallbackFactory.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -22,26 +22,14 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Interfaces.Callbacks
 {
-    /// <summary>
-    ///     Rerpresets the factory that allows to create callback operations.
-    /// </summary>
     public interface IOperationCallbackFactory
     {
-        /// <summary>
-        ///     Creates an instance of <see cref="IAsyncOperationAwaiter" />.
-        /// </summary>
         [NotNull]
         IAsyncOperationAwaiter CreateAwaiter([NotNull] IAsyncOperation operation, [CanBeNull] IDataContext context);
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IAsyncOperationAwaiter{TResult}" />.
-        /// </summary>
         [NotNull]
         IAsyncOperationAwaiter<TResult> CreateAwaiter<TResult>([NotNull] IAsyncOperation<TResult> operation, [CanBeNull] IDataContext context);
 
-        /// <summary>
-        ///     Tries to convert a delegate to an instance of <see cref="ISerializableCallback" />.
-        /// </summary>
         [CanBeNull]
         ISerializableCallback CreateSerializableCallback([NotNull] Delegate @delegate);
     }

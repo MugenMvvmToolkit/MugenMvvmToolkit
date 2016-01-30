@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ActionToken.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -22,9 +22,6 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    /// <summary>
-    ///     Represents the action token.
-    /// </summary>
     public sealed class ActionToken : IDisposable
     {
         #region Fields
@@ -39,21 +36,15 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ActionToken" /> class.
-        /// </summary>
         public ActionToken([NotNull] Action action)
         {
-            Should.NotBeNull(action, "action");
+            Should.NotBeNull(action, nameof(action));
             _action = action;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ActionToken" /> class.
-        /// </summary>
         public ActionToken([NotNull] Action<object> action, object state)
         {
-            Should.NotBeNull(action, "action");
+            Should.NotBeNull(action, nameof(action));
             _action = action;
             _state = state;
         }
@@ -62,9 +53,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Implementation of IDisposable
 
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
         public void Dispose()
         {
             if (Interlocked.Exchange(ref _disposed, DisposedState) == DisposedState)

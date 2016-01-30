@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ViewModelProvider.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,26 +18,23 @@
 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Models.IoC;
+using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    /// <summary>
-    ///     Represents the provider that allows to creates and restores the view models.
-    /// </summary>
     public class ViewModelProvider : IViewModelProvider
     {
         #region Nested types
 
-        private sealed class RestoredViewModel
+        private sealed class CachedViewModel
         {
             #region Fields
 
@@ -55,7 +52,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 return (IViewModel)_viewModelRef.Target;
             }
 
-            public void SetViewModel(IViewModel viewModel, IIocContainer container)
+            public void SetViewModel(IViewModel viewModel)
             {
                 WeakReference[] viewModels;
                 lock (this)
@@ -66,13 +63,13 @@ namespace MugenMvvmToolkit.Infrastructure
                     if (_childViewModels == null)
                         return;
                     viewModels = _childViewModels.ToArray();
-                    _childViewModels.Clear();
+                    _childViewModels = null;
                 }
                 for (int i = 0; i < viewModels.Length; i++)
                 {
                     var childVm = (IViewModel)viewModels[i].Target;
-                    if (childVm != null)
-                        OnParentUpdated(childVm, viewModel, container);
+                    if (childVm != null && !childVm.IsDisposed)
+                        OnParentUpdated(childVm, viewModel);
                 }
             }
 
@@ -90,7 +87,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 }
                 var target = (IViewModel)_viewModelRef.Target;
                 if (target != null)
-                    OnParentUpdated(viewModel, target, viewModel.IocContainer);
+                    OnParentUpdated(viewModel, target);
             }
 
             public void Clear()
@@ -102,250 +99,12 @@ namespace MugenMvvmToolkit.Infrastructure
             #endregion
         }
 
-        private sealed class ParentIocContainerWrapper : IIocContainer
-        {
-            #region Fields
-
-            private readonly object _locker;
-            private readonly ParentIocContainerWrapper _parent;
-            private List<ParentIocContainerWrapper> _children;
-            private readonly bool _isMixed;
-            private bool _parentInitialized;
-
-            private IIocContainer _iocContainer;
-            private IIocContainer _parentContainer;
-
-            #endregion
-
-            #region Constructors
-
-            private ParentIocContainerWrapper(bool isMixed, ParentIocContainerWrapper parent)
-            {
-                _locker = new object();
-                _isMixed = isMixed;
-                _parent = parent;
-            }
-
-            public ParentIocContainerWrapper(IIocContainer container, ParentIocContainerWrapper parent = null)
-                : this(false, parent)
-            {
-                _parentContainer = container.CreateChild();
-                _iocContainer = container;
-                _iocContainer.Disposed += ContainerOnDisposed;
-            }
-
-            public ParentIocContainerWrapper(IIocContainer container, IIocContainer parentContainer, ParentIocContainerWrapper parent = null)
-                : this(true, parent)
-            {
-                if (!IsContainerDisposed(parentContainer))
-                {
-                    _parentContainer = parentContainer.CreateChild();
-                    _parentInitialized = true;
-                }
-                _iocContainer = container.CreateChild();
-                if (_parentContainer == null)
-                    _parentContainer = _iocContainer;
-                _iocContainer.Disposed += ContainerOnDisposed;
-            }
-
-            #endregion
-
-            #region Methods
-
-            public void SetParentContainer(IIocContainer parentContainer)
-            {
-                if (_parentInitialized || _iocContainer.IsDisposed || IsContainerDisposed(parentContainer))
-                    return;
-                lock (_locker)
-                {
-                    if (_parentInitialized)
-                        return;
-                    _parentInitialized = true;
-                    _parentContainer = parentContainer.CreateChild();
-                    if (!_isMixed)
-                    {
-                        _iocContainer.Disposed -= ContainerOnDisposed;
-                        _iocContainer.Dispose();
-                        _iocContainer = _parentContainer;
-                        _iocContainer.Disposed += ContainerOnDisposed;
-                    }
-                }
-                if (_children == null)
-                    return;
-                for (int i = 0; i < _children.Count; i++)
-                    _children[i].SetParentContainer(_parentContainer);
-                _children = null;
-            }
-
-            private IIocContainer IocContainer
-            {
-                get
-                {
-                    if (IsContainerDisposed(_parentContainer))
-                        return _iocContainer;
-                    return _parentContainer;
-                }
-            }
-
-            private static bool IsContainerDisposed(IIocContainer container)
-            {
-                if (container == null)
-                    return true;
-                while (container != null)
-                {
-                    if (container.IsDisposed)
-                        return true;
-                    container = container.Parent;
-                }
-                return false;
-            }
-
-            private void ContainerOnDisposed(IDisposableObject sender, EventArgs args)
-            {
-                sender.Disposed -= ContainerOnDisposed;
-                Dispose();
-            }
-
-            #endregion
-
-            #region Implementation of IIocContainer
-
-            public void Dispose()
-            {
-                _iocContainer.Disposed -= ContainerOnDisposed;
-                _parentContainer.Dispose();
-                _iocContainer.Dispose();
-                var disposed = Disposed;
-                if (disposed != null)
-                    disposed(this, EventArgs.Empty);
-                Disposed = null;
-            }
-
-            public bool IsDisposed
-            {
-                get { return _iocContainer.IsDisposed; }
-            }
-
-            public event EventHandler<IDisposableObject, EventArgs> Disposed;
-
-            public object GetService(Type serviceType)
-            {
-                return IocContainer.GetService(serviceType);
-            }
-
-            public int Id
-            {
-                get { return _iocContainer.Id; }
-            }
-
-            public IIocContainer Parent
-            {
-                get { return _parent ?? IocContainer.Parent; }
-            }
-
-            public object Container
-            {
-                get { return IocContainer.Container; }
-            }
-
-            public IIocContainer CreateChild()
-            {
-                lock (_locker)
-                {
-                    if (_parentInitialized)
-                    {
-                        if (_isMixed)
-                            return new ParentIocContainerWrapper(_iocContainer, _parentContainer, this);
-                        return _parentContainer.CreateChild();
-                    }
-
-                    if (_children == null)
-                        _children = new List<ParentIocContainerWrapper>();
-                    var child = _isMixed
-                        ? new ParentIocContainerWrapper(_iocContainer, null, this)
-                        : new ParentIocContainerWrapper(_iocContainer, this);
-                    _children.Add(child);
-                    return child;
-                }
-            }
-
-            public object Get(Type service, string name = null, params IIocParameter[] parameters)
-            {
-                return IocContainer.Get(service, name, parameters);
-            }
-
-            public IEnumerable<object> GetAll(Type service, string name = null, params IIocParameter[] parameters)
-            {
-                return IocContainer.GetAll(service, name, parameters);
-            }
-
-            public void BindToConstant(Type service, object instance, string name = null)
-            {
-                if (_isMixed && _parentInitialized)
-                {
-                    if (!IsContainerDisposed(_parentContainer))
-                        _parentContainer.BindToConstant(service, instance, name);
-                    _iocContainer.BindToConstant(service, instance, name);
-                }
-                else
-                    IocContainer.BindToConstant(service, instance, name);
-            }
-
-            public void BindToMethod(Type service,
-                Func<IIocContainer, IList<IIocParameter>, object> methodBindingDelegate, DependencyLifecycle lifecycle,
-                string name = null)
-            {
-                if (_isMixed && _parentInitialized)
-                {
-                    if (!IsContainerDisposed(_parentContainer))
-                        _parentContainer.BindToMethod(service, methodBindingDelegate, lifecycle, name);
-                    _iocContainer.BindToMethod(service, methodBindingDelegate, lifecycle, name);
-                }
-                else
-                    IocContainer.BindToMethod(service, methodBindingDelegate, lifecycle, name);
-            }
-
-            public void Bind(Type service, Type typeTo, DependencyLifecycle lifecycle, string name = null)
-            {
-                if (_isMixed && _parentInitialized)
-                {
-                    if (!IsContainerDisposed(_parentContainer))
-                        _parentContainer.Bind(service, typeTo, lifecycle, name);
-                    _iocContainer.Bind(service, typeTo, lifecycle, name);
-                }
-                else
-                    IocContainer.Bind(service, typeTo, lifecycle, name);
-            }
-
-            public void Unbind(Type service)
-            {
-                if (_isMixed && _parentInitialized)
-                {
-                    if (!IsContainerDisposed(_parentContainer))
-                        _parentContainer.Unbind(service);
-                    _iocContainer.Unbind(service);
-                }
-                else
-                    IocContainer.Unbind(service);
-            }
-
-            public bool CanResolve(Type service, string name = null)
-            {
-                return IocContainer.CanResolve(service, name);
-            }
-
-            #endregion
-        }
-
         #endregion
 
         #region Fields
 
         protected static readonly DataConstant<string> ViewModelTypeNameConstant;
-        protected static readonly DataConstant<Guid> IdViewModelConstant;
-        protected static readonly DataConstant<Guid> IdParentViewModelConstant;
-        private static readonly object IdGeneratorLocker;
-        private static readonly Dictionary<Guid, RestoredViewModel> RestoredViewModels;
+        private static readonly Dictionary<Guid, CachedViewModel> CachedViewModels;
 
         private readonly IIocContainer _iocContainer;
 
@@ -355,114 +114,92 @@ namespace MugenMvvmToolkit.Infrastructure
 
         static ViewModelProvider()
         {
-            IdGeneratorLocker = new object();
-            RestoredViewModels = new Dictionary<Guid, RestoredViewModel>();
-            ViewModelTypeNameConstant = DataConstant.Create(() => ViewModelTypeNameConstant, true);
-            IdViewModelConstant = DataConstant.Create(() => IdViewModelConstant);
-            IdParentViewModelConstant = DataConstant.Create(() => IdParentViewModelConstant);
+            CachedViewModels = new Dictionary<Guid, CachedViewModel>();
+            ViewModelTypeNameConstant = DataConstant.Create<string>(typeof(ViewModelProvider), nameof(ViewModelTypeNameConstant), true);
             Tracer.TraceViewModelHandler += OnTraceViewModel;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ViewModelProvider" /> class.
-        /// </summary>
-        /// <param name="iocContainer">The specified <see cref="IIocContainer" /> value.</param>
-        /// <param name="bindIocContainer">
-        ///     If <c>true</c> it indicates that provider should bind IocContainer to self, when creates the view model.
-        /// </param>
-        public ViewModelProvider([NotNull] IIocContainer iocContainer, bool bindIocContainer = false)
+        public ViewModelProvider([NotNull]IIocContainer iocContainer)
         {
-            Should.NotBeNull(iocContainer, "iocContainer");
+            Should.NotBeNull(iocContainer, nameof(iocContainer));
             _iocContainer = iocContainer;
-            BindIocContainer = bindIocContainer;
         }
 
         #endregion
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets value, if <c>true</c> it indicates that provider should bind IocContainer to self, when creates the
-        ///     view-model.
-        /// </summary>
-        public bool BindIocContainer { get; set; }
-
-        /// <summary>
-        ///     Gets the <see cref="IIocContainer" />.
-        /// </summary>
-        protected IIocContainer IocContainer
-        {
-            get { return _iocContainer; }
-        }
+        protected IIocContainer IocContainer => _iocContainer;
 
         #endregion
 
         #region Implementation of IViewModelProvider
 
-        /// <summary>
-        ///     Creates an instance of the specified view model.
-        /// </summary>
-        /// <param name="getViewModel">The specified delegate to create view model.</param>
-        /// <param name="dataContext">The specified <see cref="IDataContext" />.</param>
-        /// <returns>
-        ///     An instance of <see cref="IViewModel" />.
-        /// </returns>
+        public IViewModel TryGetViewModelById(Guid viewModelId)
+        {
+            return TryGetViewModelByIdInternal(viewModelId);
+        }
+
+        public IList<IViewModel> GetCreatedViewModels(IDataContext dataContext = null)
+        {
+            return GetCreatedViewModelsInternal(dataContext ?? DataContext.Empty);
+        }
+
         public IViewModel GetViewModel(GetViewModelDelegate<IViewModel> getViewModel, IDataContext dataContext)
         {
-            Should.NotBeNull(getViewModel, "getViewModel");
-            Should.NotBeNull(dataContext, "dataContext");
+            Should.NotBeNull(getViewModel, nameof(getViewModel));
+            Should.NotBeNull(dataContext, nameof(dataContext));
             dataContext = dataContext.ToNonReadOnly();
-            IIocContainer iocContainer = CreateViewModelIocContainer(dataContext);
-            IViewModel viewModel = getViewModel(iocContainer);
+            IViewModel viewModel = getViewModel(GetIocContainer(dataContext));
             if (!viewModel.IsInitialized)
-                InitializeViewModel(viewModel, dataContext, iocContainer);
+                InitializeViewModel(viewModel, dataContext);
             return viewModel;
         }
 
-        /// <summary>
-        ///     Creates an instance of the specified view model.
-        /// </summary>
-        /// <param name="viewModelType">The type of view model.</param>
-        /// <param name="dataContext">The specified <see cref="IDataContext" />.</param>
-        /// <returns>
-        ///     An instance of <see cref="IViewModel" />.
-        /// </returns>
         public IViewModel GetViewModel(Type viewModelType, IDataContext dataContext)
         {
-            Should.NotBeNull(viewModelType, "viewModelType");
-            Should.NotBeNull(dataContext, "dataContext");
-            string viewModelBindingName = dataContext.GetData(InitializationConstants.ViewModelBindingName);
-            IIocParameter[] parameters = dataContext.GetData(InitializationConstants.IocParameters);
-            IIocContainer iocContainer = CreateViewModelIocContainer(dataContext);
-            var viewModel = (IViewModel)iocContainer.Get(viewModelType, viewModelBindingName, parameters);
+            Should.NotBeNull(viewModelType, nameof(viewModelType));
+            Should.NotBeNull(dataContext, nameof(dataContext));
+            var viewModel = CreateViewModel(viewModelType, dataContext);
             if (!viewModel.IsInitialized)
-                InitializeViewModel(viewModel, dataContext, iocContainer);
+                InitializeViewModel(viewModel, dataContext);
             return viewModel;
         }
 
-        /// <summary>
-        ///     Initializes the specified <see cref="IViewModel" />, use this method if you have created an
-        ///     <see cref="IViewModel" />
-        ///     without using the GetViewModel method.
-        /// </summary>
-        /// <param name="viewModel">
-        ///     The specified <see cref="IViewModel" />.
-        /// </param>
-        /// <param name="dataContext">The specified <see cref="IDataContext" />.</param>
         public void InitializeViewModel(IViewModel viewModel, IDataContext dataContext)
         {
-            Should.NotBeNull(viewModel, "viewModel");
-            InitializeViewModel(viewModel, dataContext ?? DataContext.Empty, null);
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            ViewModelInitializationEventArgs args = null;
+            var initializing = Initializing;
+            if (initializing != null)
+            {
+                args = new ViewModelInitializationEventArgs(viewModel, dataContext);
+                initializing(this, args);
+                dataContext = args.Context;
+            }
+            InitializeViewModelInternal(viewModel, dataContext ?? DataContext.Empty);
+            var initialized = Initialized;
+            if (initialized != null)
+            {
+                if (args == null)
+                    args = new ViewModelInitializationEventArgs(viewModel, dataContext);
+                initialized(this, args);
+            }
         }
 
-        /// <summary>
-        ///     Preserves the view model state.
-        /// </summary>
         public IDataContext PreserveViewModel(IViewModel viewModel, IDataContext dataContext)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             if (dataContext == null)
                 dataContext = DataContext.Empty;
+
+            var preserving = Preserving;
+            if (preserving != null)
+            {
+                var args = new ViewModelPreservingEventArgs(viewModel) { Context = dataContext };
+                preserving(this, args);
+                dataContext = args.Context ?? DataContext.Empty;
+            }
             IDataContext state = PreserveViewModelInternal(viewModel, dataContext);
 
             GetOrAddViewModelId(viewModel);
@@ -472,24 +209,21 @@ namespace MugenMvvmToolkit.Infrastructure
             if (parentViewModel != null)
             {
                 var idParent = GetOrAddViewModelId(parentViewModel);
-                state.AddOrUpdate(IdParentViewModelConstant, idParent);
+                state.AddOrUpdate(ViewModelConstants.IdParent, idParent);
             }
 
             OnViewModelPreserved(viewModel, state, dataContext);
+
+            var preserved = Preserved;
+            if (preserved != null)
+            {
+                var args = new ViewModelPreservedEventArgs(viewModel) { Context = dataContext, State = state };
+                preserved(this, args);
+                return args.State;
+            }
             return state;
         }
 
-        /// <summary>
-        ///     Restores the view model from state context.
-        /// </summary>
-        /// <param name="viewModelState">The specified state <see cref="IDataContext" />.</param>
-        /// <param name="throwOnError">
-        ///     <c>true</c> to throw an exception if the view model cannot be restored; <c>false</c> to return null.
-        /// </param>
-        /// <param name="dataContext">The specified <see cref="IDataContext" />.</param>
-        /// <returns>
-        ///     An instance of <see cref="IViewModel" />.
-        /// </returns>
         public IViewModel RestoreViewModel(IDataContext viewModelState, IDataContext dataContext, bool throwOnError)
         {
             try
@@ -501,35 +235,54 @@ namespace MugenMvvmToolkit.Infrastructure
                     dataContext.Merge(viewModelState);
 
                 IViewModel viewModel;
-                if (!dataContext.GetData(InitializationConstants.IgnoreRestoredViewModelCache))
+                if (!dataContext.GetData(InitializationConstants.IgnoreViewModelCache))
                 {
                     Guid id;
-                    if (viewModelState.TryGetData(IdViewModelConstant, out id))
+                    if (viewModelState.TryGetData(ViewModelConstants.Id, out id))
                     {
-                        viewModel = GetOrAddRestoredViewModel(id).GetViewModel();
+                        viewModel = GetOrAddCachedViewModel(id).GetViewModel();
                         if (viewModel != null)
                             return viewModel;
                     }
                 }
 
-                RestoredViewModel restoredParentViewModel = null;
+                CachedViewModel restoredParentViewModel = null;
                 IViewModel parentViewModel = null;
                 Guid idParent;
-                if (viewModelState.TryGetData(IdParentViewModelConstant, out idParent))
+                if (viewModelState.TryGetData(ViewModelConstants.IdParent, out idParent))
                 {
-                    restoredParentViewModel = GetOrAddRestoredViewModel(idParent);
+                    restoredParentViewModel = GetOrAddCachedViewModel(idParent);
                     parentViewModel = restoredParentViewModel.GetViewModel();
                     if (parentViewModel != null)
                         dataContext.AddOrUpdate(InitializationConstants.ParentViewModel, parentViewModel);
                 }
 
-                viewModel = RestoreViewModel(viewModelState, dataContext);
+                var restoring = Restoring;
+                if (restoring != null)
+                {
+                    var args = new ViewModelRestoringEventArgs { Context = dataContext, ViewModelState = viewModelState };
+                    restoring(this, args);
+                    dataContext = args.Context ?? DataContext.Empty;
+                }
+
+                viewModel = RestoreViewModelInternal(viewModelState, dataContext);
                 if (viewModel != null)
                 {
                     if (restoredParentViewModel != null && parentViewModel == null)
                         restoredParentViewModel.AddChildViewModel(viewModel);
                     OnViewModelRestored(viewModel, viewModelState, dataContext);
-                    Tracer.TraceViewModel(AuditAction.Restored, viewModel);
+
+                    var restored = Restored;
+                    if (restored != null)
+                    {
+                        var args = new ViewModelRestoredEventArgs(viewModel)
+                        {
+                            Context = dataContext,
+                            ViewModelState = viewModelState
+                        };
+                        restored(this, args);
+                    }
+                    Tracer.TraceViewModel(ViewModelLifecycleType.Restored, viewModel);
                     if (ReferenceEquals(viewModelState, DataContext.Empty))
                         Tracer.Warn("The view model '{0}' was restored without state.", viewModel);
                     return viewModel;
@@ -547,27 +300,22 @@ namespace MugenMvvmToolkit.Infrastructure
             return null;
         }
 
+        public event EventHandler<IViewModelProvider, ViewModelInitializationEventArgs> Initializing;
+
+        public event EventHandler<IViewModelProvider, ViewModelInitializationEventArgs> Initialized;
+
+        public event EventHandler<IViewModelProvider, ViewModelPreservingEventArgs> Preserving;
+
+        public event EventHandler<IViewModelProvider, ViewModelPreservedEventArgs> Preserved;
+
+        public event EventHandler<IViewModelProvider, ViewModelRestoringEventArgs> Restoring;
+
+        public event EventHandler<IViewModelProvider, ViewModelRestoredEventArgs> Restored;
+
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Tries to get restored view model by id.
-        /// </summary>
-        public static IViewModel TryGetViewModelById(Guid idViewModel)
-        {
-            lock (RestoredViewModels)
-            {
-                RestoredViewModel value;
-                if (RestoredViewModels.TryGetValue(idViewModel, out value))
-                    return value.GetViewModel();
-                return null;
-            }
-        }
-
-        /// <summary>
-        ///     Preserves the view model state.
-        /// </summary>
         [NotNull]
         protected virtual IDataContext PreserveViewModelInternal(IViewModel viewModel, IDataContext dataContext)
         {
@@ -579,11 +327,8 @@ namespace MugenMvvmToolkit.Infrastructure
             return state;
         }
 
-        /// <summary>
-        ///     Restores the view model from state context.
-        /// </summary>
         [CanBeNull]
-        protected virtual IViewModel RestoreViewModel([NotNull] IDataContext viewModelState, [NotNull] IDataContext dataContext)
+        protected virtual IViewModel RestoreViewModelInternal([NotNull] IDataContext viewModelState, [NotNull] IDataContext dataContext)
         {
             string typeName = viewModelState.GetData(ViewModelTypeNameConstant);
             Type vmType = typeName == null
@@ -595,12 +340,11 @@ namespace MugenMvvmToolkit.Infrastructure
             dataContext.AddOrUpdate(ViewModelConstants.StateRestored, true);
             dataContext.AddOrUpdate(InitializationConstants.IsRestored, true);
 
-            IIocContainer container = CreateViewModelIocContainer(dataContext);
-            var viewModel = (IViewModel)container.Get(vmType);
+            var viewModel = CreateViewModel(vmType, dataContext);
             IDataContext vmState = viewModel.Settings.State;
             vmState.Merge(viewModelState);
 
-            InitializeViewModel(viewModel, dataContext, container);
+            InitializeViewModel(viewModel, dataContext);
 
             var hasState = viewModel as IHasState;
             if (hasState != null)
@@ -608,150 +352,136 @@ namespace MugenMvvmToolkit.Infrastructure
             return viewModel;
         }
 
-        /// <summary>
-        ///     Occurs when the view model state is preserved.
-        /// </summary>
-        protected virtual void OnViewModelPreserved([NotNull] IViewModel viewModel, [NotNull] IDataContext viewModelState,
-            [NotNull] IDataContext dataContext)
-        {
-        }
-
-        /// <summary>
-        ///     Occurs when the view model state is restored.
-        /// </summary>
-        protected virtual void OnViewModelRestored([NotNull] IViewModel viewModel, [NotNull] IDataContext viewModelState,
-            [NotNull] IDataContext dataContext)
-        {
-        }
-
-        /// <summary>
-        ///     Occurs when restoring the view model state.
-        /// </summary>
         protected virtual void OnViewModelInitializing([NotNull]IViewModel viewModel, [NotNull] IDataContext dataContext)
         {
-            if (!dataContext.GetData(InitializationConstants.IsRestored))
-                return;
-            Guid id;
-            if (viewModel.Settings.State.TryGetData(IdViewModelConstant, out id))
-                GetOrAddRestoredViewModel(id).SetViewModel(viewModel, dataContext.GetData(InitializationConstants.IocContainer));
-            var viewModelBase = viewModel as ViewModelBase;
-            if (viewModelBase != null)
-                viewModelBase.IocContainer = dataContext.GetData(InitializationConstants.IocContainer);
+            var id = GetOrAddViewModelId(viewModel);
+            GetOrAddCachedViewModel(id).SetViewModel(viewModel);
         }
 
-        /// <summary>
-        ///     Initializes the specified <see cref="IViewModel" />.
-        /// </summary>
-        protected virtual void InitializeViewModel([NotNull] IViewModel viewModel, [NotNull] IDataContext dataContext,
-            [CanBeNull] IIocContainer iocContainer)
+        protected virtual void InitializeViewModelInternal([NotNull] IViewModel viewModel, [NotNull] IDataContext dataContext)
         {
             dataContext = dataContext.ToNonReadOnly();
-            if (iocContainer == null)
-                iocContainer = CreateViewModelIocContainer(dataContext);
-            dataContext.AddOrUpdate(InitializationConstants.IocContainer, iocContainer);
+            var parentViewModel = dataContext.GetData(InitializationConstants.ParentViewModel);
             OnViewModelInitializing(viewModel, dataContext);
-            InitializeParentViewModel(viewModel, dataContext.GetData(InitializationConstants.ParentViewModel), dataContext);
+            InitializeParentViewModel(viewModel, parentViewModel, dataContext);
             viewModel.InitializeViewModel(dataContext);
-            InitializeDisplayName(viewModel);
             MergeParameters(dataContext, viewModel.Settings.Metadata);
-        }
-
-        /// <summary>
-        ///     Creates an instance of <see cref="IocContainer" /> using the specified <see cref="IDataContext"/>.
-        /// </summary>
-        protected virtual IIocContainer CreateViewModelIocContainer([NotNull] IDataContext dataContext)
-        {
-            IIocContainer container = dataContext.GetData(InitializationConstants.IocContainer);
-            if (container == null)
+            if (parentViewModel != null)
             {
-                IocContainerCreationMode creationMode;
-                if (!dataContext.TryGetData(InitializationConstants.IocContainerCreationMode, out creationMode))
-                    creationMode = ApplicationSettings.IocContainerCreationMode;
-                IViewModel parentViewModel = dataContext.GetData(InitializationConstants.ParentViewModel);
-                var isRestored = dataContext.GetData(InitializationConstants.IsRestored);
-                switch (creationMode)
-                {
-                    case IocContainerCreationMode.ParentViewModel:
-                        if (parentViewModel != null)
-                            container = parentViewModel.IocContainer.CreateChild();
-                        else if (isRestored && dataContext.Contains(IdParentViewModelConstant))
-                            container = new ParentIocContainerWrapper(_iocContainer);
-                        break;
-                    case IocContainerCreationMode.Mixed:
-                        var parentContainer = parentViewModel == null ? null : parentViewModel.IocContainer;
-                        if (parentContainer != null || (isRestored && dataContext.Contains(IdParentViewModelConstant)))
-                            container = new ParentIocContainerWrapper(_iocContainer, parentContainer);
-                        break;
-                }
-
-                if (container == null)
-                    container = _iocContainer.CreateChild();
+                var parentAwareViewModel = viewModel as IParentAwareViewModel;
+                if (parentAwareViewModel != null)
+                    parentAwareViewModel.SetParent(parentViewModel);
             }
-            if (BindIocContainer)
-                container.BindToConstant(container);
-            return container;
         }
 
-        private void InitializeDisplayName(IViewModel viewModel)
+        protected virtual IList<IViewModel> GetCreatedViewModelsInternal([NotNull]IDataContext context)
         {
-            IIocContainer iocContainer = viewModel.GetIocContainer(true, false) ?? IocContainer;
-            var hasDisplayName = viewModel as IHasDisplayName;
-            IDisplayNameProvider displayNameProvider;
-            if (hasDisplayName != null && string.IsNullOrEmpty(hasDisplayName.DisplayName)
-                && iocContainer.TryGet(out displayNameProvider))
-                hasDisplayName.DisplayName = displayNameProvider
-#if PCL_WINRT
-.GetDisplayNameAccessor(viewModel.GetType().GetTypeInfo())
-#else
-.GetDisplayNameAccessor(viewModel.GetType())
-#endif
-.Invoke();
-        }
-
-        private static RestoredViewModel GetOrAddRestoredViewModel(Guid id)
-        {
-            lock (RestoredViewModels)
+            var result = new List<IViewModel>();
+            lock (CachedViewModels)
             {
-                RestoredViewModel value;
-                if (!RestoredViewModels.TryGetValue(id, out value))
+                foreach (var value in CachedViewModels.Values)
                 {
-                    value = new RestoredViewModel();
-                    RestoredViewModels[id] = value;
+                    var viewModel = value.GetViewModel();
+                    if (viewModel != null)
+                        result.Add(viewModel);
                 }
-                return value;
             }
+            return result;
+        }
+
+        protected virtual IViewModel TryGetViewModelByIdInternal(Guid viewModelId)
+        {
+            lock (CachedViewModels)
+            {
+                CachedViewModel value;
+                if (CachedViewModels.TryGetValue(viewModelId, out value))
+                    return value.GetViewModel();
+                return null;
+            }
+        }
+
+        protected virtual void OnViewModelPreserved([NotNull] IViewModel viewModel, [NotNull] IDataContext viewModelState, [NotNull] IDataContext dataContext)
+        {
+        }
+
+        protected virtual void OnViewModelRestored([NotNull] IViewModel viewModel, [NotNull] IDataContext viewModelState, [NotNull] IDataContext dataContext)
+        {
+        }
+
+        protected virtual IViewModel CreateViewModel([NotNull]Type viewModelType, [NotNull] IDataContext context)
+        {
+            string viewModelBindingName = context.GetData(InitializationConstants.ViewModelBindingName);
+            IIocParameter[] parameters = context.GetData(InitializationConstants.IocParameters);
+            return (IViewModel)GetIocContainer(context).Get(viewModelType, viewModelBindingName, parameters);
+        }
+
+        protected virtual IIocContainer GetIocContainer([NotNull]IDataContext context)
+        {
+            var iocContainer = context.GetData(InitializationConstants.IocContainer);
+            if (iocContainer != null)
+                return iocContainer;
+            IViewModel parent = null;
+            var parentViewModel = context.GetData(ViewModelConstants.ParentViewModel);
+            if (parentViewModel != null)
+                parent = parentViewModel.Target as IViewModel;
+            if (parent == null)
+                return IocContainer;
+            return parent.GetIocContainer(false) ?? IocContainer;
         }
 
         internal static Guid GetOrAddViewModelId(IViewModel viewModel)
         {
-            lock (IdGeneratorLocker)
+            lock (ViewModelConstants.Id)
             {
                 Guid id;
-                if (!viewModel.Settings.State.TryGetData(IdViewModelConstant, out id))
+                if (!viewModel.Settings.State.TryGetData(ViewModelConstants.Id, out id))
                 {
                     id = Guid.NewGuid();
-                    viewModel.Settings.State.Add(IdViewModelConstant, id);
+                    viewModel.Settings.State.Add(ViewModelConstants.Id, id);
                 }
                 return id;
             }
         }
 
-        private static void OnTraceViewModel(AuditAction auditAction, IViewModel viewModel)
+        private static CachedViewModel GetOrAddCachedViewModel(Guid id)
         {
-            if (auditAction != AuditAction.Disposed && auditAction != AuditAction.Finalized)
+            lock (CachedViewModels)
+            {
+                CachedViewModel value;
+                if (!CachedViewModels.TryGetValue(id, out value))
+                {
+                    value = new CachedViewModel();
+                    CachedViewModels[id] = value;
+                }
+                return value;
+            }
+        }
+
+        private static void OnTraceViewModel(ViewModelLifecycleType lifecycleType, IViewModel viewModel)
+        {
+            if (lifecycleType != ViewModelLifecycleType.Disposed && lifecycleType != ViewModelLifecycleType.Finalized)
                 return;
 
             Guid id;
-            if (!viewModel.Settings.State.TryGetData(IdViewModelConstant, out id))
+            if (!viewModel.Settings.State.TryGetData(ViewModelConstants.Id, out id))
                 return;
-
-            RestoredViewModel value;
-            lock (RestoredViewModels)
+            if (lifecycleType == ViewModelLifecycleType.Finalized)
             {
-                if (RestoredViewModels.TryGetValue(id, out value))
-                    RestoredViewModels.Remove(id);
+                Task.Factory.StartNew(state =>
+                {
+                    lock (CachedViewModels)
+                          CachedViewModels.Remove((Guid)state);
+                }, id);
+                return;
             }
-            if (value != null && auditAction == AuditAction.Disposed)
+
+            CachedViewModel value;
+            lock (CachedViewModels)
+            {
+                if (CachedViewModels.TryGetValue(id, out value))
+                    CachedViewModels.Remove(id);
+            }
+            if (value != null)
                 value.Clear();
         }
 
@@ -761,13 +491,13 @@ namespace MugenMvvmToolkit.Infrastructure
             if (!string.IsNullOrEmpty(viewName))
                 ctxTo.AddOrUpdate(InitializationConstants.ViewName, viewName);
 
-            IocContainerCreationMode creationMode;
-            if (ctxFrom.TryGetData(InitializationConstants.IocContainerCreationMode, out creationMode))
-                ctxTo.AddOrUpdate(InitializationConstants.IocContainerCreationMode, creationMode);
-
             ObservationMode observationMode;
             if (ctxFrom.TryGetData(InitializationConstants.ObservationMode, out observationMode))
                 ctxTo.AddOrUpdate(InitializationConstants.ObservationMode, observationMode);
+
+            string bindingName = ctxFrom.GetData(InitializationConstants.ViewModelBindingName);
+            if (!string.IsNullOrEmpty(bindingName))
+                ctxTo.AddOrUpdate(InitializationConstants.ViewModelBindingName, bindingName);
         }
 
         private static void InitializeParentViewModel(IViewModel viewModel, IViewModel parentViewModel, IDataContext context)
@@ -784,12 +514,12 @@ namespace MugenMvvmToolkit.Infrastructure
                 parentViewModel.Subscribe(viewModel);
         }
 
-        private static void OnParentUpdated(IViewModel viewModel, IViewModel parentViewModel, IIocContainer container)
+        private static void OnParentUpdated(IViewModel viewModel, IViewModel parentViewModel)
         {
             InitializeParentViewModel(viewModel, parentViewModel, viewModel.Settings.Metadata);
-            var containerWrapper = viewModel.IocContainer as ParentIocContainerWrapper;
-            if (containerWrapper != null)
-                containerWrapper.SetParentContainer(container);
+            var parentAwareViewModel = viewModel as IParentAwareViewModel;
+            if (parentAwareViewModel != null)
+                parentAwareViewModel.SetParent(parentViewModel);
         }
 
         #endregion

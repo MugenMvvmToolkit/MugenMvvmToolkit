@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ContentViewManagerBase.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -16,30 +16,46 @@
 
 #endregion
 
-using MugenMvvmToolkit.Binding.Interfaces;
+#if WINFORMS
+using MugenMvvmToolkit.WinForms.Binding.Interfaces;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.WinForms.Binding.Infrastructure
+#elif ANDROID
+using MugenMvvmToolkit.Android.Binding.Interfaces;
+
+namespace MugenMvvmToolkit.Android.Binding.Infrastructure
+#elif TOUCH
+using MugenMvvmToolkit.iOS.Binding.Interfaces;
+
+namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
+#endif
+
 {
-    /// <summary>
-    ///     Represents the base class that allows to set content in the specified view.
-    /// </summary>
     public abstract class ContentViewManagerBase<TView, TContent> : IContentViewManager
     {
         #region Implementation of IContentViewManager
 
+#if ANDROID
+        bool IContentViewManager.SetContent(object view, object content)
+        {
+            return SetContent((TView)view, (TContent)content);
+        }
+#else
         void IContentViewManager.SetContent(object view, object content)
         {
             SetContent((TView)view, (TContent)content);
         }
+#endif
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Sets the specified content.
-        /// </summary>
+#if ANDROID
+        protected abstract bool SetContent(TView view, TContent content);
+#else
         protected abstract void SetContent(TView view, TContent content);
+#endif
 
         #endregion
     }

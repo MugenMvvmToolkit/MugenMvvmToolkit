@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="WinRTBootstrapperBase.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -24,30 +24,28 @@ using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Infrastructure.Navigation;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
+using MugenMvvmToolkit.WinRT.Infrastructure.Navigation;
+using MugenMvvmToolkit.WinRT.Interfaces.Navigation;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit.WinRT.Infrastructure
 {
     public abstract class WinRTBootstrapperBase : BootstrapperBase
     {
         #region Fields
 
-        /// <summary>
-        /// Gets the name of binding assembly.
-        /// </summary>
-        protected const string BindingAssemblyName = "MugenMvvmToolkit.Binding.WinRT";
+        protected const string BindingAssemblyName = "MugenMvvmToolkit.WinRT.Binding";
         private readonly Frame _rootFrame;
         private readonly bool _overrideAssemblies;
-        private List<Assembly> _assemblies;
-        private PlatformInfo _platform;
+        private readonly PlatformInfo _platform;
+        private HashSet<Assembly> _assemblies;
 
         #endregion
 
@@ -59,48 +57,51 @@ namespace MugenMvvmToolkit.Infrastructure
             DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="WinRTBootstrapperBase" /> class.
-        /// </summary>
-        protected WinRTBootstrapperBase([NotNull] Frame rootFrame, bool overrideAssemblies)
+        protected WinRTBootstrapperBase([CanBeNull] Frame rootFrame, bool overrideAssemblies, PlatformInfo platform = null)
         {
-            Should.NotBeNull(rootFrame, "rootFrame");
             _rootFrame = rootFrame;
             _overrideAssemblies = overrideAssemblies;
+            _platform = platform ?? PlatformExtensions.GetPlatformInfo();
         }
+
+        #endregion
+
+        #region Properties
+
+        protected Frame RootFrame => _rootFrame;
 
         #endregion
 
         #region Overrides of BootstrapperBase
 
-        /// <summary>
-        ///     Gets the current platform.
-        /// </summary>
-        public override PlatformInfo Platform
+        protected override void InitializeInternal()
         {
-            get
-            {
-                if (_platform == null)
-                    _platform = PlatformExtensions.GetPlatformInfo();
-                return _platform;
-            }
-        }
-
-        /// <summary>
-        ///     Starts the current bootstraper.
-        /// </summary>
-        protected override void OnInitialize()
-        {
-            base.OnInitialize();
+            var application = CreateApplication();
+            var iocContainer = CreateIocContainer();
+            application.Initialize(_platform, iocContainer, GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
             var service = CreateNavigationService(_rootFrame);
             if (service != null)
-                IocContainer.BindToConstant(service);
+                iocContainer.BindToConstant(service);
         }
 
-        /// <summary>
-        ///     Gets the application assemblies.
-        /// </summary>
-        protected override ICollection<Assembly> GetAssemblies()
+        #endregion
+
+        #region Methods
+
+        public virtual void Start(IDataContext context = null)
+        {
+            Initialize();
+            MvvmApplication.Current.Start(context);
+        }
+
+        public async Task InitializeAsync()
+        {
+            if (!_overrideAssemblies)
+                _assemblies = await GetAssembliesAsync();
+            Initialize();
+        }
+
+        protected virtual ICollection<Assembly> GetAssemblies()
         {
             if (_assemblies != null)
                 return _assemblies;
@@ -112,54 +113,13 @@ namespace MugenMvvmToolkit.Infrastructure
             return assemblies;
         }
 
-        #endregion
-
-        #region Methods
-
-        /// <summary>
-        ///     Starts the current bootstrapper.
-        /// </summary>
-        public virtual void Start()
-        {
-            Initialize();
-            CreateMainViewModel(GetMainViewModelType()).ShowAsync((model, result) => model.Dispose(), context: InitializationContext);
-        }
-
-        /// <summary>
-        ///     Initializes the current bootstraper asynchronously.
-        /// </summary>
-        public async Task InitializeAsync()
-        {
-            if (!_overrideAssemblies)
-                _assemblies = await GetAssembliesAsync();
-            Initialize();
-        }
-
-        /// <summary>
-        ///     Creates the main view model.
-        /// </summary>
-        [NotNull]
-        protected virtual IViewModel CreateMainViewModel([NotNull] Type viewModelType)
-        {
-            return IocContainer
-                .Get<IViewModelProvider>()
-                .GetViewModel(viewModelType, InitializationContext);
-        }
-
-        /// <summary>
-        ///     Creates an instance of <see cref="INavigationService" />.
-        /// </summary>
         [CanBeNull]
         protected virtual INavigationService CreateNavigationService(Frame frame)
         {
-            return new FrameNavigationService(frame);
+            if (frame == null)
+                return null;
+            return new FrameNavigationService(frame, true);
         }
-
-        /// <summary>
-        ///     Gets the type of main view model.
-        /// </summary>
-        [NotNull]
-        protected abstract Type GetMainViewModelType();
 
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)
         {
@@ -179,29 +139,26 @@ namespace MugenMvvmToolkit.Infrastructure
             return mappingItem != null && typeof(Page).IsAssignableFrom(mappingItem.ViewType);
         }
 
-        private static async Task<List<Assembly>> GetAssembliesAsync()
+        private static async Task<HashSet<Assembly>> GetAssembliesAsync()
         {
-            var assemblies = new List<Assembly>();
-            try
+            var assemblies = new HashSet<Assembly>();
+            var files = await Windows.ApplicationModel.Package.Current.InstalledLocation.GetFilesAsync();
+            foreach (var file in files)
             {
-                var files = await Windows.ApplicationModel.Package.Current.InstalledLocation.GetFilesAsync();
-
-                foreach (var file in files)
+                try
                 {
                     if ((file.FileType == ".dll") || (file.FileType == ".exe"))
                     {
                         var name = new AssemblyName { Name = Path.GetFileNameWithoutExtension(file.Name) };
-                        Assembly asm = Assembly.Load(name);
-                        if (asm.IsToolkitAssembly())
-                            assemblies.Add(asm);
+                        assemblies.Add(Assembly.Load(name));
                     }
+
+                }
+                catch
+                {
+                    ;
                 }
             }
-            catch (Exception e)
-            {
-                Tracer.Error(e.Flatten(true));
-            }
-
             return assemblies;
         }
 

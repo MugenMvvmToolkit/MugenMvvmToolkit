@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="BindingServiceProvider.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,19 +18,24 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
+using MugenMvvmToolkit.Binding.Interfaces.Models;
+using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Infrastructure;
 
 namespace MugenMvvmToolkit.Binding
 {
-    /// <summary>
-    ///     Represents the service locator for data binding infrastructure.
-    /// </summary>
     public static class BindingServiceProvider
     {
         #region Fields
+
+        public const int DataContextMemberPriority = int.MaxValue - 10;
+        public const int TemplateMemberPriority = 3;
 
         private static IBindingProvider _bindingProvider;
         private static IBindingManager _bindingManager;
@@ -40,10 +45,15 @@ namespace MugenMvvmToolkit.Binding
         private static IVisualTreeManager _visualTreeManager;
         private static IBindingResourceResolver _resourceResolver;
         private static IWeakEventManager _weakEventManager;
-        private static Func<Type, object, object> _valueConverter;
+        private static Func<IBindingMemberInfo, Type, object, object> _valueConverter;
         private static readonly Dictionary<string, int> MemberPriorities;
         private static readonly List<string> FakeMemberPrefixesField;
-        private static readonly ICollection<string> DataContextMemberAliasesField;
+        private static readonly HashSet<string> DataContextMemberAliasesField;
+        private static readonly Dictionary<string, IBindingBehavior> BindingModeToBehaviorField;
+        private static readonly Dictionary<string, IBindingPath> BindingPathCache;
+        private static Func<string, IBindingPath> _bindingPathFactory;
+        private static Func<Type, string, IBindingMemberInfo> _updateEventFinder;
+        private static Func<CultureInfo> _bindingCultureInfo;
 
         #endregion
 
@@ -51,13 +61,22 @@ namespace MugenMvvmToolkit.Binding
 
         static BindingServiceProvider()
         {
+            BindingModeToBehaviorField = new Dictionary<string, IBindingBehavior>(StringComparer.OrdinalIgnoreCase)
+            {
+                {"Default", null},
+                {"TwoWay", new TwoWayBindingMode()},
+                {"OneWay", new OneWayBindingMode()},
+                {"OneTime", new OneTimeBindingMode()},
+                {"OneWayToSource", new OneWayToSourceBindingMode()},
+                {"None", NoneBindingMode.Instance}
+            };
             MemberPriorities = new Dictionary<string, int>
             {
-                {AttachedMemberConstants.DataContext, int.MaxValue - 1},
-                {AttachedMemberConstants.ItemTemplate, 1},
-                {AttachedMemberConstants.ItemTemplateSelector, 1},
-                {AttachedMemberConstants.ContentTemplate, 1},
-                {AttachedMemberConstants.ContentTemplateSelector, 1},
+                {AttachedMemberConstants.DataContext, DataContextMemberPriority},
+                {AttachedMemberConstants.ItemTemplate, TemplateMemberPriority},
+                {AttachedMemberConstants.ItemTemplateSelector, TemplateMemberPriority},
+                {AttachedMemberConstants.ContentTemplate, TemplateMemberPriority},
+                {AttachedMemberConstants.ContentTemplateSelector, TemplateMemberPriority}
             };
             FakeMemberPrefixesField = new List<string>
             {
@@ -68,176 +87,175 @@ namespace MugenMvvmToolkit.Binding
             {
                 AttachedMemberConstants.DataContext
             };
+            BindingPathCache = new Dictionary<string, IBindingPath>(StringComparer.Ordinal);
             SetDefaultValues();
-            ServiceProvider.InitializeDesignTimeManager();
-            ViewManager.GetDataContext = o => ContextManager.GetBindingContext(o).Value;
-            ViewManager.SetDataContext = (o, o1) => ContextManager.GetBindingContext(o).Value = o1;
+            MvvmApplication.InitializeDesignTimeManager();
+            ViewManager.GetDataContext = BindingExtensions.DataContext;
+            ViewManager.SetDataContext = BindingExtensions.SetDataContext;
+            BindingExceptionHandler = BindingExceptionHandlerImpl;
         }
 
         #endregion
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the list that contains the prefixes of fake members.
-        /// </summary>
-        public static List<string> FakeMemberPrefixes
-        {
-            get { return FakeMemberPrefixesField; }
-        }
+        public static bool DisableConverterAutoRegistration { get; set; }
 
-        /// <summary>
-        ///     Gets the dictionary that contains the priority of binding members.
-        /// </summary>
-        [NotNull]
-        public static IDictionary<string, int> BindingMemberPriorities
-        {
-            get { return MemberPriorities; }
-        }
+        public static bool DisableDataTemplateSelectorAutoRegistration { get; set; }
 
-        /// <summary>
-        ///     Gets the collection of possible data context member aliases.
-        /// </summary>
-        [NotNull]
-        public static ICollection<string> DataContextMemberAliases
-        {
-            get { return DataContextMemberAliasesField; }
-        }
+        public static bool HasStablePathDefault { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the delegate that allows to convert binding values.
-        /// </summary>
+        public static bool ObservablePathDefault { get; set; }
+
+        public static Dictionary<string, IBindingBehavior> BindingModeToBehavior => BindingModeToBehaviorField;
+
+        public static List<string> FakeMemberPrefixes => FakeMemberPrefixesField;
+
         [NotNull]
-        public static Func<Type, object, object> ValueConverter
+        public static Dictionary<string, int> BindingMemberPriorities => MemberPriorities;
+
+        [NotNull]
+        public static HashSet<string> DataContextMemberAliases => DataContextMemberAliasesField;
+
+        [NotNull]
+        public static Func<IBindingMemberInfo, Type, object, object> ValueConverter
         {
             get { return _valueConverter; }
-            set { _valueConverter = value ?? BindingReflectionExtensions.Convert; }
+            set { _valueConverter = value ?? ((member, type, o) => o); }
         }
 
-        /// <summary>
-        ///     Gets or sets the <see cref="IBindingProvider" />.
-        /// </summary>
+        [NotNull]
+        public static Func<Type, string, IBindingMemberInfo> UpdateEventFinder
+        {
+            get { return _updateEventFinder; }
+            set { _updateEventFinder = value ?? FindUpdateEvent; }
+        }
+
+        [NotNull]
+        public static Func<string, IBindingPath> BindingPathFactory
+        {
+            get { return _bindingPathFactory; }
+            set
+            {
+                Should.PropertyNotBeNull(value);
+                _bindingPathFactory = value;
+            }
+        }
+
         [NotNull]
         public static IBindingProvider BindingProvider
         {
             get { return _bindingProvider; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _bindingProvider = value;
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the <see cref="IBindingManager" />.
-        /// </summary>
         [NotNull]
         public static IBindingManager BindingManager
         {
             get { return _bindingManager; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _bindingManager = value;
             }
         }
 
-        /// <summary>
-        ///     Gets or sets  the <see cref="IBindingMemberProvider" />.
-        /// </summary>
         [NotNull]
         public static IBindingMemberProvider MemberProvider
         {
             get { return _memberProvider; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _memberProvider = value;
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the <see cref="IObserverProvider" />.
-        /// </summary>
         [NotNull]
         public static IObserverProvider ObserverProvider
         {
             get { return _observerProvider; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _observerProvider = value;
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the <see cref="IBindingContextManager" />.
-        /// </summary>
         [NotNull]
         public static IBindingContextManager ContextManager
         {
             get { return _contextManager; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _contextManager = value;
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the <see cref="IBindingResourceResolver" />.
-        /// </summary>
         [NotNull]
         public static IBindingResourceResolver ResourceResolver
         {
             get { return _resourceResolver; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _resourceResolver = value;
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the default <see cref="IVisualTreeManager" />.
-        /// </summary>
         [NotNull]
         public static IVisualTreeManager VisualTreeManager
         {
             get { return _visualTreeManager; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _visualTreeManager = value;
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the <see cref="IWeakEventManager" />.
-        /// </summary>
         [NotNull]
         public static IWeakEventManager WeakEventManager
         {
             get { return _weakEventManager; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _weakEventManager = value;
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the <see cref="IBindingErrorProvider" />.
-        /// </summary>
         [CanBeNull]
         public static IBindingErrorProvider ErrorProvider { get; set; }
+
+        public static Func<CultureInfo> BindingCultureInfo
+        {
+            get { return _bindingCultureInfo; }
+            set { _bindingCultureInfo = value ?? (() => CultureInfo.CurrentCulture); }
+        }
+
+        [CanBeNull]
+        public static Action<IDataBinding, BindingEventArgs> BindingExceptionHandler { get; set; }
 
         #endregion
 
         #region Methods
 
+        public static void RaiseBindingException(IDataBinding binding, BindingEventArgs args)
+        {
+            BindingExceptionHandler?.Invoke(binding, args);
+        }
+
         internal static void SetDefaultValues()
         {
+            BindingCultureInfo = null;
+            _updateEventFinder = FindUpdateEvent;
+            _bindingPathFactory = BindingPathFactoryImpl;
             _valueConverter = BindingReflectionExtensions.Convert;
             _resourceResolver = new BindingResourceResolver();
             _memberProvider = new BindingMemberProvider();
@@ -247,6 +265,37 @@ namespace MugenMvvmToolkit.Binding
             _bindingProvider = new BindingProvider();
             _observerProvider = new ObserverProvider();
             _contextManager = new BindingContextManager();
+            ObservablePathDefault = true;
+        }
+
+        private static IBindingPath BindingPathFactoryImpl(string path)
+        {
+            lock (BindingPathCache)
+            {
+                IBindingPath value;
+                if (!BindingPathCache.TryGetValue(path, out value))
+                {
+                    value = new BindingPath(path);
+                    BindingPathCache[path] = value;
+                }
+                return value;
+            }
+        }
+
+        private static IBindingMemberInfo FindUpdateEvent(Type type, string memberName)
+        {
+            IBindingMemberInfo member = MemberProvider.GetBindingMember(type, memberName + AttachedMemberConstants.ChangedEventPostfix, false, false);
+            if (member == null || member.MemberType != BindingMemberType.Event)
+                member = MemberProvider.GetBindingMember(type, memberName + "Change", false, false);
+            if (member == null || member.MemberType != BindingMemberType.Event)
+                return null;
+            return member;
+        }
+
+        private static void BindingExceptionHandlerImpl(IDataBinding dataBinding, BindingEventArgs bindingEventArgs)
+        {
+            if (bindingEventArgs.Exception != null)
+                Tracer.Error(bindingEventArgs.Exception.Message);
         }
 
         #endregion

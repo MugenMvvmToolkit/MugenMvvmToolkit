@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="BindingBuilder.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -25,9 +25,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Builders
 {
-    /// <summary>
-    ///     Represents the data binding builder.
-    /// </summary>
     public sealed class BindingBuilder : IBindingBuilder
     {
         #region Fields
@@ -38,17 +35,11 @@ namespace MugenMvvmToolkit.Binding.Builders
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingBuilder" /> class.
-        /// </summary>
         public BindingBuilder()
         {
             _internalContext = new DataContext();
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingBuilder" /> class.
-        /// </summary>
         public BindingBuilder(IDataContext internalContext)
         {
             _internalContext = internalContext;
@@ -58,31 +49,10 @@ namespace MugenMvvmToolkit.Binding.Builders
 
         #region Implementation of IDataContext
 
-        /// <summary>
-        ///     Gets the number of elements contained in the <see cref="IDataContext" />.
-        /// </summary>
-        /// <returns>
-        ///     The number of elements contained in the <see cref="IDataContext" />.
-        /// </returns>
-        public int Count
-        {
-            get { return _internalContext.Count; }
-        }
+        public int Count => _internalContext.Count;
 
-        /// <summary>
-        ///     Gets a value indicating whether the <see cref="IDataContext" /> is read-only.
-        /// </summary>
-        /// <returns>
-        ///     true if the <see cref="IDataContext" /> is read-only; otherwise, false.
-        /// </returns>
-        public bool IsReadOnly
-        {
-            get { return _internalContext.IsReadOnly; }
-        }
+        public bool IsReadOnly => _internalContext.IsReadOnly;
 
-        /// <summary>
-        ///     Adds the data constant value.
-        /// </summary>
         public void Add<T>(DataConstant<T> data, T value)
         {
             try
@@ -95,65 +65,41 @@ namespace MugenMvvmToolkit.Binding.Builders
             }
         }
 
-        /// <summary>
-        ///     Adds the data constant value or update existing.
-        /// </summary>
         public void AddOrUpdate<T>(DataConstant<T> dataConstant, T value)
         {
             _internalContext.AddOrUpdate(dataConstant, value);
         }
 
-        /// <summary>
-        ///     Gets the data using the specified data constant.
-        /// </summary>
         public T GetData<T>(DataConstant<T> dataConstant)
         {
             return _internalContext.GetData(dataConstant);
         }
 
-        /// <summary>
-        ///     Gets the data using the specified data constant.
-        /// </summary>
         public bool TryGetData<T>(DataConstant<T> dataConstant, out T data)
         {
             return _internalContext.TryGetData(dataConstant, out data);
         }
 
-        /// <summary>
-        ///     Determines whether the <see cref="IDataContext" /> contains the specified key.
-        /// </summary>
         public bool Contains(DataConstant dataConstant)
         {
             return _internalContext.Contains(dataConstant);
         }
 
-        /// <summary>
-        ///     Removes the data constant value.
-        /// </summary>
         public bool Remove(DataConstant dataConstant)
         {
             return _internalContext.Remove(dataConstant);
         }
 
-        /// <summary>
-        ///     Updates the current context.
-        /// </summary>
         public void Merge(IDataContext context)
         {
             _internalContext.Merge(context);
         }
 
-        /// <summary>
-        /// Removes all values from current context.
-        /// </summary>
         public void Clear()
         {
             _internalContext.Clear();
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IList{DataConstantValue}" /> from current context.
-        /// </summary>
         public IList<DataConstantValue> ToList()
         {
             return _internalContext.ToList();
@@ -163,12 +109,6 @@ namespace MugenMvvmToolkit.Binding.Builders
 
         #region Implementation of IBindingBuilder
 
-        /// <summary>
-        ///     Builds an instance of <see cref="IDataBinding" />.
-        /// </summary>
-        /// <returns>
-        ///     The builded <see cref="IDataBinding" />.
-        /// </returns>
         public IDataBinding Build()
         {
             Func<IDataContext, IDataBinding> del;

@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="WeakActionSubscriber.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -22,13 +22,13 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Models
 {
-    internal class WeakActionSubscriber<T> : ISubscriber
+    internal class WeakActionSubscriber<T> : IActionSubscriber
     {
         #region Fields
 
         private readonly Action<object, object, T> _delegate;
         private readonly int _hash;
-        internal readonly MethodInfo Method;
+        private readonly MethodInfo _method;
         private readonly WeakReference _reference;
 
         #endregion
@@ -37,14 +37,14 @@ namespace MugenMvvmToolkit.Models
 
         public WeakActionSubscriber(object target, MethodInfo method)
         {
-            Should.NotBeNull(target, "target");
-            Should.NotBeNull(method, "method");
+            Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(method, nameof(method));
             _reference = ToolkitExtensions.GetWeakReference(target);
-            Method = method;
+            _method = method;
             _delegate = (Action<object, object, T>)ServiceProvider
                 .ReflectionManager
                 .GetMethodDelegate(typeof(Action<object, object, T>), method);
-            _hash = (target.GetHashCode() * 397) ^ Method.GetHashCode();
+            _hash = ActionSubscriber<object>.ActionSubscriberGetHashCode(target, method);
         }
 
         #endregion
@@ -53,12 +53,12 @@ namespace MugenMvvmToolkit.Models
 
         public bool Equals(ISubscriber other)
         {
-            return ActionSubscriber<object>.ActionSubscriberEquals(this, other);
+            return ActionSubscriber<object>.ActionSubscriberEquals(this, other as IActionSubscriber);
         }
 
         public override bool Equals(object obj)
         {
-            return ActionSubscriber<object>.ActionSubscriberEquals(this, obj);
+            return ActionSubscriber<object>.ActionSubscriberEquals(this, obj as IActionSubscriber);
         }
 
         public override int GetHashCode()
@@ -70,20 +70,11 @@ namespace MugenMvvmToolkit.Models
 
         #region Implementation of ISubscriber
 
-        public bool IsAlive
-        {
-            get { return _reference.Target != null; }
-        }
+        public bool IsAlive => _reference.Target != null;
 
-        public bool AllowDuplicate
-        {
-            get { return true; }
-        }
+        public bool AllowDuplicate => true;
 
-        public object Target
-        {
-            get { return _reference.Target; }
-        }
+        public object Target => _reference.Target;
 
         public HandlerResult Handle(object sender, object message)
         {
@@ -97,6 +88,12 @@ namespace MugenMvvmToolkit.Models
             }
             return HandlerResult.Ignored;
         }
+
+        #endregion
+
+        #region Implementation of IActionSubscriber
+
+        public MethodInfo Method => _method;
 
         #endregion
     }

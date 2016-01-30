@@ -92,7 +92,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Models
 
         protected virtual IBindingPath GetBindingPath(string path)
         {
-            return BindingPath.Create(path);
+            return new BindingPath(path);
         }
 
         #endregion

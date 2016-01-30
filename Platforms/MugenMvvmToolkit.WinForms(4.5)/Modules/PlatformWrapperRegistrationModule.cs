@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="PlatformWrapperRegistrationModule.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -19,10 +19,12 @@
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
-using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Views;
+using MugenMvvmToolkit.Modules;
+using MugenMvvmToolkit.WinForms.Interfaces.Views;
 
-namespace MugenMvvmToolkit.Modules
+namespace MugenMvvmToolkit.WinForms.Modules
 {
     public class PlatformWrapperRegistrationModule : WrapperRegistrationModuleBase
     {
@@ -40,7 +42,7 @@ namespace MugenMvvmToolkit.Modules
 
             public FormViewWrapper(Form form)
             {
-                Should.NotBeNull(form, "form");
+                Should.NotBeNull(form, nameof(form));
                 _form = form;
             }
 
@@ -63,6 +65,11 @@ namespace MugenMvvmToolkit.Modules
                 _form.Close();
             }
 
+            public void Activate()
+            {
+                _form.Activate();
+            }
+
             event CancelEventHandler IWindowView.Closing
             {
                 add { _form.Closing += value; }
@@ -74,15 +81,7 @@ namespace MugenMvvmToolkit.Modules
                 _form.Dispose();
             }
 
-            public Type ViewType
-            {
-                get { return _form.GetType(); }
-            }
-
-            public object View
-            {
-                get { return _form; }
-            }
+            public object View => _form;
 
             #endregion
         }
@@ -91,10 +90,7 @@ namespace MugenMvvmToolkit.Modules
 
         #region Overrides of WrapperRegistrationModuleBase
 
-        /// <summary>
-        ///     Registers the wrappers using <see cref="WrapperManager" /> class.
-        /// </summary>
-        protected override void RegisterWrappers(WrapperManager wrapperManager)
+        protected override void RegisterWrappers(IConfigurableWrapperManager wrapperManager)
         {
             wrapperManager.AddWrapper<IWindowView, FormViewWrapper>(
                 (type, context) => typeof(Form).IsAssignableFrom(type),

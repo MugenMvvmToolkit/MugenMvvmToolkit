@@ -5,16 +5,10 @@ using MugenMvvmToolkit.Binding.Models;
 
 namespace MugenMvvmToolkit.Test.TestInfrastructure
 {
-    /// <summary>
-    ///     Represents the binding path members.
-    /// </summary>
     public sealed class BindingPathMembersMock : IBindingPathMembers
     {
         #region Fields
 
-        /// <summary>
-        ///     Gets the empty value.
-        /// </summary>
         public static readonly IBindingPathMembers Unset = new BindingPathMembersMock(BindingConstants.UnsetValue, null,
             BindingConstants.UnsetValue, Empty.Array<IBindingMemberInfo>(), false);
 
@@ -24,9 +18,6 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingPathMembersMock" /> class.
-        /// </summary>
         public BindingPathMembersMock(object source, IBindingPath path)
         {
             Path = path;
@@ -37,9 +28,6 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
             LastMember = BindingMemberInfo.Empty;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingPathMembersMock" /> class.
-        /// </summary>
         public BindingPathMembersMock(object source, IBindingPath path, IBindingMemberInfo member)
         {
             Source = source;
@@ -58,9 +46,6 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
             }
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingPathMembersMock" /> class.
-        /// </summary>
         public BindingPathMembersMock(object source, IBindingPath path, object penultimateValue,
             IList<IBindingMemberInfo> members, bool allMembersAvailable)
         {
@@ -79,19 +64,10 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         #region Implementation of IBindingPathMembers
 
-        /// <summary>
-        ///     Gets the <see cref="IBindingPath" />.
-        /// </summary>
         public IBindingPath Path { get; private set; }
 
-        /// <summary>
-        ///     Gets the value that indicates that all members are available, if <c>true</c>.
-        /// </summary>
         public bool AllMembersAvailable { get; private set; }
 
-        /// <summary>
-        ///     Gets the available members.
-        /// </summary>
         public IList<IBindingMemberInfo> Members
         {
             get
@@ -102,19 +78,10 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
             }
         }
 
-        /// <summary>
-        ///     Gets the last value, if all members is available; otherwise returns the empty value.
-        /// </summary>
         public IBindingMemberInfo LastMember { get; private set; }
 
-        /// <summary>
-        ///     Gets the source value.
-        /// </summary>
         public object Source { get; private set; }
 
-        /// <summary>
-        ///     Gets the penultimate value.
-        /// </summary>
         public object PenultimateValue { get; private set; }
 
         #endregion

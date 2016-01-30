@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ModuleBase.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -23,23 +23,13 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Modules
 {
-    /// <summary>
-    ///     Represents the base class that is used to initialize ioc bindings.
-    /// </summary>
     public abstract class ModuleBase : IModule
     {
         #region Fields
 
-
-        /// <summary>
-        ///     Gets the intialization module priority.
-        /// </summary>
         public const int InitializationModulePriority = 1;
-
-        /// <summary>
-        ///     Gets the binding module priority.
-        /// </summary>
         public const int BindingModulePriority = -1;
+        public const int WrapperRegistrationModulePriority = -1000;
 
         private readonly bool _iocContainerCanBeNull;
         private readonly object _locker;
@@ -53,17 +43,11 @@ namespace MugenMvvmToolkit.Modules
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ModuleBase" /> class.
-        /// </summary>
         protected ModuleBase(bool iocContainerCanBeNull)
             : this(iocContainerCanBeNull, LoadMode.All)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ModuleBase" /> class.
-        /// </summary>
         protected ModuleBase(bool iocContainerCanBeNull, LoadMode supportedModes = LoadMode.All, int priority = InitializationModulePriority - 1)
         {
             _iocContainerCanBeNull = iocContainerCanBeNull;
@@ -76,51 +60,33 @@ namespace MugenMvvmToolkit.Modules
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the current context.
-        /// </summary>
         [NotNull]
-        protected IModuleContext Context
-        {
-            get { return _context; }
-        }
+        protected IModuleContext Context => _context;
 
-        /// <summary>
-        ///     Gets the load mode.
-        /// </summary>
-        protected LoadMode Mode
-        {
-            get { return _mode; }
-        }
+        protected LoadMode Mode => _mode;
 
-        /// <summary>
-        ///     Gets the current <see cref="IIocContainer" />.
-        /// </summary>
-        protected IIocContainer IocContainer
-        {
-            get { return _iocContainer; }
-        }
+        protected IIocContainer IocContainer => _iocContainer;
 
         #endregion
 
         #region Implementation of IModule
 
-        /// <summary>
-        ///     Gets the priority.
-        /// </summary>
-        public int Priority
-        {
-            get { return _priority; }
-        }
+        public int Priority => _priority;
 
-        /// <summary>
-        ///     Loads the current module.
-        /// </summary>
         public bool Load(IModuleContext context)
         {
-            Should.NotBeNull(context, "context");
-            if (!_supportedModes.HasFlagEx(context.Mode))
-                return false;
+            Should.NotBeNull(context, nameof(context));
+            var mode = _supportedModes & context.Mode;
+            if (_supportedModes.HasFlagEx(LoadMode.RuntimeDebug) || _supportedModes.HasFlagEx(LoadMode.RuntimeRelease))
+            {
+                if (mode != context.Mode)
+                    return false;
+            }
+            else
+            {
+                if (mode == 0)
+                    return false;
+            }
             if (!_iocContainerCanBeNull && context.IocContainer == null)
                 return false;
             lock (_locker)
@@ -136,17 +102,15 @@ namespace MugenMvvmToolkit.Modules
                 {
                     _context = null;
                     _iocContainer = null;
+                    _mode = default(LoadMode);
                 }
             }
         }
 
-        /// <summary>
-        ///     Unloads the current module.
-        /// </summary>
         public void Unload(IModuleContext context)
         {
-            Should.NotBeNull(context, "context");
-            if (context.IocContainer == null)
+            Should.NotBeNull(context, nameof(context));
+            if (!_iocContainerCanBeNull && context.IocContainer == null)
                 return;
             lock (_locker)
             {
@@ -161,6 +125,7 @@ namespace MugenMvvmToolkit.Modules
                 {
                     _context = null;
                     _iocContainer = null;
+                    _mode = default(LoadMode);
                 }
             }
         }
@@ -169,14 +134,8 @@ namespace MugenMvvmToolkit.Modules
 
         #region Methods
 
-        /// <summary>
-        ///     Loads the current module.
-        /// </summary>
         protected abstract bool LoadInternal();
 
-        /// <summary>
-        ///     Unloads the current module.
-        /// </summary>
         protected abstract void UnloadInternal();
 
         #endregion

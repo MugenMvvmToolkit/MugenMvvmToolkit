@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ParseException.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -20,9 +20,6 @@ using System;
 
 namespace MugenMvvmToolkit.Binding.Models.Exceptions
 {
-    /// <summary>
-    ///     Represents the parse exception.
-    /// </summary>
     public sealed class ParseException : Exception
     {
         #region Fields
@@ -33,11 +30,8 @@ namespace MugenMvvmToolkit.Binding.Models.Exceptions
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ParseException" /> class.
-        /// </summary>
         public ParseException(string message, int position)
-            : base(string.Format("{0} (at index {1})", message, position.ToString()))
+            : base($"{message} (at index {position.ToString()})")
         {
             _position = position;
         }
@@ -46,13 +40,7 @@ namespace MugenMvvmToolkit.Binding.Models.Exceptions
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the error position.
-        /// </summary>
-        public int Position
-        {
-            get { return _position; }
-        }
+        public int Position => _position;
 
         #endregion
     }

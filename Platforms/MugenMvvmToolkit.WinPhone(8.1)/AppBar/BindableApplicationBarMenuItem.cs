@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="BindableApplicationBarMenuItem.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -21,54 +21,33 @@ using System.Collections;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Phone.Shell;
-using MugenMvvmToolkit.Interfaces;
-using BindingEx = System.Windows.Data.Binding;
+using MugenMvvmToolkit.WinPhone.Interfaces;
 
-// ReSharper disable once CheckNamespace
-
-namespace MugenMvvmToolkit.Controls
+namespace MugenMvvmToolkit.WinPhone.AppBar
 {
-    /// <summary>
-    ///     An bindable item that can be added to the menu of an <see cref="IBindableApplicationBarItem" />.
-    /// </summary>
     public class BindableApplicationBarMenuItem : FrameworkElement, IBindableApplicationBarItem
     {
         #region Fields
 
-        /// <summary>
-        ///     Identifies the <see cref="IsEnabled" /> dependency property.
-        /// </summary>
         public static readonly DependencyProperty IsEnabledProperty =
             DependencyProperty.Register("IsEnabled", typeof(bool), typeof(BindableApplicationBarMenuItem),
                 new PropertyMetadata(true,
                     (o, args) =>
                         ((BindableApplicationBarMenuItem)o).ApplicationBarItem.IsEnabled = (bool)args.NewValue));
 
-        /// <summary>
-        ///     Identifies the <see cref="Text" /> dependency property.
-        /// </summary>
         public static readonly DependencyProperty TextProperty =
             DependencyProperty.Register("Text", typeof(string), typeof(BindableApplicationBarMenuItem),
                 new PropertyMetadata(
                     (o, args) => ((BindableApplicationBarMenuItem)o).ApplicationBarItem.Text = (string)args.NewValue));
 
-        /// <summary>
-        ///     Identifies the <see cref="Command" /> dependency property.
-        /// </summary>
         public static readonly DependencyProperty CommandProperty =
             DependencyProperty.Register("Command", typeof(ICommand), typeof(BindableApplicationBarMenuItem),
                 new PropertyMetadata(OnCommandChanged));
 
-        /// <summary>
-        ///     Identifies the <see cref="CommandParameter" /> dependency property.
-        /// </summary>
         public static readonly DependencyProperty CommandParameterProperty =
             DependencyProperty.Register("CommandParameter", typeof(object), typeof(BindableApplicationBarMenuItem),
                 new PropertyMetadata(default(object)));
 
-        /// <summary>
-        ///     Identifies the <see cref="IsVisible" /> dependency property.
-        /// </summary>
         public static readonly DependencyProperty IsVisibleProperty =
             DependencyProperty.Register("IsVisible", typeof(bool), typeof(BindableApplicationBarMenuItem),
                 new PropertyMetadata(true,
@@ -82,9 +61,6 @@ namespace MugenMvvmToolkit.Controls
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindableApplicationBarMenuItem" /> class.
-        /// </summary>
         public BindableApplicationBarMenuItem()
         {
             // ReSharper disable once DoNotCallOverridableMethodsInConstructor
@@ -96,17 +72,8 @@ namespace MugenMvvmToolkit.Controls
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the attached application bar.
-        /// </summary>
-        protected IBindableApplicationBar ApplicationBar
-        {
-            get { return _applicationBar; }
-        }
+        protected IBindableApplicationBar ApplicationBar => _applicationBar;
 
-        /// <summary>
-        ///     Gets the original list of items.
-        /// </summary>
         protected virtual IList OriginalList
         {
             get
@@ -121,105 +88,58 @@ namespace MugenMvvmToolkit.Controls
 
         #region Implementation of IBindableApplicationBarItem
 
-        /// <summary>
-        ///     Gets or sets the enabled status of the menu item.
-        /// </summary>
-        /// <returns>
-        ///     true if the menu item is enabled; otherwise, false.
-        /// </returns>
         public bool IsEnabled
         {
             get { return (bool)GetValue(IsEnabledProperty); }
             set { SetValue(IsEnabledProperty, value); }
         }
 
-        /// <summary>
-        ///     The string to display on the menu item.
-        /// </summary>
-        /// <returns>
-        ///     Type: <see cref="T:System.String" />.
-        /// </returns>
         public string Text
         {
             get { return (string)GetValue(TextProperty); }
             set { SetValue(TextProperty, value); }
         }
 
-        /// <summary>
-        ///     Gets or sets a value that indicates whether the Application Bar Item is visible.
-        /// </summary>
-        /// <returns>
-        ///     true if the Application Bar Item is visible; otherwise, false.
-        /// </returns>
         public bool IsVisible
         {
             get { return (bool)GetValue(IsVisibleProperty); }
             set { SetValue(IsVisibleProperty, value); }
         }
 
-        /// <summary>
-        ///     Occurs when the user taps the menu item.
-        /// </summary>
         public event EventHandler Click
         {
             add { ApplicationBarItem.Click += value; }
             remove { ApplicationBarItem.Click -= value; }
         }
 
-        /// <summary>
-        ///     Gets the original application bar item.
-        /// </summary>
-        public IApplicationBarMenuItem ApplicationBarItem
-        {
-            get { return _applicationBarItem; }
-        }
+        public IApplicationBarMenuItem ApplicationBarItem => _applicationBarItem;
 
-        /// <summary>
-        ///     Gets or sets the command to invoke when this button is pressed.
-        /// </summary>
-        /// <returns>
-        ///     The command to invoke when this button is pressed. The default is null.
-        /// </returns>
         public ICommand Command
         {
             get { return (ICommand)GetValue(CommandProperty); }
             set { SetValue(CommandProperty, value); }
         }
 
-        /// <summary>
-        ///     Gets or sets the parameter to pass to the <see cref="IBindableApplicationBarItem.Command" />
-        ///     property.
-        /// </summary>
-        /// <returns>
-        ///     The parameter to pass to the <see cref="IBindableApplicationBarItem.Command" /> property. The
-        ///     default is null.
-        /// </returns>
         public object CommandParameter
         {
             get { return GetValue(CommandParameterProperty); }
             set { SetValue(CommandParameterProperty, value); }
         }
 
-        /// <summary>
-        ///     Attaches to the specified <see cref="IBindableApplicationBar" />.
-        /// </summary>
         public void Attach(IBindableApplicationBar applicationBar, int position)
         {
-            Should.NotBeNull(applicationBar, "applicationBar");
+            Should.NotBeNull(applicationBar, nameof(applicationBar));
             if (_applicationBar != null)
                 throw new InvalidOperationException(
                     "The BindableApplicationBarMenuItem is already attached to an IBindableApplicationBar.");
             var localValue = ReadLocalValue(DataContextProperty);
             if (localValue == DependencyProperty.UnsetValue)
-                SetBinding(DataContextProperty, new BindingEx("DataContext") { Source = applicationBar });
+                SetBinding(DataContextProperty, new System.Windows.Data.Binding("DataContext") { Source = applicationBar });
             _applicationBar = applicationBar;
             _position = position;
             UpdateItem(IsVisible);
         }
 
-        /// <summary>
-        ///     Detaches this instance from its associated object.
-        /// </summary>
         public void Detach()
         {
             if (_applicationBar == null)
@@ -234,9 +154,6 @@ namespace MugenMvvmToolkit.Controls
 
         #region Methods
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IApplicationBarMenuItem" />
-        /// </summary>
         protected virtual IApplicationBarMenuItem CreateApplicationBarItem()
         {
             return new ApplicationBarMenuItem();

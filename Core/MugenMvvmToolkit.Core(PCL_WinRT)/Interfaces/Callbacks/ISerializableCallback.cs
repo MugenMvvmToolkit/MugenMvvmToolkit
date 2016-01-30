@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ISerializableCallback.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,14 +18,8 @@
 
 namespace MugenMvvmToolkit.Interfaces.Callbacks
 {
-    /// <summary>
-    ///     Represents the serializable callback.
-    /// </summary>
     public interface ISerializableCallback
     {
-        /// <summary>
-        ///     Invokes the callback using the specified operation result.
-        /// </summary>
         object Invoke(IOperationResult result);
     }
 }

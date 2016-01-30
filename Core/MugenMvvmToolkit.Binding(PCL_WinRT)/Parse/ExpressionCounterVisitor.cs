@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ExpressionCounterVisitor.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -41,13 +41,14 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #endregion
 
+        #region Properties
+
+        public bool IsPostOrder => false;
+
+        #endregion
+
         #region Implementation of IExpressionVisitor
 
-        /// <summary>
-        ///     Dispatches the expression.
-        /// </summary>
-        /// <param name="node">The expression to visit.</param>
-        /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
         IExpressionNode IExpressionVisitor.Visit(IExpressionNode node)
         {
             _count++;

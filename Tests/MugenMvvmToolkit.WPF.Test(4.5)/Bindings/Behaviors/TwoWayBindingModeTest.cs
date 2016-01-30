@@ -12,7 +12,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Behaviors
         [Ignore]
         public override void BehaviorCanBeAttachedRepeatedly()
         {
-            
+
         }
 
         [Ignore]
@@ -27,7 +27,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Behaviors
 
         [Ignore]
         public override void ModeShouldNotListenAnySourceChange()
-        {            
+        {
         }
 
         protected override TwoWayBindingMode CreateBehavior()

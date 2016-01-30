@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ToastPresenter.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -22,19 +22,61 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Controls;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.WinForms.Binding;
+using MugenMvvmToolkit.WinForms.Controls;
 
-namespace MugenMvvmToolkit.Infrastructure.Presenters
+namespace MugenMvvmToolkit.WinForms.Infrastructure.Presenters
 {
-    /// <summary>
-    ///     Provides functionality to present a timed message.
-    /// </summary>
     public class ToastPresenter : IToastPresenter
     {
+        #region Nested types
+
+        private sealed class ToastImpl : IToast
+        {
+            #region Fields
+
+            public readonly TaskCompletionSource<object> Tcs;
+            public ToastMessageControl Control;
+
+            #endregion
+
+            #region Constructors
+
+            public ToastImpl()
+            {
+                Tcs = new TaskCompletionSource<object>();
+            }
+
+            #endregion
+
+            #region Properties
+
+            public Task CompletionTask => Tcs.Task;
+
+            #endregion
+
+
+            #region Methods
+
+            public void Close()
+            {
+                var control = Control;
+                if (control == null)
+                    return;
+                Control = null;
+                ServiceProvider.ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, control, control, (messageControl, toastMessageControl) => ClearControl(messageControl));
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Fields
 
         private const int TimerInterval = 45;
@@ -50,12 +92,9 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             ControlName = Guid.NewGuid().ToString("n");
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ToastPresenter"/> class.
-        /// </summary>
         public ToastPresenter([NotNull] IThreadManager threadManager)
         {
-            Should.NotBeNull(threadManager, "threadManager");
+            Should.NotBeNull(threadManager, nameof(threadManager));
             _threadManager = threadManager;
             Background = Color.FromArgb(255, 105, 105, 105);
             Foreground = Color.FromArgb(255, 247, 247, 247);
@@ -77,40 +116,41 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Implementation of IToastPresenter
 
-        /// <summary>
-        ///     Shows the specified message.
-        /// </summary>
-        public Task ShowAsync(object content, float duration, ToastPosition position = ToastPosition.Bottom, IDataContext context = null)
+        public IToast ShowAsync(object content, float duration, ToastPosition position = ToastPosition.Bottom, IDataContext context = null)
         {
-            var tcs = new TaskCompletionSource<object>();
+            var toastImpl = new ToastImpl();
             if (_threadManager.IsUiThread)
-                ShowInternal(content, duration, position, context, tcs);
+                toastImpl.Control = ShowInternal(content, duration, position, context, toastImpl.Tcs);
             else
-                _threadManager.InvokeOnUiThreadAsync(() => ShowInternal(content, duration, position, context, tcs));
-            return tcs.Task;
+                _threadManager.InvokeOnUiThreadAsync(() => toastImpl.Control = ShowInternal(content, duration, position, context, toastImpl.Tcs));
+            return toastImpl;
         }
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Shows the specified message.
-        /// </summary>
-        protected virtual void ShowInternal(object content, float duration, ToastPosition position, IDataContext context, TaskCompletionSource<object> tcs)
+        [CanBeNull]
+        protected virtual ToastMessageControl ShowInternal(object content, float duration, ToastPosition position, IDataContext context, TaskCompletionSource<object> tcs)
         {
             Form activeForm = Form.ActiveForm;
             if (activeForm == null)
             {
                 tcs.SetResult(null);
-                return;
+                return null;
             }
             foreach (var result in activeForm.Controls.Find(ControlName, false).OfType<ToastMessageControl>())
-            {
-                if (duration >= result.Duration)
-                    ClearControl(result);
-            }
-            var control = GetToastControl(activeForm, content, duration, tcs);
+                ClearControl(result);
+
+            ToastMessageControl control = null;
+            var selector = activeForm.GetBindingMemberValue(AttachedMembers.Form.ToastTemplateSelector);
+            if (selector != null)
+                control = (ToastMessageControl)selector.SelectTemplate(content, activeForm);
+
+            if (control == null)
+                control = GetToastControl(activeForm, content);
+            control.Duration = duration;
+            control.TaskCompletionSource = tcs;
             control.Name = ControlName;
             activeForm.Controls.Add(control);
             SetPosition(activeForm, control, position);
@@ -119,13 +159,14 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             timer.Tick += TimerTick;
             timer.Start();
             control.Tag = timer;
+            return control;
         }
 
         [NotNull]
-        protected virtual ToastMessageControl GetToastControl(Form form, object content, float duration, TaskCompletionSource<object> tcs)
+        protected virtual ToastMessageControl GetToastControl(Form form, object content)
         {
             string msg = content == null ? "(null)" : content.ToString();
-            var control = new ToastMessageControl(msg, duration, Background, Foreground, Glow, tcs)
+            var control = new ToastMessageControl(msg, Background, Foreground, Glow)
             {
                 IsTransparent = true
             };
@@ -169,7 +210,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                     control.Anchor = AnchorStyles.Top;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("position");
+                    throw new ArgumentOutOfRangeException(nameof(position));
             }
         }
 

@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IWorkspaceViewModel.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -20,9 +20,6 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Interfaces.ViewModels
 {
-    /// <summary>
-    ///     Represents the base interface for the view model, that can be displayed in the UI.
-    /// </summary>
     public interface IWorkspaceViewModel : IHasDisplayName, ISelectable, ICloseableViewModel
     {
     }

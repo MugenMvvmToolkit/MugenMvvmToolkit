@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="BindingContextManagerEx.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -16,9 +16,11 @@
 
 #endregion
 
+using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Infrastructure
 {
     public class BindingContextManagerEx : BindingContextManager
     {
@@ -30,9 +32,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Overrides of BindingContextManager
 
-        /// <summary>
-        ///     Tries to get explicit data context member.
-        /// </summary>
         protected override IBindingMemberInfo GetExplicitDataContextMember(object source)
         {
             IBindingMemberInfo member = BindingServiceProvider

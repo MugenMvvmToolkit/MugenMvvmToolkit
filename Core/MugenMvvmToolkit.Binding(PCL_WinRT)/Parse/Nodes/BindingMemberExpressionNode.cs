@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="BindingMemberExpressionNode.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -41,42 +41,33 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
         private BindingMemberExpressionNode([NotNull] string paramName, int index)
             : base(ExpressionNodeType.BindingMember)
         {
-            Should.NotBeNull(paramName, "paramName");
+            Should.NotBeNull(paramName, nameof(paramName));
             _parameterName = paramName;
             _index = index;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingMemberExpressionNode" /> class.
-        /// </summary>
         public BindingMemberExpressionNode([NotNull] IRelativeSourceExpressionNode relativeSource,
             [NotNull] string paramName, int index)
             : this(paramName, index)
         {
-            Should.NotBeNull(relativeSource, "relativeSource");
+            Should.NotBeNull(relativeSource, nameof(relativeSource));
             _relativeSourceExpression = relativeSource;
             _path = relativeSource.Path;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingMemberExpressionNode" /> class.
-        /// </summary>
         public BindingMemberExpressionNode([NotNull] string path, [NotNull] string paramName, int index)
             : this(paramName, index)
         {
-            Should.NotBeNull(path, "path");
+            Should.NotBeNull(path, nameof(path));
             _path = path;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingMemberExpressionNode" /> class.
-        /// </summary>
         public BindingMemberExpressionNode([NotNull] string resourceName, [NotNull] string path,
             [NotNull] string paramName, int index)
             : this(paramName, index)
         {
-            Should.NotBeNull(resourceName, "resourceName");
-            Should.NotBeNull(path, "path");
+            Should.NotBeNull(resourceName, nameof(resourceName));
+            Should.NotBeNull(path, nameof(path));
             _resourceName = resourceName;
             _path = path;
             _isDynamic = true;
@@ -86,61 +77,30 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         #region Properties
 
-        public bool IsRelativeSource
-        {
-            get { return RelativeSourceExpression != null; }
-        }
+        public bool IsRelativeSource => RelativeSourceExpression != null;
 
-        public IRelativeSourceExpressionNode RelativeSourceExpression
-        {
-            get { return _relativeSourceExpression; }
-        }
+        public IRelativeSourceExpressionNode RelativeSourceExpression => _relativeSourceExpression;
 
-        public string ParameterName
-        {
-            get { return _parameterName; }
-        }
+        public string ParameterName => _parameterName;
 
-        public int Index
-        {
-            get { return _index; }
-        }
+        public int Index => _index;
 
-        public string ResourceName
-        {
-            get { return _resourceName; }
-        }
+        public string ResourceName => _resourceName;
 
-        public string Path
-        {
-            get { return _path; }
-        }
+        public string Path => _path;
 
-        public bool IsDynamic
-        {
-            get { return _isDynamic; }
-        }
+        public bool IsDynamic => _isDynamic;
 
         #endregion
 
         #region Overrides of ExpressionNode
 
-        /// <summary>
-        ///     Dispatches to the specific visit method for this node type.
-        /// </summary>
-        /// <param name="visitor">The visitor to visit this node with.</param>
         protected override void AcceptInternal(IExpressionVisitor visitor)
         {
             if (RelativeSourceExpression != null)
                 _relativeSourceExpression = AcceptWithCheck(visitor, RelativeSourceExpression, true);
         }
 
-        /// <summary>
-        ///     Creates a new object that is a copy of the current instance.
-        /// </summary>
-        /// <returns>
-        ///     A new object that is a copy of this instance.
-        /// </returns>
         protected override IExpressionNode CloneInternal()
         {
             if (IsRelativeSource)
@@ -148,12 +108,6 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
             return new BindingMemberExpressionNode(Path, ParameterName, Index);
         }
 
-        /// <summary>
-        ///     Returns a string that represents the current object.
-        /// </summary>
-        /// <returns>
-        ///     A string that represents the current object.
-        /// </returns>
         public override string ToString()
         {
             return ParameterName;

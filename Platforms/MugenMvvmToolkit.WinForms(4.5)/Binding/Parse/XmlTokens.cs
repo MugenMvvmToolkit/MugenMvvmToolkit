@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="XmlTokens.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,7 +18,7 @@
 
 using MugenMvvmToolkit.Binding.Models;
 
-namespace MugenMvvmToolkit.Binding.Parse
+namespace MugenMvvmToolkit.WinForms.Binding.Parse
 {
     internal static class XmlTokens
     {

@@ -1,7 +1,7 @@
+using Core.ViewModels;
 using System;
 using System.Windows.Forms;
-using MugenMvvmToolkit.Infrastructure;
-using $rootnamespace$.ViewModels;
+using MugenMvvmToolkit.WinForms.Infrastructure;
 
 namespace $rootnamespace$
 {

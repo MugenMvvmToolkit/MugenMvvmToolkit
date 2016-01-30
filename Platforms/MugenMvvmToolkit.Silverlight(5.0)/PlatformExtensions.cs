@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="PlatformExtensions.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,117 +17,54 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
+using MugenMvvmToolkit.Models;
+using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
+#if SILVERLIGHT
+
+namespace MugenMvvmToolkit.Silverlight
+#elif WINDOWS_PHONE
+using JetBrains.Annotations;
+using System.ComponentModel;
 using System.Runtime.Serialization;
 using System.Threading;
-using System.Windows;
 using System.Windows.Navigation;
-using JetBrains.Annotations;
-using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Infrastructure.Navigation;
-using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Navigation;
-using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Models.EventArg;
-using MugenMvvmToolkit.Modules;
-using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
+using MugenMvvmToolkit.WinPhone.Interfaces;
 
-namespace MugenMvvmToolkit
+namespace MugenMvvmToolkit.WinPhone
+#endif
+
 {
     public static class PlatformExtensions
     {
 #if WINDOWS_PHONE
-#if V71
-        //NOTE ConditionalWeakTable not supported on WP 7.8, we should keep references in memory.
-        private static readonly List<WeakReference> WeakReferences;
-
-        private sealed class WeakReferenceCollector
-        {
-            ~WeakReferenceCollector()
-            {
-                if (WeakReferences.Count == 0)
-                    return;
-                try
-                {
-                    lock (WeakReferences)
-                    {
-                        for (int i = 0; i < WeakReferences.Count; i++)
-                        {
-                            if (WeakReferences[i].Target == null)
-                            {
-                                WeakReferences.RemoveAt(i);
-                                i--;
-                            }
-                        }
-                    }
-                }
-                catch (Exception e)
-                {
-                    Tracer.Error(e.Flatten(true));
-                }
-                finally
-                {
-                    GC.ReRegisterForFinalize(this);
-                }
-            }
-        }
-
-        static PlatformExtensions()
-        {
-            WeakReferences = new List<WeakReference>(64);
-            // ReSharper disable once ObjectCreationAsStatement
-            new WeakReferenceCollector();
-        }
-#endif
-
         private const string HandledPath = "#!~handled";
         private const string StatePath = "#!~vmstate";
         private static IApplicationStateManager _applicationStateManager;
 
-        /// <summary>
-        /// Gets or sets the <see cref="IApplicationStateManager"/>.
-        /// </summary>
         [NotNull]
         public static IApplicationStateManager ApplicationStateManager
         {
             get
             {
                 if (_applicationStateManager == null)
-                    Interlocked.CompareExchange(ref _applicationStateManager,
-                        ServiceProvider.IocContainer.Get<IApplicationStateManager>(), null);
+                    Interlocked.CompareExchange(ref _applicationStateManager, ServiceProvider.Get<IApplicationStateManager>(), null);
                 return _applicationStateManager;
             }
             set { _applicationStateManager = value; }
         }
 
-#elif !WINDOWS_PHONE
-        #region Fields
-
-        private static Func<Type, DataTemplate> _defaultViewModelTemplateFactory =
-            ViewModelDataTemplateModule.DefaultTemplateProvider;
-
-        #endregion
-
-        #region Properties
-
-        [NotNull]
-        public static Func<Type, DataTemplate> DefaultViewModelTemplateFactory
-        {
-            get { return _defaultViewModelTemplateFactory; }
-            set
-            {
-                Should.PropertyBeNotNull(value, "DefaultViewModelTemplateFactory");
-                _defaultViewModelTemplateFactory = value;
-            }
-        }
-
-        #endregion
+        public static event EventHandler<CancelEventArgs> MainPageOnBackKeyPressed;
 #endif
         #region Methods
 
 #if WINDOWS_PHONE
+        public static void HandleMainPageOnBackKeyPress(Action<CancelEventArgs> baseAction, CancelEventArgs args)
+        {
+            MainPageOnBackKeyPressed?.Invoke(null, args);
+            baseAction(args);
+        }
+
         public static bool GetHandled(this NavigationEventArgs args)
         {
             if (args.Content == null)
@@ -159,20 +96,6 @@ namespace MugenMvvmToolkit
             else
                 ServiceProvider.AttachedValueProvider.SetValue(content, StatePath, state);
         }
-
-        internal static bool IsSerializable(this Type type)
-        {
-            return type.IsDefined(typeof(DataContractAttribute), false) || type.IsPrimitive;
-        }
-#if V71
-        internal static WeakReference CreateWeakReference(object item, bool trackResurrection)
-        {
-            var reference = new WeakReference(item, trackResurrection);
-            lock (WeakReferences)
-                WeakReferences.Add(reference);
-            return reference;
-        }
-#endif
 #endif
 
         internal static PlatformInfo GetPlatformInfo()
