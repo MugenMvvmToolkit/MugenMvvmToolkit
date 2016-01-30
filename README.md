@@ -31,17 +31,17 @@ The MVVM framework includes the following features that differs this project fro
 
 Under Visual Studio you can use NuGet Package Manager to get MugenMvvmToolkit.
 
-To start developing with mobile platfrom or Silverlight
+To start developing under mobile platfroms(**iOS, Android, Windows Phone**) or **Silverlight**:
 ```
 PM> Install-Package MugenMvvmToolkit.StarterPack
 ```
 
-To start developing with WPF
+To start developing under **WPF**:
 ```
 PM> Install-Package MugenMvvmToolkit.StarterPack.WPF
 ```
 
-To start developing with Windows Forms
+To start developing under **Windows Forms**:
 ```
 PM> Install-Package MugenMvvmToolkit.StarterPack.WinForms
 ```
