@@ -52,11 +52,11 @@ PM> Install-Package MugenMvvmToolkit.StarterPack.WinForms
 #Navigation example
 
 An example of how the navigation looks in other frameworks:
-```
+```csharp
 Navigate<DetailViewModel>(new DetailParameters() { Index = 2 });
 ```
  An example of how the navigation looks in MugenMvvmToolkit:
-```
+```csharp
 using (var editorVm = GetViewModel<ProductEditorViewModel>())            
 {
    var productModel = new ProductModel { Id = Guid.NewGuid() };

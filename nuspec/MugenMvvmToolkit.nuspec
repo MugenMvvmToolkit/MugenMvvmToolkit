@@ -15,8 +15,8 @@
       - Xamarin.Android
       - Xamarin.iOS
       - Xamarin.Forms
-      - WinRT XAML framework for Windows Store apps
-      The MVVM framework includes the following features that differs this project from other frameworks:
+      - WinRT XAML framework for Windows 8 Store apps
+      The MVVM framework includes the following features that differs this project from other ones:
       - Deep integration with each platform.
       - Supports state preservation and restoration for mobile platforms.
       - Full Fragment support for Android, you do not need to worry about activity, fragments, sub-fragments or their state all this makes the framework.
