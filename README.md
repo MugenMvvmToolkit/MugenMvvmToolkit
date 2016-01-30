@@ -27,11 +27,30 @@ The MVVM framework includes the following features that differs this project fro
  - Supports all kinds of navigation like modal window, page navigation, tab navigation, back stack fragment navigation for android. You can also easily add a new kind of navigation.
  - Navigation system works with view models and allows to expect the completion of the operation. You can pass any parameters between view models. 
 
-An example of how to navigate looks in other frameworks:
+#Installation
+
+Under Visual Studio you can use NuGet Package Manager to get MugenMvvmToolkit.
+
+To start developing with mobile platfrom or Silverlight
+```
+PM> Install-Package MugenMvvmToolkit.StarterPack
+```
+
+To start developing with WPF
+```
+PM> Install-Package MugenMvvmToolkit.StarterPack.WPF
+```
+
+To start developing with Windows Forms
+```
+PM> Install-Package MugenMvvmToolkit.StarterPack.WinForms
+```
+
+An example of how the navigation looks in other frameworks:
 ```
 Navigate<DetailViewModel>(new DetailParameters() { Index = 2 });
 ```
- An example of how to navigate looks in MugenMvvmToolkit:
+ An example of how the navigation looks in MugenMvvmToolkit:
 ```
 using (var editorVm = GetViewModel<ProductEditorViewModel>())            
 {
