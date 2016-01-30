@@ -32,7 +32,7 @@ The MVVM framework includes the following features that differs this project fro
 Under Visual Studio you can use [NuGet Package Manager](https://www.nuget.org/) to get MugenMvvmToolkit.
 
 To start developing under **iOS, Android, Windows Phone, WinRT, Silverlight** or **PCL** platforms use:
-```winbatch
+```
 PM> Install-Package MugenMvvmToolkit.StarterPack
 ```
 
@@ -49,11 +49,11 @@ PM> Install-Package MugenMvvmToolkit.StarterPack.WinForms
 #Navigation example
 
 An example of how the navigation looks in other frameworks:
-```
+```csharp
 Navigate<DetailViewModel>(new DetailParameters() { Index = 2 });
 ```
  An example of how the navigation looks in MugenMvvmToolkit:
-```
+```csharp
 using (var editorVm = GetViewModel<ProductEditorViewModel>())            
 {
    var productModel = new ProductModel { Id = Guid.NewGuid() };
