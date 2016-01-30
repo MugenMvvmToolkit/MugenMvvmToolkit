@@ -39,7 +39,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Validation
             validator.Initialize(new ValidatorContext(new object(), GetServiceProvider()));
             validator.IsValid.ShouldBeTrue();
 
-            validator.SetErrors<EntityStateEntry>(entry => entry.Entity, ValidatorError);
+            validator.SetErrors<EntityStateEntry>(() => entry => entry.Entity, ValidatorError);
             validator.IsValid.ShouldBeFalse();
 
             validator.ValidateAsync(propName).Wait();

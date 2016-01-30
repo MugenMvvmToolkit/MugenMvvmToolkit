@@ -18,4 +18,22 @@ namespace MugenMvvmToolkit.Test.Models
 
         #endregion
     }
+
+    [TestClass]
+    public class RelayCommandGenericTaskTest : RelayCommandTest
+    {
+        #region Overrides of RelayCommandTest
+
+        protected override RelayCommandBase CreateCommand(Action<object> execute, Func<object, bool> canExecute = null,
+            params object[] items)
+        {
+            return (RelayCommandBase)RelayCommandBase.FromAsyncHandler(o =>
+            {
+                execute(o);
+                return Empty.Task;
+            }, canExecute, true, items);
+        }
+
+        #endregion
+    }
 }

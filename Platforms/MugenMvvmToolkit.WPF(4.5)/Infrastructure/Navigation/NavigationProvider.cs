@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="NavigationProvider.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,11 +17,14 @@
 #endregion
 
 using System;
-using System.Reflection;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
@@ -31,32 +34,73 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.ViewModels;
-using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
-using NavigationContext = MugenMvvmToolkit.Models.NavigationContext;
-using ViewManagerEx = MugenMvvmToolkit.Infrastructure.ViewManager;
 
-namespace MugenMvvmToolkit.Infrastructure.Navigation
+#if WPF
+using MugenMvvmToolkit.WPF.Interfaces.Navigation;
+
+namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
+#elif ANDROID
+using MugenMvvmToolkit.Android.Interfaces.Navigation;
+
+namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
+#elif TOUCH
+using MugenMvvmToolkit.iOS.Interfaces.Navigation;
+
+namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
+#elif XAMARIN_FORMS
+using System.Reflection;
+using MugenMvvmToolkit.Xamarin.Forms.Interfaces.Navigation;
+
+namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
+#elif SILVERLIGHT
+using MugenMvvmToolkit.Silverlight.Interfaces.Navigation;
+
+namespace MugenMvvmToolkit.Silverlight.Infrastructure.Navigation
+#elif WINDOWSCOMMON
+using System.Reflection;
+using MugenMvvmToolkit.WinRT.Interfaces.Navigation;
+
+namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
+#elif WINDOWS_PHONE
+using MugenMvvmToolkit.WinPhone.Interfaces.Navigation;
+
+namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
+#endif
 {
-    public class NavigationProvider : DisposableObject, INavigationProviderEx
+    public class NavigationProvider : INavigationProviderEx
     {
         #region Nested types
 
-        private sealed class CloseCommandWrapper : ICommand
+        private sealed class CloseCommandWrapper : IRelayCommand
         {
             #region Fields
 
+            private static readonly IDisposable EmptyDisposable;
             public readonly ICommand NestedCommand;
-            private readonly INavigationProvider _provider;
+            private readonly NavigationProvider _provider;
+            private readonly WeakReference _reference;
 
             #endregion
 
             #region Constructors
 
-            public CloseCommandWrapper(ICommand nestedCommand, INavigationProvider provider)
+            static CloseCommandWrapper()
+            {
+                EmptyDisposable = new ActionToken(() => { });
+            }
+
+            public CloseCommandWrapper(ICommand nestedCommand, NavigationProvider provider, IViewModel viewModel)
             {
                 NestedCommand = nestedCommand;
                 _provider = provider;
+                _reference = ToolkitExtensions.GetWeakReference(viewModel);
             }
+
+            #endregion
+
+            #region Properties
+
+            private IRelayCommand RelayCommand => NestedCommand as IRelayCommand;
 
             #endregion
 
@@ -64,13 +108,18 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
             public bool CanExecute(object parameter)
             {
-                return _provider.CanGoBack && (NestedCommand == null || NestedCommand.CanExecute(parameter));
+                var target = _reference.Target as IViewModel;
+                return target != null && _provider.NavigationService.CanClose(target, parameter as IDataContext) &&
+                       (NestedCommand == null || NestedCommand.CanExecute(parameter));
             }
 
             public void Execute(object parameter)
             {
+                var target = _reference.Target as IViewModel;
+                if (target == null)
+                    return;
                 if (NestedCommand == null)
-                    _provider.GoBack();
+                    _provider.TryCloseViewModel(target, parameter);
                 else
                     NestedCommand.Execute(parameter);
             }
@@ -89,6 +138,100 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 }
             }
 
+            public void Dispose()
+            {
+                if (RelayCommand != null)
+                    RelayCommand.Dispose();
+            }
+
+            public event PropertyChangedEventHandler PropertyChanged
+            {
+                add
+                {
+                    if (RelayCommand != null)
+                        RelayCommand.PropertyChanged += value;
+                }
+                remove
+                {
+                    if (RelayCommand != null)
+                        RelayCommand.PropertyChanged -= value;
+                }
+            }
+
+            public bool IsNotificationsSuspended => RelayCommand != null && RelayCommand.IsNotificationsSuspended;
+
+            public IDisposable SuspendNotifications()
+            {
+                if (RelayCommand == null)
+                    return EmptyDisposable;
+                return RelayCommand.SuspendNotifications();
+            }
+
+            public bool HasCanExecuteImpl => true;
+
+            public CommandExecutionMode ExecutionMode
+            {
+                get
+                {
+                    if (RelayCommand == null)
+                        return CommandExecutionMode.None;
+                    return RelayCommand.ExecutionMode;
+                }
+                set
+                {
+                    if (RelayCommand != null)
+                        RelayCommand.ExecutionMode = value;
+                }
+            }
+
+            public ExecutionMode CanExecuteMode
+            {
+                get
+                {
+                    if (RelayCommand == null)
+                        return MugenMvvmToolkit.Models.ExecutionMode.None;
+                    return RelayCommand.CanExecuteMode;
+                }
+                set
+                {
+                    if (RelayCommand != null)
+                        RelayCommand.CanExecuteMode = value;
+                }
+            }
+
+            public IList<object> GetNotifiers()
+            {
+                if (RelayCommand == null)
+                    return Empty.Array<object>();
+                return RelayCommand.GetNotifiers();
+            }
+
+            public bool AddNotifier(object item)
+            {
+                if (RelayCommand == null)
+                    return false;
+                return RelayCommand.AddNotifier(item);
+            }
+
+            public bool RemoveNotifier(object item)
+            {
+                if (RelayCommand == null)
+                    return false;
+                return RelayCommand.RemoveNotifier(item);
+            }
+
+            public void ClearNotifiers()
+            {
+                if (RelayCommand != null)
+                    RelayCommand.ClearNotifiers();
+            }
+
+            public void RaiseCanExecuteChanged()
+            {
+                if (RelayCommand != null)
+                    RelayCommand.RaiseCanExecuteChanged();
+            }
+
             #endregion
         }
 
@@ -96,12 +239,9 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         #region Fields
 
-        public static readonly DataConstant<NavigationEventArgsBase> NavigationArgsConstant;
-        public static readonly DataConstant<NavigatingCancelEventArgsBase> NavigatingCancelArgsConstant;
-        public static readonly DataConstant<bool> ClearNavigationCache;
-
-        protected static readonly DataConstant<Type> ViewModelType;
-        private static readonly DataConstant<string> VmTypeConstant;
+        protected static readonly DataConstant<Type> ViewModelTypeConstant;
+        private static readonly DataConstant<object> IsNavigatedConstant;
+        private static readonly string[] IdSeparator = { "~n|v~" };
 
         private readonly IViewMappingProvider _mappingProvider;
         private readonly IViewManager _viewManager;
@@ -111,15 +251,18 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         private readonly IThreadManager _threadManager;
         private readonly INavigationCachePolicy _cachePolicy;
         private readonly EventHandler<ICloseableViewModel, ViewModelClosedEventArgs> _closeViewModelHandler;
+        private readonly EventHandler<IDisposableObject, EventArgs> _disposeViewModelHandler;
 
         private WeakReference _vmReference;
         private bool _closedFromViewModel;
-        private bool _ignoreCloseFromViewModel;
         private bool _ignoreNavigating;
+        private IViewModel _closingViewModel;
         private NavigatingCancelEventArgsBase _navigatingCancelArgs;
         private IViewModel _navigationTargetVm;
         private IOperationCallback _currentCallback;
+        private string _currentOperationId;
         private IDataContext _lastContext;
+        private TaskCompletionSource<object> _navigatedTcs;
 
         #endregion
 
@@ -127,26 +270,21 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         static NavigationProvider()
         {
-            NavigationArgsConstant = DataConstant.Create(() => NavigationArgsConstant, true);
-            NavigatingCancelArgsConstant = DataConstant.Create(() => NavigatingCancelArgsConstant, true);
-            ViewModelType = DataConstant.Create(() => ViewModelType, true);
-            VmTypeConstant = DataConstant.Create(() => VmTypeConstant, true);
-            ClearNavigationCache = DataConstant.Create(() => ClearNavigationCache);
+            var type = typeof(NavigationProvider);
+            ViewModelTypeConstant = DataConstant.Create<Type>(type, nameof(ViewModelTypeConstant), true);
+            IsNavigatedConstant = DataConstant.Create<object>(type, nameof(IsNavigatedConstant), false);
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NavigationProvider" /> class.
-        /// </summary>
         public NavigationProvider([NotNull] INavigationService navigationService, [NotNull] IThreadManager threadManager,
             [NotNull] IViewMappingProvider mappingProvider, [NotNull] IViewManager viewManager,
             [NotNull] IViewModelProvider viewModelProvider, IOperationCallbackManager callbackManager, INavigationCachePolicy cachePolicy = null)
         {
-            Should.NotBeNull(navigationService, "navigationService");
-            Should.NotBeNull(threadManager, "threadManager");
-            Should.NotBeNull(mappingProvider, "mappingProvider");
-            Should.NotBeNull(viewManager, "viewManager");
-            Should.NotBeNull(viewModelProvider, "viewModelProvider");
-            Should.NotBeNull(callbackManager, "callbackManager");
+            Should.NotBeNull(navigationService, nameof(navigationService));
+            Should.NotBeNull(threadManager, nameof(threadManager));
+            Should.NotBeNull(mappingProvider, nameof(mappingProvider));
+            Should.NotBeNull(viewManager, nameof(viewManager));
+            Should.NotBeNull(viewModelProvider, nameof(viewModelProvider));
+            Should.NotBeNull(callbackManager, nameof(callbackManager));
             _navigationService = navigationService;
             _threadManager = threadManager;
             _mappingProvider = mappingProvider;
@@ -156,6 +294,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             _cachePolicy = cachePolicy;
             _vmReference = Empty.WeakReference;
             _closeViewModelHandler = CloseableViewModelOnClosed;
+            _disposeViewModelHandler = ViewModelOnDisposed;
 
             NavigationService.Navigating += NavigationServiceOnNavigating;
             NavigationService.Navigated += NavigationServiceOnNavigated;
@@ -165,194 +304,130 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         #region Properties
 
-        /// <summary>
-        /// Gets the <see cref="IViewManager"/>.
-        /// </summary>
         [NotNull]
-        protected IViewManager ViewManager
-        {
-            get { return _viewManager; }
-        }
+        protected IViewManager ViewManager => _viewManager;
 
-        /// <summary>
-        ///     Gets the <see cref="IViewMappingProvider"/>.
-        /// </summary>
         [NotNull]
-        protected IViewMappingProvider ViewMappingProvider
-        {
-            get { return _mappingProvider; }
-        }
+        protected IViewMappingProvider ViewMappingProvider => _mappingProvider;
 
-        /// <summary>
-        ///     Gets the current <see cref="IThreadManager"/>.
-        /// </summary>
         [NotNull]
-        protected IThreadManager ThreadManager
-        {
-            get { return _threadManager; }
-        }
+        protected IThreadManager ThreadManager => _threadManager;
 
-        /// <summary>
-        /// Gets the <see cref="IViewModelProvider"/>.
-        /// </summary>
         [NotNull]
-        protected IViewModelProvider ViewModelProvider
-        {
-            get { return _viewModelProvider; }
-        }
+        protected IViewModelProvider ViewModelProvider => _viewModelProvider;
 
-        /// <summary>
-        /// Gets the <see cref="IOperationCallbackManager"/>.
-        /// </summary>
         [NotNull]
-        protected IOperationCallbackManager CallbackManager
-        {
-            get { return _callbackManager; }
-        }
+        protected IOperationCallbackManager CallbackManager => _callbackManager;
 
         #endregion
 
         #region Implementation of INavigationProvider
 
-        /// <summary>
-        ///     Gets the <see cref="INavigationService" />.
-        /// </summary>
-        public INavigationService NavigationService
-        {
-            get { return _navigationService; }
-        }
+        public INavigationService NavigationService => _navigationService;
 
-        /// <summary>
-        ///     Gets the active view model.
-        /// </summary>
         public IViewModel CurrentViewModel
         {
             get { return (IViewModel)_vmReference.Target; }
-            protected set { _vmReference = ToolkitExtensions.GetWeakReference(value); }
+            protected set { _vmReference = ToolkitExtensions.GetWeakReferenceOrDefault(value, Empty.WeakReference, true); }
         }
 
-        /// <summary>
-        ///     Gets the current content.
-        /// </summary>
-        public virtual object CurrentContent
+        public virtual object CurrentContent => _navigationService.CurrentContent;
+
+        public Task CurrentNavigationTask
         {
-            get { return _navigationService.CurrentContent; }
+            get
+            {
+                var tcs = _navigatedTcs;
+                if (tcs == null)
+                    return Empty.Task;
+                return tcs.Task;
+            }
         }
 
-        /// <summary>
-        ///     Gets the cache policy, if any.
-        /// </summary>
-        public INavigationCachePolicy CachePolicy
-        {
-            get { return _cachePolicy; }
-        }
+        public INavigationCachePolicy CachePolicy => _cachePolicy;
 
-        /// <summary>
-        ///     Indicates whether the navigator can navigate back.
-        /// </summary>
-        public virtual bool CanGoBack
-        {
-            get { return _navigationService.CanGoBack; }
-        }
+        public virtual bool CanGoBack => _navigationService.CanGoBack;
 
-        /// <summary>
-        ///     Indicates whether the navigator can navigate forward.
-        /// </summary>
-        public virtual bool CanGoForward
-        {
-            get { return _navigationService.CanGoForward; }
-        }
+        public virtual bool CanGoForward => _navigationService.CanGoForward;
 
-        /// <summary>
-        ///     Navigates back.
-        /// </summary>
         public virtual void GoBack()
         {
             _navigationService.GoBack();
         }
 
-        /// <summary>
-        ///     Navigates forward.
-        /// </summary>
         public virtual void GoForward()
         {
             _navigationService.GoForward();
         }
 
-        /// <summary>
-        ///     Navigates using the specified data context.
-        /// </summary>
-        /// <param name="callback">The specified callback, if any.</param>
-        /// <param name="context">
-        ///     The specified <see cref="IDataContext" />.
-        /// </param>
-        public void Navigate(IOperationCallback callback, IDataContext context)
+        public Task NavigateAsync(IOperationCallback callback, IDataContext context)
         {
-            Should.NotBeNull(context, "context");
+            Should.NotBeNull(context, nameof(context));
             IViewModel viewModel = context.GetData(NavigationConstants.ViewModel);
             if (viewModel == null)
-                throw new InvalidOperationException(string.Format("The '{0}' provider doesn't support the DataContext without navigation target.", GetType()));
+                throw new InvalidOperationException($"The '{GetType()}' provider doesn't support the DataContext without navigation target.");
+            context = context.ToNonReadOnly();
             if (ReferenceEquals(viewModel, CurrentViewModel))
             {
                 if (callback != null)
-                    callback.Invoke(OperationResult.CreateResult<bool?>(OperationType.PageNavigation, CurrentViewModel, true, context));
-                return;
+                    CallbackManager.Register(OperationType.PageNavigation, viewModel, callback, context);
+                return Empty.Task;
             }
+            //The view model is already shown as page and we need to bring it to front
+            if (viewModel.Settings.State.Contains(IsNavigatedConstant))
+                context.AddOrUpdate(NavigationProviderConstants.BringToFront, true);
 
             string viewName = viewModel.GetViewName(context);
-            var parameters = context.GetData(NavigationConstants.Parameters);
-
             var vmType = viewModel.GetType();
-            var mappingItem = FindMappingForViewModel(vmType, viewName);
-            object parameter;
-            if (parameters != null)
-            {
-                parameters = parameters.ToNonReadOnly();
-                parameters.Add(VmTypeConstant, vmType.AssemblyQualifiedName);
-                parameter = parameters;
-            }
-            else
-                parameter = vmType.AssemblyQualifiedName;
+            var mappingItem = ViewMappingProvider.FindMappingForViewModel(vmType, viewName, true);
+            var id = Guid.NewGuid().ToString("n");
+            var parameter = GenerateNavigationParameter(vmType, id);
 
-            ThreadManager.InvokeOnUiThreadAsync(() =>
-            {
-                CancelCurrentNavigation(null);
-                _navigationTargetVm = viewModel;
-                _currentCallback = callback;
-                _lastContext = context;
-                if (_navigationService.Navigate(mappingItem, parameter, context))
-                    ClearCacheIfNeed(context, viewModel, parameters);
-            });
+            var tcs = new TaskCompletionSource<object>();
+            CurrentNavigationTask.TryExecuteSynchronously(_ =>
+                ThreadManager.InvokeOnUiThreadAsync(() =>
+                {
+                    _navigatedTcs = tcs;
+                    _navigationTargetVm = viewModel;
+                    _currentCallback = callback;
+                    _lastContext = context;
+                    _currentOperationId = id;
+                    if (_navigationService.Navigate(mappingItem, parameter, context))
+                        ClearCacheIfNeed(context, viewModel);
+                }));
+            return tcs.Task;
         }
 
-        /// <summary>
-        ///     Raised after the view model navigation.
-        /// </summary>
-        /// <param name="viewModel">The specified view model.</param>
-        /// <param name="mode">The specified navigation mode.</param>
-        /// <param name="context">The specified <see cref="IDataContext" />.</param>
         public virtual void OnNavigated(IViewModel viewModel, NavigationMode mode, IDataContext context)
         {
-            Should.NotBeNull(viewModel, "viewModel");
-            var navigationContext = new NavigationContext(NavigationType.Page, mode, CurrentViewModel, viewModel, this, context);
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            var navigationContext = new NavigationContext(NavigationType.Page, mode, CurrentViewModel, viewModel, this);
             var currentViewModel = CurrentViewModel;
             if (currentViewModel != null)
                 TryCacheViewModel(navigationContext, CurrentContent ?? currentViewModel.Settings.Metadata.GetData(ViewModelConstants.View), currentViewModel);
             OnNavigated(navigationContext);
         }
 
-        /// <summary>
-        ///     Occurs after view model was navigated.
-        /// </summary>
         public virtual event EventHandler<INavigationProvider, NavigatedEventArgs> Navigated;
+
+        public virtual void Dispose()
+        {
+            ClearCacheIfNeed(new DataContext(NavigationProviderConstants.InvalidateAllCache.ToValue(true)), null);
+            NavigationService.Navigating -= NavigationServiceOnNavigating;
+            NavigationService.Navigated -= NavigationServiceOnNavigated;
+            Navigated = null;
+        }
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Subscriber to the Navigating event.
-        /// </summary>
+        public static string GenerateNavigationParameter([NotNull] Type vmType, string value)
+        {
+            Should.NotBeNull(vmType, nameof(vmType));
+            return vmType.AssemblyQualifiedName + IdSeparator[0] + value;
+        }
+
         protected virtual void NavigationServiceOnNavigating(object sender, NavigatingCancelEventArgsBase args)
         {
             try
@@ -366,37 +441,44 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             }
         }
 
-        /// <summary>
-        ///     Subscriber to the Navigated event.
-        /// </summary>
         protected virtual void NavigationServiceOnNavigated(object sender, NavigationEventArgsBase e)
         {
-            var callback = _currentCallback;
-            var vm = _navigationTargetVm;
-            var context = CreateContextNavigateTo(CurrentViewModel, vm, e);
-            UpdateNavigationContext(callback, vm, e, ref context);
-            OnNavigated(context);
+            string idOperation = null;
+            try
+            {
+                var context = CreateContextNavigateTo(CurrentViewModel, e);
+                idOperation = context.GetData(NavigationProviderConstants.OperationId);
+                IOperationCallback callback = null;
+                if (idOperation == _currentOperationId)
+                {
+                    callback = _currentCallback;
+                    _currentCallback = null;
+                    _navigationTargetVm = null;
+                    _lastContext = null;
+                }
+                UpdateNavigationContext(callback, context.ViewModelTo, e, ref context);
+                OnNavigated(context);
+            }
+            finally
+            {
+                if (idOperation == _currentOperationId)
+                {
+                    _currentOperationId = null;
+                    var tcs = _navigatedTcs;
+                    if (tcs != null)
+                    {
+                        _navigatedTcs = null;
+                        tcs.TrySetResult(null);
+                    }
+                }
+            }
         }
 
-        /// <summary>
-        ///     Called just before a view-model is no longer the active view-model in a frame.
-        /// </summary>
-        /// <param name="viewModel">The specified <see cref="IViewModel"/></param>
-        /// <param name="context">
-        ///     The specified <see cref="INavigationContext" />.
-        /// </param>
         protected virtual Task<bool> OnNavigatingFrom([NotNull] IViewModel viewModel, INavigationContext context)
         {
             return viewModel.TryCloseAsync(context, context);
         }
 
-        /// <summary>
-        ///     Called when a view-model becomes the active view-model in a frame.
-        /// </summary>
-        /// <param name="viewModel">The specified <see cref="IViewModel"/></param>
-        /// <param name="context">
-        ///     The specified <see cref="INavigationContext" />.
-        /// </param>
         protected virtual void OnNavigatedTo(IViewModel viewModel, INavigationContext context)
         {
             var navVm = viewModel as INavigableViewModel;
@@ -404,20 +486,25 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 navVm.OnNavigatedTo(context);
         }
 
-        protected virtual INavigationContext CreateContextNavigateFrom(IViewModel viewModelFrom, IViewModel viewModelTo, NavigatingCancelEventArgsBase args)
+        protected virtual INavigationContext CreateContextNavigateFrom(IViewModel viewModelFrom, NavigatingCancelEventArgsBase args)
         {
-            IDataContext parameters;
-            GetViewModelTypeFromParameter(NavigationService.GetParameterFromArgs(args), out parameters);
-            return new NavigationContext(NavigationType.Page, args.NavigationMode, viewModelFrom, viewModelTo, this, parameters)
+            string idOperation;
+            GetViewModelTypeFromParameter(NavigationService.GetParameterFromArgs(args), out idOperation);
+            var viewModelTo = idOperation == _currentOperationId ? _navigationTargetVm : null;
+            if (viewModelTo == null && viewModelFrom != null && args.NavigationMode == NavigationMode.Back)
+                viewModelTo = viewModelFrom.GetParentViewModel();
+            return new NavigationContext(NavigationType.Page, args.NavigationMode, viewModelFrom, viewModelTo, this)
             {
-                {NavigatingCancelArgsConstant, args}
+                {NavigationProviderConstants.NavigatingCancelArgs, args},
+                {NavigationProviderConstants.OperationId, idOperation}
             };
         }
 
-        protected virtual INavigationContext CreateContextNavigateTo(IViewModel viewModelFrom, IViewModel viewModelTo, NavigationEventArgsBase args)
+        protected virtual INavigationContext CreateContextNavigateTo(IViewModel viewModelFrom, NavigationEventArgsBase args)
         {
-            IDataContext parameters;
-            var vmType = GetViewModelTypeFromParameter(NavigationService.GetParameterFromArgs(args), out parameters);
+            string idOperation;
+            var vmType = GetViewModelTypeFromParameter(NavigationService.GetParameterFromArgs(args), out idOperation);
+            var viewModelTo = idOperation == _currentOperationId ? _navigationTargetVm : null;
             if (vmType == null)
             {
                 if (args.Content != null)
@@ -426,7 +513,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                     if (items.Count == 1)
                     {
                         var type = items[0].ViewModelType;
-#if NETFX_CORE || WINDOWSCOMMON || XAMARIN_FORMS
+#if WINDOWSCOMMON || XAMARIN_FORMS
                         if (!type.GetTypeInfo().IsGenericTypeDefinition)
 #else
                         if (!type.IsGenericTypeDefinition)
@@ -436,26 +523,18 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                     }
                 }
                 if (vmType == null)
-                    return new NavigationContext(NavigationType.Page, args.Mode, viewModelFrom, viewModelTo, this, parameters);
+                    return new NavigationContext(NavigationType.Page, args.Mode, viewModelFrom, viewModelTo, this)
+                    {
+                        {NavigationProviderConstants.NavigationArgs, args},
+                        {NavigationProviderConstants.OperationId, idOperation}
+                    };
             }
-            return new NavigationContext(NavigationType.Page, args.Mode, viewModelFrom, viewModelTo, this, parameters)
+            return new NavigationContext(NavigationType.Page, args.Mode, viewModelFrom, viewModelTo, this)
             {
-                {NavigationArgsConstant, args},
-                {ViewModelType, vmType}
+                {NavigationProviderConstants.NavigationArgs, args},
+                {ViewModelTypeConstant, vmType},
+                {NavigationProviderConstants.OperationId, idOperation}
             };
-        }
-
-        protected virtual void RegisterOperationCallback([NotNull]IViewModel viewModel, [NotNull] IOperationCallback callback, [NotNull]INavigationContext context)
-        {
-            CallbackManager.Register(OperationType.PageNavigation, viewModel, callback, context);
-        }
-
-        protected virtual bool TryCompleteOperationCallback([NotNull] IViewModel viewModel, [NotNull] INavigationContext context)
-        {
-            if (context.NavigationMode != NavigationMode.Back)
-                return false;
-            CompleteOperationCallback(viewModel, context);
-            return true;
         }
 
         protected virtual IViewModel GetViewModelForView([NotNull] NavigationEventArgsBase args,
@@ -467,14 +546,17 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 ViewManager.InitializeViewAsync(navigationViewModel, view, context).WithTaskExceptionHandler(this);
                 return navigationViewModel;
             }
-            //Trying to get from cache.
-            IViewModel vm = TryTakeViewModelFromCache(context, view);
+
+            IViewModel vm = null;
+            if (CachePolicy != null)
+                vm = CachePolicy.TryTakeViewModelFromCache(context, view);
+
             if (HasViewModel(view, vmType))
-                return (IViewModel)ViewManagerEx.GetDataContext(view);
+                return (IViewModel)MugenMvvmToolkit.Infrastructure.ViewManager.GetDataContext(view);
             if (vm == null)
             {
                 IDataContext viewModelState = null;
-#if WINDOWS_PHONE || NETFX_CORE || WINDOWSCOMMON
+#if WINDOWS_PHONE || WINDOWSCOMMON
                 viewModelState = PlatformExtensions.GetViewModelState(view);
                 if (viewModelState != null)
                     PlatformExtensions.SetViewModelState(view, null);
@@ -490,28 +572,29 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             return vm;
         }
 
-        protected static Type GetViewModelTypeFromParameter(object parameter, out IDataContext parameters)
+        protected virtual void RaiseNavigated(INavigationContext ctx)
         {
-            var st = parameter as string;
-            if (!string.IsNullOrEmpty(st))
-            {
-                parameters = null;
-                return Type.GetType(st, false);
-            }
-            parameters = parameter as IDataContext;
-            if (parameters == null)
-                return null;
-            return Type.GetType(parameters.GetData(VmTypeConstant), true);
+            Navigated?.Invoke(this, new NavigatedEventArgs(ctx));
         }
 
-        /// <summary>
-        ///     Invokes the <see cref="Navigated" /> event.
-        /// </summary>
-        protected void RaiseNavigated(INavigationContext ctx, IViewModel vm)
+        protected bool TryCompleteOperationCallback([NotNull] IViewModel viewModel, [NotNull] INavigationContext context)
         {
-            var handler = Navigated;
-            if (handler != null)
-                handler(this, new NavigatedEventArgs(ctx, vm));
+            if (context.NavigationMode != NavigationMode.Back)
+                return false;
+            CompleteOperationCallback(viewModel, context);
+            return true;
+        }
+
+        protected static Type GetViewModelTypeFromParameter(string parameter, out string idOperation)
+        {
+            if (string.IsNullOrEmpty(parameter))
+            {
+                idOperation = null;
+                return null;
+            }
+            var items = parameter.Split(IdSeparator, StringSplitOptions.RemoveEmptyEntries);
+            idOperation = items.Length == 2 ? items[1] : null;
+            return Type.GetType(items[0], false);
         }
 
         private void Renavigate(IViewModel currentViewModel, [NotNull] INavigationContext context, NavigatingCancelEventArgsBase args)
@@ -520,15 +603,10 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 TryCacheViewModel(context, CurrentContent, currentViewModel);
             if (_navigatingCancelArgs == null)
             {
-                if (args.IsCancelable && args.NavigationMode == NavigationMode.Back)
-                    NavigationService.GoBack();
+                if (NavigationService.Navigate(args, _lastContext))
+                    ClearCacheIfNeed(_lastContext ?? DataContext.Empty, _navigationTargetVm);
                 else
-                {
-                    if (NavigationService.Navigate(args, _lastContext))
-                        ClearCacheIfNeed(_lastContext ?? DataContext.Empty, _navigationTargetVm, context.Parameters);
-                    else
-                        CancelCurrentNavigation(context);
-                }
+                    CancelCurrentNavigation(context);
             }
             else
                 _navigatingCancelArgs.Cancel = false;
@@ -541,45 +619,55 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             var currentViewModel = CurrentViewModel;
             if (currentViewModel == null)
                 return;
-            _ignoreCloseFromViewModel = true;
-            args.Cancel = true;
-            var context = CreateContextNavigateFrom(currentViewModel, _navigationTargetVm, args);
-            var navigateTask = (_closedFromViewModel || !args.IsCancelable)
-                ? Empty.TrueTask
-                : OnNavigatingFrom(currentViewModel, context);
-            var t = navigateTask.TryExecuteSynchronously(task =>
+            try
             {
-                if (task.IsCanceled || !task.Result)
+                _closingViewModel = currentViewModel;
+                args.Cancel = true;
+                var context = CreateContextNavigateFrom(currentViewModel, args);
+                var navigateTask = (_closedFromViewModel || !args.IsCancelable)
+                    ? Empty.TrueTask
+                    : OnNavigatingFrom(currentViewModel, context);
+                var t = navigateTask.TryExecuteSynchronously(task =>
                 {
-                    CancelCurrentNavigation(context);
-                    return;
-                }
-                if (task.IsFaulted)
-                {
-                    var callback = _currentCallback;
-                    if (callback != null)
+                    if (!task.IsCanceled && task.IsFaulted)
                     {
-                        callback.Invoke(OperationResult.CreateErrorResult<bool?>(OperationType.PageNavigation,
-                            currentViewModel, task.Exception, context));
-                        _currentCallback = null;
+                        _closingViewModel = null;
+                        var callback = _currentCallback;
+                        if (callback != null)
+                        {
+                            callback.Invoke(OperationResult.CreateErrorResult<bool?>(OperationType.PageNavigation,
+                                currentViewModel, task.Exception, context));
+                            _currentCallback = null;
+                        }
+                        return;
                     }
-                    return;
-                }
-                ThreadManager.InvokeOnUiThreadAsync(() =>
-                {
-                    try
+                    if (task.IsCanceled || !task.Result)
                     {
-                        _ignoreNavigating = true;
-                        Renavigate(currentViewModel, context, args);
+                        _closingViewModel = null;
+                        CancelCurrentNavigation(context);
+                        return;
                     }
-                    finally
+                    ThreadManager.InvokeOnUiThreadAsync(() =>
                     {
-                        _ignoreNavigating = false;
-                    }
+                        try
+                        {
+                            _ignoreNavigating = true;
+                            Renavigate(currentViewModel, context, args);
+                        }
+                        finally
+                        {
+                            _closingViewModel = null;
+                            _ignoreNavigating = false;
+                        }
+                    });
                 });
-            });
-            t.TryExecuteSynchronously(task => _ignoreCloseFromViewModel = false);
-            t.WithTaskExceptionHandler(this);
+                t.WithTaskExceptionHandler(this);
+            }
+            catch (Exception)
+            {
+                _closingViewModel = null;
+                throw;
+            }
         }
 
         private void OnNavigated(INavigationContext context)
@@ -594,86 +682,101 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                     Tracer.Warn("Possible bug in navigation, navigate to the same view model with mode " + mode);
                 return;
             }
-            try
+            CurrentViewModel = vmTo;
+            if (vmFrom != null)
             {
-                CurrentViewModel = vmTo;
-                if (vmFrom != null)
+                var navigableViewModel = vmFrom as INavigableViewModel;
+                if (navigableViewModel != null)
+                    navigableViewModel.OnNavigatedFrom(context);
+            }
+
+            if (vmTo != null)
+            {
+                if (!vmTo.Settings.State.Contains(IsNavigatedConstant))
                 {
-                    var navigableViewModel = vmFrom as INavigableViewModel;
-                    if (navigableViewModel != null)
-                        navigableViewModel.OnNavigatedFrom(context);
+                    vmTo.Disposed += _disposeViewModelHandler;
+                    vmTo.Settings.State.AddOrUpdate(IsNavigatedConstant, null);
                 }
 
-                var closeableViewModel = vmFrom as ICloseableViewModel;
-                if (closeableViewModel != null)
-                {
-                    closeableViewModel.Closed -= _closeViewModelHandler;
-                    var wrapper = closeableViewModel.CloseCommand as CloseCommandWrapper;
-                    if (wrapper != null)
-                        closeableViewModel.CloseCommand = wrapper.NestedCommand;
-                }
-
-                closeableViewModel = vmTo as ICloseableViewModel;
+                var closeableViewModel = vmTo as ICloseableViewModel;
                 if (closeableViewModel != null && !(closeableViewModel.CloseCommand is CloseCommandWrapper))
                 {
                     closeableViewModel.Closed += _closeViewModelHandler;
-                    closeableViewModel.CloseCommand = new CloseCommandWrapper(closeableViewModel.CloseCommand, this);
+                    closeableViewModel.CloseCommand = new CloseCommandWrapper(closeableViewModel.CloseCommand, this, closeableViewModel);
                 }
+                OnNavigatedTo(vmTo, context);
+            }
 
-                if (vmTo != null)
-                {
-                    OnNavigatedTo(vmTo, context);
-                    RaiseNavigated(context, vmTo);
-                }
-                if (vmFrom != null)
-                    TryCompleteOperationCallback(vmFrom, context);
-
+            RaiseNavigated(context);
+            if (vmFrom != null && TryCompleteOperationCallback(vmFrom, context))
+                OnViewModelClosed(vmFrom, context, false);
+            if (Tracer.TraceInformation)
                 Tracer.Info("Navigated from '{0}' to '{1}', navigation mode '{2}'", vmFrom, vmTo, mode);
-            }
-            catch (Exception ex)
-            {
-                Tracer.Error(ex.Flatten(true));
-                throw;
-            }
-            finally
-            {
-                _currentCallback = null;
-                _navigationTargetVm = null;
-                _lastContext = null;
-            }
         }
 
         private void UpdateNavigationContext(IOperationCallback callback, IViewModel navigationViewModel, NavigationEventArgsBase args, ref INavigationContext context)
         {
-            var vmType = context.GetData(ViewModelType);
+            var vmType = context.GetData(ViewModelTypeConstant);
             if (vmType == null)
                 return;
 
             var viewModel = GetViewModelForView(args, navigationViewModel, context, vmType);
             if (!ReferenceEquals(context.ViewModelTo, viewModel))
-                context = new NavigationContext(NavigationType.Page, context.NavigationMode, context.ViewModelFrom, viewModel,
-                    context.NavigationProvider, context.Parameters);
+                context = new NavigationContext(NavigationType.Page, context.NavigationMode, context.ViewModelFrom, viewModel, context.NavigationProvider);
             if (viewModel != null && callback != null)
-                RegisterOperationCallback(viewModel, callback, context);
+                CallbackManager.Register(OperationType.PageNavigation, viewModel, callback, context);
         }
 
-        private void CloseableViewModelOnClosed(object sender, ViewModelClosedEventArgs args)
+        private void ViewModelOnDisposed(IDisposableObject sender, EventArgs args)
         {
-            if (_ignoreCloseFromViewModel)
-                return;
-            _threadManager.InvokeOnUiThreadAsync(() =>
+            if (CachePolicy != null && CachePolicy.Invalidate((IViewModel)sender, DataContext.Empty))
+                Tracer.Warn("The disposed view model " + sender.GetType().Name + " was in the navigation cache");
+        }
+
+        private void CloseableViewModelOnClosed(ICloseableViewModel sender, ViewModelClosedEventArgs e)
+        {
+            TryCloseViewModel(e.ViewModel, e.Parameter);
+        }
+
+        private void TryCloseViewModel(IViewModel viewModel, object parameter)
+        {
+            _threadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, viewModel, parameter, (provider, vm, p) =>
             {
+                if (ReferenceEquals(provider._closingViewModel, vm))
+                    return;
                 try
                 {
-                    _closedFromViewModel = true;
-                    if (NavigationService.CanGoBack)
-                        NavigationService.GoBack();
+                    provider._closedFromViewModel = true;
+                    if (provider.NavigationService.TryClose(vm, p as IDataContext))
+                        provider.OnViewModelClosed(vm, p, true);
                 }
                 finally
                 {
-                    _closedFromViewModel = false;
+                    provider._closedFromViewModel = false;
                 }
             });
+        }
+
+        private bool OnViewModelClosed(IViewModel viewModel, object parameter, bool completeCallback)
+        {
+            viewModel.Disposed -= _disposeViewModelHandler;
+            viewModel.Settings.State.Remove(IsNavigatedConstant);
+            if (CachePolicy != null)
+                CachePolicy.Invalidate(viewModel, parameter as IDataContext);
+            var closeableViewModel = viewModel as ICloseableViewModel;
+            if (closeableViewModel != null)
+            {
+                var wrapper = closeableViewModel.CloseCommand as CloseCommandWrapper;
+                if (wrapper != null)
+                    closeableViewModel.CloseCommand = wrapper.NestedCommand;
+                closeableViewModel.Closed -= _closeViewModelHandler;
+            }
+            if (completeCallback && CurrentViewModel != viewModel)
+            {
+                CompleteOperationCallback(viewModel, parameter as IDataContext ?? DataContext.Empty);
+                return true;
+            }
+            return false;
         }
 
         private void TryCacheViewModel(INavigationContext context, object view, IViewModel viewModel)
@@ -682,47 +785,39 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 CachePolicy.TryCacheViewModel(context, view, viewModel);
         }
 
-        private IViewModel TryTakeViewModelFromCache(INavigationContext context, object view)
-        {
-            if (CachePolicy == null)
-                return null;
-            return CachePolicy.TryTakeViewModelFromCache(context, view);
-        }
-
-        private IViewMappingItem FindMappingForViewModel(Type viewModelType, string viewName)
-        {
-            return ViewMappingProvider.FindMappingForViewModel(viewModelType, viewName, true);
-        }
-
         private void CancelCurrentNavigation(INavigationContext context)
         {
             var callback = _currentCallback;
             if (callback != null)
             {
-                callback.Invoke(OperationResult.CreateCancelResult<bool?>(OperationType.PageNavigation, this, context));
+                callback.Invoke(OperationResult.CreateCancelResult<bool?>(OperationType.PageNavigation, context.ViewModelTo ?? (object)this, context));
                 _currentCallback = null;
                 _navigationTargetVm = null;
             }
+            var tcs = _navigatedTcs;
+            if (tcs != null)
+            {
+                _navigatedTcs = null;
+                tcs.TrySetCanceled();
+            }
         }
 
-        private bool HasViewModel(object view, Type viewModelType)
+        private static bool HasViewModel(object view, Type viewModelType)
         {
-            if (_navigationTargetVm != null && _navigationTargetVm.GetType().Equals(viewModelType))
-                return true;
             if (view == null)
                 return false;
-            var viewModel = ViewManagerEx.GetDataContext(view) as IViewModel;
+            var viewModel = MugenMvvmToolkit.Infrastructure.ViewManager.GetDataContext(view) as IViewModel;
             if (viewModel == null)
                 return false;
 
             var vmType = viewModel.GetType();
-#if NETFX_CORE || WINDOWSCOMMON || XAMARIN_FORMS
+#if WINDOWSCOMMON || XAMARIN_FORMS
             if (!viewModelType.GetTypeInfo().IsGenericType)
 #else
             if (!viewModelType.IsGenericType)
 #endif
                 return vmType.Equals(viewModelType);
-#if NETFX_CORE || WINDOWSCOMMON || XAMARIN_FORMS
+#if WINDOWSCOMMON || XAMARIN_FORMS
             if (!vmType.GetTypeInfo().IsGenericType)
 #else
             if (!vmType.IsGenericType)
@@ -731,45 +826,30 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             return vmType.GetGenericTypeDefinition().Equals(viewModelType.GetGenericTypeDefinition());
         }
 
-        private void CompleteOperationCallback(IViewModel viewModel, INavigationContext context)
+        private void CompleteOperationCallback(IViewModel viewModel, IDataContext context)
         {
-            bool? result = null;
-            var hasOperationResult = viewModel as IHasOperationResult;
-            if (hasOperationResult != null)
-                result = hasOperationResult.OperationResult;
+            var result = ViewModelExtensions.GetOperationResult(viewModel);
             var operationResult = OperationResult.CreateResult(OperationType.PageNavigation, viewModel, result, context);
-            CallbackManager.SetResult(viewModel, operationResult);
+            CallbackManager.SetResult(operationResult);
         }
 
-        private void ClearCacheIfNeed(IDataContext context, IViewModel viewModelTo, IDataContext parameters)
+        private void ClearCacheIfNeed(IDataContext context, IViewModel viewModelTo)
         {
-            if (!context.GetData(ClearNavigationCache) || CachePolicy == null)
+            if (CachePolicy == null)
                 return;
+            if (!context.GetData(NavigationProviderConstants.InvalidateAllCache))
+            {
+                if (context.GetData(NavigationProviderConstants.InvalidateCache))
+                    CachePolicy.Invalidate(viewModelTo, context);
+                return;
+            }
             var viewModels = CachePolicy.Invalidate(context);
-            foreach (var viewModelFrom in viewModels)
+            foreach (var viewModelFrom in viewModels.Reverse())
             {
-                var navigationContext = new NavigationContext(NavigationType.Page, NavigationMode.Undefined, viewModelFrom, viewModelTo, this, parameters);
-                CompleteOperationCallback(viewModelFrom, navigationContext);
-                viewModelFrom.Dispose();
+                var navigationContext = new NavigationContext(NavigationType.Page, NavigationMode.Reset, viewModelFrom, viewModelTo, this);
+                if (!OnViewModelClosed(viewModelFrom, navigationContext, true))
+                    CompleteOperationCallback(viewModelFrom, navigationContext);
             }
-        }
-
-        #endregion
-
-        #region Overrides of DisposableObject
-
-        /// <summary>
-        ///     Releases resources held by the object.
-        /// </summary>
-        protected override void OnDispose(bool disposing)
-        {
-            if (disposing)
-            {
-                NavigationService.Navigating -= NavigationServiceOnNavigating;
-                NavigationService.Navigated -= NavigationServiceOnNavigated;
-                Navigated = null;
-            }
-            base.OnDispose(disposing);
         }
 
         #endregion

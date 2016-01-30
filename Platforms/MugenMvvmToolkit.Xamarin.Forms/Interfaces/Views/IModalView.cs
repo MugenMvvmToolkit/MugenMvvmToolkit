@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="IModalView.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -16,10 +16,17 @@
 
 #endregion
 
-namespace MugenMvvmToolkit.Interfaces.Views
+using MugenMvvmToolkit.Interfaces.Views;
+
+namespace MugenMvvmToolkit.Xamarin.Forms.Interfaces.Views
 {
     public interface IModalView : IView
     {
+    }
+
+    public interface ISupportActivationModalView : IModalView
+    {
+        void Activate();
     }
 
     public interface ITabView : IView

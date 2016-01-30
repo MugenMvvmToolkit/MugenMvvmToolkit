@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="ItemsSourceRecyclerAdapter.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -21,29 +21,54 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using Android.App;
+using Android.Runtime;
 using Android.Views;
 using Android.Widget;
-using JetBrains.Annotations;
+using MugenMvvmToolkit.Android.Binding;
+using MugenMvvmToolkit.Android.Binding.Infrastructure;
+using MugenMvvmToolkit.Android.Interfaces;
+using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Infrastructure;
-using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Interfaces.Views;
+using MugenMvvmToolkit.Binding.Interfaces.Models;
 using Object = Java.Lang.Object;
 
-namespace MugenMvvmToolkit.RecyclerView.Infrastructure
+namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
 {
-    public class ItemsSourceRecyclerAdapter : Android.Support.V7.Widget.RecyclerView.Adapter
+    public class ItemsSourceRecyclerAdapter : global::Android.Support.V7.Widget.RecyclerView.Adapter
     {
         #region Nested types
 
-        private sealed class ViewHolderImpl : Android.Support.V7.Widget.RecyclerView.ViewHolder
+        private sealed class ViewHolderImpl : global::Android.Support.V7.Widget.RecyclerView.ViewHolder, IBindingContextHolder
         {
+            #region Fields
+
+            private readonly IBindingContext _bindingContext;
+
+            #endregion
+
             #region Constructors
 
-            public ViewHolderImpl(View itemView)
+            private ViewHolderImpl(IntPtr javaReference, JniHandleOwnership transfer) : base(javaReference, transfer)
+            {
+                _bindingContext = BindingServiceProvider.ContextManager.GetBindingContext(ItemView);
+            }
+
+            public ViewHolderImpl(View itemView, int viewType)
                 : base(itemView)
             {
+                if (viewType != global::Android.Resource.Layout.SimpleListItem1)
+                {
+                    _bindingContext = BindingServiceProvider.ContextManager.GetBindingContext(itemView);
+                    _bindingContext.Value = null;
+                }
             }
+
+            #endregion
+
+            #region Properties
+
+            //In the hundreds of times faster than the access to the ItemView field.
+            public IBindingContext BindingContext => _bindingContext;
 
             #endregion
         }
@@ -52,55 +77,42 @@ namespace MugenMvvmToolkit.RecyclerView.Infrastructure
 
         #region Fields
 
-        private readonly DataTemplateProvider _itemTemplateProvider;
-        private readonly LayoutInflater _layoutInflater;
-        private readonly Android.Support.V7.Widget.RecyclerView _recyclerView;
         private readonly NotifyCollectionChangedEventHandler _weakHandler;
+        private List<global::Android.Support.V7.Widget.RecyclerView.AdapterDataObserver> _observers;
+        private DataTemplateProvider _itemTemplateProvider;
+        private LayoutInflater _layoutInflater;
+        private Func<LayoutInflater, ViewGroup, int, global::Android.Support.V7.Widget.RecyclerView.ViewHolder> _createViewHolderDelegate;
+        private global::Android.Support.V7.Widget.RecyclerView _recyclerView;
+        private ReflectionExtensions.IWeakEventHandler<EventArgs> _listener;
+        private IStableIdProvider _stableIdProvider;
         private IEnumerable _itemsSource;
 
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ItemsSourceAdapter" /> class.
-        /// </summary>
-        public ItemsSourceRecyclerAdapter([NotNull] Android.Support.V7.Widget.RecyclerView recyclerView)
+        public ItemsSourceRecyclerAdapter()
         {
-            Should.NotBeNull(recyclerView, "recyclerView");
-            _recyclerView = recyclerView;
-            _itemTemplateProvider = new DataTemplateProvider(_recyclerView, AttachedMemberConstants.ItemTemplate,
-                AttachedMemberConstants.ItemTemplateSelector);
-            _layoutInflater = LayoutInflater.From(_recyclerView.Context);
-            _weakHandler = ReflectionExtensions.MakeWeakCollectionChangedHandler(this,
-                (adapter, o, arg3) => adapter.OnCollectionChanged(o, arg3));
-            var activityView = _recyclerView.Context.GetActivity() as IActivityView;
-            if (activityView != null)
-                activityView.Mediator.Destroyed += ActivityViewOnDestroyed;
+            _weakHandler = ReflectionExtensions.MakeWeakCollectionChangedHandler(this, (adapter, o, arg3) => adapter.OnCollectionChanged(o, arg3));
         }
 
         #endregion
 
         #region Properties
 
-        protected Android.Support.V7.Widget.RecyclerView RecyclerView
-        {
-            get { return _recyclerView; }
-        }
+        protected global::Android.Support.V7.Widget.RecyclerView RecyclerView => _recyclerView;
 
-        protected LayoutInflater LayoutInflater
-        {
-            get { return _layoutInflater; }
-        }
+        protected DataTemplateProvider DataTemplateProvider => _itemTemplateProvider;
 
-        /// <summary>
-        ///     Gets or sets the items source.
-        /// </summary>
+        protected LayoutInflater LayoutInflater => _layoutInflater;
+
         public virtual IEnumerable ItemsSource
         {
             get { return _itemsSource; }
             set { SetItemsSource(value, true); }
         }
+
+        public bool ClearDataContext { get; set; }
 
         #endregion
 
@@ -111,11 +123,6 @@ namespace MugenMvvmToolkit.RecyclerView.Infrastructure
             if (position < 0)
                 return null;
             return ItemsSource.ElementAtIndex(position);
-        }
-
-        public virtual int GetPosition(object value)
-        {
-            return ItemsSource.IndexOf(value);
         }
 
         protected virtual void SetItemsSource(IEnumerable value, bool notifyDataSet)
@@ -174,10 +181,40 @@ namespace MugenMvvmToolkit.RecyclerView.Infrastructure
             }
         }
 
-        private void ActivityViewOnDestroyed(Activity sender, EventArgs args)
+        private void ActivityViewOnDestroyed(Activity sender)
         {
-            ((IActivityView)sender).Mediator.Destroyed -= ActivityViewOnDestroyed;
+            ((IActivityView)sender).Mediator.Destroyed -= _listener.Handle;
             SetItemsSource(null, false);
+            var recyclerView = _recyclerView;
+            if (recyclerView.IsAlive() && ReferenceEquals(recyclerView.GetAdapter(), this))
+                recyclerView.SetAdapter(null);
+        }
+
+        private static void SetDataContext(global::Android.Support.V7.Widget.RecyclerView.ViewHolder holder, object context)
+        {
+            var contextHolder = holder as IBindingContextHolder;
+            if (contextHolder == null)
+            {
+                if (holder.ItemViewType == global::Android.Resource.Layout.SimpleListItem1)
+                {
+                    var textView = holder.ItemView as TextView;
+                    if (textView != null)
+                        textView.Text = context.ToStringSafe("(null)");
+                }
+                else
+                    holder.ItemView.SetDataContext(context);
+            }
+            else
+            {
+                if (contextHolder.BindingContext == null)
+                {
+                    var textView = holder.ItemView as TextView;
+                    if (textView != null)
+                        textView.Text = context.ToStringSafe("(null)");
+                }
+                else
+                    contextHolder.BindingContext.Value = context;
+            }
         }
 
         #endregion
@@ -194,48 +231,116 @@ namespace MugenMvvmToolkit.RecyclerView.Infrastructure
             }
         }
 
-        public override void OnBindViewHolder(Android.Support.V7.Widget.RecyclerView.ViewHolder holder, int position)
+        public override void OnAttachedToRecyclerView(global::Android.Support.V7.Widget.RecyclerView recyclerView)
         {
-            object item = GetRawItem(position);
-            if (holder.ItemViewType == Android.Resource.Layout.SimpleListItem1)
+            _recyclerView = recyclerView;
+            _itemTemplateProvider = new DataTemplateProvider(_recyclerView, AttachedMemberConstants.ItemTemplate, AttachedMemberConstants.ItemTemplateSelector);
+            _layoutInflater = _recyclerView.Context.GetBindableLayoutInflater();
+            _createViewHolderDelegate = _recyclerView.GetBindingMemberValue(AttachedMembersRecyclerView.RecyclerView.CreateViewHolderDelegate);
+            HasStableIds = recyclerView.TryGetBindingMemberValue(AttachedMembers.Object.StableIdProvider, out _stableIdProvider) && _stableIdProvider != null;
+            var activityView = _recyclerView.Context.GetActivity() as IActivityView;
+            if (activityView != null)
             {
-                var textView = holder.ItemView as TextView;
-                if (textView != null)
-                    textView.Text = item.ToStringSafe("(null)");
-                return;
+                if (_listener == null)
+                    _listener = ReflectionExtensions.CreateWeakEventHandler<ItemsSourceRecyclerAdapter, EventArgs>(this, (adapter, o, arg3) => adapter.ActivityViewOnDestroyed((Activity)o));
+                activityView.Mediator.Destroyed += _listener.Handle;
             }
-            BindingServiceProvider.ContextManager.GetBindingContext(holder.ItemView).Value = item;
+            //To prevent HasStableIds error.
+            if (_observers != null)
+            {
+                foreach (var observer in _observers)
+                    base.RegisterAdapterDataObserver(observer);
+                _observers = null;
+            }
+            var member = BindingServiceProvider.MemberProvider.GetBindingMember(_recyclerView.GetType(), AttachedMembers.ViewGroup.DisableHierarchyListener, false, false);
+            if (member.CanWrite)
+                member.SetSingleValue(_recyclerView, Empty.TrueObject);
+            base.OnAttachedToRecyclerView(recyclerView);
         }
 
-        public override Android.Support.V7.Widget.RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent,
-            int viewType)
+        public override void OnDetachedFromRecyclerView(global::Android.Support.V7.Widget.RecyclerView recyclerView)
         {
-            Tuple<View, IList<IDataBinding>> view = LayoutInflater.CreateBindableView(viewType, parent, false);
-            return new ViewHolderImpl(view.Item1);
+            var activityView = recyclerView.Context.GetActivity() as IActivityView;
+            if (activityView != null)
+                activityView.Mediator.Destroyed -= _listener.Handle;
+            _layoutInflater = null;
+            _itemTemplateProvider = null;
+            _recyclerView = null;
+            _createViewHolderDelegate = null;
+            base.OnDetachedFromRecyclerView(recyclerView);
+        }
+
+        public override long GetItemId(int position)
+        {
+            if (_stableIdProvider == null)
+                return global::Android.Support.V7.Widget.RecyclerView.NoId;
+            return _stableIdProvider.GetItemId(GetRawItem(position));
+        }
+
+        public override void OnBindViewHolder(global::Android.Support.V7.Widget.RecyclerView.ViewHolder holder, int position)
+        {
+            SetDataContext(holder, GetRawItem(position));
+        }
+
+        public override global::Android.Support.V7.Widget.RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
+        {
+            View view;
+            global::Android.Support.V7.Widget.RecyclerView.ViewHolder viewHolder;
+            if (_createViewHolderDelegate == null)
+            {
+                view = _layoutInflater.Inflate(viewType, parent, false);
+                viewHolder = new ViewHolderImpl(view, viewType);
+            }
+            else
+            {
+                viewHolder = _createViewHolderDelegate(_layoutInflater, parent, viewType);
+                view = viewHolder.ItemView;
+                view.SetDataContext(null);
+            }
+            if (parent != null)
+                view.SetBindingMemberValue(AttachedMembers.Object.Parent, parent);
+            view.ListenParentChange();
+            return viewHolder;
         }
 
         public override void OnViewRecycled(Object holder)
         {
-            var viewHolder = holder as Android.Support.V7.Widget.RecyclerView.ViewHolder;
-            if (viewHolder != null && viewHolder.ItemView != null)
-                BindingServiceProvider.ContextManager.GetBindingContext(viewHolder.ItemView).Value = null;
-            base.OnViewRecycled(holder);
+            if (ClearDataContext)
+            {
+                var viewHolder = (global::Android.Support.V7.Widget.RecyclerView.ViewHolder)holder;
+                SetDataContext(viewHolder, null);
+            }
         }
 
         public override int GetItemViewType(int position)
         {
-            var item = GetRawItem(position);
+            object item = GetRawItem(position);
             int id;
             if (_itemTemplateProvider.TrySelectResourceTemplate(item, out id))
-                return id;
-            object template;
-            if (_itemTemplateProvider.TrySelectTemplate(item, out template))
             {
-                if (template is int)
-                    return (int)template;
-                Tracer.Error("The DataTemplate '{0}' is not supported by RecyclerView", template);
+                if (id == 0)
+                    return global::Android.Resource.Layout.SimpleListItem1;
+                return id;
             }
-            return _itemTemplateProvider.GetTemplateId().GetValueOrDefault(Android.Resource.Layout.SimpleListItem1);
+            return _itemTemplateProvider.GetTemplateId().GetValueOrDefault(global::Android.Resource.Layout.SimpleListItem1);
+        }
+
+        public override void RegisterAdapterDataObserver(global::Android.Support.V7.Widget.RecyclerView.AdapterDataObserver observer)
+        {
+            if (_recyclerView == null)
+            {
+                if (_observers == null)
+                    _observers = new List<global::Android.Support.V7.Widget.RecyclerView.AdapterDataObserver>();
+                _observers.Add(observer);
+            }
+            else
+                base.RegisterAdapterDataObserver(observer);
+        }
+
+        public override void UnregisterAdapterDataObserver(global::Android.Support.V7.Widget.RecyclerView.AdapterDataObserver observer)
+        {
+            if (_observers == null || !_observers.Remove(observer))
+                base.UnregisterAdapterDataObserver(observer);
         }
 
         #endregion

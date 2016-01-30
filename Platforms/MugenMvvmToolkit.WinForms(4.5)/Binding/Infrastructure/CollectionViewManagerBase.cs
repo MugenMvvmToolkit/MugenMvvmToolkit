@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="CollectionViewManagerBase.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -16,22 +16,32 @@
 
 #endregion
 
-using MugenMvvmToolkit.Binding.Interfaces;
+#if WINFORMS
+using MugenMvvmToolkit.WinForms.Binding.Interfaces;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.WinForms.Binding.Infrastructure
+#elif ANDROID
+using MugenMvvmToolkit.Android.Binding.Interfaces;
+
+namespace MugenMvvmToolkit.Android.Binding.Infrastructure
+#elif TOUCH
+using MugenMvvmToolkit.iOS.Binding.Interfaces;
+
+namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
+#endif
 {
-    public abstract class CollectionViewManagerBase<TView, TItem> : ICollectionViewManager
+    public abstract class CollectionViewManagerBase<TView, TViewItem> : ICollectionViewManager
     {
         #region Implementation of ICollectionViewManager
 
         void ICollectionViewManager.Insert(object view, int index, object item)
         {
-            Insert((TView) view, index, (TItem) item);
+            Insert((TView)view, index, (TViewItem)item);
         }
 
         void ICollectionViewManager.RemoveAt(object view, int index)
         {
-            RemoveAt((TView) view, index);
+            RemoveAt((TView)view, index);
         }
 
         void ICollectionViewManager.Clear(object view)
@@ -43,19 +53,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Inserts an item to the specified index.
-        /// </summary>
-        protected abstract void Insert(TView view, int index, TItem item);
+        protected abstract void Insert(TView view, int index, TViewItem viewItem);
 
-        /// <summary>
-        ///     Removes an item.
-        /// </summary>
         protected abstract void RemoveAt(TView view, int index);
 
-        /// <summary>
-        ///     Removes all items.
-        /// </summary>
         protected abstract void Clear(TView view);
 
         #endregion

@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MugenMvvmToolkit.Test.TestInfrastructure;
 using Should;
 
 namespace MugenMvvmToolkit.Test.Collections
@@ -12,27 +14,20 @@ namespace MugenMvvmToolkit.Test.Collections
     [DebuggerDisplay("Id = {Id}")]
     public sealed class Item
     {
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="Item" /> class.
-        /// </summary>
+        private static int IdGenerator = -1;
+
         public Item()
         {
-            Id = Guid.NewGuid();
+            Id = Interlocked.Increment(ref IdGenerator);
         }
 
         public bool Hidden { get; set; }
 
-        public Guid Id { get; set; }
+        public int Id { get; set; }
 
-        /// <summary>
-        ///     Returns a string that represents the current object.
-        /// </summary>
-        /// <returns>
-        ///     A string that represents the current object.
-        /// </returns>
         public override string ToString()
         {
-            return string.Format("Id: {0}", Id);
+            return $"Id: {Id}";
         }
     }
 
@@ -42,7 +37,7 @@ namespace MugenMvvmToolkit.Test.Collections
         [TestMethod]
         public void CreateWithItemsTest()
         {
-            var items = new[] {new Item(), new Item()};
+            var items = new[] { new Item(), new Item() };
             ICollection<Item> collection = CreateCollection(items);
             collection.Count.ShouldEqual(2);
             collection.Any(item => item == items[0]).ShouldBeTrue();
@@ -98,14 +93,15 @@ namespace MugenMvvmToolkit.Test.Collections
         [TestMethod]
         public void ClearItemsTest()
         {
-            var items = new[] {new Item(), new Item()};
+            var items = new[] { new Item(), new Item() };
             ICollection<Item> collection = CreateCollection(items);
             collection.Count.ShouldEqual(2);
             collection.Any(item => item == items[0]).ShouldBeTrue();
             collection.Any(item => item == items[1]).ShouldBeTrue();
 
             collection.Clear();
-            collection.Count.ShouldEqual(0);
+            if (collection.Count != 0)
+                collection.Count.ShouldEqual(0);
         }
 
         protected abstract ICollection<T> CreateCollection<T>(params T[] items) where T : class;

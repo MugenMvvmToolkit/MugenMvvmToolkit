@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="SelectedItemChangedEventArgs.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -22,9 +22,6 @@ namespace MugenMvvmToolkit.Models.EventArg
     {
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="SelectedItemChangedEventArgs" /> class.
-        /// </summary>
         public SelectedItemChangedEventArgs(object oldValue, object newValue)
             : base(oldValue, newValue)
         {
@@ -37,9 +34,6 @@ namespace MugenMvvmToolkit.Models.EventArg
     {
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="SelectedItemChangedEventArgs" /> class.
-        /// </summary>
         public SelectedItemChangedEventArgs(T oldValue, T newValue)
             : base(oldValue, newValue)
         {
@@ -49,21 +43,9 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the old value.
-        /// </summary>
-        public new T OldValue
-        {
-            get { return (T) base.OldValue; }
-        }
+        public new T OldValue => (T) base.OldValue;
 
-        /// <summary>
-        ///     Gets the new value.
-        /// </summary>
-        public new T NewValue
-        {
-            get { return (T) base.NewValue; }
-        }
+        public new T NewValue => (T) base.NewValue;
 
         #endregion
     }

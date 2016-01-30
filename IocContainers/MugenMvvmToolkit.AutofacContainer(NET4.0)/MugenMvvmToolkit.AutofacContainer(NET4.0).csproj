@@ -31,13 +31,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\bin\IocContainers\Autofac\NET4.0\MugenMvvmToolkit.AutofacContainer.XML</DocumentationFile>
-  </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\..\Solution Items\sigkey.snk</AssemblyOriginatorKeyFile>
+    <DocumentationFile></DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Autofac">
@@ -66,6 +60,9 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.AutofacContainer%28PCL%29\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.AutofacContainer%28PCL%29\Properties\AssemblyInfoCommon.cs">
+      <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>

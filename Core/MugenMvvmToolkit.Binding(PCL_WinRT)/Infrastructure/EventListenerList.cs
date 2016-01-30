@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="EventListenerList.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,14 +17,13 @@
 #endregion
 
 using System;
+using System.Reflection;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    /// <summary>
-    ///     Represents the weak collection of <see cref="IEventListener" />.
-    /// </summary>
     public class EventListenerList
     {
         #region Nested types
@@ -69,6 +68,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Fields
 
+        internal static readonly EventListenerList EmptyListener;
+        internal static readonly MethodInfo RaiseMethod;
+
         //Use an array to reduce the cost of memory and do not lock during a call event.
         protected WeakEventListenerWrapper[] Listeners;
 
@@ -76,9 +78,16 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="EventListenerList" /> class.
-        /// </summary>
+        static EventListenerList()
+        {
+            RaiseMethod = typeof(EventListenerList).GetMethodEx(nameof(Raise), MemberFlags.Public | MemberFlags.Instance);
+            EmptyListener = new EventListenerList(true);
+        }
+
+        private EventListenerList(bool _)
+        {
+        }
+
         public EventListenerList()
         {
             Listeners = Empty.Array<WeakEventListenerWrapper>();
@@ -86,29 +95,24 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #endregion
 
+        #region Properties
+
+        internal bool IsEmpty => Listeners == null;
+
+        #endregion
+
         #region Methods
 
-        /// <summary>
-        /// Gets or adds an instance of <see cref="EventListenerList"/> using the attached member path.
-        /// </summary>
         public static EventListenerList GetOrAdd(object item, string path)
         {
             return ServiceProvider.AttachedValueProvider.GetOrAdd(item, path, (o, o1) => new EventListenerList(), null);
         }
 
-        /// <summary>
-        ///     This method can be used to raise the event handler using the attached member path.
-        /// </summary>
         public static void Raise(object item, string path, object message)
         {
-            var list = ServiceProvider.AttachedValueProvider.GetValue<EventListenerList>(item, path, false);
-            if (list != null)
-                list.Raise(item, message);
+            ServiceProvider.AttachedValueProvider.GetValue<EventListenerList>(item, path, false)?.Raise(item, message);
         }
 
-        /// <summary>
-        ///     This method can be used to raise the event handler.
-        /// </summary>
         public void Raise<TArg>(object sender, TArg args)
         {
             bool hasDeadRef = false;
@@ -126,25 +130,16 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Adds a listener without unsubscriber
-        /// </summary>
         public void Add(IEventListener target)
         {
             AddInternal(target.ToWeakWrapper(), false);
         }
 
-        /// <summary>
-        ///     Adds a listener with unsubscriber
-        /// </summary>
         public IDisposable AddWithUnsubscriber(IEventListener target)
         {
             return AddInternal(target.ToWeakWrapper(), true);
         }
 
-        /// <summary>
-        ///     Removes a listener.
-        /// </summary>
         public void Remove(IEventListener listener)
         {
             if (listener.IsWeak)
@@ -167,17 +162,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Clears the current collection.
-        /// </summary>
         public void Clear()
         {
             Listeners = Empty.Array<WeakEventListenerWrapper>();
         }
 
-        /// <summary>
-        ///     Adds a weak item to list.
-        /// </summary>
         protected IDisposable AddInternal(WeakEventListenerWrapper weakItem, bool withUnsubscriber)
         {
             //it's normal here.
@@ -196,9 +185,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return null;
         }
 
-        /// <summary>
-        ///     Updates the current list.
-        /// </summary>
         protected void Update(WeakEventListenerWrapper newItem)
         {
             WeakEventListenerWrapper[] references = newItem.IsEmpty
@@ -226,18 +212,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             Listeners = references;
         }
 
-        /// <summary>
-        ///     Occurs on add a listener.
-        /// </summary>
         protected virtual bool OnAdd(WeakEventListenerWrapper weakItem, bool withUnsubscriber, out IDisposable unsubscriber)
         {
             unsubscriber = null;
             return false;
         }
 
-        /// <summary>
-        ///     Occurs on empty collection.
-        /// </summary>
         protected virtual void OnEmpty()
         {
             Listeners = Empty.Array<WeakEventListenerWrapper>();

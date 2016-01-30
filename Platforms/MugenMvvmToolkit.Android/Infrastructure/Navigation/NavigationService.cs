@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="NavigationService.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,56 +17,145 @@
 #endregion
 
 using System;
-using System.IO;
-using System.Linq;
 using Android.App;
 using Android.Content;
-using JetBrains.Annotations;
+using Android.OS;
+using Android.Runtime;
+using MugenMvvmToolkit.Android.Binding;
+using MugenMvvmToolkit.Android.Infrastructure.Mediators;
+using MugenMvvmToolkit.Android.Interfaces.Navigation;
+using MugenMvvmToolkit.Android.Interfaces.Views;
+using MugenMvvmToolkit.Android.Models.EventArg;
+using MugenMvvmToolkit.Android.Views.Activities;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
-using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
-using MugenMvvmToolkit.Views.Activities;
+using Object = Java.Lang.Object;
 
-namespace MugenMvvmToolkit.Infrastructure.Navigation
+namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 {
     public class NavigationService : INavigationService
     {
+        #region Nested Types
+
+        private sealed class ActivityLifecycleListener : Object, Application.IActivityLifecycleCallbacks
+        {
+            #region Fields
+
+            private readonly NavigationService _service;
+
+            #endregion
+
+            #region Constructors
+
+            public ActivityLifecycleListener(NavigationService service)
+            {
+                _service = service;
+            }
+
+            public ActivityLifecycleListener(IntPtr handle, JniHandleOwnership transfer)
+                : base(handle, transfer)
+            {
+            }
+
+            #endregion
+
+            #region Methods
+
+            private bool IsAlive()
+            {
+                if (_service == null)
+                {
+                    var application = Application.Context as Application;
+                    if (application != null)
+                        application.UnregisterActivityLifecycleCallbacks(this);
+                    return false;
+                }
+                return true;
+            }
+
+            private void RaiseNew(Activity activity)
+            {
+                if (IsAlive() && !(activity is IActivityView) && _service.CurrentContent != activity)
+                {
+                    PlatformExtensions.SetCurrentActivity(activity, false);
+                    _service.RaiseNavigated(activity, NavigationMode.New, null);
+                }
+            }
+
+            #endregion
+
+            #region Implementation of interfaces
+
+            public void OnActivityCreated(Activity activity, Bundle savedInstanceState)
+            {
+                RaiseNew(activity);
+            }
+
+            public void OnActivityDestroyed(Activity activity)
+            {
+                if (IsAlive() && !(activity is IActivityView))
+                    PlatformExtensions.SetCurrentActivity(activity, true);
+            }
+
+            public void OnActivityPaused(Activity activity)
+            {
+            }
+
+            public void OnActivityResumed(Activity activity)
+            {
+            }
+
+            public void OnActivitySaveInstanceState(Activity activity, Bundle outState)
+            {
+            }
+
+            public void OnActivityStarted(Activity activity)
+            {
+                RaiseNew(activity);
+            }
+
+            public void OnActivityStopped(Activity activity)
+            {
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Fields
 
-        private const string ParameterSerializer = "viewmodelparameterdata";
         private const string ParameterString = "viewmodelparameter";
-        private const string FirstActivityKey = "@%$#first";
 
-        private readonly ISerializer _serializer;
-        private Activity _currentActivity;
-        private Intent _prevIntent;
-        private bool _isNew;
         private bool _isBack;
-        private object _parameter;
+        private bool _isNew;
+        private bool _isReorder;
+        private bool _isPause;
+        private string _parameter;
 
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="NavigationService"/> class.
-        /// </summary>
-        public NavigationService([NotNull] ISerializer serializer)
+        public NavigationService()
         {
-            Should.NotBeNull(serializer, "serializer");
-            _serializer = serializer;
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.IceCreamSandwich)
+            {
+                var application = Application.Context as Application;
+                if (application != null)
+                    application.RegisterActivityLifecycleCallbacks(new ActivityLifecycleListener(this));
+            }
         }
 
         #endregion
 
         #region Methods
 
-        private bool RaiseNavigating(NavigatingCancelEventArgs args)
+        protected virtual bool RaiseNavigating(NavigatingCancelEventArgs args)
         {
             var handler = Navigating;
             if (handler != null)
@@ -77,156 +166,117 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             return true;
         }
 
-        private void RaiseNavigated(object content, NavigationMode mode, object parameter)
+        protected virtual void RaiseNavigated(object content, NavigationMode mode, string parameter)
         {
-            var handler = Navigated;
-            if (handler != null)
-                handler(this, new NavigationEventArgs(content, parameter, mode));
+            Navigated?.Invoke(this, new NavigationEventArgs(content, parameter, mode));
         }
 
-        private object GetParameterFromIntent(Intent intent)
+        private static string GetParameterFromIntent(Intent intent)
         {
-            if (intent == null)
-                return null;
-            var value = intent.GetStringExtra(ParameterString);
-            if (value != null)
-                return value;
-            var bytes = intent.GetByteArrayExtra(ParameterSerializer);
-            if (bytes == null)
-                return null;
-            using (var ms = new MemoryStream(bytes))
-                return _serializer.Deserialize(ms);
+            return intent?.GetStringExtra(ParameterString);
         }
 
-        /// <summary>
-        ///     Starts an activity.
-        /// </summary>
-        protected virtual void StartActivity(Context context, Intent intent, IDataContext dataContext)
+        protected virtual void StartActivity(Context context, Intent intent, IViewMappingItem source, IDataContext dataContext)
         {
-            context.StartActivity(intent);
+            var activity = context.GetActivity();
+            Action<Context, Intent, IViewMappingItem, IDataContext> startAction = null;
+            if (activity != null)
+                startAction = activity.GetBindingMemberValue(AttachedMembers.Activity.StartActivityDelegate);
+            if (startAction == null)
+                context.StartActivity(intent);
+            else
+                startAction(context, intent, source, dataContext);
         }
 
         #endregion
 
         #region Implementation of INavigationService
 
-        /// <summary>
-        ///     Indicates whether the navigator can navigate back.
-        /// </summary>
-        public virtual bool CanGoBack
-        {
-            get { return _currentActivity != null; }
-        }
+        public virtual bool CanGoBack => PlatformExtensions.CurrentActivity != null;
 
-        /// <summary>
-        ///     Indicates whether the navigator can navigate forward.
-        /// </summary>
-        public virtual bool CanGoForward
-        {
-            get { return false; }
-        }
+        public virtual bool CanGoForward => false;
 
-        /// <summary>
-        ///     The current content.
-        /// </summary>
         public virtual object CurrentContent
         {
-            get { return _currentActivity; }
+            get
+            {
+                if (_isPause)
+                    return null;
+                return PlatformExtensions.CurrentActivity;
+            }
         }
 
-        /// <summary>
-        ///     Navigates back.
-        /// </summary>
         public virtual void GoBack()
         {
-            if (_currentActivity != null)
-                _currentActivity.OnBackPressed();
+            var currentActivity = PlatformExtensions.CurrentActivity;
+            if (currentActivity != null)
+                currentActivity.OnBackPressed();
         }
 
-        /// <summary>
-        ///     Navigates forward.
-        /// </summary>
         public virtual void GoForward()
         {
             Should.MethodBeSupported(false, "GoForward()");
         }
 
-        /// <summary>
-        ///     Raised as part of the activity lifecycle when an activity is going into the background.
-        /// </summary>
         public virtual void OnPauseActivity(Activity activity, IDataContext context = null)
         {
-            if (_isNew || _isBack || !ReferenceEquals(activity, _currentActivity))
+            Should.NotBeNull(activity, nameof(activity));
+            if (_isNew || _isBack || !ReferenceEquals(activity, CurrentContent))
                 return;
+            _isPause = true;
             RaiseNavigating(NavigatingCancelEventArgs.NonCancelableEventArgs);
             RaiseNavigated(null, NavigationMode.New, null);
-            _currentActivity = null;
         }
 
-        /// <summary>
-        ///     Called when the activity had been stopped, but is now again being displayed to the user.
-        /// </summary>
-        public virtual void OnStartActivity(Activity activity, IDataContext context = null)
+        public virtual void OnResumeActivity(Activity activity, IDataContext context = null)
         {
-            if (ReferenceEquals(activity, _currentActivity))
+            Should.NotBeNull(activity, nameof(activity));
+            if (ReferenceEquals(activity, CurrentContent))
                 return;
-            _currentActivity = activity;
+            PlatformExtensions.SetCurrentActivity(activity, false);
+            _isPause = false;
             if (_isNew)
             {
-                RaiseNavigated(activity, NavigationMode.New, _parameter);
+                var isReorder = _isReorder;
                 _isNew = false;
+                _isReorder = false;
+                RaiseNavigated(activity, isReorder ? NavigationMode.Refresh : NavigationMode.New, _parameter);
                 _parameter = null;
             }
             else
             {
-                RaiseNavigated(activity, NavigationMode.Back, GetParameterFromIntent(activity.Intent));
                 _isBack = false;
+                RaiseNavigated(activity, NavigationMode.Back, GetParameterFromIntent(activity.Intent));
             }
         }
 
-        /// <summary>
-        ///     Called when the activity is starting.
-        /// </summary>
-        public void OnCreateActivity(Activity activity, IDataContext context = null)
+        public virtual void OnStartActivity(Activity activity, IDataContext context = null)
         {
-            OnStartActivity(activity);
+            OnResumeActivity(activity);
         }
 
-        /// <summary>
-        ///     Call this when your activity is done and should be closed.
-        /// </summary>
-        public bool OnFinishActivity(Activity activity, bool isBackNavigation, IDataContext context = null)
+        public virtual void OnCreateActivity(Activity activity, IDataContext context = null)
         {
+            OnResumeActivity(activity);
+        }
+
+        public virtual bool OnFinishActivity(Activity activity, bool isBackNavigation, IDataContext context = null)
+        {
+            Should.NotBeNull(activity, nameof(activity));
             if (!isBackNavigation)
                 return true;
-            if (!RaiseNavigating(new NavigatingCancelEventArgs(_prevIntent, NavigationMode.Back, GetParameterFromIntent(_prevIntent))))
+            if (!RaiseNavigating(new NavigatingCancelEventArgs(NavigationMode.Back)))
                 return false;
             //If it's the first activity, we need to raise the back navigation event.
-            var mainActivity = activity.Intent.HasExtra(FirstActivityKey);
-            if (mainActivity || (_prevIntent == null && activity.IsTaskRoot))
-            {
+            if (activity.IsTaskRoot)
                 RaiseNavigated(null, NavigationMode.Back, null);
-                //Trying to dispose main view model.
-                if (!mainActivity)
-                {
-                    var viewModel = BindingServiceProvider
-                        .ContextManager
-                        .GetBindingContext(activity)
-                        .Value as IViewModel;
-                    if (viewModel != null)
-                        viewModel.Dispose();
-                }
-                _currentActivity = null;
-            }
             _isBack = true;
             return true;
         }
 
-        /// <summary>
-        /// Gets a navigation parameter from event args.
-        /// </summary>
-        public virtual object GetParameterFromArgs(EventArgs args)
+        public virtual string GetParameterFromArgs(EventArgs args)
         {
+            Should.NotBeNull(args, nameof(args));
             var cancelArgs = args as NavigatingCancelEventArgs;
             if (cancelArgs == null)
             {
@@ -238,98 +288,103 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             return cancelArgs.Parameter;
         }
 
-        /// <summary>
-        ///     Navigates using cancel event args.
-        /// </summary>
         public virtual bool Navigate(NavigatingCancelEventArgsBase args, IDataContext dataContext)
         {
+            Should.NotBeNull(args, nameof(args));
             if (!args.IsCancelable)
                 return false;
             var eventArgs = ((NavigatingCancelEventArgs)args);
-            if (eventArgs.NavigationMode != NavigationMode.Back && eventArgs.Intent == null)
+            if (eventArgs.NavigationMode != NavigationMode.Back && eventArgs.Mapping != null)
                 return Navigate(eventArgs.Mapping, eventArgs.Parameter, dataContext);
 
-            var activity = _currentActivity;
+            var activity = PlatformExtensions.CurrentActivity;
+            if (activity == null)
+                return false;
             GoBack();
             return activity.IsFinishing;
         }
 
-        /// <summary>
-        ///     Displays the content located at the specified <see cref="IViewMappingItem" />.
-        /// </summary>
-        /// <param name="source">
-        ///     The <c>IViewPageMappingItem</c> of the content to display.
-        /// </param>
-        /// <param name="parameter">
-        ///     A <see cref="T:System.Object" /> that contains data to be used for processing during
-        ///     navigation.
-        /// </param>
-        /// <param name="dataContext">
-        ///     The specified <see cref="IDataContext" />.
-        /// </param>
-        /// <returns>
-        ///     <c>true</c> if the content was successfully displayed; otherwise, <c>false</c>.
-        /// </returns>
-        public virtual bool Navigate(IViewMappingItem source, object parameter, IDataContext dataContext)
+        public virtual bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
-            Should.NotBeNull(source, "source");
-            if (!RaiseNavigating(new NavigatingCancelEventArgs(source, NavigationMode.New, parameter)))
-                return false;
+            Should.NotBeNull(source, nameof(source));
             if (dataContext == null)
                 dataContext = DataContext.Empty;
-            bool isFirstActivity = _currentActivity == null;
-            Context context;
-            var activity = _currentActivity ?? SplashScreenActivityBase.Current;
-            if (activity == null)
-                context = Application.Context;
-            else
-            {
-                var attr = activity.GetType()
-                                   .GetCustomAttributes(typeof(ActivityAttribute), false)
-                                   .OfType<ActivityAttribute>()
-                                   .FirstOrDefault();
-                if (attr == null || !attr.NoHistory)
-                    _prevIntent = activity.Intent;
-                context = activity;
-            }
+            bool bringToFront;
+            dataContext.TryGetData(NavigationProviderConstants.BringToFront, out bringToFront);
+            if (!RaiseNavigating(new NavigatingCancelEventArgs(source, bringToFront ? NavigationMode.Refresh : NavigationMode.New, parameter)))
+                return false;
+            var activity = PlatformExtensions.CurrentActivity ?? SplashScreenActivityBase.Current;
+            var context = activity ?? Application.Context;
 
             var intent = new Intent(context, source.ViewType);
             if (activity == null)
                 intent.AddFlags(ActivityFlags.NewTask);
             else if (dataContext.GetData(NavigationConstants.ClearBackStack))
             {
-                intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTop);
-                dataContext.AddOrUpdate(NavigationProvider.ClearNavigationCache, true);
-                isFirstActivity = true;
-                _prevIntent = null;
-            }
-            if (isFirstActivity)
-                intent.PutExtra(FirstActivityKey, true);
-            if (parameter != null)
-            {
-                var s = parameter as string;
-                if (s == null)
+                if (PlatformExtensions.IsApiLessThanOrEqualTo10)
                 {
-                    using (var stream = _serializer.Serialize(parameter))
-                        intent.PutExtra(ParameterSerializer, stream.ToArray());
+                    intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTop);
+                    ServiceProvider.EventAggregator.Publish(this, MvvmActivityMediator.FinishActivityMessage.Instance);
                 }
                 else
-                    intent.PutExtra(ParameterString, s);
+                    intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
+                dataContext.AddOrUpdate(NavigationProviderConstants.InvalidateAllCache, true);
+            }
+            if (parameter != null)
+                intent.PutExtra(ParameterString, parameter);
+
+            if (bringToFront)
+            {
+                _isReorder = true;
+                //http://stackoverflow.com/questions/20695522/puzzling-behavior-with-reorder-to-front
+                //http://code.google.com/p/android/issues/detail?id=63570#c2
+                bool closed = false;
+                if (PlatformExtensions.IsApiGreaterThanOrEqualTo19)
+                {
+                    var viewModel = dataContext.GetData(NavigationConstants.ViewModel);
+                    if (viewModel != null)
+                    {
+                        var view = viewModel.Settings.Metadata.GetData(ViewModelConstants.View);
+                        var activityView = ToolkitExtensions.GetUnderlyingView<object>(view) as Activity;
+                        if (activityView != null && activityView.IsTaskRoot)
+                        {
+                            var message = new MvvmActivityMediator.FinishActivityMessage(viewModel);
+                            ServiceProvider.EventAggregator.Publish(this, message);
+                            closed = message.Finished;
+                        }
+                    }
+                }
+                if (!closed)
+                    intent.AddFlags(ActivityFlags.ReorderToFront);
+                dataContext.AddOrUpdate(NavigationProviderConstants.InvalidateCache, true);
             }
             _isNew = true;
             _parameter = parameter;
-            StartActivity(context, intent, dataContext);
+            StartActivity(context, intent, source, dataContext);
             return true;
         }
 
-        /// <summary>
-        ///     Raised prior to navigation.
-        /// </summary>
+        public virtual bool CanClose(IViewModel viewModel, IDataContext dataContext)
+        {
+            return true;
+        }
+
+        public virtual bool TryClose(IViewModel viewModel, IDataContext dataContext)
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            if (CurrentContent != null && CurrentContent.DataContext() == viewModel)
+            {
+                GoBack();
+                //Ignore close just in case there backstack fragments.
+                return false;
+            }
+            var message = new MvvmActivityMediator.FinishActivityMessage(viewModel);
+            ServiceProvider.EventAggregator.Publish(this, message);
+            return message.Finished;
+        }
+
         public virtual event EventHandler<INavigationService, NavigatingCancelEventArgsBase> Navigating;
 
-        /// <summary>
-        ///     Raised after navigation.
-        /// </summary>
         public virtual event EventHandler<INavigationService, NavigationEventArgsBase> Navigated;
 
         #endregion

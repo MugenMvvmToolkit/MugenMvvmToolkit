@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ISingleBindingSourceAccessor.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,19 +17,12 @@
 #endregion
 
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
 
 namespace MugenMvvmToolkit.Binding.Interfaces.Accessors
 {
-    /// <summary>
-    ///     Represents the accessor for the binding source.
-    /// </summary>
     public interface ISingleBindingSourceAccessor : IBindingSourceAccessor
     {
-        /// <summary>
-        ///     Gets the underlying source.
-        /// </summary>
         [NotNull]
-        IBindingSource Source { get; }
+        IObserver Source { get; }
     }
 }

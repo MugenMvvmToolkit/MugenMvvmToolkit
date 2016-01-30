@@ -5,6 +5,10 @@ using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Interfaces.Views;
+using MugenMvvmToolkit.Silverlight.Infrastructure.Mediators;
+using MugenMvvmToolkit.Silverlight.Interfaces.Views;
+using MugenMvvmToolkit.WPF.Infrastructure.Mediators;
+using MugenMvvmToolkit.WPF.Interfaces.Views;
 
 namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
 {

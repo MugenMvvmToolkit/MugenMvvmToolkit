@@ -15,9 +15,6 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         #region Implementation of ISerializableCallback
 
-        /// <summary>
-        ///     Invokes the callback using the specified operation result.
-        /// </summary>
         object ISerializableCallback.Invoke(IOperationResult result)
         {
             if (Invoke == null)

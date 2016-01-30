@@ -25,7 +25,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure
 
         public Beta Beta { get; set; }
 
-        public int CountAlfa { get; set; }
+        public int CountAlpha { get; set; }
 
         public int CountBeta { get; set; }
 
@@ -33,26 +33,16 @@ namespace MugenMvvmToolkit.Test.Infrastructure
 
         #region Implementation of IHandler<in Alpha>
 
-        /// <summary>
-        ///     Handles the message.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="message">Information about event.</param>
         public void Handle(object sender, Alpha message)
         {
             Alpha = message;
-            CountAlfa++;
+            CountAlpha++;
         }
 
         #endregion
 
         #region Implementation of IHandler<in Beta>
 
-        /// <summary>
-        ///     Handles the message.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="message">Information about event.</param>
         public void Handle(object sender, Beta message)
         {
             Beta = message;
@@ -76,11 +66,6 @@ namespace MugenMvvmToolkit.Test.Infrastructure
 
         #region Implementation of IHandler<in T>
 
-        /// <summary>
-        ///     Handles the message.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="message">Information about event.</param>
         public void Handle(object sender, T message)
         {
             Sender = sender;
@@ -101,9 +86,6 @@ namespace MugenMvvmToolkit.Test.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="TestObservable" /> class.
-        /// </summary>
         public TestObservable()
         {
             Listeners = new EventAggregator();
@@ -113,10 +95,6 @@ namespace MugenMvvmToolkit.Test.Infrastructure
 
         #region Implementation of IObservable
 
-        /// <summary>
-        ///     Subscribes an instance to events.
-        /// </summary>
-        /// <param name="instance">The instance to subscribe for event publication.</param>
         public bool Subscribe(ISubscriber instance)
         {
             if (Listeners == null)
@@ -124,10 +102,6 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             return Listeners.Subscribe(instance);
         }
 
-        /// <summary>
-        ///     Unsubscribes the instance from all events.
-        /// </summary>
-        /// <param name="instance">The instance to unsubscribe.</param>
         public bool Unsubscribe(ISubscriber instance)
         {
             if (Listeners != null)
@@ -284,26 +258,26 @@ namespace MugenMvvmToolkit.Test.Infrastructure
         [TestMethod]
         public void NotifyGenericMessageTest()
         {
-            var listenerAlfa = new GenericHandler<Alpha>();
+            var listenerAlpha = new GenericHandler<Alpha>();
             var listenerBeta = new GenericHandler<Beta>();
             IEventAggregator eventAggregator = CreateEventAggregator();
-            eventAggregator.Subscribe(listenerAlfa);
+            eventAggregator.Subscribe(listenerAlpha);
             eventAggregator.Subscribe(listenerBeta);
 
-            //Publish about alfa.
-            var alfa = new Alpha();
-            eventAggregator.Publish(eventAggregator, alfa);
-            listenerAlfa.Count.ShouldEqual(1);
-            listenerAlfa.Message.ShouldEqual(alfa);
-            listenerAlfa.Sender.ShouldEqual(eventAggregator);
+            //Publish about alpha.
+            var alpha = new Alpha();
+            eventAggregator.Publish(eventAggregator, alpha);
+            listenerAlpha.Count.ShouldEqual(1);
+            listenerAlpha.Message.ShouldEqual(alpha);
+            listenerAlpha.Sender.ShouldEqual(eventAggregator);
             listenerBeta.Count.ShouldEqual(0);
 
             //Publish about beta.
             var beta = new Beta();
             eventAggregator.Publish(eventAggregator, beta);
-            listenerAlfa.Count.ShouldEqual(2);
-            listenerAlfa.Message.ShouldEqual(beta);
-            listenerAlfa.Sender.ShouldEqual(eventAggregator);
+            listenerAlpha.Count.ShouldEqual(2);
+            listenerAlpha.Message.ShouldEqual(beta);
+            listenerAlpha.Sender.ShouldEqual(eventAggregator);
             listenerBeta.Count.ShouldEqual(1);
             listenerBeta.Message.ShouldEqual(beta);
             listenerBeta.Sender.ShouldEqual(eventAggregator);
@@ -316,17 +290,17 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             IEventAggregator eventAggregator = CreateEventAggregator();
             eventAggregator.Subscribe(listener);
 
-            //Publish about alfa.
-            var alfa = new Alpha();
-            eventAggregator.Publish(eventAggregator, alfa);
-            listener.CountAlfa.ShouldEqual(1);
-            listener.Alpha.ShouldEqual(alfa);
+            //Publish about alpha.
+            var alpha = new Alpha();
+            eventAggregator.Publish(eventAggregator, alpha);
+            listener.CountAlpha.ShouldEqual(1);
+            listener.Alpha.ShouldEqual(alpha);
             listener.CountBeta.ShouldEqual(0);
 
             //Publish about beta.
             var beta = new Beta();
             eventAggregator.Publish(eventAggregator, beta);
-            listener.CountAlfa.ShouldEqual(2);
+            listener.CountAlpha.ShouldEqual(2);
             listener.Alpha.ShouldEqual(beta);
             listener.CountBeta.ShouldEqual(1);
             listener.Beta.ShouldEqual(beta);
@@ -417,7 +391,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure
         {
             var listener = new GenericHandler<object>();
             IEventAggregator eventAggregator = CreateEventAggregator();
-            var subscriber = eventAggregator.Subscribe<object>(listener.Handle);
+            var subscriber = eventAggregator.Subscribe<string>(listener.Handle);
             eventAggregator.Contains(subscriber).ShouldBeTrue();
             eventAggregator.GetSubscribers().Count.ShouldEqual(1);
 
@@ -430,7 +404,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure
         {
             var listener = new GenericHandler<object>();
             IEventAggregator eventAggregator = CreateEventAggregator();
-            var subscriber = eventAggregator.Subscribe<object>(listener.Handle, false);
+            var subscriber = eventAggregator.Subscribe<string>(listener.Handle, false);
             eventAggregator.Contains(subscriber).ShouldBeTrue();
             eventAggregator.GetSubscribers().Count.ShouldEqual(1);
 

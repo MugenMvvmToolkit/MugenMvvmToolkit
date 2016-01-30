@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="SplashScreenActivityBase.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -20,15 +20,15 @@ using System;
 using System.Threading;
 using Android.App;
 using Android.OS;
+using Android.Runtime;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Android.Infrastructure;
 using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Views.Activities
+namespace MugenMvvmToolkit.Android.Views.Activities
 {
     public abstract class SplashScreenActivityBase : Activity
     {
@@ -44,6 +44,11 @@ namespace MugenMvvmToolkit.Views.Activities
 
         #region Constructors
 
+        protected SplashScreenActivityBase(IntPtr javaReference, JniHandleOwnership transfer)
+            : base(javaReference, transfer)
+        {
+        }
+
         protected SplashScreenActivityBase(int? viewId = null)
         {
             _viewId = viewId;
@@ -53,9 +58,6 @@ namespace MugenMvvmToolkit.Views.Activities
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the current splash screen activity.
-        /// </summary>
         [CanBeNull]
         public static SplashScreenActivityBase Current { get; private set; }
 
@@ -71,6 +73,8 @@ namespace MugenMvvmToolkit.Views.Activities
             if (Interlocked.Exchange(ref _state, StartedState) == DefaultState)
             {
                 Current = this;
+                if (_bootstrapper == null)
+                    _bootstrapper = BootstrapperBase.Current as AndroidBootstrapperBase;
                 if (_bootstrapper == null)
                     ThreadPool.QueueUserWorkItem(StartBootstrapperCallback, this);
                 else
@@ -99,10 +103,7 @@ namespace MugenMvvmToolkit.Views.Activities
             try
             {
                 if (_bootstrapper == null)
-                {
                     _bootstrapper = activityBase.CreateBootstrapper();
-                    _bootstrapper.InitializationContext = activityBase.GetContext() ?? DataContext.Empty;
-                }
                 _bootstrapper.Start();
             }
             catch (Exception e)
@@ -125,12 +126,6 @@ namespace MugenMvvmToolkit.Views.Activities
         {
             if (exception != null)
                 throw exception;
-        }
-
-        [CanBeNull]
-        protected virtual IDataContext GetContext()
-        {
-            return DataContext.Empty;
         }
 
         [CanBeNull]

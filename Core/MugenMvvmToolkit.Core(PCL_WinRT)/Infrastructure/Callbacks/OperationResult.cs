@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="OperationResult.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -26,9 +26,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure.Callbacks
 {
-    /// <summary>
-    ///     Represents the result of operation.
-    /// </summary>
     public abstract class OperationResult : IOperationResult
     {
         #region Nested types
@@ -37,9 +34,6 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         {
             #region Constructors
 
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="OperationResult" /> class.
-            /// </summary>
             public OperationResultImpl(OperationType operation, [NotNull] object source, Exception exception,
                 bool isCanceled, TResult result, IDataContext context)
                 : base(operation, source, exception, isCanceled, result, context)
@@ -50,13 +44,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
             #region Implementation of IOperationResult<out TResult>
 
-            /// <summary>
-            ///     Gets the result value of this operation.
-            /// </summary>
-            public new TResult Result
-            {
-                get { return (TResult)base.Result; }
-            }
+            public new TResult Result => (TResult)base.Result;
 
             #endregion
         }
@@ -97,14 +85,11 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 .First(info => info.Name == "Convert" && info.IsGenericMethodDefinition);
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="OperationResult" /> class.
-        /// </summary>
         protected OperationResult(OperationType operation, [NotNull] object source, Exception exception, bool isCanceled,
             object result, IDataContext context)
         {
-            Should.NotBeNull(source, "source");
-            Should.NotBeNull(operation, "operation");
+            Should.NotBeNull(source, nameof(source));
+            Should.NotBeNull(operation, nameof(operation));
             _operation = operation;
             _source = source;
             _exception = exception;
@@ -117,50 +102,16 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Implementation of IOperationResult
 
-        /// <summary>
-        ///     Gets the type of operation.
-        /// </summary>
-        public OperationType Operation
-        {
-            get { return _operation; }
-        }
+        public OperationType Operation => _operation;
 
-        /// <summary>
-        ///     Gets the sender of the operation.
-        /// </summary>
-        public object Source
-        {
-            get { return _source; }
-        }
+        public object Source => _source;
 
-        /// <summary>
-        ///     Gets the exception that caused the operartion to end prematurely.
-        ///     If the operation completed successfully or has not yet thrown any exceptions, this will return null.
-        /// </summary>
-        public Exception Exception
-        {
-            get { return _exception; }
-        }
+        public Exception Exception => _exception;
 
-        /// <summary>
-        ///     Gets whether operation has completed execution due to being canceled.
-        /// </summary>
-        public bool IsCanceled
-        {
-            get { return _isCanceled; }
-        }
+        public bool IsCanceled => _isCanceled;
 
-        /// <summary>
-        ///     Gets whether the operation completed due to an unhandled exception.
-        /// </summary>
-        public bool IsFaulted
-        {
-            get { return Exception != null; }
-        }
+        public bool IsFaulted => Exception != null;
 
-        /// <summary>
-        ///     Gets the result value of this operation.
-        /// </summary>
         public object Result
         {
             get
@@ -173,24 +124,15 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             }
         }
 
-        /// <summary>
-        ///     Gets the context of the operation.
-        /// </summary>
-        public IDataContext OperationContext
-        {
-            get { return _context; }
-        }
+        public IDataContext OperationContext => _context;
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Converts an instance of <see cref="IOperationResult" /> to it generic representation.
-        /// </summary>
         public static IOperationResult<TType> Convert<TType>([NotNull] IOperationResult result)
         {
-            Should.NotBeNull(result, "result");
+            Should.NotBeNull(result, nameof(result));
             var genericResult = result as IOperationResult<TType>;
             if (genericResult != null)
                 return genericResult;
@@ -198,75 +140,55 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 return CreateCancelResult<TType>(result.Operation, result.Source, result.OperationContext);
             if (result.IsFaulted)
                 return CreateErrorResult<TType>(result.Operation, result.Source, result.Exception, result.OperationContext);
-            return CreateResult(result.Operation, result.Source, (TType)result.Result, result.OperationContext);
+            return CreateResult(result.Operation, result.Source,
+                result.Result == null ? default(TType) : (TType)result.Result, result.OperationContext);
         }
 
-        /// <summary>
-        ///     Converts an instance of <see cref="IOperationResult" /> to it generic representation.
-        /// </summary>
         public static IOperationResult Convert([NotNull] Type resultType, [NotNull] IOperationResult result)
         {
-            Should.NotBeNull(resultType, "resultType");
+            Should.NotBeNull(resultType, nameof(resultType));
             return (IOperationResult)ConvertMethod
                 .MakeGenericMethod(resultType)
-                .InvokeEx(null, result);
+                .Invoke(null, new object[] { result });
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IOperationResult" /> with canceled state.
-        /// </summary>
         public static IOperationResult<TType> CreateCancelResult<TType>(OperationType operation, object sender, IDataContext context = null)
         {
             return new OperationResultImpl<TType>(operation, sender, null, true, default(TType), context);
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IOperationResult" /> with canceled state.
-        /// </summary>
         public static IOperationResult CreateCancelResult([NotNull] Type resultType, OperationType operation, object sender, IDataContext context = null)
         {
-            Should.NotBeNull(resultType, "resultType");
+            Should.NotBeNull(resultType, nameof(resultType));
             return (IOperationResult)CreateCancelResultMethod
                 .MakeGenericMethod(resultType)
-                .InvokeEx(null, operation, sender, context);
+                .Invoke(null, new[] { operation, sender, context });
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IOperationResult" /> with faulted state.
-        /// </summary>
         public static IOperationResult<TType> CreateErrorResult<TType>(OperationType operation, object sender, Exception exception, IDataContext context = null)
         {
             return new OperationResultImpl<TType>(operation, sender, exception, false, default(TType), context);
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IOperationResult" /> with faulted state.
-        /// </summary>
         public static IOperationResult CreateErrorResult([NotNull] Type resultType, OperationType operation, object sender, Exception exception, IDataContext context = null)
         {
-            Should.NotBeNull(resultType, "resultType");
+            Should.NotBeNull(resultType, nameof(resultType));
             return (IOperationResult)CreateErrorResultMethod
                 .MakeGenericMethod(resultType)
-                .InvokeEx(null, operation, sender, exception, context);
+                .Invoke(null, new[] { operation, sender, exception, context });
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IOperationResult" /> with operation result.
-        /// </summary>
         public static IOperationResult<TType> CreateResult<TType>(OperationType operation, object sender, TType result, IDataContext context = null)
         {
             return new OperationResultImpl<TType>(operation, sender, null, false, result, context);
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IOperationResult" /> with operation result.
-        /// </summary>
         public static IOperationResult CreateResult([NotNull] Type resultType, OperationType operation, object sender, object result, IDataContext context = null)
         {
-            Should.NotBeNull(resultType, "resultType");
+            Should.NotBeNull(resultType, nameof(resultType));
             return (IOperationResult)CreateResultMethod
                 .MakeGenericMethod(resultType)
-                .InvokeEx(null, operation, sender, result, context);
+                .Invoke(null, new[] { operation, sender, result, context });
         }
 
         #endregion

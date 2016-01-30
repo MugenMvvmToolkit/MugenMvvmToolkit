@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="FrameStateManager.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -21,13 +21,9 @@ using System.Windows.Controls;
 using System.Windows.Navigation;
 using JetBrains.Annotations;
 using Microsoft.Phone.Controls;
-using NavigationMode = System.Windows.Navigation.NavigationMode;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit.WinPhone.Infrastructure
 {
-    /// <summary>
-    ///     Represents the frame state manager that allows to save state of page.
-    /// </summary>
     public static class FrameStateManager
     {
         #region Nested types
@@ -62,7 +58,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     return;
                 var page = target.Content as PhoneApplicationPage;
                 if (page != null)
-                    _previousView = ServiceProvider.WeakReferenceFactory(page, true);
+                    _previousView = ServiceProvider.WeakReferenceFactory(page);
             }
 
             private void FrameOnNavigated(object sender, NavigationEventArgs args)
@@ -115,13 +111,13 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public static void RegisterFrame([NotNull] Frame frame)
         {
-            Should.NotBeNull(frame, "frame");
+            Should.NotBeNull(frame, nameof(frame));
             ServiceProvider.AttachedValueProvider.GetOrAdd(frame, StateObserverMember, CreateObserverDelegate, null);
         }
 
         public static void InvokeAfterRestoreState([NotNull] this NavigationEventArgs args, Action<NavigationEventArgs> action)
         {
-            Should.NotBeNull(args, "args");
+            Should.NotBeNull(args, nameof(args));
             var attachedValueProvider = ServiceProvider.AttachedValueProvider;
             if (attachedValueProvider.Contains(args, ActionAfterRestoreStateKey))
                 attachedValueProvider.SetValue(args, ActionAfterRestoreStateKey, action);

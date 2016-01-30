@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ReflectionExtensions.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -20,6 +20,8 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -30,7 +32,6 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
-using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Validation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Interfaces.Views;
@@ -41,21 +42,12 @@ using MugenMvvmToolkit.ViewModels;
 // ReSharper disable once CheckNamespace
 namespace MugenMvvmToolkit
 {
-    /// <summary>
-    ///     Represents the reflection extensions.
-    /// </summary>
     public static class ReflectionExtensions
     {
         #region Nested types
 
-        /// <summary>
-        /// Represents the weak reference event wrapper.
-        /// </summary>
         public interface IWeakEventHandler<in TArg>
         {
-            /// <summary>
-            /// Invokes the event.
-            /// </summary>
             void Handle(object sender, TArg arg);
         }
 
@@ -68,16 +60,16 @@ namespace MugenMvvmToolkit
             public TDelegate HandlerDelegate;
             private readonly WeakReference _targetReference;
             private readonly Action<TTarget, object, TArg> _invokeAction;
-            private readonly Action<object, TDelegate> _unsubscribeAction;
+            private readonly Delegate _unsubscribeAction;
 
             #endregion
 
             #region Constructors
 
-            public WeakEventHandler(TTarget target, Action<TTarget, object, TArg> invokeAction, Action<object, TDelegate> unsubscribeAction)
+            public WeakEventHandler(TTarget target, Action<TTarget, object, TArg> invokeAction, Delegate unsubscribeAction)
             {
-                Should.NotBeNull(target, "target");
-                Should.NotBeNull(invokeAction, "invokeAction");
+                Should.NotBeNull(target, nameof(target));
+                Should.NotBeNull(invokeAction, nameof(invokeAction));
                 _invokeAction = invokeAction;
                 _unsubscribeAction = unsubscribeAction;
                 _targetReference = ToolkitExtensions.GetWeakReference(target);
@@ -93,7 +85,13 @@ namespace MugenMvvmToolkit
                 if (target == null)
                 {
                     if (_unsubscribeAction != null)
-                        _unsubscribeAction.Invoke(sender, HandlerDelegate);
+                    {
+                        var action = _unsubscribeAction as Action<object, TDelegate>;
+                        if (action == null)
+                            ((Action<object, IWeakEventHandler<TArg>>)_unsubscribeAction).Invoke(sender, this);
+                        else
+                            action.Invoke(sender, HandlerDelegate);
+                    }
                 }
                 else
                     _invokeAction(target, sender, arg);
@@ -106,6 +104,7 @@ namespace MugenMvvmToolkit
 
         #region Fields
 
+        internal const string IndexerName = "Item[]";
         private const MemberFlags PropertyBindingFlag = MemberFlags.Instance | MemberFlags.NonPublic | MemberFlags.Public;
 
         private static readonly Action<object, PropertyChangedEventHandler> UnsubscribePropertyChangedDelegate;
@@ -118,6 +117,7 @@ namespace MugenMvvmToolkit
         private static readonly Dictionary<MemberInfo, Attribute[]> CachedAttributes;
         private static readonly Dictionary<Type, Func<object, object>> GetDataContextDelegateCache;
         private static readonly Dictionary<Type, Action<object, object>> SetDataContextDelegateCache;
+        private static readonly Dictionary<Delegate, MemberInfo> ExpressionToMemberInfoCache;
 
         private static readonly Func<Assembly, bool> IsToolkitAssemblyDelegate;
         private static readonly HashSet<string> KnownPublicKeys;
@@ -130,6 +130,7 @@ namespace MugenMvvmToolkit
         private static readonly Dictionary<Type, Func<object, ICommand>[]> TypesToCommandsProperties;
         private static readonly Dictionary<Type, Action<object, IViewModel>> ViewToViewModelInterface;
         private static readonly Dictionary<Type, PropertyInfo> ViewModelToViewInterface;
+        private static readonly Dictionary<Type, bool> HasClosureDictionary;
 
         #endregion
 
@@ -143,9 +144,11 @@ namespace MugenMvvmToolkit
             UnsubscribeCollectionChangedDelegate = UnsubscribeCollectionChanged;
             UnsubscribePropertyChangedDelegate = UnsubscribePropertyChanged;
             UnsubscribeErrorsChangedDelegate = UnsubscribeErrorsChanged;
+            HasClosureDictionary = new Dictionary<Type, bool>();
             CachedAttributes = new Dictionary<MemberInfo, Attribute[]>();
             GetDataContextDelegateCache = new Dictionary<Type, Func<object, object>>();
             SetDataContextDelegateCache = new Dictionary<Type, Action<object, object>>();
+            ExpressionToMemberInfoCache = new Dictionary<Delegate, MemberInfo>(ReferenceEqualityComparer.Instance);
             //NOTE: 7cec85d7bea7798e, 31bf3856ad364e35, b03f5f7f11d50a3a, b77a5c561934e089 - NET FRAMEWORK
             //NOTE: 0738eb9f132ed756, 84e04ff9cfb79065 - MONO
             //NOTE: 5803cfa389c90ce7 - Telerik
@@ -163,19 +166,25 @@ namespace MugenMvvmToolkit
                 "FormsViewGroup",
                 "Xamarin.Android.Support.v13",
                 "Xamarin.Android.Support.v4",
+                "Xamarin.Android.Support.v7.RecyclerView",
+                "Xamarin.Android.Support.v7.AppCompat",
+                "Xamarin.Android.Support.v7.CardView",
+                "Xamarin.Android.Support.Design",
                 "Xamarin.Forms.Core",
-                "Xamarin.Forms.Platform.Android",
+                "Xamarin.Forms.Platform",
                 "Xamarin.Forms.Xaml",
+                "Xamarin.Forms.Platform.Android",
                 "Xamarin.Forms.Platform.iOS",
-                "Xamarin.Forms.Platform.WP8",
+                "Xamarin.Forms.Platform.WP8"
             };
             IsToolkitAssemblyDelegate = IsToolkitAssembly;
-
             CachedViewModelProperties = new Dictionary<Type, Dictionary<string, ICollection<string>>>();
             CachedIgnoreAttributes = new Dictionary<Type, string[]>();
             ExcludedProperties = typeof(EditableViewModel<>)
-                .GetPropertiesEx(PropertyBindingFlag)
-                .ToArrayEx(info => info.Name);
+               .GetPropertiesEx(PropertyBindingFlag)
+               .Select(info => info.Name)
+               .Concat(new[] { Empty.IndexerPropertyChangedArgs.PropertyName })
+               .ToArray();
             TypesToCommandsProperties = new Dictionary<Type, Func<object, ICommand>[]>();
             ViewToViewModelInterface = new Dictionary<Type, Action<object, IViewModel>>();
             ViewModelToViewInterface = new Dictionary<Type, PropertyInfo>();
@@ -185,9 +194,6 @@ namespace MugenMvvmToolkit
 
         #region Properties
 
-        /// <summary>
-        /// Gets or sets the delegate to get types.
-        /// </summary>
         [CanBeNull]
         public static Func<Assembly, Type[]> GetTypesDefault { get; set; }
 
@@ -195,25 +201,20 @@ namespace MugenMvvmToolkit
 
         #region Methods
 
-        /// <summary>
-        ///     Returns a weak-reference version of a delegate.
-        /// </summary>
-        public static IWeakEventHandler<TArg> CreateWeakEventHandler<TTarget, TArg>([NotNull] TTarget target, [NotNull]Action<TTarget, object, TArg> invokeAction)
+        public static IWeakEventHandler<TArg> CreateWeakEventHandler<TTarget, TArg>([NotNull] TTarget target, [NotNull]Action<TTarget, object, TArg> invokeAction,
+            Action<object, IWeakEventHandler<TArg>> unsubscribeAction = null)
             where TTarget : class
         {
-            return new WeakEventHandler<TTarget, TArg, object>(target, invokeAction, null);
+            return new WeakEventHandler<TTarget, TArg, object>(target, invokeAction, unsubscribeAction);
         }
 
-        /// <summary>
-        ///     Returns a weak-reference version of a delegate.
-        /// </summary>
         public static TResult CreateWeakDelegate<TTarget, TArg, TResult>([NotNull] TTarget target,
             [NotNull]Action<TTarget, object, TArg> invokeAction, [CanBeNull] Action<object, TResult> unsubscribeAction,
             [NotNull] Func<IWeakEventHandler<TArg>, TResult> createHandler)
             where TTarget : class
             where TResult : class
         {
-            Should.NotBeNull(createHandler, "createHandler");
+            Should.NotBeNull(createHandler, nameof(createHandler));
             var weakEventHandler = new WeakEventHandler<TTarget, TArg, TResult>(target, invokeAction, unsubscribeAction);
             var handler = createHandler(weakEventHandler);
             if (unsubscribeAction == null)
@@ -222,9 +223,6 @@ namespace MugenMvvmToolkit
             return handler;
         }
 
-        /// <summary>
-        ///     Returns a weak-reference version of a delegate.
-        /// </summary>
         public static PropertyChangedEventHandler MakeWeakPropertyChangedHandler<TTarget>([NotNull]TTarget target,
             [NotNull]Action<TTarget, object, PropertyChangedEventArgs> invokeAction)
             where TTarget : class
@@ -232,9 +230,6 @@ namespace MugenMvvmToolkit
             return CreateWeakDelegate(target, invokeAction, UnsubscribePropertyChangedDelegate, CreatePropertyChangedHandlerDelegate);
         }
 
-        /// <summary>
-        ///     Returns a weak-reference version of a delegate.
-        /// </summary>
         public static EventHandler<DataErrorsChangedEventArgs> MakeWeakErrorsChangedHandler<TTarget>([NotNull]TTarget target,
             [NotNull]Action<TTarget, object, DataErrorsChangedEventArgs> invokeAction)
             where TTarget : class
@@ -242,18 +237,12 @@ namespace MugenMvvmToolkit
             return CreateWeakDelegate(target, invokeAction, UnsubscribeErrorsChangedDelegate, CreateErrorsChangedHandlerDelegate);
         }
 
-        /// <summary>
-        ///     Returns a weak-reference version of a delegate.
-        /// </summary>
         public static NotifyCollectionChangedEventHandler MakeWeakCollectionChangedHandler<TTarget>(TTarget target, Action<TTarget, object,
             NotifyCollectionChangedEventArgs> invokeAction) where TTarget : class
         {
             return CreateWeakDelegate(target, invokeAction, UnsubscribeCollectionChangedDelegate, CreateCollectionChangedHandlerDelegate);
         }
 
-        /// <summary>
-        /// Gets the types defined in this assembly.
-        /// </summary>
         public static IList<Type> SafeGetTypes(this Assembly assembly, bool throwOnError)
         {
             try
@@ -276,60 +265,50 @@ namespace MugenMvvmToolkit
             return Empty.Array<Type>();
         }
 
-        /// <summary>
-        ///     Invokes the constructor using the current <see cref="IReflectionManager" />.
-        /// </summary>
         public static object InvokeEx([NotNull] this ConstructorInfo constructor)
         {
             return constructor.InvokeEx(Empty.Array<object>());
         }
 
-        /// <summary>
-        ///     Invokes the constructor using the current <see cref="IReflectionManager" />.
-        /// </summary>
         public static object InvokeEx([NotNull] this ConstructorInfo constructor, params object[] parameters)
         {
             return ServiceProvider.ReflectionManager.GetActivatorDelegate(constructor).Invoke(parameters);
         }
 
-        /// <summary>
-        ///     Invokes the method using the current <see cref="IReflectionManager" />.
-        /// </summary>
         public static object InvokeEx([NotNull] this MethodInfo method, object target)
         {
             return method.InvokeEx(target, Empty.Array<object>());
         }
 
-        /// <summary>
-        ///     Invokes the method using the current <see cref="IReflectionManager" />.
-        /// </summary>
         public static object InvokeEx([NotNull] this MethodInfo method, object target, params object[] parameters)
         {
             return ServiceProvider.ReflectionManager.GetMethodDelegate(method).Invoke(target, parameters);
         }
 
-        /// <summary>
-        ///     Gets the value using the current <see cref="IReflectionManager" />.
-        /// </summary>
         public static T GetValueEx<T>([NotNull] this MemberInfo member, object target)
         {
             return ServiceProvider.ReflectionManager.GetMemberGetter<T>(member).Invoke(target);
         }
 
-        /// <summary>
-        ///     Sets the value using the current <see cref="IReflectionManager" />.
-        /// </summary>
         public static void SetValueEx<T>([NotNull] this MemberInfo member, object target, T value)
         {
             ServiceProvider.ReflectionManager.GetMemberSetter<T>(member).Invoke(target, value);
         }
 
-        /// <summary>
-        /// Tries to get data context.
-        /// </summary>
+        public static object GetDefaultValue(this Type type)
+        {
+#if PCL_WINRT
+            if (type.GetTypeInfo().IsValueType)
+#else
+            if (type.IsValueType)
+#endif
+                return Activator.CreateInstance(type);
+            return null;
+        }
+
         internal static object GetDataContext(object item)
         {
-            Should.NotBeNull(item, "item");
+            Should.NotBeNull(item, nameof(item));
             var type = item.GetType();
             Func<object, object> func;
             lock (GetDataContextDelegateCache)
@@ -347,12 +326,9 @@ namespace MugenMvvmToolkit
             return func(item);
         }
 
-        /// <summary>
-        /// Tries to set data context.
-        /// </summary>
         internal static bool SetDataContext(object item, object dataContext)
         {
-            Should.NotBeNull(item, "item");
+            Should.NotBeNull(item, nameof(item));
             var type = item.GetType();
             Action<object, object> setter;
             lock (SetDataContextDelegateCache)
@@ -371,12 +347,9 @@ namespace MugenMvvmToolkit
             return true;
         }
 
-        /// <summary>
-        ///     Gets the modules.
-        /// </summary>
         public static IList<IModule> GetModules([NotNull] this IEnumerable<Assembly> assemblies, bool throwOnError)
         {
-            Should.NotBeNull(assemblies, "assemblies");
+            Should.NotBeNull(assemblies, nameof(assemblies));
             var modulesToLoad = new List<Type>();
             foreach (var assembly in SkipFrameworkAssemblies(assemblies))
             {
@@ -392,66 +365,45 @@ namespace MugenMvvmToolkit
                 Type moduleType = modulesToLoad[index];
                 var constructor = moduleType.GetConstructor(Empty.Array<Type>());
 #if PCL_WINRT
-                if (constructor == null || modulesToLoad.Any(type => type != moduleType && type.GetTypeInfo().IsSubclassOf(moduleType)))
+                if (constructor == null || !constructor.IsPublic || modulesToLoad.Any(type => type != moduleType && type.GetTypeInfo().IsSubclassOf(moduleType)))
 #else
-                if (constructor == null|| modulesToLoad.Any(type => type != moduleType && type.IsSubclassOf(moduleType)))
+                if (constructor == null || !constructor.IsPublic || modulesToLoad.Any(type => type != moduleType && type.IsSubclassOf(moduleType)))
 #endif
                 {
                     modulesToLoad.Remove(moduleType);
                     index--;
                     continue;
                 }
-
-                var module = (IModule)constructor.InvokeEx(Empty.Array<object>());
-                modules.Add(module);
+                modules.Add((IModule)constructor.Invoke(Empty.Array<object>()));
             }
-            modules.Sort((module, module1) => module1.Priority.CompareTo(module.Priority));
+            modules.Sort((m1, m2) => m2.Priority.CompareTo(m1.Priority));
             return modules;
         }
 
-        /// <summary>
-        /// Filters assemblies.
-        /// </summary>
         public static IEnumerable<Assembly> SkipFrameworkAssemblies(this IEnumerable<Assembly> assemblies)
         {
             return assemblies.Where(IsToolkitAssemblyDelegate);
         }
 
-        /// <summary>
-        ///     Checks whether the current assembly is Microsoft assembly.
-        /// </summary>
-        public static bool IsMicrosoftAssembly(this Assembly assembly)
+        public static bool IsNetFrameworkAssembly(this Assembly assembly)
         {
-#if !PCL_Silverlight
             if (assembly.IsDynamic)
                 return false;
-#endif
             return assembly.HasKnownPublicKey(true);
         }
 
-        /// <summary>
-        ///     Checks whether the current assembly is toolkit assembly.
-        /// </summary>
         public static bool IsToolkitAssembly(this Assembly assembly)
         {
-#if !PCL_Silverlight
             if (assembly.IsDynamic)
                 return false;
-#endif
             return !assembly.HasKnownPublicKey(false);
         }
 
-        /// <summary>
-        ///     Gets the design time assemblies.
-        /// </summary>
         public static IList<Assembly> GetDesignAssemblies()
         {
             return DesignTimeInitializer.GetAssemblies(true);
         }
 
-        /// <summary>
-        ///     Checks whether the current type is public non-abstract class.
-        /// </summary>
         public static bool IsPublicNonAbstractClass(this Type type)
         {
 #if PCL_WINRT
@@ -462,9 +414,6 @@ namespace MugenMvvmToolkit
 #endif
         }
 
-        /// <summary>
-        ///     Checks whether the current type is anonymous class.
-        /// </summary>
         public static bool IsAnonymousClass(this Type type)
         {
 #if PCL_WINRT
@@ -477,20 +426,20 @@ namespace MugenMvvmToolkit
 
         internal static AssemblyName GetAssemblyName(this Assembly assembly)
         {
-            Should.NotBeNull(assembly, "assembly");
+            Should.NotBeNull(assembly, nameof(assembly));
             return new AssemblyName(assembly.FullName);
         }
 
         internal static Attribute[] GetAttributes([NotNull] this MemberInfo member)
         {
-            Should.NotBeNull(member, "member");
+            Should.NotBeNull(member, nameof(member));
             Attribute[] attributes;
             lock (CachedAttributes)
             {
                 if (!CachedAttributes.TryGetValue(member, out attributes))
                 {
                     attributes = member.GetCustomAttributes(typeof(Attribute), true)
-                        .OfType<Attribute>()
+                        .Cast<Attribute>()
                         .ToArray();
                     CachedAttributes[member] = attributes;
                 }
@@ -498,9 +447,31 @@ namespace MugenMvvmToolkit
             return attributes;
         }
 
+        [Pure]
+        public static MemberInfo GetMemberInfo([NotNull] this Func<LambdaExpression> getExpression)
+        {
+            Should.NotBeNull(getExpression, nameof(getExpression));
+            if (getExpression.HasClosure())
+            {
+                LambdaExpression expression = getExpression();
+                expression.TraceClosureWarn();
+                return expression.GetMemberInfo();
+            }
+            lock (ExpressionToMemberInfoCache)
+            {
+                MemberInfo info;
+                if (!ExpressionToMemberInfoCache.TryGetValue(getExpression, out info))
+                {
+                    info = getExpression().GetMemberInfo();
+                    ExpressionToMemberInfoCache[getExpression] = info;
+                }
+                return info;
+            }
+        }
+
         internal static MemberInfo GetMemberInfo([NotNull] this LambdaExpression expression)
         {
-            Should.NotBeNull(expression, "expression");
+            Should.NotBeNull(expression, nameof(expression));
             // Get the last element of the include path
             var unaryExpression = expression.Body as UnaryExpression;
             if (unaryExpression != null)
@@ -577,19 +548,26 @@ namespace MugenMvvmToolkit
 
         internal static void DisposeCommands(IViewModel item)
         {
-            Should.NotBeNull(item, "item");
+            Should.NotBeNull(item, nameof(item));
             Func<object, ICommand>[] list;
             lock (TypesToCommandsProperties)
             {
                 Type type = item.GetType();
                 if (!TypesToCommandsProperties.TryGetValue(type, out list))
                 {
-                    list = type
-                        .GetPropertiesEx(PropertyBindingFlag)
-                        .Where(c => typeof(ICommand).IsAssignableFrom(c.PropertyType) && c.CanRead &&
-                                    c.GetIndexParameters().Length == 0)
-                        .Select(ServiceProvider.ReflectionManager.GetMemberGetter<ICommand>)
-                        .ToArray();
+                    List<Func<object, ICommand>> items = null;
+                    foreach (var p in type.GetPropertiesEx(PropertyBindingFlag))
+                    {
+                        if (typeof(ICommand).IsAssignableFrom(p.PropertyType) && p.CanRead &&
+                            p.GetIndexParameters().Length == 0)
+                        {
+                            var func = ServiceProvider.ReflectionManager.GetMemberGetter<ICommand>(p);
+                            if (items == null)
+                                items = new List<Func<object, ICommand>>();
+                            items.Add(func);
+                        }
+                    }
+                    list = items == null ? Empty.Array<Func<object, ICommand>>() : items.ToArray();
                     TypesToCommandsProperties[type] = list;
                 }
             }
@@ -602,9 +580,9 @@ namespace MugenMvvmToolkit
                     if (disposable != null)
                         disposable.Dispose();
                 }
-                catch (MemberAccessException)
+                catch (Exception)
                 {
-                    //To avoid method access exception.                
+                    //To avoid method access exception.
                 }
             }
         }
@@ -626,7 +604,7 @@ namespace MugenMvvmToolkit
                         if (@interface.GetGenericTypeDefinition() != typeof(IViewModelAwareView<>)) continue;
                         if (result != null)
                             throw ExceptionManager.DuplicateInterface("view", "IViewModelAwareView<>", viewType);
-                        result = ServiceProvider.ReflectionManager.GetMemberSetter<IViewModel>(@interface.GetPropertyEx("ViewModel", MemberFlags.Public | MemberFlags.Instance));
+                        result = @interface.GetPropertyEx(nameof(IViewModelAwareView<IViewModel>.ViewModel), MemberFlags.Public | MemberFlags.Instance).SetValue;
                     }
                     ViewToViewModelInterface[viewType] = result;
                 }
@@ -650,7 +628,7 @@ namespace MugenMvvmToolkit
                         if (@interface.GetGenericTypeDefinition() != typeof(IViewAwareViewModel<>)) continue;
                         if (result != null)
                             throw ExceptionManager.DuplicateInterface("view model", "IViewAwareViewModel<>", viewModelType);
-                        result = @interface.GetPropertyEx("View", MemberFlags.Public | MemberFlags.Instance);
+                        result = @interface.GetPropertyEx(nameof(IViewAwareViewModel<object>.View), MemberFlags.Public | MemberFlags.Instance);
                     }
                     ViewModelToViewInterface[viewModelType] = result;
                 }
@@ -658,46 +636,20 @@ namespace MugenMvvmToolkit
             }
         }
 
-        /// <summary>
-        ///     This method is used to reduce closure allocation in generatde methods.
-        /// </summary>
         internal static void SetValue<TValue>(this PropertyInfo property, object target, TValue value)
         {
             property.SetValue(target, value, Empty.Array<object>());
         }
 
-        /// <summary>
-        ///     This method is used to reduce closure allocation in generatde methods.
-        /// </summary>
         internal static void SetValue<TValue>(this FieldInfo field, object target, TValue value)
         {
             field.SetValue(target, value);
         }
 
-        /// <summary>
-        ///     This method is used to reduce closure allocation in generatde methods.
-        /// </summary>
-        internal static object AsFunc(this Action<object[]> action, object target, object[] args)
+        internal static void TraceClosureWarn(this Expression expression)
         {
-            action(args);
-            return null;
-        }
-
-        /// <summary>
-        ///     This method is used to reduce closure allocation in generatde methods.
-        /// </summary>
-        internal static object AsFunc(this Action<object, object[]> action, object target, object[] args)
-        {
-            action(target, args);
-            return null;
-        }
-
-        /// <summary>
-        ///     This method is used to reduce closure allocation in generatde methods.
-        /// </summary>
-        internal static object AsFunc(this Func<object[], object> func, object target, object[] args)
-        {
-            return func(args);
+            if (Debugger.IsAttached)
+                Tracer.Warn("The expression '{0}' has closure, it can lead to poor performance", expression);
         }
 
         private static void UnsubscribePropertyChanged(object sender, PropertyChangedEventHandler handler)
@@ -731,7 +683,7 @@ namespace MugenMvvmToolkit
             return weakEventHandler.Handle;
         }
 
-        private static NotifyCollectionChangedEventHandler CreateHandler(ReflectionExtensions.IWeakEventHandler<NotifyCollectionChangedEventArgs> weakEventHandler)
+        private static NotifyCollectionChangedEventHandler CreateHandler(IWeakEventHandler<NotifyCollectionChangedEventArgs> weakEventHandler)
         {
             return weakEventHandler.Handle;
         }
@@ -753,11 +705,9 @@ namespace MugenMvvmToolkit
         [CanBeNull]
         public static MethodInfo GetMethodEx([NotNull] this Type type, string name, Type[] types, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
-            var methods = type.GetMethodsEx(flags);
-            for (int i = 0; i < methods.Length; i++)
+            Should.NotBeNull(type, nameof(type));
+            foreach (var method in type.GetMethodsEx(flags))
             {
-                var method = methods[i];
                 if (method.Name != name)
                     continue;
                 var parameters = method.GetParameters();
@@ -778,11 +728,51 @@ namespace MugenMvvmToolkit
             return null;
         }
 
+        internal static bool HasClosure(this Delegate del)
+        {
+            if (del.Target == null)
+                return false;
+            var type = del.Target.GetType();
+            lock (HasClosureDictionary)
+            {
+                bool value;
+                if (!HasClosureDictionary.TryGetValue(type, out value))
+                {
+                    value = type.GetPropertiesEx(MemberFlags.Public | MemberFlags.NonPublic | MemberFlags.Instance).Count != 0 ||
+                        type.GetFieldsEx(MemberFlags.Public | MemberFlags.NonPublic | MemberFlags.Instance).Count != 0;
+                    HasClosureDictionary[type] = value;
+                }
+                return value;
+            }
+        }
+
+        internal static object Convert(object value, Type type)
+        {
+            if (value == null)
+                return type.GetDefaultValue();
+            if (type.IsInstanceOfType(value))
+                return value;
+            if (type == typeof(Guid))
+                return Guid.Parse(value.ToString());
+#if PCL_WINRT
+            return System.Convert.ChangeType(value, type, CultureInfo.CurrentCulture);
+#else
+            if (value is IConvertible)
+                return System.Convert.ChangeType(value, type, CultureInfo.CurrentCulture);
+            return value;
+#endif
+        }
+
 #if PCL_WINRT
         [CanBeNull]
         public static PropertyInfo GetPropertyEx([NotNull] this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
+            foreach (var property in type.GetRuntimeProperties())
+            {
+                if (property.Name == name && FilterProperty(property, flags))
+                    return property;
+            }
             while (type != null)
             {
                 var typeInfo = type.GetTypeInfo();
@@ -797,9 +787,9 @@ namespace MugenMvvmToolkit
         }
 
         [NotNull]
-        public static PropertyInfo[] GetPropertiesEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
+        public static ICollection<PropertyInfo> GetPropertiesEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             var list = new List<PropertyInfo>();
             while (type != null)
             {
@@ -811,13 +801,18 @@ namespace MugenMvvmToolkit
                 }
                 type = type == typeof(object) ? null : typeInfo.BaseType;
             }
-            return list.ToArray();
+            return list;
         }
 
         [CanBeNull]
         public static FieldInfo GetFieldEx([NotNull] this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
+            foreach (var field in type.GetRuntimeFields())
+            {
+                if (field.Name == name && FilterField(field, flags))
+                    return field;
+            }
             while (type != null)
             {
                 var typeInfo = type.GetTypeInfo();
@@ -832,9 +827,9 @@ namespace MugenMvvmToolkit
         }
 
         [NotNull]
-        public static FieldInfo[] GetFieldsEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
+        public static ICollection<FieldInfo> GetFieldsEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             var list = new List<FieldInfo>();
             while (type != null)
             {
@@ -846,18 +841,16 @@ namespace MugenMvvmToolkit
                 }
                 type = type == typeof(object) ? null : typeInfo.BaseType;
             }
-            return list.ToArray();
+            return list;
         }
 
         [CanBeNull]
         public static MethodInfo GetMethodEx([NotNull] this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             MethodInfo result = null;
-            var methods = type.GetMethodsEx(flags);
-            for (int index = 0; index < methods.Length; index++)
+            foreach (var method in type.GetMethodsEx(flags))
             {
-                var method = methods[index];
                 if (method.Name == name)
                 {
                     if (result != null)
@@ -869,9 +862,9 @@ namespace MugenMvvmToolkit
         }
 
         [NotNull]
-        public static MethodInfo[] GetMethodsEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
+        public static ICollection<MethodInfo> GetMethodsEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             var list = new List<MethodInfo>();
             while (type != null)
             {
@@ -883,13 +876,18 @@ namespace MugenMvvmToolkit
                 }
                 type = type == typeof(object) ? null : typeInfo.BaseType;
             }
-            return list.ToArray();
+            return list;
         }
 
         [CanBeNull]
         public static EventInfo GetEventEx(this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
+            foreach (var @event in type.GetRuntimeEvents())
+            {
+                if (@event.Name == name && FilterMethod(@event.AddMethod ?? @event.RemoveMethod, flags))
+                    return @event;
+            }
             while (type != null)
             {
                 var typeInfo = type.GetTypeInfo();
@@ -904,9 +902,9 @@ namespace MugenMvvmToolkit
         }
 
         [CanBeNull]
-        internal static ConstructorInfo GetConstructor([NotNull] this Type type, Type[] types)
+        public static ConstructorInfo GetConstructor([NotNull] this Type type, Type[] types)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             foreach (ConstructorInfo constructor in type.GetTypeInfo().DeclaredConstructors)
             {
                 if (constructor.IsStatic)
@@ -931,7 +929,7 @@ namespace MugenMvvmToolkit
 
         internal static bool IsDefined(this Type type, Type attributeType, bool inherit)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             return type.GetTypeInfo().IsDefined(attributeType, inherit);
         }
 
@@ -944,14 +942,14 @@ namespace MugenMvvmToolkit
 
         internal static bool IsAssignableFrom([NotNull] this Type typeFrom, [NotNull] Type typeTo)
         {
-            Should.NotBeNull(typeFrom, "typeFrom");
-            Should.NotBeNull(typeTo, "typeTo");
+            Should.NotBeNull(typeFrom, nameof(typeFrom));
+            Should.NotBeNull(typeTo, nameof(typeTo));
             return typeFrom.GetTypeInfo().IsAssignableFrom(typeTo.GetTypeInfo());
         }
 
         internal static IEnumerable<Type> GetInterfaces([NotNull] this Type type)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             return type.GetTypeInfo().ImplementedInterfaces;
         }
 
@@ -1013,23 +1011,16 @@ namespace MugenMvvmToolkit
                     flags.HasMemberFlag(MemberFlags.Public) && method.IsPublic);
         }
 #else
-        /// <summary>
-        ///     Gets an object that represents the method represented by the specified delegate.
-        /// </summary>
-        /// <returns>
-        ///     An object that represents the method.
-        /// </returns>
-        /// <param name="del">The delegate to examine.</param>
         public static MethodInfo GetMethodInfo([NotNull] this Delegate del)
         {
-            Should.NotBeNull(del, "del");
+            Should.NotBeNull(del, nameof(del));
             return del.Method;
         }
 
         [CanBeNull]
         public static PropertyInfo GetPropertyEx([NotNull] this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             var bindingFlags = flags.ToBindingFlags(false);
             var property = type.GetProperty(name, bindingFlags | BindingFlags.FlattenHierarchy);
             if (property != null || !flags.HasMemberFlag(MemberFlags.NonPublic))
@@ -1046,9 +1037,9 @@ namespace MugenMvvmToolkit
         }
 
         [NotNull]
-        public static PropertyInfo[] GetPropertiesEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
+        public static ICollection<PropertyInfo> GetPropertiesEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             var bindingFlags = flags.ToBindingFlags(false);
             if (flags.HasMemberFlag(MemberFlags.NonPublic))
             {
@@ -1059,7 +1050,7 @@ namespace MugenMvvmToolkit
                     list.AddRange(type.GetProperties(bindingFlags));
                     type = type == typeof(object) ? null : type.BaseType;
                 }
-                return list.ToArray();
+                return list;
             }
             return type.GetProperties(bindingFlags | BindingFlags.FlattenHierarchy);
         }
@@ -1067,7 +1058,7 @@ namespace MugenMvvmToolkit
         [CanBeNull]
         public static FieldInfo GetFieldEx([NotNull] this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             var bindingFlags = flags.ToBindingFlags(false);
             var field = type.GetField(name, bindingFlags | BindingFlags.FlattenHierarchy);
             if (field != null || !flags.HasMemberFlag(MemberFlags.NonPublic))
@@ -1084,9 +1075,9 @@ namespace MugenMvvmToolkit
         }
 
         [NotNull]
-        public static FieldInfo[] GetFieldsEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
+        public static ICollection<FieldInfo> GetFieldsEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             var bindingFlags = flags.ToBindingFlags(false);
             if (flags.HasMemberFlag(MemberFlags.NonPublic))
             {
@@ -1097,7 +1088,7 @@ namespace MugenMvvmToolkit
                     list.AddRange(type.GetFields(bindingFlags));
                     type = type == typeof(object) ? null : type.BaseType;
                 }
-                return list.ToArray();
+                return list;
             }
             return type.GetFields(bindingFlags | BindingFlags.FlattenHierarchy);
         }
@@ -1105,7 +1096,7 @@ namespace MugenMvvmToolkit
         [CanBeNull]
         public static MethodInfo GetMethodEx([NotNull] this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             var bindingFlags = flags.ToBindingFlags(false);
             var method = type.GetMethod(name, bindingFlags | BindingFlags.FlattenHierarchy);
             if (method != null || !flags.HasMemberFlag(MemberFlags.NonPublic))
@@ -1122,9 +1113,9 @@ namespace MugenMvvmToolkit
         }
 
         [NotNull]
-        public static MethodInfo[] GetMethodsEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
+        public static ICollection<MethodInfo> GetMethodsEx([NotNull] this Type type, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             var bindingFlags = flags.ToBindingFlags(false);
             if (flags.HasMemberFlag(MemberFlags.NonPublic))
             {
@@ -1135,7 +1126,7 @@ namespace MugenMvvmToolkit
                     list.AddRange(type.GetMethods(bindingFlags));
                     type = type == typeof(object) ? null : type.BaseType;
                 }
-                return list.ToArray();
+                return list;
             }
             return type.GetMethods(bindingFlags | BindingFlags.FlattenHierarchy);
         }
@@ -1143,7 +1134,7 @@ namespace MugenMvvmToolkit
         [CanBeNull]
         public static EventInfo GetEventEx([NotNull] this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             var bindingFlags = flags.ToBindingFlags(false);
             var @event = type.GetEvent(name, bindingFlags | BindingFlags.FlattenHierarchy);
             if (@event != null || !flags.HasMemberFlag(MemberFlags.NonPublic))

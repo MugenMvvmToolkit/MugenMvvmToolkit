@@ -48,9 +48,6 @@ namespace MugenMvvmToolkit.Test.Models
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NotifyPropertyChangedBaseTest" /> class.
-        /// </summary>
         public NotifyPropertyChangedBaseTest()
         {
             _threadManagerMock = new ThreadManagerMock();
@@ -70,7 +67,7 @@ namespace MugenMvvmToolkit.Test.Models
                     SetProperty(ref _setProperty, value);
                     return;
                 }
-                SetProperty(ref _setProperty, value, "SetPropertyName", _executionMode);
+                SetProperty(ref _setProperty, value, nameof(SetPropertyName), _executionMode);
             }
         }
 
@@ -80,9 +77,9 @@ namespace MugenMvvmToolkit.Test.Models
             set
             {
                 if (_useGlobalSetting)
-                    SetProperty(ref _setProperty, value, () => SetPropertyExpression);
+                    this.SetProperty(ref _setProperty, value, () => vm => SetPropertyExpression);
                 else
-                    SetProperty(ref _setProperty, value, () => SetPropertyExpression, _executionMode);
+                    this.SetProperty(ref _setProperty, value, () => vm => SetPropertyExpression, _executionMode);
             }
         }
 
@@ -97,7 +94,7 @@ namespace MugenMvvmToolkit.Test.Models
                 {
                     OnPropertyChanged();
                 }
-                OnPropertyChanged("PropertyString", _executionMode);
+                OnPropertyChanged(nameof(PropertyString), _executionMode);
             }
         }
 
@@ -109,9 +106,9 @@ namespace MugenMvvmToolkit.Test.Models
                 if (value == _propertyExp) return;
                 _propertyExp = value;
                 if (_useGlobalSetting)
-                    OnPropertyChanged(() => PropertyExp);
+                    this.OnPropertyChanged(() => m => m.PropertyExp);
                 else
-                    OnPropertyChanged(() => PropertyExp, _executionMode);
+                    this.OnPropertyChanged(() => m => m.PropertyExp, _executionMode);
             }
         }
 
@@ -129,38 +126,32 @@ namespace MugenMvvmToolkit.Test.Models
 
         #region Overrides of NotifyPropertyChangedBase
 
-        /// <summary>
-        ///     Specifies the execution mode for raise property change event.
-        /// </summary>
-        protected override ExecutionMode PropertyChangeExecutionMode
-        {
-            get { return PropertyExecutionMode; }
-        }
+        protected override ExecutionMode PropertyChangeExecutionMode => PropertyExecutionMode;
 
         #endregion
 
         [TestMethod]
         public void SetPropertyNameTest()
         {
-            BasePropertyTest(() => SetPropertyName, s => SetPropertyName = s, "SetPropertyName");
+            BasePropertyTest(() => SetPropertyName, s => SetPropertyName = s, nameof(SetPropertyName));
         }
 
         [TestMethod]
         public void SetPropertyExpressionTest()
         {
-            BasePropertyTest(() => SetPropertyExpression, s => SetPropertyExpression = s, "SetPropertyExpression");
+            BasePropertyTest(() => SetPropertyExpression, s => SetPropertyExpression = s, nameof(SetPropertyExpression));
         }
 
         [TestMethod]
         public void PropertyStringTest()
         {
-            BasePropertyTest(() => PropertyString, s => PropertyString = s, "PropertyString");
+            BasePropertyTest(() => PropertyString, s => PropertyString = s, nameof(PropertyString));
         }
 
         [TestMethod]
         public void PropertyExpTest()
         {
-            BasePropertyTest(() => PropertyExp, s => PropertyExp = s, "PropertyExp");
+            BasePropertyTest(() => PropertyExp, s => PropertyExp = s, nameof(PropertyExp));
         }
 
         [TestMethod]
@@ -174,15 +165,15 @@ namespace MugenMvvmToolkit.Test.Models
                                        lastProp = args.PropertyName;
                                        count++;
                                    };
-            OnPropertyChanged(() => SetPropertyName);
-            lastProp.ShouldEqual("SetPropertyName");
+            this.OnPropertyChanged(() => vm => vm.SetPropertyName);
+            lastProp.ShouldEqual(nameof(SetPropertyName));
             count.ShouldEqual(1);
 
             //Clear events
             ClearPropertyChangedSubscribers();
             count = 0;
             lastProp = null;
-            OnPropertyChanged(() => SetPropertyName);
+            this.OnPropertyChanged(() => vm => vm.SetPropertyName);
             lastProp.ShouldBeNull();
             count.ShouldEqual(0);
         }
@@ -214,9 +205,9 @@ namespace MugenMvvmToolkit.Test.Models
             }
         }
 
-        private void BasePropertyTestInternal(Func<string> getProperty, Action<string> updateProperty, string propertyName, Action<ExecutionMode> changeRaiseInUi, bool suspend)
+        private void BasePropertyTestInternal(Func<string> getProperty, Action<string> updateProperty, string propertyName, Action<ExecutionMode> changeRaiseOnUi, bool suspend)
         {
-            changeRaiseInUi(ExecutionMode.None);
+            changeRaiseOnUi(ExecutionMode.None);
             int count = 0;
             string lastProp = null;
             const string value = "value";
@@ -238,47 +229,45 @@ namespace MugenMvvmToolkit.Test.Models
             else
                 count.ShouldEqual(0);
 
-            //Invoke in ui thread 
+            //Invoke on ui thread
             updateProperty(null);
-            changeRaiseInUi(ExecutionMode.AsynchronousOnUiThread);
+            changeRaiseOnUi(ExecutionMode.AsynchronousOnUiThread);
+            _threadManagerMock.InvokeOnUiThreadAsync();
             count = 0;
             lastProp = null;
-            _threadManagerMock.InvokeOnUiThreadAsync = null;
             updateProperty(value);
             getProperty().ShouldEqual(value);
             lastProp.ShouldBeNull();
             if (!suspend)
             {
-                _threadManagerMock.InvokeOnUiThreadAsync.ShouldNotBeNull();
-                _threadManagerMock.InvokeOnUiThreadAsync.Invoke();
+                _threadManagerMock.InvokeOnUiThreadAsync();
                 lastProp.ShouldEqual(propertyName);
                 count.ShouldEqual(1);
             }
             else
             {
-                _threadManagerMock.InvokeOnUiThreadAsync.ShouldBeNull();
+                _threadManagerMock.InvokeOnUiThreadAsync();
                 count.ShouldEqual(0);
             }
 
-            //Invoke in ui thread synchronous
+            //Invoke on ui thread synchronous
             updateProperty(null);
-            changeRaiseInUi(ExecutionMode.SynchronousOnUiThread);
+            changeRaiseOnUi(ExecutionMode.SynchronousOnUiThread);
             count = 0;
             lastProp = null;
-            _threadManagerMock.InvokeOnUiThread = null;
+            _threadManagerMock.InvokeOnUiThread();
             updateProperty(value);
             getProperty().ShouldEqual(value);
             lastProp.ShouldBeNull();
             if (!suspend)
             {
-                _threadManagerMock.InvokeOnUiThread.ShouldNotBeNull();
-                _threadManagerMock.InvokeOnUiThread.Invoke();
+                _threadManagerMock.InvokeOnUiThread();
                 lastProp.ShouldEqual(propertyName);
                 count.ShouldEqual(1);
             }
             else
             {
-                _threadManagerMock.InvokeOnUiThread.ShouldBeNull();
+                _threadManagerMock.InvokeOnUiThread();
                 count.ShouldEqual(0);
             }
         }
@@ -287,13 +276,7 @@ namespace MugenMvvmToolkit.Test.Models
 
         #region Overrides of NotifyPropertyChangedBase
 
-        /// <summary>
-        ///     Gets or sets the <see cref="IThreadManager" />.
-        /// </summary>
-        protected override IThreadManager ThreadManager
-        {
-            get { return _threadManagerMock ?? base.ThreadManager; }
-        }
+        protected override IThreadManager ThreadManager => _threadManagerMock ?? base.ThreadManager;
 
         #endregion
     }

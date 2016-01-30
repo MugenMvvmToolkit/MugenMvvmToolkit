@@ -40,6 +40,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Behaviors
             bool isSourceInvoked = false;
             BindingMock.UpdateTarget = () => isTargetInvoked = true;
             BindingMock.UpdateSource = () => isSourceInvoked = true;
+            TargetSourceMock.GetPathMembers = b => new BindingPathMembersMock(SourceSourceMock, BindingPath.DataContext);
 
             Behavior.Attach(BindingMock).ShouldBeTrue();
             isTargetInvoked.ShouldBeFalse();
@@ -53,6 +54,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Behaviors
             bool isSourceInvoked = false;
             BindingMock.UpdateTarget = () => isTargetInvoked = true;
             BindingMock.UpdateSource = () => isSourceInvoked = true;
+            SourceSourceMock.GetPathMembers = b => new BindingPathMembersMock(SourceSourceMock, BindingPath.DataContext);
 
             Behavior.Attach(BindingMock).ShouldBeTrue();
 

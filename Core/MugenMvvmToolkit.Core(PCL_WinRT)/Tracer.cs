@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="Tracer.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -19,6 +19,7 @@
 #define DEBUG
 using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
@@ -29,16 +30,10 @@ using TraceLevel = MugenMvvmToolkit.Models.TraceLevel;
 
 namespace MugenMvvmToolkit
 {
-    /// <summary>
-    ///     Represents the default tracer.
-    /// </summary>
-    public sealed class Tracer : ITracer, ITaskExceptionHandler
+    public class Tracer : ITracer, ITaskExceptionHandler
     {
         #region Fields
 
-        /// <summary>
-        ///     Gets the instance of <see cref="ITracer" />.
-        /// </summary>
         internal static readonly Tracer Instance;
 
         #endregion
@@ -48,12 +43,12 @@ namespace MugenMvvmToolkit
         static Tracer()
         {
             Instance = new Tracer();
-            TraceFinalized = Debugger.IsAttached;
-            TraceWarning = true;
-            TraceError = true;
+            var isAttached = Debugger.IsAttached;
+            TraceWarning = isAttached;
+            TraceError = isAttached;
         }
 
-        private Tracer()
+        protected Tracer()
         {
         }
 
@@ -61,71 +56,40 @@ namespace MugenMvvmToolkit
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the value that is responsible to trace finalized items.
-        /// </summary>
-        public static bool TraceFinalized { get; set; }
-
-        /// <summary>
-        ///     Gets the value that indicates that tracer should trace information messages.
-        /// </summary>
         public static bool TraceInformation { get; set; }
 
-        /// <summary>
-        ///     Gets the value that indicates that tracer should trace warning messages.
-        /// </summary>
         public static bool TraceWarning { get; set; }
 
-        /// <summary>
-        ///     Gets the value that indicates that tracer should trace error messages.
-        /// </summary>
         public static bool TraceError { get; set; }
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Updates information about view-models.
-        /// </summary>
-        public static void TraceViewModel(AuditAction auditAction, IViewModel viewModel)
+        public static void TraceViewModel(ViewModelLifecycleType lifecycleType, IViewModel viewModel)
         {
-            var handler = TraceViewModelHandler;
-            if (handler != null)
-                handler(auditAction, viewModel);
-            ServiceProvider.Tracer.TraceViewModel(auditAction, viewModel);
+            TraceViewModelHandler?.Invoke(lifecycleType, viewModel);
+            ServiceProvider.Tracer.TraceViewModel(lifecycleType, viewModel);
         }
 
-        /// <summary>
-        /// Writes an info message to the default tracer.
-        /// </summary>
         public static void Info(string message)
         {
             if (TraceInformation)
                 ServiceProvider.Tracer.Trace(TraceLevel.Information, message);
         }
 
-        /// <summary>
-        /// Writes a warning message to the default tracer.
-        /// </summary>
         public static void Warn(string message)
         {
             if (TraceWarning)
                 ServiceProvider.Tracer.Trace(TraceLevel.Warning, message);
         }
 
-        /// <summary>
-        /// Writes an error message to the default tracer.
-        /// </summary>
         public static void Error(string message)
         {
             if (TraceError)
                 ServiceProvider.Tracer.Trace(TraceLevel.Error, message);
         }
 
-        /// <summary>
-        /// Writes an info message to the default tracer.
-        /// </summary>
         [StringFormatMethod("format")]
         public static void Info(string format, params object[] args)
         {
@@ -133,9 +97,6 @@ namespace MugenMvvmToolkit
                 ServiceProvider.Tracer.Trace(TraceLevel.Information, format, args);
         }
 
-        /// <summary>
-        /// Writes a warning message to the default tracer.
-        /// </summary>
         [StringFormatMethod("format")]
         public static void Warn(string format, params object[] args)
         {
@@ -143,9 +104,6 @@ namespace MugenMvvmToolkit
                 ServiceProvider.Tracer.Trace(TraceLevel.Warning, format, args);
         }
 
-        /// <summary>
-        /// Writes an error message to the default tracer.
-        /// </summary>
         [StringFormatMethod("format")]
         public static void Error(string format, params object[] args)
         {
@@ -153,54 +111,23 @@ namespace MugenMvvmToolkit
                 ServiceProvider.Tracer.Trace(TraceLevel.Error, format, args);
         }
 
-        /// <summary>
-        /// Writes information about an item.
-        /// </summary>
-        public static void Finalized(object item, string message = null)
+        public static bool CanTrace(TraceLevel level)
         {
-            if (TraceFinalized)
-                Warn("Finalized - {0} ({1}); {2}", item.GetType(), item.GetHashCode().ToString(), message);
+            switch (level)
+            {
+                case TraceLevel.Information:
+                    return TraceInformation;
+                case TraceLevel.Warning:
+                    return TraceWarning;
+                case TraceLevel.Error:
+                    return TraceError;
+                default:
+                    throw ExceptionManager.EnumOutOfRange("level", level);
+            }
         }
 
-        #endregion
-
-        #region Events
-
-        /// <summary>
-        ///     Occurs on updates information about view-models.
-        /// </summary>
-        public static event Action<AuditAction, IViewModel> TraceViewModelHandler;
-
-        #endregion
-
-        #region Implementation of ITracer
-
-        /// <summary>
-        ///     Updates information about view-models.
-        /// </summary>
-        void ITracer.TraceViewModel(AuditAction auditAction, IViewModel viewModel)
+        protected virtual void TraceInternal(TraceLevel level, string message)
         {
-            var hasDisplayName = viewModel as IHasDisplayName;
-            var traceLevel = auditAction == AuditAction.Finalized ? TraceLevel.Warning : TraceLevel.Information;
-            if (hasDisplayName == null)
-                Trace(traceLevel,
-                    string.Format("{0} ({1}) - {2}", viewModel.GetType(), viewModel.GetHashCode().ToString(), auditAction));
-            else
-                Trace(traceLevel,
-                    string.Format("{0} (Hash - {1}; DisplayName - {2};) - {3}", viewModel.GetType(),
-                        viewModel.GetHashCode().ToString(), hasDisplayName.DisplayName, auditAction));
-        }
-
-        /// <summary>
-        ///     Writes an informational message to the trace listeners.
-        /// </summary>
-        /// <param name="level">The specified trace level.</param>
-        /// <param name="message">The message to write.</param>
-        public void Trace(TraceLevel level, string message)
-        {
-            if (!Debugger.IsAttached)
-                return;
-            message = level + ": " + message;
             switch (level)
             {
                 case TraceLevel.Information:
@@ -215,26 +142,46 @@ namespace MugenMvvmToolkit
             }
         }
 
-        /// <summary>
-        ///     Writes an informational message to the trace listeners.
-        /// </summary>
-        /// <param name="level">The specified trace level.</param>
-        /// <param name="format">The message to write.</param>
-        /// <param name="args">The string format members.</param>
+        #endregion
+
+        #region Events
+
+        public static event Action<ViewModelLifecycleType, IViewModel> TraceViewModelHandler;
+
+        #endregion
+
+        #region Implementation of ITracer
+
+        void ITracer.TraceViewModel(ViewModelLifecycleType lifecycleType, IViewModel viewModel)
+        {
+            TraceLevel traceLevel = lifecycleType == ViewModelLifecycleType.Finalized ? TraceLevel.Warning : TraceLevel.Information;
+            if (!CanTrace(traceLevel))
+                return;
+            var displayName = viewModel as IHasDisplayName;
+            if (displayName == null)
+                Trace(traceLevel, "{0} ({1}) - {2};", viewModel.GetType(),
+                    viewModel.GetHashCode().ToString(CultureInfo.InvariantCulture), lifecycleType);
+            else
+                Trace(traceLevel, "{0} (Hash - {1}; DisplayName - {2};) - {3}", viewModel.GetType(),
+                    viewModel.GetHashCode().ToString(CultureInfo.InvariantCulture), displayName.DisplayName, lifecycleType);
+        }
+
+        public void Trace(TraceLevel level, string message)
+        {
+            if (CanTrace(level))
+                TraceInternal(level, level + ": " + message);
+        }
+
         public void Trace(TraceLevel level, string format, params object[] args)
         {
-            Trace(level, string.Format(format, args));
+            if (CanTrace(level))
+                TraceInternal(level, level + ": " + string.Format(format, args));
         }
 
         #endregion
 
         #region Implementation of ITaskExceptionHandler
 
-        /// <summary>
-        ///     Handles an exception.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="task">The task that throws an exception.</param>
         void ITaskExceptionHandler.Handle(object sender, Task task)
         {
             if (task.Exception != null)

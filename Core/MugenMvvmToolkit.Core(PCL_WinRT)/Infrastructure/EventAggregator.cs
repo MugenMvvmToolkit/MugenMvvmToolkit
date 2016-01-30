@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="EventAggregator.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -16,19 +16,94 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    /// <summary>
-    ///     Enables loosely-coupled publication of and subscription to events.
-    /// </summary>
     public class EventAggregator : IEventAggregator, IHandler<object>
     {
+        #region Nested types
+
+        [StructLayout(LayoutKind.Auto)]
+        private struct MessageSenderCache
+        {
+            #region Fields
+
+            public int Hash;
+            public object Message;
+            public object Sender;
+            public ISubscriber Subscriber;
+
+            #endregion
+
+            #region Constructors
+
+            public MessageSenderCache(object sender, object message, ISubscriber subscriber, int partHash)
+            {
+                Sender = sender;
+                Message = message;
+                Subscriber = subscriber;
+                Hash = partHash;
+            }
+
+            #endregion
+        }
+
+        private sealed class MessageSenderCacheComparer : IEqualityComparer<MessageSenderCache>
+        {
+            #region Fields
+
+            public static readonly MessageSenderCacheComparer Instance;
+
+            #endregion
+
+            #region Constructors
+
+            static MessageSenderCacheComparer()
+            {
+                Instance = new MessageSenderCacheComparer();
+            }
+
+            private MessageSenderCacheComparer()
+            {
+            }
+
+            #endregion
+
+            #region Implementation of IEqualityComparer<in MessageSenderCache>
+
+            public bool Equals(MessageSenderCache x, MessageSenderCache y)
+            {
+                return ReferenceEquals(x.Sender, y.Sender) && ReferenceEquals(x.Message, y.Message) &&
+                       (ReferenceEquals(x.Subscriber, y.Subscriber) ||
+                        (!x.Subscriber.AllowDuplicate && x.Subscriber.Equals(y.Subscriber)));
+            }
+
+            public int GetHashCode(MessageSenderCache obj)
+            {
+                unchecked
+                {
+                    return obj.Hash ^ obj.Subscriber.GetHashCode();
+                }
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Fields
+
+        private static readonly MessageSenderCache EmptyMessage;
+
+        [ThreadStatic]
+        private static HashSet<MessageSenderCache> _threadHandledMessages;
 
         private readonly List<ISubscriber> _subscribers;
         private readonly bool _trace;
@@ -37,17 +112,17 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="EventAggregator" /> class.
-        /// </summary>
+        static EventAggregator()
+        {
+            var subscriber = new ActionSubscriber<object>((o, o1) => { });
+            EmptyMessage = new MessageSenderCache(subscriber, subscriber, subscriber, 0);
+        }
+
         public EventAggregator()
             : this(false)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="EventAggregator" /> class.
-        /// </summary>
         public EventAggregator(bool trace)
         {
             _trace = trace;
@@ -58,72 +133,82 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the list of subscribers.
-        /// </summary>
-        protected List<ISubscriber> Subscribers
+        protected List<ISubscriber> Subscribers => _subscribers;
+
+        private static HashSet<MessageSenderCache> GetHandledMessages(out bool owner)
         {
-            get { return _subscribers; }
+            var handledMessages = _threadHandledMessages;
+            if (handledMessages == null)
+            {
+                handledMessages = new HashSet<MessageSenderCache>(MessageSenderCacheComparer.Instance);
+                _threadHandledMessages = handledMessages;
+            }
+
+            if (handledMessages.Count == 0)
+            {
+                owner = true;
+                handledMessages.Add(EmptyMessage);
+            }
+            else
+                owner = false;
+            return handledMessages;
         }
 
         #endregion
 
         #region Implementation of IEventAggregator
 
-        /// <summary>
-        ///     Handles the message.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="message">Information about event.</param>
-        void IHandler<object>.Handle(object sender, object message)
-        {
-            Publish(sender, message);
-        }
-
-        /// <summary>
-        ///     Publishes a message.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="message">The message instance.</param>
         public virtual void Publish(object sender, object message)
         {
-            Should.NotBeNull(sender, "sender");
-            Should.NotBeNull(message, "message");
+            Should.NotBeNull(sender, nameof(sender));
+            Should.NotBeNull(message, nameof(message));
             if (_subscribers.Count == 0)
                 return;
-            ISubscriber[] subscribers;
-            int size = 0;
-            lock (_subscribers)
+            bool owner;
+            HashSet<MessageSenderCache> handledMessages = GetHandledMessages(out owner);
+            int partHash = GetHash(sender, message);
+            try
             {
-                subscribers = new ISubscriber[_subscribers.Count];
-                for (int i = 0; i < _subscribers.Count; i++)
+                int size = 0;
+                ISubscriber[] subscribers;
+                lock (_subscribers)
                 {
-                    ISubscriber subscriber = _subscribers[i];
-                    if (subscriber.IsAlive)
-                        subscribers[size++] = subscriber;
-                    else
+                    subscribers = new ISubscriber[_subscribers.Count];
+                    for (int i = 0; i < _subscribers.Count; i++)
                     {
-                        _subscribers.RemoveAt(i);
-                        --i;
+                        ISubscriber subscriber = _subscribers[i];
+                        if (subscriber.IsAlive)
+                        {
+                            if (handledMessages.Add(new MessageSenderCache(sender, message, subscriber, partHash)))
+                                subscribers[size++] = subscriber;
+                        }
+                        else
+                        {
+                            _subscribers.RemoveAt(i);
+                            --i;
+                        }
+                    }
+                }
+                if (size != 0)
+                {
+                    bool trace = _trace || message is ITracebleMessage;
+                    for (int i = 0; i < size; i++)
+                    {
+                        if (subscribers[i].Handle(sender, message) == HandlerResult.Handled && trace)
+                            Trace(sender, message, subscribers[i].Target);
                     }
                 }
             }
-            bool trace = _trace || message is ITracebleMessage;
-            for (int i = 0; i < subscribers.Length; i++)
+            finally
             {
-                if (subscribers[i].Handle(sender, message) == HandlerResult.Handled && trace)
-                    Tracer.Warn("The message '{0}' from sender '{1}' was sended to '{2}'", message.GetType(),
-                        sender.GetType(), subscribers[i].Target);
+                if (owner)
+                    handledMessages.Clear();
             }
         }
 
-        /// <summary>
-        ///     Subscribes an instance to events.
-        /// </summary>
-        /// <param name="subscriber">The instance to subscribe for event publication.</param>
         public virtual bool Subscribe(ISubscriber subscriber)
         {
-            Should.NotBeNull(subscriber, "subscriber");
+            Should.NotBeNull(subscriber, nameof(subscriber));
             lock (_subscribers)
             {
                 if (subscriber.AllowDuplicate || !Contains(subscriber, false))
@@ -132,39 +217,26 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Unsubscribes the instance from all events.
-        /// </summary>
-        /// <param name="subscriber">The instance to unsubscribe.</param>
         public virtual bool Unsubscribe(ISubscriber subscriber)
         {
-            Should.NotBeNull(subscriber, "subscriber");
+            Should.NotBeNull(subscriber, nameof(subscriber));
             lock (_subscribers)
                 return Contains(subscriber, true);
         }
 
-        /// <summary>
-        ///     Determines whether the <see cref="IEventAggregator" /> contains a specific subscriber.
-        /// </summary>
         public virtual bool Contains(ISubscriber subscriber)
         {
-            Should.NotBeNull(subscriber, "subscriber");
+            Should.NotBeNull(subscriber, nameof(subscriber));
             lock (_subscribers)
                 return Contains(subscriber, false);
         }
 
-        /// <summary>
-        ///     Removes all subscribers.
-        /// </summary>
         public virtual void UnsubscribeAll()
         {
             lock (_subscribers)
                 _subscribers.Clear();
         }
 
-        /// <summary>
-        ///     Gets the collection of subscribers.
-        /// </summary>
         public virtual IList<ISubscriber> GetSubscribers()
         {
             if (_subscribers.Count == 0)
@@ -191,6 +263,32 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Methods
 
+        public static void Publish(object target, object sender, object message, IDataContext context = null)
+        {
+            Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(sender, nameof(sender));
+            Should.NotBeNull(message, nameof(message));
+            Func<object, IDataContext, ISubscriber> converter = ServiceProvider.ObjectToSubscriberConverter;
+            if (converter == null)
+                return;
+            ISubscriber subscriber = converter(target, context);
+            bool owner;
+            HashSet<MessageSenderCache> handledMessages = GetHandledMessages(out owner);
+            try
+            {
+                if (handledMessages.Add(new MessageSenderCache(sender, message, subscriber, GetHash(sender, message))))
+                {
+                    if (subscriber.Handle(sender, message) == HandlerResult.Handled && message is ITracebleMessage)
+                        Trace(sender, message, target);
+                }
+            }
+            finally
+            {
+                if (owner)
+                    handledMessages.Clear();
+            }
+        }
+
         private bool Contains(ISubscriber instance, bool remove)
         {
             for (int i = 0; i < _subscribers.Count; i++)
@@ -211,6 +309,29 @@ namespace MugenMvvmToolkit.Infrastructure
             return false;
         }
 
-        #endregion        
+        private static void Trace(object sender, object message, object target)
+        {
+            Tracer.Warn("The message '{0}' from '{1}' was sended to '{2}'", message.GetType(),
+                sender.GetType(), target);
+        }
+
+        private static int GetHash(object sender, object message)
+        {
+            unchecked
+            {
+                return ((RuntimeHelpers.GetHashCode(sender) * 397) ^ RuntimeHelpers.GetHashCode(message) * 397);
+            }
+        }
+
+        #endregion
+
+        #region Implementation of IHandler<object>
+
+        void IHandler<object>.Handle(object sender, object message)
+        {
+            Publish(sender, message);
+        }
+
+        #endregion
     }
 }

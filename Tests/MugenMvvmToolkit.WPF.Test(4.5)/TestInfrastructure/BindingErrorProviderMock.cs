@@ -9,19 +9,21 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
     {
         #region Properties
 
+        public Func<object, string, IDataContext, IList<object>> GetErrors { get; set; }
+
         public Action<object, string, IList<object>, IDataContext> SetErrors { get; set; }
 
         #endregion
 
         #region Implementation of IBindingErrorProvider
 
-        /// <summary>
-        ///     Sets errors for binding target.
-        /// </summary>
-        /// <param name="target">The binding target object.</param>
-        /// <param name="senderKey">The source of the errors.</param>
-        /// <param name="errors">The collection of errors</param>
-        /// <param name="context">The specified context, if any.</param>
+        IList<object> IBindingErrorProvider.GetErrors(object target, string key, IDataContext context)
+        {
+            if (GetErrors == null)
+                return Empty.Array<object>();
+            return GetErrors(target, key, context);
+        }
+
         void IBindingErrorProvider.SetErrors(object target, string senderKey, IList<object> errors, IDataContext context)
         {
             if (SetErrors != null)

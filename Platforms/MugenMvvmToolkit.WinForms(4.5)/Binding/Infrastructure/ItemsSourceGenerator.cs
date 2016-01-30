@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ItemsSourceGenerator.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -16,30 +16,39 @@
 
 #endregion
 
+using System;
 using System.Collections;
-using MugenMvvmToolkit.Binding.Converters;
+using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Binding.Modules;
-#if WINFORMS
+using MugenMvvmToolkit.Binding.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.ViewModels;
+#if TOUCH
+using ObjCRuntime;
+using MugenMvvmToolkit.iOS.Binding.Converters;
+using MugenMvvmToolkit.iOS.Binding.Interfaces;
+
+namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
+#elif WINFORMS
 using System.ComponentModel;
 using System.Windows.Forms;
 using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Interfaces.Models;
-#elif TOUCH
-using MonoTouch.ObjCRuntime;
-#endif
-using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.ViewModels;
+using MugenMvvmToolkit.WinForms.Binding.Converters;
+using MugenMvvmToolkit.WinForms.Binding.Interfaces;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.WinForms.Binding.Infrastructure
+#endif
+
 {
     internal class ItemsSourceGenerator : ItemsSourceGeneratorBase
     {
         #region Fields
 
         private readonly IBindingMemberInfo _itemTemplateMember;
-        private readonly object _view;
+        private readonly IBindingMemberInfo _collectionViewManagerMember;
+        private readonly WeakReference _view;
+
 #if WINFORMS
         private readonly bool _isTabControl;
 #endif
@@ -47,17 +56,26 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Constructors
 
-        private ItemsSourceGenerator([NotNull] object view)
+        internal ItemsSourceGenerator([NotNull] object view)
         {
-            Should.NotBeNull(view, "view");
-#if WINFORMS
-            ListenDisposeEvent(view as IComponent);
-            _isTabControl = view is TabControl;
-#endif
-            _view = view;
+            Should.NotBeNull(view, nameof(view));
+            var type = view.GetType();
+            _view = ServiceProvider.WeakReferenceFactory(view);
             _itemTemplateMember = BindingServiceProvider
                 .MemberProvider
-                .GetBindingMember(view.GetType(), AttachedMemberConstants.ItemTemplate, false, false);
+                .GetBindingMember(type, AttachedMemberConstants.ItemTemplate, false, false);
+#if WINFORMS
+            _collectionViewManagerMember = BindingServiceProvider
+                .MemberProvider
+                .GetBindingMember(type, AttachedMembers.Object.CollectionViewManager, false, false);
+            ListenDisposeEvent(view as IComponent);
+            _isTabControl = view is TabControl;
+#elif TOUCH
+            _collectionViewManagerMember = BindingServiceProvider
+                .MemberProvider
+                .GetBindingMember(type, AttachedMembers.UIView.CollectionViewManager, false, false);
+            TryListenController(view as INativeObject);
+#endif
         }
 
         #endregion
@@ -70,13 +88,16 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             get
             {
+                var view = GetView();
+                if (view == null)
+                    return true;
 #if WINFORMS
-                var control = _view as Control;
+                var control = view as Control;
                 if (control == null)
                     return false;
                 return control.IsDisposed;
 #elif TOUCH
-                var nativeObject = _view as INativeObject;
+                var nativeObject = view as INativeObject;
                 if (nativeObject == null)
                     return false;
                 return !nativeObject.IsAlive();
@@ -86,60 +107,65 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         protected override void Add(int insertionIndex, int count)
         {
-            ICollectionViewManager viewManager = GetCollectionViewManager();
+            var view = GetView();
+            if (view == null)
+                return;
+            ICollectionViewManager viewManager = GetCollectionViewManager(view);
             for (int i = 0; i < count; i++)
             {
                 int index = insertionIndex + i;
-                viewManager.Insert(_view, index, GetItemFromTemplate(index));
+                viewManager.Insert(view, index, GetItemFromTemplate(view, index));
             }
         }
 
         protected override void Remove(int removalIndex, int count)
         {
-            ICollectionViewManager viewManager = GetCollectionViewManager();
+            var view = GetView();
+            if (view == null)
+                return;
+            ICollectionViewManager viewManager = GetCollectionViewManager(view);
             for (int i = 0; i < count; i++)
-                viewManager.RemoveAt(_view, removalIndex + i);
+                viewManager.RemoveAt(view, removalIndex + i);
         }
 
         protected override void Replace(int startIndex, int count)
         {
-            ICollectionViewManager viewManager = GetCollectionViewManager();
+            var view = GetView();
+            if (view == null)
+                return;
+            ICollectionViewManager viewManager = GetCollectionViewManager(view);
             for (int i = 0; i < count; i++)
             {
                 int index = startIndex + i;
-                viewManager.RemoveAt(_view, index);
-                viewManager.Insert(_view, index, GetItemFromTemplate(index));
+                viewManager.RemoveAt(view, index);
+                viewManager.Insert(view, index, GetItemFromTemplate(view, index));
             }
         }
 
         protected override void Refresh()
         {
-            ICollectionViewManager viewManager = GetCollectionViewManager();
-            viewManager.Clear(_view);
+            var view = GetView();
+            if (view == null)
+                return;
+            ICollectionViewManager viewManager = GetCollectionViewManager(view);
+            viewManager.Clear(view);
             int count = ItemsSource.Count();
             for (int i = 0; i < count; i++)
-                viewManager.Insert(_view, i, GetItemFromTemplate(i));
+                viewManager.Insert(view, i, GetItemFromTemplate(view, i));
         }
 
         #endregion
 
         #region Methods
 
-        public static IItemsSourceGenerator GetOrAdd(object item)
+        private ICollectionViewManager GetCollectionViewManager(object view)
         {
-            return ServiceProvider
-                .AttachedValueProvider
-                .GetOrAdd(item, Key, (o, o1) => new ItemsSourceGenerator(o), null);
+            if (_collectionViewManagerMember == null)
+                return DefaultCollectionViewManager.Instance;
+            return _collectionViewManagerMember.GetValue(view, null) as ICollectionViewManager ?? DefaultCollectionViewManager.Instance;
         }
 
-        private ICollectionViewManager GetCollectionViewManager()
-        {
-            return PlatformDataBindingModule
-                .CollectionViewManagerMember
-                .GetValue(_view, null) ?? DefaultCollectionViewManager.Instance;
-        }
-
-        private object GetItemFromTemplate(int index)
+        private object GetItemFromTemplate(object view, int index)
         {
             object item = GetItem(index);
             if (_itemTemplateMember == null)
@@ -150,7 +176,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 #endif
                 return GetDefaultTemplate(item);
             }
-            var selector = (IDataTemplateSelector)_itemTemplateMember.GetValue(_view, null);
+            var selector = (IDataTemplateSelector)_itemTemplateMember.GetValue(view, null);
             if (selector == null)
             {
 #if WINFORMS
@@ -159,7 +185,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 #endif
                 return GetDefaultTemplate(item);
             }
-            return selector.SelectTemplateWithContext(item, _view);
+            return selector.SelectTemplateWithContext(item, view);
         }
 
         private static object GetDefaultTemplate(object item)
@@ -167,6 +193,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (item is IViewModel)
                 return ViewModelToViewConverter.Instance.Convert(item);
             return item;
+        }
+
+        private object GetView()
+        {
+            return _view.Target;
         }
 
 #if WINFORMS
@@ -181,7 +212,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (viewModel is IHasDisplayName)
                 set.BindFromExpression("Text DisplayName;");
             set.Apply();
-            BindingServiceProvider.ContextManager.GetBindingContext(page).Value = item;
+            page.SetDataContext(item);
             return page;
         }
 #endif

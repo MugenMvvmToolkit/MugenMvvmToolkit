@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="IHasActivityDependency.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,7 +18,7 @@
 
 using Android.App;
 
-namespace MugenMvvmToolkit.Interfaces.Views
+namespace MugenMvvmToolkit.Android.Interfaces.Views
 {
     public interface IHasActivityDependency
     {

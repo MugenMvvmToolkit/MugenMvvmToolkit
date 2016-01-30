@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="NavigationType.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -25,7 +25,7 @@ namespace MugenMvvmToolkit.Models
         public static readonly NavigationType Undefined;
 
         public static readonly NavigationType Tab;
-        
+
         public static readonly NavigationType Window;
 
         public static readonly NavigationType Page;
@@ -42,9 +42,6 @@ namespace MugenMvvmToolkit.Models
             Undefined = new NavigationType("Undefined");
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NavigationType" /> class.
-        /// </summary>
         public NavigationType(string id)
             : base(id)
         {

@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ViewMappingItem.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -22,14 +22,11 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 
 namespace MugenMvvmToolkit.Models
 {
-    /// <summary>
-    ///     Represents the interface that contains information about a mapping from view to a view model.
-    /// </summary>
     public class ViewMappingItem : IViewMappingItem
     {
         #region Fields
 
-        private static readonly Uri Empty;
+        internal static readonly Uri Empty;
 
         private readonly string _name;
         private readonly Uri _uri;
@@ -45,13 +42,10 @@ namespace MugenMvvmToolkit.Models
             Empty = new Uri("app://empty/", UriKind.Absolute);
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ViewMappingItem" /> class.
-        /// </summary>
         public ViewMappingItem(Type viewModelType, Type viewType, string name, Uri uri)
         {
             Should.BeOfType<IViewModel>(viewModelType, "viewModelType");
-            Should.NotBeNull(viewType, "viewType");
+            Should.NotBeNull(viewType, nameof(viewType));
             _viewModelType = viewModelType;
             _viewType = viewType;
             _name = name;
@@ -62,52 +56,21 @@ namespace MugenMvvmToolkit.Models
 
         #region Implementation of IViewPageMappingItem
 
-        /// <summary>
-        ///     Gets the name of mapping.
-        /// </summary>
-        public string Name
-        {
-            get { return _name; }
-        }
+        public string Name => _name;
 
-        /// <summary>
-        ///     Gets the type of view.
-        /// </summary>
-        public Type ViewType
-        {
-            get { return _viewType; }
-        }
+        public Type ViewType => _viewType;
 
-        /// <summary>
-        ///     Gets or sets the type of view model.
-        /// </summary>
-        public Type ViewModelType
-        {
-            get { return _viewModelType; }
-        }
+        public Type ViewModelType => _viewModelType;
 
-        /// <summary>
-        ///     Gets the uri, if any.
-        /// </summary>
-        public Uri Uri
-        {
-            get { return _uri; }
-        }
+        public Uri Uri => _uri;
 
         #endregion
 
         #region Overrides of Object
 
-        /// <summary>
-        ///     Returns a <see cref="T:System.String" /> that represents the current <see cref="T:System.Object" />.
-        /// </summary>
-        /// <returns>
-        ///     A <see cref="T:System.String" /> that represents the current <see cref="T:System.Object" />.
-        /// </returns>
         public override string ToString()
         {
-            return string.Format("View: {0}, ViewModelType: {1}, Name: {2}, Uri: {3}", ViewType, ViewModelType, Name,
-                Uri);
+            return $"View: {ViewType}, ViewModelType: {ViewModelType}, Name: {Name}, Uri: {Uri}";
         }
 
         #endregion

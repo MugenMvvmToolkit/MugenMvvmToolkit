@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IEntityStateManager.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -21,17 +21,8 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Interfaces
 {
-    /// <summary>
-    ///     Represents the interface that provides methods to manage entity state.
-    /// </summary>
     public interface IEntityStateManager
     {
-        /// <summary>
-        ///     Creates an instance of <see cref="IEntitySnapshot" />
-        /// </summary>
-        /// <param name="entity">The specified entity to create snapshot.</param>
-        /// <param name="context">The specified context, if any.</param>
-        /// <returns>An instance of <see cref="IEntitySnapshot" /></returns>
         IEntitySnapshot CreateSnapshot([NotNull] object entity, IDataContext context = null);
     }
 }

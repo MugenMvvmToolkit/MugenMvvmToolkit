@@ -47,19 +47,10 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\..\Solution Items\sigkey.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Autofac, Version=3.5.0.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\Autofac.3.5.2\lib\portable-net4+sl5+netcore45+wpa81+wp8+MonoAndroid1+MonoTouch1\Autofac.dll</HintPath>
-    </Reference>
-    <Reference Include="JetBrains.Annotations">
-      <HintPath>..\..\packages\JetBrainsAnnotations.Fody.1.0.2\Lib\JetBrains.Annotations.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Silverlight.Testing, Version=2.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -86,15 +77,15 @@
     </Reference>
     <Reference Include="System.ComponentModel.DataAnnotations, Version=5.0.5.0, Culture=neutral, PublicKeyToken=ddd0da4d3e678217, processorArchitecture=MSIL" />
     <Reference Include="System.IO">
-      <HintPath>..\..\packages\Microsoft.Bcl.1.1.9\lib\sl5\System.IO.dll</HintPath>
+      <HintPath>..\..\packages\Microsoft.Bcl.1.1.10\lib\sl5\System.IO.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime">
-      <HintPath>..\..\packages\Microsoft.Bcl.1.1.9\lib\sl5\System.Runtime.dll</HintPath>
+      <HintPath>..\..\packages\Microsoft.Bcl.1.1.10\lib\sl5\System.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Runtime.Serialization.Json, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
     <Reference Include="System.Threading.Tasks">
-      <HintPath>..\..\packages\Microsoft.Bcl.1.1.9\lib\sl5\System.Threading.Tasks.dll</HintPath>
+      <HintPath>..\..\packages\Microsoft.Bcl.1.1.10\lib\sl5\System.Threading.Tasks.dll</HintPath>
     </Reference>
     <Reference Include="System.Windows" />
     <Reference Include="system" />
@@ -108,9 +99,6 @@
     <Reference Include="System.Xml.Serialization, Version=5.0.5.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Platforms\MugenMvvmToolkit.Android\Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs">
-      <Link>TestInfrastructure\SerializableOperationCallbackFactory.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\Bindings\Accessors\MultiBindingSourceAccessorTest.cs">
       <Link>Bindings\Accessors\MultiBindingSourceAccessorTest.cs</Link>
     </Compile>
@@ -150,6 +138,9 @@
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\Bindings\Core\DataBindingTest.cs">
       <Link>Bindings\Core\DataBindingTest.cs</Link>
     </Compile>
+    <Compile Include="..\mugenmvvmtoolkit.wpf.test%284.5%29\bindings\extensions\BindingSyntaxExtensionsTest.cs">
+      <Link>Bindings\Extensions\BindingSyntaxExtensionsTest.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\Bindings\Infrastructure\BindingMemberProviderTest.cs">
       <Link>Bindings\Infrastructure\BindingMemberProviderTest.cs</Link>
     </Compile>
@@ -170,12 +161,6 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\Bindings\Parse\BindingParserTest.cs">
       <Link>Bindings\Parse\BindingParserTest.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\Bindings\Sources\BindingSourceTest.cs">
-      <Link>Bindings\Sources\BindingSourceTest.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\Bindings\Sources\BindingTargetTest.cs">
-      <Link>Bindings\Sources\BindingTargetTest.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\BindingTestBase.cs">
       <Link>BindingTestBase.cs</Link>
@@ -240,14 +225,11 @@
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\Infrastructure\Presenters\DynamicMultiViewModelPresenterTest.cs">
       <Link>Infrastructure\Presenters\DynamicMultiViewModelPresenterTest.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\Infrastructure\Validation\DynamicDataAnnotationsElementProviderTest.cs">
-      <Link>Infrastructure\Validation\DynamicDataAnnotationsElementProviderTest.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\Infrastructure\Validation\DataAnnotationValidatorTest.cs">
+      <Link>Infrastructure\Validation\DataAnnotationValidatorTest.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\Infrastructure\Validation\ManualValidatorTest.cs">
       <Link>Infrastructure\Validation\ManualValidatorTest.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\Infrastructure\Validation\ValidationElementValidatorTest.cs">
-      <Link>Infrastructure\Validation\ValidationElementValidatorTest.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\Infrastructure\Validation\ValidatorBaseTest.cs">
       <Link>Infrastructure\Validation\ValidatorBaseTest.cs</Link>
@@ -354,23 +336,14 @@
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestInfrastructure\ValidationElementMock.cs">
       <Link>TestInfrastructure\ValidationElementMock.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestInfrastructure\ValidationElementProviderMock.cs">
-      <Link>TestInfrastructure\ValidationElementProviderMock.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestInfrastructure\ViewManagerMock.cs">
       <Link>TestInfrastructure\ViewManagerMock.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestInfrastructure\ViewModelProviderMock.cs">
       <Link>TestInfrastructure\ViewModelProviderMock.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestInfrastructure\ViewModelSettingsMock.cs">
-      <Link>TestInfrastructure\ViewModelSettingsMock.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestInfrastructure\ViewPageMappingProviderMock.cs">
       <Link>TestInfrastructure\ViewPageMappingProviderMock.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestInfrastructure\VisualStateManagerMock.cs">
-      <Link>TestInfrastructure\VisualStateManagerMock.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestInfrastructure\VisualTreeManagerMock.cs">
       <Link>TestInfrastructure\VisualTreeManagerMock.cs</Link>
@@ -384,17 +357,20 @@
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestModels\BindingContextMock.cs">
       <Link>TestModels\BindingContextMock.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestModels\BindingSourceMock.cs">
-      <Link>TestModels\BindingSourceMock.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestModels\BindingSourceModel.cs">
       <Link>TestModels\BindingSourceModel.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestModels\BusyTokenMock.cs">
+      <Link>TestModels\BusyTokenMock.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestModels\DataBindingMock.cs">
       <Link>TestModels\DataBindingMock.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestModels\DialogViewMock.cs">
       <Link>TestModels\DialogViewMock.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestModels\DisposableObject.cs">
+      <Link>TestModels\DisposableObject.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestModels\DynamicObjectMock.cs">
       <Link>TestModels\DynamicObjectMock.cs</Link>
@@ -510,9 +486,9 @@
       <Project>{c1efe5be-d2b0-4b3f-ae95-fb4eb46eb0fa}</Project>
       <Name>MugenMvvmToolkit.NinjectContainer%28SL5%29</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Platforms\MugenMvvmToolkit.Binding.Silverlight%285.0%29\MugenMvvmToolkit.Binding.Silverlight%285.0%29.csproj">
+    <ProjectReference Include="..\..\Platforms\MugenMvvmToolkit.Silverlight.Binding%285.0%29\MugenMvvmToolkit.Silverlight.Binding%285.0%29.csproj">
       <Project>{05fe347f-2cb2-46ce-a2b7-73f6410bf13a}</Project>
-      <Name>MugenMvvmToolkit.Binding.Silverlight%285.0%29</Name>
+      <Name>MugenMvvmToolkit.Silverlight.Binding%285.0%29</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Platforms\MugenMvvmToolkit.Silverlight%285.0%29\MugenMvvmToolkit.Silverlight%285.0%29.csproj">
       <Project>{f50a09d0-6c2b-4f08-9a42-67146bfaece9}</Project>
@@ -534,13 +510,7 @@
     </VisualStudio>
   </ProjectExtensions>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <Import Project="..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets'))" />
-  </Target>
+  <Import Project="..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" /> 
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

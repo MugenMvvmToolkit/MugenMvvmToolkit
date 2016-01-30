@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="AsyncValidationMessage.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,33 +17,31 @@
 #endregion
 
 using System;
-using JetBrains.Annotations;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MugenMvvmToolkit.Models.Messages
 {
-    /// <summary>
-    ///     Provides data for the error changed event.
-    /// </summary>
-    [Serializable]
     public class AsyncValidationMessage
     {
         #region Fields
 
-        private readonly Guid _id;
-        private readonly bool _isEndOperation;
+        private static readonly TaskCompletionSource<object> EmptyTcs;
         private readonly string _propertyName;
+        private TaskCompletionSource<object> _tcs;
 
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="AsyncValidationMessage" /> class.
-        /// </summary>
-        public AsyncValidationMessage(Guid id, string propertyName, bool isEndOperation)
+        static AsyncValidationMessage()
         {
-            _id = id;
-            _isEndOperation = isEndOperation;
+            EmptyTcs = new TaskCompletionSource<object>();
+            EmptyTcs.SetResult(null);
+        }
+
+        public AsyncValidationMessage(string propertyName)
+        {
             _propertyName = propertyName;
         }
 
@@ -51,42 +49,35 @@ namespace MugenMvvmToolkit.Models.Messages
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the value that indicates that this operation is final.
-        /// </summary>
-        public bool IsEndOperation
-        {
-            get { return _isEndOperation; }
-        }
+        public string PropertyName => _propertyName;
 
-        /// <summary>
-        ///     Gets the name of property, if any.
-        /// </summary>
-        public string PropertyName
+        public Task Task
         {
-            get { return _propertyName; }
-        }
-
-        /// <summary>
-        ///     Gets the id of operation.
-        /// </summary>
-        public Guid Id
-        {
-            get { return _id; }
+            get
+            {
+                if (_tcs == null)
+                    Interlocked.CompareExchange(ref _tcs, new TaskCompletionSource<object>(), null);
+                return _tcs.Task;
+            }
         }
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Converts current message to an instance of <c>AsyncValidationMessage</c>.
-        /// </summary>
-        /// <returns>An instance of <c>AsyncValidationMessage</c>.</returns>
-        [NotNull]
-        public AsyncValidationMessage ToEndMessage()
+        protected internal void SetCompleted(Exception exception, bool canceled)
         {
-            return new AsyncValidationMessage(Id, PropertyName, true);
+            if (_tcs == null)
+                Interlocked.CompareExchange(ref _tcs, exception == null && !canceled ? EmptyTcs : new TaskCompletionSource<object>(), null);
+            if (exception == null && !canceled)
+                _tcs.TrySetResult(null);
+            else
+            {
+                if (canceled)
+                    _tcs.SetCanceled();
+                else
+                    _tcs.TrySetException(exception);
+            }
         }
 
         #endregion

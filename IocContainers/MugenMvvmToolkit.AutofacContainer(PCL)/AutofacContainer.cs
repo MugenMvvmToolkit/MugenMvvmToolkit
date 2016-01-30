@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="AutofacContainer.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -27,15 +27,13 @@ using Autofac.Core;
 using Autofac.Core.Lifetime;
 using Autofac.Features.ResolveAnything;
 using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.IoC;
 
 namespace MugenMvvmToolkit
 {
-    /// <summary>
-    ///     Represents the Autofac ioc adapter.
-    /// </summary>
-    public class AutofacContainer : DisposableObject, IIocContainer
+    public class AutofacContainer : IIocContainer
     {
         #region Nested types
 
@@ -58,10 +56,7 @@ namespace MugenMvvmToolkit
 
             #region Properties
 
-            public IList<IIocParameter> Parameters
-            {
-                get { return _parameters; }
-            }
+            public IList<IIocParameter> Parameters => _parameters;
 
             #endregion
 
@@ -89,20 +84,14 @@ namespace MugenMvvmToolkit
 
         #region Constructor
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="AutofacContainer" /> class.
-        /// </summary>
         public AutofacContainer()
             : this(new ContainerBuilder())
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="AutofacContainer" /> class.
-        /// </summary>
         public AutofacContainer(ContainerBuilder containerBuilder)
         {
-            Should.NotBeNull(containerBuilder, "containerBuilder");
+            Should.NotBeNull(containerBuilder, nameof(containerBuilder));
             containerBuilder.RegisterSource(new AnyConcreteTypeNotAlreadyRegisteredSource
             {
 #if !WINDOWS_PHONE7
@@ -113,12 +102,9 @@ namespace MugenMvvmToolkit
             _id = Interlocked.Increment(ref _idCounter);
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="AutofacContainer" /> class.
-        /// </summary>
         private AutofacContainer(ILifetimeScope container, IIocContainer parent)
         {
-            Should.NotBeNull(container, "container");
+            Should.NotBeNull(container, nameof(container));
             _container = container;
             _parent = parent;
             var containerBuilder = new ContainerBuilder();
@@ -136,28 +122,15 @@ namespace MugenMvvmToolkit
 
         #region Properties
 
-        /// <summary>
-        ///     true to throw an exception if the token is not valid;
-        ///     Specifying false also suppresses some other exception conditions, but not all of them.
-        /// </summary>
         public bool ThrowOnUnbind { get; set; }
 
-        /// <summary>
-        ///     Gets the original ioc container.
-        /// </summary>
-        public ILifetimeScope Container
-        {
-            get { return _container; }
-        }
+        public ILifetimeScope Container => _container;
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Converts parameters.
-        /// </summary>
-        protected Parameter[] ConvertParameters(IList<IIocParameter> parameters)
+        protected IList<Parameter> ConvertParameters(IList<IIocParameter> parameters)
         {
             if (parameters == null || parameters.Count == 0)
                 return Empty.Array<Parameter>();
@@ -166,12 +139,9 @@ namespace MugenMvvmToolkit
             foreach (var iocParameter in parameters)
                 list.AddIfNotNull(ConvertParameter(iocParameter));
             list.Add(new ParameterContainer(parameters));
-            return list.ToArrayEx();
+            return list;
         }
 
-        /// <summary>
-        ///     Converts parameter.
-        /// </summary>
         protected virtual Parameter ConvertParameter(IIocParameter parameter)
         {
             if (parameter == null)
@@ -184,9 +154,6 @@ namespace MugenMvvmToolkit
             return null;
         }
 
-        /// <summary>
-        ///     Sets the lifecycle.
-        /// </summary>
         protected virtual void SetLifetimeScope(DependencyLifecycle lifecycle, RegistrationData data)
         {
             if (lifecycle == DependencyLifecycle.SingleInstance)
@@ -205,83 +172,53 @@ namespace MugenMvvmToolkit
                 "SetLifetimeScope(DependencyLifecycle dependencyLifecycle, IRegistrationBuilder<object, ConcreteReflectionActivatorData, SingleRegistrationStyle> builder)");
         }
 
-        private static IList<IIocParameter> GetParameters(IEnumerable<Parameter> parameters)
+        private static IList<IIocParameter> GetParameters(IIocParameter[] iocParameters, IEnumerable<Parameter> parameters)
         {
             if (parameters == null)
-                return Empty.Array<IIocParameter>();
-            var parameterContainer = parameters.OfType<ParameterContainer>().FirstOrDefault();
-            if (parameterContainer == null)
-                return Empty.Array<IIocParameter>();
-            return parameterContainer.Parameters;
+                return iocParameters;
+            List<IIocParameter> result = null;
+            foreach (var parameter in parameters.OfType<ParameterContainer>())
+            {
+                if (result == null)
+                    result = new List<IIocParameter>();
+                result.AddRange(parameter.Parameters);
+            }
+            if (result == null)
+                return iocParameters;
+            if (iocParameters != null)
+                result.AddRange(iocParameters);
+            return result;
         }
 
         #endregion
 
         #region Implementation of IIocContainer
 
-        /// <summary>
-        ///     Gets the id of <see cref="IIocContainer" />.
-        /// </summary>
-        public int Id
-        {
-            get { return _id; }
-        }
+        public int Id => _id;
 
-        /// <summary>
-        ///     Gets the parent ioc adapter.
-        /// </summary>
-        public IIocContainer Parent
-        {
-            get { return _parent; }
-        }
+        public IIocContainer Parent => _parent;
 
-        /// <summary>
-        ///     Gets the original ioc container.
-        /// </summary>
-        object IIocContainer.Container
-        {
-            get { return _container; }
-        }
+        object IIocContainer.Container => _container;
 
-        /// <summary>
-        ///     Creates a child ioc adapter.
-        /// </summary>
-        /// <returns>
-        ///     An instance of <see cref="IIocContainer" />.
-        /// </returns>
         public IIocContainer CreateChild()
         {
             this.NotBeDisposed();
             return new AutofacContainer(_container.BeginLifetimeScope(), this) { ThrowOnUnbind = ThrowOnUnbind };
         }
 
-        /// <summary>
-        ///     Gets an instance of the specified service.
-        /// </summary>
-        /// <param name="service">The specified service type.</param>
-        /// <param name="name">The specified binding name.</param>
-        /// <param name="parameters">The specified parameters.</param>
-        /// <returns>An instance of the service.</returns>
         public object Get(Type service, string name = null, params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
-            Should.NotBeNull(service, "service");
+            Should.NotBeNull(service, nameof(service));
             if (name == null)
                 return _container.Resolve(service, ConvertParameters(parameters));
             return _container.ResolveNamed(name, service, ConvertParameters(parameters));
         }
 
-        /// <summary>
-        ///     Gets all instances of the specified service.
-        /// </summary>
-        /// <param name="service">Specified service type.</param>
-        /// <param name="name">The specified binding name.</param>
-        /// <param name="parameters">The specified parameters.</param>
-        /// <returns>An instance of the service.</returns>
         public IEnumerable<object> GetAll(Type service, string name = null, params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
-            Should.NotBeNull(service, "service");
+            Should.NotBeNull(service, nameof(service));
             if (name == null)
                 return (IEnumerable<object>)_container
                     .Resolve(typeof(IEnumerable<>).MakeGenericType(service), ConvertParameters(parameters));
@@ -289,13 +226,10 @@ namespace MugenMvvmToolkit
                 .ResolveNamed(name, typeof(IEnumerable<>).MakeGenericType(service), ConvertParameters(parameters));
         }
 
-        /// <summary>
-        ///     Indicates that the service should be bound to the specified constant value.
-        /// </summary>
         public void BindToConstant(Type service, object constValue, string name = null)
         {
             this.NotBeDisposed();
-            Should.NotBeNull(service, "service");
+            Should.NotBeNull(service, nameof(service));
             var builder = new ContainerBuilder();
             if (name == null)
                 builder.RegisterInstance(constValue).As(service);
@@ -304,71 +238,55 @@ namespace MugenMvvmToolkit
             builder.Update(_container.ComponentRegistry);
         }
 
-        /// <summary>
-        ///     Indicates that the service should be bound to the specified method.
-        /// </summary>
-        /// <param name="service">The specified service type.</param>
-        /// <param name="methodBindingDelegate">The specified factory delegate.</param>
-        /// <param name="lifecycle">
-        ///     The specified <see cref="DependencyLifecycle" />
-        /// </param>
-        /// <param name="name">The specified binding name.</param>
-        public void BindToMethod(Type service, Func<IIocContainer, IList<IIocParameter>, object> methodBindingDelegate, DependencyLifecycle lifecycle, string name = null)
+        public void BindToMethod(Type service, Func<IIocContainer, IList<IIocParameter>, object> methodBindingDelegate, DependencyLifecycle lifecycle, string name = null, params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
-            Should.NotBeNull(service, "service");
-            Should.NotBeNull(methodBindingDelegate, "methodBindingDelegate");
+            Should.NotBeNull(service, nameof(service));
+            Should.NotBeNull(methodBindingDelegate, nameof(methodBindingDelegate));
+            if (parameters == null)
+                parameters = Empty.Array<IIocParameter>();
             var builder = new ContainerBuilder();
             IRegistrationBuilder<object, SimpleActivatorData, SingleRegistrationStyle> syntax = name == null
-                ? builder.Register((context, args) => methodBindingDelegate(this, GetParameters(args))).As(service)
-                : builder.Register((context, args) => methodBindingDelegate(this, GetParameters(args))).Named(name, service);
+                ? builder.Register((context, args) => methodBindingDelegate(this, GetParameters(parameters, args))).As(service)
+                : builder.Register((context, args) => methodBindingDelegate(this, GetParameters(parameters, args))).Named(name, service);
             SetLifetimeScope(lifecycle, syntax.RegistrationData);
             builder.Update(_container.ComponentRegistry);
         }
 
-        /// <summary>
-        ///     Indicates that the service should be bound to the specified type.
-        /// </summary>
-        /// <param name="service">The specified service type.</param>
-        /// <param name="typeTo">The specified to type</param>
-        /// <param name="name">The specified binding name.</param>
-        /// <param name="dependencyLifecycle">
-        ///     The specified <see cref="DependencyLifecycle" />
-        /// </param>
-        public void Bind(Type service, Type typeTo, DependencyLifecycle dependencyLifecycle, string name = null)
+        public void Bind(Type service, Type typeTo, DependencyLifecycle dependencyLifecycle, string name = null, params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
-            Should.NotBeNull(service, "service");
-            Should.NotBeNull(typeTo, "typeTo");
+            Should.NotBeNull(service, nameof(service));
+            Should.NotBeNull(typeTo, nameof(typeTo));
             var builder = new ContainerBuilder();
             IRegistrationBuilder<object, ConcreteReflectionActivatorData, SingleRegistrationStyle> syntax = name == null
                 ? builder.RegisterType(typeTo).As(service)
                 : builder.RegisterType(typeTo).Named(name, service);
+            if (parameters != null)
+            {
+                for (int index = 0; index < parameters.Length; index++)
+                {
+                    var iocParameter = parameters[index];
+                    var parameter = ConvertParameter(iocParameter);
+                    if (iocParameter.ParameterType == IocParameterType.Property)
+                        syntax.WithProperty(parameter);
+                    else
+                        syntax.WithParameter(parameter);
+                }
+            }
             SetLifetimeScope(dependencyLifecycle, syntax.RegistrationData);
             builder.Update(_container.ComponentRegistry);
         }
 
-        /// <summary>
-        ///     Unregisters all bindings with specified conditions for the specified service.
-        /// </summary>
-        /// <param name="service">The specified service type.</param>
         public void Unbind(Type service)
         {
             Should.MethodBeSupported(!ThrowOnUnbind, "Unbind(Type service)");
             Tracer.Error("Unbind call on Autofac container type " + service);
         }
 
-        /// <summary>
-        ///     Determines whether the specified request can be resolved.
-        /// </summary>
-        /// <param name="service">The specified service type.</param>
-        /// <param name="name">The specified binding name.</param>
-        /// <returns>
-        ///     <c>True</c> if the specified service has been resolved; otherwise, <c>false</c>.
-        /// </returns>
         public bool CanResolve(Type service, string name = null)
         {
-            Should.NotBeNull(service, "service");
+            Should.NotBeNull(service, nameof(service));
             if (IsDisposed)
                 return false;
             if (name == null)
@@ -376,35 +294,28 @@ namespace MugenMvvmToolkit
             return _container.IsRegisteredWithName(name, service);
         }
 
-        /// <summary>
-        ///     Gets the service object of the specified type.
-        /// </summary>
-        /// <returns>
-        ///     A service object of type <paramref name="serviceType" />.
-        ///     -or-
-        ///     null if there is no service object of type <paramref name="serviceType" />.
-        /// </returns>
-        /// <param name="serviceType">
-        ///     An object that specifies the type of service object to get.
-        /// </param>
         object IServiceProvider.GetService(Type serviceType)
         {
             return Get(serviceType);
         }
 
-        #endregion
-
-        #region Overrides of DisposableObject
-
-        /// <summary>
-        ///     Releases resources held by the object.
-        /// </summary>
-        protected override void OnDispose(bool disposing)
+        public void Dispose()
         {
-            if (disposing)
-                _container.Dispose();
-            base.OnDispose(disposing);
+            if (IsDisposed)
+                return;
+            IsDisposed = true;
+            _container.Dispose();
+            var handler = Disposed;
+            if (handler != null)
+            {
+                Disposed = null;
+                handler(this, EventArgs.Empty);
+            }
         }
+
+        public bool IsDisposed { get; private set; }
+
+        public event EventHandler<IDisposableObject, EventArgs> Disposed;
 
         #endregion
     }

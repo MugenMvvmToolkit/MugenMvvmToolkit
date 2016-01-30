@@ -1,6 +1,6 @@
 using System;
 using System.Windows.Forms;
-using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.WinForms.Infrastructure;
 
 namespace $rootnamespace$
 {
@@ -11,7 +11,7 @@ namespace $rootnamespace$
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            var bootstrapper = new Bootstrapper<MainViewModel>(new IIocContainer());
+            var bootstrapper = new Bootstrapper<Core.App>(new IIocContainer());
             bootstrapper.Start();
         }
     }

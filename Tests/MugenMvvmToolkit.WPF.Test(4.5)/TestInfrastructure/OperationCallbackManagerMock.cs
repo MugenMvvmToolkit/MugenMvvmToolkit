@@ -17,9 +17,6 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         #region Implementation of IOperationCallbackManager
 
-        /// <summary>
-        ///     Registers the specified operation callback.
-        /// </summary>
         void IOperationCallbackManager.Register(OperationType operation, object source, IOperationCallback callback,
             IDataContext context)
         {
@@ -29,15 +26,17 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
                 Register(operation, source, callback, context);
         }
 
-        /// <summary>
-        ///     Sets the result of operation.
-        /// </summary>
-        void IOperationCallbackManager.SetResult(object source, IOperationResult result)
+        void IOperationCallbackManager.SetResult(IOperationResult result)
         {
             if (SetResult == null)
                 Tracer.Warn("OperationCallbackManagerMock: SetResult == null");
             else
-                SetResult(source, result);
+                SetResult(result.Source, result);
+        }
+
+        void IOperationCallbackManager.SetResult(object target, Func<OperationType, object, IOperationResult> getResult)
+        {
+            throw new NotSupportedException();
         }
 
         #endregion

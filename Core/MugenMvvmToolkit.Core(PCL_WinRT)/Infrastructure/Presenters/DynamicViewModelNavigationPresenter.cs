@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="DynamicViewModelNavigationPresenter.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
@@ -30,9 +31,6 @@ using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure.Presenters
 {
-    /// <summary>
-    ///     Represents the service that allows to show a view model using <see cref="INavigationProvider" />.
-    /// </summary>
     public sealed class DynamicViewModelNavigationPresenter : IRestorableDynamicViewModelPresenter
     {
         #region Fields
@@ -44,19 +42,11 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DynamicViewModelNavigationPresenter" /> class.
-        /// </summary>
         public DynamicViewModelNavigationPresenter()
-            : this(null)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DynamicViewModelNavigationPresenter" /> class.
-        /// </summary>
-        public DynamicViewModelNavigationPresenter(
-            Func<IViewModel, IDataContext, IViewModelPresenter, bool> canShowViewModel)
+        public DynamicViewModelNavigationPresenter(Func<IViewModel, IDataContext, IViewModelPresenter, bool> canShowViewModel)
         {
             _canShowViewModel = canShowViewModel;
         }
@@ -65,9 +55,6 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the delegate that determines that presenter can handle request.
-        /// </summary>
         [NotNull]
         public static Func<IViewModel, IDataContext, IViewModelPresenter, bool> CanShowViewModelDefault
         {
@@ -96,40 +83,34 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Implementation of IDynamicViewModelPresenter
 
-        /// <summary>
-        ///     Gets the presenter priority.
-        /// </summary>
-        public int Priority
-        {
-            get { return ViewModelPresenter.DefaultNavigationPresenterPriority; }
-        }
+        public int Priority => ViewModelPresenter.DefaultNavigationPresenterPriority;
 
-        /// <summary>
-        ///     Tries to show the specified <see cref="IViewModel" />.
-        /// </summary>
-        /// <param name="viewModel">The specified <see cref="IViewModel" /> to show.</param>
-        /// <param name="context">The specified context.</param>
-        /// <param name="parentPresenter">The parent presenter, if any.</param>
-        public IAsyncOperation<bool?> TryShowAsync(IViewModel viewModel, IDataContext context,
+        public INavigationOperation TryShowAsync(IViewModel viewModel, IDataContext context,
             IViewModelPresenter parentPresenter)
         {
             if (!CanShowViewModel(viewModel, context, parentPresenter))
                 return null;
-            var operation = new AsyncOperation<bool?>();
+            var tcs = new TaskCompletionSource<object>();
+            var operation = new NavigationOperation(tcs.Task);
             context = context.ToNonReadOnly();
             context.AddOrUpdate(NavigationConstants.ViewModel, viewModel);
-            viewModel.GetIocContainer(true)
-                .Get<INavigationProvider>()
-                .Navigate(operation.ToOperationCallback(), context);
+            var provider = viewModel.GetIocContainer(true).Get<INavigationProvider>();
+            provider.CurrentNavigationTask.TryExecuteSynchronously(_ =>
+            {
+                try
+                {
+                    var task = provider.NavigateAsync(operation.ToOperationCallback(), context);
+                    tcs.TrySetFromTask(task);
+                }
+                catch (Exception e)
+                {
+                    tcs.TrySetException(e);
+                    throw;
+                }
+            });
             return operation;
         }
 
-        /// <summary>
-        ///     Tries to restore the presenter state of the specified <see cref="IViewModel" />.
-        /// </summary>
-        /// <param name="viewModel">The specified <see cref="IViewModel" /> to show.</param>
-        /// <param name="context">The specified context.</param>
-        /// <param name="parentPresenter">The parent presenter, if any.</param>
         public bool Restore(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
         {
             if (!CanShowViewModel(viewModel, context, parentPresenter))

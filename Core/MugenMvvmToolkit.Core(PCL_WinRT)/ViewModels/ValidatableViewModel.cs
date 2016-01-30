@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ValidatableViewModel.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -27,7 +27,6 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Validation;
-using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Validation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
@@ -37,9 +36,6 @@ using MugenMvvmToolkit.Models.Validation;
 
 namespace MugenMvvmToolkit.ViewModels
 {
-    /// <summary>
-    ///     Represents the view-model which has validation support.
-    /// </summary>
     [BaseViewModel(Priority = 6)]
     public class ValidatableViewModel : CloseableViewModel, IValidatableViewModel
     {
@@ -66,9 +62,6 @@ namespace MugenMvvmToolkit.ViewModels
             RaiseErrorsChangedDelegate = RaiseErrorsChangedStatic;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ValidatableViewModel" /> class.
-        /// </summary>
         public ValidatableViewModel()
         {
             Type type = GetType();
@@ -88,23 +81,14 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the dictionary that contains mapping from an instance to validators.
-        /// </summary>
-        protected Dictionary<object, List<IValidator>> InstanceToValidators
-        {
-            get { return _instanceToValidators; }
-        }
+        protected Dictionary<object, List<IValidator>> InstanceToValidators => _instanceToValidators;
 
-        /// <summary>
-        /// Gets or sets the current <see cref="IValidatorProvider"/>.
-        /// </summary>
         protected internal IValidatorProvider ValidatorProvider
         {
             get { return _validatorProvider; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _validatorProvider = value;
             }
         }
@@ -113,65 +97,38 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Methods
 
-        /// <summary>
-        ///     Adds the specified validator.
-        /// </summary>
         public TValidator AddValidator<TValidator>([NotNull] object instanceToValidate)
             where TValidator : IValidator
         {
             return ToolkitExtensions.AddValidator<TValidator>(this, instanceToValidate);
         }
 
-        /// <summary>
-        ///     Sets errors for a property using the <see cref="Validator"/>.
-        /// </summary>
-        /// <param name="propertyExpresssion">The expression for the property</param>
-        /// <param name="errors">The collection of errors</param>
-        protected void SetValidatorErrors<T>(Expression<Func<T>> propertyExpresssion, params object[] errors)
+        protected void SetValidatorErrors<TModel>(Func<Expression<Func<TModel, object>>> expresssion, params object[] errors)
         {
-            ToolkitExtensions.SetValidatorErrors(this, propertyExpresssion, errors);
+            ToolkitExtensions.SetValidatorErrors(this, expresssion, errors);
         }
 
-        /// <summary>
-        ///     Sets errors for a property using the <see cref="Validator"/>.
-        /// </summary>
-        /// <param name="property">The property name</param>
-        /// <param name="errors">The collection of errors</param>
         protected void SetValidatorErrors(string property, params object[] errors)
         {
             ToolkitExtensions.SetValidatorErrors(this, property, errors);
         }
 
-        /// <summary>
-        ///     Updates information about errors in the specified property.
-        /// </summary>
-        [SuppressTaskBusyHandler]
-        protected Task ValidateAsync<T>(Expression<Func<T>> getProperty)
+        protected Task ValidateAsync<TModel>(Func<Expression<Func<TModel, object>>> getProperty)
         {
-            Should.NotBeNull(getProperty, "getProperty");
-            return ValidateAsync(ToolkitExtensions.GetMemberName(getProperty));
+            Should.NotBeNull(getProperty, nameof(getProperty));
+            return ValidateAsync(getProperty.GetMemberName());
         }
 
-        /// <summary>
-        ///     Adds a property name to the <see cref="IgnoreProperties" />.
-        /// </summary>
-        protected void AddIgnoreProperty<T>(Expression<Func<T>> getProperty)
+        protected void AddIgnoreProperty<TModel>(Func<Expression<Func<TModel, object>>> getProperty)
         {
-            IgnoreProperties.Add(getProperty.GetMemberInfo().Name);
+            IgnoreProperties.Add(getProperty.GetMemberName());
         }
 
-        /// <summary>
-        ///     Removes a property name to the <see cref="IgnoreProperties" />.
-        /// </summary>
-        protected void RemoveIgnoreProperty<T>(Expression<Func<T>> getProperty)
+        protected void RemoveIgnoreProperty<TModel>(Func<Expression<Func<TModel, object>>> getProperty)
         {
-            IgnoreProperties.Remove(getProperty.GetMemberInfo().Name);
+            IgnoreProperties.Remove(getProperty.GetMemberName());
         }
 
-        /// <summary>
-        ///     Clears errors for a property.
-        /// </summary>
-        /// <param name="propertyName">The name of the property</param>
         protected virtual void ClearErrorsInternal(string propertyName)
         {
             foreach (var validators in _instanceToValidators.Values)
@@ -179,9 +136,6 @@ namespace MugenMvvmToolkit.ViewModels
                     validators[index].ClearErrors(propertyName);
         }
 
-        /// <summary>
-        ///     Clears all errors.
-        /// </summary>
         protected virtual void ClearErrorsInternal()
         {
             foreach (var validators in _instanceToValidators.Values)
@@ -189,16 +143,6 @@ namespace MugenMvvmToolkit.ViewModels
                     validators[index].ClearErrors();
         }
 
-        /// <summary>
-        ///     Gets the validation errors for a specified property or for the entire entity.
-        /// </summary>
-        /// <returns>
-        ///     The validation errors for the property or entity.
-        /// </returns>
-        /// <param name="propertyName">
-        ///     The name of the property to retrieve validation errors for; or null or <see cref="F:System.String.Empty" />, to
-        ///     retrieve entity-level errors.
-        /// </param>
         protected virtual IList<object> GetErrorsInternal(string propertyName)
         {
             var listResults = new List<object>();
@@ -210,12 +154,6 @@ namespace MugenMvvmToolkit.ViewModels
             return listResults;
         }
 
-        /// <summary>
-        ///     Gets all validation errors.
-        /// </summary>
-        /// <returns>
-        ///     The validation errors.
-        /// </returns>
         protected virtual IDictionary<string, IList<object>> GetErrorsInternal()
         {
             var errors = new List<IDictionary<string, IList<object>>>();
@@ -227,13 +165,9 @@ namespace MugenMvvmToolkit.ViewModels
             return ToolkitExtensions.MergeDictionaries(errors);
         }
 
-        /// <summary>
-        ///     Adds the specified validator.
-        /// </summary>
-        /// <param name="validator">The specified validator.</param>
         protected virtual void AddValidatorInternal(IValidator validator)
         {
-            if (!validator.IsInitialized)
+            if (validator.Context == null)
                 throw ExceptionManager.ValidatorNotInitialized("validator");
             //To prevent recursive validation call.
             if (validator is ValidatableViewModelValidator && ReferenceEquals(validator.Context.Instance, this))
@@ -250,32 +184,22 @@ namespace MugenMvvmToolkit.ViewModels
             }
             validators.Add(validator);
             validator.ErrorsChanged += _weakHandler;
-            validator.Subscribe(this);
             validator.ValidateAsync();
         }
 
-        /// <summary>
-        ///     Removes the specified validator.
-        /// </summary>
-        /// <param name="validator">The specified validator.</param>
         protected virtual bool RemoveValidatorInternal(IValidator validator)
         {
-            if (!validator.IsInitialized)
+            if (validator.Context == null)
                 throw ExceptionManager.ValidatorNotInitialized("validator");
             List<IValidator> validators;
             if (!_instanceToValidators.TryGetValue(validator.Context.Instance, out validators) ||
                 validators == null || !validators.Contains(validator))
                 return false;
             validator.ErrorsChanged -= _weakHandler;
-            validator.Unsubscribe(this);
             validator.Dispose();
             return validators.Remove(validator);
         }
 
-        /// <summary>
-        ///     Adds the specified instance to validate.
-        /// </summary>
-        /// <param name="instanceToValidate">The specified instance to validate.</param>
         protected virtual void AddInstanceInternal(object instanceToValidate)
         {
             if (_instanceToValidators.ContainsKey(instanceToValidate))
@@ -286,10 +210,6 @@ namespace MugenMvvmToolkit.ViewModels
                 AddValidatorInternal(validators[index]);
         }
 
-        /// <summary>
-        ///     Adds the specified instance to validate.
-        /// </summary>
-        /// <param name="instanceToValidate">The specified instance to validate.</param>
         protected virtual bool RemoveInstanceInternal(object instanceToValidate)
         {
             List<IValidator> validators;
@@ -309,12 +229,6 @@ namespace MugenMvvmToolkit.ViewModels
             return this == instanceToValidate || _instanceToValidators.Remove(instanceToValidate);
         }
 
-        /// <summary>
-        ///     Determines whether the current model is valid.
-        /// </summary>
-        /// <returns>
-        ///     If <c>true</c> current model is valid, otherwise <c>false</c>.
-        /// </returns>
         protected virtual bool IsValidInternal()
         {
             foreach (var validators in _instanceToValidators.Values)
@@ -328,11 +242,6 @@ namespace MugenMvvmToolkit.ViewModels
             return true;
         }
 
-        /// <summary>
-        ///     Updates information about errors in the specified instance.
-        /// </summary>
-        /// <param name="instanceToValidate">The specified instance to validate.</param>
-        [SuppressTaskBusyHandler]
         protected virtual Task ValidateInstanceInternal(object instanceToValidate)
         {
             List<IValidator> list;
@@ -343,11 +252,6 @@ namespace MugenMvvmToolkit.ViewModels
             return ToolkitExtensions.WhenAll(list.ToArrayEx(validator => validator.ValidateAsync()));
         }
 
-        /// <summary>
-        ///     Updates information about errors in the specified property.
-        /// </summary>
-        /// <param name="propertyName">The specified property name.</param>
-        [SuppressTaskBusyHandler]
         protected virtual Task ValidateInternal(string propertyName)
         {
             var tasks = new List<Task>();
@@ -361,10 +265,6 @@ namespace MugenMvvmToolkit.ViewModels
             return ToolkitExtensions.WhenAll(tasks.ToArrayEx());
         }
 
-        /// <summary>
-        ///     Updates information about all errors.
-        /// </summary>
-        [SuppressTaskBusyHandler]
         protected virtual Task ValidateInternal()
         {
             var tasks = new List<Task>();
@@ -378,50 +278,46 @@ namespace MugenMvvmToolkit.ViewModels
             return ToolkitExtensions.WhenAll(tasks.ToArrayEx());
         }
 
-        /// <summary>
-        ///     Occurs when processing an asynchronous validation message.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="message">Information about event.</param>
         protected virtual void OnHandleAsyncValidationMessage(object sender, AsyncValidationMessage message)
         {
-            if (message.IsEndOperation)
-            {
-                ((IHandler<object>)this).Handle(this, new EndBusyMessage(message.Id));
-                return;
-            }
-            ((IHandler<object>)this).Handle(this, new BeginBusyMessage(message.Id, Settings.ValidationBusyMessage));
         }
 
-        /// <summary>
-        ///     Occurs when the validation errors have changed for a property or for the entire entity.
-        /// </summary>
-        protected virtual void OnErrorsChanged(object sender, DataErrorsChangedMessage message)
+        protected virtual void RaiseErrorsChanged(DataErrorsChangedEventArgs args)
         {
-        }
-
-        /// <summary>
-        ///     Raises this object's ErrorsChangedChanged event.
-        /// </summary>
-        /// <param name="args">The event args.</param>
-        protected void RaiseErrorsChanged(DataErrorsChangedEventArgs args)
-        {
-            OnPropertyChanged("HasErrors");
-            OnPropertyChanged("IsValid");
+            OnPropertyChanged(Empty.HasErrorsChangedArgs);
+            OnPropertyChanged(Empty.IsValidChangedArgs);
+            OnPropertyChanged(Empty.IndexerPropertyChangedArgs);
             if (ErrorsChanged != null)
                 ThreadManager.Invoke(Settings.EventExecutionMode, this, args, RaiseErrorsChangedDelegate);
+#if NONOTIFYDATAERROR
+            string ignoreProperty = args.PropertyName ?? string.Empty;
+            lock (_locker)
+            {
+                //Disable validation to prevent cycle
+                var contains = IgnoreProperties.Contains(ignoreProperty);
+                if (!contains)
+                    IgnoreProperties.Add(ignoreProperty);
+                try
+                {
+                    OnPropertyChanged(ignoreProperty);
+                }
+                finally
+                {
+                    if (!contains)
+                        IgnoreProperties.Remove(ignoreProperty);
+                }
+            }
+#endif
         }
 
         private static void RaiseErrorsChangedStatic(ValidatableViewModel @this, DataErrorsChangedEventArgs args)
         {
-            var handler = @this.ErrorsChanged;
-            if (handler != null)
-                handler(@this, args);
+            @this.ErrorsChanged?.Invoke(@this, args);
         }
 
         private IValidatorContext CreateContextInternal(object instanceToValidate)
         {
-            Should.NotBeNull(instanceToValidate, "instanceToValidate");
+            Should.NotBeNull(instanceToValidate, nameof(instanceToValidate));
             EnsureNotDisposed();
             var ctx = new ValidatorContext(instanceToValidate, PropertyMappings, IgnoreProperties, Settings.Metadata,
                 this.GetIocContainer(true, false));
@@ -433,47 +329,13 @@ namespace MugenMvvmToolkit.ViewModels
         {
             var validationMessage = message as AsyncValidationMessage;
             if (validationMessage != null)
-            {
-                RaiseErrorsChanged(new DataErrorsChangedEventArgs(validationMessage.PropertyName));
                 OnHandleAsyncValidationMessage(sender, validationMessage);
-                return;
-            }
-            var errorsMessage = message as DataErrorsChangedMessage;
-            if (errorsMessage == null)
-                return;
-            OnErrorsChanged(sender, errorsMessage);
-#if NONOTIFYDATAERROR
-            //To update property error in UI.
-            ThreadManager.InvokeOnUiThreadAsync(() =>
-            {
-                string ignoreProperty = errorsMessage.PropertyName ?? string.Empty;
-                lock (_locker)
-                {
-                    //Disable validation to prevent cycle
-                    var contains = IgnoreProperties.Contains(ignoreProperty);
-                    if (!contains)
-                        IgnoreProperties.Add(ignoreProperty);
-                    try
-                    {
-                        OnPropertyChanged(errorsMessage.PropertyName, ExecutionMode.None);
-                    }
-                    finally
-                    {
-                        if (!contains)
-                            IgnoreProperties.Remove(ignoreProperty);
-                    }
-                }
-            });
-#endif
         }
 
         #endregion
 
         #region Implementation of IValidatableViewModel
 
-        /// <summary>
-        ///     Gets or sets the delegate that allows to create an instance of <see cref="IValidatorContext" />.
-        /// </summary>
         public virtual Func<object, IValidatorContext> CreateContext
         {
             get { return _createContext; }
@@ -482,59 +344,27 @@ namespace MugenMvvmToolkit.ViewModels
                 if (Equals(_createContext, value))
                     return;
                 _createContext = value;
-                OnPropertyChanged("CreateContext");
+                OnPropertyChanged();
             }
         }
 
-        /// <summary>
-        ///     Gets the mapping of model properties.
-        ///     <example>
-        ///         <code>
-        ///       <![CDATA[
-        ///        PropertyMappings.Add("ModelProperty", new[]{"ViewModelProperty"});
-        ///       ]]>
-        ///     </code>
-        ///     </example>
-        /// </summary>
-        public IDictionary<string, ICollection<string>> PropertyMappings
-        {
-            get { return _propertyMappings; }
-        }
+        public IDictionary<string, ICollection<string>> PropertyMappings => _propertyMappings;
 
-        /// <summary>
-        ///     Gets the list of properties that will not be validated.
-        /// </summary>
-        public ICollection<string> IgnoreProperties
-        {
-            get { return _ignoreProperties; }
-        }
+        public ICollection<string> IgnoreProperties => _ignoreProperties;
 
-        /// <summary>
-        ///     Gets the validator that allows to set errors manually.
-        /// </summary>
-        public ManualValidator Validator
-        {
-            get { return _validator; }
-        }
+        public ManualValidator Validator => _validator;
 
-        /// <summary>
-        ///     Determines whether the current view model is valid.
-        /// </summary>
-        /// <returns>
-        ///     If <c>true</c> current view model is valid, otherwise <c>false</c>.
-        /// </returns>
         public bool IsValid
         {
             get
             {
+                if (IsDisposed)
+                    return false;
                 lock (_locker)
                     return IsValidInternal();
             }
         }
 
-        /// <summary>
-        ///     Gets the collection of validators.
-        /// </summary>
         public IList<IValidator> GetValidators()
         {
             lock (_locker)
@@ -546,62 +376,49 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
-        /// <summary>
-        ///     Adds the specified validator.
-        /// </summary>
-        /// <param name="validator">The specified validator.</param>
         public void AddValidator(IValidator validator)
         {
-            Should.NotBeNull(validator, "validator");
+            Should.NotBeNull(validator, nameof(validator));
             EnsureNotDisposed();
             lock (_locker)
                 AddValidatorInternal(validator);
         }
 
-        /// <summary>
-        ///     Removes the specified validator.
-        /// </summary>
-        /// <param name="validator">The specified validator.</param>
         public bool RemoveValidator(IValidator validator)
         {
-            Should.NotBeNull(validator, "validator");
+            Should.NotBeNull(validator, nameof(validator));
             EnsureNotDisposed();
+            bool result;
             lock (_locker)
-                return RemoveValidatorInternal(validator);
+                result = RemoveValidatorInternal(validator);
+            if (result)
+                RaiseErrorsChanged(Empty.EmptyDataErrorsChangedArgs);
+            return result;
         }
 
-        /// <summary>
-        ///     Adds the specified instance to validate.
-        /// </summary>
-        /// <param name="instanceToValidate">The specified instance to validate.</param>
         public void AddInstance(object instanceToValidate)
         {
-            Should.NotBeNull(instanceToValidate, "instanceToValidate");
+            Should.NotBeNull(instanceToValidate, nameof(instanceToValidate));
             EnsureNotDisposed();
             lock (_locker)
                 AddInstanceInternal(instanceToValidate);
         }
 
-        /// <summary>
-        ///     Removes the specified instance to validate.
-        /// </summary>
-        /// <param name="instanceToValidate">The specified instance to validate.</param>
         public bool RemoveInstance(object instanceToValidate)
         {
-            Should.NotBeNull(instanceToValidate, "instanceToValidate");
+            Should.NotBeNull(instanceToValidate, nameof(instanceToValidate));
             EnsureNotDisposed();
+            bool result;
             lock (_locker)
-                return RemoveInstanceInternal(instanceToValidate);
+                result = RemoveInstanceInternal(instanceToValidate);
+            if (result)
+                RaiseErrorsChanged(Empty.EmptyDataErrorsChangedArgs);
+            return result;
         }
 
-        /// <summary>
-        ///     Updates information about errors in the specified instance.
-        /// </summary>
-        /// <param name="instanceToValidate">The specified instance to validate.</param>
-        [SuppressTaskBusyHandler]
         public Task ValidateInstanceAsync(object instanceToValidate)
         {
-            Should.NotBeNull(instanceToValidate, "instanceToValidate");
+            Should.NotBeNull(instanceToValidate, nameof(instanceToValidate));
             EnsureNotDisposed();
             Task task;
             lock (_locker)
@@ -609,114 +426,59 @@ namespace MugenMvvmToolkit.ViewModels
             return task.WithTaskExceptionHandler(this);
         }
 
-        /// <summary>
-        ///     Updates information about errors in the specified property.
-        /// </summary>
-        /// <param name="propertyName">The specified property name.</param>
-        [SuppressTaskBusyHandler]
         public Task ValidateAsync(string propertyName)
         {
-            Should.NotBeNull(propertyName, "propertyName");
+            Should.NotBeNull(propertyName, nameof(propertyName));
             Task task;
             lock (_locker)
                 task = ValidateInternal(propertyName);
             return task.WithTaskExceptionHandler(this);
         }
 
-        /// <summary>
-        ///     Updates information about all errors.
-        /// </summary>
-        [SuppressTaskBusyHandler]
         public Task ValidateAsync()
         {
-            EnsureNotDisposed();
             Task task;
             lock (_locker)
                 task = ValidateInternal();
             return task.WithTaskExceptionHandler(this);
         }
 
-        /// <summary>
-        ///     Gets the validation errors for a specified property or for the entire entity.
-        /// </summary>
-        /// <param name="propertyName">
-        ///     The name of the property to retrieve validation errors for; or null or
-        ///     <see cref="F:System.String.Empty" />, to retrieve entity-level errors.
-        /// </param>
-        /// <returns>
-        ///     The validation errors for the property or entity.
-        /// </returns>
         public IList<object> GetErrors(string propertyName)
         {
             lock (_locker)
                 return GetErrorsInternal(propertyName);
         }
 
-        /// <summary>
-        ///     Gets all validation errors.
-        /// </summary>
-        /// <returns>
-        ///     The validation errors.
-        /// </returns>
         public IDictionary<string, IList<object>> GetErrors()
         {
             lock (_locker)
                 return GetErrorsInternal();
         }
 
-        /// <summary>
-        ///     Clears errors for a property.
-        /// </summary>
-        /// <param name="propertyName">The name of the property</param>
         public void ClearErrors(string propertyName)
         {
-            Should.NotBeNull(propertyName, "propertyName");
+            Should.NotBeNull(propertyName, nameof(propertyName));
             lock (_locker)
                 ClearErrorsInternal(propertyName);
         }
 
-        /// <summary>
-        ///     Clears all errors.
-        /// </summary>
         public void ClearErrors()
         {
             lock (_locker)
                 ClearErrorsInternal();
         }
 
-        /// <summary>
-        ///     Gets a value that indicates whether the entity has validation errors.
-        /// </summary>
-        /// <returns>
-        ///     true if the entity currently has validation errors; otherwise, false.
-        /// </returns>
-        public bool HasErrors
-        {
-            get { return !IsValid; }
-        }
+        public bool HasErrors => !IsValid;
 
-        /// <summary>
-        ///     Gets the validation errors for a specified property or for the entire entity.
-        /// </summary>
-        /// <returns>
-        ///     The validation errors for the property or entity.
-        /// </returns>
-        /// <param name="propertyName">
-        ///     The name of the property to retrieve validation errors for; or null or <see cref="F:System.String.Empty" />, to
-        ///     retrieve entity-level errors.
-        /// </param>
         IEnumerable INotifyDataErrorInfo.GetErrors(string propertyName)
         {
             return GetErrors(propertyName);
         }
 
-        /// <summary>
-        ///     Occurs when the validation errors have changed for a property or for the entire entity.
-        /// </summary>
         public virtual event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
 
 #if NONOTIFYDATAERROR
-        string IDataErrorInfo.this[string columnName]
+        public string this[string columnName]
         {
             get
             {
@@ -737,6 +499,16 @@ namespace MugenMvvmToolkit.ViewModels
                 return string.Join(Environment.NewLine, errors);
             }
         }
+#else
+        public IList<object> this[string propertyName]
+        {
+            get
+            {
+                if (ApplicationSettings.GetAllErrorsIndexerProperty == propertyName)
+                    propertyName = string.Empty;
+                return GetErrors(propertyName);
+            }
+        }
 #endif
         #endregion
 
@@ -748,9 +520,6 @@ namespace MugenMvvmToolkit.ViewModels
             base.HandleInternal(sender, message);
         }
 
-        /// <summary>
-        ///     Occurs after the initialization of the current <see cref="ViewModelBase" />.
-        /// </summary>
         internal override void OnInitializedInternal()
         {
             if (ValidatorProvider == null)
@@ -759,9 +528,6 @@ namespace MugenMvvmToolkit.ViewModels
             base.OnInitializedInternal();
         }
 
-        /// <summary>
-        ///     Occurs after current view model disposed, use for clear resource and event listeners(Internal only).
-        /// </summary>
         internal override void OnDisposeInternal(bool disposing)
         {
             if (disposing)

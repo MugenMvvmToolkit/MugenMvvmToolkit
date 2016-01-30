@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="OptionsMenu.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -16,19 +16,23 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using Android.App;
 using Android.Content;
+using Android.Runtime;
 using Android.Util;
 using Android.Views;
 using Android.Widget;
+using MugenMvvmToolkit.Android.Binding;
+using MugenMvvmToolkit.Android.Binding.Interfaces;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Binding.Models;
 
-namespace MugenMvvmToolkit.Views
+namespace MugenMvvmToolkit.Android.Views
 {
+    [Register("mugenmvvmtoolkit.android.views.OptionsMenu")]
     public sealed class OptionsMenu : FrameLayout, IManualBindings
     {
         #region Fields
@@ -39,13 +43,18 @@ namespace MugenMvvmToolkit.Views
 
         #region Constructors
 
+        private OptionsMenu(IntPtr javaReference, JniHandleOwnership transfer)
+            : base(javaReference, transfer)
+        {
+        }
+
         public OptionsMenu(Context context, IAttributeSet attrs)
             : base(context, attrs)
         {
             SetMinimumWidth(0);
             SetMinimumHeight(0);
-            base.Visibility = ViewStates.Gone;
-            base.Id = Resource.Id.OptionsMenu;
+            Visibility = ViewStates.Gone;
+            Id = Resource.Id.OptionsMenu;
         }
 
         #endregion
@@ -56,7 +65,7 @@ namespace MugenMvvmToolkit.Views
         {
             IBindingMemberInfo bindingMember = BindingServiceProvider
                 .MemberProvider
-                .GetBindingMember(typeof(OptionsMenu), AttachedMemberNames.MenuTemplate, false, true);
+                .GetBindingMember(typeof(OptionsMenu), AttachedMembers.Toolbar.MenuTemplate, false, true);
             var value = (int)bindingMember.GetValue(this, null);
             activity.MenuInflater.Inflate(value, menu, this);
             if (_bindings != null)
@@ -74,22 +83,6 @@ namespace MugenMvvmToolkit.Views
         {
             _bindings = bindings;
             return Empty.Array<IDataBinding>();
-        }
-
-        #endregion
-
-        #region Overrides of View
-
-        public override int Id
-        {
-            get { return Resource.Id.OptionsMenu; }
-            set { }
-        }
-
-        public override ViewStates Visibility
-        {
-            get { return ViewStates.Gone; }
-            set { }
         }
 
         #endregion

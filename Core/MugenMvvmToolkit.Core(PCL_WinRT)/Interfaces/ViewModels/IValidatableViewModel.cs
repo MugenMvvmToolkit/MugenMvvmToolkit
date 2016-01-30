@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IValidatableViewModel.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -20,9 +20,6 @@ using MugenMvvmToolkit.Interfaces.Validation;
 
 namespace MugenMvvmToolkit.Interfaces.ViewModels
 {
-    /// <summary>
-    ///     Represents the interface for view model that allows to validate view model.
-    /// </summary>
     public interface IValidatableViewModel : IViewModel, IValidatorAggregator
     {
     }

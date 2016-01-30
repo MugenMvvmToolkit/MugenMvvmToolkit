@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="MvvmActivityMediator.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,78 +17,122 @@
 #endregion
 
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading;
 using Android.App;
+using Android.Content;
 using Android.Content.Res;
 using Android.OS;
+using Android.Preferences;
 using Android.Views;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Interfaces;
-using MugenMvvmToolkit.Interfaces.Mediators;
+using MugenMvvmToolkit.Android.Binding.Infrastructure;
+using MugenMvvmToolkit.Android.Binding.Models;
+using MugenMvvmToolkit.Android.Interfaces.Mediators;
+using MugenMvvmToolkit.Android.Interfaces.Navigation;
+using MugenMvvmToolkit.Android.Models.EventArg;
+using MugenMvvmToolkit.Android.Views;
+using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.ViewModels;
-using MugenMvvmToolkit.Views;
 
-namespace MugenMvvmToolkit.Infrastructure.Mediators
+namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 {
-    public class MvvmActivityMediator : MediatorBase<Activity>, IMvvmActivityMediator
+    public class MvvmActivityMediator : MediatorBase<Activity>, IMvvmActivityMediator, IHandler<MvvmActivityMediator.FinishActivityMessage>
     {
+        #region Nested types
+
+        public sealed class FinishActivityMessage
+        {
+            #region Fields
+
+            public static readonly FinishActivityMessage Instance;
+
+            public readonly IViewModel ViewModel;
+
+            #endregion
+
+            #region Constructors
+
+            static FinishActivityMessage()
+            {
+                Instance = new FinishActivityMessage();
+            }
+
+            public FinishActivityMessage(IViewModel viewModel)
+            {
+                ViewModel = viewModel;
+            }
+
+            private FinishActivityMessage()
+            {
+            }
+
+            #endregion
+
+            #region Methods
+
+            public bool Finished { get; set; }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Fields
 
-        private readonly MenuInflater _menuInflater;
+        private BindableMenuInflater _menuInflater;
+        private LayoutInflater _layoutInflater;
         private IMenu _menu;
         private Bundle _bundle;
         private bool _isBackNavigation;
         private View _view;
+        private bool _ignoreFinishNavigation;
+        private bool _isStarted;
+        private bool _isCreated;
+        private IDictionary<string, object> _metadata;
 
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="T:System.Object" /> class.
-        /// </summary>
         public MvvmActivityMediator([NotNull] Activity target)
             : base(target)
         {
-            _menuInflater = PlatformExtensions.MenuInflaterFactory(target, Models.DataContext.Empty);
+            ServiceProvider.EventAggregator.Subscribe(this);
         }
 
         #endregion
 
         #region Implementation of IMvvmActivityMediator
 
-        /// <summary>
-        ///     Gets the <see cref="IMvvmActivityMediator.Activity" />.
-        /// </summary>
-        public Activity Activity
+        public virtual IDictionary<string, object> Metadata
         {
-            get { return Target; }
+            get
+            {
+                if (_metadata == null)
+                    Interlocked.CompareExchange(ref _metadata, new ConcurrentDictionary<string, object>(StringComparer.Ordinal), null);
+                return _metadata;
+            }
         }
 
-        /// <summary>
-        /// Gets the current bundle.
-        /// </summary>
-        public virtual Bundle Bundle
-        {
-            get { return _bundle; }
-        }
+        Activity IMvvmActivityMediator.Activity => Target;
 
-        /// <summary>
-        ///     Called when the activity has detected the user's press of the back key.
-        /// </summary>
+        public virtual Bundle Bundle => _bundle;
+
         public virtual void OnBackPressed(Action baseOnBackPressed)
         {
             var handler = BackPressing;
             if (handler != null)
             {
                 var args = new CancelEventArgs();
-                handler(Activity, args);
+                handler(Target, args);
                 if (args.Cancel)
                     return;
             }
@@ -97,57 +141,46 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             _isBackNavigation = false;
         }
 
-        /// <summary>
-        ///     Called when the activity is starting.
-        /// </summary>
-        public void OnCreate(Bundle savedInstanceState, Action<Bundle> baseOnCreate)
+        public virtual void OnCreate(int? viewId, Bundle savedInstanceState, Action<Bundle> baseOnCreate)
         {
             AndroidBootstrapperBase.EnsureInitialized();
-            Tracer.Info("OnCreate activity({0})", Target);
+            if (Tracer.TraceInformation)
+                Tracer.Info("OnCreate activity({0})", Target);
             _bundle = savedInstanceState;
             OnCreate(savedInstanceState);
 
-            var service = Get<INavigationService>();
-            service.OnCreateActivity(Activity);
-
             baseOnCreate(savedInstanceState);
+            _isCreated = true;
 
-            var handler = Created;
-            if (handler != null)
-                handler(Activity, new ValueEventArgs<Bundle>(savedInstanceState));
+            var service = Get<INavigationService>();
+            service.OnCreateActivity(Target);
+
+            Created?.Invoke(Target, new ValueEventArgs<Bundle>(savedInstanceState));
+
+            if (viewId.HasValue)
+                Target.SetContentView(viewId.Value);
         }
 
-        /// <summary>
-        ///     Initialize the contents of the Activity's standard options menu.
-        /// </summary>
         public virtual bool OnCreateOptionsMenu(IMenu menu, Func<IMenu, bool> baseOnCreateOptionsMenu)
         {
-            var optionsMenu = Activity.FindViewById<OptionsMenu>(Resource.Id.OptionsMenu);
+            var optionsMenu = Target.FindViewById<OptionsMenu>(Resource.Id.OptionsMenu);
             if (optionsMenu != null)
             {
                 _menu = menu;
-                optionsMenu.Inflate(Activity, menu);
+                optionsMenu.Inflate(Target, menu);
             }
             return baseOnCreateOptionsMenu(menu);
         }
 
-        /// <summary>
-        ///     Called after <c>OnCreate(Android.OS.Bundle)</c> or after <c>OnRestart</c> when the activity had been stopped, but is now again being displayed to the user.
-        /// </summary>
         public override void OnSaveInstanceState(Bundle outState, Action<Bundle> baseOnSaveInstanceState)
         {
-            var handler = SaveInstanceState;
-            if (handler != null)
-                handler(Activity, new ValueEventArgs<Bundle>(outState));
+            SaveInstanceState?.Invoke(Target, new ValueEventArgs<Bundle>(outState));
             base.OnSaveInstanceState(outState, baseOnSaveInstanceState);
         }
 
-        /// <summary>
-        ///     Tries to restore instance context.
-        /// </summary>
-        protected override void RestoreContext(object dataContext)
+        protected override void RestoreContext(Activity target, object dataContext)
         {
-            base.RestoreContext(dataContext);
+            base.RestoreContext(target, dataContext);
             var viewModel = dataContext as IViewModel;
             if (viewModel != null)
             {
@@ -161,21 +194,39 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             }
         }
 
-        /// <summary>
-        ///     Perform any final cleanup before an activity is destroyed.
-        /// </summary>
         public override void OnDestroy(Action baseOnDestroy)
         {
-            Tracer.Info("OnDestroy activity({0})", Target);
-            var handler = Destroyed;
-            if (handler != null)
-                handler(Activity, EventArgs.Empty);
-            _view.ClearBindingsHierarchically(true, true);
+            if (Tracer.TraceInformation)
+                Tracer.Info("OnDestroy activity({0})", Target);
+            ServiceProvider.EventAggregator.Unsubscribe(this);
+            Destroyed?.Invoke(Target, EventArgs.Empty);
+            _view.RemoveFromParent();
+            _view.ClearBindingsRecursively(true, true);
+            ThreadPool.QueueUserWorkItem(state => PlatformExtensions.CleanupWeakReferences());
             _view = null;
 
+            if (_metadata != null)
+            {
+                _metadata.Clear();
+                _metadata = null;
+            }
+
             MenuTemplate.Clear(_menu);
-            BindingContext.Value = null;
+            _menu = null;
+
+            if (_menuInflater != null)
+            {
+                _menuInflater.Dispose();
+                _menuInflater = null;
+            }
+            if (_layoutInflater != null)
+            {
+                _layoutInflater.Dispose();
+                _layoutInflater = null;
+            }
             base.OnDestroy(baseOnDestroy);
+            PlatformExtensions.SetCurrentActivity(Target, true);
+            Target.ClearBindings(false, true);
             OptionsItemSelected = null;
             ConfigurationChanged = null;
             PostCreate = null;
@@ -190,130 +241,111 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             Destroyed = null;
         }
 
-
-        /// <summary>
-        ///     Called as part of the activity lifecycle when an activity is going into
-        ///     the background, but has not (yet) been killed.
-        /// </summary>
-        public virtual void OnPause(Action baseOnPause)
+        protected override PreferenceManager PreferenceManager
         {
-            var service = Get<INavigationService>();
-            service.OnPauseActivity(Activity);
-            baseOnPause();
-            var handler = Paused;
-            if (handler != null)
-                handler(Activity, EventArgs.Empty);
+            get
+            {
+                var activity = Target as PreferenceActivity;
+                if (activity == null)
+                    return null;
+                return activity.PreferenceManager;
+            }
         }
 
-        /// <summary>
-        ///     Called after <c>OnStop</c> when the current activity is being re-displayed to the user (the user has navigated back to it).
-        /// </summary>
+        public override void OnPause(Action baseOnPause)
+        {
+            var service = Get<INavigationService>();
+            service.OnPauseActivity(Target);
+            Paused?.Invoke(Target, EventArgs.Empty);
+            base.OnPause(baseOnPause);
+        }
+
         public virtual void OnRestart(Action baseOnRestart)
         {
             baseOnRestart();
-            var handler = Restarted;
-            if (handler != null)
-                handler(Activity, EventArgs.Empty);
+            Restarted?.Invoke(Target, EventArgs.Empty);
         }
 
-        /// <summary>
-        ///     Called after <c>OnRestoreInstanceState(Android.OS.Bundle)</c>, <c>OnRestart</c>, or <c>OnPause</c>, for your activity to start interacting with the user.
-        /// </summary>
-        public virtual void OnResume(Action baseOnResume)
+        public override void OnResume(Action baseOnResume)
         {
-            baseOnResume();
-            var handler = Resume;
-            if (handler != null)
-                handler(Activity, EventArgs.Empty);
+            base.OnResume(baseOnResume);
+
+            var service = Get<INavigationService>();
+            service.OnResumeActivity(Target);
+            Resume?.Invoke(Target, EventArgs.Empty);
         }
 
-        /// <summary>
-        ///     Called after <c>OnCreate(Android.OS.Bundle)</c> or after <c>OnRestart</c> when the activity had been stopped, but is now again being displayed to the user.
-        /// </summary>
         public virtual void OnStart(Action baseOnStart)
         {
-            var service = Get<INavigationService>();
-            service.OnStartActivity(Activity);
-
+            if (!_isStarted)
+            {
+                PlatformExtensions.NotifyActivityAttached(Target, _view);
+                _isStarted = true;
+            }
             baseOnStart();
-            var handler = Started;
-            if (handler != null)
-                handler(Activity, EventArgs.Empty);
+
+            var service = Get<INavigationService>();
+            service.OnStartActivity(Target);
+            Started?.Invoke(Target, EventArgs.Empty);
         }
 
-        /// <summary>
-        ///     Called when you are no longer visible to the user.
-        /// </summary>
         public virtual void OnStop(Action baseOnStop)
         {
             baseOnStop();
-            var handler = Stoped;
-            if (handler != null)
-                handler(Activity, EventArgs.Empty);
+            Stoped?.Invoke(Target, EventArgs.Empty);
         }
 
-        /// <summary>
-        ///     Set the activity content from a layout resource.
-        /// </summary>
-        /// <param name="layoutResId">Resource ID to be inflated.</param>
         public virtual void SetContentView(int layoutResId)
         {
-            _view = Activity.CreateBindableView(layoutResId, Get<IViewFactory>()).Item1;
-            Activity.SetContentView(_view);
-            _view = Activity.FindViewById(Android.Resource.Id.Content) ?? _view;
-            _view.ListenParentChange();
-            PlatformExtensions.NotifyActivityAttached(Activity, _view);
+            _view = Target.LayoutInflater.Inflate(layoutResId, null);
+            Target.SetContentView(_view);
+            _view = Target.FindViewById(global::Android.Resource.Id.Content) ?? _view;
+            _view.RootView.ListenParentChange();
         }
 
-        /// <summary>
-        ///     Returns a <c>MenuInflater</c> with this context.
-        /// </summary>
         public virtual MenuInflater GetMenuInflater(MenuInflater baseMenuInflater)
         {
-            var menuInflater = _menuInflater as IBindableMenuInflater;
-            if (menuInflater != null)
-                menuInflater.MenuInflater = baseMenuInflater;
-            return _menuInflater;
+            if (_menuInflater == null)
+                _menuInflater = PlatformExtensions.MenuInflaterFactory(Target, MugenMvvmToolkit.Models.DataContext.Empty);
+            if (_menuInflater != null)
+                _menuInflater.NestedMenuInflater = baseMenuInflater;
+            return _menuInflater ?? baseMenuInflater;
         }
 
-        /// <summary>
-        ///     Call this when your activity is done and should be closed.
-        /// </summary>
+        public LayoutInflater GetLayoutInflater(LayoutInflater baseLayoutInflater)
+        {
+            if (!_isCreated)
+                return baseLayoutInflater;
+            if (_layoutInflater == null)
+                _layoutInflater = PlatformExtensions.LayoutInflaterFactory(Target, null, null, baseLayoutInflater);
+            return _layoutInflater ?? baseLayoutInflater;
+        }
+
         public virtual void Finish(Action baseFinish)
         {
-            var navigationService = Get<INavigationService>();
-            if (!navigationService.OnFinishActivity(Activity, _isBackNavigation))
-                return;
+            if (!_ignoreFinishNavigation)
+            {
+                var navigationService = Get<INavigationService>();
+                if (!navigationService.OnFinishActivity(Target, _isBackNavigation))
+                    return;
+            }
             ClearContextCache();
             baseFinish();
         }
 
-        /// <summary>
-        ///     Called by the system when the device configuration changes while your activity is running.
-        /// </summary>
-        public void OnConfigurationChanged(Configuration newConfig, Action<Configuration> baseOnConfigurationChanged)
+        public virtual void OnConfigurationChanged(Configuration newConfig, Action<Configuration> baseOnConfigurationChanged)
         {
             baseOnConfigurationChanged(newConfig);
-            var handler = ConfigurationChanged;
-            if (handler != null)
-                handler(Activity, new ValueEventArgs<Configuration>(newConfig));
+            ConfigurationChanged?.Invoke(Target, new ValueEventArgs<Configuration>(newConfig));
         }
 
-        /// <summary>
-        ///     Called when activity start-up is complete (after <c>OnStart</c> and <c>OnRestoreInstanceState</c> have been called).
-        /// </summary>
-        public void OnPostCreate(Bundle savedInstanceState, Action<Bundle> baseOnPostCreate)
+        public virtual void OnPostCreate(Bundle savedInstanceState, Action<Bundle> baseOnPostCreate)
         {
-            var handler = PostCreate;
-            if (handler != null)
-                handler(Activity, new ValueEventArgs<Bundle>(savedInstanceState));
+            PostCreate?.Invoke(Target, new ValueEventArgs<Bundle>(savedInstanceState));
             baseOnPostCreate(savedInstanceState);
         }
 
-        /// <summary>
-        ///     This hook is called whenever an item in your options menu is selected.
-        /// </summary>
-        public bool OnOptionsItemSelected(IMenuItem item, Func<IMenuItem, bool> baseOnOptionsItemSelected)
+        public virtual bool OnOptionsItemSelected(IMenuItem item, Func<IMenuItem, bool> baseOnOptionsItemSelected)
         {
             var optionsItemSelected = OptionsItemSelected;
             if (optionsItemSelected == null)
@@ -321,65 +353,70 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             return optionsItemSelected(item) || baseOnOptionsItemSelected(item);
         }
 
-        /// <summary>
-        ///     This hook is called whenever an item in your options menu is selected.
-        /// </summary>
-        public Func<IMenuItem, bool> OptionsItemSelected { get; set; }
+        public void OnActivityResult(Action<int, Result, Intent> baseOnActivityResult, int requestCode, Result resultCode, Intent data)
+        {
+            baseOnActivityResult(requestCode, resultCode, data);
+            ActivityResult?.Invoke(Target, new ActivityResultEventArgs(requestCode, resultCode, data));
+        }
 
-        /// <summary>
-        ///     Called by the system when the device configuration changes while your activity is running.
-        /// </summary>
-        public event EventHandler<Activity, ValueEventArgs<Configuration>> ConfigurationChanged;
+        public virtual void AddPreferencesFromResource(Action<int> baseAddPreferencesFromResource, int preferencesResId)
+        {
+            var activity = Target as PreferenceActivity;
+            if (activity == null)
+            {
+                Tracer.Error("The AddPreferencesFromResource method supported only for PreferenceActivity");
+                return;
+            }
+            baseAddPreferencesFromResource(preferencesResId);
+            InitializePreferences(activity.PreferenceScreen, preferencesResId);
+        }
 
-        /// <summary>
-        ///     Called when activity start-up is complete (after <c>OnStart</c> and <c>OnRestoreInstanceState</c> have been called).
-        /// </summary>
-        public event EventHandler<Activity, ValueEventArgs<Bundle>> PostCreate;
+        void IHandler<FinishActivityMessage>.Handle(object sender, FinishActivityMessage message)
+        {
+            try
+            {
+                _ignoreFinishNavigation = true;
+                if (message.ViewModel == null)
+                {
+                    if (PlatformExtensions.IsApiLessThanOrEqualTo10)
+                        Target.Finish();
+                }
+                else if (ReferenceEquals(DataContext, message.ViewModel))
+                {
+                    Target.Finish();
+                    message.Finished = true;
+                }
+            }
+            finally
+            {
+                _ignoreFinishNavigation = false;
+            }
+        }
 
-        /// <summary>
-        /// Occurs when the activity has detected the user's press of the back key.
-        /// </summary>
+        public virtual Func<IMenuItem, bool> OptionsItemSelected { get; set; }
+
+        public virtual event EventHandler<Activity, ValueEventArgs<Configuration>> ConfigurationChanged;
+
+        public virtual event EventHandler<Activity, ValueEventArgs<Bundle>> PostCreate;
+
         public virtual event EventHandler<Activity, CancelEventArgs> BackPressing;
 
-        /// <summary>
-        ///     Occurred on created activity.
-        /// </summary>
         public virtual event EventHandler<Activity, ValueEventArgs<Bundle>> Created;
 
-        /// <summary>
-        ///     Occurred on started activity.
-        /// </summary>
         public virtual event EventHandler<Activity, EventArgs> Started;
 
-        /// <summary>
-        ///     Occurred on paused activity.
-        /// </summary>
         public virtual event EventHandler<Activity, EventArgs> Paused;
 
-        /// <summary>
-        ///     Occurred on save activity state.
-        /// </summary>
         public virtual event EventHandler<Activity, ValueEventArgs<Bundle>> SaveInstanceState;
 
-        /// <summary>
-        ///     Occurred on stoped activity.
-        /// </summary>
         public virtual event EventHandler<Activity, EventArgs> Stoped;
 
-        /// <summary>
-        ///     Occurred on restarted activity.
-        /// </summary>
         public virtual event EventHandler<Activity, EventArgs> Restarted;
 
-        /// <summary>
-        ///     Occurred on resume activity.
-        /// </summary>
         public virtual event EventHandler<Activity, EventArgs> Resume;
 
-        /// <summary>
-        ///     Occurred on destroyed activity.
-        /// </summary>
         public virtual event EventHandler<Activity, EventArgs> Destroyed;
+        public event EventHandler<Activity, ActivityResultEventArgs> ActivityResult;
 
         #endregion
     }

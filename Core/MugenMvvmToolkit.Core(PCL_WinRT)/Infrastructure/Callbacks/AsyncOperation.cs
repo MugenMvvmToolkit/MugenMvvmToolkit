@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="AsyncOperation.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -25,9 +25,6 @@ using MugenMvvmToolkit.Interfaces.Callbacks;
 
 namespace MugenMvvmToolkit.Infrastructure.Callbacks
 {
-    /// <summary>
-    ///     Represents the async operation.
-    /// </summary>
     public class AsyncOperation<TResult> : IAsyncOperation<TResult>, IAsyncOperationInternal, IActionContinuation,
                                            IActionContinuation<TResult>
     {
@@ -35,7 +32,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         private const int StartedState = 1;
         private readonly List<IAsyncOperationInternal> _continuations;
-        private readonly ManualResetEvent _waitHandle;
+        private ManualResetEvent _waitHandle;
         private IOperationResult<TResult> _result;
         private int _state;
 
@@ -43,34 +40,32 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="AsyncOperation{TResult}" /> class.
-        /// </summary>
         public AsyncOperation()
         {
-            _continuations = new List<IAsyncOperationInternal>();
-            _waitHandle = new ManualResetEvent(false);
+            _continuations = new List<IAsyncOperationInternal>(2);
         }
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Sets the result of this operation.
-        /// </summary>
+        public static bool TrySetResult(IAsyncOperation operation, IOperationResult result)
+        {
+            var operationInternal = operation as IAsyncOperationInternal;
+            if (operationInternal == null)
+                return false;
+            return operationInternal.SetResult(result, false);
+        }
+
         public void SetResult([NotNull] IOperationResult<TResult> result)
         {
-            Should.NotBeNull(result, "result");
+            Should.NotBeNull(result, nameof(result));
             ((IAsyncOperationInternal)this).SetResult(result, true);
         }
 
-        /// <summary>
-        ///     Tries to sets the result of this operation.
-        /// </summary>
         public bool TrySetResult([NotNull] IOperationResult<TResult> result)
         {
-            Should.NotBeNull(result, "result");
+            Should.NotBeNull(result, nameof(result));
             return ((IAsyncOperationInternal)this).SetResult(result, false);
         }
 
@@ -155,33 +150,33 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             }
             finally
             {
+                Interlocked.CompareExchange(ref _waitHandle, Empty.CompletedEvent, null);
                 _waitHandle.Set();
             }
+        }
+
+        private void InitializeHandle()
+        {
+            var value = new ManualResetEvent(false);
+            Interlocked.CompareExchange(ref _waitHandle, value, null);
+            if (!ReferenceEquals(value, _waitHandle))
+                value.Dispose();
         }
 
         #endregion
 
         #region Implementation of IContinuation
 
-        /// <summary>
-        ///     Tries to convert current operation to an instance of <see cref="ISerializableCallback" />.
-        /// </summary>
         public virtual ISerializableCallback ToSerializableCallback()
         {
             return ToSerializableCallbackInternal();
         }
 
-        /// <summary>
-        ///     Invokes the action using the specified operation result.
-        /// </summary>
         void IActionContinuation.Invoke(IOperationResult result)
         {
             ((IAsyncOperationInternal)this).SetResult(result, true);
         }
 
-        /// <summary>
-        ///     Invokes the action using the specified operation result.
-        /// </summary>
         void IActionContinuation<TResult>.Invoke(IOperationResult<TResult> result)
         {
             SetResult(result);
@@ -202,7 +197,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             Invoke(result);
             lock (_continuations)
             {
-                // Ensure that all concurrent adds have completed. 
+                // Ensure that all concurrent adds have completed.
             }
 
             for (int i = 0; i < _continuations.Count; i++)
@@ -213,31 +208,10 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #endregion
 
-        #region Implementation of IDisposable
-
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        public void Dispose()
-        {
-            _waitHandle.Dispose();
-        }
-
-        #endregion
-
         #region Implementation of IAsyncOperation
 
-        /// <summary>
-        ///     Gets whether the operation has completed.
-        /// </summary>
-        public bool IsCompleted
-        {
-            get { return _result != null; }
-        }
+        public bool IsCompleted => _result != null;
 
-        /// <summary>
-        ///     Gets the operation result.
-        /// </summary>
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         public IOperationResult<TResult> Result
         {
@@ -248,66 +222,42 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             }
         }
 
-        /// <summary>
-        ///     Gets the operation result.
-        /// </summary>
-        IOperationResult IAsyncOperation.Result
-        {
-            get { return Result; }
-        }
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        IOperationResult IAsyncOperation.Result => Result;
 
-        /// <summary>
-        ///     Waits for the operation to complete execution.
-        /// </summary>
         public void Wait()
         {
+            InitializeHandle();
             _waitHandle.WaitOne();
         }
 
-        /// <summary>
-        ///     Waits for the operation to complete execution.
-        /// </summary>
         public bool Wait(int millisecondsTimeout)
         {
+            InitializeHandle();
             return _waitHandle.WaitOne(millisecondsTimeout);
         }
 
-        /// <summary>
-        ///     Creates a continuation that executes when the target operation completes.
-        /// </summary>
         public IAsyncOperation ContinueWith(IActionContinuation continuationAction)
         {
             return AddContinuation(new AsyncOperationImpl<object, object>(continuationAction));
         }
 
-        /// <summary>
-        ///     Creates a continuation that executes when the target operation completes.
-        /// </summary>
         public IAsyncOperation<T> ContinueWith<T>(IFunctionContinuation<T> continuationFunction)
         {
             return AddContinuation(new AsyncOperationImpl<T, object>(continuationFunction));
         }
 
-        /// <summary>
-        ///     Creates a continuation that executes when the target operation completes.
-        /// </summary>
         public IAsyncOperation ContinueWith(IActionContinuation<TResult> continuationAction)
         {
             return AddContinuation(new AsyncOperationImpl<TResult, object>(continuationAction));
         }
 
-        /// <summary>
-        ///     Creates a continuation that executes when the target operation completes.
-        /// </summary>
         public IAsyncOperation<TNewResult> ContinueWith<TNewResult>(
             IFunctionContinuation<TResult, TNewResult> continuationFunction)
         {
             return AddContinuation(new AsyncOperationImpl<TNewResult, TResult>(continuationFunction));
         }
 
-        /// <summary>
-        ///     Converts the current <see cref="IAsyncOperation{TResult}" /> to the <see cref="IOperationCallback" />.
-        /// </summary>
         public virtual IOperationCallback ToOperationCallback()
         {
             return new AsyncOperationCallback(this);

@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="XamarinFormsBootstrapperBase.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -22,29 +22,33 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Infrastructure.Navigation;
+using MugenMvvmToolkit.Binding.Interfaces.Models;
+using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
+using MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation;
+using MugenMvvmToolkit.Xamarin.Forms.Interfaces.Navigation;
+using MugenMvvmToolkit.Xamarin.Forms.Interfaces.Views;
 using Xamarin.Forms;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 {
-    /// <summary>
-    ///     Represents the base class that is used to start MVVM application.
-    /// </summary>
-    public abstract class XamarinFormsBootstrapperBase : BootstrapperBase
+    public abstract class XamarinFormsBootstrapperBase : BootstrapperBase, IDynamicViewModelPresenter
     {
         #region Nested types
 
         internal interface IPlatformService
         {
+            Func<IBindingMemberInfo, Type, object, object> ValueConverter { get; }
+
             PlatformInfo GetPlatformInfo();
 
             ICollection<Assembly> GetAssemblies();
@@ -54,55 +58,48 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Fields
 
-        protected static readonly DataConstant<bool> WrapToNavigationPageConstant;
-        private PlatformInfo _platform;
-        private readonly IPlatformService _platformService;
-        private static Page _page;
+        private const string WinRTAssemblyName = "MugenMvvmToolkit.Xamarin.Forms.WinRT";
+        private static IPlatformService _platformService;
+        private readonly PlatformInfo _platform;
+        private IViewModel _mainViewModel;
+        private bool _wrapToNavigationPage;
 
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="XamarinFormsBootstrapperBase" /> class.
-        /// </summary>
         static XamarinFormsBootstrapperBase()
         {
-            WrapToNavigationPageConstant = DataConstant.Create(() => WrapToNavigationPageConstant);
+            MvvmApplication.SetDefaultDesignTimeManager();
             if (Device.OS != TargetPlatform.WinPhone)
                 LinkerInclude.Initialize();
             DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
             DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
             ViewManager.ViewCleared += OnViewCleared;
-            BindingServiceProvider.DataContextMemberAliases.Add("BindingContext");
-            BindingServiceProvider.BindingMemberPriorities["BindingContext"] = int.MaxValue - 1;
+            ViewManager.ClearDataContext = true;
+            var contextName = ToolkitExtensions.GetMemberName<BindableObject>(() => e => e.BindingContext);
+            BindingServiceProvider.DataContextMemberAliases.Add(contextName);
+            BindingServiceProvider.BindingMemberPriorities[contextName] = BindingServiceProvider.DataContextMemberPriority;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="XamarinFormsBootstrapperBase" /> class.
-        /// </summary>
-        protected XamarinFormsBootstrapperBase()
+        protected XamarinFormsBootstrapperBase(PlatformInfo platform = null)
         {
-            var assembly = TryLoadAssembly(BindingAssemblyName, null);
-            if (assembly == null)
-                return;
-            var serviceType = typeof(IPlatformService).GetTypeInfo();
-            serviceType = assembly.DefinedTypes.FirstOrDefault(serviceType.IsAssignableFrom);
-            if (serviceType != null)
-                _platformService = (IPlatformService)Activator.CreateInstance(serviceType.AsType());
+            _platform = platform ?? GetPlatformInfo();
         }
 
         #endregion
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the name of binding assembly.
-        /// </summary>
+        [CanBeNull]
+        public new static XamarinFormsBootstrapperBase Current => BootstrapperBase.Current as XamarinFormsBootstrapperBase;
+
         protected static string BindingAssemblyName
         {
             get
             {
+                if (Device.OS == TargetPlatform.Windows)
+                    return WinRTAssemblyName;
                 return Device.OnPlatform("MugenMvvmToolkit.Xamarin.Forms.iOS", "MugenMvvmToolkit.Xamarin.Forms.Android",
                     "MugenMvvmToolkit.Xamarin.Forms.WinPhone");
             }
@@ -112,120 +109,144 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Overrides of BootstrapperBase
 
-        /// <summary>
-        ///     Gets the current platform.
-        /// </summary>
-        public override PlatformInfo Platform
+        protected override void InitializeInternal()
         {
-            get
-            {
-                if (_platform == null)
-                    _platform = _platformService == null
-                        ? XamarinFormsExtensions.GetPlatformInfo()
-                        : _platformService.GetPlatformInfo();
-                return _platform;
-            }
+            var application = CreateApplication();
+            var iocContainer = CreateIocContainer();
+            application.Initialize(_platform, iocContainer, GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
         }
 
+        #endregion
 
-        /// <summary>
-        ///     Gets the application assemblies.
-        /// </summary>
-        protected override ICollection<Assembly> GetAssemblies()
+        #region Implementation of IDynamicViewModelPresenter
+
+        int IDynamicViewModelPresenter.Priority => int.MaxValue;
+
+        INavigationOperation IDynamicViewModelPresenter.TryShowAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
         {
-            if (_platformService == null)
-                return base.GetAssemblies();
-            return _platformService.GetAssemblies();
+            parentPresenter.DynamicPresenters.Remove(this);
+            _mainViewModel = viewModel;
+
+            var view = (Page)ViewManager.GetOrCreateView(_mainViewModel, true, context);
+            NavigationPage page = view as NavigationPage;
+            if (page == null && _wrapToNavigationPage)
+                page = CreateNavigationPage(view);
+            if (page != null)
+            {
+                var iocContainer = MvvmApplication.Current.IocContainer;
+                INavigationService navigationService;
+                if (!iocContainer.TryGet(out navigationService))
+                {
+                    navigationService = CreateNavigationService();
+                    iocContainer.BindToConstant(navigationService);
+                }
+                //Activating navigation provider
+                INavigationProvider provider;
+                iocContainer.TryGet(out provider);
+
+                navigationService.UpdateRootPage(page);
+                view = page;
+            }
+            Application.Current.MainPage = view;
+            return new NavigationOperation();
         }
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Starts the current bootstrapper.
-        /// </summary>
-        public virtual Page Start(bool wrapToNavigationPage = true)
+        public virtual void Start(bool wrapToNavigationPage = true, IDataContext context = null)
         {
-            if (_page != null)
-                return _page;
-
-            InitializationContext = InitializationContext.ToNonReadOnly();
-            InitializationContext.AddOrUpdate(WrapToNavigationPageConstant, wrapToNavigationPage);
-
-            Initialize();
-            var viewModelType = GetMainViewModelType();
-            var viewModel = CreateMainViewModel(viewModelType);
-            var view = (Page)ViewManager.GetOrCreateView(viewModel, null, InitializationContext);
-            var page = view as NavigationPage ?? CreateNavigationPage(view);
-            if (page == null)
+            if (Current != null && !ReferenceEquals(Current, this))
             {
-                _page = view;
-                return view;
+                Current.Start(wrapToNavigationPage, context);
+                return;
             }
-            _page = page;
-            if (IocContainer.CanResolve<INavigationService>())
-                IocContainer.Unbind<INavigationService>();
-            IocContainer.BindToConstant<INavigationService>(new NavigationService(page));
-            //Activating navigation provider
-            INavigationProvider provider;
-            IocContainer.TryGet(out provider);
-            return page;
+            _wrapToNavigationPage = wrapToNavigationPage;
+            Initialize();
+            var app = MvvmApplication.Current;
+            app.IocContainer.Get<IViewModelPresenter>().DynamicPresenters.Add(this);
+
+            if (_mainViewModel == null || _mainViewModel.IsDisposed)
+                app.Start(context);
+            else
+                _mainViewModel.ShowAsync(context);
         }
 
-        /// <summary>
-        ///     Creates the main view model.
-        /// </summary>
-        [NotNull]
-        protected virtual IViewModel CreateMainViewModel([NotNull] Type viewModelType)
+        protected virtual ICollection<Assembly> GetAssemblies()
         {
-            return IocContainer
-                .Get<IViewModelProvider>()
-                .GetViewModel(viewModelType, InitializationContext);
+            if (_platformService == null)
+                return new[] { GetType().GetTypeInfo().Assembly, typeof(BootstrapperBase).GetTypeInfo().Assembly };
+            return _platformService.GetAssemblies();
         }
 
-        /// <summary>
-        ///     Gets the type of main view model.
-        /// </summary>
-        [NotNull]
-        protected abstract Type GetMainViewModelType();
-
-        /// <summary>
-        /// Creates an instance of <see cref="NavigationPage"/>
-        /// </summary>
         [CanBeNull]
         protected virtual NavigationPage CreateNavigationPage(Page mainPage)
         {
-            if (InitializationContext.GetData(WrapToNavigationPageConstant))
-                return new NavigationPage(mainPage);
-            return null;
+            return new NavigationPage(mainPage);
         }
 
-        private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)
+        [NotNull]
+        protected virtual INavigationService CreateNavigationService()
         {
-            var viewName = viewModel.GetViewName(dataContext);
-            var container = viewModel.GetIocContainer(true);
+            return new NavigationService(ServiceProvider.ThreadManager, true);
+        }
+
+        private static PlatformInfo GetPlatformInfo()
+        {
+            Assembly assembly = TryLoadAssembly(BindingAssemblyName, null);
+            if (assembly == null)
+            {
+                if (Device.OS == TargetPlatform.WinPhone)
+                    assembly = TryLoadAssembly(WinRTAssemblyName, null);
+                if (assembly == null)
+                    return XamarinFormsExtensions.GetPlatformInfo();
+            }
+            TypeInfo serviceType = typeof(IPlatformService).GetTypeInfo();
+            serviceType = assembly.DefinedTypes.FirstOrDefault(serviceType.IsAssignableFrom);
+            if (serviceType != null)
+            {
+                _platformService = (IPlatformService)Activator.CreateInstance(serviceType.AsType());
+                BindingServiceProvider.ValueConverter = _platformService.ValueConverter;
+            }
+            return _platformService == null
+                ? XamarinFormsExtensions.GetPlatformInfo()
+                : _platformService.GetPlatformInfo();
+        }
+
+        private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext,
+            IViewModelPresenter arg3)
+        {
+            string viewName = viewModel.GetViewName(dataContext);
+            IIocContainer container = viewModel.GetIocContainer(true);
             var mappingProvider = container.Get<IViewMappingProvider>();
-            var mappingItem = mappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);
+            IViewMappingItem mappingItem = mappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);
             return mappingItem == null ||
                    typeof(ITabView).GetTypeInfo().IsAssignableFrom(mappingItem.ViewType.GetTypeInfo()) ||
                    !typeof(Page).GetTypeInfo().IsAssignableFrom(mappingItem.ViewType.GetTypeInfo());
         }
 
-        private static bool CanShowViewModelNavigationPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)
+        private static bool CanShowViewModelNavigationPresenter(IViewModel viewModel, IDataContext dataContext,
+            IViewModelPresenter arg3)
         {
-            var viewName = viewModel.GetViewName(dataContext);
-            var container = viewModel.GetIocContainer(true);
+            string viewName = viewModel.GetViewName(dataContext);
+            IIocContainer container = viewModel.GetIocContainer(true);
             var mappingProvider = container.Get<IViewMappingProvider>();
-            var mappingItem = mappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);
-            return mappingItem != null && typeof(Page).GetTypeInfo().IsAssignableFrom(mappingItem.ViewType.GetTypeInfo());
+            IViewMappingItem mappingItem = mappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);
+            return mappingItem != null &&
+                   typeof(Page).GetTypeInfo().IsAssignableFrom(mappingItem.ViewType.GetTypeInfo());
         }
 
         private static void OnViewCleared(IViewManager viewManager, IViewModel viewModel, object arg3, IDataContext arg4)
         {
-            var bindableObject = arg3 as BindableObject;
-            if (bindableObject != null)
-                bindableObject.ClearBindingsHierarchically(true, true);
+            try
+            {
+                XamarinFormsExtensions.ClearBindingsRecursively(arg3 as BindableObject, true, true);
+            }
+            catch (Exception e)
+            {
+                Tracer.Error(e.Flatten(true));
+            }
         }
 
         #endregion

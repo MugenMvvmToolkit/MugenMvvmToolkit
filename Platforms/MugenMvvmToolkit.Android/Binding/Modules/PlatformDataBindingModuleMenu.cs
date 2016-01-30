@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="PlatformDataBindingModuleMenu.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -19,7 +19,9 @@
 using System;
 using System.Collections;
 using Android.Graphics.Drawables;
+using Android.Runtime;
 using Android.Views;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -27,13 +29,13 @@ using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using Object = Java.Lang.Object;
 
-namespace MugenMvvmToolkit.Binding.Modules
+namespace MugenMvvmToolkit.Android.Binding.Modules
 {
     public partial class PlatformDataBindingModule
     {
         #region Nested types
 
-        internal sealed class MenuItemOnMenuItemClickListener : Object, IMenuItemOnMenuItemClickListener
+        private sealed class MenuItemOnMenuItemClickListener : Object, IMenuItemOnMenuItemClickListener
         {
             #region Fields
 
@@ -43,6 +45,10 @@ namespace MugenMvvmToolkit.Binding.Modules
             #endregion
 
             #region Constructors
+
+            public MenuItemOnMenuItemClickListener(IntPtr handle, JniHandleOwnership transfer) : base(handle, transfer)
+            {
+            }
 
             public MenuItemOnMenuItemClickListener(IMenuItem menuItem)
             {
@@ -55,9 +61,11 @@ namespace MugenMvvmToolkit.Binding.Modules
 
             public bool OnMenuItemClick(IMenuItem item)
             {
+                if (_item == null)
+                    return false;
                 item = _item;
                 if (item.IsCheckable)
-                    IsCheckedMenuItemMember.SetValue(item, !item.IsChecked);
+                    item.SetBindingMemberValue(AttachedMembers.MenuItem.IsChecked, !item.IsChecked);
                 EventListenerList.Raise(item, Key, EventArgs.Empty);
                 return true;
             }
@@ -76,35 +84,37 @@ namespace MugenMvvmToolkit.Binding.Modules
 
         #endregion
 
-        #region Fields
-
-        private static readonly IAttachedBindingMemberInfo<IMenuItem, bool> IsCheckedMenuItemMember;
-        private static readonly IAttachedBindingMemberInfo<IMenu, IEnumerable> MenuItemsSourceMember;
-
-        #endregion
-
         #region Methods
 
         private static void RegisterMenuMembers(IBindingMemberProvider memberProvider)
         {
             //IMenu
-            memberProvider.Register(MenuItemsSourceMember);
-            var menuEnabledMember = AttachedBindingMember.CreateAutoProperty<IMenu, bool?>(AttachedMemberConstants.Enabled,
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.Menu.ItemsSource, MenuItemsSourceChanged));
+            var menuEnabledMember = AttachedBindingMember.CreateAutoProperty(AttachedMembers.Menu.Enabled,
                     (menu, args) => menu.SetGroupEnabled(0, args.NewValue.GetValueOrDefault()));
             memberProvider.Register(menuEnabledMember);
             memberProvider.Register("IsEnabled", menuEnabledMember);
 
-            var menuVisibleMember = AttachedBindingMember.CreateAutoProperty<IMenu, bool?>("Visible",
+            var menuVisibleMember = AttachedBindingMember.CreateAutoProperty(AttachedMembers.Menu.Visible,
                 (menu, args) => menu.SetGroupVisible(0, args.NewValue.GetValueOrDefault()));
             memberProvider.Register(menuVisibleMember);
             memberProvider.Register("IsVisible", menuVisibleMember);
 
             //IMenuItem
-            memberProvider.Register(IsCheckedMenuItemMember);
-            memberProvider.Register(AttachedBindingMember.CreateEvent<IMenuItem>("Click", SetClickEventValue));
+            BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.MenuItem.Click);
+            memberProvider.Register(AttachedBindingMember.CreateNotifiableMember(AttachedMembers.MenuItem.IsChecked,
+                (info, item) => item.IsChecked, (info, item, value) =>
+                {
+                    if (value == item.IsChecked)
+                        return false;
+                    item.SetChecked(value);
+                    return true;
+                }));
+            memberProvider.Register(AttachedBindingMember.CreateEvent(AttachedMembers.MenuItem.Click, SetClickEventValue,
+                (item, args) => item.SetOnMenuItemClickListener(new MenuItemOnMenuItemClickListener(item))));
 
             memberProvider.Register(AttachedBindingMember
-                .CreateMember<IMenuItem, object>("AlphabeticShortcut",
+                .CreateMember<IMenuItem, object>(nameof(IMenuItem.AlphabeticShortcut),
                     (info, item) => item.AlphabeticShortcut,
                     (info, item, value) =>
                     {
@@ -114,7 +124,7 @@ namespace MugenMvvmToolkit.Binding.Modules
                             item.SetAlphabeticShortcut(value.ToStringSafe()[0]);
                     }));
             memberProvider.Register(AttachedBindingMember
-                .CreateMember<IMenuItem, object>("Icon", (info, item) => item.Icon,
+                .CreateMember(AttachedMembers.MenuItem.Icon, (info, item) => item.Icon,
                     (info, item, value) =>
                     {
                         if (value is int)
@@ -124,7 +134,7 @@ namespace MugenMvvmToolkit.Binding.Modules
                     }));
 
             memberProvider.Register(AttachedBindingMember
-                .CreateMember<IMenuItem, bool>("IsCheckable",
+                .CreateMember<IMenuItem, bool>(nameof(IMenuItem.IsCheckable),
                     (info, item) => item.IsCheckable,
                     (info, item, value) => item.SetCheckable(value)));
 
@@ -132,12 +142,12 @@ namespace MugenMvvmToolkit.Binding.Modules
                 (info, item) => item.IsEnabled,
                 (info, item, value) => item.SetEnabled(value));
             memberProvider.Register(menuItemEnabled);
-            memberProvider.Register("IsEnabled", menuItemEnabled);
+            memberProvider.Register(nameof(IMenuItem.IsEnabled), menuItemEnabled);
             memberProvider.Register(AttachedBindingMember
-                .CreateMember<IMenuItem, bool>("IsVisible", (info, item) => item.IsVisible,
+                .CreateMember<IMenuItem, bool>(nameof(IMenuItem.IsVisible), (info, item) => item.IsVisible,
                     (info, item, value) => item.SetVisible(value)));
             memberProvider.Register(AttachedBindingMember
-                .CreateMember<IMenuItem, object>("NumericShortcut",
+                .CreateMember<IMenuItem, object>(nameof(IMenuItem.NumericShortcut),
                     (info, item) => item.NumericShortcut,
                     (info, item, value) =>
                     {
@@ -146,17 +156,17 @@ namespace MugenMvvmToolkit.Binding.Modules
                         else
                             item.SetNumericShortcut(value.ToStringSafe()[0]);
                     }));
-            memberProvider.Register(AttachedBindingMember.CreateMember<IMenuItem, string>("Title",
-                (info, item) => item.TitleFormatted.ToString(),
+            memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.MenuItem.Title,
+                (info, item) => item.TitleFormatted.ToStringSafe(),
                 (info, item, value) => item.SetTitle(value)));
-            memberProvider.Register(AttachedBindingMember.CreateMember<IMenuItem, string>("TitleCondensed",
-                (info, item) => item.TitleCondensedFormatted.ToString(),
+            memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.MenuItem.TitleCondensed,
+                (info, item) => item.TitleCondensedFormatted.ToStringSafe(),
                 (info, item, value) => item.SetTitleCondensed(value)));
         }
 
         private static void MenuItemsSourceChanged(IMenu menu, AttachedMemberChangedEventArgs<IEnumerable> args)
         {
-            var generator = ItemsSourceGeneratorBase.Get(menu);
+            var generator = menu.GetBindingMemberValue(AttachedMembers.Menu.ItemsSourceGenerator);
             if (generator != null)
                 generator.SetItemsSource(args.NewValue);
         }

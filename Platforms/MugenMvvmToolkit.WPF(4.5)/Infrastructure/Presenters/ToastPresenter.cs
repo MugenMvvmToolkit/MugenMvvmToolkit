@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ToastPresenter.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -16,13 +16,10 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Threading.Tasks;
-using MugenMvvmToolkit.Interfaces.Presenters;
-#if NETFX_CORE || WINDOWSCOMMON
+#if WINDOWS_PHONE
+using Microsoft.Phone.Controls;
+#endif
+#if WINDOWSCOMMON
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -36,48 +33,102 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Threading;
-using System.Windows.Media.Animation;
-using System.Windows.Media.Effects;
-using System.Windows.Documents;
 #endif
-#if WINDOWS_PHONE
-using Microsoft.Phone.Controls;
-#endif
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Infrastructure.Presenters
+#if WPF
+using System.Windows.Documents;
+using System.Windows.Media.Effects;
+using System.Linq;
+using System.Reflection;
+namespace MugenMvvmToolkit.WPF.Infrastructure.Presenters
+#elif WINDOWS_PHONE && XAMARIN_FORMS
+using System.Windows.Media.Animation;
+
+namespace MugenMvvmToolkit.Xamarin.Forms.WinPhone.Infrastructure.Presenters
+#elif SILVERLIGHT
+using System.Windows.Documents;
+using System.Windows.Media.Animation;
+using System.Windows.Media.Effects;
+namespace MugenMvvmToolkit.Silverlight.Infrastructure.Presenters
+#elif XAMARIN_FORMS && WINDOWSCOMMON
+namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Infrastructure.Presenters
+#elif WINDOWSCOMMON
+namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
+#elif WINDOWS_PHONE
+using System.Windows.Media.Animation;
+
+namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
+#endif
 {
-    /// <summary>
-    ///     Provides functionality to present a timed message.
-    /// </summary>
     public class ToastPresenter : IToastPresenter
     {
         #region Nested types
+
+        private sealed class ToastImpl : IToast
+        {
+            #region Fields
+
+            public readonly TaskCompletionSource<object> Tcs;
+            public Action CloseAction;
+
+            #endregion
+
+            #region Constructors
+
+            public ToastImpl()
+            {
+                Tcs = new TaskCompletionSource<object>();
+            }
+
+            #endregion
+
+            #region Properties
+
+            public Task CompletionTask => Tcs.Task;
+
+            #endregion
+            
+            #region Methods
+
+            public void Close()
+            {
+                var closeAction = CloseAction;
+                if (closeAction == null)
+                    return;
+                CloseAction = null;
+                ServiceProvider.ThreadManager.InvokeOnUiThreadAsync(closeAction);
+            }
+
+            #endregion
+        }
 
         private sealed class EventClosure
         {
             #region Fields
 
             private readonly ToastPosition _position;
-            private readonly WeakReference _reference;
-#if NETFX_CORE || WINDOWSCOMMON
+            private readonly Popup _popup;
+#if WINDOWSCOMMON
             private readonly Window _parent;
 #else
             private readonly FrameworkElement _parent;
 #endif
             public DispatcherTimer Timer;
             public TaskCompletionSource<object> TaskCompletionSource;
-            public float Duration;
-            public List<EventClosure> Closures;
 
             #endregion
 
             #region Constructors
 
-#if NETFX_CORE || WINDOWSCOMMON
+#if WINDOWSCOMMON
             public EventClosure(Popup popup, ToastPosition position, Window parent)
 #else
             public EventClosure(Popup popup, ToastPosition position, FrameworkElement parent)
@@ -86,17 +137,14 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             {
                 _position = position;
                 _parent = parent;
-                _reference = ServiceProvider.WeakReferenceFactory(popup, true);
+                _popup = popup;
             }
 
             #endregion
 
             #region Properties
 
-            public Popup Popup
-            {
-                get { return (Popup)_reference.Target; }
-            }
+            public Popup Popup => _popup;
 
             #endregion
 
@@ -104,18 +152,12 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
             public void Handle(object sender, object args)
             {
-                var popup = (Popup)_reference.Target;
-                if (popup == null)
-                    Clear();
-                else
-                    UpdatePosition(_parent, popup, _position);
+                UpdatePosition(_parent, _popup, _position);
             }
 
             public void Clear()
             {
-                var popup = (Popup)_reference.Target;
-                if (popup != null)
-                    popup.IsOpen = false;
+                _popup.IsOpen = false;
 #if WPF
                 ((Window)_parent).LocationChanged -= Handle;
 #elif WINDOWS_PHONE
@@ -128,7 +170,6 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                     Timer.Stop();
                 if (TaskCompletionSource != null)
                     TaskCompletionSource.TrySetResult(null);
-                Closures.Remove(this);
             }
 
             #endregion
@@ -144,6 +185,9 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 #endif
         private const string PopupAttachedValuePath = "#%popups3w5";
 
+        public static readonly DependencyProperty ToastTemplateSelectorProperty = DependencyProperty.RegisterAttached("ToastTemplateSelector",
+            typeof(Func<object, UIElement, Popup>), typeof(ToastPresenter), new PropertyMetadata(null));
+
         #endregion
 
         #region Constructors
@@ -157,12 +201,9 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         }
 #endif
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ToastPresenter" /> class.
-        /// </summary>
         public ToastPresenter([NotNull]IThreadManager threadManager)
         {
-            Should.NotBeNull(threadManager, "threadManager");
+            Should.NotBeNull(threadManager, nameof(threadManager));
             _threadManager = threadManager;
             Background = new SolidColorBrush(Color.FromArgb(255, 105, 105, 105));
             Foreground = new SolidColorBrush(Color.FromArgb(255, 247, 247, 247));
@@ -190,54 +231,32 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Implementation of IToastPresenter
 
-        /// <summary>
-        ///     Shows the specified message.
-        /// </summary>
-        public Task ShowAsync(object content, float duration, ToastPosition position = ToastPosition.Bottom, IDataContext context = null)
+        public IToast ShowAsync(object content, float duration, ToastPosition position = ToastPosition.Bottom, IDataContext context = null)
         {
-            var tcs = new TaskCompletionSource<object>();
+            var toastImpl = new ToastImpl();
             if (_threadManager.IsUiThread)
-                ShowInternal(content, duration, position, context, tcs);
+                toastImpl.CloseAction = ShowInternal(content, duration, position, context, toastImpl.Tcs);
             else
-                _threadManager.InvokeOnUiThreadAsync(() => ShowInternal(content, duration, position, context, tcs));
-            return tcs.Task;
+                _threadManager.InvokeOnUiThreadAsync(() => toastImpl.CloseAction = ShowInternal(content, duration, position, context, toastImpl.Tcs));
+            return toastImpl;
         }
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Shows the specified message.
-        /// </summary>
-        protected virtual void ShowInternal(object content, float duration, ToastPosition position, IDataContext context, TaskCompletionSource<object> tcs)
+        protected virtual Action ShowInternal(object content, float duration, ToastPosition position, IDataContext context, TaskCompletionSource<object> tcs)
         {
 #if WPF
             var placementTarget = Application.Current.Windows.OfType<Window>().FirstOrDefault(x => x.IsActive);
-#endif
-#if SILVERLIGHT
+#elif SILVERLIGHT || WINDOWS_PHONE
             var placementTarget = Application.Current.RootVisual as FrameworkElement;
-#endif
-#if NETFX_CORE || WINDOWSCOMMON
+#elif WINDOWSCOMMON
             var placementTarget = Window.Current;
 #endif
-
             if (placementTarget == null)
-                return;
-            var popups = ServiceProvider
-                .AttachedValueProvider
-                .GetOrAdd(placementTarget, PopupAttachedValuePath, (window, o) => new List<EventClosure>(), null);
-            for (int index = 0; index < popups.Count; index++)
-            {
-                var eventClosure = popups[index];
-                if (duration >= eventClosure.Duration)
-                {
-                    eventClosure.Clear();
-                    index--;
-                }
-            }
-
-            var popup = GetToastPopup(GetToastContentWrapper(GetToastContent(content)));
+                return null;
+            var popup = TryGetPopupFromTemplate(content, placementTarget) ?? GetToastPopup(GetToastContentWrapper(GetToastContent(content)));
 #if WPF
             popup.PlacementTarget = placementTarget;
 #endif
@@ -245,11 +264,14 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             popup.IsOpen = true;
             var closure = new EventClosure(popup, position, placementTarget)
             {
-                TaskCompletionSource = tcs,
-                Duration = duration,
-                Closures = popups
+                TaskCompletionSource = tcs
             };
-            popups.Add(closure);
+            ServiceProvider.AttachedValueProvider.AddOrUpdate(placementTarget, PopupAttachedValuePath, (window, o) => (EventClosure)o,
+                (item, value, currentValue, state) =>
+                {
+                    currentValue.Clear();
+                    return value(item, state);
+                }, closure);
 #if WPF
             placementTarget.LocationChanged += closure.Handle;
 #elif WINDOWS_PHONE
@@ -266,6 +288,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             timer.Tick += (sender, args) => TimerCallback(sender, closure);
             closure.Timer = timer;
             BeginOpenAnimation(popup, timer.Start);
+            return closure.Clear;
         }
 
         protected virtual Popup GetToastPopup(FrameworkElement content)
@@ -293,7 +316,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                 CornerRadius = new CornerRadius(2),
                 VerticalAlignment = VerticalAlignment.Center
             };
-#if !NETFX_CORE && !WINDOWS_PHONE && !WINDOWSCOMMON
+#if !WINDOWS_PHONE && !WINDOWSCOMMON
             var colorBrush = Background as SolidColorBrush;
             if (colorBrush != null)
                 border.Effect = new DropShadowEffect
@@ -313,7 +336,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             if (content != null)
             {
                 var key = new DataTemplateKey(content.GetType());
-#if NETFX_CORE || WINDOWSCOMMON
+#if WINDOWSCOMMON
                 if (Application.Current.Resources.ContainsKey(key))
 #else
                 if (Application.Current.Resources.Contains(key))
@@ -341,17 +364,11 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                 VerticalAlignment = VerticalAlignment.Center
             };
 #if WINDOWS_PHONE
-            object style;
             if (Application.Current.Resources.Contains("PhoneTextNormalStyle"))
                 text.Style = Application.Current.Resources["PhoneTextNormalStyle"] as Style;
 #elif WINDOWSCOMMON
             object style;
             if (Application.Current.Resources.TryGetValue("BaseTextBlockStyle", out style))
-                text.Style = style as Style;
-            text.LineStackingStrategy = LineStackingStrategy.MaxHeight;
-#elif NETFX_CORE
-            object style;
-            if (Application.Current.Resources.TryGetValue("BasicTextStyle", out style))
                 text.Style = style as Style;
             text.LineStackingStrategy = LineStackingStrategy.MaxHeight;
 #else
@@ -442,6 +459,11 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 #if WPF
             completed();
 #else
+            if (!popup.IsOpen)
+            {
+                completed();
+                return;
+            }
             var sb = new Storyboard();
             var translateAnimation = new DoubleAnimationUsingKeyFrames
             {
@@ -481,6 +503,33 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 #endif
         }
 
+        private static Popup TryGetPopupFromTemplate(object content, object parent)
+        {
+            UIElement element;
+#if WPF || SILVERLIGHT
+            element = (UIElement) parent;
+#elif WINDOWS_PHONE
+            var frame = parent as PhoneApplicationFrame;
+            if (frame == null)
+                element = (UIElement)parent;
+            else
+                element = frame.Content as UIElement;
+#elif WINDOWSCOMMON
+            var window = ((Window)parent);
+            var frame = window.Content as Frame;
+            if (frame == null)
+                element = window.Content;
+            else
+                element = frame.Content as UIElement;
+#endif
+            if (element == null)
+                return null;
+            var templateSelector = GetToastTemplateSelector(element);
+            if (templateSelector == null)
+                return null;
+            return templateSelector(content, element);
+        }
+
         private void TimerCallback(object sender, EventClosure closure)
         {
             ((DispatcherTimer)sender).Stop();
@@ -489,14 +538,14 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                 BeginCloseAnimation(popup, closure.Clear);
         }
 
-#if NETFX_CORE || WINDOWSCOMMON
+#if WINDOWSCOMMON
         private static void UpdatePosition(Window parent, Popup popup, ToastPosition position)
 #else
         private static void UpdatePosition(FrameworkElement parent, Popup popup, ToastPosition position)
 #endif
         {
             var control = (FrameworkElement)popup.Child;
-#if NETFX_CORE || WINDOWSCOMMON
+#if WINDOWSCOMMON
             double parentWidth = parent.Bounds.Width;
             double parentHeight = parent.Bounds.Height;
 #elif WINDOWS_PHONE
@@ -556,7 +605,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             switch (position)
             {
                 case ToastPosition.Bottom:
-#if WINDOWS_PHONE || WINDOWSCOMMON || NETFX_CORE
+#if WINDOWS_PHONE || WINDOWSCOMMON
                     verticalOffset = parentHeight - control.DesiredSize.Height - 85;
 #else
                     verticalOffset = parentHeight - control.DesiredSize.Height - 50;
@@ -569,7 +618,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                     verticalOffset = 50;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("position");
+                    throw new ArgumentOutOfRangeException(nameof(position));
             }
 
 #if WINDOWS_PHONE
@@ -590,7 +639,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 #if !WPF
         private static void SetTargetProperty(Timeline target, string property)
         {
-#if NETFX_CORE || WINDOWSCOMMON
+#if WINDOWSCOMMON
             Storyboard.SetTargetProperty(target, property);
 #else
             Storyboard.SetTargetProperty(target, new PropertyPath(property));
@@ -606,6 +655,16 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             };
         }
 #endif
+        public static void SetToastTemplateSelector(DependencyObject element, Func<object, UIElement, Popup> value)
+        {
+            element.SetValue(ToastTemplateSelectorProperty, value);
+        }
+
+        public static Func<object, UIElement, Popup> GetToastTemplateSelector(DependencyObject element)
+        {
+            return (Func<object, UIElement, Popup>)element.GetValue(ToastTemplateSelectorProperty);
+        }
+
         #endregion
     }
 }

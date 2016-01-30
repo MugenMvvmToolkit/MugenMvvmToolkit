@@ -25,13 +25,11 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NotifiableCollectionTracker{T}" /> class.
-        /// </summary>
-        public NotifiableCollectionTracker(SynchronizedNotifiableCollection<T> collection)
+        public NotifiableCollectionTracker(SynchronizedNotifiableCollection<T> collection, bool listenChangingEvent = true)
         {
             _collection = collection;
-            collection.CollectionChanging += CollectionOnCollectionChanging;
+            if (listenChangingEvent)
+                collection.CollectionChanging += CollectionOnCollectionChanging;
             collection.CollectionChanged += CollectionOnCollectionChanged;
             collection.PropertyChanged += CollectionOnPropertyChanged;
 
@@ -45,7 +43,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
                 Empty.IndexerPropertyChangedArgs.PropertyName)
                 _indexerRaised = true;
             if (propertyChangedEventArgs.PropertyName ==
-                Empty.CountPropertyChangedArgs.PropertyName)
+                Empty.CountChangedArgs.PropertyName)
                 _countRaised = true;
         }
 
@@ -53,25 +51,13 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         #region Properties
 
-        public List<T> ChangingItems
-        {
-            get { return _changingItems; }
-        }
+        public List<T> ChangingItems => _changingItems;
 
-        public List<T> ChangedItems
-        {
-            get { return _changedItems; }
-        }
+        public List<T> ChangedItems => _changedItems;
 
-        public bool CountRaised
-        {
-            get { return _countRaised; }
-        }
+        public bool CountRaised => _countRaised;
 
-        public bool IndexerRaised
-        {
-            get { return _indexerRaised; }
-        }
+        public bool IndexerRaised => _indexerRaised;
 
         #endregion
 
@@ -80,7 +66,8 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         public void AssertChangedEquals()
         {
             _collection.Count.ShouldEqual(ChangedItems.Count, "Changed items not equals.");
-            _collection.SequenceEqual(ChangedItems).ShouldBeTrue("Changed items not equals.");
+            if (_collection.Count != 0)
+                _collection.SequenceEqual(ChangedItems).ShouldBeTrue("Changed items not equals.");
         }
 
         public void AssertChangingEquals()
@@ -181,7 +168,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
                 default:
                     throw new ArgumentOutOfRangeException();
             }
-            _changedItems.Count.ShouldEqual(_collection.NotificationCount);
+            _changedItems.Count.ShouldEqual(_collection.Count);
         }
 
         #endregion

@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="InitializationModule.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,9 +17,12 @@
 #endregion
 
 using Android.App;
-using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Infrastructure.Callbacks;
-using MugenMvvmToolkit.Infrastructure.Navigation;
+using MugenMvvmToolkit.Android.Infrastructure;
+using MugenMvvmToolkit.Android.Infrastructure.Callbacks;
+using MugenMvvmToolkit.Android.Infrastructure.Navigation;
+using MugenMvvmToolkit.Android.Infrastructure.Presenters;
+using MugenMvvmToolkit.Android.Interfaces;
+using MugenMvvmToolkit.Android.Interfaces.Navigation;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
@@ -27,33 +30,19 @@ using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.IoC;
+using MugenMvvmToolkit.Modules;
 
-namespace MugenMvvmToolkit.Modules
+namespace MugenMvvmToolkit.Android.Modules
 {
-    /// <summary>
-    ///     Represents the class that is used to initialize the IOC adapter.
-    /// </summary>
     public class InitializationModule : InitializationModuleBase
     {
         #region Cosntructors
 
-        static InitializationModule()
-        {
-            if (ServiceProvider.DesignTimeManager.IsDesignMode)
-                ServiceProvider.AttachedValueProvider = new AttachedValueProvider();
-        }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="InitializationModule" /> class.
-        /// </summary>
         public InitializationModule()
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="InitializationModule" /> class.
-        /// </summary>
-        protected InitializationModule(LoadMode mode = LoadMode.All, int priority = InitializationModulePriority)
+        protected InitializationModule(LoadMode mode, int priority)
             : base(mode, priority)
         {
         }
@@ -62,9 +51,6 @@ namespace MugenMvvmToolkit.Modules
 
         #region Overrides of InitializationModuleBase
 
-        /// <summary>
-        ///     Loads the current module.
-        /// </summary>
         protected override bool LoadInternal()
         {
             Context.IocContainer.BindToBindingInfo(GetViewFactory());
@@ -72,19 +58,11 @@ namespace MugenMvvmToolkit.Modules
             return base.LoadInternal();
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IReflectionManager" /> that will be used by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IReflectionManager" />.</returns>
         protected override BindingInfo<IReflectionManager> GetReflectionManager()
         {
             return BindingInfo<IReflectionManager>.FromType<ExpressionReflectionManagerEx>(DependencyLifecycle.SingleInstance);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IViewModelPresenter" /> that will be used in the current application by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IViewModelPresenter" />.</returns>
         protected override BindingInfo<IViewModelPresenter> GetViewModelPresenter()
         {
             return BindingInfo<IViewModelPresenter>.FromMethod((container, list) =>
@@ -95,64 +73,36 @@ namespace MugenMvvmToolkit.Modules
             }, DependencyLifecycle.SingleInstance);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IMessagePresenter" /> that will be used in the current application by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IMessagePresenter" />.</returns>
         protected override BindingInfo<IMessagePresenter> GetMessagePresenter()
         {
             return BindingInfo<IMessagePresenter>.FromType<MessagePresenter>(DependencyLifecycle.SingleInstance);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="ITracer" /> that will be used by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="ITracer" />.</returns>
         protected override BindingInfo<ITracer> GetTracer()
         {
-            return BindingInfo<ITracer>.FromType<DebugTracer>(DependencyLifecycle.SingleInstance);
+            return BindingInfo<ITracer>.FromType<TracerEx>(DependencyLifecycle.SingleInstance);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IThreadManager" /> that will be used in the current application by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IThreadManager" />.</returns>
         protected override BindingInfo<IThreadManager> GetThreadManager()
         {
             return BindingInfo<IThreadManager>.FromMethod((container, list) => new ThreadManager(Application.SynchronizationContext), DependencyLifecycle.SingleInstance);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="INavigationProvider" /> that will be used in the current application by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="INavigationProvider" />.</returns>
         protected override BindingInfo<INavigationProvider> GetNavigationProvider()
         {
             return BindingInfo<INavigationProvider>.FromType<NavigationProvider>(DependencyLifecycle.SingleInstance);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IToastPresenter" /> that will be used in the current application by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IToastPresenter" />.</returns>
         protected override BindingInfo<IToastPresenter> GetToastPresenter()
         {
             return BindingInfo<IToastPresenter>.FromType<ToastPresenter>(DependencyLifecycle.SingleInstance);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IOperationCallbackFactory" /> that will be used in the current application by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IOperationCallbackFactory" />.</returns>
         protected override BindingInfo<IOperationCallbackFactory> GetOperationCallbackFactory()
         {
             return BindingInfo<IOperationCallbackFactory>.FromType<SerializableOperationCallbackFactory>(DependencyLifecycle.SingleInstance);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IAttachedValueProvider" /> that will be used by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IAttachedValueProvider" />.</returns>
         protected override BindingInfo<IAttachedValueProvider> GetAttachedValueProvider()
         {
             return BindingInfo<IAttachedValueProvider>.FromType<AttachedValueProvider>(DependencyLifecycle.SingleInstance);
@@ -162,19 +112,11 @@ namespace MugenMvvmToolkit.Modules
 
         #region Methods
 
-        /// <summary>
-        ///     Gets the <see cref="INavigationService" /> that will be used in all view models by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="INavigationService" />.</returns>
         protected virtual BindingInfo<INavigationService> GetNavigationService()
         {
             return BindingInfo<INavigationService>.FromType<NavigationService>(DependencyLifecycle.SingleInstance);
         }
 
-        /// <summary>
-        ///     Gets the <see cref="IViewFactory" /> that will be used in all view models by default.
-        /// </summary>
-        /// <returns>An instance of <see cref="IViewManager" />.</returns>
         protected virtual BindingInfo<IViewFactory> GetViewFactory()
         {
             return BindingInfo<IViewFactory>.FromType<ViewFactory>(DependencyLifecycle.SingleInstance);

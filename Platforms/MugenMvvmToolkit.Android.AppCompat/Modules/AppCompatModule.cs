@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="AppCompatModule.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -21,24 +21,25 @@ using Android.App;
 using Android.Content;
 using Android.Content.Res;
 using Android.OS;
-using Android.Support.V7.App;
-using Android.Views;
-using Android.Support.V4.Widget;
-using MugenMvvmToolkit.Binding.Interfaces.Models;
-using System.Collections;
-using MugenMvvmToolkit.AppCompat.Infrastructure;
+using Android.Runtime;
 using Android.Support.V4.View;
+using Android.Support.V4.Widget;
+using Android.Support.V7.App;
+using Android.Support.V7.Widget;
+using Android.Views;
+using MugenMvvmToolkit.Android.AppCompat.Infrastructure;
+using MugenMvvmToolkit.Android.Binding;
+using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Interfaces;
+using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
-using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.Modules;
-#if APPCOMPAT
-using Toolbar = Android.Support.V7.Widget.Toolbar;
-#endif
+using Object = Java.Lang.Object;
 
-namespace MugenMvvmToolkit.AppCompat.Modules
+namespace MugenMvvmToolkit.Android.AppCompat.Modules
 {
     public class AppCompatModule : ModuleBase
     {
@@ -67,19 +68,13 @@ namespace MugenMvvmToolkit.AppCompat.Modules
 
             #region Implementation of IEventListener
 
-            public bool IsAlive
-            {
-                get { return true; }
-            }
+            public bool IsAlive => true;
 
-            public bool IsWeak
-            {
-                get { return true; }
-            }
+            public bool IsWeak => true;
 
             public bool TryHandle(object sender, object message)
             {
-                var drawer = FindDrawer(sender as View);
+                DrawerLayout drawer = FindDrawer(sender as View);
                 if (drawer == null)
                     return true;
                 DrawerListenerImpl.GetOrAdd(drawer);
@@ -89,11 +84,23 @@ namespace MugenMvvmToolkit.AppCompat.Modules
             #endregion
         }
 
-        internal sealed class DrawerListenerImpl : Java.Lang.Object, DrawerLayout.IDrawerListener
+        internal sealed class DrawerListenerImpl : Object, DrawerLayout.IDrawerListener
         {
             #region Fields
 
-            private DrawerLayout.IDrawerListener _listener = null;
+            private DrawerLayout.IDrawerListener _listener;
+
+            #endregion
+
+            #region Constructors
+
+            private DrawerListenerImpl()
+            {
+            }
+
+            private DrawerListenerImpl(IntPtr handle, JniHandleOwnership transfer) : base(handle, transfer)
+            {
+            }
 
             #endregion
 
@@ -150,14 +157,14 @@ namespace MugenMvvmToolkit.AppCompat.Modules
 
             public void OnDrawerClosed(View drawerView)
             {
-                ViewDrawerIsOpenedMember.SetValue(drawerView, false);
+                drawerView.SetBindingMemberValue(AttachedMembersCompat.View.DrawerIsOpened, false);
                 if (_listener != null)
                     _listener.OnDrawerClosed(drawerView);
             }
 
             public void OnDrawerOpened(View drawerView)
             {
-                ViewDrawerIsOpenedMember.SetValue(drawerView, true);
+                drawerView.SetBindingMemberValue(AttachedMembersCompat.View.DrawerIsOpened, true);
                 if (_listener != null)
                     _listener.OnDrawerOpened(drawerView);
             }
@@ -179,29 +186,10 @@ namespace MugenMvvmToolkit.AppCompat.Modules
 
         #endregion
 
-        #region Fields
-
-        private static readonly IAttachedBindingMemberInfo<ViewPager, object> ViewPagerSelectedItemMember;
-        private static readonly IAttachedBindingMemberInfo<ViewPager, int> ViewPagerCurrentItemMember;
-        private static readonly IAttachedBindingMemberInfo<View, bool> ViewDrawerIsOpenedMember;
-
-        #endregion
-
         #region Constructors
 
-        static AppCompatModule()
-        {
-            ViewPagerSelectedItemMember = AttachedBindingMember.CreateAutoProperty<ViewPager, object>(AttachedMemberConstants.SelectedItem, ViewPagerSelectedItemChanged);
-            ViewPagerCurrentItemMember = AttachedBindingMember.CreateAutoProperty<ViewPager, int>("CurrentItem",
-                ViewPagerCurrentItemChanged, AdapterViewCurrentItemAttached, (pager, info) => pager.CurrentItem);
-            ViewDrawerIsOpenedMember = AttachedBindingMember.CreateAutoProperty<View, bool>("Drawer.IsOpened", ViewDrawerIsOpenedChanged, getDefaultValue: ViewDrawerIsOpenedGetDefaultValue);
-        }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="AppCompatModule" /> class.
-        /// </summary>
         public AppCompatModule()
-            : base(true, priority: BindingModulePriority - 1)
+            : base(true, priority: BindingModulePriority - 2)
         {
         }
 
@@ -216,7 +204,7 @@ namespace MugenMvvmToolkit.AppCompat.Modules
             if (adapter == null)
                 return;
             object item = adapter.GetRawItem(sender.CurrentItem);
-            ViewPagerSelectedItemMember.SetValue(sender, item);
+            sender.SetBindingMemberValue(AttachedMembersCompat.ViewPager.SelectedItem, item);
         }
 
         private static void ViewPagerSelectedItemChanged(ViewPager sender, AttachedMemberChangedEventArgs<object> args)
@@ -225,24 +213,33 @@ namespace MugenMvvmToolkit.AppCompat.Modules
             if (adapter == null)
                 return;
             int position = adapter.GetPosition(args.NewValue);
-            ViewPagerCurrentItemMember.SetValue(sender, position);
+            sender.SetBindingMemberValue(AttachedMembersCompat.ViewPager.CurrentItem, position);
         }
 
         private static void AdapterViewCurrentItemAttached(ViewPager adapterView, MemberAttachedEventArgs memberAttached)
         {
-            adapterView.PageSelected += (sender, args) => ViewPagerCurrentItemMember.SetValue(adapterView, args.Position);
+            adapterView.PageSelected += (sender, args) => ((ViewPager)sender).SetBindingMemberValue(AttachedMembersCompat.ViewPager.CurrentItem, args.Position);
         }
 
         private static void ToolbarMenuTemplateChanged(Toolbar toolbar, AttachedMemberChangedEventArgs<int> args)
         {
-            var activity = toolbar.Context.GetActivity();
+            Activity activity = toolbar.Context.GetActivity();
             if (activity != null)
                 activity.MenuInflater.Inflate(args.NewValue, toolbar.Menu, toolbar);
         }
 
+        private static void ToolbarIsActionBarChanged(Toolbar toolbar, AttachedMemberChangedEventArgs<bool> args)
+        {
+            if (!args.NewValue)
+                return;
+            var activity = toolbar.Context.GetActivity() as AppCompatActivity;
+            if (activity != null)
+                activity.SetSupportActionBar(toolbar);
+        }
+
         private static void ViewDrawerIsOpenedChanged(View view, AttachedMemberChangedEventArgs<bool> args)
         {
-            var drawer = FindDrawer(view);
+            DrawerLayout drawer = FindDrawer(view);
             if (drawer == null)
                 return;
             if (args.NewValue)
@@ -253,10 +250,10 @@ namespace MugenMvvmToolkit.AppCompat.Modules
 
         private static bool ViewDrawerIsOpenedGetDefaultValue(View view, IBindingMemberInfo bindingMemberInfo)
         {
-            var drawer = FindDrawer(view);
+            DrawerLayout drawer = FindDrawer(view);
             if (drawer == null)
             {
-                var rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(view.GetType());
+                IBindingMemberInfo rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(view.GetType());
                 if (rootMember != null)
                     rootMember.TryObserve(view, DrawerInitializer.Instance);
                 return false;
@@ -281,35 +278,37 @@ namespace MugenMvvmToolkit.AppCompat.Modules
 
         #region Overrides of ModuleBase
 
-        /// <summary>
-        ///     Loads the current module.
-        /// </summary>
         protected override bool LoadInternal()
         {
-            var memberProvider = BindingServiceProvider.MemberProvider;
+            IBindingMemberProvider memberProvider = BindingServiceProvider.MemberProvider;
 
             //View
-            memberProvider.Register(ViewDrawerIsOpenedMember);
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersCompat.View.DrawerIsOpened,
+                ViewDrawerIsOpenedChanged, getDefaultValue: ViewDrawerIsOpenedGetDefaultValue));
 
             //Toolbar
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<Toolbar, int>(AttachedMemberNames.MenuTemplate, ToolbarMenuTemplateChanged));
+            memberProvider.Register(
+                AttachedBindingMember.CreateAutoProperty(AttachedMembersCompat.Toolbar.MenuTemplate,
+                    ToolbarMenuTemplateChanged));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersCompat.Toolbar.IsActionBar,
+                ToolbarIsActionBarChanged));
 
             //DrawerLayout
-            var actionBarDrawerToggleEnabledMember = AttachedBindingMember.CreateAutoProperty<DrawerLayout, bool>("ActionBarDrawerToggleEnabled",
-                (layout, args) =>
-                {
-                    if (!args.NewValue)
-                        return;
-                    var activity = layout.Context.GetActivity();
-                    if (activity == null)
-                        return;
-                    DrawerListenerImpl
-                        .GetOrAdd(layout)
-                        .SetListener(activity, new ActionBarDrawerToggle(activity, layout, Resource.String.Empty, Resource.String.Empty));
-                });
+            INotifiableAttachedBindingMemberInfo<DrawerLayout, bool> actionBarDrawerToggleEnabledMember =
+                AttachedBindingMember.CreateAutoProperty(AttachedMembersCompat.DrawerLayout.ActionBarDrawerToggleEnabled,
+                    (layout, args) =>
+                    {
+                        if (!args.NewValue)
+                            return;
+                        Activity activity = layout.Context.GetActivity();
+                        if (activity != null)
+                            DrawerListenerImpl
+                                .GetOrAdd(layout)
+                                .SetListener(activity, new ActionBarDrawerToggle(activity, layout, Resource.String.Empty, Resource.String.Empty));
+                    });
             memberProvider.Register(actionBarDrawerToggleEnabledMember);
             memberProvider.Register(typeof(DrawerLayout), "ActionBarDrawerEnabled", actionBarDrawerToggleEnabledMember, true);
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<DrawerLayout, object>("DrawerListener",
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersCompat.DrawerLayout.DrawerListener,
                 (layout, args) =>
                 {
                     var listener = args.NewValue as DrawerLayout.IDrawerListener;
@@ -326,11 +325,19 @@ namespace MugenMvvmToolkit.AppCompat.Modules
 
 
             //ViewPager
-            memberProvider.Register(ViewPagerSelectedItemMember);
-            memberProvider.Register(ViewPagerCurrentItemMember);
-            memberProvider.Register(typeof(ViewPager), "SelectedIndex", ViewPagerCurrentItemMember, true);
-            memberProvider.Register(
-                AttachedBindingMember.CreateAutoProperty<ViewPager, IEnumerable>(AttachedMemberConstants.ItemsSource,
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersCompat.ViewPager.SelectedItem, ViewPagerSelectedItemChanged,
+                (pager, args) =>
+                {
+                    //NOTE to activate listener
+                    pager.GetBindingMemberValue(AttachedMembersCompat.ViewPager.CurrentItem);
+                }));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersCompat.ViewPager.GetPageTitleDelegate));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersCompat.ViewPager.RestoreSelectedIndex));
+            var itemMember = AttachedBindingMember.CreateAutoProperty(AttachedMembersCompat.ViewPager.CurrentItem,
+                ViewPagerCurrentItemChanged, AdapterViewCurrentItemAttached, (pager, info) => pager.CurrentItem);
+            memberProvider.Register(itemMember);
+            memberProvider.Register(typeof(ViewPager), "SelectedIndex", itemMember, true);
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ItemsSource.Override<ViewPager>(),
                     (pager, args) =>
                     {
                         var pagerAdapter = pager.Adapter as ItemsSourcePagerAdapter;
@@ -340,13 +347,12 @@ namespace MugenMvvmToolkit.AppCompat.Modules
                             pager.Adapter = pagerAdapter;
                         }
                         pagerAdapter.ItemsSource = args.NewValue;
+                        if (pagerAdapter.Count > 0 && pager.GetBindingMemberValue(AttachedMembersCompat.ViewPager.SelectedItem) == null)
+                            pager.SetBindingMemberValue(AttachedMembersCompat.ViewPager.SelectedItem, pagerAdapter.GetRawItem(0));
                     }));
             return true;
         }
 
-        /// <summary>
-        ///     Unloads the current module.
-        /// </summary>
         protected override void UnloadInternal()
         {
         }

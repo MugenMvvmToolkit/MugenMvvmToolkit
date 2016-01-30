@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="DelegateComparer.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -21,9 +21,6 @@ using System.Collections.Generic;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    /// <summary>
-    ///     Represents the delegate comparer.
-    /// </summary>
     public sealed class DelegateComparer<T> : IComparer<T>
     {
         #region Fields
@@ -34,12 +31,9 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DelegateComparer{T}" /> class.
-        /// </summary>
         public DelegateComparer(Comparison<T> comparerDelegate)
         {
-            Should.NotBeNull(comparerDelegate, "comparerDelegate");
+            Should.NotBeNull(comparerDelegate, nameof(comparerDelegate));
             _compareDelegate = comparerDelegate;
         }
 
@@ -47,7 +41,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Implementation of IComparer<T>
 
-        int IComparer<T>.Compare(T x, T y)
+        public int Compare(T x, T y)
         {
             return _compareDelegate(x, y);
         }

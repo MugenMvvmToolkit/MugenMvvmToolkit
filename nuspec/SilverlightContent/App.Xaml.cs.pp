@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Windows;
 using System.Windows.Browser;
-using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Silverlight.Infrastructure;
 
 namespace $rootnamespace$
 {
@@ -13,7 +13,7 @@ namespace $rootnamespace$
         public App()
         {
             // ReSharper disable once ObjectCreationAsStatement
-            new Bootstrapper<MainViewModel>(this, new IIocContainer());
+            new Bootstrapper<Core.App>(this, new IIocContainer());
 
             Startup += Application_Startup;
             Exit += Application_Exit;

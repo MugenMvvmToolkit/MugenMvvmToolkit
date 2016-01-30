@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="BindingEditorUITypeEditor.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -22,7 +22,7 @@ using System.Drawing.Design;
 using System.Windows.Forms;
 using System.Windows.Forms.Design;
 
-namespace MugenMvvmToolkit.Binding.UiDesigner
+namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
 {
     internal sealed class BindingEditorUITypeEditor : UITypeEditor
     {

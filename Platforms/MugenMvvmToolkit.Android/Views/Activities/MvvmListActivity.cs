@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="MvvmListActivity.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,17 +17,17 @@
 #endregion
 
 using System;
-using System.Threading;
 using Android.App;
+using Android.Content;
 using Android.Content.Res;
 using Android.OS;
 using Android.Runtime;
 using Android.Views;
-using MugenMvvmToolkit.Interfaces.Mediators;
-using MugenMvvmToolkit.Interfaces.Views;
+using MugenMvvmToolkit.Android.Interfaces.Mediators;
+using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Views.Activities
+namespace MugenMvvmToolkit.Android.Views.Activities
 {
     public abstract class MvvmListActivity : Activity, IActivityView
     {
@@ -54,31 +54,14 @@ namespace MugenMvvmToolkit.Views.Activities
 
         #region Implementation of IView
 
-        /// <summary>
-        ///     Gets the current <see cref="IMvvmActivityMediator" />.
-        /// </summary>
-        public IMvvmActivityMediator Mediator
-        {
-            get
-            {
-                if (_mediator == null)
-                    Interlocked.CompareExchange(ref _mediator, PlatformExtensions.MvvmActivityMediatorFactory(this, Models.DataContext.Empty), null);
-                return _mediator;
-            }
-        }
+        public virtual IMvvmActivityMediator Mediator => this.GetOrCreateMediator(ref _mediator);
 
-        /// <summary>
-        ///     Gets or sets the data context of the current view.
-        /// </summary>
         public object DataContext
         {
             get { return Mediator.DataContext; }
             set { Mediator.DataContext = value; }
         }
 
-        /// <summary>
-        ///     Occurs when the DataContext property changed.
-        /// </summary>
         public event EventHandler<Activity, EventArgs> DataContextChanged
         {
             add { Mediator.DataContextChanged += value; }
@@ -87,16 +70,26 @@ namespace MugenMvvmToolkit.Views.Activities
 
         #endregion
 
+        #region Properties
+
+        protected virtual int? ViewId => _viewId;
+
+        #endregion
+
         #region Overrides of Activity
 
-        public override MenuInflater MenuInflater
-        {
-            get { return Mediator.GetMenuInflater(base.MenuInflater); }
-        }
+        public override MenuInflater MenuInflater => Mediator.GetMenuInflater(base.MenuInflater);
+
+        public override LayoutInflater LayoutInflater => Mediator.GetLayoutInflater(base.LayoutInflater);
 
         public override void Finish()
         {
             Mediator.Finish(base.Finish);
+        }
+
+        protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
+        {
+            Mediator.OnActivityResult(base.OnActivityResult, requestCode, resultCode, data);
         }
 
         public override void OnBackPressed()
@@ -126,9 +119,7 @@ namespace MugenMvvmToolkit.Views.Activities
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
-            Mediator.OnCreate(savedInstanceState, base.OnCreate);
-            if (_viewId.HasValue)
-                SetContentView(_viewId.Value);
+            Mediator.OnCreate(ViewId, savedInstanceState, base.OnCreate);
         }
 
         protected override void OnDestroy()

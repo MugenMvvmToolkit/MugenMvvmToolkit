@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="SilverlightBootstrapperBase.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -22,120 +22,95 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Resources;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Infrastructure.Callbacks;
+using MugenMvvmToolkit.Interfaces.Callbacks;
+using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit.Silverlight.Infrastructure
 {
-    /// <summary>
-    ///     Represents the base class that is used to start MVVM application.
-    /// </summary>
-    public abstract class SilverlightBootstrapperBase : BootstrapperBase
+    public abstract class SilverlightBootstrapperBase : BootstrapperBase, IDynamicViewModelPresenter
     {
         #region Fields
 
-        /// <summary>
-        /// Gets the name of binding assembly.
-        /// </summary>
-        protected const string BindingAssemblyName = "MugenMvvmToolkit.Binding.Silverlight";
+        protected const string BindingAssemblyName = "MugenMvvmToolkit.Silverlight.Binding";
         private readonly Application _application;
-        private PlatformInfo _platform;
+        private readonly PlatformInfo _platform;
 
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="SilverlightBootstrapperBase" /> class.
-        /// </summary>
-        protected SilverlightBootstrapperBase([NotNull] Application application, bool autoStart = true)
+        protected SilverlightBootstrapperBase([NotNull] Application application, bool autoStart = true, PlatformInfo platform = null)
         {
-            Should.NotBeNull(application, "application");
+            Should.NotBeNull(application, nameof(application));
             _application = application;
-            if (autoStart)
-                application.Startup += ApplicationOnStartup;
-            application.Exit += ApplicationOnExit;
+            _platform = platform ?? PlatformExtensions.GetPlatformInfo();
+            AutoStart = autoStart;
+            application.Startup += ApplicationOnStartup;
         }
 
         #endregion
 
-        #region Overrides of BootstrapperBase
+        #region Properties
 
-        /// <summary>
-        ///     Gets the current platform.
-        /// </summary>
-        public override PlatformInfo Platform
-        {
-            get
-            {
-                if (_platform == null)
-                    _platform = PlatformExtensions.GetPlatformInfo();
-                return _platform;
-            }
-        }
+        public bool AutoStart { get; set; }
 
-        /// <summary>
-        ///     Gets the application assemblies.
-        /// </summary>
-        protected override ICollection<Assembly> GetAssemblies()
+        protected Application Application => _application;
+
+        #endregion
+
+        #region Implementation of IDynamicViewModelPresenter
+
+        int IDynamicViewModelPresenter.Priority => int.MaxValue;
+
+        INavigationOperation IDynamicViewModelPresenter.TryShowAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
         {
-            var listAssembly = new List<Assembly>();
-            foreach (AssemblyPart part in Deployment.Current.Parts)
-            {
-                StreamResourceInfo info = Application.GetResourceStream(new Uri(part.Source, UriKind.Relative));
-                Assembly assembly = part.Load(info.Stream);
-                if (assembly.IsToolkitAssembly())
-                    listAssembly.Add(assembly);
-            }
-            return listAssembly;
+            parentPresenter.DynamicPresenters.Remove(this);
+            _application.RootVisual = (UIElement)ViewManager.GetOrCreateView(viewModel, null, context);
+            return new NavigationOperation();
         }
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Starts the current bootstrapper.
-        /// </summary>
-        public virtual void Start()
+        protected override void InitializeInternal()
+        {
+            var application = CreateApplication();
+            var iocContainer = CreateIocContainer();
+            application.Initialize(_platform, iocContainer, GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
+        }
+
+        public virtual void Start(IDataContext context = null)
         {
             Initialize();
-            var viewModelType = GetMainViewModelType();
-            _application.RootVisual = (UIElement)ViewManager.GetOrCreateView(CreateMainViewModel(viewModelType), false, InitializationContext);
+            var app = MvvmApplication.Current;
+            app.IocContainer.Get<IViewModelPresenter>().DynamicPresenters.Add(this);
+            app.Start(context);
         }
 
-        /// <summary>
-        ///     Creates the main view model.
-        /// </summary>
-        [NotNull]
-        protected virtual IViewModel CreateMainViewModel([NotNull] Type viewModelType)
+        protected virtual ICollection<Assembly> GetAssemblies()
         {
-            return IocContainer
-                .Get<IViewModelProvider>()
-                .GetViewModel(viewModelType, InitializationContext);
+            var assemblies = new HashSet<Assembly>();
+            foreach (AssemblyPart part in Deployment.Current.Parts)
+            {
+                StreamResourceInfo info = Application.GetResourceStream(new Uri(part.Source, UriKind.Relative));
+                assemblies.Add(part.Load(info.Stream));
+            }
+            return assemblies;
         }
-
-        /// <summary>
-        ///     Gets the type of main view model.
-        /// </summary>
-        [NotNull]
-        protected abstract Type GetMainViewModelType();
 
         private void ApplicationOnStartup(object sender, StartupEventArgs args)
         {
             var application = sender as Application;
             if (application != null)
                 application.Startup -= ApplicationOnStartup;
-            Start();
-        }
-
-        private void ApplicationOnExit(object sender, EventArgs eventArgs)
-        {
-            var application = sender as Application;
-            if (application != null)
-                application.Exit -= ApplicationOnExit;
-            Stop();
+            if (AutoStart)
+                Start();
         }
 
         #endregion

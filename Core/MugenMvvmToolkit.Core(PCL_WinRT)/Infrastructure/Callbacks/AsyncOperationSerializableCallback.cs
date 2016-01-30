@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="AsyncOperationSerializableCallback.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -23,32 +23,32 @@ using MugenMvvmToolkit.Interfaces.Callbacks;
 
 namespace MugenMvvmToolkit.Infrastructure.Callbacks
 {
-    /// <summary>
-    ///     Represents the multi serializable callback.
-    /// </summary>
     [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true), Serializable]
     internal class AsyncOperationSerializableCallback : ISerializableCallback
     {
         #region Fields
 
-        [DataMember(EmitDefaultValue = false)]
+        [DataMember(Name = "c", EmitDefaultValue = false)]
         internal List<object> Callbacks;
 
-        [DataMember(EmitDefaultValue = false)]
+        [DataMember(Name = "if", EmitDefaultValue = false)]
         internal bool IsFunc;
 
-        [DataMember(EmitDefaultValue = false)]
+        [DataMember(Name = "mc", EmitDefaultValue = false)]
         internal ISerializableCallback MainCallback;
 
-        [DataMember(EmitDefaultValue = false)]
+        [DataMember(Name = "it", EmitDefaultValue = false)]
         internal string InputType;
 
-        [DataMember(EmitDefaultValue = false)]
+        [DataMember(Name = "ot", EmitDefaultValue = false)]
         internal string OutputType;
 
         #endregion
 
         #region Constructors
+
+        //Only for serialization
+        internal AsyncOperationSerializableCallback() { }
 
         public AsyncOperationSerializableCallback(ISerializableCallback mainCallback, string inputType,
             string outputType, bool isFunc, List<object> callbacks)

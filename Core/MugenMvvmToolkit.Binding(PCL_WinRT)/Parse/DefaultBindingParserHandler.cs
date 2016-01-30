@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="DefaultBindingParserHandler.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,31 +18,31 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Text;
 using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
+using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Parse.Nodes;
 using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Parse
 {
-    /// <summary>
-    ///     Represents the class that adds ability to use some macros like $self, $this, $context, $args, $arg, $GetErrors() in bindings.
-    ///     This class also updates some string literals.
-    /// </summary>
     public sealed class DefaultBindingParserHandler : IBindingParserHandler, IExpressionVisitor
     {
         #region Fields
 
-        private static readonly Dictionary<string, string> ReplaceKeywords;
+        public static readonly Dictionary<string, string> ReplaceKeywords;
+        private static readonly Tokenizer InterpolatedStringTokenizer;
+        private static readonly HashSet<string> QuoteSymbols;
 
         internal const string GetEventArgsMethod = "GetEventArgs";
         internal const string GetErrorsMethod = "GetErrors";
-        private const string GetEventArgsDynamicMethod = "$GetEventArgs()";
-        private const string Temp = "~~~___~~~";
-        private bool _hasGetErrors;
-        private readonly List<string> _errorPathNames;
+        internal const string GetBindingMethod = "GetBinding";
+
+        private readonly Dictionary<Guid, string[]> _errorPathNames;
 
         #endregion
 
@@ -55,78 +55,80 @@ namespace MugenMvvmToolkit.Binding.Parse
                 {"&lt;", "<"},
                 {"&gt;", ">"},
                 {"&quot;", "\""},
-                {"&amp;", "&"},
-                {"$self", "{RelativeSource Self}"},
-                {"$this", "{RelativeSource Self}"},
-                {"$context", "{RelativeSource Self, Path=DataContext}"},
-                {"$args", GetEventArgsDynamicMethod},
-                {"$arg", GetEventArgsDynamicMethod}
+                {"&amp;", "&"}
             };
+            QuoteSymbols = new HashSet<string> { "\"", "'" };
+            InterpolatedStringTokenizer = new Tokenizer(false);
+            InterpolatedStringTokenizer.IgnoreChars.Add('\'');
+            InterpolatedStringTokenizer.IgnoreChars.Add('"');
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DefaultBindingParserHandler" /> class.
-        /// </summary>
         public DefaultBindingParserHandler()
         {
-            _errorPathNames = new List<string>();
+            _errorPathNames = new Dictionary<Guid, string[]>();
         }
+
+        #endregion
+
+        #region Properties
+
+        public bool IsPostOrder => false;
 
         #endregion
 
         #region Implementation of interfaces
 
-        /// <summary>
-        ///     Prepares a string for the binding.
-        /// </summary>
-        /// <param name="bindingExpression">The specified binding expression.</param>
-        /// <param name="context">The specified context.</param>
-        /// <returns>An instance of <see cref="string" />.</returns>
         public void Handle(ref string bindingExpression, IDataContext context)
         {
             foreach (var replaceKeyword in ReplaceKeywords)
                 bindingExpression = bindingExpression.Replace(replaceKeyword.Key, replaceKeyword.Value);
+
+            if (!bindingExpression.Contains("$\"") && !bindingExpression.Contains("$'"))
+                return;
+            Dictionary<string, string> dict = null;
+            InterpolatedStringTokenizer.SetSource(bindingExpression);
+            while (InterpolatedStringTokenizer.Token != TokenType.Eof)
+            {
+                int start;
+                int end;
+                var exp = ParseInterpolatedString(InterpolatedStringTokenizer, out start, out end);
+                if (exp != null)
+                {
+                    if (dict == null)
+                        dict = new Dictionary<string, string>();
+                    dict[bindingExpression.Substring(start, end - start)] = exp;
+                }
+            }
+            if (dict != null)
+            {
+                foreach (var s in dict)
+                {
+                    if (s.Value != null)
+                        bindingExpression = bindingExpression.Replace(s.Key, s.Value);
+                }
+            }
         }
 
-        /// <summary>
-        ///     Prepares a target path for the binding.
-        /// </summary>
-        /// <param name="targetPath">The specified target path.</param>
-        /// <param name="context">The specified context.</param>
-        /// <returns>An instance of <see cref="string" />.</returns>
         public void HandleTargetPath(ref string targetPath, IDataContext context)
         {
         }
 
-        /// <summary>
-        ///     Prepares an <see cref="IExpressionNode" /> for the binding.
-        /// </summary>
-        /// <param name="expression">The specified binding expression.</param>
-        /// <param name="isPrimaryExpression">If <c>true</c> it's main binding expression; otherwise parameter expression.</param>
-        /// <param name="context">The specified context.</param>
-        /// <returns>An instance of delegate to update binding.</returns>
         public Action<IDataContext> Handle(ref IExpressionNode expression, bool isPrimaryExpression, IDataContext context)
         {
             if (expression == null)
                 return null;
-            //Updating relative sources.
-            expression = expression.Accept(RelativeSourcePathMergerVisitor.Instance);
+            expression = expression.Accept(MacrosExpressionVisitor.Instance).Accept(NullConditionalOperatorVisitor.Instance);
             if (!isPrimaryExpression)
                 return null;
             lock (_errorPathNames)
             {
-                if (!HasGetErrorsMethod(expression))
+                if (!HasGetErrorsMethod(ref expression))
                     return null;
-                var strings = _errorPathNames.Count == 0 ? null : _errorPathNames.ToArrayEx();
-                return dataContext => UpdateBindingContext(dataContext, strings);
+                var pairs = _errorPathNames.ToArrayEx();
+                return dataContext => UpdateBindingContext(dataContext, pairs);
             }
         }
 
-        /// <summary>
-        ///     Dispatches the expression.
-        /// </summary>
-        /// <param name="node">The expression to visit.</param>
-        /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
         IExpressionNode IExpressionVisitor.Visit(IExpressionNode node)
         {
             var methodCallExpressionNode = node as IMethodCallExpressionNode;
@@ -139,8 +141,17 @@ namespace MugenMvvmToolkit.Binding.Parse
                                         .OfType<IConstantExpressionNode>()
                                         .Where(expressionNode => expressionNode.Type == typeof(string))
                                         .Select(expressionNode => expressionNode.Value as string ?? string.Empty);
-                _errorPathNames.AddRange(paths);
-                _hasGetErrors = true;
+                Guid id = Guid.NewGuid();
+                _errorPathNames[id] = paths.ToArray();
+                var idNode = new ConstantExpressionNode(id, typeof(Guid));
+
+                var args = methodCallExpressionNode.Arguments.ToList();
+                //Adding binding source member if the expression does not contain members.
+                if (args.Count == 0)
+                    args.Add(new MemberExpressionNode(ResourceExpressionNode.DynamicInstance,
+                        BindingServiceProvider.ResourceResolver.BindingSourceResourceName));
+                args.Insert(0, idNode);
+                return new MethodCallExpressionNode(methodCallExpressionNode.Target, methodCallExpressionNode.Method, args, methodCallExpressionNode.TypeArgs);
             }
             return node;
         }
@@ -149,20 +160,183 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Methods
 
-        private bool HasGetErrorsMethod(IExpressionNode node)
+        private bool HasGetErrorsMethod(ref IExpressionNode node)
         {
-            _hasGetErrors = false;
             _errorPathNames.Clear();
-            node.Accept(this);
-            return _hasGetErrors;
+            node = node.Accept(this);
+            return _errorPathNames.Count != 0;
         }
 
-        private static void UpdateBindingContext(IDataContext dataContext, string[] errorPathNames)
+        private static void UpdateBindingContext(IDataContext dataContext, KeyValuePair<Guid, string[]>[] methods)
         {
             var behaviors = dataContext.GetOrAddBehaviors();
             behaviors.Clear();
             behaviors.Add(new OneTimeBindingMode(false));
-            behaviors.Add(new NotifyDataErrorsAggregatorBehavior { ErrorPaths = errorPathNames });
+            for (int i = 0; i < methods.Length; i++)
+            {
+                var pair = methods[i];
+                behaviors.Add(new NotifyDataErrorsAggregatorBehavior(pair.Key) { ErrorPaths = pair.Value });
+            }
+        }
+
+        //https://msdn.microsoft.com/en-us/library/dn961160.aspx
+        private static string ParseInterpolatedString(Tokenizer tokenizer, out int start, out int end, bool openQuote = false)
+        {
+            start = -1;
+            end = -1;
+            var resultBuilder = new StringBuilder();
+            var items = new List<string>();
+            while (tokenizer.Token != TokenType.Eof)
+            {
+                if (tokenizer.Token == TokenType.Dollar)
+                {
+                    start = tokenizer.Position - 1;
+                    tokenizer.NextToken(false);
+                    if (QuoteSymbols.Contains(tokenizer.Value))
+                    {
+                        if (openQuote)
+                            return null;
+                        openQuote = true;
+                        tokenizer.NextToken(false);
+                    }
+                }
+                if (QuoteSymbols.Contains(tokenizer.Value))
+                {
+                    if (openQuote)
+                    {
+                        end = tokenizer.Position;
+                        tokenizer.NextToken(false);
+                        return $"$string.Format(\"{resultBuilder}\", {string.Join(",", items)})";
+                    }
+                }
+
+                if (!openQuote)
+                {
+                    tokenizer.NextToken(false);
+                    continue;
+                }
+
+                if (tokenizer.Token == TokenType.OpenBrace)
+                {
+                    resultBuilder.Append(tokenizer.Value);
+                    tokenizer.NextToken(false);
+                    //Ignoring two brace 
+                    if (tokenizer.Token == TokenType.OpenBrace)
+                    {
+                        resultBuilder.Append(tokenizer.Value);
+                        tokenizer.NextToken(false);
+                        continue;
+                    }
+                    var item = new StringBuilder();
+                    bool hasItem = false;
+                    bool hasFieldWidth = false;
+                    bool hasFormat = false;
+                    bool startFormat = false;
+                    int openParenCount = 0;
+                    while (true)
+                    {
+                        if (tokenizer.Token == TokenType.Eof)
+                            return null;
+                        if (tokenizer.Token == TokenType.Dollar)
+                        {
+                            tokenizer.NextToken(false);
+                            if (QuoteSymbols.Contains(tokenizer.Value))
+                            {
+                                if (hasItem)
+                                    return null;
+                                tokenizer.NextToken(false);
+                                int s, e;
+                                var nestedItem = ParseInterpolatedString(tokenizer, out s, out e, true);
+                                if (nestedItem == null)
+                                    return null;
+                                item.Append(nestedItem);
+                            }
+                            else
+                            {
+                                if (hasItem)
+                                    resultBuilder.Append(TokenType.Dollar.Value);
+                                else
+                                    item.Append(TokenType.Dollar.Value);
+                            }
+                        }
+                        if (tokenizer.Token == TokenType.OpenParen)
+                            ++openParenCount;
+                        else if (tokenizer.Token == TokenType.CloseParen)
+                            --openParenCount;
+                        else if (openParenCount == 0)
+                        {
+                            if (tokenizer.Token == TokenType.CloseBrace)
+                            {
+                                AddInterpolatedItem(ref hasItem, resultBuilder, item, items);
+                                resultBuilder.Append(tokenizer.Value);
+                                tokenizer.NextToken(false);
+                                break;
+                            }
+
+                            if (tokenizer.Token == TokenType.Comma)
+                            {
+                                AddInterpolatedItem(ref hasItem, resultBuilder, item, items);
+                                resultBuilder.Append(tokenizer.Value);
+                                while (tokenizer.NextToken(false) == TokenType.Whitespace)
+                                    resultBuilder.Append(tokenizer.Value);
+                                if (tokenizer.Token == TokenType.IntegerLiteral)
+                                {
+                                    if (hasFieldWidth)
+                                        return null;
+                                    hasFieldWidth = true;
+                                    if (startFormat)
+                                        hasFormat = true;
+                                }
+                                else if (!startFormat)
+                                    return null;
+                            }
+                            else if (tokenizer.Token == TokenType.Colon)
+                            {
+                                if (hasFormat)
+                                    return null;
+                                AddInterpolatedItem(ref hasItem, resultBuilder, item, items);
+                                startFormat = true;
+                            }
+                        }
+
+
+                        if (hasItem)
+                            resultBuilder.Append(tokenizer.Value);
+                        else
+                            item.Append(tokenizer.Value);
+                        tokenizer.NextToken(false);
+                    }
+                }
+                else if (tokenizer.Token == TokenType.CloseBrace)
+                {
+                    tokenizer.NextToken(false);
+                    if (tokenizer.Token != TokenType.CloseBrace)
+                        return null;
+                    tokenizer.NextToken(false);
+                    resultBuilder.Append("}}");
+                }
+                else
+                {
+                    resultBuilder.Append(tokenizer.Value);
+                    tokenizer.NextToken(false);
+                }
+            }
+            return null;
+        }
+
+        private static void AddInterpolatedItem(ref bool hasItem, StringBuilder builder, StringBuilder itemBuilder, List<string> items)
+        {
+            if (hasItem)
+                return;
+            hasItem = true;
+            var exp = itemBuilder.ToString();
+            int index = items.IndexOf(exp);
+            if (index < 0)
+            {
+                index = items.Count;
+                items.Add(exp);
+            }
+            builder.Append(index.ToString(CultureInfo.InvariantCulture));
         }
 
         #endregion

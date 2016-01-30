@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="TypeCache.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -19,18 +19,17 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using Android.Runtime;
+using Java.Lang;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Attributes;
+using MugenMvvmToolkit.Android.Attributes;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit.Android.Infrastructure
 {
     public sealed class TypeCache<TType>
     {
         #region Fields
 
-        /// <summary>
-        ///     Gets the instance of cache.
-        /// </summary>
         public static readonly TypeCache<TType> Instance;
 
         private readonly HashSet<Assembly> _cachedAssemblies;
@@ -93,17 +92,12 @@ namespace MugenMvvmToolkit.Infrastructure
             }
             if (type == null)
             {
-                var message = string.Format("The type with name '{0}' was not found.", typeName);
                 if (throwOnError)
-                    throw new ArgumentException(message, "typeName");
-                Tracer.Warn(message);
+                    throw new ArgumentException("The type with name '" + typeName + "' was not found.", nameof(typeName));
             }
             return type;
         }
 
-        /// <summary>
-        ///     Adds the assembly to scan.
-        /// </summary>
         public void AddAssembly(Assembly assembly)
         {
             lock (_locker)
@@ -116,9 +110,6 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Adds the assembly type.
-        /// </summary>
         public void AddType(Type type, string alias = null)
         {
             lock (_locker)
@@ -129,6 +120,20 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             if (!typeof(TType).IsAssignableFrom(type))
                 return;
+            if (typeof(IJavaObject).IsAssignableFrom(type))
+            {
+                try
+                {
+                    var name = Class.FromType(type).Name;
+                    _fullNameCache[name] = type;
+                    _ignoreCaseFullNameCache[name] = type;
+                }
+                catch
+                {
+                    return;
+                }
+            }
+
             foreach (var attribute in type.GetCustomAttributes<TypeNameAliasAttribute>(false))
             {
                 _nameCache[attribute.Alias] = type;

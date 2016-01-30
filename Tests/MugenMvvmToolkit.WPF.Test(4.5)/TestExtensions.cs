@@ -10,14 +10,130 @@ using Should.Core.Exceptions;
 
 namespace Microsoft.VisualStudio.TestTools.UnitTesting
 {
-
-
 }
 
 namespace Microsoft.VisualStudio.TestPlatform.UnitTestFramework
 {
+}
 
+namespace MugenMvvmToolkit.Silverlight.Binding.Converters
+{
+}
 
+namespace MugenMvvmToolkit.Silverlight.Binding.Modules
+{
+}
+
+namespace MugenMvvmToolkit.Silverlight.Infrastructure
+{
+}
+
+namespace MugenMvvmToolkit.Silverlight.Infrastructure.Mediators
+{
+}
+
+namespace MugenMvvmToolkit.Silverlight
+{
+}
+
+namespace MugenMvvmToolkit.Silverlight.Interfaces.Views
+{
+}
+
+namespace MugenMvvmToolkit.Silverlight.Infrastructure.Navigation
+{
+}
+
+namespace MugenMvvmToolkit.Silverlight.Interfaces.Navigation
+{
+}
+
+namespace MugenMvvmToolkit.Silverlight.Models.EventArg
+{
+}
+
+namespace MugenMvvmToolkit.WPF.Infrastructure.Mediators
+{
+}
+
+namespace MugenMvvmToolkit.WPF.Binding.Converters
+{
+}
+
+namespace MugenMvvmToolkit.WPF.Binding.Modules
+{
+}
+
+namespace MugenMvvmToolkit.WPF.Infrastructure
+{
+}
+
+namespace MugenMvvmToolkit.WPF
+{
+}
+
+namespace MugenMvvmToolkit.WPF.Interfaces.Views
+{
+}
+
+namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
+{
+}
+
+namespace MugenMvvmToolkit.WPF.Interfaces.Navigation
+{
+}
+
+namespace MugenMvvmToolkit.WPF.Models.EventArg
+{
+}
+
+namespace MugenMvvmToolkit.WinRT.Infrastructure.Mediators
+{
+}
+
+namespace MugenMvvmToolkit.WinRT.Binding.Converters
+{
+}
+
+namespace MugenMvvmToolkit.WinRT.Binding.Modules
+{
+}
+
+namespace MugenMvvmToolkit.WinRT.Infrastructure
+{
+}
+
+namespace MugenMvvmToolkit.WinRT
+{
+}
+
+namespace MugenMvvmToolkit.WinRT.Interfaces.Views
+{
+}
+
+namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
+{
+}
+
+namespace MugenMvvmToolkit.WinRT.Interfaces.Navigation
+{
+}
+
+namespace MugenMvvmToolkit.WinRT.Models.EventArg
+{
+}
+
+namespace MugenMvvmToolkit.WinRT.Infrastructure.Callbacks
+{
+}
+
+namespace MugenMvvmToolkit.WPF.Infrastructure.Callbacks
+{
+}
+
+namespace MugenMvvmToolkit.Silverlight.Infrastructure.Callbacks
+{
 }
 
 namespace MugenMvvmToolkit
@@ -47,20 +163,11 @@ namespace MugenMvvmToolkit
         }
 
         public static T GetDataTest<T>(this IDataContext context, DataConstant<T> constant)
-        {            
+        {
             T data;
             if (context.TryGetData(constant, out data))
                 return data;
             return default(T);
-        }
-
-        internal static bool IsSerializable(this Type type)
-        {
-#if NETFX_CORE
-            return type.IsDefined(typeof(DataContractAttribute), false) || type.GetTypeInfo().IsPrimitive;
-#else
-            return type.IsDefined(typeof(DataContractAttribute), false) || type.IsPrimitive;
-#endif
         }
     }
 }

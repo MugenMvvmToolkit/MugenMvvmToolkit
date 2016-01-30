@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IDataBinding.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -26,64 +26,28 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Interfaces
 {
-    /// <summary>
-    ///     Represents the interface that provides high-level access to the definition of a binding, which connects the
-    ///     properties of binding target objects and any data source.
-    /// </summary>
     public interface IDataBinding : IDisposable
     {
-        /// <summary>
-        ///     Gets a value indicating whether this instance is disposed.
-        /// </summary>
         bool IsDisposed { get; }
 
-        /// <summary>
-        ///     Gets the current <see cref="IDataContext" />.
-        /// </summary>
         [NotNull]
         IDataContext Context { get; }
 
-        /// <summary>
-        ///     Gets the binding target accessor.
-        /// </summary>
         [NotNull]
         ISingleBindingSourceAccessor TargetAccessor { get; }
 
-        /// <summary>
-        ///     Gets the binding source accessor.
-        /// </summary>
         [NotNull]
         IBindingSourceAccessor SourceAccessor { get; }
 
-        /// <summary>
-        ///     Gets the binding behaviors.
-        /// </summary>
         [NotNull]
         ICollection<IBindingBehavior> Behaviors { get; }
 
-        /// <summary>
-        ///     Sends the current value back to the source.
-        /// </summary>
         bool UpdateSource();
 
-        /// <summary>
-        ///     Forces a data transfer from source to target.
-        /// </summary>
         bool UpdateTarget();
 
-        /// <summary>
-        ///     Validates the current binding and raises the BindingException event if needed.
-        /// </summary>
         bool Validate();
 
-        /// <summary>
-        ///     Occurs when the binding updates the values.
-        /// </summary>
         event EventHandler<IDataBinding, BindingEventArgs> BindingUpdated;
-
-        /// <summary>
-        ///     Occurs when an exception is not caught.
-        /// </summary>
-        event EventHandler<IDataBinding, BindingExceptionEventArgs> BindingException;
     }
 }

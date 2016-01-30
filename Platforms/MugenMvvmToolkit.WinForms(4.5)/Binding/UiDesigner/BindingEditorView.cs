@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="BindingEditorView.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -23,16 +23,14 @@ using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
-using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Binding.Parse;
-using MugenMvvmToolkit.Binding.Parse.Nodes;
+using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.WinForms.Binding.Interfaces;
+using MugenMvvmToolkit.WinForms.Binding.Models;
+using MugenMvvmToolkit.WinForms.Binding.Parse;
+using MugenMvvmToolkit.WinForms.Binding.Parse.Nodes;
 
-namespace MugenMvvmToolkit.Binding.UiDesigner
+namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
 {
-    /// <summary>
-    ///     Represents the data binding editor.
-    /// </summary>
     public partial class BindingEditorView : Form, IXmlHandler
     {
         #region Fields
@@ -73,12 +71,9 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             UnknownAttachedMemberColor = Color.FromArgb(0, 0, 39);
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingEditorView" /> class.
-        /// </summary>
         public BindingEditorView()
         {
-            ServiceProvider.InitializeDesignTimeManager();
+            MvvmApplication.InitializeDesignTimeManager();
             InitializeComponent();
             bindingEditor.Handler = this;
             _controlsDictionary = new SortedDictionary<string, SortedDictionary<string, AutoCompleteItem>>(StringComparer.CurrentCulture);
@@ -92,9 +87,6 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
             controlsTreeView.ExpandAll();
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingEditorView" /> class.
-        /// </summary>
         public BindingEditorView(string xmlText)
             : this()
         {
@@ -107,10 +99,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
 
         public static Control CurrentControl { get; set; }
 
-        public string BindingText
-        {
-            get { return bindingEditor.GetBindingText(); }
-        }
+        public string BindingText => bindingEditor.GetBindingText();
 
         #endregion
 
@@ -171,7 +160,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
                     _controlsDictionary[name] = completeItems;
                 }
                 AddCompleteItems(type, completeItems);
-                _controlsCompleteItems.Add(new AutoCompleteItem(string.Format("{0} ({1})", name, type.Name), name));
+                _controlsCompleteItems.Add(new AutoCompleteItem($"{name} ({type.Name})", name));
             }
             catch (Exception)
             {
@@ -204,7 +193,7 @@ namespace MugenMvvmToolkit.Binding.UiDesigner
         private static string GetDisplayName(object instance, string name, Type type)
         {
             string text = instance == null ? null : PlatformExtensions.TryGetValue(instance, "Text");
-            return string.Format("{0} ({1}{2})", name, type.Name, string.IsNullOrEmpty(text) ? "" : ", " + text);
+            return $"{name} ({type.Name}{(string.IsNullOrEmpty(text) ? "" : ", " + text)})";
         }
 
         private ICollection<AutoCompleteItem> FindControlMemberItems(Type type, string value)

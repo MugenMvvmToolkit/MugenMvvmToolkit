@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="MetadataTypeAttribute.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -24,9 +24,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Attributes
 {
-    /// <summary>
-    ///     Specifies the metadata class to associate with a data model class.
-    /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public sealed class MetadataTypeAttribute : Attribute
     {
@@ -40,32 +37,22 @@ namespace MugenMvvmToolkit.Attributes
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="T:MugenMvvmToolkit.Attributes.MetadataTypeAttribute" /> class.
-        /// </summary>
-        /// <param name="metadataClassTypes">The series of metadata class to reference.</param>
         public MetadataTypeAttribute([NotNull] params Type[] metadataClassTypes)
         {
-            Should.NotBeNullOrEmpty(metadataClassTypes, "metadataClassTypes");
+            Should.NotBeNullOrEmpty(metadataClassTypes, nameof(metadataClassTypes));
             _metadataClassTypes = metadataClassTypes;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="T:MugenMvvmToolkit.Attributes.MetadataTypeAttribute" /> class.
-        /// </summary>
         public MetadataTypeAttribute([NotNull] string methodName)
         {
-            Should.NotBeNullOrWhitespace(methodName, "methodName");
+            Should.NotBeNullOrWhitespace(methodName, nameof(methodName));
             _methodName = methodName;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="T:MugenMvvmToolkit.Attributes.MetadataTypeAttribute" /> class.
-        /// </summary>
         public MetadataTypeAttribute([NotNull] Type metadataType, [NotNull] string methodName)
         {
-            Should.NotBeNull(metadataType, "metadataType");
-            Should.NotBeNullOrWhitespace(methodName, "methodName");
+            Should.NotBeNull(metadataType, nameof(metadataType));
+            Should.NotBeNullOrWhitespace(methodName, nameof(methodName));
             _accessor = FindAccessor(methodName, metadataType);
         }
 
@@ -73,12 +60,9 @@ namespace MugenMvvmToolkit.Attributes
 
         #region Methods
 
-        /// <summary>
-        ///     Gets the metadata classes that is associated with a data-model partial class.
-        /// </summary>
         public IEnumerable<Type> GetTypes([NotNull]Type definedType)
         {
-            Should.NotBeNull(definedType, "definedType");
+            Should.NotBeNull(definedType, nameof(definedType));
             if (_metadataClassTypes == null)
             {
                 if (_accessor == null)

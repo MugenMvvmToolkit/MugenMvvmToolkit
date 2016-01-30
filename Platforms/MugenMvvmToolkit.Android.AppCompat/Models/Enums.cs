@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="Enums.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -20,7 +20,7 @@ using System;
 using Android.Support.V4.View;
 using Android.Support.V7.App;
 
-namespace MugenMvvmToolkit.AppCompat.Models
+namespace MugenMvvmToolkit.Android.AppCompat.Models
 {
 
     [Flags]

@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="EmptyPathObserver.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -21,88 +21,56 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    /// <summary>
-    ///     Represents the observer that uses the empty path member to observe.
-    /// </summary>
-    public sealed class EmptyPathObserver : ObserverBase
+    public sealed class EmptyPathObserver : ObserverBase, IHasWeakReferenceInternal
     {
         #region Nested types
 
-        private sealed class EmptyBindingPathMembers : IBindingPathMembers
+        private sealed class EmptyBindingPathMembers : DefaultListener, IBindingPathMembers
         {
-            #region Fields
-
-            private readonly WeakReference _reference;
-
-            #endregion
-
             #region Constructors
 
-            public EmptyBindingPathMembers(EmptyPathObserver observer)
+            public EmptyBindingPathMembers(WeakReference @ref)
+                : base(@ref)
             {
-                _reference = ServiceProvider.WeakReferenceFactory(observer, true);
             }
 
             #endregion
 
             #region Implementation of IBindingPathMembers
 
-            /// <summary>
-            ///     Gets the <see cref="IBindingPath" />.
-            /// </summary>
-            public IBindingPath Path
-            {
-                get { return BindingPath.Empty; }
-            }
+            public IBindingPath Path => BindingPath.Empty;
 
-            /// <summary>
-            ///     Gets the value that indicates that all members are available, if <c>true</c>.
-            /// </summary>
             public bool AllMembersAvailable
             {
-                get { return _reference.Target != null; }
+                get
+                {
+                    var observer = (ObserverBase)Ref.Target;
+                    if (observer == null)
+                        return false;
+                    return !observer.GetActualSource().IsUnsetValue();
+                }
             }
 
-            /// <summary>
-            ///     Gets the available members.
-            /// </summary>
-            public IList<IBindingMemberInfo> Members
-            {
-                get { return new[] { LastMember }; }
-            }
+            public IList<IBindingMemberInfo> Members => new[] { LastMember };
 
-            /// <summary>
-            ///     Gets the last value, if all members is available; otherwise returns the empty value.
-            /// </summary>
-            public IBindingMemberInfo LastMember
-            {
-                get { return BindingMemberInfo.Empty; }
-            }
+            public IBindingMemberInfo LastMember => BindingMemberInfo.Empty;
 
-            /// <summary>
-            ///     Gets the source value.
-            /// </summary>
             public object Source
             {
                 get
                 {
-                    var observer = (ObserverBase)_reference.Target;
+                    var observer = (ObserverBase)Ref.Target;
                     if (observer == null)
                         return null;
                     return observer.GetActualSource();
                 }
             }
 
-            /// <summary>
-            ///     Gets the penultimate value.
-            /// </summary>
-            public object PenultimateValue
-            {
-                get { return Source; }
-            }
+            public object PenultimateValue => Source;
 
             #endregion
         }
@@ -111,40 +79,51 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Fields
 
-        private readonly IBindingPathMembers _members;
+        private readonly EmptyBindingPathMembers _members;
 
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="EmptyPathObserver" /> class.
-        /// </summary>
         public EmptyPathObserver([NotNull] object source, [NotNull] IBindingPath path)
             : base(source, path)
         {
             Should.BeSupported(path.IsEmpty, "The EmptyPathObserver supports only empty path members.");
-            _members = new EmptyBindingPathMembers(this);
+            _members = new EmptyBindingPathMembers(ServiceProvider.WeakReferenceFactory(this));
         }
 
         #endregion
 
         #region Overrides of ObserverBase
 
-        /// <summary>
-        ///     Updates the current values.
-        /// </summary>
-        protected override void UpdateInternal()
-        {
-        }
-
-        /// <summary>
-        ///     Gets the source object include the path members.
-        /// </summary>
-        protected override IBindingPathMembers GetPathMembersInternal()
+        protected override IBindingPathMembers UpdateInternal(IBindingPathMembers oldPath, bool hasSubscribers)
         {
             return _members;
         }
+
+        protected override IEventListener CreateSourceListener()
+        {
+            return _members;
+        }
+
+        protected override void OnDispose()
+        {
+            try
+            {
+                _members.Ref.Target = null;
+            }
+            catch
+            {
+                ;
+            }
+            base.OnDispose();
+        }
+
+        #endregion
+
+        #region Implementation of interfaces
+
+        public WeakReference WeakReference => _members.Ref;
 
         #endregion
     }

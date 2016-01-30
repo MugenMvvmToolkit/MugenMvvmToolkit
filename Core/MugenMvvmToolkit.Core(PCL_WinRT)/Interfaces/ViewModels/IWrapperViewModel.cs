@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IWrapperViewModel.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -21,19 +21,10 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Interfaces.ViewModels
 {
-    /// <summary>
-    ///     Represents the base inteface for view model wrapper.
-    /// </summary>
     public interface IWrapperViewModel : IViewModel
     {
-        /// <summary>
-        ///     Gets the underlying view model.
-        /// </summary>
         IViewModel ViewModel { get; }
 
-        /// <summary>
-        ///     Wraps the specified view-model.
-        /// </summary>
         void Wrap([NotNull] IViewModel viewModel, [CanBeNull] IDataContext context);
     }
 }

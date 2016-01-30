@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="XmlTokenizer.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,8 +18,9 @@
 
 using System;
 using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Binding.Parse;
 
-namespace MugenMvvmToolkit.Binding.Parse
+namespace MugenMvvmToolkit.WinForms.Binding.Parse
 {
     internal sealed class XmlTokenizer : Tokenizer
     {

@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ObserverBase.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -27,16 +27,57 @@ using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    /// <summary>
-    ///     Represents the observer that allows to observe an instance of object.
-    /// </summary>
     public abstract class ObserverBase : IObserver
     {
+        #region Nested types
+
+        internal class DefaultListener : IEventListener, IHandler<ValueChangedEventArgs>
+        {
+            #region Fields
+
+            public readonly WeakReference Ref;
+
+            #endregion
+
+            #region Constructors
+
+            public DefaultListener(WeakReference @ref)
+            {
+                Ref = @ref;
+            }
+
+            #endregion
+
+            #region Implementation of interfaces
+
+            void IHandler<ValueChangedEventArgs>.Handle(object sender, ValueChangedEventArgs message)
+            {
+            }
+
+            bool IEventListener.IsAlive => Ref.Target != null;
+
+            bool IEventListener.IsWeak => true;
+
+            bool IEventListener.TryHandle(object sender, object message)
+            {
+                var target = (ObserverBase)Ref.Target;
+                if (target == null)
+                    return false;
+                target.Update();
+                return true;
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Fields
 
         private const int DisposedState = 2;
@@ -44,15 +85,19 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         private const int DefaultState = 0;
 
         private static readonly EventInfo CollectionChangedEvent;
+        private static readonly EventInfo ValueChangedEvent;
         private static readonly Exception DisposedException;
+        private static readonly ISourceValue EmptySource;
+        private static readonly IDisposable EmptyDisposable;
 
-        private readonly bool _isSourceValue;
-        private readonly object _sourceValue;
         private readonly IBindingPath _path;
 
-        private int _state;
+        private IBindingPathMembers _pathMembers;
+        private object _source;
+        private IDisposable _sourceListener;
         private Exception _observationException;
-        private IHandler<ValueChangedEventArgs> _listener;
+        private int _state;
+        private EventHandler<IObserver, ValueChangedEventArgs> _valueChanged;
 
         #endregion
 
@@ -60,103 +105,62 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         static ObserverBase()
         {
-            CollectionChangedEvent = typeof(INotifyCollectionChanged).GetEventEx("CollectionChanged", MemberFlags.Instance | MemberFlags.Public);
+            CollectionChangedEvent = typeof(INotifyCollectionChanged).GetEventEx(nameof(INotifyCollectionChanged.CollectionChanged), MemberFlags.Instance | MemberFlags.Public);
+            ValueChangedEvent = typeof(ISourceValue).GetEventEx(nameof(ISourceValue.ValueChanged), MemberFlags.Instance | MemberFlags.Public);
             DisposedException = ExceptionManager.ObjectDisposed(typeof(ObserverBase));
+            EmptyDisposable = new ActionToken(() => { });
+            EmptySource = new BindingResourceObject(null);
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ObserverBase" /> class.
-        /// </summary>
         protected ObserverBase([NotNull] object source, [NotNull] IBindingPath path)
         {
-            Should.NotBeNull(source, "source");
-            Should.NotBeNull(path, "path");
+            Should.NotBeNull(source, nameof(source));
+            Should.NotBeNull(path, nameof(path));
             _path = path;
-            var sourceValue = source as ISourceValue;
-            if (sourceValue == null)
-                _sourceValue = ServiceProvider.WeakReferenceFactory(source, true);
+            if (source is ISourceValue)
+                _source = source;
             else
-            {
-                _isSourceValue = true;
-                _sourceValue = sourceValue;
-                sourceValue.ValueChanged += OnMemberChangedImpl;
-            }
+                _source = ServiceProvider.WeakReferenceFactory(source);
         }
 
         #endregion
 
         #region Properties
 
-        /// <summary>
-        /// Gets the original source object.
-        /// </summary>
-        protected object OriginalSource
-        {
-            get { return _sourceValue; }
-        }
+        protected object OriginalSource => _source;
 
-        /// <summary>
-        ///     Gets an indication whether the object referenced by the current <see cref="ObserverBase" /> object has
-        ///     been garbage collected.
-        /// </summary>
-        /// <returns>
-        ///     true if the object referenced by the current <see cref="ObserverBase" /> object has not been garbage
-        ///     collected and is still accessible; otherwise, false.
-        /// </returns>
-        protected bool IsAlive
-        {
-            get
-            {
-                if (_isSourceValue)
-                    return ((ISourceValue)_sourceValue).IsAlive;
-                return ((WeakReference)_sourceValue).Target != null;
-            }
-        }
+        protected virtual bool DependsOnSubscribers => false;
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Updates the current values.
-        /// </summary>
-        protected abstract void UpdateInternal();
+        protected abstract IBindingPathMembers UpdateInternal(IBindingPathMembers oldPath, bool hasSubscribers);
 
-        /// <summary>
-        ///     Gets the source object include the path members.
-        /// </summary>
-        protected abstract IBindingPathMembers GetPathMembersInternal();
+        protected virtual IEventListener CreateSourceListener()
+        {
+            return new DefaultListener(ToolkitExtensions.GetWeakReference(this));
+        }
 
-        /// <summary>
-        ///     Releases resources held by the object.
-        /// </summary>
         protected virtual void OnDispose()
         {
         }
 
-        /// <summary>
-        ///     Raises the ValueChanged event.
-        /// </summary>
         protected virtual void RaiseValueChanged(ValueChangedEventArgs args)
         {
             try
             {
-                IHandler<ValueChangedEventArgs> listener = _listener;
-                if (listener != null)
-                    listener.Handle(this, args);
+                _valueChanged?.Invoke(this, args);
             }
-            // ReSharper disable once EmptyGeneralCatchClause
             catch
             {
+                ;
             }
         }
 
-        /// <summary>
-        ///     Tries to add event handler using the event listener.
-        /// </summary>
         protected virtual IDisposable TryObserveMember(object value, IBindingMemberInfo member, IEventListener eventListener, string propertyName)
         {
-            if (member.MemberType == BindingMemberType.Event)
+            if (BindingMemberType.Event.EqualsWithoutNullCheck(member.MemberType))
                 return null;
             var disposable = member.TryObserve(value, eventListener);
             if (disposable != null)
@@ -173,94 +177,106 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return BindingServiceProvider.WeakEventManager.Subscribe(propertyChanged, propertyName, eventListener);
         }
 
-        /// <summary>
-        ///     Gets the actual source.
-        ///     If the source is a <see cref="ISourceValue" /> this property returns the value of Value property.
-        /// </summary>
         protected internal object GetActualSource()
         {
-            if (_isSourceValue)
-                return ((ISourceValue)_sourceValue).Value;
-            return ((WeakReference)_sourceValue).Target;
+            var reference = _source as WeakReference;
+            if (reference == null)
+            {
+                var value = ((ISourceValue)_source).Value;
+                var sourceValue = value as ISourceValue;
+                while (sourceValue != null)
+                {
+                    value = sourceValue.Value;
+                    sourceValue = value as ISourceValue;
+                }
+                return value;
+            }
+            return reference.Target;
         }
 
-        /// <summary>
-        ///     Updates the observer value and then raises the value changed event.
-        /// </summary>
-        private void OnMemberChangedImpl(object sender, object args)
+        private void InitializeSourceListener()
         {
-            Update();
+            var ctx = _source as IBindingContext;
+            if (ctx == null)
+            {
+                if (_source is ISourceValue)
+                    _sourceListener = BindingServiceProvider.WeakEventManager.TrySubscribe(_source, ValueChangedEvent, CreateSourceListener());
+            }
+            else
+            {
+                _sourceListener = WeakEventManager.AddBindingContextListener(ctx, CreateSourceListener(), true);
+            }
+            if (_sourceListener == null)
+                _sourceListener = EmptyDisposable;
+        }
+
+        private void Update(bool notify)
+        {
+            if (Interlocked.CompareExchange(ref _state, UpdatingState, DefaultState) != DefaultState)
+                return;
+            Exception ex = null;
+            var hasSubscribers = _valueChanged != null;
+            try
+            {
+                if (_sourceListener == null)
+                    InitializeSourceListener();
+                _pathMembers = UpdateInternal(_pathMembers, hasSubscribers);
+            }
+            catch (Exception exception)
+            {
+                ex = exception;
+                _pathMembers = UnsetBindingPathMembers.Instance;
+            }
+            finally
+            {
+                if (Interlocked.CompareExchange(ref _state, DefaultState, UpdatingState) == UpdatingState)
+                {
+                    _observationException = ex;
+                    if (!hasSubscribers && _valueChanged != null)
+                        Update(true);
+                    else if (notify)
+                        RaiseValueChanged(ValueChangedEventArgs.FalseEventArgs);
+                }
+            }
         }
 
         #endregion
 
         #region Implementation of IObserver
 
-        /// <summary>
-        ///     Gets the path.
-        /// </summary>
-        public IBindingPath Path
+        public bool IsAlive
         {
-            get { return _path; }
+            get
+            {
+                var reference = _source as WeakReference;
+                if (reference == null)
+                    return ((ISourceValue)_source).IsAlive;
+                return reference.Target != null;
+            }
         }
 
-        /// <summary>
-        ///     Gets the source value.
-        /// </summary>
+        public IBindingPath Path => _path;
+
         public object Source
         {
             get
             {
-                if (_isSourceValue)
-                    return _sourceValue;
-                return ((WeakReference)_sourceValue).Target;
+                var reference = _source as WeakReference;
+                if (reference == null)
+                    return _source;
+                return reference.Target;
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the value changed listener.
-        /// </summary>
-        public IHandler<ValueChangedEventArgs> Listener
-        {
-            get { return _listener; }
-            set { _listener = value; }
-        }
-
-        /// <summary>
-        ///     Updates the current values.
-        /// </summary>
         public void Update()
         {
-            if (Interlocked.CompareExchange(ref _state, UpdatingState, DefaultState) != DefaultState)
-                return;
-            Exception ex = null;
-            try
-            {
-                UpdateInternal();
-            }
-            catch (Exception exception)
-            {
-                ex = exception;
-            }
-            finally
-            {
-                if (Interlocked.CompareExchange(ref _state, DefaultState, UpdatingState) == UpdatingState)
-                    _observationException = ex;
-                RaiseValueChanged(ValueChangedEventArgs.FalseEventArgs);
-            }
+            Update(true);
         }
 
-        /// <summary>
-        ///     Determines whether the current source is valid.
-        /// </summary>
-        /// <param name="throwOnError">
-        ///     true to throw an exception if the source is not valid; false to return false.
-        /// </param>
-        /// <returns>
-        ///     If <c>true</c> current source is valid, otherwise <c>false</c>.
-        /// </returns>
         public bool Validate(bool throwOnError)
         {
+            if (ReferenceEquals(_pathMembers, null))
+                Update();
             var exception = _observationException;
             if (exception == null)
                 return true;
@@ -269,9 +285,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return false;
         }
 
-        /// <summary>
-        ///     Gets the actual source object.
-        /// </summary>
         public object GetActualSource(bool throwOnError)
         {
             if (throwOnError)
@@ -280,37 +293,67 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 if (exception != null)
                     throw exception;
             }
-            if (_isSourceValue)
-                return ((ISourceValue)_sourceValue).Value;
-            return ((WeakReference)_sourceValue).Target;
+            return GetActualSource();
         }
 
-        /// <summary>
-        ///     Gets the source object include the path members.
-        /// </summary>
         public IBindingPathMembers GetPathMembers(bool throwOnError)
         {
+            if (ReferenceEquals(_pathMembers, null))
+            {
+                if (Interlocked.CompareExchange(ref _pathMembers, UnsetBindingPathMembers.Instance, null) == null)
+                    Update();
+            }
             var exception = _observationException;
             if (exception == null)
-                return GetPathMembersInternal();
+                return _pathMembers;
             if (throwOnError)
                 throw exception;
             return UnsetBindingPathMembers.Instance;
         }
 
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
+        public event EventHandler<IObserver, ValueChangedEventArgs> ValueChanged
+        {
+            add
+            {
+                if (_state == DisposedState)
+                    return;
+                var old = _valueChanged;
+                _valueChanged += value;
+                if (ReferenceEquals(_sourceListener, null) || (DependsOnSubscribers && ReferenceEquals(old, null)))
+                    Update(false);
+            }
+            remove { _valueChanged -= value; }
+        }
+
         public void Dispose()
         {
             if (Interlocked.Exchange(ref _state, DisposedState) == DisposedState)
                 return;
+            _pathMembers = UnsetBindingPathMembers.Instance;
+            _valueChanged = null;
+            if (_sourceListener != null)
+            {
+                _sourceListener.Dispose();
+                _sourceListener = null;
+            }
             _observationException = DisposedException;
-            var sourceValue = _sourceValue as ISourceValue;
-            if (sourceValue != null)
-                sourceValue.ValueChanged -= OnMemberChangedImpl;
-            _listener = null;
+            if (_source is WeakReference)
+                _source = Empty.WeakReference;
+            else
+            {
+                (_source as IDisposable)?.Dispose();
+                _source = EmptySource;
+            }
             OnDispose();
+        }
+
+        #endregion
+
+        #region Overrides of Object
+
+        public override string ToString()
+        {
+            return $"{Path}, Member: {GetPathMembers(false).LastMember}, IsValid: {Validate(false).ToString()}";
         }
 
         #endregion

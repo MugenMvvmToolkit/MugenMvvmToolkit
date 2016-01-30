@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ThreadManager.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -23,7 +23,7 @@ using Windows.UI.Core;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit.WinRT.Infrastructure
 {
     public class ThreadManager : IThreadManager
     {
@@ -35,12 +35,9 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ThreadManager" /> class.
-        /// </summary>
         public ThreadManager(CoreDispatcher dispatcher)
         {
-            Should.NotBeNull(dispatcher, "dispatcher");
+            Should.NotBeNull(dispatcher, nameof(dispatcher));
             _dispatcher = dispatcher;
         }
 
@@ -48,39 +45,18 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the current dispatcher.
-        /// </summary>
-        public CoreDispatcher Dispatcher
-        {
-            get { return _dispatcher; }
-        }
+        public CoreDispatcher Dispatcher => _dispatcher;
 
         #endregion
 
         #region Implementation of IThreadManager
 
-        /// <summary>
-        ///     Determines whether the calling thread is the UI thread.
-        /// </summary>
-        /// <returns><c>true</c> if the calling thread is the UI thread; otherwise, <c>false</c>.</returns>
-        public bool IsUiThread
-        {
-            get { return Dispatcher.HasThreadAccess; }
-        }
+        public bool IsUiThread => Dispatcher.HasThreadAccess;
 
-        /// <summary>
-        ///     Invokes an action on the UI thread using the UiDispatcher.
-        /// </summary>
-        /// <param name="action">
-        ///     The specified <see cref="System.Action" />.
-        /// </param>
-        /// <param name="priority">The specified <see cref="OperationPriority" /> to invoke the action.</param>
-        /// <param name="cancellationToken">An object that indicates whether to cancel the operation.</param>
         public void InvokeOnUiThreadAsync(Action action, OperationPriority priority = OperationPriority.Normal,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Should.NotBeNull(action, "action");
+            Should.NotBeNull(action, nameof(action));
             if (cancellationToken.IsCancellationRequested)
                 return;
             if (priority != OperationPriority.Low && IsUiThread)
@@ -91,18 +67,10 @@ namespace MugenMvvmToolkit.Infrastructure
                     .AsTask(cancellationToken);
         }
 
-        /// <summary>
-        ///     Invokes an action on the UI thread synchronous using the UiDispatcher.
-        /// </summary>
-        /// <param name="action">
-        ///     The specified <see cref="System.Action" />.
-        /// </param>
-        /// <param name="priority">The specified <see cref="OperationPriority" /> to invoke the action.</param>
-        /// <param name="cancellationToken">An object that indicates whether to cancel the operation.</param>
         public void InvokeOnUiThread(Action action, OperationPriority priority = OperationPriority.Normal,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Should.NotBeNull(action, "action");
+            Should.NotBeNull(action, nameof(action));
             if (cancellationToken.IsCancellationRequested)
                 return;
             if (IsUiThread)
@@ -114,19 +82,11 @@ namespace MugenMvvmToolkit.Infrastructure
                     .Wait(cancellationToken);
         }
 
-        /// <summary>
-        ///     Invokes an action asynchronous.
-        /// </summary>
-        /// <param name="action">
-        ///     The specified <see cref="System.Action" />.
-        /// </param>
-        /// <param name="priority">The specified <see cref="OperationPriority" /> to invoke the action.</param>
-        /// <param name="cancellationToken">An object that indicates whether to cancel the operation.</param>
         public void InvokeAsync(Action action, OperationPriority priority = OperationPriority.Normal,
             CancellationToken cancellationToken = default(CancellationToken))
         {
-            Should.NotBeNull(action, "action");
-            Should.NotBeNull(action, "action");
+            Should.NotBeNull(action, nameof(action));
+            Should.NotBeNull(action, nameof(action));
             Task.Factory.StartNew(action, cancellationToken);
         }
 

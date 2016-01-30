@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="WindowsPhoneBootstrapperBase.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -24,31 +24,26 @@ using System.Windows.Controls;
 using JetBrains.Annotations;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
-using MugenMvvmToolkit.Infrastructure.Navigation;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
+using MugenMvvmToolkit.WinPhone.Infrastructure.Navigation;
+using MugenMvvmToolkit.WinPhone.Interfaces.Navigation;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit.WinPhone.Infrastructure
 {
-    /// <summary>
-    ///     Represents the base class that is used to start MVVM application.
-    /// </summary>
     public abstract class WindowsPhoneBootstrapperBase : BootstrapperBase
     {
         #region Fields
 
-        /// <summary>
-        /// Gets the name of binding assembly.
-        /// </summary>
-        protected const string BindingAssemblyName = "MugenMvvmToolkit.Binding.WinRT";
+        protected const string BindingAssemblyName = "MugenMvvmToolkit.WinPhone.Binding";
         private readonly PhoneApplicationFrame _rootFrame;
-        private PlatformInfo _platform;
+        private readonly PlatformInfo _platform;
 
         #endregion
 
@@ -56,59 +51,53 @@ namespace MugenMvvmToolkit.Infrastructure
 
         static WindowsPhoneBootstrapperBase()
         {
-#if V71
-            ServiceProvider.WeakReferenceFactory = PlatformExtensions.CreateWeakReference;
-#endif
             DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
             DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="WindowsPhoneBootstrapperBase" /> class.
-        /// </summary>
-        protected WindowsPhoneBootstrapperBase([NotNull] PhoneApplicationFrame rootFrame)
+        protected WindowsPhoneBootstrapperBase([NotNull] PhoneApplicationFrame rootFrame, PlatformInfo platform = null)
         {
-            Should.NotBeNull(rootFrame, "rootFrame");
+            Should.NotBeNull(rootFrame, nameof(rootFrame));
             _rootFrame = rootFrame;
+            _platform = platform ?? PlatformExtensions.GetPlatformInfo();
             PhoneApplicationService.Current.Launching += OnLaunching;
         }
 
         #endregion
 
+        #region Properties
+
+        protected PhoneApplicationFrame RootFrame => _rootFrame;
+
+        #endregion
+
         #region Overrides of BootstrapperBase
 
-        /// <summary>
-        ///     Gets the current platform.
-        /// </summary>
-        public override PlatformInfo Platform
+        protected override void InitializeInternal()
         {
-            get
-            {
-                if (_platform == null)
-                    _platform = PlatformExtensions.GetPlatformInfo();
-                return _platform;
-            }
-        }
-
-        /// <summary>
-        ///     Starts the current bootstraper.
-        /// </summary>
-        protected override void OnInitialize()
-        {
-            base.OnInitialize();
+            var application = CreateApplication();
+            var iocContainer = CreateIocContainer();
+            application.Initialize(_platform, iocContainer, GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
             FrameStateManager.RegisterFrame(_rootFrame);
             var service = CreateNavigationService(_rootFrame);
             if (service != null)
-                IocContainer.BindToConstant(service);
-            Should.PropertyBeNotNull(PhoneApplicationService.Current, "PhoneApplicationService.Current");
+                iocContainer.BindToConstant(service);
+            Should.PropertyNotBeNull(PhoneApplicationService.Current, nameof(PhoneApplicationService) + nameof(PhoneApplicationService.Current));
         }
 
-        /// <summary>
-        ///     Gets the application assemblies.
-        /// </summary>
-        protected override ICollection<Assembly> GetAssemblies()
+        #endregion
+
+        #region Methods
+
+        public virtual void Start(IDataContext context = null)
         {
-            var listAssembly = new List<Assembly>();
+            Initialize();
+            MvvmApplication.Current.Start(context);
+        }
+
+        protected virtual ICollection<Assembly> GetAssemblies()
+        {
+            var assemblies = new HashSet<Assembly>();
             foreach (AssemblyPart part in Deployment.Current.Parts)
             {
                 string assemblyName = part.Source.Replace(".dll", string.Empty);
@@ -116,55 +105,20 @@ namespace MugenMvvmToolkit.Infrastructure
                     continue;
                 try
                 {
-                    Assembly assembly = Assembly.Load(assemblyName);
-                    if (assembly.IsToolkitAssembly())
-                        listAssembly.Add(assembly);
+                    assemblies.Add(Assembly.Load(assemblyName));
                 }
                 catch (Exception e)
                 {
                     Tracer.Error(e.Flatten(true));
                 }
             }
-            return listAssembly;
+            return assemblies;
         }
 
-        #endregion
-
-        #region Methods
-
-        /// <summary>
-        ///     Starts the current bootstrapper.
-        /// </summary>
-        public virtual void Start()
-        {
-            Initialize();
-            CreateMainViewModel(GetMainViewModelType()).ShowAsync((model, result) => model.Dispose(), context: InitializationContext);
-        }
-
-        /// <summary>
-        ///     Creates the main view model.
-        /// </summary>
-        [NotNull]
-        protected virtual IViewModel CreateMainViewModel([NotNull] Type viewModelType)
-        {
-            return IocContainer
-                .Get<IViewModelProvider>()
-                .GetViewModel(viewModelType, InitializationContext);
-        }
-
-        /// <summary>
-        ///     Gets the type of main view model.
-        /// </summary>
-        [NotNull]
-        protected abstract Type GetMainViewModelType();
-
-        /// <summary>
-        ///     Creates an instance of <see cref="INavigationService" />.
-        /// </summary>
         [CanBeNull]
         protected virtual INavigationService CreateNavigationService(PhoneApplicationFrame frame)
         {
-            return new FrameNavigationService(frame, IocContainer.Get<ISerializer>());
+            return new FrameNavigationService(frame, true);
         }
 
         private void OnLaunching(object sender, LaunchingEventArgs args)

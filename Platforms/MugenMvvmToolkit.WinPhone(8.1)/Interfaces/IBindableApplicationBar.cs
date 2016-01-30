@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IBindableApplicationBar.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -19,58 +19,26 @@
 using System.Collections;
 using System.Windows;
 using Microsoft.Phone.Shell;
-using MugenMvvmToolkit.Controls;
+using MugenMvvmToolkit.WinPhone.AppBar;
 
-namespace MugenMvvmToolkit.Interfaces
+namespace MugenMvvmToolkit.WinPhone.Interfaces
 {
-    /// <summary>
-    ///     Represents a bindable Application Bar in Windows Phone applications.
-    /// </summary>
     public interface IBindableApplicationBar : IApplicationBar
     {
-        /// <summary>
-        ///     Gets or sets the data context for a <see cref="IBindableApplicationBarItem" /> when it participates in data
-        ///     binding.
-        /// </summary>
         object DataContext { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the ButtonTemplate property.
-        ///     This dependency property indicates the template for a button items that is used together with the
-        ///     <see cref="ButtonItemsSource" /> collection to create the application bar buttons.
-        /// </summary>
         DataTemplate ButtonItemTemplate { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the MenuItemTemplate property.
-        ///     This dependency property indicates the template for a <see cref="BindableApplicationBarMenuItem" /> that is used
-        ///     together with the <see cref="MenuItemsSource" /> collection to create the application bar MenuItems.
-        /// </summary>
         DataTemplate MenuItemTemplate { get; set; }
 
-        /// <summary>
-        ///     Gets the original application bar.
-        /// </summary>
         IApplicationBar OriginalApplicationBar { get; }
 
-        /// <summary>
-        ///     Gets or sets the list of the buttons that appear on the Application Bar.
-        /// </summary>
         IEnumerable ButtonItemsSource { get; set; }
 
-        /// <summary>
-        ///     Gets or sets the list of the menu items that appear on the Application Bar.
-        /// </summary>
         IEnumerable MenuItemsSource { get; set; }
 
-        /// <summary>
-        ///     Attaches to the specified target.
-        /// </summary>
         void Attach(object target);
 
-        /// <summary>
-        ///     Detaches this instance from its associated object.
-        /// </summary>
         void Detach();
     }
 }

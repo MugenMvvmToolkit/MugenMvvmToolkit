@@ -1,0 +1,166 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.50727</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{05FE347F-2CB2-46CE-A2B7-73F6410BF13A}</ProjectGuid>
+    <ProjectTypeGuids>{A1591282-1198-4647-A2B1-27E5FF5F6F3B};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MugenMvvmToolkit.Silverlight.Binding</RootNamespace>
+    <AssemblyName>MugenMvvmToolkit.Silverlight.Binding</AssemblyName>
+    <TargetFrameworkIdentifier>Silverlight</TargetFrameworkIdentifier>
+    <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
+    <SilverlightVersion>$(TargetFrameworkVersion)</SilverlightVersion>
+    <SilverlightApplication>false</SilverlightApplication>
+    <ValidateXaml>true</ValidateXaml>
+    <ThrowErrorsInValidation>true</ThrowErrorsInValidation>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
+    <NuGetPackageImportStamp></NuGetPackageImportStamp>
+  </PropertyGroup>
+  <!-- This property group is only here to support building this project using the 
+       MSBuild 3.5 toolset. In order to work correctly with this older toolset, it needs 
+       to set the TargetFrameworkVersion to v3.5 -->
+  <PropertyGroup Condition="'$(MSBuildToolsVersion)' == '3.5'">
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;TRACE;SILVERLIGHT</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\bin\Platforms\Silverlight\</OutputPath>
+    <DefineConstants>TRACE;SILVERLIGHT</DefineConstants>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile></DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="System.Windows" />
+    <Reference Include="system" />
+    <Reference Include="System.Core">
+      <HintPath>$(TargetFrameworkDirectory)System.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Net" />
+    <Reference Include="System.Windows.Browser" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Core\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Extensions\BindingReflectionExtensionsCommon.cs">
+      <Link>BindingReflectionExtensionsCommon.cs</Link>
+    </Compile>
+    <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\Properties\AssemblyInfoCommon.cs">
+      <Link>Properties\AssemblyInfoCommon.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Infrastructure\ItemsSourceGeneratorBase.cs">
+      <Link>Infrastructure\ItemsSourceGeneratorBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Interfaces\IItemsSourceGenerator.cs">
+      <Link>Interfaces\IItemsSourceGenerator.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\AttachedMembers.cs">
+      <Link>AttachedMembers.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\Converters\BooleanToVisibilityConverter.cs">
+      <Link>Converters\BooleanToVisibilityConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\Converters\NullToVisibilityConverter.cs">
+      <Link>Converters\NullToVisibilityConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\Converters\ValueConverterWrapper.cs">
+      <Link>Converters\ValueConverterWrapper.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\Infrastructure\BindingContextManagerEx.cs">
+      <Link>Infrastructure\BindingContextManagerEx.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\Infrastructure\BindingErrorProvider.cs">
+      <Link>Infrastructure\BindingErrorProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\Infrastructure\BindingMemberProviderEx.cs">
+      <Link>Infrastructure\BindingMemberProviderEx.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\Infrastructure\BindingResourceResolverEx.cs">
+      <Link>Infrastructure\BindingResourceResolverEx.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\MarkupExtensions\DataBindingExtension.cs">
+      <Link>MarkupExtensions\DataBindingExtension.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\MarkupExtensions\DataBindingExtensionCommon.cs">
+      <Link>MarkupExtensions\DataBindingExtensionCommon.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\Models\DependencyPropertyBindingMember.cs">
+      <Link>Models\DependencyPropertyBindingMember.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\Models\Enums.cs">
+      <Link>Models\Enums.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\Models\ParentObserver.cs">
+      <Link>Models\ParentObserver.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\Models\ValidationBinder.cs">
+      <Link>Models\ValidationBinder.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\Modules\PlatformDataBindingModule.cs">
+      <Link>Modules\PlatformDataBindingModule.cs</Link>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Core\MugenMvvmToolkit.Binding%28PCL_Silverlight%29\MugenMvvmToolkit.Binding%28PCL_Silverlight%29.csproj">
+      <Project>{d51e91ac-5351-4db6-8007-a85b7f9b0eac}</Project>
+      <Name>MugenMvvmToolkit.Binding%28PCL_Silverlight%29</Name>
+      <Private>False</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_Silverlight%29\MugenMvvmToolkit.Core%28PCL_Silverlight%29.csproj">
+      <Project>{74d0561d-14ce-4bb7-911e-4f8ec86b203c}</Project>
+      <Name>MugenMvvmToolkit.Core%28PCL_Silverlight%29</Name>
+      <Private>False</Private>
+    </ProjectReference>
+    <ProjectReference Include="..\MugenMvvmToolkit.Silverlight%285.0%29\MugenMvvmToolkit.Silverlight%285.0%29.csproj">
+      <Project>{f50a09d0-6c2b-4f08-9a42-67146bfaece9}</Project>
+      <Name>MugenMvvmToolkit.Silverlight%285.0%29</Name>
+      <Private>False</Private>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Solution Items\MugenMvvmToolkit.licenseheader">
+      <Link>MugenMvvmToolkit.licenseheader</Link>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\license.txt">
+      <Link>license.txt</Link>
+    </None>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Silverlight\$(SilverlightVersion)\Microsoft.Silverlight.CSharp.targets" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{A1591282-1198-4647-A2B1-27E5FF5F6F3B}">
+        <SilverlightProjectProperties />
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />  
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

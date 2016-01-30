@@ -6,9 +6,8 @@ using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Accessors;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Infrastructure;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
+using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Binding.Sources;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Test.TestInfrastructure;
 using MugenMvvmToolkit.Test.TestModels;
@@ -96,7 +95,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
             var source = new BindingSourceModel();
             var accessor = new MultiBindingSourceAccessor(new[] { CreateSource(source, BindingSourceModel.EventName) },
                     (context, list) => memberMock, EmptyContext);
-            var memberValue = (BindingMemberValue)accessor.GetValue(memberMock, EmptyContext, true);
+            var memberValue = (BindingActionValue)accessor.GetValue(memberMock, EmptyContext, true);
             memberValue.GetValue(new object[] { null, null }).ShouldEqual(memberMock);
         }
 
@@ -223,7 +222,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
             var sourceModel = new BindingSourceModel { ObjectProperty = null };
             var dataContext = new DataContext
             {
-                {BindingBuilderConstants.TargetNullValue, targetNullValue},                
+                {BindingBuilderConstants.TargetNullValue, targetNullValue},
             };
 
             string propertyName = GetMemberPath<BindingSourceModel>(model => model.ObjectProperty);
@@ -232,10 +231,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
             valueAccessor.GetValue(memberMock, dataContext, true).ShouldEqual(targetNullValue);
         }
 
-        private static IBindingSource CreateSource(object model, string path)
+        private static IObserver CreateSource(object model, string path, bool hasStablePath = false, bool observable = true)
         {
-            var observer = new MultiPathObserver(model, BindingPath.Create(path), false);
-            return new BindingSource(observer);
+            return new MultiPathObserver(model, new BindingPath(path), false, hasStablePath, observable);
         }
 
         #endregion

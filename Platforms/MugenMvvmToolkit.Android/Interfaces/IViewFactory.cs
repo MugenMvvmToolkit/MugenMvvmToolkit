@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="IViewFactory.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -19,23 +19,18 @@
 using System;
 using Android.Content;
 using Android.Util;
+using Android.Views;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Android.Models;
 
-namespace MugenMvvmToolkit.Interfaces
+namespace MugenMvvmToolkit.Android.Interfaces
 {
     public interface IViewFactory
     {
-        /// <summary>
-        ///     Creates an instance of <see cref="ViewResult" /> using the view name.
-        /// </summary>
-        [NotNull]
         ViewResult Create([NotNull] string name, [NotNull] Context context, [NotNull] IAttributeSet attrs);
 
-        /// <summary>
-        ///     Creates an instance of <see cref="ViewResult" /> using the view type.
-        /// </summary>
-        [NotNull]
         ViewResult Create([NotNull] Type type, [NotNull] Context context, [NotNull] IAttributeSet attrs);
+
+        ViewResult Initialize(View view, [NotNull] IAttributeSet attrs);
     }
 }

@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="BindingErrorProvider.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -22,29 +22,21 @@ using System.Windows;
 using System.Windows.Controls;
 using JetBrains.Annotations;
 using Microsoft.Phone.Controls;
+using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Xamarin.Forms.WinPhone.Binding.Models;
 using Xamarin.Forms;
 using Xamarin.Forms.Platform.WinPhone;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.Xamarin.Forms.WinPhone.Binding.Infrastructure
 {
-    /// <summary>
-    ///     Represents the class that provides a user interface for indicating that a control on a form has an error associated
-    ///     with it.
-    /// </summary>
     public class BindingErrorProvider : BindingErrorProviderBase, IEventListener
     {
         #region Overrides of BindingErrorProviderBase
 
-        /// <summary>
-        ///     Sets errors for binding target.
-        /// </summary>
-        /// <param name="target">The binding target object.</param>
-        /// <param name="errors">The collection of errors</param>
-        /// <param name="context">The specified context, if any.</param>
         protected override void SetErrors(object target, IList<object> errors, IDataContext context)
         {
             base.SetErrors(target, errors, context);
@@ -98,24 +90,21 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Implementation of IEventListener
 
-        bool IEventListener.IsAlive
-        {
-            get { return true; }
-        }
+        bool IEventListener.IsAlive => true;
 
-        bool IEventListener.IsWeak
-        {
-            get { return true; }
-        }
+        bool IEventListener.IsWeak => true;
 
         bool IEventListener.TryHandle(object sender, object message)
         {
             var errorProvider = BindingServiceProvider.ErrorProvider;
             if (errorProvider != null)
             {
-                var dictionary = GetOrAddErrorsDictionary(sender);
-                foreach (var item in dictionary)
-                    errorProvider.SetErrors(sender, item.Key, item.Value, DataContext.Empty);
+                var dictionary = GetErrorsDictionary(sender);
+                if (dictionary != null)
+                {
+                    foreach (var item in dictionary)
+                        errorProvider.SetErrors(sender, item.Key, item.Value, DataContext.Empty);
+                }
             }
             return true;
         }

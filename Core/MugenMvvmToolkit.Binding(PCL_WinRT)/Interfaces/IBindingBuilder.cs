@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IBindingBuilder.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -21,17 +21,8 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Interfaces
 {
-    /// <summary>
-    ///     Represents the data binding builder.
-    /// </summary>
     public interface IBindingBuilder : IDataContext
     {
-        /// <summary>
-        ///     Builds an instance of <see cref="IDataBinding" />.
-        /// </summary>
-        /// <returns>
-        ///     The builded <see cref="IDataBinding" />.
-        /// </returns>
         [NotNull]
         IDataBinding Build();
     }

@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="SynchronizedNotifiableCollection.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -19,7 +19,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -35,333 +34,144 @@ using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.Collections
 {
-    /// <summary>
-    ///     Represents the syncronized observable collection.
-    /// </summary>
-    /// <typeparam name="T">The type of model.</typeparam>
     [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true), Serializable]
-    [DebuggerDisplay("Count = {Count}, NotificationCount = {NotificationCount}")]
+    [DebuggerDisplay("Count = {Count}")]
     public class SynchronizedNotifiableCollection<T> : INotifiableCollection, INotifiableCollection<T>
+#if PCL_WINRT
+        , IReadOnlyList<T>
+#endif
     {
         #region Nested types
 
-        /// <summary>
-        ///     Represents the class that stores information about notification events.
-        /// </summary>
-        [DebuggerDisplay("AddedCount = {AddedCount}, RemovedCount = {RemovedCount}")]
-        protected internal sealed class EventTracker
+        public struct Enumerator : IEnumerator<T>
         {
             #region Fields
 
             private readonly SynchronizedNotifiableCollection<T> _collection;
-            private readonly Dictionary<NotifyCollectionChangedAction, List<NotifyCollectionChangedEventArgs>> _events;
-            private bool _hasResetEvent;
+            private int _index;
+            private T _current;
 
             #endregion
 
             #region Constructors
 
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="EventTracker" /> class.
-            /// </summary>
-            public EventTracker(SynchronizedNotifiableCollection<T> collection)
+            public Enumerator(SynchronizedNotifiableCollection<T> collection)
             {
                 _collection = collection;
-                _events = new Dictionary<NotifyCollectionChangedAction, List<NotifyCollectionChangedEventArgs>>();
+                _index = 0;
+                _current = default(T);
             }
 
             #endregion
 
-            #region Properties
+            #region Implementatio of IEnumerator<T>
 
-            /// <summary>
-            ///     Gets the count of added items.
-            /// </summary>
-            public int AddedCount
+            public bool MoveNext()
             {
-                get
+                if (_collection == null)
+                    return false;
+                lock (_collection.Locker)
                 {
-                    List<NotifyCollectionChangedEventArgs> list;
-                    _events.TryGetValue(NotifyCollectionChangedAction.Add, out list);
-                    if (list == null)
-                        return 0;
-                    return list.Count;
+                    var items = _collection.GetItems();
+                    if (_index >= _collection.GetCountInternal(items))
+                        return false;
+                    _current = _collection.GetItemInternal(items, _index);
+                    ++_index;
+                    return true;
                 }
             }
 
-            /// <summary>
-            ///     Gets the count of removed items.
-            /// </summary>
-            public int RemovedCount
+            public void Reset()
             {
-                get
-                {
-                    List<NotifyCollectionChangedEventArgs> list;
-                    _events.TryGetValue(NotifyCollectionChangedAction.Remove, out list);
-                    if (list == null)
-                        return 0;
-                    return list.Count;
-                }
+                _index = 0;
             }
 
-            public ICollection<List<NotifyCollectionChangedEventArgs>> Events
+            public T Current => _current;
+
+            object IEnumerator.Current => Current;
+
+            public void Dispose()
             {
-                get { return _events.Values; }
             }
 
             #endregion
 
-            #region Methods
+        }
 
-            /// <summary>
-            ///     Adds event to collection.
-            /// </summary>
-            public void AddEvent(NotifyCollectionChangedEventArgs args)
-            {
-                if (_hasResetEvent)
-                    return;
-                if (_events.Count >= _collection.BatchSize)
-                    args = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
-                bool shouldIgnore = false;
-                switch (args.Action)
-                {
-                    case NotifyCollectionChangedAction.Add:
-                        OnAddEvent(ref args);
-                        break;
-                    case NotifyCollectionChangedAction.Remove:
-                        OnRemoveEvent(ref args, ref shouldIgnore);
-                        break;
-                    case NotifyCollectionChangedAction.Replace:
-                        OnReplaceEvent(ref args, ref shouldIgnore);
-                        break;
-                    case NotifyCollectionChangedAction.Reset:
-                        _hasResetEvent = true;
-                        _events.Clear();
-                        break;
-                }
-
-                if (shouldIgnore) return;
-                List<NotifyCollectionChangedEventArgs> list;
-                if (!_events.TryGetValue(args.Action, out list))
-                {
-                    list = new List<NotifyCollectionChangedEventArgs>();
-                    _events[args.Action] = list;
-                }
-                list.Add(args);
-            }
-
-            /// <summary>
-            ///     Clears events.
-            /// </summary>
-            public void Clear()
-            {
-                _events.Clear();
-                _hasResetEvent = false;
-            }
-
-            private void OnAddEvent(ref NotifyCollectionChangedEventArgs args)
-            {
-                List<NotifyCollectionChangedEventArgs> list;
-                if (_events.TryGetValue(NotifyCollectionChangedAction.Add, out list) && list.Count != 0)
-                {
-                    for (int index = 0; index < list.Count; index++)
-                    {
-                        NotifyCollectionChangedEventArgs oldArgs = list[index];
-                        if (oldArgs.NewStartingIndex < args.NewStartingIndex) continue;
-                        list[index] = UpdateAddEvent(oldArgs.NewItems, oldArgs.NewStartingIndex + 1);
-                    }
-                }
-
-                if (_events.TryGetValue(NotifyCollectionChangedAction.Replace, out list) && list.Count != 0)
-                {
-                    for (int index = 0; index < list.Count; index++)
-                    {
-                        NotifyCollectionChangedEventArgs oldArgs = list[index];
-                        if (oldArgs.NewStartingIndex < args.NewStartingIndex) continue;
-                        list[index] = UpdateReplaceEvent(oldArgs.NewItems, oldArgs.OldItems,
-                            oldArgs.NewStartingIndex + 1);
-                    }
-                }
-            }
-
-            private void OnRemoveEvent(ref NotifyCollectionChangedEventArgs args, ref bool shouldIgnore)
-            {
-                List<NotifyCollectionChangedEventArgs> list;
-                if (_events.TryGetValue(NotifyCollectionChangedAction.Add, out list) && list.Count != 0)
-                {
-                    for (int index = 0; index < list.Count; index++)
-                    {
-                        NotifyCollectionChangedEventArgs oldArgs = list[index];
-                        if (oldArgs.NewStartingIndex == args.OldStartingIndex &&
-                            SequenceEqual(oldArgs.NewItems, args.OldItems))
-                        {
-                            list.RemoveAt(index);
-                            index--;
-                            shouldIgnore = true;
-                            continue;
-                        }
-                        if (oldArgs.NewStartingIndex < args.OldStartingIndex) continue;
-                        int newIndex = oldArgs.NewStartingIndex - 1;
-                        if (newIndex < 0)
-                        {
-                            list.RemoveAt(index);
-                            index--;
-                            shouldIgnore = true;
-                        }
-                        else
-                            list[index] = UpdateAddEvent(oldArgs.NewItems, newIndex);
-                    }
-                }
-
-                if (_events.TryGetValue(NotifyCollectionChangedAction.Replace, out list) && list.Count != 0)
-                {
-                    for (int index = 0; index < list.Count; index++)
-                    {
-                        NotifyCollectionChangedEventArgs oldArgs = list[index];
-                        if (oldArgs.NewStartingIndex < args.OldStartingIndex) continue;
-                        int replaceIndex = oldArgs.NewStartingIndex - 1;
-                        if (replaceIndex < 0)
-                        {
-                            list.RemoveAt(index);
-                            index--;
-                        }
-                        else
-                            list[index] = UpdateReplaceEvent(oldArgs.NewItems, oldArgs.OldItems, replaceIndex);
-                    }
-                }
-            }
-
-            private void OnReplaceEvent(ref NotifyCollectionChangedEventArgs args, ref bool shouldIgnore)
-            {
-                List<NotifyCollectionChangedEventArgs> list;
-                if (_events.TryGetValue(NotifyCollectionChangedAction.Add, out list) && list.Count != 0)
-                {
-                    for (int index = 0; index < list.Count; index++)
-                    {
-                        if (list[index].NewStartingIndex == args.NewStartingIndex)
-                        {
-                            list[index] = UpdateAddEvent(args.NewItems, args.NewStartingIndex);
-                            shouldIgnore = true;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            private static NotifyCollectionChangedEventArgs UpdateAddEvent(IList items, int index)
-            {
-                return new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, items[0], index);
-            }
-
-            private static NotifyCollectionChangedEventArgs UpdateReplaceEvent(IList newItems, IList oldItems, int index)
-            {
-                return new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, newItems[0],
-                    oldItems[0], index);
-            }
-
-            private static bool SequenceEqual(IEnumerable enumerable1, IEnumerable enumerable2)
-            {
-                return enumerable1.OfType<object>().SequenceEqual(enumerable2.OfType<object>());
-            }
-
-            #endregion
+        [Flags]
+        protected enum NotificationType
+        {
+            None = 0,
+            Changing = 1,
+            Changed = 2,
+            Both = Changing | Changed
         }
 
         #endregion
 
         #region Fields
 
-        /// <summary>
-        ///     Gets the internal object to synchronize access to collection.
-        /// </summary>
-        [DataMember]
-        protected internal readonly object Locker;
-
-        /// <summary>
-        ///     Gets the internal collection.
-        /// </summary>
-        [DataMember]
-        internal IList<T> ItemsInternal;
+        [XmlIgnore, NonSerialized]
+        private object _locker;
 
         [XmlIgnore, NonSerialized]
-        private EventTracker _eventsTracker;
+        private bool _isNotificationsDirty;
+
+        private IList<T> _items;
+
         [XmlIgnore, NonSerialized]
-        private int _notificationCount;
+        private bool _notifying;
+
+        [XmlIgnore, NonSerialized]
+        private bool _hasClearAction;
+
+        [XmlIgnore, NonSerialized]
+        private List<Action<SynchronizedNotifiableCollection<T>>> _pendingChanges;
+
+        [XmlIgnore, NonSerialized]
+        private IList<T> _snapshot;
 
         [XmlIgnore, NonSerialized]
         private int _suspendCount;
+
         [XmlIgnore, NonSerialized]
         private IThreadManager _threadManager;
 
         [XmlIgnore, NonSerialized]
-        private Action _raiseEventsDelegate;
-
-        /// <summary>
-        ///     Raises before CollectionChanged event.
-        /// </summary>
-        internal NotifyCollectionChangedEventHandler BeforeCollectionChanged;
-
-        /// <summary>
-        ///     Raises after CollectionChanged event.
-        /// </summary>
         internal NotifyCollectionChangedEventHandler AfterCollectionChanged;
+
+        // ReSharper disable once StaticMemberInGenericType
+        private static readonly bool IsRefType;
 
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="SynchronizedNotifiableCollection{T}" /> class.
-        /// </summary>
+        static SynchronizedNotifiableCollection()
+        {
+            IsRefType = default(T) == null;
+        }
+
         public SynchronizedNotifiableCollection(IList<T> list, IThreadManager threadManager = null)
         {
-            if (list == null)
-                list = new List<T>();
-            else
-            {
-                if (list.IsReadOnly)
-                    list = new List<T>(list);
-            }
-            _raiseEventsDelegate = RaiseEventsInternal;
-            _eventsTracker = new EventTracker(this);
+            Should.NotBeNull(list, nameof(list));
+            if (list.IsReadOnly)
+                list = new List<T>(list);
             _threadManager = threadManager;
-
             Items = list;
-            var collection = Items as ICollection;
-            Locker = collection == null ? new object() : collection.SyncRoot;
-            // ReSharper disable once DoNotCallOverridableMethodsInConstructor
-            OnInitialized();
+            BatchSize = ApplicationSettings.NotificationCollectionBatchSize;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="SynchronizedNotifiableCollection{T}" /> class.
-        /// </summary>
         public SynchronizedNotifiableCollection()
-            : this(new List<T>(), null)
+            : this(new List<T>())
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="SynchronizedNotifiableCollection{T}" /> class.
-        /// </summary>
         public SynchronizedNotifiableCollection(IThreadManager threadManager)
             : this(new List<T>(), threadManager)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="SynchronizedNotifiableCollection{T}" /> class that contains elements
-        ///     copied from the specified collection.
-        /// </summary>
-        /// <param name="threadManager">
-        ///     The specified <see cref="IThreadManager" />.
-        /// </param>
-        /// <param name="collection">
-        ///     The collection from which the elements are copied.
-        /// </param>
-        /// <exception cref="T:System.ArgumentNullException">
-        ///     The <paramref name="collection" /> parameter cannot be null.
-        /// </exception>
         public SynchronizedNotifiableCollection(IEnumerable<T> collection, IThreadManager threadManager = null)
             : this(new List<T>(collection), threadManager)
         {
@@ -371,9 +181,6 @@ namespace MugenMvvmToolkit.Collections
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the <see cref="IThreadManager" />
-        /// </summary>
         public IThreadManager ThreadManager
         {
             get
@@ -385,71 +192,82 @@ namespace MugenMvvmToolkit.Collections
             set { _threadManager = value; }
         }
 
-        /// <summary>
-        ///     Gets the number of notification elements contained in the collection.
-        /// </summary>
-        public int NotificationCount
+        [DataMember]
+        public int BatchSize { get; set; }
+
+        object ICollection.SyncRoot => Locker;
+
+        bool ICollection.IsSynchronized => true;
+
+        bool IList.IsReadOnly => false;
+
+        bool ICollection<T>.IsReadOnly => false;
+
+        bool IList.IsFixedSize => false;
+
+        public bool IsNotificationsSuspended => _suspendCount != 0;
+
+        public T this[int index]
         {
-            get { return _notificationCount; }
+            get
+            {
+                lock (Locker)
+                    return GetItemInternal(GetItems(), index);
+            }
+            set
+            {
+                lock (Locker)
+                {
+                    if (IsUiThread())
+                    {
+                        EnsureSynchronized();
+                        SetItemInternal(Items, index, value, NotificationType.Both);
+                    }
+                    else
+                    {
+                        InitializePendingChanges();
+                        if (SetItemInternal(Items, index, value, NotificationType.Changing))
+                            AddPendingAction(c => SetItemInternal(c._snapshot, index, value, NotificationType.Changed), false);
+                    }
+                }
+            }
         }
 
-        /// <summary>
-        ///     Gets the number of elements contained in the collection.
-        /// </summary>
+        object IList.this[int index]
+        {
+            get { return this[index]; }
+            set { this[index] = (T)value; }
+        }
+
         public int Count
         {
             get
             {
                 lock (Locker)
-                    return CountInternal;
+                    return GetCountInternal(GetItems());
             }
         }
 
-        /// <summary>
-        ///     Gets or sets the size that collection will used to notify about changes.
-        /// </summary>
-        public int BatchSize { get; set; }
-
-        /// <summary>
-        ///     Specifies the execution mode.
-        /// </summary>
-        public virtual ExecutionMode ExecutionMode { get; set; }
-
-        /// <summary>
-        ///     Gets or sets the count mode.
-        /// </summary>
-        public virtual NotificationCollectionMode NotificationMode { get; set; }
-
-        /// <summary>
-        ///     Gets the number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1" />.
-        /// </summary>
-        /// <returns>
-        ///     The number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1" />.
-        /// </returns>
-        protected virtual int CountInternal
-        {
-            get { return Items.Count; }
-        }
-
+        [DataMember]
         protected internal IList<T> Items
         {
-            get
-            {
-                CheckDeserialization();
-                return ItemsInternal;
-            }
-            set { ItemsInternal = value; }
+            get { return _items; }
+            set { _items = OnItemsChanged(value); }
         }
 
-        /// <summary>
-        ///     Gets the event tracker.
-        /// </summary>
-        protected internal EventTracker EventsTracker
+        protected object Locker
         {
             get
             {
-                CheckDeserialization();
-                return _eventsTracker;
+                if (_locker == null)
+                {
+                    var collection = Items as ICollection;
+                    if (collection != null && collection.IsSynchronized)
+                        _locker = collection.SyncRoot;
+                    else
+                        Interlocked.CompareExchange(ref _locker, new object(), null);
+                }
+                return _locker;
             }
         }
 
@@ -457,645 +275,394 @@ namespace MugenMvvmToolkit.Collections
 
         #region Methods
 
-        /// <summary>
-        /// Allows to perform an action in the exclusive access to the collection.
-        /// </summary>
-        /// <param name="action">The specified action to invoke.</param>
-        public void InvokeWithLock(Action<SynchronizedNotifiableCollection<T>> action)
+        public int Add(T item)
+        {
+            lock (Locker)
+                return AddNoLock(item);
+        }
+
+        public int Insert(int index, T item)
         {
             lock (Locker)
             {
-                using (SuspendNotifications())
-                    action(this);
+                if (IsUiThread())
+                {
+                    EnsureSynchronized();
+                    return InsertItemInternal(Items, index, item, false, NotificationType.Both);
+                }
+                InitializePendingChanges();
+                var i = InsertItemInternal(Items, index, item, false, NotificationType.Changing);
+                if (i >= 0)
+                    AddPendingAction(c => c.InsertItemInternal(c._snapshot, index, item, false, NotificationType.Changed), false);
+                return i;
             }
         }
 
-        /// <summary>
-        /// Raises a <see cref="CollectionChanged"/> event of type reset.
-        /// </summary>
-        public void RaiseReset()
+        public Enumerator GetEnumerator()
         {
-            lock (Locker)
-                EventsTracker.AddEvent(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-            RaiseEvents();
+            return new Enumerator(this);
         }
 
-        /// <summary>
-        ///     Clears collection and then adds a range of IEnumerable collection.
-        /// </summary>
-        /// <param name="items">Items to add</param>
-        public void Update(IEnumerable<T> items)
+        protected virtual IList<T> OnItemsChanged(IList<T> items)
         {
-            Should.NotBeNull(items, "items");
-            if (Items == null)
-                return;
-            using (SuspendNotifications())
-            {
-                Clear();
-                AddRange(items);
-            }
+            //Suppress array usage on deserialization
+            if (items is T[])
+                return new List<T>(items);
+            return items;
         }
 
-        /// <summary>
-        ///     Adds the specified items to the collection without causing a change notification for all items.
-        ///     <para />
-        ///     This method will raise a change notification at the end.
-        /// </summary>
-        /// <param name="collection">The collection.</param>
-        /// <exception cref="ArgumentNullException">
-        ///     The <paramref name="collection" /> is <c>null</c>.
-        /// </exception>
-        public void AddRange(IEnumerable<T> collection)
+        protected virtual IList<T> CreateSnapshotCollection(IList<T> items)
         {
-            Should.NotBeNull(collection, "collection");
-            using (SuspendNotifications())
-            {
-                foreach (T item in collection)
-                    Add(item);
-            }
+            return new List<T>(items);
         }
 
-        /// <summary>
-        ///     Adds the specified items to the collection without causing a change notification for all items.
-        ///     <para />
-        ///     This method will raise a change notification at the end.
-        /// </summary>
-        /// <param name="collection">The collection.</param>
-        /// <exception cref="ArgumentNullException">
-        ///     The <paramref name="collection" /> is <c>null</c>.
-        /// </exception>
-        public void AddRange(IEnumerable collection)
+        protected virtual T GetItemInternal(IList<T> items, int index)
         {
-            Should.NotBeNull(collection, "collection");
-            using (SuspendNotifications())
-            {
-                foreach (object item in collection)
-                    Add((T)item);
-            }
+            return items[index];
         }
 
-        /// <summary>
-        ///     Removes the specified items from the collection without causing a change notification for all items.
-        ///     <para />
-        ///     This method will raise a change notification at the end.
-        /// </summary>
-        /// <param name="collection">The collection.</param>
-        /// <exception cref="ArgumentNullException">
-        ///     The <paramref name="collection" /> is <c>null</c>.
-        /// </exception>
-        public void RemoveRange(IEnumerable<T> collection)
+        protected virtual int GetCountInternal(IList<T> items)
         {
-            Should.NotBeNull(collection, "collection");
-            using (SuspendNotifications())
-            {
-                var list = collection.ToList();
-                for (int index = 0; index < list.Count; index++)
-                    Remove(list[index]);
-            }
+            return items.Count;
         }
 
-        /// <summary>
-        ///     Removes the specified items from the collection without causing a change notification for all items.
-        ///     <para />
-        ///     This method will raise a change notification at the end.
-        /// </summary>
-        /// <param name="collection">The collection.</param>
-        /// <exception cref="ArgumentNullException">
-        ///     The <paramref name="collection" /> is <c>null</c>.
-        /// </exception>
-        public void RemoveRange(IEnumerable collection)
+        protected virtual bool SetItemInternal(IList<T> items, int index, T item, NotificationType notificationType)
         {
-            Should.NotBeNull(collection, "collection");
-            using (SuspendNotifications())
+            var oldItem = items[index];
+            NotifyCollectionChangingEventArgs args = null;
+            if (HasChangingFlag(notificationType))
             {
-                var list = collection.Cast<T>().ToList();
-                for (int index = 0; index < list.Count; index++)
-                    Remove(list[index]);
-            }
-        }
-
-        /// <summary>
-        ///     Replaces the specified item to new item.
-        /// </summary>
-        /// <param name="oldValue">The old value.</param>
-        /// <param name="newValue">The new value.</param>
-        public bool Replace(T oldValue, T newValue)
-        {
-            bool shouldRaiseEvents;
-            lock (Locker)
-            {
-                int index = IndexOfInternal(oldValue);
-                if (index == -1)
+                args = GetCollectionChangeArgs(NotifyCollectionChangedAction.Replace, oldItem, item, index);
+                OnCollectionChanging(args);
+                if (args.Cancel)
                     return false;
-                SetItemInternal(index, newValue, out shouldRaiseEvents);
             }
-            if (shouldRaiseEvents)
-                RaiseEvents();
+
+            items[index] = item;
+            if (HasChangedFlag(notificationType))
+                OnCollectionChanged(args?.ChangedEventArgs ?? new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, item, oldItem, index));
             return true;
         }
 
-        /// <summary>
-        ///     Initializes default values.
-        /// </summary>
-        protected virtual void OnInitialized()
+        protected virtual int InsertItemInternal(IList<T> items, int index, T item, bool isAdd, NotificationType notificationType)
         {
-            ExecutionMode = ApplicationSettings.SynchronizedCollectionExecutionMode;
-            NotificationMode = ApplicationSettings.NotificationCollectionMode;
-            _notificationCount = CountInternal;
-            BatchSize = 50;
-        }
+            NotifyCollectionChangingEventArgs args = null;
+            if (HasChangingFlag(notificationType))
+            {
+                args = GetCollectionChangeArgs(NotifyCollectionChangedAction.Add, item, index);
+                OnCollectionChanging(args);
+                if (args.Cancel)
+                    return -1;
+            }
 
-        /// <summary>
-        ///     Copies the elements of the <see cref="T:System.Collections.Generic.ICollection`1" /> to an
-        ///     <see
-        ///         cref="T:System.Array" />
-        ///     , starting at a particular <see cref="T:System.Array" /> index.
-        /// </summary>
-        protected virtual void CopyToInternal(Array array, int index)
-        {
-            int count = Items.Count;
-            for (int i = index; i < count; i++)
-                array.SetValue(Items[i], i);
-        }
-
-        /// <summary>
-        ///     Removes all items from the collection.
-        /// </summary>
-        protected virtual void ClearItemsInternal(out bool shouldRaiseEvents)
-        {
-            shouldRaiseEvents = false;
-            NotifyCollectionChangingEventArgs args = GetCollectionChangeArgs();
-            OnCollectionChanging(args);
-            if (args.Cancel)
-                return;
-
-            Items.Clear();
-            EventsTracker.AddEvent(args.ChangedEventArgs);
-            shouldRaiseEvents = true;
-        }
-
-        /// <summary>
-        ///     Removes the item at the specified index of the collection.
-        /// </summary>
-        /// <param name="index">
-        ///     The zero-based index of the element to remove.
-        /// </param>
-        /// <param name="shouldRaiseEvents"></param>
-        protected virtual void RemoveItemInternal(int index, out bool shouldRaiseEvents)
-        {
-            shouldRaiseEvents = false;
-            T removedItem = Items[index];
-            NotifyCollectionChangingEventArgs args = GetCollectionChangeArgs(NotifyCollectionChangedAction.Remove,
-                removedItem, index);
-            OnCollectionChanging(args);
-            if (args.Cancel)
-                return;
-
-            Items.RemoveAt(index);
-            EventsTracker.AddEvent(args.ChangedEventArgs);
-            shouldRaiseEvents = true;
-        }
-
-        /// <summary>
-        ///     Replaces the element at the specified index.
-        /// </summary>
-        /// <param name="index">
-        ///     The zero-based index of the element to replace.
-        /// </param>
-        /// <param name="item">
-        ///     The new value for the element at the specified index.
-        /// </param>
-        /// <param name="shouldRaiseEvents"></param>
-        protected virtual void SetItemInternal(int index, T item, out bool shouldRaiseEvents)
-        {
-            shouldRaiseEvents = false;
-            T oldItem = Items[index];
-            NotifyCollectionChangingEventArgs args = GetCollectionChangeArgs(NotifyCollectionChangedAction.Replace,
-                oldItem, item,
-                index);
-            OnCollectionChanging(args);
-            if (args.Cancel) return;
-
-            Items[index] = item;
-            EventsTracker.AddEvent(args.ChangedEventArgs);
-            shouldRaiseEvents = true;
-        }
-
-        /// <summary>
-        ///     Gets the element at the specified index.
-        /// </summary>
-        /// <param name="index">The zero-based index of the element to replace.</param>
-        /// <returns>An instance of T.</returns>
-        protected virtual T GetItemInternal(int index)
-        {
-            return Items[index];
-        }
-
-        /// <summary>
-        ///     Inserts an item into the collection at the specified index.
-        /// </summary>
-        /// <param name="index">
-        ///     The zero-based index at which <paramref name="item" /> should be inserted.
-        /// </param>
-        /// <param name="item">
-        ///     The object to insert.
-        /// </param>
-        /// <param name="isAdd"></param>
-        /// <param name="shouldRaiseEvents"></param>
-        protected virtual int InsertItemInternal(int index, T item, bool isAdd, out bool shouldRaiseEvents)
-        {
-            shouldRaiseEvents = false;
-            NotifyCollectionChangingEventArgs args = GetCollectionChangeArgs(NotifyCollectionChangedAction.Add, item,
-                index);
-            OnCollectionChanging(args);
-            if (args.Cancel)
-                return -1;
-
-            Items.Insert(index, item);
-            EventsTracker.AddEvent(args.ChangedEventArgs);
-            shouldRaiseEvents = true;
+            items.Insert(index, item);
+            if (HasChangedFlag(notificationType))
+                OnCollectionChanged(args?.ChangedEventArgs ?? new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
             return index;
         }
 
-        /// <summary>
-        ///     Determines the index of a specific item in the <see cref="T:System.Collections.Generic.IList`1" />.
-        /// </summary>
-        /// <returns>
-        ///     The index of <paramref name="item" /> if found in the list; otherwise, -1.
-        /// </returns>
-        /// <param name="item">
-        ///     The object to locate in the <see cref="T:System.Collections.Generic.IList`1" />.
-        /// </param>
-        protected virtual int IndexOfInternal(T item)
+        protected virtual bool ClearItemsInternal(IList<T> items, NotificationType notificationType)
         {
-            return Items.IndexOf(item);
+            if (items.Count == 0)
+                return true;
+            if (HasChangingFlag(notificationType))
+            {
+                var args = GetCollectionChangeArgs();
+                OnCollectionChanging(args);
+                if (args.Cancel)
+                    return false;
+            }
+            items.Clear();
+            if (HasChangedFlag(notificationType))
+                OnCollectionChanged(Empty.ResetEventArgs);
+            return true;
         }
 
-        /// <summary>
-        ///     Determines whether the <see cref="T:System.Collections.Generic.ICollection`1" /> contains a specific value.
-        /// </summary>
-        /// <returns>
-        ///     true if <paramref name="item" /> is found in the <see cref="T:System.Collections.Generic.ICollection`1" />;
-        ///     otherwise, false.
-        /// </returns>
-        /// <param name="item">
-        ///     The object to locate in the <see cref="T:System.Collections.Generic.ICollection`1" />.
-        /// </param>
-        protected virtual bool ContainsInternal(T item)
+        protected virtual bool RemoveItemInternal(IList<T> items, int index, NotificationType notificationType)
         {
-            return Items.Contains(item);
+            var removedItem = items[index];
+            NotifyCollectionChangingEventArgs args = null;
+            if (HasChangingFlag(notificationType))
+            {
+                args = GetCollectionChangeArgs(NotifyCollectionChangedAction.Remove, removedItem, index);
+                OnCollectionChanging(args);
+                if (args.Cancel)
+                    return false;
+            }
+            items.RemoveAt(index);
+            if (HasChangedFlag(notificationType))
+                OnCollectionChanged(args?.ChangedEventArgs ?? new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removedItem, index));
+            return true;
         }
 
-        /// <summary>
-        ///     Returns an enumerator that iterates through the collection.
-        /// </summary>
-        /// <returns>
-        ///     A <see cref="T:System.Collections.Generic.IEnumerator`1" /> that can be used to iterate through the collection.
-        /// </returns>
-        protected virtual IEnumerator<T> GetEnumeratorInternal()
+        protected virtual bool ContainsInternal(IList<T> items, T item)
         {
-            return Items.GetEnumerator();
+            return items.Contains(item);
         }
 
-        /// <summary>
-        ///     Raises events from queue of events.
-        /// </summary>
-        protected virtual void RaiseEvents()
+        protected virtual void CopyToInternal(IList<T> items, Array array, int index)
         {
-            if (!IsNotificationsSuspended)
-                ThreadManager.Invoke(ExecutionMode, _raiseEventsDelegate);
+            var genericArray = array as T[];
+            var count = GetCountInternal(items);
+            if (genericArray == null)
+            {
+                for (var i = index; i < count; i++)
+                {
+                    if (i >= array.Length)
+                        break;
+                    array.SetValue(GetItemInternal(items, i), i);
+                }
+            }
+            else
+            {
+                for (var i = index; i < count; i++)
+                {
+                    if (i >= genericArray.Length)
+                        break;
+                    genericArray[i] = GetItemInternal(items, i);
+                }
+            }
         }
 
-        /// <summary>
-        ///     Invokes the <c>CollectionChanging</c> event.
-        /// </summary>
-        protected virtual void OnCollectionChanging(NotifyCollectionChangingEventArgs e)
+        protected virtual int IndexOfInternal(IList<T> items, T item)
         {
-            NotifyCollectionChangingEventHandler handler = CollectionChanging;
-            if (handler != null)
-                handler(this, e);
+            return items.IndexOf(item);
         }
 
-        /// <summary>
-        ///     Invokes the <c>CollectionChanged</c> event.
-        /// </summary>
         protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
         {
-            NotifyCollectionChangedEventHandler handler = CollectionChanged;
-            if (handler != null)
-                handler(this, e);
+            if (IsNotificationsSuspended)
+                _isNotificationsDirty = true;
+            else
+            {
+                switch (e.Action)
+                {
+                    case NotifyCollectionChangedAction.Add:
+                    case NotifyCollectionChangedAction.Remove:
+                    case NotifyCollectionChangedAction.Reset:
+                        OnPropertyChanged(Empty.CountChangedArgs);
+                        break;
+                }
+                OnPropertyChanged(Empty.IndexerPropertyChangedArgs);
+                if (_snapshot == null)
+                    CollectionChanged?.Invoke(this, e);
+                else
+                {
+                    var handler = CollectionChanged;
+                    if (handler != null)
+                    {
+                        var delegates = handler.GetInvocationList();
+                        for (int i = 0; i < delegates.Length; i++)
+                        {
+                            ((NotifyCollectionChangedEventHandler)delegates[i]).Invoke(this, e);
+                            if (_snapshot == null)
+                                return;
+                        }
+                    }
+                }
+                AfterCollectionChanged?.Invoke(this, e);
+            }
         }
 
-        /// <summary>
-        ///     Invokes the <c>PropertyChanged</c> event.
-        /// </summary>
+        protected virtual void OnCollectionChanging(NotifyCollectionChangingEventArgs e)
+        {
+            CollectionChanging?.Invoke(this, e);
+        }
+
         protected virtual void OnPropertyChanged(PropertyChangedEventArgs e)
         {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-                handler(this, e);
+            PropertyChanged?.Invoke(this, e);
         }
 
-        /// <summary>
-        ///     Helper to raise CollectionChanged event to any listeners.
-        /// </summary>
+        protected virtual void InitializePendingChanges()
+        {
+            if (_snapshot == null)
+                _snapshot = CreateSnapshotCollection(Items);
+            if (_pendingChanges == null)
+                _pendingChanges = new List<Action<SynchronizedNotifiableCollection<T>>>();
+        }
+
+        protected virtual void TryRaisePendingChanges()
+        {
+            if (_notifying || _pendingChanges == null || _pendingChanges.Count == 0 || IsNotificationsSuspended)
+                return;
+            try
+            {
+                _notifying = true;
+                for (var i = 0; i < _pendingChanges.Count; i++)
+                    _pendingChanges[i].Invoke(this);
+            }
+            finally
+            {
+                ClearPendingChanges();
+                _notifying = false;
+            }
+        }
+
+        protected virtual void ClearPendingChanges()
+        {
+            _snapshot = null;
+            if (_pendingChanges != null)
+                _pendingChanges.Clear();
+            _hasClearAction = false;
+        }
+
+        protected bool IsUiThread()
+        {
+            return ThreadManager.IsUiThread;
+        }
+
+        protected void EnsureSynchronized()
+        {
+            if (_snapshot != null)
+                RaiseResetInternal();
+        }
+
+        protected void AddPendingAction(Action<SynchronizedNotifiableCollection<T>> pendingAction, bool isClear)
+        {
+            if (_hasClearAction)
+                return;
+            InitializePendingChanges();
+            if (isClear || _pendingChanges.Count + 1 >= BatchSize)
+            {
+                _pendingChanges.Clear();
+                _hasClearAction = true;
+                pendingAction = c => c.RaiseResetInternal();
+            }
+            _pendingChanges.Add(pendingAction);
+            ThreadManager.InvokeOnUiThreadAsync(() =>
+            {
+                lock (Locker)
+                    TryRaisePendingChanges();
+            });
+        }
+
+        private int AddNoLock(T item)
+        {
+            if (IsUiThread())
+            {
+                EnsureSynchronized();
+                return InsertItemInternal(Items, GetCountInternal(Items), item, true, NotificationType.Both);
+            }
+
+            InitializePendingChanges();
+            var i = InsertItemInternal(Items, GetCountInternal(Items), item, true, NotificationType.Changing);
+            if (i >= 0)
+                AddPendingAction(c => InsertItemInternal(c._snapshot, c.GetCountInternal(c._snapshot), item, true, NotificationType.Changed), false);
+            return i;
+        }
+
+        private bool RemoveNoLock(T item)
+        {
+            int index;
+            if (IsUiThread())
+            {
+                EnsureSynchronized();
+                index = IndexOfInternal(Items, item);
+                return index >= 0 && RemoveItemInternal(Items, index, NotificationType.Both);
+            }
+            index = IndexOfInternal(Items, item);
+            var r = false;
+            if (index >= 0)
+            {
+                InitializePendingChanges();
+                r = RemoveItemInternal(Items, index, NotificationType.Changing);
+            }
+            if (r)
+            {
+                AddPendingAction(c =>
+                {
+                    var indexOf = c.IndexOfInternal(c._snapshot, item);
+                    if (indexOf >= 0)
+                        RemoveItemInternal(c._snapshot, indexOf, NotificationType.Changed);
+                }, false);
+            }
+            return r;
+        }
+
+        private void EndSuspendNotifications()
+        {
+            if (Interlocked.Decrement(ref _suspendCount) == 0)
+            {
+                ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, this, (@this, _) =>
+                {
+                    @this.OnPropertyChanged(Empty.IsNotificationsSuspendedChangedArgs);
+                    lock (@this.Locker)
+                    {
+                        if (@this._isNotificationsDirty)
+                        {
+                            @this._isNotificationsDirty = false;
+                            @this.RaiseResetInternal();
+                        }
+                        else
+                            @this.TryRaisePendingChanges();
+                    }
+                });
+            }
+        }
+
+        protected void RaiseResetInternal()
+        {
+            ClearPendingChanges();
+            OnCollectionChanged(Empty.ResetEventArgs);
+        }
+
+        protected IList<T> GetItems()
+        {
+            if (IsUiThread() && _snapshot != null)
+                return _snapshot;
+            return Items;
+        }
+
+        protected static bool HasChangingFlag(NotificationType type)
+        {
+            return (type & NotificationType.Changing) == NotificationType.Changing;
+        }
+
+        protected static bool HasChangedFlag(NotificationType type)
+        {
+            return (type & NotificationType.Changed) == NotificationType.Changed;
+        }
+
         protected static NotifyCollectionChangingEventArgs GetCollectionChangeArgs(NotifyCollectionChangedAction action,
             object item, int index)
         {
             return new NotifyCollectionChangingEventArgs(new NotifyCollectionChangedEventArgs(action, item, index));
         }
 
-        /// <summary>
-        ///     Helper to raise CollectionChanged event to any listeners
-        /// </summary>
         protected static NotifyCollectionChangingEventArgs GetCollectionChangeArgs(NotifyCollectionChangedAction action,
-            object oldItem, object newItem,
-            int index)
+            object oldItem, object newItem, int index)
         {
-            return
-                new NotifyCollectionChangingEventArgs(new NotifyCollectionChangedEventArgs(action, newItem, oldItem,
-                    index));
+            return new NotifyCollectionChangingEventArgs(new NotifyCollectionChangedEventArgs(action, newItem, oldItem, index));
         }
 
-        /// <summary>
-        ///     Helper to raise CollectionChanged event with action == Reset to any listeners
-        /// </summary>
         protected static NotifyCollectionChangingEventArgs GetCollectionChangeArgs()
         {
-            return
-                new NotifyCollectionChangingEventArgs(
-                    new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            return new NotifyCollectionChangingEventArgs(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
         }
 
-        /// <summary>
-        ///     Checks that an object is compatible with collection type.
-        /// </summary>
         protected internal static bool IsCompatibleObject(object value)
         {
             if (value is T)
                 return true;
-            if (value == null)
-                // ReSharper disable once CompareNonConstrainedGenericWithNull
-                return default(T) == null;
-            return false;
-        }
-
-        private void Notify(NotifyCollectionChangedEventArgs args, int count)
-        {
-            if (BeforeCollectionChanged != null)
-                BeforeCollectionChanged(this, args);
-            switch (args.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                    _notificationCount++;
-                    OnPropertyChanged(Empty.CountPropertyChangedArgs);
-                    OnPropertyChanged(Empty.NotificationCountPropertyChangedArgs);
-                    break;
-                case NotifyCollectionChangedAction.Remove:
-                    _notificationCount--;
-                    OnPropertyChanged(Empty.CountPropertyChangedArgs);
-                    OnPropertyChanged(Empty.NotificationCountPropertyChangedArgs);
-                    break;
-                case NotifyCollectionChangedAction.Reset:
-                    _notificationCount = count;
-                    OnPropertyChanged(Empty.CountPropertyChangedArgs);
-                    OnPropertyChanged(Empty.NotificationCountPropertyChangedArgs);
-                    break;
-            }
-            OnPropertyChanged(Empty.IndexerPropertyChangedArgs);
-            OnCollectionChanged(args);
-            if (AfterCollectionChanged != null)
-                AfterCollectionChanged(this, args);
-        }
-
-        private void EndSuspendNotifications()
-        {
-            if (Interlocked.Decrement(ref _suspendCount) != 0)
-                return;
-            RaiseEvents();
-            OnPropertyChanged(new PropertyChangedEventArgs("IsNotificationsSuspended"));
-        }
-
-        /// <summary>
-        /// OnDeserializedAttribute doesn't work with custom SerializableAttribute 
-        /// Exception: Type '' in assembly '' has method 'Test' with an incorrect signature for the serialization attribute that it is decorated with
-        /// </summary>
-        private void CheckDeserialization()
-        {
-            if (_eventsTracker != null)
-                return;
-            _eventsTracker = new EventTracker(this);
-            if (Items is T[])
-                Items = new ObservableCollection<T>(Items);
-            if (_raiseEventsDelegate == null)
-                _raiseEventsDelegate = RaiseEventsInternal;
-            OnInitialized();
-        }
-
-        private void RaiseEventsInternal()
-        {
-            lock (Locker)
-            {
-                try
-                {
-                    int count = CountInternal;
-                    List<NotifyCollectionChangedEventArgs> sortedItems = null;
-                    _notificationCount = count - EventsTracker.AddedCount + EventsTracker.RemovedCount;
-
-                    foreach (var events in EventsTracker.Events)
-                    {
-                        for (int i = 0; i < events.Count; i++)
-                        {
-                            var args = events[i];
-                            if (args.OldStartingIndex != -1)
-                            {
-                                if (args.OldStartingIndex > _notificationCount)
-                                {
-                                    if (sortedItems == null)
-                                        sortedItems = new List<NotifyCollectionChangedEventArgs>();
-                                    sortedItems.Add(args);
-                                    continue;
-                                }
-                            }
-
-                            if (args.NewStartingIndex != -1)
-                            {
-                                if (args.NewStartingIndex > _notificationCount)
-                                {
-                                    if (sortedItems == null)
-                                        sortedItems = new List<NotifyCollectionChangedEventArgs>();
-                                    sortedItems.Add(args);
-                                    continue;
-                                }
-                            }
-                            Notify(args, count);
-                        }
-                    }
-                    if (sortedItems == null)
-                        return;
-                    sortedItems.Sort((args, eventArgs) =>
-                    {
-                        int x1 = args.OldStartingIndex != -1 ? args.OldStartingIndex : args.NewStartingIndex;
-                        int x2 = eventArgs.OldStartingIndex != -1
-                            ? eventArgs.OldStartingIndex
-                            : eventArgs.NewStartingIndex;
-                        return x1.CompareTo(x2);
-                    });
-                    for (int index = 0; index < sortedItems.Count; index++)
-                        Notify(sortedItems[index], count);
-                }
-                finally
-                {
-                    EventsTracker.Clear();
-                }
-            }
-        }
-
-        private bool UseNotificationMode(bool generic)
-        {
-            var flag = generic
-                ? NotificationCollectionMode.GenericCollectionInterfaceUseNotificationValue
-                : NotificationCollectionMode.CollectionIntefaceUseNotificationValue;
-            if (!NotificationMode.HasFlagEx(flag))
-                return false;
-            return !NotificationMode.HasFlagEx(NotificationCollectionMode.OnlyOnUiThread) || ThreadManager.IsUiThread;
+            return value == null && IsRefType;
         }
 
         #endregion
 
-        #region Implementation of ISuspendNotifications
+        #region Implementation of interfaces
 
-        /// <summary>
-        ///     Gets or sets a value indicating whether change notifications are suspended. <c>True</c> if notifications are
-        ///     suspended, otherwise, <c>false</c>.
-        /// </summary>
-        public virtual bool IsNotificationsSuspended
-        {
-            get { return _suspendCount != 0; }
-        }
-
-        /// <summary>
-        ///     Suspends the change notifications until the returned <see cref="IDisposable" /> is disposed.
-        /// </summary>
-        /// <returns>An instance of token.</returns>
-        public virtual IDisposable SuspendNotifications()
-        {
-            if (Interlocked.Increment(ref _suspendCount) == 1)
-                OnPropertyChanged(new PropertyChangedEventArgs("IsNotificationsSuspended"));
-            return WeakActionToken.Create(this, collection => collection.EndSuspendNotifications());
-        }
-
-        #endregion
-
-        #region Implementation of notification events
-
-        /// <summary>
-        ///     Occurs before the collection changes.
-        /// </summary>
-        [field: XmlIgnore, NonSerialized]
-        public virtual event NotifyCollectionChangingEventHandler CollectionChanging;
-
-        /// <summary>
-        ///     Occurs when the collection changes.
-        /// </summary>
-        [field: XmlIgnore, NonSerialized]
-        public virtual event NotifyCollectionChangedEventHandler CollectionChanged;
-
-        /// <summary>
-        ///     Occurs when a property value changes.
-        /// </summary>
-        [field: XmlIgnore, NonSerialized]
-        public virtual event PropertyChangedEventHandler PropertyChanged;
-
-        #endregion
-
-        #region Implementation of IEnumerable
-
-        /// <summary>
-        ///     Returns an enumerator that iterates through a collection.
-        /// </summary>
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
-
-        /// <summary>
-        ///     Returns an enumerator that iterates through the collection.
-        /// </summary>
-        public IEnumerator<T> GetEnumerator()
-        {
-            lock (Locker)
-                return GetEnumeratorInternal();
-        }
-
-        #endregion
-
-        #region Implementation of ICollection
-
-        /// <summary>
-        ///     Copies the elements of the <see cref="T:System.Collections.ICollection" /> to an <see cref="T:System.Array" />,
-        ///     starting at a particular
-        ///     <see
-        ///         cref="T:System.Array" />
-        ///     index.
-        /// </summary>
         void ICollection.CopyTo(Array array, int index)
         {
             lock (Locker)
-                CopyToInternal(array, index);
+                CopyToInternal(GetItems(), array, index);
         }
 
-        /// <summary>
-        ///     Gets the number of elements contained in the <see cref="T:System.Collections.ICollection" />.
-        /// </summary>
-        int ICollection.Count
-        {
-            get
-            {
-                if (UseNotificationMode(false))
-                    return NotificationCount;
-                return Count;
-            }
-        }
-
-        /// <summary>
-        ///     Gets an object that can be used to synchronize access to the <see cref="T:System.Collections.ICollection" />.
-        /// </summary>
-        object ICollection.SyncRoot
-        {
-            get { return Locker; }
-        }
-
-        /// <summary>
-        ///     Gets a value indicating whether access to the <see cref="T:System.Collections.ICollection" /> is synchronized
-        ///     (thread safe).
-        /// </summary>
-        bool ICollection.IsSynchronized
-        {
-            get { return true; }
-        }
-
-        #endregion
-
-        #region Implementation of IList
-
-        /// <summary>
-        ///     Adds an item to the <see cref="T:System.Collections.IList" />.
-        /// </summary>
         int IList.Add(object value)
         {
-            bool shouldRaiseEvents;
-            int count;
-            lock (Locker)
-                count = InsertItemInternal(CountInternal, (T)value, true, out shouldRaiseEvents);
-            if (shouldRaiseEvents)
-                RaiseEvents();
-            return count;
+            return Add((T)value);
         }
 
-        /// <summary>
-        ///     Determines whether the <see cref="T:System.Collections.IList" /> contains a specific value.
-        /// </summary>
         bool IList.Contains(object value)
         {
             if (IsCompatibleObject(value))
@@ -1103,17 +670,6 @@ namespace MugenMvvmToolkit.Collections
             return false;
         }
 
-        /// <summary>
-        ///     Removes all items from the <see cref="T:System.Collections.IList" />.
-        /// </summary>
-        void IList.Clear()
-        {
-            Clear();
-        }
-
-        /// <summary>
-        ///     Determines the index of a specific item in the <see cref="T:System.Collections.IList" />.
-        /// </summary>
         int IList.IndexOf(object value)
         {
             if (IsCompatibleObject(value))
@@ -1121,221 +677,177 @@ namespace MugenMvvmToolkit.Collections
             return -1;
         }
 
-        /// <summary>
-        ///     Inserts an item to the <see cref="T:System.Collections.IList" /> at the specified index.
-        /// </summary>
         void IList.Insert(int index, object value)
         {
             Insert(index, (T)value);
         }
 
-        /// <summary>
-        ///     Removes the first occurrence of a specific object from the <see cref="T:System.Collections.IList" />.
-        /// </summary>
         void IList.Remove(object value)
         {
             if (IsCompatibleObject(value))
                 Remove((T)value);
         }
 
-        /// <summary>
-        ///     Removes the <see cref="T:System.Collections.IList" /> item at the specified index.
-        /// </summary>
-        void IList.RemoveAt(int index)
+        IEnumerator IEnumerable.GetEnumerator()
         {
-            RemoveAt(index);
+            return GetEnumerator();
         }
 
-        /// <summary>
-        ///     Gets or sets the element at the specified index.
-        /// </summary>
-        object IList.this[int index]
-        {
-            get
-            {
-                if (UseNotificationMode(false))
-                {
-                    lock (Locker)
-                    {
-                        if (index >= CountInternal)
-                            return null;
-                        return GetItemInternal(index);
-                    }
-                }
-                return this[index];
-            }
-            set { this[index] = (T)value; }
-        }
-
-        /// <summary>
-        ///     Gets a value indicating whether the <see cref="T:System.Collections.IList" /> is read-only.
-        /// </summary>
-        bool IList.IsReadOnly
-        {
-            get { return IsReadOnly; }
-        }
-
-        /// <summary>
-        ///     Gets a value indicating whether the <see cref="T:System.Collections.IList" /> has a fixed size.
-        /// </summary>
-        bool IList.IsFixedSize
-        {
-            get { return false; }
-        }
-
-        #endregion
-
-        #region Implementation of ICollection<T>
-
-        /// <summary>
-        ///     Adds an item to the <see cref="T:System.Collections.Generic.ICollection`1" />.
-        /// </summary>
-        public void Add(T item)
-        {
-            bool shouldRaiseEvents;
-            lock (Locker)
-                InsertItemInternal(CountInternal, item, true, out shouldRaiseEvents);
-            if (shouldRaiseEvents)
-                RaiseEvents();
-        }
-
-        /// <summary>
-        ///     Removes all items from the <see cref="T:System.Collections.Generic.ICollection`1" />.
-        /// </summary>
         public void Clear()
         {
-            bool shouldRaiseEvents;
             lock (Locker)
-                ClearItemsInternal(out shouldRaiseEvents);
-            if (shouldRaiseEvents)
-                RaiseEvents();
+            {
+                if (IsUiThread())
+                {
+                    EnsureSynchronized();
+                    if (ClearItemsInternal(Items, NotificationType.Both))
+                        ClearPendingChanges();
+                }
+                else
+                {
+                    InitializePendingChanges();
+                    if (ClearItemsInternal(Items, NotificationType.Changing))
+                        AddPendingAction(c => c.RaiseResetInternal(), true);
+                }
+            }
         }
 
-        /// <summary>
-        ///     Determines whether the <see cref="T:System.Collections.Generic.ICollection`1" /> contains a specific value.
-        /// </summary>
+        public void RemoveAt(int index)
+        {
+            lock (Locker)
+            {
+                if (IsUiThread())
+                {
+                    EnsureSynchronized();
+                    RemoveItemInternal(Items, index, NotificationType.Both);
+                }
+                else
+                {
+                    InitializePendingChanges();
+                    if (RemoveItemInternal(Items, index, NotificationType.Changing))
+                        AddPendingAction(c => c.RemoveItemInternal(c._snapshot, index, NotificationType.Changed), false);
+                }
+            }
+        }
+
+        public virtual event NotifyCollectionChangedEventHandler CollectionChanged;
+
+        public virtual event PropertyChangedEventHandler PropertyChanged;
+
+        public virtual event NotifyCollectionChangingEventHandler CollectionChanging;
+
+        public virtual IDisposable SuspendNotifications()
+        {
+            Interlocked.Increment(ref _suspendCount);
+            return WeakActionToken.Create(this, collection => collection.EndSuspendNotifications());
+        }
+
+        public void RaiseReset()
+        {
+            ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, this, (@this, _) =>
+            {
+                lock (@this.Locker)
+                    @this.RaiseResetInternal();
+            });
+        }
+
+        void INotifiableCollection.AddRange(IEnumerable collection)
+        {
+            Should.NotBeNull(collection, nameof(collection));
+            AddRange(collection.Cast<T>());
+        }
+
+        void INotifiableCollection.RemoveRange(IEnumerable collection)
+        {
+            Should.NotBeNull(collection, nameof(collection));
+            RemoveRange(collection.Cast<T>());
+        }
+
+        IEnumerator<T> IEnumerable<T>.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        void ICollection<T>.Add(T item)
+        {
+            Add(item);
+        }
+
         public bool Contains(T item)
         {
             lock (Locker)
-                return ContainsInternal(item);
+                return ContainsInternal(GetItems(), item);
         }
 
-        /// <summary>
-        ///     Copies the elements of the <see cref="T:System.Collections.Generic.ICollection`1" /> to an
-        ///     <see
-        ///         cref="T:System.Array" />
-        ///     , starting at a particular <see cref="T:System.Array" /> index.
-        /// </summary>
         public void CopyTo(T[] array, int arrayIndex)
         {
             lock (Locker)
-                CopyToInternal(array, arrayIndex);
+                CopyToInternal(GetItems(), array, arrayIndex);
         }
 
-        /// <summary>
-        ///     Removes the first occurrence of a specific object from the
-        ///     <see cref="T:System.Collections.Generic.ICollection`1" />.
-        /// </summary>
         public bool Remove(T item)
         {
-            bool shouldRaiseEvents;
             lock (Locker)
-            {
-                int index = IndexOfInternal(item);
-                if (index < 0)
-                    return false;
-                RemoveItemInternal(index, out shouldRaiseEvents);
-            }
-            if (shouldRaiseEvents)
-                RaiseEvents();
-            return true;
+                return RemoveNoLock(item);
         }
 
-        /// <summary>
-        ///     Gets the number of elements contained in the <see cref="T:System.Collections.Generic.ICollection`1" />.
-        /// </summary>
-        int ICollection<T>.Count
-        {
-            get
-            {
-                if (UseNotificationMode(true))
-                    return NotificationCount;
-                return Count;
-            }
-        }
-
-        /// <summary>
-        ///     Gets a value indicating whether the <see cref="T:System.Collections.Generic.ICollection`1" /> is read-only.
-        /// </summary>
-        public virtual bool IsReadOnly
-        {
-            get { return false; }
-        }
-
-        #endregion
-
-        #region Implementation of IList<T>
-
-        /// <summary>
-        ///     Determines the index of a specific item in the <see cref="T:System.Collections.Generic.IList`1" />.
-        /// </summary>
         public int IndexOf(T item)
         {
             lock (Locker)
-                return IndexOfInternal(item);
+                return IndexOfInternal(GetItems(), item);
         }
 
-        /// <summary>
-        ///     Inserts an item to the <see cref="T:System.Collections.Generic.IList`1" /> at the specified index.
-        /// </summary>
-        public void Insert(int index, T item)
+        void IList<T>.Insert(int index, T item)
         {
-            bool shouldRaiseEvents;
-            lock (Locker)
-                InsertItemInternal(index, item, false, out shouldRaiseEvents);
-            if (shouldRaiseEvents)
-                RaiseEvents();
+            Insert(index, item);
         }
 
-        /// <summary>
-        ///     Removes the <see cref="T:System.Collections.Generic.IList`1" /> item at the specified index.
-        /// </summary>
-        public void RemoveAt(int index)
+        public void AddRange(IEnumerable<T> collection)
         {
-            bool shouldRaiseEvents;
-            lock (Locker)
-                RemoveItemInternal(index, out shouldRaiseEvents);
-            if (shouldRaiseEvents)
-                RaiseEvents();
-        }
-
-        /// <summary>
-        ///     Gets or sets the element at the specified index.
-        /// </summary>
-        public T this[int index]
-        {
-            get
+            using (SuspendNotifications())
             {
                 lock (Locker)
                 {
-                    if (UseNotificationMode(true))
-                    {
-
-                        if (index >= CountInternal)
-                            return default(T);
-                        return GetItemInternal(index);
-
-                    }
-                    return GetItemInternal(index);
+                    foreach (var item in collection)
+                        AddNoLock(item);
                 }
             }
-            set
+        }
+
+        public void RemoveRange(IEnumerable<T> collection)
+        {
+            using (SuspendNotifications())
             {
-                bool shouldRaiseEvents;
                 lock (Locker)
-                    SetItemInternal(index, value, out shouldRaiseEvents);
-                if (shouldRaiseEvents)
-                    RaiseEvents();
+                {
+                    foreach (var item in collection)
+                        RemoveNoLock(item);
+                }
+            }
+        }
+
+        public void Update(IEnumerable<T> items)
+        {
+            Should.NotBeNull(items, nameof(items));
+            using (SuspendNotifications())
+            {
+                Clear();
+                AddRange(items);
+            }
+        }
+
+        public T[] ToArray()
+        {
+            lock (Locker)
+            {
+                var items = GetItems();
+                var count = GetCountInternal(items);
+                if (count == 0)
+                    return Empty.Array<T>();
+                var result = new T[count];
+                for (int i = 0; i < count; i++)
+                    result[i] = GetItemInternal(items, i);
+                return result;
             }
         }
 

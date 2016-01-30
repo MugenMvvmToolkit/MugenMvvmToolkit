@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="DynamicMultiViewModelPresenter.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -30,9 +30,6 @@ using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure.Presenters
 {
-    /// <summary>
-    ///     Represents the service that allows to show a view model using multi view model.
-    /// </summary>
     public class DynamicMultiViewModelPresenter : IDynamicViewModelPresenter
     {
         #region Fields
@@ -47,13 +44,10 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DynamicMultiViewModelPresenter" /> class.
-        /// </summary>
         public DynamicMultiViewModelPresenter([NotNull] IMultiViewModel multiViewModel,
             IOperationCallbackManager callbackManager = null, Func<IViewModel, IDataContext, IViewModelPresenter, bool> canShowViewModel = null)
         {
-            Should.NotBeNull(multiViewModel, "multiViewModel");
+            Should.NotBeNull(multiViewModel, nameof(multiViewModel));
             _multiViewModel = multiViewModel;
             _callbackManager = callbackManager ?? multiViewModel.GetIocContainer(true).Get<IOperationCallbackManager>();
             _canShowViewModel = canShowViewModel;
@@ -64,9 +58,6 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Properties
 
-        /// <summary>
-        /// Gets the delegate that determines that presenter can handle request.
-        /// </summary>
         [NotNull]
         public static Func<IViewModel, IDataContext, IViewModelPresenter, bool> CanShowViewModelDefault
         {
@@ -79,25 +70,10 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             set { _canShowDelegateDefault = value; }
         }
 
-        /// <summary>
-        ///     Get the current <see cref="IMultiViewModel" />.
-        /// </summary>
-        protected IMultiViewModel MultiViewModel
-        {
-            get { return _multiViewModel; }
-        }
+        protected IMultiViewModel MultiViewModel => _multiViewModel;
 
-        /// <summary>
-        ///     Gets the <see cref="IOperationCallbackManager" />.
-        /// </summary>
-        protected IOperationCallbackManager CallbackManager
-        {
-            get { return _callbackManager; }
-        }
+        protected IOperationCallbackManager CallbackManager => _callbackManager;
 
-        /// <summary>
-        /// Gets the delegate that determines that presenter can handle request.
-        /// </summary>
         protected Func<IViewModel, IDataContext, IViewModelPresenter, bool> CanShowViewModel
         {
             get
@@ -112,31 +88,24 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Implementation of IDynamicViewModelPresenter
 
-        /// <summary>
-        ///     Gets the presenter priority.
-        /// </summary>
-        public int Priority
-        {
-            get { return ViewModelPresenter.DefaultMultiViewModelPresenterPriority; }
-        }
+        public int Priority => ViewModelPresenter.DefaultMultiViewModelPresenterPriority;
 
-        /// <summary>
-        ///     Tries to show the specified <see cref="IViewModel" />.
-        /// </summary>
-        /// <param name="viewModel">The specified <see cref="IViewModel" /> to show.</param>
-        /// <param name="context">The specified context.</param>
-        /// <param name="parentPresenter">The parent presenter, if any.</param>
-        public virtual IAsyncOperation<bool?> TryShowAsync(IViewModel viewModel, IDataContext context,
+        public virtual INavigationOperation TryShowAsync(IViewModel viewModel, IDataContext context,
             IViewModelPresenter parentPresenter)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            if (ReferenceEquals(viewModel, _multiViewModel))
+                return null;
             bool data;
             if (context.TryGetData(NavigationConstants.SuppressTabNavigation, out data) && data)
                 return null;
             if (!CanShowViewModel(viewModel, context, parentPresenter))
                 return null;
-            MultiViewModel.AddViewModel(viewModel);
-            var operation = new AsyncOperation<bool?>();
+            if (MultiViewModel.ItemsSource.Contains(viewModel))
+                MultiViewModel.SelectedItem = viewModel;
+            else
+                MultiViewModel.AddViewModel(viewModel, true);
+            var operation = new NavigationOperation();
             CallbackManager.Register(OperationType.TabNavigation, viewModel, operation.ToOperationCallback(), context);
             return operation;
         }
@@ -145,18 +114,12 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Methods
 
-        /// <summary>
-        ///     Occurs when a view model is closed.
-        /// </summary>
         protected virtual void MultiViewModelOnViewModelClosed(object sender, ValueEventArgs<IViewModel> args)
         {
             var context = new NavigationContext(NavigationType.Tab, NavigationMode.Back, args.Value,
                 MultiViewModel.SelectedItem, MultiViewModel);
-            bool? result = null;
-            var hasOperationResult = args.Value as IHasOperationResult;
-            if (hasOperationResult != null)
-                result = hasOperationResult.OperationResult;
-            CallbackManager.SetResult(args.Value, OperationResult.CreateResult(OperationType.TabNavigation, args.Value, result, context));
+            var result = ViewModelExtensions.GetOperationResult(args.Value);
+            CallbackManager.SetResult(OperationResult.CreateResult(OperationType.TabNavigation, args.Value, result, context));
         }
 
         #endregion

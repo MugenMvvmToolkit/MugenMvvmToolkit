@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="AsyncOperationCallback.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -38,9 +38,12 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Constructors
 
+        //Only for serialization
+        internal AsyncOperationCallback() { }
+
         public AsyncOperationCallback(IAsyncOperationInternal asyncOperation)
         {
-            Should.NotBeNull(asyncOperation, "asyncOperation");
+            Should.NotBeNull(asyncOperation, nameof(asyncOperation));
             _asyncOperation = asyncOperation;
         }
 
@@ -48,7 +51,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Properties
 
-        [DataMember]
+        [DataMember(Name = "c")]
         internal ISerializableCallback Callback
         {
             get
@@ -73,20 +76,11 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Implementation of IOperationCallback
 
-        /// <summary>
-        ///     Gets a value indicating whether the <see cref="IOperationCallback" /> is serializable.
-        /// </summary>
-        public bool IsSerializable
-        {
-            get { return _callback != null || _asyncOperation != null; }
-        }
+        public bool IsSerializable => _callback != null || _asyncOperation != null;
 
-        /// <summary>
-        ///     Invokes the callback using the specified operation result.
-        /// </summary>
         public void Invoke(IOperationResult result)
         {
-            Should.NotBeNull(result, "result");
+            Should.NotBeNull(result, nameof(result));
             if (_asyncOperation == null)
             {
                 if (_callback != null)

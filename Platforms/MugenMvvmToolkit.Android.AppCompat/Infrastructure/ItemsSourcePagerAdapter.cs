@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="ItemsSourcePagerAdapter.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -26,13 +26,13 @@ using Android.Views;
 using Android.Widget;
 using Java.Lang;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Android.Binding.Infrastructure;
+using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models.EventArg;
 using Fragment = Android.Support.V4.App.Fragment;
 using FragmentManager = Android.Support.V4.App.FragmentManager;
@@ -40,7 +40,7 @@ using FragmentTransaction = Android.Support.V4.App.FragmentTransaction;
 using Object = Java.Lang.Object;
 using String = Java.Lang.String;
 
-namespace MugenMvvmToolkit.AppCompat.Infrastructure
+namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
 {
     public class ItemsSourcePagerAdapter : PagerAdapter
     {
@@ -50,6 +50,7 @@ namespace MugenMvvmToolkit.AppCompat.Infrastructure
         private readonly DataTemplateProvider _itemTemplateProvider;
         private readonly FragmentManager _fragmentManager;
         private readonly ViewPager _viewPager;
+        private readonly ReflectionExtensions.IWeakEventHandler<EventArgs> _listener;
 
         private IEnumerable _itemsSource;
         private Fragment _currentPrimaryItem;
@@ -61,35 +62,33 @@ namespace MugenMvvmToolkit.AppCompat.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ItemsSourcePagerAdapter" /> class.
-        /// </summary>
         public ItemsSourcePagerAdapter([NotNull] ViewPager viewPager)
         {
-            Should.NotBeNull(viewPager, "viewPager");
+            Should.NotBeNull(viewPager, nameof(viewPager));
             _viewPager = viewPager;
             _fragmentManager = viewPager.GetFragmentManager();
-            _itemTemplateProvider = new DataTemplateProvider(viewPager, AttachedMemberConstants.ItemTemplate,
-                AttachedMemberConstants.ItemTemplateSelector);
+            _itemTemplateProvider = new DataTemplateProvider(viewPager, AttachedMemberConstants.ItemTemplate, AttachedMemberConstants.ItemTemplateSelector);
             _weakHandler = ReflectionExtensions.MakeWeakCollectionChangedHandler(this,
                 (adapter, o, arg3) => adapter.OnCollectionChanged(o, arg3));
             var activityView = _viewPager.Context.GetActivity() as IActivityView;
             if (activityView != null)
-                activityView.Mediator.Destroyed += ActivityViewOnDestroyed;
+            {
+                _listener = ReflectionExtensions.CreateWeakEventHandler<ItemsSourcePagerAdapter, EventArgs>(this, (adapter, o, arg3) => adapter.ActivityViewOnDestroyed((Activity)o));
+                activityView.Mediator.Destroyed += _listener.Handle;
+            }
         }
 
         #endregion
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the items source.
-        /// </summary>
         public virtual IEnumerable ItemsSource
         {
             get { return _itemsSource; }
             set { SetItemsSource(value, true); }
         }
+
+        protected DataTemplateProvider DataTemplateProvider => _itemTemplateProvider;
 
         #endregion
 
@@ -130,7 +129,7 @@ namespace MugenMvvmToolkit.AppCompat.Infrastructure
             }
             if (notifyDataSet)
                 NotifyDataSetChanged();
-            if (!_isRestored)
+            if (value != null && !_isRestored && _viewPager.GetBindingMemberValue(AttachedMembersCompat.ViewPager.RestoreSelectedIndex).GetValueOrDefault(true))
             {
                 _isRestored = true;
                 TryRestoreSelectedIndex();
@@ -167,18 +166,37 @@ namespace MugenMvvmToolkit.AppCompat.Infrastructure
                 args.Value.PutInt(ContentPath, index);
         }
 
-        private void ActivityViewOnDestroyed(Activity sender, EventArgs args)
+        private void ActivityViewOnDestroyed(Activity sender)
         {
-            ((IActivityView)sender).Mediator.Destroyed -= ActivityViewOnDestroyed;
-            if (ItemsSource != null)
+            ((IActivityView)sender).Mediator.Destroyed -= _listener.Handle;
+            if (!_viewPager.IsAlive())
+                return;
+            if (ReferenceEquals(_viewPager.Adapter, this))
             {
-                foreach (var item in ItemsSource)
+                _viewPager.Adapter = null;
+                if (ItemsSource != null)
                 {
-                    var value = ServiceProvider.AttachedValueProvider.GetValue<Object>(item, ContentPath, false);
-                    if (value != null)
-                        DestroyItem(_viewPager, PositionNone, value);
+                    foreach (var item in ItemsSource)
+                    {
+                        if (item != null)
+                            ServiceProvider.AttachedValueProvider.Clear(item, ContentPath);
+                    }
                 }
-                FinishUpdate(_viewPager);
+            }
+            else
+            {
+                if (ItemsSource != null)
+                {
+                    foreach (var item in ItemsSource)
+                    {
+                        if (item == null)
+                            continue;
+                        var value = ServiceProvider.AttachedValueProvider.GetValue<Object>(item, ContentPath, false);
+                        if (value != null)
+                            DestroyItem(_viewPager, PositionNone, value);
+                    }
+                    FinishUpdate(_viewPager);
+                }
             }
             SetItemsSource(null, false);
         }
@@ -191,7 +209,12 @@ namespace MugenMvvmToolkit.AppCompat.Infrastructure
         {
             if (ItemsSource == null)
                 return base.GetPageTitleFormatted(position);
-            var displayName = ItemsSource.ElementAtIndex(position) as IHasDisplayName;
+            var item = ItemsSource.ElementAtIndex(position);
+            var func = _viewPager.GetBindingMemberValue(AttachedMembersCompat.ViewPager.GetPageTitleDelegate);
+            if (func != null)
+                return func(item);
+
+            var displayName = item as IHasDisplayName;
             if (displayName == null)
                 return null;
             return new String(displayName.DisplayName);
@@ -250,7 +273,7 @@ namespace MugenMvvmToolkit.AppCompat.Infrastructure
 
         public override void DestroyItem(ViewGroup container, int position, Object @object)
         {
-            var dataContext = ViewManager.GetDataContext(@object);
+            var dataContext = @object.DataContext();
             if (position != PositionNone)
                 position = GetPosition(dataContext);
             bool removed = position == PositionNone;
@@ -261,8 +284,6 @@ namespace MugenMvvmToolkit.AppCompat.Infrastructure
             {
                 var view = (View)@object;
                 container.RemoveView(view);
-                if (removed)
-                    view.ClearBindingsHierarchically(true, true);
             }
             else
             {
@@ -280,7 +301,7 @@ namespace MugenMvvmToolkit.AppCompat.Infrastructure
             var fragment = @object as Fragment;
             if (fragment != _currentPrimaryItem)
             {
-                if (_currentPrimaryItem != null)
+                if (_currentPrimaryItem.IsAlive())
                 {
                     _currentPrimaryItem.SetMenuVisibility(false);
                     _currentPrimaryItem.UserVisibleHint = false;
@@ -298,7 +319,7 @@ namespace MugenMvvmToolkit.AppCompat.Infrastructure
         {
             if (ItemsSource == null)
                 return PositionNone;
-            var dataContext = ViewManager.GetDataContext(@object);
+            var dataContext = @object.DataContext();
             return GetPosition(dataContext);
         }
 

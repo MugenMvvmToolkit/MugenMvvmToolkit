@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="DefaultOperationCallbackFactory.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,14 +18,14 @@
 
 using System;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure.Callbacks
 {
-    /// <summary>
-    ///     Rerpresets the factory that allows to create callback operations.
-    /// </summary>
     public class DefaultOperationCallbackFactory : IOperationCallbackFactory
     {
         #region Nested types
@@ -35,15 +35,17 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             #region Fields
 
             private readonly IAsyncOperation _asyncOperation;
+            private readonly bool _continueOnCapturedContext;
 
             #endregion
 
             #region Constructors
 
-            public AsyncOperationAwaiter(IAsyncOperation asyncOperation)
+            public AsyncOperationAwaiter(IAsyncOperation asyncOperation, bool continueOnCapturedContext)
             {
-                Should.NotBeNull(asyncOperation, "asyncOperation");
+                Should.NotBeNull(asyncOperation, nameof(asyncOperation));
                 _asyncOperation = asyncOperation;
+                _continueOnCapturedContext = continueOnCapturedContext;
             }
 
             #endregion
@@ -55,10 +57,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 object result = _asyncOperation.Result.Result;
             }
 
-            public bool IsCompleted
-            {
-                get { return _asyncOperation.IsCompleted; }
-            }
+            public bool IsCompleted => _asyncOperation.IsCompleted;
 
             TResult IAsyncOperationAwaiter<TResult>.GetResult()
             {
@@ -67,7 +66,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
             void INotifyCompletion.OnCompleted(Action continuation)
             {
-                _asyncOperation.ContinueWith(new AwaiterContinuation(continuation));
+                _asyncOperation.ContinueWith(new AwaiterContinuation(continuation, _continueOnCapturedContext));
             }
 
             #endregion
@@ -78,15 +77,18 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             #region Fields
 
             private readonly Action _continuation;
+            private readonly SynchronizationContext _context;
 
             #endregion
 
             #region Constructors
 
-            public AwaiterContinuation(Action continuation)
+            public AwaiterContinuation(Action continuation, bool continueOnCapturedContext)
             {
-                Should.NotBeNull(continuation, "continuation");
+                Should.NotBeNull(continuation, nameof(continuation));
                 _continuation = continuation;
+                if (continueOnCapturedContext)
+                    _context = SynchronizationContext.Current;
             }
 
             #endregion
@@ -100,7 +102,10 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
             public void Invoke(IOperationResult result)
             {
-                _continuation();
+                if (_context == null || ReferenceEquals(SynchronizationContext.Current, _context))
+                    _continuation();
+                else
+                    _context.Post(state => ((Action)state).Invoke(), _continuation);
             }
 
             #endregion
@@ -124,9 +129,6 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the <see cref="IOperationCallbackFactory" />.
-        /// </summary>
         public static IOperationCallbackFactory Instance
         {
             get
@@ -141,28 +143,34 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Implementation of IOperationCallbackFactory
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IAsyncOperationAwaiter" />.
-        /// </summary>
         public IAsyncOperationAwaiter CreateAwaiter(IAsyncOperation operation, IDataContext context)
         {
-            return new AsyncOperationAwaiter<object>(operation);
+            return CreateAwaiterInternal<object>(operation, context);
         }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IAsyncOperationAwaiter{TResult}" />.
-        /// </summary>
         public IAsyncOperationAwaiter<TResult> CreateAwaiter<TResult>(IAsyncOperation<TResult> operation, IDataContext context)
         {
-            return new AsyncOperationAwaiter<TResult>(operation);
+            return CreateAwaiterInternal<TResult>(operation, context);
         }
 
-        /// <summary>
-        ///     Tries to convert a delegate to an instance of <see cref="ISerializableCallback" />.
-        /// </summary>
         public ISerializableCallback CreateSerializableCallback(Delegate @delegate)
         {
             return null;
+        }
+
+        #endregion
+
+        #region Methods
+
+        private static AsyncOperationAwaiter<TResult> CreateAwaiterInternal<TResult>(IAsyncOperation operation, IDataContext context)
+        {
+            Should.NotBeNull(operation, nameof(operation));
+            if (context == null)
+                context = DataContext.Empty;
+            bool continueOnCapturedContext;
+            if (!context.TryGetData(OpeartionCallbackConstants.ContinueOnCapturedContext, out continueOnCapturedContext))
+                continueOnCapturedContext = true;
+            return new AsyncOperationAwaiter<TResult>(operation, continueOnCapturedContext);
         }
 
         #endregion

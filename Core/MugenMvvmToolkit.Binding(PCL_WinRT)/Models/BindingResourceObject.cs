@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="BindingResourceObject.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -22,71 +22,70 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Models
 {
-    /// <summary>
-    ///     Represents the binding expression object.
-    /// </summary>
-    public class BindingResourceObject : IBindingResourceObject
+    public class BindingResourceObject : ISourceValue
     {
         #region Fields
 
-        private readonly Type _type;
-        private readonly object _value;
+        private object _value;
+        private readonly bool _isWeak;
 
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingResourceObject" /> class.
-        /// </summary>
-        public BindingResourceObject(object value, Type type = null)
+        public BindingResourceObject(WeakReference value)
         {
-            _value = value;
-            if (type == null && value != null)
-                type = value.GetType();
-            _type = type ?? typeof(object);
+            _isWeak = true;
+            _value = value ?? Empty.WeakReference;
+        }
+
+        public BindingResourceObject(object value, bool isWeak = false)
+        {
+            _isWeak = isWeak;
+            SetValue(value);
         }
 
         #endregion
 
-        #region Implementation of IBindingResourceObject
+        #region Implementation of ISourceValue
 
-        /// <summary>
-        ///     Gets the type of object.
-        /// </summary>
-        public Type Type
-        {
-            get { return _type; }
-        }
-
-        /// <summary>
-        ///     Gets an indication whether the object referenced by the current <see cref="ISourceValue" /> object has
-        ///     been garbage collected.
-        /// </summary>
-        /// <returns>
-        ///     true if the object referenced by the current <see cref="ISourceValue" /> object has not been garbage
-        ///     collected and is still accessible; otherwise, false.
-        /// </returns>
         bool ISourceValue.IsAlive
         {
-            get { return true; }
+            get
+            {
+                if (_isWeak)
+                    return ((WeakReference)_value).Target != null;
+                return true;
+            }
         }
 
-        /// <summary>
-        ///     Gets the value.
-        /// </summary>
         public object Value
         {
-            get { return _value; }
+            get
+            {
+                if (_isWeak)
+                    return ((WeakReference)_value).Target;
+                return _value;
+            }
+            set
+            {
+                if (Equals(Value, value))
+                    return;
+
+                SetValue(value);
+                ValueChanged?.Invoke(this, EventArgs.Empty);
+            }
         }
 
-        /// <summary>
-        ///     Occurs when the <see cref="ISourceValue.Value"/>  property changed.
-        /// </summary>
-        event EventHandler<ISourceValue, EventArgs> ISourceValue.ValueChanged
+        public event EventHandler<ISourceValue, EventArgs> ValueChanged;
+
+        #endregion
+
+        #region Methods
+
+        private void SetValue(object value)
         {
-            add { }
-            remove { }
+            _value = _isWeak ? ToolkitExtensions.GetWeakReference(value) : value;
         }
 
         #endregion

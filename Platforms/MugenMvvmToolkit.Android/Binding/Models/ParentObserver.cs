@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="ParentObserver.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -21,12 +21,9 @@ using Android.Views;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Infrastructure;
 
-namespace MugenMvvmToolkit.Binding.Models
+namespace MugenMvvmToolkit.Android.Binding.Models
 {
-    /// <summary>
-    ///     Represents the weak parent observer.
-    /// </summary>
-    public sealed class ParentObserver : EventListenerList
+    internal sealed class ParentObserver : EventListenerList
     {
         #region Fields
 
@@ -41,26 +38,17 @@ namespace MugenMvvmToolkit.Binding.Models
 
         private ParentObserver(View view)
         {
-            _view = ServiceProvider.WeakReferenceFactory(view, true);
-            _parent = ToolkitExtensions.GetWeakReferenceOrDefault(view.Parent, Empty.WeakReference, false);
+            _view = ServiceProvider.WeakReferenceFactory(view);
+            _parent = ToolkitExtensions.GetWeakReferenceOrDefault(GetParent(view), Empty.WeakReference, false);
         }
 
         #endregion
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the source element.
-        /// </summary>
         [CanBeNull]
-        public View Source
-        {
-            get { return (View)_view.Target; }
-        }
+        public View Source => (View)_view.Target;
 
-        /// <summary>
-        ///     Gets or sets the parent of current element.
-        /// </summary>
         [CanBeNull]
         public object Parent
         {
@@ -76,9 +64,6 @@ namespace MugenMvvmToolkit.Binding.Models
 
         #region Methods
 
-        /// <summary>
-        ///     Gets or adds an instance of <see cref="ParentObserver" />.
-        /// </summary>
         public static ParentObserver GetOrAdd(View view)
         {
             return ServiceProvider
@@ -86,9 +71,6 @@ namespace MugenMvvmToolkit.Binding.Models
                 .GetOrAdd(view, Key, (v, o) => new ParentObserver(v), null);
         }
 
-        /// <summary>
-        ///     Raises the parent changed event.
-        /// </summary>
         public static void Raise(View view)
         {
             ParentObserver observer;
@@ -96,17 +78,17 @@ namespace MugenMvvmToolkit.Binding.Models
                 observer.Raise();
         }
 
-        /// <summary>
-        ///     Raises the parent changed event.
-        /// </summary>
         public void Raise()
         {
+            if (_isAttached)
+                return;
             var view = GetSource();
             if (view == null)
                 return;
-            if (_isAttached || view.Id == Android.Resource.Id.Content || ReferenceEquals(view.Parent, _parent.Target))
+            var parent = GetParent(view);
+            if (view.Id == global::Android.Resource.Id.Content || ReferenceEquals(parent, _parent.Target))
                 return;
-            _parent = ToolkitExtensions.GetWeakReferenceOrDefault(view.Parent, Empty.WeakReference, false);
+            _parent = ToolkitExtensions.GetWeakReferenceOrDefault(parent, Empty.WeakReference, false);
             Raise(view, EventArgs.Empty);
         }
 
@@ -125,9 +107,33 @@ namespace MugenMvvmToolkit.Binding.Models
         private View GetSource()
         {
             var source = Source;
-            if (source == null)
+            if (!source.IsAlive())
+            {
                 Clear();
+                source = null;
+            }
             return source;
+        }
+
+        private static object GetParent(View view)
+        {
+            if (!view.IsAlive())
+                return null;
+            if (view.Id == global::Android.Resource.Id.Content)
+                return view.Context.GetActivity();
+            object parent = view.Parent;
+            if (parent != null)
+                return parent;
+            var activity = view.Context.GetActivity();
+            if (!activity.IsAlive())
+                return null;
+            var w = activity.Window;
+            if (!w.IsAlive())
+                return null;
+            var d = w.DecorView;
+            if (d.IsAlive() && ReferenceEquals(view, d.RootView))
+                return activity;
+            return null;
         }
 
         #endregion

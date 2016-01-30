@@ -34,12 +34,6 @@ namespace MugenMvvmToolkit.Test.ViewModels
 
             #region Implementation of IViewModel
 
-            /// <summary>
-            ///     Initializes the current view model with specified <see cref="IDataContext" />.
-            /// </summary>
-            /// <param name="context">
-            ///     The specified <see cref="IDataContext" />.
-            /// </param>
             public void InitializeViewModel(IDataContext context)
             {
                 Context = context;
@@ -55,19 +49,13 @@ namespace MugenMvvmToolkit.Test.ViewModels
 
         public class TestViewModelBase : ViewModelBase
         {
-            public IThreadManager ThreadManager
-            {
-                get { return base.ThreadManager; }
-            }
+            public IThreadManager ThreadManager => base.ThreadManager;
         }
 
         public class ViewModelBaseWithDisplayName : ViewModelBase, IHasDisplayName
         {
             #region Implementation of IHasDisplayName
 
-            /// <summary>
-            ///     Gets or sets the display name for the current model.
-            /// </summary>
             public string DisplayName { get; set; }
 
             #endregion
@@ -80,12 +68,12 @@ namespace MugenMvvmToolkit.Test.ViewModels
         [TestMethod]
         public void GetViewModelMethodShouldUseCorrectParameters()
         {
-            const IocContainerCreationMode iocContainerCreationMode = IocContainerCreationMode.ParentViewModel;
             const ObservationMode listenType = ObservationMode.Both;
             var constantValue = DataConstantValue.Create(new DataConstant<string>("test"), "test");
             bool isInvoked = false;
 
             var providerMock = new ViewModelProviderMock();
+            ServiceProvider.ViewModelProvider = providerMock;
             var func = IocContainer.GetFunc;
             IocContainer.GetFunc = (type, s, arg3) =>
             {
@@ -98,7 +86,6 @@ namespace MugenMvvmToolkit.Test.ViewModels
             {
                 context.GetData((DataConstant<string>)constantValue.DataConstant).ShouldEqual(constantValue.Value);
                 context.GetDataTest(InitializationConstants.ObservationMode).ShouldEqual(listenType);
-                context.GetDataTest(InitializationConstants.IocContainerCreationMode).ShouldEqual(iocContainerCreationMode);
                 isInvoked = true;
             };
             providerMock.GetViewModel = (@delegate, context) =>
@@ -113,20 +100,19 @@ namespace MugenMvvmToolkit.Test.ViewModels
             };
 
 
-            viewModel.GetViewModel(getViewModel: adapter => new ViewModelBaseWithContext(),
-                containerCreationMode: iocContainerCreationMode, observationMode: listenType, parameters: constantValue);
+            viewModel.GetViewModel(getViewModel: adapter => new ViewModelBaseWithContext(), observationMode: listenType, parameters: constantValue);
             isInvoked.ShouldBeTrue();
             isInvoked = false;
 
-            viewModel.GetViewModel(adapter => new ViewModelBaseWithContext(), listenType, iocContainerCreationMode, constantValue);
+            viewModel.GetViewModel(adapter => new ViewModelBaseWithContext(), listenType, constantValue);
             isInvoked.ShouldBeTrue();
             isInvoked = false;
 
-            viewModel.GetViewModel(typeof(ViewModelBaseWithContext), listenType, iocContainerCreationMode, constantValue);
+            viewModel.GetViewModel(typeof(ViewModelBaseWithContext), listenType, constantValue);
             isInvoked.ShouldBeTrue();
             isInvoked = false;
 
-            viewModel.GetViewModel<ViewModelBaseWithContext>(listenType, iocContainerCreationMode, constantValue);
+            viewModel.GetViewModel<ViewModelBaseWithContext>(listenType, constantValue);
             isInvoked.ShouldBeTrue();
         }
 
@@ -151,37 +137,14 @@ namespace MugenMvvmToolkit.Test.ViewModels
         public void DefaultPropertiesShouldBeInitialized()
         {
             ThreadManager.ImmediateInvokeAsync = true;
-            Settings.WithoutClone = true;
+            var settings = new DefaultViewModelSettings();
+            ServiceProvider.ViewModelSettingsFactory = model => settings;
             ViewModelBase viewModel = GetViewModelBase();
 
             var testViewModel = viewModel.GetViewModel<TestViewModelBase>();
             testViewModel.ThreadManager.ShouldEqual(ThreadManager);
-            testViewModel.IocContainer.Parent.ShouldEqual(viewModel.IocContainer);
-            testViewModel.Settings.ShouldEqual(Settings);
-        }
-
-        [TestMethod]
-        public void DisplayNameShouldBeInitializedIfProviderCanBeResolved()
-        {
-            const string name = "name";
-            ThreadManager.ImmediateInvokeAsync = true;
-            Settings.WithoutClone = true;
-            DisplayNameProvider.GetNameDelegate = info => name;
-            ViewModelBase viewModel = GetViewModelBase();
-
-            var testViewModel = viewModel.GetViewModel<ViewModelBaseWithDisplayName>();
-            testViewModel.DisplayName.ShouldEqual(name);
-        }
-
-        [TestMethod]
-        public void DisplayNameShouldNotBeInitializedIfProviderCannotBeResolved()
-        {
-            ThreadManager.ImmediateInvokeAsync = true;
-            CanBeResolvedTypes.Remove(typeof(IDisplayNameProvider));
-            ViewModelBase viewModel = GetViewModelBase();
-
-            var testViewModel = viewModel.GetViewModel<ViewModelBaseWithDisplayName>();
-            testViewModel.DisplayName.ShouldBeNull();
+            testViewModel.IocContainer.ShouldEqual(viewModel.IocContainer);
+            testViewModel.Settings.ShouldEqual(settings);
         }
 
         [TestMethod]
@@ -209,10 +172,10 @@ namespace MugenMvvmToolkit.Test.ViewModels
 
         #region Methods
 
-        private ViewModelBase GetViewModelBase()
+        private ViewModelBase GetViewModelBase(IDataContext context = null)
         {
             ViewModelBase viewModel = GetViewModelBaseDelegate();
-            InitializeViewModel(viewModel, IocContainer);
+            InitializeViewModel(viewModel, IocContainer, context: context);
             return viewModel;
         }
 

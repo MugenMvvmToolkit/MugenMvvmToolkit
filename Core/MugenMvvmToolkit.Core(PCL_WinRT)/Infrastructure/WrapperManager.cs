@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="WrapperManager.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -20,43 +20,32 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    /// <summary>
-    ///     Represents the class that allows to wrap an object to another object.
-    /// </summary>
-    public class WrapperManager : IWrapperManager
+    public class WrapperManager : IConfigurableWrapperManager
     {
         #region Nested types
 
-        /// <summary>
-        ///     Represents the wrapper registration.
-        /// </summary>
+        [StructLayout(LayoutKind.Auto)]
         protected struct WrapperRegistration
         {
             #region Fields
 
-            /// <summary>
-            ///     Gets the condition.
-            /// </summary>
             [NotNull]
             public readonly Func<Type, IDataContext, bool> Condition;
 
-            /// <summary>
-            ///     Gets the factory delegate.
-            /// </summary>
             [CanBeNull]
             public readonly Func<object, IDataContext, object> WrapperFactory;
 
-            /// <summary>
-            ///     Gets the type of wrapper.
-            /// </summary>
             [NotNull]
             public readonly Type Type;
 
@@ -64,9 +53,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #region Constructors
 
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="WrapperRegistration" /> class.
-            /// </summary>
             public WrapperRegistration(Type type, Func<Type, IDataContext, bool> condition, Func<object, IDataContext, object> wrapperFactory)
             {
                 Type = type;
@@ -81,6 +67,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Fields
 
+        protected static readonly DataConstant<object> ItemToWrapConstant;
         private static readonly Func<Type, IDataContext, bool> TrueCondition;
         private readonly Dictionary<Type, List<WrapperRegistration>> _registrations;
         private readonly IViewModelProvider _viewModelProvider;
@@ -92,14 +79,12 @@ namespace MugenMvvmToolkit.Infrastructure
         static WrapperManager()
         {
             TrueCondition = (model, context) => true;
+            ItemToWrapConstant = DataConstant.Create<object>(typeof(WrapperManager), nameof(ItemToWrapConstant), true);
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="WrapperManager" /> class.
-        /// </summary>
         public WrapperManager([NotNull] IViewModelProvider viewModelProvider)
         {
-            Should.NotBeNull(viewModelProvider, "viewModelProvider");
+            Should.NotBeNull(viewModelProvider, nameof(viewModelProvider));
             _viewModelProvider = viewModelProvider;
             _registrations = new Dictionary<Type, List<WrapperRegistration>>();
         }
@@ -108,44 +93,18 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the <see cref="IViewModelProvider" />.
-        /// </summary>
-        protected IViewModelProvider ViewModelProvider
-        {
-            get { return _viewModelProvider; }
-        }
+        protected IViewModelProvider ViewModelProvider => _viewModelProvider;
 
-        /// <summary>
-        ///     Gets the wrapper mappings.
-        /// </summary>
-        protected IDictionary<Type, List<WrapperRegistration>> Registrations
-        {
-            get { return _registrations; }
-        }
+        protected IDictionary<Type, List<WrapperRegistration>> Registrations => _registrations;
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Adds the wrapper mapping.
-        /// </summary>
-        public void AddWrapper<TWrapper, TImplementation>(Func<Type, IDataContext, bool> condition = null, Func<object, IDataContext, TWrapper> wrapperFactory = null)
-            where TWrapper : class
-            where TImplementation : class, TWrapper
+        public void AddWrapper(Type wrapperType, Type implementation, Func<Type, IDataContext, bool> condition = null, Func<object, IDataContext, object> wrapperFactory = null)
         {
-            AddWrapper(typeof(TImplementation), condition, wrapperFactory);
-        }
-
-        /// <summary>
-        ///     Adds the wrapper mapping.
-        /// </summary>
-        public void AddWrapper<TWrapper>([NotNull] Type implementation,
-            Func<Type, IDataContext, bool> condition = null, Func<object, IDataContext, TWrapper> wrapperFactory = null)
-            where TWrapper : class
-        {
-            Should.NotBeNull(implementation, "implementation");
+            Should.NotBeNull(wrapperType, nameof(wrapperType));
+            Should.NotBeNull(implementation, nameof(implementation));
 #if PCL_WINRT
             TypeInfo typeInfo = implementation.GetTypeInfo();
             if (typeInfo.IsInterface || typeInfo.IsAbstract)
@@ -155,32 +114,33 @@ namespace MugenMvvmToolkit.Infrastructure
 
                 throw ExceptionManager.WrapperTypeShouldBeNonAbstract(implementation);
             List<WrapperRegistration> list;
-            if (!_registrations.TryGetValue(typeof(TWrapper), out list))
+            if (!_registrations.TryGetValue(wrapperType, out list))
             {
                 list = new List<WrapperRegistration>();
-                _registrations[typeof(TWrapper)] = list;
+                _registrations[wrapperType] = list;
             }
-#if PCL_Silverlight
-            list.Add(new WrapperRegistration(implementation, condition ?? TrueCondition,
-                wrapperFactory == null
-                    ? null
-                    : new Func<object, IDataContext, object>((o, context) => wrapperFactory(o, context))));
-#else
             list.Add(new WrapperRegistration(implementation, condition ?? TrueCondition, wrapperFactory));
-#endif
         }
 
-        /// <summary>
-        ///     Clears the wrapper types.
-        /// </summary>
+        public void AddWrapper<TWrapper>(Type implementation,
+            Func<Type, IDataContext, bool> condition = null, Func<object, IDataContext, TWrapper> wrapperFactory = null)
+            where TWrapper : class
+        {
+            AddWrapper(typeof(TWrapper), implementation, condition, wrapperFactory);
+        }
+
+        public void AddWrapper<TWrapper, TImplementation>(Func<Type, IDataContext, bool> condition = null, Func<object, IDataContext, TWrapper> wrapperFactory = null)
+            where TWrapper : class
+            where TImplementation : class, TWrapper
+        {
+            AddWrapper(typeof(TImplementation), condition, wrapperFactory);
+        }
+
         public void Clear<TWrapper>()
         {
             _registrations.Remove(typeof(TWrapper));
         }
 
-        /// <summary>
-        ///     Creates the wrapper view model.
-        /// </summary>
         [CanBeNull]
         protected virtual object WrapInternal(object item, WrapperRegistration wrapperRegistration, IDataContext dataContext)
         {
@@ -197,7 +157,14 @@ namespace MugenMvvmToolkit.Infrastructure
             var viewModel = item as IViewModel;
             if (viewModel != null && typeof(IWrapperViewModel).IsAssignableFrom(wrapperType))
             {
-                var vm = (IWrapperViewModel)_viewModelProvider.GetViewModel(wrapperType, dataContext ?? DataContext.Empty);
+                dataContext = dataContext.ToNonReadOnly();
+                if (!dataContext.Contains(InitializationConstants.ParentViewModel))
+                {
+                    var parentViewModel = viewModel.GetParentViewModel();
+                    if (parentViewModel != null)
+                        dataContext.AddOrUpdate(InitializationConstants.ParentViewModel, parentViewModel);
+                }
+                var vm = (IWrapperViewModel)_viewModelProvider.GetViewModel(wrapperType, dataContext);
                 vm.Wrap(viewModel, dataContext);
                 return vm;
             }
@@ -216,9 +183,6 @@ namespace MugenMvvmToolkit.Infrastructure
             return constructor.InvokeEx(item);
         }
 
-        /// <summary>
-        ///     Creates the default wrapper if mapping was not found.
-        /// </summary>
         [CanBeNull]
         protected virtual object WrapToDefaultWrapper(object item, Type wrapperType, IDataContext dataContext)
         {
@@ -229,13 +193,10 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Implementation of IWrapperManager
 
-        /// <summary>
-        ///     Determines whether the specified view can be wrapped to wrapper type.
-        /// </summary>
         public bool CanWrap(Type type, Type wrapperType, IDataContext dataContext)
         {
-            Should.NotBeNull(type, "type");
-            Should.NotBeNull(wrapperType, "wrapperType");
+            Should.NotBeNull(type, nameof(type));
+            Should.NotBeNull(wrapperType, nameof(wrapperType));
             if (wrapperType.IsAssignableFrom(type))
                 return true;
             if (dataContext == null)
@@ -252,21 +213,18 @@ namespace MugenMvvmToolkit.Infrastructure
             return false;
         }
 
-        /// <summary>
-        ///     Wraps the specified view object to the wrapper type.
-        /// </summary>
         public object Wrap(object item, Type wrapperType, IDataContext dataContext)
         {
-            Should.NotBeNull(item, "item");
-            Should.NotBeNull(wrapperType, "wrapperType");
+            Should.NotBeNull(item, nameof(item));
+            Should.NotBeNull(wrapperType, nameof(wrapperType));
             if (wrapperType.IsInstanceOfType(item))
                 return item;
-            if (dataContext == null)
-                dataContext = DataContext.Empty;
+            dataContext = dataContext.ToNonReadOnly();
             object wrapper = null;
             List<WrapperRegistration> list;
             if (_registrations.TryGetValue(wrapperType, out list))
             {
+                dataContext.AddOrUpdate(ItemToWrapConstant, item);
                 var type = item.GetType();
                 for (int i = 0; i < list.Count; i++)
                 {
@@ -274,6 +232,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     if (registration.Condition(type, dataContext))
                         wrapper = WrapInternal(item, registration, dataContext);
                 }
+                dataContext.Remove(ItemToWrapConstant);
             }
             if (wrapper == null)
                 wrapper = WrapToDefaultWrapper(item, wrapperType, dataContext);

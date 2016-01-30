@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IModule.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -21,24 +21,12 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Interfaces
 {
-    /// <summary>
-    ///     Represents the interface that is used to initialize MVVM application.
-    /// </summary>
     public interface IModule
     {
-        /// <summary>
-        ///     Gets the priority.
-        /// </summary>
         int Priority { get; }
 
-        /// <summary>
-        ///     Loads the current module.
-        /// </summary>
         bool Load([NotNull] IModuleContext context);
 
-        /// <summary>
-        ///     Unloads the current module.
-        /// </summary>
         void Unload([NotNull] IModuleContext context);
     }
 }

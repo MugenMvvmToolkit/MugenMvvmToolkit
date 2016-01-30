@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IModuleContext.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -23,37 +23,19 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Interfaces.Models
 {
-    /// <summary>
-    ///     Represents the module context.
-    /// </summary>
     public interface IModuleContext
     {
-        /// <summary>
-        ///     Gets the <see cref="IIocContainer" />.
-        /// </summary>
         [CanBeNull]
         IIocContainer IocContainer { get; }
 
-        /// <summary>
-        ///     Gets the <see cref="IDataContext" />.
-        /// </summary>
         [NotNull]
         IDataContext Context { get; }
 
-        /// <summary>
-        ///     Gets the application assemblies.
-        /// </summary>
         [NotNull]
         IList<Assembly> Assemblies { get; }
 
-        /// <summary>
-        ///     Gets the module load mode.
-        /// </summary>
         LoadMode Mode { get; }
 
-        /// <summary>
-        ///     Gets the current platform.
-        /// </summary>
         [NotNull]
         PlatformInfo Platform { get; }
     }

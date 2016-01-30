@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ISerializer.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -22,31 +22,15 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Interfaces
 {
-    /// <summary>
-    ///     Represents the serializer interface that allows to serialize and deserialize objects.
-    /// </summary>
     public interface ISerializer
     {
-        /// <summary>
-        ///     Adds a known type.
-        /// </summary>
-        void AddKnownType([NotNull] Type type);
-
-        /// <summary>
-        ///     Adds a known type.
-        /// </summary>
-        bool RemoveKnownType([NotNull] Type type);
-
-        /// <summary>
-        ///     Serializes data to stream.
-        /// </summary>
         [NotNull]
         Stream Serialize([NotNull] object item);
 
-        /// <summary>
-        ///     Deserializes data using stream.
-        /// </summary>
         [NotNull]
         object Deserialize([NotNull] Stream stream);
+
+        [Pure]
+        bool IsSerializable([NotNull]Type type);
     }
 }

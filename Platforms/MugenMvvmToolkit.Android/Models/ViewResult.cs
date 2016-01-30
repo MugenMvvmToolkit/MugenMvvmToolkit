@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="ViewResult.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -20,9 +20,9 @@ using Android.Views;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
 
-namespace MugenMvvmToolkit.Models
+namespace MugenMvvmToolkit.Android.Models
 {
-    public sealed class ViewResult
+    public struct ViewResult
     {
         #region Fields
 
@@ -33,37 +33,24 @@ namespace MugenMvvmToolkit.Models
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ViewResult" /> class.
-        /// </summary>
         public ViewResult([NotNull] View view, IDataContext dataContext)
         {
-            Should.NotBeNull(view, "view");
+            Should.NotBeNull(view, nameof(view));
             _view = view;
-            _dataContext = dataContext ?? Models.DataContext.Empty;
+            _dataContext = dataContext ?? MugenMvvmToolkit.Models.DataContext.Empty;
         }
 
         #endregion
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the <see cref="View" />.
-        /// </summary>
-        [NotNull]
-        public View View
-        {
-            get { return _view; }
-        }
+        public bool IsEmpty => _view == null;
 
-        /// <summary>
-        ///     Gets the <see cref="IDataContext" />.
-        /// </summary>
         [NotNull]
-        public IDataContext DataContext
-        {
-            get { return _dataContext; }
-        }
+        public View View => _view;
+
+        [NotNull]
+        public IDataContext DataContext => _dataContext;
 
         #endregion
     }

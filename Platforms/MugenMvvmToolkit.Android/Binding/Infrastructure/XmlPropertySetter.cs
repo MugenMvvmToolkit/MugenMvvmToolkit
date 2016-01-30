@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="XmlPropertySetter.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,12 +18,15 @@
 
 using System;
 using System.Linq.Expressions;
+using System.Runtime.InteropServices;
 using Android.Content;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Builders;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 {
+    [StructLayout(LayoutKind.Auto)]
     public struct XmlPropertySetter<TWrapper, TTarget>
         where TTarget : class
     {
@@ -37,14 +40,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="XmlPropertySetter{TWrapper,TTarget}" /> class.
-        /// </summary>
         public XmlPropertySetter([NotNull]TTarget target, [NotNull] Context context, [NotNull] BindingSet bindingSet)
         {
-            Should.NotBeNull(target, "target");
-            Should.NotBeNull(context, "context");
-            Should.NotBeNull(bindingSet, "bindingSet");
+            Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(context, nameof(context));
+            Should.NotBeNull(bindingSet, nameof(bindingSet));
             _target = target;
             _context = context;
             _bindingSet = bindingSet;
@@ -54,18 +54,15 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Properties
 
-        public BindingSet BindingSet
-        {
-            get { return _bindingSet; }
-        }
+        public BindingSet BindingSet => _bindingSet;
 
         #endregion
 
         #region Methods
 
-        public void SetBoolProperty<TValue>(Expression<Func<TWrapper, TValue>> propertyName, string value)
+        public void SetBoolProperty(Func<Expression<Func<TWrapper, object>>> propertyName, string value)
         {
-            SetBoolProperty(ToolkitExtensions.GetMemberName(propertyName), value);
+            SetBoolProperty(propertyName.GetMemberName(), value);
         }
 
         public void SetBoolProperty(string propertyName, string value)
@@ -73,15 +70,21 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             SetStringProperty(propertyName, value, s => Empty.BooleanToObject(bool.Parse(s)));
         }
 
-        public void SetEnumProperty<TEnum>(Expression<Func<TWrapper, object>> propertyName, string value)
+        public void SetEnumProperty<TEnum>(Func<Expression<Func<TWrapper, object>>> propertyName, string value)
             where TEnum : struct
         {
             SetStringProperty(propertyName, value, s => (TEnum)Enum.Parse(typeof(TEnum), s.Replace("|", ","), true));
         }
 
-        public void SetStringProperty<TValue>(Expression<Func<TWrapper, TValue>> propertyName, string value, Func<string, object> convertAction = null)
+        public void SetEnumProperty<TEnum>(string propertyName, string value)
+            where TEnum : struct
         {
-            SetStringProperty(ToolkitExtensions.GetMemberName(propertyName), value, convertAction);
+            SetStringProperty(propertyName, value, s => (TEnum)Enum.Parse(typeof(TEnum), s.Replace("|", ","), true));
+        }
+
+        public void SetStringProperty(Func<Expression<Func<TWrapper, object>>> propertyName, string value, Func<string, object> convertAction = null)
+        {
+            SetStringProperty(propertyName.GetMemberName(), value, convertAction);
         }
 
         public void SetStringProperty(string propertyName, string value, Func<string, object> convertAction = null)
@@ -99,12 +102,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 objectToSet = value;
             }
             var member = BindingServiceProvider.MemberProvider.GetBindingMember(typeof(TTarget), propertyName, false, true);
-            member.SetValue(_target, new[] { convertAction == null ? objectToSet : convertAction(objectToSet) });
+            member.SetSingleValue(_target, convertAction == null ? objectToSet : convertAction(objectToSet));
         }
 
-        public void SetProperty<TValue>(Expression<Func<TWrapper, TValue>> propertyName, string value)
+        public void SetProperty(Func<Expression<Func<TWrapper, object>>> propertyName, string value)
         {
-            SetProperty(ToolkitExtensions.GetMemberName(propertyName), value);
+            SetProperty(propertyName.GetMemberName(), value);
         }
 
         public void SetProperty(string propertyName, string value)
@@ -122,12 +125,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 objectToSet = value;
             }
             var member = BindingServiceProvider.MemberProvider.GetBindingMember(typeof(TTarget), propertyName, false, true);
-            member.SetValue(_target, new[] { objectToSet });
+            member.SetSingleValue(_target, objectToSet);
         }
 
-        public void SetBinding<TValue>(Expression<Func<TWrapper, TValue>> propertyName, string value, bool required)
+        public void SetBinding(Func<Expression<Func<TWrapper, object>>> propertyName, string value, bool required)
         {
-            SetBinding(ToolkitExtensions.GetMemberName(propertyName), value, required);
+            SetBinding(propertyName.GetMemberName(), value, required);
         }
 
         public void SetBinding(string propertyName, string value, bool required)
@@ -181,9 +184,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (expression == "{}")
                 return string.Empty;
             if (!expression.EndsWith("}"))
-                throw new ArgumentException(
-                    string.Format("The binding string should start with '{{' symbol and end with '}}' symbol, invalid string: '{0}'", expression),
-                    expression);
+                throw new ArgumentException($"The binding string should start with '{{' symbol and end with '}}' symbol, invalid string: '{expression}'", expression);
             return expression.Substring(1, expression.Length - 2);
         }
 

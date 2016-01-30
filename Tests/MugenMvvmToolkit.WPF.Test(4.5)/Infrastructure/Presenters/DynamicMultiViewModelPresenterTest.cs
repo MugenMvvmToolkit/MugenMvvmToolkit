@@ -7,6 +7,7 @@ using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Test.TestInfrastructure;
 using MugenMvvmToolkit.Test.TestViewModels;
 using MugenMvvmToolkit.ViewModels;
 using Should;
@@ -25,7 +26,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Presenters
             MultiViewModel viewModel = GetMultiViewModel();
             IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter(viewModel,
                 OperationCallbackManager, (model, context, arg3) => true);
-            IAsyncOperation<bool?> task = presenter.TryShowAsync(vm, DataContext.Empty, null);
+            var task = presenter.TryShowAsync(vm, DataContext.Empty, null);
             task.ShouldNotBeNull();
             task.IsCompleted.ShouldBeFalse();
             viewModel.ItemsSource.Contains(vm).ShouldBeTrue();
@@ -50,9 +51,10 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Presenters
 
             vm.OperationResult = true;
             MultiViewModel viewModel = GetMultiViewModel();
+            ((SynchronizedNotifiableCollection<IViewModel>)viewModel.ItemsSource).ThreadManager = new ThreadManagerMock { IsUiThread = true };
             IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter(viewModel,
                 OperationCallbackManager, (model, context, arg3) => true);
-            IAsyncOperation<bool?> task = presenter.TryShowAsync(vm, DataContext.Empty, null);
+            var task = presenter.TryShowAsync(vm, DataContext.Empty, null);
             task.ShouldNotBeNull();
             task.IsCompleted.ShouldBeFalse();
             viewModel.RemoveViewModelAsync(vm).Result.ShouldBeTrue();
@@ -66,7 +68,6 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Presenters
         {
             var vm = GetViewModel<NavigableViewModelMock>();
             IOperationCallback operationCallback = null;
-            ApplicationSettings.Platform = new PlatformInfo(PlatformType.WPF, new Version(0, 0));
             OperationCallbackManager.Register = (type, o, arg3, arg4) =>
             {
                 type.ShouldEqual(OperationType.TabNavigation);
@@ -83,7 +84,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Presenters
             MultiViewModel viewModel = GetMultiViewModel();
             IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter(viewModel,
                 OperationCallbackManager);
-            IAsyncOperation<bool?> task = presenter.TryShowAsync(vm, DataContext.Empty, null);
+            var task = presenter.TryShowAsync(vm, DataContext.Empty, null);
             task.ShouldNotBeNull();
             task.IsCompleted.ShouldBeFalse();
             viewModel.Clear();
@@ -100,7 +101,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Presenters
             MultiViewModel viewModel = GetMultiViewModel();
             IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter(viewModel,
                 OperationCallbackManager, (model, context, arg3) => canShow);
-            IAsyncOperation<bool?> task = presenter.TryShowAsync(vm, DataContext.Empty, null);
+            var task = presenter.TryShowAsync(vm, DataContext.Empty, null);
             task.ShouldBeNull();
             viewModel.ItemsSource.Contains(vm).ShouldBeFalse();
 
@@ -118,7 +119,6 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Presenters
         protected MultiViewModel GetMultiViewModel()
         {
             var vm = GetViewModel<MultiViewModel>();
-            ((SynchronizedNotifiableCollection<IViewModel>)vm.ItemsSource).ExecutionMode = ExecutionMode.None;
             return vm;
         }
 

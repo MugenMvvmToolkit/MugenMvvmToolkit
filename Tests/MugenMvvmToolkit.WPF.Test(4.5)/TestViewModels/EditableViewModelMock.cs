@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -29,9 +29,6 @@ namespace MugenMvvmToolkit.Test.TestViewModels
 
         #region Overrides of EditableViewModel<object>
 
-        /// <summary>
-        ///     Gets the entity state manager.
-        /// </summary>
         public override IEntityStateManager StateManager
         {
             get
@@ -43,18 +40,11 @@ namespace MugenMvvmToolkit.Test.TestViewModels
             protected set { base.StateManager = value; }
         }
 
-        /// <summary>
-        ///     Occurs after an entity instance is initialized.
-        /// </summary>
         protected override void OnEntityInitialized()
         {
             IsEntityInitializedInvoked = true;
         }
 
-        /// <summary>
-        ///     Applies the changes of entity.
-        /// </summary>
-        /// <returns>A series of instances of <see cref="IEntityStateEntry" />.</returns>
         protected override IList<IEntityStateEntry> ApplyChangesInternal(out object entity)
         {
             if (ApplyChangesInternalDelegate != null)
@@ -66,11 +56,6 @@ namespace MugenMvvmToolkit.Test.TestViewModels
             return base.ApplyChangesInternal(out entity);
         }
 
-        /// <summary>
-        ///     Gets the changes.
-        /// </summary>
-        /// <param name="entity">The saved entity.</param>
-        /// <returns>A series of instances of <see cref="IEntityStateEntry" />.</returns>
         protected override IList<IEntityStateEntry> GetChanges(object entity)
         {
             if (GetChangesDelegate != null)
@@ -78,20 +63,12 @@ namespace MugenMvvmToolkit.Test.TestViewModels
             return base.GetChanges(entity);
         }
 
-        /// <summary>
-        ///     Occurs after applying changes.
-        /// </summary>
-        /// <param name="entityStateEntries">The entity state entries.</param>
         protected override void OnChangesApplied(IList<IEntityStateEntry> entityStateEntries)
         {
             if (OnChangesAppliedDelegate != null)
                 OnChangesAppliedDelegate(entityStateEntries);
         }
 
-        /// <summary>
-        ///     Cancels the changes of entity.
-        /// </summary>
-        /// <returns>An instance of object.</returns>
         protected override object CancelChangesInternal()
         {
             if (CancelChangesInternalDelegate != null)
@@ -99,9 +76,6 @@ namespace MugenMvvmToolkit.Test.TestViewModels
             return base.CancelChangesInternal();
         }
 
-        /// <summary>
-        ///     Occurs after canceling changes.
-        /// </summary>
         protected override void OnChangesCanceled()
         {
             IsChangesCanceledInvoked = true;

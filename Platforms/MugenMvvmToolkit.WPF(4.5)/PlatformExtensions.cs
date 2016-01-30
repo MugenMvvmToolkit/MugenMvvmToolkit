@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="PlatformExtensions.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,58 +17,17 @@
 #endregion
 
 using System;
-using System.Windows;
-using JetBrains.Annotations;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Modules;
-using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
 
-namespace MugenMvvmToolkit
+namespace MugenMvvmToolkit.WPF
 {
     public static class PlatformExtensions
     {
-        #region Fields
-
-        private static Func<Type, DataTemplate> _defaultViewModelTemplateFactory;
-
-        #endregion
-
-        #region Constructors
-
-        static PlatformExtensions()
-        {
-            _defaultViewModelTemplateFactory = ViewModelDataTemplateModule.DefaultTemplateProvider;
-        }
-
-        #endregion
-
-        #region Properties
-
-        [NotNull]
-        public static Func<Type, DataTemplate> DefaultViewModelTemplateFactory
-        {
-            get { return _defaultViewModelTemplateFactory; }
-            set
-            {
-                Should.PropertyBeNotNull(value);
-                _defaultViewModelTemplateFactory = value;
-            }
-        }
-
-        #endregion
-
         #region Methods
-
-        internal static void AsEventHandler<TArg>(this Action action, object sender, TArg arg)
-        {
-            action();
-        }
 
         internal static PlatformInfo GetPlatformInfo()
         {
-#if WPF
             return new PlatformInfo(PlatformType.WPF, Environment.Version);
-#endif
         }
 
         internal static NavigationMode ToNavigationMode(this System.Windows.Navigation.NavigationMode mode)
@@ -83,10 +42,6 @@ namespace MugenMvvmToolkit
                     return NavigationMode.Forward;
                 case System.Windows.Navigation.NavigationMode.Refresh:
                     return NavigationMode.Refresh;
-#if WINDOWS_PHONE8
-                case System.Windows.Navigation.NavigationMode.Reset:
-                    return NavigationMode.Reset;
-#endif
                 default:
                     return NavigationMode.Undefined;
             }

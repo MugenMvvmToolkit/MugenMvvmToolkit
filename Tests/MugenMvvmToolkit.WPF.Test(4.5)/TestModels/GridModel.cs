@@ -15,9 +15,6 @@ namespace MugenMvvmToolkit.Test.TestModels
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="GridModel" /> class.
-        /// </summary>
         public GridModel()
         {
             Id = Guid.NewGuid();

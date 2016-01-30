@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IWindowView.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,35 +18,20 @@
 
 using System.ComponentModel;
 using System.Windows.Forms;
-using MugenMvvmToolkit.Annotations;
+using MugenMvvmToolkit.Interfaces.Views;
 
-namespace MugenMvvmToolkit.Interfaces.Views
+namespace MugenMvvmToolkit.WinForms.Interfaces.Views
 {
-    /// <summary>
-    ///     Represent the base interface for a window view.
-    /// </summary>
-    [BaseView(Priority = 1, ViewTypeName = "System.Windows.Forms.Form")]
     public interface IWindowView : IView
     {
-        /// <summary>
-        ///     Shows window.
-        /// </summary>
         void Show();
 
-        /// <summary>
-        ///     Shows window as dialog.
-        /// </summary>
-        /// <returns></returns>
         DialogResult ShowDialog();
 
-        /// <summary>
-        ///     Closes the dialog.
-        /// </summary>
         void Close();
 
-        /// <summary>
-        ///     Occurred on closing window.
-        /// </summary>
+        void Activate();
+
         event CancelEventHandler Closing;
     }
 }

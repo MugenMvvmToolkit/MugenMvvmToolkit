@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ViewModelToViewBinding.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -16,37 +16,31 @@
 
 #endregion
 
-using MugenMvvmToolkit.Binding.Converters;
-#if NETFX_CORE || WINDOWSCOMMON
-using Windows.UI.Xaml.Data;
-using BindingEx = Windows.UI.Xaml.Data.Binding;
-#else
 using System.Windows.Data;
-using BindingEx = System.Windows.Data.Binding;
-#endif
+#if WPF
+using MugenMvvmToolkit.WPF.Binding.Converters;
 
-namespace MugenMvvmToolkit.MarkupExtensions
+namespace MugenMvvmToolkit.WPF.MarkupExtensions
+#elif SILVERLIGHT
+using MugenMvvmToolkit.Silverlight.Binding.Converters;
+
+namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
+#elif WINDOWS_PHONE
+using MugenMvvmToolkit.WinPhone.Binding.Converters;
+
+namespace MugenMvvmToolkit.WinPhone.MarkupExtensions
+#endif
 {
-    /// <summary>
-    ///     Represents the binding that allows to convert a view model to view.
-    /// </summary>
-    public sealed class ViewModelToViewBinding : BindingEx
+    public sealed class ViewModelToViewBinding : System.Windows.Data.Binding
     {
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ViewModelToViewBinding" /> class.
-        /// </summary>
         public ViewModelToViewBinding()
         {
             Initialize();
         }
 
-#if !NETFX_CORE && !WINDOWSCOMMON
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ViewModelToViewBinding" /> class with an initial path.
-        /// </summary>
-        /// <param name="path">The initial <see cref="P:System.Windows.Data.Binding.Path" /> for the binding.</param>
+#if !WINDOWSCOMMON
         public ViewModelToViewBinding(string path)
             : base(path)
         {
@@ -58,31 +52,19 @@ namespace MugenMvvmToolkit.MarkupExtensions
 
         #region Properties
 
-        /// <summary>
-        /// Gets or sets the default value that indicates that view converter should always create new view.
-        /// </summary>
         public bool? AlwaysCreateNewView
         {
             get { return Converter.AlwaysCreateNewView; }
             set { Converter.AlwaysCreateNewView = value; }
         }
 
-        /// <summary>
-        /// Gets or sets the name of view.
-        /// </summary>
         public string ViewName
         {
             get { return Converter.ViewName; }
             set { Converter.ViewName = value; }
         }
 
-        /// <summary>
-        /// Gets the converter.
-        /// </summary>
-        public new ViewModelToViewConverter Converter
-        {
-            get { return (ViewModelToViewConverter)base.Converter; }
-        }
+        public new ViewModelToViewConverter Converter => (ViewModelToViewConverter)base.Converter;
 
         #endregion
 
@@ -91,7 +73,7 @@ namespace MugenMvvmToolkit.MarkupExtensions
         private void Initialize()
         {
             base.Converter = new ViewModelToViewConverter();
-#if !NETFX_CORE && !WINDOWSCOMMON
+#if !WINDOWSCOMMON
             ValidatesOnDataErrors = false;
             ValidatesOnExceptions = false;
 #if !NET4

@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ITaskExceptionHandler.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -20,16 +20,8 @@ using System.Threading.Tasks;
 
 namespace MugenMvvmToolkit.Interfaces
 {
-    /// <summary>
-    ///     Represents an interface that is responsible for handling exceptions in the task.
-    /// </summary>
     public interface ITaskExceptionHandler
     {
-        /// <summary>
-        ///     Handles an exception.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="task">The task that throws an exception.</param>
         void Handle(object sender, Task task);
     }
 }

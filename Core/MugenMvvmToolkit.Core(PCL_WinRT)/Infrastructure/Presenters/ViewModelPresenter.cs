@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ViewModelPresenter.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -28,9 +28,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure.Presenters
 {
-    /// <summary>
-    ///     Represents the service that allows to show a view model.
-    /// </summary>
     public class ViewModelPresenter : IViewModelPresenter
     {
         #region Nested types
@@ -56,10 +53,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
             #region Methods
 
-            public IDynamicViewModelPresenter this[int index]
-            {
-                get { return _list[index]; }
-            }
+            public IDynamicViewModelPresenter this[int index] => _list[index];
 
             private static int ComparerDelegate(IDynamicViewModelPresenter x1, IDynamicViewModelPresenter x2)
             {
@@ -82,7 +76,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
             public void Add(IDynamicViewModelPresenter item)
             {
-                Should.NotBeNull(item, "item");
+                Should.NotBeNull(item, nameof(item));
                 _list.Add(item);
                 _presenter.OnDynamicPresenterAdded(item);
             }
@@ -107,22 +101,16 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
             public bool Remove(IDynamicViewModelPresenter item)
             {
-                Should.NotBeNull(item, "item");
+                Should.NotBeNull(item, nameof(item));
                 var remove = _list.Remove(item);
                 if (remove)
                     _presenter.OnDynamicPresenterRemoved(item);
                 return remove;
             }
 
-            public int Count
-            {
-                get { return _list.Count; }
-            }
+            public int Count => _list.Count;
 
-            public bool IsReadOnly
-            {
-                get { return false; }
-            }
+            public bool IsReadOnly => false;
 
             #endregion
         }
@@ -131,19 +119,8 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Fields
 
-        /// <summary>
-        ///     Gets the default navigtion presenter priority.
-        /// </summary>
         public const int DefaultNavigationPresenterPriority = -1;
-
-        /// <summary>
-        ///     Gets the default view model presenter priority.
-        /// </summary>
         public const int DefaultMultiViewModelPresenterPriority = 0;
-
-        /// <summary>
-        ///     Gets the default window presenter priority.
-        /// </summary>
         public const int DefaultWindowPresenterPriority = 1;
 
         private readonly DynamicPresentersCollection _dynamicPresenters;
@@ -152,9 +129,6 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ViewModelPresenter" /> class.
-        /// </summary>
         public ViewModelPresenter()
         {
             _dynamicPresenters = new DynamicPresentersCollection(this);
@@ -164,46 +138,36 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Implementation of IViewModelPresenter
 
-        /// <summary>
-        ///     Gets the collection of <see cref="IDynamicViewModelPresenter" />.
-        /// </summary>
-        public ICollection<IDynamicViewModelPresenter> DynamicPresenters
-        {
-            get { return _dynamicPresenters; }
-        }
+        public ICollection<IDynamicViewModelPresenter> DynamicPresenters => _dynamicPresenters;
 
-        /// <summary>
-        ///     Shows the specified <see cref="IViewModel" />.
-        /// </summary>
-        /// <param name="viewModel">The specified <see cref="IViewModel" /> to show.</param>
-        /// <param name="context">The specified context.</param>
-        public virtual IAsyncOperation<bool?> ShowAsync(IViewModel viewModel, IDataContext context)
+        public virtual INavigationOperation ShowAsync(IViewModel viewModel, IDataContext context)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             if (context == null)
                 context = DataContext.Empty;
-            for (int i = 0; i < _dynamicPresenters.Count; i++)
+            var presenters = _dynamicPresenters.ToArrayEx();
+            for (int i = 0; i < presenters.Length; i++)
             {
-                IAsyncOperation<bool?> operation = _dynamicPresenters[i].TryShowAsync(viewModel, context, this);
+                var operation = presenters[i].TryShowAsync(viewModel, context, this);
                 if (operation != null)
+                {
+                    if (Tracer.TraceInformation)
+                        Tracer.Info("The {0} is shown by {1}", viewModel.GetType().FullName, presenters[i].GetType().FullName);
                     return operation;
+                }
             }
             throw ExceptionManager.PresenterCannotShowViewModel(GetType(), viewModel.GetType());
         }
 
-        /// <summary>
-        ///     Tries to restore the presenter state of the specified <see cref="IViewModel" />.
-        /// </summary>
-        /// <param name="viewModel">The specified <see cref="IViewModel" /> to show.</param>
-        /// <param name="context">The specified context.</param>
         public virtual void Restore(IViewModel viewModel, IDataContext context)
         {
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             if (context == null)
                 context = DataContext.Empty;
-            for (int i = 0; i < _dynamicPresenters.Count; i++)
+            var presenters = _dynamicPresenters.ToArrayEx();
+            for (int i = 0; i < presenters.Length; i++)
             {
-                var presenter = _dynamicPresenters[i] as IRestorableDynamicViewModelPresenter;
+                var presenter = presenters[i] as IRestorableDynamicViewModelPresenter;
                 if (presenter != null && presenter.Restore(viewModel, context, this))
                     return;
             }
@@ -213,16 +177,10 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Methods
 
-        /// <summary>
-        ///     Occurs when presenter added.
-        /// </summary>
         protected virtual void OnDynamicPresenterAdded([NotNull] IDynamicViewModelPresenter presenter)
         {
         }
 
-        /// <summary>
-        ///     Occurs when presenter removed.
-        /// </summary>
         protected virtual void OnDynamicPresenterRemoved([NotNull] IDynamicViewModelPresenter presenter)
         {
         }

@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="MemberAttachedEventArgs.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -34,7 +34,7 @@ namespace MugenMvvmToolkit.Binding.Models.EventArg
 
         public MemberAttachedEventArgs([NotNull] IBindingMemberInfo member)
         {
-            Should.NotBeNull(member, "member");
+            Should.NotBeNull(member, nameof(member));
             _member = member;
         }
 
@@ -43,10 +43,7 @@ namespace MugenMvvmToolkit.Binding.Models.EventArg
         #region Properties
 
         [NotNull]
-        public IBindingMemberInfo Member
-        {
-            get { return _member; }
-        }
+        public IBindingMemberInfo Member => _member;
 
         #endregion
     }

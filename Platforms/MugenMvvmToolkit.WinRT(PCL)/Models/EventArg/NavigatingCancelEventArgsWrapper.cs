@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="NavigatingCancelEventArgsWrapper.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,78 +18,61 @@
 
 using Windows.UI.Xaml.Navigation;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Models.EventArg;
+using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
 
-namespace MugenMvvmToolkit.Models.EventArg
+namespace MugenMvvmToolkit.WinRT.Models.EventArg
 {
     public sealed class NavigatingCancelEventArgsWrapper : NavigatingCancelEventArgsBase
     {
         #region Fields
 
         private readonly NavigatingCancelEventArgs _args;
-        private readonly object _parameter;
+        private readonly string _parameter;
+        private readonly bool _bringToFront;
 
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="NavigatingCancelEventArgsWrapper" /> class.
-        /// </summary>
-        public NavigatingCancelEventArgsWrapper([NotNull] NavigatingCancelEventArgs args, object parameter)
+        public NavigatingCancelEventArgsWrapper([NotNull] NavigatingCancelEventArgs args, string parameter, bool bringToFront)
         {
-            Should.NotBeNull(args, "args");
+            Should.NotBeNull(args, nameof(args));
             _args = args;
             _parameter = parameter;
+            _bringToFront = bringToFront;
         }
 
         #endregion
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the original args.
-        /// </summary>
-        public NavigatingCancelEventArgs Args
-        {
-            get { return _args; }
-        }
+        public NavigatingCancelEventArgs Args => _args;
 
-        public object Parameter
-        {
-            get { return _parameter; }
-        }
+        public string Parameter => _parameter;
 
         #endregion
 
         #region Overrides of NavigatingCancelEventArgsBase
 
-        /// <summary>
-        ///     Specifies whether a pending navigation should be canceled.
-        /// </summary>
-        /// <returns>
-        ///     true to cancel the pending cancelable navigation; false to continue with navigation.
-        /// </returns>
         public override bool Cancel
         {
             get { return _args.Cancel; }
             set { _args.Cancel = value; }
         }
 
-        /// <summary>
-        ///     Gets a value that indicates the type of navigation that is occurring.
-        /// </summary>
         public override NavigationMode NavigationMode
         {
-            get { return _args.NavigationMode.ToNavigationMode(); }
+            get
+            {
+                var mode = _args.NavigationMode.ToNavigationMode();
+                if (_bringToFront && mode == NavigationMode.New)
+                    return NavigationMode.Refresh;
+                return mode;
+            }
         }
 
-        /// <summary>
-        ///     Gets a value that indicates whether you can cancel the navigation.
-        /// </summary>
-        public override bool IsCancelable
-        {
-            get { return true; }
-        }
+        public override bool IsCancelable => true;
 
         #endregion
     }

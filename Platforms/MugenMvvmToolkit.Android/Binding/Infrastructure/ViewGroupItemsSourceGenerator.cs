@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="ViewGroupItemsSourceGenerator.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -19,10 +19,12 @@
 using System.Collections;
 using Android.Views;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Interfaces;
+using MugenMvvmToolkit.Android.Binding.Interfaces;
+using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 {
     internal sealed class ViewGroupItemsSourceGenerator : ItemsSourceGeneratorBase
     {
@@ -30,6 +32,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         internal static readonly DataContext Context;
         private readonly IItemsSourceAdapter _adapter;
+        private readonly IBindingMemberInfo _collectionViewManagerMember;
         private readonly ViewGroup _viewGroup;
 
         #endregion
@@ -41,22 +44,15 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             Context = new DataContext();
         }
 
-        private ViewGroupItemsSourceGenerator([NotNull] ViewGroup viewGroup)
+        internal ViewGroupItemsSourceGenerator([NotNull] ViewGroup viewGroup)
         {
-            Should.NotBeNull(viewGroup, "viewGroup");
+            Should.NotBeNull(viewGroup, nameof(viewGroup));
             _viewGroup = viewGroup;
             _adapter = ItemsSourceAdapter.Factory(viewGroup, viewGroup.Context, Context);
+            _collectionViewManagerMember = BindingServiceProvider
+                .MemberProvider
+                .GetBindingMember(viewGroup.GetType(), AttachedMembers.ViewGroup.CollectionViewManager, false, false);
             TryListenActivity(viewGroup.Context);
-        }
-
-        #endregion
-
-        #region Methods
-
-        public static IItemsSourceGenerator GetOrAdd(ViewGroup viewGroup)
-        {
-            return ServiceProvider.AttachedValueProvider.GetOrAdd(viewGroup, Key,
-                (@group, o) => new ViewGroupItemsSourceGenerator(@group), null);
         }
 
         #endregion
@@ -69,17 +65,14 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             set { _adapter.ItemsSource = value; }
         }
 
-        protected override bool IsTargetDisposed
-        {
-            get { return !_viewGroup.IsAlive(); }
-        }
+        protected override bool IsTargetDisposed => !_viewGroup.IsAlive();
 
         protected override void Add(int insertionIndex, int count)
         {
             for (int i = 0; i < count; i++)
             {
                 int index = insertionIndex + i;
-                _viewGroup.AddView(_adapter.GetView(index, null, _viewGroup), index);
+                Add(_adapter.GetView(index, null, _viewGroup), index);
             }
         }
 
@@ -95,31 +88,59 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             {
                 int index = startIndex + i;
                 RemoveAt(index);
-                _viewGroup.AddView(_adapter.GetView(index, null, _viewGroup), index);
+                Add(_adapter.GetView(index, null, _viewGroup), index);
             }
         }
 
         protected override void Refresh()
         {
-            while (_viewGroup.ChildCount != 0)
-                RemoveAt(0);
+            Clear();
             int count = _adapter.Count;
             for (int i = 0; i < count; i++)
-                _viewGroup.AddView(_adapter.GetView(i, null, _viewGroup));
+                Add(_adapter.GetView(i, null, _viewGroup), i);
         }
 
         #endregion
 
         #region Methods
 
+        private ICollectionViewManager GetCollectionViewManager()
+        {
+            return _collectionViewManagerMember == null
+                ? null
+                : _collectionViewManagerMember.GetValue(_viewGroup, null) as ICollectionViewManager;
+        }
+
+        private void Add(View view, int index)
+        {
+            var collectionViewManager = GetCollectionViewManager();
+            if (collectionViewManager == null)
+                _viewGroup.AddView(view, index);
+            else
+                collectionViewManager.Insert(_viewGroup, index, view);
+        }
+
         private void RemoveAt(int index)
         {
-            var view = _viewGroup.GetChildAt(index);
-            view.ClearBindingsHierarchically(true, true);
-            _viewGroup.RemoveViewAt(index);
+            var collectionViewManager = GetCollectionViewManager();
+            if (collectionViewManager == null)
+                _viewGroup.RemoveViewAt(index);
+            else
+                collectionViewManager.RemoveAt(_viewGroup, index);
+        }
+
+        private void Clear()
+        {
+            var collectionViewManager = GetCollectionViewManager();
+            if (collectionViewManager == null)
+            {
+                while (_viewGroup.ChildCount != 0)
+                    RemoveAt(0);
+            }
+            else
+                collectionViewManager.Clear(_viewGroup);
         }
 
         #endregion
-
     }
 }

@@ -12,13 +12,9 @@ namespace MugenMvvmToolkit.Test.Utils
         public void DefaultSettingValueTest()
         {
             ApplicationSettings.SetDefaultValues();
-            ApplicationSettings.SynchronizedCollectionExecutionMode.ShouldEqual(ExecutionMode.AsynchronousOnUiThread);
-
+            
             ApplicationSettings.ViewModelObservationMode.ShouldEqual(ObservationMode.ParentObserveChild);
-            ApplicationSettings.PropertyChangeExecutionMode.ShouldEqual(ExecutionMode.AsynchronousOnUiThread);
-            ApplicationSettings.NotificationCollectionMode.ShouldEqual(
-                NotificationCollectionMode.CollectionIntefaceUseNotificationValue |
-                NotificationCollectionMode.OnlyOnUiThread);
+            ApplicationSettings.PropertyChangeExecutionMode.ShouldEqual(ExecutionMode.AsynchronousOnUiThread);            
         }
     }
 }

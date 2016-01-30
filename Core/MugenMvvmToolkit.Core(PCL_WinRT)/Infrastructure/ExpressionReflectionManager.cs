@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ExpressionReflectionManager.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -21,47 +21,31 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using MugenMvvmToolkit.Interfaces;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    /// <summary>
-    ///     Represents the reflection access provider that uses the <see cref="Expression" />.
-    /// </summary>
     public class ExpressionReflectionManager : IReflectionManager
     {
         #region Nested types
 
-#if PCL_Silverlight
-        private static class Assigner<T>
-        {
-            // ReSharper disable once UnusedMember.Local
-            public static T Assign(ref T left, T right)
-            {
-                return (left = right);
-            }
-        }
-#endif
-
-        /// <summary>
-        /// Represents the key cache comparer.
-        /// </summary>
-        protected sealed class MethodDelegateCacheKeyComparer : IEqualityComparer<MethodDelegateCacheKey>
+        protected sealed class MemberCacheKeyComparer : IEqualityComparer<MethodDelegateCacheKey>, IEqualityComparer<MemberInfoDelegateCacheKey>
         {
             #region Fields
 
-            public static readonly MethodDelegateCacheKeyComparer Instance;
+            public static readonly MemberCacheKeyComparer Instance;
 
             #endregion
 
             #region Constructors
 
-            static MethodDelegateCacheKeyComparer()
+            static MemberCacheKeyComparer()
             {
-                Instance = new MethodDelegateCacheKeyComparer();
+                Instance = new MemberCacheKeyComparer();
             }
 
-            private MethodDelegateCacheKeyComparer()
+            private MemberCacheKeyComparer()
             {
             }
 
@@ -69,26 +53,31 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #region Implementation of IEqualityComparer<in MethodDelegateCacheKey>
 
-            /// <summary>
-            /// Determines whether the specified objects are equal.
-            /// </summary>
-            /// <returns>
-            /// true if the specified objects are equal; otherwise, false.
-            /// </returns>
-            public bool Equals(MethodDelegateCacheKey x, MethodDelegateCacheKey y)
+            bool IEqualityComparer<MemberInfoDelegateCacheKey>.Equals(MemberInfoDelegateCacheKey x, MemberInfoDelegateCacheKey y)
+            {
+                return x.DelegateType.Equals(y.DelegateType) &&
+                       (ReferenceEquals(x.Member, y.Member) || x.Member.Equals(y.Member));
+            }
+
+            int IEqualityComparer<MemberInfoDelegateCacheKey>.GetHashCode(MemberInfoDelegateCacheKey obj)
+            {
+                unchecked
+                {
+                    return (obj.DelegateType.GetHashCode() * 397) ^ obj.Member.GetHashCode();
+                }
+            }
+
+            #endregion
+
+            #region Implementation of IEqualityComparer<in MethodDelegateCacheKey>
+
+            bool IEqualityComparer<MethodDelegateCacheKey>.Equals(MethodDelegateCacheKey x, MethodDelegateCacheKey y)
             {
                 return x.DelegateType.Equals(y.DelegateType) &&
                        (ReferenceEquals(x.Method, y.Method) || x.Method.Equals(y.Method));
             }
 
-            /// <summary>
-            /// Returns a hash code for the specified object.
-            /// </summary>
-            /// <returns>
-            /// A hash code for the specified object.
-            /// </returns>
-            /// <param name="obj">The <see cref="T:System.Object"/> for which a hash code is to be returned.</param><exception cref="T:System.ArgumentNullException">The type of <paramref name="obj"/> is a reference type and <paramref name="obj"/> is null.</exception>
-            public int GetHashCode(MethodDelegateCacheKey obj)
+            int IEqualityComparer<MethodDelegateCacheKey>.GetHashCode(MethodDelegateCacheKey obj)
             {
                 unchecked
                 {
@@ -99,26 +88,42 @@ namespace MugenMvvmToolkit.Infrastructure
             #endregion
         }
 
-        /// <summary>
-        /// Represents the key cache structure.
-        /// </summary>
+        [StructLayout(LayoutKind.Auto)]
         protected struct MethodDelegateCacheKey
         {
             #region Fields
 
-            public readonly MethodInfo Method;
-            public readonly Type DelegateType;
+            public MethodInfo Method;
+            public Type DelegateType;
 
             #endregion
 
             #region Constructors
 
-            /// <summary>
-            ///     Initializes a new instance of the <see cref="MethodDelegateCacheKey" /> class.
-            /// </summary>
             public MethodDelegateCacheKey(MethodInfo method, Type delegateType)
             {
                 Method = method;
+                DelegateType = delegateType;
+            }
+
+            #endregion
+        }
+
+        [StructLayout(LayoutKind.Auto)]
+        protected struct MemberInfoDelegateCacheKey
+        {
+            #region Fields
+
+            public MemberInfo Member;
+            public Type DelegateType;
+
+            #endregion
+
+            #region Constructors
+
+            public MemberInfoDelegateCacheKey(MemberInfo member, Type delegateType)
+            {
+                Member = member;
                 DelegateType = delegateType;
             }
 
@@ -132,11 +137,13 @@ namespace MugenMvvmToolkit.Infrastructure
         private static readonly Dictionary<MethodDelegateCacheKey, MethodInfo> CachedDelegates;
         private static readonly Dictionary<ConstructorInfo, Func<object[], object>> ActivatorCache;
         private static readonly Dictionary<MethodInfo, Func<object, object[], object>> InvokeMethodCache;
-        private static readonly Dictionary<MemberInfo, Delegate> MemberAccessCache;
-        private static readonly Dictionary<MemberInfo, Delegate> MemberSetterCache;
+        private static readonly Dictionary<MemberInfoDelegateCacheKey, Delegate> MemberAccessCache;
+        private static readonly Dictionary<MemberInfoDelegateCacheKey, Delegate> MemberSetterCache;
         private static readonly Dictionary<MethodDelegateCacheKey, Delegate> InvokeMethodCacheDelegate;
         private static Func<Type, Expression, IEnumerable<ParameterExpression>, LambdaExpression> _createLambdaExpressionByType;
         private static Func<Expression, ParameterExpression[], LambdaExpression> _createLambdaExpression;
+        private static readonly ParameterExpression EmptyParameterExpression;
+        private static readonly ConstantExpression NullConstantExpression;
 
         #endregion
 
@@ -146,40 +153,36 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             _createLambdaExpression = Expression.Lambda;
             _createLambdaExpressionByType = Expression.Lambda;
-            CachedDelegates = new Dictionary<MethodDelegateCacheKey, MethodInfo>(MethodDelegateCacheKeyComparer.Instance);
+            CachedDelegates = new Dictionary<MethodDelegateCacheKey, MethodInfo>(MemberCacheKeyComparer.Instance);
             ActivatorCache = new Dictionary<ConstructorInfo, Func<object[], object>>();
             InvokeMethodCache = new Dictionary<MethodInfo, Func<object, object[], object>>();
-            MemberAccessCache = new Dictionary<MemberInfo, Delegate>();
-            MemberSetterCache = new Dictionary<MemberInfo, Delegate>();
-            InvokeMethodCacheDelegate = new Dictionary<MethodDelegateCacheKey, Delegate>(MethodDelegateCacheKeyComparer.Instance);
+            MemberAccessCache = new Dictionary<MemberInfoDelegateCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
+            MemberSetterCache = new Dictionary<MemberInfoDelegateCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
+            InvokeMethodCacheDelegate = new Dictionary<MethodDelegateCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
+            EmptyParameterExpression = Expression.Parameter(typeof(object));
+            NullConstantExpression = Expression.Constant(null, typeof(object));
         }
 
         #endregion
 
         #region Properties
 
-        /// <summary>
-        /// Gets or sets the delegate that allows to create an instance of <see cref="LambdaExpression"/>.
-        /// </summary>
         public static Func<Type, Expression, IEnumerable<ParameterExpression>, LambdaExpression> CreateLambdaExpressionByType
         {
             get { return _createLambdaExpressionByType; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _createLambdaExpressionByType = value;
             }
         }
 
-        /// <summary>
-        /// Gets or sets the delegate that allows to create an instance of <see cref="LambdaExpression"/>.
-        /// </summary>
         public static Func<Expression, ParameterExpression[], LambdaExpression> CreateLambdaExpression
         {
             get { return _createLambdaExpression; }
             set
             {
-                Should.PropertyBeNotNull(value);
+                Should.PropertyNotBeNull(value);
                 _createLambdaExpression = value;
             }
         }
@@ -188,20 +191,10 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Implementation of IReflectionProvider
 
-        /// <summary>
-        ///    Tries to creates a delegate of the specified type that represents the specified static or instance method, with the specified first argument.
-        /// </summary>
-        /// <returns>
-        ///     A delegate of the specified type that represents the specified static method of the specified class.
-        /// </returns>
-        /// <param name="delegateType">The <see cref="T:System.Type" /> of delegate to create. </param>
-        /// <param name="target">
-        ///     The <see cref="T:System.Type" /> representing the class that implements <paramref name="method" />
-        ///     .
-        /// </param>
-        /// <param name="method">The name of the static method that the delegate is to represent. </param>
         public virtual Delegate TryCreateDelegate(Type delegateType, object target, MethodInfo method)
         {
+            Should.NotBeNull(delegateType, nameof(delegateType));
+            Should.NotBeNull(method, nameof(method));
             MethodInfo result;
             lock (CachedDelegates)
             {
@@ -225,18 +218,9 @@ namespace MugenMvvmToolkit.Infrastructure
 #endif
         }
 
-        /// <summary>
-        ///     Gets a delegate to create an object using a <see cref="ConstructorInfo" />.
-        /// </summary>
-        /// <param name="constructor">
-        ///     The specified <see cref="ConstructorInfo" />.
-        /// </param>
-        /// <returns>
-        ///     An instance of <see cref="Func{TParams,TResult}" />
-        /// </returns>
         public virtual Func<object[], object> GetActivatorDelegate(ConstructorInfo constructor)
         {
-            Should.NotBeNull(constructor, "constructor");
+            Should.NotBeNull(constructor, nameof(constructor));
             lock (ActivatorCache)
             {
                 Func<object[], object> value;
@@ -252,18 +236,9 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Gets a delegate to call the specified <see cref="MethodInfo" />.
-        /// </summary>
-        /// <param name="method">
-        ///     The specified <see cref="MethodInfo" />
-        /// </param>
-        /// <returns>
-        ///     An instance of <see cref="Func{TOwner,TParams,TResult}" />
-        /// </returns>
         public virtual Func<object, object[], object> GetMethodDelegate(MethodInfo method)
         {
-            Should.NotBeNull(method, "method");
+            Should.NotBeNull(method, nameof(method));
             lock (InvokeMethodCache)
             {
                 Func<object, object[], object> value;
@@ -276,28 +251,20 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Gets a delegate to call the specified <see cref="MethodInfo" />.
-        /// </summary>
-        /// <param name="delegateType">The type of delegate.</param>
-        /// <param name="method">
-        ///     The specified <see cref="MethodInfo" />
-        /// </param>
-        /// <returns>
-        ///     An instance of delegate.
-        /// </returns>
         public virtual Delegate GetMethodDelegate(Type delegateType, MethodInfo method)
         {
-            Should.NotBeNull(delegateType, "delegateType");
-            Should.BeOfType<Delegate>(delegateType, "delegateType");
-            Should.NotBeNull(method, "method");
+            Should.NotBeNull(delegateType, nameof(delegateType));
+            Should.NotBeNull(method, nameof(method));
             lock (InvokeMethodCacheDelegate)
             {
                 var cacheKey = new MethodDelegateCacheKey(method, delegateType);
                 Delegate value;
                 if (!InvokeMethodCacheDelegate.TryGetValue(cacheKey, out value))
                 {
-                    MethodInfo delegateMethod = delegateType.GetMethodEx("Invoke");
+                    MethodInfo delegateMethod = delegateType.GetMethodEx(nameof(Action.Invoke));
+                    if (delegateMethod == null)
+                        throw new ArgumentException(string.Empty, nameof(delegateType));
+
                     var delegateParams = delegateMethod.GetParameters().ToList();
                     ParameterInfo[] methodParams = method.GetParameters();
                     var expressions = new List<Expression>();
@@ -306,7 +273,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     {
                         var thisParam = Expression.Parameter(delegateParams[0].ParameterType, "@this");
                         parameters.Add(thisParam);
-                        expressions.Add(ConvertIfNeed(thisParam, GetDeclaringType(method), false));
+                        expressions.Add(ConvertIfNeed(thisParam, method.DeclaringType, false));
                         delegateParams.RemoveAt(0);
                     }
                     Should.BeValid("delegateType", delegateParams.Count == methodParams.Length);
@@ -337,20 +304,14 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Gets a delegate to get a value in the specified <see cref="MemberInfo" />
-        /// </summary>
-        /// <typeparam name="TType">Type of the value.</typeparam>
-        /// <param name="member">
-        ///     The specified <see cref="MemberInfo" />.
-        /// </param>
         public virtual Func<object, TType> GetMemberGetter<TType>(MemberInfo member)
         {
-            Should.NotBeNull(member, "member");
+            Should.NotBeNull(member, nameof(member));
+            var key = new MemberInfoDelegateCacheKey(member, typeof(TType));
             lock (MemberAccessCache)
             {
                 Delegate value;
-                if (!MemberAccessCache.TryGetValue(member, out value) || !(value is Func<object, TType>))
+                if (!MemberAccessCache.TryGetValue(key, out value))
                 {
                     ParameterExpression target = Expression.Parameter(typeof(object), "instance");
                     MemberExpression accessExp;
@@ -358,38 +319,28 @@ namespace MugenMvvmToolkit.Infrastructure
                         accessExp = Expression.MakeMemberAccess(null, member);
                     else
                     {
-                        Type declaringType = GetDeclaringType(member);
+                        Type declaringType = member.DeclaringType;
                         accessExp = Expression.MakeMemberAccess(ConvertIfNeed(target, declaringType, false), member);
                     }
                     value = Expression
                         .Lambda<Func<object, TType>>(ConvertIfNeed(accessExp, typeof(TType), false), target)
                         .Compile();
-                    MemberAccessCache[member] = value;
+                    MemberAccessCache[key] = value;
                 }
                 return (Func<object, TType>)value;
             }
         }
 
-        /// <summary>
-        ///     Gets a delegate to set specified value in the specified <see cref="MemberInfo" /> in a value type target, can be
-        ///     used with reference type.
-        /// </summary>
-        /// <typeparam name="TType">Type of the value.</typeparam>
-        /// <param name="member">
-        ///     The specified <see cref="MemberInfo" />.
-        /// </param>
-        /// <returns>
-        ///     An instance of <see cref="Action{TOwner,TType}" />
-        /// </returns>
         public virtual Action<object, TType> GetMemberSetter<TType>(MemberInfo member)
         {
-            Should.NotBeNull(member, "member");
+            Should.NotBeNull(member, nameof(member));
+            var key = new MemberInfoDelegateCacheKey(member, typeof(TType));
             lock (MemberSetterCache)
             {
                 Delegate action;
-                if (!MemberAccessCache.TryGetValue(member, out action) || !(action is Action<object, TType>))
+                if (!MemberSetterCache.TryGetValue(key, out action))
                 {
-                    var declaringType = GetDeclaringType(member);
+                    var declaringType = member.DeclaringType;
                     var fieldInfo = member as FieldInfo;
 #if PCL_WINRT
                     if (declaringType.GetTypeInfo().IsValueType)
@@ -405,7 +356,7 @@ namespace MugenMvvmToolkit.Infrastructure
                         }
                         else
                             result = fieldInfo.SetValue<TType>;
-                        MemberAccessCache[member] = result;
+                        MemberSetterCache[key] = result;
                         return result;
                     }
 
@@ -420,7 +371,7 @@ namespace MugenMvvmToolkit.Infrastructure
                         if (propertyInfo != null)
                             setMethod = propertyInfo.GetSetMethod(true);
                         Should.MethodBeSupported(propertyInfo != null && setMethod != null,
-                            "supports only properties(non-readonly) and fields");
+                            "supports only properties (non-readonly) and fields");
                         var valueExpression = ConvertIfNeed(valueParameter, propertyInfo.PropertyType, false);
                         expression =
                             Expression.Call(setMethod.IsStatic ? null : ConvertIfNeed(target, declaringType, false),
@@ -429,12 +380,12 @@ namespace MugenMvvmToolkit.Infrastructure
                     else
                     {
                         expression = Expression.Field(fieldInfo.IsStatic ? null : ConvertIfNeed(target, declaringType, false), fieldInfo);
-                        expression = Assign(expression, ConvertIfNeed(valueParameter, fieldInfo.FieldType, false));
+                        expression = Expression.Assign(expression, ConvertIfNeed(valueParameter, fieldInfo.FieldType, false));
                     }
                     action = Expression
                         .Lambda<Action<object, TType>>(expression, targetParameter, valueParameter)
                         .Compile();
-                    MemberAccessCache[member] = action;
+                    MemberSetterCache[key] = action;
                 }
                 return (Action<object, TType>)action;
             }
@@ -444,29 +395,13 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        /// Creates the binary expression that represents an assign statement.
-        /// </summary>
-        public static Expression Assign(Expression left, Expression right)
-        {
-#if PCL_Silverlight
-            var assign = typeof(Assigner<>).MakeGenericType(left.Type).GetMethod("Assign");
-            return Expression.Call(null, assign, left, right);
-#else
-            return Expression.Assign(left, right);
-#endif
-        }
-
-        /// <summary>
-        /// Tries to create method delegate.
-        /// </summary>
         protected static MethodInfo TryCreateMethodDelegate(Type eventHandlerType, MethodInfo method)
         {
             if (!typeof(Delegate).IsAssignableFrom(eventHandlerType))
                 return null;
 
             ParameterInfo[] mParameters = method.GetParameters();
-            ParameterInfo[] eParameters = eventHandlerType.GetMethodEx("Invoke").GetParameters();
+            ParameterInfo[] eParameters = eventHandlerType.GetMethodEx(nameof(Action.Invoke)).GetParameters();
             if (mParameters.Length != eParameters.Length)
                 return null;
             if (method.IsGenericMethodDefinition)
@@ -517,28 +452,25 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 callExpression = Expression.Call(null, methodInfo, expressions);
                 if (isVoid)
-                {
                     return Expression
-                        .Lambda<Action<object[]>>(callExpression, parameterExpression)
-                        .Compile()
-                        .AsFunc;
-                }
+                        .Lambda<Func<object, object[], object>>(
+                            Expression.Block(callExpression, NullConstantExpression), EmptyParameterExpression,
+                            parameterExpression)
+                        .Compile();
+
                 callExpression = ConvertIfNeed(callExpression, typeof(object), false);
                 return Expression
-                    .Lambda<Func<object[], object>>(callExpression, parameterExpression)
-                    .Compile()
-                    .AsFunc;
+                    .Lambda<Func<object, object[], object>>(callExpression, EmptyParameterExpression, parameterExpression)
+                    .Compile();
             }
-            Type declaringType = GetDeclaringType(methodInfo);
+            Type declaringType = methodInfo.DeclaringType;
             var targetExp = Expression.Parameter(typeof(object), "target");
             callExpression = Expression.Call(ConvertIfNeed(targetExp, declaringType, false), methodInfo, expressions);
             if (isVoid)
-            {
                 return Expression
-                    .Lambda<Action<object, object[]>>(callExpression, targetExp, parameterExpression)
-                    .Compile()
-                    .AsFunc;
-            }
+                    .Lambda<Func<object, object[], object>>(Expression.Block(callExpression, NullConstantExpression),
+                        targetExp, parameterExpression)
+                    .Compile();
             callExpression = ConvertIfNeed(callExpression, typeof(object), false);
             return Expression
                 .Lambda<Func<object, object[], object>>(callExpression, targetExp, parameterExpression)
@@ -570,7 +502,7 @@ namespace MugenMvvmToolkit.Infrastructure
             parameterExpression = Expression.Parameter(typeof(object[]), "args");
             var argsExp = new Expression[paramsInfo.Length];
 
-            //pick each arg from the params array 
+            //pick each arg from the params array
             //and create a typed expression of them
             for (int i = 0; i < paramsInfo.Length; i++)
             {
@@ -583,17 +515,10 @@ namespace MugenMvvmToolkit.Infrastructure
             return argsExp;
         }
 
-        internal static Type GetDeclaringType(MemberInfo member)
-        {
-#if PCL_WINRT
-            return member.DeclaringType;
-#else
-            return member.DeclaringType ?? member.ReflectedType;
-#endif
-        }
-
         internal static Expression ConvertIfNeed(Expression expression, Type type, bool exactly)
         {
+            if (expression == null)
+                return null;
             if (type.Equals(typeof(void)) || type.Equals(expression.Type))
                 return expression;
 

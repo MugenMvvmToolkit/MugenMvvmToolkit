@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IEventPublisher.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -20,16 +20,8 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Interfaces.Models
 {
-    /// <summary>
-    ///     Represents the object that allows to send messages.
-    /// </summary>
     public interface IEventPublisher
     {
-        /// <summary>
-        ///     Publishes a message.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="message">The message instance.</param>
         void Publish([NotNull] object sender, [NotNull] object message);
     }
 }

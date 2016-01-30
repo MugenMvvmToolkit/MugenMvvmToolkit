@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IConstantExpressionNode.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -21,20 +21,11 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes
 {
-    /// <summary>
-    ///     Represents an expression that has a constant value.
-    /// </summary>
     public interface IConstantExpressionNode : IExpressionNode
     {
-        /// <summary>
-        ///     Gets the value of the constant expression.
-        /// </summary>
         [CanBeNull]
         object Value { get; }
 
-        /// <summary>
-        ///     Gets the type of the value.
-        /// </summary>
         [NotNull]
         Type Type { get; }
     }

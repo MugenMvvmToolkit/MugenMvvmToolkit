@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IEntitySnapshot.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -22,37 +22,18 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Interfaces.Models
 {
-    /// <summary>
-    ///     Represents the entity state snapshot.
-    /// </summary>
     public interface IEntitySnapshot
     {
-        /// <summary>
-        ///     Gets a value indicating whether the snapshot supports change detection.
-        /// </summary>
         bool SupportChangeDetection { get; }
 
-        /// <summary>
-        ///     Restores the state of entity.
-        /// </summary>
-        /// <param name="entity">The specified entity to restore state.</param>
         void Restore([NotNull] object entity);
 
-        /// <summary>
-        ///     Gets a value indicating whether the entity has changes.
-        /// </summary>
         [Pure]
         bool HasChanges([NotNull] object entity);
 
-        /// <summary>
-        ///     Gets a value indicating whether the entity has changes.
-        /// </summary>
         [Pure]
         bool HasChanges([NotNull] object entity, [NotNull] string propertyName);
 
-        /// <summary>
-        ///     Dumps the state of object.
-        /// </summary>
         [NotNull]
         IDictionary<string, Tuple<object, object>> Dump([NotNull] object entity);
     }

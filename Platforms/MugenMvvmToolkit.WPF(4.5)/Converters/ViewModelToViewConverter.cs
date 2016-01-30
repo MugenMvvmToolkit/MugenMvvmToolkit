@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ViewModelToViewConverter.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,55 +17,78 @@
 #endregion
 
 using System;
-using System.Globalization;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
-#if NETFX_CORE || WINDOWSCOMMON
+#if !WINDOWSCOMMON
+using System.Globalization;
+#endif
+#if WINDOWSCOMMON
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
+
+namespace MugenMvvmToolkit.WinRT.Binding.Converters
 #elif ANDROID
 using Android.App;
 using Android.Graphics;
 using Android.Widget;
 using Android.Content;
+using MugenMvvmToolkit.Interfaces.Models;
 using IValueConverter = MugenMvvmToolkit.Binding.Interfaces.IBindingValueConverter;
+
+namespace MugenMvvmToolkit.Android.Binding.Converters
 #elif WINFORMS
+using MugenMvvmToolkit.Interfaces.Models;
 using System.Drawing;
 using System.Windows.Forms;
 using IValueConverter = MugenMvvmToolkit.Binding.Interfaces.IBindingValueConverter;
+
+namespace MugenMvvmToolkit.WinForms.Binding.Converters
 #elif TOUCH
 using System.Drawing;
-using MonoTouch.UIKit;
+using MugenMvvmToolkit.Interfaces.Models;
+using UIKit;
 using IValueConverter = MugenMvvmToolkit.Binding.Interfaces.IBindingValueConverter;
+
+namespace MugenMvvmToolkit.iOS.Binding.Converters
 #elif XAMARIN_FORMS
+using MugenMvvmToolkit.Interfaces.Models;
 using Xamarin.Forms;
 using IValueConverter = MugenMvvmToolkit.Binding.Interfaces.IBindingValueConverter;
-#else
+
+namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Converters
+#elif WPF
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Data;
 using System.Windows.Controls;
-#endif
 
 // ReSharper disable once CheckNamespace
-namespace MugenMvvmToolkit.Binding.Converters
+namespace MugenMvvmToolkit.WPF.Binding.Converters
+#elif SILVERLIGHT
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Data;
+using System.Windows.Controls;
+
+namespace MugenMvvmToolkit.Silverlight.Binding.Converters
+#elif WINDOWS_PHONE
+using System.Windows;
+using System.Windows.Media;
+using System.Windows.Data;
+using System.Windows.Controls;
+
+namespace MugenMvvmToolkit.WinPhone.Binding.Converters
+#endif
 {
-    /// <summary>
-    ///     Represents the converter that allows to convert a view model to view.
-    /// </summary>
     public class ViewModelToViewConverter : IValueConverter
     {
         #region Fields
 
-        /// <summary>
-        /// Gets an instance of <see cref="ViewModelToViewConverter"/>.
-        /// </summary>
         public static readonly ViewModelToViewConverter Instance;
 
         #endregion
@@ -77,9 +100,6 @@ namespace MugenMvvmToolkit.Binding.Converters
             Instance = new ViewModelToViewConverter();
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ViewModelToViewConverter"/> class.
-        /// </summary>
         public ViewModelToViewConverter()
         {
             ThrowOnError = ThrowOnErrorDefault;
@@ -89,37 +109,23 @@ namespace MugenMvvmToolkit.Binding.Converters
 
         #region Properties
 
-        /// <summary>
-        ///     true to throw an exception if the view cannot be found; false to return default view. 
-        ///     Specifying false also suppresses some other exception conditions, but not all of them.
-        /// </summary>
         public static bool ThrowOnErrorDefault { get; set; }
 
-        /// <summary>
-        ///     true to throw an exception if the view cannot be found; false to return default view. 
-        ///     Specifying false also suppresses some other exception conditions, but not all of them.
-        /// </summary>
         public bool ThrowOnError { get; set; }
 
-        /// <summary>
-        /// Gets or sets the default value that indicates that view converter should always create new view.
-        /// </summary>
         public bool? AlwaysCreateNewView { get; set; }
 
-        /// <summary>
-        /// Gets or sets the name of view.
-        /// </summary>
         public string ViewName { get; set; }
 
         #endregion
 
         #region Implementation of IValueConverter
 
-#if NETFX_CORE || WINDOWSCOMMON
+#if WINDOWSCOMMON
         public object Convert(object value, Type targetType = null, object parameter = null, string language = null)
 #elif ANDROID || WINFORMS || TOUCH || XAMARIN_FORMS
         public object Convert(object value, Type targetType = null, object parameter = null, CultureInfo culture = null, IDataContext context = null)
-#else 
+#else
         public object Convert(object value, Type targetType = null, object parameter = null, CultureInfo culture = null)
 #endif
 
@@ -141,17 +147,17 @@ namespace MugenMvvmToolkit.Binding.Converters
                     throw;
                 Tracer.Error(exception.Flatten(true));
 #if ANDROID
-                var txt = new TextView(parameter as Context ?? Application.Context) { Text = exception.Flatten(false) };
+                var txt = new TextView(parameter as Context ?? Application.Context) { Text = exception.Flatten(true) };
                 txt.SetTextColor(Color.Red);
                 return txt;
 #elif TOUCH
-                return new UITextView(new RectangleF(10, 10, 300, 30)) { TextColor = UIColor.Red, Editable = false, DataDetectorTypes = UIDataDetectorType.None, Text = exception.Flatten(false) };
+                return new UITextView(new RectangleF(10, 10, 300, 30)) { TextColor = UIColor.Red, Editable = false, DataDetectorTypes = UIDataDetectorType.None, Text = exception.Flatten(true) };
 #elif XAMARIN_FORMS
-                return new Label{TextColor = Color.Red, Text = exception.Flatten(false) };
+                return new Label{TextColor = Color.Red, Text = exception.Flatten(true) };
 #else
                 return new TextBox
                 {
-                    Text = exception.Flatten(false),
+                    Text = exception.Flatten(true),
 #if WINFORMS
                     ReadOnly = true,
                     WordWrap = true,
@@ -161,13 +167,12 @@ namespace MugenMvvmToolkit.Binding.Converters
                     TextWrapping = TextWrapping.Wrap,
                     Foreground = new SolidColorBrush(Colors.Red)
 #endif
-
                 };
 #endif
             }
         }
 
-#if NETFX_CORE || WINDOWSCOMMON
+#if WINDOWSCOMMON
         public object ConvertBack(object value, Type targetType = null, object parameter = null, string language = null)
 #elif ANDROID || WINFORMS || TOUCH || XAMARIN_FORMS
         public object ConvertBack(object value, Type targetType = null, object parameter = null, CultureInfo culture = null, IDataContext context = null)

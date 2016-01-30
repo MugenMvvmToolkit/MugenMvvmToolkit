@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="VisualTreeManager.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,122 +17,87 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Reflection;
-using System.Threading;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    /// <summary>
-    ///     Represents the visual tree manager.
-    /// </summary>
     public class VisualTreeManager : IVisualTreeManager
     {
         #region Netsted types
 
-        private sealed class RootObserver : List<IDisposable>, IDisposable, IEventListener
+        private sealed class RootListener : EventListenerList, IEventListener
         {
             #region Fields
 
-            private bool _updating;
-            private readonly WeakReference _reference;
-            private WeakEventListenerWrapper _listener;
+            private readonly WeakReference _target;
+            private WeakReference _parent;
 
             #endregion
 
             #region Constructors
 
-            public RootObserver(object target, IEventListener listener)
+            public RootListener(object target)
             {
-                _reference = ServiceProvider.WeakReferenceFactory(target, true);
-                _listener = listener.ToWeakWrapper();
-                TryHandle(null, null);
-            }
-
-            #endregion
-
-            #region Implementation of interfaces
-
-            public bool IsAlive
-            {
-                get { return _reference.Target != null && _listener.EventListener.IsAlive; }
-            }
-
-            public bool IsWeak
-            {
-                get { return true; }
-            }
-
-            public bool TryHandle(object sender, object message)
-            {
-                if (_updating)
-                    return true;
-                if (_listener.IsEmpty)
-                    return false;
-                bool lockTaken = false;
-                try
-                {
-                    Monitor.Enter(this, ref lockTaken);
-                    if (_listener.IsEmpty)
-                        return false;
-                    _updating = true;
-                    object currentItem = _reference.Target;
-                    if (currentItem == null)
-                    {
-                        Dispose(true);
-                        return false;
-                    }
-
-                    if (!_listener.EventListener.TryHandle(currentItem, message))
-                    {
-                        Dispose(true);
-                        return false;
-                    }
-
-                    Dispose(false);
-                    var treeManager = BindingServiceProvider.VisualTreeManager;
-                    while (currentItem != null)
-                    {
-                        var parentMember = treeManager.GetParentMember(currentItem.GetType());
-                        if (parentMember == null)
-                            break;
-                        var observer = parentMember.TryObserve(currentItem, this);
-                        if (observer != null)
-                            Add(observer);
-                        currentItem = parentMember.GetValue(currentItem, null);
-                    }
-                    return true;
-                }
-                finally
-                {
-                    _updating = false;
-                    if (lockTaken)
-                        Monitor.Exit(this);
-                }
-            }
-
-            public void Dispose()
-            {
-                lock (this)
-                    Dispose(true);
+                _target = ServiceProvider.WeakReferenceFactory(target);
+                _parent = Empty.WeakReference;
+                UpdateParent(target);
+                var parentMember = BindingServiceProvider.VisualTreeManager.GetParentMember(target.GetType());
+                if (parentMember != null)
+                    parentMember.TryObserve(target, this);
             }
 
             #endregion
 
             #region Methods
 
-            private void Dispose(bool dispose)
+            public static RootListener GetOrAdd(object target)
             {
-                if (_listener.IsEmpty)
-                    return;
-                if (dispose)
-                    _listener = WeakEventListenerWrapper.Empty;
-                for (int i = 0; i < Count; i++)
-                    this[i].Dispose();
-                Clear();
+                return ServiceProvider
+                    .AttachedValueProvider
+                    .GetOrAdd(target, "_#@rtls#@_", (o, o1) => new RootListener(o), null);
+            }
+
+            public object GetRoot()
+            {
+                var parent = _parent.Target;
+                if (parent == null)
+                    return _target.Target;
+                return GetOrAdd(parent).GetRoot();
+            }
+
+            private void UpdateParent(object target)
+            {
+                var oldParent = _parent.Target;
+                var parent = BindingServiceProvider.VisualTreeManager.FindParent(target);
+                if (oldParent != parent)
+                {
+                    if (oldParent != null)
+                        GetOrAdd(oldParent).Remove(this);
+                    if (parent != null)
+                        GetOrAdd(parent).Add(this);
+                    _parent = ServiceProvider.WeakReferenceFactory(parent);
+                }
+            }
+
+            #endregion
+
+            #region Implementation of IEventListener
+
+            public bool IsAlive => _target.Target != null;
+
+            public bool IsWeak => true;
+
+            public bool TryHandle(object sender, object message)
+            {
+                var target = _target.Target;
+                if (target == null)
+                    return false;
+                UpdateParent(target);
+                Raise(sender, message);
+                return true;
             }
 
             #endregion
@@ -155,45 +120,33 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #endregion
 
-        #region Implementation of ITargetTreeManager
+        #region Implementation of IVisualTreeManager
 
-        /// <summary>
-        ///     Gets the root member, if any.
-        /// </summary>
         public virtual IBindingMemberInfo GetRootMember(Type type)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             return BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(type, AttachedMemberConstants.RootElement, false, false) ?? RootMember;
         }
 
-        /// <summary>
-        ///     Gets the parent member, if any.
-        /// </summary>
         public virtual IBindingMemberInfo GetParentMember(Type type)
         {
-            Should.NotBeNull(type, "type");
+            Should.NotBeNull(type, nameof(type));
             return BindingServiceProvider.MemberProvider.GetBindingMember(type, AttachedMemberConstants.Parent, false, false);
         }
 
-        /// <summary>
-        ///     Tries to find parent.
-        /// </summary>
         public virtual object FindParent(object target)
         {
-            Should.NotBeNull(target, "target");
+            Should.NotBeNull(target, nameof(target));
             Type type = target.GetType();
             IBindingMemberInfo parentProp = GetParentMember(type);
             return parentProp == null ? null : parentProp.GetValue(target, null);
         }
 
-        /// <summary>
-        ///     Tries to find element by it's name.
-        /// </summary>
         public virtual object FindByName(object target, string elementName)
         {
-            Should.NotBeNull(elementName, "elementName");
+            Should.NotBeNull(elementName, nameof(elementName));
             while (target != null)
             {
                 var member = BindingServiceProvider
@@ -210,13 +163,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return null;
         }
 
-        /// <summary>
-        ///     Tries to find relative source.
-        /// </summary>
         public virtual object FindRelativeSource(object target, string typeName, uint level)
         {
-            Should.NotBeNull(target, "target");
-            Should.NotBeNullOrWhitespace(typeName, "typeName");
+            Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(typeName, nameof(typeName));
             object fullNameSource = null;
             object nameSource = null;
             uint fullNameLevel = 0;
@@ -255,23 +205,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         private static IDisposable ObserveRootElement(IBindingMemberInfo bindingMemberInfo, object o, IEventListener arg3)
         {
-            return new RootObserver(o, arg3);
+            return RootListener.GetOrAdd(o).AddWithUnsubscriber(arg3);
         }
 
         private static object GetRootElement(IBindingMemberInfo bindingMemberInfo, object currentItem)
         {
-            var treeManager = BindingServiceProvider.VisualTreeManager;
-            while (currentItem != null)
-            {
-                var parentMember = treeManager.GetParentMember(currentItem.GetType());
-                if (parentMember == null)
-                    return currentItem;
-                var next = parentMember.GetValue(currentItem, null);
-                if (next == null)
-                    return currentItem;
-                currentItem = next;
-            }
-            return null;
+            return RootListener.GetOrAdd(currentItem).GetRoot();
         }
 
         private static void TypeNameEqual(Type type, string typeName, out bool shortNameEqual, out bool fullNameEqual)
@@ -289,7 +228,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                             break;
                     }
                 }
-                if (!fullNameEqual && type.FullName == typeName)
+                if (!fullNameEqual && (type.FullName == typeName || type.AssemblyQualifiedName == typeName))
                 {
                     fullNameEqual = true;
                     if (shortNameEqual)

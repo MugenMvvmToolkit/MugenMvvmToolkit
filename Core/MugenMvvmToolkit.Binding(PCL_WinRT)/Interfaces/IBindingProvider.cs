@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IBindingProvider.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -16,70 +16,45 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Interfaces
 {
-    /// <summary>
-    ///     Represents the binding provider that allows to create and manage the data bindings.
-    /// </summary>
     public interface IBindingProvider
     {
-        /// <summary>
-        ///     Gets the default behaviors.
-        /// </summary>
         [NotNull]
         ICollection<IBindingBehavior> DefaultBehaviors { get; }
 
-        /// <summary>
-        ///     Gets the collection of <see cref="IBindingSourceDecorator" />.
-        /// </summary>
-        [NotNull]
-        ICollection<IBindingSourceDecorator> SourceDecorators { get; }
-
-        /// <summary>
-        ///     Gets or sets the <see cref="IBindingParser" />.
-        /// </summary>
         [NotNull]
         IBindingParser Parser { get; set; }
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IBindingBuilder" />.
-        /// </summary>
-        /// <param name="context">The specified context.</param>
-        /// <returns>An instance of <see cref="IBindingBuilder" />.</returns>
         [NotNull]
-        IBindingBuilder CreateBuilder([NotNull] IDataContext context);
+        IBindingBuilder CreateBuilder(IDataContext context = null);
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IDataBinding" />.
-        /// </summary>
-        /// <param name="context">The specified context.</param>
-        /// <returns>An instance of <see cref="IDataBinding" />.</returns>
         [NotNull]
         IDataBinding CreateBinding([NotNull] IDataContext context);
 
-        /// <summary>
-        ///     Creates a series of instances of <see cref="IBindingBuilder" />.
-        /// </summary>
-        /// <param name="target">The specified binding target.</param>
-        /// <param name="bindingExpression">The specified binding expression.</param>
-        /// <param name="sources">The specified sources, if any.</param>
-        /// <returns>An instance of <see cref="IBindingBuilder" />.</returns>
         [NotNull]
-        IList<IBindingBuilder> CreateBuildersFromString([NotNull] object target, [NotNull] string bindingExpression, IList<object> sources = null);
+        IList<IBindingBuilder> CreateBuildersFromString([NotNull] object target, [NotNull] string bindingExpression, IList<object> sources = null,
+            IDataContext context = null);
 
-        /// <summary>
-        ///     Creates a series of instances of <see cref="IDataBinding" />.
-        /// </summary>
-        /// <param name="target">The specified binding target.</param>
-        /// <param name="bindingExpression">The specified binding expression.</param>
-        /// <param name="sources">The specified sources, if any.</param>
-        /// <returns>An instance of <see cref="IDataBinding" />.</returns>
         [NotNull]
-        IList<IDataBinding> CreateBindingsFromString([NotNull] object target, [NotNull] string bindingExpression, IList<object> sources = null);
+        IList<IDataBinding> CreateBindingsFromString([NotNull] object target, [NotNull] string bindingExpression, IList<object> sources = null,
+            IDataContext context = null);
+
+        void BuildFromLambdaExpression(IBindingBuilder builder, Func<LambdaExpression> expression);
+
+        void BuildParameterFromLambdaExpression<TValue>(IBindingBuilder builder, Func<LambdaExpression> expression,
+            DataConstant<Func<IDataContext, TValue>> parameterConstant);
+
+        event Action<IBindingProvider, IDataContext> BindingInitializing;
+
+        event Action<IBindingProvider, IDataBinding> BindingInitialized;
     }
 }

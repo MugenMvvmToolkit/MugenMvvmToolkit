@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IMemberExpressionNode.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -20,20 +20,11 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes
 {
-    /// <summary>
-    ///     Represents accessing a field or property.
-    /// </summary>
     public interface IMemberExpressionNode : IExpressionNode
     {
-        /// <summary>
-        ///     Gets the containing object of the field or property.
-        /// </summary>
         [CanBeNull]
         IExpressionNode Target { get; }
 
-        /// <summary>
-        ///     Gets the field or property to be accessed.
-        /// </summary>
         [NotNull]
         string Member { get; }
     }

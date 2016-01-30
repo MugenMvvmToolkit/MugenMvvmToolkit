@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IHasDisplayName.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -16,18 +16,10 @@
 
 #endregion
 
-using System.ComponentModel;
-
 namespace MugenMvvmToolkit.Interfaces.Models
 {
-    /// <summary>
-    ///     Represents the model that has a display name.
-    /// </summary>
-    public interface IHasDisplayName : INotifyPropertyChanged
+    public interface IHasDisplayName
     {
-        /// <summary>
-        ///     Gets or sets the display name for the current model.
-        /// </summary>
-        string DisplayName { get; set; }
+        string DisplayName { get; }
     }
 }

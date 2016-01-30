@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="View.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -23,7 +23,7 @@ using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using Xamarin.Forms;
 
-namespace MugenMvvmToolkit.MarkupExtensions
+namespace MugenMvvmToolkit.Xamarin.Forms.MarkupExtensions
 {
     public static class View
     {

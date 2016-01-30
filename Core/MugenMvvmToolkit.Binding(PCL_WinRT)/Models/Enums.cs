@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="Enums.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,19 +18,9 @@
 
 namespace MugenMvvmToolkit.Binding.Models
 {
-    /// <summary>
-    ///     Represents the actions that a binding can perform.
-    /// </summary>
     public enum BindingAction
     {
-        /// <summary>
-        ///     The binding is currently update the source.
-        /// </summary>
         UpdateSource = 1,
-
-        /// <summary>
-        ///     The binding is currently update the target.
-        /// </summary>
         UpdateTarget = 2,
     }
 }

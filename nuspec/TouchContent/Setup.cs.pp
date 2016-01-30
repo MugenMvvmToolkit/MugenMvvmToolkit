@@ -1,7 +1,8 @@
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
+using Foundation;
 using MugenMvvmToolkit;
-using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.iOS;
+using MugenMvvmToolkit.iOS.Infrastructure;
+using UIKit;
 
 namespace $rootnamespace$
 {
@@ -31,7 +32,7 @@ namespace $rootnamespace$
         {
             // create a new window instance based on the screen size
             _window = new UIWindow(UIScreen.MainScreen.Bounds);
-            _bootstrapper = new Bootstrapper<MainViewModel>(_window, new IIocContainer());
+            _bootstrapper = new Bootstrapper<Core.App>(_window, new AutofacContainer());
             _bootstrapper.Initialize();
             return true;
         }

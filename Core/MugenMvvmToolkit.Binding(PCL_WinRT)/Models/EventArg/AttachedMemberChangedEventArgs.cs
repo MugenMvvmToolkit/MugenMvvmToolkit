@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="AttachedMemberChangedEventArgs.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -33,13 +33,10 @@ namespace MugenMvvmToolkit.Binding.Models.EventArg
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="AttachedMemberChangedEventArgs{T}" /> class.
-        /// </summary>
         public AttachedMemberChangedEventArgs(T oldValue, T newValue, object[] args, [NotNull] IBindingMemberInfo member)
             : base(oldValue, newValue)
         {
-            Should.NotBeNull(member, "member");
+            Should.NotBeNull(member, nameof(member));
             _member = member;
             _args = args;
         }
@@ -48,23 +45,11 @@ namespace MugenMvvmToolkit.Binding.Models.EventArg
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the <see cref="IBindingMemberInfo" />.
-        /// </summary>
         [NotNull]
-        public IBindingMemberInfo Member
-        {
-            get { return _member; }
-        }
+        public IBindingMemberInfo Member => _member;
 
-        /// <summary>
-        /// Gets the optional values for member.
-        /// </summary>
         [CanBeNull]
-        public object[] Args
-        {
-            get { return _args; }
-        }
+        public object[] Args => _args;
 
         #endregion
     }

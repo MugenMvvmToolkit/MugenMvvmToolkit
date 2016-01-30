@@ -1,5 +1,8 @@
 ﻿using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
+using MugenMvvmToolkit.Silverlight.Models.EventArg;
+using MugenMvvmToolkit.WinRT.Models.EventArg;
+using MugenMvvmToolkit.WPF.Models.EventArg;
 
 namespace MugenMvvmToolkit.Test.TestModels
 {
@@ -24,15 +27,9 @@ namespace MugenMvvmToolkit.Test.TestModels
 
         #region Overrides of NavigationEventArgsBase
 
-        public override object Content
-        {
-            get { return _content; }
-        }
+        public override object Content => _content;
 
-        public override NavigationMode Mode
-        {
-            get { return _mode; }
-        }
+        public override NavigationMode Mode => _mode;
 
         #endregion
     }

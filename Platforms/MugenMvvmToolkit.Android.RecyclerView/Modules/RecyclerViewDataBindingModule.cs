@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="RecyclerViewDataBindingModule.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,21 +17,19 @@
 #endregion
 
 using System.Collections;
+using MugenMvvmToolkit.Android.Binding;
+using MugenMvvmToolkit.Android.RecyclerView.Infrastructure;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Modules;
-using MugenMvvmToolkit.RecyclerView.Infrastructure;
 
-namespace MugenMvvmToolkit.RecyclerView.Modules
+namespace MugenMvvmToolkit.Android.RecyclerView.Modules
 {
     public class RecyclerViewDataBindingModule : ModuleBase
     {
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="RecyclerViewDataBindingModule" /> class.
-        /// </summary>
         public RecyclerViewDataBindingModule()
             : base(true)
         {
@@ -41,13 +39,12 @@ namespace MugenMvvmToolkit.RecyclerView.Modules
 
         #region Methods
 
-        private static void RecyclerViewItemsSourceChanged(Android.Support.V7.Widget.RecyclerView recyclerView,
-            AttachedMemberChangedEventArgs<IEnumerable> args)
+        private static void RecyclerViewItemsSourceChanged(global::Android.Support.V7.Widget.RecyclerView recyclerView, AttachedMemberChangedEventArgs<IEnumerable> args)
         {
             var adapter = recyclerView.GetAdapter() as ItemsSourceRecyclerAdapter;
             if (adapter == null)
             {
-                adapter = new ItemsSourceRecyclerAdapter(recyclerView);
+                adapter = new ItemsSourceRecyclerAdapter();
                 recyclerView.SetAdapter(adapter);
             }
             adapter.ItemsSource = args.NewValue;
@@ -57,20 +54,16 @@ namespace MugenMvvmToolkit.RecyclerView.Modules
 
         #region Overrides of ModuleBase
 
-        /// <summary>
-        ///     Loads the current module.
-        /// </summary>
         protected override bool LoadInternal()
         {
-            BindingServiceProvider.MemberProvider.Register(
-                AttachedBindingMember.CreateAutoProperty<Android.Support.V7.Widget.RecyclerView, IEnumerable>(
-                    AttachedMemberConstants.ItemsSource, RecyclerViewItemsSourceChanged));
+            BindingServiceProvider.BindingMemberPriorities[AttachedMembersRecyclerView.RecyclerView.CreateViewHolderDelegate] = BindingServiceProvider.TemplateMemberPriority + 1;
+
+            var provider = BindingServiceProvider.MemberProvider;
+            provider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ItemsSource.Override<global::Android.Support.V7.Widget.RecyclerView>(), RecyclerViewItemsSourceChanged));
+            provider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersRecyclerView.RecyclerView.CreateViewHolderDelegate));
             return true;
         }
 
-        /// <summary>
-        ///     Unloads the current module.
-        /// </summary>
         protected override void UnloadInternal()
         {
         }

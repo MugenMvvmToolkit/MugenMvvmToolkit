@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="OneTimeBindingMode.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,20 +17,11 @@
 #endregion
 
 using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Binding.Interfaces.Accessors;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Models.EventArg;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Behaviors
 {
-    /// <summary>
-    ///     Updates the binding target when the application starts or when the data context changes. This type of binding is
-    ///     appropriate if you are using data where either a snapshot of the current state is appropriate to use or the data is
-    ///     truly static. This type of binding is also useful if you want to initialize your target property with some value
-    ///     from a source property and the data context is not known in advance. This is essentially a simpler form of
-    ///     OneWay binding that provides better performance in cases where the source value
-    ///     does not change.
-    /// </summary>
     public sealed class OneTimeBindingMode : BindingModeBase
     {
         #region Fields
@@ -41,17 +32,11 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="OneTimeBindingMode" /> class.
-        /// </summary>
         public OneTimeBindingMode()
             : this(true)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="OneTimeBindingMode" /> class.
-        /// </summary>
         public OneTimeBindingMode(bool disposeBinding)
         {
             _disposeBinding = disposeBinding;
@@ -61,32 +46,26 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Overrides of BindingBehaviorBase
 
-        /// <summary>
-        ///     Attaches to the specified binding.
-        /// </summary>
         protected override bool OnAttached()
         {
-            if (!IsSourceAvailable() || !Binding.UpdateTarget())
+            if (!Binding.TargetAccessor.IsAllMembersAvailable() || !Binding.SourceAccessor.IsAllMembersAvailable(true))
             {
-                SubscribeSources(OneTimeHandler);
+                EventHandler<IObserver, ValueChangedEventArgs> handler = OneTimeHandler;
+                SubscribeSources(handler);
+                Binding.TargetAccessor.Source.ValueChanged += handler;
                 return true;
             }
+            Binding.UpdateTarget();
             if (_disposeBinding)
                 Binding.Dispose();
             return false;
         }
 
-        /// <summary>
-        ///     Detaches this instance from its associated binding.
-        /// </summary>
         protected override void OnDetached()
         {
             UnsubscribeSources(OneTimeHandler);
         }
 
-        /// <summary>
-        ///     Creates a new binding behavior that is a copy of the current instance.
-        /// </summary>
         protected override IBindingBehavior CloneInternal()
         {
             return new OneTimeBindingMode(_disposeBinding);
@@ -96,28 +75,15 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Methods
 
-        private bool IsSourceAvailable()
-        {
-            var sourceAccessor = Binding.SourceAccessor;
-            var singleAccessor = sourceAccessor as ISingleBindingSourceAccessor;
-            if (singleAccessor == null)
-            {
-                foreach (var source in sourceAccessor.Sources)
-                {
-                    if (!source.GetPathMembers(false).AllMembersAvailable)
-                        return false;
-                }
-                return true;
-            }
-            return singleAccessor.Source.GetPathMembers(false).AllMembersAvailable;
-        }
-
-        private void OneTimeHandler(IBindingSource sender, ValueChangedEventArgs args)
+        private void OneTimeHandler(IObserver sender, ValueChangedEventArgs args)
         {
             IDataBinding binding = Binding;
-            if (binding == null || !IsSourceAvailable() || !binding.UpdateTarget())
+            if (binding == null || !binding.TargetAccessor.IsAllMembersAvailable() || !binding.SourceAccessor.IsAllMembersAvailable(true))
                 return;
-            UnsubscribeSources(OneTimeHandler);
+            EventHandler<IObserver, ValueChangedEventArgs> handler = OneTimeHandler;
+            UnsubscribeSources(handler);
+            binding.TargetAccessor.Source.ValueChanged -= handler;
+            binding.UpdateTarget();
             if (_disposeBinding)
                 binding.Dispose();
         }

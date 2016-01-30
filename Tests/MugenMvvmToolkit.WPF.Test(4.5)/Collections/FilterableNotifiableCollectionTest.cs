@@ -15,26 +15,12 @@ namespace MugenMvvmToolkit.Test.Collections
     public class FilterableNotifiableCollectionTest : SynchronizedNotifiableCollectionTest
     {
         [TestMethod]
-        public override void GlobalSettingTest()
-        {
-            ApplicationSettings.SetDefaultValues();
-            //By default
-            var collection = new FilterableNotifiableCollection<Item>();
-            collection.ExecutionMode.ShouldEqual(ExecutionMode.AsynchronousOnUiThread);
-
-            ApplicationSettings.SynchronizedCollectionExecutionMode = ExecutionMode.None;
-            collection = new FilterableNotifiableCollection<Item>();
-            collection.ExecutionMode.ShouldEqual(ExecutionMode.None);
-        }
-
-        [TestMethod]
         public void FilterShouldCorrectNotifyAboutChanges()
         {
+            ThreadManagerMock.IsUiThread = true;
             var item = new Item();
             var item2 = new Item();
-            var collection =
-                (FilterableNotifiableCollection<Item>)
-                    CreateNotifiableCollection<Item>(ExecutionMode.None, ThreadManagerMock);
+            var collection = (FilterableNotifiableCollection<Item>)CreateNotifiableCollection<Item>(ExecutionMode.None, ThreadManagerMock);
             var tracker = new NotifiableCollectionTracker<Item>(collection);
 
             collection.Add(item);
@@ -86,9 +72,21 @@ namespace MugenMvvmToolkit.Test.Collections
             collection.Filter = item1 => item == item1;
             tracker.AssertChangedEquals();
 
+            collection.IsClearIgnoreFilter = true;
             collection.Clear();
             collection.Filter = null;
             collection.Count.ShouldEqual(0);
+            tracker.AssertChangedEquals();
+
+            collection.Add(item);
+            collection.Add(item2);
+            collection.Filter = item1 => item == item1;
+            tracker.AssertChangedEquals();
+
+            collection.IsClearIgnoreFilter = false;
+            collection.Clear();
+            collection.Filter = null;
+            collection.Count.ShouldEqual(1);
             tracker.AssertChangedEquals();
         }
 
@@ -96,18 +94,15 @@ namespace MugenMvvmToolkit.Test.Collections
         public void CollectionShouldTrackChangesCorrectWithFilter()
         {
             const int count = 10;
-            var collection =
-                (FilterableNotifiableCollection<Item>)
-                    CreateNotifiableCollection<Item>(ExecutionMode.None, ThreadManagerMock);
+            var collection = (FilterableNotifiableCollection<Item>)CreateNotifiableCollection<Item>(ExecutionMode.None, ThreadManagerMock);
             collection.Filter = item => !item.Hidden;
 
             var collectionTracker = new NotifiableCollectionTracker<Item>(collection);
-            collection.BatchSize = int.MaxValue;
             using (collection.SuspendNotifications())
             {
                 var item = new Item();
-                var items = new[] {new Item(), new Item(), new Item()};
-                var items2 = new[] {new Item {Hidden = true}, new Item(), new Item {Hidden = true}};
+                var items = new[] { new Item(), new Item(), new Item() };
+                var items2 = new[] { new Item { Hidden = true }, new Item(), new Item { Hidden = true } };
                 for (int i = 0; i < count; i++)
                 {
                     collection.AddRange(items);
@@ -119,6 +114,7 @@ namespace MugenMvvmToolkit.Test.Collections
                     collection[i] = item;
                 }
             }
+            ThreadManagerMock.InvokeOnUiThreadAsync();
             collectionTracker.ChangingItems.OrderBy(item => item.Id)
                 .SequenceEqual(collection.SourceCollection.OrderBy(item => item.Id))
                 .ShouldBeTrue();
@@ -126,15 +122,49 @@ namespace MugenMvvmToolkit.Test.Collections
             collection.Count.ShouldEqual(count);
         }
 
+        [TestMethod]
+        public void CollectionShouldTrackChangesCorrectInSourceCollection()
+        {
+            const int count = 10;
+            var collection = new ObservableCollection<Item>();
+            var filterableCollection = new FilterableNotifiableCollection<Item>(collection, ThreadManagerMock) { Filter = _ => true };
+            var collectionTracker = new NotifiableCollectionTracker<Item>(filterableCollection);
+
+            var item = new Item();
+            var items = new[] { new Item(), new Item(), new Item() };
+            var items2 = new[] { new Item { Hidden = true }, new Item(), new Item { Hidden = true } };
+            for (int i = 0; i < count; i++)
+            {
+                collection.AddRange(items);
+                collection.SequenceEqual(filterableCollection).ShouldBeTrue();
+                collection.AddRange(items2);
+                collection.SequenceEqual(filterableCollection).ShouldBeTrue();
+                collection.RemoveRange(items);
+                collection.SequenceEqual(filterableCollection).ShouldBeTrue();
+            }
+            for (int i = 0; i < collection.Count; i++)
+            {
+                collection[i] = item;
+                collection.SequenceEqual(filterableCollection).ShouldBeTrue();
+            }
+
+            ThreadManagerMock.InvokeOnUiThreadAsync();
+            collectionTracker.AssertChangedEquals();
+            collection.Count.ShouldEqual(count * items2.Length);
+
+            collection.Clear();
+            ThreadManagerMock.InvokeOnUiThreadAsync();
+            collection.SequenceEqual(filterableCollection).ShouldBeTrue();
+            collection.Count.ShouldEqual(0);
+            collectionTracker.AssertChangedEquals();
+        }
+
         #region Overrides of CollectionTestBase
 
-        protected override SynchronizedNotifiableCollection<T> CreateNotifiableCollection<T>(ExecutionMode executionMode,
-            IThreadManager threadManager)
+        protected override SynchronizedNotifiableCollection<T> CreateNotifiableCollection<T>(ExecutionMode executionMode, IThreadManager threadManager)
         {
-            return new FilterableNotifiableCollection<T>
+            return new FilterableNotifiableCollection<T>(threadManager)
             {
-                ExecutionMode = executionMode,
-                ThreadManager = threadManager,
                 Filter = item => true
             };
         }
@@ -143,7 +173,6 @@ namespace MugenMvvmToolkit.Test.Collections
         {
             return new FilterableNotifiableCollection<T>(collection: items)
             {
-                ExecutionMode = ExecutionMode.None,
                 Filter = item => true
             };
         }
@@ -160,19 +189,14 @@ namespace MugenMvvmToolkit.Test.Collections
 
         protected override FilterableNotifiableCollection<string> GetObject()
         {
-            return
-                new FilterableNotifiableCollection<string>(new ObservableCollection<string>(TestExtensions.TestStrings))
-                {
-                    ExecutionMode = ExecutionMode.None
-                };
+            return new FilterableNotifiableCollection<string>(new List<string>(TestExtensions.TestStrings));
         }
 
         protected override void AssertObject(FilterableNotifiableCollection<string> deserializedObj)
         {
-            deserializedObj.Items.ShouldBeType<ObservableCollection<string>>();
+            deserializedObj.Items.ShouldBeType<List<string>>();
             deserializedObj.SequenceEqual(TestExtensions.TestStrings).ShouldBeTrue();
             deserializedObj.IsNotificationsSuspended.ShouldBeFalse();
-            deserializedObj.EventsTracker.ShouldNotBeNull();
         }
 
         #endregion
@@ -187,7 +211,6 @@ namespace MugenMvvmToolkit.Test.Collections
         {
             return new FilterableNotifiableCollection<T>(collection: items)
             {
-                ExecutionMode = ExecutionMode.None,
                 Filter = item => true
             };
         }
@@ -204,7 +227,6 @@ namespace MugenMvvmToolkit.Test.Collections
         {
             return new FilterableNotifiableCollection<T>(collection: items)
             {
-                ExecutionMode = ExecutionMode.None,
                 Filter = item => true
             };
         }

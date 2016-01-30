@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="BindingListItemsSourceDecorator.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,27 +17,22 @@
 #endregion
 
 using System.Collections.Generic;
-using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Interfaces.Collections;
+using MugenMvvmToolkit.WinForms.Collections;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit.WinForms.Infrastructure
 {
-    /// <summary>
-    ///     Represnets the class that allows to wrap items source collection to <see cref="BindingListWrapper{T}" />.
-    /// </summary>
     public sealed class BindingListItemsSourceDecorator : IItemsSourceDecorator
     {
         #region Implementation of IItemsSourceDecorator
 
-        /// <summary>
-        ///     Decorates items source collection.
-        /// </summary>
-        public IList<T> Decorate<T>(IList<T> itemsSource)
+        public IList<T> Decorate<T>(object owner, IList<T> itemsSource)
         {
-            var notifiableCollection = itemsSource as SynchronizedNotifiableCollection<T>;
-            if (notifiableCollection == null)
+            var collection = itemsSource as INotifiableCollection<T>;
+            if (collection == null)
                 return itemsSource;
-            return new BindingListWrapper<T>(notifiableCollection);
+            return new BindingListWrapper<T>(collection);
         }
 
         #endregion

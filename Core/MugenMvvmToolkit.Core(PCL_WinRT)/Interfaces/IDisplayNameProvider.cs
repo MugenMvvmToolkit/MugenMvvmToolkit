@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IDisplayNameProvider.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -22,15 +22,8 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Interfaces
 {
-    /// <summary>
-    ///     Represents interface that provide display name of object.
-    /// </summary>
     public interface IDisplayNameProvider
     {
-        /// <summary>
-        ///     Gets a display name for the specified type using the specified member.
-        /// </summary>
-        /// <param name="memberInfo">The specified member.</param>
         [Pure, NotNull]
         Func<string> GetDisplayNameAccessor([NotNull] MemberInfo memberInfo);
     }

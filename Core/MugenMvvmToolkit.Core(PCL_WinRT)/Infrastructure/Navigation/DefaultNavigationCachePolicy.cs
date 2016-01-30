@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="DefaultNavigationCachePolicy.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -21,14 +21,10 @@ using System.Collections.Generic;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure.Navigation
 {
-    /// <summary>
-    ///     Represents the view model navigation cache policy, that clear the cache during back navigation.
-    /// </summary>
     public class DefaultNavigationCachePolicy : INavigationCachePolicy
     {
         #region Fields
@@ -39,9 +35,6 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DefaultNavigationCachePolicy" /> class.
-        /// </summary>
         public DefaultNavigationCachePolicy()
         {
             _cachedViewModels = new Dictionary<Type, List<IViewModel>>();
@@ -51,14 +44,11 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         #region Implementation of INavigationCachePolicy
 
-        /// <summary>
-        ///     Tries to save a view model in the cache.
-        /// </summary>
         public virtual void TryCacheViewModel(INavigationContext context, object view, IViewModel viewModel)
         {
             if (context.NavigationMode == NavigationMode.Back)
                 return;
-            view = GetView(view);
+            view = ToolkitExtensions.GetUnderlyingView<object>(view);
             Type type = view.GetType();
 
             List<IViewModel> list;
@@ -68,33 +58,32 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 _cachedViewModels[type] = list;
             }
             list.Insert(0, viewModel);
-            Tracer.Info("Navigation cache - the view model {0} was cached, navigation mode: {1}, view: {2}",
-                viewModel.GetType(), context.NavigationMode, type);
+            if (Tracer.TraceInformation)
+                Tracer.Info("Navigation cache - the view model {0} was cached, navigation mode: {1}, view: {2}",
+                    viewModel.GetType(), context.NavigationMode, type);
         }
 
-        /// <summary>
-        ///     Tries to get view model from the cache, and delete it from the cache.
-        /// </summary>
         public virtual IViewModel TryTakeViewModelFromCache(INavigationContext context, object view)
         {
-            view = GetView(view);
+            view = ToolkitExtensions.GetUnderlyingView<object>(view);
             var type = view.GetType();
             List<IViewModel> list;
             if (!_cachedViewModels.TryGetValue(type, out list) || list == null || list.Count == 0)
             {
-                Tracer.Info("Navigation cache - the view model for the view {0} is not found in the cache, navigation mode: {1}", type, context.NavigationMode);
+                if (Tracer.TraceInformation)
+                    Tracer.Info("Navigation cache - the view model for the view {0} is not found in the cache, navigation mode: {1}", type, context.NavigationMode);
                 return null;
             }
             IViewModel vm = list[0];
             list.RemoveAt(0);
-            Tracer.Info("Navigation cache - the view model {0} for the view {1} was taken from the cache, navigation mode: {2}",
-                vm.GetType(), type, context.NavigationMode);
+            if (list.Count == 0)
+                _cachedViewModels.Remove(type);
+            if (Tracer.TraceInformation)
+                Tracer.Info("Navigation cache - the view model {0} for the view {1} was taken from the cache, navigation mode: {2}",
+                    vm.GetType(), type, context.NavigationMode);
             return vm;
         }
 
-        /// <summary>
-        ///     Gets the cached view models.
-        /// </summary>
         public virtual IList<IViewModel> GetViewModels(IDataContext context)
         {
             var list = new List<IViewModel>();
@@ -104,44 +93,39 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             return list;
         }
 
-        /// <summary>
-        ///     Removes the view model from cache.
-        /// </summary>
         public virtual bool Invalidate(IViewModel viewModel, IDataContext context)
         {
             bool clear = false;
+            List<Type> toRemove = null;
             foreach (var cachedViewModel in _cachedViewModels)
             {
-                int indexOf = cachedViewModel.Value.IndexOf(viewModel);
+                var viewModels = cachedViewModel.Value;
+                int indexOf = viewModels.IndexOf(viewModel);
                 if (indexOf != -1)
                 {
-                    cachedViewModel.Value.RemoveAt(indexOf);
+                    viewModels.RemoveAt(indexOf);
                     clear = true;
+                    if (viewModels.Count == 0)
+                    {
+                        if (toRemove == null)
+                            toRemove = new List<Type>();
+                        toRemove.Add(cachedViewModel.Key);
+                    }
                 }
+            }
+            if (toRemove != null)
+            {
+                foreach (var type in toRemove)
+                    _cachedViewModels.Remove(type);
             }
             return clear;
         }
 
-        /// <summary>
-        ///     Clears the cache.
-        /// </summary>
         public virtual IList<IViewModel> Invalidate(IDataContext context)
         {
             var viewModels = GetViewModels(context);
             _cachedViewModels.Clear();
             return viewModels;
-        }
-
-        #endregion
-
-        #region Methods
-
-        private static object GetView(object view)
-        {
-            var viewWrapper = view as IViewWrapper;
-            if (viewWrapper == null)
-                return view;
-            return viewWrapper.View;
         }
 
         #endregion

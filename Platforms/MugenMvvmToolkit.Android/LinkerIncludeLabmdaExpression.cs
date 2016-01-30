@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="LinkerIncludeLabmdaExpression.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -25,7 +25,13 @@ using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit
+#if TOUCH
+namespace MugenMvvmToolkit.iOS
+#elif ANDROID
+namespace MugenMvvmToolkit.Android
+#elif XAMARIN_FORMS
+namespace MugenMvvmToolkit.Xamarin.Forms
+#endif
 {
     internal static partial class LinkerInclude
     {
@@ -39,7 +45,7 @@ namespace MugenMvvmToolkit
 
         static LinkerInclude()
         {
-            CreateLambdaGeneric = typeof(LinkerInclude).GetMethodEx("CreateLambdaExpressionGeneric",
+            CreateLambdaGeneric = typeof(LinkerInclude).GetMethodEx(nameof(CreateLambdaExpressionGeneric),
                 MemberFlags.Static | MemberFlags.NonPublic);
         }
 

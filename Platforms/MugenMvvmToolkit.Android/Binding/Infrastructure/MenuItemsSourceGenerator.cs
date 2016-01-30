@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="MenuItemsSourceGenerator.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -19,9 +19,9 @@
 using System.Collections;
 using Android.Content;
 using Android.Views;
-using MugenMvvmToolkit.Binding.Models;
+using MugenMvvmToolkit.Android.Binding.Models;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 {
     internal sealed class MenuItemsSourceGenerator : ItemsSourceGeneratorBase
     {
@@ -35,10 +35,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Constructors
 
-        private MenuItemsSourceGenerator(IMenu menu, Context context, MenuItemTemplate itemTemplate)
+        internal MenuItemsSourceGenerator(IMenu menu, Context context, MenuItemTemplate itemTemplate)
         {
-            Should.NotBeNull(menu, "menu");
-            Should.NotBeNull(itemTemplate, "itemTemplate");
+            Should.NotBeNull(menu, nameof(menu));
+            Should.NotBeNull(itemTemplate, nameof(itemTemplate));
             _menu = menu;
             _context = context;
             _itemTemplate = itemTemplate;
@@ -51,10 +51,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         protected override IEnumerable ItemsSource { get; set; }
 
-        protected override bool IsTargetDisposed
-        {
-            get { return !_menu.IsAlive(); }
-        }
+        protected override bool IsTargetDisposed => !_menu.IsAlive();
 
         protected override void Add(int insertionIndex, int count)
         {
@@ -111,11 +108,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         #endregion
 
         #region Methods
-
-        public static void Set(IMenu menu, Context context, MenuItemTemplate itemTemplate)
-        {
-            ServiceProvider.AttachedValueProvider.SetValue(menu, Key, new MenuItemsSourceGenerator(menu, context, itemTemplate));
-        }
 
         private void RemoveItem(int id)
         {

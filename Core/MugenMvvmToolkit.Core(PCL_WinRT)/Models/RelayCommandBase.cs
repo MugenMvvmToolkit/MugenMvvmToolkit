@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="RelayCommandBase.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -20,26 +20,25 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Models
 {
-    /// <summary>
-    ///     An extension to ICommand to provide an ability to raise changed events.
-    /// </summary>
-    public abstract class RelayCommandBase : NotifyPropertyChangedBase, IRelayCommand, IHandler<IBroadcastMessage>, IHasWeakReference
+    public abstract class RelayCommandBase : NotifyPropertyChangedBase, IRelayCommand, IHandler<IBroadcastMessage>
     {
         #region Fields
 
         private static readonly Action<RelayCommandBase, EventArgs> RaiseCanExecuteChangedDelegate;
         private static readonly Action<RelayCommandBase, object, PropertyChangedEventArgs> OnPropertyChangedDelegate;
+        private static readonly List<KeyValuePair<WeakReference, Action<RelayCommandBase, object>>> DisposedFlag;
 
-        private readonly List<KeyValuePair<WeakReference, Action<RelayCommandBase, object>>> _notifiers;
-        private readonly PropertyChangedEventHandler _weakHandler;
+        private PropertyChangedEventHandler _weakHandler;
+        private List<KeyValuePair<WeakReference, Action<RelayCommandBase, object>>> _notifiers;
         private EventHandler _canExecuteChangedInternal;
-        private int _disposeState;
-        private WeakReference _weakReference;
+        private HashSet<string> _ignoreProperties;
 
         #endregion
 
@@ -47,13 +46,11 @@ namespace MugenMvvmToolkit.Models
 
         static RelayCommandBase()
         {
+            DisposedFlag = new List<KeyValuePair<WeakReference, Action<RelayCommandBase, object>>>();
             RaiseCanExecuteChangedDelegate = RaiseCanExecuteChangedStatic;
             OnPropertyChangedDelegate = OnPropertyChangedStatic;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="RelayCommandBase" /> class.
-        /// </summary>
         protected RelayCommandBase(bool hasCanExecuteImpl)
         {
             if (hasCanExecuteImpl)
@@ -65,9 +62,6 @@ namespace MugenMvvmToolkit.Models
             CanExecuteMode = ApplicationSettings.CommandCanExecuteMode;
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="RelayCommandBase" /> class.
-        /// </summary>
         protected RelayCommandBase(bool hasCanExecuteImpl, params object[] notifiers)
             : this(hasCanExecuteImpl)
         {
@@ -78,9 +72,6 @@ namespace MugenMvvmToolkit.Models
             }
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="RelayCommandBase" /> class.
-        /// </summary>
         protected RelayCommandBase(params object[] notifiers)
             : this(true, notifiers)
         {
@@ -91,56 +82,34 @@ namespace MugenMvvmToolkit.Models
 
         #region Properties
 
-        /// <summary>
-        ///     Gets or sets the value, if <c>true</c> execute asynchronously; otherwise <c>false</c> - synchronously.
-        ///     Default value is false.
-        /// </summary>
+        [NotNull]
+        public ICollection<string> IgnoreProperties
+        {
+            get
+            {
+                if (_ignoreProperties == null)
+                    _ignoreProperties = new HashSet<string>(StringComparer.Ordinal);
+                return _ignoreProperties;
+            }
+        }
+
         public bool ExecuteAsynchronously { get; set; }
 
         #endregion
 
         #region Implementation of IRelayCommand
 
-        /// <summary>
-        ///     Gets the value that indicates that command has can execute handler.
-        /// </summary>
-        public bool HasCanExecuteImpl
-        {
-            get { return _notifiers != null; }
-        }
+        public bool HasCanExecuteImpl => _weakHandler != null;
 
-        /// <summary>
-        ///     Specifies the execution mode for <c>Execute</c> method.
-        /// </summary>
         public CommandExecutionMode ExecutionMode { get; set; }
 
-        /// <summary>
-        ///     Specifies the execution mode for <c>RaiseCanExecuteChanged</c> method in <c>IRelayCommand</c>.
-        /// </summary>
         public ExecutionMode CanExecuteMode { get; set; }
 
-        /// <summary>
-        ///     Defines the method that determines whether the command can execute in its current state.
-        /// </summary>
-        /// <returns>
-        ///     true if this command can be executed; otherwise, false.
-        /// </returns>
-        /// <param name="parameter">
-        ///     Data used by the command.  If the command does not require data to be passed, this object can
-        ///     be set to null.
-        /// </param>
         public bool CanExecute(object parameter)
         {
             return !HasCanExecuteImpl || CanExecuteInternal(parameter);
         }
 
-        /// <summary>
-        ///     Defines the method to be called when the command is invoked.
-        /// </summary>
-        /// <param name="parameter">
-        ///     Data used by the command.  If the command does not require data to be passed, this object can
-        ///     be set to null.
-        /// </param>
         public void Execute(object parameter)
         {
             switch (ExecutionMode)
@@ -159,14 +128,12 @@ namespace MugenMvvmToolkit.Models
                     break;
             }
             if (ExecuteAsynchronously)
-                ThreadManager.InvokeAsync(() => ExecuteInternal(parameter));
+                ThreadManager.Invoke(Models.ExecutionMode.Asynchronous, this, parameter,
+                    (@base, o) => @base.ExecuteInternal(o));
             else
                 ExecuteInternal(parameter);
         }
 
-        /// <summary>
-        ///     Occurs when changes occur that affect whether or not the command should execute.
-        /// </summary>
         public event EventHandler CanExecuteChanged
         {
             add
@@ -189,22 +156,18 @@ namespace MugenMvvmToolkit.Models
             }
         }
 
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
         public void Dispose()
         {
-            if (Interlocked.Exchange(ref _disposeState, 1) == 1)
+            var notifiers = Interlocked.Exchange(ref _notifiers, DisposedFlag);
+            if (notifiers == DisposedFlag)
                 return;
-            ClearNotifiers();
+            if (notifiers != null)
+                ClearInternal(notifiers);
+            _weakHandler = null;
             _canExecuteChangedInternal = null;
             OnDispose();
-            ServiceProvider.AttachedValueProvider.Clear(this);
         }
 
-        /// <summary>
-        ///     This method can be used to raise the CanExecuteChanged handler.
-        /// </summary>
         public void RaiseCanExecuteChanged()
         {
             if (IsNotificationsSuspended)
@@ -216,9 +179,6 @@ namespace MugenMvvmToolkit.Models
                 ThreadManager.Invoke(CanExecuteMode, this, EventArgs.Empty, RaiseCanExecuteChangedDelegate);
         }
 
-        /// <summary>
-        ///     Gets the current command notifiers.
-        /// </summary>
         public IList<object> GetNotifiers()
         {
             if (!HasCanExecuteImpl)
@@ -241,13 +201,9 @@ namespace MugenMvvmToolkit.Models
             return objects;
         }
 
-        /// <summary>
-        ///     Adds the specified notifier to manage the <c>CanExecuteChanged</c> event.
-        /// </summary>
-        /// <param name="item">The specified notifier item.</param>
         public bool AddNotifier(object item)
         {
-            Should.NotBeNull(item, "item");
+            Should.NotBeNull(item, nameof(item));
             if (!HasCanExecuteImpl)
                 return false;
             lock (_notifiers)
@@ -262,44 +218,21 @@ namespace MugenMvvmToolkit.Models
             }
         }
 
-        /// <summary>
-        ///     Removes the specified notifier.
-        /// </summary>
-        /// <param name="item">The specified notifier item.</param>
         public bool RemoveNotifier(object item)
         {
-            Should.NotBeNull(item, "item");
+            Should.NotBeNull(item, nameof(item));
             if (!HasCanExecuteImpl)
                 return false;
             lock (_notifiers)
                 return Contains(item, true);
         }
 
-        /// <summary>
-        ///     Removes all notifiers.
-        /// </summary>
         public void ClearNotifiers()
         {
-            if (!HasCanExecuteImpl)
-                return;
-            lock (_notifiers)
-            {
-                for (int index = 0; index < _notifiers.Count; index++)
-                {
-                    var notifier = _notifiers[index];
-                    object target = notifier.Key.Target;
-                    if (target != null)
-                        notifier.Value(this, target);
-                }
-                _notifiers.Clear();
-            }
+            if (HasCanExecuteImpl)
+                ClearInternal(_notifiers);
         }
 
-        /// <summary>
-        ///     Handles the message.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="message">Information about event.</param>
         void IHandler<IBroadcastMessage>.Handle(object sender, IBroadcastMessage message)
         {
             RaiseCanExecuteChanged();
@@ -309,32 +242,41 @@ namespace MugenMvvmToolkit.Models
 
         #region Methods
 
-        /// <summary>
-        ///     Defines the method that determines whether the command can execute in its current state.
-        /// </summary>
-        /// <returns>
-        ///     true if this command can be executed; otherwise, false.
-        /// </returns>
-        /// <param name="parameter">
-        ///     Data used by the command.  If the command does not require data to be passed, this object can
-        ///     be set to null.
-        /// </param>
+        public static RelayCommandBase FromAsyncHandler(Func<Task> executeMethod, Func<bool> canExecuteMethod, bool allowMultipleExecution, [NotEmptyParams] params object[] notifiers)
+        {
+            return new AsyncRelayCommand(executeMethod, canExecuteMethod, allowMultipleExecution, notifiers);
+        }
+
+        public static RelayCommandBase FromAsyncHandler(Func<Task> executeMethod, Func<bool> canExecuteMethod, [NotEmptyParams] params object[] notifiers)
+        {
+            return new AsyncRelayCommand(executeMethod, canExecuteMethod, notifiers);
+        }
+
+        public static RelayCommandBase FromAsyncHandler(Func<Task> executeMethod, bool allowMultipleExecution = true)
+        {
+            return new AsyncRelayCommand(executeMethod, allowMultipleExecution);
+        }
+
+
+        public static RelayCommandBase FromAsyncHandler<TArg>(Func<TArg, Task> executeMethod, Func<TArg, bool> canExecuteMethod, bool allowMultipleExecution, [NotEmptyParams] params object[] notifiers)
+        {
+            return new AsyncRelayCommand<TArg>(executeMethod, canExecuteMethod, allowMultipleExecution, notifiers);
+        }
+
+        public static RelayCommandBase FromAsyncHandler<TArg>(Func<TArg, Task> executeMethod, Func<TArg, bool> canExecuteMethod, [NotEmptyParams] params object[] notifiers)
+        {
+            return new AsyncRelayCommand<TArg>(executeMethod, canExecuteMethod, notifiers);
+        }
+
+        public static RelayCommandBase FromAsyncHandler<TArg>(Func<TArg, Task> executeMethod, bool allowMultipleExecution = true)
+        {
+            return new AsyncRelayCommand<TArg>(executeMethod, allowMultipleExecution);
+        }
+
         protected abstract bool CanExecuteInternal(object parameter);
 
-        /// <summary>
-        ///     Defines the method to be called when the command is invoked.
-        /// </summary>
-        /// <param name="parameter">
-        ///     Data used by the command.  If the command does not require data to be passed, this object can
-        ///     be set to null.
-        /// </param>
         protected abstract void ExecuteInternal(object parameter);
 
-        /// <summary>
-        ///     Creates the notifier.
-        /// </summary>
-        /// <param name="item">The specified item to create notifier.</param>
-        /// <returns>An action to unsubscribe.</returns>
         [CanBeNull]
         protected virtual Action<RelayCommandBase, object> CreateNotifier(object item)
         {
@@ -349,9 +291,6 @@ namespace MugenMvvmToolkit.Models
             return (@base, o) => ((INotifyPropertyChanged)o).PropertyChanged -= @base._weakHandler;
         }
 
-        /// <summary>
-        ///     Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
         protected virtual void OnDispose()
         {
         }
@@ -379,44 +318,40 @@ namespace MugenMvvmToolkit.Models
             return false;
         }
 
+        private void ClearInternal(List<KeyValuePair<WeakReference, Action<RelayCommandBase, object>>> notifiers)
+        {
+            lock (notifiers)
+            {
+                for (int index = 0; index < notifiers.Count; index++)
+                {
+                    var notifier = notifiers[index];
+                    object target = notifier.Key.Target;
+                    if (target != null)
+                        notifier.Value(this, target);
+                }
+                notifiers.Clear();
+            }
+        }
+
         private static void RaiseCanExecuteChangedStatic(RelayCommandBase @this, EventArgs args)
         {
-            EventHandler handler = @this._canExecuteChangedInternal;
-            if (handler != null)
-                handler(@this, args);
+            @this._canExecuteChangedInternal?.Invoke(@this, args);
         }
 
         private static void OnPropertyChangedStatic(RelayCommandBase relayCommandBase, object o, PropertyChangedEventArgs arg3)
         {
-            relayCommandBase.RaiseCanExecuteChanged();
+            if (arg3.PropertyName == null || relayCommandBase._ignoreProperties == null || !relayCommandBase._ignoreProperties.Contains(arg3.PropertyName))
+                relayCommandBase.RaiseCanExecuteChanged();
         }
 
         #endregion
 
         #region Overrides of NotifyPropertyChangedBase
 
-
-        /// <summary>
-        /// Occurs on end suspend notifications.
-        /// </summary>
         protected override void OnEndSuspendNotifications(bool isDirty)
         {
             if (isDirty)
                 RaiseCanExecuteChanged();
-        }
-
-        #endregion
-
-        #region Implementation of IHasWeakReference
-
-        WeakReference IHasWeakReference.WeakReference
-        {
-            get
-            {
-                if (_weakReference == null)
-                    _weakReference = ServiceProvider.WeakReferenceFactory(this, true);
-                return _weakReference;
-            }
         }
 
         #endregion

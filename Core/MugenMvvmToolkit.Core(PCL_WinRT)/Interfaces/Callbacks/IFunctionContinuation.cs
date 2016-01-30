@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IFunctionContinuation.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,25 +18,13 @@
 
 namespace MugenMvvmToolkit.Interfaces.Callbacks
 {
-    /// <summary>
-    ///     Represents a function to run when the <see cref="IAsyncOperation" /> completes.
-    /// </summary>
     public interface IFunctionContinuation<out TResult> : IContinuation
     {
-        /// <summary>
-        ///     Invokes the function using the specified operation result.
-        /// </summary>
         TResult Invoke(IOperationResult result);
     }
 
-    /// <summary>
-    ///     Represents a function to run when the <see cref="IAsyncOperation{TResult}" /> completes.
-    /// </summary>
     public interface IFunctionContinuation<in TResult, out TNewResult> : IContinuation
     {
-        /// <summary>
-        ///     Invokes the function using the specified operation result.
-        /// </summary>
         TNewResult Invoke(IOperationResult<TResult> result);
     }
 }

@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="TypeNameAliasAttribute.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -19,7 +19,7 @@
 using System;
 using JetBrains.Annotations;
 
-namespace MugenMvvmToolkit.Attributes
+namespace MugenMvvmToolkit.Android.Attributes
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
     public sealed class TypeNameAliasAttribute : Attribute
@@ -34,7 +34,7 @@ namespace MugenMvvmToolkit.Attributes
 
         public TypeNameAliasAttribute([NotNull] string @alias)
         {
-            Should.NotBeNull(@alias, "alias");
+            Should.NotBeNull(@alias, nameof(alias));
             _alias = alias;
         }
 
@@ -42,10 +42,7 @@ namespace MugenMvvmToolkit.Attributes
 
         #region Properties
 
-        public string Alias
-        {
-            get { return _alias; }
-        }
+        public string Alias => _alias;
 
         #endregion
     }

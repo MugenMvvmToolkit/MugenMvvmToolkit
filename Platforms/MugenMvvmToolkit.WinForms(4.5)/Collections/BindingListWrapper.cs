@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="BindingListWrapper.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -16,35 +16,30 @@
 
 #endregion
 
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Diagnostics;
+using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Interfaces.Collections;
 using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Collections
+namespace MugenMvvmToolkit.WinForms.Collections
 {
-    [DebuggerDisplay("Count = {SourceCollection.Count}, NotificationCount = {SourceCollection.NotificationCount}")]
-    public class BindingListWrapper<T> : BindingList<T>, IBindingList, INotifyCollectionChanging
+    public class BindingListWrapper<T> : BindingList<T>, IBindingList, INotifiableCollection, INotifiableCollection<T>
     {
         #region Fields
 
-        private readonly object _locker;
         private bool _collectionUpdating;
 
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="BindingList{T}" /> class as a wrapper
-        ///     for the specified list.
-        /// </summary>
-        /// <param name="collection">The list that is wrapped by the new collection.</param>
-        public BindingListWrapper(SynchronizedNotifiableCollection<T> collection = null)
+        public BindingListWrapper(INotifiableCollection<T> collection = null)
             : base(collection ?? new SynchronizedNotifiableCollection<T>())
         {
-            _locker = new object();
             CollectionChanged += CollectionOnCollectionChanged;
         }
 
@@ -52,12 +47,33 @@ namespace MugenMvvmToolkit.Collections
 
         #region Properties
 
-        /// <summary>
-        /// Gets the source collection.
-        /// </summary>
-        public SynchronizedNotifiableCollection<T> SourceCollection
+        public INotifiableCollection<T> SourceCollection => (INotifiableCollection<T>)Items;
+
+        public bool IsNotificationsSuspended => SourceCollection.IsNotificationsSuspended;
+
+        int ICollection.Count
         {
-            get { return (SynchronizedNotifiableCollection<T>)Items; }
+            get
+            {
+                var collection = SourceCollection as ICollection;
+                if (collection == null)
+                    return Count;
+                return collection.Count;
+            }
+        }
+
+        object IList.this[int index]
+        {
+            get
+            {
+                var list = SourceCollection as IList ?? this;
+                return list[index];
+            }
+            set
+            {
+                var list = SourceCollection as IList ?? this;
+                list[index] = value;
+            }
         }
 
         #endregion
@@ -68,31 +84,28 @@ namespace MugenMvvmToolkit.Collections
         {
             try
             {
-                lock (_locker)
+                _collectionUpdating = true;
+                ListChangedEventArgs args = null;
+                switch (arg.Action)
                 {
-                    _collectionUpdating = true;
-                    ListChangedEventArgs args = null;
-                    switch (arg.Action)
-                    {
-                        case NotifyCollectionChangedAction.Add:
-                            args = new ListChangedEventArgs(ListChangedType.ItemAdded, arg.NewStartingIndex);
-                            break;
-                        case NotifyCollectionChangedAction.Remove:
-                            args = new ListChangedEventArgs(ListChangedType.ItemDeleted, arg.OldStartingIndex);
-                            break;
-                        case NotifyCollectionChangedAction.Replace:
-                            args = new ListChangedEventArgs(ListChangedType.ItemChanged, arg.NewStartingIndex);
-                            break;
-                        case NotifyCollectionChangedAction.Move:
-                            args = new ListChangedEventArgs(ListChangedType.ItemMoved, arg.NewStartingIndex,
-                                arg.OldStartingIndex);
-                            break;
-                        case NotifyCollectionChangedAction.Reset:
-                            args = new ListChangedEventArgs(ListChangedType.Reset, -1);
-                            break;
-                    }
-                    OnListChanged(args);
+                    case NotifyCollectionChangedAction.Add:
+                        args = new ListChangedEventArgs(ListChangedType.ItemAdded, arg.NewStartingIndex);
+                        break;
+                    case NotifyCollectionChangedAction.Remove:
+                        args = new ListChangedEventArgs(ListChangedType.ItemDeleted, arg.OldStartingIndex);
+                        break;
+                    case NotifyCollectionChangedAction.Replace:
+                        args = new ListChangedEventArgs(ListChangedType.ItemChanged, arg.NewStartingIndex);
+                        break;
+                    case NotifyCollectionChangedAction.Move:
+                        args = new ListChangedEventArgs(ListChangedType.ItemMoved, arg.NewStartingIndex,
+                            arg.OldStartingIndex);
+                        break;
+                    case NotifyCollectionChangedAction.Reset:
+                        args = new ListChangedEventArgs(ListChangedType.Reset, -1);
+                        break;
                 }
+                OnListChanged(args);
             }
             finally
             {
@@ -100,45 +113,8 @@ namespace MugenMvvmToolkit.Collections
             }
         }
 
-        #endregion
-
-        #region Implementation of INotifyCollectionChanging
-
-        /// <summary>
-        ///     Occurs when the collection changes.
-        /// </summary>
-        public event NotifyCollectionChangedEventHandler CollectionChanged
-        {
-            add { SourceCollection.CollectionChanged += value; }
-            remove { SourceCollection.CollectionChanged -= value; }
-        }
-
-        /// <summary>
-        ///     Occurs when a property value changes.
-        /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged
-        {
-            add { SourceCollection.PropertyChanged += value; }
-            remove { SourceCollection.PropertyChanged -= value; }
-        }
-
-        /// <summary>
-        ///     Occurs before the collection changes.
-        /// </summary>
-        public event NotifyCollectionChangingEventHandler CollectionChanging
-        {
-            add { SourceCollection.CollectionChanging += value; }
-            remove { SourceCollection.CollectionChanging -= value; }
-        }
-
-        #endregion
-
         #region Overrides of BindingList<T>
 
-        /// <summary>
-        ///     Raises the <see cref="E:System.ComponentModel.BindingList`1.ListChanged" /> event.
-        /// </summary>
-        /// <param name="e">A <see cref="T:System.ComponentModel.ListChangedEventArgs" /> that contains the event data. </param>
         protected override void OnListChanged(ListChangedEventArgs e)
         {
             if (_collectionUpdating || e.ListChangedType == ListChangedType.PropertyDescriptorAdded ||
@@ -146,6 +122,70 @@ namespace MugenMvvmToolkit.Collections
                 e.ListChangedType == ListChangedType.PropertyDescriptorDeleted ||
                 (e.ListChangedType == ListChangedType.ItemChanged && e.PropertyDescriptor != null))
                 base.OnListChanged(e);
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Implementation of interfaces
+
+        public IDisposable SuspendNotifications()
+        {
+            return SourceCollection.SuspendNotifications();
+        }
+
+        public void RaiseReset()
+        {
+            SourceCollection.RaiseReset();
+        }
+
+        public void AddRange(IEnumerable collection)
+        {
+            ((INotifiableCollection)SourceCollection).AddRange(collection);
+        }
+
+        public void RemoveRange(IEnumerable collection)
+        {
+            ((INotifiableCollection)SourceCollection).RemoveRange(collection);
+        }
+
+        public event NotifyCollectionChangedEventHandler CollectionChanged
+        {
+            add { SourceCollection.CollectionChanged += value; }
+            remove { SourceCollection.CollectionChanged -= value; }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged
+        {
+            add { SourceCollection.PropertyChanged += value; }
+            remove { SourceCollection.PropertyChanged -= value; }
+        }
+
+        public event NotifyCollectionChangingEventHandler CollectionChanging
+        {
+            add { SourceCollection.CollectionChanging += value; }
+            remove { SourceCollection.CollectionChanging -= value; }
+        }
+
+        public void AddRange(IEnumerable<T> collection)
+        {
+            SourceCollection.AddRange(collection);
+        }
+
+        public void RemoveRange(IEnumerable<T> collection)
+        {
+            SourceCollection.RemoveRange(collection);
+        }
+
+        public void Update(IEnumerable<T> items)
+        {
+            SourceCollection.Update(items);
+        }
+
+        public T[] ToArray()
+        {
+            return SourceCollection.ToArray();
         }
 
         #endregion

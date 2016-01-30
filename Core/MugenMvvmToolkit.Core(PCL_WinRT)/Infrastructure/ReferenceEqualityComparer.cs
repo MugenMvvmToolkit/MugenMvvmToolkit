@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ReferenceEqualityComparer.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -23,17 +23,11 @@ using System.Runtime.Serialization;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    /// <summary>
-    ///     Represents the reference equality comparer
-    /// </summary>
     [DataContract(Namespace = ApplicationSettings.DataContractNamespace), Serializable]
     public class ReferenceEqualityComparer : IEqualityComparer<object>
     {
         #region Fields
 
-        /// <summary>
-        ///     Gets an instance of <see cref="ReferenceEqualityComparer" />.
-        /// </summary>
         public static readonly IEqualityComparer<object> Instance;
 
         #endregion
@@ -61,8 +55,8 @@ namespace MugenMvvmToolkit.Infrastructure
         int IEqualityComparer<object>.GetHashCode(object obj)
         {
             if (obj == null)
-                return 1;
-            return RuntimeHelpers.GetHashCode(obj);
+                return 0;
+            return RuntimeHelpers.GetHashCode(obj) * 397;
         }
 
         #endregion

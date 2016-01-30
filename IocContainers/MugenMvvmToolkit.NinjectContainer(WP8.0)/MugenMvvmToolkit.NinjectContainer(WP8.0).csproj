@@ -41,7 +41,7 @@
     <NoConfig>true</NoConfig>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\bin\IocContainers\Ninject\WP8.0\MugenMvvmToolkit.NinjectContainer.XML</DocumentationFile>
+    <DocumentationFile></DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -111,6 +111,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\MugenMvvmToolkit.AutofacContainer%28PCL%29\Properties\AssemblyInfoCommon.cs">
+      <Link>Properties\AssemblyInfoCommon.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.NinjectContainer%28NET4%29\NinjectContainer.cs">
       <Link>NinjectContainer.cs</Link>
     </Compile>

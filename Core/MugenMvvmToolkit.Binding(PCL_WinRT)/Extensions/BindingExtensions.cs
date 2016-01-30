@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="BindingExtensions.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -20,24 +20,27 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding.Attributes;
+using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
+using MugenMvvmToolkit.Binding.Interfaces.Accessors;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Parse.Nodes;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 
 // ReSharper disable once CheckNamespace
+
 namespace MugenMvvmToolkit.Binding
 {
-    /// <summary>
-    ///     Represents the binding extensions.
-    /// </summary>
     public static class BindingExtensions
     {
         #region Nested types
@@ -58,7 +61,8 @@ namespace MugenMvvmToolkit.Binding
 
             public BindingContextWrapper(object target)
             {
-                var parentMember = BindingServiceProvider.VisualTreeManager.GetParentMember(target.GetType());
+                IBindingMemberInfo parentMember =
+                    BindingServiceProvider.VisualTreeManager.GetParentMember(target.GetType());
                 if (parentMember != null)
                     _parentListener = parentMember.TryObserve(target, this);
                 Update(target);
@@ -69,10 +73,7 @@ namespace MugenMvvmToolkit.Binding
 
             #region Implementation of interfaces
 
-            public object Source
-            {
-                get { return _innerContext; }
-            }
+            public object Source => _innerContext;
 
             public object Value
             {
@@ -85,15 +86,11 @@ namespace MugenMvvmToolkit.Binding
                 set { _innerContext.Value = value; }
             }
 
-            public bool IsAlive
-            {
-                get { return _innerContext == null || _innerContext.IsAlive; }
-            }
+            public bool IsAlive => _innerContext == null || _innerContext.IsAlive;
 
-            public bool IsWeak
-            {
-                get { return true; }
-            }
+            public event EventHandler<ISourceValue, EventArgs> ValueChanged;
+
+            public bool IsWeak => true;
 
             public bool TryHandle(object sender, object message)
             {
@@ -106,8 +103,6 @@ namespace MugenMvvmToolkit.Binding
                 return true;
             }
 
-            public event EventHandler<ISourceValue, EventArgs> ValueChanged;
-
             #endregion
 
             #region Methods
@@ -115,22 +110,14 @@ namespace MugenMvvmToolkit.Binding
             private void Update(object source)
             {
                 if (_parentContext != null)
-                {
-                    var src = _parentContext.Source;
-                    if (src != null)
-                        WeakEventManager.GetBindingContextListener(src).Remove(this);
-                }
+                    WeakEventManager.RemoveBindingContextListener(_parentContext, this);
                 if (source == null)
                     _parentContext = null;
                 else
                 {
                     _parentContext = GetParentBindingContext(source);
                     if (_parentContext != null)
-                    {
-                        var src = _parentContext.Source;
-                        if (src != null)
-                            WeakEventManager.GetBindingContextListener(src).Add(this);
-                    }
+                        WeakEventManager.AddBindingContextListener(_parentContext, this, false);
                 }
             }
 
@@ -144,9 +131,99 @@ namespace MugenMvvmToolkit.Binding
 
             private void RaiseValueChanged()
             {
-                var handler = ValueChanged;
-                if (handler != null)
-                    handler(this, EventArgs.Empty);
+                ValueChanged?.Invoke(this, EventArgs.Empty);
+            }
+
+            #endregion
+        }
+
+        private sealed class ParentSourceValue : ISourceValue, IEventListener, IDisposable
+        {
+            #region Fields
+
+            private readonly bool _isElementSource;
+            private readonly IRelativeSourceExpressionNode _node;
+            private readonly IDisposable _subscriber;
+            private WeakReference _targetReference;
+            private bool _hasParent;
+            private WeakReference _value;
+
+            #endregion
+
+            #region Constructors
+
+            public ParentSourceValue(object target, IRelativeSourceExpressionNode node)
+            {
+                _node = node;
+                _isElementSource = _node.Type == RelativeSourceExpressionNode.ElementSourceType;
+                _targetReference = ServiceProvider.WeakReferenceFactory(target);
+                _value = Empty.WeakReference;
+                IBindingMemberInfo rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(target.GetType());
+                if (rootMember != null)
+                    _subscriber = rootMember.TryObserve(target, this);
+                TryHandle(null, null);
+            }
+
+            #endregion
+
+            #region Implementation of interfaces
+
+            public bool IsWeak => true;
+
+            public bool TryHandle(object sender, object message)
+            {
+                object target = _targetReference.Target;
+                if (target == null)
+                {
+                    Value = null;
+                    if (_subscriber != null)
+                        _subscriber.Dispose();
+                    return false;
+                }
+
+                IVisualTreeManager treeManager = BindingServiceProvider.VisualTreeManager;
+                _hasParent = treeManager.FindParent(target) != null;
+                Value = _isElementSource
+                    ? treeManager.FindByName(target, _node.ElementName)
+                    : treeManager.FindRelativeSource(target, _node.Type, _node.Level);
+                return true;
+            }
+
+            public object Value
+            {
+                get
+                {
+                    object target = _value.Target;
+                    if (_hasParent && target == null)
+                    {
+                        if (_isElementSource)
+                            Tracer.Warn(BindingExceptionManager.ElementSourceNotFoundFormat2, _targetReference.Target,
+                                _node.ElementName);
+                        else
+                            Tracer.Warn(BindingExceptionManager.RelativeSourceNotFoundFormat3, _targetReference.Target,
+                                _node.Type, _node.Level);
+                    }
+                    return target ?? BindingConstants.UnsetValue;
+                }
+                private set
+                {
+                    if (Equals(value, _value.Target))
+                        return;
+                    _value = ToolkitExtensions.GetWeakReferenceOrDefault(value, Empty.WeakReference, false);
+                    ValueChanged?.Invoke(this, EventArgs.Empty);
+                }
+            }
+
+            public bool IsAlive => _targetReference.Target != null;
+
+            public event EventHandler<ISourceValue, EventArgs> ValueChanged;
+
+            public void Dispose()
+            {
+                if (_subscriber != null)
+                    _subscriber.Dispose();
+                _value = Empty.WeakReference;
+                _targetReference = Empty.WeakReference;
             }
 
             #endregion
@@ -179,19 +256,16 @@ namespace MugenMvvmToolkit.Binding
             {
                 get
                 {
-                    var listenerRef = _listenerRef;
+                    WeakReference listenerRef = _listenerRef;
                     return listenerRef != null && listenerRef.Target != null;
                 }
             }
 
-            public bool IsWeak
-            {
-                get { return true; }
-            }
+            public bool IsWeak => true;
 
             public bool TryHandle(object sender, object message)
             {
-                var reference = _listenerRef;
+                WeakReference reference = _listenerRef;
                 if (reference == null)
                     return false;
                 var listener = (IEventListener)reference.Target;
@@ -210,19 +284,13 @@ namespace MugenMvvmToolkit.Binding
 
         #region Fields
 
-        /// <summary>
-        /// Gets the array with single null value.
-        /// </summary>
         public static readonly object[] NullValue;
 
-        /// <summary>
-        /// Gets the attached parent member.
-        /// </summary>
-        public readonly static INotifiableAttachedBindingMemberInfo<object, object> AttachedParentMember;
-
-        internal readonly static IEventListener EmptyListener;
+        internal static readonly IEventListener EmptyListener;
+        internal static readonly Func<IDataContext, string, IObserver> CreteBindingSourceDel;
 
         private static readonly Func<string, string, string> MergePathDelegate;
+        private static readonly Dictionary<Delegate, string> DelegateToPathCache;
 
         #endregion
 
@@ -230,8 +298,9 @@ namespace MugenMvvmToolkit.Binding
 
         static BindingExtensions()
         {
+            CreteBindingSourceDel = (context, s) => CreateBindingSource(context, s, null);
             EmptyListener = new WeakEventListener();
-            AttachedParentMember = AttachedBindingMember.CreateAutoProperty<object, object>("#" + AttachedMemberConstants.Parent);
+            DelegateToPathCache = new Dictionary<Delegate, string>(ReferenceEqualityComparer.Instance);
             NullValue = new object[] { null };
             MergePathDelegate = MergePath;
         }
@@ -240,35 +309,24 @@ namespace MugenMvvmToolkit.Binding
 
         #region Methods
 
-        /// <summary>
-        /// Attempts to subscribe to the event.        
-        /// </summary>
-        public static IDisposable TrySubscribe([NotNull] this IWeakEventManager eventManager, [NotNull] object target, string eventName, IEventListener listener,
+        public static IDisposable TrySubscribe([NotNull] this IWeakEventManager eventManager, [NotNull] object target,
+            string eventName, IEventListener listener,
             IDataContext context = null)
         {
-            Should.NotBeNull(eventManager, "eventManager");
-            Should.NotBeNull(target, "target");
-            var @event = target.GetType().GetEventEx(eventName, MemberFlags.Instance | MemberFlags.Public);
+            Should.NotBeNull(eventManager, nameof(eventManager));
+            Should.NotBeNull(target, nameof(target));
+            EventInfo @event = target.GetType().GetEventEx(eventName, MemberFlags.Instance | MemberFlags.Public);
             if (@event == null)
                 throw BindingExceptionManager.MissingEvent(target, eventName);
             return eventManager.TrySubscribe(target, @event, listener, context);
         }
 
-        /// <summary>
-        ///     Handles the message.
-        /// </summary>
-        /// <param name="listener">The specified event listener.</param>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="message">Information about event.</param>
         public static void Handle<TSender, TMessage>(this IEventListener listener, TSender sender, TMessage message)
         {
-            Should.NotBeNull(listener, "listener");
+            Should.NotBeNull(listener, nameof(listener));
             listener.TryHandle(sender, message);
         }
 
-        /// <summary>
-        /// Converts the specified <see cref="IEventListener"/> to a weak <see cref="IEventListener"/> if listener is not weak.
-        /// </summary>
         public static IEventListener ToWeakEventListener(this IEventListener listener)
         {
             if (listener.IsWeak)
@@ -276,117 +334,113 @@ namespace MugenMvvmToolkit.Binding
             return new WeakEventListener(listener);
         }
 
-        /// <summary>
-        /// Converts the specified <see cref="IEventListener"/> to a <see cref="WeakReference"/> if listener is not weak.
-        /// </summary>
         public static WeakEventListenerWrapper ToWeakWrapper(this IEventListener target)
         {
             return new WeakEventListenerWrapper(target);
         }
 
-        /// <summary>
-        /// Tries to add the specified converter 
-        /// </summary>
-        public static bool TryAddConverter([CanBeNull]this IBindingResourceResolver resourceResolver, [NotNull] string name, [NotNull] IBindingValueConverter converter)
-        {
-            if (resourceResolver == null)
-                return false;
-            if (resourceResolver.ResolveConverter(name, DataContext.Empty, false) != null)
-                return false;
-            resourceResolver.AddConverter(name, converter, true);
-            return true;
-        }
-
-        /// <summary>
-        ///     Registers the specified member.
-        /// </summary>
-        public static void Register<TTarget, TType>([NotNull]this IBindingMemberProvider memberProvider, [NotNull] IAttachedBindingMemberInfo<TTarget, TType> member, bool rewrite = true)
+        public static void Register<TTarget, TType>([NotNull] this IBindingMemberProvider memberProvider,
+            [NotNull] IAttachedBindingMemberInfo<TTarget, TType> member, bool rewrite = true)
+            where TTarget : class
         {
             memberProvider.Register(member.Path, member, rewrite);
         }
 
-        /// <summary>
-        ///     Registers the specified member.
-        /// </summary>
-        public static void Register<TTarget, TType>([NotNull]this IBindingMemberProvider memberProvider, string path, [NotNull] IAttachedBindingMemberInfo<TTarget, TType> member, bool rewrite = true)
+        public static void Register<TTarget, TType>([NotNull] this IBindingMemberProvider memberProvider, string path,
+            [NotNull] IAttachedBindingMemberInfo<TTarget, TType> member, bool rewrite = true)
+            where TTarget : class
         {
-            Should.NotBeNull(memberProvider, "memberProvider");
+            Should.NotBeNull(memberProvider, nameof(memberProvider));
             memberProvider.Register(typeof(TTarget), path, member, rewrite);
         }
 
-        /// <summary>
-        ///     Gets the binding context for the specified item.
-        /// </summary>
-        public static IBindingContext GetBindingContext([NotNull] this IBindingContextManager contextManager, [NotNull] object target, [NotNull] string targetPath)
+        public static BindingResourceObject AddObject([NotNull] this IBindingResourceResolver resolver, [NotNull] string name,
+            object value, bool rewrite = true)
         {
-            Should.NotBeNull(contextManager, "contextManager");
+            Should.NotBeNull(resolver, nameof(resolver));
+            var resourceObject = new BindingResourceObject(value);
+            resolver.AddObject(name, resourceObject, rewrite);
+            return resourceObject;
+        }
+
+        public static void AddType([NotNull] this IBindingResourceResolver resolver, [NotNull] Type type,
+            bool rewrite = true)
+        {
+            Should.NotBeNull(resolver, nameof(resolver));
+            resolver.AddType(type.Name, type, rewrite);
+            resolver.AddType(type.FullName, type, rewrite);
+        }
+
+        public static void AddConverter([NotNull] this IBindingResourceResolver resolver,
+            [NotNull] IBindingValueConverter converter, Type type = null, bool rewrite = true)
+        {
+            Should.NotBeNull(resolver, nameof(resolver));
+            Should.NotBeNull(converter, nameof(converter));
+            if (type == null)
+                type = converter.GetType();
+            string name = RemoveTail(RemoveTail(RemoveTail(type.Name, "BindingValueConverter"), "ValueConverter"), "Converter");
+            resolver.AddConverter(name, converter, rewrite);
+            if (name != type.Name)
+                resolver.AddConverter(type.Name, converter, rewrite);
+        }
+
+        public static void AddMethod<TArg1, TResult>([NotNull] this IBindingResourceResolver resolver,
+            [NotNull] string name, [NotNull] Func<TArg1, IDataContext, TResult> method, bool rewrite = true)
+        {
+            Should.NotBeNull(resolver, nameof(resolver));
+            resolver.AddMethod(name,
+                new BindingResourceMethod(method.AsResourceMethodDelegate, typeof(TResult)), rewrite);
+        }
+
+        public static void AddMethod<TArg1, TArg2, TResult>([NotNull] this IBindingResourceResolver resolver,
+            [NotNull] string name, [NotNull] Func<TArg1, TArg2, IDataContext, TResult> method, bool rewrite = true)
+        {
+            Should.NotBeNull(resolver, nameof(resolver));
+            resolver.AddMethod(name,
+                new BindingResourceMethod(method.AsResourceMethodDelegate, typeof(TResult)), rewrite);
+        }
+
+        public static IBindingContext GetBindingContext([NotNull] this IBindingContextManager contextManager,
+            [NotNull] object target, [NotNull] string targetPath)
+        {
+            Should.NotBeNull(contextManager, nameof(contextManager));
             if (BindingServiceProvider.DataContextMemberAliases.Contains(targetPath))
                 return new BindingContextWrapper(target);
             return contextManager.GetBindingContext(target);
         }
 
-        /// <summary>
-        ///     Gets the member names from the specified expression.
-        /// </summary>
-        /// <param name="expression">The specified expression.</param>
-        /// <param name="separator">The specified separator.</param>
-        /// <returns>The member path.</returns>
         [Pure]
-        public static string GetMemberPath([NotNull] LambdaExpression expression, string separator = ".")
+        public static string GetMemberPath(Func<LambdaExpression> getExpression, string separator = ".")
         {
-            var ret = new StringBuilder();
-            Expression current = expression.Body;
-            while (current.NodeType != ExpressionType.Parameter)
+            Should.NotBeNull(getExpression, nameof(getExpression));
+            if (getExpression.HasClosure())
             {
-                // This happens when a value type gets boxed
-                if (current.NodeType == ExpressionType.Convert || current.NodeType == ExpressionType.ConvertChecked)
-                {
-                    var ue = (UnaryExpression)current;
-                    current = ue.Operand;
-                    continue;
-                }
-
-                string memberName;
-                var methodCallExpression = current as MethodCallExpression;
-                if (methodCallExpression != null)
-                {
-                    if (methodCallExpression.Method.Name != "get_Item")
-                        throw BindingExceptionManager.InvalidBindingMemberExpression();
-                    string s = string.Join(",", methodCallExpression.Arguments.Cast<ConstantExpression>().Select(e => e.Value));
-                    memberName = "[" + s + "]";
-                    current = methodCallExpression.Object;
-                }
-                else if (current.NodeType != ExpressionType.MemberAccess)
-                    throw BindingExceptionManager.InvalidBindingMemberExpression();
-                else
-                {
-                    var me = (MemberExpression)current;
-                    memberName = me.Member.Name;
-                    current = me.Expression;
-                }
-
-                if (ret.Length != 0)
-                    ret.Insert(0, separator);
-                ret.Insert(0, memberName);
-                if (current == null)
-                    break;
+                LambdaExpression expression = getExpression();
+                expression.TraceClosureWarn();
+                return GetMemberPath(expression, separator);
             }
-            return ret.ToString();
+            lock (DelegateToPathCache)
+            {
+                string value;
+                if (!DelegateToPathCache.TryGetValue(getExpression, out value))
+                {
+                    value = GetMemberPath(getExpression(), separator);
+                    DelegateToPathCache[getExpression] = value;
+                }
+                return value;
+            }
         }
 
-        /// <summary>
-        ///     Gets the value of binding member.
-        /// </summary>
-        public static object GetValue([CanBeNull]this BindingMemberValue memberValue, object[] args)
+        public static object GetValue([CanBeNull] this BindingActionValue actionValue, object[] args)
         {
-            if (memberValue == null)
+            if (actionValue == null)
                 return BindingConstants.UnsetValue;
-            object source = memberValue.MemberSource.Target;
+            object source = actionValue.MemberSource.Target;
             if (source == null)
                 return BindingConstants.UnsetValue;
             try
             {
-                return memberValue.Member.GetValue(source, args);
+                return actionValue.Member.GetValue(source, args);
             }
             catch (Exception exception)
             {
@@ -395,20 +449,18 @@ namespace MugenMvvmToolkit.Binding
             }
         }
 
-        /// <summary>
-        ///     Tries to set value.
-        /// </summary>
-        public static bool TrySetValue<TResult>([CanBeNull]this BindingMemberValue memberValue, object[] args, out TResult result)
+        public static bool TrySetValue<TResult>([CanBeNull] this BindingActionValue actionValue, object[] args,
+            out TResult result)
         {
             result = default(TResult);
-            if (memberValue == null)
+            if (actionValue == null)
                 return false;
-            object source = memberValue.MemberSource.Target;
-            if (memberValue.MemberSource.Target == null)
+            object source = actionValue.MemberSource.Target;
+            if (actionValue.MemberSource.Target == null)
                 return false;
             try
             {
-                var value = memberValue.Member.SetValue(source, args);
+                object value = actionValue.Member.SetValue(source, args);
                 if (value is TResult)
                     result = (TResult)value;
             }
@@ -422,11 +474,11 @@ namespace MugenMvvmToolkit.Binding
 
         public static object GetValueFromPath(object src, string strPath, int firstMemberIndex = 0)
         {
-            IBindingPath path = BindingPath.Create(strPath);
+            IBindingPath path = BindingServiceProvider.BindingPathFactory(strPath);
             for (int index = firstMemberIndex; index < path.Parts.Count; index++)
             {
-                var item = path.Parts[index];
-                if (src == null)
+                string item = path.Parts[index];
+                if (src == null || src.IsUnsetValue())
                     return null;
                 IBindingMemberInfo member = BindingServiceProvider
                     .MemberProvider
@@ -436,7 +488,7 @@ namespace MugenMvvmToolkit.Binding
             return src;
         }
 
-        public static string MergePath([CanBeNull]string left, [CanBeNull] string right)
+        public static string MergePath([CanBeNull] string left, [CanBeNull] string right)
         {
             if (string.IsNullOrEmpty(right))
                 return left;
@@ -444,7 +496,7 @@ namespace MugenMvvmToolkit.Binding
                 left = right;
             else
             {
-                if (right.StartsWith("["))
+                if (right[0] == '[')
                     left += right;
                 else
                     left += "." + right;
@@ -460,40 +512,118 @@ namespace MugenMvvmToolkit.Binding
             return items.Aggregate(MergePathDelegate);
         }
 
-        [CanBeNull]
-        public static IBindingMemberInfo TryFindMemberChangeEvent([NotNull] IBindingMemberProvider memberProvider,
-            [NotNull] Type type, [NotNull] string memberName)
+        [BindingSyntaxMember]
+        public static TValue GetBindingMemberValue<TSource, TValue>([NotNull] this TSource source, BindingMemberDescriptor<TSource, TValue> member) where TSource : class
         {
-            Should.NotBeNull(memberProvider, "memberProvider");
-            var member = memberProvider.GetBindingMember(type, memberName + "Changed", false, false);
-            if (member == null || member.MemberType != BindingMemberType.Event)
-                member = memberProvider.GetBindingMember(type, memberName + "Change", false, false);
-
-            if (member == null || member.MemberType != BindingMemberType.Event)
-                return null;
-            return member;
+            return source.GetBindingMemberValue(member, Empty.Array<object>());
         }
 
-        public static TValue TryGetValue<TValue>([NotNull] this IBindingMemberProvider memberProvider, object item,
-            [NotNull] string memberName, bool ignoreAttachedMembers = false, TValue defaultValue = default(TValue))
+        public static TValue GetBindingMemberValue<TSource, TValue>([NotNull] this TSource source, BindingMemberDescriptor<TSource, TValue> member, params object[] args)
+            where TSource : class
         {
-            Should.NotBeNull(memberProvider, "memberProvider");
-            return memberProvider
-                .GetBindingMember(item.GetType(), memberName, ignoreAttachedMembers, false)
-                .TryGetValue(item, defaultValue);
+            TValue value;
+            source.TryGetBindingMemberValue(member, args, true, out value);
+            return value;
         }
 
-        public static TValue TryGetValue<TValue>([CanBeNull] this IBindingMemberInfo bindingMember, object item, TValue defaultValue = default(TValue), bool itemCanBeNull = false)
+        public static bool TryGetBindingMemberValue<TSource, TValue>([CanBeNull] this TSource source, BindingMemberDescriptor<TSource, TValue> member, out TValue value)
+            where TSource : class
         {
-            if (bindingMember == null || (!itemCanBeNull && item == null))
-                return defaultValue;
-            var value = bindingMember.GetValue(item, null);
-            if (value is TValue)
-                return (TValue)value;
-            return defaultValue;
+            return source.TryGetBindingMemberValue(member, out value, Empty.Array<object>());
         }
 
-        public static void ClearBindings([CanBeNull] object item, bool clearDataContext, bool clearAttachedValues)
+        public static bool TryGetBindingMemberValue<TSource, TValue>([CanBeNull] this TSource source, BindingMemberDescriptor<TSource, TValue> member, out TValue value, params object[] args) where TSource : class
+        {
+            return source.TryGetBindingMemberValue(member.Path, args, false, out value);
+        }
+
+        public static object SetBindingMemberValue<TSource, TValue>([NotNull] this TSource source, BindingMemberDescriptor<TSource, TValue> member, TValue value)
+            where TSource : class
+        {
+            Should.NotBeNull(source, nameof(source));
+            return BindingServiceProvider
+                .MemberProvider
+                .GetBindingMember(source.GetType(), member.Path, false, true)
+                .SetSingleValue(source, value);
+        }
+
+        public static object SetBindingMemberValue<TSource, TValue>([NotNull]this TSource source, BindingMemberDescriptor<TSource, TValue> member, object[] args)
+            where TSource : class
+        {
+            Should.NotBeNull(source, nameof(source));
+            if (args == null)
+                args = NullValue;
+            return BindingServiceProvider
+                .MemberProvider
+                .GetBindingMember(source.GetType(), member.Path, false, true)
+                .SetValue(source, args);
+        }
+
+        public static bool TryRaiseAttachedEvent<TSource, TValue>([CanBeNull] this TSource source, BindingMemberDescriptor<TSource, TValue> member, object message = null)
+            where TSource : class
+        {
+            if (source == null)
+                return false;
+            var eventMember = BindingServiceProvider
+                .MemberProvider
+                .GetBindingMember(source.GetType(), member.Path, false, false) as INotifiableAttachedBindingMemberInfo;
+            if (eventMember == null)
+                return false;
+            return eventMember.Raise(source, message ?? EventArgs.Empty);
+        }
+
+        [BindingSyntaxMember]
+        public static T DataContext<T>(this object item)
+        {
+            return (T)item.DataContext();
+        }
+
+        [BindingSyntaxMember]
+        public static object DataContext<TSource>(this TSource source)
+            where TSource : class
+        {
+            return BindingServiceProvider.ContextManager.GetBindingContext(source).Value;
+        }
+
+        public static void SetDataContext<TSource>(this TSource source, object value)
+            where TSource : class
+        {
+            BindingServiceProvider.ContextManager.GetBindingContext(source).Value = value;
+        }
+
+        public static IList<IDataBinding> SetBindings<T>([NotNull] this T item, [NotNull] string bindingExpression,
+            IList<object> sources = null)
+            where T : class
+        {
+            return BindingServiceProvider.BindingProvider.CreateBindingsFromString(item, bindingExpression, sources);
+        }
+
+        public static T SetBindings<T, TBindingSet>([NotNull] this T item, [NotNull] TBindingSet bindingSet,
+            [NotNull] string bindings, object[] sources = null)
+            where T : class
+            where TBindingSet : BindingSet
+        {
+            Should.NotBeNull(item, nameof(item));
+            Should.NotBeNull(bindingSet, nameof(bindingSet));
+            Should.NotBeNull(bindings, nameof(bindings));
+            bindingSet.BindFromExpression(item, bindings, sources);
+            return item;
+        }
+
+        public static T SetBindings<T, TBindingSet>([NotNull] this T item, [NotNull] TBindingSet bindingSet,
+            [NotNull] Action<TBindingSet, T> setBinding)
+            where T : class
+            where TBindingSet : BindingSet
+        {
+            Should.NotBeNull(item, nameof(item));
+            Should.NotBeNull(bindingSet, nameof(bindingSet));
+            Should.NotBeNull(setBinding, nameof(setBinding));
+            setBinding(bindingSet, item);
+            return item;
+        }
+
+        public static void ClearBindings<T>([CanBeNull] this T item, bool clearDataContext, bool clearAttachedValues)
+            where T : class
         {
             if (item == null)
                 return;
@@ -511,6 +641,74 @@ namespace MugenMvvmToolkit.Binding
             }
         }
 
+        public static IObserver CreateBindingSource(IRelativeSourceExpressionNode node, [NotNull] object target,
+            string pathEx)
+        {
+            if (target == null)
+                throw BindingExceptionManager.InvalidBindingTarget(node.Path);
+            string path = node.Path ?? String.Empty;
+            if (!String.IsNullOrEmpty(pathEx))
+                path = MergePath(path, pathEx);
+
+            if (node.Type != RelativeSourceExpressionNode.SelfType)
+            {
+                if (node.Type == RelativeSourceExpressionNode.ContextSourceType)
+                    target = BindingServiceProvider.ContextManager.GetBindingContext(target);
+                else
+                    target = new ParentSourceValue(target, node);
+            }
+            return CreateBindingSource(null, path, target, false);
+        }
+
+        public static Exception DuplicateLambdaParameter(string parameterName)
+        {
+            return BindingExceptionManager.DuplicateLambdaParameter(parameterName);
+        }
+
+        public static bool IsAllMembersAvailable(this IBindingSourceAccessor accessor, bool checkLastMember = false)
+        {
+            Should.NotBeNull(accessor, nameof(accessor));
+            var s = accessor as ISingleBindingSourceAccessor;
+            if (s != null)
+                return s.Source.IsAllMembersAvailable(checkLastMember);
+            var sources = accessor.Sources;
+            for (int i = 0; i < sources.Count; i++)
+            {
+                if (!sources[i].IsAllMembersAvailable(checkLastMember))
+                    return false;
+            }
+            return true;
+        }
+
+        public static T GetOrAddValue<T>(IDataBinding binding, DataConstant<object> constant, Func<T> getValue)
+        {
+            object data;
+            if (!binding.Context.TryGetData(constant, out data))
+            {
+                data = getValue();
+                binding.Context.AddOrUpdate(constant, data);
+            }
+            return (T)data;
+        }
+
+        internal static IObserver CreateBindingSource(IDataContext context, string path, object src,
+            bool ignoreSrc = false)
+        {
+            if (src == null && (ignoreSrc || !context.TryGetData(BindingBuilderConstants.Source, out src)))
+                src = BindingServiceProvider
+                    .ContextManager
+                    .GetBindingContext(context.GetData(BindingBuilderConstants.Target, true),
+                        context.GetData(BindingBuilderConstants.TargetPath, true).Path);
+            return BindingServiceProvider
+                .ObserverProvider
+                .Observe(src, BindingServiceProvider.BindingPathFactory(path), false, context);
+        }
+
+        public static BindingMemberDescriptor<TSource, IEventListener> ToChangedEvent<TSource, TValue>(this BindingMemberDescriptor<TSource, TValue> member) where TSource : class
+        {
+            return new BindingMemberDescriptor<TSource, IEventListener>(member.Path + AttachedMemberConstants.ChangedEventPostfix);
+        }
+
         internal static void CheckDuplicateLambdaParameter(ICollection<string> parameters)
         {
             if (parameters.Count == 0)
@@ -524,12 +722,8 @@ namespace MugenMvvmToolkit.Binding
             }
         }
 
-        public static Exception DuplicateLambdaParameter(string parameterName)
-        {
-            return BindingExceptionManager.DuplicateLambdaParameter(parameterName);
-        }
-
-        internal static string TryGetMemberName(this IExpressionNode target, bool allowIndexer, bool allowDynamicMember, IList<IExpressionNode> nodes = null, List<string> members = null)
+        internal static string TryGetMemberName(this IExpressionNode target, bool allowIndexer, bool allowDynamicMember,
+            IList<IExpressionNode> nodes = null, List<string> members = null)
         {
             if (target == null)
                 return null;
@@ -558,8 +752,8 @@ namespace MugenMvvmToolkit.Binding
                     IEnumerable<string> args = indexExpressionNode
                         .Arguments
                         .Cast<IConstantExpressionNode>()
-                        .Select(node => node.Value == null ? "null" : node.Value.ToString());
-                    members.Insert(0, string.Format("[{0}]", string.Join(",", args)).Trim());
+                        .Select(node => node.Value.ToStringValue());
+                    members.Insert(0, "[" + string.Join(",", args).Trim() + "]");
                     target = indexExpressionNode.Object;
                 }
                 else
@@ -569,14 +763,12 @@ namespace MugenMvvmToolkit.Binding
                     target = expressionNode.Target;
                 }
             }
-            return string.Join(".", members);
+            return MergePath(members);
         }
 
         internal static bool IsUnsetValueOrDoNothing(this object obj)
         {
-            if (obj is DataConstant)
-                return obj.IsDoNothing() || obj.IsUnsetValue();
-            return false;
+            return ReferenceEquals(obj, BindingConstants.UnsetValue) || ReferenceEquals(obj, BindingConstants.DoNothing);
         }
 
         internal static bool IsUnsetValue(this object obj)
@@ -589,11 +781,235 @@ namespace MugenMvvmToolkit.Binding
             return ReferenceEquals(obj, BindingConstants.DoNothing);
         }
 
-        internal static T GetValueOrDefault<T>(this Func<IDataContext, T> getValue, IDataContext context, T value = default(T))
+        internal static T GetValueOrDefault<T>(this Func<IDataContext, T> getValue, IDataContext context,
+            T value = default(T))
         {
             if (getValue == null)
                 return value;
             return getValue(context);
+        }
+
+        [Pure]
+        internal static bool TryGetMemberPath(Expression expression, string separator, bool throwOnError,
+            out Expression lastExpression, out string path)
+        {
+            lastExpression = expression;
+            path = null;
+            if (expression == null)
+                return false;
+            var ret = new StringBuilder();
+            bool error = false;
+            while (lastExpression.NodeType != ExpressionType.Parameter)
+            {
+                if (error)
+                {
+                    if (throwOnError)
+                        throw BindingExceptionManager.InvalidBindingMemberExpression();
+                    path = ret.ToString();
+                    return false;
+                }
+
+                // This happens when a value type gets boxed
+                if (lastExpression.NodeType == ExpressionType.Convert ||
+                    lastExpression.NodeType == ExpressionType.ConvertChecked)
+                {
+                    var ue = (UnaryExpression)lastExpression;
+                    lastExpression = ue.Operand;
+                    continue;
+                }
+
+                string memberName;
+                var methodCallExpression = lastExpression as MethodCallExpression;
+                if (methodCallExpression != null)
+                {
+                    var memberAttribute = methodCallExpression.Method
+                        .GetAttributes()
+                        .OfType<BindingSyntaxMemberAttribute>()
+                        .FirstOrDefault();
+
+                    if (memberAttribute != null)
+                    {
+                        if (methodCallExpression.Arguments.Count != 1 && methodCallExpression.Arguments.Count != 2)
+                        {
+                            error = true;
+                            continue;
+                        }
+                        lastExpression = methodCallExpression.Arguments[0];
+                        if (methodCallExpression.Arguments.Count == 2)
+                        {
+                            if (!methodCallExpression.Arguments[1].TryGetStaticValue(out memberName, false))
+                            {
+                                error = true;
+                                continue;
+                            }
+                        }
+                        else
+                            memberName = memberAttribute.GetMemberName(methodCallExpression.Method);
+                    }
+                    else
+                    {
+                        if (methodCallExpression.Method.Name != "get_Item")
+                        {
+                            error = true;
+                            continue;
+                        }
+                        var builder = new StringBuilder("[");
+                        var args = methodCallExpression.Arguments;
+                        for (int i = 0; i < args.Count; i++)
+                        {
+                            object value;
+                            if (!args[i].TryGetStaticValue(out value, false))
+                            {
+                                error = true;
+                                break;
+                            }
+                            if (i != 0)
+                                builder.Append(",");
+                            builder.Append(value.ToStringValue());
+                        }
+                        if (error)
+                            continue;
+                        builder.Append("]");
+                        memberName = builder.ToString();
+                        lastExpression = methodCallExpression.Object;
+                    }
+                }
+                else if (lastExpression.NodeType != ExpressionType.MemberAccess)
+                {
+                    error = true;
+                    continue;
+                }
+                else
+                {
+                    var me = (MemberExpression)lastExpression;
+                    memberName = me.Member.Name;
+                    lastExpression = me.Expression;
+                }
+
+                if (ret.Length != 0 && ret[0] != '[')
+                    ret.Insert(0, separator);
+                ret.Insert(0, memberName);
+                if (lastExpression == null)
+                    break;
+            }
+            path = ret.ToString();
+            return true;
+        }
+
+        internal static object GetCurrentValue(this IObserver source)
+        {
+            IBindingPathMembers pathMembers = source.GetPathMembers(true);
+            object value = pathMembers.LastMember.GetValue(pathMembers.PenultimateValue, null);
+            if (value.IsUnsetValue())
+                return null;
+            var actionValue = value as BindingActionValue;
+            if (actionValue == null)
+                return value;
+            return actionValue.GetValue(null);
+        }
+
+        internal static bool TryGetStaticValue<T>(this Expression expression, out T value, bool throwOnError)
+        {
+            try
+            {
+                object v;
+                var exp = expression as ConstantExpression;
+                if (exp == null)
+                    v = ExpressionReflectionManager
+                        .CreateLambdaExpression(expression, Empty.Array<ParameterExpression>())
+                        .Compile()
+                        .DynamicInvoke(Empty.Array<object>());
+                else
+                    v = exp.Value;
+                value = (T)BindingServiceProvider.ValueConverter(BindingMemberInfo.Empty, typeof(T), v);
+                return true;
+            }
+            catch (Exception e)
+            {
+                value = default(T);
+                if (throwOnError)
+                    throw ExceptionManager.ExpressionShouldBeStaticValue(expression, e);
+                return false;
+            }
+        }
+
+        internal static string RemoveBounds(this string st)
+        {
+            return st.Substring(1, st.Length - 2);
+        }
+
+        private static bool IsAllMembersAvailable(this IObserver observer, bool checkLastMember)
+        {
+            var pathMembers = observer.GetPathMembers(false);
+            if (!pathMembers.AllMembersAvailable)
+                return false;
+            if (checkLastMember && pathMembers.LastMember.CanRead)
+                return !pathMembers.LastMember.GetValue(pathMembers.PenultimateValue, Empty.Array<object>()).IsUnsetValue();
+            return true;
+        }
+
+        [Pure]
+        private static string GetMemberPath(LambdaExpression expression, string separator = ".")
+        {
+            Expression lastExpression;
+            string path;
+            if (TryGetMemberPath(expression.Body, separator, true, out lastExpression, out path))
+                return path;
+            return null;
+        }
+
+        private static object AsResourceMethodDelegate<TArg1, TResult>(this Func<TArg1, IDataContext, TResult> method,
+            IList<Type> types, IList<object> args, IDataContext context)
+        {
+            return method((TArg1)args[0], context);
+        }
+
+        private static object AsResourceMethodDelegate<TArg1, TArg2, TResult>(
+            this Func<TArg1, TArg2, IDataContext, TResult> method, IList<Type> types, IList<object> args,
+            IDataContext context)
+        {
+            return method((TArg1)args[0], (TArg2)args[1], context);
+        }
+
+        private static string RemoveTail(string name, string word)
+        {
+            if (name.EndsWith(word, StringComparison.OrdinalIgnoreCase))
+                name = name.Substring(0, name.Length - word.Length);
+            return name;
+        }
+
+        private static string ToStringValue(this object o)
+        {
+            if (o == null)
+                return "null";
+            if (o is string)
+                return "\"" + o + "\"";
+            return o.ToString();
+        }
+
+        private static bool TryGetBindingMemberValue<TSource, TValue>(this TSource source, BindingMemberDescriptor<TSource, TValue> member, object[] args, bool throwOnError, out TValue value)
+            where TSource : class
+        {
+            if (throwOnError)
+                Should.NotBeNull(source, nameof(source));
+            else if (source == null)
+            {
+                value = default(TValue);
+                return false;
+            }
+            value = default(TValue);
+            var info = BindingServiceProvider
+                .MemberProvider
+                .GetBindingMember(source.GetType(), member.Path, false, throwOnError);
+            if (info == null)
+                return false;
+            var o = info.GetValue(source, args);
+            if (throwOnError || o is TValue)
+            {
+                value = (TValue)o;
+                return true;
+            }
+            return false;
         }
 
         #endregion

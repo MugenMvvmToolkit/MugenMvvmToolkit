@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="PlatformDataBindingModuleEx.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -16,20 +16,29 @@
 
 #endregion
 
-using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
+using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Xamarin.Forms.Binding.Modules;
 
-// ReSharper disable once CheckNamespace
-namespace MugenMvvmToolkit.Binding.Modules
+#if XAMARIN_FORMS && ANDROID
+using MugenMvvmToolkit.Xamarin.Forms.Android.Binding.Infrastructure;
+namespace MugenMvvmToolkit.Xamarin.Forms.Android.Binding.Modules
+#elif TOUCH
+using MugenMvvmToolkit.Xamarin.Forms.iOS.Binding.Infrastructure;
+namespace MugenMvvmToolkit.Xamarin.Forms.iOS.Binding.Modules
+#elif WINDOWS_PHONE
+using MugenMvvmToolkit.Xamarin.Forms.WinPhone.Binding.Infrastructure;
+namespace MugenMvvmToolkit.Xamarin.Forms.WinPhone.Binding.Modules
+#elif WINDOWSCOMMON
+using MugenMvvmToolkit.Xamarin.Forms.WinRT.Binding.Infrastructure;
+namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Binding.Modules
+#endif
 {
     public class PlatformDataBindingModuleEx : PlatformDataBindingModule
     {
         #region Overrides of DataBindingModule
 
-        /// <summary>
-        ///     Gets the <see cref="IBindingErrorProvider" /> that will be used by default.
-        /// </summary>
-        protected override IBindingErrorProvider GetBindingErrorProvider()
+        protected override IBindingErrorProvider GetBindingErrorProvider(IModuleContext context)
         {
             return new BindingErrorProvider();
         }

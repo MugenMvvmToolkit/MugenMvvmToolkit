@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="BindingErrorProvider.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,30 +18,32 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Android.Widget;
+using Java.Lang;
+using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 
-namespace MugenMvvmToolkit.Binding.Infrastructure
+namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 {
-    /// <summary>
-    ///     Represents the class that provides a user interface for indicating that a control on a form has an error associated
-    ///     with it.
-    /// </summary>
     public class BindingErrorProvider : BindingErrorProviderBase
     {
+        #region Fields
+
+        public const string ErrorPropertyName = "Error";
+
+        #endregion
+
         #region Overrides of BindingErrorProviderBase
 
-        /// <summary>
-        ///     Sets errors for binding target.
-        /// </summary>
-        /// <param name="target">The binding target object.</param>
-        /// <param name="errors">The collection of errors</param>
-        /// <param name="context">The specified context, if any.</param>
         protected override void SetErrors(object target, IList<object> errors, IDataContext context)
         {
-            var textView = target as TextView;
-            if (textView != null && textView.IsAlive())
-                textView.Error = errors.FirstOrDefault().ToStringSafe();
+            var textView = target as Object;
+            if (textView.IsAlive())
+            {
+                var member = BindingServiceProvider.MemberProvider.GetBindingMember(target.GetType(), ErrorPropertyName, false, false);
+                if (member != null && member.Type == typeof(string) && member.CanWrite)
+                    member.SetSingleValue(target, errors.FirstOrDefault().ToStringSafe());
+            }
             base.SetErrors(target, errors, context);
         }
 

@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="BindingContextManager.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -20,16 +20,11 @@ using System;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
-using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    /// <summary>
-    ///     Represents the binding context manager.
-    /// </summary>
     public class BindingContextManager : IBindingContextManager
     {
         #region Nested types
@@ -38,7 +33,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             #region Fields
 
-            private readonly WeakReference _targetReference;
+            private readonly WeakReference _srcRef;
             private bool _isParentContext;
             private object _dataContext;
 
@@ -49,7 +44,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             public BindingContext(object target)
             {
                 _isParentContext = true;
-                _targetReference = ServiceProvider.WeakReferenceFactory(target, true);
+                _srcRef = ServiceProvider.WeakReferenceFactory(target);
                 var parentMember = BindingServiceProvider.VisualTreeManager.GetParentMember(target.GetType());
                 if (parentMember != null)
                     parentMember.TryObserve(target, this);
@@ -60,10 +55,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             #region Implementation of interfaces
 
-            public object Source
-            {
-                get { return _targetReference.Target; }
-            }
+            public object Source => _srcRef.Target;
 
             public object Value
             {
@@ -78,7 +70,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 set
                 {
                     bool isUnsetValue = value.IsUnsetValue();
-                    lock (_targetReference)
+                    lock (_srcRef)
                     {
                         if (isUnsetValue)
                         {
@@ -91,7 +83,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                         {
                             _isParentContext = false;
                             ClearOldContext();
-                            if (ReferenceEquals(_dataContext, value))
+                            if (Equals(_dataContext, value))
                                 return;
                             _dataContext = value;
                         }
@@ -100,21 +92,15 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 }
             }
 
-            public bool IsAlive
-            {
-                get { return true; }
-            }
+            public bool IsAlive => true;
 
-            public bool IsWeak
-            {
-                get { return true; }
-            }
+            public bool IsWeak => true;
 
             public bool TryHandle(object sender, object message)
             {
                 if (!(sender is IBindingContext))
                 {
-                    lock (_targetReference)
+                    lock (_srcRef)
                         UpdateContextInternal();
                 }
                 RaiseValueChanged();
@@ -140,7 +126,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 if (!_isParentContext)
                     return;
                 ClearOldContext();
-                object target = _targetReference.Target;
+                object target = _srcRef.Target;
                 if (target == null)
                     return;
                 var context = GetParentBindingContext(target);
@@ -148,9 +134,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     _dataContext = null;
                 else
                 {
-                    var source = context.Source;
-                    if (source != null)
-                        WeakEventManager.GetBindingContextListener(source).Add(this);
+                    WeakEventManager.AddBindingContextListener(context, this, false);
                     _dataContext = context;
                 }
             }
@@ -159,24 +143,18 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             {
                 var bindingContext = _dataContext as IBindingContext;
                 if (bindingContext != null)
-                {
-                    var source = bindingContext.Source;
-                    if (source != null)
-                        WeakEventManager.GetBindingContextListener(source).Remove(this);
-                }
+                    WeakEventManager.RemoveBindingContextListener(bindingContext, this);
             }
 
             private void RaiseValueChanged()
             {
-                var handler = ValueChanged;
-                if (handler != null)
-                    handler(this, EventArgs.Empty);
+                ValueChanged?.Invoke(this, EventArgs.Empty);
             }
 
             #endregion
         }
 
-        private sealed class BindingContextSource : IBindingContext, IHandler<ValueChangedEventArgs>
+        private sealed class BindingContextSource : IBindingContext
         {
             #region Fields
 
@@ -193,23 +171,17 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 _member = member;
                 _observer = BindingServiceProvider
                     .ObserverProvider
-                    .Observe(source, BindingPath.Create(member.Path), true);
-                _observer.Listener = this;
+                    .Observe(source, BindingServiceProvider.BindingPathFactory(member.Path), true, DataContext.Empty);
+                _observer.ValueChanged += ObserverOnValueChanged;
             }
 
             #endregion
 
             #region Implementation of interfaces
 
-            public object Source
-            {
-                get { return _observer.Source; }
-            }
+            public object Source => _observer.Source;
 
-            public bool IsAlive
-            {
-                get { return true; }
-            }
+            public bool IsAlive => true;
 
             public object Value
             {
@@ -230,15 +202,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     _isInvoked = false;
                     if (value.IsUnsetValue())
                         value = null;
-                    _member.SetValue(target, new[] { value });
+                    _member.SetSingleValue(target, value);
                     if (!_isInvoked)
                         OnDataContextChanged(null);
                 }
-            }
-
-            public void Handle(object sender, ValueChangedEventArgs message)
-            {
-                OnDataContextChanged(message);
             }
 
             public event EventHandler<ISourceValue, EventArgs> ValueChanged;
@@ -247,12 +214,15 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             #region Methods
 
+            private void ObserverOnValueChanged(IObserver sender, ValueChangedEventArgs args)
+            {
+                OnDataContextChanged(args);
+            }
+
             private void OnDataContextChanged(ValueChangedEventArgs message)
             {
                 _isInvoked = true;
-                var handler = ValueChanged;
-                if (handler != null)
-                    handler(this, message);
+                ValueChanged?.Invoke(this, message);
             }
 
             #endregion
@@ -278,10 +248,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Properties
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IBindingContext" /> for the specified item.
-        /// </summary>
-        /// <returns>An instnace of <see cref="IBindingContext" />.</returns>
         [NotNull]
         protected virtual IBindingContext CreateBindingContext([NotNull] object item)
         {
@@ -291,9 +257,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return new BindingContextSource(item, member);
         }
 
-        /// <summary>
-        ///     Tries to get explicit data context member.
-        /// </summary>
         protected virtual IBindingMemberInfo GetExplicitDataContextMember(object source)
         {
             IBindingMemberInfo member = BindingServiceProvider
@@ -317,21 +280,20 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Implementation of IBindingContextManager
 
-        /// <summary>
-        ///     Gets a value indicating whether the item has binding context.
-        /// </summary>
         public bool HasBindingContext(object item)
         {
-            Should.NotBeNull(item, "item");
+            Should.NotBeNull(item, nameof(item));
+            if (item is IBindingContext || item is IBindingContextHolder)
+                return true;
             return ServiceProvider.AttachedValueProvider.Contains(item, ContextMemberPath);
         }
 
-        /// <summary>
-        ///     Gets the binding context for the specified item.
-        /// </summary>
         public IBindingContext GetBindingContext(object item)
         {
-            Should.NotBeNull(item, "item");
+            Should.NotBeNull(item, nameof(item));
+            var holder = item as IBindingContextHolder;
+            if (holder != null)
+                return holder.BindingContext;
             var context = item as IBindingContext;
             if (context != null)
                 return context;

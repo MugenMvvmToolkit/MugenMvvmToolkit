@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="DefaultValueOnExceptionBehavior.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -19,7 +19,6 @@
 using System;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 
@@ -29,9 +28,6 @@ namespace MugenMvvmToolkit.Binding.Behaviors
     {
         #region Fields
 
-        /// <summary>
-        ///     Gets the id of behavior.
-        /// </summary>
         public static readonly Guid IdDefaultValuesOnExceptionBehavior;
 
         private readonly object _value;
@@ -54,13 +50,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Properties
 
-        /// <summary>
-        ///     Gets the default value to set.
-        /// </summary>
-        public object Value
-        {
-            get { return _value; }
-        }
+        public object Value => _value;
 
         #endregion
 
@@ -68,8 +58,10 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Methods
 
-        private void OnBindingException(object sender, BindingExceptionEventArgs args)
+        private void OnBindingException(object sender, BindingEventArgs args)
         {
+            if (args.Exception == null)
+                return;
             var dataBinding = sender as IDataBinding;
             if (dataBinding != null && args.Action == BindingAction.UpdateSource)
                 SetDefaultValue(dataBinding);
@@ -88,7 +80,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 SetDefaultValue(singleAccessor.Source);
         }
 
-        private void SetDefaultValue(IBindingSource source)
+        private void SetDefaultValue(IObserver source)
         {
             var pathMembers = source.GetPathMembers(false);
             if (pathMembers.AllMembersAvailable)
@@ -96,7 +88,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 object value = _value;
                 if (!pathMembers.LastMember.Type.IsInstanceOfType(value))
                     value = pathMembers.LastMember.Type.GetDefaultValue();
-                pathMembers.LastMember.SetValue(pathMembers.PenultimateValue, new[] { value });
+                pathMembers.LastMember.SetSingleValue(pathMembers.PenultimateValue, value);
             }
         }
 
@@ -106,42 +98,21 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Overrides of BindingBehaviorBase
 
-        /// <summary>
-        ///     Gets the id of behavior. Each <see cref="IDataBinding" /> can have only one instance with the same id.
-        /// </summary>
-        public override Guid Id
-        {
-            get { return IdDefaultValuesOnExceptionBehavior; }
-        }
+        public override Guid Id => IdDefaultValuesOnExceptionBehavior;
 
-        /// <summary>
-        ///     Gets the behavior priority.
-        /// </summary>
-        public override int Priority
-        {
-            get { return 0; }
-        }
+        public override int Priority => 0;
 
-        /// <summary>
-        ///     Attaches to the specified binding.
-        /// </summary>
         protected override bool OnAttached()
         {
-            Binding.BindingException += OnBindingException;
+            Binding.BindingUpdated += OnBindingException;
             return true;
         }
 
-        /// <summary>
-        ///     Detaches this instance from its associated binding.
-        /// </summary>
         protected override void OnDetached()
         {
-            Binding.BindingException -= OnBindingException;
+            Binding.BindingUpdated -= OnBindingException;
         }
 
-        /// <summary>
-        ///     Creates a new binding behavior that is a copy of the current instance.
-        /// </summary>
         protected override IBindingBehavior CloneInternal()
         {
             return new DefaultValueOnExceptionBehavior(_value);

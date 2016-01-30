@@ -2,6 +2,8 @@
 using System.ComponentModel;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Views;
+using MugenMvvmToolkit.Silverlight.Interfaces.Views;
+using MugenMvvmToolkit.WPF.Interfaces.Views;
 
 namespace MugenMvvmToolkit.Test.TestModels
 {
@@ -21,16 +23,15 @@ namespace MugenMvvmToolkit.Test.TestModels
 
         #region Properties
 
-        public bool IsShowAny
-        {
-            get { return IsShow || IsShowDialog; }
-        }
+        public bool IsShowAny => IsShow || IsShowDialog;
 
         public bool IsShow { get; set; }
 
         public bool IsShowDialog { get; set; }
 
         public bool IsClose { get; set; }
+
+        public bool IsActivated { get; set; }
 
         #endregion
 
@@ -54,17 +55,11 @@ namespace MugenMvvmToolkit.Test.TestModels
 
         #region Implementation of IDialogViewBase
 
-        /// <summary>
-        ///     Shows dialog as a window.
-        /// </summary>
         public void Show()
         {
             IsShow = true;
         }
 
-        /// <summary>
-        ///     Closes the dialog.
-        /// </summary>
         public void Close()
         {
             if (_closing || IsClose)
@@ -83,6 +78,19 @@ namespace MugenMvvmToolkit.Test.TestModels
                 IsClose = true;
             }
         }
+
+#if WPF
+        public bool Activate()
+        {
+            IsActivated = true;
+            return true;
+        }
+#else
+        public void Activate()
+        {
+            IsActivated = true;
+        }
+#endif
 
         #endregion
 
@@ -103,10 +111,6 @@ namespace MugenMvvmToolkit.Test.TestModels
 #endif
 
 
-        /// <summary>
-        ///     Shows dialog as dialog window.
-        /// </summary>
-        /// <returns></returns>
         public bool? ShowDialog()
         {
             IsShowDialog = true;

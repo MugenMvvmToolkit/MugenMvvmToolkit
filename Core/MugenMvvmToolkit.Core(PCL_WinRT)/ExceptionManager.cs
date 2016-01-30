@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ExceptionManager.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Linq.Expressions;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit
@@ -38,23 +39,18 @@ namespace MugenMvvmToolkit
             if (type != null)
                 obj = type.FullName;
             string typeName = obj == null ? "empty" : obj.GetType().FullName;
-            return
-                new InvalidOperationException(string.Format("The '{0}' is not initialized, type '{1}'. {2}", objectName,
-                    typeName, hint));
+            return new InvalidOperationException($"The '{objectName}' is not initialized, type '{typeName}'. {hint}");
         }
 
         internal static Exception ObjectInitialized(string objectName, object obj, string hint = null)
         {
             string typeName = obj == null ? "empty" : obj.GetType().FullName;
-            return
-                new InvalidOperationException(string.Format("The '{0}' is already initialized, type '{1}'. {2}",
-                    objectName,
-                    typeName, hint));
+            return new InvalidOperationException($"The '{objectName}' is already initialized, type '{typeName}'. {hint}");
         }
 
         internal static Exception EnumOutOfRange(string paramName, Enum @enum)
         {
-            return new ArgumentOutOfRangeException(paramName, string.Format("Unhandled enum - '{0}'", @enum));
+            return new ArgumentOutOfRangeException(paramName, $"Unhandled enum - '{@enum}'");
         }
 
         internal static Exception ValidatorInitialized(object validator)
@@ -78,14 +74,12 @@ namespace MugenMvvmToolkit
         internal static Exception ViewNotFound(Type viewModelType, Type viewType = null)
         {
             string viewName = viewType == null ? "view" : viewType.FullName;
-            return new InvalidOperationException(string.Format(@"Unable to find a suitable '{0}' for the '{1}'.", viewName,
-                    viewModelType));
+            return new InvalidOperationException($@"Unable to find a suitable '{viewName}' for the '{viewModelType}'.");
         }
 
         internal static Exception ViewModelNotFound(Type viewType)
         {
-            return new InvalidOperationException(
-                    string.Format(@"Unable to find a suitable view model for the '{0}'.", viewType));
+            return new InvalidOperationException($@"Unable to find a suitable view model for the '{viewType}'.");
         }
 
         internal static Exception ViewModelCannotBeRestored()
@@ -95,38 +89,28 @@ namespace MugenMvvmToolkit
 
         internal static Exception ResourceNotFound(string resourceName, Type resourceType)
         {
-            return new InvalidOperationException(
-                string.Format("Resource with the name '{0}' was not found in the '{1}'.", resourceName,
-                    resourceType));
+            return new InvalidOperationException($"Resource with the name '{resourceName}' was not found in the '{resourceType}'.");
         }
 
         internal static Exception ResourceNotString(string resourceName, Type resourceType)
         {
-            return new InvalidOperationException(
-                string.Format("Resource with the name '{0}' in the '{1}', is not a string.", resourceName,
-                    resourceType));
+            return new InvalidOperationException($"Resource with the name '{resourceName}' in the '{resourceType}', is not a string.");
         }
 
         internal static Exception ResourceHasNotGetter(string resourceName, Type resourceType)
         {
-            return new InvalidOperationException(
-                string.Format("Resource with the name '{0}' in the '{1}', does not have a get method.",
-                    resourceName, resourceType));
+            return new InvalidOperationException($"Resource with the name '{resourceName}' in the '{resourceType}', does not have a get method.");
         }
 
         internal static Exception DuplicateViewMapping(Type viewType, Type viewModelType, string name)
         {
-            return new InvalidOperationException(
-                string.Format("The mapping already exist for the '{0}' to the '{1}' with name '{2}'", viewType,
-                    viewModelType, name));
+            return new InvalidOperationException($"The mapping already exist for the '{viewType}' to the '{viewModelType}' with name '{name}'");
         }
 
         internal static Exception DuplicateInterface(string itemName, string interfaceName, Type type)
         {
             return new InvalidOperationException(
-                string.Format(
-                    "The '{0}' can implement an interface '{1}' only once. The '{0}' with type '{2}', implement it more that once.",
-                    itemName, interfaceName, type));
+                    $"The '{itemName}' can implement an interface '{interfaceName}' only once. The '{itemName}' with type '{type}', implement it more that once.");
         }
 
         internal static Exception CommandCannotBeExecuted()
@@ -134,23 +118,10 @@ namespace MugenMvvmToolkit
             return new InvalidOperationException(CommandCannotBeExecutedString);
         }
 
-        internal static Exception WindowOpened()
-        {
-            return new InvalidOperationException(
-                "The dialog is open. Before create a new dialog you should close the previous one.");
-        }
-
         internal static Exception WindowClosed()
         {
             return new InvalidOperationException(
                 "The dialog is closed. Before close the dialog you should show it.");
-        }
-
-        internal static Exception NotConvertableState(EntityState from, EntityState to)
-        {
-            return
-                new InvalidOperationException(string.Format("The '{0}' cannot be converted to the '{1}'.",
-                    from, to));
         }
 
         internal static Exception IntOutOfRangeCollection(string paramName)
@@ -165,80 +136,54 @@ namespace MugenMvvmToolkit
 
         internal static Exception DuplicateItemCollection(object item)
         {
-            return new ArgumentException(string.Format("The item '{0}' already in the collection.", item));
-        }
-
-        internal static Exception InvalidContexValidator(object validator)
-        {
-            return
-                new ArgumentException(string.Format(
-                    "The specified context cannot be used in the current validator '{0}'.", validator.GetType()));
-        }
-
-        internal static Exception DuplicateValidator(Type validatorType)
-        {
-            return new ArgumentException(
-                string.Format(
-                    "The validator with type '{0}' already registered, because validator is unique you can add only one instance of it.",
-                    validatorType));
+            return new ArgumentException($"The item '{item}' already in the collection.");
         }
 
         internal static Exception MissingMetadataProperty(Type type, string propertyName, Type classType)
         {
-            return new MissingMemberException(
-                string.Format(
-                    "The type '{0}' does not contain property with name '{1}', declareted in MetadataType '{2}'", type,
-                    propertyName, classType.FullName));
+            return new MissingMemberException($"The type '{type}' does not contain property with name '{propertyName}', declareted in MetadataType '{classType.FullName}'");
         }
 
 
         internal static Exception MissingMetadataField(Type type, string fieldName, Type classType)
         {
-            return new MissingMemberException(
-                string.Format(
-                    "The type '{0}' does not contain field with name '{1}', declareted in MetadataType '{2}'", type,
-                    fieldName, classType.FullName));
+            return new MissingMemberException($"The type '{type}' does not contain field with name '{fieldName}', declareted in MetadataType '{classType.FullName}'");
         }
 
         internal static Exception DataConstantNotFound(DataConstant dataConstant)
         {
-            return
-                new InvalidOperationException(
-                    string.Format("The DataContext doesn't contain the DataConstant with id '{0}', type '{1}'",
-                        dataConstant.Id, dataConstant.Type));
+            return new InvalidOperationException($"The DataContext doesn't contain the DataConstant with id '{dataConstant.Id}'");
         }
 
         internal static Exception DataConstantCannotBeNull(DataConstant dataConstant)
         {
-            return
-                new InvalidOperationException(string.Format("The DataConstant cannot be null, id '{0}', type '{1}'",
-                    dataConstant.Id, dataConstant.Type));
+            return new InvalidOperationException($"The DataConstant cannot be null, id '{dataConstant.Id}'");
         }
 
         internal static Exception ObjectDisposed(Type type)
         {
-            return new ObjectDisposedException(type.FullName,
-                string.Format(@"Cannot perform the operation, because the current '{0}' is disposed.", type));
+            return new ObjectDisposedException(type.FullName, $@"Cannot perform the operation, because the current '{type}' is disposed.");
         }
 
         internal static Exception WrapperTypeShouldBeNonAbstract(Type wrapperType)
         {
-            return new ArgumentException(string.Format("The wrapper type '{0}' must be non abstract", wrapperType),
-                "wrapperType");
+            return new ArgumentException($"The wrapper type '{wrapperType}' must be non abstract", nameof(wrapperType));
         }
 
 
         internal static Exception WrapperTypeNotSupported(Type wrapperType)
         {
-            return new ArgumentException(string.Format("There are no wrapper type for type '{0}'.", wrapperType),
-                "wrapperType");
+            return new ArgumentException($"There are no wrapper type for type '{wrapperType}'.", nameof(wrapperType));
         }
 
         internal static Exception PresenterCannotShowViewModel(Type presenterType, Type vmType)
         {
-            return
-                new ArgumentException(string.Format("The presenter '{0}' cannot display the '{1}'.",
-                    presenterType, vmType));
+            return new ArgumentException($"The presenter '{presenterType}' cannot display the '{vmType}'.");
+        }
+
+        internal static Exception ExpressionShouldBeStaticValue(Expression expression, Exception exception)
+        {
+            return new InvalidOperationException($"The '{expression}' expression cannot be compiled in a static value.", exception);
         }
 
         #endregion

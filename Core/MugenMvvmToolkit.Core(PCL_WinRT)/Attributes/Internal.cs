@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="Internal.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -20,18 +20,12 @@
 // ReSharper disable once CheckNamespace
 namespace System
 {
-    /// <summary>
-    ///     Indicates that a class can be serialized. This class cannot be inherited.
-    /// </summary>
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Enum | AttributeTargets.Delegate,
         Inherited = false)]
     internal sealed class SerializableAttribute : Attribute
     {
     }
 
-    /// <summary>
-    ///     Indicates that a field of a serializable class should not be serialized. This class cannot be inherited.
-    /// </summary>
     [AttributeUsage(AttributeTargets.Field, Inherited = false)]
     internal sealed class NonSerializedAttribute : Attribute
     {

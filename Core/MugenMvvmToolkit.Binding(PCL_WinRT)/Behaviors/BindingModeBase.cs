@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="BindingModeBase.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -19,23 +19,17 @@
 using System;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Accessors;
-using MugenMvvmToolkit.Binding.Interfaces.Sources;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Behaviors
 {
-    /// <summary>
-    ///     Represents the base class that describes the direction of the data flow in a binding.
-    /// </summary>
     public abstract class BindingModeBase : BindingBehaviorBase
     {
         #region Fields
 
-        /// <summary>
-        ///     Gets the id of binding mode behavior.
-        /// </summary>
         public static readonly Guid IdBindingMode;
+        public const int DefaultPriority = int.MinValue + 1000;
 
         #endregion
 
@@ -50,71 +44,51 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Methods
 
-        /// <summary>
-        ///     Subscribes the target source.
-        /// </summary>
         protected void SubscribeTarget()
         {
-            Binding.TargetAccessor.Source.ValueChanged += TargetOnValueChanged;
+            if (Binding != null)
+                Binding.TargetAccessor.Source.ValueChanged += TargetOnValueChanged;
         }
 
-        /// <summary>
-        ///     Unsubscribes the target source.
-        /// </summary>
         protected void UnsubscribeTarget()
         {
-            Binding.TargetAccessor.Source.ValueChanged -= TargetOnValueChanged;
+            if (Binding != null)
+                Binding.TargetAccessor.Source.ValueChanged -= TargetOnValueChanged;
         }
 
-        /// <summary>
-        ///     Subscribes the sources.
-        /// </summary>
         protected void SubscribeSources()
         {
             SubscribeSources(SourceOnValueChanged);
         }
 
-        /// <summary>
-        ///     Unsubscribes the sources.
-        /// </summary>
         protected void UnsubscribeSources()
         {
             UnsubscribeSources(SourceOnValueChanged);
         }
 
-        /// <summary>
-        ///     Subscribes the sources.
-        /// </summary>
-        protected void SubscribeSources(EventHandler<IBindingSource, ValueChangedEventArgs> handler)
+        protected void SubscribeSources(EventHandler<IObserver, ValueChangedEventArgs> handler)
         {
-            SubscribeInternal(Binding.SourceAccessor, handler, true);
+            if (Binding != null)
+                SubscribeInternal(Binding.SourceAccessor, handler, true);
         }
 
-        /// <summary>
-        ///     Unsubscribes the sources.
-        /// </summary>
-        protected void UnsubscribeSources(EventHandler<IBindingSource, ValueChangedEventArgs> handler)
+        protected void UnsubscribeSources(EventHandler<IObserver, ValueChangedEventArgs> handler)
         {
-            SubscribeInternal(Binding.SourceAccessor, handler, false);
+            if (Binding != null)
+                SubscribeInternal(Binding.SourceAccessor, handler, false);
         }
 
-        /// <summary>
-        ///     Updates the target binding when source value changed.
-        /// </summary>
-        private void SourceOnValueChanged(IBindingSource sender, ValueChangedEventArgs args)
+        private void SourceOnValueChanged(IObserver sender, ValueChangedEventArgs args)
         {
             Binding.UpdateTarget();
         }
 
-        /// <summary>
-        ///     Updates the source binding when target value changed.
-        /// </summary>
-        private void TargetOnValueChanged(IBindingSource sender, ValueChangedEventArgs args)
+        private void TargetOnValueChanged(IObserver sender, ValueChangedEventArgs args)
         {
             Binding.UpdateSource();
         }
 
-        private static void SubscribeInternal(IBindingSourceAccessor accessor, EventHandler<IBindingSource, ValueChangedEventArgs> handler, bool subscribe)
+        private static void SubscribeInternal(IBindingSourceAccessor accessor, EventHandler<IObserver, ValueChangedEventArgs> handler, bool subscribe)
         {
             var singleSourceAccessor = accessor as ISingleBindingSourceAccessor;
             if (singleSourceAccessor == null)
@@ -144,21 +118,9 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         #region Overrides of BindingBehaviorBase
 
-        /// <summary>
-        ///     Gets the id of behavior. Each <see cref="IDataBinding" /> can have only one instance with the same id.
-        /// </summary>
-        public override sealed Guid Id
-        {
-            get { return IdBindingMode; }
-        }
+        public sealed override Guid Id => IdBindingMode;
 
-        /// <summary>
-        ///     Gets the behavior priority.
-        /// </summary>
-        public override sealed int Priority
-        {
-            get { return int.MinValue; }
-        }
+        public sealed override int Priority => DefaultPriority;
 
         #endregion
     }

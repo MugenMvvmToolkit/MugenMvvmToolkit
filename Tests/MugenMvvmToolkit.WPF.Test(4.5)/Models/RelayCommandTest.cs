@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MugenMvvmToolkit.Infrastructure;
@@ -129,6 +130,23 @@ namespace MugenMvvmToolkit.Test.Models
             list.Contains(notifier2).ShouldBeTrue();
 
             relayCommand.ClearNotifiers();
+            relayCommand.GetNotifiers().ShouldBeEmpty();
+        }
+
+        [TestMethod]
+        public void CmdShouldClearAllNotifiersOnDispose()
+        {
+            var notifier1 = new BindingSourceModel();
+            var notifier2 = new BindingSourceModel();
+            var relayCommand = CreateCommand(NodoAction, o => true);
+            relayCommand.AddNotifier(notifier1).ShouldBeTrue();
+            relayCommand.AddNotifier(notifier2).ShouldBeTrue();
+            var list = relayCommand.GetNotifiers();
+            list.Count.ShouldEqual(2);
+            list.Contains(notifier1).ShouldBeTrue();
+            list.Contains(notifier2).ShouldBeTrue();
+
+            relayCommand.Dispose();
             relayCommand.GetNotifiers().ShouldBeEmpty();
         }
 
@@ -328,7 +346,7 @@ namespace MugenMvvmToolkit.Test.Models
         }
 
         [TestMethod]
-        public void CmdShouldBeExecutedInNewThreadIfAsync()
+        public void CmdShouldBeExecutedInNewThreadExecuteAsynchronouslyTrue()
         {
             bool isInvoked = false;
             var cmd = CreateCommand(o => isInvoked = true, o => true);
@@ -338,8 +356,56 @@ namespace MugenMvvmToolkit.Test.Models
 
             cmd.Execute(null);
             isInvoked.ShouldBeFalse();
-            ThreadManager.InvokeAsync.ShouldNotBeNull();
             ThreadManager.InvokeAsync();
+            isInvoked.ShouldBeTrue();
+        }
+
+        [TestMethod]
+        public virtual void TaskCmdShouldNotBeExecuteMultipleTimes()
+        {
+            bool isInvoked = false;
+            var tcs = new TaskCompletionSource<object>();
+            var command = RelayCommandBase.FromAsyncHandler(() =>
+            {
+                isInvoked = true;
+                return tcs.Task;
+            }, null, false);
+
+            command.Execute(null);
+            isInvoked.ShouldBeTrue();
+
+            isInvoked = false;
+            command.Execute(null);
+            isInvoked.ShouldBeFalse();
+
+            isInvoked = false;
+            tcs.SetResult(null);
+            command.Execute(null);
+            isInvoked.ShouldBeTrue();
+        }
+
+        [TestMethod]
+        public virtual void GenericTaskCmdShouldNotBeExecuteMultipleTimes()
+        {
+            bool isInvoked = false;
+            var tcs = new TaskCompletionSource<object>();
+            var command = RelayCommandBase.FromAsyncHandler<object>(o =>
+            {
+                o.ShouldEqual(tcs);
+                isInvoked = true;
+                return tcs.Task;
+            }, null, false);
+
+            command.Execute(tcs);
+            isInvoked.ShouldBeTrue();
+
+            isInvoked = false;
+            command.Execute(tcs);
+            isInvoked.ShouldBeFalse();
+
+            isInvoked = false;
+            tcs.SetResult(tcs);
+            command.Execute(tcs);
             isInvoked.ShouldBeTrue();
         }
 

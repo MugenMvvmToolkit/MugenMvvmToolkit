@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="DesignTimeManagerBase.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -17,11 +17,10 @@
 #endregion
 
 using System;
-using System.ComponentModel;
-using System.Diagnostics;
+using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -29,13 +28,53 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.Exceptions;
 
-namespace MugenMvvmToolkit.Infrastructure
+#if WPF
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Windows;
+namespace MugenMvvmToolkit.WPF.Infrastructure
+#elif WINFORMS
+using System.Diagnostics;
+namespace MugenMvvmToolkit.WinForms.Infrastructure
+#elif SILVERLIGHT
+using System.ComponentModel;
+
+namespace MugenMvvmToolkit.Silverlight.Infrastructure
+#elif WINDOWSCOMMON
+namespace MugenMvvmToolkit.WinRT.Infrastructure
+#elif WINDOWS_PHONE
+using System.ComponentModel;
+
+namespace MugenMvvmToolkit.WinPhone.Infrastructure
+#endif
 {
-    /// <summary>
-    ///     Represents the base class for the design time manager.
-    /// </summary>
-    public class DesignTimeManagerBase : DisposableObject, IDesignTimeManager
+    public class DesignTimeManagerBase : IDesignTimeManager
     {
+        #region Nested Types
+
+        private sealed class DesignApp : MvvmApplication
+        {
+            #region Constructors
+
+            public DesignApp()
+                : base(LoadMode.Design)
+            {
+            }
+
+            #endregion
+
+            #region Methods
+
+            public override Type GetStartViewModelType()
+            {
+                return typeof(IViewModel);
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Fields
 
         private static bool? _isDesignModeStatic;
@@ -51,9 +90,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="DesignTimeManagerBase" /> class.
-        /// </summary>
         public DesignTimeManagerBase()
         {
             _locker = new object();
@@ -65,9 +101,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Implementation of IDesignTimeManager
 
-        /// <summary>
-        ///     Gets the value indicating whether the control is in design mode (running under Blend or Visual Studio).
-        /// </summary>
         public virtual bool IsDesignMode
         {
             get
@@ -79,41 +112,14 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Gets the load-priority.
-        /// </summary>
-        public virtual int Priority
-        {
-            get { return _priority; }
-        }
+        public virtual int Priority => _priority;
 
-        /// <summary>
-        ///     Gets the current platform.
-        /// </summary>
-        public PlatformInfo Platform
-        {
-            get { return _platform; }
-        }
+        public PlatformInfo Platform => _platform;
 
-        /// <summary>
-        ///     Gets the design time <see cref="IDesignTimeManager.IocContainer" />, if any.
-        /// </summary>
-        public IIocContainer IocContainer
-        {
-            get { return _iocContainer; }
-        }
+        public IIocContainer IocContainer => _iocContainer;
 
-        /// <summary>
-        ///     Gets the design context.
-        /// </summary>
-        public IDataContext Context
-        {
-            get { return _context; }
-        }
+        public IDataContext Context => _context;
 
-        /// <summary>
-        ///     Initializes the current design time manager.
-        /// </summary>
         public void Initialize()
         {
             if (_isInitialized || !IsDesignMode)
@@ -127,10 +133,11 @@ namespace MugenMvvmToolkit.Infrastructure
                     return;
                 _iocContainer = CreateIocContainer();
                 _context = GetContext();
-                if (IocContainer == null)
-                    ApplicationSettings.Platform = _platform;
-                else
-                    ServiceProvider.Initialize(IocContainer, _platform);
+                if (_iocContainer != null)
+                {
+                    var application = CreateApplication();
+                    application.Initialize(_platform, _iocContainer, ReflectionExtensions.GetDesignAssemblies(), _context);
+                }
                 OnInitialized();
             }
             catch (Exception exception)
@@ -147,14 +154,11 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Initializes the view model in design mode.
-        /// </summary>
         public void InitializeViewModel(IViewModel viewModel)
         {
             if (!IsDesignMode)
                 return;
-            Should.NotBeNull(viewModel, "viewModel");
+            Should.NotBeNull(viewModel, nameof(viewModel));
             SynchronizationContext context = SynchronizationContext.Current;
             if (context == null)
                 Task.Factory.StartNew(() => InitializeViewModelInternal(viewModel));
@@ -162,14 +166,16 @@ namespace MugenMvvmToolkit.Infrastructure
                 context.Post(state => InitializeViewModelInternal(viewModel), null);
         }
 
+        public virtual void Dispose()
+        {
+            if (IocContainer != null)
+                IocContainer.Dispose();
+        }
+
         #endregion
 
         #region Methods
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IIocContainer" />.
-        /// </summary>
-        /// <returns>An instance of <see cref="IIocContainer" />.</returns>
         [CanBeNull]
         protected virtual IIocContainer CreateIocContainer()
         {
@@ -188,25 +194,21 @@ namespace MugenMvvmToolkit.Infrastructure
             return null;
         }
 
-        /// <summary>
-        ///     Gets the design context.
-        /// </summary>
+        protected virtual IMvvmApplication CreateApplication()
+        {
+            return new DesignApp();
+        }
+
         [CanBeNull]
         protected virtual IDataContext GetContext()
         {
             return DataContext.Empty;
         }
 
-        /// <summary>
-        ///     Occurs after the manager is fully loaded.
-        /// </summary>
         protected virtual void OnInitialized()
         {
         }
 
-        /// <summary>
-        ///     Initializes the view model in design mode.
-        /// </summary>
         protected virtual void InitializeViewModelInternal([NotNull] IViewModel viewModel)
         {
             if (IocContainer == null || viewModel.IsInitialized)
@@ -220,9 +222,9 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             try
             {
-#if WINFORMS                
+#if WINFORMS
                 return System.ComponentModel.LicenseManager.UsageMode == System.ComponentModel.LicenseUsageMode.Designtime || IsVsRunning();
-#elif SILVERLIGHT
+#elif SILVERLIGHT || WINDOWS_PHONE
                 return DesignerProperties.IsInDesignTool;
 #elif WPF
                 DependencyProperty prop = DesignerProperties.IsInDesignModeProperty;
@@ -230,7 +232,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     .FromProperty(prop, typeof(FrameworkElement))
                     .Metadata
                     .DefaultValue || IsVsRunning();
-#elif NETFX_CORE || WINDOWSCOMMON
+#elif WINDOWSCOMMON
                 return Windows.ApplicationModel.DesignMode.DesignModeEnabled;
 #endif
             }
@@ -251,20 +253,6 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 #endif
-        #endregion
-
-        #region Overrides of DisposableObject
-
-        /// <summary>
-        ///     Releases resources held by the object.
-        /// </summary>
-        protected override void OnDispose(bool disposing)
-        {
-            if (disposing && IocContainer != null)
-                IocContainer.Dispose();
-            base.OnDispose(disposing);
-        }
-
         #endregion
     }
 }

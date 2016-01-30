@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="Serializer.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -26,19 +26,16 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    /// <summary>
-    ///     Represents the serializer interface that allows to serialize and deserialize objects.
-    /// </summary>
     public class Serializer : ISerializer
     {
         #region Nested types
 
-        [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true), Serializable]
+        [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true, Name = "sdc"), Serializable]
         internal sealed class DataContainer
         {
             #region Properties
 
-            [DataMember]
+            [DataMember(Name = "d")]
             public object Data { get; set; }
 
             #endregion
@@ -50,15 +47,11 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private readonly HashSet<Type> _knownTypes;
         private DataContractSerializer _contractSerializer;
-        private bool _isDirty;
 
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="Serializer" /> class.
-        /// </summary>
         public Serializer(IEnumerable<Assembly> assembliesToScan)
         {
             _knownTypes = new HashSet<Type>();
@@ -67,63 +60,37 @@ namespace MugenMvvmToolkit.Infrastructure
             _knownTypes.Add(typeof(DataConstant));
             _knownTypes.Add(typeof(DataContext));
             _knownTypes.Add(typeof(Dictionary<string, object>));
-            _isDirty = true;
+            _contractSerializer = new DataContractSerializer(typeof(DataContainer), _knownTypes);
         }
 
         #endregion
 
         #region Implementation of ISerializer
 
-        /// <summary>
-        ///     Adds a known type.
-        /// </summary>
-        public void AddKnownType(Type type)
-        {
-            lock (_knownTypes)
-            {
-                if (_knownTypes.Add(type))
-                    _isDirty = true;
-            }
-        }
-
-        /// <summary>
-        ///     Adds a known type.
-        /// </summary>
-        public bool RemoveKnownType(Type type)
-        {
-            lock (_knownTypes)
-            {
-                if (_knownTypes.Remove(type))
-                {
-                    _isDirty = false;
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        /// <summary>
-        ///     Serializes data to stream.
-        /// </summary>
         public Stream Serialize(object item)
         {
-            Should.NotBeNull(item, "item");
-            AddKnownType(item.GetType());
-            EnsureInitialized();
+            Should.NotBeNull(item, nameof(item));
+            if (_knownTypes.Add(item.GetType()))
+                _contractSerializer = new DataContractSerializer(typeof(DataContainer), _knownTypes);
             item = new DataContainer { Data = item };
             var ms = new MemoryStream();
             _contractSerializer.WriteObject(ms, item);
             return ms;
         }
 
-        /// <summary>
-        ///     Deserializes data using stream.
-        /// </summary>
         public object Deserialize(Stream stream)
         {
-            Should.NotBeNull(stream, "stream");
-            EnsureInitialized();
+            Should.NotBeNull(stream, nameof(stream));
             return ((DataContainer)_contractSerializer.ReadObject(stream)).Data;
+        }
+
+        public bool IsSerializable(Type type)
+        {
+#if PCL_WINRT
+            return type == typeof(string) || type.IsDefined(typeof(DataContractAttribute), false) || type.GetTypeInfo().IsPrimitive;
+#else
+            return type == typeof(string) || type.IsDefined(typeof(DataContractAttribute), false) || type.IsPrimitive;
+#endif
         }
 
         #endregion
@@ -143,20 +110,6 @@ namespace MugenMvvmToolkit.Infrastructure
                     if (!type.IsAbstract && !type.IsGenericTypeDefinition && type.IsDefined(typeof(DataContractAttribute), true))
 #endif
                         _knownTypes.Add(type);
-                }
-            }
-        }
-
-        private void EnsureInitialized()
-        {
-            if (!_isDirty)
-                return;
-            lock (_knownTypes)
-            {
-                if (_isDirty)
-                {
-                    _contractSerializer = new DataContractSerializer(typeof(DataContainer), _knownTypes);
-                    _isDirty = false;
                 }
             }
         }

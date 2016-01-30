@@ -1,8 +1,8 @@
-#region Copyright
+﻿#region Copyright
 
 // ****************************************************************************
 // <copyright file="MenuTemplate.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -21,25 +21,28 @@ using System.Collections.Generic;
 using System.Xml.Serialization;
 using Android.Content;
 using Android.Views;
+using MugenMvvmToolkit.Android.Binding.Infrastructure;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Builders;
-using MugenMvvmToolkit.Binding.Infrastructure;
-using MugenMvvmToolkit.Binding.Interfaces;
 
-namespace MugenMvvmToolkit.Binding.Models
+namespace MugenMvvmToolkit.Android.Binding.Models
 {
     [XmlRoot("MENU", Namespace = "")]
     public sealed class MenuTemplate
     {
         #region Properties
 
+        [XmlAttribute("DATACONTEXT")]
+        public string DataContext { get; set; }
+
+        [XmlAttribute("BIND")]
+        public string Bind { get; set; }
+
         [XmlAttribute("ISENABLED")]
         public string IsEnabled { get; set; }
 
         [XmlAttribute("ISVISIBLE")]
         public string IsVisible { get; set; }
-
-        [XmlAttribute("DATACONTEXT")]
-        public string DataContext { get; set; }
 
         [XmlAttribute("ITEMSSOURCE")]
         public string ItemsSource { get; set; }
@@ -58,10 +61,12 @@ namespace MugenMvvmToolkit.Binding.Models
         {
             PlatformExtensions.ValidateTemplate(ItemsSource, Items);
             var setter = new XmlPropertySetter<MenuTemplate, IMenu>(menu, context, new BindingSet());
-            BindingExtensions.AttachedParentMember.SetValue(menu, parent);
-            setter.SetBinding(template => template.DataContext, DataContext, false);
-            setter.SetBoolProperty(template => template.IsVisible, IsVisible);
-            setter.SetBoolProperty(template => template.IsEnabled, IsEnabled);
+            menu.SetBindingMemberValue(AttachedMembers.Object.Parent, parent);
+            setter.SetBinding(nameof(DataContext), DataContext, false);
+            setter.SetBoolProperty(nameof(IsVisible), IsVisible);
+            setter.SetBoolProperty(nameof(IsEnabled), IsEnabled);
+            if (!string.IsNullOrEmpty(Bind))
+                setter.BindingSet.BindFromExpression(menu, Bind);
             if (string.IsNullOrEmpty(ItemsSource))
             {
                 if (Items != null)
@@ -72,8 +77,8 @@ namespace MugenMvvmToolkit.Binding.Models
             }
             else
             {
-                MenuItemsSourceGenerator.Set(menu, context, ItemTemplate);
-                setter.SetBinding(template => template.ItemsSource, ItemsSource, true);
+                menu.SetBindingMemberValue(AttachedMembers.Menu.ItemsSourceGenerator, new MenuItemsSourceGenerator(menu, context, ItemTemplate));
+                setter.SetBinding(nameof(ItemsSource), ItemsSource, true);
             }
             setter.Apply();
         }
@@ -82,7 +87,7 @@ namespace MugenMvvmToolkit.Binding.Models
         {
             try
             {
-                Clear(menu, BindingServiceProvider.BindingManager);
+                ClearInternal(menu);
             }
             catch (Exception e)
             {
@@ -90,16 +95,15 @@ namespace MugenMvvmToolkit.Binding.Models
             }
         }
 
-        internal static void Clear(IMenu menu, IBindingManager bindingManager)
+        internal static void ClearInternal(IMenu menu)
         {
             if (menu == null)
                 return;
-            bindingManager.ClearBindings(menu);
             int size = menu.Size();
             for (int i = 0; i < size; i++)
-                MenuItemTemplate.Clear(menu.GetItem(i), bindingManager);
+                MenuItemTemplate.ClearInternal(menu.GetItem(i));
             menu.Clear();
-            BindingExtensions.AttachedParentMember.SetValue(menu, BindingExtensions.NullValue);
+            menu.ClearBindings(true, true);
         }
 
         #endregion

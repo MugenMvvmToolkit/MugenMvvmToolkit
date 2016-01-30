@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ToastMessageControl.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using JetBrains.Annotations;
 
-namespace MugenMvvmToolkit.Controls
+namespace MugenMvvmToolkit.WinForms.Controls
 {
     public class ToastMessageControl : Control
     {
@@ -40,21 +40,18 @@ namespace MugenMvvmToolkit.Controls
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ToastMessageControl" /> class with default settings.
-        /// </summary>
-        public ToastMessageControl([NotNull] string message, float duration, Color backgroundColor,
-            Color foregroundColor, Color? glowColor, [NotNull] TaskCompletionSource<object> tcs)
+        protected ToastMessageControl()
         {
-            Should.NotBeNull(message, "message");
-            Should.NotBeNull(tcs, "tcs");
+        }
+
+        public ToastMessageControl([NotNull] string message, Color backgroundColor, Color foregroundColor, Color? glowColor)
+        {
+            Should.NotBeNull(message, nameof(message));
             _message = message;
             _backgroundColor = backgroundColor;
             _foregroundColor = foregroundColor;
             _glowColor = glowColor;
             _isTransparent = false;
-            Duration = duration;
-            TaskCompletionSource = tcs;
             SetStyle(ControlStyles.AllPaintingInWmPaint, true);
             SetStyle(ControlStyles.OptimizedDoubleBuffer, true);
             SetStyle(ControlStyles.UserPaint, true);
@@ -81,16 +78,12 @@ namespace MugenMvvmToolkit.Controls
 
         public float Duration { get; set; }
 
-        public TaskCompletionSource<object> TaskCompletionSource { get; private set; }
+        public TaskCompletionSource<object> TaskCompletionSource { get; set; }
 
         #endregion
 
         #region Overrides of Control
 
-        /// <summary>
-        ///     Raises the <see cref="E:System.Windows.Forms.Control.Paint" /> event.
-        /// </summary>
-        /// <param name="e">A <see cref="T:System.Windows.Forms.PaintEventArgs" /> that contains the event data. </param>
         protected override void OnPaint(PaintEventArgs e)
         {
             base.OnPaint(e);

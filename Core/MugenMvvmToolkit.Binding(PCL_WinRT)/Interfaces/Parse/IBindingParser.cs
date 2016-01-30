@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IBindingParser.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -18,28 +18,27 @@
 
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Interfaces.Parse
 {
-    /// <summary>
-    ///     Represents the data binding parser inteface.
-    /// </summary>
     public interface IBindingParser
     {
-        /// <summary>
-        ///     Gets the collection of <see cref="IBindingParserHandler" />.
-        /// </summary>
+        ICollection<string> ElementSourceAliases { get; }
+
+        ICollection<string> RelativeSourceAliases { get; }
+
+        IDictionary<string, TokenType> UnaryOperationAliases { get; }
+
+        IDictionary<string, TokenType> BinaryOperationAliases { get; }
+
         IList<IBindingParserHandler> Handlers { get; }
 
-        /// <summary>
-        ///     Parses a string to the set of instances of <see cref="IDataContext" /> that allows to create a series of instances
-        ///     of <see cref="IDataBinding" />.
-        /// </summary>
-        /// <param name="bindingExpression">The specified binding expression.</param>
-        /// <param name="context">The specified context.</param>
-        /// <returns>A set of instances of <see cref="IDataContext" />.</returns>
         [NotNull]
-        IList<IDataContext> Parse([NotNull] string bindingExpression, [NotNull] IDataContext context);
+        IList<IDataContext> Parse([NotNull] object target, [NotNull] string bindingExpression, [CanBeNull] IList<object> sources,
+            [CanBeNull] IDataContext context);
+
+        void InvalidateCache();
     }
 }

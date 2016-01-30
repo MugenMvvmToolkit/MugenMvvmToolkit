@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="AssemblyInfo.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -22,13 +22,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("MugenMvvmToolkit.WinForms")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Vyacheslav Volkov")]
 [assembly: AssemblyProduct("MugenMvvmToolkit.WinForms")]
-[assembly: AssemblyCopyright("Copyright (c) 2012-2015 Vyacheslav Volkov")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
-
 [assembly: Guid("ea4381ec-cba1-43ee-8033-ec9efb64a81e")]
-[assembly: AssemblyVersion("1.2.0.0")]
-[assembly: AssemblyFileVersion("1.2.0.0")]

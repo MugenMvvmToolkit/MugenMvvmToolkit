@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="FrameNavigationService.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -22,49 +22,35 @@ using System.Windows.Controls;
 using System.Windows.Navigation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
+using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Navigation;
+using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
+using MugenMvvmToolkit.WPF.Interfaces.Navigation;
+using MugenMvvmToolkit.WPF.Models.EventArg;
 using NavigationMode = System.Windows.Navigation.NavigationMode;
 
-namespace MugenMvvmToolkit.Infrastructure.Navigation
+namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
 {
-    /// <summary>
-    ///     A basic implementation of <see cref="INavigationService" /> to adapt the <see cref="Frame" />.
-    /// </summary>
     public class FrameNavigationService : INavigationService
     {
         #region Fields
 
         private readonly Frame _frame;
         private readonly bool _useUrlNavigation;
-        private readonly Func<Type, object> _viewFactory;
         private NavigationMode _lastMode;
 
         #endregion
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="FrameNavigationService" /> class.
-        /// </summary>
-        public FrameNavigationService([NotNull] Frame frame, Func<Type, object> viewFactory)
-            : this(frame)
+        public FrameNavigationService([NotNull] Frame frame, bool useUrlNavigation)
         {
-            Should.NotBeNull(viewFactory, "viewFactory");
-            _useUrlNavigation = false;
-            _viewFactory = viewFactory;
-        }
-
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="FrameNavigationService" /> class.
-        /// </summary>
-        public FrameNavigationService([NotNull] Frame frame)
-        {
-            Should.NotBeNull(frame, "frame");
+            Should.NotBeNull(frame, nameof(frame));
             _frame = frame;
-            _useUrlNavigation = true;
+            _useUrlNavigation = useUrlNavigation;
             _frame.Navigating += OnNavigating;
             _frame.Navigated += OnNavigated;
         }
@@ -75,139 +61,101 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         private void OnNavigated(object sender, NavigationEventArgs args)
         {
-            var handler = Navigated;
-            if (handler != null)
-                handler(this, new NavigationEventArgsWrapper(args, _lastMode.ToNavigationMode()));
+            Navigated?.Invoke(this, new NavigationEventArgsWrapper(args, _lastMode.ToNavigationMode()));
         }
 
         private void OnNavigating(object sender, NavigatingCancelEventArgs args)
         {
             _lastMode = args.NavigationMode;
-            var handler = Navigating;
-            if (handler != null)
-                handler(this, new NavigatingCancelEventArgsWrapper(args));
+            Navigating?.Invoke(this, new NavigatingCancelEventArgsWrapper(args));
         }
 
         #endregion
 
         #region Implementation of INavigationService
 
-        /// <summary>
-        ///     Indicates whether the navigator can navigate back.
-        /// </summary>
-        public bool CanGoBack
-        {
-            get { return _frame.CanGoBack; }
-        }
+        public bool CanGoBack => _frame.CanGoBack;
 
-        /// <summary>
-        ///     Indicates whether the navigator can navigate forward.
-        /// </summary>
-        public bool CanGoForward
-        {
-            get { return _frame.CanGoForward; }
-        }
+        public bool CanGoForward => _frame.CanGoForward;
 
-        /// <summary>
-        ///     The current content.
-        /// </summary>
-        public object CurrentContent
-        {
-            get { return _frame.Content; }
-        }
+        public object CurrentContent => _frame.Content;
 
-        /// <summary>
-        ///     Navigates back.
-        /// </summary>
         public void GoBack()
         {
             _frame.GoBack();
         }
 
-        /// <summary>
-        ///     Navigates forward.
-        /// </summary>
         public void GoForward()
         {
             _frame.GoForward();
         }
 
-        /// <summary>
-        ///     Removes the most recent entry from the back stack.
-        /// </summary>
-        /// <returns> The entry that was removed. </returns>
         public JournalEntry RemoveBackEntry()
         {
             return _frame.RemoveBackEntry();
         }
 
-        /// <summary>
-        ///     Gets a navigation parameter from event args.
-        /// </summary>
-        public object GetParameterFromArgs(EventArgs args)
+        public string GetParameterFromArgs(EventArgs args)
         {
-            Should.NotBeNull(args, "args");
+            Should.NotBeNull(args, nameof(args));
             var cancelEventArgs = args as NavigatingCancelEventArgsWrapper;
             if (cancelEventArgs == null)
             {
                 var eventArgs = args as NavigationEventArgsWrapper;
                 if (eventArgs == null)
                     return null;
-                return eventArgs.Args.ExtraData;
+                return eventArgs.Args.ExtraData as string;
             }
-            return cancelEventArgs.Args.ExtraData;
+            return cancelEventArgs.Args.ExtraData as string;
         }
 
-        /// <summary>
-        ///     Navigates using cancel event args.
-        /// </summary>
         public bool Navigate(NavigatingCancelEventArgsBase args, IDataContext dataContext)
         {
-            Should.NotBeNull(args, "args");
+            Should.NotBeNull(args, nameof(args));
             var result = NavigateInternal(args);
             if (result)
                 ClearNavigationStackIfNeed(dataContext);
             return result;
         }
 
-        /// <summary>
-        ///     Displays the content located at the specified <see cref="IViewMappingItem" />.
-        /// </summary>
-        /// <param name="source">
-        ///     The <c>IViewPageMappingItem</c> of the content to display.
-        /// </param>
-        /// <param name="parameter">
-        ///     A <see cref="T:System.Object" /> that contains data to be used for processing during
-        ///     navigation.
-        /// </param>
-        /// <param name="dataContext">
-        ///     The specified <see cref="IDataContext" />.
-        /// </param>
-        /// <returns>
-        ///     <c>true</c> if the content was successfully displayed; otherwise, <c>false</c>.
-        /// </returns>
-        public bool Navigate(IViewMappingItem source, object parameter, IDataContext dataContext)
+        public bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
-            Should.NotBeNull(source, "source");
+            Should.NotBeNull(source, nameof(source));
             var result = NavigateInternal(source, parameter);
             if (result)
                 ClearNavigationStackIfNeed(dataContext);
             return result;
         }
 
-        /// <summary>
-        ///     Raised prior to navigation.
-        /// </summary>
+        public bool CanClose(IViewModel viewModel, IDataContext dataContext)
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            var content = CurrentContent;
+            return content != null && ViewManager.GetDataContext(content) == viewModel && CanGoBack;
+        }
+
+        public bool TryClose(IViewModel viewModel, IDataContext dataContext)
+        {
+            if (CanClose(viewModel, dataContext))
+            {
+                GoBack();
+                return true;
+            }
+            return false;
+        }
+
         public event EventHandler<INavigationService, NavigatingCancelEventArgsBase> Navigating;
 
-        /// <summary>
-        ///     Raised after navigation.
-        /// </summary>
         public event EventHandler<INavigationService, NavigationEventArgsBase> Navigated;
 
         #endregion
 
         #region Methods
+
+        protected virtual object CreateView(IViewMappingItem viewMapping, object parameter)
+        {
+            return ServiceProvider.Get<IViewManager>().GetViewAsync(viewMapping, parameter as IDataContext).Result;
+        }
 
         private void ClearNavigationStackIfNeed(IDataContext context)
         {
@@ -217,7 +165,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 return;
             while (_frame.BackStack.OfType<object>().Any())
                 _frame.RemoveBackEntry();
-            context.AddOrUpdate(NavigationProvider.ClearNavigationCache, true);
+            context.AddOrUpdate(NavigationProviderConstants.InvalidateAllCache, true);
         }
 
         private bool NavigateInternal(IViewMappingItem source, object parameter)
@@ -229,12 +177,14 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 return _frame.Navigate(source.Uri, parameter);
             }
             if (parameter == null)
-                return _frame.Navigate(_viewFactory(source.ViewType));
-            return _frame.Navigate(_viewFactory(source.ViewType), parameter);
+                return _frame.Navigate(CreateView(source, null));
+            return _frame.Navigate(CreateView(source, parameter), parameter);
         }
 
         private bool NavigateInternal(NavigatingCancelEventArgsBase args)
         {
+            if (!args.IsCancelable)
+                return false;
             NavigatingCancelEventArgs originalArgs = ((NavigatingCancelEventArgsWrapper)args).Args;
             if (originalArgs.NavigationMode == NavigationMode.Back)
             {

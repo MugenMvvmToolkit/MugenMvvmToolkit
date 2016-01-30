@@ -16,10 +16,6 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         #region Implementation of IDisplayNameProvider
 
-        /// <summary>
-        ///     Gets a display name for the specified type using the specified member.
-        /// </summary>
-        /// <param name="memberInfo">The specified member.</param>
         Func<string> IDisplayNameProvider.GetDisplayNameAccessor(MemberInfo memberInfo)
         {
             Member = memberInfo;

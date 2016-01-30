@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ChangesCanceledEventArgs.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -31,12 +31,9 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes the <see cref="ChangesCanceledEventArgs" />.
-        /// </summary>
         public ChangesCanceledEventArgs([NotNull]object entity)
         {
-            Should.NotBeNull(entity, "entity");
+            Should.NotBeNull(entity, nameof(entity));
             _entity = entity;
         }
 
@@ -45,10 +42,7 @@ namespace MugenMvvmToolkit.Models.EventArg
         #region Properties
 
         [NotNull]
-        public object Entity
-        {
-            get { return _entity; }
-        }
+        public object Entity => _entity;
 
         #endregion
     }
@@ -57,9 +51,6 @@ namespace MugenMvvmToolkit.Models.EventArg
     {
         #region Constructors
 
-        /// <summary>
-        ///     Initializes the <see cref="ChangesCanceledEventArgs{TEntity}" />.
-        /// </summary>
         public ChangesCanceledEventArgs([NotNull]TEntity entity)
             : base(entity)
         {
@@ -70,10 +61,7 @@ namespace MugenMvvmToolkit.Models.EventArg
         #region Properties
 
         [NotNull]
-        public new TEntity Entity
-        {
-            get { return (TEntity) base.Entity; }
-        }
+        public new TEntity Entity => (TEntity) base.Entity;
 
         #endregion
     }

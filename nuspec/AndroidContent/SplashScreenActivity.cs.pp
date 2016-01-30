@@ -1,6 +1,6 @@
 using Android.App;
-using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Views.Activities;
+using MugenMvvmToolkit.Android.Infrastructure;
+using MugenMvvmToolkit.Android.Views.Activities;
 
 namespace $rootnamespace$.Views
 {

@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="ViewMappingProvider.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -29,9 +29,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    /// <summary>
-    ///     Represents the implementation of <see cref="IViewMappingProvider"/> to provide view mappings.
-    /// </summary>
     public class ViewMappingProvider : IViewMappingProvider
     {
         #region Fields
@@ -46,58 +43,77 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Constructors
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ViewMappingProvider" /> class.
-        /// </summary>
         public ViewMappingProvider([NotNull] IEnumerable<Assembly> assemblies)
             : this(assemblies, null, null)
         {
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="ViewMappingProvider" /> class.
-        /// </summary>
         public ViewMappingProvider([NotNull] IEnumerable<Assembly> assemblies, IList<string> viewPostfix, IList<string> viewModelPostfix)
         {
-            Should.NotBeNull(assemblies, "assemblies");
+            Should.NotBeNull(assemblies, nameof(assemblies));
             _assemblies = assemblies;
             _viewPostfix = viewPostfix ?? new[]
             {
-                "ActivityView", "FragmentView", "WindowView", "ViewController", "PageView", "FormView", "ModalView",
+                "ActivityView", "ViewActivity", "FragmentView", "ViewFragment", "WindowView", "ViewController", "PageView", "FormView", "ModalView",
                 "Form", "View", "V", "Activity", "Fragment", "Page", "Window", "Controller"
             };
             _viewModelPostfix = viewModelPostfix ?? new[] { "ViewModel", "Vm" };
             _viewTypeToMapping = new Dictionary<Type, List<IViewMappingItem>>();
             _viewModelToMapping = new Dictionary<Type, Dictionary<string, IViewMappingItem>>();
+            IsSupportedUriNavigation = true;
         }
 
         #endregion
 
         #region Properties
 
-        /// <summary>
-        /// Gets the view postfixes.
-        /// </summary>
-        protected IList<string> ViewPostfix
-        {
-            get { return _viewPostfix; }
-        }
+        public bool IsSupportedUriNavigation { get; set; }
 
-        /// <summary>
-        /// Gets the view model postfixes.
-        /// </summary>
-        protected IList<string> ViewModelPostfix
-        {
-            get { return _viewModelPostfix; }
-        }
+        protected IList<string> ViewPostfix => _viewPostfix;
+
+        protected IList<string> ViewModelPostfix => _viewModelPostfix;
 
         #endregion
 
         #region Methods
 
-        /// <summary>
-        /// Initializes view mappings.
-        /// </summary>
+        public void AddMapping(IViewMappingItem mappingItem)
+        {
+            AddMapping(mappingItem, false, true);
+        }
+
+        private void AddMapping(IViewMappingItem mappingItem, bool throwOnError, bool rewrite = false)
+        {
+            List<IViewMappingItem> list;
+            if (!_viewTypeToMapping.TryGetValue(mappingItem.ViewType, out list))
+            {
+                list = new List<IViewMappingItem>();
+                _viewTypeToMapping[mappingItem.ViewType] = list;
+            }
+            list.Add(mappingItem);
+
+            Dictionary<string, IViewMappingItem> value;
+            if (!_viewModelToMapping.TryGetValue(mappingItem.ViewModelType, out value))
+            {
+                value = new Dictionary<string, IViewMappingItem>();
+                _viewModelToMapping[mappingItem.ViewModelType] = value;
+            }
+            IViewMappingItem item;
+            string name = mappingItem.Name ?? string.Empty;
+            if (value.TryGetValue(name, out item))
+            {
+                if (throwOnError)
+                    throw ExceptionManager.DuplicateViewMapping(item.ViewType, item.ViewModelType, item.Name);
+                if (!rewrite)
+                    return;
+            }
+            value[name] = mappingItem;
+            if (Tracer.TraceInformation)
+                Tracer.Info("The view mapping to view model was created: ({0} ---> {1}), name: {2}",
+                    mappingItem.ViewModelType, mappingItem.ViewType, mappingItem.Name);
+        }
+
+
         protected virtual void InitializeMapping(IEnumerable<Type> types)
         {
             var vTypes = new Dictionary<string, HashSet<Type>>();
@@ -172,6 +188,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     HashSet<Type> list;
                     if (!vmTypes.TryGetValue(vType.Key, out list))
                         continue;
+                    vmTypes.Remove(vType.Key);
                     foreach (Type viewModelType in list)
                     {
                         //NOTE: ignore if view is already has mapping.
@@ -180,68 +197,55 @@ namespace MugenMvvmToolkit.Infrastructure
                     }
                 }
             }
+
+            //Trying to use base class for view models.
+            foreach (var keyValuePair in vmTypes)
+            {
+                foreach (var vmType in keyValuePair.Value)
+                {
+                    var classes = GetBaseClasses(vmType);
+                    for (int i = 0; i < classes.Count; i++)
+                    {
+                        var baseType = classes[i];
+                        List<string> names;
+                        if (!TryGetNames(baseType, _viewModelPostfix, out names))
+                            continue;
+                        bool added = false;
+
+                        for (int j = 0; j < names.Count; j++)
+                        {
+                            HashSet<Type> viewTypes;
+                            if (!vTypes.TryGetValue(names[j], out viewTypes))
+                                continue;
+
+                            foreach (var viewType in viewTypes)
+                                AddMapping(new ViewMappingItem(vmType, viewType, null,
+                                    GetUri(viewType, vmType, null, UriKind.Relative)), false);
+                            added = true;
+                            break;
+                        }
+                        if (added)
+                            break;
+                    }
+                }
+            }
         }
 
-        /// <summary>
-        ///     Defines the method that determines whether the type is view type.
-        /// </summary>
         protected virtual bool IsViewType(Type type)
         {
             return true;
         }
 
-        /// <summary>
-        ///     Creates an <see cref="Uri" /> for the specified type of view.
-        /// </summary>
-        /// <param name="viewType">The specified type of view.</param>
-        /// <param name="viewModelType">The specified type of view model.</param>
-        /// <param name="url">The specified url value.</param>
-        /// <param name="uriKind">
-        ///     The specified <see cref="UriKind" />.
-        /// </param>
-        /// <returns>
-        ///     An instance of <see cref="Uri" />.
-        /// </returns>
         protected virtual Uri GetUri(Type viewType, Type viewModelType, string url, UriKind uriKind)
         {
             if (!string.IsNullOrEmpty(url))
                 return new Uri(url, uriKind);
+            if (!IsSupportedUriNavigation)
+                return ViewMappingItem.Empty;
             Assembly assembly = viewType.GetAssembly();
             string name = assembly.GetAssemblyName().Name;
             string uri = viewType.FullName.Replace(name, string.Empty).Replace(".", "/");
-            return new Uri(string.Format("/{0};component{1}.xaml", name, uri), uriKind);
-        }
-
-        /// <summary>
-        /// Adds the view mapping to internal collection.
-        /// </summary>
-        protected void AddMapping(IViewMappingItem mappingItem, bool throwOnError)
-        {
-            List<IViewMappingItem> list;
-            if (!_viewTypeToMapping.TryGetValue(mappingItem.ViewType, out list))
-            {
-                list = new List<IViewMappingItem>();
-                _viewTypeToMapping[mappingItem.ViewType] = list;
-            }
-            list.Add(mappingItem);
-
-            Dictionary<string, IViewMappingItem> value;
-            if (!_viewModelToMapping.TryGetValue(mappingItem.ViewModelType, out value))
-            {
-                value = new Dictionary<string, IViewMappingItem>();
-                _viewModelToMapping[mappingItem.ViewModelType] = value;
-            }
-            IViewMappingItem item;
-            string name = mappingItem.Name ?? string.Empty;
-            if (value.TryGetValue(name, out item))
-            {
-                if (throwOnError)
-                    throw ExceptionManager.DuplicateViewMapping(item.ViewType, item.ViewModelType, item.Name);
-                return;
-            }
-            value[name] = mappingItem;
-            Tracer.Info("The view mapping to view model was created: ({0} ---> {1}), name: {2}",
-                mappingItem.ViewModelType, mappingItem.ViewType, mappingItem.Name);
+            return new Uri($"/{name};component{uri}.xaml", uriKind);
         }
 
         private static bool TryGetNames(Type type, IList<string> postFixes, out List<string> names)
@@ -290,17 +294,34 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 var assemblies = _assemblies;
                 _assemblies = null;
-                InitializeMapping(assemblies.SelectMany(assembly => assembly.SafeGetTypes(true)));
+                InitializeMapping(assemblies.Where(assembly => assembly.IsToolkitAssembly()).SelectMany(assembly => assembly.SafeGetTypes(true)));
             }
+        }
+
+        private static List<Type> GetBaseClasses(Type type)
+        {
+#if PCL_WINRT
+            type = type.GetTypeInfo().BaseType;
+#else
+            type = type.BaseType;
+#endif
+            var types = new List<Type>();
+            while (type != null && typeof(IViewModel).IsAssignableFrom(type))
+            {
+                types.Add(type);
+#if PCL_WINRT
+                type = type.GetTypeInfo().BaseType;
+#else
+                type = type.BaseType;
+#endif
+            }
+            return types;
         }
 
         #endregion
 
         #region Implementation of INavigableViewMappingProvider
 
-        /// <summary>
-        ///     Gets a series instances of <see cref="IViewMappingItem" />.
-        /// </summary>
         public IEnumerable<IViewMappingItem> ViewMappings
         {
             get
@@ -310,20 +331,9 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
-        /// <summary>
-        ///     Finds the series of <see cref="IViewMappingItem" /> for the specified type of view.
-        /// </summary>
-        /// <param name="viewType">The specified type of view.</param>
-        /// <param name="throwOnError">
-        ///     true to throw an exception if the type cannot be found; false to return null. Specifying
-        ///     false also suppresses some other exception conditions, but not all of them.
-        /// </param>
-        /// <returns>
-        ///     The series of <see cref="IViewMappingItem" />.
-        /// </returns>
         public IList<IViewMappingItem> FindMappingsForView(Type viewType, bool throwOnError)
         {
-            Should.NotBeNull(viewType, "viewType");
+            Should.NotBeNull(viewType, nameof(viewType));
             EnsureInitialized();
             List<IViewMappingItem> item;
             if (!_viewTypeToMapping.TryGetValue(viewType, out item) && throwOnError)
@@ -333,18 +343,6 @@ namespace MugenMvvmToolkit.Infrastructure
             return item.ToArrayEx();
         }
 
-        /// <summary>
-        ///     Finds the <see cref="IViewMappingItem" /> for the specified type of view model.
-        /// </summary>
-        /// <param name="viewModelType">The specified type of view model.</param>
-        /// <param name="viewName">The specified name of view, if any.</param>
-        /// <param name="throwOnError">
-        ///     true to throw an exception if the type cannot be found; false to return null. Specifying
-        ///     false also suppresses some other exception conditions, but not all of them.
-        /// </param>
-        /// <returns>
-        ///     An instance of <see cref="IViewMappingItem" />.
-        /// </returns>
         public IViewMappingItem FindMappingForViewModel(Type viewModelType, string viewName, bool throwOnError)
         {
             Should.BeOfType<IViewModel>(viewModelType, "viewModelType");

@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IToastPresenter.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -16,23 +16,13 @@
 
 #endregion
 
-using System.Threading.Tasks;
-using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Interfaces.Presenters
 {
-    /// <summary>
-    ///     Provides functionality to present a timed message.
-    /// </summary>
     public interface IToastPresenter
     {
-        /// <summary>
-        ///     Shows the specified message.
-        /// </summary>
-        [SuppressTaskBusyHandler]
-        Task ShowAsync(object content, float duration, ToastPosition position = ToastPosition.Bottom,
-            IDataContext context = null);
+        IToast ShowAsync(object content, float duration, ToastPosition position = ToastPosition.Bottom, IDataContext context = null);
     }
 }

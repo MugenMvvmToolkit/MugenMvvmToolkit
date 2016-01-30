@@ -7,8 +7,8 @@ using Windows.UI.Input;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
-using MugenMvvmToolkit;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.WinRT;
 using NavigationMode = Windows.UI.Xaml.Navigation.NavigationMode;
 
 namespace $rootnamespace$

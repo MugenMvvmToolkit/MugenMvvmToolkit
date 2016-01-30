@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="XmlVisitor.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -21,9 +21,9 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
-using MugenMvvmToolkit.Binding.Parse.Nodes;
+using MugenMvvmToolkit.WinForms.Binding.Parse.Nodes;
 
-namespace MugenMvvmToolkit.Binding.Parse
+namespace MugenMvvmToolkit.WinForms.Binding.Parse
 {
     internal sealed class XmlVisitor : IExpressionVisitor
     {
@@ -45,15 +45,11 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         #region Properties
 
-        public HashSet<XmlExpressionNode> Nodes
-        {
-            get { return _nodes; }
-        }
+        public HashSet<XmlExpressionNode> Nodes => _nodes;
 
-        public bool IsInvlalid
-        {
-            get { return _isInvlalid; }
-        }
+        public bool IsInvlalid => _isInvlalid;
+
+        public bool IsPostOrder => false;
 
         #endregion
 
@@ -67,7 +63,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         public void Visit([NotNull] IList<XmlExpressionNode> nodes)
         {
-            Should.NotBeNull(nodes, "nodes");
+            Should.NotBeNull(nodes, nameof(nodes));
             _nodes.Clear();
             _isInvlalid = false;
             for (int i = 0; i < nodes.Count; i++)

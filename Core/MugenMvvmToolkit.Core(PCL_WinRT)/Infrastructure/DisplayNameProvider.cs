@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="DisplayNameProvider.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -26,9 +26,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    /// <summary>
-    ///     Represents the class that provide display name of object.
-    /// </summary>
     public class DisplayNameProvider : IDisplayNameProvider
     {
         #region Fields
@@ -53,13 +50,9 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Implementation of IDisplayNameProvider
 
-        /// <summary>
-        ///     Gets a display name for the specified type using the specified member.
-        /// </summary>
-        /// <param name="memberInfo">The specified member.</param>
         public Func<string> GetDisplayNameAccessor(MemberInfo memberInfo)
         {
-            Should.NotBeNull(memberInfo, "memberInfo");
+            Should.NotBeNull(memberInfo, nameof(memberInfo));
             Func<string> name;
             lock (MembersToNames)
             {
@@ -76,10 +69,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Methods
 
-        /// <summary>
-        ///     Gets a display name for the specified type using the specified member.
-        /// </summary>
-        /// <param name="memberInfo">The specified member.</param>
         protected virtual Func<string> GetDisplayNameInternal(MemberInfo memberInfo)
         {
 #if PCL_WINRT
@@ -95,7 +84,7 @@ namespace MugenMvvmToolkit.Infrastructure
 #else
                 var type = typeInfo;
 #endif
-                var metadataTypes = new List<Type>(DynamicDataAnnotationsElementProvider.GetMetadataTypes(type));
+                var metadataTypes = new List<Type>(DataAnnotationValidatior.GetMetadataTypes(type));
                 metadataTypes.Insert(0, type);
                 for (int index = 0; index < metadataTypes.Count; index++)
                 {
@@ -114,10 +103,10 @@ namespace MugenMvvmToolkit.Infrastructure
             if (accessor != null)
                 return accessor;
 
-            ICollection<Type> types = DynamicDataAnnotationsElementProvider.GetMetadataTypes(ExpressionReflectionManager.GetDeclaringType(memberInfo));
-            foreach (Type metaType in types)
+            var types = DataAnnotationValidatior.GetMetadataTypes(memberInfo.DeclaringType);
+            for (int index = 0; index < types.Length; index++)
             {
-                MemberInfo metaMemberInfo = TryFindMetaMemberInfo(metaType, memberInfo);
+                MemberInfo metaMemberInfo = TryFindMetaMemberInfo(types[index], memberInfo);
                 if (metaMemberInfo == null)
                     continue;
                 accessor = TryGetDisplayAttributeAccessor(metaMemberInfo);
@@ -189,9 +178,7 @@ namespace MugenMvvmToolkit.Infrastructure
                                             &&
                                             info.GetParameters()
                                                 .Select(parameterInfo => parameterInfo.ParameterType)
-                                                .SequenceEqual(
-                                                    method.GetParameters()
-                                                        .Select(parameterInfo => parameterInfo.ParameterType)));
+                                                .SequenceEqual(method.GetParameters().Select(parameterInfo => parameterInfo.ParameterType)));
             var eventInfo = member as EventInfo;
             if (eventInfo != null)
 #if PCL_WINRT

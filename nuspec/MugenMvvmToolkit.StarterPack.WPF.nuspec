@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.StarterPack.WPF</id>
-    <version>1.0.0</version>
+    <version>5.1.0</version>
     <title>MugenMvvmToolkit - Starter Pack WPF</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
@@ -12,11 +12,11 @@
       - WinForms
       - WPF
       - Silverlight 5
-      - Silverlight for WP7.1, WP8, WP8.1
+      - Silverlight for WP8, WP8.1
       - Xamarin.Android
       - Xamarin.iOS
       - Xamarin.Forms
-      - WinRT XAML framework for Windows 8 Store apps
+      - WinRT XAML framework for Windows Store apps
       The MVVM framework includes the following features that differs this project from other frameworks:
       - Deep integration with each platform.
       - Supports state preservation and restoration for mobile platforms.
@@ -36,35 +36,13 @@
       - Binding supports fluent syntax.
       - Excellent binding performance.
     </description>
-    <releaseNotes>
-      - Split the android project into several parts, Android, Android.ActionBar, Android.AppCompat, Android.Fragment, Android.RecyclerView.
-      - Increased performance of ItemsSourceAdapter (Android).
-      - Fixed invalid binding validation when using $GetErrors method.
-      - Added Xamarin.Forms support.
-      - Added support for API21(Android).
-      - Added IWrapperManager instead of IViewModelWrapperManager.
-      - Added ClearBackStack hint for navigation, it allows to remove ViewModel from the back navigation stack (WP, WPF, WinRT, Android, iOS).      
-      - Added IResourceDataTemplateSelector (Android).
-      - Added support for the $root keyword (Binding).
-      - Updated IEventAggregator, added the ability to subscribe using a delegate.
-      - Updated IDynamicObject interface, that allows to invoke methods and index members.
-      - Updated CompiledExpressionInvoker, now it can invoke dynamic members.
-      - Updated BindingEditor (WinForms).
-      - Updated INavigationContext, added NavigationType property.
-      - Updated IObservable interface, now it works with ISubscriber interface.
-      - Updated DefaultValueOnExceptionBehavior, now you can set default value (Binding).
-      - Moved the Handle method from IEventListener to extension method (Binding).
-      - Removed ThrowOnMultiInitialization property from IViewModelSettings.
-      - Optimized delegate allocation.
-      - Minor changes.
-    </releaseNotes>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <iconUrl>https://raw.githubusercontent.com/MugenMvvmToolkit/MugenMvvmToolkit/master/logo128_128.png</iconUrl>
     <projectUrl>https://github.com/MugenMvvmToolkit/MugenMvvmToolkit</projectUrl>
     <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios</tags>
     <dependencies>
-      <dependency id="MugenMvvmToolkit.WPF" />
+      <dependency id="MugenMvvmToolkit.WPF" version="5.1.0" />
     </dependencies>
   </metadata>
   <files>

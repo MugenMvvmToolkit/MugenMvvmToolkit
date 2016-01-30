@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="XmlAttributeExpressionNode.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -20,7 +20,7 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
 
-namespace MugenMvvmToolkit.Binding.Parse.Nodes
+namespace MugenMvvmToolkit.WinForms.Binding.Parse.Nodes
 {
     internal class XmlAttributeExpressionNode : XmlExpressionNode
     {
@@ -37,8 +37,8 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
         public XmlAttributeExpressionNode([NotNull] XmlValueExpressionNode name, XmlValueExpressionNode equal, [NotNull] XmlValueExpressionNode value, int start, int end)
             : base(start, end)
         {
-            Should.NotBeNull(name, "name");
-            Should.NotBeNull(value, "value");
+            Should.NotBeNull(name, nameof(name));
+            Should.NotBeNull(value, nameof(value));
             Name = name;
             Equal = equal;
             Value = value;
@@ -49,10 +49,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
         #region Properties
 
         [NotNull]
-        public new XmlElementExpressionNode Parent
-        {
-            get { return (XmlElementExpressionNode)base.Parent; }
-        }
+        public new XmlElementExpressionNode Parent => (XmlElementExpressionNode)base.Parent;
 
         [NotNull]
         public XmlValueExpressionNode Name

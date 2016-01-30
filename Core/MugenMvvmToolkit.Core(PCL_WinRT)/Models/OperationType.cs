@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="OperationType.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -39,9 +39,6 @@ namespace MugenMvvmToolkit.Models
             PageNavigation = new OperationType("Page");
         }
 
-        /// <summary>
-        ///     Initializes a new instance of the <see cref="OperationType" /> class.
-        /// </summary>
         public OperationType(string id)
             : base(id)
         {

@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IBindingContext.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -20,21 +20,17 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Binding.Interfaces.Models
 {
-    /// <summary>
-    ///     Represents the binding context.
-    /// </summary>
     public interface IBindingContext : ISourceValue
     {
-        /// <summary>
-        ///     Gets the source object.
-        /// </summary>
         [CanBeNull]
         object Source { get; }
 
-        /// <summary>
-        ///     Gets or sets the data context.
-        /// </summary>
         [CanBeNull]
         new object Value { get; set; }
+    }
+
+    public interface IBindingContextHolder
+    {
+        IBindingContext BindingContext { get; }
     }
 }

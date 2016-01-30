@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IHandler.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -20,29 +20,15 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Interfaces.Models
 {
-    /// <summary>
-    ///     Represents the interface that allows to handle an event.
-    /// </summary>
     public interface IHandler<in TMessage>
     {
-        /// <summary>
-        ///     Handles the message.
-        /// </summary>
-        /// <param name="sender">The object that raised the event.</param>
-        /// <param name="message">Information about event.</param>
         void Handle([NotNull] object sender, [NotNull] TMessage message);
     }
 
-    /// <summary>
-    ///     Represents the message that can be sent through all the models in the chain.
-    /// </summary>
     public interface IBroadcastMessage
     {
     }
 
-    /// <summary>
-    ///     Represents the message that should be traced.
-    /// </summary>
     public interface ITracebleMessage
     {
     }

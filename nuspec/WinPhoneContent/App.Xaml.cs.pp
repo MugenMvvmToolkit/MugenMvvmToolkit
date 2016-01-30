@@ -7,7 +7,7 @@ using System.Windows.Markup;
 using System.Windows.Navigation;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
-using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.WinPhone.Infrastructure;
 using $rootnamespace$.Resources;
 
 namespace $rootnamespace$
@@ -57,7 +57,7 @@ namespace $rootnamespace$
                 PhoneApplicationService.Current.UserIdleDetectionMode = IdleDetectionMode.Disabled;
             }
             // ReSharper disable once ObjectCreationAsStatement
-            new Bootstrapper<MainViewModel>(RootFrame, new IIocContainer());
+            new Bootstrapper<Core.App>(RootFrame, new IIocContainer());
         }
 
         // Code to execute when the application is launching (eg, from Start)

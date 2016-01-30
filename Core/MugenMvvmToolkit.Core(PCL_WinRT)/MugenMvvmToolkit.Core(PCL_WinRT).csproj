@@ -17,14 +17,15 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <NuGetPackageImportStamp>14ecbeaa</NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;PCL_WINRT</DefineConstants>
+    <OutputPath>..\..\bin\Core\PCL_WinRT\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;PCL_WINRT;CORE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -32,24 +33,35 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\..\bin\Core\PCL_WinRT\</OutputPath>
-    <DefineConstants>TRACE;PCL_WINRT</DefineConstants>
+    <DefineConstants>TRACE;PCL_WINRT;CORE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>..\..\bin\Core\PCL_WinRT\MugenMvvmToolkit.XML</DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
-  <PropertyGroup>
-    <SignAssembly>true</SignAssembly>
-  </PropertyGroup>
-  <PropertyGroup>
-    <AssemblyOriginatorKeyFile>..\..\Solution Items\sigkey.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
-  <ItemGroup>
-    <!-- A reference to the entire .NET Framework is automatically included -->
-    <None Include="FodyWeavers.xml" />
-  </ItemGroup>
   <ItemGroup>
     <Compile Include="Annotations\Toolkit.Annotations.cs" />
     <Compile Include="ApplicationSettings.cs" />
+    <Compile Include="Infrastructure\Callbacks\NavigationOperation.cs" />
+    <Compile Include="Infrastructure\CompositeEqualityComparer.cs" />
+    <Compile Include="Interfaces\Callbacks\INavigationOperation.cs" />
+    <Compile Include="Interfaces\Callbacks\IOperationCallbackStateManager.cs" />
+    <Compile Include="Interfaces\IMvvmApplication.cs" />
+    <Compile Include="Interfaces\Models\IBusyInfo.cs" />
+    <Compile Include="Interfaces\Models\IBusyToken.cs" />
+    <Compile Include="Interfaces\Models\IToast.cs" />
+    <Compile Include="Interfaces\ViewModels\IIocContainerOwnerViewModel.cs" />
+    <Compile Include="Interfaces\ViewModels\IParentAwareViewModel.cs" />
+    <Compile Include="Models\AsyncRelayCommand.cs" />
+    <Compile Include="Models\EventArg\NavigatingCancelEventArgsBase.cs" />
+    <Compile Include="Models\EventArg\NavigationEventArgsBase.cs" />
+    <Compile Include="Models\EventArg\ViewModelInitializationEventArgs.cs" />
+    <Compile Include="Models\EventArg\ViewModelPreservedEventArgs.cs" />
+    <Compile Include="Models\EventArg\ViewModelPreservingEventArgs.cs" />
+    <Compile Include="Models\EventArg\ViewModelRestoredEventArgs.cs" />
+    <Compile Include="Models\EventArg\ViewModelRestoringEventArgs.cs" />
+    <Compile Include="MvvmApplication.cs" />
+    <Compile Include="Properties\AssemblyInfoCommon.cs" />
     <Compile Include="Attributes\DisplayNameAttribute.cs" />
     <Compile Include="Attributes\IgnorePropertyAttribute.cs" />
     <Compile Include="Attributes\Internal.cs" />
@@ -57,7 +69,6 @@
     <Compile Include="Attributes\ModelPropertyAttribute.cs" />
     <Compile Include="Attributes\ViewModelAttribute.cs" />
     <Compile Include="Collections\FilterableNotifiableCollection.cs" />
-    <Compile Include="Collections\HashSetInternal.cs" />
     <Compile Include="Collections\LightDictionaryBase.cs" />
     <Compile Include="Collections\OrderedListInternal.cs" />
     <Compile Include="Collections\OrderedNotifiableCollection.cs" />
@@ -102,12 +113,10 @@
     <Compile Include="Infrastructure\PrimeNumberHelper.cs" />
     <Compile Include="Infrastructure\ReferenceEqualityComparer.cs" />
     <Compile Include="Infrastructure\Serializer.cs" />
-    <Compile Include="Infrastructure\StateTransitionManager.cs" />
     <Compile Include="Infrastructure\SynchronousThreadManager.cs" />
-    <Compile Include="Infrastructure\Validation\DynamicDataAnnotationsElementProvider.cs" />
     <Compile Include="Infrastructure\Validation\ManualValidator.cs" />
     <Compile Include="Infrastructure\Validation\ValidatableViewModelValidator.cs" />
-    <Compile Include="Infrastructure\Validation\ValidationElementValidator.cs" />
+    <Compile Include="Infrastructure\Validation\DataAnnotationValidatior.cs" />
     <Compile Include="Infrastructure\Validation\ValidatorBase.cs" />
     <Compile Include="Infrastructure\Validation\ValidatorProvider.cs" />
     <Compile Include="Infrastructure\ViewManager.cs" />
@@ -146,7 +155,6 @@
     <Compile Include="Interfaces\IViewManager.cs" />
     <Compile Include="Interfaces\IViewMappingProvider.cs" />
     <Compile Include="Interfaces\IViewModelProvider.cs" />
-    <Compile Include="Interfaces\IVisualStateManager.cs" />
     <Compile Include="Interfaces\IWrapperManager.cs" />
     <Compile Include="Interfaces\Mediators\IWindowViewMediator.cs" />
     <Compile Include="Interfaces\Models\IDataContext.cs" />
@@ -173,11 +181,6 @@
     <Compile Include="Interfaces\Presenters\IToastPresenter.cs" />
     <Compile Include="Interfaces\Presenters\IViewModelPresenter.cs" />
     <Compile Include="Interfaces\Validation\INotifyDataErrorInfo.cs" />
-    <Compile Include="Interfaces\Validation\IValidatableObject.cs" />
-    <Compile Include="Interfaces\Validation\IValidationContext.cs" />
-    <Compile Include="Interfaces\Validation\IValidationElement.cs" />
-    <Compile Include="Interfaces\Validation\IValidationElementProvider.cs" />
-    <Compile Include="Interfaces\Validation\IValidationResult.cs" />
     <Compile Include="Interfaces\Validation\IValidator.cs" />
     <Compile Include="Interfaces\Validation\IValidatorAggregator.cs" />
     <Compile Include="Interfaces\Validation\IValidatorContext.cs" />
@@ -199,7 +202,6 @@
     <Compile Include="Models\DataContext.cs" />
     <Compile Include="Models\DefaultViewModelSettings.cs" />
     <Compile Include="Models\Delegates.cs" />
-    <Compile Include="Models\DisposableObject.cs" />
     <Compile Include="Empty.cs" />
     <Compile Include="Models\EntityStateEntry.cs" />
     <Compile Include="Models\Enums.cs" />
@@ -221,9 +223,6 @@
     <Compile Include="Models\Ioc\IocParameter.cs" />
     <Compile Include="Models\Ioc\IocParameterType.cs" />
     <Compile Include="Models\Messages\AsyncValidationMessage.cs" />
-    <Compile Include="Models\Messages\BeginBusyMessage.cs" />
-    <Compile Include="Models\Messages\DataErrorsChangedMessage.cs" />
-    <Compile Include="Models\Messages\EndBusyMessage.cs" />
     <Compile Include="Models\Messages\StateChangedMessage.cs" />
     <Compile Include="Models\ModuleContext.cs" />
     <Compile Include="Models\NavigationContext.cs" />
@@ -235,8 +234,6 @@
     <Compile Include="Models\RelayCommandBase.cs" />
     <Compile Include="Models\StringConstantBase.cs" />
     <Compile Include="Models\TrackingEntity.cs" />
-    <Compile Include="Models\Validation\ValidationContext.cs" />
-    <Compile Include="Models\Validation\ValidationResult.cs" />
     <Compile Include="Models\Validation\ValidatorContext.cs" />
     <Compile Include="Models\ViewMappingItem.cs" />
     <Compile Include="Modules\WrapperRegistrationModuleBase.cs" />
@@ -260,13 +257,7 @@
     <None Include="..\..\Solution Items\MugenMvvmToolkit.licenseheader">
       <Link>MugenMvvmToolkit.licenseheader</Link>
     </None>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="JetBrains.Annotations">
-      <HintPath>..\..\packages\JetBrainsAnnotations.Fody.1.0.2\Lib\JetBrains.Annotations.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
+    <Compile Include="Annotations\JetBrains.Annotations.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\license.txt">
@@ -275,14 +266,6 @@
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
-    <Error Condition="!Exists('..\..\packages\Fody.1.26.4\build\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Fody.1.26.4\build\Fody.targets'))" />
-  </Target>
-  <Import Project="..\..\packages\Fody.1.26.4\build\Fody.targets" Condition="Exists('..\..\packages\Fody.1.26.4\build\Fody.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

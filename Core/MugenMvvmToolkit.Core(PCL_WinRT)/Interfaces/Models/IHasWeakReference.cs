@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IHasWeakReference.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -21,15 +21,11 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Interfaces.Models
 {
-    /// <summary>
-    ///     Represents the interface that indicates that the instance has a self weak reference
-    /// </summary>
     public interface IHasWeakReference
     {
-        /// <summary>
-        ///     Gets the <see cref="System.WeakReference" /> of current object.
-        /// </summary>
         [NotNull]
         WeakReference WeakReference { get; }
     }
+
+    internal interface IHasWeakReferenceInternal : IHasWeakReference { }
 }

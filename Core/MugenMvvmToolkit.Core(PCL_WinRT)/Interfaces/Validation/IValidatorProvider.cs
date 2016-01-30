@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="IValidatorProvider.cs">
-// Copyright (c) 2012-2015 Vyacheslav Volkov
+// Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -19,58 +19,25 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Interfaces.Validation
 {
-    /// <summary>
-    ///     Represents the factory that allows to create an instance of <see cref="IValidator" />.
-    /// </summary>
-    public interface IValidatorProvider : IDisposableObject
+    public interface IValidatorProvider
     {
-        /// <summary>
-        ///     Registers the specified validator using the type.
-        /// </summary>
-        /// <typeparam name="TValidator">The type of validator.</typeparam>
-        void Register<TValidator>() where TValidator : IValidator;
+        void Register([NotNull] Type validatorType);
 
-        /// <summary>
-        ///     Registers the specified validator.
-        /// </summary>
-        /// <param name="validator">The specified validator</param>
-        void Register([NotNull] IValidator validator);
-
-        /// <summary>
-        ///     Unregisters the specified validator use type.
-        /// </summary>
-        /// <typeparam name="TValidator">The type of validator.</typeparam>
-        bool Unregister<TValidator>() where TValidator : IValidator;
-
-        /// <summary>
-        ///     Determines whether the specified validator is registered
-        /// </summary>
-        /// <typeparam name="TValidator">The type of validator.</typeparam>
         [Pure]
-        bool IsRegistered<TValidator>() where TValidator : IValidator;
+        bool IsRegistered([NotNull] Type validatorType);
 
-        /// <summary>
-        ///     Determines whether the specified validator is registered
-        /// </summary>
-        [Pure]
-        bool IsRegistered(Type type);
+        bool Unregister([NotNull] Type validatorType);
 
-        /// <summary>
-        ///     Gets the series of validators for the specified instance.
-        /// </summary>
-        /// <param name="context">The specified IValidatorContext.</param>
-        /// <returns>A series instances of validators.</returns>
+        [NotNull]
+        IList<Type> GetValidatorTypes();
+
         [NotNull]
         IList<IValidator> GetValidators([NotNull] IValidatorContext context);
 
-        /// <summary>
-        ///     Creates an instance of <see cref="IValidatorAggregator" />.
-        /// </summary>
         [NotNull]
-        IValidatorAggregator GetValidatorAggregator();        
+        IValidatorAggregator GetValidatorAggregator();
     }
 }
