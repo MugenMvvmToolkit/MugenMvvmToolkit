@@ -66,7 +66,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         public Guid Id => _isTarget ? IdTarget : IdSource;
 
-        public int Priority => BindingModeBase.DefaultPriority - 1;
+        public int Priority => BindingModeBase.DefaultPriority + 1;
 
         #endregion
 
