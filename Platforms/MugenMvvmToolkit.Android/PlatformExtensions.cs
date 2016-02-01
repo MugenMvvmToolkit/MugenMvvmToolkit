@@ -308,6 +308,7 @@ namespace MugenMvvmToolkit.Android
             CurrentActivityLocker = new object();
             _mvvmFragmentMediatorFactory = MvvmFragmentMediatorFactoryMethod;
             AggressiveViewCleanup = true;
+            EnableFastTextViewTextProperty = true;
 
             // ReSharper disable once ObjectCreationAsStatement
             new WeakReferenceCollector();
@@ -403,6 +404,8 @@ namespace MugenMvvmToolkit.Android
         public static Activity CurrentActivity => (Activity)_activityRef.Target;
 
         public static bool AggressiveViewCleanup { get; set; }
+
+        public static bool EnableFastTextViewTextProperty { get; set; }
 
         public static event EventHandler CurrentActivityChanged;
 
