@@ -355,6 +355,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                             {
                                 JValue* ptr = stackalloc JValue[1];
                                 *ptr = new JValue(stringPtr);
+                                JNIEnv.CallVoidMethod(view.Handle, TextViewSetTextMethodId, ptr);
                             }
                         }
                         finally
