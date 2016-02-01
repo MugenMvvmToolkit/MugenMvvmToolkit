@@ -17,10 +17,10 @@
 #endregion
 
 using System.Threading.Tasks;
-using Android.App;
 using Android.Support.Design.Widget;
 using Android.Views;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
@@ -38,6 +38,7 @@ namespace MugenMvvmToolkit.Android.Design.Infrastructure.Presenters
 
             private readonly TaskCompletionSource<object> _tcs;
             private Snackbar _snackbar;
+            private IToast _toast;
 
             #endregion
 
@@ -64,6 +65,12 @@ namespace MugenMvvmToolkit.Android.Design.Infrastructure.Presenters
                 _snackbar.SetCallback(this).SetDuration((int)duration).Show();
             }
 
+            public void FromToast(IToast toast)
+            {
+                _toast = toast;
+                _tcs.TrySetFromTask(toast.CompletionTask);
+            }
+
             public override void OnDismissed(Snackbar snackbar, int evt)
             {
                 base.OnDismissed(snackbar, evt);
@@ -76,11 +83,20 @@ namespace MugenMvvmToolkit.Android.Design.Infrastructure.Presenters
 
             public void Close()
             {
-                var snackbar = _snackbar;
-                if (snackbar == null)
-                    return;
-                _snackbar = null;
-                snackbar.Dismiss();
+                var toast = _toast;
+                if (toast == null)
+                {
+                    var snackbar = _snackbar;
+                    if (snackbar == null)
+                        return;
+                    _snackbar = null;
+                    snackbar.Dismiss();
+                }
+                else
+                {
+                    _toast = null;
+                    toast.Close();
+                }
             }
 
             #endregion
@@ -108,15 +124,17 @@ namespace MugenMvvmToolkit.Android.Design.Infrastructure.Presenters
 
         #region Methods
 
-        private static void ShowInternal(Activity activity, View snackbarHolderView, object content, float duration, ToastImpl toast)
+        private void ShowInternal(ToastImpl toast, IDataTemplateSelector selector, View snackbarHolderView, object content, float duration, ToastPosition position, IDataContext context)
         {
-            Snackbar snackbar = null;
-            var selector = activity.GetBindingMemberValue(AttachedMembersDesign.Activity.SnackbarTemplateSelector);
-            if (selector != null)
+            Snackbar snackbar;
+            if (selector == null)
+                snackbar = Snackbar.Make(snackbarHolderView, content.ToStringSafe("(null)"), (int)duration);
+            else
                 snackbar = (Snackbar)selector.SelectTemplate(content, snackbarHolderView);
             if (snackbar == null)
-                snackbar = Snackbar.Make(snackbarHolderView, content.ToStringSafe("(null)"), (int)duration);
-            toast.Show(snackbar, duration);
+                toast.FromToast(_defaultPresenter.ShowAsync(content, duration, position, context));
+            else
+                toast.Show(snackbar, duration);
         }
 
         #endregion
@@ -130,18 +148,19 @@ namespace MugenMvvmToolkit.Android.Design.Infrastructure.Presenters
             if (currentActivity != null)
             {
                 var selector = currentActivity.GetBindingMemberValue(AttachedMembersDesign.Activity.SnackbarViewSelector);
-                if (selector != null)
-                    holder = selector(content, position, context);
-                if (holder == null)
-                    holder = currentActivity.GetBindingMemberValue(AttachedMembersDesign.Activity.SnackbarView);
+                holder = selector == null
+                    ? currentActivity.GetBindingMemberValue(AttachedMembersDesign.Activity.SnackbarView)
+                    : selector(content, position, context);
             }
             if (holder == null)
                 return _defaultPresenter.ShowAsync(content, duration, position, context);
+
+            var templateSelector = currentActivity.GetBindingMemberValue(AttachedMembersDesign.Activity.SnackbarTemplateSelector);
             var toastImpl = new ToastImpl();
             if (_threadManager.IsUiThread)
-                ShowInternal(currentActivity, holder, content, duration, toastImpl);
+                ShowInternal(toastImpl, templateSelector, holder, content, duration, position, context);
             else
-                _threadManager.InvokeOnUiThreadAsync(() => ShowInternal(currentActivity, holder, content, duration, toastImpl), OperationPriority.High);
+                _threadManager.InvokeOnUiThreadAsync(() => ShowInternal(toastImpl, templateSelector, holder, content, duration, position, context), OperationPriority.High);
             return toastImpl;
         }
 
