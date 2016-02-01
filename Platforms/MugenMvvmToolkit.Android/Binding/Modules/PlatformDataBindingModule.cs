@@ -39,7 +39,6 @@ using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Binding.Modules;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
-using Exception = System.Exception;
 using Object = Java.Lang.Object;
 
 namespace MugenMvvmToolkit.Android.Binding.Modules
