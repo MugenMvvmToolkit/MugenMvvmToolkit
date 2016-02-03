@@ -256,7 +256,7 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
 
         public override void FinishUpdate(ViewGroup container)
         {
-            if (_currentTransaction == null)
+            if (_currentTransaction == null || _fragmentManager.IsDestroyed)
                 return;
             _currentTransaction.CommitAllowingStateLoss();
             _currentTransaction = null;
