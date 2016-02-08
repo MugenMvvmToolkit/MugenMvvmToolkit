@@ -137,9 +137,8 @@ namespace MugenMvvmToolkit.Android
             {
                 try
                 {
-                    if (Interlocked.Increment(ref _gcCount) < GCInterval)
-                        return;
-                    ThreadPool.QueueUserWorkItem(state => Collect(true));
+                    if (Interlocked.Increment(ref _gcCount) >= GCInterval)
+                        ThreadPool.QueueUserWorkItem(state => Collect(true));
                 }
                 catch (Exception e)
                 {
@@ -162,30 +161,19 @@ namespace MugenMvvmToolkit.Android
                 lock (WeakReferencesHolder)
                 {
                     oldCount = WeakReferencesHolder.Count;
+                    for (int i = 0; i < WeakReferencesHolder.Count; i++)
+                    {
+                        if (((WeakReference)WeakReferencesHolder[i]).Target == null)
+                        {
+                            WeakReferencesHolder.RemoveAt(i);
+                            --i;
+                        }
+                    }
                     if (fullCleanup)
                     {
-                        for (int i = 0; i < WeakReferencesHolder.Count; i++)
-                        {
-                            if (GetTarget((WeakReference)WeakReferencesHolder[i]) == null)
-                            {
-                                WeakReferencesHolder.RemoveAt(i);
-                                --i;
-                            }
-                        }
                         int capacity = (int)(WeakReferencesHolder.Count * 1.25);
                         if (WeakReferencesHolder.Capacity > capacity)
                             WeakReferencesHolder.Capacity = capacity;
-                    }
-                    else
-                    {
-                        for (int i = 0; i < WeakReferencesHolder.Count; i++)
-                        {
-                            if (((WeakReference)WeakReferencesHolder[i]).Target == null)
-                            {
-                                WeakReferencesHolder.RemoveAt(i);
-                                --i;
-                            }
-                        }
                     }
                 }
                 if (Tracer.TraceInformation)
@@ -193,33 +181,6 @@ namespace MugenMvvmToolkit.Android
                     var count = WeakReferencesHolder.Count;
                     Tracer.Info("Collected " + (oldCount - count) + " weak references, total " + count);
                 }
-            }
-
-            private static object GetTarget(WeakReference reference)
-            {
-                var target = reference.Target;
-                if (AggressiveViewCleanup && target != null)
-                {
-                    try
-                    {
-                        var view = target as View;
-                        if (view != null)
-                        {
-                            var activityView = view.Context.GetActivity() as IActivityView;
-                            if (activityView != null && activityView.Mediator.IsDestroyed)
-                            {
-                                reference.Target = null;
-                                view.ClearBindings(false, true);
-                                return null;
-                            }
-                        }
-                    }
-                    catch
-                    {
-                        ;
-                    }
-                }
-                return target;
             }
 
             #endregion
@@ -316,7 +277,6 @@ namespace MugenMvvmToolkit.Android
             WeakReferencesHolder = new List<object>(1000);
             CurrentActivityLocker = new object();
             _mvvmFragmentMediatorFactory = MvvmFragmentMediatorFactoryMethod;
-            AggressiveViewCleanup = true;
             EnableFastTextViewTextProperty = true;
 
             // ReSharper disable once ObjectCreationAsStatement
@@ -411,8 +371,6 @@ namespace MugenMvvmToolkit.Android
         }
 
         public static Activity CurrentActivity => (Activity)_activityRef.Target;
-
-        public static bool TryDisposeView { get; set; }
 
         public static bool AggressiveViewCleanup { get; set; }
 

@@ -353,9 +353,9 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             if (_view != null)
             {
                 _view.RemoveFromParent();
-                _view.ClearBindingsRecursively(true, true, PlatformExtensions.TryDisposeView);
+                _view.ClearBindingsRecursively(true, true, PlatformExtensions.AggressiveViewCleanup);
                 _view = null;
-                ThreadPool.QueueUserWorkItem(state => PlatformExtensions.CleanupWeakReferences(false));
+                PlatformExtensions.CleanupWeakReferences(false);
             }
         }
 
