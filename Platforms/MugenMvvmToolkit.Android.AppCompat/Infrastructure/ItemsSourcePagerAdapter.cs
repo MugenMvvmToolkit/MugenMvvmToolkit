@@ -156,10 +156,11 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
                 if (i != int.MinValue)
                     _viewPager.CurrentItem = i;
             }
-            activityView.Mediator.SaveInstanceState += ActivityViewOnSaveInstanceState;
+            var stateListener = ReflectionExtensions.CreateWeakEventHandler<ItemsSourcePagerAdapter, ValueEventArgs<Bundle>>(this, (adapter, o, arg3) => adapter.ActivityViewOnSaveInstanceState(arg3));
+            activityView.Mediator.SaveInstanceState += stateListener.Handle;
         }
 
-        private void ActivityViewOnSaveInstanceState(Activity sender, ValueEventArgs<Bundle> args)
+        private void ActivityViewOnSaveInstanceState(ValueEventArgs<Bundle> args)
         {
             var index = _viewPager.CurrentItem;
             if (index > 0)

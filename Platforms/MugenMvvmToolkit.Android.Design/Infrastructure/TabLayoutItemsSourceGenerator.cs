@@ -17,7 +17,6 @@
 #endregion
 
 using System.Collections;
-using Android.App;
 using Android.OS;
 using Android.Support.Design.Widget;
 using MugenMvvmToolkit.Android.Binding;
@@ -191,10 +190,11 @@ namespace MugenMvvmToolkit.Android.Design.Infrastructure
                         _tabLayout.GetTabAt(i).Select();
                 }
             }
-            activityView.Mediator.SaveInstanceState += ActivityViewOnSaveInstanceState;
+            var stateListener = ReflectionExtensions.CreateWeakEventHandler<TabLayoutItemsSourceGenerator, ValueEventArgs<Bundle>>(this, (generator, o, arg3) => generator.ActivityViewOnSaveInstanceState(arg3));
+            activityView.Mediator.SaveInstanceState += stateListener.Handle;
         }
 
-        private void ActivityViewOnSaveInstanceState(Activity sender, ValueEventArgs<Bundle> args)
+        private void ActivityViewOnSaveInstanceState(ValueEventArgs<Bundle> args)
         {
             var index = _tabLayout.SelectedTabPosition;
             if (index > 0)

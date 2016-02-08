@@ -463,10 +463,11 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                 if (i != int.MinValue)
                     TabHost.CurrentTab = i;
             }
-            activityView.Mediator.SaveInstanceState += ActivityViewOnSaveInstanceState;
+            var stateListener = ReflectionExtensions.CreateWeakEventHandler<TabHostItemsSourceGenerator, ValueEventArgs<Bundle>>(this, (generator, o, arg3) => generator.ActivityViewOnSaveInstanceState(arg3));
+            activityView.Mediator.SaveInstanceState += stateListener.Handle;
         }
 
-        private void ActivityViewOnSaveInstanceState(Activity sender, ValueEventArgs<Bundle> args)
+        private void ActivityViewOnSaveInstanceState(ValueEventArgs<Bundle> args)
         {
             var index = TabHost.CurrentTab;
             if (index > 0)
