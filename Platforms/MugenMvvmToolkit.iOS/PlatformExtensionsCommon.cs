@@ -155,7 +155,7 @@ namespace MugenMvvmToolkit.iOS
 
         internal static bool TryDispose(object item)
         {
-            var member = BindingServiceProvider.MemberProvider.GetBindingMember(item.GetType(), "Dispose", false, false);
+            var member = BindingServiceProvider.MemberProvider.GetBindingMember(item.GetType(), nameof(IDisposable.Dispose), false, false);
             if (member == null)
                 return false;
             member.GetValue(item, Empty.Array<object>());
