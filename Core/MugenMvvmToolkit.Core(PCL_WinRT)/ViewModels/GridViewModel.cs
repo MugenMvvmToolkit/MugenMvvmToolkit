@@ -52,7 +52,7 @@ namespace MugenMvvmToolkit.ViewModels
         public GridViewModel()
         {
             SetOriginalItemsSource(new SynchronizedNotifiableCollection<T>());
-            UpdateSelectedStateOnChange = false;
+            EnableSelectableInterface = ApplicationSettings.GridViewModelEnableSelectableInterface;
         }
 
         #endregion
@@ -61,7 +61,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         protected FilterableNotifiableCollection<T> FilterableItemsSource => _filterableItemsSource;
 
-        public bool UpdateSelectedStateOnChange { get; set; }
+        public bool EnableSelectableInterface { get; set; }
 
         #endregion
 
@@ -124,7 +124,7 @@ namespace MugenMvvmToolkit.ViewModels
                         _selectedItem = null;
                 }
 
-                if (UpdateSelectedStateOnChange)
+                if (EnableSelectableInterface)
                 {
                     var selectable = oldValue as ISelectable;
                     if (selectable != null)

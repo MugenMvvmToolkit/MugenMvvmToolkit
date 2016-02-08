@@ -471,12 +471,8 @@ namespace MugenMvvmToolkit.ViewModels
                     ReflectionExtensions.DisposeCommands(this);
                 OnDisposeInternal(true);
                 OnDispose(true);
-                var handler = Disposed;
-                if (handler != null)
-                {
-                    handler(this, EventArgs.Empty);
-                    Disposed = null;
-                }
+                Disposed?.Invoke(this, EventArgs.Empty);
+                Disposed = null;
                 DisposeInternal();
             }
             finally
