@@ -317,7 +317,6 @@ namespace MugenMvvmToolkit.Android
             CurrentActivityLocker = new object();
             _mvvmFragmentMediatorFactory = MvvmFragmentMediatorFactoryMethod;
             AggressiveViewCleanup = true;
-            TryDisposeView = true;
             EnableFastTextViewTextProperty = true;
 
             // ReSharper disable once ObjectCreationAsStatement
