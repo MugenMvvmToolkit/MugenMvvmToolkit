@@ -1045,11 +1045,11 @@ namespace MugenMvvmToolkit
         }
 
         [CanBeNull]
-        public static ISubscriber Subscribe<TMessage>([NotNull] this IObservable observable, Action<object, TMessage> action, bool weakSubscribtion = true)
+        public static ISubscriber Subscribe<TMessage>([NotNull] this IObservable observable, Action<object, TMessage> action, bool weakSubscription = true)
         {
             Should.NotBeNull(observable, nameof(observable));
             ISubscriber subscriber;
-            if (weakSubscribtion && action.Target != null)
+            if (weakSubscription && action.Target != null)
             {
                 Should.BeSupported(!action.Target.GetType().IsAnonymousClass(),
                     "The anonymous delegate cannot be converted to weak delegate.");
