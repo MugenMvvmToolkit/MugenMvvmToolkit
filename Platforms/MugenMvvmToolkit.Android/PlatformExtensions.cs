@@ -22,7 +22,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
 using System.Threading;
 using System.Xml.Linq;
 using Android.App;
@@ -49,6 +48,7 @@ using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
+using BindingFlags = System.Reflection.BindingFlags;
 using WeakReference = System.WeakReference;
 
 namespace MugenMvvmToolkit.Android
@@ -139,7 +139,7 @@ namespace MugenMvvmToolkit.Android
                 {
                     if (Interlocked.Increment(ref _gcCount) < GCInterval)
                         return;
-                    ThreadPool.QueueUserWorkItem(state => Collect());
+                    ThreadPool.QueueUserWorkItem(state => Collect(true));
                 }
                 catch (Exception e)
                 {
@@ -155,24 +155,44 @@ namespace MugenMvvmToolkit.Android
 
             #region Methods
 
-            public static void Collect()
+            public static void Collect(bool fullCleanup)
             {
                 Interlocked.Exchange(ref _gcCount, 0);
-                int collected = 0;
-                int total = 0;
-                WeakReference value;
-                foreach (var keyPair in WeakReferences)
+                int oldCount;
+                lock (WeakReferencesHolder)
                 {
-                    if (GetTarget(keyPair.Value) == null)
+                    oldCount = WeakReferencesHolder.Count;
+                    if (fullCleanup)
                     {
-                        WeakReferences.TryRemove(keyPair.Key, out value);
-                        ++collected;
+                        for (int i = 0; i < WeakReferencesHolder.Count; i++)
+                        {
+                            if (GetTarget((WeakReference)WeakReferencesHolder[i]) == null)
+                            {
+                                WeakReferencesHolder.RemoveAt(i);
+                                --i;
+                            }
+                        }
+                        int capacity = (int)(WeakReferencesHolder.Count * 1.25);
+                        if (WeakReferencesHolder.Capacity > capacity)
+                            WeakReferencesHolder.Capacity = capacity;
                     }
                     else
-                        ++total;
+                    {
+                        for (int i = 0; i < WeakReferencesHolder.Count; i++)
+                        {
+                            if (((WeakReference)WeakReferencesHolder[i]).Target == null)
+                            {
+                                WeakReferencesHolder.RemoveAt(i);
+                                --i;
+                            }
+                        }
+                    }
                 }
                 if (Tracer.TraceInformation)
-                    Tracer.Info("Collected " + collected + " weak references, total " + total);
+                {
+                    var count = WeakReferencesHolder.Count;
+                    Tracer.Info("Collected " + (oldCount - count) + " weak references, total " + count);
+                }
             }
 
             private static object GetTarget(WeakReference reference)
@@ -205,36 +225,21 @@ namespace MugenMvvmToolkit.Android
             #endregion
         }
 
-        private sealed class WeakReferenceKeyEqualityComparer : IEqualityComparer<object>
+        private sealed class WeakReferenceKeyComparer : IComparer<object>
         {
-            #region Methods
+            public static readonly WeakReferenceKeyComparer Instance = new WeakReferenceKeyComparer();
 
-            private static object GetItem(object obj)
-            {
-                var reference = obj as WeakReference;
-                if (reference == null)
-                    return obj;
-                return reference.Target;
-            }
-
-            #endregion
-
-            #region Implementation of IEqualityComparer<object>
-
-            bool IEqualityComparer<object>.Equals(object x, object y)
-            {
-                return ReferenceEquals(x, y) || ReferenceEquals(GetItem(x), GetItem(y));
-            }
-
-            int IEqualityComparer<object>.GetHashCode(object obj)
+            private static int GetHashCode(object obj)
             {
                 if (obj is WeakReference)
                     return obj.GetHashCode();
                 return RuntimeHelpers.GetHashCode(obj);
             }
 
-            #endregion
-
+            public int Compare(object x, object y)
+            {
+                return GetHashCode(x).CompareTo(GetHashCode(y));
+            }
         }
 
         #endregion
@@ -250,14 +255,16 @@ namespace MugenMvvmToolkit.Android
         internal static readonly bool IsApiGreaterThanOrEqualTo19;
         internal static readonly bool IsApiGreaterThanOrEqualTo21;
         //NOTE ConditionalWeakTable invokes finalizer for value, even if the key object is still alive https://bugzilla.xamarin.com/show_bug.cgi?id=21620
-        public static readonly ConcurrentDictionary<object, WeakReference> WeakReferences;
+        private static readonly List<object> WeakReferencesHolder;
 
         private static readonly ContentViewManager ContentViewManagerField;
         private static readonly object CurrentActivityLocker;
+        private static readonly ConcurrentDictionary<Type, bool> ObjectToDefaultJavaConstructor;
         private static readonly ConcurrentDictionary<Type, Func<object[], object>> ViewToContextConstructor;
         private static readonly ConcurrentDictionary<Type, Func<object[], object>> ViewToContextWithAttrsConstructor;
         private static readonly Type[] ViewContextArgs;
         private static readonly Type[] ViewContextWithAttrsArgs;
+        private static readonly Type[] DefaultJavaConstructorArgs;
 
         private static Func<Activity, IDataContext, IMvvmActivityMediator> _mvvmActivityMediatorFactory;
         private static Func<Context, IDataContext, BindableMenuInflater> _menuInflaterFactory;
@@ -300,11 +307,13 @@ namespace MugenMvvmToolkit.Android
             _isFragment = o => false;
             _isActionBar = _isFragment;
             _activityRef = Empty.WeakReference;
-            WeakReferences = new ConcurrentDictionary<object, WeakReference>(3, Empty.Array<KeyValuePair<object, WeakReference>>(), new WeakReferenceKeyEqualityComparer());
             ViewToContextConstructor = new ConcurrentDictionary<Type, Func<object[], object>>();
             ViewToContextWithAttrsConstructor = new ConcurrentDictionary<Type, Func<object[], object>>();
+            ObjectToDefaultJavaConstructor = new ConcurrentDictionary<Type, bool>();
             ViewContextArgs = new[] { typeof(Context) };
             ViewContextWithAttrsArgs = new[] { typeof(Context), typeof(IAttributeSet) };
+            DefaultJavaConstructorArgs = new[] { typeof(IntPtr), typeof(JniHandleOwnership) };
+            WeakReferencesHolder = new List<object>(1000);
             CurrentActivityLocker = new object();
             _mvvmFragmentMediatorFactory = MvvmFragmentMediatorFactoryMethod;
             AggressiveViewCleanup = true;
@@ -467,7 +476,7 @@ namespace MugenMvvmToolkit.Android
             return activity.LayoutInflater.ToBindableLayoutInflater(context);
         }
 
-        public static void ClearBindingsRecursively([CanBeNull]this View view, bool clearDataContext, bool clearAttachedValues)
+        public static void ClearBindingsRecursively([CanBeNull]this View view, bool clearDataContext, bool clearAttachedValues, bool tryDispose)
         {
             if (view == null)
                 return;
@@ -475,9 +484,11 @@ namespace MugenMvvmToolkit.Android
             if (viewGroup.IsAlive())
             {
                 for (int i = 0; i < viewGroup.ChildCount; i++)
-                    viewGroup.GetChildAt(i).ClearBindingsRecursively(clearDataContext, clearAttachedValues);
+                    viewGroup.GetChildAt(i).ClearBindingsRecursively(clearDataContext, clearAttachedValues, tryDispose);
             }
             view.ClearBindings(clearDataContext, clearAttachedValues);
+            if (tryDispose)
+                view.TryDispose();
         }
 
         public static void NotifyActivityAttached([CanBeNull] Activity activity, [CanBeNull] View view)
@@ -560,9 +571,9 @@ namespace MugenMvvmToolkit.Android
                 CurrentActivityChanged?.Invoke(activity, EventArgs.Empty);
         }
 
-        public static void CleanupWeakReferences()
+        public static void CleanupWeakReferences(bool fullCleanup)
         {
-            WeakReferenceCollector.Collect();
+            WeakReferenceCollector.Collect(fullCleanup);
         }
 
         internal static void RemoveFromParent([CanBeNull] this View view)
@@ -599,13 +610,54 @@ namespace MugenMvvmToolkit.Android
             var hasWeakReference = item as IHasWeakReference;
             if (hasWeakReference != null && !(item is IHasWeakReferenceInternal))
                 return CreateWeakReference(item, obj, false);
-            WeakReference value;
-            if (!WeakReferences.TryGetValue(item, out value))
+
+            lock (WeakReferencesHolder)
             {
+                WeakReference value;
+                var index = WeakReferencesHolder.BinarySearch(item, WeakReferenceKeyComparer.Instance);
+                if (index < 0)
+                {
+                    value = CreateWeakReference(item, obj, true);
+                    WeakReferencesHolder.Insert(~index, value);
+                    return value;
+                }
+
+                value = (WeakReference)WeakReferencesHolder[index];
+                if (ReferenceEquals(value.Target, item))
+                    return value;
+
+                int leftIndex = index - 1;
+                int rightIndex = index + 1;
+                while (true)
+                {
+                    if (rightIndex < WeakReferencesHolder.Count)
+                    {
+                        value = (WeakReference)WeakReferencesHolder[rightIndex];
+                        if (WeakReferenceKeyComparer.Instance.Compare(item, value) != 0)
+                            rightIndex = int.MaxValue;
+                        else if (ReferenceEquals(value.Target, item))
+                            return value;
+                        else
+                            ++rightIndex;
+                    }
+                    if (leftIndex >= 0)
+                    {
+                        value = (WeakReference)WeakReferencesHolder[leftIndex];
+                        if (WeakReferenceKeyComparer.Instance.Compare(item, value) != 0)
+                            leftIndex = int.MinValue;
+                        else if (ReferenceEquals(value.Target, item))
+                            return value;
+                        else
+                            --leftIndex;
+                    }
+                    if (leftIndex == Int32.MinValue && rightIndex == Int32.MaxValue)
+                        break;
+                }
+
                 value = CreateWeakReference(item, obj, true);
-                WeakReferences[value] = value;
+                WeakReferencesHolder.Insert(index, value);
+                return value;
             }
-            return value;
         }
 
         internal static object GetOrCreateView(IViewModel vm, bool? alwaysCreateNewView, IDataContext dataContext = null)
@@ -765,6 +817,26 @@ namespace MugenMvvmToolkit.Android
             if (isWeakTable)
                 return new JavaObjectWeakReferenceWeakTable(javaItem);
             return new JavaObjectWeakReference(javaItem);
+        }
+
+        private static void TryDispose(this IJavaObject javaObject)
+        {
+            if (!javaObject.IsAlive())
+                return;
+            var hasDefaultConstructor = ObjectToDefaultJavaConstructor
+                .GetOrAdd(javaObject.GetType(), type =>
+                {
+                    var constructor = type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, DefaultJavaConstructorArgs, null);
+                    if (constructor == null)
+                    {
+                        if (Tracer.TraceWarning)
+                            Tracer.Warn($"The type {type} cannot be disposed");
+                        return false;
+                    }
+                    return true;
+                });
+            if (hasDefaultConstructor)
+                javaObject.Dispose();
         }
 
         #endregion

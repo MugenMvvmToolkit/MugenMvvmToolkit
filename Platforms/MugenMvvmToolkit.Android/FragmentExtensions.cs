@@ -72,9 +72,6 @@ namespace MugenMvvmToolkit.Android
             }
         }
 
-#if !APPCOMPAT
-        public static bool CacheFragmentViewDefault { get; set; }
-#endif
         #endregion
 
         #region Methods

@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading;
 using Android.App;
 using Android.Content;
 using Android.OS;
@@ -105,7 +106,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         public MvvmFragmentMediator([NotNull] Fragment target)
             : base(target)
         {
-            CacheFragmentView = PlatformExtensions.CacheFragmentViewDefault;
         }
 
         #endregion
@@ -113,8 +113,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         #region Implementation of IMvvmFragmentMediator
 
         Fragment IMvvmFragmentMediator.Fragment => Target;
-
-        public bool CacheFragmentView { get; set; }
 
         public virtual void OnAttach(Activity activity, Action<Activity> baseOnAttach)
         {
@@ -139,12 +137,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         {
             if (_removed)
                 return null;
-            if (CacheFragmentView && _view != null)
-            {
-                _view.RemoveFromParent();
-                return _view;
-            }
-            _view.ClearBindingsRecursively(true, true);
+            ClearView();
             if (viewId.HasValue)
             {
                 _view = inflater.ToBindableLayoutInflater().Inflate(viewId.Value, container, false);
@@ -213,11 +206,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         public virtual void OnDestroyView(Action baseOnDestroyView)
         {
             baseOnDestroyView();
-            if (!CacheFragmentView)
-            {
-                _view.ClearBindingsRecursively(true, true);
-                _view = null;
-            }
+            ClearView();
         }
 
         protected override PreferenceManager PreferenceManager
@@ -240,10 +229,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             if (Tracer.TraceInformation)
                 Tracer.Info("OnDestroy fragment({0})", Target);
             RaiseDestroy();
-
-            _view.RemoveFromParent();
-            _view.ClearBindingsRecursively(true, true);
-            _view = null;
+            ClearView();
 
             var dialogFragment = Target as DialogFragment;
             if (dialogFragment != null)
@@ -271,7 +257,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 baseOnSaveInstanceState(outState);
             else
 #endif
-                base.OnSaveInstanceState(outState, baseOnSaveInstanceState);
+            base.OnSaveInstanceState(outState, baseOnSaveInstanceState);
         }
 
         public virtual void OnDetach(Action baseOnDetach)
@@ -361,6 +347,17 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         #endregion
 
         #region Methods
+
+        private void ClearView()
+        {
+            if (_view != null)
+            {
+                _view.RemoveFromParent();
+                _view.ClearBindingsRecursively(true, true, PlatformExtensions.AggressiveViewCleanup);
+                _view = null;
+                ThreadPool.QueueUserWorkItem(state => PlatformExtensions.CleanupWeakReferences(false));
+            }
+        }
 
         private void RaiseDestroy()
         {

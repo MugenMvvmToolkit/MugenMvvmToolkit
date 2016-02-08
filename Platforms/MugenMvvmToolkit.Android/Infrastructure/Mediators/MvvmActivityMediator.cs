@@ -201,8 +201,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             ServiceProvider.EventAggregator.Unsubscribe(this);
             Destroyed?.Invoke(Target, EventArgs.Empty);
             _view.RemoveFromParent();
-            _view.ClearBindingsRecursively(true, true);
-            ThreadPool.QueueUserWorkItem(state => PlatformExtensions.CleanupWeakReferences());
+            _view.ClearBindingsRecursively(true, true, PlatformExtensions.AggressiveViewCleanup);
+            ThreadPool.QueueUserWorkItem(state => PlatformExtensions.CleanupWeakReferences(true));
             _view = null;
 
             if (_metadata != null)
@@ -228,6 +228,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             PlatformExtensions.SetCurrentActivity(Target, true);
             Target.ClearBindings(false, true);
             OptionsItemSelected = null;
+            ActivityResult = null;
             ConfigurationChanged = null;
             PostCreate = null;
             BackPressing = null;
@@ -353,7 +354,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             return optionsItemSelected(item) || baseOnOptionsItemSelected(item);
         }
 
-        public void OnActivityResult(Action<int, Result, Intent> baseOnActivityResult, int requestCode, Result resultCode, Intent data)
+        public virtual void OnActivityResult(Action<int, Result, Intent> baseOnActivityResult, int requestCode, Result resultCode, Intent data)
         {
             baseOnActivityResult(requestCode, resultCode, data);
             ActivityResult?.Invoke(Target, new ActivityResultEventArgs(requestCode, resultCode, data));
@@ -416,7 +417,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         public virtual event EventHandler<Activity, EventArgs> Resume;
 
         public virtual event EventHandler<Activity, EventArgs> Destroyed;
-        public event EventHandler<Activity, ActivityResultEventArgs> ActivityResult;
+
+        public virtual event EventHandler<Activity, ActivityResultEventArgs> ActivityResult;
 
         #endregion
     }
