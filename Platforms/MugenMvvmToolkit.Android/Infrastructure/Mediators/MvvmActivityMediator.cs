@@ -201,7 +201,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             ServiceProvider.EventAggregator.Unsubscribe(this);
             Destroyed?.Invoke(Target, EventArgs.Empty);
             _view.RemoveFromParent();
-            _view.ClearBindingsRecursively(true, true, PlatformExtensions.AggressiveViewCleanup);
+            _view.ClearBindingsRecursively(true, true, PlatformExtensions.TryDisposeView);
             ThreadPool.QueueUserWorkItem(state => PlatformExtensions.CleanupWeakReferences(true));
             _view = null;
 

@@ -153,7 +153,7 @@ namespace MugenMvvmToolkit.Android.Views
             for (int i = 0; i < _bindings.Count; i++)
                 BindingServiceProvider.BindingProvider.CreateBindingsFromString(actionBar, _bindings[i], null);
             this.RemoveFromParent();
-            this.ClearBindingsRecursively(true, true, PlatformExtensions.AggressiveViewCleanup);
+            this.ClearBindingsRecursively(true, true, PlatformExtensions.TryDisposeView);
         }
 
         public IList<IDataBinding> SetBindings(IList<string> bindings)
