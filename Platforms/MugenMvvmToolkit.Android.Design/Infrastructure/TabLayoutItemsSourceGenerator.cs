@@ -177,6 +177,8 @@ namespace MugenMvvmToolkit.Android.Design.Infrastructure
 
         private void TryRestoreSelectedIndex()
         {
+            if (!_tabLayout.IsAlive())
+                return;
             var activityView = _tabLayout.Context as IActivityView;
             if (activityView == null)
                 return;
@@ -196,6 +198,8 @@ namespace MugenMvvmToolkit.Android.Design.Infrastructure
 
         private void ActivityViewOnSaveInstanceState(ValueEventArgs<Bundle> args)
         {
+            if (!_tabLayout.IsAlive())
+                return;
             var index = _tabLayout.SelectedTabPosition;
             if (index > 0)
                 args.Value.PutInt(SelectedIndexKey, index);

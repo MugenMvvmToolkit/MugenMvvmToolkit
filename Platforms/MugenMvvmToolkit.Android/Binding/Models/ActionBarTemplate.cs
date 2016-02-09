@@ -248,10 +248,11 @@ namespace MugenMvvmToolkit.Android.Binding.Models
         private static void ActivityViewOnSaveInstanceState(Activity sender, ValueEventArgs<Bundle> args)
         {
             var actionBar = sender.GetActionBar();
-            if (actionBar == null)
-                return;
-            var index = actionBar.SelectedNavigationIndex;
-            args.Value.PutInt(SelectedTabIndexKey, index);
+            if (actionBar.IsAlive())
+            {
+                var index = actionBar.SelectedNavigationIndex;
+                args.Value.PutInt(SelectedTabIndexKey, index);
+            }
         }
 
         #endregion

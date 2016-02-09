@@ -90,6 +90,11 @@ namespace MugenMvvmToolkit.Silverlight.Binding.Infrastructure
         {
             if (ReferenceEquals(itemsSource, ItemsSource))
                 return;
+            if (IsTargetDisposed)
+            {
+                OnTargetDisposed(null, EventArgs.Empty);
+                return;
+            }
             var collectionChanged = ItemsSource as INotifyCollectionChanged;
             if (collectionChanged != null)
                 collectionChanged.CollectionChanged -= _handler;

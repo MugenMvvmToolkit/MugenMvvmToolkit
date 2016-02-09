@@ -113,7 +113,7 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
 
         protected virtual void SetItemsSource(IEnumerable value, bool notifyDataSet)
         {
-            if (ReferenceEquals(value, _itemsSource))
+            if (ReferenceEquals(value, _itemsSource) || !_viewPager.IsAlive())
                 return;
             if (_weakHandler == null)
                 _itemsSource = value;
@@ -146,6 +146,8 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
 
         private void TryRestoreSelectedIndex()
         {
+            if (!_viewPager.IsAlive())
+                return;
             var activityView = _viewPager.Context as IActivityView;
             if (activityView == null)
                 return;
@@ -162,6 +164,8 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
 
         private void ActivityViewOnSaveInstanceState(ValueEventArgs<Bundle> args)
         {
+            if (!_viewPager.IsAlive())
+                return;
             var index = _viewPager.CurrentItem;
             if (index > 0)
                 args.Value.PutInt(ContentPath, index);
