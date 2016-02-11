@@ -508,7 +508,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
         private static void AdapterViewSelectedItemPositionChanged(AdapterView sender, AttachedMemberChangedEventArgs<int> args)
         {
-            if (sender.GetBindingMemberValue(AttachedMembers.AdapterView.ScrollToSelectedItem).GetValueOrDefault(true))
+            if (sender.GetBindingMemberValue(AttachedMembers.AdapterView.ScrollToSelectedItem).GetValueOrDefault(true) || sender is Spinner)
                 sender.SetSelection(args.NewValue);
             var adapter = GetAdapter(sender) as IItemsSourceAdapter;
             if (adapter != null)
