@@ -131,7 +131,6 @@
     <Compile Include="Interfaces\Views\IWindowView.cs" />
     <Compile Include="InternalExtensions.cs" />
     <Compile Include="InternalExtensionsFragment.cs" />
-    <Compile Include="LinkerIncludeLabmdaExpression.cs" />
     <Compile Include="Binding\Modules\PlatformDataBindingModule.cs" />
     <Compile Include="Binding\Modules\PlatformDataBindingModuleMenu.cs" />
     <Compile Include="Binding\Modules\PlatformDataBindingModuleView.cs" />

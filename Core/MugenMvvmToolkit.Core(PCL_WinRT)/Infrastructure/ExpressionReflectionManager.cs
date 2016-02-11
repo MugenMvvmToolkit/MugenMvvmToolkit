@@ -140,8 +140,6 @@ namespace MugenMvvmToolkit.Infrastructure
         private static readonly Dictionary<MemberInfoDelegateCacheKey, Delegate> MemberAccessCache;
         private static readonly Dictionary<MemberInfoDelegateCacheKey, Delegate> MemberSetterCache;
         private static readonly Dictionary<MethodDelegateCacheKey, Delegate> InvokeMethodCacheDelegate;
-        private static Func<Type, Expression, IEnumerable<ParameterExpression>, LambdaExpression> _createLambdaExpressionByType;
-        private static Func<Expression, ParameterExpression[], LambdaExpression> _createLambdaExpression;
         private static readonly ParameterExpression EmptyParameterExpression;
         private static readonly ConstantExpression NullConstantExpression;
 
@@ -151,8 +149,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         static ExpressionReflectionManager()
         {
-            _createLambdaExpression = Expression.Lambda;
-            _createLambdaExpressionByType = Expression.Lambda;
             CachedDelegates = new Dictionary<MethodDelegateCacheKey, MethodInfo>(MemberCacheKeyComparer.Instance);
             ActivatorCache = new Dictionary<ConstructorInfo, Func<object[], object>>();
             InvokeMethodCache = new Dictionary<MethodInfo, Func<object, object[], object>>();
@@ -161,30 +157,6 @@ namespace MugenMvvmToolkit.Infrastructure
             InvokeMethodCacheDelegate = new Dictionary<MethodDelegateCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
             EmptyParameterExpression = Expression.Parameter(typeof(object));
             NullConstantExpression = Expression.Constant(null, typeof(object));
-        }
-
-        #endregion
-
-        #region Properties
-
-        public static Func<Type, Expression, IEnumerable<ParameterExpression>, LambdaExpression> CreateLambdaExpressionByType
-        {
-            get { return _createLambdaExpressionByType; }
-            set
-            {
-                Should.PropertyNotBeNull(value);
-                _createLambdaExpressionByType = value;
-            }
-        }
-
-        public static Func<Expression, ParameterExpression[], LambdaExpression> CreateLambdaExpression
-        {
-            get { return _createLambdaExpression; }
-            set
-            {
-                Should.PropertyNotBeNull(value);
-                _createLambdaExpression = value;
-            }
         }
 
         #endregion
@@ -296,7 +268,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
                     if (delegateMethod.ReturnType != typeof(void))
                         callExpression = ConvertIfNeed(callExpression, delegateMethod.ReturnType, false);
-                    var lambdaExpression = CreateLambdaExpressionByType(delegateType, callExpression, parameters);
+                    var lambdaExpression = Expression.Lambda(delegateType, callExpression, parameters);
                     value = lambdaExpression.Compile();
                     InvokeMethodCacheDelegate[cacheKey] = value;
                 }

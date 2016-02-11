@@ -87,7 +87,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
         static AndroidBootstrapperBase()
         {
-            LinkerInclude.Initialize();
             ViewManager.AlwaysCreateNewView = true;
             ReflectionExtensions.GetTypesDefault = assembly => assembly.GetTypes();
             ServiceProvider.WeakReferenceFactory = PlatformExtensions.CreateWeakReference;

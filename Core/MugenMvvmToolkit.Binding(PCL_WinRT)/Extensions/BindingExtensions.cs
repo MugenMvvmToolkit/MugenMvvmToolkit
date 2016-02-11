@@ -915,8 +915,7 @@ namespace MugenMvvmToolkit.Binding
                 object v;
                 var exp = expression as ConstantExpression;
                 if (exp == null)
-                    v = ExpressionReflectionManager
-                        .CreateLambdaExpression(expression, Empty.Array<ParameterExpression>())
+                    v = Expression.Lambda(expression, Empty.Array<ParameterExpression>())
                         .Compile()
                         .DynamicInvoke(Empty.Array<object>());
                 else

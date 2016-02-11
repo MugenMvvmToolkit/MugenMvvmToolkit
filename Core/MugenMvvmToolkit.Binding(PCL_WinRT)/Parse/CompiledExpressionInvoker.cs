@@ -405,9 +405,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         protected virtual Func<object[], object> CreateDelegate()
         {
             var expression = BuildExpression(_node);
-            var @delegate = ExpressionReflectionManager
-                .CreateLambdaExpression(expression, Parameters.OrderBy(pair => pair.Key).Select(pair => pair.Value).ToArray())
-                .Compile();
+            var @delegate = Expression.Lambda(expression, Parameters.OrderBy(pair => pair.Key).Select(pair => pair.Value).ToArray()).Compile();
             var methodInfo = @delegate.GetType().GetMethodEx(nameof(Action.Invoke), MemberFlags.Public | MemberFlags.Instance);
             if (methodInfo == null)
                 return @delegate.DynamicInvoke;
@@ -554,7 +552,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 }
 
                 var expression = BuildExpression(lambdaExpression.Expression);
-                return ExpressionReflectionManager.CreateLambdaExpression(expression, lambdaParameters);
+                return Expression.Lambda(expression, lambdaParameters);
             }
             finally
             {

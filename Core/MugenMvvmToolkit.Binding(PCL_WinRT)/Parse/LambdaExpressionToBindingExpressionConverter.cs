@@ -313,9 +313,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             parameters[0] = ContextExpression;
             for (int i = 0; i < _members.Count; i++)
                 parameters[i + 1] = _members[i].Key;
-            var @delegate = ExpressionReflectionManager
-                .CreateLambdaExpression(multiExpression, parameters)
-                .Compile();
+            var @delegate = Expression.Lambda(multiExpression, parameters).Compile();
             Func<object[], object> exp;
             var methodInfo = @delegate.GetType().GetMethodEx(nameof(Action.Invoke), MemberFlags.Public | MemberFlags.Instance);
             if (methodInfo == null)

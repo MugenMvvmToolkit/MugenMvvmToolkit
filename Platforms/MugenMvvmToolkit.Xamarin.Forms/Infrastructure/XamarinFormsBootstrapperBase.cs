@@ -71,8 +71,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         static XamarinFormsBootstrapperBase()
         {
             MvvmApplication.SetDefaultDesignTimeManager();
-            if (Device.OS != TargetPlatform.WinPhone)
-                LinkerInclude.Initialize();
             DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
             DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
             ViewManager.ViewCleared += OnViewCleared;
