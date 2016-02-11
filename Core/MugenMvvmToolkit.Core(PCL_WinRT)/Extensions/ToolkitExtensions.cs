@@ -1234,22 +1234,6 @@ namespace MugenMvvmToolkit
             return toastPresenter.ShowAsync(content, floatDuration, position, context);
         }
 
-        public static IList<IModule> LoadModules([NotNull] this IModuleContext context, [NotNull] IEnumerable<IModule> modules)
-        {
-            Should.NotBeNull(context, nameof(context));
-            Should.NotBeNull(modules, nameof(modules));
-            var list = new List<IModule>();
-            foreach (var module in modules.OrderByDescending(module => module.Priority))
-            {
-                if (module.Load(context))
-                {
-                    list.Add(module);
-                    module.TraceModule(true);
-                }
-            }
-            return list;
-        }
-
         public static IDictionary<object, object> ToDictionary([CanBeNull] this IDataContext context)
         {
             if (context == null)

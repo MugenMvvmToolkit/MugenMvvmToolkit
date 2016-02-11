@@ -89,7 +89,6 @@ namespace MugenMvvmToolkit.Binding
             };
             BindingPathCache = new Dictionary<string, IBindingPath>(StringComparer.Ordinal);
             SetDefaultValues();
-            MvvmApplication.InitializeDesignTimeManager();
             ViewManager.GetDataContext = BindingExtensions.DataContext;
             ViewManager.SetDataContext = BindingExtensions.SetDataContext;
             BindingExceptionHandler = BindingExceptionHandlerImpl;

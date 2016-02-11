@@ -101,11 +101,16 @@ namespace MugenMvvmToolkit
 
         protected virtual void LoadModules(IList<Assembly> assemblies)
         {
-            var loadedModules = GetModules(assemblies);
-            if (loadedModules != null && loadedModules.Count != 0)
+            var modules = GetModules(assemblies);
+            if (modules != null && modules.Count != 0)
             {
                 var context = CreateModuleContext(assemblies);
-                context.LoadModules(loadedModules);
+                for (int index = 0; index < modules.Count; index++)
+                {
+                    var module = modules[index];
+                    if (module.Load(context))
+                        module.TraceModule(true);
+                }
             }
         }
 
