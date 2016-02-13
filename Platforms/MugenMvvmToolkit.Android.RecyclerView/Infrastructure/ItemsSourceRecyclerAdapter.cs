@@ -147,13 +147,13 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
 
         protected virtual void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
         {
-            if (!_recyclerView.IsAlive())
+            if (_recyclerView.IsAlive() && this.IsAlive())
             {
-                SetItemsSource(null, false);
-                return;
+                if (!TryUpdateItems(args))
+                    NotifyDataSetChanged();
             }
-            if (!TryUpdateItems(args))
-                NotifyDataSetChanged();
+            else
+                SetItemsSource(null, false);
         }
 
         protected bool TryUpdateItems(NotifyCollectionChangedEventArgs args)

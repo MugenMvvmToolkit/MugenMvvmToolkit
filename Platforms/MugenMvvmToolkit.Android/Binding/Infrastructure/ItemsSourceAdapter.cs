@@ -263,7 +263,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         protected virtual void SetItemsSource(IEnumerable value, bool notifyDataSet)
         {
-            if (ReferenceEquals(value, _itemsSource))
+            if (ReferenceEquals(value, _itemsSource) || !this.IsAlive())
                 return;
             if (_weakHandler == null)
                 _itemsSource = value;
@@ -340,7 +340,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         protected virtual void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
         {
             var item = Container as Object;
-            if (!item.IsAlive())
+            if (!item.IsAlive() || !this.IsAlive())
             {
                 SetItemsSource(null, false);
                 return;
