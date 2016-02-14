@@ -49,6 +49,11 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
 
         #region Constructors
 
+        static DataBindingExtension()
+        {
+            MvvmApplication.InitializeDesignTimeManager();
+        }
+
         public DataBindingExtension()
         {
             _targetMemberName = string.Empty;
