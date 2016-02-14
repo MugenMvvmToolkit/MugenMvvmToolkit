@@ -376,6 +376,8 @@ namespace MugenMvvmToolkit.Android
 
         public static bool EnableFastTextViewTextProperty { get; set; }
 
+        public static bool TypeCacheOnlyUsedTypeToBootstrapCodeBuilder { get; set; }
+
         public static event EventHandler CurrentActivityChanged;
 
         #endregion
@@ -588,7 +590,7 @@ namespace MugenMvvmToolkit.Android
 
                 int leftIndex = index - 1;
                 int rightIndex = index + 1;
-                while (true)
+                do
                 {
                     if (rightIndex < WeakReferencesHolder.Count)
                     {
@@ -610,9 +612,7 @@ namespace MugenMvvmToolkit.Android
                         else
                             --leftIndex;
                     }
-                    if (leftIndex == Int32.MinValue && rightIndex == Int32.MaxValue)
-                        break;
-                }
+                } while (rightIndex < WeakReferencesHolder.Count || leftIndex >= 0);
 
                 value = CreateWeakReference(item, obj, true);
                 WeakReferencesHolder.Insert(index, value);
@@ -668,7 +668,7 @@ namespace MugenMvvmToolkit.Android
                 var c = t.GetConstructor(ViewContextArgs);
                 if (c == null)
                     return null;
-                return c.Invoke;
+                return ServiceProvider.ReflectionManager.GetActivatorDelegate(c);
             });
             if (func == null)
                 return (View)Activator.CreateInstance(type, ctx);
@@ -682,7 +682,7 @@ namespace MugenMvvmToolkit.Android
                 var c = t.GetConstructor(ViewContextWithAttrsArgs);
                 if (c == null)
                     return null;
-                return c.Invoke;
+                return ServiceProvider.ReflectionManager.GetActivatorDelegate(c);
             });
             if (func == null)
                 return type.CreateView(ctx);
