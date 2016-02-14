@@ -129,9 +129,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             _attachedMembers = new Dictionary<CacheKey, IBindingMemberInfo>(CacheKeyComparer.Instance);
             _tempMembersCache = new Dictionary<CacheKey, IBindingMemberInfo>(CacheKeyComparer.Instance);
             _explicitMembersCache = new Dictionary<CacheKey, IBindingMemberInfo>(CacheKeyComparer.Instance);
-            FieldFlags = MemberFlags.Public | MemberFlags.Instance | MemberFlags.NonPublic;
-            EventFlags = MemberFlags.Public | MemberFlags.Instance;
-            PropertyFlags = FieldFlags;
         }
 
         public BindingMemberProvider([NotNull] BindingMemberProvider provider)
@@ -141,9 +138,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             _attachedMembers = provider._attachedMembers;
             _tempMembersCache = provider._tempMembersCache;
             _explicitMembersCache = provider._explicitMembersCache;
-            FieldFlags = provider.FieldFlags;
-            EventFlags = provider.EventFlags;
-            PropertyFlags = provider.PropertyFlags;
         }
 
         #endregion
@@ -155,12 +149,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         public static IBindingMemberInfo Unset => BindingMemberInfo.Unset;
 
         public static IBindingMemberInfo Empty => BindingMemberInfo.Empty;
-
-        public MemberFlags FieldFlags { get; set; }
-
-        public MemberFlags PropertyFlags { get; set; }
-
-        public MemberFlags EventFlags { get; set; }
 
         #endregion
 
@@ -314,12 +302,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     .Split(BindingReflectionExtensions.CommaSeparator, StringSplitOptions.RemoveEmptyEntries);
             }
 
+            MemberFlags memberFlags = MemberFlags.Public | MemberFlags.Instance | MemberFlags.NonPublic;
             var types = BindingReflectionExtensions.SelfAndBaseTypes(sourceType);
             foreach (var type in types)
             {
                 if (indexerArgs == null)
                 {
-                    PropertyInfo property = type.GetPropertyEx(path, PropertyFlags);
+                    PropertyInfo property = type.GetPropertyEx(path, memberFlags);
                     if (property != null)
                         return new BindingMemberInfo(path, property, sourceType);
                 }
@@ -327,7 +316,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 {
                     PropertyInfo candidate = null;
                     int valueTypeCount = -1;
-                    foreach (var property in type.GetPropertiesEx(PropertyFlags))
+                    foreach (var property in type.GetPropertiesEx(memberFlags))
                     {
                         var indexParameters = property.GetIndexParameters();
                         if (indexParameters.Length != indexerArgs.Length)
@@ -367,12 +356,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     if (type.IsArray && type.GetArrayRank() == indexerArgs.Length)
                         return new BindingMemberInfo(path, type);
                 }
-                EventInfo @event = type.GetEventEx(path, EventFlags);
+                EventInfo @event = type.GetEventEx(path, MemberFlags.Public | MemberFlags.Instance);
                 if (@event != null)
                     return new BindingMemberInfo(path, @event, null);
 
-                FieldInfo field = type.GetFieldEx(path, FieldFlags);
-                if (field != null)
+                FieldInfo field = type.GetFieldEx(path, memberFlags);
+                if (field != null && !field.IsPrivate)
                     return new BindingMemberInfo(path, field, sourceType);
             }
 

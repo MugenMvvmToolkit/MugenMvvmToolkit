@@ -245,7 +245,7 @@ namespace MugenMvvmToolkit.Binding.Models
         {
             _member = property;
             var method = property.GetGetMethod(true);
-            if (method == null)
+            if (method == null || method.IsPrivate)
             {
                 _getValueAccessorSingle = NotSupportedGetter;
                 _canRead = false;
@@ -256,7 +256,7 @@ namespace MugenMvvmToolkit.Binding.Models
                 _canRead = true;
             }
             method = property.GetSetMethod(true);
-            if (method == null)
+            if (method == null || method.IsPrivate)
             {
                 _setValueAccessorSingle = NotSupportedSetter;
                 _canWrite = false;
