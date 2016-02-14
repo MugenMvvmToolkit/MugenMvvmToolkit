@@ -23,6 +23,7 @@ using Android.Runtime;
 using Java.Lang;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Android.Attributes;
+using MugenMvvmToolkit.Interfaces;
 
 namespace MugenMvvmToolkit.Android.Infrastructure
 {
@@ -31,13 +32,16 @@ namespace MugenMvvmToolkit.Android.Infrastructure
         #region Fields
 
         public static readonly TypeCache<TType> Instance;
+        // ReSharper disable once StaticMemberInGenericType
+        private static readonly HashSet<string> UsedTypes;
 
         private readonly HashSet<Assembly> _cachedAssemblies;
-        private readonly IDictionary<string, Type> _fullNameCache;
-
-        private readonly IDictionary<string, Type> _ignoreCaseFullNameCache;
-        private readonly IDictionary<string, Type> _ignoreCaseNameCache;
         private readonly object _locker;
+
+        private readonly IDictionary<string, Type> _fullNameCache;
+        private readonly IDictionary<string, Type> _ignoreCaseFullNameCache;
+
+        private readonly IDictionary<string, Type> _ignoreCaseNameCache;
         private readonly IDictionary<string, Type> _nameCache;
 
         #endregion
@@ -47,7 +51,9 @@ namespace MugenMvvmToolkit.Android.Infrastructure
         static TypeCache()
         {
             Instance = new TypeCache<TType>();
-            Initialize(AndroidBootstrapperBase.ViewAssemblies);
+            UsedTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            if (AndroidBootstrapperBase.ViewAssemblies != null)
+                Initialize(AndroidBootstrapperBase.ViewAssemblies);
         }
 
         private TypeCache()
@@ -70,6 +76,17 @@ namespace MugenMvvmToolkit.Android.Infrastructure
                 return;
             for (int index = 0; index < assemblies.Count; index++)
                 Instance.AddAssembly(assemblies[index]);
+            if (!PlatformExtensions.TypeCacheOnlyUsedTypeToBootstrapCodeBuilder)
+            {
+                var codeBuilder = ServiceProvider.BootstrapCodeBuilder;
+                if (codeBuilder != null)
+                {
+                    foreach (var type in Instance._fullNameCache)
+                        WriteTypeUsage(codeBuilder, type.Key, type.Value, true);
+                    foreach (var type in Instance._nameCache)
+                        WriteTypeUsage(codeBuilder, type.Key, type.Value, false);
+                }
+            }
         }
 
         public Type GetTypeByName(string typeName, bool ignoreCase, bool throwOnError)
@@ -82,12 +99,22 @@ namespace MugenMvvmToolkit.Android.Infrastructure
                 if (ignoreCase)
                 {
                     if (!_ignoreCaseFullNameCache.TryGetValue(typeName, out type))
-                        _ignoreCaseNameCache.TryGetValue(typeName, out type);
+                    {
+                        if (_ignoreCaseNameCache.TryGetValue(typeName, out type) && PlatformExtensions.TypeCacheOnlyUsedTypeToBootstrapCodeBuilder)
+                            WriteTypeUsage(ServiceProvider.BootstrapCodeBuilder, typeName, type, false);
+                    }
+                    else if (PlatformExtensions.TypeCacheOnlyUsedTypeToBootstrapCodeBuilder)
+                        WriteTypeUsage(ServiceProvider.BootstrapCodeBuilder, typeName, type, true);
                 }
                 else
                 {
                     if (!_fullNameCache.TryGetValue(typeName, out type))
-                        _nameCache.TryGetValue(typeName, out type);
+                    {
+                        if (_nameCache.TryGetValue(typeName, out type) && PlatformExtensions.TypeCacheOnlyUsedTypeToBootstrapCodeBuilder)
+                            WriteTypeUsage(ServiceProvider.BootstrapCodeBuilder, typeName, type, false);
+                    }
+                    else if (PlatformExtensions.TypeCacheOnlyUsedTypeToBootstrapCodeBuilder)
+                        WriteTypeUsage(ServiceProvider.BootstrapCodeBuilder, typeName, type, true);
                 }
             }
             if (type == null)
@@ -116,9 +143,27 @@ namespace MugenMvvmToolkit.Android.Infrastructure
                 Add(type, alias);
         }
 
+        public void AddFullName(string name, Type type)
+        {
+            //only for initialization
+            // ReSharper disable InconsistentlySynchronizedField
+            _fullNameCache[name] = type;
+            _ignoreCaseFullNameCache[name] = type;
+            // ReSharper restore InconsistentlySynchronizedField
+        }
+
+        public void AddName(string name, Type type)
+        {
+            //only for initialization
+            // ReSharper disable InconsistentlySynchronizedField
+            _nameCache[name] = type;
+            _ignoreCaseNameCache[name] = type;
+            // ReSharper restore InconsistentlySynchronizedField
+        }
+
         private void Add(Type type, string alias = null)
         {
-            if (!typeof(TType).IsAssignableFrom(type))
+            if (!typeof(TType).IsAssignableFrom(type) || type.IsGenericTypeDefinition || !type.IsPublic)
                 return;
             if (typeof(IJavaObject).IsAssignableFrom(type))
             {
@@ -154,6 +199,16 @@ namespace MugenMvvmToolkit.Android.Infrastructure
             {
                 _nameCache[type.Name] = type;
                 _ignoreCaseNameCache[type.Name] = type;
+            }
+        }
+
+        private static void WriteTypeUsage(IBootstrapCodeBuilder builder, string name, Type type, bool isFullName)
+        {
+            if (builder != null)
+            {
+                if (UsedTypes.Add(name))
+                    builder.Append("TypeCache",
+                          $"{typeof(TypeCache<TType>).GetPrettyName()}.{nameof(Instance)}.{(isFullName ? nameof(AddFullName) : nameof(AddName))}(\"{name}\", typeof({type.GetPrettyName()}));");
             }
         }
 

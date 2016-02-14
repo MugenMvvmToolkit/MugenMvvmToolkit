@@ -181,6 +181,8 @@ namespace MugenMvvmToolkit.Binding.Modules
                 return false;
 
             InitilaizeServices(context);
+            ServiceProvider.BootstrapCodeBuilder?.AppendStatic(nameof(DataBindingModule), $"{typeof(BindingServiceProvider).FullName}.DisableConverterAutoRegistration = {typeof(BindingServiceProvider).FullName}.DisableDataTemplateSelectorAutoRegistration = true;");
+            ServiceProvider.BootstrapCodeBuilder?.Append(nameof(DataBindingModule), $"var resolver = {typeof(BindingServiceProvider).FullName}.ResourceResolver;");
             var assemblies = context.Assemblies;
             for (int i = 0; i < assemblies.Count; i++)
             {
@@ -245,9 +247,15 @@ namespace MugenMvvmToolkit.Binding.Modules
 
             var value = constructor.Invoke(Empty.Array<object>());
             if (isTemplate)
+            {
                 BindingServiceProvider.ResourceResolver.AddObject(type.Name, value, true);
+                ServiceProvider.BootstrapCodeBuilder?.Append(nameof(DataBindingModule), $"{typeof(BindingExtensions).FullName}.AddObject(resolver, \"{type.Name}\", new {type.GetPrettyName()}(), true);");
+            }
             else
+            {
                 BindingServiceProvider.ResourceResolver.AddConverter((IBindingValueConverter)value, type, true);
+                ServiceProvider.BootstrapCodeBuilder?.Append(nameof(DataBindingModule), $"{typeof(BindingExtensions).FullName}.AddConverter(resolver, new {type.GetPrettyName()}(), typeof({type.GetPrettyName()}), true);");
+            }
 
             if (Tracer.TraceInformation)
                 Tracer.Info("The {0} is registered.", type);
@@ -255,6 +263,8 @@ namespace MugenMvvmToolkit.Binding.Modules
 
         protected virtual bool CanRegisterTypes(Assembly assembly)
         {
+            if (BindingServiceProvider.DisableConverterAutoRegistration && BindingServiceProvider.DisableDataTemplateSelectorAutoRegistration)
+                return false;
             return assembly.IsToolkitAssembly();
         }
 

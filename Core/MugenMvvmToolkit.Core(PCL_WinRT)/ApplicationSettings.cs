@@ -68,6 +68,10 @@ namespace MugenMvvmToolkit
 
         public static bool GridViewModelEnableSelectableInterface { get; set; }
 
+        public static bool ViewMappingProviderDisableAutoRegistration { get; set; }
+
+        public static bool SerializerDisableAutoRegistration { get; set; }
+
 #if !NONOTIFYDATAERROR
         public static string GetAllErrorsIndexerProperty { get; set; }
 #endif

@@ -270,6 +270,9 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\IAttachedValueProvider.cs">
       <Link>Interfaces\IAttachedValueProvider.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\IBootstrapCodeBuilder.cs">
+      <Link>Interfaces\IBootstrapCodeBuilder.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\IDesignTimeManager.cs">
       <Link>Interfaces\IDesignTimeManager.cs</Link>
     </Compile>

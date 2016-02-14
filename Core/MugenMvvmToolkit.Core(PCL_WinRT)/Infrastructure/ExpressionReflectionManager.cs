@@ -23,6 +23,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
@@ -51,7 +52,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             #endregion
 
-            #region Implementation of IEqualityComparer<in MethodDelegateCacheKey>
+            #region Implementation of IEqualityComparer<in MemberInfoDelegateCacheKey>
 
             bool IEqualityComparer<MemberInfoDelegateCacheKey>.Equals(MemberInfoDelegateCacheKey x, MemberInfoDelegateCacheKey y)
             {
@@ -137,11 +138,13 @@ namespace MugenMvvmToolkit.Infrastructure
         private static readonly Dictionary<MethodDelegateCacheKey, MethodInfo> CachedDelegates;
         private static readonly Dictionary<ConstructorInfo, Func<object[], object>> ActivatorCache;
         private static readonly Dictionary<MethodInfo, Func<object, object[], object>> InvokeMethodCache;
-        private static readonly Dictionary<MemberInfoDelegateCacheKey, Delegate> MemberAccessCache;
+        private static readonly Dictionary<MemberInfoDelegateCacheKey, Delegate> MemberGetterCache;
         private static readonly Dictionary<MemberInfoDelegateCacheKey, Delegate> MemberSetterCache;
         private static readonly Dictionary<MethodDelegateCacheKey, Delegate> InvokeMethodCacheDelegate;
         private static readonly ParameterExpression EmptyParameterExpression;
         private static readonly ConstantExpression NullConstantExpression;
+
+        private static readonly Dictionary<MethodDelegateCacheKey, Func<object, Delegate>> CompiledCachedDelegates;
 
         #endregion
 
@@ -149,10 +152,11 @@ namespace MugenMvvmToolkit.Infrastructure
 
         static ExpressionReflectionManager()
         {
+            CompiledCachedDelegates = new Dictionary<MethodDelegateCacheKey, Func<object, Delegate>>(MemberCacheKeyComparer.Instance);
             CachedDelegates = new Dictionary<MethodDelegateCacheKey, MethodInfo>(MemberCacheKeyComparer.Instance);
             ActivatorCache = new Dictionary<ConstructorInfo, Func<object[], object>>();
             InvokeMethodCache = new Dictionary<MethodInfo, Func<object, object[], object>>();
-            MemberAccessCache = new Dictionary<MemberInfoDelegateCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
+            MemberGetterCache = new Dictionary<MemberInfoDelegateCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
             MemberSetterCache = new Dictionary<MemberInfoDelegateCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
             InvokeMethodCacheDelegate = new Dictionary<MethodDelegateCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
             EmptyParameterExpression = Expression.Parameter(typeof(object));
@@ -163,10 +167,310 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Implementation of IReflectionProvider
 
-        public virtual Delegate TryCreateDelegate(Type delegateType, object target, MethodInfo method)
+        public Delegate TryCreateDelegate(Type delegateType, object target, MethodInfo method)
         {
             Should.NotBeNull(delegateType, nameof(delegateType));
             Should.NotBeNull(method, nameof(method));
+            Func<object, Delegate> result;
+            if (CompiledCachedDelegates.Count != 0 && CompiledCachedDelegates.TryGetValue(new MethodDelegateCacheKey(method, delegateType), out result))
+                return result(target);
+            return TryCreateDelegateInternal(delegateType, target, method);
+        }
+
+        public Func<object[], object> GetActivatorDelegate(ConstructorInfo constructor)
+        {
+            Should.NotBeNull(constructor, nameof(constructor));
+            return GetActivatorDelegateInternal(constructor);
+        }
+
+        public Func<object, object[], object> GetMethodDelegate(MethodInfo method)
+        {
+            Should.NotBeNull(method, nameof(method));
+            return GetMethodDelegateInternal(method);
+        }
+
+        public Delegate GetMethodDelegate(Type delegateType, MethodInfo method)
+        {
+            Should.NotBeNull(delegateType, nameof(delegateType));
+            Should.NotBeNull(method, nameof(method));
+            return GetMethodDelegateInternal(delegateType, method);
+        }
+
+        public Func<object, TType> GetMemberGetter<TType>(MemberInfo member)
+        {
+            Should.NotBeNull(member, nameof(member));
+            return GetMemberGetterInternal<TType>(member);
+        }
+
+        public Action<object, TType> GetMemberSetter<TType>(MemberInfo member)
+        {
+            Should.NotBeNull(member, nameof(member));
+            return GetMemberSetterInternal<TType>(member);
+        }
+
+        #endregion
+
+        #region Methods
+
+        public static void AddCompiledDelegateFactory(Type type, string methodName, Type delegateType, Func<object, Delegate> createDelegate, params Type[] args)
+        {
+            var method = type.GetMethodEx(methodName, args, MemberFlags.Static | MemberFlags.Instance | MemberFlags.Public);
+            if (method != null)
+                CompiledCachedDelegates[new MethodDelegateCacheKey(method, delegateType)] = createDelegate;
+        }
+
+        public static void AddCompiledActivator(Type type, Func<object[], object> createInstance, params Type[] args)
+        {
+            var constructor = type.GetConstructor(args);
+            if (constructor != null)
+                ActivatorCache[constructor] = createInstance;
+        }
+
+        public static void AddCompiledMethodDelegate(Type type, string methodName, Func<object, object[], object> methodInvoke, params Type[] args)
+        {
+            var method = type.GetMethodEx(methodName, args, MemberFlags.Static | MemberFlags.Instance | MemberFlags.Public);
+            if (method != null)
+                InvokeMethodCache[method] = methodInvoke;
+        }
+
+        public static void AddCompiledMethodDelegate<TDelegate>(Type type, string methodName, TDelegate methodInvoke, params Type[] args)
+            where TDelegate : class
+        {
+            var method = type.GetMethodEx(methodName, args, MemberFlags.Static | MemberFlags.Instance | MemberFlags.Public);
+            if (method != null)
+                InvokeMethodCacheDelegate[new MethodDelegateCacheKey(method, typeof(TDelegate))] = (Delegate)(object)methodInvoke;
+        }
+
+        public static void AddCompiledMemberGetter<TResult>(Type type, string memberName, bool isProperty, Func<object, TResult> getter)
+        {
+            var member = GetMember(type, memberName, isProperty);
+            if (member != null)
+                MemberGetterCache[new MemberInfoDelegateCacheKey(member, typeof(TResult))] = getter;
+        }
+
+        public static void AddCompiledMemberSetter<TValue>(Type type, string memberName, bool isProperty, Action<object, TValue> setter)
+        {
+            var member = GetMember(type, memberName, isProperty);
+            if (member != null)
+                MemberSetterCache[new MemberInfoDelegateCacheKey(member, typeof(TValue))] = setter;
+        }
+
+        private static MemberInfo GetMember(Type type, string member, bool isProperty)
+        {
+            if (isProperty)
+                return type.GetPropertyEx(member, MemberFlags.Static | MemberFlags.Instance | MemberFlags.Public);
+            return type.GetFieldEx(member, MemberFlags.Static | MemberFlags.Instance | MemberFlags.Public);
+        }
+
+        protected static void GenerateDelegateFactoryCode(Type delegateType, MethodInfo method)
+        {
+            var builder = ServiceProvider.BootstrapCodeBuilder;
+            if (builder == null || !method.IsPublic || !delegateType.IsPublic())
+                return;
+            var reflectedType = GetReflectedType(method);
+            if (!reflectedType.IsPublic())
+                return;
+            var parameters = method.GetParameters();
+            if (parameters.Any(info => !info.ParameterType.IsPublic()))
+                return;
+            var types = GenerateParameterTypes(parameters);
+            string invoke;
+            if (method.IsStatic)
+                invoke = $"{method.DeclaringType.GetPrettyName()}.{method.Name}";
+            else
+                invoke = $"(({method.DeclaringType.GetPrettyName()})item).{method.Name}";
+            AddCompiledDelegateFactory(method.DeclaringType, method.Name, delegateType, o => null, delegateType);
+            builder.AppendStatic(nameof(ExpressionReflectionManager),
+                $"{typeof(ExpressionReflectionManager).FullName}.{nameof(AddCompiledDelegateFactory)}(typeof({reflectedType.GetPrettyName()}), \"{method.Name}\", typeof({delegateType.GetPrettyName()}), item => new {delegateType.GetPrettyName()}({invoke}){types});");
+        }
+
+        protected static void GenerateActivatorCode(ConstructorInfo constructor)
+        {
+            var builder = ServiceProvider.BootstrapCodeBuilder;
+            if (builder == null || !constructor.IsPublic || !constructor.DeclaringType.IsPublic())
+                return;
+            var parameters = constructor.GetParameters();
+            if (parameters.Any(info => !info.ParameterType.IsPublic()))
+                return;
+            var types = GenerateParameterTypes(parameters);
+            var parametersCast = string.Join(", ", parameters.Select((info, i) => $"({info.ParameterType.GetPrettyName()})args[{i}]"));
+            var invoke = $"args => new {constructor.DeclaringType.GetPrettyName()}({parametersCast})";
+
+            builder.AppendStatic(nameof(ExpressionReflectionManager),
+                $"{typeof(ExpressionReflectionManager).FullName}.{nameof(AddCompiledActivator)}(typeof({GetReflectedType(constructor).GetPrettyName()}), {invoke}{types});");
+        }
+
+        protected static void GenerateInvokeMethodCode(MethodInfo method, Type delegateType)
+        {
+            var builder = ServiceProvider.BootstrapCodeBuilder;
+            if (builder == null || !method.IsPublic || !delegateType.IsPublic())
+                return;
+            var reflectedType = GetReflectedType(method);
+            if (!reflectedType.IsPublic())
+                return;
+            var parameters = method.GetParameters();
+            if (parameters.Any(info => !info.ParameterType.IsPublic()))
+                return;
+            var types = GenerateParameterTypes(parameters);
+            var lambdaParameters = string.Join(", ", parameters.Select((info, i) => $"p{i}"));
+            var parametersCast = string.Join(", ", parameters.Select((info, i) => $"({info.ParameterType.GetPrettyName()})p{i}"));
+            string invoke;
+            if (method.IsStatic)
+                invoke = $"({lambdaParameters}) => {method.DeclaringType.GetPrettyName()}.{method.Name}({parametersCast})";
+            else
+                invoke = $"(item, {lambdaParameters}) => (({method.DeclaringType.GetPrettyName()})item).{method.Name}({parametersCast})";
+            if (method.ReturnType != typeof(void))
+                invoke = $"({method.ReturnType.GetPrettyName()}){invoke}";
+
+            builder.AppendStatic(nameof(ExpressionReflectionManager),
+                $"{typeof(ExpressionReflectionManager).FullName}.{nameof(AddCompiledMethodDelegate)}(typeof({reflectedType.GetPrettyName()}), \"{method.Name}\", new {delegateType.GetPrettyName()}({invoke}){types});");
+        }
+
+        protected static void GenerateInvokeMethodCode(MethodInfo method)
+        {
+            var builder = ServiceProvider.BootstrapCodeBuilder;
+            if (builder == null || !method.IsPublic)
+                return;
+            var reflectedType = GetReflectedType(method);
+            if (!reflectedType.IsPublic())
+                return;
+            var parameters = method.GetParameters();
+            if (parameters.Any(info => !info.ParameterType.IsPublic()))
+                return;
+
+            var types = GenerateParameterTypes(parameters);
+            var parametersCast = string.Join(", ", parameters.Select((info, i) => $"({info.ParameterType.GetPrettyName()})args[{i}]"));
+
+            string eventName = null;
+            bool indexGet = false;
+            bool indexSet = false;
+            bool isDelete = false;
+            if (method.Name.StartsWith("add_"))
+                eventName = method.Name.Substring(4);
+            else if (method.Name.StartsWith("delete_"))
+            {
+                eventName = method.Name.Substring(7);
+                isDelete = true;
+            }
+            else if (method.Name.StartsWith("get_"))
+                indexGet = true;
+            else if (method.Name.StartsWith("set_"))
+                indexSet = true;
+
+            string invoke;
+            if (method.IsStatic)
+            {
+                if (eventName != null)
+                    invoke = $"{method.DeclaringType.GetPrettyName()}.{eventName} {(isDelete ? "-" : "+")}= {parametersCast})";
+                else if (indexGet)
+                    invoke = $"{method.DeclaringType.GetPrettyName()}[{parametersCast}]";
+                else if (indexSet)
+                {
+                    var setterCast = string.Join(", ", parameters.Take(parameters.Length - 1).Select((info, i) => $"({info.ParameterType.GetPrettyName()})args[{i}]"));
+                    invoke = $"{method.DeclaringType.GetPrettyName()}[{setterCast}] = ({parameters.Last().ParameterType.GetPrettyName()}) args[{parameters.Length - 1}]";
+                }
+                else
+                    invoke = $"{method.DeclaringType.GetPrettyName()}.{method.Name}({parametersCast})";
+            }
+            else
+            {
+                var itemAccess = $"(({ method.DeclaringType.GetPrettyName()})item)";
+                if (eventName != null)
+                    invoke = $"{itemAccess}.{eventName} {(isDelete ? "-" : "+")}= {parametersCast}";
+                else if (indexGet)
+                    invoke = $"{itemAccess}[{parametersCast}]";
+                else if (indexSet)
+                {
+                    var setterCast = string.Join(", ", parameters.Take(parameters.Length - 1).Select((info, i) => $"({info.ParameterType.GetPrettyName()})args[{i}]"));
+                    invoke = $"{itemAccess}[{setterCast}] = ({parameters.Last().ParameterType.GetPrettyName()}) args[{parameters.Length - 1}]";
+                }
+                else
+                    invoke = $"{itemAccess}.{method.Name}({parametersCast})";
+            }
+            if (method.ReturnType == typeof(void))
+                invoke = "{" + $"{invoke}; return null;" + "}";
+
+            builder.AppendStatic(nameof(ExpressionReflectionManager),
+                $"{typeof(ExpressionReflectionManager).FullName}.{nameof(AddCompiledMethodDelegate)}(typeof({reflectedType.GetPrettyName()}), \"{method.Name}\", (item, args) => {invoke}{types});");
+        }
+
+        protected static void GenerateGetterCode(MemberInfo member, Type resultType)
+        {
+            var builder = ServiceProvider.BootstrapCodeBuilder;
+            if (builder == null || !resultType.IsPublic())
+                return;
+            var propertyInfo = member as PropertyInfo;
+            if (propertyInfo == null)
+            {
+                if (!((FieldInfo)member).IsPublic)
+                    return;
+            }
+            else if (propertyInfo.GetGetMethod(false) == null)
+                return;
+
+            var reflectedType = GetReflectedType(member);
+            if (!reflectedType.IsPublic())
+                return;
+
+            string getter;
+            if (IsStatic(member))
+                getter = $"_ => ({resultType.GetPrettyName()}) {member.DeclaringType.GetPrettyName()}.{member.Name}";
+            else
+                getter = $"item => ({resultType.GetPrettyName()}) (({member.DeclaringType.GetPrettyName()})item).{member.Name}";
+            builder.AppendStatic(nameof(ExpressionReflectionManager),
+                $"{typeof(ExpressionReflectionManager).FullName}.{nameof(AddCompiledMemberGetter)}(typeof({reflectedType.GetPrettyName()}), \"{member.Name}\", {(member is PropertyInfo ? "true" : "false")}, {getter});");
+        }
+
+        protected static void GenerateSetterCode(MemberInfo member, Type delegateType, Type memberType)
+        {
+            var builder = ServiceProvider.BootstrapCodeBuilder;
+            if (builder == null || !delegateType.IsPublic() || !memberType.IsPublic())
+                return;
+            var propertyInfo = member as PropertyInfo;
+            if (propertyInfo == null)
+            {
+                if (!((FieldInfo)member).IsPublic)
+                    return;
+            }
+            else if (propertyInfo.GetSetMethod(false) == null)
+                return;
+            var reflectedType = GetReflectedType(member);
+            if (!reflectedType.IsPublic())
+                return;
+
+            string setter;
+            if (IsStatic(member))
+                setter = $"(_, value) => {member.DeclaringType.GetPrettyName()}.{member.Name} = ({memberType.GetPrettyName()})value";
+            else
+                setter = $"(item, value) => (({member.DeclaringType.GetPrettyName()})item).{member.Name} = ({memberType.GetPrettyName()})value";
+            builder.AppendStatic(nameof(ExpressionReflectionManager),
+                $"{typeof(ExpressionReflectionManager).FullName}.{nameof(AddCompiledMemberSetter)}<{delegateType.GetPrettyName()}>(typeof({reflectedType.GetPrettyName()}), \"{member.Name}\", {(member is PropertyInfo ? "true" : "false")}, {setter});");
+        }
+
+        private static Type GetReflectedType(MemberInfo member)
+        {
+            try
+            {
+                var p = member.GetType().GetPropertyEx("ReflectedType", MemberFlags.Instance | MemberFlags.Public);
+                if (p == null)
+                    return member.DeclaringType;
+                return (Type)p.GetValue(member, null);
+            }
+            catch (Exception)
+            {
+                return member.DeclaringType;
+            }
+        }
+
+        private static string GenerateParameterTypes(ParameterInfo[] parameters)
+        {
+            if (parameters.Length > 0)
+                return ", " + string.Join(",", parameters.Select(info => $"typeof({info.ParameterType.GetPrettyName()})"));
+            return string.Empty;
+        }
+
+        protected virtual Delegate TryCreateDelegateInternal(Type delegateType, object target, MethodInfo method)
+        {
             MethodInfo result;
             lock (CachedDelegates)
             {
@@ -175,6 +479,8 @@ namespace MugenMvvmToolkit.Infrastructure
                 {
                     result = TryCreateMethodDelegate(delegateType, method);
                     CachedDelegates[cacheKey] = result;
+                    if (result != null)
+                        GenerateDelegateFactoryCode(delegateType, method);
                 }
                 if (result == null)
                     return null;
@@ -190,14 +496,14 @@ namespace MugenMvvmToolkit.Infrastructure
 #endif
         }
 
-        public virtual Func<object[], object> GetActivatorDelegate(ConstructorInfo constructor)
+        protected virtual Func<object[], object> GetActivatorDelegateInternal(ConstructorInfo constructor)
         {
-            Should.NotBeNull(constructor, nameof(constructor));
             lock (ActivatorCache)
             {
                 Func<object[], object> value;
                 if (!ActivatorCache.TryGetValue(constructor, out value))
                 {
+                    GenerateActivatorCode(constructor);
                     ParameterExpression parameterExpression;
                     Expression[] expressions = GetParametersExpression(constructor, out parameterExpression);
                     Expression newExpression = ConvertIfNeed(Expression.New(constructor, expressions), typeof(object), false);
@@ -208,14 +514,14 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
-        public virtual Func<object, object[], object> GetMethodDelegate(MethodInfo method)
+        protected virtual Func<object, object[], object> GetMethodDelegateInternal(MethodInfo method)
         {
-            Should.NotBeNull(method, nameof(method));
             lock (InvokeMethodCache)
             {
                 Func<object, object[], object> value;
                 if (!InvokeMethodCache.TryGetValue(method, out value))
                 {
+                    GenerateInvokeMethodCode(method);
                     value = CreateMethodInvoke(method);
                     InvokeMethodCache[method] = value;
                 }
@@ -223,16 +529,15 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
-        public virtual Delegate GetMethodDelegate(Type delegateType, MethodInfo method)
+        protected virtual Delegate GetMethodDelegateInternal(Type delegateType, MethodInfo method)
         {
-            Should.NotBeNull(delegateType, nameof(delegateType));
-            Should.NotBeNull(method, nameof(method));
             lock (InvokeMethodCacheDelegate)
             {
                 var cacheKey = new MethodDelegateCacheKey(method, delegateType);
                 Delegate value;
                 if (!InvokeMethodCacheDelegate.TryGetValue(cacheKey, out value))
                 {
+                    GenerateInvokeMethodCode(method, delegateType);
                     MethodInfo delegateMethod = delegateType.GetMethodEx(nameof(Action.Invoke));
                     if (delegateMethod == null)
                         throw new ArgumentException(string.Empty, nameof(delegateType));
@@ -276,15 +581,15 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
-        public virtual Func<object, TType> GetMemberGetter<TType>(MemberInfo member)
+        protected virtual Func<object, TType> GetMemberGetterInternal<TType>(MemberInfo member)
         {
-            Should.NotBeNull(member, nameof(member));
             var key = new MemberInfoDelegateCacheKey(member, typeof(TType));
-            lock (MemberAccessCache)
+            lock (MemberGetterCache)
             {
                 Delegate value;
-                if (!MemberAccessCache.TryGetValue(key, out value))
+                if (!MemberGetterCache.TryGetValue(key, out value))
                 {
+                    GenerateGetterCode(member, typeof(TType));
                     ParameterExpression target = Expression.Parameter(typeof(object), "instance");
                     MemberExpression accessExp;
                     if (IsStatic(member))
@@ -297,15 +602,14 @@ namespace MugenMvvmToolkit.Infrastructure
                     value = Expression
                         .Lambda<Func<object, TType>>(ConvertIfNeed(accessExp, typeof(TType), false), target)
                         .Compile();
-                    MemberAccessCache[key] = value;
+                    MemberGetterCache[key] = value;
                 }
                 return (Func<object, TType>)value;
             }
         }
 
-        public virtual Action<object, TType> GetMemberSetter<TType>(MemberInfo member)
+        protected virtual Action<object, TType> GetMemberSetterInternal<TType>(MemberInfo member)
         {
-            Should.NotBeNull(member, nameof(member));
             var key = new MemberInfoDelegateCacheKey(member, typeof(TType));
             lock (MemberSetterCache)
             {
@@ -345,14 +649,14 @@ namespace MugenMvvmToolkit.Infrastructure
                         Should.MethodBeSupported(propertyInfo != null && setMethod != null,
                             "supports only properties (non-readonly) and fields");
                         var valueExpression = ConvertIfNeed(valueParameter, propertyInfo.PropertyType, false);
-                        expression =
-                            Expression.Call(setMethod.IsStatic ? null : ConvertIfNeed(target, declaringType, false),
-                                setMethod, valueExpression);
+                        expression = Expression.Call(setMethod.IsStatic ? null : ConvertIfNeed(target, declaringType, false), setMethod, valueExpression);
+                        GenerateSetterCode(member, typeof(TType), propertyInfo.PropertyType);
                     }
                     else
                     {
                         expression = Expression.Field(fieldInfo.IsStatic ? null : ConvertIfNeed(target, declaringType, false), fieldInfo);
                         expression = Expression.Assign(expression, ConvertIfNeed(valueParameter, fieldInfo.FieldType, false));
+                        GenerateSetterCode(member, typeof(TType), fieldInfo.FieldType);
                     }
                     action = Expression
                         .Lambda<Action<object, TType>>(expression, targetParameter, valueParameter)
@@ -362,10 +666,6 @@ namespace MugenMvvmToolkit.Infrastructure
                 return (Action<object, TType>)action;
             }
         }
-
-        #endregion
-
-        #region Methods
 
         protected static MethodInfo TryCreateMethodDelegate(Type eventHandlerType, MethodInfo method)
         {
@@ -457,13 +757,13 @@ namespace MugenMvvmToolkit.Infrastructure
                 MethodInfo method = propertyInfo.CanRead
                     ? propertyInfo.GetGetMethod(true)
                     : propertyInfo.GetSetMethod(true);
-                return method == null || method.IsStatic;
+                return method != null && method.IsStatic;
             }
             var methodInfo = member as MethodInfo;
             if (methodInfo != null)
                 return methodInfo.IsStatic;
             var fieldInfo = member as FieldInfo;
-            return fieldInfo == null || fieldInfo.IsStatic;
+            return fieldInfo != null && fieldInfo.IsStatic;
         }
 
         private static Expression[] GetParametersExpression(MethodBase methodBase,

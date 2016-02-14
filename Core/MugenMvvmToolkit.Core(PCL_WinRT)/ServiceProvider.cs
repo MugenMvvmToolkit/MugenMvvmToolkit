@@ -77,6 +77,9 @@ namespace MugenMvvmToolkit
         #region Properties
 
         [CanBeNull]
+        public static IBootstrapCodeBuilder BootstrapCodeBuilder { get; set; }
+
+        [CanBeNull]
         public static Func<object, IDataContext, ISubscriber> ObjectToSubscriberConverter { get; set; }
 
         [CanBeNull]

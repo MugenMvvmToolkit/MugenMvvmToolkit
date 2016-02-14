@@ -53,10 +53,8 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         #region Overrides of ExpressionReflectionProvider
 
-        public override Delegate TryCreateDelegate(Type delegateType, object target, MethodInfo method)
+        protected override Delegate TryCreateDelegateInternal(Type delegateType, object target, MethodInfo method)
         {
-            Should.NotBeNull(delegateType, nameof(delegateType));
-            Should.NotBeNull(method, nameof(method));
             Func<object, Delegate> value;
             lock (DelegatesCache)
             {
@@ -66,6 +64,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
                     method = TryCreateMethodDelegate(delegateType, method);
                     if (method != null)
                     {
+                        GenerateDelegateFactoryCode(delegateType, method);
                         Type type = method.DeclaringType;
                         DynamicMethod dynamicMethod = CreateDynamicMethod(type, new[] { typeof(object) },
                             typeof(Delegate));

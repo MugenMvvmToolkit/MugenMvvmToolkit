@@ -109,7 +109,10 @@ namespace MugenMvvmToolkit
                 {
                     var module = modules[index];
                     if (module.Load(context))
+                    {
+                        ServiceProvider.BootstrapCodeBuilder?.Append(nameof(LoadModules), $"new {module.GetType().GetPrettyName()}().Load(context);");
                         module.TraceModule(true);
+                    }
                 }
             }
         }
