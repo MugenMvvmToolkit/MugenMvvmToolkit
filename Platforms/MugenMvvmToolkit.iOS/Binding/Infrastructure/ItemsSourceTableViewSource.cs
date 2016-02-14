@@ -112,7 +112,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         protected virtual void SetItemsSource(IEnumerable value, bool reload)
         {
-            if (ReferenceEquals(value, _itemsSource))
+            if (ReferenceEquals(value, _itemsSource) || !this.IsAlive())
                 return;
             if (_weakHandler == null)
                 _itemsSource = value;
@@ -133,6 +133,8 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         protected virtual void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
         {
+            if (!this.IsAlive())
+                return;
             if (!UseAnimations || !TryUpdateItems(args))
                 ReloadData();
             if (args.Action == NotifyCollectionChangedAction.Remove ||

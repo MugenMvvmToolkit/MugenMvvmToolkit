@@ -127,7 +127,7 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
 
         protected virtual void SetItemsSource(IEnumerable value, bool notifyDataSet)
         {
-            if (ReferenceEquals(value, _itemsSource))
+            if (ReferenceEquals(value, _itemsSource) || !this.IsAlive())
                 return;
             if (_weakHandler == null)
                 _itemsSource = value;

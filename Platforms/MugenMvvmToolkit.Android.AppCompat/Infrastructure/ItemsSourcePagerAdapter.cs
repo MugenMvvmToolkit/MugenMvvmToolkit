@@ -68,7 +68,7 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
             _viewPager = viewPager;
             _fragmentManager = viewPager.GetFragmentManager();
             _itemTemplateProvider = new DataTemplateProvider(viewPager, AttachedMemberConstants.ItemTemplate, AttachedMemberConstants.ItemTemplateSelector);
-            _weakHandler = ReflectionExtensions.MakeWeakCollectionChangedHandler(this, (adapter, o, arg3) => adapter.OnCollectionChanged(o, arg3));//TODO CHECK HANDLE
+            _weakHandler = ReflectionExtensions.MakeWeakCollectionChangedHandler(this, (adapter, o, arg3) => adapter.OnCollectionChanged(o, arg3));
             var activityView = _viewPager.Context.GetActivity() as IActivityView;
             if (activityView != null)
             {
@@ -112,7 +112,7 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
 
         protected virtual void SetItemsSource(IEnumerable value, bool notifyDataSet)
         {
-            if (ReferenceEquals(value, _itemsSource) || !_viewPager.IsAlive())
+            if (ReferenceEquals(value, _itemsSource) || !_viewPager.IsAlive() || !this.IsAlive())
                 return;
             if (_weakHandler == null)
                 _itemsSource = value;
@@ -173,7 +173,7 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
         private void ActivityViewOnDestroyed(Activity sender)
         {
             ((IActivityView)sender).Mediator.Destroyed -= _listener.Handle;
-            if (!_viewPager.IsAlive())
+            if (!_viewPager.IsAlive() || !this.IsAlive())
                 return;
             if (ReferenceEquals(_viewPager.Adapter, this))
             {
