@@ -214,7 +214,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public static void AddCompiledDelegateFactory(Type type, string methodName, Type delegateType, Func<object, Delegate> createDelegate, params Type[] args)
         {
-            var method = type.GetMethodEx(methodName, args, MemberFlags.Static | MemberFlags.Instance | MemberFlags.Public);
+            var method = GetMethod(type, methodName, args);
             if (method != null)
                 CompiledCachedDelegates[new MethodDelegateCacheKey(method, delegateType)] = createDelegate;
         }
@@ -228,7 +228,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public static void AddCompiledMethodDelegate(Type type, string methodName, Func<object, object[], object> methodInvoke, params Type[] args)
         {
-            var method = type.GetMethodEx(methodName, args, MemberFlags.Static | MemberFlags.Instance | MemberFlags.Public);
+            var method = GetMethod(type, methodName, args);
             if (method != null)
                 InvokeMethodCache[method] = methodInvoke;
         }
@@ -236,7 +236,7 @@ namespace MugenMvvmToolkit.Infrastructure
         public static void AddCompiledMethodDelegate<TDelegate>(Type type, string methodName, TDelegate methodInvoke, params Type[] args)
             where TDelegate : class
         {
-            var method = type.GetMethodEx(methodName, args, MemberFlags.Static | MemberFlags.Instance | MemberFlags.Public);
+            var method = GetMethod(type, methodName, args);
             if (method != null)
                 InvokeMethodCacheDelegate[new MethodDelegateCacheKey(method, typeof(TDelegate))] = (Delegate)(object)methodInvoke;
         }
@@ -253,6 +253,19 @@ namespace MugenMvvmToolkit.Infrastructure
             var member = GetMember(type, memberName, isProperty);
             if (member != null)
                 MemberSetterCache[new MemberInfoDelegateCacheKey(member, typeof(TValue))] = setter;
+        }
+
+        private static MethodInfo GetMethod(Type type, string methodName, Type[] args)
+        {
+            var method = type.GetMethodEx(methodName, args, MemberFlags.Static | MemberFlags.Instance | MemberFlags.Public);
+            if (method != null)
+                return method;
+            var methods = type.GetMethodsEx(MemberFlags.Static | MemberFlags.Instance | MemberFlags.Public)
+                .Where(info => info.Name == methodName && info.GetParameters().Length == args.Length)
+                .ToList();
+            if (methods.Count == 1)
+                return methods[0];
+            return null;
         }
 
         private static MemberInfo GetMember(Type type, string member, bool isProperty)
