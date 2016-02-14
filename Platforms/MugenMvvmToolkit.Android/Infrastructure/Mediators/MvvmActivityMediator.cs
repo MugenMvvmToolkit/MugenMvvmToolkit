@@ -143,7 +143,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         public virtual void OnCreate(int? viewId, Bundle savedInstanceState, Action<Bundle> baseOnCreate)
         {
-            AndroidBootstrapperBase.EnsureInitialized();
+            AndroidBootstrapperBase.EnsureInitialized(savedInstanceState);
             if (Tracer.TraceInformation)
                 Tracer.Info("OnCreate activity({0})", Target);
             _bundle = savedInstanceState;
@@ -175,6 +175,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         public override void OnSaveInstanceState(Bundle outState, Action<Bundle> baseOnSaveInstanceState)
         {
             SaveInstanceState?.Invoke(Target, new ValueEventArgs<Bundle>(outState));
+            outState.PutString(AndroidBootstrapperBase.BootTypeKey, AndroidBootstrapperBase.BootstrapperType);
             base.OnSaveInstanceState(outState, baseOnSaveInstanceState);
         }
 
