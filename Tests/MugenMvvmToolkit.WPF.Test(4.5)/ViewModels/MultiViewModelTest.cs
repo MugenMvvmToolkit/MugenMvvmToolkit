@@ -174,34 +174,6 @@ namespace MugenMvvmToolkit.Test.ViewModels
         }
 
         [TestMethod]
-        public void WhenVmDisposedItShouldDisposeVmDisposeViewModelOnRemoveTrue()
-        {
-            var viewModel = GetViewModel<NavigableViewModelMock>();
-            var multiViewModel = (MultiViewModel)GetMultiViewModel();
-            multiViewModel.DisposeViewModelOnRemove = true;
-            multiViewModel.AddViewModel(viewModel);
-            multiViewModel.ItemsSource.ShouldContain(viewModel);
-
-            multiViewModel.Dispose();
-            multiViewModel.ItemsSource.ShouldNotContain(viewModel);
-            viewModel.IsDisposed.ShouldBeTrue();
-        }
-
-        [TestMethod]
-        public void WhenVmDisposedItShouldNotDisposeVmDisposeViewModelOnRemoveFalse()
-        {
-            var viewModel = GetViewModel<NavigableViewModelMock>();
-            var multiViewModel = (MultiViewModel)GetMultiViewModel();
-            multiViewModel.DisposeViewModelOnRemove = false;
-            multiViewModel.AddViewModel(viewModel);
-            multiViewModel.ItemsSource.ShouldContain(viewModel);
-
-            multiViewModel.Dispose();
-            multiViewModel.ItemsSource.ShouldNotContain(viewModel);
-            viewModel.IsDisposed.ShouldBeFalse();
-        }
-
-        [TestMethod]
         public void WhenVmWasAddedItShouldBeSelected()
         {
             ThreadManager.ImmediateInvokeOnUiThreadAsync = true;
