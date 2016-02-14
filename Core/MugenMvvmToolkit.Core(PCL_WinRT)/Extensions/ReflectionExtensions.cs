@@ -406,10 +406,11 @@ namespace MugenMvvmToolkit
 
         public static bool IsPublic(this Type type)
         {
-#if PCL_WINRT            
-            return type.GetTypeInfo().IsPublic;
+#if PCL_WINRT      
+            var typeInfo = type.GetTypeInfo();      
+            return typeInfo.IsPublic || typeInfo.IsNestedPublic;
 #else
-            return type.IsPublic;
+            return type.IsPublic || type.IsNestedPublic;
 #endif
         }
 
@@ -417,9 +418,9 @@ namespace MugenMvvmToolkit
         {
 #if PCL_WINRT
             var typeInfo = type.GetTypeInfo();
-            return typeInfo.IsClass && !typeInfo.IsAbstract && typeInfo.IsPublic;
+            return typeInfo.IsClass && !typeInfo.IsAbstract && (typeInfo.IsPublic || typeInfo.IsNestedPublic);
 #else
-            return type.IsClass && !type.IsAbstract && type.IsPublic;
+            return type.IsClass && !type.IsAbstract && (type.IsPublic || type.IsNestedPublic);
 #endif
         }
 
