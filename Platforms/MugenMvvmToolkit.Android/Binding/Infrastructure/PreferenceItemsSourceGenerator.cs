@@ -41,8 +41,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             _preference = preference;
             _collectionViewManagerMember = BindingServiceProvider
                 .MemberProvider
-                .GetBindingMember(preference.GetType(), AttachedMembers.PreferenceGroup.CollectionViewManager, false,
-                    false);
+                .GetBindingMember(preference.GetType(), AttachedMembers.PreferenceGroup.CollectionViewManager, false, false);
             TryListenActivity(preference.Context);
         }
 

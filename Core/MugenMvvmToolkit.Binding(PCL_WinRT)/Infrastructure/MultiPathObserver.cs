@@ -225,13 +225,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return this;
         }
 
-        /*protected override void ClearObserversInternal()
-        {
-            for (int index = 0; index < _listeners.Count; index++)
-                _listeners[index].Dispose();
-            _listeners.Clear();
-        }*/
-
         protected override void OnDispose()
         {
             try

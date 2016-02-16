@@ -252,14 +252,7 @@ namespace MugenMvvmToolkit.Binding
 
             #region Implementation of IEventListener
 
-            public bool IsAlive
-            {
-                get
-                {
-                    WeakReference listenerRef = _listenerRef;
-                    return listenerRef != null && listenerRef.Target != null;
-                }
-            }
+            public bool IsAlive => _listenerRef?.Target != null;
 
             public bool IsWeak => true;
 
