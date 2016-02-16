@@ -63,6 +63,8 @@ namespace MugenMvvmToolkit.Android.Views
 
         public void Inflate(Activity activity, IMenu menu)
         {
+            if (!activity.IsAlive() || !menu.IsAlive())
+                return;
             IBindingMemberInfo bindingMember = BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(typeof(OptionsMenu), AttachedMembers.Toolbar.MenuTemplate, false, true);
