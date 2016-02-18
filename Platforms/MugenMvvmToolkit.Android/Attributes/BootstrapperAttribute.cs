@@ -28,17 +28,15 @@ namespace MugenMvvmToolkit.Android.Attributes
         #region Fields
 
         private readonly Type _bootstrapperType;
-        private readonly int _priority;
 
         #endregion
 
         #region Constructors
 
-        public BootstrapperAttribute([NotNull] Type bootstrapperType, int priority = 0)
+        public BootstrapperAttribute([NotNull] Type bootstrapperType)
         {
             Should.BeOfType<AndroidBootstrapperBase>(bootstrapperType, "bootstrapperType");
             _bootstrapperType = bootstrapperType;
-            _priority = priority;
         }
 
         #endregion
@@ -47,8 +45,6 @@ namespace MugenMvvmToolkit.Android.Attributes
 
         [NotNull]
         public Type BootstrapperType => _bootstrapperType;
-
-        public int Priority => _priority;
 
         #endregion
     }

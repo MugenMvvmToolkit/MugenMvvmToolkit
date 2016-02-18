@@ -123,7 +123,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
         #region Methods
 
-        public static void EnsureInitialized(Bundle bundle)
+        public static void EnsureInitialized(object sender, Bundle bundle)
         {
             if (Interlocked.CompareExchange(ref _appStateGlobal, InitializedStateGlobal, EmptyState) != EmptyState)
                 return;
@@ -131,19 +131,23 @@ namespace MugenMvvmToolkit.Android.Infrastructure
             var typeString = bundle?.GetString(BootTypeKey);
             if (string.IsNullOrEmpty(typeString))
             {
-                var attributes = new List<BootstrapperAttribute>();
-                foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies())
-                {
-                    attributes.AddRange(assembly
-                        .GetCustomAttributes(typeof(BootstrapperAttribute), false)
-                        .OfType<BootstrapperAttribute>());
-                }
-                var bootstrapperAttribute = attributes
-                    .OrderByDescending(attribute => attribute.Priority)
-                    .FirstOrDefault();
+                BootstrapperAttribute bootstrapperAttribute = null;
+                if (sender != null)
+                    bootstrapperAttribute = sender.GetType().Assembly.GetCustomAttribute<BootstrapperAttribute>();
                 if (bootstrapperAttribute == null)
-                    throw new InvalidOperationException(@"The BootstrapperAttribute was not found.
+                {
+                    foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies())
+                    {
+                        bootstrapperAttribute = (BootstrapperAttribute)assembly
+                            .GetCustomAttributes(typeof(BootstrapperAttribute), false)
+                            .FirstOrDefault();
+                        if (bootstrapperAttribute != null)
+                            break;
+                    }
+                    if (bootstrapperAttribute == null)
+                        throw new InvalidOperationException(@"The BootstrapperAttribute was not found.
 You must specify the type of application bootstrapper using BootstrapperAttribute, for example [assembly:Bootstrapper(typeof(MyBootstrapperType))]");
+                }
                 type = bootstrapperAttribute.BootstrapperType;
             }
             else

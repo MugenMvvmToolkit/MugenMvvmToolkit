@@ -143,7 +143,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         public virtual void OnCreate(int? viewId, Bundle savedInstanceState, Action<Bundle> baseOnCreate)
         {
-            AndroidBootstrapperBase.EnsureInitialized(savedInstanceState);
+            AndroidBootstrapperBase.EnsureInitialized(Target, savedInstanceState);
             if (Tracer.TraceInformation)
                 Tracer.Info("OnCreate activity({0})", Target);
             _bundle = savedInstanceState;
@@ -201,8 +201,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 Tracer.Info("OnDestroy activity({0})", Target);
             ServiceProvider.EventAggregator.Unsubscribe(this);
             Destroyed?.Invoke(Target, EventArgs.Empty);
-            _view.RemoveFromParent();
             _view.ClearBindingsRecursively(true, true, PlatformExtensions.AggressiveViewCleanup);
+            _view.RemoveFromParent();
             ThreadPool.QueueUserWorkItem(state => PlatformExtensions.CleanupWeakReferences(true));
             _view = null;
 
