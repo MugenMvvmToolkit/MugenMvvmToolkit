@@ -17,7 +17,6 @@
 #endregion
 
 using System;
-using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using Android.Content;
 using JetBrains.Annotations;
@@ -27,7 +26,7 @@ using MugenMvvmToolkit.Binding.Builders;
 namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 {
     [StructLayout(LayoutKind.Auto)]
-    public struct XmlPropertySetter<TWrapper, TTarget>
+    public struct XmlPropertySetter<TTarget>
         where TTarget : class
     {
         #region Fields
@@ -60,31 +59,15 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         #region Methods
 
-        public void SetBoolProperty(Func<Expression<Func<TWrapper, object>>> propertyName, string value)
-        {
-            SetBoolProperty(propertyName.GetMemberName(), value);
-        }
-
         public void SetBoolProperty(string propertyName, string value)
         {
             SetStringProperty(propertyName, value, s => Empty.BooleanToObject(bool.Parse(s)));
-        }
-
-        public void SetEnumProperty<TEnum>(Func<Expression<Func<TWrapper, object>>> propertyName, string value)
-            where TEnum : struct
-        {
-            SetStringProperty(propertyName, value, s => (TEnum)Enum.Parse(typeof(TEnum), s.Replace("|", ","), true));
         }
 
         public void SetEnumProperty<TEnum>(string propertyName, string value)
             where TEnum : struct
         {
             SetStringProperty(propertyName, value, s => (TEnum)Enum.Parse(typeof(TEnum), s.Replace("|", ","), true));
-        }
-
-        public void SetStringProperty(Func<Expression<Func<TWrapper, object>>> propertyName, string value, Func<string, object> convertAction = null)
-        {
-            SetStringProperty(propertyName.GetMemberName(), value, convertAction);
         }
 
         public void SetStringProperty(string propertyName, string value, Func<string, object> convertAction = null)
@@ -105,11 +88,6 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             member.SetSingleValue(_target, convertAction == null ? objectToSet : convertAction(objectToSet));
         }
 
-        public void SetProperty(Func<Expression<Func<TWrapper, object>>> propertyName, string value)
-        {
-            SetProperty(propertyName.GetMemberName(), value);
-        }
-
         public void SetProperty(string propertyName, string value)
         {
             if (value == null)
@@ -126,11 +104,6 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             }
             var member = BindingServiceProvider.MemberProvider.GetBindingMember(typeof(TTarget), propertyName, false, true);
             member.SetSingleValue(_target, objectToSet);
-        }
-
-        public void SetBinding(Func<Expression<Func<TWrapper, object>>> propertyName, string value, bool required)
-        {
-            SetBinding(propertyName.GetMemberName(), value, required);
         }
 
         public void SetBinding(string propertyName, string value, bool required)

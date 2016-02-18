@@ -912,7 +912,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             target.SetBindingMemberValue(member, target.GetBindingMemberValue(member));
         }
 
-        private static void MenuItemTemplateInitialized(MenuItemTemplate menuItemTemplate, IMenuItem menuItem, XmlPropertySetter<MenuItemTemplate, IMenuItem> setter)
+        private static void MenuItemTemplateInitialized(MenuItemTemplate menuItemTemplate, IMenuItem menuItem, XmlPropertySetter<IMenuItem> setter)
         {
             setter.SetEnumProperty<ShowAsAction>(nameof(ShowAsAction), menuItemTemplate.ShowAsAction);
 

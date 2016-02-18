@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections;
+using System.Reflection;
 using Android.App;
 using Android.Graphics;
 using Android.Graphics.Drawables;
@@ -213,7 +214,8 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
         #region Fields
 
-        private static IBindingMemberInfo _rawAdapterMember;
+        private static Func<object, object> _rawAdapterGetter;
+        private static Action<object, object> _rawAdapterSetter;
         private static readonly object AddViewValue;
         private static readonly object[] RemoveViewValue;
         private static readonly IntPtr TextViewSetTextMethodId;
@@ -291,8 +293,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                 .CreateMember<RatingBar, float>(nameof(RatingBar.Rating), (info, btn) => btn.Rating,
                     (info, btn, value) => btn.Rating = value, nameof(RatingBar.RatingBarChange)));
 
-            //AdapterView
-            _rawAdapterMember = memberProvider.GetBindingMember(typeof(AdapterView), "RawAdapter", false, true);
+            //AdapterView            
             memberProvider.Register(AttachedBindingMember
                 .CreateAutoProperty(AttachedMembers.AdapterView.DropDownItemTemplate, ViewGroupTemplateChanged));
             memberProvider.Register(AttachedBindingMember
@@ -446,12 +447,36 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
         internal static object GetAdapter(AdapterView item)
         {
-            return _rawAdapterMember.GetValue(item, null);
+            if (_rawAdapterGetter == null)
+            {
+                var property = GetRawAdapterProperty();
+                if (property == null)
+                    _rawAdapterGetter = o => null;
+                else
+                    _rawAdapterGetter = ServiceProvider.ReflectionManager.GetMemberGetter<object>(property);
+            }
+            return _rawAdapterGetter(item);
         }
 
         internal static void SetAdapter(AdapterView item, IAdapter adapter)
         {
-            _rawAdapterMember.SetSingleValue(item, adapter);
+            if (_rawAdapterSetter == null)
+            {
+                var property = GetRawAdapterProperty();
+                if (property == null)
+                    _rawAdapterSetter = (o, v) => { };
+                else
+                    _rawAdapterSetter = ServiceProvider.ReflectionManager.GetMemberSetter<object>(property);
+            }
+            _rawAdapterSetter(item, adapter);
+        }
+
+        private static PropertyInfo GetRawAdapterProperty()
+        {
+            var rawAdapterProp = typeof(AdapterView).GetPropertyEx("RawAdapter", MemberFlags.Instance | MemberFlags.NonPublic | MemberFlags.Public);
+            if (rawAdapterProp == null)
+                Tracer.Error("The AdapterView does not contain RawAdapter property");
+            return rawAdapterProp;
         }
 
         private static void ToolbarMenuTemplateChanged(Toolbar view, AttachedMemberChangedEventArgs<int> args)

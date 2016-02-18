@@ -159,7 +159,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
             PlatformExtensions.ValidateTemplate(ItemsSource, Tabs);
             var actionBar = activity.GetActionBar();
 
-            var setter = new XmlPropertySetter<ActionBarTemplate, ActionBar>(actionBar, activity, new BindingSet());
+            var setter = new XmlPropertySetter<ActionBar>(actionBar, activity, new BindingSet());
             setter.SetEnumProperty<ActionBarNavigationMode>(nameof(NavigationMode), NavigationMode);
             setter.SetProperty(nameof(DataContext), DataContext);
 

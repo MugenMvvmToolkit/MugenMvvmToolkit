@@ -259,7 +259,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
             var newTab = bar.NewTab();
             newTab.SetBindingMemberValue(AttachedMembers.Object.Parent, bar);
 
-            var setter = new XmlPropertySetter<ActionBarTabTemplate, ActionBar.Tab>(newTab, bar.ThemedContext, new BindingSet());
+            var setter = new XmlPropertySetter<ActionBar.Tab>(newTab, bar.ThemedContext, new BindingSet());
             if (useContext)
                 newTab.SetDataContext(context);
             else

@@ -150,9 +150,7 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
             {
                 BindingServiceProvider
                                .MemberProvider
-                               .Register(targetType,
-                                   new DependencyPropertyBindingMember(property, path, property.PropertyType,
-                                       property.ReadOnly, null, null), true);
+                               .Register(targetType, new DependencyPropertyBindingMember(property, path, property.PropertyType, property.ReadOnly, null, null), true);
             }
             return path;
         }
