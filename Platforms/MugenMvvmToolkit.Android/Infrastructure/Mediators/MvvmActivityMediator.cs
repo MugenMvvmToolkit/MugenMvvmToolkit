@@ -378,12 +378,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             try
             {
                 _ignoreFinishNavigation = true;
-                if (message.ViewModel == null)
-                {
-                    if (PlatformExtensions.IsApiLessThanOrEqualTo10)
-                        Target.Finish();
-                }
-                else if (ReferenceEquals(DataContext, message.ViewModel))
+                if (message.ViewModel == null || ReferenceEquals(DataContext, message.ViewModel))
                 {
                     Target.Finish();
                     message.Finished = true;
