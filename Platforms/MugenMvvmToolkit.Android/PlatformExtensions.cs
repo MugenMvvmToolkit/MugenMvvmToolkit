@@ -126,7 +126,9 @@ namespace MugenMvvmToolkit.Android
         {
             #region Fields
 
+            private static readonly TimeSpan MinInterval = TimeSpan.FromSeconds(4);
             private const int GCInterval = 4;
+            private static DateTime _lastTime;
             private static int _gcCount;
 
             #endregion
@@ -157,6 +159,10 @@ namespace MugenMvvmToolkit.Android
             public static void Collect(bool fullCleanup)
             {
                 Interlocked.Exchange(ref _gcCount, 0);
+                var now = DateTime.UtcNow;
+                if (now - _lastTime < MinInterval)
+                    return;
+                _lastTime = now;
                 int oldCount;
                 lock (WeakReferencesHolder)
                 {
