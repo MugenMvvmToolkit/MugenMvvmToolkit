@@ -43,7 +43,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         private bool _isSourceUpdating;
         private bool _isTargetUpdating;
         private IBindingBehavior[] _items;
-        private ushort _size;
+        private byte _size;
 
         #endregion
 
