@@ -31,17 +31,21 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(path, nameof(path));
+            if (path.IsEmpty)
+                return new EmptyPathObserver(target, path);
+
             bool hasStablePath;
             bool observable;
+            bool optional;
             if (context == null || !context.TryGetData(BindingBuilderConstants.HasStablePath, out hasStablePath))
                 hasStablePath = BindingServiceProvider.HasStablePathDefault;
             if (context == null || !context.TryGetData(BindingBuilderConstants.Observable, out observable))
                 observable = BindingServiceProvider.ObservablePathDefault;
+            if (context == null || !context.TryGetData(BindingBuilderConstants.Optional, out optional))
+                optional = BindingServiceProvider.OptionalBindingDefault;
             if (path.IsSingle)
-                return new SinglePathObserver(target, path, ignoreAttachedMembers, hasStablePath, observable);
-            if (path.IsEmpty)
-                return new EmptyPathObserver(target, path);
-            return new MultiPathObserver(target, path, ignoreAttachedMembers, hasStablePath, observable);
+                return new SinglePathObserver(target, path, ignoreAttachedMembers, hasStablePath, observable, optional);
+            return new MultiPathObserver(target, path, ignoreAttachedMembers, hasStablePath, observable, optional);
         }
 
         #endregion

@@ -73,6 +73,7 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
         private uint _targetDelay;
         private bool? _hasStablePath;
         private bool? _observable;
+        private bool? _optional;
 
         #endregion
 
@@ -270,6 +271,17 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
             }
         }
 
+        public bool? Optional
+        {
+            get { return _optional; }
+            set
+            {
+                if (value.HasValue)
+                    HasValue = true;
+                _optional = value;
+            }
+        }
+
         public bool? HasStablePath
         {
             get { return _hasStablePath; }
@@ -364,6 +376,8 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
                 syntaxBuilder.HasStablePath(HasStablePath.Value);
             if (Observable.HasValue)
                 syntaxBuilder.Observable(Observable.Value);
+            if (Optional.HasValue)
+                syntaxBuilder.Optional(Optional.Value);
             if (ValidatesOnExceptions)
                 syntaxBuilder.ValidatesOnExceptions();
             if (ValidatesOnNotifyDataErrors)

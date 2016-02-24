@@ -176,7 +176,8 @@ namespace MugenMvvmToolkit.Binding.Parse
                 {"TargetDisableEqualityChecking", parser => parser.GetDisableEqualityChecking(true)},
                 {"SourceDisableEqualityChecking", parser => parser.GetDisableEqualityChecking(false)},
                 {nameof(BindingBuilderConstants.HasStablePath), parser => parser.GetBoolValue(BindingBuilderConstants.HasStablePath) },
-                {nameof(BindingBuilderConstants.Observable), parser => parser.GetBoolValue(BindingBuilderConstants.Observable) }
+                {nameof(BindingBuilderConstants.Observable), parser => parser.GetBoolValue(BindingBuilderConstants.Observable) },
+                {nameof(BindingBuilderConstants.Optional), parser => parser.GetBoolValue(BindingBuilderConstants.Optional) }
             };
 
             _binaryOperationAliases = new Dictionary<string, TokenType>(StringComparer.OrdinalIgnoreCase)

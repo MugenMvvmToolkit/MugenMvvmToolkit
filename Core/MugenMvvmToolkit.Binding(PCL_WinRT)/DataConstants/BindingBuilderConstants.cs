@@ -48,6 +48,7 @@ namespace MugenMvvmToolkit.Binding.DataConstants
         public static readonly DataConstant<bool> ToggleEnabledState;
         public static readonly DataConstant<bool> HasStablePath;
         public static readonly DataConstant<bool> Observable;
+        public static readonly DataConstant<bool> Optional;
         public static readonly DataConstant NoCache;
 
         #endregion
@@ -75,6 +76,7 @@ namespace MugenMvvmToolkit.Binding.DataConstants
             TargetNullValue = DataConstant.Create<object>(type, nameof(TargetNullValue), false);
             HasStablePath = DataConstant.Create<bool>(type, nameof(HasStablePath));
             Observable = DataConstant.Create<bool>(type, nameof(Observable));
+            Optional = DataConstant.Create<bool>(type, nameof(Optional));
             NoCache = DataConstant.Create(type, nameof(NoCache));
         }
 

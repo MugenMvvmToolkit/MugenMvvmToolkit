@@ -106,6 +106,8 @@ namespace MugenMvvmToolkit.Binding
 
         public static bool ObservablePathDefault { get; set; }
 
+        public static bool OptionalBindingDefault { get; set; }
+
         public static Dictionary<string, IBindingBehavior> BindingModeToBehavior => BindingModeToBehaviorField;
 
         public static List<string> FakeMemberPrefixes => FakeMemberPrefixesField;
