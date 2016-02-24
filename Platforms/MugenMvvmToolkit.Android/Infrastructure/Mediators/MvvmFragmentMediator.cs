@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Threading;
 using Android.App;
 using Android.Content;
 using Android.OS;
@@ -95,6 +94,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         private DialogInterfaceOnKeyListener _keyListener;
         private View _view;
         private bool _removed;
+        private bool _isStarted;
 #if !APPCOMPAT
         private bool _isPreferenceContext;
 #endif
@@ -182,20 +182,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         public virtual void OnViewCreated(View view, Bundle savedInstanceState, Action<View, Bundle> baseOnViewCreated)
         {
-            var dialogFragment = Target as DialogFragment;
-            if (dialogFragment == null)
+            if (!(Target is DialogFragment))
                 PlatformExtensions.NotifyActivityAttached(Target.Activity, view);
-            else
-            {
-                var dialog = dialogFragment.Dialog;
-                if (dialog != null)
-                {
-                    TrySetTitleBinding();
-                    if (_keyListener == null)
-                        _keyListener = new DialogInterfaceOnKeyListener(this);
-                    dialog.SetOnKeyListener(_keyListener);
-                }
-            }
             baseOnViewCreated(view, savedInstanceState);
         }
 
@@ -253,7 +241,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 baseOnSaveInstanceState(outState);
             else
 #endif
-            base.OnSaveInstanceState(outState, baseOnSaveInstanceState);
+                base.OnSaveInstanceState(outState, baseOnSaveInstanceState);
         }
 
         public virtual void OnDetach(Action baseOnDetach)
@@ -278,7 +266,20 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         public virtual void OnStart(Action baseOnStart)
         {
             baseOnStart();
-            Target.View?.RootView.ListenParentChange();
+            if (!_isStarted)
+            {
+                _isStarted = true;
+                var dialogFragment = Target as DialogFragment;
+                var dialog = dialogFragment?.Dialog;
+                if (dialog != null)
+                {
+                    TrySetTitleBinding(dialog);
+                    if (_keyListener == null)
+                        _keyListener = new DialogInterfaceOnKeyListener(this);
+                    dialog.SetOnKeyListener(_keyListener);
+                }
+                Target.View?.RootView.ListenParentChange();
+            }
         }
 
         public virtual void OnStop(Action baseOnStop)
@@ -370,15 +371,11 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             return !args.Cancel;
         }
 
-        private void TrySetTitleBinding()
+        private void TrySetTitleBinding(Dialog dialog)
         {
             var hasDisplayName = DataContext as IHasDisplayName;
-            var dialogFragment = Target as DialogFragment;
-            if (dialogFragment == null || hasDisplayName == null)
-                return;
-            var dialog = dialogFragment.Dialog;
-            if (dialog != null)
-                BindingServiceProvider.BindingProvider.CreateBindingsFromString(dialog, "Title DisplayName", new object[] { hasDisplayName });
+            if (dialog != null && hasDisplayName != null)
+                dialog.Bind(AttachedMembers.Dialog.Title).To(hasDisplayName, nameof(IHasDisplayName.DisplayName)).Build();
         }
 
         #endregion
