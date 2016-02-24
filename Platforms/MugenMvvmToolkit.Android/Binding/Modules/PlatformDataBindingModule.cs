@@ -654,7 +654,6 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
         private static void ContentMemberAttached(ViewGroup viewGroup, MemberAttachedEventArgs args)
         {
             viewGroup.ListenParentChange();
-            viewGroup.SetOnHierarchyChangeListener(ContentChangeListener.Instance);
         }
 
         private static void ContentTemplateSelectorChanged(ViewGroup sender,
