@@ -1035,7 +1035,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
 
         protected virtual ISingleBindingSourceAccessor GetAccessor(object model, string path, IDataContext context, bool isSource, Func<IDataContext, object> commandParameterDelegate = null)
         {
-            var source = new MultiPathObserver(model, new BindingPath(path), false, false, true);
+            var source = new MultiPathObserver(model, new BindingPath(path), false, false, true, false);
             if (commandParameterDelegate != null)
             {
                 context = context.ToNonReadOnly();

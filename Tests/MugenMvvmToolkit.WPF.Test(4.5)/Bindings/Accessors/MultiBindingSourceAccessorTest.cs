@@ -231,9 +231,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
             valueAccessor.GetValue(memberMock, dataContext, true).ShouldEqual(targetNullValue);
         }
 
-        private static IObserver CreateSource(object model, string path, bool hasStablePath = false, bool observable = true)
+        private static IObserver CreateSource(object model, string path, bool hasStablePath = false, bool observable = true, bool optional = false)
         {
-            return new MultiPathObserver(model, new BindingPath(path), false, hasStablePath, observable);
+            return new MultiPathObserver(model, new BindingPath(path), false, hasStablePath, observable, optional);
         }
 
         #endregion
