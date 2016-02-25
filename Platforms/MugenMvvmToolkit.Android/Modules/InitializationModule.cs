@@ -57,9 +57,10 @@ namespace MugenMvvmToolkit.Android.Modules
             iocContainer.BindToBindingInfo(GetViewFactory());
             iocContainer.BindToBindingInfo(GetNavigationService());
 
+            var result = base.LoadInternal();
             INavigationProvider provider;
             iocContainer.TryGet(out provider);
-            return base.LoadInternal();
+            return result;
         }
 
         protected override BindingInfo<IReflectionManager> GetReflectionManager()
