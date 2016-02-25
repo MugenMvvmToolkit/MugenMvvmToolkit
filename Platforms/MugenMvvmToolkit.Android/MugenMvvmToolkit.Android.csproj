@@ -97,9 +97,6 @@
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\presenters\DynamicViewModelWindowPresenter.cs">
       <Link>Infrastructure\Presenters\DynamicViewModelWindowPresenter.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Interfaces\Navigation\INavigationProviderEx.cs">
-      <Link>Interfaces\Navigation\INavigationProviderEx.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Interfaces\Navigation\INavigationService.cs">
       <Link>Interfaces\Navigation\INavigationService.cs</Link>
     </Compile>

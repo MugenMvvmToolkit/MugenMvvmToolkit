@@ -67,7 +67,7 @@ using MugenMvvmToolkit.WinPhone.Interfaces.Navigation;
 namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 #endif
 {
-    public class NavigationProvider : INavigationProviderEx
+    public class NavigationProvider : INavigationProvider
     {
         #region Nested types
 
