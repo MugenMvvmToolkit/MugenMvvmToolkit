@@ -179,22 +179,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             base.OnSaveInstanceState(outState, baseOnSaveInstanceState);
         }
 
-        protected override void RestoreContext(Activity target, object dataContext)
-        {
-            base.RestoreContext(target, dataContext);
-            var viewModel = dataContext as IViewModel;
-            if (viewModel != null)
-            {
-                var container = viewModel.GetIocContainer(true, false);
-                if (container != null)
-                {
-                    //Tries to activate navigation provider.
-                    INavigationProvider service;
-                    container.TryGet(out service);
-                }
-            }
-        }
-
         public override void OnDestroy(Action baseOnDestroy)
         {
             if (Tracer.TraceInformation)

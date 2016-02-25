@@ -53,8 +53,12 @@ namespace MugenMvvmToolkit.Android.Modules
 
         protected override bool LoadInternal()
         {
-            Context.IocContainer.BindToBindingInfo(GetViewFactory());
-            Context.IocContainer.BindToBindingInfo(GetNavigationService());
+            var iocContainer = Context.IocContainer;
+            iocContainer.BindToBindingInfo(GetViewFactory());
+            iocContainer.BindToBindingInfo(GetNavigationService());
+
+            INavigationProvider provider;
+            iocContainer.TryGet(out provider);
             return base.LoadInternal();
         }
 
