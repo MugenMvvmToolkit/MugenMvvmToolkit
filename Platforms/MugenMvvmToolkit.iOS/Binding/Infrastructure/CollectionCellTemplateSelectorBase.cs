@@ -38,8 +38,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         protected abstract NSString GetIdentifier(TSource item, UICollectionView container);
 
-        protected abstract void InitializeTemplate(UICollectionView container, TTemplate cell,
-            BindingSet<TTemplate, TSource> bindingSet);
+        protected abstract void InitializeTemplate(UICollectionView container, TTemplate cell, BindingSet<TTemplate, TSource> bindingSet);
 
         #endregion
 

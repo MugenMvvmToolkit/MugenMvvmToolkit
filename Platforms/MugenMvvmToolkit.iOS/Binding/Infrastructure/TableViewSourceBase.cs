@@ -17,8 +17,6 @@
 #endregion
 
 using System;
-using System.Collections.Concurrent;
-using System.Runtime.InteropServices;
 using Foundation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
@@ -26,87 +24,18 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.iOS.Binding.Models;
 using MugenMvvmToolkit.iOS.Interfaces;
 using MugenMvvmToolkit.iOS.Interfaces.Views;
-using MugenMvvmToolkit.iOS.Views;
 using UIKit;
 
 namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 {
     public abstract class TableViewSourceBase : UITableViewSource
     {
-        #region Nested types
-
-        [StructLayout(LayoutKind.Auto)]
-        private struct IdentifierKey : IEquatable<IdentifierKey>
-        {
-            #region Equality members
-
-            public bool Equals(IdentifierKey other)
-            {
-                return _itemType == other._itemType && _id.Equals(other._id, StringComparison.Ordinal);
-            }
-
-            public override bool Equals(object obj)
-            {
-                if (ReferenceEquals(null, obj)) return false;
-                return obj is IdentifierKey && Equals((IdentifierKey)obj);
-            }
-
-            public override int GetHashCode()
-            {
-                unchecked
-                {
-                    return (_itemType.GetHashCode() * 397) ^ _id.GetHashCode();
-                }
-            }
-
-            public static bool operator ==(IdentifierKey left, IdentifierKey right)
-            {
-                return left.Equals(right);
-            }
-
-            public static bool operator !=(IdentifierKey left, IdentifierKey right)
-            {
-                return !left.Equals(right);
-            }
-
-            #endregion
-
-            #region Fields
-
-            private string _id;
-            private Type _itemType;
-
-            #endregion
-
-            #region Constructors
-
-            public IdentifierKey(Type itemType, string id)
-            {
-                _id = id ?? "";
-                _itemType = itemType;
-            }
-
-            #endregion
-
-            #region Methods
-
-            public NSString GetIdentifier()
-            {
-                return new NSString("$TableViewSourceBase_" + _id + "_" + _itemType.FullName);
-            }
-
-            #endregion
-        }
-
-        #endregion
-
         #region Fields
 
         internal const int InitializingStateMask = 1;
         private const int InitializedStateMask = 2;
         private const int SelectedFromBindingStateFalseMask = 4;
         private static Func<UITableView, IDataContext, TableViewSourceBase> _factory;
-        private static readonly ConcurrentDictionary<IdentifierKey, NSString> TypeToIdentifier;
 
         private readonly DataTemplateProvider _templateProvider;
         private readonly WeakReference _tableView;
@@ -122,7 +51,6 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         static TableViewSourceBase()
         {
-            TypeToIdentifier = new ConcurrentDictionary<IdentifierKey, NSString>();
             _factory = (o, context) => new ItemsSourceTableViewSource(o);
         }
 
@@ -208,9 +136,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         public virtual void ReloadData()
         {
-            var tableView = TableView;
-            if (tableView != null)
-                tableView.ReloadData();
+            TableView?.ReloadData();
         }
 
         public virtual bool UpdateSelectedBindValue(UITableViewCell cell, bool selected)
@@ -318,20 +244,6 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             tableView.TryRaiseAttachedEvent(AttachedMembers.UITableView.SelectedItemChangedEvent);
         }
 
-        private static NSString GetCellIdentifier(object item, string id = null)
-        {
-            if (TypeToIdentifier.Count > 200)
-                TypeToIdentifier.Clear();
-            return TypeToIdentifier.GetOrAdd(new IdentifierKey(item == null ? typeof(object) : item.GetType(), id), type => type.GetIdentifier());
-        }
-
-        private static void SetCellBinding(UITableView tableView, UITableViewCell cell)
-        {
-            Action<UITableViewCell> bindValue = tableView.GetBindingMemberValue(AttachedMembers.UITableView.CellBind);
-            if (bindValue != null)
-                bindValue(cell);
-        }
-
         private void UpdateSelectedItemInternal(UITableView tableView, object item, bool selected)
         {
             if (selected)
@@ -386,9 +298,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
         public override void CellDisplayingEnded(UITableView tableView, UITableViewCell cell, NSIndexPath indexPath)
         {
             cell.SetDataContext(null);
-            var callback = cell as IHasDisplayCallback;
-            if (callback != null)
-                callback.DisplayingEnded();
+            (cell as IHasDisplayCallback)?.DisplayingEnded();
         }
 
         public override nfloat GetHeightForRow(UITableView tableView, NSIndexPath indexPath)
@@ -420,20 +330,11 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
         {
             object item = GetItemAt(indexPath);
             var selector = _templateProvider.TableCellTemplateSelector;
-            NSString cellIdentifier = selector == null
-                ? GetCellIdentifier(item)
-                : selector.GetIdentifier(item, tableView);
-            UITableViewCell cell = tableView.DequeueReusableCell(cellIdentifier);
-            if (cell == null)
-            {
-                if (selector != null)
-                    cell = selector.SelectTemplate(tableView, cellIdentifier);
-                if (cell == null)
-                {
-                    var cellStyle = tableView.GetBindingMemberValue(AttachedMembers.UITableView.CellStyle).GetValueOrDefault(UITableViewCellStyle.Default);
-                    cell = new UITableViewCellBindable(cellStyle, cellIdentifier);
-                }
-            }
+            if (selector == null)
+                throw new NotSupportedException("The ItemTemplate is null to create UITableViewCell use the ItemTemplate with ITableCellTemplateSelector value.");
+            NSString cellIdentifier = selector.GetIdentifier(item, tableView);
+            UITableViewCell cell = tableView.DequeueReusableCell(cellIdentifier, indexPath);
+
             _lastCreatedCell = cell;
             _lastCreatedCellPath = indexPath;
 
@@ -446,12 +347,10 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             {
                 cell.Tag |= InitializedStateMask;
                 ParentObserver.GetOrAdd(cell).Parent = tableView;
-                SetCellBinding(tableView, cell);
+                selector.InitializeTemplate(tableView, cell);
             }
             cell.Tag &= ~InitializingStateMask;
-            var initializableItem = cell as IHasDisplayCallback;
-            if (initializableItem != null)
-                initializableItem.WillDisplay();
+            (cell as IHasDisplayCallback)?.WillDisplay();
             return cell;
         }
 

@@ -25,10 +25,12 @@ namespace MugenMvvmToolkit.iOS.Binding.Interfaces
 {
     public interface ITableCellTemplateSelector
     {
-        NSString GetIdentifier([CanBeNull] object item, [NotNull] UITableView container);
-
         nfloat? GetHeight([NotNull] UITableView container, [NotNull] NSString identifier);
 
-        UITableViewCell SelectTemplate([NotNull] UITableView container, [NotNull] NSString identifier);
+        void Initialize([NotNull] UITableView container);
+
+        NSString GetIdentifier([CanBeNull] object item, [NotNull] UITableView container);
+
+        void InitializeTemplate([NotNull] UITableView container, UITableViewCell cell);
     }
 }

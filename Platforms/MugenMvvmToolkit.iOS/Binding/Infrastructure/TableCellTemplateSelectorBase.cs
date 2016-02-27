@@ -35,11 +35,11 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         #region Methods
 
+        protected abstract void Initialize(UITableView container);
+
         protected abstract NSString GetIdentifier(TSource item, UITableView container);
 
-        protected abstract TTemplate SelectTemplate(UITableView container, NSString identifier);
-
-        protected abstract void Initialize(TTemplate template, BindingSet<TTemplate, TSource> bindingSet);
+        protected abstract void InitializeTemplate(UITableView container, TTemplate cell, BindingSet<TTemplate, TSource> bindingSet);
 
         protected virtual nfloat? GetHeight(UITableView container, NSString identifier)
         {
@@ -48,23 +48,25 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         #endregion
 
-        #region Implementation of ITableCellTemplateSelector
+        #region Implementation of ICollectionCellTemplateSelector
 
-        NSString ITableCellTemplateSelector.GetIdentifier(object item, UITableView container)
+        void ITableCellTemplateSelector.Initialize(UITableView container)
         {
-            return GetIdentifier((TSource) item, container);
+            Initialize(container);
         }
 
-        UITableViewCell ITableCellTemplateSelector.SelectTemplate(UITableView container, NSString identifier)
+        public NSString GetIdentifier(object item, UITableView container)
         {
-            TTemplate template = SelectTemplate(container, identifier);
-            if (SupportInitialize && template != null)
-            {
-                var bindingSet = new BindingSet<TTemplate, TSource>(template);
-                Initialize(template, bindingSet);
-                bindingSet.Apply();
-            }
-            return template;
+            return GetIdentifier((TSource)item, container);
+        }
+
+        void ITableCellTemplateSelector.InitializeTemplate(UITableView container, UITableViewCell cell)
+        {
+            if (!SupportInitialize)
+                return;
+            var bindingSet = new BindingSet<TTemplate, TSource>((TTemplate)cell);
+            InitializeTemplate(container, (TTemplate)cell, bindingSet);
+            bindingSet.Apply();
         }
 
         nfloat? ITableCellTemplateSelector.GetHeight(UITableView container, NSString identifier)

@@ -120,9 +120,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         public virtual void ReloadData()
         {
-            var collectionView = CollectionView;
-            if (collectionView != null)
-                collectionView.ReloadData();
+            CollectionView?.ReloadData();
         }
 
         public virtual bool UpdateSelectedBindValue(UICollectionViewCell cell, bool selected)
@@ -231,9 +229,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             NSIndexPath indexPath)
         {
             cell.SetDataContext(null);
-            var callback = cell as IHasDisplayCallback;
-            if (callback != null)
-                callback.DisplayingEnded();
+            (cell as IHasDisplayCallback)?.DisplayingEnded();
         }
 
         public override UICollectionViewCell GetCell(UICollectionView collectionView, NSIndexPath indexPath)
@@ -260,9 +256,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
                 selector.InitializeTemplate(collectionView, cell);
             }
             cell.Tag &= ~InitializingStateMask;
-            var initializableItem = cell as IHasDisplayCallback;
-            if (initializableItem != null)
-                initializableItem.WillDisplay();
+            (cell as IHasDisplayCallback)?.WillDisplay();
             return cell;
         }
 
