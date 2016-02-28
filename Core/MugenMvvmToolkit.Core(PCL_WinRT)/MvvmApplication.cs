@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
@@ -45,6 +46,8 @@ namespace MugenMvvmToolkit
         protected MvvmApplication(LoadMode mode = LoadMode.Runtime)
         {
             ServiceProvider.DesignTimeManager = DesignTimeManagerImpl.Instance;
+            if (ServiceProvider.UiSynchronizationContextField == null)
+                ServiceProvider.UiSynchronizationContextField = SynchronizationContext.Current;
             Current = this;
             _mode = mode;
             _platform = PlatformInfo.Unknown;

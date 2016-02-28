@@ -1596,11 +1596,6 @@ namespace MugenMvvmToolkit
             return ServiceProvider.WeakReferenceFactory(item);
         }
 
-        internal static void InvokeOnUiThreadAsync(Action action)
-        {
-            ServiceProvider.ThreadManager.InvokeOnUiThreadAsync(action);
-        }
-
         [Pure]
         internal static bool HasMemberFlag(this MemberFlags es, MemberFlags value)
         {

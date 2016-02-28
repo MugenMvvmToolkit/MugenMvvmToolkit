@@ -52,6 +52,7 @@ namespace MugenMvvmToolkit
         private static IDesignTimeManager _designTimeManager;
         private static IViewModelProvider _viewModelProvider;
         private static Func<IViewModel, IViewModelSettings> _viewModelSettingsFactory;
+        internal static SynchronizationContext UiSynchronizationContextField;
 
         #endregion
 
@@ -87,6 +88,13 @@ namespace MugenMvvmToolkit
 
         [CanBeNull]
         public static Func<Type, IEnumerable<Type>> EntityMetadataTypeProvider { get; set; }
+
+        [NotNull]
+        public static SynchronizationContext UiSynchronizationContext
+        {
+            get { return UiSynchronizationContextField ?? SynchronizationContext.Current; }
+            set { UiSynchronizationContextField = value; }
+        }
 
         [NotNull]
         public static Func<IViewModel, IViewModelSettings> ViewModelSettingsFactory
