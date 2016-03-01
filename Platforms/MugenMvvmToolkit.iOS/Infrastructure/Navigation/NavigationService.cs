@@ -44,21 +44,29 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
         #region Fields
 
         private UIWindow _window;
+        private Func<UIWindow, UIViewController, UINavigationController> _getOrCreateController;
+        private Func<UIWindow, UINavigationController> _restoreNavigationController;
 
         #endregion
 
         #region Constructors
 
-        public NavigationService([NotNull] UIWindow window)
+        public NavigationService([NotNull] UIWindow window,
+            Func<UIWindow, UIViewController, UINavigationController> getOrCreateController = null,
+            Func<UIWindow, UINavigationController> restoreNavigationController = null)
         {
             Should.NotBeNull(window, nameof(window));
             _window = window;
+            _getOrCreateController = getOrCreateController;
+            _restoreNavigationController = restoreNavigationController;
             if (_window.RootViewController == null)
             {
                 NSObject observer = null;
                 observer = UIWindow.Notifications.ObserveDidBecomeVisible((sender, args) =>
                 {
-                    EnsureInitialized();
+                    var uiWindow = _window;
+                    if (uiWindow != null)
+                        InitializeNavigationController(RestoreNavigationController(uiWindow));
                     observer.Dispose();
                 });
             }
@@ -88,7 +96,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
         {
             get
             {
-                EnsureInitialized();
                 return NavigationController != null && NavigationController.ViewControllers != null &&
                        NavigationController.ViewControllers.Length > 0;
             }
@@ -100,7 +107,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
         {
             get
             {
-                EnsureInitialized();
                 if (NavigationController == null)
                     return null;
                 return NavigationController.TopViewController;
@@ -109,7 +115,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
 
         public virtual void GoBack()
         {
-            EnsureInitialized();
             GoBackInternal();
         }
 
@@ -121,15 +126,9 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
         public virtual string GetParameterFromArgs(EventArgs args)
         {
             Should.NotBeNull(args, nameof(args));
-            EnsureInitialized();
             var cancelArgs = args as NavigatingCancelEventArgs;
             if (cancelArgs == null)
-            {
-                var eventArgs = args as NavigationEventArgs;
-                if (eventArgs == null)
-                    return null;
-                return eventArgs.Parameter;
-            }
+                return (args as NavigationEventArgs)?.Parameter;
             return cancelArgs.Parameter;
         }
 
@@ -138,8 +137,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             Should.NotBeNull(args, nameof(args));
             if (!args.IsCancelable)
                 return false;
-            EnsureInitialized();
-            var eventArgs = ((NavigatingCancelEventArgs)args);
+            var eventArgs = (NavigatingCancelEventArgs)args;
             if (eventArgs.NavigationMode == NavigationMode.Back)
                 return GoBackInternal();
             // ReSharper disable once AssignNullToNotNullAttribute
@@ -149,7 +147,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
         public virtual bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
             Should.NotBeNull(source, nameof(source));
-            EnsureInitialized();
             if (dataContext == null)
                 dataContext = DataContext.Empty;
             bool bringToFront;
@@ -187,14 +184,10 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             bool shouldNavigate = true;
             if (_window != null)
             {
-                var controller = _window.RootViewController as UINavigationController;
-                if (controller == null)
-                {
-                    shouldNavigate = false;
-                    controller = new MvvmNavigationController(viewController);
-                    _window.RootViewController = controller;
-                }
-                InitializeNavigationController(controller);
+                bool navigated;
+                InitializeNavigationController(GetNavigationController(_window, viewController, out navigated));
+                shouldNavigate = !navigated;
+                _window = null;
             }
             if (shouldNavigate)
             {
@@ -287,16 +280,32 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             Navigated?.Invoke(this, args);
         }
 
-        protected void EnsureInitialized()
+        protected virtual UINavigationController RestoreNavigationController(UIWindow window)
         {
-            if (_window == null)
-                return;
-            var rootViewController = _window.RootViewController as UINavigationController;
-            if (NavigationController == null && rootViewController != null)
-                InitializeNavigationController(rootViewController);
+            if (_restoreNavigationController == null)
+                return _window.RootViewController as UINavigationController;
+            return _restoreNavigationController(window);
         }
 
-        private void InitializeNavigationController(UINavigationController navigationController)
+        protected virtual UINavigationController GetNavigationController(UIWindow window, UIViewController rootController, out bool isRootNavigated)
+        {
+            isRootNavigated = true;
+            if (_getOrCreateController == null)
+            {
+                var controller = window.RootViewController as UINavigationController;
+                if (controller == null)
+                {
+                    controller = new MvvmNavigationController(rootController);
+                    window.RootViewController = controller;
+                    return controller;
+                }
+                isRootNavigated = false;
+                return controller;
+            }
+            return _getOrCreateController(window, rootController);
+        }
+
+        protected void InitializeNavigationController(UINavigationController navigationController)
         {
             if (NavigationController != null)
                 return;
@@ -308,19 +317,16 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
                 ex.DidPopViewController += DidPopViewController;
             }
             _window = null;
-            var currentContent = CurrentContent;
-            if (currentContent == null)
-                return;
-            var dataContext = currentContent.DataContext() as IEventPublisher;
-            if (dataContext != null)
-                dataContext.Publish(this, StateChangedMessage.Empty);
+            _getOrCreateController = null;
+            _restoreNavigationController = null;
+            (CurrentContent?.DataContext() as IEventPublisher)?.Publish(this, StateChangedMessage.Empty);
         }
 
         private bool GoBackInternal()
         {
             Should.BeSupported(CanGoBack, "Go back is not supported in current state.");
             bool animated;
-            var viewModel = CurrentContent == null ? null : CurrentContent.DataContext() as IViewModel;
+            var viewModel = CurrentContent?.DataContext() as IViewModel;
             if (viewModel == null || !viewModel.Settings.State.TryGetData(NavigationConstants.UseAnimations, out animated))
                 animated = UseAnimations;
             return NavigationController.PopViewController(animated) != null;
