@@ -624,7 +624,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
                 _closingViewModel = currentViewModel;
                 args.Cancel = true;
                 var context = CreateContextNavigateFrom(currentViewModel, args);
-                var navigateTask = (_closedFromViewModel || !args.IsCancelable)
+                var navigateTask = _closedFromViewModel || !args.IsCancelable
                     ? Empty.TrueTask
                     : OnNavigatingFrom(currentViewModel, context);
                 var t = navigateTask.TryExecuteSynchronously(task =>

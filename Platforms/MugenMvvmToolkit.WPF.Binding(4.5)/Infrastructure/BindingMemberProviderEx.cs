@@ -116,7 +116,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
             {
                 var prop = type.GetPropertyEx(name + "Property", MemberFlags.Public | MemberFlags.Static) ??
                                   type.GetPropertyEx(name, MemberFlags.Public | MemberFlags.Static);
-                property = (prop == null || !prop.CanRead)
+                property = prop == null || !prop.CanRead
                     ? null
                     : prop.GetValue(null, null) as DependencyProperty;
             }

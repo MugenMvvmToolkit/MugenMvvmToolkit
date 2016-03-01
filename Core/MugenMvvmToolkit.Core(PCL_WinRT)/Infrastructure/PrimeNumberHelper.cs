@@ -63,7 +63,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 var limit = (int) Math.Sqrt(candidate);
                 for (int divisor = 3; divisor <= limit; divisor += 2)
                 {
-                    if ((candidate%divisor) == 0)
+                    if (candidate%divisor == 0)
                         return false;
                 }
                 return true;
@@ -79,7 +79,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (prime >= min)
                     return prime;
             }
-            for (int i = (min | 1); i < Int32.MaxValue; i += 2)
+            for (int i = min | 1; i < int.MaxValue; i += 2)
             {
                 if (IsPrime(i))
                     return i;

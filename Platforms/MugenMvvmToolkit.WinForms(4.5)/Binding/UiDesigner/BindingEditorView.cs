@@ -376,7 +376,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
                     var element = node.Parent as XmlElementExpressionNode;
                     if (element == null)
                         return;
-                    var elementColor = (element.Parent == null || _controlsDictionary.TryGetValue(element.Name, out list))
+                    var elementColor = element.Parent == null || _controlsDictionary.TryGetValue(element.Name, out list)
                         ? KnownControlColor
                         : UnknownControlColor;
                     bindingEditor.Highlight(elementColor, node);

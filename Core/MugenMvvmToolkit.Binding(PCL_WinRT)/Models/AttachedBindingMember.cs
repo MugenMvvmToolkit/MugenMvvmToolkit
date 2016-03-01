@@ -404,7 +404,7 @@ namespace MugenMvvmToolkit.Binding.Models
 
             public static void Raise(IBindingMemberInfo m, TTarget target, object arg3)
             {
-                EventListenerList.Raise(target, GetMemberPath(((IAttachedBindingMemberInternal)m)), arg3);
+                EventListenerList.Raise(target, GetMemberPath((IAttachedBindingMemberInternal)m), arg3);
             }
 
             private static string GetMemberPath(IAttachedBindingMemberInternal info)

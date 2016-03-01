@@ -122,8 +122,8 @@ namespace MugenMvvmToolkit.iOS.Views
 
             UIImage viewImage = UIGraphics.GetImageFromCurrentImageContext();
             UIGraphics.EndImageContext();
-            var imgframe = new CGRect((ShowOnRect.X + ((ShowOnRect.Width - 30) / 2)),
-                ((ShowOnRect.Height / 2) + ShowOnRect.Y), 30, 13);
+            var imgframe = new CGRect(ShowOnRect.X + (ShowOnRect.Width - 30) / 2,
+                ShowOnRect.Height / 2 + ShowOnRect.Y, 30, 13);
 
             var img = new UIImageView(viewImage);
             AddSubview(img);
@@ -139,7 +139,7 @@ namespace MugenMvvmToolkit.iOS.Views
 
             UIFont font = UIFont.FromName(FontName, FontSize);
             var message = new NSAttributedString(Message, font);
-            var size = message.GetBoundingRect(new CGSize(FieldFrame.Width - (PaddingInErrorPopUp) * 2, 1000),
+            var size = message.GetBoundingRect(new CGSize(FieldFrame.Width - PaddingInErrorPopUp * 2, 1000),
                 NSStringDrawingOptions.UsesLineFragmentOrigin, null).Size;
             size = new CGSize((nfloat)Math.Ceiling(size.Width), (nfloat)Math.Ceiling(size.Height));
 
@@ -155,11 +155,11 @@ namespace MugenMvvmToolkit.iOS.Views
             dict = new NSDictionary("view", view);
             view.Superview.AddConstraints(
                 NSLayoutConstraint.FromVisualFormat(
-                    $@"H:|-{FieldFrame.X + (FieldFrame.Width - (size.Width + (PaddingInErrorPopUp*2)))}-[view({size.Width + (PaddingInErrorPopUp*2)})]",
+                    $@"H:|-{FieldFrame.X + (FieldFrame.Width - (size.Width + PaddingInErrorPopUp*2))}-[view({size.Width + PaddingInErrorPopUp*2})]",
                     NSLayoutFormatOptions.DirectionLeadingToTrailing, null, dict));
             view.Superview.AddConstraints(
                 NSLayoutConstraint.FromVisualFormat(
-                    $@"V:|-{imgframe.Y + imgframe.Height}-[view({size.Height + (PaddingInErrorPopUp*2)})]",
+                    $@"V:|-{imgframe.Y + imgframe.Height}-[view({size.Height + PaddingInErrorPopUp*2})]",
                     NSLayoutFormatOptions.DirectionLeadingToTrailing, null, dict));
 
             var lbl = new UILabel(CGRect.Empty)

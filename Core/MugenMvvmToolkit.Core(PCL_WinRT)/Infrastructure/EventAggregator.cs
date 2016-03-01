@@ -319,7 +319,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             unchecked
             {
-                return ((RuntimeHelpers.GetHashCode(sender) * 397) ^ RuntimeHelpers.GetHashCode(message) * 397);
+                return (RuntimeHelpers.GetHashCode(sender) * 397) ^ RuntimeHelpers.GetHashCode(message) * 397;
             }
         }
 
