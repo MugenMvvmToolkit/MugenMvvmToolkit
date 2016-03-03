@@ -544,6 +544,13 @@ namespace MugenMvvmToolkit.Android
             WeakReferenceCollector.Collect(fullCleanup);
         }
 
+        public static IMvvmActivityMediator GetOrCreateMediator(this Activity activity, ref IMvvmActivityMediator mediator)
+        {
+            if (mediator == null)
+                Interlocked.CompareExchange(ref mediator, MvvmActivityMediatorFactory(activity, DataContext.Empty), null);
+            return mediator;
+        }
+
         internal static void RemoveFromParent([CanBeNull] this View view)
         {
             if (!view.IsAlive())
@@ -551,13 +558,6 @@ namespace MugenMvvmToolkit.Android
             var viewGroup = view.Parent as ViewGroup;
             if (viewGroup != null)
                 viewGroup.RemoveView(view);
-        }
-
-        internal static IMvvmActivityMediator GetOrCreateMediator(this Activity activity, ref IMvvmActivityMediator mediator)
-        {
-            if (mediator == null)
-                Interlocked.CompareExchange(ref mediator, MvvmActivityMediatorFactory(activity, DataContext.Empty), null);
-            return mediator;
         }
 
         internal static PlatformInfo GetPlatformInfo()

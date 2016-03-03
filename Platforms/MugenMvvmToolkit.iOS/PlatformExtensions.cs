@@ -409,7 +409,7 @@ namespace MugenMvvmToolkit.iOS
                 items[i].ClearBindings(clearDataContext, clearAttachedValues);
         }
 
-        internal static IMvvmViewControllerMediator GetOrCreateMediator(this UIViewController controller, ref IMvvmViewControllerMediator mediator)
+        public static IMvvmViewControllerMediator GetOrCreateMediator(this UIViewController controller, ref IMvvmViewControllerMediator mediator)
         {
             if (mediator == null)
                 Interlocked.CompareExchange(ref mediator, MvvmViewControllerMediatorFactory(controller, DataContext.Empty), null);
