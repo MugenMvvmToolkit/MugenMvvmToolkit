@@ -32,9 +32,9 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
     {
         #region Fields
 
-        internal const int InitializingStateMask = 1;
-        private const int InitializedStateMask = 2;
-        private const int SelectedFromBindingStateFalseMask = 4;
+        protected internal const int InitializingStateMask = 1;
+        protected const int InitializedStateMask = 2;
+        protected const int SelectedFromBindingStateFalseMask = 4;
         private static Func<UITableView, IDataContext, TableViewSourceBase> _factory;
 
         private readonly DataTemplateProvider _templateProvider;
@@ -301,15 +301,6 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             (cell as IHasDisplayCallback)?.DisplayingEnded();
         }
 
-        public override nfloat GetHeightForRow(UITableView tableView, NSIndexPath indexPath)
-        {
-            var selector = _templateProvider.TableCellTemplateSelector;
-            if (selector == null)
-                return tableView.RowHeight;
-            var identifier = selector.GetIdentifier(GetItemAt(indexPath), tableView);
-            return selector.GetHeight(tableView, identifier).GetValueOrDefault(tableView.RowHeight);
-        }
-
         public override string TitleForDeleteConfirmation(UITableView tableView, NSIndexPath indexPath)
         {
             string value;
@@ -332,8 +323,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             var selector = _templateProvider.TableCellTemplateSelector;
             if (selector == null)
                 throw new NotSupportedException("The ItemTemplate is null to create UITableViewCell use the ItemTemplate with ITableCellTemplateSelector value.");
-            NSString cellIdentifier = selector.GetIdentifier(item, tableView);
-            UITableViewCell cell = tableView.DequeueReusableCell(cellIdentifier, indexPath);
+            var cell = tableView.DequeueReusableCell(selector.GetIdentifier(item, tableView), indexPath);
 
             _lastCreatedCell = cell;
             _lastCreatedCellPath = indexPath;

@@ -32,8 +32,8 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
     {
         #region Fields
 
-        internal const int InitializingStateMask = 1;
-        private const int InitializedStateMask = 2;
+        protected internal const int InitializingStateMask = 1;
+        protected const int InitializedStateMask = 2;
         private static Func<UICollectionView, IDataContext, CollectionViewSourceBase> _factory;
 
         private readonly WeakReference _collectionView;
@@ -238,12 +238,10 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             if (selector == null)
                 throw new NotSupportedException("The ItemTemplate is null to create UICollectionViewCell use the ItemTemplate with ICollectionCellTemplateSelector value.");
             object item = GetItemAt(indexPath);
-            NSString identifier = selector.GetIdentifier(item, collectionView);
-            var cell = (UICollectionViewCell)collectionView.DequeueReusableCell(identifier, indexPath);
+            var cell = (UICollectionViewCell)collectionView.DequeueReusableCell(selector.GetIdentifier(item, collectionView), indexPath);
 
             _lastCreatedCell = cell;
             _lastCreatedCellPath = indexPath;
-
 
             if (Equals(item, _selectedItem) && !cell.Selected)
                 collectionView.SelectItem(indexPath, false, UICollectionViewScrollPosition.None);

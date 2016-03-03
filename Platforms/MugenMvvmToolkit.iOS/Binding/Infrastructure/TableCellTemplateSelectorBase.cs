@@ -16,7 +16,6 @@
 
 #endregion
 
-using System;
 using Foundation;
 using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.iOS.Binding.Interfaces;
@@ -41,11 +40,6 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         protected abstract void InitializeTemplate(UITableView container, TTemplate cell, BindingSet<TTemplate, TSource> bindingSet);
 
-        protected virtual nfloat? GetHeight(UITableView container, NSString identifier)
-        {
-            return null;
-        }
-
         #endregion
 
         #region Implementation of ICollectionCellTemplateSelector
@@ -62,16 +56,12 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         void ITableCellTemplateSelector.InitializeTemplate(UITableView container, UITableViewCell cell)
         {
-            if (!SupportInitialize)
-                return;
-            var bindingSet = new BindingSet<TTemplate, TSource>((TTemplate)cell);
-            InitializeTemplate(container, (TTemplate)cell, bindingSet);
-            bindingSet.Apply();
-        }
-
-        nfloat? ITableCellTemplateSelector.GetHeight(UITableView container, NSString identifier)
-        {
-            return GetHeight(container, identifier);
+            if (SupportInitialize)
+            {
+                var bindingSet = new BindingSet<TTemplate, TSource>((TTemplate)cell);
+                InitializeTemplate(container, (TTemplate)cell, bindingSet);
+                bindingSet.Apply();
+            }
         }
 
         #endregion
