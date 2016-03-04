@@ -110,7 +110,10 @@ namespace MugenMvvmToolkit.iOS.Views
 
         protected override void Dispose(bool disposing)
         {
-            Mediator.Dispose(base.Dispose, disposing);
+            if (_mediator == null)
+                base.Dispose(disposing);
+            else
+                Mediator.Dispose(base.Dispose, disposing);
         }
 
         #endregion

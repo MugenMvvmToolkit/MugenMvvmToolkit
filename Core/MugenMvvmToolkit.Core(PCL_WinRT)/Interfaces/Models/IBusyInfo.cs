@@ -23,6 +23,8 @@ namespace MugenMvvmToolkit.Interfaces.Models
 {
     public interface IBusyInfo
     {
+        object Message { get; }
+
         bool TryGetMessage<TType>(out TType message, Func<TType, bool> filter = null);
 
         IList<object> GetMessages();
