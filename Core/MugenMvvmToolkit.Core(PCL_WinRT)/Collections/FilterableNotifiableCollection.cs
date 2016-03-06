@@ -166,7 +166,7 @@ namespace MugenMvvmToolkit.Collections
         protected override bool ClearItemsInternal(IList<T> items, NotificationType notificationType)
         {
             if (_filter == null)
-                return base.ClearItemsInternal(items, notificationType);
+                return base.ClearItemsInternal(items, GetBaseNotificationType(notificationType));
 
             if (HasChangingFlag(notificationType))
             {
@@ -201,7 +201,7 @@ namespace MugenMvvmToolkit.Collections
         protected override bool RemoveItemInternal(IList<T> items, int index, NotificationType notificationType)
         {
             if (_filter == null)
-                return base.RemoveItemInternal(items, index, notificationType);
+                return base.RemoveItemInternal(items, index, GetBaseNotificationType(notificationType));
 
             var filterCollection = GetFilterCollection();
             var originalIndex = filterCollection.GetKey(index);
@@ -227,7 +227,7 @@ namespace MugenMvvmToolkit.Collections
         protected override bool SetItemInternal(IList<T> items, int index, T item, NotificationType notificationType)
         {
             if (_filter == null)
-                return base.SetItemInternal(items, index, item, notificationType);
+                return base.SetItemInternal(items, index, item, GetBaseNotificationType(notificationType));
 
             var filterCollection = GetFilterCollection();
             var originalIndex = filterCollection.GetKey(index);
@@ -263,7 +263,7 @@ namespace MugenMvvmToolkit.Collections
         protected override int InsertItemInternal(IList<T> items, int index, T item, bool isAdd, NotificationType notificationType)
         {
             if (_filter == null)
-                return base.InsertItemInternal(items, index, item, isAdd, notificationType);
+                return base.InsertItemInternal(items, index, item, isAdd, GetBaseNotificationType(notificationType));
 
             var filterCollection = GetFilterCollection();
             int originalIndex = index;
@@ -382,6 +382,13 @@ namespace MugenMvvmToolkit.Collections
             }
             if (notify)
                 OnCollectionChanged(Empty.ResetEventArgs);
+        }
+
+        private NotificationType GetBaseNotificationType(NotificationType notificationType)
+        {
+            if (_isSourceNotifiable)
+                return notificationType & ~NotificationType.Changed;
+            return notificationType;
         }
 
         private void UpdateItem(OrderedListInternal<int, T> filterCollection, NotifyCollectionChangedEventArgs e, bool notify)
