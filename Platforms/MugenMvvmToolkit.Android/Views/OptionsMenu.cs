@@ -23,7 +23,6 @@ using Android.Content;
 using Android.Runtime;
 using Android.Util;
 using Android.Views;
-using Android.Widget;
 using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Android.Binding.Interfaces;
 using MugenMvvmToolkit.Binding;
@@ -33,7 +32,7 @@ using MugenMvvmToolkit.Binding.Interfaces.Models;
 namespace MugenMvvmToolkit.Android.Views
 {
     [Register("mugenmvvmtoolkit.android.views.OptionsMenu")]
-    public sealed class OptionsMenu : FrameLayout, IManualBindings
+    public sealed class OptionsMenu : View, IManualBindings
     {
         #region Fields
 
@@ -63,11 +62,15 @@ namespace MugenMvvmToolkit.Android.Views
 
         public void Inflate(Activity activity, IMenu menu)
         {
+            if (!activity.IsAlive() || !menu.IsAlive())
+                return;
             IBindingMemberInfo bindingMember = BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(typeof(OptionsMenu), AttachedMembers.Toolbar.MenuTemplate, false, true);
-            var value = (int)bindingMember.GetValue(this, null);
-            activity.MenuInflater.Inflate(value, menu, this);
+            var value = (int?)bindingMember.GetValue(this, null);
+            if (value == null)
+                return;
+            activity.MenuInflater.Inflate(value.Value, menu, this);
             if (_bindings != null)
             {
                 foreach (string binding in _bindings)

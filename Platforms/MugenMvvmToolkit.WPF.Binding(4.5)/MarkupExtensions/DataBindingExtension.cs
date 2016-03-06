@@ -49,6 +49,11 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
 
         #region Constructors
 
+        static DataBindingExtension()
+        {
+            MvvmApplication.InitializeDesignTimeManager();
+        }
+
         public DataBindingExtension()
         {
             _targetMemberName = string.Empty;
@@ -145,9 +150,7 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
             {
                 BindingServiceProvider
                                .MemberProvider
-                               .Register(targetType,
-                                   new DependencyPropertyBindingMember(property, path, property.PropertyType,
-                                       property.ReadOnly, null, null), true);
+                               .Register(targetType, new DependencyPropertyBindingMember(property, path, property.PropertyType, property.ReadOnly, null, null), true);
             }
             return path;
         }

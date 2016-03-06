@@ -254,7 +254,7 @@ namespace MugenMvvmToolkit.Collections
                     _freeList = index3;
                     ++_freeCount;
 
-                    if (_entries.Length > 1000 && (_entries.Length / 4) > Count)
+                    if (_entries.Length > 1000 && _entries.Length / 4 > Count)
                         TrimExcess();
                     return true;
                 }

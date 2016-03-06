@@ -49,23 +49,20 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
             BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UITableView.RemoveAnimation] = BindingServiceProvider.TemplateMemberPriority + 1;
             BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UITableView.ReplaceAnimation] = BindingServiceProvider.TemplateMemberPriority + 1;
             BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UITableView.ScrollPosition] = BindingServiceProvider.TemplateMemberPriority + 1;
-            BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UITableView.CellBind] = BindingServiceProvider.TemplateMemberPriority + 1;
 
             //UITableView
             BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.UIView.ItemsSource.Override<UITableView>());
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITableView.ReadOnly));
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITableView.CellBind));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITableView.AddAnimation));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITableView.RemoveAnimation));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITableView.ReplaceAnimation));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITableView.ScrollPosition));
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITableView.CellStyle));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITableView.UseAnimations));
             memberProvider.Register(AttachedBindingMember.CreateEvent(AttachedMembers.UITableView.SelectedItemChangedEvent));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UIView.ItemsSource.Override<UITableView>(), TableViewItemsSourceChanged));
             memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.UITableView.SelectedItem,
                     GetTableViewSelectedItem, SetTableViewSelectedItem, (info, view, arg3) => (IDisposable)view.SetBindingMemberValue(AttachedMembers.UITableView.SelectedItemChangedEvent, arg3)));
-            var itemTemplateMember = AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITableView.ItemTemplateSelector);
+            var itemTemplateMember = AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITableView.ItemTemplateSelector, (view, args) => args.NewValue?.Initialize(view));
             memberProvider.Register(itemTemplateMember);
             memberProvider.Register(typeof(UITableView), AttachedMemberConstants.ItemTemplate, itemTemplateMember, true);
 
@@ -128,10 +125,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
 
         private static object GetTableViewSelectedItem(IBindingMemberInfo bindingMemberInfo, UITableView uiTableView)
         {
-            var tableViewSource = uiTableView.Source as TableViewSourceBase;
-            if (tableViewSource == null)
-                return null;
-            return tableViewSource.SelectedItem;
+            return (uiTableView.Source as TableViewSourceBase)?.SelectedItem;
         }
 
         private static void TableViewItemsSourceChanged(UITableView uiTableView, AttachedMemberChangedEventArgs<IEnumerable> args)

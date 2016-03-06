@@ -158,7 +158,17 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        protected virtual IDisposable TryObserveMember(object value, IBindingMemberInfo member, IEventListener eventListener, string propertyName)
+        protected static IBindingMemberInfo GetBindingMember(Type type, string path, bool ignoreAttached, bool optional)
+        {
+            IBindingMemberInfo member = BindingServiceProvider
+                .MemberProvider
+                .GetBindingMember(type, path, ignoreAttached, !optional);
+            if (member == null && Tracer.TraceWarning)
+                Tracer.Warn(BindingExceptionManager.InvalidBindingMemberFormat2, path, type);
+            return member;
+        }
+
+        protected static IDisposable TryObserveMember(object value, IBindingMemberInfo member, IEventListener eventListener, string propertyName)
         {
             if (BindingMemberType.Event.EqualsWithoutNullCheck(member.MemberType))
                 return null;

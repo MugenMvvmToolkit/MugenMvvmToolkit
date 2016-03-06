@@ -71,15 +71,12 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         static XamarinFormsBootstrapperBase()
         {
             MvvmApplication.SetDefaultDesignTimeManager();
-            if (Device.OS != TargetPlatform.WinPhone)
-                LinkerInclude.Initialize();
             DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
             DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
             ViewManager.ViewCleared += OnViewCleared;
             ViewManager.ClearDataContext = true;
-            var contextName = ToolkitExtensions.GetMemberName<BindableObject>(() => e => e.BindingContext);
-            BindingServiceProvider.DataContextMemberAliases.Add(contextName);
-            BindingServiceProvider.BindingMemberPriorities[contextName] = BindingServiceProvider.DataContextMemberPriority;
+            BindingServiceProvider.DataContextMemberAliases.Add(nameof(BindableObject.BindingContext));
+            BindingServiceProvider.BindingMemberPriorities[nameof(BindableObject.BindingContext)] = BindingServiceProvider.DataContextMemberPriority;
         }
 
         protected XamarinFormsBootstrapperBase(PlatformInfo platform = null)

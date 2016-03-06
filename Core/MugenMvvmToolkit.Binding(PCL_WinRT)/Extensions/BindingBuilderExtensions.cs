@@ -259,6 +259,13 @@ namespace MugenMvvmToolkit.Binding
             return syntax.GetOrAddSyntaxBuilder<IBindingInfoBehaviorSyntax<TSource>, object, TSource>();
         }
 
+        public static IBindingInfoBehaviorSyntax<TSource> Optional<TSource>([NotNull] this IBindingInfoSyntax<TSource> syntax, bool value = true)
+        {
+            Should.NotBeNull(syntax, nameof(syntax));
+            syntax.Builder.AddOrUpdate(BindingBuilderConstants.Optional, value);
+            return syntax.GetOrAddSyntaxBuilder<IBindingInfoBehaviorSyntax<TSource>, object, TSource>();
+        }
+
         public static IBindingInfoBehaviorSyntax<TSource> HasStablePath<TSource>([NotNull] this IBindingInfoSyntax<TSource> syntax, bool value = true)
         {
             Should.NotBeNull(syntax, nameof(syntax));

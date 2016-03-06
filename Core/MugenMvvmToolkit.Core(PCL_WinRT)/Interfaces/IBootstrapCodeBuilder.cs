@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="IBusyInfo.cs">
+// <copyright file="IBootstrapCodeBuilder.cs">
 // Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -16,17 +16,18 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
+using JetBrains.Annotations;
 
-namespace MugenMvvmToolkit.Interfaces.Models
+namespace MugenMvvmToolkit.Interfaces
 {
-    public interface IBusyInfo
+    public interface IBootstrapCodeBuilder
     {
-        object Message { get; }
+        #region Methods
 
-        bool TryGetMessage<TType>(out TType message, Func<TType, bool> filter = null);
+        void AppendStatic([NotNull] string tag, [NotNull] string code);
 
-        IList<object> GetMessages();
+        void Append([NotNull] string tag, [NotNull] string code);
+
+        #endregion
     }
 }

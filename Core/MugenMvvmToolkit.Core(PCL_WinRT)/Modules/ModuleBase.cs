@@ -27,8 +27,9 @@ namespace MugenMvvmToolkit.Modules
     {
         #region Fields
 
-        public const int InitializationModulePriority = 1;
-        public const int BindingModulePriority = -1;
+        public const int InitializationModulePriority = 100;
+        public const int DefaultModulePriority = 0;
+        public const int BindingModulePriority = -100;
         public const int WrapperRegistrationModulePriority = -1000;
 
         private readonly bool _iocContainerCanBeNull;
@@ -48,7 +49,7 @@ namespace MugenMvvmToolkit.Modules
         {
         }
 
-        protected ModuleBase(bool iocContainerCanBeNull, LoadMode supportedModes = LoadMode.All, int priority = InitializationModulePriority - 1)
+        protected ModuleBase(bool iocContainerCanBeNull, LoadMode supportedModes = LoadMode.All, int priority = DefaultModulePriority)
         {
             _iocContainerCanBeNull = iocContainerCanBeNull;
             _priority = priority;

@@ -43,7 +43,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         private bool _isSourceUpdating;
         private bool _isTargetUpdating;
         private IBindingBehavior[] _items;
-        private int _size;
+        private byte _size;
 
         #endregion
 
@@ -236,10 +236,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (_items.Length >= min)
                 return;
             var value = _items.Length == 0 ? 2 : _items.Length + 1;
-            if (value < _size)
-                throw ExceptionManager.CapacityLessThanCollection("Capacity");
-            if (value == _items.Length)
-                return;
             if (value > 0)
             {
                 var objArray = new IBindingBehavior[value];

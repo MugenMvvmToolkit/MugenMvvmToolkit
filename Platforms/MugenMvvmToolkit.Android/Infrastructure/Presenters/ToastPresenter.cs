@@ -80,13 +80,13 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
                 switch (position)
                 {
                     case ToastPosition.Bottom:
-                        _toast.SetGravity(GravityFlags.Bottom | GravityFlags.CenterHorizontal, 0, 0);
+                        _toast.SetGravity(GravityFlags.Bottom | GravityFlags.CenterHorizontal, toast.XOffset, toast.YOffset);
                         break;
                     case ToastPosition.Center:
-                        _toast.SetGravity(GravityFlags.Center, 0, 0);
+                        _toast.SetGravity(GravityFlags.Center, toast.XOffset, toast.YOffset);
                         break;
                     case ToastPosition.Top:
-                        _toast.SetGravity(GravityFlags.Top | GravityFlags.CenterHorizontal, 0, 0);
+                        _toast.SetGravity(GravityFlags.Top | GravityFlags.CenterHorizontal, toast.XOffset, toast.YOffset);
                         break;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(position));
@@ -205,7 +205,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
             {
                 View view = GetView(content, ctx);
                 toast = view == null
-                    ? Toast.MakeText(ctx, content == null ? "(null)" : content.ToString(), ToastLength.Long)
+                    ? Toast.MakeText(ctx, content?.ToString() ?? "(null)", ToastLength.Long)
                     : new Toast(ctx) { View = view };
             }
 
@@ -224,16 +224,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
 
         protected virtual View GetView(object content, Context ctx)
         {
-#if XAMARIN_FORMS
             return null;
-#else
-            if (content == null || content is string)
-                return null;
-            var view = PlatformExtensions.GetContentView(ctx, ctx, content, null, null) as View;
-            if (view != null)
-                view.SetDataContext(content);
-            return view;
-#endif
         }
 
         #endregion

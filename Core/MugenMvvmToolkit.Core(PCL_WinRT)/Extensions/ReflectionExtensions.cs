@@ -404,13 +404,23 @@ namespace MugenMvvmToolkit
             return DesignTimeInitializer.GetAssemblies(true);
         }
 
+        public static bool IsPublic(this Type type)
+        {
+#if PCL_WINRT      
+            var typeInfo = type.GetTypeInfo();      
+            return typeInfo.IsPublic || typeInfo.IsNestedPublic;
+#else
+            return type.IsPublic || type.IsNestedPublic;
+#endif
+        }
+
         public static bool IsPublicNonAbstractClass(this Type type)
         {
 #if PCL_WINRT
             var typeInfo = type.GetTypeInfo();
-            return typeInfo.IsClass && !typeInfo.IsAbstract && typeInfo.IsPublic;
+            return typeInfo.IsClass && !typeInfo.IsAbstract && (typeInfo.IsPublic || typeInfo.IsNestedPublic);
 #else
-            return type.IsClass && !type.IsAbstract && type.IsPublic;
+            return type.IsClass && !type.IsAbstract && (type.IsPublic || type.IsNestedPublic);
 #endif
         }
 
@@ -746,6 +756,29 @@ namespace MugenMvvmToolkit
             }
         }
 
+        public static string GetPrettyName(this Type t)
+        {
+            return GetPrettyNameRecursively(t).Replace("+", ".");
+        }
+
+        private static string GetPrettyNameRecursively(Type t)
+        {
+#if PCL_WINRT
+            if (!t.GetTypeInfo().IsGenericType)
+                return t.FullName;
+#else
+            if (!t.IsGenericType)
+                return t.FullName;
+#endif
+            StringBuilder sb = new StringBuilder();
+            sb.Append(t.Namespace);
+            sb.Append(".");
+            sb.Append(t.Name.Substring(0, t.Name.LastIndexOf('`')));
+            sb.Append(t.GetGenericArguments().Aggregate("<", (aggregate, type) => aggregate + (aggregate == "<" ? "" : ",") + GetPrettyName(type)));
+            sb.Append(">");
+            return sb.ToString();
+        }
+
         internal static object Convert(object value, Type type)
         {
             if (value == null)
@@ -988,7 +1021,9 @@ namespace MugenMvvmToolkit
         {
             if (property == null)
                 return false;
-            return FilterMethod(property.CanRead ? property.GetMethod : property.SetMethod, flags);
+            if (property.CanRead && FilterMethod(property.GetMethod, flags))
+                return true;
+            return property.CanWrite && FilterMethod(property.SetMethod, flags);
         }
 
         private static bool FilterField(FieldInfo field, MemberFlags flags)

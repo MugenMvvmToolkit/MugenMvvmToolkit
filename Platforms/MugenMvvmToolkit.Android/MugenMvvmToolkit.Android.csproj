@@ -29,6 +29,7 @@
     <DefineConstants>TRACE;DEBUG;ANDROID;ANDROIDCORE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -39,6 +40,7 @@
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>
     </DocumentationFile>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Mono.Android" />
@@ -95,9 +97,6 @@
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\presenters\DynamicViewModelWindowPresenter.cs">
       <Link>Infrastructure\Presenters\DynamicViewModelWindowPresenter.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Interfaces\Navigation\INavigationProviderEx.cs">
-      <Link>Interfaces\Navigation\INavigationProviderEx.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Interfaces\Navigation\INavigationService.cs">
       <Link>Interfaces\Navigation\INavigationService.cs</Link>
     </Compile>
@@ -129,7 +128,6 @@
     <Compile Include="Interfaces\Views\IWindowView.cs" />
     <Compile Include="InternalExtensions.cs" />
     <Compile Include="InternalExtensionsFragment.cs" />
-    <Compile Include="LinkerIncludeLabmdaExpression.cs" />
     <Compile Include="Binding\Modules\PlatformDataBindingModule.cs" />
     <Compile Include="Binding\Modules\PlatformDataBindingModuleMenu.cs" />
     <Compile Include="Binding\Modules\PlatformDataBindingModuleView.cs" />
@@ -212,7 +210,7 @@
     </None>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />  
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -293,7 +293,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             Should.NotBeNull(args, nameof(args));
             if (!args.IsCancelable)
                 return false;
-            var eventArgs = ((NavigatingCancelEventArgs)args);
+            var eventArgs = (NavigatingCancelEventArgs)args;
             if (eventArgs.NavigationMode != NavigationMode.Back && eventArgs.Mapping != null)
                 return Navigate(eventArgs.Mapping, eventArgs.Parameter, dataContext);
 
@@ -322,12 +322,10 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             else if (dataContext.GetData(NavigationConstants.ClearBackStack))
             {
                 if (PlatformExtensions.IsApiLessThanOrEqualTo10)
-                {
                     intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTop);
-                    ServiceProvider.EventAggregator.Publish(this, MvvmActivityMediator.FinishActivityMessage.Instance);
-                }
                 else
                     intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
+                ServiceProvider.EventAggregator.Publish(this, MvvmActivityMediator.FinishActivityMessage.Instance);
                 dataContext.AddOrUpdate(NavigationProviderConstants.InvalidateAllCache, true);
             }
             if (parameter != null)

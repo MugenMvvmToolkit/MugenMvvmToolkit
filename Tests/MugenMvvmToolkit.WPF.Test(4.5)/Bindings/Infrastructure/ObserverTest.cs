@@ -26,6 +26,33 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
         #region Methods
 
         [TestMethod]
+        public void ObserverShouldThrowExceptionInvalidPath()
+        {
+            var model = new BindingSourceModel();
+            var observer = CreateObserver(model, "invalid", false, optional: false);
+
+            observer.Source.ShouldEqual(model);
+            ShouldThrow(() =>
+            {
+                var members = observer.GetPathMembers(true);
+            });
+        }
+
+        [TestMethod]
+        public void ObserverShouldNotThrowExceptionInvalidPathOptional()
+        {
+            var model = new BindingSourceModel();
+            var observer = CreateObserver(model, "invalid", false, optional: true);
+
+            observer.Source.ShouldEqual(model);
+            var members = observer.GetPathMembers(true);
+            members.AllMembersAvailable.ShouldBeFalse();
+
+            members = observer.GetPathMembers(false);
+            members.AllMembersAvailable.ShouldBeFalse();
+        }
+
+        [TestMethod]
         public void ObserverShouldUseObjectAsSource()
         {
             var model = new BindingSourceModel();
@@ -457,7 +484,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
         }
 
         protected virtual IObserver CreateObserver(object source, string path, bool ignoreContext,
-            IBindingMemberProvider memberProvider = null, IBindingContextManager contextManager = null, bool hasStablePath = false, bool observable = true)
+            IBindingMemberProvider memberProvider = null, IBindingContextManager contextManager = null, bool hasStablePath = false, bool observable = true, bool optional = false)
         {
             if (memberProvider != null)
                 BindingServiceProvider.MemberProvider = memberProvider;
@@ -467,8 +494,8 @@ namespace MugenMvvmToolkit.Test.Bindings.Infrastructure
             if (bindingPath.IsEmpty)
                 return new EmptyPathObserver(source, bindingPath);
             if (bindingPath.IsSingle)
-                return new SinglePathObserver(source, bindingPath, ignoreContext, hasStablePath, observable);
-            return new MultiPathObserver(source, bindingPath, ignoreContext, hasStablePath, observable);
+                return new SinglePathObserver(source, bindingPath, ignoreContext, hasStablePath, observable, optional);
+            return new MultiPathObserver(source, bindingPath, ignoreContext, hasStablePath, observable, optional);
         }
 
         #endregion

@@ -56,7 +56,7 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
         private Fragment _currentPrimaryItem;
         private FragmentTransaction _currentTransaction;
         private bool _isRestored;
-        private const string ContentPath = "!~#vpcontent";
+        private const string StateKey = "!~#stindex";
 
         #endregion
 
@@ -68,8 +68,7 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
             _viewPager = viewPager;
             _fragmentManager = viewPager.GetFragmentManager();
             _itemTemplateProvider = new DataTemplateProvider(viewPager, AttachedMemberConstants.ItemTemplate, AttachedMemberConstants.ItemTemplateSelector);
-            _weakHandler = ReflectionExtensions.MakeWeakCollectionChangedHandler(this,
-                (adapter, o, arg3) => adapter.OnCollectionChanged(o, arg3));
+            _weakHandler = ReflectionExtensions.MakeWeakCollectionChangedHandler(this, (adapter, o, arg3) => adapter.OnCollectionChanged(o, arg3));
             var activityView = _viewPager.Context.GetActivity() as IActivityView;
             if (activityView != null)
             {
@@ -113,7 +112,7 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
 
         protected virtual void SetItemsSource(IEnumerable value, bool notifyDataSet)
         {
-            if (ReferenceEquals(value, _itemsSource))
+            if (ReferenceEquals(value, _itemsSource) || !_viewPager.IsAlive() || !this.IsAlive())
                 return;
             if (_weakHandler == null)
                 _itemsSource = value;
@@ -138,7 +137,7 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
 
         protected virtual void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
         {
-            if (_viewPager.IsAlive())
+            if (_viewPager.IsAlive() && this.IsAlive())
                 NotifyDataSetChanged();
             else
                 SetItemsSource(null, false);
@@ -146,58 +145,38 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
 
         private void TryRestoreSelectedIndex()
         {
+            if (!_viewPager.IsAlive())
+                return;
             var activityView = _viewPager.Context as IActivityView;
             if (activityView == null)
                 return;
             var bundle = activityView.Mediator.Bundle;
             if (bundle != null)
             {
-                var i = bundle.GetInt(ContentPath, int.MinValue);
+                var i = bundle.GetInt(StateKey, int.MinValue);
                 if (i != int.MinValue)
                     _viewPager.CurrentItem = i;
             }
-            activityView.Mediator.SaveInstanceState += ActivityViewOnSaveInstanceState;
+            var stateListener = ReflectionExtensions.CreateWeakEventHandler<ItemsSourcePagerAdapter, ValueEventArgs<Bundle>>(this, (adapter, o, arg3) => adapter.ActivityViewOnSaveInstanceState(arg3));
+            activityView.Mediator.SaveInstanceState += stateListener.Handle;
         }
 
-        private void ActivityViewOnSaveInstanceState(Activity sender, ValueEventArgs<Bundle> args)
+        private void ActivityViewOnSaveInstanceState(ValueEventArgs<Bundle> args)
         {
+            if (!_viewPager.IsAlive())
+                return;
             var index = _viewPager.CurrentItem;
             if (index > 0)
-                args.Value.PutInt(ContentPath, index);
+                args.Value.PutInt(StateKey, index);
         }
 
         private void ActivityViewOnDestroyed(Activity sender)
         {
             ((IActivityView)sender).Mediator.Destroyed -= _listener.Handle;
-            if (!_viewPager.IsAlive())
+            if (!_viewPager.IsAlive() || !this.IsAlive())
                 return;
             if (ReferenceEquals(_viewPager.Adapter, this))
-            {
                 _viewPager.Adapter = null;
-                if (ItemsSource != null)
-                {
-                    foreach (var item in ItemsSource)
-                    {
-                        if (item != null)
-                            ServiceProvider.AttachedValueProvider.Clear(item, ContentPath);
-                    }
-                }
-            }
-            else
-            {
-                if (ItemsSource != null)
-                {
-                    foreach (var item in ItemsSource)
-                    {
-                        if (item == null)
-                            continue;
-                        var value = ServiceProvider.AttachedValueProvider.GetValue<Object>(item, ContentPath, false);
-                        if (value != null)
-                            DestroyItem(_viewPager, PositionNone, value);
-                    }
-                    FinishUpdate(_viewPager);
-                }
-            }
             SetItemsSource(null, false);
         }
 
@@ -230,10 +209,8 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
             var viewModel = item as IViewModel;
             if (viewModel != null)
                 viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.StateNotNeeded, true);
-
-            var view = ServiceProvider.AttachedValueProvider.GetOrAdd(item, ContentPath,
-                (o, o1) => (Object)PlatformExtensions.GetContentView(container, container.Context, o,
-                    _itemTemplateProvider.GetTemplateId(), _itemTemplateProvider.GetDataTemplateSelector()), null);
+            var view = (Object)PlatformExtensions
+                .GetContentView(container, container.Context, item, _itemTemplateProvider.GetTemplateId(), _itemTemplateProvider.GetDataTemplateSelector());
             var fragment = view as Fragment;
             if (fragment == null)
                 container.AddView((View)view);
@@ -256,7 +233,7 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
 
         public override void FinishUpdate(ViewGroup container)
         {
-            if (_currentTransaction == null)
+            if (_currentTransaction == null || _fragmentManager.IsDestroyed)
                 return;
             _currentTransaction.CommitAllowingStateLoss();
             _currentTransaction = null;
@@ -277,8 +254,6 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
             if (position != PositionNone)
                 position = GetPosition(dataContext);
             bool removed = position == PositionNone;
-            if (removed && dataContext != null)
-                ServiceProvider.AttachedValueProvider.Clear(dataContext, ContentPath);
             var fragment = @object as Fragment;
             if (fragment == null)
             {

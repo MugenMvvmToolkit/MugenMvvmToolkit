@@ -50,12 +50,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UIView.ItemsSource.Override<UICollectionView>(), CollectionViewItemsSourceChanged));
             memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.UICollectionView.SelectedItem,
                     GetCollectionViewSelectedItem, SetCollectionViewSelectedItem, (info, view, arg3) => (IDisposable)view.SetBindingMemberValue(AttachedMembers.UICollectionView.SelectedItemChangedEvent, arg3)));
-            var itemTemplateMember = AttachedBindingMember.CreateAutoProperty(AttachedMembers.UICollectionView.ItemTemplateSelector,
-                (view, args) =>
-                {
-                    if (args.NewValue != null)
-                        args.NewValue.Initialize(view);
-                });
+            var itemTemplateMember = AttachedBindingMember.CreateAutoProperty(AttachedMembers.UICollectionView.ItemTemplateSelector, (view, args) => args.NewValue?.Initialize(view));
             memberProvider.Register(itemTemplateMember);
             memberProvider.Register(typeof(UICollectionView), AttachedMemberConstants.ItemTemplate, itemTemplateMember, true);
 
@@ -101,10 +96,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
 
         private static object GetCollectionViewSelectedItem(IBindingMemberInfo bindingMemberInfo, UICollectionView collectionView)
         {
-            var source = collectionView.Source as CollectionViewSourceBase;
-            if (source == null)
-                return null;
-            return source.SelectedItem;
+            return (collectionView.Source as CollectionViewSourceBase)?.SelectedItem;
         }
 
         private static void CollectionViewItemsSourceChanged(UICollectionView collectionView, AttachedMemberChangedEventArgs<IEnumerable> args)

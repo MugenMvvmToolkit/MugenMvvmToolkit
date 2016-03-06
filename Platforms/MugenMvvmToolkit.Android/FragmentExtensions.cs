@@ -72,9 +72,6 @@ namespace MugenMvvmToolkit.Android
             }
         }
 
-#if !APPCOMPAT
-        public static bool CacheFragmentViewDefault { get; set; }
-#endif
         #endregion
 
         #region Methods
@@ -98,7 +95,7 @@ namespace MugenMvvmToolkit.Android
             return activity.GetFragmentManager();
         }
 
-        internal static IMvvmFragmentMediator GetOrCreateMediator(this Fragment fragment, ref IMvvmFragmentMediator mediator)
+        public static IMvvmFragmentMediator GetOrCreateMediator(this Fragment fragment, ref IMvvmFragmentMediator mediator)
         {
             if (mediator == null)
                 Interlocked.CompareExchange(ref mediator, MvvmFragmentMediatorFactory(fragment, DataContext.Empty), null);

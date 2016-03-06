@@ -88,7 +88,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
 #if XAMARIN_FORMS
             var activity = global::Xamarin.Forms.Forms.Context;
 #else
-            var activity = PlatformExtensions.CurrentActivity as IActivityView;
+            var activity = PlatformExtensions.CurrentActivity;
 #endif
             Should.BeSupported(activity != null, "The current top activity is null.");
             AlertDialog.Builder builder = new AlertDialog.Builder((Context)activity)
@@ -153,13 +153,17 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
                 builder.SetIcon(drawable.Value);
             AlertDialog dialog = builder.Create();
 #if !XAMARIN_FORMS
-            EventHandler<Activity, EventArgs> handler = null;
-            handler = (sender, args) =>
+            var activityView = activity as IActivityView;
+            if (activityView != null)
             {
-                ((IActivityView)sender).Mediator.Destroyed -= handler;
-                tcs.TrySetResult(defaultResult);
-            };
-            activity.Mediator.Destroyed += handler;
+                EventHandler<Activity, EventArgs> handler = null;
+                handler = (sender, args) =>
+                {
+                    ((IActivityView)sender).Mediator.Destroyed -= handler;
+                    tcs.TrySetResult(defaultResult);
+                };
+                activityView.Mediator.Destroyed += handler;
+            }
 #endif
             dialog.Show();
         }

@@ -22,6 +22,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using Android.App;
+using Android.OS;
 using Android.Views;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Android.Attributes;
@@ -79,7 +80,9 @@ namespace MugenMvvmToolkit.Android.Infrastructure
         private const int InitializedStateGlobal = 1;
         private const int InitializedStateLocal = 2;
         private static int _appStateGlobal;
+        private static string _bootstrapperType;
         private readonly PlatformInfo _platform;
+        internal const string BootTypeKey = "BootTypeKey";
 
         #endregion
 
@@ -87,7 +90,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
         static AndroidBootstrapperBase()
         {
-            LinkerInclude.Initialize();
             ViewManager.AlwaysCreateNewView = true;
             ReflectionExtensions.GetTypesDefault = assembly => assembly.GetTypes();
             ServiceProvider.WeakReferenceFactory = PlatformExtensions.CreateWeakReference;
@@ -107,28 +109,50 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
         public static IList<Assembly> ViewAssemblies { get; protected set; }
 
+        internal static string BootstrapperType
+        {
+            get
+            {
+                if (_bootstrapperType == null && Current != null)
+                    _bootstrapperType = Current.GetType().AssemblyQualifiedName;
+                return _bootstrapperType;
+            }
+        }
+
         #endregion
 
         #region Methods
 
-        public static void EnsureInitialized()
+        public static void EnsureInitialized(object sender, Bundle bundle)
         {
             if (Interlocked.CompareExchange(ref _appStateGlobal, InitializedStateGlobal, EmptyState) != EmptyState)
                 return;
-            var attributes = new List<BootstrapperAttribute>();
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies())
+            Type type;
+            var typeString = bundle?.GetString(BootTypeKey);
+            if (string.IsNullOrEmpty(typeString))
             {
-                attributes.AddRange(assembly
-                    .GetCustomAttributes(typeof(BootstrapperAttribute), false)
-                    .OfType<BootstrapperAttribute>());
-            }
-            var bootstrapperAttribute = attributes
-                .OrderByDescending(attribute => attribute.Priority)
-                .FirstOrDefault();
-            if (bootstrapperAttribute == null)
-                throw new InvalidOperationException(@"The BootstrapperAttribute was not found.
+                BootstrapperAttribute bootstrapperAttribute = null;
+                if (sender != null)
+                    bootstrapperAttribute = sender.GetType().Assembly.GetCustomAttribute<BootstrapperAttribute>();
+                if (bootstrapperAttribute == null)
+                {
+                    foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies())
+                    {
+                        bootstrapperAttribute = (BootstrapperAttribute)assembly
+                            .GetCustomAttributes(typeof(BootstrapperAttribute), false)
+                            .FirstOrDefault();
+                        if (bootstrapperAttribute != null)
+                            break;
+                    }
+                    if (bootstrapperAttribute == null)
+                        throw new InvalidOperationException(@"The BootstrapperAttribute was not found.
 You must specify the type of application bootstrapper using BootstrapperAttribute, for example [assembly:Bootstrapper(typeof(MyBootstrapperType))]");
-            var instance = (AndroidBootstrapperBase)Activator.CreateInstance(bootstrapperAttribute.BootstrapperType);
+                }
+                type = bootstrapperAttribute.BootstrapperType;
+            }
+            else
+                type = Type.GetType(typeString, true);
+            var instance = (AndroidBootstrapperBase)Activator.CreateInstance(type);
             instance.Initialize();
         }
 

@@ -24,6 +24,7 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.iOS.Binding.Models;
 using MugenMvvmToolkit.iOS.Interfaces;
 using MugenMvvmToolkit.iOS.Interfaces.Views;
+using MugenMvvmToolkit.iOS.Views;
 using UIKit;
 
 namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
@@ -32,8 +33,8 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
     {
         #region Fields
 
-        internal const int InitializingStateMask = 1;
-        private const int InitializedStateMask = 2;
+        protected internal const int InitializingStateMask = 1;
+        protected const int InitializedStateMask = 2;
         private static Func<UICollectionView, IDataContext, CollectionViewSourceBase> _factory;
 
         private readonly WeakReference _collectionView;
@@ -120,9 +121,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         public virtual void ReloadData()
         {
-            var collectionView = CollectionView;
-            if (collectionView != null)
-                collectionView.ReloadData();
+            CollectionView?.ReloadData();
         }
 
         public virtual bool UpdateSelectedBindValue(UICollectionViewCell cell, bool selected)
@@ -230,10 +229,9 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
         public override void CellDisplayingEnded(UICollectionView collectionView, UICollectionViewCell cell,
             NSIndexPath indexPath)
         {
-            cell.SetDataContext(null);
-            var callback = cell as IHasDisplayCallback;
-            if (callback != null)
-                callback.DisplayingEnded();
+            if (cell is UICollectionViewCellBindable)
+                cell.SetDataContext(null);
+            (cell as IHasDisplayCallback)?.DisplayingEnded();
         }
 
         public override UICollectionViewCell GetCell(UICollectionView collectionView, NSIndexPath indexPath)
@@ -242,12 +240,10 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             if (selector == null)
                 throw new NotSupportedException("The ItemTemplate is null to create UICollectionViewCell use the ItemTemplate with ICollectionCellTemplateSelector value.");
             object item = GetItemAt(indexPath);
-            NSString identifier = selector.GetIdentifier(item, collectionView);
-            var cell = (UICollectionViewCell)collectionView.DequeueReusableCell(identifier, indexPath);
+            var cell = (UICollectionViewCell)collectionView.DequeueReusableCell(selector.GetIdentifier(item, collectionView), indexPath);
 
             _lastCreatedCell = cell;
             _lastCreatedCellPath = indexPath;
-
 
             if (Equals(item, _selectedItem) && !cell.Selected)
                 collectionView.SelectItem(indexPath, false, UICollectionViewScrollPosition.None);
@@ -260,9 +256,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
                 selector.InitializeTemplate(collectionView, cell);
             }
             cell.Tag &= ~InitializingStateMask;
-            var initializableItem = cell as IHasDisplayCallback;
-            if (initializableItem != null)
-                initializableItem.WillDisplay();
+            (cell as IHasDisplayCallback)?.WillDisplay();
             return cell;
         }
 

@@ -52,7 +52,7 @@ namespace MugenMvvmToolkit.WinRT.Binding.Converters
             if (value == null)
                 return NullValue;
 
-            if (((bool) value))
+            if ((bool) value)
                 return TrueValue;
             return FalseValue;
         }

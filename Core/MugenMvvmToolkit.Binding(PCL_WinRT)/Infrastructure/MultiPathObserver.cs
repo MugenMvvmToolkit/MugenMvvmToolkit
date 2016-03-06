@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
@@ -139,6 +138,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         private readonly bool _ignoreAttachedMembers;
         private readonly bool _hasStablePath;
         private readonly bool _observable;
+        private readonly bool _optional;
         private readonly List<IDisposable> _listeners;
         private readonly LastMemberListener _lastMemberListener;
 
@@ -146,7 +146,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Constructors
 
-        public MultiPathObserver([NotNull] object source, [NotNull] IBindingPath path, bool ignoreAttachedMembers, bool hasStablePath, bool observable)
+        public MultiPathObserver([NotNull] object source, [NotNull] IBindingPath path, bool ignoreAttachedMembers, bool hasStablePath, bool observable, bool optional)
             : base(source, path)
         {
             Should.BeSupported(!path.IsEmpty, "The MultiPathObserver doesn't support the empty path members.");
@@ -155,6 +155,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             _lastMemberListener = new LastMemberListener(ServiceProvider.WeakReferenceFactory(this));
             _hasStablePath = hasStablePath;
             _observable = observable;
+            _optional = optional;
         }
 
         #endregion
@@ -195,14 +196,14 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 }
             }
 
-            IBindingMemberProvider memberProvider = BindingServiceProvider.MemberProvider;
             IList<string> items = Path.Parts;
             lastIndex = items.Count - 1;
             var members = new List<IBindingMemberInfo>();
             for (int index = 0; index < items.Count; index++)
             {
-                string name = items[index];
-                IBindingMemberInfo pathMember = memberProvider.GetBindingMember(source.GetType(), name, _ignoreAttachedMembers, true);
+                IBindingMemberInfo pathMember = GetBindingMember(source.GetType(), items[index], _ignoreAttachedMembers, _optional);
+                if (pathMember == null)
+                    return UnsetBindingPathMembers.Instance;
                 members.Add(pathMember);
                 if (_observable)
                 {
@@ -224,13 +225,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             return this;
         }
-
-        /*protected override void ClearObserversInternal()
-        {
-            for (int index = 0; index < _listeners.Count; index++)
-                _listeners[index].Dispose();
-            _listeners.Clear();
-        }*/
 
         protected override void OnDispose()
         {

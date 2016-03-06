@@ -77,8 +77,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Modules
 
         protected override BindingInfo<IThreadManager> GetThreadManager()
         {
-            return BindingInfo<IThreadManager>.FromMethod((container, list) => new ThreadManager(SynchronizationContext.Current),
-                DependencyLifecycle.SingleInstance);
+            return BindingInfo<IThreadManager>.FromMethod((container, list) => new ThreadManager(ServiceProvider.UiSynchronizationContext), DependencyLifecycle.SingleInstance);
         }
 
         protected override BindingInfo<INavigationProvider> GetNavigationProvider()

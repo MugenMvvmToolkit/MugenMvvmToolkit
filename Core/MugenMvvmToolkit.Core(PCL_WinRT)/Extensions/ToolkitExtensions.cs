@@ -1045,11 +1045,11 @@ namespace MugenMvvmToolkit
         }
 
         [CanBeNull]
-        public static ISubscriber Subscribe<TMessage>([NotNull] this IObservable observable, Action<object, TMessage> action, bool weakSubscribtion = true)
+        public static ISubscriber Subscribe<TMessage>([NotNull] this IObservable observable, Action<object, TMessage> action, bool weakSubscription = true)
         {
             Should.NotBeNull(observable, nameof(observable));
             ISubscriber subscriber;
-            if (weakSubscribtion && action.Target != null)
+            if (weakSubscription && action.Target != null)
             {
                 Should.BeSupported(!action.Target.GetType().IsAnonymousClass(),
                     "The anonymous delegate cannot be converted to weak delegate.");
@@ -1232,22 +1232,6 @@ namespace MugenMvvmToolkit
                     throw new ArgumentOutOfRangeException(nameof(duration));
             }
             return toastPresenter.ShowAsync(content, floatDuration, position, context);
-        }
-
-        public static IList<IModule> LoadModules([NotNull] this IModuleContext context, [NotNull] IEnumerable<IModule> modules)
-        {
-            Should.NotBeNull(context, nameof(context));
-            Should.NotBeNull(modules, nameof(modules));
-            var list = new List<IModule>();
-            foreach (var module in modules.OrderByDescending(module => module.Priority))
-            {
-                if (module.Load(context))
-                {
-                    list.Add(module);
-                    module.TraceModule(true);
-                }
-            }
-            return list;
         }
 
         public static IDictionary<object, object> ToDictionary([CanBeNull] this IDataContext context)
@@ -1610,11 +1594,6 @@ namespace MugenMvvmToolkit
             if (checkHasWeakReference)
                 return GetWeakReference(item);
             return ServiceProvider.WeakReferenceFactory(item);
-        }
-
-        internal static void InvokeOnUiThreadAsync(Action action)
-        {
-            ServiceProvider.ThreadManager.InvokeOnUiThreadAsync(action);
         }
 
         [Pure]

@@ -181,7 +181,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             };
             var providerMock = new ObserverProviderMock
             {
-                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3, false, true)
+                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3, false, true, false)
             };
             var treeManagerMock = new VisualTreeManagerMock
             {
@@ -235,7 +235,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             };
             var providerMock = new ObserverProviderMock
             {
-                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3, false, true)
+                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3, false, true, false)
             };
             var treeManagerMock = new VisualTreeManagerMock
             {
@@ -289,7 +289,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             };
             var providerMock = new ObserverProviderMock
             {
-                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3, false, true)
+                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3, false, true, false)
             };
             var treeManagerMock = new VisualTreeManagerMock
             {
@@ -343,7 +343,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             };
             var providerMock = new ObserverProviderMock
             {
-                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3, false, true)
+                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3, false, true, false)
             };
             var treeManagerMock = new VisualTreeManagerMock
             {
@@ -395,7 +395,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             };
             var providerMock = new ObserverProviderMock
             {
-                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3, false, true)
+                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3, false, true, false)
             };
             var treeManagerMock = new VisualTreeManagerMock
             {
@@ -447,7 +447,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             };
             var providerMock = new ObserverProviderMock
             {
-                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3, false, true)
+                Observe = (o, p, arg3) => new MultiPathObserver(o, p, arg3, false, true, false)
             };
             var treeManagerMock = new VisualTreeManagerMock
             {

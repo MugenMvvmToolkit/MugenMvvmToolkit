@@ -85,6 +85,15 @@ namespace MugenMvvmToolkit.WinPhone.MarkupExtensions
 
         #endregion
 
+        #region Constructors
+
+        static View()
+        {
+            MvvmApplication.InitializeDesignTimeManager();
+        }
+
+        #endregion
+
         #region Attached properties
 
         public static readonly DependencyProperty BindProperty = DependencyProperty.RegisterAttached(

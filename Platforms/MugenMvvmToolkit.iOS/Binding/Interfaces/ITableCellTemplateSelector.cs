@@ -16,7 +16,6 @@
 
 #endregion
 
-using System;
 using Foundation;
 using JetBrains.Annotations;
 using UIKit;
@@ -25,10 +24,10 @@ namespace MugenMvvmToolkit.iOS.Binding.Interfaces
 {
     public interface ITableCellTemplateSelector
     {
+        void Initialize([NotNull] UITableView container);
+
         NSString GetIdentifier([CanBeNull] object item, [NotNull] UITableView container);
 
-        nfloat? GetHeight([NotNull] UITableView container, [NotNull] NSString identifier);
-
-        UITableViewCell SelectTemplate([NotNull] UITableView container, [NotNull] NSString identifier);
+        void InitializeTemplate([NotNull] UITableView container, UITableViewCell cell);
     }
 }

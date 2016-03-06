@@ -230,12 +230,10 @@ namespace MugenMvvmToolkit.iOS.Binding
             public static readonly BindingMemberDescriptor<UIKit.UITableView, IEventListener> SelectedItemChangedEvent;
             public static readonly BindingMemberDescriptor<UIKit.UITableView, bool> ReadOnly;
             public static readonly BindingMemberDescriptor<UIKit.UITableView, bool?> UseAnimations;
-            public static readonly BindingMemberDescriptor<UIKit.UITableView, Action<UIKit.UITableViewCell>> CellBind;
             public static readonly BindingMemberDescriptor<UIKit.UITableView, UITableViewRowAnimation?> AddAnimation;
             public static readonly BindingMemberDescriptor<UIKit.UITableView, UITableViewRowAnimation?> RemoveAnimation;
             public static readonly BindingMemberDescriptor<UIKit.UITableView, UITableViewRowAnimation?> ReplaceAnimation;
             public static readonly BindingMemberDescriptor<UIKit.UITableView, UITableViewScrollPosition?> ScrollPosition;
-            public static readonly BindingMemberDescriptor<UIKit.UITableView, UITableViewCellStyle?> CellStyle;
 
             #endregion
 
@@ -248,12 +246,10 @@ namespace MugenMvvmToolkit.iOS.Binding
                 SelectedItemChangedEvent = new BindingMemberDescriptor<UIKit.UITableView, IEventListener>("SelectedItemChanged");
                 ReadOnly = new BindingMemberDescriptor<UIKit.UITableView, bool>(nameof(ReadOnly));
                 UseAnimations = new BindingMemberDescriptor<UIKit.UITableView, bool?>(nameof(UseAnimations));
-                CellBind = new BindingMemberDescriptor<UIKit.UITableView, Action<UIKit.UITableViewCell>>(nameof(CellBind));
                 AddAnimation = new BindingMemberDescriptor<UIKit.UITableView, UITableViewRowAnimation?>(nameof(AddAnimation));
                 RemoveAnimation = new BindingMemberDescriptor<UIKit.UITableView, UITableViewRowAnimation?>(nameof(RemoveAnimation));
                 ReplaceAnimation = new BindingMemberDescriptor<UIKit.UITableView, UITableViewRowAnimation?>(nameof(ReplaceAnimation));
                 ScrollPosition = new BindingMemberDescriptor<UIKit.UITableView, UITableViewScrollPosition?>(nameof(ScrollPosition));
-                CellStyle = new BindingMemberDescriptor<UIKit.UITableView, UITableViewCellStyle?>(nameof(CellStyle));
             }
 
             #endregion

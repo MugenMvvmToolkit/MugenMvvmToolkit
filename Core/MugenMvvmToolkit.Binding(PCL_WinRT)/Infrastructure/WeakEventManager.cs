@@ -79,6 +79,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             //Use an array to reduce the cost of memory and do not lock during a call event.
             private KeyValuePair<WeakEventListenerWrapper, string>[] _listeners;
+            private ushort _size;
+            private ushort _removedSize;
 
             #endregion
 
@@ -99,7 +101,14 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 var listeners = _listeners;
                 for (int i = 0; i < listeners.Length; i++)
                 {
+                    if (i >= _size)
+                        break;
                     var pair = listeners[i];
+                    if (pair.Key.IsEmpty)
+                    {
+                        hasDeadRef = true;
+                        continue;
+                    }
                     if (ToolkitExtensions.MemberNameEqual(args.PropertyName, pair.Value, true))
                     {
                         if (!pair.Key.EventListener.TryHandle(sender, args))
@@ -109,7 +118,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 if (hasDeadRef)
                 {
                     lock (this)
-                        Update(WeakEventListenerWrapper.Empty, null);
+                        Cleanup();
                 }
             }
 
@@ -118,14 +127,58 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 return AddInternal(target.ToWeakWrapper(), path);
             }
 
+            private void Cleanup()
+            {
+                var size = _size;
+                _size = 0;
+                _removedSize = 0;
+                for (int i = 0; i < size; i++)
+                {
+                    var reference = _listeners[i];
+                    if (reference.Key.EventListener.IsAlive)
+                        _listeners[_size++] = reference;
+                }
+                if (_size == 0)
+                    _listeners = Empty.Array<KeyValuePair<WeakEventListenerWrapper, string>>();
+                else if (_listeners.Length / (float)_size > 2)
+                {
+                    var listeners = new KeyValuePair<WeakEventListenerWrapper, string>[_size + (_size >> 2)];
+                    Array.Copy(_listeners, 0, listeners, 0, _size);
+                    _listeners = listeners;
+                }
+            }
+
             private IDisposable AddInternal(WeakEventListenerWrapper weakItem, string path)
             {
                 lock (this)
                 {
                     if (_listeners.Length == 0)
+                    {
                         _listeners = new[] { new KeyValuePair<WeakEventListenerWrapper, string>(weakItem, path) };
+                        _size = 1;
+                        _removedSize = 0;
+                    }
                     else
-                        Update(weakItem, path);
+                    {
+                        if (_removedSize == 0)
+                        {
+                            if (_size == _listeners.Length)
+                                EventListenerList.EnsureCapacity(ref _listeners, _size, _size + 1);
+                            _listeners[_size++] = new KeyValuePair<WeakEventListenerWrapper, string>(weakItem, path);
+                        }
+                        else
+                        {
+                            for (int i = 0; i < _size; i++)
+                            {
+                                if (_listeners[i].Key.IsEmpty)
+                                {
+                                    _listeners[i] = new KeyValuePair<WeakEventListenerWrapper, string>(weakItem, path);
+                                    --_removedSize;
+                                    break;
+                                }
+                            }
+                        }
+                    }
                 }
                 return new Unsubscriber(this, weakItem, path);
             }
@@ -137,41 +190,14 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     for (int i = 0; i < _listeners.Length; i++)
                     {
                         var pair = _listeners[i];
-                        if (pair.Value == propertyName && ReferenceEquals(pair.Key.Source, weakItem.Source))
+                        if (!pair.Key.IsEmpty && pair.Value == propertyName && ReferenceEquals(pair.Key.Source, weakItem.Source))
                         {
-                            _listeners[i] = new KeyValuePair<WeakEventListenerWrapper, string>(WeakEventListenerWrapper.Empty, string.Empty);
-                            Update(WeakEventListenerWrapper.Empty, null);
+                            ++_removedSize;
+                            _listeners[i] = default(KeyValuePair<WeakEventListenerWrapper, string>);
                             return;
                         }
                     }
                 }
-            }
-
-            private void Update(WeakEventListenerWrapper newItem, string path)
-            {
-                var references = newItem.IsEmpty
-                    ? new KeyValuePair<WeakEventListenerWrapper, string>[_listeners.Length]
-                    : new KeyValuePair<WeakEventListenerWrapper, string>[_listeners.Length + 1];
-                int index = 0;
-                for (int i = 0; i < _listeners.Length; i++)
-                {
-                    var reference = _listeners[i];
-                    if (reference.Key.EventListener.IsAlive)
-                        references[index++] = reference;
-                }
-                if (!newItem.IsEmpty)
-                {
-                    references[index] = new KeyValuePair<WeakEventListenerWrapper, string>(newItem, path);
-                    index++;
-                }
-                if (index == 0)
-                {
-                    _listeners = Empty.Array<KeyValuePair<WeakEventListenerWrapper, string>>();
-                    return;
-                }
-                if (references.Length != index)
-                    Array.Resize(ref references, index);
-                _listeners = references;
             }
 
             #endregion

@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
@@ -45,6 +46,8 @@ namespace MugenMvvmToolkit
         protected MvvmApplication(LoadMode mode = LoadMode.Runtime)
         {
             ServiceProvider.DesignTimeManager = DesignTimeManagerImpl.Instance;
+            if (ServiceProvider.UiSynchronizationContextField == null)
+                ServiceProvider.UiSynchronizationContextField = SynchronizationContext.Current;
             Current = this;
             _mode = mode;
             _platform = PlatformInfo.Unknown;
@@ -101,11 +104,19 @@ namespace MugenMvvmToolkit
 
         protected virtual void LoadModules(IList<Assembly> assemblies)
         {
-            var loadedModules = GetModules(assemblies);
-            if (loadedModules != null && loadedModules.Count != 0)
+            var modules = GetModules(assemblies);
+            if (modules != null && modules.Count != 0)
             {
                 var context = CreateModuleContext(assemblies);
-                context.LoadModules(loadedModules);
+                for (int index = 0; index < modules.Count; index++)
+                {
+                    var module = modules[index];
+                    if (module.Load(context))
+                    {
+                        ServiceProvider.BootstrapCodeBuilder?.Append(nameof(LoadModules), $"new {module.GetType().GetPrettyName()}().Load(context);");
+                        module.TraceModule(true);
+                    }
+                }
             }
         }
 

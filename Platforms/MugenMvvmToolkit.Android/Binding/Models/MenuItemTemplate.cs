@@ -33,7 +33,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
         #region Properties
 
         [CanBeNull]
-        public static Action<MenuItemTemplate, IMenuItem, XmlPropertySetter<MenuItemTemplate, IMenuItem>> Initalized;
+        public static Action<MenuItemTemplate, IMenuItem, XmlPropertySetter<IMenuItem>> Initalized;
 
         [XmlAttribute("BIND")]
         public string Bind { get; set; }
@@ -149,13 +149,13 @@ namespace MugenMvvmToolkit.Android.Binding.Models
         {
             PlatformExtensions.ValidateTemplate(ItemsSource, Items);
             bool isSubMenu = !string.IsNullOrEmpty(ItemsSource) || (Items != null && Items.Count > 0);
-            XmlPropertySetter<MenuItemTemplate, IMenuItem> setter;
+            XmlPropertySetter<IMenuItem> setter;
             int groupId;
             int.TryParse(Group, out groupId);
             if (isSubMenu)
             {
                 ISubMenu subMenu = menu.AddSubMenu(groupId, id, order, string.Empty);
-                setter = new XmlPropertySetter<MenuItemTemplate, IMenuItem>(subMenu.Item, context, new BindingSet());
+                setter = new XmlPropertySetter<IMenuItem>(subMenu.Item, context, new BindingSet());
                 subMenu.SetBindingMemberValue(AttachedMembers.Object.Parent, menu);
                 subMenu.Item.SetBindingMemberValue(AttachedMembers.Object.Parent, subMenu);
                 SetDataContext(subMenu, setter.BindingSet, dataContext, useContext);
@@ -170,13 +170,13 @@ namespace MugenMvvmToolkit.Android.Binding.Models
                 {
                     subMenu.SetBindingMemberValue(AttachedMembers.Menu.ItemsSourceGenerator,
                         new MenuItemsSourceGenerator(subMenu, context, ItemTemplate ?? this));
-                    XmlPropertySetter<object, object>.AddBinding(setter.BindingSet, subMenu, AttachedMemberConstants.ItemsSource, ItemsSource, true);
+                    XmlPropertySetter<object>.AddBinding(setter.BindingSet, subMenu, AttachedMemberConstants.ItemsSource, ItemsSource, true);
                 }
             }
             else
             {
                 var menuItem = menu.Add(groupId, id, order, string.Empty);
-                setter = new XmlPropertySetter<MenuItemTemplate, IMenuItem>(menuItem, context, new BindingSet());
+                setter = new XmlPropertySetter<IMenuItem>(menuItem, context, new BindingSet());
                 menuItem.SetBindingMemberValue(AttachedMembers.Object.Parent, menu);
                 SetDataContext(menuItem, setter.BindingSet, dataContext, useContext);
                 ApplySelf(menuItem, setter);
@@ -184,7 +184,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
             setter.Apply();
         }
 
-        private void ApplySelf(IMenuItem menuItem, XmlPropertySetter<MenuItemTemplate, IMenuItem> setter)
+        private void ApplySelf(IMenuItem menuItem, XmlPropertySetter<IMenuItem> setter)
         {
             if (!string.IsNullOrEmpty(Bind))
                 setter.BindingSet.BindFromExpression(menuItem, Bind);
@@ -216,7 +216,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
             if (useContext)
                 target.SetDataContext(dataContext);
             else
-                XmlPropertySetter<object, object>.AddBinding(setter, target, AttachedMemberConstants.DataContext, DataContext, false);
+                XmlPropertySetter<object>.AddBinding(setter, target, AttachedMemberConstants.DataContext, DataContext, false);
         }
 
         #endregion

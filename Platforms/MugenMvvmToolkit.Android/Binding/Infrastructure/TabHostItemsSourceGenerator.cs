@@ -330,6 +330,8 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         public void SetSelectedItem(object selectedItem, IDataContext context = null)
         {
+            if (!TabHost.IsAlive())
+                return;
             if (selectedItem == null)
             {
                 TabHost.CurrentTab = 0;
@@ -453,6 +455,8 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         private void TryRestoreSelectedIndex()
         {
+            if (!TabHost.IsAlive())
+                return;
             var activityView = TabHost.Context as IActivityView;
             if (activityView == null)
                 return;
@@ -463,11 +467,14 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                 if (i != int.MinValue)
                     TabHost.CurrentTab = i;
             }
-            activityView.Mediator.SaveInstanceState += ActivityViewOnSaveInstanceState;
+            var stateListener = ReflectionExtensions.CreateWeakEventHandler<TabHostItemsSourceGenerator, ValueEventArgs<Bundle>>(this, (generator, o, arg3) => generator.ActivityViewOnSaveInstanceState(arg3));
+            activityView.Mediator.SaveInstanceState += stateListener.Handle;
         }
 
-        private void ActivityViewOnSaveInstanceState(Activity sender, ValueEventArgs<Bundle> args)
+        private void ActivityViewOnSaveInstanceState(ValueEventArgs<Bundle> args)
         {
+            if (!TabHost.IsAlive())
+                return;
             var index = TabHost.CurrentTab;
             if (index > 0)
                 args.Value.PutInt(SelectedTabIndexKey, index);

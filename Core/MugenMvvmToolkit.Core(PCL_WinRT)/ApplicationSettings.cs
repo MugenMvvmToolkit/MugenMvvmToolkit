@@ -62,6 +62,16 @@ namespace MugenMvvmToolkit
 
         public static int NotificationCollectionBatchSize { get; set; }
 
+        public static bool MultiViewModelCloseViewModelsOnClose { get; set; }
+
+        public static bool MultiViewModelDisposeViewModelOnRemove { get; set; }
+
+        public static bool GridViewModelEnableSelectableInterface { get; set; }
+
+        public static bool ViewMappingProviderDisableAutoRegistration { get; set; }
+
+        public static bool SerializerDisableAutoRegistration { get; set; }
+
 #if !NONOTIFYDATAERROR
         public static string GetAllErrorsIndexerProperty { get; set; }
 #endif
@@ -74,7 +84,8 @@ namespace MugenMvvmToolkit
         {
 #if !NONOTIFYDATAERROR
             GetAllErrorsIndexerProperty = "all";
-#endif            
+#endif
+            MultiViewModelDisposeViewModelOnRemove = true;
             PropertyChangeExecutionMode = ExecutionMode.AsynchronousOnUiThread;
             ViewModelObservationMode = ObservationMode.ParentObserveChild;
             HandleTaskExceptionBusyIndicator = true;

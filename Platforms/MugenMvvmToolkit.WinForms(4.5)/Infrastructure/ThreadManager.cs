@@ -50,6 +50,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             Should.NotBeNull(synchronizationContext, nameof(synchronizationContext));
             _synchronizationContext = synchronizationContext;
             synchronizationContext.Post(state => ((ThreadManager)state)._mainThreadId = ManagedThreadId, this);
+            ServiceProvider.UiSynchronizationContext = synchronizationContext;
         }
 
         #endregion

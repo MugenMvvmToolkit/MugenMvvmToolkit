@@ -33,7 +33,7 @@ namespace MugenMvvmToolkit.Android.Modules
         #region Constructors
 
         public FragmentInitializationModule()
-            : base(false, MugenMvvmToolkit.Models.LoadMode.All, InitializationModulePriority - 1)
+            : base(false, MugenMvvmToolkit.Models.LoadMode.All, DefaultModulePriority)
         {
         }
 

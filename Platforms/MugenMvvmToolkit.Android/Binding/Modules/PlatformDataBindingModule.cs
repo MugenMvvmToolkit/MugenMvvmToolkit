@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections;
+using System.Reflection;
 using Android.App;
 using Android.Graphics;
 using Android.Graphics.Drawables;
@@ -213,9 +214,12 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
         #region Fields
 
-        private static IBindingMemberInfo _rawAdapterMember;
+        private static Func<object, object> _rawAdapterGetter;
+        private static Action<object, object> _rawAdapterSetter;
         private static readonly object AddViewValue;
         private static readonly object[] RemoveViewValue;
+        private static readonly IntPtr TextViewSetTextMethodId;
+        private static readonly JValue[] NullJValue;
 
         #endregion
 
@@ -225,6 +229,16 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
         {
             AddViewValue = new object();
             RemoveViewValue = new object[] { null };
+            NullJValue = new[] { new JValue(IntPtr.Zero) };
+            try
+            {
+                //we can get method from TextView because it is marked as final
+                TextViewSetTextMethodId = JNIEnv.GetMethodID(Class.FromType(typeof(TextView)).Handle, "setText", "(Ljava/lang/CharSequence;)V");
+            }
+            catch
+            {
+                ;
+            }
         }
 
         #endregion
@@ -279,8 +293,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                 .CreateMember<RatingBar, float>(nameof(RatingBar.Rating), (info, btn) => btn.Rating,
                     (info, btn, value) => btn.Rating = value, nameof(RatingBar.RatingBarChange)));
 
-            //AdapterView
-            _rawAdapterMember = memberProvider.GetBindingMember(typeof(AdapterView), "RawAdapter", false, true);
+            //AdapterView            
             memberProvider.Register(AttachedBindingMember
                 .CreateAutoProperty(AttachedMembers.AdapterView.DropDownItemTemplate, ViewGroupTemplateChanged));
             memberProvider.Register(AttachedBindingMember
@@ -318,6 +331,43 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ContentTemplate.Override<TabHost>(), TabHostTemplateChanged));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ContentTemplateSelector.Override<TabHost>(), TabHostTemplateChanged));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.TabSpec.Title, (spec, args) => spec.SetIndicator(args.NewValue)));
+
+            //TextView
+            if (TextViewSetTextMethodId != IntPtr.Zero)
+            {
+                var fastTextMember = AttachedBindingMember.CreateMember<TextView, string>("TextEx", (info, view) => view.Text, (info, view, arg3) =>
+                {
+                    //Default Xamarin implementation creates and release new Java.Lang.String on every text change, can be replaced with direct method call
+                    //                    Java.Lang.String @string = value != null ? new Java.Lang.String(value) : (Java.Lang.String)null;
+                    //                    this.TextFormatted = (ICharSequence)@string;
+                    //                    if (@string == null)
+                    //                        return;
+                    //                    @string.Dispose();
+
+                    if (arg3 == null)
+                        JNIEnv.CallVoidMethod(view.Handle, TextViewSetTextMethodId, NullJValue);
+                    else
+                    {
+                        var stringPtr = JNIEnv.NewString(arg3);
+                        try
+                        {
+                            unsafe
+                            {
+                                JValue* ptr = stackalloc JValue[1];
+                                *ptr = new JValue(stringPtr);
+                                JNIEnv.CallVoidMethod(view.Handle, TextViewSetTextMethodId, ptr);
+                            }
+                        }
+                        finally
+                        {
+                            JNIEnv.DeleteLocalRef(stringPtr);
+                        }
+                    }
+                }, nameof(TextView.TextChanged));
+                memberProvider.Register(fastTextMember);
+                if (PlatformExtensions.EnableFastTextViewTextProperty)
+                    memberProvider.Register(nameof(TextView.Text), fastTextMember);
+            }
 
             //AutoCompleteTextView
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.AutoCompleteTextView.ItemTemplate, (view, args) => AutoCompleteTextViewTemplateChanged(view)));
@@ -397,12 +447,36 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
         internal static object GetAdapter(AdapterView item)
         {
-            return _rawAdapterMember.GetValue(item, null);
+            if (_rawAdapterGetter == null)
+            {
+                var property = GetRawAdapterProperty();
+                if (property == null)
+                    _rawAdapterGetter = o => null;
+                else
+                    _rawAdapterGetter = ServiceProvider.ReflectionManager.GetMemberGetter<object>(property);
+            }
+            return _rawAdapterGetter(item);
         }
 
         internal static void SetAdapter(AdapterView item, IAdapter adapter)
         {
-            _rawAdapterMember.SetSingleValue(item, adapter);
+            if (_rawAdapterSetter == null)
+            {
+                var property = GetRawAdapterProperty();
+                if (property == null)
+                    _rawAdapterSetter = (o, v) => { };
+                else
+                    _rawAdapterSetter = ServiceProvider.ReflectionManager.GetMemberSetter<object>(property);
+            }
+            _rawAdapterSetter(item, adapter);
+        }
+
+        private static PropertyInfo GetRawAdapterProperty()
+        {
+            var rawAdapterProp = typeof(AdapterView).GetPropertyEx("RawAdapter", MemberFlags.Instance | MemberFlags.NonPublic | MemberFlags.Public);
+            if (rawAdapterProp == null)
+                Tracer.Error("The AdapterView does not contain RawAdapter property");
+            return rawAdapterProp;
         }
 
         private static void ToolbarMenuTemplateChanged(Toolbar view, AttachedMemberChangedEventArgs<int> args)
@@ -459,7 +533,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
         private static void AdapterViewSelectedItemPositionChanged(AdapterView sender, AttachedMemberChangedEventArgs<int> args)
         {
-            if (sender.GetBindingMemberValue(AttachedMembers.AdapterView.ScrollToSelectedItem).GetValueOrDefault(true))
+            if (sender.GetBindingMemberValue(AttachedMembers.AdapterView.ScrollToSelectedItem).GetValueOrDefault(true) || sender is Spinner)
                 sender.SetSelection(args.NewValue);
             var adapter = GetAdapter(sender) as IItemsSourceAdapter;
             if (adapter != null)
@@ -580,7 +654,6 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
         private static void ContentMemberAttached(ViewGroup viewGroup, MemberAttachedEventArgs args)
         {
             viewGroup.ListenParentChange();
-            viewGroup.SetOnHierarchyChangeListener(ContentChangeListener.Instance);
         }
 
         private static void ContentTemplateSelectorChanged(ViewGroup sender,

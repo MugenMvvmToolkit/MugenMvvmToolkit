@@ -361,6 +361,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
                 return;
             var converter = (IValueConverter)constructor.Invoke(Empty.Array<object>());
             BindingServiceProvider.ResourceResolver.AddConverter(new ValueConverterWrapper(converter), type, true);
+            ServiceProvider.BootstrapCodeBuilder?.Append(nameof(DataBindingModule), $"{typeof(BindingExtensions).FullName}.AddConverter(resolver, new {typeof(ValueConverterWrapper).FullName}(new {type.GetPrettyName()}()), typeof({type.GetPrettyName()}, true);");
             if (Tracer.TraceInformation)
                 Tracer.Info("The {0} converter is registered.", type);
         }

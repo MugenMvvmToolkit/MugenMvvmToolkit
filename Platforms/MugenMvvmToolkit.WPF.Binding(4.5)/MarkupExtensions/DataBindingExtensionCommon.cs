@@ -21,7 +21,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -54,8 +53,8 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
     {
         #region Fields
 
-        private static readonly Func<object> NoDoFunc;
-        private static readonly Dictionary<EventInfo, Delegate> CachedDelegates;
+        private static readonly Func<object> NoDoFunc = () => null;
+        private static readonly Dictionary<EventInfo, Delegate> CachedDelegates = new Dictionary<EventInfo, Delegate>();
 
         private object _defaultValueOnException;
         private uint _delay;
@@ -74,16 +73,7 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
         private uint _targetDelay;
         private bool? _hasStablePath;
         private bool? _observable;
-
-        #endregion
-
-        #region Constructors
-
-        static DataBindingExtension()
-        {
-            CachedDelegates = new Dictionary<EventInfo, Delegate>();
-            NoDoFunc = () => null;
-        }
+        private bool? _optional;
 
         #endregion
 
@@ -281,6 +271,17 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
             }
         }
 
+        public bool? Optional
+        {
+            get { return _optional; }
+            set
+            {
+                if (value.HasValue)
+                    HasValue = true;
+                _optional = value;
+            }
+        }
+
         public bool? HasStablePath
         {
             get { return _hasStablePath; }
@@ -375,6 +376,8 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
                 syntaxBuilder.HasStablePath(HasStablePath.Value);
             if (Observable.HasValue)
                 syntaxBuilder.Observable(Observable.Value);
+            if (Optional.HasValue)
+                syntaxBuilder.Optional(Optional.Value);
             if (ValidatesOnExceptions)
                 syntaxBuilder.ValidatesOnExceptions();
             if (ValidatesOnNotifyDataErrors)

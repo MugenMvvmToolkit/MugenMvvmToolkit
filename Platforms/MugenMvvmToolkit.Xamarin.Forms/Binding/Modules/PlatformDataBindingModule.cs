@@ -51,8 +51,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Modules
             memberProvider.Register(typeof(Element), nameof(Element.BindingContext), BindingMemberProvider.BindingContextMember, true);
 
             //VisualElement
-            var visibleMember = memberProvider.GetBindingMember(typeof(VisualElement),
-                ToolkitExtensions.GetMemberName<VisualElement>(() => element => element.IsVisible), true, false);
+            var visibleMember = memberProvider.GetBindingMember(typeof(VisualElement), nameof(VisualElement.IsVisible), true, false);
             if (visibleMember != null)
             {
                 memberProvider.Register(typeof(VisualElement), AttachedMembers.VisualElement.Visible, visibleMember, true);
@@ -72,12 +71,11 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Modules
                         element.Unfocus();
                 }, (info, element, arg3) => BindingServiceProvider.WeakEventManager.Subscribe(element, nameof(VisualElement.IsFocused), arg3)));
 
-            var enabledMember = memberProvider.GetBindingMember(typeof(VisualElement),
-                ToolkitExtensions.GetMemberName<VisualElement>(() => element => element.IsEnabled), true, false);
+            var enabledMember = memberProvider.GetBindingMember(typeof(VisualElement), nameof(VisualElement.IsEnabled), true, false);
             if (enabledMember != null)
                 memberProvider.Register(typeof(VisualElement), AttachedMemberConstants.Enabled, enabledMember, true);
 
-            //Toolbar item
+            //Toolbar item               
             enabledMember = memberProvider.GetBindingMember(typeof(ToolbarItem), "IsEnabled", true, false);
             if (enabledMember != null)
                 memberProvider.Register(typeof(ToolbarItem), AttachedMemberConstants.Enabled, enabledMember, true);
@@ -128,6 +126,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Modules
                 return;
             var converter = (IValueConverter)constructor.Invoke(Empty.Array<object>());
             BindingServiceProvider.ResourceResolver.AddConverter(new ValueConverterWrapper(converter), type, true);
+            ServiceProvider.BootstrapCodeBuilder?.Append(nameof(DataBindingModule), $"{typeof(BindingExtensions).FullName}.AddConverter(resolver, new {typeof(ValueConverterWrapper).FullName}(new {type.GetPrettyName()}()), typeof({type.GetPrettyName()}, true);");
             if (Tracer.TraceInformation)
                 Tracer.Info("The {0} converter is registered.", type);
         }

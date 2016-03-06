@@ -152,9 +152,6 @@
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\UriUtils.cs">
       <Link>Infrastructure\UriUtils.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\interfaces\navigation\INavigationProviderEx.cs">
-      <Link>Interfaces\Navigation\INavigationProviderEx.cs</Link>
-    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\interfaces\navigation\INavigationService.cs">
       <Link>Interfaces\Navigation\INavigationService.cs</Link>
     </Compile>
@@ -202,7 +199,7 @@
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />
   <ProjectExtensions />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" /> 
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -44,8 +44,6 @@ namespace MugenMvvmToolkit.Android.Interfaces.Mediators
 
         object DataContext { get; set; }
 
-        bool CacheFragmentView { get; set; }
-
         void OnAttach([NotNull]Activity activity, [NotNull] Action<Activity> baseOnAttach);
 
         void OnCreate(Bundle savedInstanceState, [NotNull] Action<Bundle> baseOnCreate);

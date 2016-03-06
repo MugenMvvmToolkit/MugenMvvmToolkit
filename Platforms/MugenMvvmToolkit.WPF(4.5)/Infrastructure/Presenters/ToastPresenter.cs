@@ -95,7 +95,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
             public Task CompletionTask => Tcs.Task;
 
             #endregion
-            
+
             #region Methods
 
             public void Close()
@@ -507,7 +507,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
         {
             UIElement element;
 #if WPF || SILVERLIGHT
-            element = (UIElement) parent;
+            element = (UIElement)parent;
 #elif WINDOWS_PHONE
             var frame = parent as PhoneApplicationFrame;
             if (frame == null)
@@ -515,7 +515,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
             else
                 element = frame.Content as UIElement;
 #elif WINDOWSCOMMON
-            var window = ((Window)parent);
+            var window = (Window)parent;
             var frame = window.Content as Frame;
             if (frame == null)
                 element = window.Content;
@@ -597,7 +597,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
             else
                 popup.HorizontalOffset = (parentWidth - control.DesiredSize.Width) / 2;
 #elif WPF
-            popup.HorizontalOffset = ((parentWidth - control.DesiredSize.Width) / 2) - 8;
+            popup.HorizontalOffset = (parentWidth - control.DesiredSize.Width) / 2 - 8;
 #else
             popup.HorizontalOffset = (parentWidth - control.DesiredSize.Width) / 2;
 #endif

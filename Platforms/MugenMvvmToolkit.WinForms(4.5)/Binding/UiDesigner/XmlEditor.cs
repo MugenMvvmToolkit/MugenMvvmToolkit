@@ -342,7 +342,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
             if (desiredPlace.Left < Bounds.Left)
                 desiredPlace.X = Bounds.Left;
             if (desiredPlace.Right > Bounds.Right)
-                desiredPlace.X -= (desiredPlace.Right - Bounds.Right);
+                desiredPlace.X -= desiredPlace.Right - Bounds.Right;
             if (desiredPlace.Bottom > Bounds.Bottom)
                 desiredPlace.Y = cursorLocation.Y - 2 - desiredPlace.Height;
             if (!moveHorizontly)

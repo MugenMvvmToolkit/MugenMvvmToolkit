@@ -72,7 +72,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         internal static readonly MethodInfo RaiseMethod;
 
         //Use an array to reduce the cost of memory and do not lock during a call event.
-        protected WeakEventListenerWrapper[] Listeners;
+        private WeakEventListenerWrapper[] _listeners;
+        private ushort _size;
+        private ushort _removedSize;
 
         #endregion
 
@@ -90,14 +92,14 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public EventListenerList()
         {
-            Listeners = Empty.Array<WeakEventListenerWrapper>();
+            _listeners = Empty.Array<WeakEventListenerWrapper>();
         }
 
         #endregion
 
         #region Properties
 
-        internal bool IsEmpty => Listeners == null;
+        internal bool IsEmpty => _listeners == null;
 
         #endregion
 
@@ -116,9 +118,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         public void Raise<TArg>(object sender, TArg args)
         {
             bool hasDeadRef = false;
-            WeakEventListenerWrapper[] listeners = Listeners;
+            WeakEventListenerWrapper[] listeners = _listeners;
             for (int i = 0; i < listeners.Length; i++)
             {
+                if (i >= _size)
+                    break;
                 if (!listeners[i].EventListener.TryHandle(sender, args))
                     hasDeadRef = true;
             }
@@ -126,7 +130,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             {
                 //it's normal here.
                 lock (this)
-                    Update(WeakEventListenerWrapper.Empty);
+                    Cleanup();
             }
         }
 
@@ -142,7 +146,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public void Remove(IEventListener listener)
         {
-            if (listener.IsWeak)
+            if (!listener.IsWeak)
             {
                 Remove(listener.ToWeakWrapper());
                 return;
@@ -150,12 +154,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             //it's normal here.
             lock (this)
             {
-                for (int i = 0; i < Listeners.Length; i++)
+                for (int i = 0; i < _listeners.Length; i++)
                 {
-                    if (ReferenceEquals(Listeners[i].EventListener, listener))
+                    if (ReferenceEquals(_listeners[i].EventListener, listener))
                     {
-                        Listeners[i] = WeakEventListenerWrapper.Empty;
-                        Update(WeakEventListenerWrapper.Empty);
+                        RemoveAt(i);
                         return;
                     }
                 }
@@ -164,63 +167,49 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public void Clear()
         {
-            Listeners = Empty.Array<WeakEventListenerWrapper>();
-        }
-
-        protected IDisposable AddInternal(WeakEventListenerWrapper weakItem, bool withUnsubscriber)
-        {
-            //it's normal here.
             lock (this)
             {
-                IDisposable disposable;
-                if (OnAdd(weakItem, withUnsubscriber, out disposable))
-                    return disposable;
-                if (Listeners.Length == 0)
-                    Listeners = new[] { weakItem };
+                _listeners = Empty.Array<WeakEventListenerWrapper>();
+                _size = 0;
+                _removedSize = 0;
+            }
+        }
+
+        private IDisposable AddInternal(WeakEventListenerWrapper weakItem, bool withUnsubscriber)
+        {
+            lock (this)
+            {
+                if (_listeners.Length == 0)
+                {
+                    _listeners = new[] { weakItem };
+                    _size = 1;
+                    _removedSize = 0;
+                }
                 else
-                    Update(weakItem);
+                {
+                    if (_removedSize == 0)
+                    {
+                        if (_size == _listeners.Length)
+                            EnsureCapacity(ref _listeners, _size, _size + 1);
+                        _listeners[_size++] = weakItem;
+                    }
+                    else
+                    {
+                        for (int i = 0; i < _size; i++)
+                        {
+                            if (_listeners[i].IsEmpty)
+                            {
+                                _listeners[i] = weakItem;
+                                --_removedSize;
+                                break;
+                            }
+                        }
+                    }
+                }
             }
             if (withUnsubscriber)
                 return new Unsubscriber(this, weakItem);
             return null;
-        }
-
-        protected void Update(WeakEventListenerWrapper newItem)
-        {
-            WeakEventListenerWrapper[] references = newItem.IsEmpty
-                ? new WeakEventListenerWrapper[Listeners.Length]
-                : new WeakEventListenerWrapper[Listeners.Length + 1];
-            int index = 0;
-            for (int i = 0; i < Listeners.Length; i++)
-            {
-                WeakEventListenerWrapper reference = Listeners[i];
-                if (reference.EventListener.IsAlive)
-                    references[index++] = reference;
-            }
-            if (!newItem.IsEmpty)
-            {
-                references[index] = newItem;
-                index++;
-            }
-            else if (index == 0)
-            {
-                OnEmpty();
-                return;
-            }
-            if (references.Length != index)
-                Array.Resize(ref references, index);
-            Listeners = references;
-        }
-
-        protected virtual bool OnAdd(WeakEventListenerWrapper weakItem, bool withUnsubscriber, out IDisposable unsubscriber)
-        {
-            unsubscriber = null;
-            return false;
-        }
-
-        protected virtual void OnEmpty()
-        {
-            Listeners = Empty.Array<WeakEventListenerWrapper>();
         }
 
         private void Remove(WeakEventListenerWrapper weakItem)
@@ -228,16 +217,63 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             //it's normal here.
             lock (this)
             {
-                for (int i = 0; i < Listeners.Length; i++)
+                for (int i = 0; i < _listeners.Length; i++)
                 {
-                    if (ReferenceEquals(Listeners[i].Source, weakItem.Source))
+                    var wrapper = _listeners[i];
+                    if (!wrapper.IsEmpty && ReferenceEquals(wrapper.Source, weakItem.Source))
                     {
-                        Listeners[i] = WeakEventListenerWrapper.Empty;
-                        Update(WeakEventListenerWrapper.Empty);
+                        RemoveAt(i);
                         return;
                     }
                 }
             }
+        }
+
+        private void RemoveAt(int index)
+        {
+            ++_removedSize;
+            _listeners[index] = WeakEventListenerWrapper.Empty;
+        }
+
+        private void Cleanup()
+        {
+            var size = _size;
+            _size = 0;
+            _removedSize = 0;
+            for (int i = 0; i < size; i++)
+            {
+                var reference = _listeners[i];
+                if (reference.EventListener.IsAlive)
+                    _listeners[_size++] = reference;
+            }
+            if (_size == 0)
+                _listeners = Empty.Array<WeakEventListenerWrapper>();
+            else if (_listeners.Length / (float)_size > 2)
+            {
+                var listeners = new WeakEventListenerWrapper[_size + (_size >> 2)];
+                Array.Copy(_listeners, 0, listeners, 0, _size);
+                _listeners = listeners;
+            }
+        }
+
+        internal static void EnsureCapacity<T>(ref T[] listeners, int size, int min)
+        {
+            if (listeners.Length >= min)
+                return;
+            var length = listeners.Length;
+            if (length <= 4)
+                ++length;
+            else
+                length = length + (length >> 2);
+            if (length > 0)
+            {
+                var objArray = new T[length];
+                if (size > 0)
+                    Array.Copy(listeners, 0, objArray, 0, size);
+                listeners = objArray;
+            }
+            else
+                listeners = Empty.Array<T>();
         }
 
         #endregion

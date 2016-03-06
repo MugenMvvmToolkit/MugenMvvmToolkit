@@ -89,7 +89,6 @@ namespace MugenMvvmToolkit.Binding
             };
             BindingPathCache = new Dictionary<string, IBindingPath>(StringComparer.Ordinal);
             SetDefaultValues();
-            MvvmApplication.InitializeDesignTimeManager();
             ViewManager.GetDataContext = BindingExtensions.DataContext;
             ViewManager.SetDataContext = BindingExtensions.SetDataContext;
             BindingExceptionHandler = BindingExceptionHandlerImpl;
@@ -106,6 +105,8 @@ namespace MugenMvvmToolkit.Binding
         public static bool HasStablePathDefault { get; set; }
 
         public static bool ObservablePathDefault { get; set; }
+
+        public static bool OptionalBindingDefault { get; set; }
 
         public static Dictionary<string, IBindingBehavior> BindingModeToBehavior => BindingModeToBehaviorField;
 

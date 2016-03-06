@@ -84,6 +84,13 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private void AddMapping(IViewMappingItem mappingItem, bool throwOnError, bool rewrite = false)
         {
+            var builder = ServiceProvider.BootstrapCodeBuilder;
+            if (builder != null)
+            {
+                string newUri = mappingItem.Uri == ViewMappingItem.Empty ? "null" : $"new {typeof(Uri).FullName}(\"{mappingItem.Uri}\")";
+                builder.Append(typeof(ViewMappingProvider).Name,
+   $"mappingProvider.{nameof(AddMapping)}(new {typeof(ViewMappingItem).FullName}(typeof({mappingItem.ViewModelType.GetPrettyName()}), typeof({mappingItem.ViewType.GetPrettyName()}), \"{mappingItem.Name}\", {newUri}));");
+            }
             List<IViewMappingItem> list;
             if (!_viewTypeToMapping.TryGetValue(mappingItem.ViewType, out list))
             {
@@ -290,10 +297,22 @@ namespace MugenMvvmToolkit.Infrastructure
             }
             if (_assemblies == null)
                 return;
+            if (ApplicationSettings.ViewMappingProviderDisableAutoRegistration)
+            {
+                _assemblies = null;
+                return;
+            }
             lock (_viewModelToMapping)
             {
                 var assemblies = _assemblies;
                 _assemblies = null;
+
+                var builder = ServiceProvider.BootstrapCodeBuilder;
+                if (builder != null)
+                {
+                    builder.AppendStatic(typeof(ViewMappingProvider).Name, $"{typeof(ApplicationSettings).FullName}.{nameof(ApplicationSettings.ViewMappingProviderDisableAutoRegistration)} = true;");
+                    builder.Append(typeof(ViewMappingProvider).Name, $"var mappingProvider = ({typeof(ViewMappingProvider).FullName}) {typeof(ServiceProvider).FullName}.Get<{typeof(IViewMappingProvider).FullName}>();");
+                }
                 InitializeMapping(assemblies.Where(assembly => assembly.IsToolkitAssembly()).SelectMany(assembly => assembly.SafeGetTypes(true)));
             }
         }

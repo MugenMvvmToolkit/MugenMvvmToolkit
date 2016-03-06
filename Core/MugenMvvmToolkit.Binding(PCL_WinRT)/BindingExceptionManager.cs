@@ -41,6 +41,8 @@ namespace MugenMvvmToolkit.Binding
 
         internal const string CannotResolveInstanceFormat2 = "The {0} with name '{1}' is not registered in the '{2}'";
 
+        internal const string InvalidBindingMemberFormat2 = "The binding member cannot be obtained from the path '{0}' on the '{1}'.";
+
         #endregion
 
         #region Methods
@@ -96,7 +98,7 @@ namespace MugenMvvmToolkit.Binding
 
         internal static Exception InvalidBindingMember(Type sourceType, string path)
         {
-            return new InvalidOperationException($"The binding member cannot be obtained from the path '{path}' on the '{sourceType}'.");
+            return new InvalidOperationException(string.Format(InvalidBindingMemberFormat2, path, sourceType));
         }
 
         internal static Exception DuplicateBehavior(IBindingBehavior oldBehavior, IBindingBehavior newBehavior)

@@ -152,8 +152,8 @@ namespace MugenMvvmToolkit.Android.Views
                 return;
             for (int i = 0; i < _bindings.Count; i++)
                 BindingServiceProvider.BindingProvider.CreateBindingsFromString(actionBar, _bindings[i], null);
+            this.ClearBindingsRecursively(true, true, PlatformExtensions.AggressiveViewCleanup);
             this.RemoveFromParent();
-            this.ClearBindingsRecursively(true, true);
         }
 
         public IList<IDataBinding> SetBindings(IList<string> bindings)

@@ -94,6 +94,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         private DialogInterfaceOnKeyListener _keyListener;
         private View _view;
         private bool _removed;
+        private bool _isStarted;
 #if !APPCOMPAT
         private bool _isPreferenceContext;
 #endif
@@ -105,7 +106,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         public MvvmFragmentMediator([NotNull] Fragment target)
             : base(target)
         {
-            CacheFragmentView = PlatformExtensions.CacheFragmentViewDefault;
         }
 
         #endregion
@@ -113,8 +113,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         #region Implementation of IMvvmFragmentMediator
 
         Fragment IMvvmFragmentMediator.Fragment => Target;
-
-        public bool CacheFragmentView { get; set; }
 
         public virtual void OnAttach(Activity activity, Action<Activity> baseOnAttach)
         {
@@ -127,11 +125,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             if (Target.Activity == null || Target.View == null)
                 baseOnCreateOptionsMenu(menu, inflater);
             else
-            {
-                var optionsMenu = Target.View.FindViewById<OptionsMenu>(Resource.Id.OptionsMenu);
-                if (optionsMenu != null)
-                    optionsMenu.Inflate(Target.Activity, menu);
-            }
+                Target.View.FindViewById<OptionsMenu>(Resource.Id.OptionsMenu)?.Inflate(Target.Activity, menu);
         }
 
         public virtual View OnCreateView(int? viewId, LayoutInflater inflater, ViewGroup container,
@@ -139,12 +133,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         {
             if (_removed)
                 return null;
-            if (CacheFragmentView && _view != null)
-            {
-                _view.RemoveFromParent();
-                return _view;
-            }
-            _view.ClearBindingsRecursively(true, true);
+            ClearView();
             if (viewId.HasValue)
             {
                 _view = inflater.ToBindableLayoutInflater().Inflate(viewId.Value, container, false);
@@ -193,31 +182,15 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         public virtual void OnViewCreated(View view, Bundle savedInstanceState, Action<View, Bundle> baseOnViewCreated)
         {
-            var dialogFragment = Target as DialogFragment;
-            if (dialogFragment == null)
+            if (!(Target is DialogFragment))
                 PlatformExtensions.NotifyActivityAttached(Target.Activity, view);
-            else
-            {
-                var dialog = dialogFragment.Dialog;
-                if (dialog != null)
-                {
-                    TrySetTitleBinding();
-                    if (_keyListener == null)
-                        _keyListener = new DialogInterfaceOnKeyListener(this);
-                    dialog.SetOnKeyListener(_keyListener);
-                }
-            }
             baseOnViewCreated(view, savedInstanceState);
         }
 
         public virtual void OnDestroyView(Action baseOnDestroyView)
         {
             baseOnDestroyView();
-            if (!CacheFragmentView)
-            {
-                _view.ClearBindingsRecursively(true, true);
-                _view = null;
-            }
+            ClearView();
         }
 
         protected override PreferenceManager PreferenceManager
@@ -240,10 +213,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             if (Tracer.TraceInformation)
                 Tracer.Info("OnDestroy fragment({0})", Target);
             RaiseDestroy();
-
-            _view.RemoveFromParent();
-            _view.ClearBindingsRecursively(true, true);
-            _view = null;
+            ClearView();
 
             var dialogFragment = Target as DialogFragment;
             if (dialogFragment != null)
@@ -296,7 +266,20 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         public virtual void OnStart(Action baseOnStart)
         {
             baseOnStart();
-            Target.View?.RootView.ListenParentChange();
+            if (!_isStarted)
+            {
+                _isStarted = true;
+                var dialogFragment = Target as DialogFragment;
+                var dialog = dialogFragment?.Dialog;
+                if (dialog != null)
+                {
+                    TrySetTitleBinding(dialog);
+                    if (_keyListener == null)
+                        _keyListener = new DialogInterfaceOnKeyListener(this);
+                    dialog.SetOnKeyListener(_keyListener);
+                }
+                Target.View?.RootView.ListenParentChange();
+            }
         }
 
         public virtual void OnStop(Action baseOnStop)
@@ -362,6 +345,17 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         #region Methods
 
+        private void ClearView()
+        {
+            if (_view != null)
+            {
+                _view.ClearBindingsRecursively(true, true, PlatformExtensions.AggressiveViewCleanup);
+                _view.RemoveFromParent();
+                _view = null;
+                PlatformExtensions.CleanupWeakReferences(false);
+            }
+        }
+
         private void RaiseDestroy()
         {
             Destroyed?.Invoke(Target, EventArgs.Empty);
@@ -377,15 +371,11 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             return !args.Cancel;
         }
 
-        private void TrySetTitleBinding()
+        private void TrySetTitleBinding(Dialog dialog)
         {
             var hasDisplayName = DataContext as IHasDisplayName;
-            var dialogFragment = Target as DialogFragment;
-            if (dialogFragment == null || hasDisplayName == null)
-                return;
-            var dialog = dialogFragment.Dialog;
-            if (dialog != null)
-                BindingServiceProvider.BindingProvider.CreateBindingsFromString(dialog, "Title DisplayName", new object[] { hasDisplayName });
+            if (dialog != null && hasDisplayName != null)
+                dialog.Bind(AttachedMembers.Dialog.Title).To(hasDisplayName, nameof(IHasDisplayName.DisplayName)).Build();
         }
 
         #endregion

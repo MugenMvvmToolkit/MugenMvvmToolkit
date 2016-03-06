@@ -20,13 +20,15 @@ using System.Collections.Generic;
 using System.Xml.Serialization;
 using Android.App;
 using Android.OS;
-using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.Android.Binding.Infrastructure;
 using MugenMvvmToolkit.Android.Interfaces.Views;
+using MugenMvvmToolkit.Models;
+
 #if APPCOMPAT
+using MugenMvvmToolkit.Android.Binding;
 using ActionBar = Android.Support.V7.App.ActionBar;
 using ActionBarTabItemsSourceGenerator = MugenMvvmToolkit.Android.AppCompat.Infrastructure.ActionBarTabItemsSourceGenerator;
 
@@ -41,7 +43,17 @@ namespace MugenMvvmToolkit.Android.Binding.Models
     {
         #region Fields
 
+        private static readonly EventHandler<Activity, ValueEventArgs<Bundle>> ActivityViewOnSaveInstanceStateDelegate;
         private const string SelectedTabIndexKey = "~@tabindex";
+
+        #endregion
+
+        #region Constructors
+
+        static ActionBarTemplate()
+        {
+            ActivityViewOnSaveInstanceStateDelegate = ActivityViewOnSaveInstanceState;
+        }
 
         #endregion
 
@@ -147,7 +159,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
             PlatformExtensions.ValidateTemplate(ItemsSource, Tabs);
             var actionBar = activity.GetActionBar();
 
-            var setter = new XmlPropertySetter<ActionBarTemplate, ActionBar>(actionBar, activity, new BindingSet());
+            var setter = new XmlPropertySetter<ActionBar>(actionBar, activity, new BindingSet());
             setter.SetEnumProperty<ActionBarNavigationMode>(nameof(NavigationMode), NavigationMode);
             setter.SetProperty(nameof(DataContext), DataContext);
 
@@ -222,7 +234,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
             var activityView = activity as IActivityView;
             if (activityView == null)
                 return;
-            activityView.Mediator.SaveInstanceState += ActivityViewOnSaveInstanceState;
+            activityView.Mediator.SaveInstanceState += ActivityViewOnSaveInstanceStateDelegate;
 
             var bundle = activityView.Mediator.Bundle;
             if (bundle != null)
@@ -236,10 +248,11 @@ namespace MugenMvvmToolkit.Android.Binding.Models
         private static void ActivityViewOnSaveInstanceState(Activity sender, ValueEventArgs<Bundle> args)
         {
             var actionBar = sender.GetActionBar();
-            if (actionBar == null)
-                return;
-            var index = actionBar.SelectedNavigationIndex;
-            args.Value.PutInt(SelectedTabIndexKey, index);
+            if (actionBar.IsAlive())
+            {
+                var index = actionBar.SelectedNavigationIndex;
+                args.Value.PutInt(SelectedTabIndexKey, index);
+            }
         }
 
         #endregion

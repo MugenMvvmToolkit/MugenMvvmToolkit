@@ -194,7 +194,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 return;
             args.Cancel = true;
             _timer.Change(Delay, int.MaxValue);
-            _context = SynchronizationContext.Current;
+            _context = SynchronizationContext.Current ?? ServiceProvider.UiSynchronizationContext;
         }
 
         private static void CallbackInternal(object state)
@@ -203,7 +203,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             if (behavior == null)
                 return;
             if (behavior._context == null)
-                ToolkitExtensions.InvokeOnUiThreadAsync(behavior.Callback);
+                behavior.Callback();
             else
                 behavior._context.Post(CallbackDelegate, behavior);
         }

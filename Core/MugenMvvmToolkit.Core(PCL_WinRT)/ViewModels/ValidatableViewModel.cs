@@ -532,6 +532,7 @@ namespace MugenMvvmToolkit.ViewModels
         {
             if (disposing)
             {
+                ErrorsChanged = null;
                 object[] toRemove;
                 lock (_locker)
                     toRemove = _instanceToValidators.Keys.ToArrayEx();
@@ -539,7 +540,6 @@ namespace MugenMvvmToolkit.ViewModels
                 for (int index = 0; index < toRemove.Length; index++)
                     RemoveInstance(toRemove[index]);
                 Validator.Dispose();
-                ErrorsChanged = null;
                 _weakHandler = null;
             }
             base.OnDisposeInternal(disposing);

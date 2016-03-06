@@ -21,7 +21,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Serialization;
 using System.Threading;
 using Foundation;
 using JetBrains.Annotations;
@@ -178,19 +177,6 @@ namespace MugenMvvmToolkit.iOS
             if (controller == null)
                 return null;
             return ServiceProvider.AttachedValueProvider.GetValue<string>(controller, NavParamKey, false);
-        }
-
-        public static void SetCellBind([NotNull] this UITableView tableView,
-            [CanBeNull] Action<UITableViewCell> bindAction)
-        {
-            Should.NotBeNull(tableView, nameof(tableView));
-            tableView.SetBindingMemberValue(AttachedMembers.UITableView.CellBind, bindAction);
-        }
-
-        public static void SetCellStyle([NotNull] this UITableView tableView, UITableViewCellStyle style)
-        {
-            Should.NotBeNull(tableView, nameof(tableView));
-            tableView.SetBindingMemberValue(AttachedMembers.UITableView.CellStyle, style);
         }
 
         public static UITableViewCell CellAtEx(this UITableView tableView, NSIndexPath indexPath)
@@ -423,7 +409,7 @@ namespace MugenMvvmToolkit.iOS
                 items[i].ClearBindings(clearDataContext, clearAttachedValues);
         }
 
-        internal static IMvvmViewControllerMediator GetOrCreateMediator(this UIViewController controller, ref IMvvmViewControllerMediator mediator)
+        public static IMvvmViewControllerMediator GetOrCreateMediator(this UIViewController controller, ref IMvvmViewControllerMediator mediator)
         {
             if (mediator == null)
                 Interlocked.CompareExchange(ref mediator, MvvmViewControllerMediatorFactory(controller, DataContext.Empty), null);

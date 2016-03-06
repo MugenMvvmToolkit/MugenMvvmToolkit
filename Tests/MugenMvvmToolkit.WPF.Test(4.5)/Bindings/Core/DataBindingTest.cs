@@ -417,9 +417,9 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             var cycleItem1 = new CycleItem();
             var cycleItem2 = new CycleItem();
             var dataBinding = CreateDataBinding(
-                new BindingSourceAccessor(new SinglePathObserver(cycleItem1, new BindingPath("Property"), true, false, true),
+                new BindingSourceAccessor(new SinglePathObserver(cycleItem1, new BindingPath("Property"), true, false, true, false),
                     DataContext.Empty, true),
-                new BindingSourceAccessor(new SinglePathObserver(cycleItem2, new BindingPath("Property"), true, false, true),
+                new BindingSourceAccessor(new SinglePathObserver(cycleItem2, new BindingPath("Property"), true, false, true, false),
                     DataContext.Empty, false));
             dataBinding.Behaviors.Add(new TwoWayBindingMode());
             cycleItem2.Property = 10;

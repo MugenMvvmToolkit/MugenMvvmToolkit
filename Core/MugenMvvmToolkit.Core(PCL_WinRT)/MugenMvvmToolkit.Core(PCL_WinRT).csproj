@@ -46,6 +46,7 @@
     <Compile Include="Infrastructure\CompositeEqualityComparer.cs" />
     <Compile Include="Interfaces\Callbacks\INavigationOperation.cs" />
     <Compile Include="Interfaces\Callbacks\IOperationCallbackStateManager.cs" />
+    <Compile Include="Interfaces\IBootstrapCodeBuilder.cs" />
     <Compile Include="Interfaces\IMvvmApplication.cs" />
     <Compile Include="Interfaces\Models\IBusyInfo.cs" />
     <Compile Include="Interfaces\Models\IBusyToken.cs" />

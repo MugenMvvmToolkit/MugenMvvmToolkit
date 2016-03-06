@@ -63,6 +63,7 @@ namespace MugenMvvmToolkit.ViewModels
         private bool _clearing;
         private IViewModel _selectedItem;
         private bool _disposeViewModelOnRemove;
+        private bool _closeViewModelsOnClose;
 
         #endregion
 
@@ -85,7 +86,8 @@ namespace MugenMvvmToolkit.ViewModels
             _weakEventHandler = ReflectionExtensions.CreateWeakDelegate<MultiViewModel, ViewModelClosedEventArgs, EventHandler<ICloseableViewModel, ViewModelClosedEventArgs>>(this,
                 (model, o, arg3) => model.ItemsSource.Remove(arg3.ViewModel), UnsubscribeAction, handler => handler.Handle);
             _propertyChangedWeakEventHandler = ReflectionExtensions.MakeWeakPropertyChangedHandler(this, (model, o, arg3) => model.OnItemPropertyChanged(o, arg3));
-            DisposeViewModelOnRemove = true;
+            DisposeViewModelOnRemove = ApplicationSettings.MultiViewModelDisposeViewModelOnRemove;
+            CloseViewModelsOnClose = ApplicationSettings.MultiViewModelCloseViewModelsOnClose;
         }
 
         #endregion
@@ -99,6 +101,17 @@ namespace MugenMvvmToolkit.ViewModels
             {
                 if (value == _disposeViewModelOnRemove) return;
                 _disposeViewModelOnRemove = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool CloseViewModelsOnClose
+        {
+            get { return _closeViewModelsOnClose; }
+            set
+            {
+                if (value == _closeViewModelsOnClose) return;
+                _closeViewModelsOnClose = value;
                 OnPropertyChanged();
             }
         }
@@ -414,16 +427,15 @@ namespace MugenMvvmToolkit.ViewModels
 
         protected override Task<bool> OnClosing(object parameter)
         {
-            if (ItemsSource.Count == 0)
-                return base.OnClosing(parameter);
-            return Task.Factory.StartNew(function: OnClosingInternal, state: parameter);
+            if (CloseViewModelsOnClose && ItemsSource.Count != 0)
+                return Task.Factory.StartNew(function: OnClosingInternal, state: parameter);
+            return base.OnClosing(parameter);
         }
 
         internal override void OnDisposeInternal(bool disposing)
         {
             if (disposing)
             {
-                Clear();
                 SelectedItemChanged = null;
                 ViewModelAdded = null;
                 ViewModelRemoved = null;

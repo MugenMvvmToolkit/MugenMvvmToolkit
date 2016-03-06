@@ -57,7 +57,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Converters
             if (value == null)
                 return _nullValue;
 
-            if (((bool)value))
+            if ((bool)value)
                 return _trueValue;
             return _falseValue;
         }

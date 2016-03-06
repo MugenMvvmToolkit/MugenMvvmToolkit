@@ -69,7 +69,12 @@ namespace MugenMvvmToolkit.Android.Views.Activities
         {
             base.OnCreate(savedInstanceState);
 
-            Application.SynchronizationContext.Post(SetContentViewAsync, this);
+            View content = _viewId.HasValue
+                ? LayoutInflater.Inflate(_viewId.Value, null)
+                : CreateDefaultView();
+            if (content != null)
+                SetContentView(content);
+
             if (Interlocked.Exchange(ref _state, StartedState) == DefaultState)
             {
                 Current = this;
@@ -85,16 +90,6 @@ namespace MugenMvvmToolkit.Android.Views.Activities
         #endregion
 
         #region Methods
-
-        private static void SetContentViewAsync(object state)
-        {
-            var activity = (SplashScreenActivityBase)state;
-            View content = activity._viewId.HasValue
-                ? activity.LayoutInflater.Inflate(activity._viewId.Value, null)
-                : activity.CreateDefaultView();
-            if (content != null)
-                activity.SetContentView(content);
-        }
 
         private static void StartBootstrapperCallback(object state)
         {

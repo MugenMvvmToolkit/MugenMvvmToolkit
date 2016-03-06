@@ -50,9 +50,6 @@
     <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\Properties\AssemblyInfoCommon.cs">
       <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Android\LinkerIncludeLabmdaExpression.cs">
-      <Link>LinkerIncludeLabmdaExpression.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android\Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs">
       <Link>Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs</Link>
     </Compile>
@@ -91,9 +88,6 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\presenters\DynamicViewModelWindowPresenter.cs">
       <Link>Infrastructure\Presenters\DynamicViewModelWindowPresenter.cs</Link>
-    </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\interfaces\navigation\INavigationProviderEx.cs">
-      <Link>Interfaces\Navigation\INavigationProviderEx.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\interfaces\navigation\INavigationService.cs">
       <Link>Interfaces\Navigation\INavigationService.cs</Link>
@@ -191,5 +185,5 @@
     </None>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />  
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
 </Project>

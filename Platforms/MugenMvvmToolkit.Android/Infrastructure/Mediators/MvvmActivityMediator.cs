@@ -143,7 +143,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         public virtual void OnCreate(int? viewId, Bundle savedInstanceState, Action<Bundle> baseOnCreate)
         {
-            AndroidBootstrapperBase.EnsureInitialized();
+            AndroidBootstrapperBase.EnsureInitialized(Target, savedInstanceState);
             if (Tracer.TraceInformation)
                 Tracer.Info("OnCreate activity({0})", Target);
             _bundle = savedInstanceState;
@@ -175,23 +175,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         public override void OnSaveInstanceState(Bundle outState, Action<Bundle> baseOnSaveInstanceState)
         {
             SaveInstanceState?.Invoke(Target, new ValueEventArgs<Bundle>(outState));
+            outState.PutString(AndroidBootstrapperBase.BootTypeKey, AndroidBootstrapperBase.BootstrapperType);
             base.OnSaveInstanceState(outState, baseOnSaveInstanceState);
-        }
-
-        protected override void RestoreContext(Activity target, object dataContext)
-        {
-            base.RestoreContext(target, dataContext);
-            var viewModel = dataContext as IViewModel;
-            if (viewModel != null)
-            {
-                var container = viewModel.GetIocContainer(true, false);
-                if (container != null)
-                {
-                    //Tries to activate navigation provider.
-                    INavigationProvider service;
-                    container.TryGet(out service);
-                }
-            }
         }
 
         public override void OnDestroy(Action baseOnDestroy)
@@ -200,9 +185,9 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 Tracer.Info("OnDestroy activity({0})", Target);
             ServiceProvider.EventAggregator.Unsubscribe(this);
             Destroyed?.Invoke(Target, EventArgs.Empty);
+            _view.ClearBindingsRecursively(true, true, PlatformExtensions.AggressiveViewCleanup);
             _view.RemoveFromParent();
-            _view.ClearBindingsRecursively(true, true);
-            ThreadPool.QueueUserWorkItem(state => PlatformExtensions.CleanupWeakReferences());
+            ThreadPool.QueueUserWorkItem(state => PlatformExtensions.CleanupWeakReferences(true));
             _view = null;
 
             if (_metadata != null)
@@ -228,6 +213,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             PlatformExtensions.SetCurrentActivity(Target, true);
             Target.ClearBindings(false, true);
             OptionsItemSelected = null;
+            ActivityResult = null;
             ConfigurationChanged = null;
             PostCreate = null;
             BackPressing = null;
@@ -353,7 +339,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             return optionsItemSelected(item) || baseOnOptionsItemSelected(item);
         }
 
-        public void OnActivityResult(Action<int, Result, Intent> baseOnActivityResult, int requestCode, Result resultCode, Intent data)
+        public virtual void OnActivityResult(Action<int, Result, Intent> baseOnActivityResult, int requestCode, Result resultCode, Intent data)
         {
             baseOnActivityResult(requestCode, resultCode, data);
             ActivityResult?.Invoke(Target, new ActivityResultEventArgs(requestCode, resultCode, data));
@@ -376,12 +362,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             try
             {
                 _ignoreFinishNavigation = true;
-                if (message.ViewModel == null)
-                {
-                    if (PlatformExtensions.IsApiLessThanOrEqualTo10)
-                        Target.Finish();
-                }
-                else if (ReferenceEquals(DataContext, message.ViewModel))
+                if (message.ViewModel == null || ReferenceEquals(DataContext, message.ViewModel))
                 {
                     Target.Finish();
                     message.Finished = true;
@@ -416,7 +397,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         public virtual event EventHandler<Activity, EventArgs> Resume;
 
         public virtual event EventHandler<Activity, EventArgs> Destroyed;
-        public event EventHandler<Activity, ActivityResultEventArgs> ActivityResult;
+
+        public virtual event EventHandler<Activity, ActivityResultEventArgs> ActivityResult;
 
         #endregion
     }
