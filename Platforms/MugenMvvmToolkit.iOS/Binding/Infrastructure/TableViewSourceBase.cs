@@ -24,6 +24,7 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.iOS.Binding.Models;
 using MugenMvvmToolkit.iOS.Interfaces;
 using MugenMvvmToolkit.iOS.Interfaces.Views;
+using MugenMvvmToolkit.iOS.Views;
 using UIKit;
 
 namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
@@ -297,7 +298,8 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         public override void CellDisplayingEnded(UITableView tableView, UITableViewCell cell, NSIndexPath indexPath)
         {
-            cell.SetDataContext(null);
+            if (cell is UITableViewCellBindable)
+                cell.SetDataContext(null);
             (cell as IHasDisplayCallback)?.DisplayingEnded();
         }
 
