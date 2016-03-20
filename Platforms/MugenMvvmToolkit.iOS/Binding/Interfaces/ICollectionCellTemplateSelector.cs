@@ -30,4 +30,9 @@ namespace MugenMvvmToolkit.iOS.Binding.Interfaces
 
         void InitializeTemplate([NotNull] UICollectionView container, UICollectionViewCell cell);
     }
+
+    public interface ICollectionCellTemplateSelectorSupportDequeueReusableCell : ICollectionCellTemplateSelector
+    {
+        UICollectionViewCell DequeueReusableCell(UICollectionView collectionView, object item, NSIndexPath indexPath);
+    }
 }
