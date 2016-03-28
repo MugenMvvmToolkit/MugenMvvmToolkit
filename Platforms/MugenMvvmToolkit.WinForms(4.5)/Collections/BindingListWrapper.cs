@@ -150,6 +150,12 @@ namespace MugenMvvmToolkit.WinForms.Collections
             ((INotifiableCollection)SourceCollection).RemoveRange(collection);
         }
 
+        public event NotifyCollectionChangedEventHandler CollectionChangedUnsafe
+        {
+            add { SourceCollection.CollectionChangedUnsafe += value; }
+            remove { SourceCollection.CollectionChangedUnsafe -= value; }
+        }
+
         public event NotifyCollectionChangedEventHandler CollectionChanged
         {
             add { SourceCollection.CollectionChanged += value; }

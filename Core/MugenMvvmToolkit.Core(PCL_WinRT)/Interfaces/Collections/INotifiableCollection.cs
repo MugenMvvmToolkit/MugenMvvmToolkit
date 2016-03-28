@@ -18,6 +18,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Interfaces.Collections
@@ -29,6 +30,8 @@ namespace MugenMvvmToolkit.Interfaces.Collections
         void AddRange(IEnumerable collection);
 
         void RemoveRange(IEnumerable collection);
+
+        event NotifyCollectionChangedEventHandler CollectionChangedUnsafe;
     }
 
     public interface INotifiableCollection<T> : IList<T>, INotifyCollectionChanging, ISuspendNotifications
@@ -42,5 +45,7 @@ namespace MugenMvvmToolkit.Interfaces.Collections
         void Update(IEnumerable<T> items);
 
         T[] ToArray();
+
+        event NotifyCollectionChangedEventHandler CollectionChangedUnsafe;
     }
 }

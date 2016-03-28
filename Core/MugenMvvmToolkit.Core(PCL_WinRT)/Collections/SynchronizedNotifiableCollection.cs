@@ -104,7 +104,9 @@ namespace MugenMvvmToolkit.Collections
             None = 0,
             Changing = 1,
             Changed = 2,
-            Both = Changing | Changed
+            UnsafeChanged = 4,
+            ChangingUnsafe = Changing | UnsafeChanged,
+            All = Changing | Changed | UnsafeChanged
         }
 
         #endregion
@@ -221,12 +223,12 @@ namespace MugenMvvmToolkit.Collections
                     if (IsUiThread())
                     {
                         EnsureSynchronized();
-                        SetItemInternal(Items, index, value, NotificationType.Both);
+                        SetItemInternal(Items, index, value, NotificationType.All);
                     }
                     else
                     {
                         InitializePendingChanges();
-                        if (SetItemInternal(Items, index, value, NotificationType.Changing))
+                        if (SetItemInternal(Items, index, value, NotificationType.ChangingUnsafe))
                             AddPendingAction(c => SetItemInternal(c._snapshot, index, value, NotificationType.Changed), false);
                     }
                 }
@@ -288,10 +290,10 @@ namespace MugenMvvmToolkit.Collections
                 if (IsUiThread())
                 {
                     EnsureSynchronized();
-                    return InsertItemInternal(Items, index, item, false, NotificationType.Both);
+                    return InsertItemInternal(Items, index, item, false, NotificationType.All);
                 }
                 InitializePendingChanges();
-                var i = InsertItemInternal(Items, index, item, false, NotificationType.Changing);
+                var i = InsertItemInternal(Items, index, item, false, NotificationType.ChangingUnsafe);
                 if (i >= 0)
                     AddPendingAction(c => c.InsertItemInternal(c._snapshot, index, item, false, NotificationType.Changed), false);
                 return i;
@@ -339,8 +341,7 @@ namespace MugenMvvmToolkit.Collections
             }
 
             items[index] = item;
-            if (HasChangedFlag(notificationType))
-                OnCollectionChanged(args?.ChangedEventArgs ?? new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, item, oldItem, index));
+            OnCollectionChanged(args?.ChangedEventArgs ?? new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, item, oldItem, index), notificationType);
             return true;
         }
 
@@ -356,8 +357,7 @@ namespace MugenMvvmToolkit.Collections
             }
 
             items.Insert(index, item);
-            if (HasChangedFlag(notificationType))
-                OnCollectionChanged(args?.ChangedEventArgs ?? new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+            OnCollectionChanged(args?.ChangedEventArgs ?? new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index), notificationType);
             return index;
         }
 
@@ -373,8 +373,7 @@ namespace MugenMvvmToolkit.Collections
                     return false;
             }
             items.Clear();
-            if (HasChangedFlag(notificationType))
-                OnCollectionChanged(Empty.ResetEventArgs);
+            OnCollectionChanged(Empty.ResetEventArgs, notificationType);
             return true;
         }
 
@@ -390,8 +389,7 @@ namespace MugenMvvmToolkit.Collections
                     return false;
             }
             items.RemoveAt(index);
-            if (HasChangedFlag(notificationType))
-                OnCollectionChanged(args?.ChangedEventArgs ?? new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removedItem, index));
+            OnCollectionChanged(args?.ChangedEventArgs ?? new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removedItem, index), notificationType);
             return true;
         }
 
@@ -429,12 +427,20 @@ namespace MugenMvvmToolkit.Collections
             return items.IndexOf(item);
         }
 
-        protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs e)
+        protected virtual void OnCollectionChanged(NotifyCollectionChangedEventArgs e, NotificationType type)
         {
+            bool isUnsafe = HasUnsafeFlag(type);
+            bool isChanged = HasChangedFlag(type);
+            if (!isChanged && !isUnsafe)
+                return;
             if (IsNotificationsSuspended)
                 _isNotificationsDirty = true;
             else
             {
+                if (isUnsafe)
+                    CollectionChangedUnsafe?.Invoke(this, e);
+                if (!isChanged)
+                    return;
                 switch (e.Action)
                 {
                     case NotifyCollectionChangedAction.Add:
@@ -512,10 +518,12 @@ namespace MugenMvvmToolkit.Collections
             return ThreadManager.IsUiThread;
         }
 
-        protected void EnsureSynchronized()
+        protected bool EnsureSynchronized()
         {
-            if (_snapshot != null)
-                RaiseResetInternal();
+            if (_snapshot == null)
+                return false;
+            RaiseResetInternal();
+            return true;
         }
 
         protected void AddPendingAction(Action<SynchronizedNotifiableCollection<T>> pendingAction, bool isClear)
@@ -542,11 +550,11 @@ namespace MugenMvvmToolkit.Collections
             if (IsUiThread())
             {
                 EnsureSynchronized();
-                return InsertItemInternal(Items, GetCountInternal(Items), item, true, NotificationType.Both);
+                return InsertItemInternal(Items, GetCountInternal(Items), item, true, NotificationType.All);
             }
 
             InitializePendingChanges();
-            var i = InsertItemInternal(Items, GetCountInternal(Items), item, true, NotificationType.Changing);
+            var i = InsertItemInternal(Items, GetCountInternal(Items), item, true, NotificationType.ChangingUnsafe);
             if (i >= 0)
                 AddPendingAction(c => InsertItemInternal(c._snapshot, c.GetCountInternal(c._snapshot), item, true, NotificationType.Changed), false);
             return i;
@@ -559,14 +567,14 @@ namespace MugenMvvmToolkit.Collections
             {
                 EnsureSynchronized();
                 index = IndexOfInternal(Items, item);
-                return index >= 0 && RemoveItemInternal(Items, index, NotificationType.Both);
+                return index >= 0 && RemoveItemInternal(Items, index, NotificationType.All);
             }
             index = IndexOfInternal(Items, item);
             var r = false;
             if (index >= 0)
             {
                 InitializePendingChanges();
-                r = RemoveItemInternal(Items, index, NotificationType.Changing);
+                r = RemoveItemInternal(Items, index, NotificationType.ChangingUnsafe);
             }
             if (r)
             {
@@ -604,7 +612,7 @@ namespace MugenMvvmToolkit.Collections
         protected void RaiseResetInternal()
         {
             ClearPendingChanges();
-            OnCollectionChanged(Empty.ResetEventArgs);
+            OnCollectionChanged(Empty.ResetEventArgs, NotificationType.All);
         }
 
         protected IList<T> GetItems()
@@ -622,6 +630,11 @@ namespace MugenMvvmToolkit.Collections
         protected static bool HasChangedFlag(NotificationType type)
         {
             return (type & NotificationType.Changed) == NotificationType.Changed;
+        }
+
+        protected static bool HasUnsafeFlag(NotificationType type)
+        {
+            return (type & NotificationType.UnsafeChanged) == NotificationType.UnsafeChanged;
         }
 
         protected static NotifyCollectionChangingEventArgs GetCollectionChangeArgs(NotifyCollectionChangedAction action,
@@ -700,13 +713,13 @@ namespace MugenMvvmToolkit.Collections
                 if (IsUiThread())
                 {
                     EnsureSynchronized();
-                    if (ClearItemsInternal(Items, NotificationType.Both))
+                    if (ClearItemsInternal(Items, NotificationType.All))
                         ClearPendingChanges();
                 }
                 else
                 {
                     InitializePendingChanges();
-                    if (ClearItemsInternal(Items, NotificationType.Changing))
+                    if (ClearItemsInternal(Items, NotificationType.ChangingUnsafe))
                         AddPendingAction(c => c.RaiseResetInternal(), true);
                 }
             }
@@ -719,18 +732,20 @@ namespace MugenMvvmToolkit.Collections
                 if (IsUiThread())
                 {
                     EnsureSynchronized();
-                    RemoveItemInternal(Items, index, NotificationType.Both);
+                    RemoveItemInternal(Items, index, NotificationType.All);
                 }
                 else
                 {
                     InitializePendingChanges();
-                    if (RemoveItemInternal(Items, index, NotificationType.Changing))
+                    if (RemoveItemInternal(Items, index, NotificationType.ChangingUnsafe))
                         AddPendingAction(c => c.RemoveItemInternal(c._snapshot, index, NotificationType.Changed), false);
                 }
             }
         }
 
         public virtual event NotifyCollectionChangedEventHandler CollectionChanged;
+
+        public virtual event NotifyCollectionChangedEventHandler CollectionChangedUnsafe;
 
         public virtual event PropertyChangedEventHandler PropertyChanged;
 

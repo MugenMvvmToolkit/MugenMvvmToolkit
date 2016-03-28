@@ -97,11 +97,8 @@ namespace MugenMvvmToolkit.Collections
             }
             orderedList.RemoveAt(index);
             int newIndex = orderedList.Add(item);
-            if (HasChangedFlag(notificationType))
-            {
-                OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, oldItem, index));
-                OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, newIndex));
-            }
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, oldItem, index), notificationType);
+            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, newIndex), notificationType);
             return true;
         }
 
@@ -120,8 +117,7 @@ namespace MugenMvvmToolkit.Collections
                     return -1;
             }
             orderedList.Insert(index, item);
-            if (HasChangedFlag(notificationType))
-                OnCollectionChanged(args?.ChangedEventArgs ?? new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+            OnCollectionChanged(args?.ChangedEventArgs ?? new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index), notificationType);
             return index;
         }
 

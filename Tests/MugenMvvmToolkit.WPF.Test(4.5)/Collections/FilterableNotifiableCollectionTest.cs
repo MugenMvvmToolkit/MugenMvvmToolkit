@@ -180,6 +180,23 @@ namespace MugenMvvmToolkit.Test.Collections
         #endregion
     }
 
+    [TestClass]
+    public class FilterableNotifiableCollectionTestNoFilter : FilterableNotifiableCollectionTest
+    {
+        #region Overrides of FilterableNotifiableCollectionTestNoFilter
+
+        protected override SynchronizedNotifiableCollection<T> CreateNotifiableCollection<T>(ExecutionMode executionMode, IThreadManager threadManager)
+        {
+            return new FilterableNotifiableCollection<T>(threadManager);
+        }
+
+        protected override ICollection<T> CreateCollection<T>(params T[] items)
+        {
+            return new FilterableNotifiableCollection<T>(collection: items);
+        }
+
+        #endregion
+    }
 
     [TestClass]
     public class FilterableNotifiableCollectionSerializationTest :
