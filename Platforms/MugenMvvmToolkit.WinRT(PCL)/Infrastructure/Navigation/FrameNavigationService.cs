@@ -36,7 +36,6 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
 {
     public class FrameNavigationService : INavigationService
     {
-
         #region Fields
 
         private static readonly string[] IdSeparator = { "~n|s~" };

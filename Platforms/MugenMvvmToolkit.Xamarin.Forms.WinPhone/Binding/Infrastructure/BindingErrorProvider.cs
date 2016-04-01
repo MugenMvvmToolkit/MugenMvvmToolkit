@@ -69,16 +69,12 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinPhone.Binding.Infrastructure
                     BindingServiceProvider.WeakEventManager.Subscribe(el, "Renderer", (IEventListener)o);
                     return (object)null;
                 }, this);
-            IVisualElementRenderer renderer = view.GetRenderer();
+            IVisualElementRenderer renderer = Platform.GetRenderer(view);
             if (renderer == null)
                 return null;
             var entryRenderer = renderer as EntryRenderer;
             if (entryRenderer != null)
-            {
-                if (entryRenderer.Element.IsPassword)
-                    return entryRenderer.Control.Children.OfType<PasswordBox>().FirstOrDefault();
-                return entryRenderer.Control.Children.OfType<PhoneTextBox>().FirstOrDefault();
-            }
+                return entryRenderer.Control;
 
             var member = BindingServiceProvider.MemberProvider.GetBindingMember(renderer.GetType(), "Control", true, false);
             if (member == null || !member.CanRead)
