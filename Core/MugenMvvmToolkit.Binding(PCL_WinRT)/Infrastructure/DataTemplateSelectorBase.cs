@@ -16,8 +16,6 @@
 
 #endregion
 
-using System;
-using System.Threading;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.Interfaces;
@@ -28,18 +26,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
     {
         #region Fields
 
-        // ReSharper disable once StaticFieldInGenericType
-        private static readonly bool IsTemplateObjectType;
         private BindingSet<TTemplate, TSource> _bindingSet;
-
-        #endregion
-
-        #region Constructors
-
-        static DataTemplateSelectorBase()
-        {
-            IsTemplateObjectType = typeof(TTemplate) == typeof(object);
-        }
 
         #endregion
 
@@ -51,11 +38,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (template != null && CanInitialize(template, container))
             {
                 if (_bindingSet == null)
-                    Interlocked.CompareExchange(ref _bindingSet, new BindingSet<TTemplate, TSource>(template), null);
-                bool lockTaken = false;
+                    _bindingSet = new BindingSet<TTemplate, TSource>(template);
                 try
                 {
-                    Monitor.Enter(_bindingSet, ref lockTaken);
                     _bindingSet.Target = template;
                     Initialize(template, _bindingSet);
                     _bindingSet.Apply();
@@ -63,8 +48,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 finally
                 {
                     _bindingSet.Target = null;
-                    if (lockTaken)
-                        Monitor.Exit(_bindingSet);
                 }
             }
             return template;
@@ -80,7 +63,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         protected virtual bool CanInitialize([NotNull] TTemplate template, [NotNull] object container)
         {
-            return !IsTemplateObjectType || !(template is ValueType);
+            return true;
         }
 
         #endregion

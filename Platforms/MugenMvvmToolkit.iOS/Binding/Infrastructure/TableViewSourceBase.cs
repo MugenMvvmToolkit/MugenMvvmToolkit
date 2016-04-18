@@ -20,6 +20,7 @@ using System;
 using Foundation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.iOS.Binding.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.iOS.Binding.Models;
 using MugenMvvmToolkit.iOS.Interfaces;
@@ -325,7 +326,11 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             var selector = _templateProvider.TableCellTemplateSelector;
             if (selector == null)
                 throw new NotSupportedException("The ItemTemplate is null to create UITableViewCell use the ItemTemplate with ITableCellTemplateSelector value.");
-            var cell = tableView.DequeueReusableCell(selector.GetIdentifier(item, tableView), indexPath);
+            UITableViewCell cell;
+            if (selector is ITableCellTemplateSelectorSupportDequeueReusableCell)
+                cell = ((ITableCellTemplateSelectorSupportDequeueReusableCell)selector).DequeueReusableCell(tableView, item, indexPath);
+            else
+                cell = tableView.DequeueReusableCell(selector.GetIdentifier(item, tableView), indexPath);
 
             _lastCreatedCell = cell;
             _lastCreatedCellPath = indexPath;

@@ -20,6 +20,7 @@ using System;
 using Foundation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.iOS.Binding.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.iOS.Binding.Models;
 using MugenMvvmToolkit.iOS.Interfaces;
@@ -240,7 +241,11 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             if (selector == null)
                 throw new NotSupportedException("The ItemTemplate is null to create UICollectionViewCell use the ItemTemplate with ICollectionCellTemplateSelector value.");
             object item = GetItemAt(indexPath);
-            var cell = (UICollectionViewCell)collectionView.DequeueReusableCell(selector.GetIdentifier(item, collectionView), indexPath);
+            UICollectionViewCell cell;
+            if (selector is ICollectionCellTemplateSelectorSupportDequeueReusableCell)
+                cell = ((ICollectionCellTemplateSelectorSupportDequeueReusableCell)selector).DequeueReusableCell(collectionView, item, indexPath);
+            else
+                cell = (UICollectionViewCell)collectionView.DequeueReusableCell(selector.GetIdentifier(item, collectionView), indexPath);
 
             _lastCreatedCell = cell;
             _lastCreatedCellPath = indexPath;

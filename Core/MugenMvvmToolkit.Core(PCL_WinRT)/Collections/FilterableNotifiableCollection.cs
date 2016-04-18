@@ -23,6 +23,7 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Interfaces.Collections;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 
@@ -86,6 +87,19 @@ namespace MugenMvvmToolkit.Collections
                     return;
                 lock (Locker)
                 {
+                    var oldValue = _filter;
+                    var notifiableCollection = Items as INotifiableCollection;
+                    if (notifiableCollection != null)
+                    {
+                        if (value == null)
+                        {
+                            if (oldValue != null)
+                                notifiableCollection.CollectionChanged += OnSourceCollectionChangedSafe;
+                        }
+                        else if (oldValue == null)
+                            notifiableCollection.CollectionChanged -= OnSourceCollectionChangedSafe;
+                    }
+
                     _filter = value;
                     UpdateFilterInternal(value);
                 }
@@ -107,26 +121,31 @@ namespace MugenMvvmToolkit.Collections
                 UpdateFilterInternal(_filter);
         }
 
-        protected virtual void OnSourceCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        protected virtual void OnSourceCollectionChangedSafe(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (_filter == null)
+            {
+                if (!EnsureSynchronized())
+                    OnCollectionChanged(e, NotificationType.All);
+            }
+        }
+
+        protected virtual void OnSourceCollectionChangedUnsafe(object sender, NotifyCollectionChangedEventArgs e)
         {
             lock (Locker)
             {
                 if (_filter == null)
-                {
-                    //NOTE unsafe notification.
-                    ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, e, (@this, arg) => @this.OnCollectionChanged(arg));
                     return;
-                }
 
                 if (IsUiThread())
                 {
                     EnsureSynchronized();
-                    UpdateItem(_filterCollection, e, true);
+                    UpdateItem(_filterCollection, e, NotificationType.All);
                 }
                 else
                 {
-                    AddPendingAction(c => ((FilterableNotifiableCollection<T>)c).UpdateItem(((FilterableNotifiableCollection<T>)c)._snapshotFilterCollection, e, true), false);
-                    UpdateItem(_filterCollection, e, false);
+                    AddPendingAction(c => ((FilterableNotifiableCollection<T>)c).UpdateItem(((FilterableNotifiableCollection<T>)c)._snapshotFilterCollection, e, NotificationType.Changed), false);
+                    UpdateItem(_filterCollection, e, NotificationType.UnsafeChanged);
                 }
             }
         }
@@ -141,11 +160,21 @@ namespace MugenMvvmToolkit.Collections
         protected override IList<T> OnItemsChanged(IList<T> items)
         {
             _filterCollection = new OrderedListInternal<int, T>();
-            var notifyCollectionChanged = items as INotifyCollectionChanged;
-            if (notifyCollectionChanged != null)
+            var notifiableCollection = items as INotifiableCollection;
+            if (notifiableCollection == null)
+            {
+                var notifyCollectionChanged = items as INotifyCollectionChanged;
+                if (notifyCollectionChanged != null)
+                {
+                    _isSourceNotifiable = true;
+                    notifyCollectionChanged.CollectionChanged += OnSourceCollectionChangedUnsafe;
+                }
+            }
+            else
             {
                 _isSourceNotifiable = true;
-                notifyCollectionChanged.CollectionChanged += OnSourceCollectionChanged;
+                notifiableCollection.CollectionChangedUnsafe += OnSourceCollectionChangedUnsafe;
+                notifiableCollection.CollectionChanged += OnSourceCollectionChangedSafe;
             }
             return base.OnItemsChanged(items);
         }
@@ -182,8 +211,7 @@ namespace MugenMvvmToolkit.Collections
                 if (_isSourceNotifiable)
                     return true;
                 filterCollection.Clear();
-                if (HasChangedFlag(notificationType))
-                    OnCollectionChanged(Empty.ResetEventArgs);
+                OnCollectionChanged(Empty.ResetEventArgs, notificationType);
             }
             else
             {
@@ -192,8 +220,7 @@ namespace MugenMvvmToolkit.Collections
                 if (_isSourceNotifiable)
                     return true;
                 filterCollection.Clear();
-                if (HasChangedFlag(notificationType))
-                    OnCollectionChanged(Empty.ResetEventArgs);
+                OnCollectionChanged(Empty.ResetEventArgs, notificationType);
             }
             return true;
         }
@@ -219,8 +246,7 @@ namespace MugenMvvmToolkit.Collections
                 return true;
             UpdateFilterItems(filterCollection, originalIndex, -1);
             filterCollection.RemoveAt(index);
-            if (HasChangedFlag(notificationType))
-                OnCollectionChanged(args?.ChangedEventArgs ?? new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removedItem, index));
+            OnCollectionChanged(args?.ChangedEventArgs ?? new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, removedItem, index), notificationType);
             return true;
         }
 
@@ -248,14 +274,12 @@ namespace MugenMvvmToolkit.Collections
             if (_filter(item))
             {
                 filterCollection.Values[index] = item;
-                if (HasChangedFlag(notificationType))
-                    OnCollectionChanged(args?.ChangedEventArgs ?? new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, item, oldItem, index));
+                OnCollectionChanged(args?.ChangedEventArgs ?? new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, item, oldItem, index), notificationType);
             }
             else
             {
                 filterCollection.RemoveAt(index);
-                if (HasChangedFlag(notificationType))
-                    OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, oldItem, index));
+                OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, oldItem, index), notificationType);
             }
             return true;
         }
@@ -293,8 +317,7 @@ namespace MugenMvvmToolkit.Collections
             if (!_filter(item))
                 return -1;
             originalIndex = filterCollection.Add(originalIndex, item);
-            if (HasChangedFlag(notificationType))
-                OnCollectionChanged(args?.ChangedEventArgs ?? new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+            OnCollectionChanged(args?.ChangedEventArgs ?? new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index), notificationType);
             return originalIndex;
         }
 
@@ -330,12 +353,12 @@ namespace MugenMvvmToolkit.Collections
             {
                 //Clearing changes collection will be recreated
                 ClearPendingChanges();
-                UpdateFilterInternal(_filterCollection, value, true);
+                UpdateFilterInternal(_filterCollection, value, NotificationType.All);
             }
             else
             {
                 AddPendingAction(c => ((FilterableNotifiableCollection<T>)c).RaiseResetInternal(), true);
-                UpdateFilterInternal(_filterCollection, value, false);
+                UpdateFilterInternal(_filterCollection, value, NotificationType.UnsafeChanged);
             }
         }
 
@@ -366,7 +389,7 @@ namespace MugenMvvmToolkit.Collections
             return filterDelegate == null || filterDelegate(item);
         }
 
-        private void UpdateFilterInternal(OrderedListInternal<int, T> filterCollection, FilterDelegate<T> filter, bool notify)
+        private void UpdateFilterInternal(OrderedListInternal<int, T> filterCollection, FilterDelegate<T> filter, NotificationType notificationType)
         {
             var currentFilter = filter;
             filterCollection.Clear();
@@ -380,8 +403,7 @@ namespace MugenMvvmToolkit.Collections
                         filterCollection.Add(index, item);
                 }
             }
-            if (notify)
-                OnCollectionChanged(Empty.ResetEventArgs);
+            OnCollectionChanged(Empty.ResetEventArgs, notificationType);
         }
 
         private NotificationType GetBaseNotificationType(NotificationType notificationType)
@@ -391,7 +413,7 @@ namespace MugenMvvmToolkit.Collections
             return notificationType;
         }
 
-        private void UpdateItem(OrderedListInternal<int, T> filterCollection, NotifyCollectionChangedEventArgs e, bool notify)
+        private void UpdateItem(OrderedListInternal<int, T> filterCollection, NotifyCollectionChangedEventArgs e, NotificationType notificationType)
         {
             int filterIndex;
             switch (e.Action)
@@ -403,8 +425,7 @@ namespace MugenMvvmToolkit.Collections
                     if (!_filter(item))
                         return;
                     filterIndex = filterCollection.Add(e.NewStartingIndex, item);
-                    if (notify)
-                        OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, filterIndex));
+                    OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, filterIndex), notificationType);
                     break;
                 case NotifyCollectionChangedAction.Remove:
                     filterIndex = filterCollection.IndexOfKey(e.OldStartingIndex);
@@ -412,8 +433,7 @@ namespace MugenMvvmToolkit.Collections
                     if (filterIndex == -1)
                         return;
                     filterCollection.RemoveAt(filterIndex);
-                    if (notify)
-                        OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, e.OldItems[0], filterIndex));
+                    OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, e.OldItems[0], filterIndex), notificationType);
                     break;
                 case NotifyCollectionChangedAction.Replace:
                     filterIndex = filterCollection.IndexOfKey(e.NewStartingIndex);
@@ -424,19 +444,17 @@ namespace MugenMvvmToolkit.Collections
                     {
                         T oldItem = filterCollection.GetValue(filterIndex);
                         filterCollection.Values[filterIndex] = newItem;
-                        if (notify)
-                            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, e.NewItems[0], oldItem, filterIndex));
+                        OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, e.NewItems[0], oldItem, filterIndex), notificationType);
                     }
                     else
                     {
                         T oldValue = filterCollection.GetValue(filterIndex);
                         filterCollection.RemoveAt(filterIndex);
-                        if (notify)
-                            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, oldValue, filterIndex));
+                        OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, oldValue, filterIndex), notificationType);
                     }
                     break;
                 default:
-                    UpdateFilterInternal(filterCollection, _filter, notify);
+                    UpdateFilterInternal(filterCollection, _filter, notificationType);
                     break;
             }
         }

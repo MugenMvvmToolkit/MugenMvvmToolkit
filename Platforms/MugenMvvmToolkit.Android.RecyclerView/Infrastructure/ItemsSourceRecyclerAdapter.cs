@@ -30,7 +30,6 @@ using MugenMvvmToolkit.Android.Interfaces;
 using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using Object = Java.Lang.Object;
 
 namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
 {
@@ -111,8 +110,6 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
             get { return _itemsSource; }
             set { SetItemsSource(value, true); }
         }
-
-        public bool ClearDataContext { get; set; }
 
         #endregion
 
@@ -301,15 +298,6 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
                 view.SetBindingMemberValue(AttachedMembers.Object.Parent, parent);
             view.ListenParentChange();
             return viewHolder;
-        }
-
-        public override void OnViewRecycled(Object holder)
-        {
-            if (ClearDataContext)
-            {
-                var viewHolder = (global::Android.Support.V7.Widget.RecyclerView.ViewHolder)holder;
-                SetDataContext(viewHolder, null);
-            }
         }
 
         public override int GetItemViewType(int position)
