@@ -99,9 +99,6 @@ namespace MugenMvvmToolkit.WinPhone.Modules
                 }
 #elif WINDOWSCOMMON || WINDOWS_PHONE
                 IocContainer.BindToBindingInfo(GetApplicationStateManager());
-                IApplicationStateManager stateManager;
-                if (IocContainer.TryGet(out stateManager))
-                    PlatformExtensions.ApplicationStateManager = stateManager;
 #endif
                 return true;
             }
