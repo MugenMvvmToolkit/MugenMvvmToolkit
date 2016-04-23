@@ -52,7 +52,7 @@ namespace MugenMvvmToolkit.iOS.Models
             {
                 if (IsInvalid)
                     return null;
-                var target = (NSObject)base.Target;
+                var target = base.Target as NSObject;
                 if (!target.IsAlive())
                 {
                     target = Runtime.GetNSObject(Handle);

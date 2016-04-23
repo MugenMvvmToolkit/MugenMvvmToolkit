@@ -152,10 +152,12 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
                     NSIndexPath[] newIndexPaths = PlatformExtensions.CreateNSIndexPathArray(args.NewStartingIndex,
                         args.NewItems.Count);
                     collectionView.InsertItems(newIndexPaths);
+                    newIndexPaths.DisposeEx();
                     return true;
                 case NotifyCollectionChangedAction.Remove:
                     NSIndexPath[] oldIndexPaths = PlatformExtensions.CreateNSIndexPathArray(args.OldStartingIndex, args.OldItems.Count);
                     collectionView.DeleteItems(oldIndexPaths);
+                    oldIndexPaths.DisposeEx();
                     return true;
                 case NotifyCollectionChangedAction.Move:
                     if (args.NewItems.Count != 1 && args.OldItems.Count != 1)
@@ -164,12 +166,15 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
                     NSIndexPath oldIndexPath = NSIndexPath.FromRowSection(args.OldStartingIndex, 0);
                     NSIndexPath newIndexPath = NSIndexPath.FromRowSection(args.NewStartingIndex, 0);
                     collectionView.MoveItem(oldIndexPath, newIndexPath);
+                    oldIndexPath.Dispose();
+                    newIndexPath.Dispose();
                     return true;
                 case NotifyCollectionChangedAction.Replace:
                     if (args.NewItems.Count != args.OldItems.Count)
                         return false;
                     NSIndexPath indexPath = NSIndexPath.FromRowSection(args.NewStartingIndex, 0);
                     collectionView.ReloadItems(new[] { indexPath });
+                    indexPath.Dispose();
                     return true;
                 default:
                     return false;

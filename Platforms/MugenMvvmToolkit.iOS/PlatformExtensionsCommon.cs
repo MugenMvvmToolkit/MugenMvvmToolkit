@@ -88,11 +88,7 @@ namespace MugenMvvmToolkit.iOS
 
             var view = nativeObject as UIView;
             if (view == null)
-            {
-                var disposable = nativeObject as IDisposable;
-                if (disposable != null)
-                    disposable.Dispose();
-            }
+                (nativeObject as IDisposable)?.Dispose();
             else
                 DisposeView(view);
         }

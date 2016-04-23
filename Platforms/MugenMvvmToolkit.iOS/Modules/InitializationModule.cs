@@ -16,7 +16,6 @@
 
 #endregion
 
-using System.Threading;
 using MugenMvvmToolkit.iOS.Infrastructure;
 using MugenMvvmToolkit.iOS.Infrastructure.Callbacks;
 using MugenMvvmToolkit.iOS.Infrastructure.Navigation;
@@ -54,12 +53,7 @@ namespace MugenMvvmToolkit.iOS.Modules
         {
             var load = base.LoadInternal();
             if (load)
-            {
                 IocContainer.BindToBindingInfo(GetApplicationStateManager());
-                IApplicationStateManager stateManager;
-                if (IocContainer.TryGet(out stateManager))
-                    PlatformExtensions.ApplicationStateManager = stateManager;
-            }
             return load;
         }
 
