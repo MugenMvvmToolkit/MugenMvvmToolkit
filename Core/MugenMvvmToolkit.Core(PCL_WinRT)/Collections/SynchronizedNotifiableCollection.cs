@@ -590,21 +590,34 @@ namespace MugenMvvmToolkit.Collections
 
         private void EndSuspendNotifications()
         {
-            if (Interlocked.Decrement(ref _suspendCount) == 0)
+            bool isEnd = false;
+            lock (Locker)
+            {
+                if (_suspendCount == 1)
+                    isEnd = true;
+                else
+                    --_suspendCount;
+            }
+            if (isEnd)
             {
                 ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, this, (@this, _) =>
                 {
-                    @this.OnPropertyChanged(Empty.IsNotificationsSuspendedChangedArgs);
                     lock (@this.Locker)
                     {
-                        if (@this._isNotificationsDirty)
+                        --@this._suspendCount;
+                        if (@this._suspendCount == 0)
                         {
-                            @this._isNotificationsDirty = false;
-                            @this.RaiseResetInternal();
+                            if (@this._isNotificationsDirty)
+                            {
+                                @this._isNotificationsDirty = false;
+                                @this.RaiseResetInternal();
+                            }
+                            else
+                                @this.TryRaisePendingChanges();
                         }
-                        else
-                            @this.TryRaisePendingChanges();
                     }
+                    if (@this._suspendCount == 0)
+                        @this.OnPropertyChanged(Empty.IsNotificationsSuspendedChangedArgs);
                 });
             }
         }
@@ -753,7 +766,8 @@ namespace MugenMvvmToolkit.Collections
 
         public virtual IDisposable SuspendNotifications()
         {
-            Interlocked.Increment(ref _suspendCount);
+            lock (Locker)
+                ++_suspendCount;
             return WeakActionToken.Create(this, collection => collection.EndSuspendNotifications());
         }
 
