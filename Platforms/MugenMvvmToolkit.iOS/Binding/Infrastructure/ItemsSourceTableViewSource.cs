@@ -114,21 +114,15 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
         {
             if (ReferenceEquals(value, _itemsSource) || !this.IsAlive())
                 return;
-            if (_weakHandler == null)
-                _itemsSource = value;
-            else
-            {
-                var oldValue = _itemsSource;
-                var notifyCollectionChanged = oldValue as INotifyCollectionChanged;
-                if (notifyCollectionChanged != null)
-                    notifyCollectionChanged.CollectionChanged -= _weakHandler;
-                _itemsSource = value;
-                notifyCollectionChanged = value as INotifyCollectionChanged;
-                if (notifyCollectionChanged != null)
-                    notifyCollectionChanged.CollectionChanged += _weakHandler;
-            }
+            var notifyCollectionChanged = _itemsSource as INotifyCollectionChanged;
+            if (notifyCollectionChanged != null)
+                notifyCollectionChanged.CollectionChanged -= _weakHandler;
+            _itemsSource = value;
             if (reload)
                 ReloadData();
+            notifyCollectionChanged = value as INotifyCollectionChanged;
+            if (notifyCollectionChanged != null)
+                notifyCollectionChanged.CollectionChanged += _weakHandler;
         }
 
         protected virtual void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)

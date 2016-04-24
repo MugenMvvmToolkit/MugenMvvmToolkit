@@ -126,20 +126,15 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
         {
             if (ReferenceEquals(value, _itemsSource) || !this.IsAlive())
                 return;
-            if (_weakHandler == null)
-                _itemsSource = value;
-            else
-            {
-                var notifyCollectionChanged = _itemsSource as INotifyCollectionChanged;
-                if (notifyCollectionChanged != null)
-                    notifyCollectionChanged.CollectionChanged -= _weakHandler;
-                _itemsSource = value;
-                notifyCollectionChanged = _itemsSource as INotifyCollectionChanged;
-                if (notifyCollectionChanged != null)
-                    notifyCollectionChanged.CollectionChanged += _weakHandler;
-            }
+            var notifyCollectionChanged = _itemsSource as INotifyCollectionChanged;
+            if (notifyCollectionChanged != null)
+                notifyCollectionChanged.CollectionChanged -= _weakHandler;
+            _itemsSource = value;
             if (notifyDataSet)
                 NotifyDataSetChanged();
+            notifyCollectionChanged = _itemsSource as INotifyCollectionChanged;
+            if (notifyCollectionChanged != null)
+                notifyCollectionChanged.CollectionChanged += _weakHandler;
         }
 
         protected virtual void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)

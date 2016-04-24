@@ -266,19 +266,23 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             if (ReferenceEquals(value, _itemsSource) || !this.IsAlive())
                 return;
             if (_weakHandler == null)
+            {
                 _itemsSource = value;
+                if (notifyDataSet)
+                    NotifyDataSetChanged();
+            }
             else
             {
                 var notifyCollectionChanged = _itemsSource as INotifyCollectionChanged;
                 if (notifyCollectionChanged != null)
                     notifyCollectionChanged.CollectionChanged -= _weakHandler;
                 _itemsSource = value;
+                if (notifyDataSet)
+                    NotifyDataSetChanged();
                 notifyCollectionChanged = _itemsSource as INotifyCollectionChanged;
                 if (notifyCollectionChanged != null)
                     notifyCollectionChanged.CollectionChanged += _weakHandler;
             }
-            if (notifyDataSet)
-                NotifyDataSetChanged();
         }
 
         protected virtual View CreateView(object value, View convertView, ViewGroup parent, DataTemplateProvider templateProvider, int defaultTemplate)
