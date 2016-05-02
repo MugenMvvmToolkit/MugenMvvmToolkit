@@ -370,6 +370,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             }
 
             //AutoCompleteTextView
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.AutoCompleteTextView.FilterText));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.AutoCompleteTextView.ItemTemplate, (view, args) => AutoCompleteTextViewTemplateChanged(view)));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.AutoCompleteTextView.ItemTemplateSelector, (view, args) => AutoCompleteTextViewTemplateChanged(view)));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.AutoCompleteTextView.ItemsSource, AutoCompleteTextViewItemsSourceChanged));

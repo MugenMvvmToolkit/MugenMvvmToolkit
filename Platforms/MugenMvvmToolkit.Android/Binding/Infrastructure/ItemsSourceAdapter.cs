@@ -66,6 +66,9 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
             protected override FilterResults PerformFiltering(ICharSequence constraint)
             {
+                if (_adapter == null)
+                    return new FilterResults();
+                (_adapter.Container as AutoCompleteTextView)?.SetBindingMemberValue(AttachedMembers.AutoCompleteTextView.FilterText, constraint);
                 return new FilterResults { Count = _adapter.Count };
             }
 

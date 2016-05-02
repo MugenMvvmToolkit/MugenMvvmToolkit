@@ -20,6 +20,7 @@ using System;
 using System.Collections;
 using Android.App;
 using Android.Content;
+using Java.Lang;
 using MugenMvvmToolkit.Android.Binding.Infrastructure;
 using MugenMvvmToolkit.Android.Binding.Interfaces;
 using MugenMvvmToolkit.Android.Interfaces;
@@ -254,6 +255,7 @@ namespace MugenMvvmToolkit.Android.Binding
             public static readonly BindingMemberDescriptor<global::Android.Widget.AutoCompleteTextView, int?> ItemTemplate;
             public static readonly BindingMemberDescriptor<global::Android.Widget.AutoCompleteTextView, IDataTemplateSelector> ItemTemplateSelector;
             public static readonly BindingMemberDescriptor<global::Android.Widget.AutoCompleteTextView, IEnumerable> ItemsSource;
+            public static readonly BindingMemberDescriptor<global::Android.Widget.AutoCompleteTextView, ICharSequence> FilterText;
 
             #endregion
 
@@ -264,6 +266,7 @@ namespace MugenMvvmToolkit.Android.Binding
                 ItemTemplate = ViewGroup.ItemTemplate.Override<global::Android.Widget.AutoCompleteTextView>();
                 ItemTemplateSelector = ViewGroup.ItemTemplateSelector.Override<global::Android.Widget.AutoCompleteTextView>();
                 ItemsSource = ViewGroup.ItemsSource.Override<global::Android.Widget.AutoCompleteTextView>();
+                FilterText = new BindingMemberDescriptor<global::Android.Widget.AutoCompleteTextView, ICharSequence>(nameof(FilterText));
             }
 
             #endregion
