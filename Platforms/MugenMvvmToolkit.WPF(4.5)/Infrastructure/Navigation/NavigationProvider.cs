@@ -564,7 +564,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
                 vm = ViewModelProvider.RestoreViewModel(viewModelState, new DataContext
                 {
                     {InitializationConstants.ViewModelType, vmType}
-                }, false);
+                }, true);
             }
 
             if (vm != null)

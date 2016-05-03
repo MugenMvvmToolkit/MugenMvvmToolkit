@@ -265,7 +265,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             {
                 {InitializationConstants.ViewModelType, viewModelType}
             };
-            return Get<IViewModelProvider>().RestoreViewModel(RestoreViewModelState(bundle), context, false);
+            return Get<IViewModelProvider>().RestoreViewModel(RestoreViewModelState(bundle), context, true);
         }
 
         [NotNull]
