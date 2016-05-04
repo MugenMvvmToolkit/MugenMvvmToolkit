@@ -175,7 +175,7 @@ namespace MugenMvvmToolkit.Android
                             WeakReferencesHolder.RemoveAt(i);
                             --i;
                         }
-                        else if (IsWeakReferenceAlive != null && !IsWeakReferenceAlive(target))
+                        else if (IsTargetAlive != null && !IsTargetAlive(target))
                         {
                             ((WeakReference)WeakReferencesHolder[i]).Target = null;
                             WeakReferencesHolder.RemoveAt(i);
@@ -401,7 +401,7 @@ namespace MugenMvvmToolkit.Android
 
         public static bool EnableFastTextViewTextProperty { get; set; }
 
-        public static Func<object, bool> IsWeakReferenceAlive { get; set; }
+        public static Func<object, bool> IsTargetAlive { get; set; }
 
         public static bool TypeCacheOnlyUsedTypeToBootstrapCodeBuilder { get; set; }
 
