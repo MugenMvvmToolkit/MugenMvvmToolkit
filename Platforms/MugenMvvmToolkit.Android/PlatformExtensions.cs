@@ -21,6 +21,7 @@ using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Xml.Linq;
@@ -48,8 +49,6 @@ using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
-using BindingFlags = System.Reflection.BindingFlags;
-using WeakReference = System.WeakReference;
 
 namespace MugenMvvmToolkit.Android
 {
@@ -81,7 +80,7 @@ namespace MugenMvvmToolkit.Android
             {
                 lock (_contentViewManagers)
                 {
-                    for (int i = 0; i < _contentViewManagers.Count; i++)
+                    for (var i = 0; i < _contentViewManagers.Count; i++)
                     {
                         if (_contentViewManagers[i].SetContent(view, content))
                             return;
@@ -101,7 +100,7 @@ namespace MugenMvvmToolkit.Android
             {
                 lock (_contentViewManagers)
                 {
-                    for (int i = 0; i < _contentViewManagers.Count; i++)
+                    for (var i = 0; i < _contentViewManagers.Count; i++)
                     {
                         if (_contentViewManagers[i].GetType() == typeof(TType))
                         {
@@ -126,12 +125,15 @@ namespace MugenMvvmToolkit.Android
         {
             #region Fields
 
-            private static readonly TimeSpan MinInterval = TimeSpan.FromSeconds(4);
             private const int GCInterval = 4;
+
+            private static readonly TimeSpan MinInterval = TimeSpan.FromSeconds(4);
             private static DateTime _lastTime;
             private static int _gcCount;
 
             #endregion
+
+            #region Methods
 
             #region Finalizers
 
@@ -154,8 +156,6 @@ namespace MugenMvvmToolkit.Android
 
             #endregion
 
-            #region Methods
-
             public static void Collect(bool fullCleanup)
             {
                 Interlocked.Exchange(ref _gcCount, 0);
@@ -167,17 +167,24 @@ namespace MugenMvvmToolkit.Android
                 lock (WeakReferencesHolder)
                 {
                     oldCount = WeakReferencesHolder.Count;
-                    for (int i = 0; i < WeakReferencesHolder.Count; i++)
+                    for (var i = 0; i < WeakReferencesHolder.Count; i++)
                     {
-                        if (((WeakReference)WeakReferencesHolder[i]).Target == null)
+                        var target = ((WeakReference)WeakReferencesHolder[i]).Target;
+                        if (target == null)
                         {
+                            WeakReferencesHolder.RemoveAt(i);
+                            --i;
+                        }
+                        else if (IsWeakReferenceAlive != null && !IsWeakReferenceAlive(target))
+                        {
+                            ((WeakReference)WeakReferencesHolder[i]).Target = null;
                             WeakReferencesHolder.RemoveAt(i);
                             --i;
                         }
                     }
                     if (fullCleanup)
                     {
-                        int capacity = (int)(WeakReferencesHolder.Count * 1.25);
+                        var capacity = (int)(WeakReferencesHolder.Count * 1.25);
                         if (WeakReferencesHolder.Capacity > capacity)
                             WeakReferencesHolder.Capacity = capacity;
                     }
@@ -194,7 +201,13 @@ namespace MugenMvvmToolkit.Android
 
         private sealed class WeakReferenceKeyComparer : IComparer<object>
         {
+            #region Fields
+
             public static readonly WeakReferenceKeyComparer Instance = new WeakReferenceKeyComparer();
+
+            #endregion
+
+            #region Methods
 
             private static int GetHashCode(object obj)
             {
@@ -203,10 +216,16 @@ namespace MugenMvvmToolkit.Android
                 return RuntimeHelpers.GetHashCode(obj);
             }
 
+            #endregion
+
+            #region Implementation of interfaces
+
             public int Compare(object x, object y)
             {
                 return GetHashCode(x).CompareTo(GetHashCode(y));
             }
+
+            #endregion
         }
 
         #endregion
@@ -382,6 +401,8 @@ namespace MugenMvvmToolkit.Android
 
         public static bool EnableFastTextViewTextProperty { get; set; }
 
+        public static Func<object, bool> IsWeakReferenceAlive { get; set; }
+
         public static bool TypeCacheOnlyUsedTypeToBootstrapCodeBuilder { get; set; }
 
         public static event EventHandler CurrentActivityChanged;
@@ -408,7 +429,7 @@ namespace MugenMvvmToolkit.Android
             {
                 if (!viewGroup.GetBindingMemberValue(AttachedMembers.ViewGroup.DisableHierarchyListener))
                     viewGroup.SetOnHierarchyChangeListener(GlobalViewParentListener.Instance);
-                for (int i = 0; i < viewGroup.ChildCount; i++)
+                for (var i = 0; i < viewGroup.ChildCount; i++)
                     viewGroup.GetChildAt(i).ListenParentChange();
             }
         }
@@ -444,14 +465,14 @@ namespace MugenMvvmToolkit.Android
             return activity.LayoutInflater.ToBindableLayoutInflater(context);
         }
 
-        public static void ClearBindingsRecursively([CanBeNull]this View view, bool clearDataContext, bool clearAttachedValues, bool tryDispose)
+        public static void ClearBindingsRecursively([CanBeNull] this View view, bool clearDataContext, bool clearAttachedValues, bool tryDispose)
         {
             if (view == null)
                 return;
             var viewGroup = view as ViewGroup;
             if (viewGroup.IsAlive())
             {
-                for (int i = 0; i < viewGroup.ChildCount; i++)
+                for (var i = 0; i < viewGroup.ChildCount; i++)
                     viewGroup.GetChildAt(i).ClearBindingsRecursively(clearDataContext, clearAttachedValues, tryDispose);
             }
             view.ClearBindings(clearDataContext, clearAttachedValues);
@@ -466,12 +487,10 @@ namespace MugenMvvmToolkit.Android
             var viewGroup = view as ViewGroup;
             if (viewGroup != null)
             {
-                for (int i = 0; i < viewGroup.ChildCount; i++)
+                for (var i = 0; i < viewGroup.ChildCount; i++)
                     NotifyActivityAttached(activity, viewGroup.GetChildAt(i));
             }
-            var dependency = view as IHasActivityDependency;
-            if (dependency != null)
-                dependency.OnAttached(activity);
+            (view as IHasActivityDependency)?.OnAttached(activity);
         }
 
         public static void AddContentViewManager([NotNull] IContentViewManager contentViewManager)
@@ -517,7 +536,7 @@ namespace MugenMvvmToolkit.Android
 
         public static void SetCurrentActivity(Activity activity, bool clear)
         {
-            bool changed = false;
+            var changed = false;
             lock (CurrentActivityLocker)
             {
                 var currentActivity = CurrentActivity;
@@ -553,11 +572,8 @@ namespace MugenMvvmToolkit.Android
 
         internal static void RemoveFromParent([CanBeNull] this View view)
         {
-            if (!view.IsAlive())
-                return;
-            var viewGroup = view.Parent as ViewGroup;
-            if (viewGroup != null)
-                viewGroup.RemoveView(view);
+            if (view.IsAlive())
+                (view.Parent as ViewGroup)?.RemoveView(view);
         }
 
         internal static PlatformInfo GetPlatformInfo()
@@ -594,8 +610,8 @@ namespace MugenMvvmToolkit.Android
                 if (ReferenceEquals(value.Target, item))
                     return value;
 
-                int leftIndex = index - 1;
-                int rightIndex = index + 1;
+                var leftIndex = index - 1;
+                var rightIndex = index + 1;
                 do
                 {
                     if (rightIndex < WeakReferencesHolder.Count)
@@ -639,10 +655,10 @@ namespace MugenMvvmToolkit.Android
 
         internal static string XmlTagsToUpper(string xml)
         {
-            XDocument xDocument = XDocument.Parse(xml);
-            foreach (XElement descendant in xDocument.Descendants())
+            var xDocument = XDocument.Parse(xml);
+            foreach (var descendant in xDocument.Descendants())
             {
-                foreach (XAttribute attribute in descendant.Attributes().ToArray())
+                foreach (var attribute in descendant.Attributes().ToArray())
                 {
                     if (attribute.IsNamespaceDeclaration)
                         continue;
@@ -721,7 +737,7 @@ namespace MugenMvvmToolkit.Android
 
         private static object GetContentInternal(object container, Context ctx, object content, IDataTemplateSelector templateSelector)
         {
-            object template = templateSelector.SelectTemplate(content, container);
+            var template = templateSelector.SelectTemplate(content, container);
             if (template is int)
                 return GetContentInternal(ctx, content, (int)template);
             if (content != null && (template is View || IsFragment(template)))
