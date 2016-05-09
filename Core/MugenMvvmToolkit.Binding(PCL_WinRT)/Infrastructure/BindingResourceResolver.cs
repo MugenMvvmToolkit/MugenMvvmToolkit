@@ -198,9 +198,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             _converters = new Dictionary<string, IBindingValueConverter>();
             _dynamicMethods = new Dictionary<string, IBindingResourceMethod>
             {
+                {DefaultBindingParserHandler.GetSelfMethod, new BindingResourceMethod(GetSelfMethod, GetSelfTypeMethod)},
                 {DefaultBindingParserHandler.GetEventArgsMethod, new BindingResourceMethod(GetEventArgs, GetEventArgsReturnType)},
-                {DefaultBindingParserHandler.GetErrorsMethod, new BindingResourceMethod(GetErrorsMethod, typeof (IList<object>))},
-                {DefaultBindingParserHandler.GetBindingMethod, new BindingResourceMethod(GetBindingMethod, typeof (IDataBinding))}
+                {DefaultBindingParserHandler.GetErrorsMethod, new BindingResourceMethod(GetErrorsMethod, typeof(IList<object>))},
+                {DefaultBindingParserHandler.GetBindingMethod, new BindingResourceMethod(GetBindingMethod, typeof(IDataBinding))}
             };
             _objects = new Dictionary<string, DynamicResourceObject>();
             _aliasToMethod = new Dictionary<string, KeyValuePair<Type, string>>
@@ -340,6 +341,16 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             //The first argument must always be an identifier.
             return BindingSyntaxEx.GetErrorsImpl((Guid)objects[0], arg3, objects);
+        }
+
+        private static object GetSelfMethod(IList<Type> types, object[] items, IDataContext dataContext)
+        {
+            return TryGetTarget(dataContext);
+        }
+
+        private static Type GetSelfTypeMethod(IList<Type> types, IList<Type> list, IDataContext arg3)
+        {
+            return TryGetTarget(arg3)?.GetType() ?? typeof(object);
         }
 
         [CanBeNull]

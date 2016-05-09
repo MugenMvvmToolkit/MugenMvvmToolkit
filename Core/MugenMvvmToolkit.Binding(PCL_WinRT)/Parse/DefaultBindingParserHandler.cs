@@ -39,6 +39,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         private static readonly HashSet<string> QuoteSymbols;
 
         internal const string GetEventArgsMethod = "GetEventArgs";
+        internal const string GetSelfMethod = "GetSelf";
         internal const string GetErrorsMethod = "GetErrors";
         internal const string GetBindingMethod = "GetBinding";
 

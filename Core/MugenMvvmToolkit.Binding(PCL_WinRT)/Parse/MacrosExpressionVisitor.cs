@@ -61,11 +61,16 @@ namespace MugenMvvmToolkit.Binding.Parse
         public IExpressionNode Visit(IExpressionNode node)
         {
             var member = node as IMemberExpressionNode;
-            if (member != null && member.Target is ResourceExpressionNode)
+            var resourceExpressionNode = member?.Target as ResourceExpressionNode;
+            if (resourceExpressionNode != null)
             {
                 //$self, $this --> $BindingServiceProvider.ResourceResolver.SelfResourceName
                 if (member.Member == "self" || member.Member == "this")
-                    return new MemberExpressionNode(member.Target, BindingServiceProvider.ResourceResolver.SelfResourceName);
+                {
+                    if (resourceExpressionNode.Dynamic)
+                        return new MemberExpressionNode(member.Target, BindingServiceProvider.ResourceResolver.SelfResourceName);
+                    return new MethodCallExpressionNode(member.Target, DefaultBindingParserHandler.GetSelfMethod, null, null);
+                }
                 //$context --> $BindingServiceProvider.ResourceResolver.DataContextResourceName
                 if (member.Member == "context")
                     return new MemberExpressionNode(member.Target, BindingServiceProvider.ResourceResolver.DataContextResourceName);
