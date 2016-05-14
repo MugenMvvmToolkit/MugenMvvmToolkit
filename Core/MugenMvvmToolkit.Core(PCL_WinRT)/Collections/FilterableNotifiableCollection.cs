@@ -34,6 +34,8 @@ namespace MugenMvvmToolkit.Collections
     {
         #region Fields
 
+        private static readonly FilterDelegate<T> EmptyFilter;
+
         [XmlIgnore, NonSerialized]
         private FilterDelegate<T> _filter;
 
@@ -50,6 +52,11 @@ namespace MugenMvvmToolkit.Collections
 
         #region Constructors
 
+        static FilterableNotifiableCollection()
+        {
+            EmptyFilter = item => true;
+        }
+
         public FilterableNotifiableCollection()
         {
             IsClearIgnoreFilter = true;
@@ -65,6 +72,8 @@ namespace MugenMvvmToolkit.Collections
             : base(list, threadManager)
         {
             IsClearIgnoreFilter = true;
+            if (list is INotifyCollectionChanged && !(list is INotifiableCollection))
+                Filter = EmptyFilter;
         }
 
         public FilterableNotifiableCollection([NotNull] IEnumerable<T> collection, IThreadManager threadManager = null)
@@ -80,16 +89,26 @@ namespace MugenMvvmToolkit.Collections
         [XmlIgnore]
         public FilterDelegate<T> Filter
         {
-            get { return _filter; }
+            get
+            {
+                if (ReferenceEquals(_filter, EmptyFilter))
+                    return null;
+                return _filter;
+            }
             set
             {
-                if (Equals(_filter, value))
+                if (Equals(Filter, value))
                     return;
                 lock (Locker)
                 {
                     var oldValue = _filter;
                     var notifiableCollection = Items as INotifiableCollection;
-                    if (notifiableCollection != null)
+                    if (notifiableCollection == null)
+                    {
+                        if (Items is INotifyCollectionChanged && value == null)
+                            value = EmptyFilter;
+                    }
+                    else
                     {
                         if (value == null)
                         {
@@ -99,7 +118,6 @@ namespace MugenMvvmToolkit.Collections
                         else if (oldValue == null)
                             notifiableCollection.CollectionChanged -= OnSourceCollectionChangedSafe;
                     }
-
                     _filter = value;
                     UpdateFilterInternal(value);
                 }
