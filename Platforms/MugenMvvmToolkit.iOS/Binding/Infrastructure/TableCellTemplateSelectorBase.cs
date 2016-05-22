@@ -26,6 +26,12 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
     public abstract class TableCellTemplateSelectorBase<TSource, TTemplate> : ITableCellTemplateSelectorSupportDequeueReusableCell
         where TTemplate : UITableViewCell
     {
+        #region Fields
+
+        private BindingSet<TTemplate, TSource> _bindingSet;
+
+        #endregion
+
         #region Properties
 
         protected virtual bool SupportInitialize => true;
@@ -50,22 +56,30 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         NSString ITableCellTemplateSelector.GetIdentifier(object item, UITableView container)
         {
-            return GetIdentifier((TSource) item, container);
+            return GetIdentifier((TSource)item, container);
         }
 
         void ITableCellTemplateSelector.InitializeTemplate(UITableView container, UITableViewCell cell)
         {
-            if (SupportInitialize)
+            if (!SupportInitialize)
+                return;
+            if (_bindingSet == null)
+                _bindingSet = new BindingSet<TTemplate, TSource>(null);
+            try
             {
-                var bindingSet = new BindingSet<TTemplate, TSource>((TTemplate) cell);
-                Initialize((TTemplate) cell, bindingSet);
-                bindingSet.Apply();
+                _bindingSet.Target = (TTemplate)cell;
+                Initialize(_bindingSet.Target, _bindingSet);
+                _bindingSet.Apply();
+            }
+            finally
+            {
+                _bindingSet.Target = null;
             }
         }
 
         UITableViewCell ITableCellTemplateSelectorSupportDequeueReusableCell.DequeueReusableCell(UITableView tableView, object item, NSIndexPath indexPath)
         {
-            var identifier = GetIdentifier((TSource) item, tableView);
+            var identifier = GetIdentifier((TSource)item, tableView);
             return tableView.DequeueReusableCell(identifier) ?? SelectTemplate(tableView, identifier);
         }
 

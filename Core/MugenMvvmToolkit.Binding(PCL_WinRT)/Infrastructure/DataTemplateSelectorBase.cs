@@ -38,7 +38,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (template != null && CanInitialize(template, container))
             {
                 if (_bindingSet == null)
-                    _bindingSet = new BindingSet<TTemplate, TSource>(template);
+                    _bindingSet = new BindingSet<TTemplate, TSource>(null);
                 try
                 {
                     _bindingSet.Target = template;
