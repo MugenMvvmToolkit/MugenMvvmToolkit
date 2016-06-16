@@ -69,9 +69,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             {
                 if (_service == null)
                 {
-                    var application = Application.Context as Application;
-                    if (application != null)
-                        application.UnregisterActivityLifecycleCallbacks(this);
+                    (Application.Context as Application)?.UnregisterActivityLifecycleCallbacks(this);
                     return false;
                 }
                 return true;
@@ -145,9 +143,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
         {
             if (Build.VERSION.SdkInt >= BuildVersionCodes.IceCreamSandwich)
             {
-                var application = Application.Context as Application;
-                if (application != null)
-                    application.RegisterActivityLifecycleCallbacks(new ActivityLifecycleListener(this));
+                (Application.Context as Application)?.RegisterActivityLifecycleCallbacks(new ActivityLifecycleListener(this));
             }
         }
 
@@ -208,9 +204,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         public virtual void GoBack()
         {
-            var currentActivity = PlatformExtensions.CurrentActivity;
-            if (currentActivity != null)
-                currentActivity.OnBackPressed();
+            PlatformExtensions.CurrentActivity?.OnBackPressed();
         }
 
         public virtual void GoForward()
