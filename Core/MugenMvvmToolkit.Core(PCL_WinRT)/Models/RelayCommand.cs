@@ -66,6 +66,8 @@ namespace MugenMvvmToolkit.Models
 
         #region Overrides of RelayCommandBase
 
+        public override bool IsExecuting => _execute == null;
+
         protected override bool CanExecuteInternal(object parameter)
         {
             Func<TArg, bool> canExecute = _canExecute;
@@ -176,6 +178,8 @@ namespace MugenMvvmToolkit.Models
         #endregion
 
         #region Overrides of RelayCommandBase
+
+        public override bool IsExecuting => _execute == null;
 
         protected override bool CanExecuteInternal(object parameter)
         {
