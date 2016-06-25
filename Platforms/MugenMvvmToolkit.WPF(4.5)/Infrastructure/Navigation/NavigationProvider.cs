@@ -199,6 +199,8 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
                 }
             }
 
+            public bool IsExecuting => RelayCommand != null && RelayCommand.IsExecuting;
+
             public IList<object> GetNotifiers()
             {
                 if (RelayCommand == null)
