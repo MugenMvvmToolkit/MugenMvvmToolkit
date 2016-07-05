@@ -398,7 +398,7 @@ namespace MugenMvvmToolkit.Binding
         {
             Should.NotBeNull(contextManager, nameof(contextManager));
             if (BindingServiceProvider.DataContextMemberAliases.Contains(targetPath))
-                return new BindingContextWrapper(target);
+                return ServiceProvider.AttachedValueProvider.GetOrAdd(target, "#$@wrapdata", (o, o1) => new BindingContextWrapper(o), null);
             return contextManager.GetBindingContext(target);
         }
 
