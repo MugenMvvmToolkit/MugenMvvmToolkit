@@ -40,6 +40,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 {
     public abstract class AndroidBootstrapperBase : BootstrapperBase, IComparer<string>
     {
+        #region Nested types
+
         #region Nested Types
 
         protected sealed class DefaultApp : MvvmApplication
@@ -74,15 +76,19 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
         #endregion
 
+        #endregion
+
         #region Fields
+
+        private readonly PlatformInfo _platform;
 
         private const int EmptyState = 0;
         private const int InitializedStateGlobal = 1;
         private const int InitializedStateLocal = 2;
+        internal const string BootTypeKey = "BootTypeKey";
         private static int _appStateGlobal;
         private static string _bootstrapperType;
-        private readonly PlatformInfo _platform;
-        internal const string BootTypeKey = "BootTypeKey";
+        private static readonly ManualResetEvent InitializedEvent;
 
         #endregion
 
@@ -96,6 +102,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
             DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
             DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
             BindingServiceProvider.ValueConverter = BindingReflectionExtensions.Convert;
+            InitializedEvent = new ManualResetEvent(false);
         }
 
         protected AndroidBootstrapperBase(PlatformInfo platform = null)
@@ -126,7 +133,10 @@ namespace MugenMvvmToolkit.Android.Infrastructure
         public static void EnsureInitialized(object sender, Bundle bundle)
         {
             if (Interlocked.CompareExchange(ref _appStateGlobal, InitializedStateGlobal, EmptyState) != EmptyState)
+            {
+                InitializedEvent.WaitOne();
                 return;
+            }
             Type type;
             var typeString = bundle?.GetString(BootTypeKey);
             if (string.IsNullOrEmpty(typeString))
@@ -163,6 +173,7 @@ You must specify the type of application bootstrapper using BootstrapperAttribut
             TypeCache<View>.Initialize(null);
             var application = CreateApplication();
             application.Initialize(_platform, CreateIocContainer(), GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
+            InitializedEvent.Set();
         }
 
         public virtual void Start(IDataContext context = null)
