@@ -158,6 +158,10 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             {
                 if (savedInstanceState != null && savedInstanceState.ContainsKey(IgnoreStateKey))
                 {
+                    //prevent child fragments restore
+                    //https://github.com/android/platform_frameworks_support/blob/master/v4/java/android/support/v4/app/Fragment.java#L1945
+                    savedInstanceState.Remove("android:support:fragments");
+                    savedInstanceState.Remove("android:fragments");
                     _removed = true;
                     Target.FragmentManager
                         .BeginTransaction()
