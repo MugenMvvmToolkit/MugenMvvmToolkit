@@ -78,10 +78,10 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
         {
             var application = CreateApplication();
             var iocContainer = CreateIocContainer();
-            application.Initialize(_platform, iocContainer, GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
             var service = CreateNavigationService(_rootFrame);
             if (service != null)
                 iocContainer.BindToConstant(service);
+            application.Initialize(_platform, iocContainer, GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
         }
 
         #endregion

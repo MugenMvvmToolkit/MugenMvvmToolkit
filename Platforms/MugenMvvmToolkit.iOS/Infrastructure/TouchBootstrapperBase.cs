@@ -101,10 +101,10 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
         {
             var application = CreateApplication();
             var iocContainer = CreateIocContainer();
-            application.Initialize(_platform, iocContainer, GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
             _navigationService = CreateNavigationService(_window);
             if (_navigationService != null)
                 iocContainer.BindToConstant(_navigationService);
+            application.Initialize(_platform, iocContainer, GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
         }
 
         public virtual void Start(IDataContext context = null)

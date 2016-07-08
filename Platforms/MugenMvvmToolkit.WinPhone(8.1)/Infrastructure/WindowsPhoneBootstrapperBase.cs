@@ -77,11 +77,11 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
         {
             var application = CreateApplication();
             var iocContainer = CreateIocContainer();
-            application.Initialize(_platform, iocContainer, GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
-            FrameStateManager.RegisterFrame(_rootFrame);
             var service = CreateNavigationService(_rootFrame);
             if (service != null)
                 iocContainer.BindToConstant(service);
+            application.Initialize(_platform, iocContainer, GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
+            FrameStateManager.RegisterFrame(_rootFrame);
             Should.PropertyNotBeNull(PhoneApplicationService.Current, nameof(PhoneApplicationService) + nameof(PhoneApplicationService.Current));
         }
 
