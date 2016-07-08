@@ -72,7 +72,7 @@ namespace MugenMvvmToolkit.Models
         protected override bool CanExecuteInternal(object parameter)
         {
             var canExecute = _canExecute;
-            return canExecute != null && _execute != null && canExecute((TArg) parameter);
+            return canExecute != null && _execute != null && canExecute((TArg)parameter);
         }
 
         protected override void ExecuteInternal(object parameter)
@@ -82,16 +82,17 @@ namespace MugenMvvmToolkit.Models
                 return;
             if (_state == 0)
             {
-                ((Action<TArg>) _execute).Invoke((TArg) parameter);
+                ((Action<TArg>)_execute).Invoke((TArg)parameter);
                 return;
             }
             var allowMultiple = _state.HasFlagEx(RelayCommand.AllowMultipleExecutionFlag);
             if (!allowMultiple && Interlocked.Exchange(ref _execute, null) == null)
                 return;
-
+            if (!allowMultiple)
+                OnPropertyChanged(nameof(IsExecuting));
             try
             {
-                var t = ((Func<TArg, Task>) execute).Invoke((TArg) parameter);
+                var t = ((Func<TArg, Task>)execute).Invoke((TArg)parameter);
                 if (!allowMultiple)
                 {
                     RaiseCanExecuteChanged();
@@ -99,6 +100,7 @@ namespace MugenMvvmToolkit.Models
                     {
                         _execute = execute;
                         RaiseCanExecuteChanged();
+                        OnPropertyChanged(nameof(IsExecuting));
                     });
                 }
             }
@@ -188,8 +190,8 @@ namespace MugenMvvmToolkit.Models
             if (canExecute == null || _execute == null)
                 return false;
             if (_state.HasFlagEx(ObjectDelegateFlag))
-                return ((Func<object, bool>) canExecute).Invoke(parameter);
-            return ((Func<bool>) canExecute).Invoke();
+                return ((Func<object, bool>)canExecute).Invoke(parameter);
+            return ((Func<bool>)canExecute).Invoke();
         }
 
         protected override void ExecuteInternal(object parameter)
@@ -198,15 +200,17 @@ namespace MugenMvvmToolkit.Models
             if (execute == null)
                 return;
             if (_state == 0)
-                ((Action) execute).Invoke();
+                ((Action)execute).Invoke();
             else if (_state.HasFlagEx(TaskDelegateFlag))
             {
                 var allowMultiple = _state.HasFlagEx(AllowMultipleExecutionFlag);
                 if (!allowMultiple && Interlocked.Exchange(ref _execute, null) == null)
                     return;
+                if (!allowMultiple)
+                    OnPropertyChanged(nameof(IsExecuting));
                 try
                 {
-                    var t = ((Func<Task>) execute).Invoke();
+                    var t = ((Func<Task>)execute).Invoke();
                     if (!allowMultiple)
                     {
                         RaiseCanExecuteChanged();
@@ -214,6 +218,7 @@ namespace MugenMvvmToolkit.Models
                         {
                             _execute = execute;
                             RaiseCanExecuteChanged();
+                            OnPropertyChanged(nameof(IsExecuting));
                         });
                     }
                 }
@@ -224,7 +229,7 @@ namespace MugenMvvmToolkit.Models
                 }
             }
             else
-                ((Action<object>) execute).Invoke(parameter);
+                ((Action<object>)execute).Invoke(parameter);
         }
 
         protected override void OnDispose()
