@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Globalization;
 using CoreGraphics;
 using Foundation;
 using UIKit;
@@ -31,13 +32,14 @@ namespace MugenMvvmToolkit.iOS.Views
     {
         #region Fields
 
-        internal static readonly UIColor ValidationColor;
-        private static readonly NSString EmptyNSString;
-
-        private NSString _message;
         private UIColor _color;
         private UIColor _fontColor;
         private string _fontName;
+
+        private NSString _message;
+
+        internal static readonly UIColor ValidationColor;
+        private static readonly NSString EmptyNSString;
 
         #endregion
 
@@ -67,9 +69,9 @@ namespace MugenMvvmToolkit.iOS.Views
 
         #region Properties
 
-        public CGRect ShowOnRect { get; private set; }
+        public CGRect ShowOnRect { get; }
 
-        public CGRect FieldFrame { get; private set; }
+        public CGRect FieldFrame { get; }
 
         public NSString Message
         {
@@ -105,9 +107,9 @@ namespace MugenMvvmToolkit.iOS.Views
 
         public override void Draw(CGRect rect)
         {
-            nfloat[] color = Color.CGColor.Components;
+            var color = Color.CGColor.Components;
             UIGraphics.BeginImageContext(new CGSize(30, 20));
-            CGContext ctx = UIGraphics.GetCurrentContext();
+            var ctx = UIGraphics.GetCurrentContext();
             ctx.SetFillColor(color[0], color[1], color[2], 1);
             ctx.SetShadow(CGSize.Empty, 7f, UIColor.Black.CGColor);
 
@@ -120,28 +122,28 @@ namespace MugenMvvmToolkit.iOS.Views
             ctx.ClosePath();
             ctx.FillPath();
 
-            UIImage viewImage = UIGraphics.GetImageFromCurrentImageContext();
+            var viewImage = UIGraphics.GetImageFromCurrentImageContext();
             UIGraphics.EndImageContext();
-            var imgframe = new CGRect(ShowOnRect.X + (ShowOnRect.Width - 30) / 2,
-                ShowOnRect.Height / 2 + ShowOnRect.Y, 30, 13);
+            var imgframe = new CGRect(ShowOnRect.X + (ShowOnRect.Width - 30)/2,
+                ShowOnRect.Height/2 + ShowOnRect.Y, 30, 13);
 
             var img = new UIImageView(viewImage);
             AddSubview(img);
             img.TranslatesAutoresizingMaskIntoConstraints = false;
             var dict = new NSDictionary("img", img);
             img.Superview.AddConstraints(
-                NSLayoutConstraint.FromVisualFormat($@"H:|-{imgframe.X}-[img({imgframe.Width})]",
+                NSLayoutConstraint.FromVisualFormat($@"H:|-{imgframe.X.ToString(CultureInfo.InvariantCulture)}-[img({imgframe.Width.ToString(CultureInfo.InvariantCulture)})]",
                     NSLayoutFormatOptions.DirectionLeadingToTrailing, null, dict));
             img.Superview.AddConstraints(
-                NSLayoutConstraint.FromVisualFormat($@"V:|-{imgframe.Y}-[img({imgframe.Height})]",
+                NSLayoutConstraint.FromVisualFormat($@"V:|-{imgframe.Y.ToString(CultureInfo.InvariantCulture)}-[img({imgframe.Height.ToString(CultureInfo.InvariantCulture)})]",
                     NSLayoutFormatOptions.DirectionLeadingToTrailing, null, dict));
 
 
-            UIFont font = UIFont.FromName(FontName, FontSize);
+            var font = UIFont.FromName(FontName, FontSize);
             var message = new NSAttributedString(Message, font);
-            var size = message.GetBoundingRect(new CGSize(FieldFrame.Width - PaddingInErrorPopUp * 2, 1000),
+            var size = message.GetBoundingRect(new CGSize(FieldFrame.Width - PaddingInErrorPopUp*2, 1000),
                 NSStringDrawingOptions.UsesLineFragmentOrigin, null).Size;
-            size = new CGSize((nfloat)Math.Ceiling(size.Width), (nfloat)Math.Ceiling(size.Height));
+            size = new CGSize((nfloat) Math.Ceiling(size.Width), (nfloat) Math.Ceiling(size.Height));
 
             var view = new UIView(CGRect.Empty);
             InsertSubviewBelow(view, img);
@@ -155,11 +157,14 @@ namespace MugenMvvmToolkit.iOS.Views
             dict = new NSDictionary("view", view);
             view.Superview.AddConstraints(
                 NSLayoutConstraint.FromVisualFormat(
-                    $@"H:|-{FieldFrame.X + (FieldFrame.Width - (size.Width + PaddingInErrorPopUp*2))}-[view({size.Width + PaddingInErrorPopUp*2})]",
+                    $@"H:|-{(FieldFrame.X + (FieldFrame.Width - (size.Width + PaddingInErrorPopUp*2))).ToString(CultureInfo.InvariantCulture)}-[view({(size.Width +
+                                                                                                                                                       PaddingInErrorPopUp*2)
+                        .ToString(CultureInfo.InvariantCulture)})]",
                     NSLayoutFormatOptions.DirectionLeadingToTrailing, null, dict));
             view.Superview.AddConstraints(
                 NSLayoutConstraint.FromVisualFormat(
-                    $@"V:|-{imgframe.Y + imgframe.Height}-[view({size.Height + PaddingInErrorPopUp*2})]",
+                    $@"V:|-{(imgframe.Y + imgframe.Height).ToString(CultureInfo.InvariantCulture)}-[view({(size.Height + PaddingInErrorPopUp*2).ToString(
+                        CultureInfo.InvariantCulture)})]",
                     NSLayoutFormatOptions.DirectionLeadingToTrailing, null, dict));
 
             var lbl = new UILabel(CGRect.Empty)
@@ -176,11 +181,11 @@ namespace MugenMvvmToolkit.iOS.Views
             dict = new NSDictionary("lbl", lbl);
             lbl.Superview.AddConstraints(
                 NSLayoutConstraint.FromVisualFormat(
-                    $@"H:|-{PaddingInErrorPopUp}-[lbl({size.Width})]",
+                    $@"H:|-{PaddingInErrorPopUp.ToString(CultureInfo.InvariantCulture)}-[lbl({size.Width.ToString(CultureInfo.InvariantCulture)})]",
                     NSLayoutFormatOptions.DirectionLeadingToTrailing, null, dict));
             lbl.Superview.AddConstraints(
                 NSLayoutConstraint.FromVisualFormat(
-                    $@"V:|-{PaddingInErrorPopUp}-[lbl({size.Height})]",
+                    $@"V:|-{PaddingInErrorPopUp.ToString(CultureInfo.InvariantCulture)}-[lbl({size.Height.ToString(CultureInfo.InvariantCulture)})]",
                     NSLayoutFormatOptions.DirectionLeadingToTrailing, null, dict));
         }
 
