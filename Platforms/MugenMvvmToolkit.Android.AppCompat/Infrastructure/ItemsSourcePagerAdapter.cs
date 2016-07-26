@@ -139,6 +139,12 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
                 SetItemsSource(null, false);
         }
 
+        protected virtual Object InstantiateItemInternal(ViewGroup container, object item)
+        {
+            return (Object)PlatformExtensions
+                .GetContentView(container, container.Context, item, _itemTemplateProvider.GetTemplateId(), _itemTemplateProvider.GetDataTemplateSelector());
+        }
+
         private void TryRestoreSelectedIndex()
         {
             if (!_viewPager.IsAlive())
@@ -205,8 +211,7 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
             var viewModel = item as IViewModel;
             if (viewModel != null)
                 viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.StateNotNeeded, true);
-            var view = (Object)PlatformExtensions
-                .GetContentView(container, container.Context, item, _itemTemplateProvider.GetTemplateId(), _itemTemplateProvider.GetDataTemplateSelector());
+            var view = InstantiateItemInternal(container, item);
             var fragment = view as Fragment;
             if (fragment == null)
                 container.AddView((View)view);
