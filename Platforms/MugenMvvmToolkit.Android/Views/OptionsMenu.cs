@@ -36,7 +36,7 @@ namespace MugenMvvmToolkit.Android.Views
     {
         #region Fields
 
-        private IList<string> _bindings;
+        private string _bind;
 
         #endregion
 
@@ -71,20 +71,17 @@ namespace MugenMvvmToolkit.Android.Views
             if (value == null)
                 return;
             activity.MenuInflater.Inflate(value.Value, menu, this);
-            if (_bindings != null)
-            {
-                foreach (string binding in _bindings)
-                    BindingServiceProvider.BindingProvider.CreateBindingsFromString(menu, binding, null);
-            }
+            if (!string.IsNullOrEmpty(_bind))
+                BindingServiceProvider.BindingProvider.CreateBindingsFromString(menu, _bind, null);
         }
 
         #endregion
 
         #region Implementation of IManualBindings
 
-        public IList<IDataBinding> SetBindings(IList<string> bindings)
+        public IList<IDataBinding> SetBindings(string bind)
         {
-            _bindings = bindings;
+            _bind = bind;
             return Empty.Array<IDataBinding>();
         }
 

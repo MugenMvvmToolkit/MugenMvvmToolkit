@@ -27,38 +27,35 @@ namespace MugenMvvmToolkit.Android
 		public partial class Attribute
 		{
 			
-			// aapt resource value: 0x7f010009
-			public static int ActionBarTemplate = 2130771977;
+			// aapt resource value: 0x7f010008
+			public static int ActionBarTemplate = 2130771976;
 			
 			// aapt resource value: 0x7f010000
 			public static int Bind = 2130771968;
 			
-			// aapt resource value: 0x7f010001
-			public static int Bindings = 2130771969;
-			
-			// aapt resource value: 0x7f010004
-			public static int ContentTemplate = 2130771972;
-			
 			// aapt resource value: 0x7f010003
-			public static int DropDownItemTemplate = 2130771971;
+			public static int ContentTemplate = 2130771971;
 			
 			// aapt resource value: 0x7f010002
-			public static int ItemTemplate = 2130771970;
+			public static int DropDownItemTemplate = 2130771970;
 			
-			// aapt resource value: 0x7f010005
-			public static int MenuTemplate = 2130771973;
+			// aapt resource value: 0x7f010001
+			public static int ItemTemplate = 2130771969;
 			
-			// aapt resource value: 0x7f010008
-			public static int PlacementTargetPath = 2130771976;
+			// aapt resource value: 0x7f010004
+			public static int MenuTemplate = 2130771972;
 			
 			// aapt resource value: 0x7f010007
-			public static int PopupMenuEvent = 2130771975;
+			public static int PlacementTargetPath = 2130771975;
 			
 			// aapt resource value: 0x7f010006
-			public static int PopupMenuTemplate = 2130771974;
+			public static int PopupMenuEvent = 2130771974;
 			
-			// aapt resource value: 0x7f01000a
-			public static int TabContentId = 2130771978;
+			// aapt resource value: 0x7f010005
+			public static int PopupMenuTemplate = 2130771973;
+			
+			// aapt resource value: 0x7f010009
+			public static int TabContentId = 2130771977;
 			
 			static Attribute()
 			{
@@ -115,8 +112,8 @@ namespace MugenMvvmToolkit.Android
 		{
 			
 			public static int[] ActionBar = new int[] {
-					2130771977,
-					2130771978};
+					2130771976,
+					2130771977};
 			
 			// aapt resource value: 0
 			public static int ActionBar_ActionBarTemplate = 0;
@@ -125,24 +122,20 @@ namespace MugenMvvmToolkit.Android
 			public static int ActionBar_TabContentId = 1;
 			
 			public static int[] Binding = new int[] {
-					2130771968,
-					2130771969};
+					2130771968};
 			
 			// aapt resource value: 0
 			public static int Binding_Bind = 0;
 			
-			// aapt resource value: 1
-			public static int Binding_Bindings = 1;
-			
 			public static int[] Control = new int[] {
-					2130771972};
+					2130771971};
 			
 			// aapt resource value: 0
 			public static int Control_ContentTemplate = 0;
 			
 			public static int[] ItemsControl = new int[] {
-					2130771970,
-					2130771971};
+					2130771969,
+					2130771970};
 			
 			// aapt resource value: 1
 			public static int ItemsControl_DropDownItemTemplate = 1;
@@ -151,10 +144,10 @@ namespace MugenMvvmToolkit.Android
 			public static int ItemsControl_ItemTemplate = 0;
 			
 			public static int[] Menu = new int[] {
+					2130771972,
 					2130771973,
 					2130771974,
-					2130771975,
-					2130771976};
+					2130771975};
 			
 			// aapt resource value: 0
 			public static int Menu_MenuTemplate = 0;

@@ -258,12 +258,9 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             Action<Activity, IAttributeSet, Bundle> baseOnInflate)
         {
             Target.ClearBindings(false, false);
-            List<string> strings = ViewFactory.ReadStringAttributeValue(activity, attrs, Resource.Styleable.Binding, null);
-            if (strings != null && strings.Count != 0)
-            {
-                foreach (string bind in strings)
-                    BindingServiceProvider.BindingProvider.CreateBindingsFromString(Target, bind, null);
-            }
+            var bind = ViewFactory.ReadStringAttributeValue(activity, attrs, Resource.Styleable.Binding, Resource.Styleable.Binding_Bind, null, null, null);
+            if (!string.IsNullOrEmpty(bind))
+                BindingServiceProvider.BindingProvider.CreateBindingsFromString(Target, bind, null);
             baseOnInflate(activity, attrs, savedInstanceState);
         }
 

@@ -27,7 +27,6 @@ using Java.Interop;
 using Java.Lang;
 using Java.Lang.Reflect;
 using MugenMvvmToolkit.Android.Binding.Interfaces;
-using MugenMvvmToolkit.Android.DataConstants;
 using MugenMvvmToolkit.Android.Infrastructure;
 using MugenMvvmToolkit.Android.Interfaces;
 using MugenMvvmToolkit.Android.Models;
@@ -143,21 +142,15 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             if (!viewResult.IsEmpty)
             {
                 view = viewResult.View;
-                IList<string> bindings = viewResult.DataContext.GetData(ViewFactoryConstants.Bindings);
-                if (bindings != null)
+                var bind = viewResult.Bind;
+                if (!string.IsNullOrEmpty(bind))
                 {
                     var manualBindings = view as IManualBindings;
                     if (manualBindings == null)
-                    {
-                        foreach (string binding in bindings)
-                        {
-                            BindingServiceProvider
-                                .BindingProvider
-                                .CreateBindingsFromString(view, binding);
-                        }
-                    }
+                        BindingServiceProvider.BindingProvider.CreateBindingsFromString(view, bind);
                     else
-                        manualBindings.SetBindings(bindings);
+                        manualBindings.SetBindings(bind);
+
                 }
             }
             return view;

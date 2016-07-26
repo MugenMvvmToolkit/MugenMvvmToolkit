@@ -7,8 +7,7 @@
   <item name="AttachedProperties" type="id" />
 
   <declare-styleable name="Binding">
-    <attr name="Bind" format="string" />
-    <attr name="Bindings" format="string" />
+    <attr name="Bind" format="string" />    
   </declare-styleable>
 
   <declare-styleable name="ItemsControl">

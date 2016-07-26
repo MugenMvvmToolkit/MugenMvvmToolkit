@@ -114,7 +114,6 @@
     <Compile Include="Binding\Models\ActionBarTemplate.cs" />
     <Compile Include="Binding\Modules\FragmentDataBindingModule.cs" />
     <Compile Include="Binding\Modules\PreferenceDataBindingModule.cs" />
-    <Compile Include="DataConstants\ViewFactoryConstants.cs" />
     <Compile Include="Binding\Interfaces\IItemsSourceAdapter.cs" />
     <Compile Include="Binding\Infrastructure\FragmentContentViewManager.cs" />
     <Compile Include="FragmentExtensions.cs" />

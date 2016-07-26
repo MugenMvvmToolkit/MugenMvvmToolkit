@@ -25,6 +25,6 @@ namespace MugenMvvmToolkit.Android.Binding.Interfaces
     public interface IManualBindings
     {
         [NotNull]
-        IList<IDataBinding> SetBindings([NotNull] IList<string> bindings);
+        IList<IDataBinding> SetBindings([NotNull] string bind);
     }
 }

@@ -26,31 +26,51 @@ namespace MugenMvvmToolkit.Android.Models
     {
         #region Fields
 
-        private readonly IDataContext _dataContext;
-        private readonly View _view;
-
         #endregion
 
         #region Constructors
 
-        public ViewResult([NotNull] View view, IDataContext dataContext)
+        public ViewResult(View view, string bind, int? itemTemplateId, int? dropDownItemTemplateId, int? contentTemplateId, int? menuTemplateId, int? popupMenuTemplateId,
+            string popupMenuEvent, string placementTargetPath, IDataContext dataContext = null)
         {
-            Should.NotBeNull(view, nameof(view));
-            _view = view;
-            _dataContext = dataContext ?? MugenMvvmToolkit.Models.DataContext.Empty;
+            View = view;
+            Bind = bind;
+            ItemTemplateId = itemTemplateId;
+            DropDownItemTemplateId = dropDownItemTemplateId;
+            ContentTemplateId = contentTemplateId;
+            MenuTemplateId = menuTemplateId;
+            PopupMenuTemplateId = popupMenuTemplateId;
+            PopupMenuEvent = popupMenuEvent;
+            PlacementTargetPath = placementTargetPath;
+            DataContext = dataContext;
         }
 
         #endregion
 
         #region Properties
 
-        public bool IsEmpty => _view == null;
+        public bool IsEmpty => View == null;
 
-        [NotNull]
-        public View View => _view;
+        public View View { get; }
 
-        [NotNull]
-        public IDataContext DataContext => _dataContext;
+        public string Bind { get; }
+
+        public int? ItemTemplateId { get; }
+
+        public int? DropDownItemTemplateId { get; }
+
+        public int? ContentTemplateId { get; }
+
+        public int? MenuTemplateId { get; }
+
+        public int? PopupMenuTemplateId { get; }
+
+        public string PopupMenuEvent { get; }
+
+        public string PlacementTargetPath { get; }
+
+        [CanBeNull]
+        public IDataContext DataContext { get; }
 
         #endregion
     }
