@@ -18,6 +18,7 @@
 
 using System;
 using Android.Content;
+using Android.Content.Res;
 using Android.Util;
 using Android.Views;
 using MugenMvvmToolkit.Android.Binding;
@@ -34,22 +35,27 @@ namespace MugenMvvmToolkit.Android.Infrastructure
         protected virtual ViewResult GetViewResult(View view, Context context, IAttributeSet attrs)
         {
             var type = view.GetType();
-            var bind = ReadStringAttributeValue(context, attrs, Resource.Styleable.Binding, Resource.Styleable.Binding_Bind, null, null, null);
-            var itemTemplateId = ReadAttributeValueId(context, attrs, Resource.Styleable.ItemsControl, Resource.Styleable.ItemsControl_ItemTemplate, view, type,
-                AttachedMembers.ViewGroup.ItemTemplate);
-            var dropDownItemTemplate = ReadAttributeValueId(context, attrs, Resource.Styleable.ItemsControl, Resource.Styleable.ItemsControl_DropDownItemTemplate, view, type,
-                AttachedMembers.AdapterView.DropDownItemTemplate);
-            var contentTemplate = ReadAttributeValueId(context, attrs, Resource.Styleable.Control, Resource.Styleable.Control_ContentTemplate, view, type,
-                AttachedMembers.ViewGroup.ContentTemplate);
-            var menuTemplate = ReadAttributeValueId(context, attrs, Resource.Styleable.Menu, Resource.Styleable.Menu_MenuTemplate, view, type,
-                AttachedMembers.Toolbar.MenuTemplate);
-            var popupMenuTemplate = ReadAttributeValueId(context, attrs, Resource.Styleable.Menu, Resource.Styleable.Menu_PopupMenuTemplate, view, type,
-                AttachedMembers.View.PopupMenuTemplate);
-            var popupMenuEvent = ReadStringAttributeValue(context, attrs, Resource.Styleable.Menu, Resource.Styleable.Menu_PopupMenuEvent, view, type,
-                AttachedMembers.View.PopupMenuEvent);
-            var placementTargetPath = ReadStringAttributeValue(context, attrs, Resource.Styleable.Menu, Resource.Styleable.Menu_PlacementTargetPath, view, type,
-                AttachedMembers.View.PopupMenuPlacementTargetPath);
-            return new ViewResult(view, bind, itemTemplateId, dropDownItemTemplate, contentTemplate, menuTemplate, popupMenuTemplate, popupMenuEvent, placementTargetPath);
+            var attributes = context.ObtainStyledAttributes(attrs, Resource.Styleable.Binding);
+            try
+            {
+                if (attributes.IndexCount == 0)
+                    return new ViewResult(view, null, null, null, null, null, null, null, null);
+                var bind = ReadStringAttributeValue(attributes, Resource.Styleable.Binding_Bind, null, null, null);
+                var itemTemplateId = ReadAttributeValueId(attributes, Resource.Styleable.Binding_ItemTemplate, view, type, AttachedMembers.ViewGroup.ItemTemplate);
+                var dropDownItemTemplate = ReadAttributeValueId(attributes, Resource.Styleable.Binding_DropDownItemTemplate, view, type, AttachedMembers.AdapterView.DropDownItemTemplate);
+                var contentTemplate = ReadAttributeValueId(attributes, Resource.Styleable.Binding_ContentTemplate, view, type, AttachedMembers.ViewGroup.ContentTemplate);
+                var menuTemplate = ReadAttributeValueId(attributes, Resource.Styleable.Binding_MenuTemplate, view, type, AttachedMembers.Toolbar.MenuTemplate);
+                var popupMenuTemplate = ReadAttributeValueId(attributes, Resource.Styleable.Binding_PopupMenuTemplate, view, type, AttachedMembers.View.PopupMenuTemplate);
+                var popupMenuEvent = ReadStringAttributeValue(attributes, Resource.Styleable.Binding_PopupMenuEvent, view, type, AttachedMembers.View.PopupMenuEvent);
+                var placementTargetPath = ReadStringAttributeValue(attributes, Resource.Styleable.Binding_PlacementTargetPath, view, type, AttachedMembers.View.PopupMenuPlacementTargetPath);
+                return new ViewResult(view, bind, itemTemplateId, dropDownItemTemplate, contentTemplate, menuTemplate, popupMenuTemplate, popupMenuEvent, placementTargetPath);
+
+            }
+            finally
+            {
+                attributes.Recycle();
+                attributes.Dispose();
+            }
         }
 
         internal static string ReadStringAttributeValue(Context context, IAttributeSet attrs, int[] groupId, int index, View view, Type viewType, string attachedPropertyName)
@@ -57,10 +63,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
             var typedArray = context.Theme.ObtainStyledAttributes(attrs, groupId, 0, 0);
             try
             {
-                var st = typedArray.GetString(index);
-                if (attachedPropertyName != null && !string.IsNullOrEmpty(st))
-                    BindingServiceProvider.MemberProvider.GetBindingMember(viewType, attachedPropertyName, false, false)?.SetSingleValue(view, st);
-                return st;
+                return ReadStringAttributeValue(typedArray, index, view, viewType, attachedPropertyName);
             }
             finally
             {
@@ -69,23 +72,22 @@ namespace MugenMvvmToolkit.Android.Infrastructure
             }
         }
 
-        private static int? ReadAttributeValueId(Context context, IAttributeSet attrs, int[] groupId, int requiredAttributeId, View view, Type viewType, string attachedPropertyName)
+        private static string ReadStringAttributeValue(TypedArray typedArray, int index, View view, Type viewType, string attachedPropertyName)
         {
-            var typedArray = context.Theme.ObtainStyledAttributes(attrs, groupId, 0, 0);
-            try
-            {
-                var result = typedArray.GetResourceId(requiredAttributeId, int.MinValue);
-                if (result == int.MinValue)
-                    return null;
-                if (attachedPropertyName != null)
-                    BindingServiceProvider.MemberProvider.GetBindingMember(viewType, attachedPropertyName, false, false)?.SetSingleValue(view, result);
-                return result;
-            }
-            finally
-            {
-                typedArray.Recycle();
-                typedArray.Dispose();
-            }
+            var st = typedArray.GetString(index);
+            if (attachedPropertyName != null && !string.IsNullOrEmpty(st))
+                BindingServiceProvider.MemberProvider.GetBindingMember(viewType, attachedPropertyName, false, false)?.SetSingleValue(view, st);
+            return st;
+        }
+
+        private static int? ReadAttributeValueId(TypedArray typedArray, int requiredAttributeId, View view, Type viewType, string attachedPropertyName)
+        {
+            var result = typedArray.GetResourceId(requiredAttributeId, int.MinValue);
+            if (result == int.MinValue)
+                return null;
+            if (attachedPropertyName != null)
+                BindingServiceProvider.MemberProvider.GetBindingMember(viewType, attachedPropertyName, false, false)?.SetSingleValue(view, result);
+            return result;
         }
 
         #endregion

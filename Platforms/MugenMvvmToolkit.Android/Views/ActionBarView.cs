@@ -84,15 +84,16 @@ namespace MugenMvvmToolkit.Android.Views
             SetMinimumWidth(0);
             SetMinimumHeight(0);
             Visibility = ViewStates.Gone;
-            TypedArray typedArray = Context.ObtainStyledAttributes(attrs, Resource.Styleable.ActionBar);
+            TypedArray typedArray = Context.ObtainStyledAttributes(attrs, Resource.Styleable.Binding);
             try
             {
-                _resourceId = typedArray.GetResourceId(Resource.Styleable.ActionBar_ActionBarTemplate, int.MinValue);
-                _tabContentId = typedArray.GetResourceId(Resource.Styleable.ActionBar_TabContentId, int.MinValue);
+                _resourceId = typedArray.GetResourceId(Resource.Styleable.Binding_ActionBarTemplate, int.MinValue);
+                _tabContentId = typedArray.GetResourceId(Resource.Styleable.Binding_TabContentId, int.MinValue);
             }
             finally
             {
                 typedArray.Recycle();
+                typedArray.Dispose();
             }
         }
 

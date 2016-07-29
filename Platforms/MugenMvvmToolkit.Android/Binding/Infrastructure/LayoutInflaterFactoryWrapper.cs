@@ -150,7 +150,6 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                         BindingServiceProvider.BindingProvider.CreateBindingsFromString(view, bind);
                     else
                         manualBindings.SetBindings(bind);
-
                 }
             }
             return view;

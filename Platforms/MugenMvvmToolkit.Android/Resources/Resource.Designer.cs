@@ -111,55 +111,47 @@ namespace MugenMvvmToolkit.Android
 		public partial class Styleable
 		{
 			
-			public static int[] ActionBar = new int[] {
+			public static int[] Binding = new int[] {
+					2130771968,
+					2130771969,
+					2130771970,
+					2130771971,
+					2130771972,
+					2130771973,
+					2130771974,
+					2130771975,
 					2130771976,
 					2130771977};
 			
-			// aapt resource value: 0
-			public static int ActionBar_ActionBarTemplate = 0;
-			
-			// aapt resource value: 1
-			public static int ActionBar_TabContentId = 1;
-			
-			public static int[] Binding = new int[] {
-					2130771968};
+			// aapt resource value: 8
+			public static int Binding_ActionBarTemplate = 8;
 			
 			// aapt resource value: 0
 			public static int Binding_Bind = 0;
 			
-			public static int[] Control = new int[] {
-					2130771971};
-			
-			// aapt resource value: 0
-			public static int Control_ContentTemplate = 0;
-			
-			public static int[] ItemsControl = new int[] {
-					2130771969,
-					2130771970};
-			
-			// aapt resource value: 1
-			public static int ItemsControl_DropDownItemTemplate = 1;
-			
-			// aapt resource value: 0
-			public static int ItemsControl_ItemTemplate = 0;
-			
-			public static int[] Menu = new int[] {
-					2130771972,
-					2130771973,
-					2130771974,
-					2130771975};
-			
-			// aapt resource value: 0
-			public static int Menu_MenuTemplate = 0;
-			
 			// aapt resource value: 3
-			public static int Menu_PlacementTargetPath = 3;
+			public static int Binding_ContentTemplate = 3;
 			
 			// aapt resource value: 2
-			public static int Menu_PopupMenuEvent = 2;
+			public static int Binding_DropDownItemTemplate = 2;
 			
 			// aapt resource value: 1
-			public static int Menu_PopupMenuTemplate = 1;
+			public static int Binding_ItemTemplate = 1;
+			
+			// aapt resource value: 4
+			public static int Binding_MenuTemplate = 4;
+			
+			// aapt resource value: 7
+			public static int Binding_PlacementTargetPath = 7;
+			
+			// aapt resource value: 6
+			public static int Binding_PopupMenuEvent = 6;
+			
+			// aapt resource value: 5
+			public static int Binding_PopupMenuTemplate = 5;
+			
+			// aapt resource value: 9
+			public static int Binding_TabContentId = 9;
 			
 			static Styleable()
 			{
