@@ -411,29 +411,6 @@ namespace MugenMvvmToolkit.Android
 
         #region Methods
 
-        public static void ListenParentChange([CanBeNull] this View view)
-        {
-            if (!view.IsAlive())
-                return;
-
-            ParentObserver.Raise(view);
-            if (view.GetTag(Resource.Id.ListenParentChange) != null)
-                return;
-            view.SetTag(Resource.Id.ListenParentChange, GlobalViewParentListener.Instance);
-            var parent = BindingServiceProvider.VisualTreeManager.FindParent(view) as View;
-            if (parent != null)
-                parent.ListenParentChange();
-
-            var viewGroup = view as ViewGroup;
-            if (viewGroup != null)
-            {
-                if (!viewGroup.GetBindingMemberValue(AttachedMembers.ViewGroup.DisableHierarchyListener))
-                    viewGroup.SetOnHierarchyChangeListener(GlobalViewParentListener.Instance);
-                for (var i = 0; i < viewGroup.ChildCount; i++)
-                    viewGroup.GetChildAt(i).ListenParentChange();
-            }
-        }
-
         public static void Inflate(this MenuInflater menuInflater, int menuRes, IMenu menu, object parent)
         {
             Should.NotBeNull(menuInflater, nameof(menuInflater));

@@ -19,6 +19,9 @@
 using System;
 using Android.Runtime;
 using Android.Views;
+using MugenMvvmToolkit.Android.Binding;
+using MugenMvvmToolkit.Android.Binding.Models;
+using MugenMvvmToolkit.Binding;
 using Object = Java.Lang.Object;
 
 namespace MugenMvvmToolkit.Android.Infrastructure
@@ -52,12 +55,15 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
         public void OnChildViewAdded(View parent, View child)
         {
-            child.ListenParentChange();
+            ParentObserver.Raise(child);
+            var viewGroup = child as ViewGroup;
+            if (viewGroup != null && !viewGroup.GetBindingMemberValue(AttachedMembers.ViewGroup.DisableHierarchyListener))
+                viewGroup.SetOnHierarchyChangeListener(this);
         }
 
         public void OnChildViewRemoved(View parent, View child)
         {
-            child.ListenParentChange();
+            ParentObserver.Raise(child);
         }
 
         #endregion

@@ -29,6 +29,7 @@ using Java.Lang;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Android.Binding.Infrastructure;
 using MugenMvvmToolkit.Android.Binding.Interfaces;
+using MugenMvvmToolkit.Android.Binding.Models;
 using MugenMvvmToolkit.Android.Infrastructure;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Behaviors;
@@ -140,7 +141,10 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                         UpdataContext(viewGroup, underlyingView, dataContext);
                     }
                 }
-                GlobalViewParentListener.Instance.OnChildViewAdded(parent, child);
+                ParentObserver.Raise(child);
+                var childViewGroup = child as ViewGroup;
+                if (childViewGroup != null && !childViewGroup.GetBindingMemberValue(AttachedMembers.ViewGroup.DisableHierarchyListener))
+                    childViewGroup.SetOnHierarchyChangeListener(this);
             }
 
             public void OnChildViewRemoved(View parent, View child)
@@ -153,7 +157,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                         BindingServiceProvider.ContextManager.GetBindingContext(underlyingView).ValueChanged -= BindingContextChangedDelegate;
                     viewGroup.SetBindingMemberValue(AttachedMembers.ViewGroup.Content, RemoveViewValue);
                 }
-                GlobalViewParentListener.Instance.OnChildViewRemoved(parent, child);
+                ParentObserver.Raise(child);
             }
 
             #endregion
@@ -317,9 +321,9 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ContentTemplate, ContentTemplateIdChanged));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.ContentTemplateSelector, ContentTemplateSelectorChanged));
 
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.DisableHierarchyListener, (@group, args) =>
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.DisableHierarchyListener, (view, args) =>
             {
-                @group.SetOnHierarchyChangeListener(args.NewValue ? null : GlobalViewParentListener.Instance);
+                view.SetOnHierarchyChangeListener(args.NewValue ? null : GlobalViewParentListener.Instance);
             }));
 
             //TabHost
@@ -654,7 +658,6 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
         private static void ContentMemberAttached(ViewGroup viewGroup, MemberAttachedEventArgs args)
         {
-            viewGroup.ListenParentChange();
             viewGroup.SetOnHierarchyChangeListener(ContentChangeListener.Instance);
         }
 

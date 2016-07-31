@@ -152,6 +152,11 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                         manualBindings.SetBindings(bind);
                 }
             }
+
+            var viewGroup = view as ViewGroup;
+            if (viewGroup != null && !viewGroup.GetBindingMemberValue(AttachedMembers.ViewGroup.DisableHierarchyListener))
+                viewGroup.SetOnHierarchyChangeListener(GlobalViewParentListener.Instance);
+
             return view;
         }
 

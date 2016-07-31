@@ -283,8 +283,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         {
             _view = Target.LayoutInflater.Inflate(layoutResId, null);
             Target.SetContentView(_view);
-            _view = Target.FindViewById(global::Android.Resource.Id.Content) ?? _view;
-            _view.RootView.ListenParentChange();
         }
 
         public virtual MenuInflater GetMenuInflater(MenuInflater baseMenuInflater)

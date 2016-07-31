@@ -245,7 +245,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 baseOnSaveInstanceState(outState);
             else
 #endif
-                base.OnSaveInstanceState(outState, baseOnSaveInstanceState);
+            base.OnSaveInstanceState(outState, baseOnSaveInstanceState);
         }
 
         public virtual void OnDetach(Action baseOnDetach)
@@ -279,7 +279,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                         _keyListener = new DialogInterfaceOnKeyListener(this);
                     dialog.SetOnKeyListener(_keyListener);
                 }
-                Target.View?.RootView.ListenParentChange();
             }
         }
 

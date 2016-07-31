@@ -35,6 +35,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             private readonly WeakReference _srcRef;
             private bool _isParentContext;
+            private bool _isNull;
             private object _dataContext;
 
             #endregion
@@ -43,6 +44,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             public BindingContext(object target)
             {
+                _isNull = true;
                 _isParentContext = true;
                 _srcRef = ServiceProvider.WeakReferenceFactory(target);
                 var parentMember = BindingServiceProvider.VisualTreeManager.GetParentMember(target.GetType());
@@ -148,6 +150,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             private void RaiseValueChanged()
             {
+                var isNull = Value == null;
+                if (isNull && _isNull)
+                    return;
+                _isNull = isNull;
                 ValueChanged?.Invoke(this, EventArgs.Empty);
             }
 

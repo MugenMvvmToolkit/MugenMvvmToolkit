@@ -70,14 +70,11 @@ namespace MugenMvvmToolkit.Android
 		public partial class Id
 		{
 			
-			// aapt resource value: 0x7f030003
-			public static int AttachedProperties = 2130903043;
-			
 			// aapt resource value: 0x7f030002
-			public static int ListTemplateId = 2130903042;
+			public static int AttachedProperties = 2130903042;
 			
 			// aapt resource value: 0x7f030001
-			public static int ListenParentChange = 2130903041;
+			public static int ListTemplateId = 2130903041;
 			
 			// aapt resource value: 0x7f030000
 			public static int OptionsMenu = 2130903040;
