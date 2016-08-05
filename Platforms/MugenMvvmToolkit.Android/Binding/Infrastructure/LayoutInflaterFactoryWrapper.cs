@@ -137,7 +137,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
             Func<View, string, Context, IAttributeSet, View> viewCreated = PlatformExtensions.ViewCreated;
             if (viewCreated != null)
-                view = viewCreated(view, name, context, attrs);
+                view = viewCreated(view, name, context, attrs);//todo fix
 
             if (!viewResult.IsEmpty)
             {

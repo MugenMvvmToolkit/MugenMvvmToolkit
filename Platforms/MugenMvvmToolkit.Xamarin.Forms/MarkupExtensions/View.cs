@@ -41,13 +41,14 @@ namespace MugenMvvmToolkit.Xamarin.Forms.MarkupExtensions
             var bindings = (string)newValue;
             if (string.IsNullOrWhiteSpace(bindings))
                 return;
-            IList<IDataBinding> list = BindingServiceProvider
-                .BindingProvider
-                .CreateBindingsFromString(bindable, bindings);
-            if (!ServiceProvider.DesignTimeManager.IsDesignMode)
-                return;
-            foreach (InvalidDataBinding binding in list.OfType<InvalidDataBinding>())
-                throw binding.Exception;
+            if (ServiceProvider.DesignTimeManager.IsDesignMode)
+            {
+                IList<IDataBinding> list = BindingServiceProvider.BindingProvider.CreateBindingsFromStringWithBindings(bindable, bindings);
+                foreach (InvalidDataBinding binding in list.OfType<InvalidDataBinding>())
+                    throw binding.Exception;
+            }
+            else
+                BindingServiceProvider.BindingProvider.CreateBindingsFromString(bindable, bindings);
         }
 
         #endregion

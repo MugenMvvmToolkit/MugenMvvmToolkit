@@ -137,7 +137,23 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        public IList<IDataBinding> CreateBindingsFromString(object target, string bindingExpression, IList<object> sources = null, IDataContext context = null)
+        public void CreateBindingsFromString(object target, string bindingExpression, IList<object> sources, IDataContext context)
+        {
+            Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(bindingExpression, nameof(bindingExpression));
+            try
+            {
+                IList<IDataContext> parserResult = Parser.Parse(target, bindingExpression, sources, context);
+                for (int index = 0; index < parserResult.Count; index++)
+                    BuildBinding(parserResult[index]);
+            }
+            catch (Exception e)
+            {
+                CreateInvalidDataBinding(e);
+            }
+        }
+
+        public IList<IDataBinding> CreateBindingsFromStringWithBindings(object target, string bindingExpression, IList<object> sources = null, IDataContext context = null)
         {
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(bindingExpression, nameof(bindingExpression));
@@ -153,7 +169,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             {
                 return new[]
                 {
-                    CreateInvalidDataBinding(new InvalidOperationException(exception.Message, exception))
+                    CreateInvalidDataBinding(exception)
                 };
             }
         }

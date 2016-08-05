@@ -41,12 +41,12 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         IDataBinding CreateBinding([NotNull] IDataContext context);
 
         [NotNull]
-        IList<IBindingBuilder> CreateBuildersFromString([NotNull] object target, [NotNull] string bindingExpression, IList<object> sources = null,
-            IDataContext context = null);
+        IList<IBindingBuilder> CreateBuildersFromString([NotNull] object target, [NotNull] string bindingExpression, IList<object> sources = null, IDataContext context = null);
+
+        void CreateBindingsFromString([NotNull] object target, [NotNull] string bindingExpression, IList<object> sources = null, IDataContext context = null);
 
         [NotNull]
-        IList<IDataBinding> CreateBindingsFromString([NotNull] object target, [NotNull] string bindingExpression, IList<object> sources = null,
-            IDataContext context = null);
+        IList<IDataBinding> CreateBindingsFromStringWithBindings([NotNull] object target, [NotNull] string bindingExpression, IList<object> sources = null, IDataContext context = null);
 
         void BuildFromLambdaExpression(IBindingBuilder builder, Func<LambdaExpression> expression);
 

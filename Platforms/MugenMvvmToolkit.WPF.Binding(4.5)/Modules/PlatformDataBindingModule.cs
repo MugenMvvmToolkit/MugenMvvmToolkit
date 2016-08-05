@@ -171,11 +171,14 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
         {
             if (string.IsNullOrWhiteSpace(bindings))
                 return;
-            IList<IDataBinding> list = BindingServiceProvider.BindingProvider.CreateBindingsFromString(sender, bindings, null);
-            if (!ServiceProvider.DesignTimeManager.IsDesignMode)
-                return;
-            foreach (InvalidDataBinding binding in list.OfType<InvalidDataBinding>())
-                throw binding.Exception;
+            if (ServiceProvider.DesignTimeManager.IsDesignMode)
+            {
+                IList<IDataBinding> list = BindingServiceProvider.BindingProvider.CreateBindingsFromStringWithBindings(sender, bindings, null);
+                foreach (InvalidDataBinding binding in list.OfType<InvalidDataBinding>())
+                    throw binding.Exception;
+            }
+            else
+                BindingServiceProvider.BindingProvider.CreateBindingsFromString(sender, bindings, null);
         }
 
         private static IDisposable ObserveVisiblityMember(IBindingMemberInfo bindingMemberInfo, UIElement uiElement, IEventListener arg3)

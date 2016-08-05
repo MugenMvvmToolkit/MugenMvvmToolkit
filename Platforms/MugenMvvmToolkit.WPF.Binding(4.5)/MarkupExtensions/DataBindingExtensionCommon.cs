@@ -393,11 +393,18 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
             return builder;
         }
 
-        private IDataBinding CreateBinding(object targetObject, string targetPath)
+        private IDataBinding CreateBinding(object targetObject, string targetPath, bool isDesignMode)
         {
-            return BindingServiceProvider
+            if (isDesignMode)
+            {
+                return BindingServiceProvider
+                      .BindingProvider
+                      .CreateBindingsFromStringWithBindings(targetObject, ToBindingExpression(targetPath))[0];
+            }
+            BindingServiceProvider
                 .BindingProvider
-                .CreateBindingsFromString(targetObject, ToBindingExpression(targetPath))[0];
+                .CreateBindingsFromString(targetObject, ToBindingExpression(targetPath));
+            return null;
         }
 
         private void SetMode(IBindingModeSyntax<object> syntax)
