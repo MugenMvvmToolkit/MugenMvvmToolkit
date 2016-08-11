@@ -174,7 +174,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         {
             if (_platformService == null)
                 return new[] { GetType().GetTypeInfo().Assembly, typeof(BootstrapperBase).GetTypeInfo().Assembly };
-            return _platformService.GetAssemblies();
+            return _platformService.GetAssemblies().Where(x=>!x.IsDynamic).ToList();
         }
 
         [CanBeNull]
