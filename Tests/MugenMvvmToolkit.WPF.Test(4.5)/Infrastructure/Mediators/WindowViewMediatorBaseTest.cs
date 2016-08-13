@@ -82,13 +82,13 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
         }
 
         [TestMethod]
-        public virtual void CloseEmptyWindowShouldThrowException()
+        public virtual void CloseEmptyWindowShouldNotThrowException()
         {
             var view = new DialogViewMock();
             var vm = GetViewModel<NavigableViewModelMock>();
             ViewManager.GetViewDelegate = (model, s) => view;
             WindowViewMediatorBase<TView> windowMediator = Create(vm);
-            ShouldThrow(() => windowMediator.CloseAsync(null));
+            windowMediator.CloseAsync(null);
         }
 
         [TestMethod]
