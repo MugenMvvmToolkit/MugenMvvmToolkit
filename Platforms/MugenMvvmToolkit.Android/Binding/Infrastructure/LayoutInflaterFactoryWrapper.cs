@@ -40,16 +40,19 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
     {
         #region Fields
 
-        private static readonly Field FactoryField;
-        private static readonly Field Factory2Field;
-        private static readonly Field PrivateFactoryField;
-        private static readonly MethodInfo JavaCastMethod;
-        private static readonly Dictionary<string, Class> ViewNameToClass;
-
         private readonly LayoutInflater.IFactory _factory;
         private readonly LayoutInflater.IFactory2 _factory2;
         private readonly LayoutInflater.IFactory2 _privateFactory;
         private readonly IViewFactory _viewFactory;
+
+        private static WeakReference _lastCreatedView;
+        private static readonly Field FactoryField;
+        private static readonly Field Factory2Field;
+        private static readonly Field PrivateFactoryField;
+        private static Field _fatoryMergerF1Field;
+        private static Field _fatoryMergerF12Field;
+        private static readonly MethodInfo JavaCastMethod;
+        private static readonly Dictionary<string, string> ViewNameToClass;
 
         #endregion
 
@@ -57,8 +60,9 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         static LayoutInflaterFactoryWrapper()
         {
-            ViewNameToClass = new Dictionary<string, Class>(StringComparer.Ordinal);
-            JavaCastMethod = typeof(JavaObjectExtensions).GetMethod("JavaCast", BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(IJavaObject) }, null);
+            _lastCreatedView = Empty.WeakReference;
+            ViewNameToClass = new Dictionary<string, string>(StringComparer.Ordinal);
+            JavaCastMethod = typeof(JavaObjectExtensions).GetMethod("JavaCast", BindingFlags.Static | BindingFlags.Public, null, new[] {typeof(IJavaObject)}, null);
             var inflaterClass = Class.FromType(typeof(LayoutInflater));
             FactoryField = TryGetField("mFactory", inflaterClass);
             if (PlatformExtensions.IsApiGreaterThan10)
@@ -91,53 +95,106 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         public static void SetFactory(LayoutInflater inflater, IViewFactory factory)
         {
-            if (PlatformExtensions.IsApiGreaterThan10)
+            LayoutInflaterFactoryWrapper factoryWrapper = null;
+            if (!HasFactory(inflater))
             {
-                if (inflater.Factory is LayoutInflaterFactoryWrapper && inflater.Factory2 is LayoutInflaterFactoryWrapper)
-                    return;
+                factoryWrapper = GetWrapper(inflater, factory);
+                if (FactoryField == null)
+                    inflater.Factory = factoryWrapper;
+                else
+                    FactoryField.Set(inflater, factoryWrapper);
             }
-            else
+            if (PlatformExtensions.IsApiGreaterThan10 && !HasFactory2(inflater))
             {
-                if (inflater.Factory is LayoutInflaterFactoryWrapper)
-                    return;
+                if (factoryWrapper == null)
+                    factoryWrapper = GetWrapper(inflater, factory);
+                if (Factory2Field == null)
+                    inflater.Factory2 = factoryWrapper;
+                else
+                    Factory2Field.Set(inflater, factoryWrapper);
             }
-            if (factory == null && !ServiceProvider.TryGet(out factory))
-                factory = new ViewFactory();
-            var factoryWrapper = new LayoutInflaterFactoryWrapper(inflater, factory);
-            FactoryField.Set(inflater, factoryWrapper);
-            if (Factory2Field != null)
-                Factory2Field.Set(inflater, factoryWrapper);
         }
 
-        private View OnViewCreated(View view, string name, Context context, IAttributeSet attrs, bool isLastFactory)
+        private static bool HasFactory(LayoutInflater inflater)
         {
-            if (name == "fragment")
+            var factory = inflater.Factory;
+            if (factory is LayoutInflaterFactoryWrapper)
+                return true;
+            if (factory == null)
+                return false;
+            var factoryObj = (Object) factory;
+            var @class = factoryObj.Class;
+            if (@class.SimpleName != "FactoryMerger")
+                return false;
+            if (_fatoryMergerF1Field == null)
+            {
+                _fatoryMergerF1Field = TryGetField("mF1", @class);
+                if (_fatoryMergerF1Field == null)
+                    return false;
+            }
+            return _fatoryMergerF1Field.Get(factoryObj) is LayoutInflaterFactoryWrapper;
+        }
+
+        private static bool HasFactory2(LayoutInflater inflater)
+        {
+            var factory2 = inflater.Factory2;
+            if (factory2 is LayoutInflaterFactoryWrapper)
+                return true;
+            if (factory2 == null)
+                return false;
+            var factory2Obj = (Object) factory2;
+            var @class = factory2Obj.Class;
+            if (@class.SimpleName != "FactoryMerger")
+                return false;
+            if (_fatoryMergerF12Field == null)
+            {
+                _fatoryMergerF12Field = TryGetField("mF12", @class);
+                if (_fatoryMergerF12Field == null)
+                    return false;
+            }
+            return _fatoryMergerF12Field.Get(factory2Obj) is LayoutInflaterFactoryWrapper;
+        }
+
+        private static LayoutInflaterFactoryWrapper GetWrapper(LayoutInflater inflater, IViewFactory factory)
+        {
+            if (factory == null && !ServiceProvider.TryGet(out factory))
+                factory = new ViewFactory();
+            return new LayoutInflaterFactoryWrapper(inflater, factory);
+        }
+
+        private View OnViewCreated(View view, string name, Context context, IAttributeSet attrs)
+        {
+            if (name == "fragment" || (view != null && _lastCreatedView.Target == view))
                 return view;
-            ViewResult viewResult = default(ViewResult);
+            ViewResult viewResult;
             if (view == null)
             {
-                if (!isLastFactory)
-                    return null;
                 var type = TypeCache<View>.Instance.GetTypeByName(name, true, false);
                 if (type == null)
                     return null;
                 viewResult = _viewFactory.Create(type, context, attrs);
+                view = viewResult.View;
             }
             else
             {
-                var @class = GetClass(name);
-                if (@class != null && @class.IsInstance(view))
+                var type = TypeCache<View>.Instance.GetTypeByName(name, true, false);
+                if (type != null && !type.IsInstanceOfType(view))
                 {
-                    var type = TypeCache<View>.Instance.GetTypeByName(name, true, false);
-                    if (type != null && !type.IsInstanceOfType(view))
-                        view = (View)JavaCastMethod.MakeGenericMethod(type).Invoke(null, new object[] { view });
-                    viewResult = _viewFactory.Initialize(view, attrs);
+                    try
+                    {
+                        view = (View) JavaCastMethod.MakeGenericMethod(type).Invoke(null, new object[] {view});
+                    }
+                    catch
+                    {
+                        ;
+                    }
                 }
+                viewResult = _viewFactory.Initialize(view, attrs);
             }
 
-            Func<View, string, Context, IAttributeSet, View> viewCreated = PlatformExtensions.ViewCreated;
+            var viewCreated = PlatformExtensions.ViewCreated;
             if (viewCreated != null)
-                view = viewCreated(view, name, context, attrs);//todo fix
+                view = viewCreated(view, name, context, attrs);
 
             if (!viewResult.IsEmpty)
             {
@@ -157,6 +214,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             if (viewGroup != null && !viewGroup.GetBindingMemberValue(AttachedMembers.ViewGroup.DisableHierarchyListener))
                 viewGroup.SetOnHierarchyChangeListener(GlobalViewParentListener.Instance);
 
+            _lastCreatedView = ServiceProvider.WeakReferenceFactory(view);
             return view;
         }
 
@@ -175,41 +233,17 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             }
         }
 
-        private static Class GetClass(string name)
+        private static string GetClassName(string name)
         {
-            Class value;
+            string value;
             if (!ViewNameToClass.TryGetValue(name, out value))
             {
                 var type = TypeCache<View>.Instance.GetTypeByName(name, true, false);
                 if (type != null)
-                    value = Class.FromType(type);
+                    value = Class.FromType(type).Name;
                 ViewNameToClass[name] = value;
             }
             return value;
-        }
-
-        private View CreateViewFactory2(View parent, string name, Context context, IAttributeSet attrs)
-        {
-            Class @class = null;
-            return CreateView(_factory2, parent, name, context, attrs, ref @class) ?? CreateView(_privateFactory, parent, name, context, attrs, ref @class);
-        }
-
-        private static View CreateView(LayoutInflater.IFactory2 factory2, View parent, string name, Context context, IAttributeSet attrs, ref Class @class)
-        {
-            if (factory2 == null)
-                return null;
-            if (name.IndexOf(".", StringComparison.Ordinal) < 0)
-            {
-                if (@class == null)
-                    @class = GetClass(name);
-                if (@class != null)
-                {
-                    var view = factory2.OnCreateView(parent, @class.Name, context, attrs);
-                    if (view != null)
-                        return view;
-                }
-            }
-            return factory2.OnCreateView(parent, name, context, attrs);
         }
 
         #endregion
@@ -218,24 +252,39 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         public View OnCreateView(string name, Context context, IAttributeSet attrs)
         {
-            View view = null;
-            var factory = _factory;
-            if (factory != null)
+            if (_factory == null)
+                return OnViewCreated(null, name, context, attrs);
+            var v = _factory.OnCreateView(name, context, attrs);
+            if (v == null && name.IndexOf('.') < 0)
             {
-                view = factory.OnCreateView(name, context, attrs);
-                if (view == null && name.IndexOf(".", StringComparison.Ordinal) < 0)
-                {
-                    var @class = GetClass(name);
-                    if (@class != null)
-                        view = factory.OnCreateView(@class.Name, context, attrs);
-                }
+                var clazz = GetClassName(name);
+                if (clazz != null)
+                    v = _factory.OnCreateView(clazz, context, attrs);
             }
-            return OnViewCreated(view, name, context, attrs, PlatformExtensions.IsApiLessThanOrEqualTo10);
+            return OnViewCreated(v, name, context, attrs);
         }
 
         public View OnCreateView(View parent, string name, Context context, IAttributeSet attrs)
         {
-            return OnViewCreated(CreateViewFactory2(parent, name, context, attrs), name, context, attrs, true);
+            View view = null;
+            string clazz = null;
+            if (_factory2 != null)
+            {
+                view = _factory2.OnCreateView(parent, name, context, attrs);
+                if (view == null && name.IndexOf('.') < 0)
+                {
+                    clazz = GetClassName(name);
+                    if (clazz != null)
+                        view = _factory2.OnCreateView(parent, clazz, context, attrs);
+                }
+            }
+            if (view == null && _privateFactory != null)
+            {
+                view = _privateFactory.OnCreateView(parent, name, context, attrs);
+                if (view == null && clazz != null)
+                    view = _privateFactory.OnCreateView(clazz, context, attrs);
+            }
+            return OnViewCreated(view, name, context, attrs);
         }
 
         #endregion
