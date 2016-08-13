@@ -144,7 +144,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                 ParentObserver.Raise(child);
                 var childViewGroup = child as ViewGroup;
                 if (childViewGroup != null && !childViewGroup.GetBindingMemberValue(AttachedMembers.ViewGroup.DisableHierarchyListener))
-                    childViewGroup.SetOnHierarchyChangeListener(this);
+                    childViewGroup.SetOnHierarchyChangeListener(GlobalViewParentListener.Instance);
             }
 
             public void OnChildViewRemoved(View parent, View child)
@@ -223,7 +223,9 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
         private static readonly object AddViewValue;
         private static readonly object[] RemoveViewValue;
         private static readonly IntPtr TextViewSetTextMethodId;
+        private static readonly Java.Lang.String EmptyString;
         private static readonly JValue[] NullJValue;
+        private static readonly JValue[] EmptyStringJValue;
 
         #endregion
 
@@ -234,6 +236,8 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             AddViewValue = new object();
             RemoveViewValue = new object[] { null };
             NullJValue = new[] { new JValue(IntPtr.Zero) };
+            EmptyString = new Java.Lang.String("");
+            EmptyStringJValue = new[] { new JValue(EmptyString.Handle) };
             try
             {
                 //we can get method from TextView because it is marked as final
@@ -350,6 +354,8 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
                     if (arg3 == null)
                         JNIEnv.CallVoidMethod(view.Handle, TextViewSetTextMethodId, NullJValue);
+                    else if (arg3 == "")
+                        JNIEnv.CallVoidMethod(view.Handle, TextViewSetTextMethodId, EmptyStringJValue);
                     else
                     {
                         var stringPtr = JNIEnv.NewString(arg3);
