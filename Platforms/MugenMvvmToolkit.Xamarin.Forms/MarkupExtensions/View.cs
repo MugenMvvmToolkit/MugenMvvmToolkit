@@ -36,6 +36,16 @@ namespace MugenMvvmToolkit.Xamarin.Forms.MarkupExtensions
 
         #region Methods
 
+        public static string GetBind(BindableObject view)
+        {
+            return (string)view.GetValue(BindProperty);
+        }
+
+        public static void SetBind(BindableObject view, string value)
+        {
+            view.SetValue(BindProperty, value);
+        }
+
         private static void OnBindPropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
             var bindings = (string)newValue;
