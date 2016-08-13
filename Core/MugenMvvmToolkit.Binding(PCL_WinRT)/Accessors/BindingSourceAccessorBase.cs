@@ -182,7 +182,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
         public virtual void Dispose()
         {
             if (IsDebuggable)
-                DebugInfo("Dispose accessor");
+                DebugInfo($"{(IsTarget ? "Target" : "Source")} accessor disposed");
             _parameters = null;
         }
 

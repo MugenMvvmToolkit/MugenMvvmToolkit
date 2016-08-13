@@ -175,13 +175,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             if (Interlocked.Exchange(ref _lazyContext, DataContext.Empty) == DataContext.Empty)
                 return;
-            DebugInfo("Binding disposed");
             OnDispose();
             BindingServiceProvider.BindingManager.Unregister(this);
             BindingUpdated = null;
             ((ICollection<IBindingBehavior>)this).Clear();
             _sourceAccessor.Dispose();
             _targetAccessor.Dispose();
+            DebugInfo("Binding disposed");
         }
 
         public event EventHandler<IDataBinding, BindingEventArgs> BindingUpdated;

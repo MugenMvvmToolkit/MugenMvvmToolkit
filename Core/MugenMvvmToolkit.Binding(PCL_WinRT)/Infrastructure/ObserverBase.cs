@@ -201,7 +201,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         protected void DebugInfo(string message, object[] args = null)
         {
-            BindingServiceProvider.DebugBinding(this, Path.DebugTag, $"(Path={Path.Path}) " + message, args);
+            BindingServiceProvider.DebugBinding(this, Path.DebugTag, $"(Path='{Path.Path}') " + message, args);
         }
 
         protected internal object GetActualSource()
@@ -365,8 +365,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             if (Interlocked.Exchange(ref _state, DisposedState) == DisposedState)
                 return;
-            if (Path.IsDebuggable)
-                DebugInfo("Dispose observer");
             _pathMembers = UnsetBindingPathMembers.Instance;
             _valueChanged = null;
             if (_sourceListener != null)
@@ -383,6 +381,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 _source = EmptySource;
             }
             OnDispose();
+            if (Path.IsDebuggable)
+                DebugInfo("Observer disposed");
         }
 
         #endregion
