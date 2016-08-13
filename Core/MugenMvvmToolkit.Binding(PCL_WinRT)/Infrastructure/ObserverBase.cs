@@ -168,23 +168,40 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return member;
         }
 
-        protected static IDisposable TryObserveMember(object value, IBindingMemberInfo member, IEventListener eventListener, string propertyName)
+        protected IDisposable TryObserveMember(object value, IBindingMemberInfo member, IEventListener eventListener, string propertyName)
         {
             if (BindingMemberType.Event.EqualsWithoutNullCheck(member.MemberType))
                 return null;
+            if (Path.IsDebuggable)
+                DebugInfo($"Got a value '{value}'", new[] { value, member });
             var disposable = member.TryObserve(value, eventListener);
             if (disposable != null)
+            {
+                if (Path.IsDebuggable)
+                    DebugInfo($"Added observer for member '{member.Path}'", new[] { value, member });
                 return disposable;
+            }
 
             if (value is IEnumerable && value is INotifyCollectionChanged)
+            {
+                if (Path.IsDebuggable)
+                    DebugInfo($"Added observer for INotifyCollectionChanged '{member.Path}'", new[] { value });
                 return BindingServiceProvider
-                    .WeakEventManager
-                    .TrySubscribe(value, CollectionChangedEvent, eventListener);
+                      .WeakEventManager
+                      .TrySubscribe(value, CollectionChangedEvent, eventListener);
+            }
 
             var propertyChanged = value as INotifyPropertyChanged;
             if (propertyChanged == null)
                 return null;
+            if (Path.IsDebuggable)
+                DebugInfo($"Added observer for INotifyPropertyChanged property: '{propertyName}'", new[] { value, propertyName });
             return BindingServiceProvider.WeakEventManager.Subscribe(propertyChanged, propertyName, eventListener);
+        }
+
+        protected void DebugInfo(string message, object[] args = null)
+        {
+            BindingServiceProvider.DebugBinding(this, Path.DebugTag, $"(Path={Path.Path}) " + message, args);
         }
 
         protected internal object GetActualSource()
@@ -231,11 +248,20 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 if (_sourceListener == null)
                     InitializeSourceListener();
                 _pathMembers = UpdateInternal(_pathMembers, hasSubscribers);
+                if (Path.IsDebuggable)
+                {
+                    if (_pathMembers.AllMembersAvailable)
+                        DebugInfo($"Value is available, source: '{GetActualSource()}'", new[] { Source });
+                    else
+                        DebugInfo($"Value is not available, source: '{Source}', actual source '{GetActualSource()}'", new[] { Source });
+                }
             }
             catch (Exception exception)
             {
                 ex = exception;
                 _pathMembers = UnsetBindingPathMembers.Instance;
+                if (Path.IsDebuggable)
+                    DebugInfo($"Error update: {exception.Flatten(true)}", new object[] { exception });
             }
             finally
             {
@@ -339,6 +365,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             if (Interlocked.Exchange(ref _state, DisposedState) == DisposedState)
                 return;
+            if (Path.IsDebuggable)
+                DebugInfo("Dispose observer");
             _pathMembers = UnsetBindingPathMembers.Instance;
             _valueChanged = null;
             if (_sourceListener != null)

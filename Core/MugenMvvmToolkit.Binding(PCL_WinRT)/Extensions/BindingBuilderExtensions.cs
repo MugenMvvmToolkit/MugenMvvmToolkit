@@ -476,10 +476,24 @@ namespace MugenMvvmToolkit.Binding
             return syntax.WithBehaviorInternal<TSource>(new DelayBindingBehavior(delay, isTarget));
         }
 
-        public static IBindingInfoBehaviorSyntax<TSource> DefaultValueOnException<TSource>(
-            [NotNull] this IBindingBehaviorSyntax<TSource> syntax, object value = null)
+        public static IBindingInfoBehaviorSyntax<TSource> WithSourceDelay<TSource>([NotNull] this IBindingBehaviorSyntax<TSource> syntax, uint delay)
+        {
+            return syntax.WithDelay(delay, false);
+        }
+
+        public static IBindingInfoBehaviorSyntax<TSource> WithTargetDelay<TSource>([NotNull] this IBindingBehaviorSyntax<TSource> syntax, uint delay)
+        {
+            return syntax.WithDelay(delay, true);
+        }
+
+        public static IBindingInfoBehaviorSyntax<TSource> DefaultValueOnException<TSource>([NotNull] this IBindingBehaviorSyntax<TSource> syntax, object value = null)
         {
             return syntax.WithBehaviorInternal<TSource>(new DefaultValueOnExceptionBehavior(value));
+        }
+
+        public static IBindingInfoBehaviorSyntax<TSource> WithDebugTag<TSource>([NotNull] this IBindingInfoSyntax<TSource> syntax, string tag)
+        {
+            return syntax.WithParameter(BindingBuilderConstants.DebugTag, tag);
         }
 
         public static IDataBinding Build(this IBindingInfoSyntax syntax)
@@ -593,8 +607,7 @@ namespace MugenMvvmToolkit.Binding
             return syntax.GetOrAddSyntaxBuilder<IBindingInfoBehaviorSyntax<TSource>, object, TSource>();
         }
 
-        private static IBindingInfoBehaviorSyntax<TSource> WithParameter<TSource, TValue>(
-            this IBindingInfoSyntax<TSource> syntax, DataConstant<TValue> constant, TValue value)
+        private static IBindingInfoBehaviorSyntax<TSource> WithParameter<TSource, TValue>(this IBindingInfoSyntax<TSource> syntax, DataConstant<TValue> constant, TValue value)
         {
             Should.NotBeNull(syntax, nameof(syntax));
             syntax.Builder.Add(constant, value);

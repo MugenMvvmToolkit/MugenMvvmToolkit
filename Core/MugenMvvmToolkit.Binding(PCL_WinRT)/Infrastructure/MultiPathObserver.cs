@@ -189,7 +189,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                             break;
                         source = pathMember.GetValue(source, null);
                         if (source == null || source.IsUnsetValue())
+                        {
+                            if (Path.IsDebuggable)
+                                DebugInfo($"Value is not available for '{pathMember.Path}'", new[] { GetActualSource(false) });
                             return UnsetBindingPathMembers.Instance;
+                        }
                     }
                     pathMembers.PenultimateValueRef = ToolkitExtensions.GetWeakReference(source);
                     return pathMembers;
@@ -215,7 +219,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     break;
                 source = pathMember.GetValue(source, null);
                 if (source == null || source.IsUnsetValue())
+                {
+                    if (Path.IsDebuggable)
+                        DebugInfo($"Value is not available for '{pathMember.Path}'", new[] { GetActualSource(false) });
                     return UnsetBindingPathMembers.Instance;
+                }
             }
 
             return new MultiBindingPathMembers(_lastMemberListener.Reference, source, members);

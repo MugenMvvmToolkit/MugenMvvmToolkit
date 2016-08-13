@@ -132,6 +132,10 @@ namespace MugenMvvmToolkit.Binding.Accessors
         [CanBeNull]
         protected BindingParameters Parameters => _parameters;
 
+        protected abstract bool IsDebuggable { get; }
+
+        protected abstract string DebugTag { get; }
+
         #endregion
 
         #region Implementation of IBindingSourceAccessor
@@ -177,6 +181,8 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
         public virtual void Dispose()
         {
+            if (IsDebuggable)
+                DebugInfo("Dispose accessor");
             _parameters = null;
         }
 
@@ -204,11 +210,20 @@ namespace MugenMvvmToolkit.Binding.Accessors
             return GetSourceValue(targetMember, context, throwOnError);
         }
 
+        protected void DebugInfo(string message, object[] args = null)
+        {
+            BindingServiceProvider.DebugBinding(this, DebugTag, message, args);
+        }
+
         private object GetTargetValue(IBindingMemberInfo targetMember, IDataContext context, bool throwOnError)
         {
+            var isDebuggable = IsDebuggable;
             object value = GetRawValueInternal(targetMember, context, throwOnError);
+            if (isDebuggable)
+                DebugInfo($"Got a target value: '{value}'");
             if (value.IsUnsetValueOrDoNothing())
                 return value;
+
             if (_parameters.ConverterDelegate != null)
             {
                 IBindingValueConverter converter = _parameters.ConverterDelegate(context);
@@ -216,19 +231,34 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 {
                     CultureInfo culture = _parameters.ConverterCultureDelegate.GetValueOrDefault(context, BindingServiceProvider.BindingCultureInfo());
                     object parameter = _parameters.ConverterParameterDelegate.GetValueOrDefault(context);
-                    value = converter.ConvertBack(value, targetMember.Type, parameter, culture, context);
+                    if (isDebuggable)
+                    {
+                        DebugInfo($"Applying converter for target value: '{value}', converter: '{converter}', parameter: '{parameter}', culture: {culture}, target type: '{targetMember.Type}'");
+                        value = converter.ConvertBack(value, targetMember.Type, parameter, culture, context);
+                        DebugInfo($"Converter '{converter}' returns value: '{value}'");
+                    }
+                    else
+                        value = converter.ConvertBack(value, targetMember.Type, parameter, culture, context);
                 }
             }
             if (Equals(value, _parameters.TargetNullValue))
+            {
+                if (isDebuggable)
+                    DebugInfo("Target value equals to TargetNullValue, return null value");
                 return null;
+            }
             return value;
         }
 
         private object GetSourceValue(IBindingMemberInfo targetMember, IDataContext context, bool throwOnError)
         {
+            var isDebuggable = IsDebuggable;
             object value = GetRawValueInternal(targetMember, context, throwOnError);
+            if (isDebuggable)
+                DebugInfo($"Got a source value: '{value}'");
             if (value.IsDoNothing())
                 return BindingConstants.DoNothing;
+
             if (_parameters.ConverterDelegate != null && !value.IsUnsetValue())
             {
                 IBindingValueConverter converter = _parameters.ConverterDelegate(context);
@@ -236,7 +266,14 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 {
                     CultureInfo culture = _parameters.ConverterCultureDelegate.GetValueOrDefault(context, BindingServiceProvider.BindingCultureInfo());
                     object parameter = _parameters.ConverterParameterDelegate.GetValueOrDefault(context);
-                    value = converter.Convert(value, targetMember.Type, parameter, culture, context);
+                    if (isDebuggable)
+                    {
+                        DebugInfo($"Applying converter for source value: '{value}', converter: '{converter}', parameter: '{parameter}', culture: {culture}, target type: '{targetMember.Type}'");
+                        value = converter.Convert(value, targetMember.Type, parameter, culture, context);
+                        DebugInfo($"Converter '{converter}' returns value: '{value}'");
+                    }
+                    else
+                        value = converter.Convert(value, targetMember.Type, parameter, culture, context);
                 }
             }
             if (value.IsUnsetValue())

@@ -74,6 +74,7 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
         private bool? _hasStablePath;
         private bool? _observable;
         private bool? _optional;
+        private string _debugTag;
 
         #endregion
 
@@ -293,6 +294,17 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
             }
         }
 
+        public string DebugTag
+        {
+            get { return _debugTag; }
+            set
+            {
+                _debugTag = value;
+                if (!string.IsNullOrEmpty(value))
+                    HasValue = true;
+            }
+        }
+
         protected bool HasValue { get; set; }
 
         protected bool HasConverter { get; set; }
@@ -390,6 +402,8 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
                 syntaxBuilder.WithDelay(_targetDelay, true);
             if (HasDefaultValueOnException)
                 syntaxBuilder.DefaultValueOnException(DefaultValueOnException);
+            if (!string.IsNullOrEmpty(DebugTag))
+                syntaxBuilder.WithDebugTag(DebugTag);
             return builder;
         }
 
