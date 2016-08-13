@@ -133,9 +133,9 @@ namespace MugenMvvmToolkit.Binding.Models
         private readonly bool _isDynamic;
         private readonly bool _isSingleParameter;
         private readonly Func<object, object[], object> _getValueAccessor;
-        private readonly Func<object, object> _getValueAccessorSingle;
+        private Func<object, object> _getValueAccessorSingle;
         private readonly Func<object, object, object> _setValueAccessorSingle;
-        private readonly Action<object, object> _setValueAccessorSingleAction;
+        private Action<object, object> _setValueAccessorSingleAction;
         private readonly Func<object, object[], object> _setValueAccessor;
         private readonly MemberInfo _member;
         private readonly BindingMemberType _memberType;
@@ -231,8 +231,8 @@ namespace MugenMvvmToolkit.Binding.Models
             : this(path, BindingMemberType.Field, field.FieldType)
         {
             _member = field;
-            _getValueAccessorSingle = ServiceProvider.ReflectionManager.GetMemberGetter<object>(field);
-            _setValueAccessorSingleAction = ServiceProvider.ReflectionManager.GetMemberSetter<object>(field);
+            _getValueAccessorSingle = InitiliazeFieldGetter;
+            _setValueAccessorSingleAction = InitializeFieldSetter;
             _canRead = true;
             _canWrite = true;
             _isSingleParameter = true;
@@ -245,25 +245,25 @@ namespace MugenMvvmToolkit.Binding.Models
         {
             _member = property;
             var method = property.GetGetMethod(true);
-            if (method == null || method.IsPrivate)
+            if (method == null)
             {
                 _getValueAccessorSingle = NotSupportedGetter;
                 _canRead = false;
             }
             else
             {
-                _getValueAccessorSingle = property.GetGetPropertyAccessor(method, path);
+                _getValueAccessorSingle = InitiliazePropertyGetter;
                 _canRead = true;
             }
             method = property.GetSetMethod(true);
-            if (method == null || method.IsPrivate)
+            if (method == null)
             {
                 _setValueAccessorSingle = NotSupportedSetter;
                 _canWrite = false;
             }
             else
             {
-                _setValueAccessorSingleAction = property.GetSetPropertyAccessor(method, path);
+                _setValueAccessorSingleAction = InitiliazePropertySetter;
                 _canWrite = true;
             }
             _isSingleParameter = true;
@@ -402,6 +402,32 @@ namespace MugenMvvmToolkit.Binding.Models
         #endregion
 
         #region Methods
+
+        private void InitiliazePropertySetter(object o, object o1)
+        {
+            var p = (PropertyInfo)_member;
+            _setValueAccessorSingleAction = p.GetSetPropertyAccessor(p.GetSetMethod(true), _path);
+            _setValueAccessorSingleAction(o, o1);
+        }
+
+        private object InitiliazePropertyGetter(object o)
+        {
+            var p = (PropertyInfo)_member;
+            _getValueAccessorSingle = p.GetGetPropertyAccessor(p.GetGetMethod(true), _path);
+            return _getValueAccessorSingle(o);
+        }
+
+        private void InitializeFieldSetter(object o, object o1)
+        {
+            _setValueAccessorSingleAction = ServiceProvider.ReflectionManager.GetMemberSetter<object>(_member);
+            _setValueAccessorSingleAction(o, o1);
+        }
+
+        private object InitiliazeFieldGetter(object o)
+        {
+            _getValueAccessorSingle = ServiceProvider.ReflectionManager.GetMemberGetter<object>(_member);
+            return _getValueAccessorSingle(o);
+        }
 
         private object NotSupportedGetter(object o)
         {
