@@ -79,7 +79,7 @@ namespace MugenMvvmToolkit.Infrastructure
         [NotNull]
         protected abstract IIocContainer CreateIocContainer();
 
-        protected static Assembly TryLoadAssembly(string assemblyName, ICollection<Assembly> assemblies)
+        protected internal static Assembly TryLoadAssembly(string assemblyName, ICollection<Assembly> assemblies)
         {
             try
             {
@@ -93,7 +93,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     assemblies.Add(assembly);
                 return assembly;
             }
-                // ReSharper disable once EmptyGeneralCatchClause
+            // ReSharper disable once EmptyGeneralCatchClause
             catch
             {
                 return null;

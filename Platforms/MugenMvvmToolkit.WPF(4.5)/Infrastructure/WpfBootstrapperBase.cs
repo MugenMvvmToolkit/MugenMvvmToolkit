@@ -56,9 +56,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
 
         static WpfBootstrapperBase()
         {
-            ReflectionExtensions.GetTypesDefault = assembly => assembly.GetTypes();
-            DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
-            DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
+            SetDefaultPlatformValues();
         }
 
         protected WpfBootstrapperBase([NotNull] Application application, bool autoStart = true, PlatformInfo platform = null)
@@ -152,7 +150,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
         protected virtual ICollection<Assembly> GetAssemblies()
         {
             var assemblies = new HashSet<Assembly>();
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies().Where(x=>!x.IsDynamic))
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies().Where(x => !x.IsDynamic))
             {
                 if (assemblies.Add(assembly))
                     assemblies.AddRange(assembly.GetReferencedAssemblies().Select(Assembly.Load));
@@ -171,6 +169,13 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
         protected virtual NavigationWindow CreateNavigationWindow()
         {
             return new NavigationWindow();
+        }
+
+        internal static void SetDefaultPlatformValues()
+        {
+            ReflectionExtensions.GetTypesDefault = assembly => assembly.GetTypes();
+            DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
+            DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
         }
 
         private void ApplicationOnStartup(object sender, StartupEventArgs args)

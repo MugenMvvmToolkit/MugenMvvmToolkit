@@ -98,9 +98,6 @@
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\Bootstrapper.cs">
       <Link>Infrastructure\Bootstrapper.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\DesignTimeManagerBase.cs">
-      <Link>Infrastructure\DesignTimeManagerBase.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\ExpressionReflectionManagerEx.cs">
       <Link>Infrastructure\ExpressionReflectionManagerEx.cs</Link>
     </Compile>
@@ -134,6 +131,7 @@
     <Compile Include="Infrastructure\Mediators\WindowViewMediator.cs" />
     <Compile Include="Infrastructure\Presenters\MessagePresenter.cs" />
     <Compile Include="Infrastructure\SilverlightBootstrapperBase.cs" />
+    <Compile Include="Infrastructure\SilverlightDesignBootstrapperBase.cs" />
     <Compile Include="Interfaces\Views\IWindowView.cs" />
     <Compile Include="Models\EventArg\NavigatingCancelEventArgsWrapper.cs" />
     <Compile Include="Models\EventArg\NavigationEventArgsWrapper.cs" />

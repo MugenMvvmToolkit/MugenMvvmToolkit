@@ -292,15 +292,13 @@ namespace MugenMvvmToolkit.ViewModels
         protected ViewModelBase()
         {
             Tracer.TraceViewModel(ViewModelLifecycleType.Created, this);
-            if (IsDesignMode)
-                ServiceProvider.DesignTimeManager.InitializeViewModel(this);
         }
 
         #endregion
 
         #region Properties
 
-        protected static bool IsDesignMode => ServiceProvider.DesignTimeManager.IsDesignMode;
+        protected static bool IsDesignMode => ServiceProvider.IsDesignMode;
 
         protected internal IEventAggregator LocalEventAggregator
         {

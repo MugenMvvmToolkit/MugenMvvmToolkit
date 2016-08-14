@@ -70,9 +70,6 @@
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\Bootstrapper.cs">
       <Link>Infrastructure\Bootstrapper.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\DesignTimeManagerBase.cs">
-      <Link>Infrastructure\DesignTimeManagerBase.cs</Link>
-    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\navigation\NavigationProvider.cs">
       <Link>Infrastructure\Navigation\NavigationProvider.cs</Link>
     </Compile>
@@ -97,6 +94,7 @@
     <Compile Include="Infrastructure\Presenters\MessagePresenter.cs" />
     <Compile Include="Infrastructure\ThreadManager.cs" />
     <Compile Include="Infrastructure\WinRTBootstrapperBase.cs" />
+    <Compile Include="Infrastructure\WinRTDesignBootstrapperBase.cs" />
     <Compile Include="Interfaces\IApplicationStateManager.cs" />
     <Compile Include="Interfaces\Views\IPopupView.cs" />
     <Compile Include="Interfaces\Views\IWindowView.cs" />

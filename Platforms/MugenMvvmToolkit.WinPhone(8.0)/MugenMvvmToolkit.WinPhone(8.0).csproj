@@ -128,6 +128,9 @@
     <Compile Include="..\MugenMvvmToolkit.WinPhone%288.1%29\Infrastructure\WindowsPhoneBootstrapperBase.cs">
       <Link>Infrastructure\WindowsPhoneBootstrapperBase.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinPhone%288.1%29\Infrastructure\WindowsPhoneDesignBootstrapperBase.cs">
+      <Link>Infrastructure\WindowsPhoneDesignBootstrapperBase.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinPhone%288.1%29\Interfaces\IBindableApplicationBar.cs">
       <Link>Interfaces\IBindableApplicationBar.cs</Link>
     </Compile>
@@ -157,9 +160,6 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\Bootstrapper.cs">
       <Link>Infrastructure\Bootstrapper.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\DesignTimeManagerBase.cs">
-      <Link>Infrastructure\DesignTimeManagerBase.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\ExpressionReflectionManagerEx.cs">
       <Link>Infrastructure\ExpressionReflectionManagerEx.cs</Link>

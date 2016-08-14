@@ -49,7 +49,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.MarkupExtensions
                 return GetEmptyValue();
             }
 
-            var isDesignMode = ServiceProvider.DesignTimeManager.IsDesignMode;
+            var isDesignMode = ServiceProvider.IsDesignMode;
             var binding = HasValue
                 ? CreateBindingBuilder(targetObject, path).Build()
                 : CreateBinding(targetObject, path, isDesignMode);

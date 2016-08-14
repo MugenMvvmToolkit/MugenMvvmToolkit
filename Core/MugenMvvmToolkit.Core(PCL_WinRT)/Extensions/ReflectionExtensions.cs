@@ -399,11 +399,6 @@ namespace MugenMvvmToolkit
             return !assembly.HasKnownPublicKey(false);
         }
 
-        public static IList<Assembly> GetDesignAssemblies()
-        {
-            return DesignTimeInitializer.GetAssemblies(true);
-        }
-
         public static bool IsPublic(this Type type)
         {
 #if PCL_WINRT      

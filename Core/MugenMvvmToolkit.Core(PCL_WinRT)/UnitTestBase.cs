@@ -120,7 +120,6 @@ namespace MugenMvvmToolkit
         {
             Should.NotBeNull(application, nameof(application));
             Should.NotBeNull(iocContainer, nameof(iocContainer));
-            ServiceProvider.DesignTimeManager = new DesignTimeManagerImpl(platform);
             application.Initialize(platform ?? PlatformInfo.UnitTest, iocContainer, assemblies, DataContext.Empty);
             if (ViewModelProvider == null)
             {

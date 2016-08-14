@@ -44,6 +44,7 @@
     <Compile Include="ApplicationSettings.cs" />
     <Compile Include="Infrastructure\Callbacks\NavigationOperation.cs" />
     <Compile Include="Infrastructure\CompositeEqualityComparer.cs" />
+    <Compile Include="Infrastructure\DesignBootstrapperBase.cs" />
     <Compile Include="Interfaces\Callbacks\INavigationOperation.cs" />
     <Compile Include="Interfaces\Callbacks\IOperationCallbackStateManager.cs" />
     <Compile Include="Interfaces\IBootstrapCodeBuilder.cs" />
@@ -93,7 +94,6 @@
     <Compile Include="Infrastructure\Callbacks\OperationResult.cs" />
     <Compile Include="Infrastructure\DelegateComparer.cs" />
     <Compile Include="Infrastructure\DisplayNameProvider.cs" />
-    <Compile Include="Infrastructure\DesignTimeManagerImpl.cs" />
     <Compile Include="Infrastructure\EntityStateManager.cs" />
     <Compile Include="Infrastructure\EventAggregator.cs" />
     <Compile Include="Infrastructure\ExpressionReflectionManager.cs" />
@@ -139,7 +139,6 @@
     <Compile Include="Interfaces\Collections\INotifyCollectionChanging.cs" />
     <Compile Include="Interfaces\Collections\ITrackingCollection.cs" />
     <Compile Include="Interfaces\IAttachedValueProvider.cs" />
-    <Compile Include="Interfaces\IDesignTimeManager.cs" />
     <Compile Include="Interfaces\IDisplayNameProvider.cs" />
     <Compile Include="Interfaces\IEntityStateManager.cs" />
     <Compile Include="Interfaces\IEventAggregator.cs" />
@@ -243,7 +242,6 @@
     <Compile Include="Should.cs" />
     <Compile Include="Tracer.cs" />
     <Compile Include="UnitTestBase.cs" />
-    <Compile Include="Infrastructure\DesignTimeInitializer.cs" />
     <Compile Include="ExceptionManager.cs" />
     <Compile Include="ViewModels\CloseableViewModel.cs" />
     <Compile Include="ViewModels\EditableViewModel.cs" />

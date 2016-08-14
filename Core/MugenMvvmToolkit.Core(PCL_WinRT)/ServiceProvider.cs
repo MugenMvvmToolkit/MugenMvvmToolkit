@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Infrastructure.Validation;
@@ -49,7 +50,6 @@ namespace MugenMvvmToolkit
 
         private static Func<object, IEventAggregator> _instanceEventAggregatorFactory;
         private static Func<object, WeakReference> _weakReferenceFactory;
-        private static IDesignTimeManager _designTimeManager;
         private static IViewModelProvider _viewModelProvider;
         private static Func<IViewModel, IViewModelSettings> _viewModelSettingsFactory;
         internal static SynchronizationContext UiSynchronizationContextField;
@@ -206,18 +206,6 @@ namespace MugenMvvmToolkit
         }
 
         [NotNull]
-        public static IDesignTimeManager DesignTimeManager
-        {
-            get
-            {
-                if (_designTimeManager == null)
-                    return DesignTimeInitializer.GetDesignTimeManager() ?? DesignTimeManagerImpl.Instance;
-                return _designTimeManager;
-            }
-            set { _designTimeManager = value; }
-        }
-
-        [NotNull]
         public static IViewModelProvider ViewModelProvider
         {
             get
@@ -239,6 +227,19 @@ namespace MugenMvvmToolkit
                 return _eventAggregator;
             }
             set { _eventAggregator = value; }
+        }
+
+        private static bool? _isDesignMode;
+
+        public static bool IsDesignMode
+        {
+            get
+            {
+                if (_isDesignMode == null)
+                    _isDesignMode = GetIsDesignMode();
+                return _isDesignMode.Value;
+            }
+            set { _isDesignMode = value; }
         }
 
         #endregion
@@ -392,6 +393,83 @@ namespace MugenMvvmToolkit
             if (o == null)
                 return null;
             return o as ISubscriber ?? HandlerSubscriber.Get(o);
+        }
+
+
+        private static bool GetIsDesignMode()
+        {
+            //Silverlight
+            var type = Type.GetType("System.ComponentModel.DesignerProperties, System.Windows, Version=2.0.5.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e");
+            if (type != null)
+            {
+                try
+                {
+                    var dme = type.GetPropertyEx("IsInDesignTool");
+                    if (dme == null)
+                        return false;
+                    return (bool)dme.GetValue(null, null);
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+
+            //.NET
+            type = Type.GetType("System.ComponentModel.DesignerProperties, PresentationFramework, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35");
+            if (type != null)
+            {
+                try
+                {
+                    var dmp = type.GetFieldEx("IsInDesignModeProperty")?.GetValue(null);
+                    var dpd = Type.GetType("System.ComponentModel.DependencyPropertyDescriptor, WindowsBase, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35");
+                    var typeFe = Type.GetType("System.Windows.FrameworkElement, PresentationFramework, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35");
+                    if (dpd == null || typeFe == null)
+                        return false;
+
+                    var fromProperty = dpd.GetMethodsEx().FirstOrDefault(mi => mi.Name == "FromProperty" && mi.IsPublic && mi.IsStatic && mi.GetParameters().Length == 2);
+                    var descriptor = fromProperty?.Invoke(null, new[] { dmp, typeFe });
+                    if (descriptor == null)
+                        return false;
+
+                    var metaProp = dpd.GetPropertyEx("Metadata");
+                    if (metaProp == null)
+                        return false;
+
+                    var metadata = metaProp.GetValue(descriptor, null);
+                    var tPropMeta = Type.GetType("System.Windows.PropertyMetadata, WindowsBase, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35");
+
+                    if (metadata == null || tPropMeta == null)
+                        return false;
+                    var dvProp = tPropMeta.GetPropertyEx("DefaultValue");
+                    if (dvProp == null)
+                        return false;
+                    var dv = (bool)dvProp.GetValue(metadata, null);
+                    return dv;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+
+            //WinRT
+            type = Type.GetType("Windows.ApplicationModel.DesignMode, Windows, ContentType=WindowsRuntime");
+            if (type != null)
+            {
+                try
+                {
+                    var dme = type.GetPropertyEx("DesignModeEnabled");
+                    if (dme == null)
+                        return false;
+                    return (bool)dme.GetValue(null, null);
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+            return false;
         }
 
         #endregion

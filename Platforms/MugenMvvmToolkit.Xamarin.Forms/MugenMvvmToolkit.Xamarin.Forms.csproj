@@ -91,6 +91,7 @@
     <Compile Include="Infrastructure\Mediators\ModalViewMediator.cs" />
     <Compile Include="Infrastructure\Navigation\NavigationService.cs" />
     <Compile Include="Infrastructure\ViewMappingProviderEx.cs" />
+    <Compile Include="Infrastructure\XamarinFormsDesignBootstrapperBase.cs" />
     <Compile Include="Infrastructure\XamarinFormsBootstrapperBase.cs" />
     <Compile Include="Modules\InitializationModule.cs" />
     <Compile Include="Interfaces\Views\IModalView.cs" />

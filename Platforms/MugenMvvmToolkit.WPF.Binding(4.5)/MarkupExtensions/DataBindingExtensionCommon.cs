@@ -331,7 +331,7 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
             return null;
 #else
             //NOTE Сannot set property values ​​in the designer, this error will handled by MS code.
-            if (ServiceProvider.DesignTimeManager.IsDesignMode)
+            if (ServiceProvider.IsDesignMode)
                 throw new InvalidOperationException();
             return DependencyProperty.UnsetValue;
 #endif

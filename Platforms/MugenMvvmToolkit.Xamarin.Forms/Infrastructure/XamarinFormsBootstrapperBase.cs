@@ -70,13 +70,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         static XamarinFormsBootstrapperBase()
         {
-            MvvmApplication.SetDefaultDesignTimeManager();
-            DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
-            DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
-            ViewManager.ViewCleared += OnViewCleared;
-            ViewManager.ClearDataContext = true;
-            BindingServiceProvider.DataContextMemberAliases.Add(nameof(BindableObject.BindingContext));
-            BindingServiceProvider.BindingMemberPriorities[nameof(BindableObject.BindingContext)] = BindingServiceProvider.DataContextMemberPriority;
+            SetDefaultPlatformValues();
         }
 
         protected XamarinFormsBootstrapperBase(PlatformInfo platform = null)
@@ -91,7 +85,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         [CanBeNull]
         public new static XamarinFormsBootstrapperBase Current => BootstrapperBase.Current as XamarinFormsBootstrapperBase;
 
-        protected static string BindingAssemblyName
+        protected internal static string BindingAssemblyName
         {
             get
             {
@@ -174,7 +168,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         {
             if (_platformService == null)
                 return new[] { GetType().GetTypeInfo().Assembly, typeof(BootstrapperBase).GetTypeInfo().Assembly };
-            return _platformService.GetAssemblies().Where(x=>!x.IsDynamic).ToList();
+            return _platformService.GetAssemblies().Where(x => !x.IsDynamic).ToList();
         }
 
         [CanBeNull]
@@ -189,7 +183,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             return new NavigationService(ServiceProvider.ThreadManager, true);
         }
 
-        private static PlatformInfo GetPlatformInfo()
+        internal static PlatformInfo GetPlatformInfo()
         {
             Assembly assembly = TryLoadAssembly(BindingAssemblyName, null);
             if (assembly == null)
@@ -209,6 +203,16 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             return _platformService == null
                 ? XamarinFormsExtensions.GetPlatformInfo()
                 : _platformService.GetPlatformInfo();
+        }
+
+        internal static void SetDefaultPlatformValues()
+        {
+            DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
+            DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
+            ViewManager.ViewCleared += OnViewCleared;
+            ViewManager.ClearDataContext = true;
+            BindingServiceProvider.DataContextMemberAliases.Add(nameof(BindableObject.BindingContext));
+            BindingServiceProvider.BindingMemberPriorities[nameof(BindableObject.BindingContext)] = BindingServiceProvider.DataContextMemberPriority;
         }
 
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext,

@@ -85,15 +85,6 @@ namespace MugenMvvmToolkit.WinPhone.MarkupExtensions
 
         #endregion
 
-        #region Constructors
-
-        static View()
-        {
-            MvvmApplication.InitializeDesignTimeManager();
-        }
-
-        #endregion
-
         #region Attached properties
 
         public static readonly DependencyProperty BindProperty = DependencyProperty.RegisterAttached(
@@ -105,22 +96,9 @@ namespace MugenMvvmToolkit.WinPhone.MarkupExtensions
         public static readonly DependencyProperty CollapsedProperty = DependencyProperty.RegisterAttached(
             "Collapsed", typeof(object), typeof(View), new PropertyMetadata(null, CollapsedChanged));
 
-        public static readonly DependencyProperty DesignDataContextProperty = DependencyProperty.RegisterAttached(
-            "DesignDataContext", typeof(object), typeof(View), new PropertyMetadata(null, OnDesignDataContextChanged));
-
         private static readonly DependencyProperty VisibilityInternalProperty = DependencyProperty.RegisterAttached(
             "VisibilityInternal", typeof(object), typeof(View),
             new PropertyMetadata(null, VisibilityInternalChanged));
-
-        public static void SetDesignDataContext(DependencyObject element, object value)
-        {
-            element.SetValue(DesignDataContextProperty, value);
-        }
-
-        public static object GetDesignDataContext(DependencyObject element)
-        {
-            return element.GetValue(DesignDataContextProperty);
-        }
 
         private static Visibility? GetVisibilityInternal(DependencyObject element)
         {
@@ -175,7 +153,7 @@ namespace MugenMvvmToolkit.WinPhone.MarkupExtensions
 
         #region Properties
 
-        public static Action<DependencyObject, string> BindChanged { get; set; }
+        public static Action<DependencyObject, string> BindChanged { get; set; }//todo check
 
         #endregion
 
@@ -299,61 +277,10 @@ namespace MugenMvvmToolkit.WinPhone.MarkupExtensions
                 });
         }
 
-        private static void OnDesignDataContextChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
-        {
-            if (!ServiceProvider.DesignTimeManager.IsDesignMode)
-                return;
-            var element = sender as FrameworkElement;
-            if (element == null)
-                return;
-            var disposable = element.DataContext as IDisposable;
-            if (disposable != null)
-                disposable.Dispose();
-
-            if (args.NewValue == null)
-            {
-                element.DataContext = null;
-                return;
-            }
-            var type = args.NewValue as Type;
-            if (type == null)
-            {
-                var typeName = args.NewValue as string;
-                if (typeName == null)
-                {
-                    element.DataContext = args.NewValue;
-                    return;
-                }
-
-                var fullName = typeName.IndexOf('.') >= 0;
-                foreach (var assembly in ReflectionExtensions.GetDesignAssemblies())
-                {
-                    foreach (var t in assembly.SafeGetTypes(false))
-                    {
-                        string name = fullName ? t.FullName : t.Name;
-                        if (name == typeName)
-                        {
-                            type = t;
-                            break;
-                        }
-                    }
-                }
-                if (type == null)
-                {
-                    element.DataContext = null;
-                    return;
-                }
-            }
-            var iocContainer = ServiceProvider.DesignTimeManager.IocContainer;
-            element.DataContext = iocContainer == null
-                ? Activator.CreateInstance(type)
-                : iocContainer.Get(type);
-        }
-
         private static void OnBindChangedCallback(DependencyObject sender, DependencyPropertyChangedEventArgs args)
         {
             var bindChanged = BindChanged;
-            Should.MethodBeSupported(ServiceProvider.DesignTimeManager.IsDesignMode || bindChanged != null, "BindChanged");
+            Should.MethodBeSupported(ServiceProvider.IsDesignMode || bindChanged != null, "BindChanged");
             if (bindChanged != null)
                 bindChanged(sender, (string)args.NewValue);
         }

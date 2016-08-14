@@ -171,7 +171,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
         {
             if (string.IsNullOrWhiteSpace(bindings))
                 return;
-            if (ServiceProvider.DesignTimeManager.IsDesignMode)
+            if (ServiceProvider.IsDesignMode)
             {
                 IList<IDataBinding> list = BindingServiceProvider.BindingProvider.CreateBindingsFromStringWithBindings(sender, bindings, null);
                 foreach (InvalidDataBinding binding in list.OfType<InvalidDataBinding>())

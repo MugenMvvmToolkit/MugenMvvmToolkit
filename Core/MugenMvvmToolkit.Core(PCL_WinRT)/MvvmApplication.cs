@@ -21,7 +21,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
@@ -45,7 +44,6 @@ namespace MugenMvvmToolkit
 
         protected MvvmApplication(LoadMode mode = LoadMode.Runtime)
         {
-            ServiceProvider.DesignTimeManager = DesignTimeManagerImpl.Instance;
             if (ServiceProvider.UiSynchronizationContextField == null)
                 ServiceProvider.UiSynchronizationContextField = SynchronizationContext.Current;
             Current = this;
@@ -75,17 +73,6 @@ namespace MugenMvvmToolkit
         #region Methods
 
         public static event EventHandler Initialized;
-
-        public static void InitializeDesignTimeManager()
-        {
-            // ReSharper disable once UnusedVariable
-            var dummy = ServiceProvider.DesignTimeManager;
-        }
-
-        public static void SetDefaultDesignTimeManager()
-        {
-            ServiceProvider.DesignTimeManager = DesignTimeManagerImpl.Instance;
-        }
 
         protected virtual void StartInternal([CanBeNull] IDataContext context)
         {
