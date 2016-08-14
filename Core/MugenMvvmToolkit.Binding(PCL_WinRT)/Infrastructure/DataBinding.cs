@@ -181,7 +181,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             ((ICollection<IBindingBehavior>)this).Clear();
             _sourceAccessor.Dispose();
             _targetAccessor.Dispose();
-            DebugInfo("Binding disposed");
+            if (_targetAccessor.Source.Path.IsDebuggable)
+                DebugInfo("Binding disposed");
         }
 
         public event EventHandler<IDataBinding, BindingEventArgs> BindingUpdated;
