@@ -140,14 +140,16 @@ namespace MugenMvvmToolkit.WinForms.Collections
             SourceCollection.RaiseReset();
         }
 
-        public void AddRange(IEnumerable collection)
+        void INotifiableCollection.AddRange(IEnumerable collection, bool suspendNotifications)
         {
-            ((INotifiableCollection)SourceCollection).AddRange(collection);
+            //ignoring suspendNotifications for binding list
+            ((INotifiableCollection)SourceCollection).AddRange(collection, false);
         }
 
-        public void RemoveRange(IEnumerable collection)
+        void INotifiableCollection.RemoveRange(IEnumerable collection, bool suspendNotifications)
         {
-            ((INotifiableCollection)SourceCollection).RemoveRange(collection);
+            //ignoring suspendNotifications for binding list
+            ((INotifiableCollection)SourceCollection).RemoveRange(collection, false);
         }
 
         public event NotifyCollectionChangedEventHandler CollectionChangedUnsafe
@@ -174,14 +176,16 @@ namespace MugenMvvmToolkit.WinForms.Collections
             remove { SourceCollection.CollectionChanging -= value; }
         }
 
-        public void AddRange(IEnumerable<T> collection)
+        public void AddRange(IEnumerable<T> collection, bool suspendNotifications = true)
         {
-            SourceCollection.AddRange(collection);
+            //ignoring suspendNotifications for binding list
+            SourceCollection.AddRange(collection, false);
         }
 
-        public void RemoveRange(IEnumerable<T> collection)
+        public void RemoveRange(IEnumerable<T> collection, bool suspendNotifications = true)
         {
-            SourceCollection.RemoveRange(collection);
+            //ignoring suspendNotifications for binding list
+            SourceCollection.RemoveRange(collection, false);
         }
 
         public void Update(IEnumerable<T> items)

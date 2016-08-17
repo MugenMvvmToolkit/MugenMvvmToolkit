@@ -27,9 +27,9 @@ namespace MugenMvvmToolkit.Interfaces.Collections
     {
         void RaiseReset();
 
-        void AddRange(IEnumerable collection);
+        void AddRange(IEnumerable collection, bool suspendNotification = true);
 
-        void RemoveRange(IEnumerable collection);
+        void RemoveRange(IEnumerable collection, bool suspendNotification = true);
 
         event NotifyCollectionChangedEventHandler CollectionChangedUnsafe;
     }
@@ -38,9 +38,9 @@ namespace MugenMvvmToolkit.Interfaces.Collections
     {
         void RaiseReset();
 
-        void AddRange(IEnumerable<T> collection);
+        void AddRange(IEnumerable<T> collection, bool suspendNotifications = true);
 
-        void RemoveRange(IEnumerable<T> collection);
+        void RemoveRange(IEnumerable<T> collection, bool suspendNotifications = true);
 
         void Update(IEnumerable<T> items);
 

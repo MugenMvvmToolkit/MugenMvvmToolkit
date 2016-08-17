@@ -838,7 +838,7 @@ namespace MugenMvvmToolkit
             }
         }
 
-        public static void AddRange<T>([NotNull] this ICollection<T> collection, [NotNull] IEnumerable<T> items)
+        public static void AddRange<T>([NotNull] this ICollection<T> collection, [NotNull] IEnumerable<T> items, bool suspendNotifications = true)
         {
             Should.NotBeNull(collection, nameof(collection));
             Should.NotBeNull(items, nameof(items));
@@ -851,7 +851,7 @@ namespace MugenMvvmToolkit
             var notifiableCollection = collection as INotifiableCollection<T>;
             if (notifiableCollection != null)
             {
-                notifiableCollection.AddRange(items);
+                notifiableCollection.AddRange(items, suspendNotifications);
                 return;
             }
             foreach (T item in items)
@@ -867,14 +867,14 @@ namespace MugenMvvmToolkit
                 target[keyValuePair.Key] = keyValuePair.Value;
         }
 
-        public static void RemoveRange<T>([NotNull] this ICollection<T> collection, [NotNull] IEnumerable<T> items)
+        public static void RemoveRange<T>([NotNull] this ICollection<T> collection, [NotNull] IEnumerable<T> items, bool suspendNotifications = true)
         {
             Should.NotBeNull(collection, nameof(collection));
             Should.NotBeNull(items, nameof(items));
             var notifiableCollection = collection as INotifiableCollection<T>;
             if (notifiableCollection != null)
             {
-                notifiableCollection.RemoveRange(items);
+                notifiableCollection.RemoveRange(items, suspendNotifications);
                 return;
             }
             var list = items.ToList();

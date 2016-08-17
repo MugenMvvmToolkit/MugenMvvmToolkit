@@ -780,16 +780,16 @@ namespace MugenMvvmToolkit.Collections
             });
         }
 
-        void INotifiableCollection.AddRange(IEnumerable collection)
+        void INotifiableCollection.AddRange(IEnumerable collection, bool suspendNotifications)
         {
             Should.NotBeNull(collection, nameof(collection));
-            AddRange(collection.Cast<T>());
+            AddRange(collection.Cast<T>(), suspendNotifications);
         }
 
-        void INotifiableCollection.RemoveRange(IEnumerable collection)
+        void INotifiableCollection.RemoveRange(IEnumerable collection, bool suspendNotifications)
         {
             Should.NotBeNull(collection, nameof(collection));
-            RemoveRange(collection.Cast<T>());
+            RemoveRange(collection.Cast<T>(), suspendNotifications);
         }
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
@@ -831,27 +831,45 @@ namespace MugenMvvmToolkit.Collections
             Insert(index, item);
         }
 
-        public void AddRange(IEnumerable<T> collection)
+        public void AddRange(IEnumerable<T> collection, bool suspendNotifications = true)
         {
-            using (SuspendNotifications())
+            bool lockTaken = false;
+            IDisposable suspender = null;
+            try
             {
-                lock (Locker)
-                {
-                    foreach (var item in collection)
-                        AddNoLock(item);
-                }
+                if (suspendNotifications)
+                    suspender = SuspendNotifications();
+                Monitor.Enter(Locker, ref lockTaken);
+                foreach (var item in collection)
+                    AddNoLock(item);
+            }
+            finally
+            {
+                if (lockTaken)
+                    Monitor.Exit(Locker);
+                if (suspender != null)
+                    suspender.Dispose();
             }
         }
 
-        public void RemoveRange(IEnumerable<T> collection)
+        public void RemoveRange(IEnumerable<T> collection, bool suspendNotifications = true)
         {
-            using (SuspendNotifications())
+            bool lockTaken = false;
+            IDisposable suspender = null;
+            try
             {
-                lock (Locker)
-                {
-                    foreach (var item in collection)
-                        RemoveNoLock(item);
-                }
+                if (suspendNotifications)
+                    suspender = SuspendNotifications();
+                Monitor.Enter(Locker, ref lockTaken);
+                foreach (var item in collection)
+                    RemoveNoLock(item);
+            }
+            finally
+            {
+                if (lockTaken)
+                    Monitor.Exit(Locker);
+                if (suspender != null)
+                    suspender.Dispose();
             }
         }
 
