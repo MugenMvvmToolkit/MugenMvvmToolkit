@@ -49,8 +49,6 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         private static readonly Field FactoryField;
         private static readonly Field Factory2Field;
         private static readonly Field PrivateFactoryField;
-        private static Field _fatoryMergerF1Field;
-        private static Field _fatoryMergerF12Field;
         private static readonly MethodInfo JavaCastMethod;
         private static readonly Dictionary<string, string> ViewNameToClass;
 
@@ -62,7 +60,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         {
             _lastCreatedView = Empty.WeakReference;
             ViewNameToClass = new Dictionary<string, string>(StringComparer.Ordinal);
-            JavaCastMethod = typeof(JavaObjectExtensions).GetMethod("JavaCast", BindingFlags.Static | BindingFlags.Public, null, new[] {typeof(IJavaObject)}, null);
+            JavaCastMethod = typeof(JavaObjectExtensions).GetMethod("JavaCast", BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(IJavaObject) }, null);
             var inflaterClass = Class.FromType(typeof(LayoutInflater));
             FactoryField = TryGetField("mFactory", inflaterClass);
             if (PlatformExtensions.IsApiGreaterThan10)
@@ -117,42 +115,12 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         private static bool HasFactory(LayoutInflater inflater)
         {
-            var factory = inflater.Factory;
-            if (factory is LayoutInflaterFactoryWrapper)
-                return true;
-            if (factory == null)
-                return false;
-            var factoryObj = (Object) factory;
-            var @class = factoryObj.Class;
-            if (@class.SimpleName != "FactoryMerger")
-                return false;
-            if (_fatoryMergerF1Field == null)
-            {
-                _fatoryMergerF1Field = TryGetField("mF1", @class);
-                if (_fatoryMergerF1Field == null)
-                    return false;
-            }
-            return _fatoryMergerF1Field.Get(factoryObj) is LayoutInflaterFactoryWrapper;
+            return inflater.Factory is LayoutInflaterFactoryWrapper;
         }
 
         private static bool HasFactory2(LayoutInflater inflater)
         {
-            var factory2 = inflater.Factory2;
-            if (factory2 is LayoutInflaterFactoryWrapper)
-                return true;
-            if (factory2 == null)
-                return false;
-            var factory2Obj = (Object) factory2;
-            var @class = factory2Obj.Class;
-            if (@class.SimpleName != "FactoryMerger")
-                return false;
-            if (_fatoryMergerF12Field == null)
-            {
-                _fatoryMergerF12Field = TryGetField("mF12", @class);
-                if (_fatoryMergerF12Field == null)
-                    return false;
-            }
-            return _fatoryMergerF12Field.Get(factory2Obj) is LayoutInflaterFactoryWrapper;
+            return inflater.Factory2 is LayoutInflaterFactoryWrapper;
         }
 
         private static LayoutInflaterFactoryWrapper GetWrapper(LayoutInflater inflater, IViewFactory factory)
@@ -182,7 +150,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                 {
                     try
                     {
-                        view = (View) JavaCastMethod.MakeGenericMethod(type).Invoke(null, new object[] {view});
+                        view = (View)JavaCastMethod.MakeGenericMethod(type).Invoke(null, new object[] { view });
                     }
                     catch
                     {
