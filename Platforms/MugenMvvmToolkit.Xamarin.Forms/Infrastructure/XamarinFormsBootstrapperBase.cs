@@ -45,7 +45,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
     {
         #region Nested types
 
-        internal interface IPlatformService
+        public interface IPlatformService
         {
             Func<IBindingMemberInfo, Type, object, object> ValueConverter { get; }
 
@@ -58,10 +58,9 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         #region Fields
 
-        private const string WinRTAssemblyName = "MugenMvvmToolkit.Xamarin.Forms.WinRT";
-        private static IPlatformService _platformService;
-        private readonly PlatformInfo _platform;
         private IViewModel _mainViewModel;
+        private readonly PlatformInfo _platform;
+        private readonly IPlatformService _platformService;
         private bool _wrapToNavigationPage;
 
         #endregion
@@ -73,9 +72,12 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             SetDefaultPlatformValues();
         }
 
-        protected XamarinFormsBootstrapperBase(PlatformInfo platform = null)
+        protected XamarinFormsBootstrapperBase(IPlatformService platformService)
         {
-            _platform = platform ?? GetPlatformInfo();
+            Should.NotBeNull(platformService, nameof(platformService));
+            _platformService = platformService;
+            _platform = platformService.GetPlatformInfo();
+            BindingServiceProvider.ValueConverter = platformService.ValueConverter;
         }
 
         #endregion
@@ -90,9 +92,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             get
             {
                 if (Device.OS == TargetPlatform.Windows)
-                    return WinRTAssemblyName;
-                return Device.OnPlatform("MugenMvvmToolkit.Xamarin.Forms.iOS", "MugenMvvmToolkit.Xamarin.Forms.Android",
-                    "MugenMvvmToolkit.Xamarin.Forms.WinPhone");
+                    return "MugenMvvmToolkit.Xamarin.Forms.WinRT";
+                return Device.OnPlatform("MugenMvvmToolkit.Xamarin.Forms.iOS", "MugenMvvmToolkit.Xamarin.Forms.Android", "MugenMvvmToolkit.Xamarin.Forms.WinPhone");
             }
         }
 
@@ -166,8 +167,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         protected virtual ICollection<Assembly> GetAssemblies()
         {
-            if (_platformService == null)
-                return new[] { GetType().GetTypeInfo().Assembly, typeof(BootstrapperBase).GetTypeInfo().Assembly };
             return _platformService.GetAssemblies().Where(x => !x.IsDynamic).ToList();
         }
 
@@ -181,28 +180,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         protected virtual INavigationService CreateNavigationService()
         {
             return new NavigationService(ServiceProvider.ThreadManager, true);
-        }
-
-        internal static PlatformInfo GetPlatformInfo()
-        {
-            Assembly assembly = TryLoadAssembly(BindingAssemblyName, null);
-            if (assembly == null)
-            {
-                if (Device.OS == TargetPlatform.WinPhone)
-                    assembly = TryLoadAssembly(WinRTAssemblyName, null);
-                if (assembly == null)
-                    return XamarinFormsExtensions.GetPlatformInfo();
-            }
-            TypeInfo serviceType = typeof(IPlatformService).GetTypeInfo();
-            serviceType = assembly.DefinedTypes.FirstOrDefault(serviceType.IsAssignableFrom);
-            if (serviceType != null)
-            {
-                _platformService = (IPlatformService)Activator.CreateInstance(serviceType.AsType());
-                BindingServiceProvider.ValueConverter = _platformService.ValueConverter;
-            }
-            return _platformService == null
-                ? XamarinFormsExtensions.GetPlatformInfo()
-                : _platformService.GetPlatformInfo();
         }
 
         internal static void SetDefaultPlatformValues()
