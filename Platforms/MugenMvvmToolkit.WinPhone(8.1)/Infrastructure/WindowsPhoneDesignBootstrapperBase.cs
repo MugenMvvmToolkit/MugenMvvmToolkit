@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Windows;
 using MugenMvvmToolkit.Infrastructure;
@@ -21,7 +22,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         protected sealed override IList<Assembly> GetAssemblies()
         {
-            var assemblies = new HashSet<Assembly> {GetType().GetAssembly(), typeof(WindowsPhoneDesignBootstrapperBase).GetAssembly()};
+            var assemblies = new HashSet<Assembly> { GetType().GetAssembly(), typeof(WindowsPhoneDesignBootstrapperBase).GetAssembly() };
             var application = Application.Current;
             if (application != null)
                 assemblies.Add(application.GetType().GetAssembly());
@@ -30,7 +31,10 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
             return assemblies.ToArrayEx();
         }
 
-        protected abstract IList<Assembly> GetAssembliesInternal();
+        protected virtual IList<Assembly> GetAssembliesInternal()
+        {
+            return AppDomain.CurrentDomain.GetAssemblies();
+        }
 
         protected override PlatformInfo GetPlatformInfo()
         {
