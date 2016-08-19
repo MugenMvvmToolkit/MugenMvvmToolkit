@@ -664,6 +664,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
         private static void ContentMemberAttached(ViewGroup viewGroup, MemberAttachedEventArgs args)
         {
+            viewGroup.SetBindingMemberValue(AttachedMembers.ViewGroup.DisableHierarchyListener, true);
             viewGroup.SetOnHierarchyChangeListener(ContentChangeListener.Instance);
         }
 
