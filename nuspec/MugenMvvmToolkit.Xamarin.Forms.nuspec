@@ -178,6 +178,7 @@ WinForms:
     <file src="..\bin\Platforms\Xamarin.Forms\PCL\MugenMvvmToolkit.Xamarin.Forms.dll" target="lib\portable-net45+win+wpa81+wp80\MugenMvvmToolkit.Xamarin.Forms.dll" />
     <file src="..\bin\Platforms\Xamarin.Forms\PCL\MugenMvvmToolkit.Xamarin.Forms.pdb" target="lib\portable-net45+win+wpa81+wp80\MugenMvvmToolkit.Xamarin.Forms.pdb" />
 
+	<!-- Touch -->
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.dll" target="lib\Xamarin.iOS10\MugenMvvmToolkit.dll" />
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.pdb" target="lib\Xamarin.iOS10\MugenMvvmToolkit.pdb" />
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.dll" target="lib\Xamarin.iOS10\MugenMvvmToolkit.Binding.dll" />
@@ -185,8 +186,7 @@ WinForms:
     <file src="..\bin\Platforms\Xamarin.Forms\PCL\MugenMvvmToolkit.Xamarin.Forms.dll" target="lib\Xamarin.iOS10\MugenMvvmToolkit.Xamarin.Forms.dll" />
     <file src="..\bin\Platforms\Xamarin.Forms\PCL\MugenMvvmToolkit.Xamarin.Forms.pdb" target="lib\Xamarin.iOS10\MugenMvvmToolkit.Xamarin.Forms.pdb" />
     <file src="..\bin\Platforms\Xamarin.Forms\Touch\MugenMvvmToolkit.Xamarin.Forms.iOS.dll" target="lib\Xamarin.iOS10\MugenMvvmToolkit.Xamarin.Forms.iOS.dll" />
-
-	<!-- Touch -->
+	
     <file src="TouchContent\error@2x.png" target="content\Xamarin.iOS10\Resources\error.png" />
     <!--<file src="TouchContent\error@2x.png" target="content\Xamarin.iOS10\Resources\error@2x.png" /> 3.1 nuget bug -->
     <file src="XamarinFormsContent\RuntimeLoadAssembly.cs.pp" target="content\Xamarin.iOS10\RuntimeLoadAssembly.cs.pp" />

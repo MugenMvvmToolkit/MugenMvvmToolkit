@@ -10,7 +10,7 @@ namespace $rootnamespace$
         {
             XamarinFormsBootstrapperBase bootstrapper = XamarinFormsBootstrapperBase.Current ??
                                                         new Bootstrapper<Core.App>(platformService, new AutofacContainer());
-            MainPage = bootstrapper.Start();
+            bootstrapper.Start();
         }
     }
 }
