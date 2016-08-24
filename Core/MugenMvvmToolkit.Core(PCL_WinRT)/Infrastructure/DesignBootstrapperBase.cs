@@ -22,17 +22,22 @@ namespace MugenMvvmToolkit.Infrastructure
 
         protected DesignBootstrapperBase()
         {
-            _viewModelMapping = new Dictionary<string, IViewModel>();
-            InitializeInternal();
+            if (ServiceProvider.IsDesignMode)
+            {
+                _viewModelMapping = new Dictionary<string, IViewModel>();
+                InitializeInternal();
+            }
         }
 
         #endregion
 
         #region Methods
 
-        protected T GetOrAddViewModel<T>(Func<IViewModelProvider, T> getViewModel, [CallerMemberName] string property = "")
+        protected virtual T GetOrAddViewModel<T>(Func<IViewModelProvider, T> getViewModel, [CallerMemberName] string property = "")
             where T : IViewModel
         {
+            if (!ServiceProvider.IsDesignMode)
+                return default(T);
             IViewModel value;
             if (!_viewModelMapping.TryGetValue(property, out value))
             {
