@@ -15,7 +15,9 @@
       <group>
         <dependency id="Autofac" version="[3.5.2, 3.6.0)" />
       </group>
-      <group targetFramework="Xamarin.iOS" />
+      <group targetFramework=".NETStandard1.1">
+        <dependency id="Autofac" version="[4.0.0, 4.1.0)" />
+      </group>      
     </dependencies>
   </metadata>
   <files>
@@ -48,9 +50,6 @@
     <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.pdb" target="lib\MonoAndroid10\MugenMvvmToolkit.AutofacContainer.pdb" />
 
     <!-- Touch -->
-    <file src="..\bin\IocContainers\Autofac\PCL\Autofac.dll" target="lib\Xamarin.iOS10\Autofac.dll" />    
-    <file src="..\bin\IocContainers\Autofac\PCL\Autofac.xml" target="lib\Xamarin.iOS10\Autofac.xml" />
-
     <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.dll" target="lib\Xamarin.iOS10\MugenMvvmToolkit.AutofacContainer.dll" />
     <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.pdb" target="lib\Xamarin.iOS10\MugenMvvmToolkit.AutofacContainer.pdb" />
   </files>
