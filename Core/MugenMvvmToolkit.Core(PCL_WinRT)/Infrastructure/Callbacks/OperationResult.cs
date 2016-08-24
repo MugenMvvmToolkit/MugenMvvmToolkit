@@ -152,43 +152,43 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 .Invoke(null, new object[] { result });
         }
 
-        public static IOperationResult<TType> CreateCancelResult<TType>(OperationType operation, object sender, IDataContext context = null)
+        public static IOperationResult<TType> CreateCancelResult<TType>(OperationType operation, object source, IDataContext context = null)
         {
-            return new OperationResultImpl<TType>(operation, sender, null, true, default(TType), context);
+            return new OperationResultImpl<TType>(operation, source, null, true, default(TType), context);
         }
 
-        public static IOperationResult CreateCancelResult([NotNull] Type resultType, OperationType operation, object sender, IDataContext context = null)
+        public static IOperationResult CreateCancelResult([NotNull] Type resultType, OperationType operation, object source, IDataContext context = null)
         {
             Should.NotBeNull(resultType, nameof(resultType));
             return (IOperationResult)CreateCancelResultMethod
                 .MakeGenericMethod(resultType)
-                .Invoke(null, new[] { operation, sender, context });
+                .Invoke(null, new[] { operation, source, context });
         }
 
-        public static IOperationResult<TType> CreateErrorResult<TType>(OperationType operation, object sender, Exception exception, IDataContext context = null)
+        public static IOperationResult<TType> CreateErrorResult<TType>(OperationType operation, object source, Exception exception, IDataContext context = null)
         {
-            return new OperationResultImpl<TType>(operation, sender, exception, false, default(TType), context);
+            return new OperationResultImpl<TType>(operation, source, exception, false, default(TType), context);
         }
 
-        public static IOperationResult CreateErrorResult([NotNull] Type resultType, OperationType operation, object sender, Exception exception, IDataContext context = null)
+        public static IOperationResult CreateErrorResult([NotNull] Type resultType, OperationType operation, object source, Exception exception, IDataContext context = null)
         {
             Should.NotBeNull(resultType, nameof(resultType));
             return (IOperationResult)CreateErrorResultMethod
                 .MakeGenericMethod(resultType)
-                .Invoke(null, new[] { operation, sender, exception, context });
+                .Invoke(null, new[] { operation, source, exception, context });
         }
 
-        public static IOperationResult<TType> CreateResult<TType>(OperationType operation, object sender, TType result, IDataContext context = null)
+        public static IOperationResult<TType> CreateResult<TType>(OperationType operation, object source, TType result, IDataContext context = null)
         {
-            return new OperationResultImpl<TType>(operation, sender, null, false, result, context);
+            return new OperationResultImpl<TType>(operation, source, null, false, result, context);
         }
 
-        public static IOperationResult CreateResult([NotNull] Type resultType, OperationType operation, object sender, object result, IDataContext context = null)
+        public static IOperationResult CreateResult([NotNull] Type resultType, OperationType operation, object source, object result, IDataContext context = null)
         {
             Should.NotBeNull(resultType, nameof(resultType));
             return (IOperationResult)CreateResultMethod
                 .MakeGenericMethod(resultType)
-                .Invoke(null, new[] { operation, sender, result, context });
+                .Invoke(null, new[] { operation, source, result, context });
         }
 
         #endregion
