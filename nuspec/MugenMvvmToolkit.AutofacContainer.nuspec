@@ -16,7 +16,7 @@
         <dependency id="Autofac" version="[3.5.2, 3.6.0)" />
       </group>
       <group targetFramework=".NETStandard1.1">
-        <dependency id="Autofac" version="[4.0.0, 4.1.0)" />
+        <dependency id="Autofac" version="[4.0.1, 4.1.0)" />
       </group>      
     </dependencies>
   </metadata>
