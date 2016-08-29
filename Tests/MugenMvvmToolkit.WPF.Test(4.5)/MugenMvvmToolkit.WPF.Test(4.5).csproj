@@ -219,9 +219,9 @@
       <Name>MugenMvvmToolkit.Core%28PCL_WinRT%29</Name>
       <Aliases>global,core</Aliases>
     </ProjectReference>
-    <ProjectReference Include="..\..\IocContainers\MugenMvvmToolkit.AutofacContainer%28PCL%29\MugenMvvmToolkit.AutofacContainer%28PCL%29.csproj">
+    <ProjectReference Include="..\..\IocContainers\MugenMvvmToolkit.AutofacContainer%28PCL%29\MugenMvvmToolkit.AutofacContainer%28NET1.1%29.csproj">
       <Project>{c66077d8-dbfd-479d-adab-bf569263e914}</Project>
-      <Name>MugenMvvmToolkit.AutofacContainer%28PCL%29</Name>
+      <Name>MugenMvvmToolkit.AutofacContainer%28NET1.1%29</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\IocContainers\MugenMvvmToolkit.MugenContainer%28NET4.0%29\MugenMvvmToolkit.MugenContainer%28NET4.0%29.csproj">
       <Project>{048706a3-6ab2-47b3-9649-ad9d4f2b15bb}</Project>

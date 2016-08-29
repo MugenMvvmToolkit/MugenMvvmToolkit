@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Core(PCL_Silverlight)", "Core\MugenMvvmToolkit.Core(PCL_Silverlight)\MugenMvvmToolkit.Core(PCL_Silverlight).csproj", "{74D0561D-14CE-4BB7-911E-4F8EC86B203C}"
 EndProject
@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Silverligh
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WinPhone(8.0)", "Platforms\MugenMvvmToolkit.WinPhone(8.0)\MugenMvvmToolkit.WinPhone(8.0).csproj", "{DB5F3AF4-E212-43B4-8EA6-F78752FB9C15}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.AutofacContainer(PCL)", "IocContainers\MugenMvvmToolkit.AutofacContainer(PCL)\MugenMvvmToolkit.AutofacContainer(PCL).csproj", "{C66077D8-DBFD-479D-ADAB-BF569263E914}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.AutofacContainer(NET1.1)", "IocContainers\MugenMvvmToolkit.AutofacContainer(PCL)\MugenMvvmToolkit.AutofacContainer(NET1.1).csproj", "{C66077D8-DBFD-479D-ADAB-BF569263E914}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.AutofacContainer(NET4.0)", "IocContainers\MugenMvvmToolkit.AutofacContainer(NET4.0)\MugenMvvmToolkit.AutofacContainer(NET4.0).csproj", "{4B2877EA-DE1D-4CE0-984B-E285354011F2}"
 EndProject
