@@ -19,6 +19,7 @@
 using System;
 using Android.Runtime;
 using Android.Widget;
+using MugenMvvmToolkit.Android.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Android.Views
@@ -31,6 +32,7 @@ namespace MugenMvvmToolkit.Android.Views
         public UserControl(int viewId)
             : base(PlatformExtensions.CurrentActivity)
         {
+            SetOnHierarchyChangeListener(GlobalViewParentListener.Instance);
             Context.GetBindableLayoutInflater().Inflate(viewId, this, true);
         }
 
@@ -45,6 +47,6 @@ namespace MugenMvvmToolkit.Android.Views
 
         public virtual string DisplayName { get; set; }
 
-        #endregion
+        #endregion        
     }
 }
