@@ -30,7 +30,8 @@
     <DefineConstants>TRACE;NET4</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile></DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="MugenInjection.Core">
@@ -42,7 +43,7 @@
     <Reference Include="System.Windows.Presentation" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\MugenMvvmToolkit.AutofacContainer%28PCL%29\Properties\AssemblyInfoCommon.cs">
+    <Compile Include="..\MugenMvvmToolkit.AutofacContainer%28NET1.1%29\Properties\AssemblyInfoCommon.cs">
       <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
     <Compile Include="MugenContainer.cs" />

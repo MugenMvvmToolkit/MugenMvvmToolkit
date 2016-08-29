@@ -22,12 +22,12 @@
   </metadata>
   <files>
     <!-- PCL -->
-    <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.dll" target="lib\netstandard1.1\MugenMvvmToolkit.AutofacContainer.dll" />
-    <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.pdb" target="lib\netstandard1.1\MugenMvvmToolkit.AutofacContainer.pdb" />
+    <file src="..\bin\IocContainers\Autofac\netstandard\MugenMvvmToolkit.AutofacContainer.dll" target="lib\netstandard1.1\MugenMvvmToolkit.AutofacContainer.dll" />
+    <file src="..\bin\IocContainers\Autofac\netstandard\MugenMvvmToolkit.AutofacContainer.pdb" target="lib\netstandard1.1\MugenMvvmToolkit.AutofacContainer.pdb" />
 
     <!-- PCL OLD -->
-    <file src="..\bin\IocContainers\Autofac\PCL_Silverlight\MugenMvvmToolkit.AutofacContainer.dll" target="lib\portable-net45+win8+wp8+wpa81\MugenMvvmToolkit.AutofacContainer.dll" />
-    <file src="..\bin\IocContainers\Autofac\PCL_Silverlight\MugenMvvmToolkit.AutofacContainer.pdb" target="lib\portable-net45+win8+wp8+wpa81\MugenMvvmToolkit.AutofacContainer.pdb" />
+    <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.dll" target="lib\portable-net45+win8+wp8+wpa81\MugenMvvmToolkit.AutofacContainer.dll" />
+    <file src="..\bin\IocContainers\Autofac\PCL\MugenMvvmToolkit.AutofacContainer.pdb" target="lib\portable-net45+win8+wp8+wpa81\MugenMvvmToolkit.AutofacContainer.pdb" />
 	
     <!-- PCL SILVERLIGHT -->
     <file src="..\bin\IocContainers\Autofac\PCL_Silverlight\MugenMvvmToolkit.AutofacContainer.dll" target="lib\portable-net45+sl50+win+wp80\MugenMvvmToolkit.AutofacContainer.dll" />
