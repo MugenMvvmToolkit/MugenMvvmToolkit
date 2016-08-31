@@ -21,6 +21,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Linq;
 using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Interfaces.Collections;
 using MugenMvvmToolkit.Models;
@@ -142,14 +143,12 @@ namespace MugenMvvmToolkit.WinForms.Collections
 
         void INotifiableCollection.AddRange(IEnumerable collection, bool suspendNotifications)
         {
-            //ignoring suspendNotifications for binding list
-            ((INotifiableCollection)SourceCollection).AddRange(collection, false);
+            AddRange(collection.Cast<T>(), suspendNotifications);
         }
 
         void INotifiableCollection.RemoveRange(IEnumerable collection, bool suspendNotifications)
         {
-            //ignoring suspendNotifications for binding list
-            ((INotifiableCollection)SourceCollection).RemoveRange(collection, false);
+            RemoveRange(collection.Cast<T>(), suspendNotifications);
         }
 
         public event NotifyCollectionChangedEventHandler CollectionChangedUnsafe
@@ -178,14 +177,14 @@ namespace MugenMvvmToolkit.WinForms.Collections
 
         public void AddRange(IEnumerable<T> collection, bool suspendNotifications = true)
         {
-            //ignoring suspendNotifications for binding list
-            SourceCollection.AddRange(collection, false);
+            foreach (var item in collection)
+                Add(item);
         }
 
         public void RemoveRange(IEnumerable<T> collection, bool suspendNotifications = true)
         {
-            //ignoring suspendNotifications for binding list
-            SourceCollection.RemoveRange(collection, false);
+            foreach (var item in collection)
+                Remove(item);
         }
 
         public void Update(IEnumerable<T> items)
