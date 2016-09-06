@@ -111,8 +111,12 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
             private bool OptionsItemSelected(IMenuItem arg)
             {
-                Raise(arg, EventArgs.Empty);
-                return arg.ItemId == global::Android.Resource.Id.Home;
+                if (arg.ItemId == global::Android.Resource.Id.Home)
+                {
+                    Raise(arg, EventArgs.Empty);
+                    return true;
+                }
+                return false;
             }
 
             #endregion

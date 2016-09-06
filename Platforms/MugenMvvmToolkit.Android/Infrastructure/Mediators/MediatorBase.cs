@@ -206,7 +206,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
                 bool saved = false;
                 bool data;
-                if (!viewModel.Settings.Metadata.TryGetData(ViewModelConstants.StateNotNeeded, out data) || !data)
+                if (!viewModel.IsDisposed && (!viewModel.Settings.Metadata.TryGetData(ViewModelConstants.StateNotNeeded, out data) || !data))
                 {
                     PreserveViewModel(viewModel, outState);
                     saved = true;

@@ -41,24 +41,24 @@ namespace MugenMvvmToolkit
         {
             #region Fields
 
-            private readonly IList<IIocParameter> _parameters;
-
             #endregion
 
             #region Constructors
 
             public ParameterContainer(IList<IIocParameter> parameters)
             {
-                _parameters = parameters;
+                Parameters = parameters;
             }
 
             #endregion
 
             #region Properties
 
-            public IList<IIocParameter> Parameters => _parameters;
+            public IList<IIocParameter> Parameters { get; }
 
             #endregion
+
+            #region Methods
 
             #region Overrides of Parameter
 
@@ -69,6 +69,8 @@ namespace MugenMvvmToolkit
             }
 
             #endregion
+
+            #endregion
         }
 
         #endregion
@@ -76,47 +78,6 @@ namespace MugenMvvmToolkit
         #region Fields
 
         private static int _idCounter;
-        private readonly ILifetimeScope _container;
-        private readonly int _id;
-        private readonly IIocContainer _parent;
-
-        #endregion
-
-        #region Constructor
-
-        public AutofacContainer()
-            : this(new ContainerBuilder())
-        {
-        }
-
-        public AutofacContainer(ContainerBuilder containerBuilder)
-        {
-            Should.NotBeNull(containerBuilder, nameof(containerBuilder));
-            containerBuilder.RegisterSource(new AnyConcreteTypeNotAlreadyRegisteredSource
-            {
-#if !WINDOWS_PHONE7
-                RegistrationConfiguration = builder => builder.ExternallyOwned()
-#endif
-            });
-            _container = containerBuilder.Build();
-            _id = Interlocked.Increment(ref _idCounter);
-        }
-
-        private AutofacContainer(ILifetimeScope container, IIocContainer parent)
-        {
-            Should.NotBeNull(container, nameof(container));
-            _container = container;
-            _parent = parent;
-            var containerBuilder = new ContainerBuilder();
-            containerBuilder.RegisterSource(new AnyConcreteTypeNotAlreadyRegisteredSource
-            {
-#if !WINDOWS_PHONE7
-                RegistrationConfiguration = builder => builder.ExternallyOwned()
-#endif
-            });
-            containerBuilder.Update(container.ComponentRegistry);
-            _id = Interlocked.Increment(ref _idCounter);
-        }
 
         #endregion
 
@@ -124,7 +85,7 @@ namespace MugenMvvmToolkit
 
         public bool ThrowOnUnbind { get; set; }
 
-        public ILifetimeScope Container => _container;
+        public ILifetimeScope Container { get; }
 
         #endregion
 
@@ -132,7 +93,7 @@ namespace MugenMvvmToolkit
 
         protected IList<Parameter> ConvertParameters(IList<IIocParameter> parameters)
         {
-            if (parameters == null || parameters.Count == 0)
+            if ((parameters == null) || (parameters.Count == 0))
                 return Empty.Array<Parameter>();
 
             var list = new List<Parameter>();
@@ -192,18 +153,56 @@ namespace MugenMvvmToolkit
 
         #endregion
 
+        #region Constructor
+
+        public AutofacContainer()
+            : this(new ContainerBuilder())
+        {
+        }
+
+        public AutofacContainer(ContainerBuilder containerBuilder)
+        {
+            Should.NotBeNull(containerBuilder, nameof(containerBuilder));
+            containerBuilder.RegisterSource(new AnyConcreteTypeNotAlreadyRegisteredSource
+            {
+#if !WINDOWS_PHONE7
+                RegistrationConfiguration = builder => builder.ExternallyOwned()
+#endif
+            });
+            Container = containerBuilder.Build();
+            Id = Interlocked.Increment(ref _idCounter);
+        }
+
+        private AutofacContainer(ILifetimeScope container, IIocContainer parent)
+        {
+            Should.NotBeNull(container, nameof(container));
+            Container = container;
+            Parent = parent;
+            var containerBuilder = new ContainerBuilder();
+            containerBuilder.RegisterSource(new AnyConcreteTypeNotAlreadyRegisteredSource
+            {
+#if !WINDOWS_PHONE7
+                RegistrationConfiguration = builder => builder.ExternallyOwned()
+#endif
+            });
+            containerBuilder.Update(container.ComponentRegistry);
+            Id = Interlocked.Increment(ref _idCounter);
+        }
+
+        #endregion
+
         #region Implementation of IIocContainer
 
-        public int Id => _id;
+        public int Id { get; }
 
-        public IIocContainer Parent => _parent;
+        public IIocContainer Parent { get; }
 
-        object IIocContainer.Container => _container;
+        object IIocContainer.Container => Container;
 
         public IIocContainer CreateChild()
         {
             this.NotBeDisposed();
-            return new AutofacContainer(_container.BeginLifetimeScope(), this) { ThrowOnUnbind = ThrowOnUnbind };
+            return new AutofacContainer(Container.BeginLifetimeScope(), this) {ThrowOnUnbind = ThrowOnUnbind};
         }
 
         public object Get(Type service, string name = null, params IIocParameter[] parameters)
@@ -211,8 +210,8 @@ namespace MugenMvvmToolkit
             this.NotBeDisposed();
             Should.NotBeNull(service, nameof(service));
             if (name == null)
-                return _container.Resolve(service, ConvertParameters(parameters));
-            return _container.ResolveNamed(name, service, ConvertParameters(parameters));
+                return Container.Resolve(service, ConvertParameters(parameters));
+            return Container.ResolveNamed(name, service, ConvertParameters(parameters));
         }
 
         public IEnumerable<object> GetAll(Type service, string name = null, params IIocParameter[] parameters)
@@ -220,9 +219,9 @@ namespace MugenMvvmToolkit
             this.NotBeDisposed();
             Should.NotBeNull(service, nameof(service));
             if (name == null)
-                return (IEnumerable<object>)_container
+                return (IEnumerable<object>) Container
                     .Resolve(typeof(IEnumerable<>).MakeGenericType(service), ConvertParameters(parameters));
-            return (IEnumerable<object>)_container
+            return (IEnumerable<object>) Container
                 .ResolveNamed(name, typeof(IEnumerable<>).MakeGenericType(service), ConvertParameters(parameters));
         }
 
@@ -235,10 +234,11 @@ namespace MugenMvvmToolkit
                 builder.RegisterInstance(constValue).As(service);
             else
                 builder.RegisterInstance(constValue).Named(name, service).SingleInstance();
-            builder.Update(_container.ComponentRegistry);
+            builder.Update(Container.ComponentRegistry);
         }
 
-        public void BindToMethod(Type service, Func<IIocContainer, IList<IIocParameter>, object> methodBindingDelegate, DependencyLifecycle lifecycle, string name = null, params IIocParameter[] parameters)
+        public void BindToMethod(Type service, Func<IIocContainer, IList<IIocParameter>, object> methodBindingDelegate, DependencyLifecycle lifecycle, string name = null,
+            params IIocParameter[] parameters)
         {
             this.NotBeDisposed();
             Should.NotBeNull(service, nameof(service));
@@ -246,11 +246,11 @@ namespace MugenMvvmToolkit
             if (parameters == null)
                 parameters = Empty.Array<IIocParameter>();
             var builder = new ContainerBuilder();
-            IRegistrationBuilder<object, SimpleActivatorData, SingleRegistrationStyle> syntax = name == null
+            var syntax = name == null
                 ? builder.Register((context, args) => methodBindingDelegate(this, GetParameters(parameters, args))).As(service)
                 : builder.Register((context, args) => methodBindingDelegate(this, GetParameters(parameters, args))).Named(name, service);
             SetLifetimeScope(lifecycle, syntax.RegistrationData);
-            builder.Update(_container.ComponentRegistry);
+            builder.Update(Container.ComponentRegistry);
         }
 
         public void Bind(Type service, Type typeTo, DependencyLifecycle dependencyLifecycle, string name = null, params IIocParameter[] parameters)
@@ -259,12 +259,11 @@ namespace MugenMvvmToolkit
             Should.NotBeNull(service, nameof(service));
             Should.NotBeNull(typeTo, nameof(typeTo));
             var builder = new ContainerBuilder();
-            IRegistrationBuilder<object, ConcreteReflectionActivatorData, SingleRegistrationStyle> syntax = name == null
+            var syntax = name == null
                 ? builder.RegisterType(typeTo).As(service)
                 : builder.RegisterType(typeTo).Named(name, service);
             if (parameters != null)
-            {
-                for (int index = 0; index < parameters.Length; index++)
+                for (var index = 0; index < parameters.Length; index++)
                 {
                     var iocParameter = parameters[index];
                     var parameter = ConvertParameter(iocParameter);
@@ -273,9 +272,8 @@ namespace MugenMvvmToolkit
                     else
                         syntax.WithParameter(parameter);
                 }
-            }
             SetLifetimeScope(dependencyLifecycle, syntax.RegistrationData);
-            builder.Update(_container.ComponentRegistry);
+            builder.Update(Container.ComponentRegistry);
         }
 
         public void Unbind(Type service)
@@ -290,8 +288,8 @@ namespace MugenMvvmToolkit
             if (IsDisposed)
                 return false;
             if (name == null)
-                return _container.IsRegistered(service);
-            return _container.IsRegisteredWithName(name, service);
+                return Container.IsRegistered(service);
+            return Container.IsRegisteredWithName(name, service);
         }
 
         object IServiceProvider.GetService(Type serviceType)
@@ -304,7 +302,7 @@ namespace MugenMvvmToolkit
             if (IsDisposed)
                 return;
             IsDisposed = true;
-            _container.Dispose();
+            Container.Dispose();
             var handler = Disposed;
             if (handler != null)
             {
