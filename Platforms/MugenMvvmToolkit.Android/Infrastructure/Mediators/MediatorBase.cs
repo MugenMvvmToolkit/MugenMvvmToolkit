@@ -372,13 +372,13 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         private static void SetPreferenceParent(Preference preference)
         {
-            var @group = preference as PreferenceGroup;
-            if (@group == null)
+            var group = preference as PreferenceGroup;
+            if (group == null)
                 return;
-            for (int i = 0; i < @group.PreferenceCount; i++)
+            for (int i = 0; i < group.PreferenceCount; i++)
             {
-                var p = @group.GetPreference(i);
-                p.SetBindingMemberValue(AttachedMembers.Object.Parent, @group);
+                var p = group.GetPreference(i);
+                p.SetBindingMemberValue(AttachedMembers.Object.Parent, group);
                 SetPreferenceParent(p);
             }
         }
