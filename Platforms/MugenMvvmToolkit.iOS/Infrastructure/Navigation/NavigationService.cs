@@ -34,7 +34,7 @@ using MugenMvvmToolkit.iOS.Views;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
-using MugenMvvmToolkit.Models.Messages;
+using MugenMvvmToolkit.ViewModels;
 using UIKit;
 
 namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
@@ -319,7 +319,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             _window = null;
             _getOrCreateController = null;
             _restoreNavigationController = null;
-            (CurrentContent?.DataContext() as IEventPublisher)?.Publish(this, StateChangedMessage.Empty);
+            (CurrentContent?.DataContext() as IViewModel)?.InvalidateCommands();
         }
 
         private bool GoBackInternal()

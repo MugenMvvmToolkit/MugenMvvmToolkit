@@ -60,6 +60,10 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
         public override bool CanWrite => false;
 
+        protected override bool IsDebuggable => Sources[0].Path.IsDebuggable;
+
+        protected override string DebugTag => Sources[0].Path.DebugTag;
+
         public override bool DisableEqualityChecking
         {
             get { return false; }
@@ -98,11 +102,20 @@ namespace MugenMvvmToolkit.Binding.Accessors
             {
                 IBindingPathMembers members = _sources[i].GetPathMembers(true);
                 object value = members.LastMember.GetValue(members.PenultimateValue, null);
+                if (members.Path.IsDebuggable)
+                    DebugInfo($"MultiBinding got a raw value: '{value}', for path: '{members.Path}'", new[] { value, members });
                 if (value.IsDoNothing())
                     return BindingConstants.DoNothing;
                 if (value.IsUnsetValue())
                     return BindingConstants.UnsetValue;
                 values[i] = value;
+            }
+            if (_sources[0].Path.IsDebuggable)
+            {
+                DebugInfo("MultiBinding applying format expression", new object[] { _formatExpression, values });
+                var result = _formatExpression(context, values);
+                DebugInfo($"MultiBinding format expression returns value: '{result}'");
+                return result;
             }
             return _formatExpression(context, values);
         }

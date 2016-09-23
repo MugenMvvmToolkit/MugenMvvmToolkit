@@ -18,9 +18,10 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
+using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.Exceptions;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
@@ -44,15 +45,16 @@ namespace MugenMvvmToolkit.Xamarin.Forms.MarkupExtensions
             var path = GetTargetPropertyName(provideValueTarget, serviceProvider);
             if (path == null)
             {
-                Tracer.Error("{0}: DataBindingExtension cannot obtain target property on '{1}' object", GetType().Name, targetObject);
+                Tracer.Error($"{GetType().Name}: DataBindingExtension cannot obtain target property on '{targetObject}' object");
                 return GetEmptyValue();
             }
 
+            var isDesignMode = ServiceProvider.IsDesignMode;
             var binding = HasValue
                 ? CreateBindingBuilder(targetObject, path).Build()
-                : CreateBinding(targetObject, path);
+                : CreateBinding(targetObject, path, isDesignMode);
 
-            if (ServiceProvider.DesignTimeManager.IsDesignMode && binding is InvalidDataBinding)
+            if (isDesignMode && binding is InvalidDataBinding)
                 throw new DesignTimeException(((InvalidDataBinding)binding).Exception);
             return GetDefaultValue(targetObject, null, binding, path);
         }
@@ -78,7 +80,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.MarkupExtensions
                 return GetTargetPropertyNameDelegate(provideValueTarget, serviceProvider);
 
             //Making some reflection magic.
-            var xamlNode = GetValue(provideValueTarget, "Node", false);
+            var xamlNode = GetValue(provideValueTarget, "Node");
             if (xamlNode == null)
             {
                 var xamlNodeProvider = GetValue(serviceProvider, "IXamlNodeProvider");
@@ -101,14 +103,55 @@ namespace MugenMvvmToolkit.Xamarin.Forms.MarkupExtensions
             return (string)GetValue(xmlName, "LocalName");
         }
 
-        private static object GetValue(object item, string property, bool throwOnError = true)
+
+        private struct CacheKey
+        {
+            public readonly Type Type;
+            public readonly string Name;
+
+            public CacheKey(Type type, string name)
+            {
+                Type = type;
+                Name = name;
+            }
+
+            private sealed class TypeNameEqualityComparer : IEqualityComparer<CacheKey>
+            {
+                public bool Equals(CacheKey x, CacheKey y)
+                {
+                    return x.Type.Equals(y.Type) && string.Equals(x.Name, y.Name);
+                }
+
+                public int GetHashCode(CacheKey obj)
+                {
+                    unchecked
+                    {
+                        return (obj.Type.GetHashCode() * 397) ^ obj.Name.GetHashCode();
+                    }
+                }
+            }
+
+            public static readonly IEqualityComparer<CacheKey> TypeNameComparerInstance = new TypeNameEqualityComparer();
+        }
+
+        private static readonly Dictionary<CacheKey, Func<object, object>> PropertiesCache = new Dictionary<CacheKey, Func<object, object>>(CacheKey.TypeNameComparerInstance);
+
+        private static object GetValue(object item, string property)
         {
             if (item == null)
                 return null;
-            var member = BindingServiceProvider.MemberProvider.GetBindingMember(item.GetType(), property, true, throwOnError);
-            if (member == null)
-                return null;
-            return member.GetValue(item, null);
+            var key = new CacheKey(item.GetType(), property);
+            Func<object, object> func;
+            if (!PropertiesCache.TryGetValue(key, out func))
+            {
+                var propertyInfo = key.Type.GetPropertyEx(property, MemberFlags.Public | MemberFlags.NonPublic | MemberFlags.Instance);
+                if (propertyInfo != null)
+                {
+                    func = ServiceProvider.ReflectionManager.GetMemberGetter<object>(propertyInfo);
+                    PropertiesCache[key] = func;
+                }
+            }
+            return func?.Invoke(item);
         }
 
         #endregion

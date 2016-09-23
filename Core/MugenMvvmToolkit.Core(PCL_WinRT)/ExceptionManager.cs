@@ -26,8 +26,8 @@ namespace MugenMvvmToolkit
     {
         #region Fields
 
-        internal const string CommandCannotBeExecutedString =
-            "The method Execute in RelayCommand cannot be executed because the CanExecute method returns a false value.";
+        internal const string CommandCannotBeExecutedString = "The method Execute in RelayCommand cannot be executed because the CanExecute method returns a false value.";
+        internal const string WindowClosedString = "The dialog is closed. Before close the dialog you should show it.";
 
         #endregion
 
@@ -116,12 +116,6 @@ namespace MugenMvvmToolkit
         internal static Exception CommandCannotBeExecuted()
         {
             return new InvalidOperationException(CommandCannotBeExecutedString);
-        }
-
-        internal static Exception WindowClosed()
-        {
-            return new InvalidOperationException(
-                "The dialog is closed. Before close the dialog you should show it.");
         }
 
         internal static Exception IntOutOfRangeCollection(string paramName)

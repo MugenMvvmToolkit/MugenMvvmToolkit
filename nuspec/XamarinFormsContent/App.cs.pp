@@ -6,11 +6,11 @@ namespace $rootnamespace$
 {
     public class App : Application
     {
-        public App()
+        public App(XamarinFormsBootstrapperBase.IPlatformService platformService)
         {
             XamarinFormsBootstrapperBase bootstrapper = XamarinFormsBootstrapperBase.Current ??
-                                                        new Bootstrapper<Core.App>(new AutofacContainer());
-            MainPage = bootstrapper.Start();
+                                                        new Bootstrapper<Core.App>(platformService, new AutofacContainer());
+            bootstrapper.Start();
         }
     }
 }

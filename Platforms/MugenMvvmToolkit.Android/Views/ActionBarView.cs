@@ -61,7 +61,7 @@ namespace MugenMvvmToolkit.Android.Views
 
         private readonly int _resourceId;
         private readonly int _tabContentId;
-        private IList<string> _bindings;
+        private string _bind;
 
         #endregion
 
@@ -84,15 +84,16 @@ namespace MugenMvvmToolkit.Android.Views
             SetMinimumWidth(0);
             SetMinimumHeight(0);
             Visibility = ViewStates.Gone;
-            TypedArray typedArray = Context.ObtainStyledAttributes(attrs, Resource.Styleable.ActionBar);
+            TypedArray typedArray = Context.ObtainStyledAttributes(attrs, Resource.Styleable.Binding);
             try
             {
-                _resourceId = typedArray.GetResourceId(Resource.Styleable.ActionBar_ActionBarTemplate, int.MinValue);
-                _tabContentId = typedArray.GetResourceId(Resource.Styleable.ActionBar_TabContentId, int.MinValue);
+                _resourceId = typedArray.GetResourceId(Resource.Styleable.Binding_ActionBarTemplate, int.MinValue);
+                _tabContentId = typedArray.GetResourceId(Resource.Styleable.Binding_TabContentId, int.MinValue);
             }
             finally
             {
                 typedArray.Recycle();
+                typedArray.Dispose();
             }
         }
 
@@ -148,17 +149,16 @@ namespace MugenMvvmToolkit.Android.Views
                 }
             }
 
-            if (_bindings == null)
+            if (string.IsNullOrEmpty(_bind))
                 return;
-            for (int i = 0; i < _bindings.Count; i++)
-                BindingServiceProvider.BindingProvider.CreateBindingsFromString(actionBar, _bindings[i], null);
+            BindingServiceProvider.BindingProvider.CreateBindingsFromString(actionBar, _bind, null);
             this.ClearBindingsRecursively(true, true, PlatformExtensions.AggressiveViewCleanup);
             this.RemoveFromParent();
         }
 
-        public IList<IDataBinding> SetBindings(IList<string> bindings)
+        public IList<IDataBinding> SetBindings(string bind)
         {
-            _bindings = bindings;
+            _bind = bind;
             return Empty.Array<IDataBinding>();
         }
 

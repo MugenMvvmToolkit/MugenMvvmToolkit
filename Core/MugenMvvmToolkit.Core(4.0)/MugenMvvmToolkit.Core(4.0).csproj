@@ -164,11 +164,8 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\DelegateComparer.cs">
       <Link>Infrastructure\DelegateComparer.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\DesignTimeInitializer.cs">
-      <Link>Infrastructure\DesignTimeInitializer.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\DesignTimeManagerImpl.cs">
-      <Link>Infrastructure\DesignTimeManagerImpl.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\DesignBootstrapperBase.cs">
+      <Link>Infrastructure\DesignBootstrapperBase.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\DisplayNameProvider.cs">
       <Link>Infrastructure\DisplayNameProvider.cs</Link>
@@ -289,9 +286,6 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\IBootstrapCodeBuilder.cs">
       <Link>Interfaces\IBootstrapCodeBuilder.cs</Link>
-    </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\IDesignTimeManager.cs">
-      <Link>Interfaces\IDesignTimeManager.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\IDisplayNameProvider.cs">
       <Link>Interfaces\IDisplayNameProvider.cs</Link>

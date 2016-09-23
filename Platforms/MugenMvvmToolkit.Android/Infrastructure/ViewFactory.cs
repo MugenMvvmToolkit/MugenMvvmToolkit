@@ -17,35 +17,77 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using Android.Content;
 using Android.Content.Res;
 using Android.Util;
 using Android.Views;
 using MugenMvvmToolkit.Android.Binding;
-using MugenMvvmToolkit.Android.DataConstants;
 using MugenMvvmToolkit.Android.Interfaces;
 using MugenMvvmToolkit.Android.Models;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Android.Infrastructure
 {
     public class ViewFactory : IViewFactory
     {
-        #region Fields
+        #region Methods
 
-        private static readonly int[] BindingAttrIndex;
-
-        #endregion
-
-        #region Constructors
-
-        static ViewFactory()
+        protected virtual ViewResult GetViewResult(View view, Context context, IAttributeSet attrs)
         {
-            BindingAttrIndex = new[] { Resource.Styleable.Binding_Bind, Resource.Styleable.Binding_Bindings };
+            var type = view.GetType();
+            var attributes = context.ObtainStyledAttributes(attrs, Resource.Styleable.Binding);
+            try
+            {
+                if (attributes.IndexCount == 0)
+                    return new ViewResult(view, null, null, null, null, null, null, null, null);
+                var bind = ReadStringAttributeValue(attributes, Resource.Styleable.Binding_Bind, null, null, null);
+                var itemTemplateId = ReadAttributeValueId(attributes, Resource.Styleable.Binding_ItemTemplate, view, type, AttachedMembers.ViewGroup.ItemTemplate);
+                var dropDownItemTemplate = ReadAttributeValueId(attributes, Resource.Styleable.Binding_DropDownItemTemplate, view, type, AttachedMembers.AdapterView.DropDownItemTemplate);
+                var contentTemplate = ReadAttributeValueId(attributes, Resource.Styleable.Binding_ContentTemplate, view, type, AttachedMembers.ViewGroup.ContentTemplate);
+                var menuTemplate = ReadAttributeValueId(attributes, Resource.Styleable.Binding_MenuTemplate, view, type, AttachedMembers.Toolbar.MenuTemplate);
+                var popupMenuTemplate = ReadAttributeValueId(attributes, Resource.Styleable.Binding_PopupMenuTemplate, view, type, AttachedMembers.View.PopupMenuTemplate);
+                var popupMenuEvent = ReadStringAttributeValue(attributes, Resource.Styleable.Binding_PopupMenuEvent, view, type, AttachedMembers.View.PopupMenuEvent);
+                var placementTargetPath = ReadStringAttributeValue(attributes, Resource.Styleable.Binding_PlacementTargetPath, view, type, AttachedMembers.View.PopupMenuPlacementTargetPath);
+                return new ViewResult(view, bind, itemTemplateId, dropDownItemTemplate, contentTemplate, menuTemplate, popupMenuTemplate, popupMenuEvent, placementTargetPath);
+
+            }
+            finally
+            {
+                attributes.Recycle();
+                attributes.Dispose();
+            }
+        }
+
+        internal static string ReadStringAttributeValue(Context context, IAttributeSet attrs, int[] groupId, int index, View view, Type viewType, string attachedPropertyName)
+        {
+            var typedArray = context.Theme.ObtainStyledAttributes(attrs, groupId, 0, 0);
+            try
+            {
+                return ReadStringAttributeValue(typedArray, index, view, viewType, attachedPropertyName);
+            }
+            finally
+            {
+                typedArray.Recycle();
+                typedArray.Dispose();
+            }
+        }
+
+        private static string ReadStringAttributeValue(TypedArray typedArray, int index, View view, Type viewType, string attachedPropertyName)
+        {
+            var st = typedArray.GetString(index);
+            if (attachedPropertyName != null && !string.IsNullOrEmpty(st))
+                BindingServiceProvider.MemberProvider.GetBindingMember(viewType, attachedPropertyName, false, false)?.SetSingleValue(view, st);
+            return st;
+        }
+
+        private static int? ReadAttributeValueId(TypedArray typedArray, int requiredAttributeId, View view, Type viewType, string attachedPropertyName)
+        {
+            var result = typedArray.GetResourceId(requiredAttributeId, int.MinValue);
+            if (result == int.MinValue)
+                return null;
+            if (attachedPropertyName != null)
+                BindingServiceProvider.MemberProvider.GetBindingMember(viewType, attachedPropertyName, false, false)?.SetSingleValue(view, result);
+            return result;
         }
 
         #endregion
@@ -55,7 +97,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
         public virtual ViewResult Create(string name, Context context, IAttributeSet attrs)
         {
             Should.NotBeNull(name, nameof(name));
-            Type type = TypeCache<View>.Instance.GetTypeByName(name, true, true);
+            var type = TypeCache<View>.Instance.GetTypeByName(name, true, true);
             return Create(type, context, attrs);
         }
 
@@ -72,122 +114,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
         {
             Should.NotBeNull(view, nameof(view));
             Should.NotBeNull(attrs, nameof(attrs));
-            return new ViewResult(view, GetDataContext(view, view.Context, attrs));
-        }
-
-        #endregion
-
-        #region Methods
-
-        protected virtual IDataContext GetDataContext(View view, Context context, IAttributeSet attrs)
-        {
-            var dataContext = new DataContext();
-            var strings = ReadStringAttributeValue(context, attrs, Resource.Styleable.Binding, BindingAttrIndex);
-            if (strings != null && strings.Count != 0)
-                dataContext.Add(ViewFactoryConstants.Bindings, strings);
-
-            SetAttributeValue(view, context, attrs, Resource.Styleable.ItemsControl,
-                Resource.Styleable.ItemsControl_ItemTemplate, AttachedMemberConstants.ItemTemplate, dataContext,
-                ViewFactoryConstants.ItemTemplateId);
-
-            SetAttributeValue(view, context, attrs, Resource.Styleable.ItemsControl,
-                Resource.Styleable.ItemsControl_DropDownItemTemplate, AttachedMembers.AdapterView.DropDownItemTemplate,
-                dataContext,
-                ViewFactoryConstants.DropDownItemTemplateId);
-
-            SetAttributeValue(view, context, attrs, Resource.Styleable.Control,
-                Resource.Styleable.Control_ContentTemplate, AttachedMemberConstants.ContentTemplate, dataContext,
-                ViewFactoryConstants.ContentTemplateId);
-
-            SetAttributeValue(view, context, attrs, Resource.Styleable.Menu,
-                Resource.Styleable.Menu_MenuTemplate, AttachedMembers.Toolbar.MenuTemplate, dataContext,
-                ViewFactoryConstants.MenuTemplateId);
-
-
-            SetAttributeValue(view, context, attrs, Resource.Styleable.Menu,
-                Resource.Styleable.Menu_PopupMenuTemplate, AttachedMembers.View.PopupMenuTemplate, dataContext,
-                ViewFactoryConstants.PopupMenuTemplateId);
-
-            strings = ReadStringAttributeValue(context, attrs, Resource.Styleable.Menu,
-                new[] { Resource.Styleable.Menu_PopupMenuEvent });
-            if (strings != null && strings.Count > 0)
-            {
-                string eventName = strings[0];
-                dataContext.Add(ViewFactoryConstants.PopupMenuEvent, eventName);
-                IBindingMemberInfo member = BindingServiceProvider
-                    .MemberProvider
-                    .GetBindingMember(view.GetType(), AttachedMembers.View.PopupMenuEvent, false, false);
-                if (member != null)
-                    member.SetSingleValue(view, eventName);
-            }
-
-            strings = ReadStringAttributeValue(context, attrs, Resource.Styleable.Menu,
-                new[] { Resource.Styleable.Menu_PlacementTargetPath });
-            if (strings != null && strings.Count > 0)
-            {
-                string path = strings[0];
-                dataContext.Add(ViewFactoryConstants.PlacementTargetPath, path);
-                IBindingMemberInfo member = BindingServiceProvider
-                    .MemberProvider
-                    .GetBindingMember(view.GetType(), AttachedMembers.View.PopupMenuPlacementTargetPath, false, false);
-                if (member != null)
-                    member.SetSingleValue(view, path);
-            }
-
-            return dataContext;
-        }
-
-        private static void SetAttributeValue(View view, Context context, IAttributeSet attrs, int[] groupId,
-            int requiredAttributeId, string attachedMemberName, IDataContext dataContext, DataConstant<int> constant)
-        {
-            int? value = ReadAttributeValueId(context, attrs, groupId, requiredAttributeId);
-            if (!value.HasValue)
-                return;
-            dataContext.Add(constant, value.Value);
-            IBindingMemberInfo member = BindingServiceProvider
-                .MemberProvider
-                .GetBindingMember(view.GetType(), attachedMemberName, false, false);
-            if (member != null)
-                member.SetSingleValue(view, value);
-        }
-
-        internal static List<string> ReadStringAttributeValue(Context context, IAttributeSet attrs, int[] groupId,
-            ICollection<int> requiredAttributeIds)
-        {
-            TypedArray typedArray = context.Theme.ObtainStyledAttributes(attrs, groupId, 0, 0);
-            try
-            {
-                List<string> result = null;
-                foreach (int attributeId in requiredAttributeIds)
-                {
-                    string s = typedArray.GetString(attributeId);
-                    if (string.IsNullOrEmpty(s))
-                        continue;
-                    if (result == null)
-                        result = new List<string>();
-                    result.Add(s);
-                }
-                return result;
-            }
-            finally
-            {
-                typedArray.Recycle();
-            }
-        }
-
-        private static int? ReadAttributeValueId(Context context, IAttributeSet attrs, int[] groupId,
-            int requiredAttributeId)
-        {
-            TypedArray typedArray = context.Theme.ObtainStyledAttributes(attrs, groupId, 0, 0);
-            try
-            {
-                int result = typedArray.GetResourceId(requiredAttributeId, int.MinValue);
-                return result == int.MinValue ? (int?)null : result;
-            }
-            finally
-            {
-                typedArray.Recycle();
-            }
+            return GetViewResult(view, view.Context, attrs);
         }
 
         #endregion

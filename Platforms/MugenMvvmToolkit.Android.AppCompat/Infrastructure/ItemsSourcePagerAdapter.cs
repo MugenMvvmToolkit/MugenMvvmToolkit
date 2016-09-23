@@ -114,20 +114,16 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
         {
             if (ReferenceEquals(value, _itemsSource) || !_viewPager.IsAlive() || !this.IsAlive())
                 return;
-            if (_weakHandler == null)
-                _itemsSource = value;
-            else
-            {
-                var notifyCollectionChanged = _itemsSource as INotifyCollectionChanged;
-                if (notifyCollectionChanged != null)
-                    notifyCollectionChanged.CollectionChanged -= _weakHandler;
-                _itemsSource = value;
-                notifyCollectionChanged = _itemsSource as INotifyCollectionChanged;
-                if (notifyCollectionChanged != null)
-                    notifyCollectionChanged.CollectionChanged += _weakHandler;
-            }
+            var notifyCollectionChanged = _itemsSource as INotifyCollectionChanged;
+            if (notifyCollectionChanged != null)
+                notifyCollectionChanged.CollectionChanged -= _weakHandler;
+            _itemsSource = value;
             if (notifyDataSet)
                 NotifyDataSetChanged();
+            notifyCollectionChanged = _itemsSource as INotifyCollectionChanged;
+            if (notifyCollectionChanged != null)
+                notifyCollectionChanged.CollectionChanged += _weakHandler;
+
             if (value != null && !_isRestored && _viewPager.GetBindingMemberValue(AttachedMembersCompat.ViewPager.RestoreSelectedIndex).GetValueOrDefault(true))
             {
                 _isRestored = true;
@@ -141,6 +137,12 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
                 NotifyDataSetChanged();
             else
                 SetItemsSource(null, false);
+        }
+
+        protected virtual Object InstantiateItemInternal(ViewGroup container, object item)
+        {
+            return (Object)PlatformExtensions
+                .GetContentView(container, container.Context, item, _itemTemplateProvider.GetTemplateId(), _itemTemplateProvider.GetDataTemplateSelector());
         }
 
         private void TryRestoreSelectedIndex()
@@ -209,8 +211,7 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
             var viewModel = item as IViewModel;
             if (viewModel != null)
                 viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.StateNotNeeded, true);
-            var view = (Object)PlatformExtensions
-                .GetContentView(container, container.Context, item, _itemTemplateProvider.GetTemplateId(), _itemTemplateProvider.GetDataTemplateSelector());
+            var view = InstantiateItemInternal(container, item);
             var fragment = view as Fragment;
             if (fragment == null)
                 container.AddView((View)view);

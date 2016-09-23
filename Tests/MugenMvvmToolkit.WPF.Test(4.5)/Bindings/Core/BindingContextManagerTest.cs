@@ -259,6 +259,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             bool contextChanged = false;
             var context = new object();
             IEventListener eventListener = null;
+            var item = new object();
             var memberMock = new BindingMemberInfoMock
             {
                 TryObserveMember = (o, listener) =>
@@ -269,7 +270,12 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             };
             var managerMock = new VisualTreeManagerMock
             {
-                FindParent = o => null,
+                FindParent = o =>
+                {
+                    if (o == item)
+                        return null;
+                    return item;
+                },
                 GetParentMember = type =>
                 {
                     type.ShouldEqual(context.GetType());
@@ -278,6 +284,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             };
 
             var manager = CreateContextManager(managerMock);
+            manager.GetBindingContext(item).Value = item;
             var bindingContext = manager.GetBindingContext(context);
             bindingContext.ValueChanged += (sender, args) => contextChanged = true;
             eventListener.ShouldNotBeNull();

@@ -50,6 +50,7 @@ namespace MugenMvvmToolkit.Binding.DataConstants
         public static readonly DataConstant<bool> Observable;
         public static readonly DataConstant<bool> Optional;
         public static readonly DataConstant NoCache;
+        public static readonly DataConstant<string> DebugTag;
 
         #endregion
 
@@ -78,6 +79,7 @@ namespace MugenMvvmToolkit.Binding.DataConstants
             Observable = DataConstant.Create<bool>(type, nameof(Observable));
             Optional = DataConstant.Create<bool>(type, nameof(Optional));
             NoCache = DataConstant.Create(type, nameof(NoCache));
+            DebugTag = DataConstant.Create<string>(type, nameof(DebugTag), true);
         }
 
         #endregion

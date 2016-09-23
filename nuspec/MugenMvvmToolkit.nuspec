@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit</id>
-    <version>5.1.0</version>
+    <version>6.0.0</version>
     <title>MugenMvvmToolkit</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
@@ -37,23 +37,127 @@
     </description>
     <releaseNotes>
 Core:
-      - Fixed incorrect behavior of the SuspendNotifications method in the SynchronizedNotifiableCollection class when using in UI thread.
-      - Removed the IViewModelSettings.DisposeIocContainer property.
-      - Added the IConfigurableWrapperManager interface.
-      - Updated the WrapperRegistrationModuleBase class now it uses the IConfigurableWrapperManager interface instead of the WrapperManager class.
+      - Fixed 'Dynamic assemblies cannot be loaded'
+      - Removed the setter from the IHasDisplayName.DisplayName property.
+      - Removed the setter from the IHasOperationResult.OperationResult property.
+      - Removed the EnsureNotDisposed method call in some methods.
+      - Removed the IVisualStateManager interface.
+      - Removed the validate state from the ITrackingCollection interface.
+      - Removed ToolkitExtensions.LoadModules method.
+      - Removed INavigationProviderEx interface
+      - Removed the IViewModelSetting.Clone method.
+      - Removed the IMvvmApplication.ViewModelSettings property.
+      - Removed null-check from the IndexOf methods.
+      - Removed ISerializer.AddKnownType and ISerializer.RemoveKnownType methods.
+      - Removed the GridViewModel.OnSelectedItemPropertyChanged method.	  
+      - Changed the ShowView method implementation.
+      - Changed the default implementation of the IStateTransitionManager interface.
+      - Changed the IStateTransitionManager interface.
+      - Changed the IOperationCallbackManager interface.
+      - Changed the behavior of the DynamicMultiViewModelPresenter class if a view model is already opened instead of adding the view model is selected.
+      - Changed the behavior of the DynamicViewModelWindowPresenter class if a view model is already opened instead of showing the view model is activated.
+      - Changed the behavior of the DynamicViewModelNavigationPresenter class if a view model is already opened instead of showing the view model is brought to front.
+      - Changed default module priority.
+      - Changed design time support
+      - Renamed the AuditAction enum to the ViewModelLifecycleType enum.
+      - Moved the navigation constants from the NavigationProvider class to the NavigationProviderConstants class.
+      - Moved the DefaultOperationCallbackFactory.ContinueOnCapturedContextConstant constant to the OpeartionCallbackConstants.ContinueOnCapturedContext constant.
+      - Reduced name of the data members.
+      - Completely rewritten the SynchronizedNotifiableCollection.
+      - Completely rewritten the OrderedNotifiableCollection.
+      - Completely rewritten the FilterableNotifiableCollection.	  
+      - Added an empty constructor for the serializable classes.      
+      - Added the ViewModelConstants.Id constant that allows you to set the view model id manually.
+      - Added the IOperationCallbackStateManager interface that allows to control the process of operation callback serialization.
+      - Added the IViewModelProvider.GetCreatedViewModels method that returns the cached view models.
+      - Added the IOperationCallbackManager.SetResult method that allows to set a result for all operations.
+      - Added the ISerializer.IsSerializable method.
+      - Added the IMvvmApplication.Start method.
+      - Added the SerializableOperationCallbackFactory class for WPF, SL, WinForms platforms.
+      - Added the support for the IReadOnlyCollection interface and the IReadOnlyList interface.
+      - Added the ServiceProvider.ViewModelSettingsFactory delegate that allows to create an instance of the IViewModelSetting for the specified view model instead of IViewModelSetting.Clone method.
+      - Added the RelayCommandBase.IgnoreProperties property.
+      - Added the ViewMappingProvider.IsSupportedUriNavigation property.
+      - Added the AsyncRelayCommand class as an alternative of the RelayCommandBase.FromAsyncHandler method.
+      - Added the IBusyInfo interface that allows to control several busy messages.
+      - Added the IViewModel.BusyInfo property.
+      - Added MultiViewModel.CloseViewModelsOnClose property.
+      - Added the IBootstrapCodeBuilder interface that allows to generate bootstrap code to reduce overhead of reflection and increase boot speed.
+      - Added the INotifiableCollection.CollectionChangedUnsafe event.
+      - Added InvalidateCommands, CanInvalidateCommands methods.
+      - Added the IRelayCommand.IsExecuting property
+      - Added parameter to control notification suspend for the AddRange method.
+      - Updated the bootstrappers to work with the IMvvmApplication.Start method.
+      - Updated the ExpressionReflectionManager class.
 
 Binding:
-      - Removed null-check for the method call expressions.
-      - Optimized memory usage for the AttachedBindingMember class.
+      - Fixed exception that can be throw when using the indexer path in some cases.
+      - Fixed incorrect handling of the ILambdaExpressionNode expression.
+      - Fixed incorrect interpolated strings check.
+      - Fixed DataContext binding.
+      - Removed support for private properties and fields.
+      - Removed the IDataBinding.BindingException event, instead of it used the IDataBinding.BindingUpdated event.
+      - Changed the $OneTime macros implementation.
+      - Changed the implementation of the binding path factory.
+      - Moved the BindingErrorProviderBase.ClearErrorsConstant property to the BindingConstants.ClearErrors property.
+      - Reordered parameters in the IBindingParser.Parse method.
+      - Added ability to debug binding using debug tag parameter.
+      - Added the HasStablePath feature for binding, it improves the performance for bindig where the type of the path is not changed depending on the data context.
+      - Added the Observable feature for binding, this value specifies whether the binding should observe the binding path.
+      - Added optional binding feature, optional binding does not throw an error if the path is not available.
+      - Added the BindingServiceProvider.BindingExceptionHandler property that allows to handle binding exceptions.
+      - Added the check for the properties on the ability to read.
+      - Added the IBindingSourceAccessor.DisableEqualityChecking property that allows to disable the property check for equality.
+      - Added the $binding keyword macros.
+      - Added the IBindingProvider.BuildFromLambdaExpression method and IBindingProvider.BuildParameterFromLambdaExpression method instead of LambdaExpressionToBindingExpressionConverter methods.
+      - Added the DisableEqualityCheckingBehavior class.
+      - Added the IDataContext parameter for CreateBuildersFromString and CreateBindingsFromString methods.
+      - Added support for static $$self, $$this keywords.
+      - Added the IBindingProvider.CreateBindingsFromStringWithBindings method
+      - Updated the WeakEventManager class.
+      - Updated enum converter.
+      - Optimized memory usage for WeakEventManager.
+      - Optimized the BindingMemberInfo class.
 
 Android:
-      - Removed the BindableLayoutInflater class.
-      - Changed the view creation factory.
-      - Optimized the cache strategy for weak references.
-	  -	Increased the bindings performance.
+      - Fixed incorrect behavior of ViewPager.SelectedItem.
+      - Fixed NRE on beta android releases.
+      - Fixed nested fragment restoration.
+      - Removed complex binding path support instead of Drawer.IsOpened use the DrawerIsOpened.
+      - Removed the ItemsSourceRecyclerAdapter.ClearDataContext property.
+      - Changed the GetOrCreateMediator method from internal to public.
+      - Added the IMvvmActivityMediator.ActivityResult event.
+      - Added the IMvvmFragmentMediator.IsDestroyed property.
+      - Added fast TextView.Text property implementation using JNI.
+      - Added the PlatformExtensions.TryDisposeView property.
+      - Added the SelectedItem attached property for Spinner.
+      - Added support for nested ViewPager with fragments.
+      - Added fragmentManager.IsDestroyed check in FinishUpdate.
+      - Added the AttachedMembers.AutoCompleteTextView.FilterText attached member
+      - Increased performance of ItemsSourceRecyclerAdapter.
+      - Optimized the cache strategy for weak references, reduced the memory usage.
+      - Optimized layout inflater.
+      - Improved startup time after app restoration.
+      - Changed the AndroidBootstrapperBase.EnsureInitialized method.
+      - Updated ToastPresenter and SnackbarToastPresenter.
+      - Updated support libraries to 23.4.0.1.
+
+iOS:
+      - Fixed constraints format.
+      - Removed UITableView.CellBind, UITableView.CellStyle attached properties breaking changes.
+      - Removed ITableCellTemplateSelector.GetHeight method.
+      - Changed the GetOrCreateMediator method from internal to public.
+      - Added the ICollectionCellTemplateSelectorSupportDequeueReusableCell.
+      - Added the ITableCellTemplateSelectorSupportDequeueReusableCell interface.
+      - Added the DefaultTableCellTemplateSelector
 
 Xamarin.Forms:
-      - Updated Xamarin.Forms to 2.0.0.6482.
+      - Updated Xamarin.Forms to 2.3.1.114.
+      - Updated DataBindingExtension
+      - Fixed 'Can not find a Property named 'Bind' or a static method named 'GetBind' for BindableProperty 'BindProperty''
+
+WinForms:
+      - Fixed a NullReferenceException when using the ContextMenuStrip with binding.
     </releaseNotes>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <iconUrl>https://raw.githubusercontent.com/MugenMvvmToolkit/MugenMvvmToolkit/master/logo128_128.png</iconUrl>
@@ -143,9 +247,6 @@ Xamarin.Forms:
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.Binding.pdb" target="lib\MonoAndroid10\MugenMvvmToolkit.Binding.pdb" />
     <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.dll" target="lib\MonoAndroid10\MugenMvvmToolkit.Android.dll" />
     <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.pdb" target="lib\MonoAndroid10\MugenMvvmToolkit.Android.pdb" />
-
-    <!-- Touch -->
-    <file src="_._" target="lib\MonoTouch10\_._" />
 
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.dll" target="lib\Xamarin.iOS10\MugenMvvmToolkit.dll" />
     <file src="..\bin\Core\PCL_WinRT\MugenMvvmToolkit.pdb" target="lib\Xamarin.iOS10\MugenMvvmToolkit.pdb" />

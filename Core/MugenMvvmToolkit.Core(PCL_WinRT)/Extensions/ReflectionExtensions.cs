@@ -399,11 +399,6 @@ namespace MugenMvvmToolkit
             return !assembly.HasKnownPublicKey(false);
         }
 
-        public static IList<Assembly> GetDesignAssemblies()
-        {
-            return DesignTimeInitializer.GetAssemblies(true);
-        }
-
         public static bool IsPublic(this Type type)
         {
 #if PCL_WINRT      
@@ -787,6 +782,18 @@ namespace MugenMvvmToolkit
                 return value;
             if (type == typeof(Guid))
                 return Guid.Parse(value.ToString());
+#if PCL_WINRT
+            if (type.GetTypeInfo().IsEnum)
+#else 
+            if (type.IsEnum)
+#endif
+            {
+                var s = value as string;
+                if (s == null)
+                    return Enum.ToObject(type, value);
+                return Enum.Parse(type, s, false);
+            }
+
 #if PCL_WINRT
             return System.Convert.ChangeType(value, type, CultureInfo.CurrentCulture);
 #else

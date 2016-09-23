@@ -90,7 +90,12 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
 #else
             var activity = PlatformExtensions.CurrentActivity;
 #endif
-            Should.BeSupported(activity != null, "The current top activity is null.");
+            if (activity == null)
+            {
+                Tracer.Error($"{nameof(MessagePresenter)}: The current top activity is null.");
+                tcs.TrySetResult(defaultResult);
+                return;
+            }
             AlertDialog.Builder builder = new AlertDialog.Builder((Context)activity)
                 .SetTitle(caption)
                 .SetMessage(messageBoxText)

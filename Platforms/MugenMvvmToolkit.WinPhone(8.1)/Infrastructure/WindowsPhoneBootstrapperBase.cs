@@ -41,7 +41,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
     {
         #region Fields
 
-        protected const string BindingAssemblyName = "MugenMvvmToolkit.WinPhone.Binding";
+        protected internal const string BindingAssemblyName = "MugenMvvmToolkit.WinPhone.Binding";
         private readonly PhoneApplicationFrame _rootFrame;
         private readonly PlatformInfo _platform;
 
@@ -51,8 +51,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         static WindowsPhoneBootstrapperBase()
         {
-            DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
-            DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
+            SetDefaultPlatformValues();
         }
 
         protected WindowsPhoneBootstrapperBase([NotNull] PhoneApplicationFrame rootFrame, PlatformInfo platform = null)
@@ -77,11 +76,11 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
         {
             var application = CreateApplication();
             var iocContainer = CreateIocContainer();
-            application.Initialize(_platform, iocContainer, GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
-            FrameStateManager.RegisterFrame(_rootFrame);
             var service = CreateNavigationService(_rootFrame);
             if (service != null)
                 iocContainer.BindToConstant(service);
+            application.Initialize(_platform, iocContainer, GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
+            FrameStateManager.RegisterFrame(_rootFrame);
             Should.PropertyNotBeNull(PhoneApplicationService.Current, nameof(PhoneApplicationService) + nameof(PhoneApplicationService.Current));
         }
 
@@ -125,6 +124,12 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
         {
             PhoneApplicationService.Current.Launching -= OnLaunching;
             Start();
+        }
+
+        internal static void SetDefaultPlatformValues()
+        {
+            DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
+            DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
         }
 
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)

@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.StarterPack</id>
-    <version>5.1.0</version>
+    <version>6.0.0</version>
     <title>MugenMvvmToolkit - Starter Pack</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
@@ -43,15 +43,15 @@
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios</tags>
     <dependencies>
       <group>
-        <dependency id="MugenMvvmToolkit" version="5.1.0" />
+        <dependency id="MugenMvvmToolkit" version="6.0.0" />
       </group>
       <group targetFramework="Xamarin.iOS">
-        <dependency id="MugenMvvmToolkit" version="5.1.0" />
-		<dependency id="MugenMvvmToolkit.AutofacContainer" version="5.1.0" />
+        <dependency id="MugenMvvmToolkit" version="6.0.0" />
+		<dependency id="MugenMvvmToolkit.AutofacContainer" version="6.0.0" />
       </group>
 	  <group targetFramework="MonoAndroid10">
-        <dependency id="MugenMvvmToolkit" version="5.1.0" />
-		<dependency id="MugenMvvmToolkit.AutofacContainer" version="5.1.0" />
+        <dependency id="MugenMvvmToolkit" version="6.0.0" />
+		<dependency id="MugenMvvmToolkit.AutofacContainer" version="6.0.0" />
       </group>
     </dependencies>
   </metadata>
@@ -71,9 +71,7 @@
     <file src="AndroidContent\Main.axml.pp" target="content\MonoAndroid10\Resources\layout\Main.axml.pp" />
     <file src="AndroidContent\Readme.txt" target="content\MonoAndroid10\_MugenMvvmToolkitReadme.txt" />
 
-    <!-- Touch -->
-    <file src="_._" target="content\MonoTouch10\_._" />
-
+    <!-- Touch -->   
     <file src="TouchContent\Setup.cs.pp" target="content\Xamarin.iOS10\AppDelegate.cs.pp" />
     <file src="TouchContent\MainView.cs.pp" target="content\Xamarin.iOS10\Views\MainView.cs.pp" />
     <file src="TouchContent\Readme.txt" target="content\Xamarin.iOS10\_MugenMvvmToolkitReadme.txt" />

@@ -102,6 +102,7 @@ namespace MugenMvvmToolkit.iOS
             TypeToCounters = new Dictionary<Type, int>();
             CoderParameters = new[] { typeof(NSCoder) };
             _mvvmViewControllerMediatorFactory = (controller, context) => new MvvmViewControllerMediator(controller);
+            AttachedValueProviderSuppressFinalize = true;
         }
 
         #endregion
@@ -130,6 +131,8 @@ namespace MugenMvvmToolkit.iOS
                 _mvvmViewControllerMediatorFactory = value;
             }
         }
+
+        public static bool AttachedValueProviderSuppressFinalize { get; set; }
 
         #endregion
 

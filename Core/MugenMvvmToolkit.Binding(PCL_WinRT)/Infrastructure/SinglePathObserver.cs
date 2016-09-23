@@ -57,7 +57,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             public bool AllMembersAvailable => Reference.Target != null;
 
-            //NOTE it's better each time to create a new array than to keep it in memory, because this property is rarely used.
+            //NOTE it's better each time to create a new array than keep it in memory, because this property is rarely used.
             public IList<IBindingMemberInfo> Members => new[] { _lastMember };
 
             public IBindingMemberInfo LastMember => _lastMember;

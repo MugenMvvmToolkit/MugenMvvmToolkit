@@ -77,9 +77,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             //ignoring the concurrent access, there is no need to use Interlocked or lock
             if (_isSourceUpdating)
                 return false;
+            var isDebuggable = _targetAccessor.Source.Path.IsDebuggable;
             try
             {
                 _isSourceUpdating = true;
+                if (isDebuggable)
+                    DebugInfo("Binding update source");
                 if (_sourceAccessor.SetValue(_targetAccessor, this, true))
                 {
                     RaiseBindingUpdated(BindingEventArgs.SourceTrueArgs);
@@ -95,6 +98,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
             finally
             {
+                if (isDebuggable)
+                    DebugInfo("Binding end update source");
                 _isSourceUpdating = false;
             }
             return false;
@@ -105,9 +110,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             //ignoring the concurrent access, there is no need to use Interlocked or lock
             if (_isTargetUpdating)
                 return false;
+            var isDebuggable = _targetAccessor.Source.Path.IsDebuggable;
             try
             {
                 _isTargetUpdating = true;
+                if (isDebuggable)
+                    DebugInfo("Binding update target");
                 if (_targetAccessor.SetValue(_sourceAccessor, this, true))
                 {
                     RaiseBindingUpdated(BindingEventArgs.TargetTrueArgs);
@@ -123,6 +131,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
             finally
             {
+                if (isDebuggable)
+                    DebugInfo("Binding end update target");
                 _isTargetUpdating = false;
             }
             return false;
@@ -171,6 +181,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             ((ICollection<IBindingBehavior>)this).Clear();
             _sourceAccessor.Dispose();
             _targetAccessor.Dispose();
+            if (_targetAccessor.Source.Path.IsDebuggable)
+                DebugInfo("Binding disposed");
         }
 
         public event EventHandler<IDataBinding, BindingEventArgs> BindingUpdated;
@@ -257,6 +269,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return _items
                 .Take(_size)
                 .GetEnumerator();
+        }
+
+        private void DebugInfo(string message, object[] args = null)
+        {
+            BindingServiceProvider.DebugBinding(this, TargetAccessor.Source.Path.DebugTag, message, args);
         }
 
         #endregion

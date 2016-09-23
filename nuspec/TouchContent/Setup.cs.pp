@@ -17,6 +17,7 @@ namespace $rootnamespace$
         private const string RootViewControllerKey = "RootViewControllerKey";
         private TouchBootstrapperBase _bootstrapper;
         private UIWindow _window;
+        private bool _isRestored;
 
         #endregion
 
@@ -41,12 +42,15 @@ namespace $rootnamespace$
         {
             var controller = (UIViewController)coder.DecodeObject(RootViewControllerKey);
             if (controller != null)
+            {
                 _window.RootViewController = controller;
+                _isRestored = true;
+            }
         }
 
         public override bool FinishedLaunching(UIApplication app, NSDictionary options)
         {
-            if (_window.RootViewController == null)
+            if (!_isRestored)
                 _bootstrapper.Start();
 
             // make the window visible

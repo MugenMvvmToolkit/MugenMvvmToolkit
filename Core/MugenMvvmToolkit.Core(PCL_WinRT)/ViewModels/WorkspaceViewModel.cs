@@ -20,7 +20,6 @@ using System.Threading.Tasks;
 using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Models.Messages;
 
 namespace MugenMvvmToolkit.ViewModels
 {
@@ -56,8 +55,7 @@ namespace MugenMvvmToolkit.ViewModels
         void INavigableViewModel.OnNavigatedTo(INavigationContext context)
         {
             OnNavigatedTo(context);
-            //To invalidate command state.
-            Publish(StateChangedMessage.Empty);
+            InvalidateCommands();
         }
 
         void INavigableViewModel.OnNavigatedFrom(INavigationContext context)

@@ -142,7 +142,10 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         public Task<bool> CloseAsync(object parameter)
         {
             if (!IsOpen)
-                throw ExceptionManager.WindowClosed();
+            {
+                Tracer.Error(ExceptionManager.WindowClosedString);
+                return Empty.TrueTask;
+            }
             IsClosing = true;
             _closeParameter = parameter;
             return OnClosing(parameter)

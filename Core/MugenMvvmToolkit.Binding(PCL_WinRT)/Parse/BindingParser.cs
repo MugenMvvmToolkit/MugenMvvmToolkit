@@ -172,6 +172,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 {"Behavior", parser => parser.GetCustomBehaviorSetter()},
                 {nameof(BindingBuilderConstants.ToggleEnabledState), parser => parser.GetBoolValue(BindingBuilderConstants.ToggleEnabledState)},
                 {"ToggleEnabled", parser => parser.GetBoolValue(BindingBuilderConstants.ToggleEnabledState)},
+                {"DebugTag", parser => parser.GetDebugValue()},
                 {"DisableEqualityChecking", parser => parser.GetDisableEqualityChecking(null)},
                 {"TargetDisableEqualityChecking", parser => parser.GetDisableEqualityChecking(true)},
                 {"SourceDisableEqualityChecking", parser => parser.GetDisableEqualityChecking(false)},
@@ -1114,6 +1115,24 @@ namespace MugenMvvmToolkit.Binding.Parse
                         .ResolveBehavior(memberName, context, args, true);
                     context.GetOrAddBehaviors().Add(behavior);
                 }
+            };
+        }
+
+        private IList<Action<IDataContext>> GetDebugValue()
+        {
+            string tag;
+            var token = NextToken(true);
+            if (token == TokenType.Identifier)
+                tag = Tokenizer.Value;
+            else
+            {
+                ValidateToken(token, TokenType.StringLiteral);
+                tag = Tokenizer.Value;
+            }
+            NextToken(true);
+            return new Action<IDataContext>[]
+            {
+                context => context.Add(BindingBuilderConstants.DebugTag, tag)
             };
         }
 

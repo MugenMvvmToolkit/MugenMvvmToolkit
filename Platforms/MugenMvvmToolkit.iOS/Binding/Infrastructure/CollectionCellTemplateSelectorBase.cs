@@ -26,6 +26,12 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
     public abstract class CollectionCellTemplateSelectorBase<TSource, TTemplate> : ICollectionCellTemplateSelector
         where TTemplate : UICollectionViewCell
     {
+        #region Fields
+
+        private BindingSet<TTemplate, TSource> _bindingSet;
+
+        #endregion
+
         #region Properties
 
         protected virtual bool SupportInitialize => true;
@@ -58,9 +64,18 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
         {
             if (!SupportInitialize)
                 return;
-            var bindingSet = new BindingSet<TTemplate, TSource>((TTemplate)cell);
-            InitializeTemplate(container, (TTemplate)cell, bindingSet);
-            bindingSet.Apply();
+            if (_bindingSet == null)
+                _bindingSet = new BindingSet<TTemplate, TSource>(null);
+            try
+            {
+                _bindingSet.Target = (TTemplate)cell;
+                InitializeTemplate(container, _bindingSet.Target, _bindingSet);
+                _bindingSet.Apply();
+            }
+            finally
+            {
+                _bindingSet.Target = null;
+            }
         }
 
         #endregion

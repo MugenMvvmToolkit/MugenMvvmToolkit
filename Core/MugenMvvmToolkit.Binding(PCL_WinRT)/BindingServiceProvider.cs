@@ -92,6 +92,7 @@ namespace MugenMvvmToolkit.Binding
             ViewManager.GetDataContext = BindingExtensions.DataContext;
             ViewManager.SetDataContext = BindingExtensions.SetDataContext;
             BindingExceptionHandler = BindingExceptionHandlerImpl;
+            BindingDebugger = BindingDebuggerImpl;
         }
 
         #endregion
@@ -243,9 +244,17 @@ namespace MugenMvvmToolkit.Binding
         [CanBeNull]
         public static Action<IDataBinding, BindingEventArgs> BindingExceptionHandler { get; set; }
 
+        [CanBeNull]
+        public static Action<object, string, string, object[]> BindingDebugger { get; set; }
+
         #endregion
 
         #region Methods
+
+        public static void DebugBinding(object sender, string tag, string message, object[] args = null)
+        {
+            BindingDebugger?.Invoke(sender, tag, message, args);
+        }
 
         public static void RaiseBindingException(IDataBinding binding, BindingEventArgs args)
         {
@@ -281,6 +290,11 @@ namespace MugenMvvmToolkit.Binding
                 }
                 return value;
             }
+        }
+
+        private static void BindingDebuggerImpl(object sender, string tag, string message, object[] args = null)
+        {
+            Tracer.Error($"{tag}: {message}");
         }
 
         private static IBindingMemberInfo FindUpdateEvent(Type type, string memberName)

@@ -159,7 +159,7 @@ namespace MugenMvvmToolkit.ViewModels
                     collectionChanging.CollectionChanging -= RaiseCollectionChanging;
                 ((INotifyCollectionChanged)_originalData).CollectionChanged -= RaiseCollectionChanged;
                 if (_originalData.Count != 0)
-                    originalItemsSource.AddRange(_originalData);
+                    originalItemsSource.AddRange(_originalData, true);
             }
             _filterableItemsSource = new FilterableNotifiableCollection<T>(originalItemsSource);
             collectionChanging = originalItemsSource as INotifyCollectionChanging;

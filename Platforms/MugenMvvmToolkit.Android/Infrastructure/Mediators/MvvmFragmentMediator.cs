@@ -158,6 +158,10 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             {
                 if (savedInstanceState != null && savedInstanceState.ContainsKey(IgnoreStateKey))
                 {
+                    //prevent child fragments restore
+                    //https://github.com/android/platform_frameworks_support/blob/master/v4/java/android/support/v4/app/Fragment.java#L1945
+                    savedInstanceState.Remove("android:support:fragments");
+                    savedInstanceState.Remove("android:fragments");
                     _removed = true;
                     Target.FragmentManager
                         .BeginTransaction()
@@ -241,7 +245,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 baseOnSaveInstanceState(outState);
             else
 #endif
-                base.OnSaveInstanceState(outState, baseOnSaveInstanceState);
+            base.OnSaveInstanceState(outState, baseOnSaveInstanceState);
         }
 
         public virtual void OnDetach(Action baseOnDetach)
@@ -254,12 +258,9 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             Action<Activity, IAttributeSet, Bundle> baseOnInflate)
         {
             Target.ClearBindings(false, false);
-            List<string> strings = ViewFactory.ReadStringAttributeValue(activity, attrs, Resource.Styleable.Binding, null);
-            if (strings != null && strings.Count != 0)
-            {
-                foreach (string bind in strings)
-                    BindingServiceProvider.BindingProvider.CreateBindingsFromString(Target, bind, null);
-            }
+            var bind = ViewFactory.ReadStringAttributeValue(activity, attrs, Resource.Styleable.Binding, Resource.Styleable.Binding_Bind, null, null, null);
+            if (!string.IsNullOrEmpty(bind))
+                BindingServiceProvider.BindingProvider.CreateBindingsFromString(Target, bind, null);
             baseOnInflate(activity, attrs, savedInstanceState);
         }
 
@@ -278,7 +279,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                         _keyListener = new DialogInterfaceOnKeyListener(this);
                     dialog.SetOnKeyListener(_keyListener);
                 }
-                Target.View?.RootView.ListenParentChange();
             }
         }
 

@@ -113,10 +113,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
             BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.UIControl.ClickEvent.Override<UIButton>());
             memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.UIButton.Title,
                 (info, button) => button.CurrentTitle,
-                (info, button, arg3) => button.SetTitle(arg3, button.State)));
-            memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.UIButton.State,
-                (info, button) => button.State,
-                (info, button, arg3) => button.SetTitle(button.CurrentTitle, arg3)));
+                (info, button, arg3) => button.SetTitle(arg3, UIControlState.Normal)));
 
             //UIDatePicker
             BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.UIDatePicker.Date);

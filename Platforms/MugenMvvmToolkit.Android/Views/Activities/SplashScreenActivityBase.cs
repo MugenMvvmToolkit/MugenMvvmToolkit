@@ -26,7 +26,6 @@ using Android.Views;
 using Android.Widget;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Android.Infrastructure;
-using MugenMvvmToolkit.Infrastructure;
 
 namespace MugenMvvmToolkit.Android.Views.Activities
 {
@@ -34,10 +33,10 @@ namespace MugenMvvmToolkit.Android.Views.Activities
     {
         #region Fields
 
+        private readonly int? _viewId;
+
         private const int DefaultState = 0;
         private const int StartedState = 1;
-        private static AndroidBootstrapperBase _bootstrapper;
-        private readonly int? _viewId;
         private static int _state;
 
         #endregion
@@ -63,13 +62,15 @@ namespace MugenMvvmToolkit.Android.Views.Activities
 
         #endregion
 
+        #region Methods
+
         #region Overrides of Activity
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
 
-            View content = _viewId.HasValue
+            var content = _viewId.HasValue
                 ? LayoutInflater.Inflate(_viewId.Value, null)
                 : CreateDefaultView();
             if (content != null)
@@ -78,28 +79,24 @@ namespace MugenMvvmToolkit.Android.Views.Activities
             if (Interlocked.Exchange(ref _state, StartedState) == DefaultState)
             {
                 Current = this;
-                if (_bootstrapper == null)
-                    _bootstrapper = BootstrapperBase.Current as AndroidBootstrapperBase;
-                if (_bootstrapper == null)
-                    ThreadPool.QueueUserWorkItem(StartBootstrapperCallback, this);
-                else
+                if (AndroidBootstrapperBase.Current != null && AndroidBootstrapperBase.Current.IsInitialized)
                     StartBootstrapperCallback(this);
+                else
+                    ThreadPool.QueueUserWorkItem(StartBootstrapperCallback, this);
             }
         }
 
         #endregion
 
-        #region Methods
-
         private static void StartBootstrapperCallback(object state)
         {
-            var activityBase = (SplashScreenActivityBase)state;
+            var activityBase = (SplashScreenActivityBase) state;
             Exception exception = null;
+            AndroidBootstrapperBase bootstrapper = null;
             try
             {
-                if (_bootstrapper == null)
-                    _bootstrapper = activityBase.CreateBootstrapper();
-                _bootstrapper.Start();
+                bootstrapper = AndroidBootstrapperBase.GetOrCreateBootstrapper(activityBase.CreateBootstrapper);
+                bootstrapper.Start();
             }
             catch (Exception e)
             {
@@ -108,7 +105,7 @@ namespace MugenMvvmToolkit.Android.Views.Activities
             }
             finally
             {
-                activityBase.OnBootstrapperStarted(_bootstrapper, exception);
+                activityBase.OnBootstrapperStarted(bootstrapper, exception);
                 Current = null;
                 _state = DefaultState;
             }

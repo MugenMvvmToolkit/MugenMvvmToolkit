@@ -33,6 +33,7 @@ using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.Validation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Models.Messages;
 
 // ReSharper disable once CheckNamespace
 
@@ -281,6 +282,12 @@ namespace MugenMvvmToolkit.ViewModels
             if (iocContainer == null && throwOnError)
                 throw ExceptionManager.ObjectNotInitialized("viewModel", viewModel);
             return iocContainer;
+        }
+
+        public static void InvalidateCommands(this IViewModel viewModel)
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            viewModel.Publish(viewModel, StateChangedMessage.Empty);
         }
 
         private static DataConstantValue[] MergeParameters(IViewModel parentViewModel, ObservationMode? observationMode, DataConstantValue[] parameters)

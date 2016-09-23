@@ -171,11 +171,14 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
         {
             if (string.IsNullOrWhiteSpace(bindings))
                 return;
-            IList<IDataBinding> list = BindingServiceProvider.BindingProvider.CreateBindingsFromString(sender, bindings, null);
-            if (!ServiceProvider.DesignTimeManager.IsDesignMode)
-                return;
-            foreach (InvalidDataBinding binding in list.OfType<InvalidDataBinding>())
-                throw binding.Exception;
+            if (ServiceProvider.IsDesignMode)
+            {
+                IList<IDataBinding> list = BindingServiceProvider.BindingProvider.CreateBindingsFromStringWithBindings(sender, bindings, null);
+                foreach (InvalidDataBinding binding in list.OfType<InvalidDataBinding>())
+                    throw binding.Exception;
+            }
+            else
+                BindingServiceProvider.BindingProvider.CreateBindingsFromString(sender, bindings, null);
         }
 
         private static IDisposable ObserveVisiblityMember(IBindingMemberInfo bindingMemberInfo, UIElement uiElement, IEventListener arg3)
@@ -361,7 +364,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
                 return;
             var converter = (IValueConverter)constructor.Invoke(Empty.Array<object>());
             BindingServiceProvider.ResourceResolver.AddConverter(new ValueConverterWrapper(converter), type, true);
-            ServiceProvider.BootstrapCodeBuilder?.Append(nameof(DataBindingModule), $"{typeof(BindingExtensions).FullName}.AddConverter(resolver, new {typeof(ValueConverterWrapper).FullName}(new {type.GetPrettyName()}()), typeof({type.GetPrettyName()}, true);");
+            ServiceProvider.BootstrapCodeBuilder?.Append(nameof(DataBindingModule), $"{typeof(BindingExtensions).FullName}.AddConverter(resolver, new {typeof(ValueConverterWrapper).FullName}(new {type.GetPrettyName()}()), typeof({type.GetPrettyName()}), true);");
             if (Tracer.TraceInformation)
                 Tracer.Info("The {0} converter is registered.", type);
         }

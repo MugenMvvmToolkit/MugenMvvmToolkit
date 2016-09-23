@@ -21,6 +21,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Linq;
 using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Interfaces.Collections;
 using MugenMvvmToolkit.Models;
@@ -140,14 +141,14 @@ namespace MugenMvvmToolkit.WinForms.Collections
             SourceCollection.RaiseReset();
         }
 
-        public void AddRange(IEnumerable collection)
+        void INotifiableCollection.AddRange(IEnumerable collection, bool suspendNotifications)
         {
-            ((INotifiableCollection)SourceCollection).AddRange(collection);
+            AddRange(collection.Cast<T>(), suspendNotifications);
         }
 
-        public void RemoveRange(IEnumerable collection)
+        void INotifiableCollection.RemoveRange(IEnumerable collection, bool suspendNotifications)
         {
-            ((INotifiableCollection)SourceCollection).RemoveRange(collection);
+            RemoveRange(collection.Cast<T>(), suspendNotifications);
         }
 
         public event NotifyCollectionChangedEventHandler CollectionChangedUnsafe
@@ -174,14 +175,16 @@ namespace MugenMvvmToolkit.WinForms.Collections
             remove { SourceCollection.CollectionChanging -= value; }
         }
 
-        public void AddRange(IEnumerable<T> collection)
+        public void AddRange(IEnumerable<T> collection, bool suspendNotifications = true)
         {
-            SourceCollection.AddRange(collection);
+            foreach (var item in collection)
+                Add(item);
         }
 
-        public void RemoveRange(IEnumerable<T> collection)
+        public void RemoveRange(IEnumerable<T> collection, bool suspendNotifications = true)
         {
-            SourceCollection.RemoveRange(collection);
+            foreach (var item in collection)
+                Remove(item);
         }
 
         public void Update(IEnumerable<T> items)

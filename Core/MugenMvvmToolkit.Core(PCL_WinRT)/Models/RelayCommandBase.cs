@@ -105,6 +105,8 @@ namespace MugenMvvmToolkit.Models
 
         public ExecutionMode CanExecuteMode { get; set; }
 
+        public abstract bool IsExecuting { get; }
+
         public bool CanExecute(object parameter)
         {
             return !HasCanExecuteImpl || CanExecuteInternal(parameter);

@@ -292,15 +292,13 @@ namespace MugenMvvmToolkit.ViewModels
         protected ViewModelBase()
         {
             Tracer.TraceViewModel(ViewModelLifecycleType.Created, this);
-            if (IsDesignMode)
-                ServiceProvider.DesignTimeManager.InitializeViewModel(this);
         }
 
         #endregion
 
         #region Properties
 
-        protected static bool IsDesignMode => ServiceProvider.DesignTimeManager.IsDesignMode;
+        protected static bool IsDesignMode => ServiceProvider.IsDesignMode;
 
         protected internal IEventAggregator LocalEventAggregator
         {
@@ -534,6 +532,11 @@ namespace MugenMvvmToolkit.ViewModels
             this.NotBeDisposed();
         }
 
+        protected void InvalidateCommands()
+        {
+            Publish(StateChangedMessage.Empty);
+        }
+
         internal virtual void HandleInternal(object sender, object message)
         {
             var busyToken = message as IBusyToken;
@@ -590,7 +593,8 @@ namespace MugenMvvmToolkit.ViewModels
 
         internal override void OnPropertyChangedInternal(PropertyChangedEventArgs args)
         {
-            Publish(StateChangedMessage.Empty);
+            if (CanInvalidateCommands(args))
+                InvalidateCommands();
         }
 
         #endregion
@@ -614,6 +618,11 @@ namespace MugenMvvmToolkit.ViewModels
         {
             if (InitializeEventAggregator(false))
                 _localEventAggregator.Publish(sender, message);
+        }
+
+        protected virtual bool CanInvalidateCommands(PropertyChangedEventArgs args)
+        {
+            return true;
         }
 
         protected virtual void OnRequestOwnIocContainer()

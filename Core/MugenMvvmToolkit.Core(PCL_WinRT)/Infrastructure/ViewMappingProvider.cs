@@ -284,17 +284,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private void EnsureInitialized()
         {
-            //NOTE to keep actual mapping in design mode.
-            if (ServiceProvider.DesignTimeManager.IsDesignMode)
-            {
-                lock (_viewModelToMapping)
-                {
-                    _viewModelToMapping.Clear();
-                    _viewTypeToMapping.Clear();
-                    InitializeMapping(ReflectionExtensions.GetDesignAssemblies().SelectMany(assembly => assembly.SafeGetTypes(false)));
-                    return;
-                }
-            }
             if (_assemblies == null)
                 return;
             if (ApplicationSettings.ViewMappingProviderDisableAutoRegistration)

@@ -41,7 +41,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
     {
         #region Fields
 
-        protected const string BindingAssemblyName = "MugenMvvmToolkit.WinRT.Binding";
+        protected internal const string BindingAssemblyName = "MugenMvvmToolkit.WinRT.Binding";
         private readonly Frame _rootFrame;
         private readonly bool _overrideAssemblies;
         private readonly PlatformInfo _platform;
@@ -53,8 +53,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
 
         static WinRTBootstrapperBase()
         {
-            DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
-            DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
+            SetDefaultPlatformValues();
         }
 
         protected WinRTBootstrapperBase([CanBeNull] Frame rootFrame, bool overrideAssemblies, PlatformInfo platform = null)
@@ -78,10 +77,10 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
         {
             var application = CreateApplication();
             var iocContainer = CreateIocContainer();
-            application.Initialize(_platform, iocContainer, GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
             var service = CreateNavigationService(_rootFrame);
             if (service != null)
                 iocContainer.BindToConstant(service);
+            application.Initialize(_platform, iocContainer, GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
         }
 
         #endregion
@@ -119,6 +118,12 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
             if (frame == null)
                 return null;
             return new FrameNavigationService(frame, true);
+        }
+
+        internal static void SetDefaultPlatformValues()
+        {
+            DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
+            DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
         }
 
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)

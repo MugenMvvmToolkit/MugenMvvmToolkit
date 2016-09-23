@@ -16,12 +16,10 @@
 
 #endregion
 
-using System;
 using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Models.Messages
 {
-    [Serializable]
     public class StateChangedMessage : IBroadcastMessage
     {
         #region Fields

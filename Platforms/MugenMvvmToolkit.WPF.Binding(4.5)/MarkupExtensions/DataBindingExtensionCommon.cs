@@ -74,6 +74,7 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
         private bool? _hasStablePath;
         private bool? _observable;
         private bool? _optional;
+        private string _debugTag;
 
         #endregion
 
@@ -293,6 +294,17 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
             }
         }
 
+        public string DebugTag
+        {
+            get { return _debugTag; }
+            set
+            {
+                _debugTag = value;
+                if (!string.IsNullOrEmpty(value))
+                    HasValue = true;
+            }
+        }
+
         protected bool HasValue { get; set; }
 
         protected bool HasConverter { get; set; }
@@ -319,7 +331,7 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
             return null;
 #else
             //NOTE Сannot set property values ​​in the designer, this error will handled by MS code.
-            if (ServiceProvider.DesignTimeManager.IsDesignMode)
+            if (ServiceProvider.IsDesignMode)
                 throw new InvalidOperationException();
             return DependencyProperty.UnsetValue;
 #endif
@@ -390,14 +402,23 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
                 syntaxBuilder.WithDelay(_targetDelay, true);
             if (HasDefaultValueOnException)
                 syntaxBuilder.DefaultValueOnException(DefaultValueOnException);
+            if (!string.IsNullOrEmpty(DebugTag))
+                syntaxBuilder.WithDebugTag(DebugTag);
             return builder;
         }
 
-        private IDataBinding CreateBinding(object targetObject, string targetPath)
+        private IDataBinding CreateBinding(object targetObject, string targetPath, bool isDesignMode)
         {
-            return BindingServiceProvider
+            if (isDesignMode)
+            {
+                return BindingServiceProvider
+                      .BindingProvider
+                      .CreateBindingsFromStringWithBindings(targetObject, ToBindingExpression(targetPath))[0];
+            }
+            BindingServiceProvider
                 .BindingProvider
-                .CreateBindingsFromString(targetObject, ToBindingExpression(targetPath))[0];
+                .CreateBindingsFromString(targetObject, ToBindingExpression(targetPath));
+            return null;
         }
 
         private void SetMode(IBindingModeSyntax<object> syntax)

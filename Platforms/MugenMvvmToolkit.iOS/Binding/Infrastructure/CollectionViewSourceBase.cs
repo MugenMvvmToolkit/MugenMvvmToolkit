@@ -114,7 +114,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
         protected DataTemplateProvider DataTemplateProvider => _itemTemplateProvider;
 
         [CanBeNull]
-        protected UICollectionView CollectionView => (UICollectionView)_collectionView.Target;
+        protected UICollectionView CollectionView => (UICollectionView)_collectionView?.Target;
 
         #endregion
 

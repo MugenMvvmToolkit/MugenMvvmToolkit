@@ -44,31 +44,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             public IBindingPath Path => BindingPath.Empty;
 
-            public bool AllMembersAvailable
-            {
-                get
-                {
-                    var observer = (ObserverBase)Ref.Target;
-                    if (observer == null)
-                        return false;
-                    return !observer.GetActualSource().IsUnsetValue();
-                }
-            }
+            public bool AllMembersAvailable => !Source.IsUnsetValue();
 
             public IList<IBindingMemberInfo> Members => new[] { LastMember };
 
             public IBindingMemberInfo LastMember => BindingMemberInfo.Empty;
 
-            public object Source
-            {
-                get
-                {
-                    var observer = (ObserverBase)Ref.Target;
-                    if (observer == null)
-                        return null;
-                    return observer.GetActualSource();
-                }
-            }
+            public object Source => ((ObserverBase)Ref.Target)?.GetActualSource();
 
             public object PenultimateValue => Source;
 

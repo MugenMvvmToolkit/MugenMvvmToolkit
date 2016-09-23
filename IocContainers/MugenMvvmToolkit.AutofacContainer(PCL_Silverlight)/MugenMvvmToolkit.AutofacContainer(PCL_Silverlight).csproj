@@ -33,7 +33,8 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile></DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_Silverlight%29\MugenMvvmToolkit.Core%28PCL_Silverlight%29.csproj">
@@ -43,13 +44,13 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\MugenMvvmToolkit.AutofacContainer%28PCL%29\AutofacContainer.cs">
+    <Compile Include="..\MugenMvvmToolkit.AutofacContainer%28NET1.1%29\AutofacContainer.cs">
       <Link>AutofacContainer.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.AutofacContainer%28PCL%29\Properties\AssemblyInfo.cs">
+    <Compile Include="..\MugenMvvmToolkit.AutofacContainer%28NET1.1%29\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.AutofacContainer%28PCL%29\Properties\AssemblyInfoCommon.cs">
+    <Compile Include="..\MugenMvvmToolkit.AutofacContainer%28NET1.1%29\Properties\AssemblyInfoCommon.cs">
       <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
   </ItemGroup>
@@ -71,7 +72,7 @@
     </None>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" /> 
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

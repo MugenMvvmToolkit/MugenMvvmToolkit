@@ -66,6 +66,9 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
             protected override FilterResults PerformFiltering(ICharSequence constraint)
             {
+                if (_adapter == null)
+                    return new FilterResults();
+                (_adapter.Container as AutoCompleteTextView)?.SetBindingMemberValue(AttachedMembers.AutoCompleteTextView.FilterText, constraint);
                 return new FilterResults { Count = _adapter.Count };
             }
 
@@ -266,19 +269,23 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             if (ReferenceEquals(value, _itemsSource) || !this.IsAlive())
                 return;
             if (_weakHandler == null)
+            {
                 _itemsSource = value;
+                if (notifyDataSet)
+                    NotifyDataSetChanged();
+            }
             else
             {
                 var notifyCollectionChanged = _itemsSource as INotifyCollectionChanged;
                 if (notifyCollectionChanged != null)
                     notifyCollectionChanged.CollectionChanged -= _weakHandler;
                 _itemsSource = value;
+                if (notifyDataSet)
+                    NotifyDataSetChanged();
                 notifyCollectionChanged = _itemsSource as INotifyCollectionChanged;
                 if (notifyCollectionChanged != null)
                     notifyCollectionChanged.CollectionChanged += _weakHandler;
             }
-            if (notifyDataSet)
-                NotifyDataSetChanged();
         }
 
         protected virtual View CreateView(object value, View convertView, ViewGroup parent, DataTemplateProvider templateProvider, int defaultTemplate)
@@ -377,10 +384,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                 return null;
             var view = CreateView(GetRawItem(position), convertView, parent, provider, defaultTemplate);
             if (view != null && !ReferenceEquals(view, convertView))
-            {
                 view.SetBindingMemberValue(AttachedMembers.Object.Parent, Container);
-                view.ListenParentChange();
-            }
             return view;
         }
 

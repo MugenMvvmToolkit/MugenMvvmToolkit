@@ -32,5 +32,9 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Models
         bool IsEmpty { get; }
 
         bool IsSingle { get; }
+
+        bool IsDebuggable { get; }
+
+        string DebugTag { get; }
     }
 }

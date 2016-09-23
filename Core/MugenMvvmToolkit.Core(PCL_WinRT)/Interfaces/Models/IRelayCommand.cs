@@ -32,6 +32,8 @@ namespace MugenMvvmToolkit.Interfaces.Models
 
         ExecutionMode CanExecuteMode { get; set; }
 
+        bool IsExecuting { get; }
+
         [NotNull]
         IList<object> GetNotifiers();
 

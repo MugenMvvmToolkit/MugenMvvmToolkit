@@ -199,6 +199,8 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
                 }
             }
 
+            public bool IsExecuting => RelayCommand != null && RelayCommand.IsExecuting;
+
             public IList<object> GetNotifiers()
             {
                 if (RelayCommand == null)
@@ -564,7 +566,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
                 vm = ViewModelProvider.RestoreViewModel(viewModelState, new DataContext
                 {
                     {InitializationConstants.ViewModelType, vmType}
-                }, false);
+                }, true);
             }
 
             if (vm != null)

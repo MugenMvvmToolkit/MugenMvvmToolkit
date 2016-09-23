@@ -99,9 +99,6 @@ namespace MugenMvvmToolkit.WinPhone.Modules
                 }
 #elif WINDOWSCOMMON || WINDOWS_PHONE
                 IocContainer.BindToBindingInfo(GetApplicationStateManager());
-                IApplicationStateManager stateManager;
-                if (IocContainer.TryGet(out stateManager))
-                    PlatformExtensions.ApplicationStateManager = stateManager;
 #endif
                 return true;
             }
@@ -182,6 +179,8 @@ namespace MugenMvvmToolkit.WinPhone.Modules
 #elif SILVERLIGHT || WINDOWS_PHONE
             return BindingInfo<IThreadManager>.FromMethod((container, list) => new ThreadManager(System.Windows.Deployment.Current.Dispatcher), DependencyLifecycle.SingleInstance);
 #elif WINDOWSCOMMON
+            if (Context.Mode.HasFlagEx(LoadMode.Design) && Windows.UI.Xaml.Window.Current.Dispatcher == null)
+                return base.GetThreadManager();
             return BindingInfo<IThreadManager>.FromMethod((container, list) => new ThreadManager(Windows.UI.Xaml.Window.Current.Dispatcher), DependencyLifecycle.SingleInstance);
 #endif
         }
@@ -216,6 +215,5 @@ namespace MugenMvvmToolkit.WinPhone.Modules
         }
 #endif
         #endregion
-
     }
 }

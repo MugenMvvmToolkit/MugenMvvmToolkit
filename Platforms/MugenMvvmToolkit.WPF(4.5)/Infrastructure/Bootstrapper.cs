@@ -112,8 +112,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         public Bootstrapper([NotNull] UIWindow window, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, PlatformInfo platform = null)
             : base(window, platform)
 #elif XAMARIN_FORMS
-        public Bootstrapper([NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, PlatformInfo platform = null)
-            : base(platform)
+        public Bootstrapper([NotNull]IPlatformService platformService, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null)
+            : base(platformService)
 #endif
         {
             Should.NotBeNull(iocContainer, nameof(iocContainer));

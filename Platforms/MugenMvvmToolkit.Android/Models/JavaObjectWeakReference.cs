@@ -42,7 +42,7 @@ namespace MugenMvvmToolkit.Android.Models
         {
             get
             {
-                var target = (IJavaObject)base.Target;
+                var target = base.Target as IJavaObject;
                 if (target == null)
                     return null;
                 if (target.Handle == IntPtr.Zero)

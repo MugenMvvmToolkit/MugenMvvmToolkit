@@ -49,11 +49,6 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
 
         #region Constructors
 
-        static DataBindingExtension()
-        {
-            MvvmApplication.InitializeDesignTimeManager();
-        }
-
         public DataBindingExtension()
         {
             _targetMemberName = string.Empty;
@@ -101,11 +96,12 @@ namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
             if (_targetMemberName == null)
                 return GetEmptyValue();
 
+            var isDesignMode = ServiceProvider.IsDesignMode;
             IDataBinding binding = HasValue
                 ? CreateBindingBuilder(targetObject, _targetMemberName).Build()
-                : CreateBinding(targetObject, _targetMemberName);
+                : CreateBinding(targetObject, _targetMemberName, isDesignMode);
 
-            if (ServiceProvider.DesignTimeManager.IsDesignMode && binding is InvalidDataBinding)
+            if (isDesignMode && binding is InvalidDataBinding)
                 throw new DesignTimeException(((InvalidDataBinding)binding).Exception);
             return GetDefaultValue(targetObject, targetProperty, binding, _targetMemberName);
         }

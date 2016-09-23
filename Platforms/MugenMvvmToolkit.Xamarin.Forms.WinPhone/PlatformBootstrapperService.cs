@@ -40,7 +40,7 @@ using Windows.UI.Xaml;
 namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
 #endif
 {
-    internal sealed class PlatformBootstrapperService : XamarinFormsBootstrapperBase.IPlatformService
+    public sealed class PlatformBootstrapperService : XamarinFormsBootstrapperBase.IPlatformService
     {
         #region Constructors
 

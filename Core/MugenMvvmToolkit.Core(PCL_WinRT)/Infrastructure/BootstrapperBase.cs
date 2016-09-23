@@ -31,14 +31,24 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private const int InitializedState = 1;
         private static int _state;
+        private static readonly ManualResetEvent InitializedEvent;
+
+        #endregion
+
+        #region Constructors
+
+        static BootstrapperBase()
+        {
+            InitializedEvent = new ManualResetEvent(false);
+        }
 
         #endregion
 
         #region Properties
 
-        public static BootstrapperBase Current { get; protected set; }
-
         public bool IsInitialized => _state == InitializedState;
+
+        public static BootstrapperBase Current { get; protected set; }
 
         public IDataContext InitializationContext { get; set; }
 
@@ -50,6 +60,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             if (Interlocked.Exchange(ref _state, InitializedState) == InitializedState)
             {
+                InitializedEvent.WaitOne();
                 var current = Current;
                 if (!ReferenceEquals(current, this))
                     Tracer.Error(ExceptionManager.ObjectInitialized(typeof(BootstrapperBase).Name, Current).Message);
@@ -57,6 +68,7 @@ namespace MugenMvvmToolkit.Infrastructure
             }
             Current = this;
             InitializeInternal();
+            InitializedEvent.Set();
         }
 
         protected abstract void InitializeInternal();
@@ -67,7 +79,7 @@ namespace MugenMvvmToolkit.Infrastructure
         [NotNull]
         protected abstract IIocContainer CreateIocContainer();
 
-        protected static Assembly TryLoadAssembly(string assemblyName, ICollection<Assembly> assemblies)
+        protected internal static Assembly TryLoadAssembly(string assemblyName, ICollection<Assembly> assemblies)
         {
             try
             {

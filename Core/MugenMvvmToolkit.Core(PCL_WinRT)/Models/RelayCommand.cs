@@ -28,9 +28,10 @@ namespace MugenMvvmToolkit.Models
     {
         #region Fields
 
+        private readonly byte _state;
+
         private Func<TArg, bool> _canExecute;
         private Delegate _execute;
-        private readonly byte _state;
 
         #endregion
 
@@ -66,9 +67,11 @@ namespace MugenMvvmToolkit.Models
 
         #region Overrides of RelayCommandBase
 
+        public override bool IsExecuting => _execute == null;
+
         protected override bool CanExecuteInternal(object parameter)
         {
-            Func<TArg, bool> canExecute = _canExecute;
+            var canExecute = _canExecute;
             return canExecute != null && _execute != null && canExecute((TArg)parameter);
         }
 
@@ -85,7 +88,8 @@ namespace MugenMvvmToolkit.Models
             var allowMultiple = _state.HasFlagEx(RelayCommand.AllowMultipleExecutionFlag);
             if (!allowMultiple && Interlocked.Exchange(ref _execute, null) == null)
                 return;
-
+            if (!allowMultiple)
+                OnPropertyChanged(nameof(IsExecuting));
             try
             {
                 var t = ((Func<TArg, Task>)execute).Invoke((TArg)parameter);
@@ -96,6 +100,7 @@ namespace MugenMvvmToolkit.Models
                     {
                         _execute = execute;
                         RaiseCanExecuteChanged();
+                        OnPropertyChanged(nameof(IsExecuting));
                     });
                 }
             }
@@ -120,13 +125,13 @@ namespace MugenMvvmToolkit.Models
     {
         #region Fields
 
+        private readonly byte _state;
+        private Delegate _canExecute;
+        private Delegate _execute;
+
         private const byte ObjectDelegateFlag = 1 << 0;
         internal const byte TaskDelegateFlag = 1 << 1;
         internal const byte AllowMultipleExecutionFlag = 1 << 2;
-
-        private readonly byte _state;
-        private Delegate _execute;
-        private Delegate _canExecute;
 
         #endregion
 
@@ -177,6 +182,8 @@ namespace MugenMvvmToolkit.Models
 
         #region Overrides of RelayCommandBase
 
+        public override bool IsExecuting => _execute == null;
+
         protected override bool CanExecuteInternal(object parameter)
         {
             var canExecute = _canExecute;
@@ -199,6 +206,8 @@ namespace MugenMvvmToolkit.Models
                 var allowMultiple = _state.HasFlagEx(AllowMultipleExecutionFlag);
                 if (!allowMultiple && Interlocked.Exchange(ref _execute, null) == null)
                     return;
+                if (!allowMultiple)
+                    OnPropertyChanged(nameof(IsExecuting));
                 try
                 {
                     var t = ((Func<Task>)execute).Invoke();
@@ -209,6 +218,7 @@ namespace MugenMvvmToolkit.Models
                         {
                             _execute = execute;
                             RaiseCanExecuteChanged();
+                            OnPropertyChanged(nameof(IsExecuting));
                         });
                     }
                 }

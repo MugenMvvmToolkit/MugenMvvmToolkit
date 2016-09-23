@@ -102,6 +102,10 @@ namespace MugenMvvmToolkit.Binding.Models
 
         public bool IsSingle => _isSingle;
 
+        public bool IsDebuggable => false;
+
+        public string DebugTag => null;
+
         #endregion
 
         #region Overrides of Object

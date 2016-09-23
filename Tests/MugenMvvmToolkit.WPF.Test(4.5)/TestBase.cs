@@ -68,7 +68,6 @@ namespace MugenMvvmToolkit.Test
         [TestInitialize]
         public void SetUp()
         {
-            ServiceProvider.DesignTimeManager = DesignTimeManagerImpl.Instance;
             ServiceProvider.AttachedValueProvider = new AttachedValueProvider();
             ServiceProvider.ViewModelSettingsFactory = model => new DefaultViewModelSettings();
             CanBeResolvedTypes = new List<Type>

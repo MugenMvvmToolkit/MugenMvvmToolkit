@@ -398,7 +398,7 @@ namespace MugenMvvmToolkit.Binding
         {
             Should.NotBeNull(contextManager, nameof(contextManager));
             if (BindingServiceProvider.DataContextMemberAliases.Contains(targetPath))
-                return new BindingContextWrapper(target);
+                return ServiceProvider.AttachedValueProvider.GetOrAdd(target, "#$@wrapdata", (o, o1) => new BindingContextWrapper(o), null);
             return contextManager.GetBindingContext(target);
         }
 
@@ -584,11 +584,10 @@ namespace MugenMvvmToolkit.Binding
             BindingServiceProvider.ContextManager.GetBindingContext(source).Value = value;
         }
 
-        public static IList<IDataBinding> SetBindings<T>([NotNull] this T item, [NotNull] string bindingExpression,
-            IList<object> sources = null)
+        public static void SetBindings<T>([NotNull] this T item, [NotNull] string bindingExpression, IList<object> sources = null)
             where T : class
         {
-            return BindingServiceProvider.BindingProvider.CreateBindingsFromString(item, bindingExpression, sources);
+            BindingServiceProvider.BindingProvider.CreateBindingsFromString(item, bindingExpression, sources);
         }
 
         public static T SetBindings<T, TBindingSet>([NotNull] this T item, [NotNull] TBindingSet bindingSet,

@@ -73,7 +73,6 @@ namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
 
         public BindingEditorView()
         {
-            MvvmApplication.InitializeDesignTimeManager();
             InitializeComponent();
             bindingEditor.Handler = this;
             _controlsDictionary = new SortedDictionary<string, SortedDictionary<string, AutoCompleteItem>>(StringComparer.CurrentCulture);

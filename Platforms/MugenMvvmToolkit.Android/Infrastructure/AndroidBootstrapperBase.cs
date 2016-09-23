@@ -20,7 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
 using Android.App;
 using Android.OS;
 using Android.Views;
@@ -40,7 +39,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 {
     public abstract class AndroidBootstrapperBase : BootstrapperBase, IComparer<string>
     {
-        #region Nested Types
+        #region Nested types
 
         protected sealed class DefaultApp : MvvmApplication
         {
@@ -76,13 +75,10 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
         #region Fields
 
-        private const int EmptyState = 0;
-        private const int InitializedStateGlobal = 1;
-        private const int InitializedStateLocal = 2;
-        private static int _appStateGlobal;
-        private static string _bootstrapperType;
         private readonly PlatformInfo _platform;
         internal const string BootTypeKey = "BootTypeKey";
+        private static string _bootstrapperType;
+        private static readonly object Locker;
 
         #endregion
 
@@ -96,6 +92,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
             DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
             DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
             BindingServiceProvider.ValueConverter = BindingReflectionExtensions.Convert;
+            Locker = new object();
         }
 
         protected AndroidBootstrapperBase(PlatformInfo platform = null)
@@ -108,6 +105,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure
         #region Properties
 
         public static IList<Assembly> ViewAssemblies { get; protected set; }
+
+        public new static AndroidBootstrapperBase Current { get; private set; }
 
         internal static string BootstrapperType
         {
@@ -123,43 +122,55 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
         #region Methods
 
+        public static AndroidBootstrapperBase GetOrCreateBootstrapper(Func<AndroidBootstrapperBase> func)
+        {
+            lock (Locker)
+            {
+                if (Current == null)
+                    Current = func();
+                return Current;
+            }
+        }
+
         public static void EnsureInitialized(object sender, Bundle bundle)
         {
-            if (Interlocked.CompareExchange(ref _appStateGlobal, InitializedStateGlobal, EmptyState) != EmptyState)
-                return;
-            Type type;
-            var typeString = bundle?.GetString(BootTypeKey);
-            if (string.IsNullOrEmpty(typeString))
+            lock (Locker)
             {
-                BootstrapperAttribute bootstrapperAttribute = null;
-                if (sender != null)
-                    bootstrapperAttribute = sender.GetType().Assembly.GetCustomAttribute<BootstrapperAttribute>();
-                if (bootstrapperAttribute == null)
+                if (Current == null)
                 {
-                    foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies())
+                    Type type;
+                    var typeString = bundle?.GetString(BootTypeKey);
+                    if (string.IsNullOrEmpty(typeString))
                     {
-                        bootstrapperAttribute = (BootstrapperAttribute)assembly
-                            .GetCustomAttributes(typeof(BootstrapperAttribute), false)
-                            .FirstOrDefault();
-                        if (bootstrapperAttribute != null)
-                            break;
-                    }
-                    if (bootstrapperAttribute == null)
-                        throw new InvalidOperationException(@"The BootstrapperAttribute was not found.
+                        BootstrapperAttribute bootstrapperAttribute = null;
+                        if (sender != null)
+                            bootstrapperAttribute = sender.GetType().Assembly.GetCustomAttribute<BootstrapperAttribute>();
+                        if (bootstrapperAttribute == null)
+                        {
+                            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies())
+                            {
+                                bootstrapperAttribute = (BootstrapperAttribute) assembly
+                                    .GetCustomAttributes(typeof(BootstrapperAttribute), false)
+                                    .FirstOrDefault();
+                                if (bootstrapperAttribute != null)
+                                    break;
+                            }
+                            if (bootstrapperAttribute == null)
+                                throw new InvalidOperationException(@"The BootstrapperAttribute was not found.
 You must specify the type of application bootstrapper using BootstrapperAttribute, for example [assembly:Bootstrapper(typeof(MyBootstrapperType))]");
+                        }
+                        type = bootstrapperAttribute.BootstrapperType;
+                    }
+                    else
+                        type = Type.GetType(typeString, true);
+                    Current = (AndroidBootstrapperBase) Activator.CreateInstance(type);
                 }
-                type = bootstrapperAttribute.BootstrapperType;
             }
-            else
-                type = Type.GetType(typeString, true);
-            var instance = (AndroidBootstrapperBase)Activator.CreateInstance(type);
-            instance.Initialize();
+            Current.Initialize();
         }
 
         protected override void InitializeInternal()
         {
-            if (Interlocked.Exchange(ref _appStateGlobal, InitializedStateLocal) == InitializedStateLocal)
-                return;
             TypeCache<View>.Initialize(null);
             var application = CreateApplication();
             application.Initialize(_platform, CreateIocContainer(), GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);

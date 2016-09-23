@@ -36,18 +36,29 @@ namespace MugenMvvmToolkit.Xamarin.Forms.MarkupExtensions
 
         #region Methods
 
+        public static string GetBind(BindableObject view)
+        {
+            return (string)view.GetValue(BindProperty);
+        }
+
+        public static void SetBind(BindableObject view, string value)
+        {
+            view.SetValue(BindProperty, value);
+        }
+
         private static void OnBindPropertyChanged(BindableObject bindable, object oldValue, object newValue)
         {
             var bindings = (string)newValue;
             if (string.IsNullOrWhiteSpace(bindings))
                 return;
-            IList<IDataBinding> list = BindingServiceProvider
-                .BindingProvider
-                .CreateBindingsFromString(bindable, bindings);
-            if (!ServiceProvider.DesignTimeManager.IsDesignMode)
-                return;
-            foreach (InvalidDataBinding binding in list.OfType<InvalidDataBinding>())
-                throw binding.Exception;
+            if (ServiceProvider.IsDesignMode)
+            {
+                IList<IDataBinding> list = BindingServiceProvider.BindingProvider.CreateBindingsFromStringWithBindings(bindable, bindings);
+                foreach (InvalidDataBinding binding in list.OfType<InvalidDataBinding>())
+                    throw binding.Exception;
+            }
+            else
+                BindingServiceProvider.BindingProvider.CreateBindingsFromString(bindable, bindings);
         }
 
         #endregion

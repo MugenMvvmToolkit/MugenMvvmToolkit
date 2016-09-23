@@ -36,11 +36,9 @@ using MugenMvvmToolkit.Android.Models.EventArg;
 using MugenMvvmToolkit.Android.Views;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
-using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 {
@@ -182,12 +180,11 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         public override void OnDestroy(Action baseOnDestroy)
         {
             if (Tracer.TraceInformation)
-                Tracer.Info("OnDestroy activity({0})", Target);
+                Tracer.Info($"OnDestroy activity({Target})");
             ServiceProvider.EventAggregator.Unsubscribe(this);
             Destroyed?.Invoke(Target, EventArgs.Empty);
             _view.ClearBindingsRecursively(true, true, PlatformExtensions.AggressiveViewCleanup);
             _view.RemoveFromParent();
-            ThreadPool.QueueUserWorkItem(state => PlatformExtensions.CleanupWeakReferences(true));
             _view = null;
 
             if (_metadata != null)
@@ -210,6 +207,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 _layoutInflater = null;
             }
             base.OnDestroy(baseOnDestroy);
+            ThreadPool.QueueUserWorkItem(state => PlatformExtensions.CleanupWeakReferences(true));
             PlatformExtensions.SetCurrentActivity(Target, true);
             Target.ClearBindings(false, true);
             OptionsItemSelected = null;
@@ -285,8 +283,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         {
             _view = Target.LayoutInflater.Inflate(layoutResId, null);
             Target.SetContentView(_view);
-            _view = Target.FindViewById(global::Android.Resource.Id.Content) ?? _view;
-            _view.RootView.ListenParentChange();
         }
 
         public virtual MenuInflater GetMenuInflater(MenuInflater baseMenuInflater)

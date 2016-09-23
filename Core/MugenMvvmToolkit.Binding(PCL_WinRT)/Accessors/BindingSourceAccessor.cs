@@ -49,6 +49,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
             private object _valueReference;
             private EventHandler _canExecuteHandler;
             public IDataContext LastContext;
+            private IBindingPath _path;
 
             #endregion
 
@@ -65,22 +66,25 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
             #region Methods
 
-            public void SetValue(BindingActionValue currentValue, object newValue)
+            public void SetValue(BindingActionValue currentValue, object newValue, IBindingPathMembers pathMembers)
             {
+                _path = pathMembers.Path;
                 //it's normal here.
                 lock (this)
                 {
                     if (_currentValue != null && Equals(currentValue.Member, _currentValue.Member) &&
                         Equals(_currentValue.MemberSource.Target, currentValue.MemberSource.Target))
-                        SetValue(newValue);
+                        SetValue(newValue, pathMembers);
                     else
                     {
                         UnsubscribeEventHandler();
                         currentValue.TrySetValue(new object[] { this }, out _subscriber);
                         if (_subscriber != null)
                         {
+                            if (_path.IsDebuggable)
+                                DebugInfo($"Binding subscribed to event: '{pathMembers.LastMember.Path}'", new object[] { pathMembers });
                             _currentValue = currentValue;
-                            SetValue(newValue);
+                            SetValue(newValue, pathMembers);
                         }
                     }
                 }
@@ -114,7 +118,12 @@ namespace MugenMvvmToolkit.Binding.Accessors
                     _canExecuteHandler = null;
             }
 
-            private void SetValue(object newValue)
+            private void DebugInfo(string message, object[] args = null)
+            {
+                BindingServiceProvider.DebugBinding(this, _path.DebugTag, message, args);
+            }
+
+            private void SetValue(object newValue, IBindingPathMembers pathMembers)
             {
                 if (newValue == null)
                 {
@@ -129,12 +138,16 @@ namespace MugenMvvmToolkit.Binding.Accessors
                     if (!(newValue is BindingActionValue))
                         throw BindingExceptionManager.InvalidEventSourceValue(_currentValue.Member, newValue);
                     _valueReference = newValue;
+                    if (_path.IsDebuggable)
+                        DebugInfo($"Binding will use event: '{pathMembers.LastMember.Path}' to update member: '{((BindingActionValue)newValue).Member.Path}'", new[] { newValue });
                 }
                 else
                 {
                     var reference = _valueReference as WeakReference;
                     if (reference != null && ReferenceEquals(reference.Target, command))
                         return;
+                    if (_path.IsDebuggable)
+                        DebugInfo($"Binding will use event: '{pathMembers.LastMember.Path}' to update command: '{newValue}'", new[] { newValue });
                     UnsubscribeCommand();
                     _valueReference = ToolkitExtensions.GetWeakReferenceOrDefault(command, null, true);
                     if (_toggleEnabledState && InitializeCanExecuteDelegate(command))
@@ -202,10 +215,13 @@ namespace MugenMvvmToolkit.Binding.Accessors
                     .MemberProvider
                     .GetBindingMember(penultimateValue.GetType(), AttachedMemberConstants.Enabled, false, false);
                 if (member == null)
-                    Tracer.Warn("The member {0} cannot be obtained on type {1}",
-                        AttachedMemberConstants.Enabled, penultimateValue.GetType());
+                    Tracer.Warn("The member {0} cannot be obtained on type {1}", AttachedMemberConstants.Enabled, penultimateValue.GetType());
                 else
+                {
                     member.SetSingleValue(penultimateValue, Empty.BooleanToObject(value));
+                    if (_path.IsDebuggable)
+                        DebugInfo($"Binding changed enabled state to '{value}' for source: '{penultimateValue}'");
+                }
             }
 
             private object GetCommandParameterFromSource(IDataContext context)
@@ -284,7 +300,14 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 var command = target as ICommand;
                 if (command != null)
                 {
-                    command.Execute(GetCommandParameter(LastContext));
+                    if (_path.IsDebuggable)
+                    {
+                        var parameter = GetCommandParameter(LastContext);
+                        DebugInfo($"Binding invokes command '{command}' with parameter: '{parameter}', event args: '{message}'", new[] { command, parameter, message });
+                        command.Execute(GetCommandParameter(LastContext));
+                    }
+                    else
+                        command.Execute(GetCommandParameter(LastContext));
                     return true;
                 }
                 var actionValue = target as BindingActionValue;
@@ -293,7 +316,14 @@ namespace MugenMvvmToolkit.Binding.Accessors
                     UnsubscribeEventHandler();
                     return false;
                 }
-                actionValue.TrySetValue(new[] { GetCommandParameter(LastContext), message, LastContext }, out target);
+                if (_path.IsDebuggable)
+                {
+                    var args = new[] { GetCommandParameter(LastContext), message, LastContext };
+                    DebugInfo($"Binding invokes member '{actionValue.Member.Path}' with parameter: '{args[0]}', event args: '{message}'", args);
+                    actionValue.TrySetValue(new[] { GetCommandParameter(LastContext), message, LastContext }, out target);
+                }
+                else
+                    actionValue.TrySetValue(new[] { GetCommandParameter(LastContext), message, LastContext }, out target);
                 return true;
             }
 
@@ -348,6 +378,10 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
         public override bool CanWrite => true;
 
+        protected override bool IsDebuggable => _bindingSource.Path.IsDebuggable;
+
+        protected override string DebugTag => _bindingSource.Path.DebugTag;
+
         public override bool DisableEqualityChecking
         {
             get { return _disableEqualityChecking; }
@@ -383,6 +417,12 @@ namespace MugenMvvmToolkit.Binding.Accessors
             bool throwOnError)
         {
             IBindingPathMembers members = _bindingSource.GetPathMembers(throwOnError);
+            if (members.Path.IsDebuggable)
+            {
+                var value = members.LastMember.GetValue(members.PenultimateValue, null);
+                DebugInfo($"Binding got a raw value: '{value}', for path: '{members.Path}'", new[] { value, members });
+                return value;
+            }
             return members.LastMember.GetValue(members.PenultimateValue, null);
         }
 
@@ -391,7 +431,11 @@ namespace MugenMvvmToolkit.Binding.Accessors
         {
             IBindingPathMembers members = _bindingSource.GetPathMembers(throwOnError);
             if (!members.AllMembersAvailable)
+            {
+                if (members.Path.IsDebuggable)
+                    DebugInfo($"Binding cannot set value for path {members.Path.Path}", new object[] { members });
                 return false;
+            }
 
             object penultimateValue = members.PenultimateValue;
             IBindingMemberInfo lastMember = members.LastMember;
@@ -405,13 +449,21 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 else
                     oldValue = lastMember.GetValue(penultimateValue, null);
                 if (ReferenceEquals(oldValue, newValue) || newValue.IsUnsetValueOrDoNothing())
+                {
+                    if (members.Path.IsDebuggable)
+                        DebugInfo($"Binding ignores setter because old value: '{oldValue}' equals to new value '{newValue}'", new[] { members, oldValue, newValue });
                     return false;
+                }
             }
             else
             {
                 oldValue = BindingConstants.UnsetValue;
                 if (newValue.IsUnsetValueOrDoNothing())
+                {
+                    if (members.Path.IsDebuggable)
+                        DebugInfo($"Binding ignores setter for value '{newValue}'", new[] { members, newValue });
                     return false;
+                }
             }
 
             ValueAccessorChangingEventArgs args = null;
@@ -426,16 +478,24 @@ namespace MugenMvvmToolkit.Binding.Accessors
                     {
                         newValue = args.NewValue;
                         if (newValue.IsUnsetValueOrDoNothing())
+                        {
+                            if (members.Path.IsDebuggable)
+                                DebugInfo($"Binding ignores setter for value '{newValue}'", new[] { members, newValue });
                             return false;
+                        }
                     }
                 }
             }
             newValue = BindingServiceProvider.ValueConverter(lastMember, lastMember.Type, newValue);
             if (Equals(oldValue, newValue))
+            {
+                if (members.Path.IsDebuggable)
+                    DebugInfo($"Binding ignores setter because old value: '{oldValue}' equals to new value '{newValue}'", new[] { members, oldValue, newValue });
                 return false;
+            }
             if (BindingMemberType.Event.EqualsWithoutNullCheck(lastMember.MemberType))
             {
-                TryRegisterEvent((BindingActionValue)oldValue, newValue, context);
+                TryRegisterEvent((BindingActionValue)oldValue, newValue, context, members);
                 RaiseValueChanged(context, penultimateValue, lastMember, oldValue, newValue, args);
             }
             else
@@ -443,6 +503,8 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 if (_closure != null)
                     _closure.Unsubscribe(false, _isOneTime);
                 lastMember.SetSingleValue(penultimateValue, newValue);
+                if (members.Path.IsDebuggable)
+                    DebugInfo($"Binding set value: '{newValue}' for source: '{penultimateValue}' with path: '{lastMember.Path}'", new[] { newValue, penultimateValue, lastMember });
                 if (ValueChanged != null)
                     RaiseValueChanged(context, penultimateValue, lastMember, oldValue, newValue, args);
             }
@@ -475,16 +537,14 @@ namespace MugenMvvmToolkit.Binding.Accessors
             valueChanged(this, args);
         }
 
-        private void TryRegisterEvent(BindingActionValue bindingActionValue, object newValue, IDataContext context)
+        private void TryRegisterEvent(BindingActionValue bindingActionValue, object newValue, IDataContext context, IBindingPathMembers pathMembers)
         {
             if (newValue == null && _closure == null)
                 return;
             if (_closure == null)
-                Interlocked.CompareExchange(ref _closure,
-                    new EventClosure(_bindingSource, _toggleEnabledState && IsTarget,
-                        Parameters == null ? null : Parameters.CommandParameterDelegate), null);
+                Interlocked.CompareExchange(ref _closure, new EventClosure(_bindingSource, _toggleEnabledState && IsTarget, Parameters?.CommandParameterDelegate), null);
             _closure.LastContext = context;
-            _closure.SetValue(bindingActionValue, newValue);
+            _closure.SetValue(bindingActionValue, newValue, pathMembers);
         }
 
         #endregion

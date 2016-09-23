@@ -227,7 +227,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure
             context.Add(DynamicViewModelWindowPresenter.RestoredViewConstant, element);
             context.Add(DynamicViewModelWindowPresenter.IsOpenViewConstant, true);
 #endif
-            IViewModel viewModel = _viewModelProvider.RestoreViewModel(viewModelState, context, false);
+            IViewModel viewModel = _viewModelProvider.RestoreViewModel(viewModelState, context, true);
             _viewManager.InitializeViewAsync(viewModel, element, context).WithTaskExceptionHandler(this);
             _viewModelPresenter.Restore(viewModel, context);
         }

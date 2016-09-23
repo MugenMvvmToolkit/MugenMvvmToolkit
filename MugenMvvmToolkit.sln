@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Core(PCL_Silverlight)", "Core\MugenMvvmToolkit.Core(PCL_Silverlight)\MugenMvvmToolkit.Core(PCL_Silverlight).csproj", "{74D0561D-14CE-4BB7-911E-4F8EC86B203C}"
 EndProject
@@ -14,8 +14,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Silverlight(5.0)", "Platforms\MugenMvvmToolkit.Silverlight(5.0)\MugenMvvmToolkit.Silverlight(5.0).csproj", "{F50A09D0-6C2B-4F08-9A42-67146BFAECE9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WinPhone(8.0)", "Platforms\MugenMvvmToolkit.WinPhone(8.0)\MugenMvvmToolkit.WinPhone(8.0).csproj", "{DB5F3AF4-E212-43B4-8EA6-F78752FB9C15}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.AutofacContainer(PCL)", "IocContainers\MugenMvvmToolkit.AutofacContainer(PCL)\MugenMvvmToolkit.AutofacContainer(PCL).csproj", "{C66077D8-DBFD-479D-ADAB-BF569263E914}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.AutofacContainer(NET4.0)", "IocContainers\MugenMvvmToolkit.AutofacContainer(NET4.0)\MugenMvvmToolkit.AutofacContainer(NET4.0).csproj", "{4B2877EA-DE1D-4CE0-984B-E285354011F2}"
 EndProject
@@ -113,7 +111,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Android.De
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Xamarin.Forms.WinRT", "Platforms\MugenMvvmToolkit.Xamarin.Forms.WinRT\MugenMvvmToolkit.Xamarin.Forms.WinRT.csproj", "{C1687D2E-D65C-48D6-9DAD-8ED5ECE38E87}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WinRT.Binding(UWP)", "Platforms\MugenMvvmToolkit.WinRT.Binding(UWP)\MugenMvvmToolkit.WinRT.Binding(UWP).csproj", "{CC3BE919-CE97-44FB-A45A-F9FEF3CA4673}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.AutofacContainer(NET1.1)", "IocContainers\MugenMvvmToolkit.AutofacContainer(NET1.1)\MugenMvvmToolkit.AutofacContainer(NET1.1).csproj", "{C66077D8-DBFD-479D-ADAB-BF569263E914}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.AutofacContainer(PCL)", "IocContainers\MugenMvvmToolkit.AutofacContainer(PCL)\MugenMvvmToolkit.AutofacContainer(PCL).csproj", "{68773973-DBB1-4071-BEB2-17CC6C3089B9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -145,10 +145,6 @@ Global
 		{DB5F3AF4-E212-43B4-8EA6-F78752FB9C15}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DB5F3AF4-E212-43B4-8EA6-F78752FB9C15}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DB5F3AF4-E212-43B4-8EA6-F78752FB9C15}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C66077D8-DBFD-479D-ADAB-BF569263E914}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C66077D8-DBFD-479D-ADAB-BF569263E914}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C66077D8-DBFD-479D-ADAB-BF569263E914}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C66077D8-DBFD-479D-ADAB-BF569263E914}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4B2877EA-DE1D-4CE0-984B-E285354011F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4B2877EA-DE1D-4CE0-984B-E285354011F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4B2877EA-DE1D-4CE0-984B-E285354011F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -294,10 +290,14 @@ Global
 		{C1687D2E-D65C-48D6-9DAD-8ED5ECE38E87}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C1687D2E-D65C-48D6-9DAD-8ED5ECE38E87}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C1687D2E-D65C-48D6-9DAD-8ED5ECE38E87}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CC3BE919-CE97-44FB-A45A-F9FEF3CA4673}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CC3BE919-CE97-44FB-A45A-F9FEF3CA4673}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CC3BE919-CE97-44FB-A45A-F9FEF3CA4673}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CC3BE919-CE97-44FB-A45A-F9FEF3CA4673}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C66077D8-DBFD-479D-ADAB-BF569263E914}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C66077D8-DBFD-479D-ADAB-BF569263E914}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C66077D8-DBFD-479D-ADAB-BF569263E914}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C66077D8-DBFD-479D-ADAB-BF569263E914}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68773973-DBB1-4071-BEB2-17CC6C3089B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68773973-DBB1-4071-BEB2-17CC6C3089B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68773973-DBB1-4071-BEB2-17CC6C3089B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68773973-DBB1-4071-BEB2-17CC6C3089B9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -309,7 +309,6 @@ Global
 		{767BA920-CF3A-4894-8382-2DE780D398E3} = {96974E15-CFDD-494A-BF58-BDC9BF5B2212}
 		{F50A09D0-6C2B-4F08-9A42-67146BFAECE9} = {CE915081-82CF-4669-9D44-8B78697B06BC}
 		{DB5F3AF4-E212-43B4-8EA6-F78752FB9C15} = {88CB48B3-0D0A-44A6-8BCC-DDB2AF4A187B}
-		{C66077D8-DBFD-479D-ADAB-BF569263E914} = {4F2AFA9B-4B37-4010-AAE5-435BD2E03940}
 		{4B2877EA-DE1D-4CE0-984B-E285354011F2} = {4F2AFA9B-4B37-4010-AAE5-435BD2E03940}
 		{048706A3-6AB2-47B3-9649-AD9D4F2B15BB} = {4F2AFA9B-4B37-4010-AAE5-435BD2E03940}
 		{218B2A8D-9B38-492E-9DB8-6A173BFF2F80} = {4F2AFA9B-4B37-4010-AAE5-435BD2E03940}
@@ -354,6 +353,7 @@ Global
 		{4AF9E468-99AC-41E2-92A3-41102B0365DB} = {CEF06B1C-77EE-4DC5-9283-87F9C3678892}
 		{60C043FA-389E-4339-BA43-E8CA940BBFCA} = {CEF06B1C-77EE-4DC5-9283-87F9C3678892}
 		{C1687D2E-D65C-48D6-9DAD-8ED5ECE38E87} = {9D4E83A0-560F-46D4-AB0A-19FB4DEC35F5}
-		{CC3BE919-CE97-44FB-A45A-F9FEF3CA4673} = {97AD981A-C408-47E2-B151-2139D15BC22F}
+		{C66077D8-DBFD-479D-ADAB-BF569263E914} = {4F2AFA9B-4B37-4010-AAE5-435BD2E03940}
+		{68773973-DBB1-4071-BEB2-17CC6C3089B9} = {4F2AFA9B-4B37-4010-AAE5-435BD2E03940}
 	EndGlobalSection
 EndGlobal
