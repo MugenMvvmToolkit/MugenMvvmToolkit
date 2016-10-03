@@ -248,15 +248,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (_items.Length >= min)
                 return;
             var value = _items.Length == 0 ? 2 : _items.Length + 1;
-            if (value > 0)
-            {
-                var objArray = new IBindingBehavior[value];
-                if (_size > 0)
-                    Array.Copy(_items, 0, objArray, 0, _size);
-                _items = objArray;
-            }
-            else
-                _items = Empty.Array<IBindingBehavior>();
+            var objArray = new IBindingBehavior[value];
+            if (_size > 0)
+                Array.Copy(_items, 0, objArray, 0, _size);
+            _items = objArray;
         }
 
         private int IndexOf(IBindingBehavior item)
