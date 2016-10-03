@@ -13,7 +13,8 @@
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <NuGetPackageImportStamp></NuGetPackageImportStamp>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -31,7 +32,8 @@
     <DefineConstants>TRACE;WPF</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile></DocumentationFile>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="PresentationCore" />
@@ -43,10 +45,10 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Core\MugenMvvmToolkit.Binding%28PCL_WinRT%29\Extensions\BindingReflectionExtensionsCommon.cs">
+    <Compile Include="..\..\Core\MugenMvvmToolkit.Binding%28NetStandard%29\Extensions\BindingReflectionExtensionsCommon.cs">
       <Link>BindingReflectionExtensionsCommon.cs</Link>
     </Compile>
-    <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\Properties\AssemblyInfoCommon.cs">
+    <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28NetStandard%29\Properties\AssemblyInfoCommon.cs">
       <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
     <Compile Include="AttachedMembers.cs" />
@@ -72,14 +74,14 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\MugenMvvmToolkit.Binding%28PCL_WinRT%29\MugenMvvmToolkit.Binding%28PCL_WinRT%29.csproj">
+    <ProjectReference Include="..\..\Core\MugenMvvmToolkit.Binding%28NetStandard%29\MugenMvvmToolkit.Binding%28NetStandard%29.csproj">
       <Project>{bd7749ab-822f-4ed2-bb75-0fef2b9ad453}</Project>
-      <Name>MugenMvvmToolkit.Binding%28PCL_WinRT%29</Name>
+      <Name>MugenMvvmToolkit.Binding%28NetStandard%29</Name>
       <Private>False</Private>
     </ProjectReference>
-    <ProjectReference Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\MugenMvvmToolkit.Core%28PCL_WinRT%29.csproj">
+    <ProjectReference Include="..\..\Core\MugenMvvmToolkit.Core%28NetStandard%29\MugenMvvmToolkit.Core%28NetStandard%29.csproj">
       <Project>{f4323e9e-1608-429b-83dc-6a3670761850}</Project>
-      <Name>MugenMvvmToolkit.Core%28PCL_WinRT%29</Name>
+      <Name>MugenMvvmToolkit.Core%28NetStandard%29</Name>
       <Private>False</Private>
     </ProjectReference>
     <ProjectReference Include="..\MugenMvvmToolkit.WPF%284.5%29\MugenMvvmToolkit.WPF%284.5%29.csproj">
@@ -94,7 +96,7 @@
     </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" /> 
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

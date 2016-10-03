@@ -49,10 +49,10 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\AttachedValueProvider.cs">
+    <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28NetStandard%29\Infrastructure\AttachedValueProvider.cs">
       <Link>Infrastructure\AttachedValueProvider.cs</Link>
     </Compile>
-    <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\Properties\AssemblyInfoCommon.cs">
+    <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28NetStandard%29\Properties\AssemblyInfoCommon.cs">
       <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.android\infrastructure\callbacks\SerializableOperationCallbackFactory.cs">
@@ -91,9 +91,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\MugenMvvmToolkit.Core%28PCL_WinRT%29.csproj">
+    <ProjectReference Include="..\..\Core\MugenMvvmToolkit.Core%28NetStandard%29\MugenMvvmToolkit.Core%28NetStandard%29.csproj">
       <Project>{f4323e9e-1608-429b-83dc-6a3670761850}</Project>
-      <Name>MugenMvvmToolkit.Core%28PCL_WinRT%29</Name>
+      <Name>MugenMvvmToolkit.Core%28NetStandard%29</Name>
       <Private>False</Private>
     </ProjectReference>
   </ItemGroup>

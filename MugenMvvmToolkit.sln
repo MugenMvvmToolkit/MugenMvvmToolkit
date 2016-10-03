@@ -75,9 +75,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WinPhone.B
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WPF.Binding(4.0)", "Platforms\MugenMvvmToolkit.WPF.Binding(4.0)\MugenMvvmToolkit.WPF.Binding(4.0).csproj", "{627042AA-2DA6-4744-982A-E6BA58D9421A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Core(PCL_WinRT)", "Core\MugenMvvmToolkit.Core(PCL_WinRT)\MugenMvvmToolkit.Core(PCL_WinRT).csproj", "{F4323E9E-1608-429B-83DC-6A3670761850}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Core(NetStandard)", "Core\MugenMvvmToolkit.Core(NetStandard)\MugenMvvmToolkit.Core(NetStandard).csproj", "{F4323E9E-1608-429B-83DC-6A3670761850}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Binding(PCL_WinRT)", "Core\MugenMvvmToolkit.Binding(PCL_WinRT)\MugenMvvmToolkit.Binding(PCL_WinRT).csproj", "{BD7749AB-822F-4ED2-BB75-0FEF2B9AD453}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Binding(NetStandard)", "Core\MugenMvvmToolkit.Binding(NetStandard)\MugenMvvmToolkit.Binding(NetStandard).csproj", "{BD7749AB-822F-4ED2-BB75-0FEF2B9AD453}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.WinRT(PCL)", "Platforms\MugenMvvmToolkit.WinRT(PCL)\MugenMvvmToolkit.WinRT(PCL).csproj", "{9E1FD76F-907F-480C-A0C5-D165E07AA566}"
 EndProject
@@ -111,9 +111,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Android.De
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.Xamarin.Forms.WinRT", "Platforms\MugenMvvmToolkit.Xamarin.Forms.WinRT\MugenMvvmToolkit.Xamarin.Forms.WinRT.csproj", "{C1687D2E-D65C-48D6-9DAD-8ED5ECE38E87}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.AutofacContainer(NET1.1)", "IocContainers\MugenMvvmToolkit.AutofacContainer(NET1.1)\MugenMvvmToolkit.AutofacContainer(NET1.1).csproj", "{C66077D8-DBFD-479D-ADAB-BF569263E914}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.AutofacContainer(PCL)", "IocContainers\MugenMvvmToolkit.AutofacContainer(PCL)\MugenMvvmToolkit.AutofacContainer(PCL).csproj", "{68773973-DBB1-4071-BEB2-17CC6C3089B9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvmToolkit.AutofacContainer(NetStandard)", "IocContainers\MugenMvvmToolkit.AutofacContainer(NetStandard)\MugenMvvmToolkit.AutofacContainer(NetStandard).csproj", "{C66077D8-DBFD-479D-ADAB-BF569263E914}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -294,10 +292,6 @@ Global
 		{C66077D8-DBFD-479D-ADAB-BF569263E914}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C66077D8-DBFD-479D-ADAB-BF569263E914}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C66077D8-DBFD-479D-ADAB-BF569263E914}.Release|Any CPU.Build.0 = Release|Any CPU
-		{68773973-DBB1-4071-BEB2-17CC6C3089B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{68773973-DBB1-4071-BEB2-17CC6C3089B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{68773973-DBB1-4071-BEB2-17CC6C3089B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{68773973-DBB1-4071-BEB2-17CC6C3089B9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -354,6 +348,5 @@ Global
 		{60C043FA-389E-4339-BA43-E8CA940BBFCA} = {CEF06B1C-77EE-4DC5-9283-87F9C3678892}
 		{C1687D2E-D65C-48D6-9DAD-8ED5ECE38E87} = {9D4E83A0-560F-46D4-AB0A-19FB4DEC35F5}
 		{C66077D8-DBFD-479D-ADAB-BF569263E914} = {4F2AFA9B-4B37-4010-AAE5-435BD2E03940}
-		{68773973-DBB1-4071-BEB2-17CC6C3089B9} = {4F2AFA9B-4B37-4010-AAE5-435BD2E03940}
 	EndGlobalSection
 EndGlobal

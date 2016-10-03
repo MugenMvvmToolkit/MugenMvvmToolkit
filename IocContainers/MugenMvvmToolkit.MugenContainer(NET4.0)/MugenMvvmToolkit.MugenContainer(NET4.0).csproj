@@ -43,7 +43,7 @@
     <Reference Include="System.Windows.Presentation" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\MugenMvvmToolkit.AutofacContainer%28NET1.1%29\Properties\AssemblyInfoCommon.cs">
+    <Compile Include="..\MugenMvvmToolkit.AutofacContainer%28NetStandard%29\Properties\AssemblyInfoCommon.cs">
       <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
     <Compile Include="MugenContainer.cs" />

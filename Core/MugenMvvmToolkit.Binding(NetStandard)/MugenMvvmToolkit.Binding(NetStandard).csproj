@@ -2,7 +2,7 @@
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
-    <MinimumVisualStudioVersion>10.0</MinimumVisualStudioVersion>
+    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{BD7749AB-822F-4ED2-BB75-0FEF2B9AD453}</ProjectGuid>
@@ -13,8 +13,9 @@
     <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <TargetFrameworkProfile>Profile259</TargetFrameworkProfile>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
     <NuGetPackageImportStamp>
@@ -40,7 +41,7 @@
     </DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Properties\AssemblyInfoCommon.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Properties\AssemblyInfoCommon.cs">
       <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
     <Compile Include="Accessors\BindingSourceAccessor.cs" />
@@ -194,11 +195,12 @@
     <None Include="..\..\Solution Items\MugenMvvmToolkit.licenseheader">
       <Link>MugenMvvmToolkit.licenseheader</Link>
     </None>
+    <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\MugenMvvmToolkit.Core%28PCL_WinRT%29.csproj">
+    <ProjectReference Include="..\MugenMvvmToolkit.Core%28NetStandard%29\MugenMvvmToolkit.Core%28NetStandard%29.csproj">
       <Project>{f4323e9e-1608-429b-83dc-6a3670761850}</Project>
-      <Name>MugenMvvmToolkit.Core%28PCL_WinRT%29</Name>
+      <Name>MugenMvvmToolkit.Core%28NetStandard%29</Name>
       <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
@@ -208,7 +210,7 @@
     </None>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
-  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" /> 
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

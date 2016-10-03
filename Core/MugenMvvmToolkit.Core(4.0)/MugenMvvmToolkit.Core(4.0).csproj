@@ -56,640 +56,640 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Annotations\JetBrains.Annotations.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Annotations\JetBrains.Annotations.cs">
       <Link>Annotations\JetBrains.Annotations.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\annotations\Toolkit.Annotations.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\annotations\Toolkit.Annotations.cs">
       <Link>Annotations\Toolkit.Annotations.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\ApplicationSettings.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\ApplicationSettings.cs">
       <Link>ApplicationSettings.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\attributes\DisplayNameAttribute.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\attributes\DisplayNameAttribute.cs">
       <Link>Attributes\DisplayNameAttribute.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\attributes\IgnorePropertyAttribute.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\attributes\IgnorePropertyAttribute.cs">
       <Link>Attributes\IgnorePropertyAttribute.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\attributes\Internal.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\attributes\Internal.cs">
       <Link>Attributes\Internal.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\attributes\MetadataTypeAttribute.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\attributes\MetadataTypeAttribute.cs">
       <Link>Attributes\MetadataTypeAttribute.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\attributes\ModelPropertyAttribute.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\attributes\ModelPropertyAttribute.cs">
       <Link>Attributes\ModelPropertyAttribute.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\attributes\ViewModelAttribute.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\attributes\ViewModelAttribute.cs">
       <Link>Attributes\ViewModelAttribute.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\collections\FilterableNotifiableCollection.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\collections\FilterableNotifiableCollection.cs">
       <Link>Collections\FilterableNotifiableCollection.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\collections\LightDictionaryBase.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\collections\LightDictionaryBase.cs">
       <Link>Collections\LightDictionaryBase.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\collections\OrderedListInternal.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\collections\OrderedListInternal.cs">
       <Link>Collections\OrderedListInternal.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\collections\OrderedNotifiableCollection.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\collections\OrderedNotifiableCollection.cs">
       <Link>Collections\OrderedNotifiableCollection.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\collections\SynchronizedNotifiableCollection.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\collections\SynchronizedNotifiableCollection.cs">
       <Link>Collections\SynchronizedNotifiableCollection.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\collections\TrackingCollection.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\collections\TrackingCollection.cs">
       <Link>Collections\TrackingCollection.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Constants.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Constants.cs">
       <Link>Constants.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Empty.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Empty.cs">
       <Link>Empty.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\ExceptionManager.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\ExceptionManager.cs">
       <Link>ExceptionManager.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\extensions\ReflectionExtensions.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\extensions\ReflectionExtensions.cs">
       <Link>Extensions\ReflectionExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Extensions\ToolkitExtensions.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Extensions\ToolkitExtensions.cs">
       <Link>Extensions\ToolkitExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\extensions\ViewModelExtensions.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\extensions\ViewModelExtensions.cs">
       <Link>Extensions\ViewModelExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\ActionToken.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\ActionToken.cs">
       <Link>Infrastructure\ActionToken.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\AttachedValueProvider.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\AttachedValueProvider.cs">
       <Link>Infrastructure\AttachedValueProvider.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\AttachedValueProviderBase.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\AttachedValueProviderBase.cs">
       <Link>Infrastructure\AttachedValueProviderBase.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\BootstrapperBase.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\BootstrapperBase.cs">
       <Link>Infrastructure\BootstrapperBase.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\callbacks\AsyncOperation.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\callbacks\AsyncOperation.cs">
       <Link>Infrastructure\Callbacks\AsyncOperation.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\callbacks\AsyncOperationCallback.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\callbacks\AsyncOperationCallback.cs">
       <Link>Infrastructure\Callbacks\AsyncOperationCallback.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\callbacks\AsyncOperationImpl.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\callbacks\AsyncOperationImpl.cs">
       <Link>Infrastructure\Callbacks\AsyncOperationImpl.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\callbacks\AsyncOperationSerializableCallback.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\callbacks\AsyncOperationSerializableCallback.cs">
       <Link>Infrastructure\Callbacks\AsyncOperationSerializableCallback.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\Callbacks\DefaultOperationCallbackFactory.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Infrastructure\Callbacks\DefaultOperationCallbackFactory.cs">
       <Link>Infrastructure\Callbacks\DefaultOperationCallbackFactory.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\callbacks\DelegateContinuation.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\callbacks\DelegateContinuation.cs">
       <Link>Infrastructure\Callbacks\DelegateContinuation.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\Callbacks\NavigationOperation.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Infrastructure\Callbacks\NavigationOperation.cs">
       <Link>Infrastructure\Callbacks\NavigationOperation.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\callbacks\OperationCallbackManager.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\callbacks\OperationCallbackManager.cs">
       <Link>Infrastructure\Callbacks\OperationCallbackManager.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\callbacks\OperationResult.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\callbacks\OperationResult.cs">
       <Link>Infrastructure\Callbacks\OperationResult.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\CompositeEqualityComparer.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Infrastructure\CompositeEqualityComparer.cs">
       <Link>Infrastructure\CompositeEqualityComparer.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\DelegateComparer.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\DelegateComparer.cs">
       <Link>Infrastructure\DelegateComparer.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\DesignBootstrapperBase.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Infrastructure\DesignBootstrapperBase.cs">
       <Link>Infrastructure\DesignBootstrapperBase.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\DisplayNameProvider.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\DisplayNameProvider.cs">
       <Link>Infrastructure\DisplayNameProvider.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\EntityStateManager.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\EntityStateManager.cs">
       <Link>Infrastructure\EntityStateManager.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\EventAggregator.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\EventAggregator.cs">
       <Link>Infrastructure\EventAggregator.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\ExpressionReflectionManager.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\ExpressionReflectionManager.cs">
       <Link>Infrastructure\ExpressionReflectionManager.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\mediators\WindowViewMediatorBase.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\mediators\WindowViewMediatorBase.cs">
       <Link>Infrastructure\Mediators\WindowViewMediatorBase.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\navigation\DefaultNavigationCachePolicy.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\navigation\DefaultNavigationCachePolicy.cs">
       <Link>Infrastructure\Navigation\DefaultNavigationCachePolicy.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\presenters\DynamicMultiViewModelPresenter.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\presenters\DynamicMultiViewModelPresenter.cs">
       <Link>Infrastructure\Presenters\DynamicMultiViewModelPresenter.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\presenters\DynamicViewModelNavigationPresenter.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\presenters\DynamicViewModelNavigationPresenter.cs">
       <Link>Infrastructure\Presenters\DynamicViewModelNavigationPresenter.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\presenters\ViewModelPresenter.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\presenters\ViewModelPresenter.cs">
       <Link>Infrastructure\Presenters\ViewModelPresenter.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\PrimeNumberHelper.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Infrastructure\PrimeNumberHelper.cs">
       <Link>Infrastructure\PrimeNumberHelper.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\ReferenceEqualityComparer.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\ReferenceEqualityComparer.cs">
       <Link>Infrastructure\ReferenceEqualityComparer.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\Serializer.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\Serializer.cs">
       <Link>Infrastructure\Serializer.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\SynchronousThreadManager.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\SynchronousThreadManager.cs">
       <Link>Infrastructure\SynchronousThreadManager.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\Validation\DataAnnotationValidatior.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Infrastructure\Validation\DataAnnotationValidatior.cs">
       <Link>Infrastructure\Validation\DataAnnotationValidatior.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\validation\ManualValidator.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\validation\ManualValidator.cs">
       <Link>Infrastructure\Validation\ManualValidator.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\validation\ValidatableViewModelValidator.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\validation\ValidatableViewModelValidator.cs">
       <Link>Infrastructure\Validation\ValidatableViewModelValidator.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\validation\ValidatorBase.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\validation\ValidatorBase.cs">
       <Link>Infrastructure\Validation\ValidatorBase.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\validation\ValidatorProvider.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\validation\ValidatorProvider.cs">
       <Link>Infrastructure\Validation\ValidatorProvider.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\ViewManager.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\ViewManager.cs">
       <Link>Infrastructure\ViewManager.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\ViewMappingProvider.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\ViewMappingProvider.cs">
       <Link>Infrastructure\ViewMappingProvider.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\ViewModelProvider.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\ViewModelProvider.cs">
       <Link>Infrastructure\ViewModelProvider.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\infrastructure\WeakActionToken.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\WeakActionToken.cs">
       <Link>Infrastructure\WeakActionToken.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Infrastructure\WrapperManager.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Infrastructure\WrapperManager.cs">
       <Link>Infrastructure\WrapperManager.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\callbacks\IActionContinuation.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\callbacks\IActionContinuation.cs">
       <Link>Interfaces\Callbacks\IActionContinuation.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\callbacks\IAsyncOperation.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\callbacks\IAsyncOperation.cs">
       <Link>Interfaces\Callbacks\IAsyncOperation.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\callbacks\IAsyncOperationAwaiter.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\callbacks\IAsyncOperationAwaiter.cs">
       <Link>Interfaces\Callbacks\IAsyncOperationAwaiter.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\callbacks\IContinuation.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\callbacks\IContinuation.cs">
       <Link>Interfaces\Callbacks\IContinuation.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\callbacks\IFunctionContinuation.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\callbacks\IFunctionContinuation.cs">
       <Link>Interfaces\Callbacks\IFunctionContinuation.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Callbacks\INavigationOperation.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\Callbacks\INavigationOperation.cs">
       <Link>Interfaces\Callbacks\INavigationOperation.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\callbacks\IOperationCallback.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\callbacks\IOperationCallback.cs">
       <Link>Interfaces\Callbacks\IOperationCallback.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Callbacks\IOperationCallbackFactory.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\Callbacks\IOperationCallbackFactory.cs">
       <Link>Interfaces\Callbacks\IOperationCallbackFactory.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\callbacks\IOperationCallbackManager.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\callbacks\IOperationCallbackManager.cs">
       <Link>Interfaces\Callbacks\IOperationCallbackManager.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Callbacks\IOperationCallbackStateManager.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\Callbacks\IOperationCallbackStateManager.cs">
       <Link>Interfaces\Callbacks\IOperationCallbackStateManager.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\callbacks\IOperationResult.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\callbacks\IOperationResult.cs">
       <Link>Interfaces\Callbacks\IOperationResult.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\callbacks\ISerializableCallback.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\callbacks\ISerializableCallback.cs">
       <Link>Interfaces\Callbacks\ISerializableCallback.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\collections\INotifiableCollection.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\collections\INotifiableCollection.cs">
       <Link>Interfaces\Collections\INotifiableCollection.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\collections\INotifyCollectionChanging.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\collections\INotifyCollectionChanging.cs">
       <Link>Interfaces\Collections\INotifyCollectionChanging.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\collections\ITrackingCollection.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\collections\ITrackingCollection.cs">
       <Link>Interfaces\Collections\ITrackingCollection.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\IAttachedValueProvider.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\IAttachedValueProvider.cs">
       <Link>Interfaces\IAttachedValueProvider.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\IBootstrapCodeBuilder.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\IBootstrapCodeBuilder.cs">
       <Link>Interfaces\IBootstrapCodeBuilder.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\IDisplayNameProvider.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\IDisplayNameProvider.cs">
       <Link>Interfaces\IDisplayNameProvider.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\IEntityStateManager.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\IEntityStateManager.cs">
       <Link>Interfaces\IEntityStateManager.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\IEventAggregator.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\IEventAggregator.cs">
       <Link>Interfaces\IEventAggregator.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\IIocContainer.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\IIocContainer.cs">
       <Link>Interfaces\IIocContainer.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\IIocParameter.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\IIocParameter.cs">
       <Link>Interfaces\IIocParameter.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\IItemsSourceDecorator.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\IItemsSourceDecorator.cs">
       <Link>Interfaces\IItemsSourceDecorator.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\IModule.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\IModule.cs">
       <Link>Interfaces\IModule.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\IMvvmApplication.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\IMvvmApplication.cs">
       <Link>Interfaces\IMvvmApplication.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\IReflectionManager.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\IReflectionManager.cs">
       <Link>Interfaces\IReflectionManager.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\ISerializer.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\ISerializer.cs">
       <Link>Interfaces\ISerializer.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\IStateTransitionManager.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\IStateTransitionManager.cs">
       <Link>Interfaces\IStateTransitionManager.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\ITaskExceptionHandler.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\ITaskExceptionHandler.cs">
       <Link>Interfaces\ITaskExceptionHandler.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\IThreadManager.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\IThreadManager.cs">
       <Link>Interfaces\IThreadManager.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\ITracer.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\ITracer.cs">
       <Link>Interfaces\ITracer.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\IViewManager.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\IViewManager.cs">
       <Link>Interfaces\IViewManager.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\IViewMappingProvider.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\IViewMappingProvider.cs">
       <Link>Interfaces\IViewMappingProvider.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\IViewModelProvider.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\IViewModelProvider.cs">
       <Link>Interfaces\IViewModelProvider.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\IWrapperManager.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\IWrapperManager.cs">
       <Link>Interfaces\IWrapperManager.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\mediators\IWindowViewMediator.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\mediators\IWindowViewMediator.cs">
       <Link>Interfaces\Mediators\IWindowViewMediator.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Models\IBusyInfo.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\Models\IBusyInfo.cs">
       <Link>Interfaces\Models\IBusyInfo.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Models\IBusyToken.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\Models\IBusyToken.cs">
       <Link>Interfaces\Models\IBusyToken.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\models\IDataContext.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\models\IDataContext.cs">
       <Link>Interfaces\Models\IDataContext.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\models\IDisposableObject.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\models\IDisposableObject.cs">
       <Link>Interfaces\Models\IDisposableObject.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\models\IEntitySnapshot.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\models\IEntitySnapshot.cs">
       <Link>Interfaces\Models\IEntitySnapshot.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\models\IEntityStateEntry.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\models\IEntityStateEntry.cs">
       <Link>Interfaces\Models\IEntityStateEntry.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Models\IEventPublisher.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\Models\IEventPublisher.cs">
       <Link>Interfaces\Models\IEventPublisher.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\models\IHandler.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\models\IHandler.cs">
       <Link>Interfaces\Models\IHandler.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\models\IHasDisplayName.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\models\IHasDisplayName.cs">
       <Link>Interfaces\Models\IHasDisplayName.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\models\IHasOperationResult.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\models\IHasOperationResult.cs">
       <Link>Interfaces\Models\IHasOperationResult.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\models\IHasState.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\models\IHasState.cs">
       <Link>Interfaces\Models\IHasState.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Models\IHasWeakReference.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\Models\IHasWeakReference.cs">
       <Link>Interfaces\Models\IHasWeakReference.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\models\IModuleContext.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\models\IModuleContext.cs">
       <Link>Interfaces\Models\IModuleContext.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\models\IObservable.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\models\IObservable.cs">
       <Link>Interfaces\Models\IObservable.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\models\IRelayCommand.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\models\IRelayCommand.cs">
       <Link>Interfaces\Models\IRelayCommand.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\models\ISelectable.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\models\ISelectable.cs">
       <Link>Interfaces\Models\ISelectable.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Models\ISubscriber.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\Models\ISubscriber.cs">
       <Link>Interfaces\Models\ISubscriber.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\models\ISuspendNotifications.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\models\ISuspendNotifications.cs">
       <Link>Interfaces\Models\ISuspendNotifications.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Models\IToast.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\Models\IToast.cs">
       <Link>Interfaces\Models\IToast.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\models\IViewMappingItem.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\models\IViewMappingItem.cs">
       <Link>Interfaces\Models\IViewMappingItem.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\models\IViewModelSettings.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\models\IViewModelSettings.cs">
       <Link>Interfaces\Models\IViewModelSettings.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\navigation\INavigationCachePolicy.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\navigation\INavigationCachePolicy.cs">
       <Link>Interfaces\Navigation\INavigationCachePolicy.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\navigation\INavigationContext.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\navigation\INavigationContext.cs">
       <Link>Interfaces\Navigation\INavigationContext.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\navigation\INavigationProvider.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\navigation\INavigationProvider.cs">
       <Link>Interfaces\Navigation\INavigationProvider.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\presenters\IDynamicViewModelPresenter.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\presenters\IDynamicViewModelPresenter.cs">
       <Link>Interfaces\Presenters\IDynamicViewModelPresenter.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\presenters\IMessagePresenter.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\presenters\IMessagePresenter.cs">
       <Link>Interfaces\Presenters\IMessagePresenter.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\presenters\IToastPresenter.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\presenters\IToastPresenter.cs">
       <Link>Interfaces\Presenters\IToastPresenter.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\presenters\IViewModelPresenter.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\presenters\IViewModelPresenter.cs">
       <Link>Interfaces\Presenters\IViewModelPresenter.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\validation\INotifyDataErrorInfo.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\validation\INotifyDataErrorInfo.cs">
       <Link>Interfaces\Validation\INotifyDataErrorInfo.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\validation\IValidator.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\validation\IValidator.cs">
       <Link>Interfaces\Validation\IValidator.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Validation\IValidatorAggregator.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\Validation\IValidatorAggregator.cs">
       <Link>Interfaces\Validation\IValidatorAggregator.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\validation\IValidatorContext.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\validation\IValidatorContext.cs">
       <Link>Interfaces\Validation\IValidatorContext.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\validation\IValidatorProvider.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\validation\IValidatorProvider.cs">
       <Link>Interfaces\Validation\IValidatorProvider.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\viewmodels\ICloseableViewModel.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\viewmodels\ICloseableViewModel.cs">
       <Link>Interfaces\ViewModels\ICloseableViewModel.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\viewmodels\IEditableViewModel.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\viewmodels\IEditableViewModel.cs">
       <Link>Interfaces\ViewModels\IEditableViewModel.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\viewmodels\IGridViewModel.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\viewmodels\IGridViewModel.cs">
       <Link>Interfaces\ViewModels\IGridViewModel.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\ViewModels\IIocContainerOwnerViewModel.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\ViewModels\IIocContainerOwnerViewModel.cs">
       <Link>Interfaces\ViewModels\IIocContainerOwnerViewModel.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\viewmodels\IMultiViewModel.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\viewmodels\IMultiViewModel.cs">
       <Link>Interfaces\ViewModels\IMultiViewModel.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\viewmodels\INavigableViewModel.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\viewmodels\INavigableViewModel.cs">
       <Link>Interfaces\ViewModels\INavigableViewModel.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\ViewModels\IParentAwareViewModel.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\ViewModels\IParentAwareViewModel.cs">
       <Link>Interfaces\ViewModels\IParentAwareViewModel.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\viewmodels\IValidatableViewModel.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\viewmodels\IValidatableViewModel.cs">
       <Link>Interfaces\ViewModels\IValidatableViewModel.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\viewmodels\IViewAwareViewModel.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\viewmodels\IViewAwareViewModel.cs">
       <Link>Interfaces\ViewModels\IViewAwareViewModel.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\viewmodels\IViewModel.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\viewmodels\IViewModel.cs">
       <Link>Interfaces\ViewModels\IViewModel.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\viewmodels\IWorkspaceViewModel.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\viewmodels\IWorkspaceViewModel.cs">
       <Link>Interfaces\ViewModels\IWorkspaceViewModel.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\viewmodels\IWrapperViewModel.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\viewmodels\IWrapperViewModel.cs">
       <Link>Interfaces\ViewModels\IWrapperViewModel.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Views\IView.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\Views\IView.cs">
       <Link>Interfaces\Views\IView.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Interfaces\Views\IViewModelAwareView.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\Views\IViewModelAwareView.cs">
       <Link>Interfaces\Views\IViewModelAwareView.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\interfaces\views\IViewWrapper.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\views\IViewWrapper.cs">
       <Link>Interfaces\Views\IViewWrapper.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\ActionSubscriber.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Models\ActionSubscriber.cs">
       <Link>Models\ActionSubscriber.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\AsyncRelayCommand.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Models\AsyncRelayCommand.cs">
       <Link>Models\AsyncRelayCommand.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\DataConstant.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\DataConstant.cs">
       <Link>Models\DataConstant.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\DataConstantValue.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\DataConstantValue.cs">
       <Link>Models\DataConstantValue.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\DataContext.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\DataContext.cs">
       <Link>Models\DataContext.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\DefaultViewModelSettings.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\DefaultViewModelSettings.cs">
       <Link>Models\DefaultViewModelSettings.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\Delegates.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\Delegates.cs">
       <Link>Models\Delegates.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\EntityStateEntry.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\EntityStateEntry.cs">
       <Link>Models\EntityStateEntry.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\Enums.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\Enums.cs">
       <Link>Models\Enums.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\eventarg\ChangesAppliedEventArgs.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\eventarg\ChangesAppliedEventArgs.cs">
       <Link>Models\EventArg\ChangesAppliedEventArgs.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\eventarg\ChangesCanceledEventArgs.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\eventarg\ChangesCanceledEventArgs.cs">
       <Link>Models\EventArg\ChangesCanceledEventArgs.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\eventarg\DataErrorsChangedEventArgs.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\eventarg\DataErrorsChangedEventArgs.cs">
       <Link>Models\EventArg\DataErrorsChangedEventArgs.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\eventarg\EntityInitializedEventArgs.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\eventarg\EntityInitializedEventArgs.cs">
       <Link>Models\EventArg\EntityInitializedEventArgs.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\eventarg\ItemsSourceChangedEventArgs.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\eventarg\ItemsSourceChangedEventArgs.cs">
       <Link>Models\EventArg\ItemsSourceChangedEventArgs.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\eventarg\NavigatedEventArgs.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\eventarg\NavigatedEventArgs.cs">
       <Link>Models\EventArg\NavigatedEventArgs.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EventArg\NavigatingCancelEventArgsBase.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Models\EventArg\NavigatingCancelEventArgsBase.cs">
       <Link>Models\EventArg\NavigatingCancelEventArgsBase.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EventArg\NavigationEventArgsBase.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Models\EventArg\NavigationEventArgsBase.cs">
       <Link>Models\EventArg\NavigationEventArgsBase.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\eventarg\NotifyCollectionChangingEventArgs.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\eventarg\NotifyCollectionChangingEventArgs.cs">
       <Link>Models\EventArg\NotifyCollectionChangingEventArgs.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\eventarg\SelectedItemChangedEventArgs.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\eventarg\SelectedItemChangedEventArgs.cs">
       <Link>Models\EventArg\SelectedItemChangedEventArgs.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\eventarg\ValueChangedEventArgs.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\eventarg\ValueChangedEventArgs.cs">
       <Link>Models\EventArg\ValueChangedEventArgs.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\eventarg\ValueEventArgs.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\eventarg\ValueEventArgs.cs">
       <Link>Models\EventArg\ValueEventArgs.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\eventarg\ViewModelClosedEventArgs.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\eventarg\ViewModelClosedEventArgs.cs">
       <Link>Models\EventArg\ViewModelClosedEventArgs.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\eventarg\ViewModelClosingEventArgs.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\eventarg\ViewModelClosingEventArgs.cs">
       <Link>Models\EventArg\ViewModelClosingEventArgs.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EventArg\ViewModelInitializationEventArgs.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Models\EventArg\ViewModelInitializationEventArgs.cs">
       <Link>Models\EventArg\ViewModelInitializationEventArgs.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EventArg\ViewModelPreservedEventArgs.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Models\EventArg\ViewModelPreservedEventArgs.cs">
       <Link>Models\EventArg\ViewModelPreservedEventArgs.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EventArg\ViewModelPreservingEventArgs.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Models\EventArg\ViewModelPreservingEventArgs.cs">
       <Link>Models\EventArg\ViewModelPreservingEventArgs.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EventArg\ViewModelRestoredEventArgs.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Models\EventArg\ViewModelRestoredEventArgs.cs">
       <Link>Models\EventArg\ViewModelRestoredEventArgs.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\EventArg\ViewModelRestoringEventArgs.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Models\EventArg\ViewModelRestoringEventArgs.cs">
       <Link>Models\EventArg\ViewModelRestoringEventArgs.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\exceptions\DesignTimeException.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\exceptions\DesignTimeException.cs">
       <Link>Models\Exceptions\DesignTimeException.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\HandlerSubscriber.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Models\HandlerSubscriber.cs">
       <Link>Models\HandlerSubscriber.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\ioc\BindingInfo.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\ioc\BindingInfo.cs">
       <Link>Models\Ioc\BindingInfo.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\ioc\DependencyLifecycle.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\ioc\DependencyLifecycle.cs">
       <Link>Models\Ioc\DependencyLifecycle.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\ioc\IocParameter.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\ioc\IocParameter.cs">
       <Link>Models\Ioc\IocParameter.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\ioc\IocParameterType.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\ioc\IocParameterType.cs">
       <Link>Models\Ioc\IocParameterType.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\messages\AsyncValidationMessage.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\messages\AsyncValidationMessage.cs">
       <Link>Models\Messages\AsyncValidationMessage.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\messages\StateChangedMessage.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\messages\StateChangedMessage.cs">
       <Link>Models\Messages\StateChangedMessage.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\ModuleContext.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\ModuleContext.cs">
       <Link>Models\ModuleContext.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\NavigationContext.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\NavigationContext.cs">
       <Link>Models\NavigationContext.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\NavigationType.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Models\NavigationType.cs">
       <Link>Models\NavigationType.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\NotifyPropertyChangedBase.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\NotifyPropertyChangedBase.cs">
       <Link>Models\NotifyPropertyChangedBase.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\OperationType.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\OperationType.cs">
       <Link>Models\OperationType.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\PlatformInfo.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\PlatformInfo.cs">
       <Link>Models\PlatformInfo.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\PlatformType.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\PlatformType.cs">
       <Link>Models\PlatformType.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\RelayCommand.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\RelayCommand.cs">
       <Link>Models\RelayCommand.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\RelayCommandBase.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\RelayCommandBase.cs">
       <Link>Models\RelayCommandBase.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\StringConstantBase.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\StringConstantBase.cs">
       <Link>Models\StringConstantBase.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\TrackingEntity.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\TrackingEntity.cs">
       <Link>Models\TrackingEntity.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\validation\ValidatorContext.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\validation\ValidatorContext.cs">
       <Link>Models\Validation\ValidatorContext.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\models\ViewMappingItem.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\ViewMappingItem.cs">
       <Link>Models\ViewMappingItem.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Models\WeakActionSubscriber.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Models\WeakActionSubscriber.cs">
       <Link>Models\WeakActionSubscriber.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Modules\InitializationModuleBase.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Modules\InitializationModuleBase.cs">
       <Link>Modules\InitializationModuleBase.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Modules\ModuleBase.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Modules\ModuleBase.cs">
       <Link>Modules\ModuleBase.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Modules\WrapperRegistrationModuleBase.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Modules\WrapperRegistrationModuleBase.cs">
       <Link>Modules\WrapperRegistrationModuleBase.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\MvvmApplication.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\MvvmApplication.cs">
       <Link>MvvmApplication.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Properties\AssemblyInfo.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Properties\AssemblyInfoCommon.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Properties\AssemblyInfoCommon.cs">
       <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\ServiceProvider.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\ServiceProvider.cs">
       <Link>ServiceProvider.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Should.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Should.cs">
       <Link>Should.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\Tracer.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Tracer.cs">
       <Link>Tracer.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28PCL_WinRT%29\UnitTestBase.cs">
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\UnitTestBase.cs">
       <Link>UnitTestBase.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\viewmodels\CloseableViewModel.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\viewmodels\CloseableViewModel.cs">
       <Link>ViewModels\CloseableViewModel.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\viewmodels\EditableViewModel.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\viewmodels\EditableViewModel.cs">
       <Link>ViewModels\EditableViewModel.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\viewmodels\GridViewModel.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\viewmodels\GridViewModel.cs">
       <Link>ViewModels\GridViewModel.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\viewmodels\MultiViewModel.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\viewmodels\MultiViewModel.cs">
       <Link>ViewModels\MultiViewModel.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\viewmodels\ValidatableViewModel.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\viewmodels\ValidatableViewModel.cs">
       <Link>ViewModels\ValidatableViewModel.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\viewmodels\ViewModelBase.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\viewmodels\ViewModelBase.cs">
       <Link>ViewModels\ViewModelBase.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\viewmodels\WorkspaceViewModel.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\viewmodels\WorkspaceViewModel.cs">
       <Link>ViewModels\WorkspaceViewModel.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28pcl_winrt%29\viewmodels\WrapperViewModelBase.cs">
+    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\viewmodels\WrapperViewModelBase.cs">
       <Link>ViewModels\WrapperViewModelBase.cs</Link>
     </Compile>
   </ItemGroup>

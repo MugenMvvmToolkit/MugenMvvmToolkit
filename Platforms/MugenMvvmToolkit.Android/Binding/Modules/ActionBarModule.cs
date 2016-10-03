@@ -466,8 +466,15 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.MenuItem.ActionViewTemplateSelector, (o, args) => RefreshValue(o, AttachedMembers.MenuItem.ActionView)));
             memberProvider.Register(AttachedBindingMember.CreateNotifiableMember(AttachedMembers.MenuItem.ActionProvider, (info, item) => item.GetActionProvider(), MenuItemUpdateActionProvider));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.MenuItem.ActionProviderTemplateSelector, (o, args) => RefreshValue(o, AttachedMembers.MenuItem.ActionProvider)));
-
-
+#if !APPCOMPAT
+            memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.MenuItem.RenderView, (info, item) =>
+            {
+                var renderView = GetContextFromItem(item)?.GetActivity()?.FindViewById(item.ItemId);
+                if (renderView == null)
+                    Tracer.Error($"Cannot find render view for {item}");
+                return renderView;
+            }, null));
+#endif
             memberProvider.Register(AttachedBindingMember
                 .CreateMember(AttachedMembers.MenuItem.IsActionViewExpanded, (info, item) => item.GetIsActionViewExpanded(),
                     SetIsActionViewExpanded, ObserveIsActionViewExpanded, (item, args) => item.SetOnActionExpandListener(new ActionViewExpandedListener(item))));

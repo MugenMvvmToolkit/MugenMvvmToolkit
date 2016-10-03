@@ -365,6 +365,7 @@ namespace MugenMvvmToolkit.Android.Binding
             public static readonly BindingMemberDescriptor<IMenuItem, object> Icon;
             public static readonly BindingMemberDescriptor<IMenuItem, string> Title;
             public static readonly BindingMemberDescriptor<IMenuItem, string> TitleCondensed;
+            public static readonly BindingMemberDescriptor<IMenuItem, global::Android.Views.View> RenderView;
 
             #endregion
 
@@ -377,12 +378,13 @@ namespace MugenMvvmToolkit.Android.Binding
                 TitleCondensed = new BindingMemberDescriptor<IMenuItem, string>(nameof(TitleCondensed));
                 ActionView = new BindingMemberDescriptor<IMenuItem, object>(nameof(ActionView));
                 ActionViewTemplateSelector = new BindingMemberDescriptor<IMenuItem, IDataTemplateSelector>(nameof(ActionViewTemplateSelector));
-                ActionProvider = new BindingMemberDescriptor<IMenuItem, object>("ActionProvider");
+                ActionProvider = new BindingMemberDescriptor<IMenuItem, object>(nameof(ActionProvider));
                 ActionProviderTemplateSelector = new BindingMemberDescriptor<IMenuItem, IDataTemplateSelector>(nameof(ActionProviderTemplateSelector));
                 IsActionViewExpanded = new BindingMemberDescriptor<IMenuItem, bool>(nameof(IsActionViewExpanded));
                 ShowAsAction = new BindingMemberDescriptor<IMenuItem, ShowAsAction>(nameof(ShowAsAction));
                 IsChecked = new BindingMemberDescriptor<IMenuItem, bool>(nameof(IsChecked));
                 Click = new BindingMemberDescriptor<IMenuItem, IEventListener>(nameof(Click));
+                RenderView = new BindingMemberDescriptor<IMenuItem, global::Android.Views.View>(nameof(RenderView));
             }
 
             #endregion

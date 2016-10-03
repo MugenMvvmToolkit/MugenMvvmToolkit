@@ -506,17 +506,17 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\MugenMvvmToolkit.Binding%28PCL_WinRT%29\MugenMvvmToolkit.Binding%28PCL_WinRT%29.csproj">
+    <ProjectReference Include="..\..\Core\MugenMvvmToolkit.Binding%28NetStandard%29\MugenMvvmToolkit.Binding%28NetStandard%29.csproj">
       <Project>{bd7749ab-822f-4ed2-bb75-0fef2b9ad453}</Project>
-      <Name>MugenMvvmToolkit.Binding%28PCL_WinRT%29</Name>
+      <Name>MugenMvvmToolkit.Binding%28NetStandard%29</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_WinRT%29\MugenMvvmToolkit.Core%28PCL_WinRT%29.csproj">
+    <ProjectReference Include="..\..\Core\MugenMvvmToolkit.Core%28NetStandard%29\MugenMvvmToolkit.Core%28NetStandard%29.csproj">
       <Project>{f4323e9e-1608-429b-83dc-6a3670761850}</Project>
-      <Name>MugenMvvmToolkit.Core%28PCL_WinRT%29</Name>
+      <Name>MugenMvvmToolkit.Core%28NetStandard%29</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\IocContainers\MugenMvvmToolkit.AutofacContainer%28NET1.1%29\MugenMvvmToolkit.AutofacContainer%28NET1.1%29.csproj">
+    <ProjectReference Include="..\..\IocContainers\MugenMvvmToolkit.AutofacContainer%28NetStandard%29\MugenMvvmToolkit.AutofacContainer%28NetStandard%29.csproj">
       <Project>{c66077d8-dbfd-479d-adab-bf569263e914}</Project>
-      <Name>MugenMvvmToolkit.AutofacContainer%28NET1.1%29</Name>
+      <Name>MugenMvvmToolkit.AutofacContainer%28NetStandard%29</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\IocContainers\MugenMvvmToolkit.MugenContainer%28WinRT%29\MugenMvvmToolkit.MugenContainer%28WinRT%29.csproj">
       <Project>{e167271b-5f89-4d89-99b2-f585e232035f}</Project>
