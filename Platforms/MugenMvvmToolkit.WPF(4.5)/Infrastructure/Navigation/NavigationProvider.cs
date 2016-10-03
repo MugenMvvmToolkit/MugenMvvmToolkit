@@ -848,6 +848,8 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
             var viewModels = CachePolicy.Invalidate(context);
             foreach (var viewModelFrom in viewModels.Reverse())
             {
+                if (ReferenceEquals(viewModelFrom, viewModelTo))
+                    continue;
                 var navigationContext = new NavigationContext(NavigationType.Page, NavigationMode.Reset, viewModelFrom, viewModelTo, this);
                 if (!OnViewModelClosed(viewModelFrom, navigationContext, true))
                     CompleteOperationCallback(viewModelFrom, navigationContext);
