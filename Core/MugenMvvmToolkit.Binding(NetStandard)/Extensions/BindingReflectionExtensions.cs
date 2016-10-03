@@ -558,9 +558,20 @@ namespace MugenMvvmToolkit.Binding
                 AddInterface(types, t, false);
         }
 
+        internal static object[] InsertFirstArg(IList<object> src, object firstArg)
+        {
+            var items = new object[src.Count + 1];
+            items[0] = firstArg;
+            for (int i = 0; i < src.Count; i++)
+                items[i + 1] = src[i];
+            return items;
+        }
+
         internal static object[] GetIndexerValues(string path, IList<ParameterInfo> parameters = null, Type castType = null)
         {
-            if (!path.StartsWith("["))
+            if (path.StartsWith("Item[", StringComparison.Ordinal))
+                path = path.Substring(4);
+            if (!path.StartsWith("[", StringComparison.Ordinal))
                 return Empty.Array<object>();
             var args = path
                 .RemoveBounds()

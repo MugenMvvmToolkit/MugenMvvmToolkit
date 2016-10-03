@@ -171,7 +171,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 if (!_tempMembersCache.TryGetValue(key, out bindingMember))
                 {
                     if (!ignoreAttachedMembers)
-                        bindingMember = GetAttachedBindingMember(ref key);
+                        bindingMember = GetAttachedBindingMember(key);
                     if (bindingMember == null)
                     {
                         if (!_explicitMembersCache.TryGetValue(key, out bindingMember))
@@ -293,8 +293,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         [CanBeNull]
         protected virtual IBindingMemberInfo GetExplicitBindingMember([NotNull] Type sourceType, [NotNull] string path)
         {
-            path = path.Trim();
             string[] indexerArgs = null;
+            if (path.StartsWith("Item[", StringComparison.Ordinal))
+                path = path.Substring(4);
             if (path.StartsWith("[", StringComparison.Ordinal) && path.EndsWith("]", StringComparison.Ordinal))
             {
                 indexerArgs = path
@@ -385,12 +386,19 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         [CanBeNull]
         protected IBindingMemberInfo GetAttachedBindingMember([NotNull] Type sourceType, [NotNull] string path)
         {
-            var key = new CacheKey(sourceType, path, false);
-            return GetAttachedBindingMember(ref key);
+            return GetAttachedBindingMember(new CacheKey(sourceType, path, false));
         }
 
-        private IBindingMemberInfo GetAttachedBindingMember(ref CacheKey key)
+        private IBindingMemberInfo GetAttachedBindingMember(CacheKey key)
         {
+            bool isIndexer = false;
+            string path = null;
+            if (key.Path.StartsWith("Item[", StringComparison.Ordinal) || key.Path.StartsWith("[", StringComparison.Ordinal))
+            {
+                isIndexer = true;
+                path = key.Path;
+                key = new CacheKey(key.Type, ReflectionExtensions.IndexerName, key.IgnoreAttachedMembers);
+            }
             IBindingMemberInfo bindingMember;
             lock (_attachedMembers)
             {
@@ -412,6 +420,8 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
             if (bindingMember == null && BindingServiceProvider.DataContextMemberAliases.Contains(key.Path))
                 return BindingMemberInfo.BindingContextMember;
+            if (isIndexer && bindingMember != null)
+                return new BindingMemberInfo(bindingMember, path);
             return bindingMember;
         }
 

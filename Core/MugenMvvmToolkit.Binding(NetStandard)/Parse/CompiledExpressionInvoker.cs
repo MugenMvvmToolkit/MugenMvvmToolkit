@@ -101,7 +101,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                         TryGetValue(key, out result);
                 }
                 if (result != null)
-                    return result(InsertFirstArg(args, target));
+                    return result(BindingReflectionExtensions.InsertFirstArg(args, target));
 
                 List<MethodInfo> methods;
                 if (methodName == ReflectionExtensions.IndexerName)
@@ -154,7 +154,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 }
                 if (result == null)
                     throw BindingExceptionManager.InvalidBindingMember(target.GetType(), methodName);
-                return result(InsertFirstArg(args, target));
+                return result(BindingReflectionExtensions.InsertFirstArg(args, target));
             }
 
             private static Type[] GetArgTypes(object[] args)
@@ -384,7 +384,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             }
             if (_isEmpty)
                 return expression.Invoke(new object[] { context });
-            return expression.Invoke(InsertFirstArg(sourceValues, context));
+            return expression.Invoke(BindingReflectionExtensions.InsertFirstArg(sourceValues, context));
         }
 
         protected virtual object InvokeDynamicMethod(string methodName, IDataContext context, IList<Type> typeArgs, object[] items)
@@ -952,15 +952,6 @@ namespace MugenMvvmToolkit.Binding.Parse
             for (int i = 0; i < types.Count; i++)
                 typeArgs[i] = resolver.ResolveType(types[i], _dataContext, true);
             return typeArgs;
-        }
-
-        private static object[] InsertFirstArg(IList<object> src, object firstArg)
-        {
-            var items = new object[src.Count + 1];
-            items[0] = firstArg;
-            for (int i = 0; i < src.Count; i++)
-                items[i + 1] = src[i];
-            return items;
         }
 
         private static object GetMemberValueDynamic(object target, string member)

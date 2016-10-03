@@ -112,6 +112,40 @@ namespace MugenMvvmToolkit.Binding.Models
             #endregion
         }
 
+        private sealed class AttachedIndexerAccessor
+        {
+            #region Fields
+
+            private readonly IBindingMemberInfo _member;
+            private readonly object[] _indexes;
+
+            #endregion
+
+            #region Constructors
+
+            public AttachedIndexerAccessor(IBindingMemberInfo member, object[] indexes)
+            {
+                _member = member;
+                _indexes = indexes;
+            }
+
+            #endregion
+
+            #region Methods
+
+            public object GetValue(object src, object[] args)
+            {
+                return _member.GetValue(src, BindingReflectionExtensions.InsertFirstArg(args ?? MugenMvvmToolkit.Empty.Array<object>(), _indexes));
+            }
+
+            public object SetValue(object src, object[] args)
+            {
+                return _member.SetValue(src, BindingReflectionExtensions.InsertFirstArg(args ?? MugenMvvmToolkit.Empty.Array<object>(), _indexes));
+            }
+
+            #endregion
+        }
+
         #endregion
 
         #region Fields
@@ -143,6 +177,7 @@ namespace MugenMvvmToolkit.Binding.Models
         private readonly Type _type;
         private readonly IBindingMemberInfo _observableMember;
         private readonly IBindingMemberInfo _memberEvent;
+        private readonly IBindingMemberInfo _indexerAttachedBindingMember;
 
         #endregion
 
@@ -317,7 +352,7 @@ namespace MugenMvvmToolkit.Binding.Models
             }
             else
             {
-                if (path.StartsWith("Item[", StringComparison.Ordinal) || path.StartsWith("[", StringComparison.Ordinal))
+                if (path.StartsWith("[", StringComparison.Ordinal) || path.StartsWith("Item[", StringComparison.Ordinal))
                     indexerValues = BindingReflectionExtensions.GetIndexerValues(path, castType: typeof(string));
                 var accessor = new DynamicObjectAccessor(path, indexerValues);
                 if (indexerValues == null)
@@ -335,6 +370,20 @@ namespace MugenMvvmToolkit.Binding.Models
             }
             _canRead = true;
             _canWrite = true;
+        }
+
+        public BindingMemberInfo(IBindingMemberInfo attachedIndexerMember, string path)
+        {
+            var accessor = new AttachedIndexerAccessor(attachedIndexerMember, BindingReflectionExtensions.GetIndexerValues(path, castType: typeof(string)));
+            _getValueAccessor = accessor.GetValue;
+            _setValueAccessor = accessor.SetValue;
+            _indexerAttachedBindingMember = attachedIndexerMember;
+            _memberType = attachedIndexerMember.MemberType;
+            _member = attachedIndexerMember.Member;
+            _type = attachedIndexerMember.Type;
+            _canRead = attachedIndexerMember.CanRead;
+            _canWrite = attachedIndexerMember.CanWrite;
+            _canObserve = attachedIndexerMember.CanObserve;
         }
 
         #endregion
@@ -394,6 +443,8 @@ namespace MugenMvvmToolkit.Binding.Models
             {
                 if (_isDynamic)
                     return ((IDynamicObject)source).TryObserve(_path, listener);
+                if (_indexerAttachedBindingMember != null)
+                    return _indexerAttachedBindingMember.TryObserve(source, listener);
                 return null;
             }
             return _memberEvent.SetSingleValue(source, listener) as IDisposable;
