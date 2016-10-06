@@ -100,11 +100,8 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
 
         private static DependencyProperty GetDependencyProperty(Type type, string name)
         {
-#if WPF
-            DependencyPropertyDescriptor descriptor = DependencyPropertyDescriptor.FromName(name, type, type);
-            if (descriptor == null)
-                return null;
-            return descriptor.DependencyProperty;
+#if WPF            
+            return DependencyPropertyDescriptor.FromName(name, type, type)?.DependencyProperty;
 #else
 
             FieldInfo fieldInfo = type.GetFieldEx(name + "Property", MemberFlags.Public | MemberFlags.Static) ??

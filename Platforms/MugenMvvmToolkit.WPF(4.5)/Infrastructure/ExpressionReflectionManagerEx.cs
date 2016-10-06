@@ -90,9 +90,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
                     DelegatesCache[key] = value;
                 }
             }
-            if (value == null)
-                return null;
-            return value(target);
+            return value?.Invoke(target);
         }
 
         #endregion

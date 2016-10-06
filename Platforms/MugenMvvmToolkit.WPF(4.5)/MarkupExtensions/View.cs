@@ -47,14 +47,14 @@ namespace MugenMvvmToolkit.WinPhone.MarkupExtensions
 #if WINDOWS_PHONE
         public sealed class BindingEventClosure
         {
-            #region Fields
+        #region Fields
 
             internal static readonly MethodInfo HandleMethod;
             private readonly DependencyProperty _property;
 
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             static BindingEventClosure()
             {
@@ -67,9 +67,9 @@ namespace MugenMvvmToolkit.WinPhone.MarkupExtensions
                 _property = property;
             }
 
-            #endregion
+        #endregion
 
-            #region Methods
+        #region Methods
 
             public void Handle<TSender, TValue>(TSender sender, TValue value)
             {
@@ -79,7 +79,7 @@ namespace MugenMvvmToolkit.WinPhone.MarkupExtensions
                     bindingExpression.UpdateSource();
             }
 
-            #endregion
+        #endregion
         }
 #endif
 
@@ -281,8 +281,7 @@ namespace MugenMvvmToolkit.WinPhone.MarkupExtensions
         {
             var bindChanged = BindChanged;
             Should.MethodBeSupported(ServiceProvider.IsDesignMode || bindChanged != null, "BindChanged");
-            if (bindChanged != null)
-                bindChanged(sender, (string)args.NewValue);
+            bindChanged?.Invoke(sender, (string)args.NewValue);
         }
 
         private static void SetValueEx<T>(this DependencyObject dp, DependencyProperty property, T value)

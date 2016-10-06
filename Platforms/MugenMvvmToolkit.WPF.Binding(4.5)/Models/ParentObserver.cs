@@ -124,15 +124,12 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
 
         internal static object FindParent(FrameworkElement target)
         {
-            IBindingMemberInfo member = BindingServiceProvider
+            object value = BindingServiceProvider
                 .MemberProvider
-                .GetBindingMember(target.GetType(), "PlacementTarget", false, false);
-            if (member != null)
-            {
-                object value = member.GetValue(target, null);
-                if (value != null)
-                    return value;
-            }
+                .GetBindingMember(target.GetType(), "PlacementTarget", false, false)
+                ?.GetValue(target, null);
+            if (value != null)
+                return value;
 #if WPF
             if (target.IsLoaded)
                 return target.Parent ?? VisualTreeHelper.GetParent(target) ?? LogicalTreeHelper.GetParent(target);

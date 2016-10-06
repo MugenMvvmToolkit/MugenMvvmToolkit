@@ -166,10 +166,8 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
                     page.OrientationChanged -= Handle;
 #endif
                 _parent.SizeChanged -= Handle;
-                if (Timer != null)
-                    Timer.Stop();
-                if (TaskCompletionSource != null)
-                    TaskCompletionSource.TrySetResult(null);
+                Timer?.Stop();
+                TaskCompletionSource?.TrySetResult(null);
             }
 
             #endregion
@@ -524,10 +522,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
 #endif
             if (element == null)
                 return null;
-            var templateSelector = GetToastTemplateSelector(element);
-            if (templateSelector == null)
-                return null;
-            return templateSelector(content, element);
+            return GetToastTemplateSelector(element)?.Invoke(content, element);
         }
 
         private void TimerCallback(object sender, EventClosure closure)
@@ -631,8 +626,8 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
 #endif
 
 #if WPF
-            if (popup.IsOpen && RepositionMethod != null)
-                RepositionMethod(popup);
+            if (popup.IsOpen)
+                RepositionMethod?.Invoke(popup);
 #endif
         }
 

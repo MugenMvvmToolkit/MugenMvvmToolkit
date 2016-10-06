@@ -117,10 +117,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
             {
                 get
                 {
-                    var target = (FrameworkElement)Source;
-                    if (target == null)
-                        return null;
-                    object context = target.DataContext;
+                    object context = ((FrameworkElement)Source)?.DataContext;
                     if (context == null)
                         return null;
                     if (DependencyPropertyBindingMember.IsNamedObjectFunc(context))

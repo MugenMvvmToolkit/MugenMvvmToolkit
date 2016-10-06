@@ -115,8 +115,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
                 var target = _reference.Target;
                 if (target == null)
                 {
-                    if (_unsubscriber != null)
-                        _unsubscriber.Dispose();
+                    _unsubscriber?.Dispose();
                     _handler = null;
                     return false;
                 }
@@ -239,11 +238,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
             var currentElement = FindFirstFrameworkElement(target);
 #if WPF
             if (currentElement == null)
-            {
-                if (application == null)
-                    return null;
-                return application.TryFindResource(resourceKey);
-            }
+                return application?.TryFindResource(resourceKey);
             return currentElement.TryFindResource(resourceKey);
 #else
             while (currentElement != null)

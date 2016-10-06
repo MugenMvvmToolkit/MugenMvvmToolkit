@@ -101,10 +101,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
             var cancelEventArgs = args as NavigatingCancelEventArgsWrapper;
             if (cancelEventArgs == null)
             {
-                var eventArgs = args as NavigationEventArgsWrapper;
-                if (eventArgs == null)
-                    return null;
-                return eventArgs.Args.ExtraData as string;
+                return (args as NavigationEventArgsWrapper)?.Args.ExtraData as string;
             }
             return cancelEventArgs.Args.ExtraData as string;
         }

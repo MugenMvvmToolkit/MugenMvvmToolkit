@@ -144,16 +144,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
         #region Implementation of interfaces
 
 #if NET4
-        string IDataErrorInfo.this[string columnName]
-        {
-            get
-            {
-                var error = _errors.FirstOrDefault();
-                if (error == null)
-                    return null;
-                return error.ToString();
-            }
-        }
+        string IDataErrorInfo.this[string columnName] => _errors.FirstOrDefault()?.ToString();
 
         string IDataErrorInfo.Error
         {

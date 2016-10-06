@@ -140,8 +140,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 
             public void Dispose()
             {
-                if (RelayCommand != null)
-                    RelayCommand.Dispose();
+                RelayCommand?.Dispose();
             }
 
             public event PropertyChangedEventHandler PropertyChanged
@@ -224,14 +223,12 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 
             public void ClearNotifiers()
             {
-                if (RelayCommand != null)
-                    RelayCommand.ClearNotifiers();
+                RelayCommand?.ClearNotifiers();
             }
 
             public void RaiseCanExecuteChanged()
             {
-                if (RelayCommand != null)
-                    RelayCommand.RaiseCanExecuteChanged();
+                RelayCommand?.RaiseCanExecuteChanged();
             }
 
             #endregion
@@ -483,9 +480,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 
         protected virtual void OnNavigatedTo(IViewModel viewModel, INavigationContext context)
         {
-            var navVm = viewModel as INavigableViewModel;
-            if (navVm != null)
-                navVm.OnNavigatedTo(context);
+            (viewModel as INavigableViewModel)?.OnNavigatedTo(context);
         }
 
         protected virtual INavigationContext CreateContextNavigateFrom(IViewModel viewModelFrom, NavigatingCancelEventArgsBase args)
@@ -685,12 +680,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
                 return;
             }
             CurrentViewModel = vmTo;
-            if (vmFrom != null)
-            {
-                var navigableViewModel = vmFrom as INavigableViewModel;
-                if (navigableViewModel != null)
-                    navigableViewModel.OnNavigatedFrom(context);
-            }
+            (vmFrom as INavigableViewModel)?.OnNavigatedFrom(context);
 
             if (vmTo != null)
             {
@@ -763,8 +753,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
         {
             viewModel.Disposed -= _disposeViewModelHandler;
             viewModel.Settings.State.Remove(IsNavigatedConstant);
-            if (CachePolicy != null)
-                CachePolicy.Invalidate(viewModel, parameter as IDataContext);
+            CachePolicy?.Invalidate(viewModel, parameter as IDataContext);
             var closeableViewModel = viewModel as ICloseableViewModel;
             if (closeableViewModel != null)
             {
