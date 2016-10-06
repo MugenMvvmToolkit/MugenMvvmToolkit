@@ -138,8 +138,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
                 return;
 
             var pickerView = PickerView;
-            if (pickerView != null)
-                pickerView.Select(position, 0, !pickerView.Hidden);
+            pickerView?.Select(position, 0, !pickerView.Hidden);
         }
 
         #endregion

@@ -62,15 +62,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
         #region Properties
 
         [CanBeNull]
-        public UIViewController ViewController
-        {
-            get
-            {
-                if (_viewController == null)
-                    return null;
-                return (UIViewController)_viewController.Target;
-            }
-        }
+        public UIViewController ViewController => (UIViewController)_viewController?.Target;
 
         #endregion
 
@@ -292,22 +284,21 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
 
         private static void SetParent(object item, UIViewController parent)
         {
-            if (item != null)
-                item.SetBindingMemberValue(AttachedMembers.Object.Parent, parent);
+            item?.SetBindingMemberValue(AttachedMembers.Object.Parent, parent);
         }
 
         private void Raise(EventHandler<UIViewController, EventArgs> handler)
         {
             var viewController = ViewController;
-            if (viewController != null && handler != null)
-                handler(viewController, EventArgs.Empty);
+            if (viewController != null)
+                handler?.Invoke(viewController, EventArgs.Empty);
         }
 
         private void Raise<T>(EventHandler<UIViewController, ValueEventArgs<T>> handler, T value)
         {
             var viewController = ViewController;
-            if (viewController != null && handler != null)
-                handler(viewController, new ValueEventArgs<T>(value));
+            if (viewController != null)
+                handler?.Invoke(viewController, new ValueEventArgs<T>(value));
         }
 
         #endregion

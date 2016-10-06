@@ -103,15 +103,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
 
         public virtual bool CanGoForward => false;
 
-        public virtual object CurrentContent
-        {
-            get
-            {
-                if (NavigationController == null)
-                    return null;
-                return NavigationController.TopViewController;
-            }
-        }
+        public virtual object CurrentContent => NavigationController?.TopViewController;
 
         public virtual void GoBack()
         {
@@ -193,10 +185,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             {
                 bool animated;
                 if (dataContext.TryGetData(NavigationConstants.UseAnimations, out animated))
-                {
-                    if (viewModel != null)
-                        viewModel.Settings.State.AddOrUpdate(NavigationConstants.UseAnimations, animated);
-                }
+                    viewModel?.Settings.State.AddOrUpdate(NavigationConstants.UseAnimations, animated);
                 else
                     animated = UseAnimations;
                 if (!ClearNavigationStackIfNeed(viewController, dataContext, animated))
@@ -218,9 +207,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
         public virtual bool CanClose(IViewModel viewModel, IDataContext dataContext)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            if (NavigationController == null)
-                return false;
-            var controllers = NavigationController.ViewControllers;
+            var controllers = NavigationController?.ViewControllers;
             if (controllers == null)
                 return false;
             for (int i = 0; i < controllers.Length; i++)

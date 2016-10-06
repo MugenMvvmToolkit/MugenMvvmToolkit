@@ -85,9 +85,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
         private void BindProvider(UINavigationController controller)
         {
             var navigationService = new NavigationService(controller);
-            var containerOwnerViewModel = ViewModel as IIocContainerOwnerViewModel;
-            if (containerOwnerViewModel != null)
-                containerOwnerViewModel.RequestOwnIocContainer();
+            (ViewModel as IIocContainerOwnerViewModel)?.RequestOwnIocContainer();
             ViewModel.IocContainer.Unbind<INavigationService>();
             ViewModel.IocContainer.BindToConstant(navigationService);
 
@@ -125,9 +123,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
 
         protected override void ActivateView(IModalView view, IDataContext context)
         {
-            var supportActivationModalView = view as ISupportActivationModalView;
-            if (supportActivationModalView != null)
-                supportActivationModalView.Activate();
+            (view as ISupportActivationModalView)?.Activate();
         }
 
         protected override void InitializeView(IModalView view, IDataContext context)
@@ -148,12 +144,11 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
                 ViewModel.Settings.State.Remove(NavigationConstants.UseAnimations);
             else
                 animated = UseAnimations;
-            if (presentedController != null)
-                presentedController.DismissViewController(animated, () =>
-                {
-                    OnViewClosed(view, EventArgs.Empty);
-                    controller.TryRaiseAttachedEvent(AttachedMembers.Object.Parent);
-                });
+            presentedController?.DismissViewController(animated, () =>
+            {
+                OnViewClosed(view, EventArgs.Empty);
+                controller.TryRaiseAttachedEvent(AttachedMembers.Object.Parent);
+            });
         }
 
         protected override void OnViewUpdated(IModalView view, IDataContext context)

@@ -90,8 +90,7 @@ namespace MugenMvvmToolkit.iOS.Views
 
                 base.SetSelected(value.Value, false);
                 this.TryRaiseAttachedEvent(AttachedMembers.UITableViewCell.Selected);
-                if (tableViewSource != null)
-                    tableViewSource.OnCellSelectionChanged(this, value.Value, true);
+                tableViewSource?.OnCellSelectionChanged(this, value.Value, true);
             }
         }
 
@@ -108,10 +107,7 @@ namespace MugenMvvmToolkit.iOS.Views
                     return null;
                 _parent = ServiceProvider.WeakReferenceFactory(parent);
             }
-            var uiTableView = (UITableView)_parent.Target;
-            if (uiTableView == null)
-                return null;
-            return uiTableView.Source as TableViewSourceBase;
+            return ((UITableView)_parent.Target)?.Source as TableViewSourceBase;
         }
 
         #endregion
@@ -124,9 +120,7 @@ namespace MugenMvvmToolkit.iOS.Views
                 return;
             base.SetEditing(editing, animated);
             this.TryRaiseAttachedEvent(AttachedMembers.UITableViewCell.Editing);
-            var tableViewSource = GetTableViewSource();
-            if (tableViewSource != null)
-                tableViewSource.OnCellEditingChanged(this, editing, false);
+            GetTableViewSource()?.OnCellEditingChanged(this, editing, false);
         }
 
         public override void SetHighlighted(bool highlighted, bool animated)
@@ -143,9 +137,7 @@ namespace MugenMvvmToolkit.iOS.Views
                 return;
             base.SetSelected(selected, animated);
             this.TryRaiseAttachedEvent(AttachedMembers.UITableViewCell.Selected);
-            var tableViewSource = GetTableViewSource();
-            if (tableViewSource != null)
-                tableViewSource.OnCellSelectionChanged(this, selected, false);
+            GetTableViewSource()?.OnCellSelectionChanged(this, selected, false);
         }
 
         #endregion

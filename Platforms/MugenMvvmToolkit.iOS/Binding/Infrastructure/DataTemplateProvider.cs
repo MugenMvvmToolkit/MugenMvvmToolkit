@@ -44,8 +44,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             var type = container.GetType();
             _container = container;
             _templateSelectorMember = BindingServiceProvider.MemberProvider.GetBindingMember(type, templateSelectorMember, false, false);
-            if (_templateSelectorMember != null)
-                _templateSelectorMember.TryObserve(container, this);
+            _templateSelectorMember?.TryObserve(container, this);
             UpdateValues();
         }
 

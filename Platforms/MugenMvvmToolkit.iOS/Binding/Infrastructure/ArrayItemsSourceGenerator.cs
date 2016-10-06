@@ -152,9 +152,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             var template = GetItemFromTemplate(item);
             if (_isControllerItem)
             {
-                var viewModel = item as IViewModel;
-                if (viewModel != null)
-                    viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.StateNotNeeded, true);
+                (item as IViewModel)?.Settings.Metadata.AddOrUpdate(ViewModelConstants.StateNotNeeded, true);
                 var uiView = template as UIView;
                 if (uiView != null)
                 {
@@ -197,9 +195,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
         {
             if (!_isControllerItem)
                 return;
-            var viewModel = item.Key as IViewModel;
-            if (viewModel != null)
-                viewModel.Settings.Metadata.Remove(ViewModelConstants.StateNotNeeded);
+            (item.Key as IViewModel)?.Settings.Metadata.Remove(ViewModelConstants.StateNotNeeded);
         }
 
         private void UpdateItems()

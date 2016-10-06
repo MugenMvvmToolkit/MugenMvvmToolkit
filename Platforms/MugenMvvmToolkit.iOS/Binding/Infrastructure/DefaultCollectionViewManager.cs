@@ -202,8 +202,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         private static void ClearItem(KeyValuePair<UIViewController, UIView> pair)
         {
-            if (pair.Key != null)
-                pair.Key.RemoveFromParentViewController();
+            pair.Key?.RemoveFromParentViewController();
             if (pair.Value != null)
             {
                 pair.Value.ClearBindingsRecursively(true, true);

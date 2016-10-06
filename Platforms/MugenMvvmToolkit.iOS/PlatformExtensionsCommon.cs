@@ -190,8 +190,7 @@ namespace MugenMvvmToolkit.iOS
             try
             {
                 var disposeSubviewOnly = false;
-                if (view.Layer != null)
-                    view.Layer.RemoveAllAnimations();
+                view.Layer?.RemoveAllAnimations();
 
                 if (view.Superview != null)
                     view.RemoveFromSuperview();
@@ -212,8 +211,7 @@ namespace MugenMvvmToolkit.iOS
                 else if (view is UITableView)
                 {
                     var tableView = (UITableView)view;
-                    if (tableView.DataSource != null)
-                        tableView.DataSource.DisposeEx();
+                    tableView.DataSource?.DisposeEx();
 
                     // NOTE: don't dispose .Source or WeakDataSource as it usually throws
                     tableView.Source = null;
@@ -232,15 +230,13 @@ namespace MugenMvvmToolkit.iOS
                 {
                     disposeSubviewOnly = true;
                     var tableViewCell = view as UITableViewCell;
-                    if (tableViewCell.ImageView != null)
-                        tableViewCell.ImageView.DisposeEx();
+                    tableViewCell.ImageView?.DisposeEx();
                 }
                 else if (view is UICollectionView)
                 {
                     disposeSubviewOnly = true; // UICollectionViewController will throw if we dispose it before it
                     var collectionView = (UICollectionView)view;
-                    if (collectionView.DataSource != null)
-                        collectionView.DataSource.DisposeEx();
+                    collectionView.DataSource?.DisposeEx();
                     collectionView.Source = null;
                     collectionView.Delegate = null;
                     collectionView.DataSource = null;
@@ -257,8 +253,7 @@ namespace MugenMvvmToolkit.iOS
                 {
                     disposeSubviewOnly = true;
                     var collViewCell = view as UICollectionViewCell;
-                    if (collViewCell.ContentView != null)
-                        collViewCell.ContentView.DisposeEx();
+                    collViewCell.ContentView?.DisposeEx();
                 }
                 else if (view is UIWebView)
                 {

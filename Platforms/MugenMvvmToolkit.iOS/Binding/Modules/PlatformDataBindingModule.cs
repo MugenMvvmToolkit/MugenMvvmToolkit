@@ -85,8 +85,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
                         itemsSource = args.OldValue.ItemsSource;
                         args.OldValue.SetItemsSource(null);
                     }
-                    if (args.NewValue != null)
-                        args.NewValue.SetItemsSource(itemsSource);
+                    args.NewValue?.SetItemsSource(itemsSource);
                 }));
 
             var itemTemplateMember = AttachedBindingMember.CreateAutoProperty<object, IDataTemplateSelector>(AttachedMemberConstants.ItemTemplateSelector);
@@ -312,8 +311,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
                             if (controllers.Length == 0 || !controllers.Contains(viewController))
                             {
                                 viewController.RemoveFromParentViewController();
-                                if (viewController.View != null)
-                                    viewController.View.RemoveFromSuperviewEx();
+                                viewController.View?.RemoveFromSuperviewEx();
                                 if (controllers.Length == 0)
                                     tabBarController.SetBindingMemberValue(
                                         AttachedMembers.UITabBarController.SelectedItem, BindingExtensions.NullValue);

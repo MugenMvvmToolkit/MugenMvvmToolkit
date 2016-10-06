@@ -70,8 +70,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Presenters
 
             public void Close()
             {
-                if (Toast != null)
-                    Toast.Hide();
+                Toast?.Hide();
             }
 
             #endregion
@@ -149,12 +148,9 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Presenters
                 var navigationController = controller as MvvmNavigationController;
                 if (navigationController != null)
                     controller = navigationController.TopViewController;
-                if (controller != null)
-                {
-                    var selector = controller.GetBindingMemberValue(AttachedMembers.UIViewController.ToastTemplateSelector);
-                    if (selector != null)
-                        toastView = (ToastView)selector.SelectTemplate(content, owner);
-                }
+                var selector = controller?.GetBindingMemberValue(AttachedMembers.UIViewController.ToastTemplateSelector);
+                if (selector != null)
+                    toastView = (ToastView)selector.SelectTemplate(content, owner);
             }
 #endif
             if (toastView == null)

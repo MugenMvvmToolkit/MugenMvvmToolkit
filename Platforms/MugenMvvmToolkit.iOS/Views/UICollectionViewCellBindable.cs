@@ -80,8 +80,7 @@ namespace MugenMvvmToolkit.iOS.Views
 
                 base.Selected = value.Value;
                 this.TryRaiseAttachedEvent(AttachedMembers.UICollectionViewCell.Selected);
-                if (tableViewSource != null)
-                    tableViewSource.OnCellSelectionChanged(this, value.Value, true);
+                tableViewSource?.OnCellSelectionChanged(this, value.Value, true);
             }
         }
 
@@ -98,10 +97,7 @@ namespace MugenMvvmToolkit.iOS.Views
                     return null;
                 _parent = ServiceProvider.WeakReferenceFactory(parent);
             }
-            var target = (UICollectionView)_parent.Target;
-            if (target == null)
-                return null;
-            return target.Source as CollectionViewSourceBase;
+            return ((UICollectionView)_parent.Target)?.Source as CollectionViewSourceBase;
         }
 
         #endregion
@@ -129,9 +125,7 @@ namespace MugenMvvmToolkit.iOS.Views
                     return;
                 base.Selected = value;
                 this.TryRaiseAttachedEvent(AttachedMembers.UICollectionViewCell.Selected);
-                var tableViewSource = GetCollectionViewSource();
-                if (tableViewSource != null)
-                    tableViewSource.OnCellSelectionChanged(this, value, false);
+                GetCollectionViewSource()?.OnCellSelectionChanged(this, value, false);
             }
         }
 

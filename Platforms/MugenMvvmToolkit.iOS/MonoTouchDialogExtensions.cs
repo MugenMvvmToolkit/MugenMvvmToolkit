@@ -32,11 +32,8 @@ namespace MugenMvvmToolkit.iOS.MonoTouch.Dialog
 
         public static void Reload(this Element element, UITableViewRowAnimation animation = UITableViewRowAnimation.None)
         {
-            if (element.GetContainerTableView() == null)
-                return;
-            var root = element.GetImmediateRootElement();
-            if (root != null)
-                root.Reload(element, animation);
+            if (element.GetContainerTableView() != null)
+                element.GetImmediateRootElement()?.Reload(element, animation);
         }
 
         public static void RaiseParentChanged([NotNull] this Element element)
