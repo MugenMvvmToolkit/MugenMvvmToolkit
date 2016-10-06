@@ -203,12 +203,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                 if (parent == null)
                     parent = GetParent(view);
                 if (parent != null && !Equals(parent.DataContext(), context.Value))
-                {
-                    var viewGroup = parent as ViewGroup;
-                    if (viewGroup != null)
-                        viewGroup.SetBindingMemberValue(AttachedMembers.ViewGroup.Content,
-                            new[] { context.Value, AddViewValue });
-                }
+                    (parent as ViewGroup)?.SetBindingMemberValue(AttachedMembers.ViewGroup.Content, new[] { context.Value, AddViewValue });
             }
 
             #endregion
@@ -278,8 +273,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                         itemsSource = args.OldValue.ItemsSource;
                         args.OldValue.SetItemsSource(null);
                     }
-                    if (args.NewValue != null)
-                        args.NewValue.SetItemsSource(itemsSource);
+                    args.NewValue?.SetItemsSource(itemsSource);
                 }));
 
             //Dialog
@@ -451,9 +445,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
         private static void AutoCompleteTextViewTemplateChanged(AutoCompleteTextView sender)
         {
-            var listAdapter = sender.Adapter as BaseAdapter;
-            if (listAdapter != null)
-                listAdapter.NotifyDataSetChanged();
+            (sender.Adapter as BaseAdapter)?.NotifyDataSetChanged();
         }
 
         internal static object GetAdapter(AdapterView item)
@@ -492,18 +484,13 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
         private static void ToolbarMenuTemplateChanged(Toolbar view, AttachedMemberChangedEventArgs<int> args)
         {
-            var activity = view.Context.GetActivity();
-            if (activity != null)
-                activity.MenuInflater.Inflate(args.NewValue, view.Menu, view);
+            view.Context.GetActivity()?.MenuInflater.Inflate(args.NewValue, view.Menu, view);
         }
 
         private static void ToolbarIsActionBarChanged(Toolbar view, AttachedMemberChangedEventArgs<bool> args)
         {
-            if (!args.NewValue)
-                return;
-            var activity = view.Context.GetActivity();
-            if (activity != null)
-                activity.SetActionBar(view);
+            if (args.NewValue)
+                view.Context.GetActivity()?.SetActionBar(view);
         }
 
         private static object ActivityFindByNameMember(IBindingMemberInfo bindingMemberInfo, Activity target, object[] arg3)
@@ -522,9 +509,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
         private static void TabHostTemplateChanged<T>(TabHost tabHost, AttachedMemberChangedEventArgs<T> args)
         {
-            var generator = tabHost.GetBindingMemberValue(AttachedMembers.ViewGroup.ItemsSourceGenerator);
-            if (generator != null)
-                generator.Reset();
+            tabHost.GetBindingMemberValue(AttachedMembers.ViewGroup.ItemsSourceGenerator)?.Reset();
         }
 
         private static void TabHostItemsSourceChanged(TabHost tabHost, AttachedMemberChangedEventArgs<IEnumerable> arg)
@@ -628,15 +613,9 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
         {
             var container = sender as AdapterView;
             if (container == null)
-            {
-                var sourceGenerator = sender.GetBindingMemberValue(AttachedMembers.ViewGroup.ItemsSourceGenerator);
-                if (sourceGenerator != null)
-                    sourceGenerator.Reset();
-                return;
-            }
-            var adapter = GetAdapter(container) as BaseAdapter;
-            if (adapter != null)
-                adapter.NotifyDataSetChanged();
+                sender.GetBindingMemberValue(AttachedMembers.ViewGroup.ItemsSourceGenerator)?.Reset();
+            else
+                (GetAdapter(container) as BaseAdapter)?.NotifyDataSetChanged();
         }
 
         private static void ViewGroupItemsSourceChanged(ViewGroup sender, AttachedMemberChangedEventArgs<IEnumerable> args)

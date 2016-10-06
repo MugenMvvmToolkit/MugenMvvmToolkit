@@ -370,9 +370,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         protected virtual int? GetViewTemplateId([CanBeNull] View view)
         {
-            if (view == null)
-                return null;
-            var tag = view.GetTag(Resource.Id.ListTemplateId);
+            var tag = view?.GetTag(Resource.Id.ListTemplateId);
             if (tag == null)
                 return null;
             return (int)tag;

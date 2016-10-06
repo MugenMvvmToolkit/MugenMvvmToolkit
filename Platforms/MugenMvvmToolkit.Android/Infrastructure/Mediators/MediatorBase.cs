@@ -75,9 +75,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                     sharedPreferences.UnregisterOnSharedPreferenceChangeListener(this);
                     return;
                 }
-                var preference = _preferenceManager.FindPreference(key);
-                if (preference != null)
-                    preference.TryRaiseAttachedEvent(AttachedMembers.Preference.ValueChangedEvent);
+                _preferenceManager.FindPreference(key)?.TryRaiseAttachedEvent(AttachedMembers.Preference.ValueChangedEvent);
             }
 
             #endregion
@@ -221,9 +219,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         {
             if (_id == Guid.Empty)
                 _id = Guid.NewGuid();
-            if (bundle == null)
-                return;
-            var oldId = bundle.GetString(IdKey);
+            var oldId = bundle?.GetString(IdKey);
             if (string.IsNullOrEmpty(oldId))
                 return;
             var cacheDataContext = GetFromCache(Guid.Parse(oldId));

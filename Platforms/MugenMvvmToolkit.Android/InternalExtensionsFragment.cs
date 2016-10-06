@@ -46,15 +46,10 @@ namespace MugenMvvmToolkit.Android
         [CanBeNull]
         public static FragmentManager TryGetFragmentManager(this Activity activity)
         {
-            if (activity == null)
-                return null;
 #if APPCOMPAT
-            var fragmentActivity = activity as FragmentActivity;
-            if (fragmentActivity == null)
-                return null;
-            return fragmentActivity.SupportFragmentManager;
+            return (activity as FragmentActivity)?.SupportFragmentManager;
 #else
-            return activity.FragmentManager;
+            return activity?.FragmentManager;
 #endif
         }
 

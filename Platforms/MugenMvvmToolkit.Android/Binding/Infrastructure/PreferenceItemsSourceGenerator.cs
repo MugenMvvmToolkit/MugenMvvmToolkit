@@ -129,8 +129,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             if (selector != null)
             {
                 var template = selector.SelectTemplate(item, _preference);
-                if (template != null)
-                    template.SetDataContext(item);
+                template?.SetDataContext(item);
                 item = template;
             }
             var preference = item as Preference;

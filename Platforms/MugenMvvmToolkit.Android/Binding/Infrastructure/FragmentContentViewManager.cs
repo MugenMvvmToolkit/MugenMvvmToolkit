@@ -52,17 +52,14 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             if (content == null)
             {
                 FragmentManager fragmentManager = targetView.GetFragmentManager();
-                if (fragmentManager != null)
+                Fragment oldFragment = fragmentManager?.FindFragmentById(targetView.Id);
+                if (oldFragment != null && !fragmentManager.IsDestroyed)
                 {
-                    Fragment oldFragment = fragmentManager.FindFragmentById(targetView.Id);
-                    if (oldFragment != null && !fragmentManager.IsDestroyed)
-                    {
-                        BeginTransaction(fragmentManager, targetView, null)
-                            .Remove(oldFragment)
-                            .CommitAllowingStateLoss();
-                        fragmentManager.ExecutePendingTransactions();
-                        return true;
-                    }
+                    BeginTransaction(fragmentManager, targetView, null)
+                        .Remove(oldFragment)
+                        .CommitAllowingStateLoss();
+                    fragmentManager.ExecutePendingTransactions();
+                    return true;
                 }
                 return false;
             }

@@ -50,10 +50,8 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             _container = container;
             _templateMember = BindingServiceProvider.MemberProvider.GetBindingMember(type, templateMember, false, false);
             _templateSelectorMember = BindingServiceProvider.MemberProvider.GetBindingMember(type, templateSelectorMember, false, false);
-            if (_templateMember != null)
-                _templateMember.TryObserve(container, this);
-            if (_templateSelectorMember != null)
-                _templateSelectorMember.TryObserve(container, this);
+            _templateMember?.TryObserve(container, this);
+            _templateSelectorMember?.TryObserve(container, this);
             UpdateValues();
         }
 

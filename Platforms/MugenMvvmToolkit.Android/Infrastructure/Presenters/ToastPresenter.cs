@@ -100,10 +100,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
 
             public void Close()
             {
-                if (_delayTimer != null)
-                    _delayTimer.Dispose();
-                if (_showTimer != null)
-                    _showTimer.Dispose();
+                _delayTimer?.Dispose();
+                _showTimer?.Dispose();
                 if (_toast == null)
                     return;
                 _threadManager.Invoke(ExecutionMode.SynchronousOnUiThread, this, this, (w, wrapper) =>
@@ -130,11 +128,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
                     (w, wrapper) =>
                     {
                         if (!w._tcs.Task.IsCompleted)
-                        {
-                            Toast toast = w._toast;
-                            if (toast != null)
-                                toast.Show();
-                        }
+                            w._toast?.Show();
                     }, OperationPriority.High);
             }
 

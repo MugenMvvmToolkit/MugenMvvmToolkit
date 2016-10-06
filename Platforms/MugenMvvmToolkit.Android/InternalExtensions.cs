@@ -175,10 +175,7 @@ namespace MugenMvvmToolkit.Android
                 Should.BeOfType<AppCompatActivity>(activity, "activity");
                 return ((AppCompatActivity)activity).SupportActionBar;
             }
-            var actionBarActivity = activity as AppCompatActivity;
-            if (actionBarActivity == null)
-                return null;
-            return actionBarActivity.SupportActionBar;
+            return (activity as AppCompatActivity)?.SupportActionBar;
 #else
             return activity.ActionBar;
 #endif

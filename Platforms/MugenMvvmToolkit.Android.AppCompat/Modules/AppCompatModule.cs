@@ -131,16 +131,12 @@ namespace MugenMvvmToolkit.Android.AppCompat.Modules
 
             private void OnPostCreate(Activity sender, ValueEventArgs<Bundle> args)
             {
-                var drawerToggle = _listener as ActionBarDrawerToggle;
-                if (drawerToggle != null)
-                    drawerToggle.SyncState();
+                (_listener as ActionBarDrawerToggle)?.SyncState();
             }
 
             private void OnConfigurationChanged(Activity sender, ValueEventArgs<Configuration> args)
             {
-                var drawerToggle = _listener as ActionBarDrawerToggle;
-                if (drawerToggle != null)
-                    drawerToggle.OnConfigurationChanged(args.Value);
+                (_listener as ActionBarDrawerToggle)?.OnConfigurationChanged(args.Value);
             }
 
             private bool OptionsItemSelected(IMenuItem menuItem)
@@ -158,27 +154,23 @@ namespace MugenMvvmToolkit.Android.AppCompat.Modules
             public void OnDrawerClosed(View drawerView)
             {
                 drawerView.SetBindingMemberValue(AttachedMembersCompat.View.DrawerIsOpened, false);
-                if (_listener != null)
-                    _listener.OnDrawerClosed(drawerView);
+                _listener?.OnDrawerClosed(drawerView);
             }
 
             public void OnDrawerOpened(View drawerView)
             {
                 drawerView.SetBindingMemberValue(AttachedMembersCompat.View.DrawerIsOpened, true);
-                if (_listener != null)
-                    _listener.OnDrawerOpened(drawerView);
+                _listener?.OnDrawerOpened(drawerView);
             }
 
             public void OnDrawerSlide(View drawerView, float slideOffset)
             {
-                if (_listener != null)
-                    _listener.OnDrawerSlide(drawerView, slideOffset);
+                _listener?.OnDrawerSlide(drawerView, slideOffset);
             }
 
             public void OnDrawerStateChanged(int newState)
             {
-                if (_listener != null)
-                    _listener.OnDrawerStateChanged(newState);
+                _listener?.OnDrawerStateChanged(newState);
             }
 
             #endregion
@@ -223,18 +215,13 @@ namespace MugenMvvmToolkit.Android.AppCompat.Modules
 
         private static void ToolbarMenuTemplateChanged(Toolbar toolbar, AttachedMemberChangedEventArgs<int> args)
         {
-            Activity activity = toolbar.Context.GetActivity();
-            if (activity != null)
-                activity.MenuInflater.Inflate(args.NewValue, toolbar.Menu, toolbar);
+            toolbar.Context.GetActivity()?.MenuInflater.Inflate(args.NewValue, toolbar.Menu, toolbar);
         }
 
         private static void ToolbarIsActionBarChanged(Toolbar toolbar, AttachedMemberChangedEventArgs<bool> args)
         {
-            if (!args.NewValue)
-                return;
-            var activity = toolbar.Context.GetActivity() as AppCompatActivity;
-            if (activity != null)
-                activity.SetSupportActionBar(toolbar);
+            if (args.NewValue)
+                (toolbar.Context.GetActivity() as AppCompatActivity)?.SetSupportActionBar(toolbar);
         }
 
         private static void ViewDrawerIsOpenedChanged(View view, AttachedMemberChangedEventArgs<bool> args)
@@ -253,9 +240,7 @@ namespace MugenMvvmToolkit.Android.AppCompat.Modules
             DrawerLayout drawer = FindDrawer(view);
             if (drawer == null)
             {
-                IBindingMemberInfo rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(view.GetType());
-                if (rootMember != null)
-                    rootMember.TryObserve(view, DrawerInitializer.Instance);
+                BindingServiceProvider.VisualTreeManager.GetRootMember(view.GetType())?.TryObserve(view, DrawerInitializer.Instance);
                 return false;
             }
             DrawerListenerImpl.GetOrAdd(drawer);

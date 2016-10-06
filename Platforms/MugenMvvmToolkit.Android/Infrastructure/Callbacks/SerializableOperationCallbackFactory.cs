@@ -239,17 +239,14 @@ namespace MugenMvvmToolkit.Silverlight.Infrastructure.Callbacks
                     };
 
                 var stateManager = ServiceProvider.OperationCallbackStateManager;
-                if (stateManager != null)
-                {
-                    var valueState = stateManager.SaveValue(value, field, asyncOperation, DataContext.Empty);
-                    if (valueState != null)
-                        return new FieldSnapshot
-                        {
-                            Name = field.Name,
-                            State = valueState,
-                            FieldType = NonSerializableField
-                        };
-                }
+                var valueState = stateManager?.SaveValue(value, field, asyncOperation, DataContext.Empty);
+                if (valueState != null)
+                    return new FieldSnapshot
+                    {
+                        Name = field.Name,
+                        State = valueState,
+                        FieldType = NonSerializableField
+                    };
 
                 var viewModel = value as IViewModel;
                 if (viewModel != null)

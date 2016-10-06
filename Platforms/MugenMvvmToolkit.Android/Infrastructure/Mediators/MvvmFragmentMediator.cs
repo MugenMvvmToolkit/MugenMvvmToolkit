@@ -78,9 +78,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             {
                 if (keyCode != Keycode.Back || e.Action != KeyEventActions.Up)
                     return false;
-                var dialogFragment = _mediator.Target as DialogFragment;
-                if (dialogFragment != null)
-                    dialogFragment.Dismiss();
+                (_mediator.Target as DialogFragment)?.Dismiss();
                 return true;
             }
 
@@ -204,10 +202,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 #if APPCOMPAT
                 return null;
 #else
-                var fragment = Target as PreferenceFragment;
-                if (fragment == null)
-                    return null;
-                return fragment.PreferenceManager;
+                return (Target as PreferenceFragment)?.PreferenceManager;
 #endif
             }
         }
@@ -219,9 +214,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             RaiseDestroy();
             ClearView();
 
-            var dialogFragment = Target as DialogFragment;
-            if (dialogFragment != null)
-                dialogFragment.Dialog.ClearBindings(true, true);
+            (Target as DialogFragment)?.Dialog.ClearBindings(true, true);
 
             if (_keyListener != null)
             {
@@ -229,9 +222,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 _keyListener = null;
             }
 
-            var viewModel = DataContext as IViewModel;
-            if (viewModel != null)
-                viewModel.Settings.Metadata.Remove(PlatformExtensions.FragmentConstant);
+            (DataContext as IViewModel)?.Settings.Metadata.Remove(PlatformExtensions.FragmentConstant);
             base.OnDestroy(baseOnDestroy);
             Closing = null;
             Canceled = null;
@@ -245,7 +236,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 baseOnSaveInstanceState(outState);
             else
 #endif
-            base.OnSaveInstanceState(outState, baseOnSaveInstanceState);
+                base.OnSaveInstanceState(outState, baseOnSaveInstanceState);
         }
 
         public virtual void OnDetach(Action baseOnDetach)

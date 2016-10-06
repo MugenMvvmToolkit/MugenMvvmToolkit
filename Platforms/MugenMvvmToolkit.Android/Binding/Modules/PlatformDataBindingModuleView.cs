@@ -65,10 +65,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
             protected View GetView()
             {
-                var viewReference = _viewReference;
-                if (viewReference == null)
-                    return null;
-                return (View)viewReference.Target;
+                return (View)_viewReference?.Target;
             }
 
             private void Raise()

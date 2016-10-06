@@ -111,10 +111,8 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                     }
                 }
             }
-            if (ft != null)
-                ft.CommitAllowingStateLoss();
-            if (fragmentManager != null)
-                fragmentManager.ExecutePendingTransactions();
+            ft?.CommitAllowingStateLoss();
+            fragmentManager?.ExecutePendingTransactions();
         }
 
         #endregion

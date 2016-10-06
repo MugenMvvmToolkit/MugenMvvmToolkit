@@ -166,9 +166,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
         private static void MenuItemsSourceChanged(IMenu menu, AttachedMemberChangedEventArgs<IEnumerable> args)
         {
-            var generator = menu.GetBindingMemberValue(AttachedMembers.Menu.ItemsSourceGenerator);
-            if (generator != null)
-                generator.SetItemsSource(args.NewValue);
+            menu.GetBindingMemberValue(AttachedMembers.Menu.ItemsSourceGenerator)?.SetItemsSource(args.NewValue);
         }
 
         private static IDisposable SetClickEventValue(IBindingMemberInfo bindingMemberInfo, IMenuItem menuItem, IEventListener listener)

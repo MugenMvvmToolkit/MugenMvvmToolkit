@@ -201,9 +201,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
             setter.SetStringProperty(nameof(CommandParameter), CommandParameter);
             setter.SetBinding(nameof(Click), Click, false);
 
-            var initalized = Initalized;
-            if (initalized != null)
-                initalized(this, menuItem, setter);
+            Initalized?.Invoke(this, menuItem, setter);
 
             setter.SetBinding(nameof(ActionViewTemplateSelector), ActionViewTemplateSelector, false);
             setter.SetBinding(nameof(ActionProviderTemplateSelector), ActionProviderTemplateSelector, false);

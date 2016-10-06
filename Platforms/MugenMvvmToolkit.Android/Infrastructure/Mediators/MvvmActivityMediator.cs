@@ -225,16 +225,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             Destroyed = null;
         }
 
-        protected override PreferenceManager PreferenceManager
-        {
-            get
-            {
-                var activity = Target as PreferenceActivity;
-                if (activity == null)
-                    return null;
-                return activity.PreferenceManager;
-            }
-        }
+        protected override PreferenceManager PreferenceManager => (Target as PreferenceActivity)?.PreferenceManager;
 
         public override void OnPause(Action baseOnPause)
         {

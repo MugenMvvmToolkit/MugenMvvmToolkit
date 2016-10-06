@@ -208,9 +208,7 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
             var item = GetRawItem(position);
             if (item == null)
                 return new TextView(container.Context) { Text = "(null)" };
-            var viewModel = item as IViewModel;
-            if (viewModel != null)
-                viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.StateNotNeeded, true);
+            (item as IViewModel)?.Settings.Metadata.AddOrUpdate(ViewModelConstants.StateNotNeeded, true);
             var view = InstantiateItemInternal(container, item);
             var fragment = view as Fragment;
             if (fragment == null)

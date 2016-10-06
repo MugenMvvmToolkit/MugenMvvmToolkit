@@ -370,23 +370,19 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                     return;
 
                 TabChangedDelegate(this, oldValue, _currentTabContent, true, true);
-                if (_selectedItemMember != null)
-                    _selectedItemMember.SetSingleValue(TabHost, info.Item);
+                _selectedItemMember?.SetSingleValue(TabHost, info.Item);
             }
             else
             {
                 _currentTabContent = TabHost.CurrentTabView;
-                if (_selectedItemMember != null)
-                    _selectedItemMember.SetSingleValue(TabHost, TabHost.CurrentTabView);
+                _selectedItemMember?.SetSingleValue(TabHost, TabHost.CurrentTabView);
             }
         }
 
         private void OnEmptyTab()
         {
-            if (_selectedItemMember != null)
-                _selectedItemMember.SetValue(TabHost, BindingExtensions.NullValue);
-            if (TabHost.TabContentView != null)
-                TabHost.TabContentView.RemoveAllViews();
+            _selectedItemMember?.SetValue(TabHost, BindingExtensions.NullValue);
+            TabHost.TabContentView?.RemoveAllViews();
         }
 
         private TabHost.TabSpec CreateTabSpec(int index)
@@ -423,10 +419,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         private void SetIndicator(TabHost.TabSpec tabSpec, object item)
         {
-            var viewModel = item as IViewModel;
-            if (viewModel != null)
-                viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.StateNotNeeded, true);
-
+            (item as IViewModel)?.Settings.Metadata.AddOrUpdate(ViewModelConstants.StateNotNeeded, true);
             var templateId = _itemTemplateProvider.GetTemplateId();
             var selector = _itemTemplateProvider.GetDataTemplateSelector();
             if (templateId == null && selector == null)
@@ -435,7 +428,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             if (content == EmptyTemplateSelector.EmptyView)
             {
                 content = null;
-                if (viewModel is IHasDisplayName)
+                if (item is IHasDisplayName)
                     BindingServiceProvider.BindingProvider.CreateBindingsFromString(tabSpec, "Title DisplayName", null);
                 else
                     tabSpec.SetIndicator(item.ToStringSafe("(null)"));

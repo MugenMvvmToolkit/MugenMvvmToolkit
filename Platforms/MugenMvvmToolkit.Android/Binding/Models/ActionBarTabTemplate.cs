@@ -72,14 +72,11 @@ namespace MugenMvvmToolkit.Android.Binding.Models
                 var fragment = _content as Fragment;
                 if (fragment != null)
                 {
-                    var viewModel = fragment.DataContext() as IViewModel;
-                    if (viewModel != null)
-                        viewModel.Settings.Metadata.Remove(ViewModelConstants.StateNotNeeded);
-                    var manager = fragment.FragmentManager;
-                    if (manager != null)
-                        manager.BeginTransaction()
-                               .Remove(fragment)
-                               .CommitAllowingStateLoss();
+                    (fragment.DataContext() as IViewModel)?.Settings.Metadata.Remove(ViewModelConstants.StateNotNeeded);
+                    fragment.FragmentManager
+                        ?.BeginTransaction()
+                        .Remove(fragment)
+                        .CommitAllowingStateLoss();
                 }
                 tab.SetBindingMemberValue(AttachedMembers.Object.Parent, value: null);
                 _cleared = true;
@@ -179,11 +176,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
                     return;
                 }
                 var view = _content as View;
-                if (view == null)
-                    return;
-                var viewGroup = view.Parent as ViewGroup;
-                if (viewGroup != null)
-                    viewGroup.RemoveView(view);
+                (view?.Parent as ViewGroup)?.RemoveView(view);
             }
 
             #endregion

@@ -147,12 +147,10 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
             public bool OnNavigationItemSelected(int itemPosition, long itemId)
             {
-                if (_actionBar == null)
-                    return false;
 #if APPCOMPAT
-                var adapter = _actionBar.GetBindingMemberValue(AttachedMembersCompat.ActionBar.ItemsSourceAdapter);
+                var adapter = _actionBar?.GetBindingMemberValue(AttachedMembersCompat.ActionBar.ItemsSourceAdapter);
 #else
-                var adapter = _actionBar.GetBindingMemberValue(AttachedMembers.ActionBar.ItemsSourceAdapter);
+                var adapter = _actionBar?.GetBindingMemberValue(AttachedMembers.ActionBar.ItemsSourceAdapter);
 #endif
 
                 if (adapter == null)
@@ -222,12 +220,10 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
             public bool OnCreateActionMode(ActionMode mode, IMenu menu)
             {
-                if (_actionBar == null)
-                    return false;
 #if APPCOMPAT
-                var templateId = _actionBar.GetBindingMemberValue(AttachedMembersCompat.ActionBar.ContextActionBarTemplate);
+                var templateId = _actionBar?.GetBindingMemberValue(AttachedMembersCompat.ActionBar.ContextActionBarTemplate);
 #else
-                var templateId = _actionBar.GetBindingMemberValue(AttachedMembers.ActionBar.ContextActionBarTemplate);
+                var templateId = _actionBar?.GetBindingMemberValue(AttachedMembers.ActionBar.ContextActionBarTemplate);
 #endif
                 if (templateId == null)
                     return false;
@@ -356,9 +352,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
             public void Update(IDisposable unsubscriber)
             {
-                IDisposable oldValue = _unsubscriber;
-                if (oldValue != null)
-                    oldValue.Dispose();
+                _unsubscriber?.Dispose();
                 _unsubscriber = unsubscriber;
             }
 
@@ -666,8 +660,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             var attachedValueProvider = ServiceProvider.AttachedValueProvider;
 
             var actionMode = attachedValueProvider.GetValue<ActionMode>(actionBar, ActionBarActionModeKey, false);
-            if (actionMode != null)
-                actionMode.Finish();
+            actionMode?.Finish();
             if (args.NewValue)
             {
                 actionMode = actionBar.StartActionMode(new BindableActionMode(actionBar));
@@ -727,9 +720,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                     {
                         if (args.NewValue == null)
                         {
-                            object ctx = actionBar.SelectedNavigationIndex < 0 ? null : actionBar.SelectedTab;
-                            if (ctx != null)
-                                ctx = ctx.DataContext();
+                            object ctx = (actionBar.SelectedNavigationIndex < 0 ? null : actionBar.SelectedTab)?.DataContext();
                             args.Member.SetSingleValue(actionBar, ctx);
                         }
                         else
@@ -774,31 +765,20 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
                     actionBar.SetListNavigationCallbacks(null, null);
 #if APPCOMPAT
-                    var generator = actionBar.GetBindingMemberValue(AttachedMembersCompat.ActionBar.ItemsSourceGenerator);
-#else
-                    var generator = actionBar.GetBindingMemberValue(AttachedMembers.ActionBar.ItemsSourceGenerator);
-#endif
-
-                    if (generator != null)
-                        generator.SetItemsSource(null);
-#if APPCOMPAT
+                    actionBar.GetBindingMemberValue(AttachedMembersCompat.ActionBar.ItemsSourceGenerator)?.SetItemsSource(null);
                     var adapter = actionBar.GetBindingMemberValue(AttachedMembersCompat.ActionBar.ItemsSourceAdapter);
 #else
+                    actionBar.GetBindingMemberValue(AttachedMembers.ActionBar.ItemsSourceGenerator)?.SetItemsSource(null);
                     var adapter = actionBar.GetBindingMemberValue(AttachedMembers.ActionBar.ItemsSourceAdapter);
 #endif
-
                     if (adapter != null)
                         adapter.ItemsSource = null;
                     break;
                 case ActionBarNavigationMode.Tabs:
-#if APPCOMPAT
-                    var tabGenerator = actionBar.GetBindingMemberValue(AttachedMembersCompat.ActionBar.ItemsSourceGenerator);
-                    if (tabGenerator != null)
-                        tabGenerator.SetItemsSource(actionBar.GetBindingMemberValue(AttachedMembersCompat.ActionBar.ItemsSource));
-#else
-                    var tabGenerator = actionBar.GetBindingMemberValue(AttachedMembers.ActionBar.ItemsSourceGenerator);
-                    if (tabGenerator != null)
-                        tabGenerator.SetItemsSource(actionBar.GetBindingMemberValue(AttachedMembers.ActionBar.ItemsSource));
+#if APPCOMPAT                    
+                    actionBar.GetBindingMemberValue(AttachedMembersCompat.ActionBar.ItemsSourceGenerator)?.SetItemsSource(actionBar.GetBindingMemberValue(AttachedMembersCompat.ActionBar.ItemsSource));
+#else                    
+                    actionBar.GetBindingMemberValue(AttachedMembers.ActionBar.ItemsSourceGenerator)?.SetItemsSource(actionBar.GetBindingMemberValue(AttachedMembers.ActionBar.ItemsSource));
 #endif
 
                     break;
@@ -811,13 +791,9 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             if (actionView != null)
                 ParentObserver.GetOrAdd(actionView).Parent = null;
 
-            var selector = menuItem.GetBindingMemberValue(AttachedMembers.MenuItem.ActionViewTemplateSelector);
-            if (selector != null)
-            {
-                object template = selector.SelectTemplate(content, menuItem);
-                if (template != null)
-                    content = template;
-            }
+            object template = menuItem.GetBindingMemberValue(AttachedMembers.MenuItem.ActionViewTemplateSelector)?.SelectTemplate(content, menuItem);
+            if (template != null)
+                content = template;
             if (content == null)
             {
                 menuItem.SetActionView(null);
@@ -845,13 +821,9 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
         private static bool MenuItemUpdateActionProvider(IBindingMemberInfo bindingMemberInfo, IMenuItem menuItem, object content)
         {
-            var selector = menuItem.GetBindingMemberValue(AttachedMembers.MenuItem.ActionProviderTemplateSelector);
-            if (selector != null)
-            {
-                object template = selector.SelectTemplate(content, menuItem);
-                if (template != null)
-                    content = template;
-            }
+            object template = menuItem.GetBindingMemberValue(AttachedMembers.MenuItem.ActionProviderTemplateSelector)?.SelectTemplate(content, menuItem);
+            if (template != null)
+                content = template;
             if (content == null)
             {
                 menuItem.SetActionProvider(null);

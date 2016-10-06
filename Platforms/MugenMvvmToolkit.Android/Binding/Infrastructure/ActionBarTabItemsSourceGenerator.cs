@@ -194,12 +194,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             var value = ActionBarView.GetTabContentId(_actionBar);
             if (value == null)
                 return;
-            var activity = _actionBar.ThemedContext.GetActivity();
-            if (activity == null)
-                return;
-            var layout = activity.FindViewById<FrameLayout>(value.Value);
-            if (layout != null)
-                layout.RemoveAllViews();
+            _actionBar.ThemedContext.GetActivity()?.FindViewById<FrameLayout>(value.Value)?.RemoveAllViews();
         }
 
         private void Remove(int index)
