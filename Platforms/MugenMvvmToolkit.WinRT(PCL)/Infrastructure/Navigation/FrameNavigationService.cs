@@ -54,11 +54,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
             _frame.Navigating += OnNavigating;
             _frame.Navigated += OnNavigated;
             if (isRootFrame)
-            {
-                var backPressedEventDelegate = PlatformExtensions.SubscribeBackPressedEventDelegate;
-                if (backPressedEventDelegate != null)
-                    backPressedEventDelegate(this, (o, sender, args) => ((FrameNavigationService)o).OnBackButtonPressed(args));
-            }
+                PlatformExtensions.SubscribeBackPressedEventDelegate?.Invoke(this, (o, sender, args) => ((FrameNavigationService)o).OnBackButtonPressed(args));
         }
 
         #endregion

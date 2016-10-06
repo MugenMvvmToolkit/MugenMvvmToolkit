@@ -60,8 +60,8 @@ namespace MugenMvvmToolkit.WinRT
                     object token = null;
                     var handler = ReflectionExtensions.CreateWeakEventHandler(o, action, (o1, h) =>
                     {
-                        if (token != null && eventInfo.RemoveMethod != null)
-                            eventInfo.RemoveMethod.Invoke(null, new[] { token });
+                        if (token != null)
+                            eventInfo.RemoveMethod?.Invoke(null, new[] { token });
                     });
                     var @delegate = handleMethod.CreateDelegate(eventInfo.EventHandlerType, handler);
                     token = eventInfo.AddMethod.Invoke(null, new object[] { @delegate });
@@ -75,8 +75,7 @@ namespace MugenMvvmToolkit.WinRT
             {
                 if (BackArgsHandledProperty == null)
                     BackArgsHandledProperty = o.GetType().GetPropertyEx("Handled", MemberFlags.Public | MemberFlags.Instance);
-                if (BackArgsHandledProperty != null)
-                    BackArgsHandledProperty.SetValue(o, Empty.BooleanToObject(b));
+                BackArgsHandledProperty?.SetValue(o, Empty.BooleanToObject(b));
             };
         }
 

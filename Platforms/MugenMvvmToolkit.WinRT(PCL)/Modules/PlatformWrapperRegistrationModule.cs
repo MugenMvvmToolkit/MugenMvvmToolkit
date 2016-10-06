@@ -206,9 +206,7 @@ namespace MugenMvvmToolkit.WinRT.Modules
 
             private void PopupOnClosed(object sender, object o)
             {
-                EventHandler<object, EventArgs> closed = Closed;
-                if (closed != null)
-                    closed(this, EventArgs.Empty);
+                Closed?.Invoke(this, EventArgs.Empty);
                 Dispose();
             }
 
@@ -231,10 +229,8 @@ namespace MugenMvvmToolkit.WinRT.Modules
             private void UpdatePopup(double width, double height)
             {
                 var size = new Size(width, Math.Max(height - _flyoutOffset, 1));
-                if (_settings.UpdateSizeAction != null)
-                    _settings.UpdateSizeAction(_popup, size);
-                if (_settings.UpdatePositionAction != null)
-                    _settings.UpdatePositionAction(_popup, size);
+                _settings.UpdateSizeAction?.Invoke(_popup, size);
+                _settings.UpdatePositionAction?.Invoke(_popup, size);
             }
 
             #endregion
@@ -299,9 +295,7 @@ namespace MugenMvvmToolkit.WinRT.Modules
 
             private void FlyoutOnUnloaded(object sender, RoutedEventArgs routedEventArgs)
             {
-                EventHandler<object, EventArgs> closed = Closed;
-                if (closed != null)
-                    closed(this, EventArgs.Empty);
+                Closed?.Invoke(this, EventArgs.Empty);
                 Dispose();
             }
 
@@ -373,8 +367,7 @@ namespace MugenMvvmToolkit.WinRT.Modules
                 handler(this, eventArgs);
                 if (_cancelProperty == null)
                     _cancelProperty = args.GetType().GetPropertyEx(nameof(CancelEventArgs.Cancel), MemberFlags.Instance | MemberFlags.Public);
-                if (_cancelProperty != null)
-                    _cancelProperty.SetValueEx(args, eventArgs.Cancel);
+                _cancelProperty?.SetValueEx(args, eventArgs.Cancel);
             }
 
             #endregion
@@ -387,8 +380,7 @@ namespace MugenMvvmToolkit.WinRT.Modules
                     _showAsyncMethod = _window
                         .GetType()
                         .GetMethodEx("ShowAsync", MemberFlags.Instance | MemberFlags.Public);
-                if (_showAsyncMethod != null)
-                    _showAsyncMethod.InvokeEx(_window);
+                _showAsyncMethod?.InvokeEx(_window);
             }
 
             public void ShowDialog()
@@ -400,8 +392,7 @@ namespace MugenMvvmToolkit.WinRT.Modules
             {
                 if (_hideMethod == null)
                     _hideMethod = _window.GetType().GetMethodEx("Hide", MemberFlags.Instance | MemberFlags.Public);
-                if (_hideMethod != null)
-                    _hideMethod.InvokeEx(_window);
+                _hideMethod?.InvokeEx(_window);
             }
 
             public void Activate()
