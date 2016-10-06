@@ -146,7 +146,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             if (errorProvider == null || binding == null)
                 return;
             var target = binding.TargetAccessor.Source.GetPathMembers(false).PenultimateValue;
-            if (target != null && !target.IsUnsetValue())
+            if (!target.IsNullOrUnsetValue())
                 errorProvider.SetErrors(target, _senderKey, errors ?? Empty.Array<object>(), context ?? binding.Context);
         }
 

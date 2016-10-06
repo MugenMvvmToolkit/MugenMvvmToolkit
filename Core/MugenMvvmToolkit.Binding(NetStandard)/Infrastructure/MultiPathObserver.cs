@@ -165,7 +165,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         protected override IBindingPathMembers UpdateInternal(IBindingPathMembers oldPath, bool hasSubscribers)
         {
             object source = GetActualSource();
-            if (source == null || source.IsUnsetValue())
+            if (source.IsNullOrUnsetValue())
                 return UnsetBindingPathMembers.Instance;
             ClearListeners();
             int lastIndex;
@@ -188,7 +188,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                         if (index == lastIndex)
                             break;
                         source = pathMember.GetValue(source, null);
-                        if (source == null || source.IsUnsetValue())
+                        if (source.IsNullOrUnsetValue())
                         {
                             if (Path.IsDebuggable)
                                 DebugInfo($"Value is not available for '{pathMember.Path}'", new[] { GetActualSource(false) });
@@ -218,7 +218,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 if (index == lastIndex)
                     break;
                 source = pathMember.GetValue(source, null);
-                if (source == null || source.IsUnsetValue())
+                if (source.IsNullOrUnsetValue())
                 {
                     if (Path.IsDebuggable)
                         DebugInfo($"Value is not available for '{pathMember.Path}'", new[] { GetActualSource(false) });

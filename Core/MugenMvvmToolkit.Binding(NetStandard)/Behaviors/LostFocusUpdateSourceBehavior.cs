@@ -53,7 +53,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         protected override bool OnAttached()
         {
             object value = Binding.TargetAccessor.Source.GetPathMembers(false).PenultimateValue;
-            if (value == null || value.IsUnsetValue())
+            if (value.IsNullOrUnsetValue())
                 return false;
             _member = BindingServiceProvider
                                      .MemberProvider
@@ -91,7 +91,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             if (args.Cancel)
                 return;
             object value = Binding.TargetAccessor.Source.GetPathMembers(false).PenultimateValue;
-            if (value != null && !value.IsUnsetValue())
+            if (!value.IsNullOrUnsetValue())
                 args.Cancel = (bool)_member.GetValue(value, null);
         }
 

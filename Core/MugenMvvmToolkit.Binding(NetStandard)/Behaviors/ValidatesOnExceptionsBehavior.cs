@@ -115,7 +115,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         {
             IBindingPathMembers pathMembers = sender.TargetAccessor.Source.GetPathMembers(false);
             object target = pathMembers.PenultimateValue;
-            if (target != null && !target.IsUnsetValue())
+            if (!target.IsNullOrUnsetValue())
                 errorProvider.SetErrors(target, Key + pathMembers.Path.Path, errors, context ?? sender.Context);
         }
 

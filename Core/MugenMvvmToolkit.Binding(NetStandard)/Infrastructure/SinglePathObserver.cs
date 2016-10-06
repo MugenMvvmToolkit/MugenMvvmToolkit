@@ -104,7 +104,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         protected override IBindingPathMembers UpdateInternal(IBindingPathMembers oldPath, bool hasSubscribers)
         {
             object source = GetActualSource();
-            if (source == null || source.IsUnsetValue())
+            if (source.IsNullOrUnsetValue())
                 return UnsetBindingPathMembers.Instance;
             var members = oldPath as SingleBindingPathMembers;
             var srcRef = OriginalSource as WeakReference;
