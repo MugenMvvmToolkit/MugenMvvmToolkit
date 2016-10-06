@@ -16,17 +16,16 @@
 
 #endregion
 
+using System;
+using System.Runtime.Serialization;
 using MugenMvvmToolkit.Interfaces;
 
 namespace MugenMvvmToolkit.Models.IoC
 {
+    [Serializable, DataContract(Namespace = ApplicationSettings.DataContractNamespace)]
     public class IocParameter : IIocParameter
     {
         #region Fields
-
-        private readonly string _name;
-        private readonly IocParameterType _parameterType;
-        private readonly object _value;
 
         #endregion
 
@@ -34,20 +33,23 @@ namespace MugenMvvmToolkit.Models.IoC
 
         public IocParameter(string name, object value, IocParameterType parameterType)
         {
-            _name = name;
-            _value = value;
-            _parameterType = parameterType;
+            Name = name;
+            Value = value;
+            ParameterType = parameterType;
         }
 
         #endregion
 
         #region Properties
 
-        public IocParameterType ParameterType => _parameterType;
+        [DataMember(Name = "pt")]
+        public IocParameterType ParameterType { get; internal set; }
 
-        public string Name => _name;
+        [DataMember(Name = "n")]
+        public string Name { get; internal set; }
 
-        public object Value => _value;
+        [DataMember(Name = "v")]
+        public object Value { get; internal set; }
 
         #endregion
     }

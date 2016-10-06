@@ -337,6 +337,12 @@ namespace MugenMvvmToolkit.Infrastructure
             if (vmType == null)
                 return null;
 
+            if (!dataContext.Contains(InitializationConstants.IocParameters))
+            {
+                var parameters = viewModelState.GetData(InitializationConstants.IocParameters);
+                if (parameters != null)
+                    dataContext.AddOrUpdate(InitializationConstants.IocParameters, parameters);
+            }
             dataContext.AddOrUpdate(ViewModelConstants.StateRestored, true);
             dataContext.AddOrUpdate(InitializationConstants.IsRestored, true);
 
@@ -345,10 +351,7 @@ namespace MugenMvvmToolkit.Infrastructure
             vmState.Merge(viewModelState);
 
             InitializeViewModel(viewModel, dataContext);
-
-            var hasState = viewModel as IHasState;
-            if (hasState != null)
-                hasState.LoadState(vmState);
+            (viewModel as IHasState)?.LoadState(vmState);
             return viewModel;
         }
 
@@ -470,7 +473,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 Task.Factory.StartNew(state =>
                 {
                     lock (CachedViewModels)
-                          CachedViewModels.Remove((Guid)state);
+                        CachedViewModels.Remove((Guid)state);
                 }, id);
                 return;
             }

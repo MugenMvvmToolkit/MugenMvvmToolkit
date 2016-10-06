@@ -16,14 +16,17 @@
 
 #endregion
 
+using System;
+using System.Runtime.Serialization;
+
 namespace MugenMvvmToolkit.Models.IoC
 {
+    [Serializable, DataContract(Namespace = ApplicationSettings.DataContractNamespace)]
     public class IocParameterType : StringConstantBase<IocParameterType>
     {
         #region Fields
 
         public static readonly IocParameterType Constructor;
-
         public static readonly IocParameterType Property;
 
         #endregion
@@ -35,6 +38,9 @@ namespace MugenMvvmToolkit.Models.IoC
             Constructor = new IocParameterType("Constructor");
             Property = new IocParameterType("Property");
         }
+
+        //Only for serialization
+        internal IocParameterType() { }
 
         public IocParameterType(string id)
             : base(id)
