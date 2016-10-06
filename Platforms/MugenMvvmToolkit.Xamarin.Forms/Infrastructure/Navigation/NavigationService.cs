@@ -75,15 +75,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
 
         public virtual bool CanGoForward => false;
 
-        public virtual object CurrentContent
-        {
-            get
-            {
-                if (_rootPage == null)
-                    return null;
-                return _rootPage.CurrentPage;
-            }
-        }
+        public virtual object CurrentContent => _rootPage?.CurrentPage;
 
         public virtual void GoBack()
         {
@@ -135,12 +127,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             Should.NotBeNull(args, nameof(args));
             var cancelArgs = args as NavigatingCancelEventArgs;
             if (cancelArgs == null)
-            {
-                var eventArgs = args as Models.EventArg.NavigationEventArgs;
-                if (eventArgs == null)
-                    return null;
-                return eventArgs.Parameter;
-            }
+                return (args as Models.EventArg.NavigationEventArgs)?.Parameter;
             return cancelArgs.Parameter;
         }
 
@@ -184,10 +171,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             var viewModel = dataContext.GetData(NavigationConstants.ViewModel);
             bool animated;
             if (dataContext.TryGetData(NavigationConstants.UseAnimations, out animated))
-            {
-                if (viewModel != null)
-                    viewModel.Settings.State.AddOrUpdate(NavigationConstants.UseAnimations, animated);
-            }
+                viewModel?.Settings.State.AddOrUpdate(NavigationConstants.UseAnimations, animated);
             else
                 animated = UseAnimations;
             Page page = null;

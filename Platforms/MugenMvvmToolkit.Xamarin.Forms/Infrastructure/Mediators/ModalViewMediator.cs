@@ -100,9 +100,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Mediators
 
         protected override void ActivateView(IModalView view, IDataContext context)
         {
-            var supportActivationModalView = view as ISupportActivationModalView;
-            if (supportActivationModalView != null)
-                supportActivationModalView.Activate();
+            (view as ISupportActivationModalView)?.Activate();
         }
 
         protected override void InitializeView(IModalView view, IDataContext context)
