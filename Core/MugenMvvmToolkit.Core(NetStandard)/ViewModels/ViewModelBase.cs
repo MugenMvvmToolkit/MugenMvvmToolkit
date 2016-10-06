@@ -574,6 +574,7 @@ namespace MugenMvvmToolkit.ViewModels
 
             Settings.Metadata.Clear();
             ServiceProvider.AttachedValueProvider.Clear(this);
+            CleanupWeakReference();
             Tracer.TraceViewModel(ViewModelLifecycleType.Disposed, this);
         }
 

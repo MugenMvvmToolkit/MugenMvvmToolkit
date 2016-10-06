@@ -141,6 +141,12 @@ namespace MugenMvvmToolkit.Models
             PropertyChanged = null;
         }
 
+        protected void CleanupWeakReference()
+        {
+            if (_ref != null)
+                _ref.Target = null;
+        }
+
         internal virtual void OnPropertyChangedInternal(PropertyChangedEventArgs args)
         {
         }

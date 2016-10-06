@@ -142,18 +142,14 @@ namespace MugenMvvmToolkit.Models
             {
                 if (!HasCanExecuteImpl)
                     return;
-                var action = ApplicationSettings.AddCanExecuteChangedEvent;
-                if (action != null)
-                    action(this, value);
+                ApplicationSettings.AddCanExecuteChangedEvent?.Invoke(this, value);
                 _canExecuteChangedInternal += value;
             }
             remove
             {
                 if (!HasCanExecuteImpl)
                     return;
-                var action = ApplicationSettings.RemoveCanExecuteChangedEvent;
-                if (action != null)
-                    action(this, value);
+                ApplicationSettings.RemoveCanExecuteChangedEvent?.Invoke(this, value);
                 _canExecuteChangedInternal -= value;
             }
         }
@@ -168,6 +164,8 @@ namespace MugenMvvmToolkit.Models
             _weakHandler = null;
             _canExecuteChangedInternal = null;
             OnDispose();
+            ClearPropertyChangedSubscribers();
+            CleanupWeakReference();
         }
 
         public void RaiseCanExecuteChanged()
