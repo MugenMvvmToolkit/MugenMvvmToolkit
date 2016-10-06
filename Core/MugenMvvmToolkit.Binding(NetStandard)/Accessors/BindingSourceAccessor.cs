@@ -97,7 +97,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 if (dispose && oneTime && GetReferenceValue() is ICommand)
                 {
                     var penultimateValue = GetPenultimateValue();
-                    if (penultimateValue != null && !penultimateValue.IsUnsetValue())
+                    if (!penultimateValue.IsNullOrUnsetValue())
                     {
                         LastContext = LastContext == null ? new DataContext() : new DataContext(LastContext);
                         LastContext.Remove(BindingConstants.Binding);
@@ -188,10 +188,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 var actionValue = valueReference as BindingActionValue;
                 if (actionValue != null)
                     return actionValue;
-                var reference = valueReference as WeakReference;
-                if (reference == null)
-                    return null;
-                return reference.Target;
+                return (valueReference as WeakReference)?.Target;
             }
 
             private bool InitializeCanExecuteDelegate(ICommand command)
@@ -209,7 +206,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
             private void SetIsEnabled(bool value)
             {
                 object penultimateValue = GetPenultimateValue();
-                if (penultimateValue == null || penultimateValue.IsUnsetValue())
+                if (penultimateValue.IsNullOrUnsetValue())
                     return;
                 IBindingMemberInfo member = BindingServiceProvider
                     .MemberProvider
@@ -230,7 +227,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
                     return _parameterDelegate(context);
 
                 object target = GetPenultimateValue();
-                if (target == null || target.IsUnsetValue())
+                if (target.IsNullOrUnsetValue())
                     return null;
 
                 var commandParameterMember = BindingServiceProvider
@@ -417,29 +414,25 @@ namespace MugenMvvmToolkit.Binding.Accessors
             bool throwOnError)
         {
             IBindingPathMembers members = _bindingSource.GetPathMembers(throwOnError);
+            var value = members.GetLastMemberValue();
             if (members.Path.IsDebuggable)
-            {
-                var value = members.LastMember.GetValue(members.PenultimateValue, null);
                 DebugInfo($"Binding got a raw value: '{value}', for path: '{members.Path}'", new[] { value, members });
-                return value;
-            }
-            return members.LastMember.GetValue(members.PenultimateValue, null);
+            return value;
         }
 
         protected override bool SetValueInternal(IBindingSourceAccessor targetAccessor, IDataContext context,
             bool throwOnError)
         {
             IBindingPathMembers members = _bindingSource.GetPathMembers(throwOnError);
-            if (!members.AllMembersAvailable)
+            object penultimateValue = members.PenultimateValue;
+            if (penultimateValue.IsUnsetValue() || (penultimateValue == null && !members.AllMembersAvailable))
             {
                 if (members.Path.IsDebuggable)
                     DebugInfo($"Binding cannot set value for path {members.Path.Path}", new object[] { members });
                 return false;
             }
 
-            object penultimateValue = members.PenultimateValue;
             IBindingMemberInfo lastMember = members.LastMember;
-
             object oldValue;
             object newValue = targetAccessor.GetValue(lastMember, context, throwOnError);
             if (lastMember.CanRead && !BindingMemberType.BindingContext.EqualsWithoutNullCheck(lastMember.MemberType))

@@ -424,6 +424,14 @@ namespace MugenMvvmToolkit.Binding
             }
         }
 
+        public static object GetLastMemberValue(this IBindingPathMembers members, object[] args = null)
+        {
+            var penultimateValue = members.PenultimateValue;
+            if (penultimateValue.IsUnsetValue() || (penultimateValue == null && !members.AllMembersAvailable))
+                return BindingConstants.UnsetValue;
+            return members.LastMember.GetValue(penultimateValue, args);
+        }
+
         public static object GetValue([CanBeNull] this BindingActionValue actionValue, object[] args)
         {
             if (actionValue == null)
@@ -471,7 +479,7 @@ namespace MugenMvvmToolkit.Binding
             for (int index = firstMemberIndex; index < path.Parts.Count; index++)
             {
                 string item = path.Parts[index];
-                if (src == null || src.IsUnsetValue())
+                if (src.IsNullOrUnsetValue())
                     return null;
                 IBindingMemberInfo member = BindingServiceProvider
                     .MemberProvider
@@ -756,6 +764,11 @@ namespace MugenMvvmToolkit.Binding
                 }
             }
             return MergePath(members);
+        }
+
+        internal static bool IsNullOrUnsetValue(this object obj)
+        {
+            return obj == null || ReferenceEquals(obj, BindingConstants.UnsetValue);
         }
 
         internal static bool IsUnsetValueOrDoNothing(this object obj)

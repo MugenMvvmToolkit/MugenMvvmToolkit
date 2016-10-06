@@ -101,7 +101,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
             for (int i = 0; i < _sources.Length; i++)
             {
                 IBindingPathMembers members = _sources[i].GetPathMembers(true);
-                object value = members.LastMember.GetValue(members.PenultimateValue, null);
+                object value = members.GetLastMemberValue();
                 if (members.Path.IsDebuggable)
                     DebugInfo($"MultiBinding got a raw value: '{value}', for path: '{members.Path}'", new[] { value, members });
                 if (value.IsDoNothing())
