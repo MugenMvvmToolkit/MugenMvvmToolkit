@@ -478,16 +478,7 @@ namespace MugenMvvmToolkit.ViewModels
         public virtual event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
 
 #if NONOTIFYDATAERROR
-        public string this[string columnName]
-        {
-            get
-            {
-                var error = GetErrors(columnName).FirstOrDefault();
-                if (error == null)
-                    return null;
-                return error.ToString();
-            }
-        }
+        public string this[string columnName] => GetErrors(columnName).FirstOrDefault()?.ToString();
 
         string IDataErrorInfo.Error
         {

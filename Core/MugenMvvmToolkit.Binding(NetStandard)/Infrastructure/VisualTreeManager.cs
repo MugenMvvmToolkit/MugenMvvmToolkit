@@ -44,9 +44,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 _target = ServiceProvider.WeakReferenceFactory(target);
                 _parent = Empty.WeakReference;
                 UpdateParent(target);
-                var parentMember = BindingServiceProvider.VisualTreeManager.GetParentMember(target.GetType());
-                if (parentMember != null)
-                    parentMember.TryObserve(target, this);
+                BindingServiceProvider.VisualTreeManager.GetParentMember(target.GetType())?.TryObserve(target, this);
             }
 
             #endregion
@@ -149,15 +147,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             Should.NotBeNull(elementName, nameof(elementName));
             while (target != null)
             {
-                var member = BindingServiceProvider
-                   .MemberProvider
-                   .GetBindingMember(target.GetType(), AttachedMemberConstants.FindByNameMethod, false, false);
-                if (member != null)
-                {
-                    var result = member.GetValue(target, new object[] { elementName });
-                    if (result != null)
-                        return result;
-                }
+                var result = BindingServiceProvider
+                    .MemberProvider
+                    .GetBindingMember(target.GetType(), AttachedMemberConstants.FindByNameMethod, false, false)
+                    ?.GetValue(target, new object[] { elementName });
+                if (result != null)
+                    return result;
                 target = FindParent(target);
             }
             return null;

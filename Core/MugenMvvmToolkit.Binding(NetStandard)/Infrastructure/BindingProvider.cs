@@ -319,12 +319,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         private static IDataBinding CreateInvalidaDataBinding(IDataContext dataContext)
         {
             var exception = dataContext.GetData(ExceptionConstant);
-            var bindingProvider = dataContext.GetData(ProviderConstant);
             if (exception == null)
                 exception = BindingExceptionManager.InvalidBindingMember(typeof(object), "undefined");
             var b = new InvalidDataBinding(exception);
-            if (bindingProvider != null)
-                bindingProvider.AddBehaviors(b, dataContext);
+            dataContext.GetData(ProviderConstant)?.AddBehaviors(b, dataContext);
             return b;
         }
 

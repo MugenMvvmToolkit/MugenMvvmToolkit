@@ -508,8 +508,7 @@ namespace MugenMvvmToolkit.Collections
         protected virtual void ClearPendingChanges()
         {
             _snapshot = null;
-            if (_pendingChanges != null)
-                _pendingChanges.Clear();
+            _pendingChanges?.Clear();
             _hasClearAction = false;
         }
 
@@ -847,8 +846,7 @@ namespace MugenMvvmToolkit.Collections
             {
                 if (lockTaken)
                     Monitor.Exit(Locker);
-                if (suspender != null)
-                    suspender.Dispose();
+                suspender?.Dispose();
             }
         }
 
@@ -868,8 +866,7 @@ namespace MugenMvvmToolkit.Collections
             {
                 if (lockTaken)
                     Monitor.Exit(Locker);
-                if (suspender != null)
-                    suspender.Dispose();
+                suspender?.Dispose();
             }
         }
 

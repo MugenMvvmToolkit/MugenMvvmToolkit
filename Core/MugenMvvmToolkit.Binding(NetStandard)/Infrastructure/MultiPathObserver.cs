@@ -115,16 +115,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             public IBindingMemberInfo LastMember => _lastMember;
 
-            public object Source
-            {
-                get
-                {
-                    var observer = (ObserverBase)_observerRef.Target;
-                    if (observer == null)
-                        return null;
-                    return observer.GetActualSource();
-                }
-            }
+            public object Source => ((ObserverBase)_observerRef.Target)?.GetActualSource();
 
             public object PenultimateValue => PenultimateValueRef.Target;
 

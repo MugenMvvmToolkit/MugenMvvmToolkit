@@ -231,8 +231,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         protected virtual T CancelChangesInternal()
         {
-            if (_entitySnapshot != null)
-                _entitySnapshot.Restore(Entity);
+            _entitySnapshot?.Restore(Entity);
             return Entity;
         }
 

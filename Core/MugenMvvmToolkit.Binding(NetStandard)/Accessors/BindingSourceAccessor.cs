@@ -230,12 +230,10 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 if (target.IsNullOrUnsetValue())
                     return null;
 
-                var commandParameterMember = BindingServiceProvider
+                return BindingServiceProvider
                     .MemberProvider
-                    .GetBindingMember(target.GetType(), AttachedMemberConstants.CommandParameter, false, false);
-                if (commandParameterMember == null)
-                    return null;
-                return commandParameterMember.GetValue(target, new object[] { context });
+                    .GetBindingMember(target.GetType(), AttachedMemberConstants.CommandParameter, false, false)
+                    ?.GetValue(target, new object[] { context });
             }
 
             private void CommandOnCanExecuteChanged(object sender)
@@ -397,8 +395,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
 
         public override void Dispose()
         {
-            if (_closure != null)
-                _closure.Unsubscribe(true, _isOneTime);
+            _closure?.Unsubscribe(true, _isOneTime);
             _bindingSource.Dispose();
             ValueChanging = null;
             ValueChanged = null;
@@ -493,8 +490,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
             }
             else
             {
-                if (_closure != null)
-                    _closure.Unsubscribe(false, _isOneTime);
+                _closure?.Unsubscribe(false, _isOneTime);
                 lastMember.SetSingleValue(penultimateValue, newValue);
                 if (members.Path.IsDebuggable)
                     DebugInfo($"Binding set value: '{newValue}' for source: '{penultimateValue}' with path: '{lastMember.Path}'", new[] { newValue, penultimateValue, lastMember });

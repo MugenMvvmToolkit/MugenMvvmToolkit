@@ -118,8 +118,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                         if (!task.Result)
                         {
                             tcs.TrySetCanceled();
-                            if (callback != null)
-                                callback.Invoke(OperationResult.CreateCancelResult<bool?>(OperationType.WindowNavigation, ViewModel, context));
+                            callback?.Invoke(OperationResult.CreateCancelResult<bool?>(OperationType.WindowNavigation, ViewModel, context));
                             return;
                         }
                         if (context == null)
@@ -132,8 +131,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                     catch (Exception e)
                     {
                         tcs.TrySetException(e);
-                        if (callback != null)
-                            callback.Invoke(OperationResult.CreateErrorResult<bool?>(OperationType.WindowNavigation, ViewModel, e, context));
+                        callback?.Invoke(OperationResult.CreateErrorResult<bool?>(OperationType.WindowNavigation, ViewModel, e, context));
                     }
                 });
             return tcs.Task;
@@ -218,13 +216,8 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         protected virtual void OnClosed(object parameter, INavigationContext context)
         {
-            var navigableViewModel = ViewModel as INavigableViewModel;
-            if (navigableViewModel != null)
-                navigableViewModel.OnNavigatedFrom(context);
-
-            navigableViewModel = context.ViewModelTo as INavigableViewModel;
-            if (navigableViewModel != null)
-                navigableViewModel.OnNavigatedTo(context);
+            (ViewModel as INavigableViewModel)?.OnNavigatedFrom(context);
+            (context.ViewModelTo as INavigableViewModel)?.OnNavigatedTo(context);
         }
 
         protected virtual void OnViewUpdated(TView view, IDataContext context)
@@ -370,10 +363,8 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             if (context != null)
                 ctx.Merge(context);
 
-            if (viewModelFrom != null)
-                viewModelFrom.OnNavigatedFrom(ctx);
-            if (viewModelTo != null)
-                viewModelTo.OnNavigatedTo(ctx);
+            viewModelFrom?.OnNavigatedFrom(ctx);
+            viewModelTo?.OnNavigatedTo(ctx);
         }
 
         #endregion

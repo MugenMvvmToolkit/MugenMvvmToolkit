@@ -100,16 +100,15 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         void IActionContinuation.Invoke(IOperationResult result)
         {
-            if (_action != null)
-                _action(result);
+            _action?.Invoke(result);
         }
 
         void IActionContinuation<TIn>.Invoke(IOperationResult<TIn> result)
         {
             if (_genericAction != null)
                 _genericAction(result);
-            else if (_actionWithTarget != null)
-                _actionWithTarget((TTarget)result.Source, result);
+            else
+                _actionWithTarget?.Invoke((TTarget)result.Source, result);
         }
 
         TOut IFunctionContinuation<TIn, TOut>.Invoke(IOperationResult<TIn> result)

@@ -196,9 +196,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         void INavigableViewModel.OnNavigatedTo(INavigationContext context)
         {
-            var navigableViewModel = ViewModel as INavigableViewModel;
-            if (navigableViewModel != null)
-                navigableViewModel.OnNavigatedTo(context);
+            (ViewModel as INavigableViewModel)?.OnNavigatedTo(context);
             OnShown(context);
         }
 
@@ -212,9 +210,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         void INavigableViewModel.OnNavigatedFrom(INavigationContext context)
         {
-            var navigableViewModel = ViewModel as INavigableViewModel;
-            if (navigableViewModel != null)
-                navigableViewModel.OnNavigatedFrom(context);
+            (ViewModel as INavigableViewModel)?.OnNavigatedFrom(context);
         }
 
         void IHasState.LoadState(IDataContext state)

@@ -89,8 +89,8 @@ namespace MugenMvvmToolkit.Infrastructure
                 var assembly = Assembly.Load(assemblyName);
 #endif
 
-                if (assembly != null && assemblies != null)
-                    assemblies.Add(assembly);
+                if (assembly != null)
+                    assemblies?.Add(assembly);
                 return assembly;
             }
             // ReSharper disable once EmptyGeneralCatchClause

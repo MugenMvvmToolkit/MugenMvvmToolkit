@@ -74,9 +74,7 @@ namespace MugenMvvmToolkit.Models.Validation
 
         object IServiceProvider.GetService(Type serviceType)
         {
-            if (ServiceProvider == null)
-                return null;
-            return ServiceProvider.GetService(serviceType);
+            return ServiceProvider?.GetService(serviceType);
         }
 
         #endregion

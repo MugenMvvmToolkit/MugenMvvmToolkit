@@ -71,8 +71,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         protected override void OnDetached()
         {
             Binding.SourceAccessor.ValueChanging -= SourceOnValueChanging;
-            if (_subscriber != null)
-                _subscriber.Dispose();
+            _subscriber?.Dispose();
             _subscriber = null;
             _member = null;
         }

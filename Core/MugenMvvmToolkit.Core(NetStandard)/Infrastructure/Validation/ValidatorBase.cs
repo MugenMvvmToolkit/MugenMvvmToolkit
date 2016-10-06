@@ -304,16 +304,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         public virtual event EventHandler<DataErrorsChangedEventArgs> ErrorsChanged;
 
 #if NONOTIFYDATAERROR
-        string IDataErrorInfo.this[string columnName]
-        {
-            get
-            {
-                var error = GetErrors(columnName).FirstOrDefault();
-                if (error == null)
-                    return null;
-                return error.ToString();
-            }
-        }
+        string IDataErrorInfo.this[string columnName] => GetErrors(columnName).FirstOrDefault()?.ToString();
 
         string IDataErrorInfo.Error
         {
@@ -356,15 +347,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
         protected Dictionary<string, IList<object>> Errors => _errors;
 
-        protected object Instance
-        {
-            get
-            {
-                if (Context == null)
-                    return null;
-                return Context.Instance;
-            }
-        }
+        protected object Instance => Context?.Instance;
 
         [NotNull]
         protected IDictionary<string, ICollection<string>> PropertyMappings
@@ -450,8 +433,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 return;
             var eventPublisher = Context.Instance as IEventPublisher;
             var viewModel = Context.ValidationMetadata.GetData(ViewModelConstants.ViewModel);
-            if (eventPublisher != null)
-                eventPublisher.Publish(this, message);
+            eventPublisher?.Publish(this, message);
             if (viewModel != null && !ReferenceEquals(eventPublisher, viewModel))
                 viewModel.Publish(this, message);
         }
@@ -578,8 +560,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 _runningTask.TryGetValue(propertyName, out oldClosure);
                 _runningTask[propertyName] = value;
             }
-            if (oldClosure != null)
-                oldClosure.Cancel();
+            oldClosure?.Cancel();
             return validationTask.TryExecuteSynchronously(value.Callback);
         }
 
@@ -665,8 +646,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             {
                 if (isAsync)
                 {
-                    if (message != null)
-                        message.SetCompleted(exception, false);
+                    message?.SetCompleted(exception, false);
                     TraceAsync(false, propertyName);
                 }
                 lock (_validatingMembers)

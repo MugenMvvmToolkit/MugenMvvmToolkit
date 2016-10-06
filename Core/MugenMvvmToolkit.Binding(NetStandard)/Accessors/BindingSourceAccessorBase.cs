@@ -224,23 +224,21 @@ namespace MugenMvvmToolkit.Binding.Accessors
             if (value.IsUnsetValueOrDoNothing())
                 return value;
 
-            if (_parameters.ConverterDelegate != null)
+            IBindingValueConverter converter = _parameters.ConverterDelegate?.Invoke(context);
+            if (converter != null)
             {
-                IBindingValueConverter converter = _parameters.ConverterDelegate(context);
-                if (converter != null)
+                CultureInfo culture = _parameters.ConverterCultureDelegate?.Invoke(context) ?? BindingServiceProvider.BindingCultureInfo();
+                object parameter = _parameters.ConverterParameterDelegate?.Invoke(context);
+                if (isDebuggable)
                 {
-                    CultureInfo culture = _parameters.ConverterCultureDelegate.GetValueOrDefault(context, BindingServiceProvider.BindingCultureInfo());
-                    object parameter = _parameters.ConverterParameterDelegate.GetValueOrDefault(context);
-                    if (isDebuggable)
-                    {
-                        DebugInfo($"Applying converter for target value: '{value}', converter: '{converter}', parameter: '{parameter}', culture: {culture}, target type: '{targetMember.Type}'");
-                        value = converter.ConvertBack(value, targetMember.Type, parameter, culture, context);
-                        DebugInfo($"Converter '{converter}' returns value: '{value}'");
-                    }
-                    else
-                        value = converter.ConvertBack(value, targetMember.Type, parameter, culture, context);
+                    DebugInfo($"Applying converter for target value: '{value}', converter: '{converter}', parameter: '{parameter}', culture: {culture}, target type: '{targetMember.Type}'");
+                    value = converter.ConvertBack(value, targetMember.Type, parameter, culture, context);
+                    DebugInfo($"Converter '{converter}' returns value: '{value}'");
                 }
+                else
+                    value = converter.ConvertBack(value, targetMember.Type, parameter, culture, context);
             }
+
             if (Equals(value, _parameters.TargetNullValue))
             {
                 if (isDebuggable)
@@ -264,8 +262,8 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 IBindingValueConverter converter = _parameters.ConverterDelegate(context);
                 if (converter != null)
                 {
-                    CultureInfo culture = _parameters.ConverterCultureDelegate.GetValueOrDefault(context, BindingServiceProvider.BindingCultureInfo());
-                    object parameter = _parameters.ConverterParameterDelegate.GetValueOrDefault(context);
+                    CultureInfo culture = _parameters.ConverterCultureDelegate?.Invoke(context) ?? BindingServiceProvider.BindingCultureInfo();
+                    object parameter = _parameters.ConverterParameterDelegate?.Invoke(context);
                     if (isDebuggable)
                     {
                         DebugInfo($"Applying converter for source value: '{value}', converter: '{converter}', parameter: '{parameter}', culture: {culture}, target type: '{targetMember.Type}'");
@@ -277,7 +275,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 }
             }
             if (value.IsUnsetValue())
-                value = _parameters.FallbackDelegate.GetValueOrDefault(context) ?? targetMember.Type.GetDefaultValue();
+                value = _parameters.FallbackDelegate?.Invoke(context) ?? targetMember.Type.GetDefaultValue();
             if (value == null)
                 return _parameters.TargetNullValue;
             return value;

@@ -106,8 +106,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             _isMulti = false;
             _lamdaParameters.Clear();
             _staticNodes.Clear();
-            if (_nodes != null)
-                _nodes.Clear();
+            _nodes?.Clear();
         }
 
         private IExpressionNode VisitMethodCall(IMethodCallExpressionNode methodCall)

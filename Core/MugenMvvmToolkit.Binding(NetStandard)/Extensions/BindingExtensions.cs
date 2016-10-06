@@ -77,12 +77,7 @@ namespace MugenMvvmToolkit.Binding
 
             public object Value
             {
-                get
-                {
-                    if (_parentContext == null)
-                        return null;
-                    return _parentContext.Value;
-                }
+                get { return _parentContext?.Value; }
                 set { _innerContext.Value = value; }
             }
 
@@ -176,8 +171,7 @@ namespace MugenMvvmToolkit.Binding
                 if (target == null)
                 {
                     Value = null;
-                    if (_subscriber != null)
-                        _subscriber.Dispose();
+                    _subscriber?.Dispose();
                     return false;
                 }
 
@@ -220,8 +214,7 @@ namespace MugenMvvmToolkit.Binding
 
             public void Dispose()
             {
-                if (_subscriber != null)
-                    _subscriber.Dispose();
+                _subscriber?.Dispose();
                 _value = Empty.WeakReference;
                 _targetReference = Empty.WeakReference;
             }
@@ -434,9 +427,7 @@ namespace MugenMvvmToolkit.Binding
 
         public static object GetValue([CanBeNull] this BindingActionValue actionValue, object[] args)
         {
-            if (actionValue == null)
-                return BindingConstants.UnsetValue;
-            object source = actionValue.MemberSource.Target;
+            object source = actionValue?.MemberSource.Target;
             if (source == null)
                 return BindingConstants.UnsetValue;
             try
@@ -450,14 +441,11 @@ namespace MugenMvvmToolkit.Binding
             }
         }
 
-        public static bool TrySetValue<TResult>([CanBeNull] this BindingActionValue actionValue, object[] args,
-            out TResult result)
+        public static bool TrySetValue<TResult>([CanBeNull] this BindingActionValue actionValue, object[] args, out TResult result)
         {
             result = default(TResult);
-            if (actionValue == null)
-                return false;
-            object source = actionValue.MemberSource.Target;
-            if (actionValue.MemberSource.Target == null)
+            object source = actionValue?.MemberSource.Target;
+            if (source == null)
                 return false;
             try
             {
@@ -731,8 +719,7 @@ namespace MugenMvvmToolkit.Binding
                 members = new List<string>();
             while (target != null)
             {
-                if (nodes != null)
-                    nodes.Insert(0, target);
+                nodes?.Insert(0, target);
                 var expressionNode = target as IMemberExpressionNode;
                 if (expressionNode == null)
                 {
@@ -784,14 +771,6 @@ namespace MugenMvvmToolkit.Binding
         internal static bool IsDoNothing(this object obj)
         {
             return ReferenceEquals(obj, BindingConstants.DoNothing);
-        }
-
-        internal static T GetValueOrDefault<T>(this Func<IDataContext, T> getValue, IDataContext context,
-            T value = default(T))
-        {
-            if (getValue == null)
-                return value;
-            return getValue(context);
         }
 
         [Pure]

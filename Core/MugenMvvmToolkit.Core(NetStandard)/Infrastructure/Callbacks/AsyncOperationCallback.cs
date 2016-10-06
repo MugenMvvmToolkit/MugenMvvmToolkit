@@ -82,10 +82,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         {
             Should.NotBeNull(result, nameof(result));
             if (_asyncOperation == null)
-            {
-                if (_callback != null)
-                    _callback.Invoke(result);
-            }
+                _callback?.Invoke(result);
             else
                 _asyncOperation.SetResult(result, true);
         }

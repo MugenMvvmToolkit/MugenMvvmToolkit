@@ -347,8 +347,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         void IDataContext.Clear()
         {
-            if (_lazyContext != null)
-                _lazyContext.Clear();
+            _lazyContext?.Clear();
         }
 
         IList<DataConstantValue> IDataContext.ToList()

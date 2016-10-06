@@ -178,9 +178,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 .GetConstructors(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic)
                 .FirstOrDefault();
 #endif
-            if (constructor == null)
-                return null;
-            return constructor.InvokeEx(item);
+            return constructor?.InvokeEx(item);
         }
 
         [CanBeNull]

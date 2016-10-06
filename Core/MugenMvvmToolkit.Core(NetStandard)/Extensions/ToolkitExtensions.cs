@@ -681,9 +681,7 @@ namespace MugenMvvmToolkit
             }
             finally
             {
-                var disposable = enumerator as IDisposable;
-                if (disposable != null)
-                    disposable.Dispose();
+                (enumerator as IDisposable)?.Dispose();
             }
             return -1;
         }
@@ -786,9 +784,7 @@ namespace MugenMvvmToolkit
             }
             finally
             {
-                var disposable = enumerator as IDisposable;
-                if (disposable != null)
-                    disposable.Dispose();
+                (enumerator as IDisposable)?.Dispose();
             }
         }
 
@@ -814,9 +810,7 @@ namespace MugenMvvmToolkit
             }
             finally
             {
-                var disposable = enumerator as IDisposable;
-                if (disposable != null)
-                    disposable.Dispose();
+                (enumerator as IDisposable)?.Dispose();
             }
             return num;
         }
@@ -1070,10 +1064,7 @@ namespace MugenMvvmToolkit
         public static ISubscriber Subscribe([NotNull] this IObservable observable, [NotNull] object instance, IDataContext context = null)
         {
             Should.NotBeNull(observable, nameof(observable));
-            var converter = ServiceProvider.ObjectToSubscriberConverter;
-            if (converter == null)
-                return null;
-            var subscriber = converter(instance, context);
+            var subscriber = ServiceProvider.ObjectToSubscriberConverter?.Invoke(instance, context);
             if (subscriber == null)
                 return null;
             return observable.Subscribe(subscriber) ? subscriber : null;
@@ -1082,10 +1073,7 @@ namespace MugenMvvmToolkit
         public static bool Unsubscribe([NotNull] this IObservable observable, [NotNull]object instance, IDataContext context = null)
         {
             Should.NotBeNull(observable, nameof(observable));
-            var converter = ServiceProvider.ObjectToSubscriberConverter;
-            if (converter == null)
-                return false;
-            var subscriber = converter(instance, context);
+            var subscriber = ServiceProvider.ObjectToSubscriberConverter?.Invoke(instance, context);
             if (subscriber == null)
                 return false;
             return observable.Unsubscribe(subscriber);

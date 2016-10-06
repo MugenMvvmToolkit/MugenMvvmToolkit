@@ -395,18 +395,12 @@ namespace MugenMvvmToolkit.Binding.Modules
 
         private static IDisposable ObserveRootMember(IBindingMemberInfo member, object o, IEventListener arg3)
         {
-            var rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(o.GetType());
-            if (rootMember == null)
-                return null;
-            return rootMember.TryObserve(o, arg3);
+            return BindingServiceProvider.VisualTreeManager.GetRootMember(o.GetType())?.TryObserve(o, arg3);
         }
 
         private static object GetRootMember(IBindingMemberInfo member, object o, object[] arg3)
         {
-            var rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(o.GetType());
-            if (rootMember == null)
-                return null;
-            return rootMember.GetValue(o, arg3);
+            return BindingServiceProvider.VisualTreeManager.GetRootMember(o.GetType())?.GetValue(o, arg3);
         }
 
         private static void RegisterDefaultMembers()
@@ -460,12 +454,10 @@ namespace MugenMvvmToolkit.Binding.Modules
 
         private static IDisposable ObserveHasErrors(IBindingMemberInfo bindingMemberInfo, object o, IEventListener arg3)
         {
-            var member = BindingServiceProvider
+            return BindingServiceProvider
                 .MemberProvider
-                .GetBindingMember(o.GetType(), AttachedMemberConstants.ErrorsPropertyMember, false, false);
-            if (member == null)
-                return null;
-            return member.TryObserve(o, arg3);
+                .GetBindingMember(o.GetType(), AttachedMemberConstants.ErrorsPropertyMember, false, false)
+                ?.TryObserve(o, arg3);
         }
 
         #endregion

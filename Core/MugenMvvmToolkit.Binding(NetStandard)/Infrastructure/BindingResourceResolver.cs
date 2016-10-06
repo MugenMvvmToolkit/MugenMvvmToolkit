@@ -96,16 +96,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             public bool IsAlive => true;
 
-            public object Value
-            {
-                get
-                {
-                    var value = _value;
-                    if (value == null)
-                        return null;
-                    return value.Value;
-                }
-            }
+            public object Value => _value?.Value;
 
             public event EventHandler<ISourceValue, EventArgs> ValueChanged;
 
@@ -325,16 +316,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         private static object GetEventArgs(IList<Type> types, object[] items, IDataContext dataContext)
         {
-            if (dataContext == null)
-                return null;
-            return dataContext.GetData(BindingConstants.CurrentEventArgs);
+            return dataContext?.GetData(BindingConstants.CurrentEventArgs);
         }
 
         private static IDataBinding GetBindingMethod(IList<Type> types, object[] objects, IDataContext arg3)
         {
-            if (arg3 == null)
-                return null;
-            return arg3.GetData(BindingConstants.Binding);
+            return arg3?.GetData(BindingConstants.Binding);
         }
 
         private static object GetErrorsMethod(IList<Type> types, object[] objects, IDataContext arg3)

@@ -81,7 +81,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         private sealed class IntPtrComparer : IEqualityComparer<IntPtr>
         {
-            #region Implementation of IEqualityComparer<in IntPtr>
+        #region Implementation of IEqualityComparer<in IntPtr>
 
             public bool Equals(IntPtr x, IntPtr y)
             {
@@ -93,7 +93,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
                 return obj.GetHashCode();
             }
 
-            #endregion
+        #endregion
         }
 
         [Register("NSObjectEx")]
@@ -104,14 +104,14 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
         [Register("AttachedValueHolder")]
         private sealed class AttachedValueHolder : NSObjectEx
         {
-            #region Fields
+        #region Fields
 
             internal readonly NativeObjectWeakReference WeakReference;
             private AttachedValueDictionary _dictionary;
 
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             public AttachedValueHolder(NSObject target)
             {
@@ -119,9 +119,9 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
                 WeakReference = new NativeObjectWeakReference(target);
             }
 
-            #endregion
+        #endregion
 
-            #region Methods
+        #region Methods
 
             public AttachedValueDictionary GetOrCreateDictionary()
             {
@@ -142,19 +142,19 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
                     Dispose();
             }
 
-            #endregion
+        #endregion
         }
 
 #elif ANDROID
         private sealed class AttachedValueDictionaryJava : Java.Lang.Object
         {
-        #region Fields
+            #region Fields
 
             public readonly AttachedValueDictionary Dictionary;
 
-        #endregion
+            #endregion
 
-        #region Constructors
+            #region Constructors
 
             public AttachedValueDictionaryJava(IntPtr handle, JniHandleOwnership transfer)
                 : base(handle, transfer)
@@ -168,7 +168,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
                 Dictionary = new AttachedValueDictionary();
             }
 
-        #endregion
+            #endregion
         }
 #endif
         internal class AttachedValueDictionary : LightDictionaryBase<string, object>
@@ -237,9 +237,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         public static void ClearAttachedValues(NotifyPropertyChangedBase model)
         {
-            var values = model.AttachedValues;
-            if (values != null)
-                values.Clear();
+            model.AttachedValues?.Clear();
         }
 #endif
 
@@ -426,9 +424,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
                             }
                         }
                     }
-                    if (dict == null)
-                        return null;
-                    return dict.Dictionary;
+                    return dict?.Dictionary;
                 }
             }
 

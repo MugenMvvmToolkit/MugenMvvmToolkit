@@ -43,9 +43,7 @@ namespace MugenMvvmToolkit.Binding.Converters
 
         protected override bool? Convert(bool? value, Type targetType, object parameter, CultureInfo culture, IDataContext context)
         {
-            if (value.HasValue)
-                return !value.Value;
-            return null;
+            return !value;
         }
 
         protected override bool? ConvertBack(bool? value, Type targetType, object parameter, CultureInfo culture, IDataContext context)

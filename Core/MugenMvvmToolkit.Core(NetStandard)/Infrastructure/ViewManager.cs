@@ -242,17 +242,13 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             InitializeViewInternal(null, view);
             viewModel.Settings.Metadata.Remove(ViewModelConstants.View);
-            PropertyInfo viewProperty = ReflectionExtensions.GetViewProperty(viewModel.GetType());
-            if (viewProperty != null)
-                viewProperty.SetValue<object>(viewModel, null);
+            ReflectionExtensions.GetViewProperty(viewModel.GetType())?.SetValue<object>(viewModel, null);
 
             viewModel.Unsubscribe(ToolkitExtensions.GetUnderlyingView<object>(view));
             if (DisposeView && ServiceProvider.AttachedValueProvider.Contains(view, ViewManagerCreatorPath))
             {
                 ServiceProvider.AttachedValueProvider.Clear(view, ViewManagerCreatorPath);
-                var disposable = view as IDisposable;
-                if (disposable != null)
-                    disposable.Dispose();
+                (view as IDisposable)?.Dispose();
             }
         }
 
@@ -274,9 +270,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             if (viewModel != null || ClearDataContext)
                 SetDataContext(view, viewModel);
-            Action<object, IViewModel> propertySetter = ReflectionExtensions.GetViewModelPropertySetter(view.GetType());
-            if (propertySetter != null)
-                propertySetter(view, viewModel);
+            ReflectionExtensions.GetViewModelPropertySetter(view.GetType())?.Invoke(view, viewModel);
         }
 
         #endregion

@@ -253,9 +253,7 @@ namespace MugenMvvmToolkit.Binding.Models
 
             private static void RaiseAttachedProperty(IBindingMemberInfo member, TTarget target, object o)
             {
-                var property = ServiceProvider.AttachedValueProvider.GetValue<AttachedProperty<TTarget, TType>>(target, ((IAttachedBindingMemberInternal)member).Id, false);
-                if (property != null)
-                    property.RaiseWithMemberChanged(target, o);
+                ServiceProvider.AttachedValueProvider.GetValue<AttachedProperty<TTarget, TType>>(target, ((IAttachedBindingMemberInternal)member).Id, false)?.RaiseWithMemberChanged(target, o);
             }
 
             private static IDisposable ObserveAttached(IBindingMemberInfo member, TTarget source, IEventListener listener)
@@ -353,15 +351,13 @@ namespace MugenMvvmToolkit.Binding.Models
                     return;
                 var oldValue = Value;
                 Value = value;
-                if (Member != null)
-                    Member.MemberChanged(source, oldValue, value, args);
+                Member?.MemberChanged(source, oldValue, value, args);
                 Raise(source, EventArgs.Empty);
             }
 
             public void RaiseWithMemberChanged(TTarget source, object arg)
             {
-                if (Member != null)
-                    Member.MemberChanged(source, Value, Value, Empty.Array<object>());
+                Member?.MemberChanged(source, Value, Value, Empty.Array<object>());
                 Raise(source, arg);
             }
 

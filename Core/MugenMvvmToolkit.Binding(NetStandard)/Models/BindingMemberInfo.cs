@@ -443,9 +443,7 @@ namespace MugenMvvmToolkit.Binding.Models
             {
                 if (_isDynamic)
                     return ((IDynamicObject)source).TryObserve(_path, listener);
-                if (_indexerAttachedBindingMember != null)
-                    return _indexerAttachedBindingMember.TryObserve(source, listener);
-                return null;
+                return _indexerAttachedBindingMember?.TryObserve(source, listener);
             }
             return _memberEvent.SetSingleValue(source, listener) as IDisposable;
         }

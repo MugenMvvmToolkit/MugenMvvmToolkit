@@ -321,9 +321,7 @@ namespace MugenMvvmToolkit
                     GetDataContextDelegateCache[type] = func;
                 }
             }
-            if (func == null)
-                return null;
-            return func(item);
+            return func?.Invoke(item);
         }
 
         internal static bool SetDataContext(object item, object dataContext)
@@ -402,7 +400,7 @@ namespace MugenMvvmToolkit
         public static bool IsPublic(this Type type)
         {
 #if PCL_WINRT      
-            var typeInfo = type.GetTypeInfo();      
+            var typeInfo = type.GetTypeInfo();
             return typeInfo.IsPublic || typeInfo.IsNestedPublic;
 #else
             return type.IsPublic || type.IsNestedPublic;
@@ -478,13 +476,10 @@ namespace MugenMvvmToolkit
         {
             Should.NotBeNull(expression, nameof(expression));
             // Get the last element of the include path
-            var unaryExpression = expression.Body as UnaryExpression;
-            if (unaryExpression != null)
-            {
-                var memberExpression = unaryExpression.Operand as MemberExpression;
-                if (memberExpression != null)
-                    return memberExpression.Member;
-            }
+            var memberExpression = (expression.Body as UnaryExpression)?.Operand as MemberExpression;
+            if (memberExpression != null)
+                return memberExpression.Member;
+
             var expressionBody = expression.Body as MemberExpression;
             if (expressionBody == null)
                 throw new NotSupportedException("Expression " + expression + " not supported");
@@ -581,9 +576,7 @@ namespace MugenMvvmToolkit
             {
                 try
                 {
-                    var disposable = list[index].Invoke(item) as IDisposable;
-                    if (disposable != null)
-                        disposable.Dispose();
+                    (list[index].Invoke(item) as IDisposable)?.Dispose();
                 }
                 catch (Exception)
                 {

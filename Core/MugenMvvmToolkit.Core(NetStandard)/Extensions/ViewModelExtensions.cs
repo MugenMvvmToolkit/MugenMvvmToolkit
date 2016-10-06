@@ -227,10 +227,7 @@ namespace MugenMvvmToolkit.ViewModels
         [CanBeNull]
         public static IViewModel GetParentViewModel(this IViewModel viewModel)
         {
-            WeakReference reference = viewModel.Settings.Metadata.GetData(ViewModelConstants.ParentViewModel);
-            if (reference == null)
-                return null;
-            return (IViewModel)reference.Target;
+            return (IViewModel)viewModel.Settings.Metadata.GetData(ViewModelConstants.ParentViewModel)?.Target;
         }
 
         public static Task<bool> TryCloseAsync([NotNull] this IViewModel viewModel, [CanBeNull] object parameter,

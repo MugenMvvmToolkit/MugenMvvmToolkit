@@ -47,9 +47,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             public IViewModel GetViewModel()
             {
-                if (_viewModelRef == null)
-                    return null;
-                return (IViewModel)_viewModelRef.Target;
+                return (IViewModel)_viewModelRef?.Target;
             }
 
             public void SetViewModel(IViewModel viewModel)
@@ -321,9 +319,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             IDataContext state = viewModel.Settings.State;
             state.AddOrUpdate(ViewModelTypeNameConstant, viewModel.GetType().AssemblyQualifiedName);
-            var hasState = viewModel as IHasState;
-            if (hasState != null)
-                hasState.SaveState(state);
+            (viewModel as IHasState)?.SaveState(state);
             return state;
         }
 
@@ -370,11 +366,7 @@ namespace MugenMvvmToolkit.Infrastructure
             viewModel.InitializeViewModel(dataContext);
             MergeParameters(dataContext, viewModel.Settings.Metadata);
             if (parentViewModel != null)
-            {
-                var parentAwareViewModel = viewModel as IParentAwareViewModel;
-                if (parentAwareViewModel != null)
-                    parentAwareViewModel.SetParent(parentViewModel);
-            }
+                (viewModel as IParentAwareViewModel)?.SetParent(parentViewModel);
         }
 
         protected virtual IList<IViewModel> GetCreatedViewModelsInternal([NotNull]IDataContext context)
@@ -484,8 +476,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (CachedViewModels.TryGetValue(id, out value))
                     CachedViewModels.Remove(id);
             }
-            if (value != null)
-                value.Clear();
+            value?.Clear();
         }
 
         private static void MergeParameters(IDataContext ctxFrom, IDataContext ctxTo)
@@ -520,9 +511,7 @@ namespace MugenMvvmToolkit.Infrastructure
         private static void OnParentUpdated(IViewModel viewModel, IViewModel parentViewModel)
         {
             InitializeParentViewModel(viewModel, parentViewModel, viewModel.Settings.Metadata);
-            var parentAwareViewModel = viewModel as IParentAwareViewModel;
-            if (parentAwareViewModel != null)
-                parentAwareViewModel.SetParent(parentViewModel);
+            (viewModel as IParentAwareViewModel)?.SetParent(parentViewModel);
         }
 
         #endregion

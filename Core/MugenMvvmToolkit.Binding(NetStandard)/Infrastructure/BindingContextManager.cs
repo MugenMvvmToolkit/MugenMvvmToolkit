@@ -47,9 +47,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 _isNull = true;
                 _isParentContext = true;
                 _srcRef = ServiceProvider.WeakReferenceFactory(target);
-                var parentMember = BindingServiceProvider.VisualTreeManager.GetParentMember(target.GetType());
-                if (parentMember != null)
-                    parentMember.TryObserve(target, this);
+                BindingServiceProvider.VisualTreeManager.GetParentMember(target.GetType())?.TryObserve(target, this);
                 TryHandle(null, null);
             }
 
