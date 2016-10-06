@@ -317,8 +317,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
 
         private void VisitorOnVisitNode(XmlExpressionNode node)
         {
-            if (Handler != null)
-                Handler.HighlightNode(node);
+            Handler?.HighlightNode(node);
         }
 
         private void AcceptAutoCompleteItem()

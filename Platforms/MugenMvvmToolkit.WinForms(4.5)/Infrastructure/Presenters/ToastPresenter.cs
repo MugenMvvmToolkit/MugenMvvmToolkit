@@ -244,8 +244,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Presenters
         private static void ClearControl(ToastMessageControl control)
         {
             control.TaskCompletionSource.TrySetResult(null);
-            if (control.Parent != null)
-                control.Parent.Controls.Remove(control);
+            control.Parent?.Controls.Remove(control);
             ((Timer)control.Tag).Dispose();
             control.Dispose();
         }

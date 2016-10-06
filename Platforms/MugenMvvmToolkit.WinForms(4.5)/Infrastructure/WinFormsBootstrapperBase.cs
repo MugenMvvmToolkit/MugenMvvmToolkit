@@ -113,7 +113,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
         protected virtual ICollection<Assembly> GetAssemblies()
         {
             var assemblies = new HashSet<Assembly>();
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().Where(x=>!x.IsDynamic))
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().Where(x => !x.IsDynamic))
             {
                 if (assemblies.Add(assembly))
                     assemblies.AddRange(assembly.GetReferencedAssemblies().Select(Assembly.Load));
@@ -128,10 +128,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
                 var control = arg3 as Control;
                 if (control != null)
                     ClearBindingsRecursively(control.Controls);
-                var disposable = arg3 as IDisposable;
-                if (disposable != null)
-                    disposable.Dispose();
-
+                (arg3 as IDisposable)?.Dispose();
             }
             catch (Exception e)
             {

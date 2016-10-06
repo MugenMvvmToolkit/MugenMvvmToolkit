@@ -63,8 +63,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.Modules
                         itemsSource = args.OldValue.ItemsSource;
                         args.OldValue.SetItemsSource(null);
                     }
-                    if (args.NewValue != null)
-                        args.NewValue.SetItemsSource(itemsSource);
+                    args.NewValue?.SetItemsSource(itemsSource);
                 }));
 
             var itemTemplateMember = AttachedBindingMember.CreateAutoProperty<object, IDataTemplateSelector>(AttachedMemberConstants.ItemTemplateSelector);
@@ -308,10 +307,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.Modules
 
         private static object GetSelectedItemDataGridView(IBindingMemberInfo bindingMemberInfo, DataGridView dataGridView)
         {
-            var row = dataGridView.CurrentRow;
-            if (row == null)
-                return null;
-            return row.DataBoundItem;
+            return dataGridView.CurrentRow?.DataBoundItem;
         }
 
         #endregion

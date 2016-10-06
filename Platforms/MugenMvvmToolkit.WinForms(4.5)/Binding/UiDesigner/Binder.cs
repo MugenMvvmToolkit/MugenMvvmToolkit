@@ -219,13 +219,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
             set
             {
                 base.Site = value;
-                if (value == null)
-                    return;
-                var host = value.GetService<IDesignerHost>();
-                if (host == null)
-                    return;
-                IComponent componentHost = host.RootComponent;
-                ContainerControl = componentHost as ContainerControl;
+                ContainerControl = value?.GetService<IDesignerHost>()?.RootComponent as ContainerControl;
             }
         }
 

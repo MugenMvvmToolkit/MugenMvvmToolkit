@@ -140,10 +140,7 @@ namespace MugenMvvmToolkit.Silverlight.Binding.Infrastructure
 #endif
         protected object GetItem(int position)
         {
-            var itemsSource = ItemsSource;
-            if (itemsSource == null)
-                return null;
-            return itemsSource.ElementAtIndex(position);
+            return ItemsSource?.ElementAtIndex(position);
         }
 
         protected virtual void OnTargetDisposed(object sender, EventArgs e)

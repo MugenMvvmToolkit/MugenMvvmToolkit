@@ -108,11 +108,7 @@ namespace MugenMvvmToolkit.WinForms
                 .GetBindingMember(instance.GetType(), name, false, false);
             if (member == null || !member.CanRead)
                 return null;
-
-            object o = member.GetValue(instance, null);
-            if (o == null)
-                return null;
-            return o.ToString();
+            return member.GetValue(instance, null)?.ToString();
         }
 
         internal static void Add(this SortedDictionary<string, AutoCompleteItem> dict, AutoCompleteItem item)
