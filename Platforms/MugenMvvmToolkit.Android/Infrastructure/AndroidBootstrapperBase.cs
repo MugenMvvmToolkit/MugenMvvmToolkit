@@ -89,7 +89,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
             ViewManager.AlwaysCreateNewView = true;
             ReflectionExtensions.GetTypesDefault = assembly => assembly.GetTypes();
             ServiceProvider.WeakReferenceFactory = PlatformExtensions.CreateWeakReference;
-            DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
+            DynamicMultiViewModelPresenter<IViewModel>.CanShowViewModelDefault = CanShowViewModelTabPresenter;
             DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
             BindingServiceProvider.ValueConverter = BindingReflectionExtensions.Convert;
             Locker = new object();

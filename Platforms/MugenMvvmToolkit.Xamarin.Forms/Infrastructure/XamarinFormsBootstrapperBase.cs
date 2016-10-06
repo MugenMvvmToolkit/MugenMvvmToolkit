@@ -184,7 +184,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         internal static void SetDefaultPlatformValues()
         {
-            DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
+            DynamicMultiViewModelPresenter<IViewModel>.CanShowViewModelDefault = CanShowViewModelTabPresenter;
             DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
             ViewManager.ViewCleared += OnViewCleared;
             ViewManager.ClearDataContext = true;

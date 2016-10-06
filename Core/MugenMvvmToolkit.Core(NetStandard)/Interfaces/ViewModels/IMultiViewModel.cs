@@ -24,23 +24,24 @@ using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.Interfaces.ViewModels
 {
-    public interface IMultiViewModel : IViewModel
+    public interface IMultiViewModel<TViewModel> : IViewModel
+        where TViewModel : class, IViewModel
     {
-        IViewModel SelectedItem { get; set; }
+        TViewModel SelectedItem { get; set; }
 
         [NotNull]
-        INotifiableCollection<IViewModel> ItemsSource { get; }
+        INotifiableCollection<TViewModel> ItemsSource { get; }
 
-        void AddViewModel([NotNull] IViewModel viewModel, bool setSelected = true);
+        void AddViewModel([NotNull] TViewModel viewModel, bool setSelected = true);
 
-        Task<bool> RemoveViewModelAsync([NotNull] IViewModel viewModel, object parameter = null);
+        Task<bool> RemoveViewModelAsync([NotNull] TViewModel viewModel, object parameter = null);
 
         void Clear();
 
-        event EventHandler<IMultiViewModel, SelectedItemChangedEventArgs<IViewModel>> SelectedItemChanged;
+        event EventHandler<IMultiViewModel<TViewModel>, SelectedItemChangedEventArgs<TViewModel>> SelectedItemChanged;
 
-        event EventHandler<IMultiViewModel, ValueEventArgs<IViewModel>> ViewModelAdded;
+        event EventHandler<IMultiViewModel<TViewModel>, ValueEventArgs<TViewModel>> ViewModelAdded;
 
-        event EventHandler<IMultiViewModel, ValueEventArgs<IViewModel>> ViewModelRemoved;
+        event EventHandler<IMultiViewModel<TViewModel>, ValueEventArgs<TViewModel>> ViewModelRemoved;
     }
 }

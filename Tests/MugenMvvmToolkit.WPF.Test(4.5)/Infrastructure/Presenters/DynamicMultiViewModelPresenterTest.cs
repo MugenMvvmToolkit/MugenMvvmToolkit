@@ -23,8 +23,8 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Presenters
         public void PresenterShouldAddVmToMultiViewModel()
         {
             var vm = GetViewModel<NavigableViewModelMock>();
-            MultiViewModel viewModel = GetMultiViewModel();
-            IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter(viewModel,
+            var viewModel = GetMultiViewModel();
+            IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter<IViewModel>(viewModel,
                 OperationCallbackManager, (model, context, arg3) => true);
             var task = presenter.TryShowAsync(vm, DataContext.Empty, null);
             task.ShouldNotBeNull();
@@ -50,9 +50,9 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Presenters
             };
 
             vm.OperationResult = true;
-            MultiViewModel viewModel = GetMultiViewModel();
+            var viewModel = GetMultiViewModel();
             ((SynchronizedNotifiableCollection<IViewModel>)viewModel.ItemsSource).ThreadManager = new ThreadManagerMock { IsUiThread = true };
-            IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter(viewModel,
+            IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter<IViewModel>(viewModel,
                 OperationCallbackManager, (model, context, arg3) => true);
             var task = presenter.TryShowAsync(vm, DataContext.Empty, null);
             task.ShouldNotBeNull();
@@ -81,8 +81,8 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Presenters
             };
 
             vm.OperationResult = true;
-            MultiViewModel viewModel = GetMultiViewModel();
-            IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter(viewModel,
+            var viewModel = GetMultiViewModel();
+            IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter<IViewModel>(viewModel,
                 OperationCallbackManager);
             var task = presenter.TryShowAsync(vm, DataContext.Empty, null);
             task.ShouldNotBeNull();
@@ -98,8 +98,8 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Presenters
         {
             bool canShow = false;
             var vm = GetViewModel<NavigableViewModelMock>();
-            MultiViewModel viewModel = GetMultiViewModel();
-            IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter(viewModel,
+            var viewModel = GetMultiViewModel();
+            IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter<IViewModel>(viewModel,
                 OperationCallbackManager, (model, context, arg3) => canShow);
             var task = presenter.TryShowAsync(vm, DataContext.Empty, null);
             task.ShouldBeNull();
@@ -116,9 +116,9 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Presenters
 
         #region Overrides of MultiViewModelTest
 
-        protected MultiViewModel GetMultiViewModel()
+        protected MultiViewModel<IViewModel> GetMultiViewModel()
         {
-            var vm = GetViewModel<MultiViewModel>();
+            var vm = GetViewModel<MultiViewModel<IViewModel>>();
             return vm;
         }
 

@@ -30,22 +30,21 @@ using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure.Presenters
 {
-    public class DynamicMultiViewModelPresenter : IDynamicViewModelPresenter
+    public class DynamicMultiViewModelPresenter<TViewModel> : IDynamicViewModelPresenter
+        where TViewModel : class, IViewModel
     {
         #region Fields
 
-        private static Func<IViewModel, IDataContext, IViewModelPresenter, bool> _canShowDelegateDefault;
-
         private readonly IOperationCallbackManager _callbackManager;
-        private readonly Func<IViewModel, IDataContext, IViewModelPresenter, bool> _canShowViewModel;
-        private readonly IMultiViewModel _multiViewModel;
+        private readonly Func<TViewModel, IDataContext, IViewModelPresenter, bool> _canShowViewModel;
+        private readonly IMultiViewModel<TViewModel> _multiViewModel;
 
         #endregion
 
         #region Constructors
 
-        public DynamicMultiViewModelPresenter([NotNull] IMultiViewModel multiViewModel,
-            IOperationCallbackManager callbackManager = null, Func<IViewModel, IDataContext, IViewModelPresenter, bool> canShowViewModel = null)
+        public DynamicMultiViewModelPresenter([NotNull] IMultiViewModel<TViewModel> multiViewModel,
+            IOperationCallbackManager callbackManager = null, Func<TViewModel, IDataContext, IViewModelPresenter, bool> canShowViewModel = null)
         {
             Should.NotBeNull(multiViewModel, nameof(multiViewModel));
             _multiViewModel = multiViewModel;
@@ -63,18 +62,18 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         {
             get
             {
-                if (_canShowDelegateDefault == null)
-                    _canShowDelegateDefault = (model, context, arg3) => true;
-                return _canShowDelegateDefault;
+                if (ServiceProvider.CanShowMultiViewModelDelegate == null)
+                    ServiceProvider.CanShowMultiViewModelDelegate = (model, context, arg3) => true;
+                return ServiceProvider.CanShowMultiViewModelDelegate;
             }
-            set { _canShowDelegateDefault = value; }
+            set { ServiceProvider.CanShowMultiViewModelDelegate = value; }
         }
 
-        protected IMultiViewModel MultiViewModel => _multiViewModel;
+        protected IMultiViewModel<TViewModel> MultiViewModel => _multiViewModel;
 
         protected IOperationCallbackManager CallbackManager => _callbackManager;
 
-        protected Func<IViewModel, IDataContext, IViewModelPresenter, bool> CanShowViewModel
+        protected Func<TViewModel, IDataContext, IViewModelPresenter, bool> CanShowViewModel
         {
             get
             {
@@ -93,18 +92,18 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         public virtual INavigationOperation TryShowAsync(IViewModel viewModel, IDataContext context,
             IViewModelPresenter parentPresenter)
         {
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            if (ReferenceEquals(viewModel, _multiViewModel))
+            var vm = viewModel as TViewModel;
+            if (vm == null || ReferenceEquals(viewModel, _multiViewModel))
                 return null;
             bool data;
             if (context.TryGetData(NavigationConstants.SuppressTabNavigation, out data) && data)
                 return null;
-            if (!CanShowViewModel(viewModel, context, parentPresenter))
+            if (!CanShowViewModel(vm, context, parentPresenter))
                 return null;
-            if (MultiViewModel.ItemsSource.Contains(viewModel))
-                MultiViewModel.SelectedItem = viewModel;
+            if (MultiViewModel.ItemsSource.Contains(vm))
+                MultiViewModel.SelectedItem = vm;
             else
-                MultiViewModel.AddViewModel(viewModel, true);
+                MultiViewModel.AddViewModel(vm, true);
             var operation = new NavigationOperation();
             CallbackManager.Register(OperationType.TabNavigation, viewModel, operation.ToOperationCallback(), context);
             return operation;
@@ -114,10 +113,9 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Methods
 
-        protected virtual void MultiViewModelOnViewModelClosed(object sender, ValueEventArgs<IViewModel> args)
+        protected virtual void MultiViewModelOnViewModelClosed(IMultiViewModel<TViewModel> sender, ValueEventArgs<TViewModel> args)
         {
-            var context = new NavigationContext(NavigationType.Tab, NavigationMode.Back, args.Value,
-                MultiViewModel.SelectedItem, MultiViewModel);
+            var context = new NavigationContext(NavigationType.Tab, NavigationMode.Back, args.Value, MultiViewModel.SelectedItem, MultiViewModel);
             var result = ViewModelExtensions.GetOperationResult(args.Value);
             CallbackManager.SetResult(OperationResult.CreateResult(OperationType.TabNavigation, args.Value, result, context));
         }

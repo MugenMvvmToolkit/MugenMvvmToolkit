@@ -174,7 +174,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
         internal static void SetDefaultPlatformValues()
         {
             ReflectionExtensions.GetTypesDefault = assembly => assembly.GetTypes();
-            DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
+            DynamicMultiViewModelPresenter<IViewModel>.CanShowViewModelDefault = CanShowViewModelTabPresenter;
             DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
         }
 

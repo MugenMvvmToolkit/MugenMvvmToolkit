@@ -29,6 +29,7 @@ using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 
@@ -53,6 +54,7 @@ namespace MugenMvvmToolkit
         private static IViewModelProvider _viewModelProvider;
         private static Func<IViewModel, IViewModelSettings> _viewModelSettingsFactory;
         internal static SynchronizationContext UiSynchronizationContextField;
+        internal static Func<IViewModel, IDataContext, IViewModelPresenter, bool> CanShowMultiViewModelDelegate;
 
         #endregion
 

@@ -12,7 +12,7 @@ using Should;
 namespace MugenMvvmToolkit.Test.ViewModels
 {
     public abstract class MultiViewModelTest<T> : TestBase
-        where T : class, IMultiViewModel
+        where T : class, IMultiViewModel<IViewModel>
     {
         #region Test methods
 
@@ -117,7 +117,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
         {
             ThreadManager.ImmediateInvokeOnUiThreadAsync = true;
             var viewModel = GetViewModel<NavigableViewModelMock>();
-            var multiViewModel = (MultiViewModel)GetMultiViewModel();
+            var multiViewModel = (MultiViewModel<IViewModel>)GetMultiViewModel();
             multiViewModel.DisposeViewModelOnRemove = true;
             multiViewModel.AddViewModel(viewModel);
             multiViewModel.ItemsSource.ShouldContain(viewModel);
@@ -132,7 +132,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
         {
             ThreadManager.ImmediateInvokeOnUiThreadAsync = true;
             var viewModel = GetViewModel<NavigableViewModelMock>();
-            var multiViewModel = (MultiViewModel)GetMultiViewModel();
+            var multiViewModel = (MultiViewModel<IViewModel>)GetMultiViewModel();
             multiViewModel.DisposeViewModelOnRemove = false;
             multiViewModel.AddViewModel(viewModel);
             multiViewModel.ItemsSource.ShouldContain(viewModel);
@@ -146,7 +146,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
         public void ClearShouldDisposeVmIfSetToTrue()
         {
             var viewModel = GetViewModel<NavigableViewModelMock>();
-            var multiViewModel = (MultiViewModel)GetMultiViewModel();
+            var multiViewModel = (MultiViewModel<IViewModel>)GetMultiViewModel();
             multiViewModel.AddViewModel(viewModel);
             multiViewModel.ItemsSource.ShouldContain(viewModel);
 
@@ -162,7 +162,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
         public void ClearShouldNotDisposeVmIfSetToFalse()
         {
             var viewModel = GetViewModel<NavigableViewModelMock>();
-            var multiViewModel = (MultiViewModel)GetMultiViewModel();
+            var multiViewModel = (MultiViewModel<IViewModel>)GetMultiViewModel();
             multiViewModel.AddViewModel(viewModel);
             multiViewModel.ItemsSource.ShouldContain(viewModel);
 
@@ -237,7 +237,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             return viewModel;
         }
 
-        private IMultiViewModel GetMultiViewModel()
+        private IMultiViewModel<IViewModel> GetMultiViewModel()
         {
             return GetViewModel();
         }

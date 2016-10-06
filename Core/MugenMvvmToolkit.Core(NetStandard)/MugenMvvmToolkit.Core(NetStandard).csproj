@@ -63,6 +63,7 @@
     <Compile Include="Models\EventArg\ViewModelPreservingEventArgs.cs" />
     <Compile Include="Models\EventArg\ViewModelRestoredEventArgs.cs" />
     <Compile Include="Models\EventArg\ViewModelRestoringEventArgs.cs" />
+    <Compile Include="Models\MultiViewModelState.cs" />
     <Compile Include="MvvmApplication.cs" />
     <Compile Include="Properties\AssemblyInfoCommon.cs" />
     <Compile Include="Attributes\DisplayNameAttribute.cs" />

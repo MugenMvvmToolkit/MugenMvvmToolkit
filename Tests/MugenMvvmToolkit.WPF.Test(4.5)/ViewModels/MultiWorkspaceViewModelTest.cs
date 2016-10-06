@@ -6,13 +6,13 @@ using MugenMvvmToolkit.ViewModels;
 namespace MugenMvvmToolkit.Test.ViewModels
 {
     [TestClass]
-    public class MultiWorkspaceViewModelTest : MultiViewModelTest<MultiViewModel>
+    public class MultiWorkspaceViewModelTest : MultiViewModelTest<MultiViewModel<IViewModel>>
     {
         #region Overrides of MultiViewModelTest
 
-        protected override MultiViewModel GetMultiViewModelInternal()
+        protected override MultiViewModel<IViewModel> GetMultiViewModelInternal()
         {
-            var vm = new MultiViewModel();
+            var vm = new MultiViewModel<IViewModel>();
             return vm;
         }
 
@@ -26,7 +26,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
 
         protected override ICloseableViewModel GetCloseableViewModelInternal()
         {
-            return new MultiViewModel();
+            return new MultiViewModel<IViewModel>();
         }
 
         #endregion
