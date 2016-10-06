@@ -157,7 +157,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         {
             while (validatorType != null)
             {
-#if PCL_WINRT
+#if NET_STANDARD
                 var typeInfo = validatorType.GetTypeInfo();
                 if (typeInfo.IsGenericType && typeInfo.GetGenericTypeDefinition() == typeof(ValidatorBase<>))
                     return typeInfo.GenericTypeArguments[0];

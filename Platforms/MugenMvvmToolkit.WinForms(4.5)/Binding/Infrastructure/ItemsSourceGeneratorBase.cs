@@ -40,10 +40,6 @@ using MugenMvvmToolkit.iOS.Binding.Interfaces;
 using MugenMvvmToolkit.iOS.Interfaces.Views;
 
 namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
-#elif SILVERLIGHT
-using MugenMvvmToolkit.Silverlight.Binding.Interfaces;
-
-namespace MugenMvvmToolkit.Silverlight.Binding.Infrastructure
 #endif
 {
     public abstract class ItemsSourceGeneratorBase : IItemsSourceGenerator

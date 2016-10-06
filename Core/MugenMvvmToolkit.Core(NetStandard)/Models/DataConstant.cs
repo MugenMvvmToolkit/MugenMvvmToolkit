@@ -130,7 +130,7 @@ namespace MugenMvvmToolkit.Models
 
         static DataConstant()
         {
-#if PCL_WINRT
+#if NET_STANDARD
             var type = typeof(T).GetTypeInfo();
 #else
             var type = typeof(T);

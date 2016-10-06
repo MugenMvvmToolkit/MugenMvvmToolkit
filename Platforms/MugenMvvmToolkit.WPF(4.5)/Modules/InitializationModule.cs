@@ -33,13 +33,6 @@ using MugenMvvmToolkit.WPF.Infrastructure.Navigation;
 using MugenMvvmToolkit.WPF.Infrastructure.Presenters;
 
 namespace MugenMvvmToolkit.WPF.Modules
-#elif SILVERLIGHT
-using MugenMvvmToolkit.Silverlight.Infrastructure;
-using MugenMvvmToolkit.Silverlight.Infrastructure.Callbacks;
-using MugenMvvmToolkit.Silverlight.Infrastructure.Navigation;
-using MugenMvvmToolkit.Silverlight.Infrastructure.Presenters;
-
-namespace MugenMvvmToolkit.Silverlight.Modules
 #elif WINDOWSCOMMON
 using MugenMvvmToolkit.WinRT.Infrastructure;
 using MugenMvvmToolkit.WinRT.Infrastructure.Navigation;
@@ -48,14 +41,6 @@ using MugenMvvmToolkit.WinRT.Infrastructure.Callbacks;
 using MugenMvvmToolkit.WinRT.Interfaces;
 
 namespace MugenMvvmToolkit.WinRT.Modules
-#elif WINDOWS_PHONE
-using MugenMvvmToolkit.WinPhone.Infrastructure;
-using MugenMvvmToolkit.WinPhone.Infrastructure.Navigation;
-using MugenMvvmToolkit.WinPhone.Infrastructure.Presenters;
-using MugenMvvmToolkit.WinPhone.Infrastructure.Callbacks;
-using MugenMvvmToolkit.WinPhone.Interfaces;
-
-namespace MugenMvvmToolkit.WinPhone.Modules
 #endif
 {
     public class InitializationModule : InitializationModuleBase
@@ -97,7 +82,7 @@ namespace MugenMvvmToolkit.WinPhone.Modules
                         .ThreadManager
                         .Invoke(ExecutionMode.AsynchronousOnUiThread, handler, handler, (h1, h2) => System.Windows.Input.CommandManager.RequerySuggested -= h1);
                 }
-#elif WINDOWSCOMMON || WINDOWS_PHONE
+#elif WINDOWSCOMMON
                 IocContainer.BindToBindingInfo(GetApplicationStateManager());
 #endif
                 return true;
@@ -133,7 +118,7 @@ namespace MugenMvvmToolkit.WinPhone.Modules
             return BindingInfo<IOperationCallbackFactory>.FromType<SerializableOperationCallbackFactory>(DependencyLifecycle.SingleInstance);
         }
 
-#if WINDOWS_PHONE || WINDOWSCOMMON
+#if WINDOWSCOMMON
         protected virtual BindingInfo<IApplicationStateManager> GetApplicationStateManager()
         {
             return BindingInfo<IApplicationStateManager>.FromType<ApplicationStateManager>(DependencyLifecycle.SingleInstance);
@@ -153,13 +138,10 @@ namespace MugenMvvmToolkit.WinPhone.Modules
             {
                 var presenter = new ViewModelPresenter();
                 presenter.DynamicPresenters.Add(new DynamicViewModelNavigationPresenter());
-#if !WINDOWS_PHONE
                 presenter.DynamicPresenters.Add(
                                     new DynamicViewModelWindowPresenter(container.Get<IViewMappingProvider>(), container.Get<IViewManager>(),
                                         container.Get<IWrapperManager>(), container.Get<IThreadManager>(),
                                         container.Get<IOperationCallbackManager>()));
-#endif
-
                 return presenter;
             }, DependencyLifecycle.SingleInstance);
         }
@@ -176,8 +158,6 @@ namespace MugenMvvmToolkit.WinPhone.Modules
             if (Context.Platform.Platform != PlatformType.WPF)
                 return BindingInfo<IThreadManager>.Empty;
             return BindingInfo<IThreadManager>.FromMethod((container, list) => new ThreadManager(System.Windows.Threading.Dispatcher.CurrentDispatcher), DependencyLifecycle.SingleInstance);
-#elif SILVERLIGHT || WINDOWS_PHONE
-            return BindingInfo<IThreadManager>.FromMethod((container, list) => new ThreadManager(System.Windows.Deployment.Current.Dispatcher), DependencyLifecycle.SingleInstance);
 #elif WINDOWSCOMMON
             if (Context.Mode.HasFlagEx(LoadMode.Design) && Windows.UI.Xaml.Window.Current.Dispatcher == null)
                 return base.GetThreadManager();

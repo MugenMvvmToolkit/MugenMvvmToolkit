@@ -26,12 +26,8 @@ using System.Windows.Data;
 
 #if WPF
 namespace MugenMvvmToolkit.WPF.Binding.Converters
-#elif SILVERLIGHT
-namespace MugenMvvmToolkit.Silverlight.Binding.Converters
 #elif WINDOWSCOMMON
 namespace MugenMvvmToolkit.WinRT.Binding.Converters
-#elif WINDOWS_PHONE
-namespace MugenMvvmToolkit.WinPhone.Binding.Converters
 #endif
 {
     public sealed class InverseBooleanConverter : IValueConverter

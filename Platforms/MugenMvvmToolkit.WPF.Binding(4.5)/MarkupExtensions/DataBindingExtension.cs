@@ -24,19 +24,11 @@ using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Models.Exceptions;
-// ReSharper disable CheckNamespace
-#if WPF
 using System.ComponentModel;
 using MugenMvvmToolkit.WPF.Binding.Models;
 
+// ReSharper disable once CheckNamespace
 namespace MugenMvvmToolkit.WPF.MarkupExtensions
-#elif SILVERLIGHT
-using MugenMvvmToolkit.Silverlight.Binding.Models;
-
-namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
-#endif
-
-// ReSharper restore CheckNamespace
 {
     public partial class DataBindingExtension : MarkupExtension
     {

@@ -32,17 +32,6 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
 using Bootstrapper = MugenMvvmToolkit.WinForms.Infrastructure.WinFormsBootstrapperBase;
 
 namespace MugenMvvmToolkit.WinForms.Infrastructure
-#elif WINDOWS_PHONE
-using System.Windows;
-using Microsoft.Phone.Controls;
-using Bootstrapper = MugenMvvmToolkit.WinPhone.Infrastructure.WindowsPhoneBootstrapperBase;
-
-namespace MugenMvvmToolkit.WinPhone.Infrastructure
-#elif SILVERLIGHT
-using System.Windows;
-using Bootstrapper = MugenMvvmToolkit.Silverlight.Infrastructure.SilverlightBootstrapperBase;
-
-namespace MugenMvvmToolkit.Silverlight.Infrastructure
 #elif WINDOWSCOMMON
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -96,15 +85,12 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
                 throw new InvalidOperationException("The Bootstrapper<T> has invalid start type. The parameter T should be of type IViewModel or IMvvmApplication");
         }
 
-#if WPF || (SILVERLIGHT && !WINDOWS_PHONE)
+#if WPF
         public Bootstrapper([NotNull] Application application, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, PlatformInfo platform = null)
             : base(application, platform: platform)
 #elif WINFORMS
         public Bootstrapper([NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, PlatformInfo platform = null)
             : base(true, platform)
-#elif WINDOWS_PHONE
-        public Bootstrapper([NotNull] PhoneApplicationFrame rootFrame, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, PlatformInfo platform = null)
-            : base(rootFrame, platform)
 #elif WINDOWSCOMMON
         public Bootstrapper([NotNull] Frame rootFrame, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, PlatformInfo platform = null)
             : base(rootFrame, assemblies != null, platform)

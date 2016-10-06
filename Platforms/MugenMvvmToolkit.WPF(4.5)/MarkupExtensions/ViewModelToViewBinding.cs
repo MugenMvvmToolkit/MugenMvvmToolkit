@@ -17,19 +17,9 @@
 #endregion
 
 using System.Windows.Data;
-#if WPF
 using MugenMvvmToolkit.WPF.Binding.Converters;
 
 namespace MugenMvvmToolkit.WPF.MarkupExtensions
-#elif SILVERLIGHT
-using MugenMvvmToolkit.Silverlight.Binding.Converters;
-
-namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
-#elif WINDOWS_PHONE
-using MugenMvvmToolkit.WinPhone.Binding.Converters;
-
-namespace MugenMvvmToolkit.WinPhone.MarkupExtensions
-#endif
 {
     public sealed class ViewModelToViewBinding : System.Windows.Data.Binding
     {

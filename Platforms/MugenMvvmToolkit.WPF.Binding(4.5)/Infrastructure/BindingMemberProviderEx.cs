@@ -27,13 +27,6 @@ using System.Windows;
 using MugenMvvmToolkit.WPF.Binding.Models;
 
 namespace MugenMvvmToolkit.WPF.Binding.Infrastructure
-#elif SILVERLIGHT
-using System.Reflection;
-using System.Windows;
-using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Silverlight.Binding.Models;
-
-namespace MugenMvvmToolkit.Silverlight.Binding.Infrastructure
 #elif WINDOWSCOMMON
 using System.Reflection;
 using MugenMvvmToolkit.Models;
@@ -41,13 +34,6 @@ using MugenMvvmToolkit.WinRT.Binding.Models;
 using Windows.UI.Xaml;
 
 namespace MugenMvvmToolkit.WinRT.Binding.Infrastructure
-#elif WINDOWS_PHONE
-using System.Reflection;
-using System.Windows;
-using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.WinPhone.Binding.Models;
-
-namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
 #endif
 {
     public class BindingMemberProviderEx : BindingMemberProvider

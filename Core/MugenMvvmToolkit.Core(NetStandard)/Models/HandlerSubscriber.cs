@@ -176,7 +176,7 @@ namespace MugenMvvmToolkit.Models
         private static Type[] GetHandlerInterfaces(Type type)
         {
             return type.GetInterfaces()
-#if PCL_WINRT
+#if NET_STANDARD
 .Where(x => x.GetTypeInfo().IsGenericType && x.GetGenericTypeDefinition().Equals(typeof(IHandler<>)))
 #else
 .Where(x => x.IsGenericType && x.GetGenericTypeDefinition().Equals(typeof(IHandler<>)))

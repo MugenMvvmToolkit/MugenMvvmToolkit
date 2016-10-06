@@ -52,19 +52,11 @@ using System.Reflection;
 using MugenMvvmToolkit.Xamarin.Forms.Interfaces.Navigation;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
-#elif SILVERLIGHT
-using MugenMvvmToolkit.Silverlight.Interfaces.Navigation;
-
-namespace MugenMvvmToolkit.Silverlight.Infrastructure.Navigation
 #elif WINDOWSCOMMON
 using System.Reflection;
 using MugenMvvmToolkit.WinRT.Interfaces.Navigation;
 
 namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
-#elif WINDOWS_PHONE
-using MugenMvvmToolkit.WinPhone.Interfaces.Navigation;
-
-namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
 #endif
 {
     public class NavigationProvider : INavigationProvider
@@ -553,7 +545,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Navigation
             if (vm == null)
             {
                 IDataContext viewModelState = null;
-#if WINDOWS_PHONE || WINDOWSCOMMON
+#if WINDOWSCOMMON
                 viewModelState = PlatformExtensions.GetViewModelState(view);
                 if (viewModelState != null)
                     PlatformExtensions.SetViewModelState(view, null);

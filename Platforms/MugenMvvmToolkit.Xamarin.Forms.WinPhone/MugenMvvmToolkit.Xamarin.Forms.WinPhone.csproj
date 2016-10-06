@@ -95,9 +95,6 @@
     <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28NetStandard%29\Properties\AssemblyInfoCommon.cs">
       <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.silverlight%285.0%29\infrastructure\presenters\MessagePresenter.cs">
-      <Link>Infrastructure\Presenters\MessagePresenter.cs</Link>
-    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\presenters\ToastPresenter.cs">
       <Link>Infrastructure\Presenters\ToastPresenter.cs</Link>
     </Compile>
@@ -105,6 +102,7 @@
       <Link>Models\ValidationBinder.cs</Link>
     </Compile>
     <Compile Include="Binding\Infrastructure\BindingErrorProvider.cs" />
+    <Compile Include="Infrastructure\Presenters\MessagePresenter.cs" />
     <Compile Include="Modules\InitializationModuleEx.cs" />
     <Compile Include="PlatformBootstrapperService.cs" />
     <Compile Include="Binding\Modules\PlatformDataBindingModuleEx.cs" />

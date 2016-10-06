@@ -315,7 +315,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             if (handler == null)
                 return EventListenerList.EmptyListener;
-#if PCL_WINRT
+#if NET_STANDARD
             var addMethod = eventInfo.AddMethod;
 #else
             var addMethod = eventInfo.GetAddMethod(true);

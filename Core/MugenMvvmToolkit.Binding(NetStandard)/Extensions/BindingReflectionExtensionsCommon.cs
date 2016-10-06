@@ -40,10 +40,6 @@ namespace MugenMvvmToolkit.WinForms
 namespace MugenMvvmToolkit.WPF.Binding
 #elif WINDOWS_PHONE && XAMARIN_FORMS
 namespace MugenMvvmToolkit.Xamarin.Forms.WinPhone
-#elif SILVERLIGHT
-namespace MugenMvvmToolkit.Silverlight.Binding
-#elif WINDOWS_PHONE
-namespace MugenMvvmToolkit.WinPhone.Binding
 #else
 namespace MugenMvvmToolkit.Binding
 #endif
@@ -52,7 +48,7 @@ namespace MugenMvvmToolkit.Binding
     // ReSharper disable once PartialTypeWithSinglePart
     internal static partial class BindingReflectionExtensions
     {
-#if WPF || ANDROID || TOUCH || WINFORMS || WINDOWS_PHONE || SILVERLIGHT
+#if WPF || ANDROID || TOUCH || WINFORMS || WINDOWS_PHONE
         #region Nested types
 
         private sealed class MultiTypeConverter : TypeConverter
@@ -111,7 +107,7 @@ namespace MugenMvvmToolkit.Binding
                 return type.GetDefaultValue();
             if (type.IsInstanceOfType(value))
                 return value;
-#if PCL_WINRT
+#if NET_STANDARD
             if (type.GetTypeInfo().IsEnum)
 #else
             if (type.IsEnum)
@@ -122,12 +118,12 @@ namespace MugenMvvmToolkit.Binding
                     return Enum.ToObject(type, value);
                 return Enum.Parse(type, s, false);
             }
-#if WPF || ANDROID || TOUCH || WINFORMS || WINDOWS_PHONE || SILVERLIGHT
+#if WPF || ANDROID || TOUCH || WINFORMS || WINDOWS_PHONE
             var converter = GetTypeConverter(type, member.Member);
             if (converter != null && converter.CanConvertFrom(value.GetType()))
                 return converter.ConvertFrom(value);
 #endif
-#if PCL_WINRT
+#if NET_STANDARD
             if (TypeCodeTable.ContainsKey(value.GetType()))
 #else
             if (value is IConvertible)
@@ -138,7 +134,7 @@ namespace MugenMvvmToolkit.Binding
             return value;
         }
 
-#if WPF || ANDROID || TOUCH || WINFORMS || WINDOWS_PHONE || SILVERLIGHT
+#if WPF || ANDROID || TOUCH || WINFORMS || WINDOWS_PHONE
         private static TypeConverter GetTypeConverter(Type type, MemberInfo member)
         {
             MemberInfo key = member ?? type;
@@ -148,7 +144,7 @@ namespace MugenMvvmToolkit.Binding
                 if (!MemberToTypeConverter.TryGetValue(key, out value))
                 {
                     var memberValue = GetConverter(member);
-#if WINDOWS_PHONE || SILVERLIGHT
+#if WINDOWS_PHONE
                     value = GetConverter(type);
 #else
                     value = TypeDescriptor.GetConverter(type);
@@ -184,7 +180,7 @@ namespace MugenMvvmToolkit.Binding
             return type.IsGenericType() && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
 
-#if !PCL_WINRT
+#if !NET_STANDARD
         internal static bool IsValueType(this Type type)
         {
             return type.IsValueType;

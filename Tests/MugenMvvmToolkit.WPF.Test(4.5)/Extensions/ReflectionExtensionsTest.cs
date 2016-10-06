@@ -582,7 +582,6 @@ namespace MugenMvvmToolkit.Test.Extensions
                 .ShouldEqual(typeof(string));
         }
 
-#if !SILVERLIGHT
         [TestMethod]
         public void TestGetConstructorWithArgs()
         {
@@ -598,7 +597,7 @@ namespace MugenMvvmToolkit.Test.Extensions
                 .ParameterType
                 .ShouldEqual(typeof(string));
         }
-#endif
+
         #endregion
     }
 }

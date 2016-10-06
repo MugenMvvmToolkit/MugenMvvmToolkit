@@ -28,12 +28,6 @@ using MugenMvvmToolkit.WPF.Binding.Models;
 using EventType = System.Windows.DependencyPropertyChangedEventArgs;
 
 namespace MugenMvvmToolkit.WPF.Binding.Infrastructure
-#elif SILVERLIGHT
-using System.Windows;
-using MugenMvvmToolkit.Silverlight.Binding.Models;
-using EventType = System.Windows.DependencyPropertyChangedEventArgs;
-
-namespace MugenMvvmToolkit.Silverlight.Binding.Infrastructure
 #elif WINDOWSCOMMON
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
@@ -45,21 +39,6 @@ using MugenMvvmToolkit.WinRT.Binding.Models;
 using EventType = System.Object;
 
 namespace MugenMvvmToolkit.WinRT.Binding.Infrastructure
-#elif WINDOWS_PHONE
-using System.Windows;
-using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Binding.Models.EventArg;
-using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.WinPhone.Binding.Models;
-#if WINDOWS_PHONE
-using EventType = MugenMvvmToolkit.Binding.Models.EventArg.ValueChangedEventArgs;
-#else
-using EventType = System.Windows.DependencyPropertyChangedEventArgs;
-#endif
-
-namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
 #endif
 
 {
@@ -71,45 +50,25 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
         {
             #region Fields
 
-#if WINDOWS_PHONE
-            private readonly IObserver _observer;
-#else
             private readonly WeakReference _sourceReference;
-#endif
+
             #endregion
 
             #region Constructors
 
             public FrameworkElementBindingContext(FrameworkElement element)
             {
-#if WINDOWS_PHONE
-                _observer = BindingServiceProvider
-                    .ObserverProvider
-                    .Observe(element, BindingPath.DataContext, true, DataContext.Empty);
-                _observer.ValueChanged += RaiseDataContextChanged;
-#else
                 _sourceReference = ServiceProvider.WeakReferenceFactory(element);
                 element.DataContextChanged += RaiseDataContextChanged;
                 if (ListenUnloadEvent)
                     element.Unloaded += ElementOnUnloaded;
-#endif
             }
 
             #endregion
 
             #region Implementation of IBindingContext
 
-            public object Source
-            {
-                get
-                {
-#if WINDOWS_PHONE
-                    return _observer.Source;
-#else
-                    return _sourceReference.Target;
-#endif
-                }
-            }
+            public object Source => _sourceReference.Target;
 
             public bool IsAlive => true;
 
@@ -147,13 +106,12 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
                 ValueChanged?.Invoke(this, EventArgs.Empty);
             }
 
-#if !WINDOWS_PHONE
             private void ElementOnUnloaded(object sender, RoutedEventArgs routedEventArgs)
             {
                 if (Value == null)
                     RaiseDataContextChanged(sender, default(DependencyPropertyChangedEventArgs));
             }
-#endif
+
             #endregion
         }
 
@@ -161,7 +119,6 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
 
         #region Properties
 
-#if !WINDOWS_PHONE
         static BindingContextManagerEx()
         {
 #if WPF
@@ -170,7 +127,6 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
         }
 
         public static bool ListenUnloadEvent { get; set; }
-#endif
 
         #endregion
 

@@ -69,20 +69,6 @@ using System.Windows.Controls;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvmToolkit.WPF.Binding.Converters
-#elif SILVERLIGHT
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Data;
-using System.Windows.Controls;
-
-namespace MugenMvvmToolkit.Silverlight.Binding.Converters
-#elif WINDOWS_PHONE
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Data;
-using System.Windows.Controls;
-
-namespace MugenMvvmToolkit.WinPhone.Binding.Converters
 #endif
 {
     public class ViewModelToViewConverter : IValueConverter

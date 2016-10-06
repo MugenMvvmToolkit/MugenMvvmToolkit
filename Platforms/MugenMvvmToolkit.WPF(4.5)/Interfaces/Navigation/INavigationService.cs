@@ -36,14 +36,8 @@ namespace MugenMvvmToolkit.iOS.Interfaces.Navigation
 using Xamarin.Forms;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Interfaces.Navigation
-#elif SILVERLIGHT
-namespace MugenMvvmToolkit.Silverlight.Interfaces.Navigation
 #elif WINDOWSCOMMON
 namespace MugenMvvmToolkit.WinRT.Interfaces.Navigation
-#elif WINDOWS_PHONE
-using System.Windows.Navigation;
-
-namespace MugenMvvmToolkit.WinPhone.Interfaces.Navigation
 #endif
 {
     public interface INavigationService
@@ -58,7 +52,7 @@ namespace MugenMvvmToolkit.WinPhone.Interfaces.Navigation
 
         void GoForward();
 
-#if WPF || WINDOWS_PHONE
+#if WPF
         JournalEntry RemoveBackEntry();
 #elif ANDROID
         void OnPauseActivity([NotNull] Activity activity, IDataContext context = null);

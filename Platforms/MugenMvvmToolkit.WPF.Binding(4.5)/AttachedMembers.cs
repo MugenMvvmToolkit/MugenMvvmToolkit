@@ -32,10 +32,6 @@ using UIElementEx = System.Windows.UIElement;
 namespace MugenMvvmToolkit.WPF.Binding
 #elif WINDOWSCOMMON
 namespace MugenMvvmToolkit.WinRT.Binding
-#elif WINDOWS_PHONE
-namespace MugenMvvmToolkit.WinPhone.Binding
-#elif SILVERLIGHT
-namespace MugenMvvmToolkit.Silverlight.Binding
 #elif XAMARIN_FORMS
 namespace MugenMvvmToolkit.Xamarin.Forms.Binding
 #endif

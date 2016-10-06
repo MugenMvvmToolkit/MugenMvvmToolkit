@@ -61,11 +61,6 @@ using MugenMvvmToolkit.WPF.Infrastructure.Mediators;
 using MugenMvvmToolkit.WPF.Interfaces.Views;
 
 namespace MugenMvvmToolkit.WPF.Infrastructure.Presenters
-#elif SILVERLIGHT
-using MugenMvvmToolkit.Silverlight.Infrastructure.Mediators;
-using MugenMvvmToolkit.Silverlight.Interfaces.Views;
-
-namespace MugenMvvmToolkit.Silverlight.Infrastructure.Presenters
 #elif WINDOWSCOMMON
 using MugenMvvmToolkit.WinRT.Infrastructure.Mediators;
 using MugenMvvmToolkit.WinRT.Interfaces.Views;

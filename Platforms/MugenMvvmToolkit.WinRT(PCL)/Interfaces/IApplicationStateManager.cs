@@ -20,15 +20,9 @@ using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
-#if WINDOWS_PHONE
-using System.Windows;
-
-namespace MugenMvvmToolkit.WinPhone.Interfaces
-#else
 using Windows.UI.Xaml;
 
 namespace MugenMvvmToolkit.WinRT.Interfaces
-#endif
 {
     public interface IApplicationStateManager
     {

@@ -25,12 +25,6 @@ using MugenMvvmToolkit.WPF.Binding.Models;
 using MugenMvvmToolkit.WPF.MarkupExtensions;
 
 namespace MugenMvvmToolkit.WPF.Binding.Infrastructure
-#elif SILVERLIGHT
-using System.Windows;
-using MugenMvvmToolkit.Silverlight.Binding.Models;
-using MugenMvvmToolkit.Silverlight.MarkupExtensions;
-
-namespace MugenMvvmToolkit.Silverlight.Binding.Infrastructure
 #elif XAMARIN_FORMS && WINDOWSCOMMON
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -41,12 +35,6 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
 namespace MugenMvvmToolkit.WinRT.Binding.Infrastructure
-#elif WINDOWS_PHONE
-using System.Windows;
-using MugenMvvmToolkit.WinPhone.Binding.Models;
-using MugenMvvmToolkit.WinPhone.MarkupExtensions;
-
-namespace MugenMvvmToolkit.WinPhone.Binding.Infrastructure
 #endif
 {
     public class BindingErrorProvider : BindingErrorProviderBase

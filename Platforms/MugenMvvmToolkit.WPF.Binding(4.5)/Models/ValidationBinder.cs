@@ -31,10 +31,6 @@ using MugenMvvmToolkit.Models;
 namespace MugenMvvmToolkit.WPF.Binding.Models
 #elif WINDOWS_PHONE && XAMARIN_FORMS
 namespace MugenMvvmToolkit.Xamarin.Forms.WinPhone.Binding.Models
-#elif SILVERLIGHT
-namespace MugenMvvmToolkit.Silverlight.Binding.Models
-#elif WINDOWS_PHONE
-namespace MugenMvvmToolkit.WinPhone.Binding.Models
 #endif
 {
     public sealed class ValidationBinder :

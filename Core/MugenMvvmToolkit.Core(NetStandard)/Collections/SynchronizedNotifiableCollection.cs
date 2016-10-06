@@ -37,7 +37,7 @@ namespace MugenMvvmToolkit.Collections
     [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true), Serializable]
     [DebuggerDisplay("Count = {Count}")]
     public class SynchronizedNotifiableCollection<T> : INotifiableCollection, INotifiableCollection<T>
-#if PCL_WINRT
+#if NET_STANDARD
         , IReadOnlyList<T>
 #endif
     {

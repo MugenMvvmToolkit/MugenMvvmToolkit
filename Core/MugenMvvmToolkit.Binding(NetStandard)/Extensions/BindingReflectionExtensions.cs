@@ -35,7 +35,7 @@ namespace MugenMvvmToolkit.Binding
     {
         #region Nested types
 
-#if PCL_WINRT
+#if NET_STANDARD
         private enum TypeCode
         {
             Byte,
@@ -64,7 +64,7 @@ namespace MugenMvvmToolkit.Binding
 
         internal static readonly string[] CommaSeparator;
 
-#if PCL_WINRT
+#if NET_STANDARD
         private static readonly Dictionary<Type, TypeCode> TypeCodeTable;
 #endif
         private static readonly Dictionary<Type, List<MethodInfo>> TypeToExtensionMethods;
@@ -77,7 +77,7 @@ namespace MugenMvvmToolkit.Binding
         static BindingReflectionExtensions()
         {
             CommaSeparator = new[] { "," };
-#if PCL_WINRT
+#if NET_STANDARD
             TypeCodeTable = new Dictionary<Type, TypeCode>
             {
                 {typeof (Boolean), TypeCode.Boolean},
@@ -541,7 +541,7 @@ namespace MugenMvvmToolkit.Binding
             while (type != null)
             {
                 yield return type;
-#if PCL_WINRT
+#if NET_STANDARD
                 type = type.GetTypeInfo().BaseType;
 #else
                 type = type.BaseType;
@@ -618,7 +618,7 @@ namespace MugenMvvmToolkit.Binding
 
         internal static bool HasDefaultValue(this ParameterInfo p)
         {
-#if PCL_WINRT
+#if NET_STANDARD
             return p.HasDefaultValue;
 #else
             return (p.Attributes & ParameterAttributes.HasDefault) == ParameterAttributes.HasDefault ||
@@ -658,7 +658,7 @@ namespace MugenMvvmToolkit.Binding
             return (attributes & flag) == flag;
         }
 
-#if PCL_WINRT
+#if NET_STANDARD
         private static TypeCode GetTypeCode(this Type type)
         {
             if (type == null)

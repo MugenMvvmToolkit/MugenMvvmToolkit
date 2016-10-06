@@ -17,7 +17,6 @@
 #endregion
 
 using System.Reflection;
-using System.Resources;
 using System.Runtime.CompilerServices;
 
 [assembly: AssemblyTitle("MugenMvvmToolkit.Xamarin.Forms")]
@@ -26,7 +25,6 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyProduct("MugenMvvmToolkit.Xamarin.Forms")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-[assembly: NeutralResourcesLanguage("en")]
 [assembly: InternalsVisibleTo("MugenMvvmToolkit.Xamarin.Forms.WinPhone")]
 [assembly: InternalsVisibleTo("MugenMvvmToolkit.Xamarin.Forms.Android")]
 [assembly: InternalsVisibleTo("MugenMvvmToolkit.Xamarin.Forms.iOS")]

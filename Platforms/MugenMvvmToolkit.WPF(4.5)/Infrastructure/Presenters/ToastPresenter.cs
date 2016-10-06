@@ -53,19 +53,10 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Presenters
 using System.Windows.Media.Animation;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.WinPhone.Infrastructure.Presenters
-#elif SILVERLIGHT
-using System.Windows.Documents;
-using System.Windows.Media.Animation;
-using System.Windows.Media.Effects;
-namespace MugenMvvmToolkit.Silverlight.Infrastructure.Presenters
 #elif XAMARIN_FORMS && WINDOWSCOMMON
 namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Infrastructure.Presenters
 #elif WINDOWSCOMMON
 namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
-#elif WINDOWS_PHONE
-using System.Windows.Media.Animation;
-
-namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
 #endif
 {
     public class ToastPresenter : IToastPresenter
@@ -247,7 +238,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
         {
 #if WPF
             var placementTarget = Application.Current.Windows.OfType<Window>().FirstOrDefault(x => x.IsActive);
-#elif SILVERLIGHT || WINDOWS_PHONE
+#elif WINDOWS_PHONE
             var placementTarget = Application.Current.RootVisual as FrameworkElement;
 #elif WINDOWSCOMMON
             var placementTarget = Window.Current;
@@ -504,7 +495,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure.Presenters
         private static Popup TryGetPopupFromTemplate(object content, object parent)
         {
             UIElement element;
-#if WPF || SILVERLIGHT
+#if WPF
             element = (UIElement)parent;
 #elif WINDOWS_PHONE
             var frame = parent as PhoneApplicationFrame;

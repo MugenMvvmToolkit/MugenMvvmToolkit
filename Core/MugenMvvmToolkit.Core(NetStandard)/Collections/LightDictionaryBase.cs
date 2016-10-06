@@ -29,7 +29,7 @@ namespace MugenMvvmToolkit.Collections
 {
     [DebuggerDisplay("Count = {Count}"), Serializable, DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true)]
     public abstract class LightDictionaryBase<TKey, TValue> : IEnumerable<KeyValuePair<TKey, TValue>>
-#if PCL_WINRT
+#if NET_STANDARD
         , IReadOnlyCollection<KeyValuePair<TKey, TValue>>
 #endif
     {

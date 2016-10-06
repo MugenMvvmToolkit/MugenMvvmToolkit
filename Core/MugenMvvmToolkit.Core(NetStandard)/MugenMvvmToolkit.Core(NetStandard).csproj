@@ -33,8 +33,8 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\bin\Core\PCL_WinRT\</OutputPath>
-    <DefineConstants>TRACE;PCL_WINRT;CORE</DefineConstants>
+    <OutputPath>..\..\bin\Core\NetStandard\</OutputPath>
+    <DefineConstants>TRACE;NET_STANDARD;CORE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>

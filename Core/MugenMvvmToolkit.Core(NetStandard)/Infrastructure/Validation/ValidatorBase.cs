@@ -135,7 +135,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         static ValidatorBase()
         {
             ValidateOnPropertyChangedDefault = true;
-#if PCL_WINRT
+#if NET_STANDARD
             EmptyMappingDictionary =
                 new ReadOnlyDictionary<string, ICollection<string>>(new Dictionary<string, ICollection<string>>());
             EmptyValidationDictionary =

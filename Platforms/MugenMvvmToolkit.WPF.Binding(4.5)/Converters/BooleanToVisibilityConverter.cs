@@ -21,13 +21,7 @@ using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
 
-#if WPF
 namespace MugenMvvmToolkit.WPF.Binding.Converters
-#elif SILVERLIGHT
-namespace MugenMvvmToolkit.Silverlight.Binding.Converters
-#elif WINDOWS_PHONE
-namespace MugenMvvmToolkit.WinPhone.Binding.Converters
-#endif
 {
     public sealed class BooleanToVisibilityConverter : IValueConverter
     {

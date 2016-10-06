@@ -435,7 +435,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             for (int i = 0; i < members.Count; i++)
             {
                 KeyValuePair<Type, IBindingMemberInfo> memberValue = members[i];
-#if PCL_WINRT
+#if NET_STANDARD
                 bool isInterface = memberValue.Key.GetTypeInfo().IsInterface;
 #else
                 bool isInterface = memberValue.Key.IsInterface;
@@ -451,7 +451,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                         i--;
                         break;
                     }
-#if PCL_WINRT
+#if NET_STANDARD
                     if (pair.Key.GetTypeInfo().IsSubclassOf(memberValue.Key))
 #else
                     if (pair.Key.IsSubclassOf(memberValue.Key))
@@ -468,7 +468,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         private static bool IsAssignableFrom(Type attachedMemberType, Type sourceType)
         {
-#if PCL_WINRT
+#if NET_STANDARD
             if (attachedMemberType.GetTypeInfo().IsGenericTypeDefinition &&
                 BindingReflectionExtensions.FindCommonType(attachedMemberType, sourceType) != null)
 #else

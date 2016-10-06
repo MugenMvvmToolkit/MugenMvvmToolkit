@@ -30,61 +30,12 @@ using BindingEx = System.Windows.Data.Binding;
 
 #if WPF
 namespace MugenMvvmToolkit.WPF.MarkupExtensions
-#elif SILVERLIGHT
-namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
 #elif WINDOWSCOMMON
 namespace MugenMvvmToolkit.WinRT.MarkupExtensions
-#elif WINDOWS_PHONE
-using System.Reflection;
-
-namespace MugenMvvmToolkit.WinPhone.MarkupExtensions
 #endif
 {
     public static class View
     {
-        #region Nested types
-
-#if WINDOWS_PHONE
-        public sealed class BindingEventClosure
-        {
-        #region Fields
-
-            internal static readonly MethodInfo HandleMethod;
-            private readonly DependencyProperty _property;
-
-        #endregion
-
-        #region Constructors
-
-            static BindingEventClosure()
-            {
-                HandleMethod = typeof(BindingEventClosure).GetMethod("Handle", BindingFlags.Public | BindingFlags.Instance);
-            }
-
-            public BindingEventClosure(DependencyProperty property)
-            {
-                Should.NotBeNull(property, nameof(property));
-                _property = property;
-            }
-
-        #endregion
-
-        #region Methods
-
-            public void Handle<TSender, TValue>(TSender sender, TValue value)
-            {
-                var frameworkElement = (FrameworkElement)(object)sender;
-                var bindingExpression = frameworkElement.GetBindingExpression(_property);
-                if (bindingExpression != null)
-                    bindingExpression.UpdateSource();
-            }
-
-        #endregion
-        }
-#endif
-
-        #endregion
-
         #region Attached properties
 
         public static readonly DependencyProperty BindProperty = DependencyProperty.RegisterAttached(
@@ -135,20 +86,6 @@ namespace MugenMvvmToolkit.WinPhone.MarkupExtensions
             return (string)element.GetValue(BindProperty);
         }
 
-#if WINDOWS_PHONE
-        public static readonly DependencyProperty PropertyChangedBindingsProperty = DependencyProperty.RegisterAttached(
-            "PropertyChangedBindings", typeof(string), typeof(View), new PropertyMetadata(null, PropertyChangedBindingsChanged));
-
-        public static void SetPropertyChangedBindings(DependencyObject element, string value)
-        {
-            element.SetValue(PropertyChangedBindingsProperty, value);
-        }
-
-        public static string GetPropertyChangedBindings(DependencyObject element)
-        {
-            return (string)element.GetValue(PropertyChangedBindingsProperty);
-        }
-#endif
         #endregion
 
         #region Properties
@@ -159,64 +96,6 @@ namespace MugenMvvmToolkit.WinPhone.MarkupExtensions
 
         #region Methods
 
-#if WINDOWS_PHONE
-        private static void PropertyChangedBindingsChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
-        {
-            var frameworkElement = sender as FrameworkElement;
-            if (frameworkElement == null)
-                return;
-            var newValue = (string)args.NewValue;
-            if (string.IsNullOrEmpty(newValue))
-                return;
-
-            foreach (var name in newValue.Split(';'))
-            {
-                var propertyToEvent = name.Split(':');
-                string propertyName = propertyToEvent[0];
-                string eventName;
-                if (propertyToEvent.Length > 1)
-                    eventName = propertyToEvent[1];
-                else
-                    eventName = propertyName + "Changed";
-                var dp = sender.GetDependencyPropertyByName(propertyName);
-                var eventInfo = sender.GetEventByName(eventName);
-                var closure = new BindingEventClosure(dp);
-                var @delegate = ServiceProvider.ReflectionManager.TryCreateDelegate(eventInfo.EventHandlerType, closure,
-                    BindingEventClosure.HandleMethod);
-                if (@delegate != null)
-                    eventInfo.AddEventHandler(sender, @delegate);
-            }
-        }
-
-        private static DependencyProperty GetDependencyPropertyByName(this DependencyObject associatedObject, string name)
-        {
-            string propertyName = name + "Property";
-            if (string.IsNullOrEmpty(name))
-                throw new NullReferenceException("SourceProperty is null.");
-            var field = associatedObject
-                 .GetType()
-                 .GetField(propertyName, BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
-            DependencyProperty result = null;
-            if (field != null)
-                result = (DependencyProperty)field.GetValue(null);
-            if (result == null)
-                throw new NullReferenceException("The property not found in associated object, property name: " +
-                                                 propertyName);
-            return result;
-        }
-
-        private static EventInfo GetEventByName(this DependencyObject associatedObject, string eventName)
-        {
-            if (string.IsNullOrEmpty(eventName))
-                throw new NullReferenceException("SourceProperty is null.");
-            var @event = associatedObject
-                .GetType()
-                .GetEvent(eventName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
-            if (@event == null)
-                throw new NullReferenceException("The event not found in associated object, property name: " + eventName);
-            return @event;
-        }
-#endif
         private static void VisibilityInternalChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
         {
             if (args.NewValue == null)
@@ -265,11 +144,7 @@ namespace MugenMvvmToolkit.WinPhone.MarkupExtensions
                     Path = new PropertyPath("Visibility"),
                     Mode = BindingMode.OneWay,
 #if !WINDOWSCOMMON
-#if WINDOWS_PHONE
-                    UpdateSourceTrigger = UpdateSourceTrigger.Default,
-#else
                     UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged,
-#endif
                     ValidatesOnDataErrors = false,
                     ValidatesOnExceptions = false,
 #endif

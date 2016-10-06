@@ -42,66 +42,11 @@ namespace MugenMvvmToolkit.WinRT.Binding.Models
 using BindingEx = System.Windows.Data.Binding;
 
 namespace MugenMvvmToolkit.WPF.Binding.Models
-#elif SILVERLIGHT
-using BindingEx = System.Windows.Data.Binding;
-
-namespace MugenMvvmToolkit.Silverlight.Binding.Models
-#elif WINDOWS_PHONE
-using MugenMvvmToolkit.Binding.Infrastructure;
-using BindingEx = System.Windows.Data.Binding;
-
-namespace MugenMvvmToolkit.WinPhone.Binding.Models
 #endif
 {
     public sealed class DependencyPropertyBindingMember : IBindingMemberInfo
     {
         #region Nested types
-
-        //BUG: WP doesn't update DataContextProperty on change in parent.
-#if WINDOWS_PHONE
-        private static class DataContextChangedHelper
-        {
-        #region Fields
-
-            public static readonly DependencyProperty InternalDataContextProperty = DependencyProperty.RegisterAttached(
-                "InternalDataContext", typeof(object), typeof(DataContextChangedHelper),
-                new PropertyMetadata(null, OnDataContextChanged));
-
-            public static readonly DependencyProperty DataContextListenerProperty = DependencyProperty.RegisterAttached(
-                "DataContextListener", typeof(EventListenerList), typeof(DataContextChangedHelper), new PropertyMetadata(default(EventListenerList)));
-
-        #endregion
-
-        #region Methods
-
-            private static void OnDataContextChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
-            {
-                var value = (EventListenerList)sender.GetValue(DataContextListenerProperty);
-                if (value != null)
-                    value.Raise(sender, e);
-            }
-
-            public static IDisposable Listen(FrameworkElement control, IEventListener listener)
-            {
-                var value = (EventListenerList)control.GetValue(DataContextListenerProperty);
-                if (value == null)
-                {
-                    value = new EventListenerList();
-                    control.SetValue(DataContextListenerProperty, value);
-                    control.SetBinding(InternalDataContextProperty, new BindingEx
-                    {
-                        ValidatesOnDataErrors = false,
-                        NotifyOnValidationError = false,
-                        ValidatesOnNotifyDataErrors = false,
-                        ValidatesOnExceptions = false
-                    });
-                }
-                return value.AddWithUnsubscriber(listener);
-            }
-
-        #endregion
-        }
-#endif
 
 #if !WINDOWS_UWP
         public sealed class DependencyPropertyListener : DependencyObject, IDisposable
@@ -129,9 +74,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
                         Path = new PropertyPath(propertyToBind),
                         Source = source,
                         Mode = BindingMode.OneWay,
-#if !WINDOWS_PHONE
                         UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged,
-#endif
 
 #if !WINDOWSCOMMON
 #if !WPF || !NET4
@@ -149,7 +92,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
 #endif
                     });
             }
-#if !WINDOWSCOMMON && !WINDOWS_PHONE
+#if !WINDOWSCOMMON
             public DependencyPropertyListener(DependencyObject source, DependencyProperty propertyToBind, IEventListener listener)
             {
                 _listener = listener.ToWeakWrapper();
@@ -351,15 +294,10 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Models
 
         public IDisposable TryObserve(object source, IEventListener listener)
         {
-#if WINDOWS_PHONE
-            var frameworkElement = source as FrameworkElement;
-            if (frameworkElement != null && _path == AttachedMemberConstants.DataContext)
-                return DataContextChangedHelper.Listen(frameworkElement, listener);
-#endif
             if (_changePropertyMember == null)
 #if WINDOWS_UWP
                 return ObserveProperty((DependencyObject)source, _dependencyProperty, listener);
-#elif WINDOWSCOMMON || WINDOWS_PHONE
+#elif WINDOWSCOMMON
                 return new DependencyPropertyListener((DependencyObject)source, _path, listener);
 #else
                 return new DependencyPropertyListener((DependencyObject)source, _dependencyProperty, listener);

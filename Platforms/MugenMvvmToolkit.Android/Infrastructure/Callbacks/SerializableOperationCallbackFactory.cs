@@ -45,16 +45,12 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Callbacks
 namespace MugenMvvmToolkit.iOS.Infrastructure.Callbacks
 #elif WINDOWSCOMMON
 namespace MugenMvvmToolkit.WinRT.Infrastructure.Callbacks
-#elif WINDOWS_PHONE
-namespace MugenMvvmToolkit.WinPhone.Infrastructure.Callbacks
 #elif XAMARIN_FORMS
 namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Callbacks
 #elif WPF
 namespace MugenMvvmToolkit.WPF.Infrastructure.Callbacks
 #elif WINFORMS
 namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
-#elif SILVERLIGHT
-namespace MugenMvvmToolkit.Silverlight.Infrastructure.Callbacks
 #endif
 {
     //NOTE do you want to see some magic? :)

@@ -599,6 +599,9 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\ModuleContext.cs">
       <Link>Models\ModuleContext.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Models\MultiViewModelState.cs">
+      <Link>Models\MultiViewModelState.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\NavigationContext.cs">
       <Link>Models\NavigationContext.cs</Link>
     </Compile>

@@ -71,7 +71,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         protected virtual Func<string> GetDisplayNameInternal(MemberInfo memberInfo)
         {
-#if PCL_WINRT
+#if NET_STANDARD
             var typeInfo = memberInfo as TypeInfo;
 #else
             var typeInfo = memberInfo as Type;
@@ -79,7 +79,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
             if (typeInfo != null)
             {
-#if PCL_WINRT
+#if NET_STANDARD
                 var type = typeInfo.AsType();
 #else
                 var type = typeInfo;
@@ -88,7 +88,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 metadataTypes.Insert(0, type);
                 for (int index = 0; index < metadataTypes.Count; index++)
                 {
-#if PCL_WINRT
+#if NET_STANDARD
                     var result = TryGetDisplayNameAttributeAccessor(metadataTypes[index].GetTypeInfo());
 #else
                     var result = TryGetDisplayNameAttributeAccessor(metadataTypes[index]);
@@ -181,7 +181,7 @@ namespace MugenMvvmToolkit.Infrastructure
                                                 .SequenceEqual(method.GetParameters().Select(parameterInfo => parameterInfo.ParameterType)));
             var eventInfo = member as EventInfo;
             if (eventInfo != null)
-#if PCL_WINRT
+#if NET_STANDARD
                 return metaType.GetRuntimeEvents().FirstOrDefault(info => info.Name == eventInfo.Name);
 #else
                 return metaType.GetEvents().FirstOrDefault(info => info.Name == eventInfo.Name);

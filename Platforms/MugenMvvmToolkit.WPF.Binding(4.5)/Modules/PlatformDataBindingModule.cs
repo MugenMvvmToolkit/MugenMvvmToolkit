@@ -43,19 +43,6 @@ using MugenMvvmToolkit.WPF.Binding.Models;
 using BooleanToVisibilityConverter = MugenMvvmToolkit.WPF.Binding.Converters.BooleanToVisibilityConverter;
 
 namespace MugenMvvmToolkit.WPF.Binding.Modules
-#elif SILVERLIGHT
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Media;
-using System.Windows.Input;
-using MugenMvvmToolkit.Silverlight.MarkupExtensions;
-using MugenMvvmToolkit.Silverlight.Binding.Converters;
-using MugenMvvmToolkit.Silverlight.Binding.Infrastructure;
-using MugenMvvmToolkit.Silverlight.Binding.Models;
-using BooleanToVisibilityConverter = MugenMvvmToolkit.Silverlight.Binding.Converters.BooleanToVisibilityConverter;
-
-namespace MugenMvvmToolkit.Silverlight.Binding.Modules
 #elif WINDOWSCOMMON
 using System.Reflection;
 using Windows.UI.Xaml;
@@ -70,20 +57,6 @@ using MugenMvvmToolkit.WinRT.Binding.Models;
 using BooleanToVisibilityConverter = MugenMvvmToolkit.WinRT.Binding.Converters.BooleanToVisibilityConverter;
 
 namespace MugenMvvmToolkit.WinRT.Binding.Modules
-#elif WINDOWS_PHONE
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Media;
-using System.Windows.Input;
-using Microsoft.Phone.Controls;
-using MugenMvvmToolkit.WinPhone.MarkupExtensions;
-using MugenMvvmToolkit.WinPhone.Binding.Converters;
-using MugenMvvmToolkit.WinPhone.Binding.Infrastructure;
-using MugenMvvmToolkit.WinPhone.Binding.Models;
-using BooleanToVisibilityConverter = MugenMvvmToolkit.WinPhone.Binding.Converters.BooleanToVisibilityConverter;
-
-namespace MugenMvvmToolkit.WinPhone.Binding.Modules
 #endif
 
 {
@@ -127,7 +100,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
                 .CreateMember<FrameworkElement, object>(AttachedMemberConstants.Parent, GetParentValue, SetParentValue, ObserveParentMember));
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<FrameworkElement, object>(AttachedMemberConstants.FindByNameMethod, FindByNameMemberImpl));
-#if SILVERLIGHT || WINDOWSCOMMON || WINDOWS_PHONE
+#if WINDOWSCOMMON
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<FrameworkElement, bool>(AttachedMemberConstants.Focused,
                     (info, control) => FocusManager.GetFocusedElement() == control, null, nameof(FrameworkElement.LostFocus)));
@@ -157,13 +130,8 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
                 (info, box, value) => box.Text = value ?? string.Empty, ObserveTextTextBlock));
 #else
             //WebBrowser
-#if SILVERLIGHT
             memberProvider.Register(AttachedBindingMember.CreateMember<WebBrowser, Uri>(nameof(WebBrowser),
-                            (info, browser) => browser.Source, (info, browser, arg3) => browser.Source = arg3));
-#else
-            memberProvider.Register(AttachedBindingMember.CreateMember<WebBrowser, Uri>(nameof(WebBrowser),
-                            (info, browser) => browser.Source, (info, browser, arg3) => browser.Source = arg3, nameof(WebBrowser.Navigated)));
-#endif
+                                        (info, browser) => browser.Source, (info, browser, arg3) => browser.Source = arg3, nameof(WebBrowser.Navigated)));
 #endif
         }
 
@@ -185,7 +153,7 @@ namespace MugenMvvmToolkit.WinPhone.Binding.Modules
         {
 #if WINDOWS_UWP
             return DependencyPropertyBindingMember.ObserveProperty(uiElement, UIElement.VisibilityProperty, arg3);
-#elif WINDOWSCOMMON || WINDOWS_PHONE
+#elif WINDOWSCOMMON
             return new DependencyPropertyBindingMember.DependencyPropertyListener(uiElement, nameof(UIElement.Visibility), arg3);
 #else
             return new DependencyPropertyBindingMember.DependencyPropertyListener(uiElement, UIElement.VisibilityProperty, arg3);

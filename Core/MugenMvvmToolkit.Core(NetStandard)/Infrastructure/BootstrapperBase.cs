@@ -83,7 +83,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             try
             {
-#if PCL_WINRT
+#if NET_STANDARD
                 var assembly = Assembly.Load(new AssemblyName(assemblyName));
 #else
                 var assembly = Assembly.Load(assemblyName);

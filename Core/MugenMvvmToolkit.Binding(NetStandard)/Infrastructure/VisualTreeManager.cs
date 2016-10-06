@@ -229,7 +229,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     if (shortNameEqual)
                         break;
                 }
-#if PCL_WINRT
+#if NET_STANDARD
                 type = type.GetTypeInfo().BaseType;
 #else
                 type = type.BaseType;

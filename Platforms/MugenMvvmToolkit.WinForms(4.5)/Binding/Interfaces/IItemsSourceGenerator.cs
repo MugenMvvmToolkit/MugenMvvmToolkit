@@ -26,8 +26,6 @@ namespace MugenMvvmToolkit.Android.Binding.Interfaces
 namespace MugenMvvmToolkit.iOS.Binding.Interfaces
 #elif WINFORMS
 namespace MugenMvvmToolkit.WinForms.Binding.Interfaces
-#elif SILVERLIGHT
-namespace MugenMvvmToolkit.Silverlight.Binding.Interfaces
 #endif
 {
     public interface IItemsSourceGenerator

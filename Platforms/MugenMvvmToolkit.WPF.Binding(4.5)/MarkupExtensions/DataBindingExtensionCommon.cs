@@ -39,13 +39,6 @@ using MugenMvvmToolkit.WPF.Binding.Converters;
 using MugenMvvmToolkit.WPF.Binding.Models;
 
 namespace MugenMvvmToolkit.WPF.MarkupExtensions
-#elif SILVERLIGHT
-using System.Windows;
-using System.Windows.Data;
-using MugenMvvmToolkit.Silverlight.Binding.Converters;
-using MugenMvvmToolkit.Silverlight.Binding.Models;
-
-namespace MugenMvvmToolkit.Silverlight.MarkupExtensions
 #endif
 // ReSharper restore CheckNamespace
 {

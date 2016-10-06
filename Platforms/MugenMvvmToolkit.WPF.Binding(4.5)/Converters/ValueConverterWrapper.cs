@@ -30,14 +30,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Converters
 using System.Windows.Data;
 
 namespace MugenMvvmToolkit.WPF.Binding.Converters
-#elif SILVERLIGHT
-using System.Windows.Data;
-
-namespace MugenMvvmToolkit.Silverlight.Binding.Converters
-#elif WINDOWS_PHONE
-using System.Windows.Data;
-
-namespace MugenMvvmToolkit.WinPhone.Binding.Converters
 #endif
 {
     public sealed class ValueConverterWrapper : IBindingValueConverter, IValueConverter

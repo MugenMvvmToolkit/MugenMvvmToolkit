@@ -165,9 +165,7 @@ namespace MugenMvvmToolkit
             Should.NotBeNull(containerBuilder, nameof(containerBuilder));
             containerBuilder.RegisterSource(new AnyConcreteTypeNotAlreadyRegisteredSource
             {
-#if !WINDOWS_PHONE7
                 RegistrationConfiguration = builder => builder.ExternallyOwned()
-#endif
             });
             Container = containerBuilder.Build();
             Id = Interlocked.Increment(ref _idCounter);
@@ -181,9 +179,7 @@ namespace MugenMvvmToolkit
             var containerBuilder = new ContainerBuilder();
             containerBuilder.RegisterSource(new AnyConcreteTypeNotAlreadyRegisteredSource
             {
-#if !WINDOWS_PHONE7
                 RegistrationConfiguration = builder => builder.ExternallyOwned()
-#endif
             });
             containerBuilder.Update(container.ComponentRegistry);
             Id = Interlocked.Increment(ref _idCounter);
@@ -202,7 +198,7 @@ namespace MugenMvvmToolkit
         public IIocContainer CreateChild()
         {
             this.NotBeDisposed();
-            return new AutofacContainer(Container.BeginLifetimeScope(), this) {ThrowOnUnbind = ThrowOnUnbind};
+            return new AutofacContainer(Container.BeginLifetimeScope(), this) { ThrowOnUnbind = ThrowOnUnbind };
         }
 
         public object Get(Type service, string name = null, params IIocParameter[] parameters)
@@ -219,9 +215,9 @@ namespace MugenMvvmToolkit
             this.NotBeDisposed();
             Should.NotBeNull(service, nameof(service));
             if (name == null)
-                return (IEnumerable<object>) Container
+                return (IEnumerable<object>)Container
                     .Resolve(typeof(IEnumerable<>).MakeGenericType(service), ConvertParameters(parameters));
-            return (IEnumerable<object>) Container
+            return (IEnumerable<object>)Container
                 .ResolveNamed(name, typeof(IEnumerable<>).MakeGenericType(service), ConvertParameters(parameters));
         }
 

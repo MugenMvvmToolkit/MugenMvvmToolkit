@@ -498,7 +498,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (result == null)
                     return null;
             }
-#if PCL_WINRT
+#if NET_STANDARD
             if (target == null)
                 return result.CreateDelegate(delegateType);
             return result.CreateDelegate(delegateType, target);
@@ -631,7 +631,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 {
                     var declaringType = member.DeclaringType;
                     var fieldInfo = member as FieldInfo;
-#if PCL_WINRT
+#if NET_STANDARD
                     if (declaringType.GetTypeInfo().IsValueType)
 #else
                     if (declaringType.IsValueType)
@@ -712,7 +712,7 @@ namespace MugenMvvmToolkit.Infrastructure
             }
             for (int i = 0; i < mParameters.Length; i++)
             {
-#if PCL_WINRT
+#if NET_STANDARD
                 var mParameter = mParameters[i].ParameterType.GetTypeInfo();
                 var eParameter = eParameters[i].ParameterType.GetTypeInfo();
                 if (!mParameter.IsAssignableFrom(eParameter) || mParameter.IsValueType != eParameter.IsValueType)
@@ -807,7 +807,7 @@ namespace MugenMvvmToolkit.Infrastructure
             if (type.Equals(typeof(void)) || type.Equals(expression.Type))
                 return expression;
 
-#if PCL_WINRT
+#if NET_STANDARD
             var typeInfo = type.GetTypeInfo();
             if (!exactly && !expression.Type.GetTypeInfo().IsValueType && !typeInfo.IsValueType && type.IsAssignableFrom(expression.Type))
                 return expression;

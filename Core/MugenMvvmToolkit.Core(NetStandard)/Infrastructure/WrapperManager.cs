@@ -105,7 +105,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             Should.NotBeNull(wrapperType, nameof(wrapperType));
             Should.NotBeNull(implementation, nameof(implementation));
-#if PCL_WINRT
+#if NET_STANDARD
             TypeInfo typeInfo = implementation.GetTypeInfo();
             if (typeInfo.IsInterface || typeInfo.IsAbstract)
 #else
@@ -147,7 +147,7 @@ namespace MugenMvvmToolkit.Infrastructure
             if (wrapperRegistration.WrapperFactory != null)
                 return wrapperRegistration.WrapperFactory(item, dataContext);
             var wrapperType = wrapperRegistration.Type;
-#if PCL_WINRT
+#if NET_STANDARD
             if (wrapperType.GetTypeInfo().IsGenericTypeDefinition)
 #else
             if (wrapperType.IsGenericTypeDefinition)
@@ -169,7 +169,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 return vm;
             }
 
-#if PCL_WINRT
+#if NET_STANDARD
             var constructor = wrapperType.GetTypeInfo()
                 .DeclaredConstructors
                 .FirstOrDefault(info => !info.IsStatic);

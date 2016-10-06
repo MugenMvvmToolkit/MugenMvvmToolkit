@@ -250,7 +250,7 @@ namespace MugenMvvmToolkit
                 var func = GetTypesDefault;
                 if (func != null)
                     return func(assembly);
-#if PCL_WINRT
+#if NET_STANDARD
                 return assembly.DefinedTypes.Select(info => info.AsType()).ToList();
 #else
                 return assembly.GetTypes();
@@ -297,7 +297,7 @@ namespace MugenMvvmToolkit
 
         public static object GetDefaultValue(this Type type)
         {
-#if PCL_WINRT
+#if NET_STANDARD
             if (type.GetTypeInfo().IsValueType)
 #else
             if (type.IsValueType)
@@ -362,7 +362,7 @@ namespace MugenMvvmToolkit
             {
                 Type moduleType = modulesToLoad[index];
                 var constructor = moduleType.GetConstructor(Empty.Array<Type>());
-#if PCL_WINRT
+#if NET_STANDARD
                 if (constructor == null || !constructor.IsPublic || modulesToLoad.Any(type => type != moduleType && type.GetTypeInfo().IsSubclassOf(moduleType)))
 #else
                 if (constructor == null || !constructor.IsPublic || modulesToLoad.Any(type => type != moduleType && type.IsSubclassOf(moduleType)))
@@ -399,7 +399,7 @@ namespace MugenMvvmToolkit
 
         public static bool IsPublic(this Type type)
         {
-#if PCL_WINRT      
+#if NET_STANDARD      
             var typeInfo = type.GetTypeInfo();
             return typeInfo.IsPublic || typeInfo.IsNestedPublic;
 #else
@@ -409,7 +409,7 @@ namespace MugenMvvmToolkit
 
         public static bool IsPublicNonAbstractClass(this Type type)
         {
-#if PCL_WINRT
+#if NET_STANDARD
             var typeInfo = type.GetTypeInfo();
             return typeInfo.IsClass && !typeInfo.IsAbstract && (typeInfo.IsPublic || typeInfo.IsNestedPublic);
 #else
@@ -419,7 +419,7 @@ namespace MugenMvvmToolkit
 
         public static bool IsAnonymousClass(this Type type)
         {
-#if PCL_WINRT
+#if NET_STANDARD
             var typeInfo = type.GetTypeInfo();
             return typeInfo.IsDefined(typeof(CompilerGeneratedAttribute), false) && typeInfo.IsClass;
 #else
@@ -592,7 +592,7 @@ namespace MugenMvvmToolkit
                 Action<object, IViewModel> result;
                 if (!ViewToViewModelInterface.TryGetValue(viewType, out result))
                 {
-#if PCL_WINRT
+#if NET_STANDARD
                     foreach (Type @interface in viewType.GetInterfaces().Where(type => type.GetTypeInfo().IsGenericType))
 #else
                     foreach (Type @interface in viewType.GetInterfaces().Where(type => type.IsGenericType))
@@ -617,7 +617,7 @@ namespace MugenMvvmToolkit
                 PropertyInfo result;
                 if (!ViewModelToViewInterface.TryGetValue(viewModelType, out result))
                 {
-#if PCL_WINRT
+#if NET_STANDARD
                     foreach (Type @interface in viewModelType.GetInterfaces().Where(type => type.GetTypeInfo().IsGenericType))
 #else
                     foreach (Type @interface in viewModelType.GetInterfaces().Where(type => type.IsGenericType))
@@ -751,7 +751,7 @@ namespace MugenMvvmToolkit
 
         private static string GetPrettyNameRecursively(Type t)
         {
-#if PCL_WINRT
+#if NET_STANDARD
             if (!t.GetTypeInfo().IsGenericType)
                 return t.FullName;
 #else
@@ -775,7 +775,7 @@ namespace MugenMvvmToolkit
                 return value;
             if (type == typeof(Guid))
                 return Guid.Parse(value.ToString());
-#if PCL_WINRT
+#if NET_STANDARD
             if (type.GetTypeInfo().IsEnum)
 #else 
             if (type.IsEnum)
@@ -787,7 +787,7 @@ namespace MugenMvvmToolkit
                 return Enum.Parse(type, s, false);
             }
 
-#if PCL_WINRT
+#if NET_STANDARD
             return System.Convert.ChangeType(value, type, CultureInfo.CurrentCulture);
 #else
             if (value is IConvertible)
@@ -796,7 +796,7 @@ namespace MugenMvvmToolkit
 #endif
         }
 
-#if PCL_WINRT
+#if NET_STANDARD
         [CanBeNull]
         public static PropertyInfo GetPropertyEx([NotNull] this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {

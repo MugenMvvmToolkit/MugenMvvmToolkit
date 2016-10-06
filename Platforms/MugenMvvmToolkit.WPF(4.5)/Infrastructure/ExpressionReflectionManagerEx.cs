@@ -28,10 +28,6 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
 namespace MugenMvvmToolkit.Android.Infrastructure
 #elif WINFORMS
 namespace MugenMvvmToolkit.WinForms.Infrastructure
-#elif SILVERLIGHT
-namespace MugenMvvmToolkit.Silverlight.Infrastructure
-#elif WINDOWS_PHONE
-namespace MugenMvvmToolkit.WinPhone.Infrastructure
 #endif
 {
     public class ExpressionReflectionManagerEx : ExpressionReflectionManager
@@ -111,11 +107,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
         {
             if (type == null)
                 type = typeof(object);
-#if SILVERLIGHT
-            return new DynamicMethod("dynamic_" + type.Name + Guid.NewGuid().ToString("N"), outputValue, inputValue);
-#else
             return new DynamicMethod("dynamic_" + type.Name + Guid.NewGuid().ToString("N"), outputValue, inputValue, type.Module, true);
-#endif
         }
 
         #endregion

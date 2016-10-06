@@ -571,7 +571,7 @@ namespace MugenMvvmToolkit
             }
             else
             {
-#if PCL_WINRT
+#if NET_STANDARD
                 task.ContinueWith((t, o) => ((TaskCompletionSource<TResult>)o).TrySetFromTask(t), tcs, TaskContinuationOptions.ExecuteSynchronously);
 #else
                 task.ContinueWith(tcs.TrySetFromTask, TaskContinuationOptions.ExecuteSynchronously);
@@ -772,7 +772,7 @@ namespace MugenMvvmToolkit
             var collection = enumerable as ICollection;
             if (collection != null)
                 return collection.Count == 0;
-#if PCL_WINRT
+#if NET_STANDARD
             var readOnlyCollection = enumerable as IReadOnlyCollection<object>;
             if (readOnlyCollection != null)
                 return readOnlyCollection.Count == 0;
@@ -796,7 +796,7 @@ namespace MugenMvvmToolkit
             var collection = source as ICollection;
             if (collection != null)
                 return collection.Count;
-#if PCL_WINRT
+#if NET_STANDARD
             var readOnlyCollection = source as IReadOnlyCollection<object>;
             if (readOnlyCollection != null)
                 return readOnlyCollection.Count;

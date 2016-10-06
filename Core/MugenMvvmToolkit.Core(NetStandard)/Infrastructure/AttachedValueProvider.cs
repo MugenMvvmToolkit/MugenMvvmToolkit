@@ -50,22 +50,14 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 using System.Windows;
 
 namespace MugenMvvmToolkit.WPF.Infrastructure
-#elif SILVERLIGHT
-using System.Windows;
-
-namespace MugenMvvmToolkit.Silverlight.Infrastructure
-#elif PCL_WINRT || PCL_Silverlight || PCL_NET4
+#elif NET_STANDARD || PCL_NET4
 using System.Threading;
 using System.Windows;
 
 namespace MugenMvvmToolkit.Infrastructure
-#elif WINDOWS_PHONE
-using System.Windows;
-
-namespace MugenMvvmToolkit.WinPhone.Infrastructure
 #endif
 {
-#if PCL_WINRT || PCL_Silverlight || PCL_NET4
+#if NET_STANDARD || PCL_NET4
     public class AttachedValueProviderDefault : AttachedValueProviderBase
 #else
     public class AttachedValueProvider : AttachedValueProviderBase
@@ -201,7 +193,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         #region Fields
 
-#if !WINFORMS && !PCL_WINRT && !PCL_Silverlight && !ANDROID && !TOUCH && !XAMARIN_FORMS
+#if !WINFORMS && !NET_STANDARD && !ANDROID && !TOUCH && !XAMARIN_FORMS
         //NOTE ConditionalWeakTable incorrectly tracks WinRT objects https://connect.microsoft.com/VisualStudio/feedback/details/930200/conditionalweaktable-incorrectly-tracks-winrt-objects
         private static readonly DependencyProperty AttachedValueDictionaryProperty = DependencyProperty.RegisterAttached(
             "AttachedValueDictionary", typeof(AttachedValueDictionary), typeof(AttachedValueProviderBase), new PropertyMetadata(default(AttachedValueDictionary)));
@@ -227,7 +219,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         #region Methods
 
-#if PCL_WINRT || PCL_Silverlight || PCL_NET4
+#if NET_STANDARD || PCL_NET4
         public static LightDictionaryBase<string, object> GetOrAddAttachedValues(NotifyPropertyChangedBase model, bool addNew)
         {
             if (addNew && model.AttachedValues == null)
@@ -295,7 +287,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
                 value.Dispose();
                 return true;
             }
-#elif !WINFORMS && !PCL_WINRT && !PCL_Silverlight && !ANDROID && !TOUCH && !XAMARIN_FORMS
+#elif !WINFORMS && !NET_STANDARD && !ANDROID && !TOUCH && !XAMARIN_FORMS
             var dependencyObject = item as DependencyObject;
             if (dependencyObject != null)
             {
@@ -373,7 +365,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
                 }
                 return holder.GetOrCreateDictionary();
             }
-#elif !WINFORMS && !PCL_WINRT && !PCL_Silverlight && !ANDROID && !TOUCH && !XAMARIN_FORMS
+#elif !WINFORMS && !NET_STANDARD && !ANDROID && !TOUCH && !XAMARIN_FORMS
             //Synchronization is not necessary because accessing the DependencyObject is possible only from the main thread.
             var dependencyObject = item as DependencyObject;
             if (dependencyObject != null)

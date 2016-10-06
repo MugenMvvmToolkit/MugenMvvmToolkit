@@ -20,13 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-#if WPF
 namespace MugenMvvmToolkit.WPF.Infrastructure
-#elif SILVERLIGHT
-namespace MugenMvvmToolkit.Silverlight.Infrastructure
-#elif WINDOWS_PHONE
-namespace MugenMvvmToolkit.WinPhone.Infrastructure
-#endif
 {
     internal static class UriUtils
     {
@@ -106,11 +100,7 @@ namespace MugenMvvmToolkit.WinPhone.Infrastructure
 
         private static string UrlDecode(string value)
         {
-#if SILVERLIGHT && !WINDOWS_PHONE
-            return System.Windows.Browser.HttpUtility.UrlDecode(value);
-#else
             return Uri.UnescapeDataString(value);
-#endif
         }
 
         internal static Uri MakeAbsolute(this Uri baseUri)

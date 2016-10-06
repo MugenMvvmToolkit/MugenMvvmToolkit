@@ -127,7 +127,7 @@ namespace MugenMvvmToolkit.Infrastructure
             var vmTypes = new Dictionary<string, HashSet<Type>>();
             foreach (var type in types)
             {
-#if PCL_WINRT
+#if NET_STANDARD
                 var typeInfo = type.GetTypeInfo();
                 if (typeInfo.IsAbstract || typeInfo.IsInterface)
                     continue;
@@ -262,7 +262,7 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 var postFix = postFixes[i];
                 var typeName = type.Name;
-#if PCL_WINRT
+#if NET_STANDARD
                 if (type.GetTypeInfo().IsGenericTypeDefinition)
 #else
                 if (type.IsGenericTypeDefinition)
@@ -308,7 +308,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private static List<Type> GetBaseClasses(Type type)
         {
-#if PCL_WINRT
+#if NET_STANDARD
             type = type.GetTypeInfo().BaseType;
 #else
             type = type.BaseType;
@@ -317,7 +317,7 @@ namespace MugenMvvmToolkit.Infrastructure
             while (type != null && typeof(IViewModel).IsAssignableFrom(type))
             {
                 types.Add(type);
-#if PCL_WINRT
+#if NET_STANDARD
                 type = type.GetTypeInfo().BaseType;
 #else
                 type = type.BaseType;
@@ -359,7 +359,7 @@ namespace MugenMvvmToolkit.Infrastructure
             Dictionary<string, IViewMappingItem> value;
             if (!_viewModelToMapping.TryGetValue(viewModelType, out value))
             {
-#if PCL_WINRT
+#if NET_STANDARD
                 if (viewModelType.GetTypeInfo().IsGenericType)
 #else
                 if (viewModelType.IsGenericType)

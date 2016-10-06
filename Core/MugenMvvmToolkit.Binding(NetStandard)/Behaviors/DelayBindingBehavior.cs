@@ -18,7 +18,7 @@
 
 using System;
 using System.Threading;
-#if PCL_WINRT
+#if NET_STANDARD
 using System.Threading.Tasks;
 #endif
 using MugenMvvmToolkit.Binding.Interfaces;
@@ -31,7 +31,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
     {
         #region Nested types
 
-#if PCL_WINRT
+#if NET_STANDARD
         private sealed class Timer
         {
         #region Fields
@@ -104,7 +104,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         public static readonly Guid IdTargetDelayBindingBehavior;
 
-#if PCL_WINRT
+#if NET_STANDARD
         private static readonly Action<object> CallbackInternalDelegate;
 #else
         private static readonly TimerCallback CallbackInternalDelegate;

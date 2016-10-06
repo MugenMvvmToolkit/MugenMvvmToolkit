@@ -418,7 +418,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 .SelectMany(t => t.GetMethodsEx(InstancePublicFlags))
                 .Where(info =>
                 {
-#if PCL_WINRT
+#if NET_STANDARD
                     if (info.Name != ValidateMethodName || !info.ReturnType.GetTypeInfo().IsGenericType
                                             || info.ReturnType.GetGenericArguments()[0].FullName != ValidationResultTypeName)
                         return false;
@@ -440,7 +440,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 if (contextConverter == null)
                     continue;
                 Func<object, object[], object> methodDelegate = ServiceProvider.ReflectionManager.GetMethodDelegate(methodInfo);
-#if PCL_WINRT
+#if NET_STANDARD
                 var typeInfo = type.GetTypeInfo();
                 Func<string> displayNameAccessor = GetDisplayNameAccessor(typeInfo);
 #else

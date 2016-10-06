@@ -84,7 +84,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public bool IsSerializable(Type type)
         {
-#if PCL_WINRT
+#if NET_STANDARD
             return type == typeof(string) || type.IsDefined(typeof(DataContractAttribute), false) || type.GetTypeInfo().IsPrimitive;
 #else
             return type == typeof(string) || type.IsDefined(typeof(DataContractAttribute), false) || type.IsPrimitive;
@@ -139,7 +139,7 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 foreach (Type type in assembly.SafeGetTypes(false))
                 {
-#if PCL_WINRT
+#if NET_STANDARD
                     var typeInfo = type.GetTypeInfo();
                     if (!typeInfo.IsAbstract && !typeInfo.IsGenericTypeDefinition && type.IsDefined(typeof(DataContractAttribute), true))
 #else

@@ -31,12 +31,8 @@ using MugenMvvmToolkit.Binding.Interfaces.Models;
 
 #if WPF
 namespace MugenMvvmToolkit.WPF.Binding.Models
-#elif SILVERLIGHT
-namespace MugenMvvmToolkit.Silverlight.Binding.Models
 #elif WINDOWSCOMMON
 namespace MugenMvvmToolkit.WinRT.Binding.Models
-#elif WINDOWS_PHONE
-namespace MugenMvvmToolkit.WinPhone.Binding.Models
 #endif
 {
     internal sealed class ParentObserver : EventListenerList

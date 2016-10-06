@@ -470,14 +470,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\MugenMvvmToolkit.Binding%28PCL_Silverlight%29\MugenMvvmToolkit.Binding%28PCL_Silverlight%29.csproj">
-      <Project>{d51e91ac-5351-4db6-8007-a85b7f9b0eac}</Project>
-      <Name>MugenMvvmToolkit.Binding%28PCL_Silverlight%29</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Core\MugenMvvmToolkit.Core%28PCL_Silverlight%29\MugenMvvmToolkit.Core%28PCL_Silverlight%29.csproj">
-      <Project>{74d0561d-14ce-4bb7-911e-4f8ec86b203c}</Project>
-      <Name>MugenMvvmToolkit.Core%28PCL_Silverlight%29</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\IocContainers\MugenMvvmToolkit.MugenContainer%28SL5%29\MugenMvvmToolkit.MugenContainer%28SL5%29.csproj">
       <Project>{218b2a8d-9b38-492e-9db8-6a173bff2f80}</Project>
       <Name>MugenMvvmToolkit.MugenContainer%28SL5%29</Name>
@@ -485,14 +477,6 @@
     <ProjectReference Include="..\..\IocContainers\MugenMvvmToolkit.NinjectContainer%28SL5%29\MugenMvvmToolkit.NinjectContainer%28SL5%29.csproj">
       <Project>{c1efe5be-d2b0-4b3f-ae95-fb4eb46eb0fa}</Project>
       <Name>MugenMvvmToolkit.NinjectContainer%28SL5%29</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Platforms\MugenMvvmToolkit.Silverlight.Binding%285.0%29\MugenMvvmToolkit.Silverlight.Binding%285.0%29.csproj">
-      <Project>{05fe347f-2cb2-46ce-a2b7-73f6410bf13a}</Project>
-      <Name>MugenMvvmToolkit.Silverlight.Binding%285.0%29</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Platforms\MugenMvvmToolkit.Silverlight%285.0%29\MugenMvvmToolkit.Silverlight%285.0%29.csproj">
-      <Project>{f50a09d0-6c2b-4f08-9a42-67146bfaece9}</Project>
-      <Name>MugenMvvmToolkit.Silverlight%285.0%29</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -510,7 +494,7 @@
     </VisualStudio>
   </ProjectExtensions>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
-  <Import Project="..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" /> 
+  <Import Project="..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets" Condition="Exists('..\..\packages\Microsoft.Bcl.Build.1.0.21\build\Microsoft.Bcl.Build.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

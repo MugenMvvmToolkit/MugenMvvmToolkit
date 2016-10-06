@@ -255,7 +255,7 @@ namespace MugenMvvmToolkit
             var iocContainer = IocContainer;
             if (iocContainer == null)
             {
-#if PCL_WINRT
+#if NET_STANDARD
                 result = type.GetTypeInfo().IsValueType ? Activator.CreateInstance(type) : null;
 #else
                 result = type.IsValueType ? Activator.CreateInstance(type) : null;

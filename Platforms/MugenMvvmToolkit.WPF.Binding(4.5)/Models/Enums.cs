@@ -16,18 +16,12 @@
 
 #endregion
 
-using MugenMvvmToolkit.Binding.Interfaces;
-
 #if WPF
 namespace MugenMvvmToolkit.WPF.Binding.Models
 #elif XAMARIN_FORMS
 namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Models
-#elif SILVERLIGHT
-namespace MugenMvvmToolkit.Silverlight.Binding.Models
 #elif WINDOWSCOMMON
 namespace MugenMvvmToolkit.WinRT.Binding.Models
-#elif WINDOWS_PHONE
-namespace MugenMvvmToolkit.WinPhone.Binding.Models
 #endif
 {
     public enum BindingModeCore
