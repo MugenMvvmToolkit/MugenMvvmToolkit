@@ -29,7 +29,10 @@ namespace MugenMvvmToolkit.Xamarin.Forms.iOS.Binding.Modules
 #elif WINDOWS_PHONE
 using MugenMvvmToolkit.Xamarin.Forms.WinPhone.Binding.Infrastructure;
 namespace MugenMvvmToolkit.Xamarin.Forms.WinPhone.Binding.Modules
-#elif WINDOWSCOMMON
+#elif WINDOWS_UWP
+using MugenMvvmToolkit.Xamarin.Forms.UWP.Binding.Infrastructure;
+namespace MugenMvvmToolkit.Xamarin.Forms.UWP.Binding.Modules
+#elif NETFX_CORE
 using MugenMvvmToolkit.Xamarin.Forms.WinRT.Binding.Infrastructure;
 namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Binding.Modules
 #endif

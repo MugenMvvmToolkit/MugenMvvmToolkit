@@ -109,8 +109,7 @@ namespace MugenMvvmToolkit.Modules
         {
             var assemblies = Context.Assemblies;
             var platformType = Context.Platform.Platform;
-            var isSupportedUriNavigation = platformType == PlatformType.Silverlight || platformType == PlatformType.WinPhone ||
-                                                           platformType == PlatformType.WPF;
+            var isSupportedUriNavigation = platformType == PlatformType.WPF;
             return BindingInfo<IViewMappingProvider>.FromMethod((adapter, list) =>
             {
                 return new ViewMappingProvider(assemblies)

@@ -2,10 +2,10 @@
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest">
   <Identity Name="336da148-87e9-4c79-93fb-40cae7ddabb4" Publisher="CN=Vyacheslav" Version="1.1.0.0" />
   <Properties>
-    <DisplayName>MugenMvvmToolkit.WinRT.Test_8._0_</DisplayName>
+    <DisplayName>MugenMvvmToolkit.UWP.Test_8._0_</DisplayName>
     <PublisherDisplayName>Vyacheslav</PublisherDisplayName>
     <Logo>Images\UnitTestStoreLogo.png</Logo>
-    <Description>MugenMvvmToolkit.WinRT.Test_8._0_</Description>
+    <Description>MugenMvvmToolkit.UWP.Test_8._0_</Description>
   </Properties>
   <Prerequisites>
     <OSMinVersion>6.3.0</OSMinVersion>

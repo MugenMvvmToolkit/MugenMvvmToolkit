@@ -1,7 +1,7 @@
 ﻿using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.Silverlight.Models.EventArg;
-using MugenMvvmToolkit.WinRT.Models.EventArg;
+using MugenMvvmToolkit.UWP.Models.EventArg;
 using MugenMvvmToolkit.WPF.Models.EventArg;
 
 namespace MugenMvvmToolkit.Test.TestModels

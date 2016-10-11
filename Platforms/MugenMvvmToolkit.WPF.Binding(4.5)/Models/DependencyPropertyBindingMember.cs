@@ -16,10 +16,8 @@
 
 #endregion
 
-#if WINDOWSCOMMON
-using Windows.UI.Core;
+#if WINDOWS_UWP
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Data;
 #else
 using System.Windows;
 using System.Windows.Data;
@@ -34,10 +32,9 @@ using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Models;
 
-#if WINDOWSCOMMON
-using BindingEx = Windows.UI.Xaml.Data.Binding;
+#if WINDOWS_UWP
 
-namespace MugenMvvmToolkit.WinRT.Binding.Models
+namespace MugenMvvmToolkit.UWP.Binding.Models
 #elif WPF
 using BindingEx = System.Windows.Data.Binding;
 
@@ -51,19 +48,18 @@ namespace MugenMvvmToolkit.WPF.Binding.Models
 #if !WINDOWS_UWP
         public sealed class DependencyPropertyListener : DependencyObject, IDisposable
         {
-            #region Fields
+        #region Fields
 
             public static readonly DependencyProperty ValueProperty = DependencyProperty
                 .Register("Value", typeof(object), typeof(DependencyPropertyListener), new PropertyMetadata(null, OnValueChanged));
 
-#if !WINDOWSCOMMON
+
             private static readonly Action<DependencyPropertyListener> DisposeDelegate = DisposeInternal;
-#endif
             private WeakEventListenerWrapper _listener;
 
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             public DependencyPropertyListener(DependencyObject source, string propertyToBind, IEventListener listener)
             {
@@ -75,24 +71,19 @@ namespace MugenMvvmToolkit.WPF.Binding.Models
                         Source = source,
                         Mode = BindingMode.OneWay,
                         UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged,
-
-#if !WINDOWSCOMMON
 #if !WPF || !NET4
                         ValidatesOnNotifyDataErrors = false,
 #endif
                         ValidatesOnDataErrors = false,
                         ValidatesOnExceptions = false,
                         NotifyOnValidationError = false,
-
-#endif
-
 #if WPF
                         NotifyOnSourceUpdated = false,
                         NotifyOnTargetUpdated = false
 #endif
                     });
             }
-#if !WINDOWSCOMMON
+
             public DependencyPropertyListener(DependencyObject source, DependencyProperty propertyToBind, IEventListener listener)
             {
                 _listener = listener.ToWeakWrapper();
@@ -115,11 +106,10 @@ namespace MugenMvvmToolkit.WPF.Binding.Models
 #endif
                     });
             }
-#endif
 
-            #endregion
+        #endregion
 
-            #region Properties
+        #region Properties
 
             public object Value
             {
@@ -127,9 +117,9 @@ namespace MugenMvvmToolkit.WPF.Binding.Models
                 set { SetValue(ValueProperty, value); }
             }
 
-            #endregion
+        #endregion
 
-            #region Methods
+        #region Methods
 
             private static void OnValueChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
             {
@@ -153,26 +143,19 @@ namespace MugenMvvmToolkit.WPF.Binding.Models
                 }
             }
 
-            #endregion
+        #endregion
 
-            #region Implementation of IDisposable
+        #region Implementation of IDisposable
 
             public void Dispose()
             {
-#if WINDOWSCOMMON
-                if (Dispatcher.HasThreadAccess)
-                    DisposeInternal(this);
-                else
-                    Dispatcher.RunAsync(CoreDispatcherPriority.Low, () => DisposeInternal(this));
-#else
                 if (Dispatcher.CheckAccess())
                     DisposeInternal(this);
                 else
                     Dispatcher.BeginInvoke(DisposeDelegate, this);
-#endif
             }
 
-            #endregion
+        #endregion
         }
 #endif
 
@@ -297,8 +280,6 @@ namespace MugenMvvmToolkit.WPF.Binding.Models
             if (_changePropertyMember == null)
 #if WINDOWS_UWP
                 return ObserveProperty((DependencyObject)source, _dependencyProperty, listener);
-#elif WINDOWSCOMMON
-                return new DependencyPropertyListener((DependencyObject)source, _path, listener);
 #else
                 return new DependencyPropertyListener((DependencyObject)source, _dependencyProperty, listener);
 #endif

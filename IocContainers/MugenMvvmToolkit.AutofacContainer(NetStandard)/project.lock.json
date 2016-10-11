@@ -3,7 +3,7 @@
   "version": 1,
   "targets": {
     ".NETStandard,Version=v1.1": {
-      "Autofac/4.1.0": {
+      "Autofac/4.1.1": {
         "dependencies": {
           "NETStandard.Library": "1.6.0",
           "System.ComponentModel": "4.0.1"
@@ -476,11 +476,12 @@
     }
   },
   "libraries": {
-    "Autofac/4.1.0": {
-      "sha512": "PZlRrOjtQ/pyxoA/oDuyFsKlL/toYIxfL4wQvm9TY7lj+/jeQHQIlJ832nwvPFBlOuRZQErHsfsGmo3zW+pCxA==",
+    "Autofac/4.1.1": {
+      "sha512": "C0O06dJ1/WAYr4CZzBu3RCs2GZuR3G8PQFqgxa3PP4jDMUb9//jgL2ONvF06qxPsC0UflkBS55wmd7C5oaEsEg==",
       "type": "package",
+      "path": "Autofac/4.1.1",
       "files": [
-        "Autofac.4.1.0.nupkg.sha512",
+        "Autofac.4.1.1.nupkg.sha512",
         "Autofac.nuspec",
         "lib/net45/Autofac.dll",
         "lib/net45/Autofac.xml",
@@ -2956,7 +2957,7 @@
   },
   "projectFileDependencyGroups": {
     "": [
-      "Autofac >= 4.1.0",
+      "Autofac >= 4.1.1",
       "Microsoft.NETCore.Portable.Compatibility >= 1.0.1",
       "NETStandard.Library >= 1.6.0"
     ],

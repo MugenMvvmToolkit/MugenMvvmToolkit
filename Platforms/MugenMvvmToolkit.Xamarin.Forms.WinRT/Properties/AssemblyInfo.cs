@@ -16,10 +16,13 @@
 
 #endregion
 
+
 using System.Reflection;
-using System.Resources;
 using System.Runtime.InteropServices;
 
+// General Information about an assembly is controlled through the following 
+// set of attributes. Change these attribute values to modify the information
+// associated with an assembly.
 [assembly: AssemblyTitle("MugenMvvmToolkit.Xamarin.Forms.WinRT")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
@@ -27,5 +30,3 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
-[assembly: Guid("b3d9be15-9a4f-453b-bfa6-cb85d00492d9")]
-[assembly: NeutralResourcesLanguage("en-US")]

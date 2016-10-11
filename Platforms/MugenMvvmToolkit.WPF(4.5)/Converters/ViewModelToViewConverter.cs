@@ -21,17 +21,17 @@ using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
-#if !WINDOWSCOMMON
+#if !WINDOWS_UWP
 using System.Globalization;
 #endif
-#if WINDOWSCOMMON
+#if WINDOWS_UWP
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 
-namespace MugenMvvmToolkit.WinRT.Binding.Converters
+namespace MugenMvvmToolkit.UWP.Binding.Converters
 #elif ANDROID
 using Android.App;
 using Android.Graphics;
@@ -107,7 +107,7 @@ namespace MugenMvvmToolkit.WPF.Binding.Converters
 
         #region Implementation of IValueConverter
 
-#if WINDOWSCOMMON
+#if WINDOWS_UWP
         public object Convert(object value, Type targetType = null, object parameter = null, string language = null)
 #elif ANDROID || WINFORMS || TOUCH || XAMARIN_FORMS
         public object Convert(object value, Type targetType = null, object parameter = null, CultureInfo culture = null, IDataContext context = null)
@@ -158,7 +158,7 @@ namespace MugenMvvmToolkit.WPF.Binding.Converters
             }
         }
 
-#if WINDOWSCOMMON
+#if WINDOWS_UWP
         public object ConvertBack(object value, Type targetType = null, object parameter = null, string language = null)
 #elif ANDROID || WINFORMS || TOUCH || XAMARIN_FORMS
         public object ConvertBack(object value, Type targetType = null, object parameter = null, CultureInfo culture = null, IDataContext context = null)

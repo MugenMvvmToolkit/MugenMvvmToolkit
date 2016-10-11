@@ -32,12 +32,12 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
 using Bootstrapper = MugenMvvmToolkit.WinForms.Infrastructure.WinFormsBootstrapperBase;
 
 namespace MugenMvvmToolkit.WinForms.Infrastructure
-#elif WINDOWSCOMMON
+#elif WINDOWS_UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Bootstrapper = MugenMvvmToolkit.WinRT.Infrastructure.WinRTBootstrapperBase;
+using Bootstrapper = MugenMvvmToolkit.UWP.Infrastructure.UwpBootstrapperBase;
 
-namespace MugenMvvmToolkit.WinRT.Infrastructure
+namespace MugenMvvmToolkit.UWP.Infrastructure
 #elif TOUCH
 using UIKit;
 using Bootstrapper = MugenMvvmToolkit.iOS.Infrastructure.TouchBootstrapperBase;
@@ -91,7 +91,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 #elif WINFORMS
         public Bootstrapper([NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, PlatformInfo platform = null)
             : base(true, platform)
-#elif WINDOWSCOMMON
+#elif WINDOWS_UWP
         public Bootstrapper([NotNull] Frame rootFrame, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, PlatformInfo platform = null)
             : base(rootFrame, assemblies != null, platform)
 #elif TOUCH
@@ -114,7 +114,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         protected override ICollection<Assembly> GetAssemblies()
         {
             var assemblies = ToHashSet(_assemblies ?? base.GetAssemblies());
-#if WINDOWSCOMMON || XAMARIN_FORMS
+#if WINDOWS_UWP || XAMARIN_FORMS
             assemblies.Add(GetType().GetTypeInfo().Assembly);
             assemblies.Add(typeof(Bootstrapper).GetTypeInfo().Assembly);
             assemblies.Add(typeof(ApplicationSettings).GetTypeInfo().Assembly);
@@ -134,7 +134,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
                 var application = Application.Current;
                 if (application != null)
                 {
-#if WINDOWSCOMMON || XAMARIN_FORMS
+#if WINDOWS_UWP || XAMARIN_FORMS
                     assemblies.Add(application.GetType().GetTypeInfo().Assembly);
 #else
                     assemblies.Add(application.GetType().Assembly);

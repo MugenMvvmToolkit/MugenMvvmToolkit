@@ -18,7 +18,7 @@
 
 using System;
 using System.Collections.Generic;
-#if WINDOWSCOMMON
+#if WINDOWS_UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
 using BindingEx = Windows.UI.Xaml.Data.Binding;
@@ -30,8 +30,8 @@ using BindingEx = System.Windows.Data.Binding;
 
 #if WPF
 namespace MugenMvvmToolkit.WPF.MarkupExtensions
-#elif WINDOWSCOMMON
-namespace MugenMvvmToolkit.WinRT.MarkupExtensions
+#elif WINDOWS_UWP
+namespace MugenMvvmToolkit.UWP.MarkupExtensions
 #endif
 {
     public static class View
@@ -143,7 +143,7 @@ namespace MugenMvvmToolkit.WinRT.MarkupExtensions
                 {
                     Path = new PropertyPath("Visibility"),
                     Mode = BindingMode.OneWay,
-#if !WINDOWSCOMMON
+#if !WINDOWS_UWP
                     UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged,
                     ValidatesOnDataErrors = false,
                     ValidatesOnExceptions = false,

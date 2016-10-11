@@ -17,7 +17,7 @@
 #endregion
 
 using System;
-#if WINDOWSCOMMON
+#if WINDOWS_UWP
 using Windows.UI.Xaml.Data;
 #else
 using System.Globalization;
@@ -26,8 +26,8 @@ using System.Windows.Data;
 
 #if WPF
 namespace MugenMvvmToolkit.WPF.Binding.Converters
-#elif WINDOWSCOMMON
-namespace MugenMvvmToolkit.WinRT.Binding.Converters
+#elif WINDOWS_UWP
+namespace MugenMvvmToolkit.UWP.Binding.Converters
 #endif
 {
     public sealed class InverseBooleanConverter : IValueConverter
@@ -49,7 +49,7 @@ namespace MugenMvvmToolkit.WinRT.Binding.Converters
 
         #region Implementation of IValueConverter
 
-#if WINDOWSCOMMON
+#if WINDOWS_UWP
         public object Convert(object value, Type targetType, object parameter, string language)
 #else
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -62,7 +62,7 @@ namespace MugenMvvmToolkit.WinRT.Binding.Converters
             return Empty.BooleanToObject(!b.Value);
         }
 
-#if WINDOWSCOMMON
+#if WINDOWS_UWP
         public object ConvertBack(object value, Type targetType, object parameter, string culture)
 #else
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

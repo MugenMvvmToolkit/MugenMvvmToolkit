@@ -2,11 +2,11 @@
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Silverlight.Interfaces.Navigation;
 using MugenMvvmToolkit.Silverlight.Models.EventArg;
-using MugenMvvmToolkit.WinRT.Interfaces.Navigation;
-using MugenMvvmToolkit.WinRT.Models.EventArg;
+using MugenMvvmToolkit.UWP.Interfaces.Navigation;
+using MugenMvvmToolkit.UWP.Models.EventArg;
 using MugenMvvmToolkit.WPF.Interfaces.Navigation;
 using MugenMvvmToolkit.WPF.Models.EventArg;
-#if NETFX_CORE || WINDOWSCOMMON
+#if NETFX_CORE || WINDOWS_UWP
 using Windows.UI.Xaml.Navigation;
 #elif ANDROID
 using Android.App;

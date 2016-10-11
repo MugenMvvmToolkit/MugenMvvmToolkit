@@ -33,14 +33,14 @@ using MugenMvvmToolkit.WPF.Infrastructure.Navigation;
 using MugenMvvmToolkit.WPF.Infrastructure.Presenters;
 
 namespace MugenMvvmToolkit.WPF.Modules
-#elif WINDOWSCOMMON
-using MugenMvvmToolkit.WinRT.Infrastructure;
-using MugenMvvmToolkit.WinRT.Infrastructure.Navigation;
-using MugenMvvmToolkit.WinRT.Infrastructure.Presenters;
-using MugenMvvmToolkit.WinRT.Infrastructure.Callbacks;
-using MugenMvvmToolkit.WinRT.Interfaces;
+#elif WINDOWS_UWP
+using MugenMvvmToolkit.UWP.Infrastructure;
+using MugenMvvmToolkit.UWP.Infrastructure.Navigation;
+using MugenMvvmToolkit.UWP.Infrastructure.Presenters;
+using MugenMvvmToolkit.UWP.Infrastructure.Callbacks;
+using MugenMvvmToolkit.UWP.Interfaces;
 
-namespace MugenMvvmToolkit.WinRT.Modules
+namespace MugenMvvmToolkit.UWP.Modules
 #endif
 {
     public class InitializationModule : InitializationModuleBase
@@ -82,7 +82,7 @@ namespace MugenMvvmToolkit.WinRT.Modules
                         .ThreadManager
                         .Invoke(ExecutionMode.AsynchronousOnUiThread, handler, handler, (h1, h2) => System.Windows.Input.CommandManager.RequerySuggested -= h1);
                 }
-#elif WINDOWSCOMMON
+#elif WINDOWS_UWP
                 IocContainer.BindToBindingInfo(GetApplicationStateManager());
 #endif
                 return true;
@@ -107,7 +107,7 @@ namespace MugenMvvmToolkit.WinRT.Modules
 #endif
 
 
-#if !WINDOWSCOMMON
+#if !WINDOWS_UWP
         protected override BindingInfo<IReflectionManager> GetReflectionManager()
         {
             return BindingInfo<IReflectionManager>.FromType<ExpressionReflectionManagerEx>(DependencyLifecycle.SingleInstance);
@@ -118,7 +118,7 @@ namespace MugenMvvmToolkit.WinRT.Modules
             return BindingInfo<IOperationCallbackFactory>.FromType<SerializableOperationCallbackFactory>(DependencyLifecycle.SingleInstance);
         }
 
-#if WINDOWSCOMMON
+#if WINDOWS_UWP
         protected virtual BindingInfo<IApplicationStateManager> GetApplicationStateManager()
         {
             return BindingInfo<IApplicationStateManager>.FromType<ApplicationStateManager>(DependencyLifecycle.SingleInstance);
@@ -158,7 +158,7 @@ namespace MugenMvvmToolkit.WinRT.Modules
             if (Context.Platform.Platform != PlatformType.WPF)
                 return BindingInfo<IThreadManager>.Empty;
             return BindingInfo<IThreadManager>.FromMethod((container, list) => new ThreadManager(System.Windows.Threading.Dispatcher.CurrentDispatcher), DependencyLifecycle.SingleInstance);
-#elif WINDOWSCOMMON
+#elif WINDOWS_UWP
             if (Context.Mode.HasFlagEx(LoadMode.Design) && Windows.UI.Xaml.Window.Current.Dispatcher == null)
                 return base.GetThreadManager();
             return BindingInfo<IThreadManager>.FromMethod((container, list) => new ThreadManager(Windows.UI.Xaml.Window.Current.Dispatcher), DependencyLifecycle.SingleInstance);

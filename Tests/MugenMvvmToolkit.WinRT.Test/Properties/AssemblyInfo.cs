@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("MugenMvvmToolkit.WinRT.Test(8.0)")]
+[assembly: AssemblyTitle("MugenMvvmToolkit.UWP.Test(8.0)")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("MugenMvvmToolkit.WinRT.Test(8.0)")]
+[assembly: AssemblyProduct("MugenMvvmToolkit.UWP.Test(8.0)")]
 [assembly: AssemblyCopyright("Copyright (c) 2012-2015 Vyacheslav Volkov")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

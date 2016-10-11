@@ -25,16 +25,21 @@ using MugenMvvmToolkit.WPF.Binding.Models;
 using MugenMvvmToolkit.WPF.MarkupExtensions;
 
 namespace MugenMvvmToolkit.WPF.Binding.Infrastructure
-#elif XAMARIN_FORMS && WINDOWSCOMMON
+#elif XAMARIN_FORMS && WINDOWS_UWP
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+
+namespace MugenMvvmToolkit.Xamarin.Forms.UWP.Binding.Infrastructure
+#elif WINDOWS_UWP
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+
+namespace MugenMvvmToolkit.UWP.Binding.Infrastructure
+#elif NETFX_CORE
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Binding.Infrastructure
-#elif WINDOWSCOMMON
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-
-namespace MugenMvvmToolkit.WinRT.Binding.Infrastructure
 #endif
 {
     public class BindingErrorProvider : BindingErrorProviderBase
@@ -49,7 +54,7 @@ namespace MugenMvvmToolkit.WinRT.Binding.Infrastructure
                 base.SetErrors(target, errors, context);
                 return;
             }
-#if WINDOWSCOMMON
+#if WINDOWS_UWP || NETFX_CORE
             var control = depObj as Control;
             if (control != null)
                 VisualStateManager.GoToState(control, errors.Count == 0 ? "Valid" : "Invalid", true);

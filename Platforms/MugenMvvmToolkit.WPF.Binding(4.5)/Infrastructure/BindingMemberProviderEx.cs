@@ -27,13 +27,13 @@ using System.Windows;
 using MugenMvvmToolkit.WPF.Binding.Models;
 
 namespace MugenMvvmToolkit.WPF.Binding.Infrastructure
-#elif WINDOWSCOMMON
+#elif WINDOWS_UWP
 using System.Reflection;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.WinRT.Binding.Models;
+using MugenMvvmToolkit.UWP.Binding.Models;
 using Windows.UI.Xaml;
 
-namespace MugenMvvmToolkit.WinRT.Binding.Infrastructure
+namespace MugenMvvmToolkit.UWP.Binding.Infrastructure
 #endif
 {
     public class BindingMemberProviderEx : BindingMemberProvider

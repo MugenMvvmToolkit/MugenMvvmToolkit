@@ -187,19 +187,19 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             var displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(string.Empty);
 
-            member = typeof(DefaultClass).GetFields()[0];
+            member = GetFields(typeof(DefaultClass))[0];
             displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(member.Name);
 
-            member = typeof(DefaultClass).GetProperties()[0];
+            member = GetProperties(typeof(DefaultClass))[0];
             displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(member.Name);
 
-            member = typeof(DefaultClass).GetEvents()[0];
+            member = GetEvents(typeof(DefaultClass))[0];
             displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(member.Name);
 
-            member = typeof(DefaultClass).GetMethods().First(info => !info.IsSpecialName);
+            member = GetMethods(typeof(DefaultClass)).First(info => !info.IsSpecialName);
             displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(member.Name);
         }
@@ -217,19 +217,19 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             var displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(Name);
 
-            member = target.GetFields()[0];
+            member = GetFields(target)[0];
             displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(Name);
 
-            member = target.GetProperties()[0];
+            member = GetProperties(target)[0];
             displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(Name);
 
-            member = target.GetEvents()[0];
+            member = GetEvents(target)[0];
             displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(Name);
 
-            member = target.GetMethods().First(info => !info.IsSpecialName);
+            member = GetMethods(target).First(info => !info.IsSpecialName);
             displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(Name);
         }
@@ -247,15 +247,15 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             var displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(Name);
 
-            member = target.GetProperties()[0];
+            member = GetProperties(target)[0];
             displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(Name);
 
-            member = target.GetEvents()[0];
+            member = GetEvents(target)[0];
             displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(Name);
 
-            member = target.GetMethods().First(info => !info.IsSpecialName);
+            member = GetMethods(target).First(info => !info.IsSpecialName);
             displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(Name);
         }
@@ -273,19 +273,19 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             var displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(Name);
 
-            member = target.GetFields()[0];
+            member = GetFields(target)[0];
             displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(Name);
 
-            member = target.GetProperties()[0];
+            member = GetProperties(target)[0];
             displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(Name);
 
-            member = target.GetEvents()[0];
+            member = GetEvents(target)[0];
             displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(Name);
 
-            member = target.GetMethods().First(info => !info.IsSpecialName);
+            member = GetMethods(target).First(info => !info.IsSpecialName);
             displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(Name);
         }
@@ -303,15 +303,15 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             var displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(Name);
 
-            member = target.GetProperties()[0];
+            member = GetProperties(target)[0];
             displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(Name);
 
-            member = target.GetEvents()[0];
+            member = GetEvents(target)[0];
             displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(Name);
 
-            member = target.GetMethods().First(info => !info.IsSpecialName);
+            member = GetMethods(target).First(info => !info.IsSpecialName);
             displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(Name);
         }
@@ -322,15 +322,15 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             Type target = typeof(DisplayAttributeClass);
             var displayNameProvider = GetDisplayNameProvider();
 
-            MemberInfo member = target.GetFields()[0];
+            MemberInfo member = GetFields(target)[0];
             var displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(Name);
 
-            member = target.GetProperties()[0];
+            member = GetProperties(target)[0];
             displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(Name);
 
-            member = target.GetMethods().First(info => !info.IsSpecialName);
+            member = GetMethods(target).First(info => !info.IsSpecialName);
             displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(Name);
         }
@@ -341,15 +341,15 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             Type target = typeof(DisplayAttributeClassMugenMeta);
             var displayNameProvider = GetDisplayNameProvider();
 
-            MemberInfo member = target.GetFields()[0];
+            MemberInfo member = GetFields(target)[0];
             var displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(Name);
 
-            member = target.GetProperties()[0];
+            member = GetProperties(target)[0];
             displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(Name);
 
-            member = target.GetMethods().First(info => !info.IsSpecialName);
+            member = GetMethods(target).First(info => !info.IsSpecialName);
             displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(Name);
         }
@@ -360,15 +360,15 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             Type target = typeof(DisplayAttributeClassSystemMeta);
             var displayNameProvider = GetDisplayNameProvider();
 
-            MemberInfo member = target.GetFields()[0];
+            MemberInfo member = GetFields(target)[0];
             var displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(Name);
 
-            member = target.GetProperties()[0];
+            member = GetProperties(target)[0];
             displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(Name);
 
-            member = target.GetMethods().First(info => !info.IsSpecialName);
+            member = GetMethods(target).First(info => !info.IsSpecialName);
             displayNameAccessor = displayNameProvider.GetDisplayNameAccessor(member);
             displayNameAccessor().ShouldEqual(Name);
         }
@@ -376,6 +376,42 @@ namespace MugenMvvmToolkit.Test.Infrastructure
         protected virtual IDisplayNameProvider GetDisplayNameProvider()
         {
             return new DisplayNameProvider();
+        }
+
+        private static FieldInfo[] GetFields(Type type)
+        {
+#if NETFX_CORE
+            return TypeExtensions.GetFields(type);
+#else
+            return type.GetFields();
+#endif
+        }
+
+        private static PropertyInfo[] GetProperties(Type type)
+        {
+#if NETFX_CORE
+            return TypeExtensions.GetProperties(type);
+#else
+            return type.GetProperties();
+#endif
+        }
+
+        private static EventInfo[] GetEvents(Type type)
+        {
+#if NETFX_CORE
+            return TypeExtensions.GetEvents(type);
+#else
+            return type.GetEvents();
+#endif
+        }
+
+        private static MethodInfo[] GetMethods(Type type)
+        {
+#if NETFX_CORE
+            return TypeExtensions.GetMethods(type);
+#else
+            return type.GetMethods();
+#endif
         }
 
         #endregion

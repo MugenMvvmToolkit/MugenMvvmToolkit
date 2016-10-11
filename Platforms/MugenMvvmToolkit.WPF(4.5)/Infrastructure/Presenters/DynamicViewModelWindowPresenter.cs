@@ -61,11 +61,11 @@ using MugenMvvmToolkit.WPF.Infrastructure.Mediators;
 using MugenMvvmToolkit.WPF.Interfaces.Views;
 
 namespace MugenMvvmToolkit.WPF.Infrastructure.Presenters
-#elif WINDOWSCOMMON
-using MugenMvvmToolkit.WinRT.Infrastructure.Mediators;
-using MugenMvvmToolkit.WinRT.Interfaces.Views;
+#elif WINDOWS_UWP
+using MugenMvvmToolkit.UWP.Infrastructure.Mediators;
+using MugenMvvmToolkit.UWP.Interfaces.Views;
 
-namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
+namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
 #endif
 {
     public class DynamicViewModelWindowPresenter : IRestorableDynamicViewModelPresenter

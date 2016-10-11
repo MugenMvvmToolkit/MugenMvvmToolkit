@@ -37,12 +37,12 @@ using Xamarin.Forms;
 using MugenMvvmToolkit.Xamarin.Forms.Binding.Converters;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Infrastructure
-#elif WINDOWSCOMMON
-using MugenMvvmToolkit.WinRT.Binding.Converters;
+#elif WINDOWS_UWP
+using MugenMvvmToolkit.UWP.Binding.Converters;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
 
-namespace MugenMvvmToolkit.WinRT.Binding.Infrastructure
+namespace MugenMvvmToolkit.UWP.Binding.Infrastructure
 #endif
 {
     public class BindingResourceResolverEx : BindingResourceResolver

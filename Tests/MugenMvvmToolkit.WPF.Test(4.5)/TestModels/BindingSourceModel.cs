@@ -45,7 +45,11 @@ namespace MugenMvvmToolkit.Test.TestModels
     {
         #region Fields
 
+#if NETFX_CORE
+        public static readonly PropertyInfo IntPropertyInfo = TypeExtensions.GetProperty(typeof(BindingSourceModel), "IntProperty");
+#else
         public static readonly PropertyInfo IntPropertyInfo = typeof(BindingSourceModel).GetProperty("IntProperty");
+#endif
 
         public const string EventName = "Event";
         public const string InvalidEventName = "ActionEvent";

@@ -38,7 +38,12 @@ using MugenMvvmToolkit.Xamarin.Forms.WinPhone.Infrastructure.Presenters;
 using Application = System.Windows.Application;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.WinPhone.Modules
-#elif WINDOWSCOMMON
+#elif WINDOWS_UWP
+using MugenMvvmToolkit.Xamarin.Forms.UWP.Infrastructure.Presenters;
+using Application = Windows.UI.Xaml.Application;
+
+namespace MugenMvvmToolkit.Xamarin.Forms.UWP.Modules
+#elif NETFX_CORE
 using MugenMvvmToolkit.Xamarin.Forms.WinRT.Infrastructure.Presenters;
 using Application = Windows.UI.Xaml.Application;
 
@@ -108,7 +113,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Modules
                     return null;
                 return activity.OnBackPressed;
             };
-#elif WINDOWSCOMMON
+#elif WINDOWS_UWP || NETFX_CORE
             XamarinFormsExtensions.SendBackButtonPressed = page =>
             {
                 if (!IsLastPage(page))
@@ -116,7 +121,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Modules
                 var application = Application.Current;
                 if (application == null)
                     return null;
-                return application.Exit;                
+                return application.Exit;
             };
 #elif WINDOWS_PHONE
             XamarinFormsExtensions.SendBackButtonPressed = page =>

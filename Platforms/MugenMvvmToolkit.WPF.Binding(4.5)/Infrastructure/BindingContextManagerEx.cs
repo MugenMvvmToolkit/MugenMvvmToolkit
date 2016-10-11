@@ -28,17 +28,17 @@ using MugenMvvmToolkit.WPF.Binding.Models;
 using EventType = System.Windows.DependencyPropertyChangedEventArgs;
 
 namespace MugenMvvmToolkit.WPF.Binding.Infrastructure
-#elif WINDOWSCOMMON
+#elif WINDOWS_UWP
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Interfaces.Models;
 using Windows.UI.Xaml;
-using MugenMvvmToolkit.WinRT.Binding.Models;
+using MugenMvvmToolkit.UWP.Binding.Models;
 using EventType = System.Object;
 
-namespace MugenMvvmToolkit.WinRT.Binding.Infrastructure
+namespace MugenMvvmToolkit.UWP.Binding.Infrastructure
 #endif
 
 {

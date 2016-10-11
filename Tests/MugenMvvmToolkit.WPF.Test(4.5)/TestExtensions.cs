@@ -88,43 +88,43 @@ namespace MugenMvvmToolkit.WPF.Models.EventArg
 {
 }
 
-namespace MugenMvvmToolkit.WinRT.Infrastructure.Mediators
+namespace MugenMvvmToolkit.UWP.Infrastructure.Mediators
 {
 }
 
-namespace MugenMvvmToolkit.WinRT.Binding.Converters
+namespace MugenMvvmToolkit.UWP.Binding.Converters
 {
 }
 
-namespace MugenMvvmToolkit.WinRT.Binding.Modules
+namespace MugenMvvmToolkit.UWP.Binding.Modules
 {
 }
 
-namespace MugenMvvmToolkit.WinRT.Infrastructure
+namespace MugenMvvmToolkit.UWP.Infrastructure
 {
 }
 
-namespace MugenMvvmToolkit.WinRT
+namespace MugenMvvmToolkit.UWP
 {
 }
 
-namespace MugenMvvmToolkit.WinRT.Interfaces.Views
+namespace MugenMvvmToolkit.UWP.Interfaces.Views
 {
 }
 
-namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
+namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 {
 }
 
-namespace MugenMvvmToolkit.WinRT.Interfaces.Navigation
+namespace MugenMvvmToolkit.UWP.Interfaces.Navigation
 {
 }
 
-namespace MugenMvvmToolkit.WinRT.Models.EventArg
+namespace MugenMvvmToolkit.UWP.Models.EventArg
 {
 }
 
-namespace MugenMvvmToolkit.WinRT.Infrastructure.Callbacks
+namespace MugenMvvmToolkit.UWP.Infrastructure.Callbacks
 {
 }
 

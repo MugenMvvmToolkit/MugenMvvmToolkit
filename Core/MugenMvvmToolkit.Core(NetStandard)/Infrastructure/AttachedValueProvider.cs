@@ -21,10 +21,10 @@ using System.Runtime.CompilerServices;
 using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Models;
-#if WINDOWSCOMMON
+#if WINDOWS_UWP
 using Windows.UI.Xaml;
 
-namespace MugenMvvmToolkit.WinRT.Infrastructure
+namespace MugenMvvmToolkit.UWP.Infrastructure
 #elif XAMARIN_FORMS
 using Xamarin.Forms;
 

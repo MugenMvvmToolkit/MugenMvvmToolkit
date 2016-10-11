@@ -52,11 +52,11 @@ using System.Reflection;
 using MugenMvvmToolkit.Xamarin.Forms.Interfaces.Navigation;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
-#elif WINDOWSCOMMON
+#elif WINDOWS_UWP
 using System.Reflection;
-using MugenMvvmToolkit.WinRT.Interfaces.Navigation;
+using MugenMvvmToolkit.UWP.Interfaces.Navigation;
 
-namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
+namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 #endif
 {
     public class NavigationProvider : INavigationProvider
@@ -502,7 +502,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
                     if (items.Count == 1)
                     {
                         var type = items[0].ViewModelType;
-#if WINDOWSCOMMON || XAMARIN_FORMS
+#if WINDOWS_UWP || XAMARIN_FORMS
                         if (!type.GetTypeInfo().IsGenericTypeDefinition)
 #else
                         if (!type.IsGenericTypeDefinition)
@@ -545,7 +545,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
             if (vm == null)
             {
                 IDataContext viewModelState = null;
-#if WINDOWSCOMMON
+#if WINDOWS_UWP
                 viewModelState = PlatformExtensions.GetViewModelState(view);
                 if (viewModelState != null)
                     PlatformExtensions.SetViewModelState(view, null);
@@ -794,13 +794,13 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Navigation
                 return false;
 
             var vmType = viewModel.GetType();
-#if WINDOWSCOMMON || XAMARIN_FORMS
+#if WINDOWS_UWP || XAMARIN_FORMS
             if (!viewModelType.GetTypeInfo().IsGenericType)
 #else
             if (!viewModelType.IsGenericType)
 #endif
                 return vmType.Equals(viewModelType);
-#if WINDOWSCOMMON || XAMARIN_FORMS
+#if WINDOWS_UWP || XAMARIN_FORMS
             if (!vmType.GetTypeInfo().IsGenericType)
 #else
             if (!vmType.IsGenericType)

@@ -16,7 +16,7 @@
 
 #endregion
 
-#if WINDOWSCOMMON
+#if WINDOWS_UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 #else
@@ -31,8 +31,8 @@ using MugenMvvmToolkit.Binding.Interfaces.Models;
 
 #if WPF
 namespace MugenMvvmToolkit.WPF.Binding.Models
-#elif WINDOWSCOMMON
-namespace MugenMvvmToolkit.WinRT.Binding.Models
+#elif WINDOWS_UWP
+namespace MugenMvvmToolkit.UWP.Binding.Models
 #endif
 {
     internal sealed class ParentObserver : EventListenerList

@@ -43,20 +43,20 @@ using MugenMvvmToolkit.WPF.Binding.Models;
 using BooleanToVisibilityConverter = MugenMvvmToolkit.WPF.Binding.Converters.BooleanToVisibilityConverter;
 
 namespace MugenMvvmToolkit.WPF.Binding.Modules
-#elif WINDOWSCOMMON
+#elif WINDOWS_UWP
 using System.Reflection;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
-using MugenMvvmToolkit.WinRT.MarkupExtensions;
-using MugenMvvmToolkit.WinRT.Binding.Converters;
-using MugenMvvmToolkit.WinRT.Binding.Infrastructure;
-using MugenMvvmToolkit.WinRT.Binding.Models;
-using BooleanToVisibilityConverter = MugenMvvmToolkit.WinRT.Binding.Converters.BooleanToVisibilityConverter;
+using MugenMvvmToolkit.UWP.MarkupExtensions;
+using MugenMvvmToolkit.UWP.Binding.Converters;
+using MugenMvvmToolkit.UWP.Binding.Infrastructure;
+using MugenMvvmToolkit.UWP.Binding.Models;
+using BooleanToVisibilityConverter = MugenMvvmToolkit.UWP.Binding.Converters.BooleanToVisibilityConverter;
 
-namespace MugenMvvmToolkit.WinRT.Binding.Modules
+namespace MugenMvvmToolkit.UWP.Binding.Modules
 #endif
 
 {
@@ -69,7 +69,7 @@ namespace MugenMvvmToolkit.WinRT.Binding.Modules
             if (View.BindChanged == null)
                 View.BindChanged = OnBindChanged;
             ViewManager.ViewCleared += OnViewCleared;
-#if !WINDOWSCOMMON
+#if !WINDOWS_UWP
             BindingServiceProvider.ValueConverter = BindingReflectionExtensions.Convert;
 #endif
         }
@@ -100,7 +100,7 @@ namespace MugenMvvmToolkit.WinRT.Binding.Modules
                 .CreateMember<FrameworkElement, object>(AttachedMemberConstants.Parent, GetParentValue, SetParentValue, ObserveParentMember));
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<FrameworkElement, object>(AttachedMemberConstants.FindByNameMethod, FindByNameMemberImpl));
-#if WINDOWSCOMMON
+#if WINDOWS_UWP
             memberProvider.Register(AttachedBindingMember
                 .CreateMember<FrameworkElement, bool>(AttachedMemberConstants.Focused,
                     (info, control) => FocusManager.GetFocusedElement() == control, null, nameof(FrameworkElement.LostFocus)));
@@ -118,8 +118,8 @@ namespace MugenMvvmToolkit.WinRT.Binding.Modules
                     (info, control, value) => control.IsEnabled = value, nameof(FrameworkElement.IsEnabledChanged)));
 #endif
 
+#if WINDOWS_UWP
             //TextBox
-#if WINDOWSCOMMON
             memberProvider.Register(AttachedBindingMember.CreateMember<TextBox, string>(nameof(TextBox.Text),
                 (info, box) => box.Text,
                 (info, box, value) => box.Text = value ?? string.Empty, nameof(TextBox.TextChanged)));
@@ -153,8 +153,6 @@ namespace MugenMvvmToolkit.WinRT.Binding.Modules
         {
 #if WINDOWS_UWP
             return DependencyPropertyBindingMember.ObserveProperty(uiElement, UIElement.VisibilityProperty, arg3);
-#elif WINDOWSCOMMON
-            return new DependencyPropertyBindingMember.DependencyPropertyListener(uiElement, nameof(UIElement.Visibility), arg3);
 #else
             return new DependencyPropertyBindingMember.DependencyPropertyListener(uiElement, UIElement.VisibilityProperty, arg3);
 #endif
@@ -190,14 +188,10 @@ namespace MugenMvvmToolkit.WinRT.Binding.Modules
             return ParentObserver.GetOrAdd(o).AddWithUnsubscriber(arg3);
         }
 
-#if WINDOWSCOMMON
+#if WINDOWS_UWP
         private static IDisposable ObserveTextTextBlock(IBindingMemberInfo bindingMemberInfo, TextBlock textBlock, IEventListener arg3)
         {
-#if WINDOWS_UWP
             return DependencyPropertyBindingMember.ObserveProperty(textBlock, TextBlock.TextProperty, arg3);
-#else
-            return new DependencyPropertyBindingMember.DependencyPropertyListener(textBlock, nameof(TextBlock.Text), arg3);
-#endif
         }
 #endif
         private static DependencyObject FindChild(DependencyObject parent, string childName)

@@ -43,8 +43,8 @@ using MugenMvvmToolkit.ViewModels;
 namespace MugenMvvmToolkit.Android.Infrastructure.Callbacks
 #elif TOUCH
 namespace MugenMvvmToolkit.iOS.Infrastructure.Callbacks
-#elif WINDOWSCOMMON
-namespace MugenMvvmToolkit.WinRT.Infrastructure.Callbacks
+#elif WINDOWS_UWP
+namespace MugenMvvmToolkit.UWP.Infrastructure.Callbacks
 #elif XAMARIN_FORMS
 namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Callbacks
 #elif WPF
@@ -430,7 +430,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
                 }
                 var type = Type.GetType(StateMachineType, true);
                 IAsyncStateMachine stateMachine = null;
-#if WINDOWSCOMMON || XAMARIN_FORMS
+#if WINDOWS_UWP || XAMARIN_FORMS
                 if (type.GetTypeInfo().IsValueType)
 #else
                 if (type.IsValueType)
@@ -438,7 +438,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
                 {
                     try
                     {
-#if WINDOWSCOMMON
+#if WINDOWS_UWP
                         stateMachine = (IAsyncStateMachine)Activator.CreateInstance(type);
 #else
                         stateMachine = (IAsyncStateMachine)GetDefault(type);
@@ -468,7 +468,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
                     Exception e = null;
                     try
                     {
-#if WINDOWSCOMMON
+#if WINDOWS_UWP
                         if (type.GetTypeInfo().IsValueType)
                             stateMachine = (IAsyncStateMachine)GetDefault(type);
                         else

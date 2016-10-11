@@ -36,8 +36,8 @@ namespace MugenMvvmToolkit.iOS.Interfaces.Navigation
 using Xamarin.Forms;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Interfaces.Navigation
-#elif WINDOWSCOMMON
-namespace MugenMvvmToolkit.WinRT.Interfaces.Navigation
+#elif WINDOWS_UWP
+namespace MugenMvvmToolkit.UWP.Interfaces.Navigation
 #endif
 {
     public interface INavigationService

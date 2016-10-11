@@ -26,15 +26,11 @@ namespace MugenMvvmToolkit.Models
 
         public static readonly PlatformType iOS;
 
-        public static readonly PlatformType Silverlight;
-
-        public static readonly PlatformType WinPhone;
-
         public static readonly PlatformType WinForms;
 
-        public static readonly PlatformType WinRT;
+        public static readonly PlatformType UWP;
 
-        public static readonly PlatformType WinRTPhone;
+        public static readonly PlatformType UWPPhone;
 
         public static readonly PlatformType WPF;
 
@@ -52,25 +48,29 @@ namespace MugenMvvmToolkit.Models
 
         public static readonly PlatformType XamarinFormsWinRTPhone;
 
+        public static readonly PlatformType XamarinFormsUWPPhone;
+
+        public static readonly PlatformType XamarinFormsUWP;
+
         #endregion
 
         #region Constructors
 
         static PlatformType()
         {
-            Android = new PlatformType("Android");
-            iOS = new PlatformType("iOS");
-            Silverlight = new PlatformType("Silverlight");
-            WinPhone = new PlatformType("WinPhone");
-            WinForms = new PlatformType("WinForms");
-            WinRT = new PlatformType("WinRT");
-            WinRTPhone = new PlatformType(WinRT.Id + ".Phone");
-            WPF = new PlatformType("WPF");
-            XamarinFormsAndroid = new PlatformType("XamarinForms." + Android.Id);
-            XamarinFormsiOS = new PlatformType("XamarinForms." + iOS.Id);
-            XamarinFormsWinPhone = new PlatformType("XamarinForms." + WinPhone.Id);
-            XamarinFormsWinRT = new PlatformType("XamarinForms." + WinRT.Id);
-            XamarinFormsWinRTPhone = new PlatformType("XamarinForms." + WinRTPhone.Id);
+            Android = new PlatformType(nameof(Android));
+            iOS = new PlatformType(nameof(iOS));
+            WinForms = new PlatformType(nameof(WinForms));
+            UWP = new PlatformType(nameof(UWP));
+            UWPPhone = new PlatformType(nameof(UWPPhone));
+            WPF = new PlatformType(nameof(WPF));
+            XamarinFormsAndroid = new PlatformType(nameof(XamarinFormsAndroid));
+            XamarinFormsiOS = new PlatformType(nameof(XamarinFormsiOS));
+            XamarinFormsWinPhone = new PlatformType(nameof(XamarinFormsWinPhone));
+            XamarinFormsWinRT = new PlatformType(nameof(XamarinFormsWinRT));
+            XamarinFormsWinRTPhone = new PlatformType(nameof(XamarinFormsWinRTPhone));
+            XamarinFormsUWP = new PlatformType(nameof(XamarinFormsUWP));
+            XamarinFormsUWPPhone = new PlatformType(nameof(XamarinFormsUWPPhone));
             Unknown = new PlatformType("Unknown");
             UnitTest = new PlatformType("UnitTest");
         }

@@ -92,7 +92,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             get
             {
                 if (Device.OS == TargetPlatform.Windows)
-                    return "MugenMvvmToolkit.Xamarin.Forms.WinRT";
+                    return "MugenMvvmToolkit.Xamarin.Forms.UWP";
                 return Device.OnPlatform("MugenMvvmToolkit.Xamarin.Forms.iOS", "MugenMvvmToolkit.Xamarin.Forms.Android", "MugenMvvmToolkit.Xamarin.Forms.WinPhone");
             }
         }

@@ -30,7 +30,7 @@ namespace MugenMvvmToolkit.WPF.MarkupExtensions
             Initialize();
         }
 
-#if !WINDOWSCOMMON
+#if !WINDOWS_UWP
         public ViewModelToViewBinding(string path)
             : base(path)
         {
@@ -63,7 +63,7 @@ namespace MugenMvvmToolkit.WPF.MarkupExtensions
         private void Initialize()
         {
             base.Converter = new ViewModelToViewConverter();
-#if !WINDOWSCOMMON
+#if !WINDOWS_UWP
             ValidatesOnDataErrors = false;
             ValidatesOnExceptions = false;
 #if !NET4

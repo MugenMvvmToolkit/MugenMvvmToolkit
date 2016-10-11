@@ -28,4 +28,6 @@ using System.Runtime.CompilerServices;
 [assembly: InternalsVisibleTo("MugenMvvmToolkit.Xamarin.Forms.WinPhone")]
 [assembly: InternalsVisibleTo("MugenMvvmToolkit.Xamarin.Forms.Android")]
 [assembly: InternalsVisibleTo("MugenMvvmToolkit.Xamarin.Forms.iOS")]
+[assembly: InternalsVisibleTo("MugenMvvmToolkit.Xamarin.Forms.UWP")]
 [assembly: InternalsVisibleTo("MugenMvvmToolkit.Xamarin.Forms.WinRT")]
+[assembly: InternalsVisibleTo("MugenMvvmToolkit.Xamarin.Forms.WinRT.Phone")]

@@ -21,7 +21,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
-using System.Runtime.Serialization;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -124,7 +123,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms
 
         internal static PlatformInfo GetPlatformInfo()
         {
-            return new PlatformInfo(Device.OnPlatform(PlatformType.iOS, PlatformType.Android, PlatformType.WinPhone), new Version(0, 0));
+            return new PlatformInfo(Device.OnPlatform(PlatformType.XamarinFormsiOS, PlatformType.XamarinFormsAndroid, PlatformType.XamarinFormsWinPhone), new Version(0, 0));
         }
 
         internal static void AsEventHandler<TArg>(this Action action, object sender, TArg arg)

@@ -20,8 +20,8 @@
 namespace MugenMvvmToolkit.WPF.Binding.Models
 #elif XAMARIN_FORMS
 namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Models
-#elif WINDOWSCOMMON
-namespace MugenMvvmToolkit.WinRT.Binding.Models
+#elif WINDOWS_UWP
+namespace MugenMvvmToolkit.UWP.Binding.Models
 #endif
 {
     public enum BindingModeCore

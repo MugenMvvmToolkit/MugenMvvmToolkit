@@ -19,7 +19,7 @@
 using System.Collections.Generic;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Models;
-#if WINDOWSCOMMON
+#if WINDOWS_UWP
 using UIElementEx = Windows.UI.Xaml.UIElement;
 #elif XAMARIN_FORMS
 using UIElementEx = Xamarin.Forms.VisualElement;
@@ -30,8 +30,8 @@ using UIElementEx = System.Windows.UIElement;
 
 #if WPF
 namespace MugenMvvmToolkit.WPF.Binding
-#elif WINDOWSCOMMON
-namespace MugenMvvmToolkit.WinRT.Binding
+#elif WINDOWS_UWP
+namespace MugenMvvmToolkit.UWP.Binding
 #elif XAMARIN_FORMS
 namespace MugenMvvmToolkit.Xamarin.Forms.Binding
 #endif

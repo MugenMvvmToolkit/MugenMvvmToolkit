@@ -19,7 +19,7 @@
 #if WINDOWS_PHONE
 using Microsoft.Phone.Controls;
 #endif
-#if WINDOWSCOMMON
+#if NETFX_CORE
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -53,10 +53,12 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Presenters
 using System.Windows.Media.Animation;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.WinPhone.Infrastructure.Presenters
-#elif XAMARIN_FORMS && WINDOWSCOMMON
+#elif XAMARIN_FORMS && WINDOWS_UWP
+namespace MugenMvvmToolkit.Xamarin.Forms.UWP.Infrastructure.Presenters
+#elif WINDOWS_UWP
+namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
+#elif XAMARIN_FORMS && NETFX_CORE
 namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Infrastructure.Presenters
-#elif WINDOWSCOMMON
-namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
 #endif
 {
     public class ToastPresenter : IToastPresenter
@@ -107,7 +109,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
 
             private readonly ToastPosition _position;
             private readonly Popup _popup;
-#if WINDOWSCOMMON
+#if WINDOWS_UWP || NETFX_CORE
             private readonly Window _parent;
 #else
             private readonly FrameworkElement _parent;
@@ -119,7 +121,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
 
             #region Constructors
 
-#if WINDOWSCOMMON
+#if WINDOWS_UWP || NETFX_CORE
             public EventClosure(Popup popup, ToastPosition position, Window parent)
 #else
             public EventClosure(Popup popup, ToastPosition position, FrameworkElement parent)
@@ -240,7 +242,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
             var placementTarget = Application.Current.Windows.OfType<Window>().FirstOrDefault(x => x.IsActive);
 #elif WINDOWS_PHONE
             var placementTarget = Application.Current.RootVisual as FrameworkElement;
-#elif WINDOWSCOMMON
+#elif WINDOWS_UWP || NETFX_CORE
             var placementTarget = Window.Current;
 #endif
             if (placementTarget == null)
@@ -305,7 +307,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
                 CornerRadius = new CornerRadius(2),
                 VerticalAlignment = VerticalAlignment.Center
             };
-#if !WINDOWS_PHONE && !WINDOWSCOMMON
+#if !WINDOWS_PHONE && !WINDOWS_UWP && !NETFX_CORE
             var colorBrush = Background as SolidColorBrush;
             if (colorBrush != null)
                 border.Effect = new DropShadowEffect
@@ -325,7 +327,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
             if (content != null)
             {
                 var key = new DataTemplateKey(content.GetType());
-#if WINDOWSCOMMON
+#if WINDOWS_UWP || NETFX_CORE
                 if (Application.Current.Resources.ContainsKey(key))
 #else
                 if (Application.Current.Resources.Contains(key))
@@ -355,7 +357,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
 #if WINDOWS_PHONE
             if (Application.Current.Resources.Contains("PhoneTextNormalStyle"))
                 text.Style = Application.Current.Resources["PhoneTextNormalStyle"] as Style;
-#elif WINDOWSCOMMON
+#elif WINDOWS_UWP || NETFX_CORE
             object style;
             if (Application.Current.Resources.TryGetValue("BaseTextBlockStyle", out style))
                 text.Style = style as Style;
@@ -503,7 +505,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
                 element = (UIElement)parent;
             else
                 element = frame.Content as UIElement;
-#elif WINDOWSCOMMON
+#elif WINDOWS_UWP || NETFX_CORE
             var window = (Window)parent;
             var frame = window.Content as Frame;
             if (frame == null)
@@ -524,14 +526,14 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
                 BeginCloseAnimation(popup, closure.Clear);
         }
 
-#if WINDOWSCOMMON
+#if WINDOWS_UWP || NETFX_CORE
         private static void UpdatePosition(Window parent, Popup popup, ToastPosition position)
 #else
         private static void UpdatePosition(FrameworkElement parent, Popup popup, ToastPosition position)
 #endif
         {
             var control = (FrameworkElement)popup.Child;
-#if WINDOWSCOMMON
+#if WINDOWS_UWP || NETFX_CORE
             double parentWidth = parent.Bounds.Width;
             double parentHeight = parent.Bounds.Height;
 #elif WINDOWS_PHONE
@@ -591,7 +593,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
             switch (position)
             {
                 case ToastPosition.Bottom:
-#if WINDOWS_PHONE || WINDOWSCOMMON
+#if WINDOWS_PHONE || WINDOWS_UWP || NETFX_CORE
                     verticalOffset = parentHeight - control.DesiredSize.Height - 85;
 #else
                     verticalOffset = parentHeight - control.DesiredSize.Height - 50;
@@ -625,7 +627,7 @@ namespace MugenMvvmToolkit.WinRT.Infrastructure.Presenters
 #if !WPF
         private static void SetTargetProperty(Timeline target, string property)
         {
-#if WINDOWSCOMMON
+#if WINDOWS_UWP || NETFX_CORE
             Storyboard.SetTargetProperty(target, property);
 #else
             Storyboard.SetTargetProperty(target, new PropertyPath(property));

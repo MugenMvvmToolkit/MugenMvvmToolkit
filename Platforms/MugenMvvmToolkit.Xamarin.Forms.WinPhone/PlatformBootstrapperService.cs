@@ -30,7 +30,15 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinPhone
 namespace MugenMvvmToolkit.Xamarin.Forms.iOS
 #elif ANDROID
 namespace MugenMvvmToolkit.Xamarin.Forms.Android
-#elif WINDOWSCOMMON
+#elif WINDOWS_UWP
+using MugenMvvmToolkit.Binding;
+using System.IO;
+using Windows.ApplicationModel;
+using Windows.Security.ExchangeActiveSyncProvisioning;
+using Windows.System.Profile;
+
+namespace MugenMvvmToolkit.Xamarin.Forms.UWP
+#elif NETFX_CORE
 using MugenMvvmToolkit.Binding;
 using System.IO;
 using Windows.ApplicationModel;
@@ -53,7 +61,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
 
         #region Methods
 
-#if WINDOWSCOMMON
+#if WINDOWS_UWP || NETFX_CORE
         private static async System.Threading.Tasks.Task<HashSet<Assembly>> GetAssemblyListAsync()
         {
             var assemblies = new HashSet<Assembly>();
@@ -85,7 +93,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
         {
             get
             {
-#if WINDOWSCOMMON
+#if WINDOWS_UWP || NETFX_CORE
                 return BindingServiceProvider.ValueConverter;
 #else
                 return BindingReflectionExtensions.Convert;
@@ -105,7 +113,18 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
             Version result;
             Version.TryParse(global::Android.OS.Build.VERSION.Release, out result);
             return new PlatformInfo(PlatformType.XamarinFormsAndroid, result);
-#elif WINDOWSCOMMON
+#elif WINDOWS_UWP
+            // get the system version number
+            var deviceFamilyVersion = AnalyticsInfo.VersionInfo.DeviceFamilyVersion;
+            var version = ulong.Parse(deviceFamilyVersion);
+            var majorVersion = (version & 0xFFFF000000000000L) >> 48;
+            var minorVersion = (version & 0x0000FFFF00000000L) >> 32;
+            var buildVersion = (version & 0x00000000FFFF0000L) >> 16;
+            var revisionVersion = (version & 0x000000000000FFFFL);
+            var isPhone = new EasClientDeviceInformation().OperatingSystem.SafeContains("WindowsPhone", StringComparison.OrdinalIgnoreCase);
+            return new PlatformInfo(isPhone ? PlatformType.XamarinFormsUWPPhone : PlatformType.XamarinFormsUWP,
+                new Version((int)majorVersion, (int)minorVersion, (int)buildVersion, (int)revisionVersion));
+#elif NETFX_CORE            
             var isPhone = new EasClientDeviceInformation().OperatingSystem.SafeContains("WindowsPhone", StringComparison.OrdinalIgnoreCase);
             var isWinRT10 = typeof(DependencyObject).GetMethodEx("RegisterPropertyChangedCallback", MemberFlags.Instance | MemberFlags.Public) != null;
             var version = isWinRT10 ? new Version(10, 0) : new Version(8, 1);
@@ -132,7 +151,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
                 }
             }
             return assemblies;
-#elif WINDOWSCOMMON
+#elif WINDOWS_UWP || NETFX_CORE
             return GetAssemblyListAsync().Result;
 #else
             return AppDomain.CurrentDomain.GetAssemblies();

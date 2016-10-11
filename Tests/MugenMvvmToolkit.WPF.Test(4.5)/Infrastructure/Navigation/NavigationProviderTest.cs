@@ -11,7 +11,7 @@ using MugenMvvmToolkit.Silverlight.Infrastructure.Navigation;
 using MugenMvvmToolkit.Test.TestInfrastructure;
 using MugenMvvmToolkit.Test.TestModels;
 using MugenMvvmToolkit.Test.TestViewModels;
-using MugenMvvmToolkit.WinRT.Infrastructure.Navigation;
+using MugenMvvmToolkit.UWP.Infrastructure.Navigation;
 using MugenMvvmToolkit.WPF.Infrastructure.Navigation;
 using Should;
 

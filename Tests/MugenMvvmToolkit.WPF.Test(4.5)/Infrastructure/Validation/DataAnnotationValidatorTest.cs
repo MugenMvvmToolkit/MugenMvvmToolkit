@@ -164,7 +164,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Validation
         {
             var result = new ValidationResult("error", new[] { DisplayName });
             var dictionary = new Dictionary<object, object>();
-            var propertyInfo = typeof(SpyValidationClass).GetProperty(SpyPropertyName);
+            var propertyInfo = typeof(SpyValidationClass).GetPropertyEx(SpyPropertyName);
             DisplayNameProvider.GetNameDelegate = info =>
             {
                 info.ShouldEqual(propertyInfo);
@@ -197,7 +197,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Validation
         {
             var result = new ValidationResult("error", new[] { DisplayName });
             var dictionary = new Dictionary<object, object>();
-            var propertyInfo = typeof(MetadataValidationClassSystem).GetProperty(SpyPropertyName);
+            var propertyInfo = typeof(MetadataValidationClassSystem).GetPropertyEx(SpyPropertyName);
             DisplayNameProvider.GetNameDelegate = info =>
             {
                 info.ShouldEqual(propertyInfo);
@@ -233,7 +233,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Validation
         {
             var result = new ValidationResult("error", new[] { DisplayName });
             var dictionary = new Dictionary<object, object>();
-            var propertyInfo = typeof(MetadataValidationClassToolkit).GetProperty(SpyPropertyName);
+            var propertyInfo = typeof(MetadataValidationClassToolkit).GetPropertyEx(SpyPropertyName);
             DisplayNameProvider.GetNameDelegate = info =>
             {
                 info.ShouldEqual(propertyInfo);
