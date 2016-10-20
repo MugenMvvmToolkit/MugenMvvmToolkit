@@ -224,6 +224,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
         private static void RegisterViewMembers(IBindingMemberProvider memberProvider)
         {
             //View
+            memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.View.Activity, (info, view, arg3) => view.Context.GetActivity()));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.View.Fragment));
             memberProvider.Register(AttachedBindingMember.CreateMember<View, object>(AttachedMemberConstants.FindByNameMethod, ViewFindByNameMember));
             memberProvider.Register(AttachedBindingMember.CreateMember<View, object>(AttachedMemberConstants.Parent, GetViewParentValue, SetViewParentValue, ObserveViewParent));

@@ -107,6 +107,7 @@ namespace MugenMvvmToolkit.Android.Binding
             public static readonly BindingMemberDescriptor<global::Android.Views.View, string> PopupMenuEvent;
             public static readonly BindingMemberDescriptor<global::Android.Views.View, string> PopupMenuPlacementTargetPath;
             public static readonly BindingMemberDescriptor<global::Android.Views.View, object> Fragment;
+            public static readonly BindingMemberDescriptor<global::Android.Views.View, global::Android.App.Activity> Activity;
 
             #endregion
 
@@ -121,6 +122,7 @@ namespace MugenMvvmToolkit.Android.Binding
                 PopupMenuPlacementTargetPath = new BindingMemberDescriptor<global::Android.Views.View, string>("PlacementTargetPath");
                 PopupMenuPresenter = new BindingMemberDescriptor<global::Android.Views.View, IPopupMenuPresenter>(nameof(PopupMenuPresenter));
                 Fragment = new BindingMemberDescriptor<global::Android.Views.View, object>(nameof(Fragment));
+                Activity = new BindingMemberDescriptor<global::Android.Views.View, global::Android.App.Activity>(nameof(Activity));
             }
 
             #endregion
