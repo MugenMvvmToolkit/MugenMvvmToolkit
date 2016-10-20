@@ -122,7 +122,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
 
         internal static void SetDefaultPlatformValues()
         {
-            DynamicMultiViewModelPresenter<IViewModel>.CanShowViewModelDefault = CanShowViewModelTabPresenter;
+            DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
             DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
         }
 

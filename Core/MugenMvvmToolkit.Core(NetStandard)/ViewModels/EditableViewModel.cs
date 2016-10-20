@@ -219,10 +219,12 @@ namespace MugenMvvmToolkit.ViewModels
 
         protected virtual IList<IEntityStateEntry> GetChanges(T entity)
         {
-            return new List<IEntityStateEntry>
-            {
-                new EntityStateEntry(IsNewRecord ? EntityState.Added : EntityState.Modified, entity)
-            };
+            var changes = new List<IEntityStateEntry>();
+            if (IsNewRecord)
+                changes.Add(new EntityStateEntry(EntityState.Added, entity));
+            else if (HasChanges)
+                changes.Add(new EntityStateEntry(EntityState.Modified, entity));
+            return changes;
         }
 
         protected virtual void OnChangesApplied(IList<IEntityStateEntry> entityStateEntries)

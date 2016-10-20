@@ -16,6 +16,7 @@
 
 #endregion
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -38,10 +39,6 @@ namespace MugenMvvmToolkit.ViewModels
     public class MultiViewModel<TViewModel> : CloseableViewModel, IMultiViewModel<TViewModel>
         where TViewModel : class, IViewModel
     {
-        #region Nested types
-
-        #endregion
-
         #region Fields
 
         private readonly INotifiableCollection<TViewModel> _itemsSource;
@@ -52,6 +49,9 @@ namespace MugenMvvmToolkit.ViewModels
         private TViewModel _selectedItem;
         private bool _disposeViewModelOnRemove;
         private bool _closeViewModelsOnClose;
+        private EventHandler<IMultiViewModel, SelectedItemChangedEventArgs<IViewModel>> _selectedItemChangedNonGeneric;
+        private EventHandler<IMultiViewModel, ValueEventArgs<IViewModel>> _viewModelAddedNonGeneric;
+        private EventHandler<IMultiViewModel, ValueEventArgs<IViewModel>> _viewModelRemovedNonGeneric;
 
         #endregion
 
@@ -97,6 +97,20 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
+        Type IMultiViewModel.ViewModelType => typeof(TViewModel);
+
+        IViewModel IMultiViewModel.SelectedItem
+        {
+            get { return SelectedItem; }
+            set
+            {
+                if (value == null || value is TViewModel)
+                    SelectedItem = (TViewModel)value;
+            }
+        }
+
+        IEnumerable<IViewModel> IMultiViewModel.ItemsSource => ItemsSource;
+
         public virtual TViewModel SelectedItem
         {
             get { return _selectedItem; }
@@ -113,50 +127,73 @@ namespace MugenMvvmToolkit.ViewModels
 
         public INotifiableCollection<TViewModel> ItemsSource => _itemsSource;
 
-        public virtual void AddViewModel(TViewModel viewModel, bool setSelected = true)
+        public void AddViewModel(TViewModel viewModel, bool setSelected = true)
         {
             EnsureNotDisposed();
             Should.NotBeNull(viewModel, nameof(viewModel));
-            if (!ItemsSource.Contains(viewModel))
-                ItemsSource.Add(viewModel);
-            if (setSelected)
-                SelectedItem = viewModel;
+            AddViewModelInternal(viewModel, null, setSelected);
         }
 
-        public virtual Task<bool> RemoveViewModelAsync(TViewModel viewModel, object parameter = null)
+        public void InsertViewModel(int index, TViewModel viewModel, bool setSelected = true)
         {
             EnsureNotDisposed();
             Should.NotBeNull(viewModel, nameof(viewModel));
-            if (!ItemsSource.Contains(viewModel))
-                return Empty.FalseTask;
-            var result = viewModel
-                .TryCloseAsync(parameter, null, NavigationType.Tab)
-                .TryExecuteSynchronously(task =>
-                {
-                    if (task.Result)
-                        ItemsSource.Remove(viewModel);
-                    return task.Result;
-                });
-            result.WithTaskExceptionHandler(this);
-            return result;
+            AddViewModelInternal(viewModel, index, setSelected);
         }
 
-        public virtual void Clear()
+        public Task<bool> RemoveViewModelAsync(TViewModel viewModel, object parameter = null)
+        {
+            EnsureNotDisposed();
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            return RemoveViewModelInternalAsync(viewModel, parameter);
+        }
+
+        public void Clear()
         {
             if (ItemsSource.Count == 0)
                 return;
             try
             {
                 _clearing = true;
-                var viewModels = ItemsSource.ToArrayEx();
-                ItemsSource.Clear();
-                SelectedItem = null;
-                OnViewModelsChanged(null, viewModels, 0);
+                ClearInternal();
             }
             catch
             {
                 _clearing = false;
             }
+        }
+
+        void IMultiViewModel.AddViewModel(IViewModel viewModel, bool setSelected)
+        {
+            AddViewModel((TViewModel)viewModel, setSelected);
+        }
+
+        void IMultiViewModel.InsertViewModel(int index, IViewModel viewModel, bool setSelected)
+        {
+            InsertViewModel(index, (TViewModel)viewModel, setSelected);
+        }
+
+        Task<bool> IMultiViewModel.RemoveViewModelAsync(IViewModel viewModel, object parameter)
+        {
+            return RemoveViewModelAsync((TViewModel)viewModel, parameter);
+        }
+
+        event EventHandler<IMultiViewModel, SelectedItemChangedEventArgs<IViewModel>> IMultiViewModel.SelectedItemChanged
+        {
+            add { _selectedItemChangedNonGeneric += value; }
+            remove { _selectedItemChangedNonGeneric -= value; }
+        }
+
+        event EventHandler<IMultiViewModel, ValueEventArgs<IViewModel>> IMultiViewModel.ViewModelAdded
+        {
+            add { _viewModelAddedNonGeneric += value; }
+            remove { _viewModelAddedNonGeneric -= value; }
+        }
+
+        event EventHandler<IMultiViewModel, ValueEventArgs<IViewModel>> IMultiViewModel.ViewModelRemoved
+        {
+            add { _viewModelRemovedNonGeneric += value; }
+            remove { _viewModelRemovedNonGeneric -= value; }
         }
 
         public virtual event EventHandler<IMultiViewModel<TViewModel>, SelectedItemChangedEventArgs<TViewModel>> SelectedItemChanged;
@@ -206,16 +243,78 @@ namespace MugenMvvmToolkit.ViewModels
             context.Remove(MultiViewModelState.SelectedIndex);
         }
 
-        protected virtual void OnSelectedItemChanged(IViewModel oldValue, IViewModel newValue)
+        protected virtual void AddViewModelInternal([NotNull] TViewModel viewModel, int? index, bool setSelected = true)
+        {
+            if (!ItemsSource.Contains(viewModel))
+            {
+                if (index == null)
+                    ItemsSource.Add(viewModel);
+                else
+                    ItemsSource.Insert(index.Value, viewModel);
+            }
+            if (setSelected)
+                SelectedItem = viewModel;
+        }
+
+        protected virtual Task<bool> RemoveViewModelInternalAsync([NotNull] TViewModel viewModel, object parameter)
+        {
+            if (!ItemsSource.Contains(viewModel))
+                return Empty.FalseTask;
+            var result = viewModel
+                .TryCloseAsync(parameter, null, NavigationType.Tab)
+                .TryExecuteSynchronously(task =>
+                {
+                    if (task.Result)
+                        ItemsSource.Remove(viewModel);
+                    return task.Result;
+                });
+            result.WithTaskExceptionHandler(this);
+            return result;
+        }
+
+        protected virtual void ClearInternal()
+        {
+            var viewModels = ItemsSource.ToArrayEx();
+            ItemsSource.Clear();
+            SelectedItem = null;
+            OnViewModelsChanged(null, viewModels, 0);
+        }
+
+        protected virtual void OnSelectedItemChanged(TViewModel oldValue, TViewModel newValue)
         {
         }
 
-        protected virtual void OnViewModelAdded(IViewModel viewModel)
+        protected virtual void OnViewModelAdded([NotNull] TViewModel viewModel)
         {
+            viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.StateNotNeeded, true);
         }
 
-        protected virtual void OnViewModelRemoved(IViewModel viewModel)
+        protected virtual void OnViewModelRemoved([NotNull] TViewModel viewModel)
         {
+            viewModel.Settings.Metadata.Remove(ViewModelConstants.StateNotNeeded);
+        }
+
+        protected virtual void RaiseViewModelAdded(TViewModel viewModel)
+        {
+            ViewModelAdded?.Invoke(this, new ValueEventArgs<TViewModel>(viewModel));
+            _viewModelAddedNonGeneric?.Invoke(this, new ValueEventArgs<IViewModel>(viewModel));
+        }
+
+        protected virtual void RaiseViewModelRemoved(TViewModel viewModel)
+        {
+            ViewModelRemoved?.Invoke(this, new ValueEventArgs<TViewModel>(viewModel));
+            _viewModelRemovedNonGeneric?.Invoke(this, new ValueEventArgs<IViewModel>(viewModel));
+        }
+
+        protected virtual void RaiseSelectedItemChanged(TViewModel oldValue, TViewModel newValue)
+        {
+            if (SelectedItemChanged == null && _selectedItemChangedNonGeneric == null)
+                return;
+            ThreadManager.Invoke(Settings.EventExecutionMode, this, oldValue, newValue, (model, oldVm, newVm) =>
+            {
+                model.SelectedItemChanged?.Invoke(model, new SelectedItemChangedEventArgs<TViewModel>(oldVm, newVm));
+                model._selectedItemChangedNonGeneric?.Invoke(model, new SelectedItemChangedEventArgs<IViewModel>(oldVm, newVm));
+            });
         }
 
         private void OnViewModelsChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -242,6 +341,7 @@ namespace MugenMvvmToolkit.ViewModels
                     var selectable = viewModel as ISelectable;
                     if (selectable != null)
                         selectable.PropertyChanged += _propertyChangedWeakEventHandler;
+                    OnViewModelAdded(viewModel);
                     RaiseViewModelAdded(viewModel);
                 }
             }
@@ -267,25 +367,12 @@ namespace MugenMvvmToolkit.ViewModels
                         if (selectable.IsSelected)
                             selectable.IsSelected = false;
                     }
+                    OnViewModelRemoved(viewModel);
                     RaiseViewModelRemoved(viewModel);
                     if (DisposeViewModelOnRemove)
                         viewModel.Dispose();
                 }
             }
-        }
-
-        private void RaiseViewModelAdded(TViewModel vm)
-        {
-            vm.Settings.Metadata.AddOrUpdate(ViewModelConstants.StateNotNeeded, true);
-            OnViewModelAdded(vm);
-            ViewModelAdded?.Invoke(this, new ValueEventArgs<TViewModel>(vm));
-        }
-
-        private void RaiseViewModelRemoved(TViewModel vm)
-        {
-            vm.Settings.Metadata.Remove(ViewModelConstants.StateNotNeeded);
-            OnViewModelRemoved(vm);
-            ViewModelRemoved?.Invoke(this, new ValueEventArgs<TViewModel>(vm));
         }
 
         private void TryUpdateSelectedValue(int oldIndex)
@@ -325,13 +412,7 @@ namespace MugenMvvmToolkit.ViewModels
             navigableViewModel?.OnNavigatedTo(ctx ?? new NavigationContext(NavigationType.Tab, NavigationMode.Refresh, oldValue, newValue, this));
 
             OnSelectedItemChanged(oldValue, newValue);
-            if (SelectedItemChanged == null)
-                return;
-            var args = new SelectedItemChangedEventArgs<TViewModel>(oldValue, newValue);
-            ThreadManager.Invoke(Settings.EventExecutionMode, this, args, (model, eventArgs) =>
-            {
-                model.SelectedItemChanged?.Invoke(model, eventArgs);
-            });
+            RaiseSelectedItemChanged(oldValue, newValue);
         }
 
         private bool OnClosingInternal(object parameter)
@@ -416,6 +497,9 @@ namespace MugenMvvmToolkit.ViewModels
                 SelectedItemChanged = null;
                 ViewModelAdded = null;
                 ViewModelRemoved = null;
+                _selectedItemChangedNonGeneric = null;
+                _viewModelAddedNonGeneric = null;
+                _viewModelRemovedNonGeneric = null;
             }
             base.OnDisposeInternal(disposing);
         }
