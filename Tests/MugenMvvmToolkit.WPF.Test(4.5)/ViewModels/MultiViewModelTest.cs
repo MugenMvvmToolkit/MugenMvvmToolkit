@@ -35,6 +35,22 @@ namespace MugenMvvmToolkit.Test.ViewModels
         }
 
         [TestMethod]
+        public void InsertViewModelMethodShouldInsertVmToItemsSource()
+        {
+            var viewModel = GetViewModel<NavigableViewModelMock>();
+
+            var multiViewModel = GetMultiViewModel();
+            multiViewModel.InsertViewModel(0, viewModel);
+            multiViewModel.ItemsSource.ShouldContain(viewModel);
+            multiViewModel.ItemsSource.Count.ShouldEqual(1);
+
+            viewModel = GetViewModel<NavigableViewModelMock>();
+            multiViewModel.InsertViewModel(0, viewModel);
+            multiViewModel.ItemsSource[0].ShouldEqual(viewModel);
+            multiViewModel.ItemsSource.Count.ShouldEqual(2);
+        }
+
+        [TestMethod]
         public void AddViewModelMethodShouldNotThrowExceptionOnDuplicate()
         {
             var viewModel = GetViewModel<NavigableViewModelMock>();
@@ -171,6 +187,113 @@ namespace MugenMvvmToolkit.Test.ViewModels
             multiViewModel.ItemsSource.ShouldNotContain(viewModel);
             multiViewModel.SelectedItem.ShouldBeNull();
             viewModel.IsDisposed.ShouldBeFalse();
+        }
+
+        [TestMethod]
+        public void SelectedItemChangedEvent()
+        {
+            ThreadManager.ImmediateInvokeOnUiThreadAsync = true;
+            var viewModel1 = GetViewModel<NavigableViewModelMock>();
+            var viewModel2 = GetViewModel<NavigableViewModelMock>();
+
+            var multiViewModel = GetMultiViewModel();
+            multiViewModel.AddViewModel(viewModel1);
+            multiViewModel.AddViewModel(viewModel2);
+
+            multiViewModel.SelectedItem = viewModel1;
+            int isGenericInvoked = 0;
+            int isNonGenericInvoked = 0;
+            ((IMultiViewModel)multiViewModel).SelectedItemChanged += (sender, args) =>
+           {
+               sender.ShouldEqual(multiViewModel);
+               args.OldValue.ShouldEqual(viewModel1);
+               args.NewValue.ShouldEqual(viewModel2);
+               isNonGenericInvoked++;
+           };
+            multiViewModel.SelectedItemChanged += (sender, args) =>
+            {
+                sender.ShouldEqual(multiViewModel);
+                args.OldValue.ShouldEqual(viewModel1);
+                args.NewValue.ShouldEqual(viewModel2);
+                isGenericInvoked++;
+            };
+            multiViewModel.SelectedItem = viewModel2;
+            isGenericInvoked.ShouldEqual(1);
+            isNonGenericInvoked.ShouldEqual(1);
+        }
+
+        [TestMethod]
+        public void ViewModelAddedEvent()
+        {
+            ThreadManager.ImmediateInvokeOnUiThreadAsync = true;
+            int isGenericInvoked = 0;
+            int isNonGenericInvoked = 0;
+            var viewModel = GetViewModel<NavigableViewModelMock>();
+
+            var multiViewModel = GetMultiViewModel();
+            ((IMultiViewModel)multiViewModel).ViewModelAdded += (sender, args) =>
+            {
+                sender.ShouldEqual(multiViewModel);
+                args.Value.ShouldEqual(viewModel);
+                isNonGenericInvoked++;
+            };
+            multiViewModel.ViewModelAdded += (sender, args) =>
+            {
+                sender.ShouldEqual(multiViewModel);
+                args.Value.ShouldEqual(viewModel);
+                isGenericInvoked++;
+            };
+            multiViewModel.AddViewModel(viewModel);
+            isGenericInvoked.ShouldEqual(1);
+            isNonGenericInvoked.ShouldEqual(1);
+
+            isGenericInvoked = 0;
+            isNonGenericInvoked = 0;
+            multiViewModel.RemoveViewModelAsync(viewModel);
+            multiViewModel.InsertViewModel(0, viewModel);
+            isGenericInvoked.ShouldEqual(1);
+            isNonGenericInvoked.ShouldEqual(1);
+
+            isGenericInvoked = 0;
+            isNonGenericInvoked = 0;
+            multiViewModel.RemoveViewModelAsync(viewModel);
+            multiViewModel.ItemsSource.Add(viewModel);
+            isGenericInvoked.ShouldEqual(1);
+            isNonGenericInvoked.ShouldEqual(1);
+        }
+
+        [TestMethod]
+        public void ViewModelRemovedEvent()
+        {
+            ThreadManager.ImmediateInvokeOnUiThreadAsync = true;
+            int isGenericInvoked = 0;
+            int isNonGenericInvoked = 0;
+            var viewModel = GetViewModel<NavigableViewModelMock>();
+
+            var multiViewModel = GetMultiViewModel();
+            ((IMultiViewModel)multiViewModel).ViewModelRemoved += (sender, args) =>
+            {
+                sender.ShouldEqual(multiViewModel);
+                args.Value.ShouldEqual(viewModel);
+                isNonGenericInvoked++;
+            };
+            multiViewModel.ViewModelRemoved += (sender, args) =>
+            {
+                sender.ShouldEqual(multiViewModel);
+                args.Value.ShouldEqual(viewModel);
+                isGenericInvoked++;
+            };
+            multiViewModel.AddViewModel(viewModel);
+            multiViewModel.RemoveViewModelAsync(viewModel);
+            isGenericInvoked.ShouldEqual(1);
+            isNonGenericInvoked.ShouldEqual(1);
+
+            isGenericInvoked = 0;
+            isNonGenericInvoked = 0;
+            multiViewModel.AddViewModel(viewModel);
+            multiViewModel.ItemsSource.Remove(viewModel);
+            isGenericInvoked.ShouldEqual(1);
+            isNonGenericInvoked.ShouldEqual(1);
         }
 
         [TestMethod]

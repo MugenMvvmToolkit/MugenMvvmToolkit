@@ -24,7 +24,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Presenters
         {
             var vm = GetViewModel<NavigableViewModelMock>();
             var viewModel = GetMultiViewModel();
-            IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter<IViewModel>(viewModel,
+            IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter(viewModel,
                 OperationCallbackManager, (model, context, arg3) => true);
             var task = presenter.TryShowAsync(vm, DataContext.Empty, null);
             task.ShouldNotBeNull();
@@ -52,7 +52,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Presenters
             vm.OperationResult = true;
             var viewModel = GetMultiViewModel();
             ((SynchronizedNotifiableCollection<IViewModel>)viewModel.ItemsSource).ThreadManager = new ThreadManagerMock { IsUiThread = true };
-            IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter<IViewModel>(viewModel,
+            IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter(viewModel,
                 OperationCallbackManager, (model, context, arg3) => true);
             var task = presenter.TryShowAsync(vm, DataContext.Empty, null);
             task.ShouldNotBeNull();
@@ -82,7 +82,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Presenters
 
             vm.OperationResult = true;
             var viewModel = GetMultiViewModel();
-            IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter<IViewModel>(viewModel,
+            IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter(viewModel,
                 OperationCallbackManager);
             var task = presenter.TryShowAsync(vm, DataContext.Empty, null);
             task.ShouldNotBeNull();
@@ -99,7 +99,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Presenters
             bool canShow = false;
             var vm = GetViewModel<NavigableViewModelMock>();
             var viewModel = GetMultiViewModel();
-            IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter<IViewModel>(viewModel,
+            IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter(viewModel,
                 OperationCallbackManager, (model, context, arg3) => canShow);
             var task = presenter.TryShowAsync(vm, DataContext.Empty, null);
             task.ShouldBeNull();

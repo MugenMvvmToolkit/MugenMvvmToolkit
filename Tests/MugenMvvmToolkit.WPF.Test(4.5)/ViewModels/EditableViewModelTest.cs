@@ -150,10 +150,22 @@ namespace MugenMvvmToolkit.Test.ViewModels
         }
 
         [TestMethod]
-        public void ApplyChangesShouldReturnEntityStateEntryWithEntityModified()
+        public void ApplyChangesShouldReturnEntityStateEntryWithEntityModified1()
         {
             var entity = new object();
             StateManager.CreateSnapshot = o => new EntitySnapshotMock();
+
+            var viewModel = GetViewModel<TestEditableViewModel>();
+            viewModel.InitializeEntity(entity, false);
+            IList<IEntityStateEntry> entityStateEntries = viewModel.ApplyChanges();
+            entityStateEntries.ShouldBeEmpty();
+        }
+
+        [TestMethod]
+        public void ApplyChangesShouldReturnEntityStateEntryWithEntityModified2()
+        {
+            var entity = new object();
+            StateManager.CreateSnapshot = o => new EntitySnapshotMock { HasChanges = o1 => true, SupportChangeDetection = true };
 
             var viewModel = GetViewModel<TestEditableViewModel>();
             viewModel.InitializeEntity(entity, false);
@@ -259,7 +271,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
         {
             bool isInvoked = false;
             var entity = new object();
-            StateManager.CreateSnapshot = o => new EntitySnapshotMock();
+            StateManager.CreateSnapshot = o => new EntitySnapshotMock { HasChanges = o1 => true, SupportChangeDetection = true };
 
             var viewModel = GetViewModel<TestEditableViewModel>();
             viewModel.ChangesApplied += (model, o) =>
