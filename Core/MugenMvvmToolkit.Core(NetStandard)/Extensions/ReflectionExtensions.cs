@@ -472,7 +472,7 @@ namespace MugenMvvmToolkit
             }
         }
 
-        internal static MemberInfo GetMemberInfo([NotNull] this LambdaExpression expression)
+        public static MemberInfo GetMemberInfo([NotNull] this LambdaExpression expression)
         {
             Should.NotBeNull(expression, nameof(expression));
             // Get the last element of the include path

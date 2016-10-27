@@ -122,48 +122,53 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
         #region Methods
 
-        public static AndroidBootstrapperBase GetOrCreateBootstrapper(Func<AndroidBootstrapperBase> func)
+        public static AndroidBootstrapperBase GetOrCreateBootstrapper(Func<AndroidBootstrapperBase> factory)
         {
             lock (Locker)
             {
                 if (Current == null)
-                    Current = func();
+                    Current = factory();
                 return Current;
             }
         }
 
-        public static void EnsureInitialized(object sender, Bundle bundle)
+        public static void EnsureInitialized(object sender = null, Bundle bundle = null, Func<AndroidBootstrapperBase> factory = null)
         {
             lock (Locker)
             {
                 if (Current == null)
                 {
-                    Type type;
-                    var typeString = bundle?.GetString(BootTypeKey);
-                    if (string.IsNullOrEmpty(typeString))
+                    if (factory == null)
                     {
-                        BootstrapperAttribute bootstrapperAttribute = null;
-                        if (sender != null)
-                            bootstrapperAttribute = sender.GetType().Assembly.GetCustomAttribute<BootstrapperAttribute>();
-                        if (bootstrapperAttribute == null)
+                        Type type;
+                        var typeString = bundle?.GetString(BootTypeKey);
+                        if (string.IsNullOrEmpty(typeString))
                         {
-                            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies())
-                            {
-                                bootstrapperAttribute = (BootstrapperAttribute) assembly
-                                    .GetCustomAttributes(typeof(BootstrapperAttribute), false)
-                                    .FirstOrDefault();
-                                if (bootstrapperAttribute != null)
-                                    break;
-                            }
+                            BootstrapperAttribute bootstrapperAttribute = null;
+                            if (sender != null)
+                                bootstrapperAttribute = sender.GetType().Assembly.GetCustomAttribute<BootstrapperAttribute>();
                             if (bootstrapperAttribute == null)
-                                throw new InvalidOperationException(@"The BootstrapperAttribute was not found.
+                            {
+                                foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies())
+                                {
+                                    bootstrapperAttribute = (BootstrapperAttribute)assembly
+                                        .GetCustomAttributes(typeof(BootstrapperAttribute), false)
+                                        .FirstOrDefault();
+                                    if (bootstrapperAttribute != null)
+                                        break;
+                                }
+                                if (bootstrapperAttribute == null)
+                                    throw new InvalidOperationException(@"The BootstrapperAttribute was not found.
 You must specify the type of application bootstrapper using BootstrapperAttribute, for example [assembly:Bootstrapper(typeof(MyBootstrapperType))]");
+                            }
+                            type = bootstrapperAttribute.BootstrapperType;
                         }
-                        type = bootstrapperAttribute.BootstrapperType;
+                        else
+                            type = Type.GetType(typeString, true);
+                        Current = (AndroidBootstrapperBase)Activator.CreateInstance(type);
                     }
                     else
-                        type = Type.GetType(typeString, true);
-                    Current = (AndroidBootstrapperBase) Activator.CreateInstance(type);
+                        Current = factory();
                 }
             }
             Current.Initialize();

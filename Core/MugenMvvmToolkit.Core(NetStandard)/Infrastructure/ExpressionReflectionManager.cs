@@ -292,7 +292,6 @@ namespace MugenMvvmToolkit.Infrastructure
                 invoke = $"{method.DeclaringType.GetPrettyName()}.{method.Name}";
             else
                 invoke = $"(({method.DeclaringType.GetPrettyName()})item).{method.Name}";
-            AddCompiledDelegateFactory(method.DeclaringType, method.Name, delegateType, o => null, delegateType);
             builder.AppendStatic(nameof(ExpressionReflectionManager),
                 $"{typeof(ExpressionReflectionManager).FullName}.{nameof(AddCompiledDelegateFactory)}(typeof({reflectedType.GetPrettyName()}), \"{method.Name}\", typeof({delegateType.GetPrettyName()}), item => new {delegateType.GetPrettyName()}({invoke}){types});");
         }
