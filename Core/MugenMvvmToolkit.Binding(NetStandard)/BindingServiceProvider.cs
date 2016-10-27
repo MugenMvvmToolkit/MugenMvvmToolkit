@@ -76,7 +76,8 @@ namespace MugenMvvmToolkit.Binding
                 {AttachedMemberConstants.ItemTemplate, TemplateMemberPriority},
                 {AttachedMemberConstants.ItemTemplateSelector, TemplateMemberPriority},
                 {AttachedMemberConstants.ContentTemplate, TemplateMemberPriority},
-                {AttachedMemberConstants.ContentTemplateSelector, TemplateMemberPriority}
+                {AttachedMemberConstants.ContentTemplateSelector, TemplateMemberPriority},
+                {AttachedMemberConstants.CommandParameter, TemplateMemberPriority}
             };
             FakeMemberPrefixesField = new List<string>
             {
