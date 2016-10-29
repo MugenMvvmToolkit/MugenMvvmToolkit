@@ -289,10 +289,8 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (throwOnError)
                     throw ExceptionManager.ViewModelCannotBeRestored();
             }
-            catch (Exception e)
+            catch (Exception e) when (!throwOnError)
             {
-                if (throwOnError)
-                    throw;
                 Tracer.Warn(e.Flatten(true));
             }
             return null;
