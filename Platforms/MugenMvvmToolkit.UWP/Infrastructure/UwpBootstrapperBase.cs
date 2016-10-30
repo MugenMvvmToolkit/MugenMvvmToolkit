@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="WinRTBootstrapperBase.cs">
+// <copyright file="UwpBootstrapperBase.cs">
 // Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
