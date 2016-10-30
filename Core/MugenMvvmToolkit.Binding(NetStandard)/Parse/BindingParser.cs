@@ -1393,7 +1393,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             if (node.IsRelativeSource)
             {
                 IRelativeSourceExpressionNode r = node.RelativeSourceExpression;
-                return context => BindingExtensions.CreateBindingSource(r, context.GetData(BindingBuilderConstants.Target, true), null);
+                return context => BindingExtensions.CreateBindingSource(r, context, context.GetData(BindingBuilderConstants.Target, true), null);
             }
             return context => BindSource(context, path);
         }

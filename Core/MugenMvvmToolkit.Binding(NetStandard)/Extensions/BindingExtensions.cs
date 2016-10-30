@@ -23,6 +23,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Binding.Attributes;
 using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Binding.DataConstants;
@@ -629,13 +630,12 @@ namespace MugenMvvmToolkit.Binding
             }
         }
 
-        public static IObserver CreateBindingSource(IRelativeSourceExpressionNode node, [NotNull] object target,
-            string pathEx)
+        public static IObserver CreateBindingSource(IRelativeSourceExpressionNode node, IDataContext context, [NotNull] object target, string pathEx)
         {
             if (target == null)
                 throw BindingExceptionManager.InvalidBindingTarget(node.Path);
             string path = node.Path ?? String.Empty;
-            if (!String.IsNullOrEmpty(pathEx))
+            if (!string.IsNullOrEmpty(pathEx))
                 path = MergePath(path, pathEx);
 
             if (node.Type != RelativeSourceExpressionNode.SelfType)
@@ -645,12 +645,7 @@ namespace MugenMvvmToolkit.Binding
                 else
                     target = new ParentSourceValue(target, node);
             }
-            return CreateBindingSource(null, path, target, false);
-        }
-
-        public static Exception DuplicateLambdaParameter(string parameterName)
-        {
-            return BindingExceptionManager.DuplicateLambdaParameter(parameterName);
+            return CreateBindingSource(context, path, target, false);
         }
 
         public static bool IsAllMembersAvailable(this IBindingSourceAccessor accessor, bool checkLastMember = false)
@@ -668,6 +663,7 @@ namespace MugenMvvmToolkit.Binding
             return true;
         }
 
+        [Preserve]
         public static T GetOrAddValue<T>(IDataBinding binding, DataConstant<object> constant, Func<T> getValue)
         {
             object data;
@@ -774,8 +770,7 @@ namespace MugenMvvmToolkit.Binding
         }
 
         [Pure]
-        internal static bool TryGetMemberPath(Expression expression, string separator, bool throwOnError,
-            out Expression lastExpression, out string path)
+        internal static bool TryGetMemberPath(Expression expression, string separator, bool throwOnError, out Expression lastExpression, out string path)
         {
             lastExpression = expression;
             path = null;
