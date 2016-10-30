@@ -101,6 +101,7 @@ namespace MugenMvvmToolkit.Android.Binding
             #region Fields
 
             public static readonly BindingMemberDescriptor<global::Android.Views.View, bool> Visible;
+            public static readonly BindingMemberDescriptor<global::Android.Views.View, bool> Invisible;
             public static readonly BindingMemberDescriptor<global::Android.Views.View, bool> Hidden;
             public static readonly BindingMemberDescriptor<global::Android.Views.View, int> PopupMenuTemplate;
             public static readonly BindingMemberDescriptor<global::Android.Views.View, IPopupMenuPresenter> PopupMenuPresenter;
@@ -116,6 +117,7 @@ namespace MugenMvvmToolkit.Android.Binding
             static View()
             {
                 Visible = new BindingMemberDescriptor<global::Android.Views.View, bool>(nameof(Visible));
+                Invisible = new BindingMemberDescriptor<global::Android.Views.View, bool>(nameof(Invisible));
                 Hidden = new BindingMemberDescriptor<global::Android.Views.View, bool>(nameof(Hidden));
                 PopupMenuTemplate = new BindingMemberDescriptor<global::Android.Views.View, int>(nameof(PopupMenuTemplate));
                 PopupMenuEvent = new BindingMemberDescriptor<global::Android.Views.View, string>(nameof(PopupMenuEvent));

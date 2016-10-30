@@ -249,6 +249,10 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                 (info, view) => view.Visibility != ViewStates.Visible,
                 (info, view, value) => view.Visibility = value ? ViewStates.Gone : ViewStates.Visible,
                 ObserveViewVisibility));
+            memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.View.Invisible,
+                (info, view) => view.Visibility == ViewStates.Invisible,
+                (info, view, value) => view.Visibility = value ? ViewStates.Invisible : ViewStates.Visible,
+                ObserveViewVisibility));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty<View, object>(AttachedMembers.Toolbar.MenuTemplate.Path));
             memberProvider.Register(AttachedBindingMember.CreateEvent<View>("WidthChanged", (info, o, arg3) => new SizeObserver(o, arg3)));
             memberProvider.Register(AttachedBindingMember.CreateEvent<View>("HeightChanged", (info, o, arg3) => new SizeObserver(o, arg3)));
