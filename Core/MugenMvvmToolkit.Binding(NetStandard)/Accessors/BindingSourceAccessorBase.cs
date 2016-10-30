@@ -157,10 +157,8 @@ namespace MugenMvvmToolkit.Binding.Accessors
                     return targetMember.Type.GetDefaultValue();
                 return value;
             }
-            catch (Exception)
+            catch (Exception) when (!throwOnError)
             {
-                if (throwOnError)
-                    throw;
                 return BindingConstants.InvalidValue;
             }
         }
@@ -171,10 +169,8 @@ namespace MugenMvvmToolkit.Binding.Accessors
             {
                 return SetValueInternal(targetAccessor, context, throwOnError);
             }
-            catch (Exception)
+            catch (Exception) when (!throwOnError)
             {
-                if (throwOnError)
-                    throw;
                 return false;
             }
         }

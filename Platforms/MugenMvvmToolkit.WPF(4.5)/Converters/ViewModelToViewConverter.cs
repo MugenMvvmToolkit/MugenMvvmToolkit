@@ -127,10 +127,8 @@ namespace MugenMvvmToolkit.WPF.Binding.Converters
                 return ViewManager.GetOrCreateView((IViewModel)value, AlwaysCreateNewView, ctx);
 #endif
             }
-            catch (Exception exception)
+            catch (Exception exception) when (!ThrowOnError)
             {
-                if (ThrowOnError)
-                    throw;
                 Tracer.Error(exception.Flatten(true));
 #if ANDROID
                 var txt = new TextView(parameter as Context ?? Application.Context) { Text = exception.Flatten(true) };
