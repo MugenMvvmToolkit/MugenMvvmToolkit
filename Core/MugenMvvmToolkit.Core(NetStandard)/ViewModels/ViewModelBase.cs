@@ -361,7 +361,7 @@ namespace MugenMvvmToolkit.ViewModels
                     return ServiceProvider.IocContainer;
                 return viewModel.GetIocContainer(true, false);
             }
-            protected internal set
+            protected set
             {
                 if (Equals(_iocContainer, value))
                     return;

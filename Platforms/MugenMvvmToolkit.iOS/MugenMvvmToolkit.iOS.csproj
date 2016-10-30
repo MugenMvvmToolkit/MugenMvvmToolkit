@@ -97,7 +97,6 @@
     <Compile Include="Binding\Infrastructure\DefaultTableCellTemplateSelector.cs" />
     <Compile Include="Interfaces\IHasDisplayCallback.cs" />
     <Compile Include="Interfaces\Views\IViewControllerView.cs" />
-    <Compile Include="LinkerInclude.cs" />
     <Compile Include="Models\NativeObjectWeakReference.cs" />
     <Compile Include="MonoTouchDialogExtensions.cs" />
     <Compile Include="Infrastructure\ApplicationStateManager.cs" />

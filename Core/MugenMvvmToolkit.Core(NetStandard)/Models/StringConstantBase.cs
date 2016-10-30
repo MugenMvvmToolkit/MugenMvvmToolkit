@@ -37,7 +37,6 @@ namespace MugenMvvmToolkit.Models
 
         #region Constructors
 
-        //Only for serialization
         protected StringConstantBase() { }
 
         protected StringConstantBase(string id)

@@ -94,8 +94,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
             remove { }
         }
 
-        protected override object GetRawValueInternal(IBindingMemberInfo targetMember, IDataContext context,
-            bool throwOnError)
+        protected override object GetRawValueInternal(IBindingMemberInfo targetMember, IDataContext context, bool throwOnError)
         {
             var values = new object[_sources.Length];
             for (int i = 0; i < _sources.Length; i++)
@@ -127,8 +126,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
             return false;
         }
 
-        protected override object GetValueInternal(IBindingMemberInfo targetMember, IDataContext context,
-            bool throwOnError)
+        protected override object GetValueInternal(IBindingMemberInfo targetMember, IDataContext context, bool throwOnError)
         {
             if (BindingMemberType.Event.EqualsWithoutNullCheck(targetMember.MemberType))
             {

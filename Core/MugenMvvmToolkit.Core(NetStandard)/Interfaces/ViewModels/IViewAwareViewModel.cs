@@ -16,8 +16,11 @@
 
 #endregion
 
+using MugenMvvmToolkit.Attributes;
+
 namespace MugenMvvmToolkit.Interfaces.ViewModels
 {
+    [Preserve(AllMembers = true)]
     public interface IViewAwareViewModel<TView> : IViewModel where TView : class
     {
         TView View { get; set; }

@@ -154,8 +154,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         #region Implementation of IBindingMemberProvider
 
-        public IBindingMemberInfo GetBindingMember(Type sourceType, string path, bool ignoreAttachedMembers,
-            bool throwOnError)
+        public IBindingMemberInfo GetBindingMember(Type sourceType, string path, bool ignoreAttachedMembers, bool throwOnError)
         {
             Should.NotBeNull(sourceType, nameof(sourceType));
             Should.NotBeNull(path, nameof(path));

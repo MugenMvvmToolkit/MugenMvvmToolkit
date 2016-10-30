@@ -39,7 +39,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
         #region Nested types
 
         [DataContract]
-        protected internal sealed class LazySerializableContainer
+        public sealed class LazySerializableContainer
         {
             #region Fields
 
@@ -57,7 +57,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
             #region Constructors
 
             //Only for serialization
-            internal LazySerializableContainer() { }
+            public LazySerializableContainer() { }
 
             public LazySerializableContainer(ISerializer serializer, IDataContext context)
             {

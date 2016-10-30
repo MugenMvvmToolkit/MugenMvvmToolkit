@@ -16,8 +16,11 @@
 
 #endregion
 
+using MugenMvvmToolkit.Attributes;
+
 namespace MugenMvvmToolkit.Interfaces.Models
 {
+    [Preserve(AllMembers = true)]
     public interface IHasDisplayName
     {
         string DisplayName { get; }

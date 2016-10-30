@@ -23,6 +23,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Infrastructure;
 
 namespace MugenMvvmToolkit.Collections
@@ -141,7 +142,7 @@ namespace MugenMvvmToolkit.Collections
 
         #region Properties
 
-        [DataMember(Name = "vi")]
+        [DataMember(Name = "vi"), Preserve]
         internal KeyValuePair<TKey, TValue>[] ValuesInternal
         {
             get { return ToArray(); }

@@ -28,6 +28,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Threading;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
@@ -343,6 +344,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
 #if ANDROID || TOUCH || WPF || WINFORMS
         [mscore::System.Serializable]
 #endif
+        [Preserve]
         internal sealed class AwaiterSerializableCallback : ISerializableCallback
         {
             #region Constructors
@@ -604,7 +606,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
 
             #region Constructors
 
-            [UsedImplicitly]
+            [Preserve, UsedImplicitly]
             public SerializableAwaiter(IOperationResult result)
             {
                 if (result != null)
@@ -660,6 +662,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
 #if ANDROID || TOUCH || WPF || WINFORMS
         [mscore::System.Serializable]
 #endif
+        [Preserve]
         internal sealed class DelegateSerializableCallback : ISerializableCallback
         {
             #region Fields

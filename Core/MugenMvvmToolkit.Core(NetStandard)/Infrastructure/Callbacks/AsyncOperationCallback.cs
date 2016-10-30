@@ -19,11 +19,13 @@
 using System;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 
 namespace MugenMvvmToolkit.Infrastructure.Callbacks
 {
     [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true)]
+    [Preserve]
     internal sealed class AsyncOperationCallback : IOperationCallback
     {
         #region Fields

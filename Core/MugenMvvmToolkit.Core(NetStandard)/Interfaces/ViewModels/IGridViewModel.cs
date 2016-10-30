@@ -21,6 +21,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Interfaces.Collections;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
@@ -47,8 +48,10 @@ namespace MugenMvvmToolkit.Interfaces.ViewModels
 
         void UpdateFilter();
 
+        [Preserve]
         event EventHandler<IGridViewModel, SelectedItemChangedEventArgs> SelectedItemChanged;
 
+        [Preserve]
         event EventHandler<IGridViewModel, ItemsSourceChangedEventArgs> ItemsSourceChanged;
     }
 
@@ -70,8 +73,10 @@ namespace MugenMvvmToolkit.Interfaces.ViewModels
         void SetOriginalItemsSource<TItemsSource>([NotNull] TItemsSource originalItemsSource)
             where TItemsSource : IList<T>, INotifyCollectionChanged, IList;
 
+        [Preserve]
         new event EventHandler<IGridViewModel, SelectedItemChangedEventArgs<T>> SelectedItemChanged;
 
+        [Preserve]
         new event EventHandler<IGridViewModel, ItemsSourceChangedEventArgs<T>> ItemsSourceChanged;
     }
 }

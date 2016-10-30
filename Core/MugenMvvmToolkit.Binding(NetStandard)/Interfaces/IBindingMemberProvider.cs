@@ -25,8 +25,7 @@ namespace MugenMvvmToolkit.Binding.Interfaces
 {
     public interface IBindingMemberProvider
     {
-        IBindingMemberInfo GetBindingMember([NotNull] Type sourceType, [NotNull] string path, bool ignoreAttachedMembers,
-            bool throwOnError);
+        IBindingMemberInfo GetBindingMember([NotNull] Type sourceType, [NotNull] string path, bool ignoreAttachedMembers, bool throwOnError);
 
         void Register([NotNull] Type type, [NotNull] IBindingMemberInfo member, bool rewrite);
 

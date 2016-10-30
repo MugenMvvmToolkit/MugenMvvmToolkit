@@ -19,10 +19,12 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Interfaces.Models
 {
+    [Preserve(AllMembers = true)]
     public interface IDynamicObject
     {
         [CanBeNull]

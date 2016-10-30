@@ -21,6 +21,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Attributes;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
@@ -51,6 +52,7 @@ namespace MugenMvvmToolkit.Infrastructure
             #region Constructors
 
             //Only for serialization
+            [Preserve]
             internal ComparerWrapper() { }
 
             public ComparerWrapper([NotNull] IEqualityComparer<T> comparer, bool exactlySameType)

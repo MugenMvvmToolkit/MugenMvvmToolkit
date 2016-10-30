@@ -20,6 +20,7 @@ using System;
 using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
@@ -73,16 +74,16 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         {
             CreateCancelResultMethod = typeof(OperationResult)
                 .GetMethodsEx(MemberFlags.Public | MemberFlags.Static)
-                .First(info => info.Name == "CreateCancelResult" && info.IsGenericMethodDefinition);
+                .First(info => info.Name == nameof(CreateCancelResult) && info.IsGenericMethodDefinition);
             CreateErrorResultMethod = typeof(OperationResult)
                 .GetMethodsEx(MemberFlags.Public | MemberFlags.Static)
-                .First(info => info.Name == "CreateErrorResult" && info.IsGenericMethodDefinition);
+                .First(info => info.Name == nameof(CreateErrorResult) && info.IsGenericMethodDefinition);
             CreateResultMethod = typeof(OperationResult)
                 .GetMethodsEx(MemberFlags.Public | MemberFlags.Static)
-                .First(info => info.Name == "CreateResult" && info.IsGenericMethodDefinition);
+                .First(info => info.Name == nameof(CreateResult) && info.IsGenericMethodDefinition);
             ConvertMethod = typeof(OperationResult)
                 .GetMethodsEx(MemberFlags.Public | MemberFlags.Static)
-                .First(info => info.Name == "Convert" && info.IsGenericMethodDefinition);
+                .First(info => info.Name == nameof(Convert) && info.IsGenericMethodDefinition);
         }
 
         protected OperationResult(OperationType operation, [NotNull] object source, Exception exception, bool isCanceled,
@@ -130,6 +131,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Methods
 
+        [Preserve]
         public static IOperationResult<TType> Convert<TType>([NotNull] IOperationResult result)
         {
             Should.NotBeNull(result, nameof(result));
@@ -152,6 +154,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 .Invoke(null, new object[] { result });
         }
 
+        [Preserve]
         public static IOperationResult<TType> CreateCancelResult<TType>(OperationType operation, object source, IDataContext context = null)
         {
             return new OperationResultImpl<TType>(operation, source, null, true, default(TType), context);
@@ -165,6 +168,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 .Invoke(null, new[] { operation, source, context });
         }
 
+        [Preserve]
         public static IOperationResult<TType> CreateErrorResult<TType>(OperationType operation, object source, Exception exception, IDataContext context = null)
         {
             return new OperationResultImpl<TType>(operation, source, exception, false, default(TType), context);
@@ -178,6 +182,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 .Invoke(null, new[] { operation, source, exception, context });
         }
 
+        [Preserve]
         public static IOperationResult<TType> CreateResult<TType>(OperationType operation, object source, TType result, IDataContext context = null)
         {
             return new OperationResultImpl<TType>(operation, source, null, false, result, context);

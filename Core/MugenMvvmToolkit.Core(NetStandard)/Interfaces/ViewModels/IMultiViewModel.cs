@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Interfaces.Collections;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
@@ -44,6 +45,7 @@ namespace MugenMvvmToolkit.Interfaces.ViewModels
 
         void Clear();
 
+        [Preserve]
         event EventHandler<IMultiViewModel, SelectedItemChangedEventArgs<IViewModel>> SelectedItemChanged;
 
         event EventHandler<IMultiViewModel, ValueEventArgs<IViewModel>> ViewModelAdded;
@@ -65,6 +67,7 @@ namespace MugenMvvmToolkit.Interfaces.ViewModels
 
         Task<bool> RemoveViewModelAsync([NotNull] TViewModel viewModel, object parameter = null);
 
+        [Preserve]
         new event EventHandler<IMultiViewModel<TViewModel>, SelectedItemChangedEventArgs<TViewModel>> SelectedItemChanged;
 
         new event EventHandler<IMultiViewModel<TViewModel>, ValueEventArgs<TViewModel>> ViewModelAdded;

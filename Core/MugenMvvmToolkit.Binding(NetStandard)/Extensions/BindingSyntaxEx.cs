@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using JetBrains.Annotations;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Binding.Attributes;
 using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.DataConstants;
@@ -57,13 +57,13 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
         static BindingSyntaxEx()
         {
             GetBindingMethod = typeof(BindingSyntaxEx).GetMethodEx(nameof(GetBinding),
-                MemberFlags.NonPublic | MemberFlags.Static);
+                MemberFlags.Public | MemberFlags.Static);
             GetEventArgsMethod = typeof(BindingSyntaxEx).GetMethodEx(nameof(GetEventArgs),
-                MemberFlags.NonPublic | MemberFlags.Static);
+                MemberFlags.Public | MemberFlags.Static);
             GetErrorsMethod = typeof(BindingSyntaxEx).GetMethodEx(nameof(GetErrorsImpl),
-                MemberFlags.NonPublic | MemberFlags.Static);
+                MemberFlags.Public | MemberFlags.Static);
             ResourceMethodImplMethod = typeof(BindingSyntaxEx).GetMethodEx(nameof(ResourceMethodImpl),
-                MemberFlags.NonPublic | MemberFlags.Static);
+                MemberFlags.Public | MemberFlags.Static);
             GetOneTimeValueMethod = typeof(BindingExtensions).GetMethodEx(nameof(BindingExtensions.GetOrAddValue),
                 MemberFlags.NonPublic | MemberFlags.Static | MemberFlags.Public);
             ResourceMethodInfo = typeof(BindingSyntaxEx)
@@ -128,6 +128,7 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
             return MethodNotSupported<IDataBinding>();
         }
 
+        [Preserve]
         public static T Resource<T>(this IBindingSyntaxContext context, string name)
         {
             return (T)BindingServiceProvider
@@ -178,8 +179,8 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
             return MethodNotSupported<T>();
         }
 
-        [UsedImplicitly]
-        private static Expression ProvideExpression(IBuilderSyntaxContext context)
+        [Preserve]
+        public static Expression ProvideExpression(IBuilderSyntaxContext context)
         {
             var mExp = context.MethodExpression;
             var name = mExp.Method.Name;
@@ -318,7 +319,7 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                     : RelativeSourceExpressionNode.CreateElementSource(firstArg.ToString(), null);
                 return context
                     .GetOrAddParameterExpression(name + mExp.Method.ReturnType.FullName, path, context.Expression,
-                        (dataContext, s) => BindingExtensions.CreateBindingSource(node, dataContext.GetData(BindingBuilderConstants.Target), s));
+                        (dataContext, s) => BindingExtensions.CreateBindingSource(node, dataContext, dataContext.GetData(BindingBuilderConstants.Target), s));
             }
             return null;
         }
@@ -328,19 +329,20 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
             return context.MethodExpression == context.Expression;
         }
 
-        [UsedImplicitly]
-        private static object GetEventArgs(IDataContext context)
+        [Preserve]
+        public static object GetEventArgs(IDataContext context)
         {
             return context.GetData(BindingConstants.CurrentEventArgs);
         }
 
-        [UsedImplicitly]
-        private static IDataBinding GetBinding(IDataContext context)
+        [Preserve]
+        public static IDataBinding GetBinding(IDataContext context)
         {
             return context.GetData(BindingConstants.Binding);
         }
 
-        private static object ResourceMethodImpl(string name, IList<Type> typeArgs, IDataContext context, params object[] args)
+        [Preserve]
+        public static object ResourceMethodImpl(string name, IList<Type> typeArgs, IDataContext context, params object[] args)
         {
             return BindingServiceProvider
                 .ResourceResolver
@@ -348,7 +350,8 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                 .Invoke(typeArgs, args, context);
         }
 
-        internal static IEnumerable<object> GetErrorsImpl(Guid id, IDataContext context, object[] args)
+        [Preserve]
+        public static IEnumerable<object> GetErrorsImpl(Guid id, IDataContext context, object[] args)
         {
             var binding = context.GetData(BindingConstants.Binding);
             if (binding == null)

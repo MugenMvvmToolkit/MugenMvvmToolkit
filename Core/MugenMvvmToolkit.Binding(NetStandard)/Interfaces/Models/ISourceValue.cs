@@ -18,6 +18,7 @@
 
 using System;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Interfaces.Models
@@ -29,6 +30,7 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Models
         [CanBeNull]
         object Value { get; }
 
+        [Preserve]
         event EventHandler<ISourceValue, EventArgs> ValueChanged;
     }
 }

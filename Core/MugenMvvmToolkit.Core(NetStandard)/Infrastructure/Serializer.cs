@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Serialization;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
 
@@ -30,8 +31,8 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Nested types
 
-        [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true, Name = "sdc"), Serializable]
-        internal sealed class DataContainer
+        [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true, Name = "sdc"), Serializable, Preserve(AllMembers = true)]
+        public sealed class DataContainer
         {
             #region Properties
 

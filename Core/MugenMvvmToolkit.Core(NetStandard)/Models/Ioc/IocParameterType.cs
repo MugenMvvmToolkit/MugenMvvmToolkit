@@ -18,6 +18,7 @@
 
 using System;
 using System.Runtime.Serialization;
+using MugenMvvmToolkit.Attributes;
 
 namespace MugenMvvmToolkit.Models.IoC
 {
@@ -40,6 +41,7 @@ namespace MugenMvvmToolkit.Models.IoC
         }
 
         //Only for serialization
+        [Preserve]
         internal IocParameterType() { }
 
         public IocParameterType(string id)

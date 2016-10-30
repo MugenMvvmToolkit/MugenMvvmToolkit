@@ -18,6 +18,7 @@
 
 using System;
 using System.Runtime.Serialization;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Models
@@ -35,27 +36,28 @@ namespace MugenMvvmToolkit.Models
         #region Constructors
 
         //Only for serialization
+        [Preserve]
         internal EntityStateEntry() { }
 
         public EntityStateEntry(EntityState state, object entity)
         {
             Should.NotBeNull(entity, nameof(entity));
-            _state = state;
-            _entity = entity;
+            State = state;
+            Entity = entity;
         }
 
         #endregion
 
         #region Implementation of IEntityStateEntry
 
-        [DataMember]
+        [DataMember(Name = "st")]
         public EntityState State
         {
             get { return _state; }
             internal set { _state = value; }
         }
 
-        [DataMember]
+        [DataMember(Name = "en")]
         public object Entity
         {
             get { return _entity; }

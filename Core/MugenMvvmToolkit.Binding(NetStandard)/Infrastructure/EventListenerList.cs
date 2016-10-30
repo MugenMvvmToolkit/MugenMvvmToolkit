@@ -18,6 +18,7 @@
 
 using System;
 using System.Reflection;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Models;
@@ -115,6 +116,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             ServiceProvider.AttachedValueProvider.GetValue<EventListenerList>(item, path, false)?.Raise(item, message);
         }
 
+        [Preserve]
         public void Raise<TArg>(object sender, TArg args)
         {
             bool hasDeadRef = false;

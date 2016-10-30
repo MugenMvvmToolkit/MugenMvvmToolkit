@@ -24,6 +24,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
@@ -41,7 +42,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         #region Nested types
 
         [StructLayout(LayoutKind.Auto)]
-        private struct CacheKey
+        public struct CacheKey
         {
             #region Fields
 
@@ -69,7 +70,8 @@ namespace MugenMvvmToolkit.Binding.Parse
             #endregion
         }
 
-        private sealed class MethodInvoker : Dictionary<CacheKey, Func<object[], object>>
+        [Preserve(AllMembers = true)]
+        public sealed class MethodInvoker : Dictionary<CacheKey, Func<object[], object>>
         {
             #region Fields
 
@@ -257,12 +259,12 @@ namespace MugenMvvmToolkit.Binding.Parse
         static CompiledExpressionInvoker()
         {
             StringConcatMethod = typeof(string).GetMethodEx(nameof(string.Concat), new[] { typeof(object), typeof(object) }, MemberFlags.Public | MemberFlags.Static);
-            ProxyMethod = typeof(CompiledExpressionInvoker).GetMethodEx(nameof(InvokeDynamicMethod), MemberFlags.Instance | MemberFlags.NonPublic);
+            ProxyMethod = typeof(CompiledExpressionInvoker).GetMethodEx(nameof(InvokeDynamicMethod), MemberFlags.Instance | MemberFlags.Public);
             DataContextParameter = Expression.Parameter(typeof(IDataContext), "dataContext");
             BindingMemberGetValueMethod = typeof(IBindingMemberInfo).GetMethodEx(nameof(IBindingMemberInfo.GetValue), new[] { typeof(object), typeof(object[]) }, MemberFlags.Public | MemberFlags.Instance);
-            GetMemberValueDynamicMethod = typeof(CompiledExpressionInvoker).GetMethodEx(nameof(GetMemberValueDynamic), MemberFlags.Static | MemberFlags.NonPublic);
-            GetIndexValueDynamicMethod = typeof(CompiledExpressionInvoker).GetMethodEx(nameof(GetIndexValueDynamic), MemberFlags.Static | MemberFlags.NonPublic);
-            InvokeMemberDynamicMethod = typeof(CompiledExpressionInvoker).GetMethodEx(nameof(InvokeMemberDynamic), MemberFlags.Static | MemberFlags.NonPublic);
+            GetMemberValueDynamicMethod = typeof(CompiledExpressionInvoker).GetMethodEx(nameof(GetMemberValueDynamic), MemberFlags.Static | MemberFlags.Public);
+            GetIndexValueDynamicMethod = typeof(CompiledExpressionInvoker).GetMethodEx(nameof(GetIndexValueDynamic), MemberFlags.Static | MemberFlags.Public);
+            InvokeMemberDynamicMethod = typeof(CompiledExpressionInvoker).GetMethodEx(nameof(InvokeMemberDynamic), MemberFlags.Static | MemberFlags.Public);
             EqualsMethod = typeof(object).GetMethodEx(nameof(Equals), MemberFlags.Public | MemberFlags.Static);
             EmptyObjectArrayExpression = Expression.Constant(Empty.Array<object>(), typeof(object[]));
             SupportCoalesceExpression = true;
@@ -387,7 +389,8 @@ namespace MugenMvvmToolkit.Binding.Parse
             return expression.Invoke(BindingReflectionExtensions.InsertFirstArg(sourceValues, context));
         }
 
-        protected virtual object InvokeDynamicMethod(string methodName, IDataContext context, IList<Type> typeArgs, object[] items)
+        [Preserve]
+        public virtual object InvokeDynamicMethod(string methodName, IDataContext context, IList<Type> typeArgs, object[] items)
         {
             var resourceMethod = BindingServiceProvider.ResourceResolver.ResolveMethod(methodName, context, false);
             if (resourceMethod != null)
@@ -954,14 +957,16 @@ namespace MugenMvvmToolkit.Binding.Parse
             return typeArgs;
         }
 
-        private static object GetMemberValueDynamic(object target, string member)
+        [Preserve]
+        public static object GetMemberValueDynamic(object target, string member)
         {
             if (target == null)
                 return null;
             return BindingServiceProvider.MemberProvider.GetBindingMember(target.GetType(), member, false, true).GetValue(target, Empty.Array<object>());
         }
 
-        private static object GetIndexValueDynamic(object target, object[] args, MethodInvoker methodInvoker, IDataContext context)
+        [Preserve]
+        public static object GetIndexValueDynamic(object target, object[] args, MethodInvoker methodInvoker, IDataContext context)
         {
             if (target == null)
                 return null;
@@ -977,7 +982,8 @@ namespace MugenMvvmToolkit.Binding.Parse
             return methodInvoker.InvokeIndex(target, args);
         }
 
-        private static object InvokeMemberDynamic(object target, string member, object[] args, Type[] typeArgs, MethodInvoker methodInvoker, IDataContext context)
+        [Preserve]
+        public static object InvokeMemberDynamic(object target, string member, object[] args, Type[] typeArgs, MethodInvoker methodInvoker, IDataContext context)
         {
             if (target == null)
                 return null;

@@ -62,6 +62,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
     {
         #region Nested types
 
+        [Preserve(AllMembers = true)]
         private sealed class HomeButtonImpl : EventListenerList
         {
             #region Fields
