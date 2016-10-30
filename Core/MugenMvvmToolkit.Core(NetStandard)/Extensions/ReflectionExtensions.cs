@@ -256,10 +256,8 @@ namespace MugenMvvmToolkit
                 return assembly.GetTypes();
 #endif
             }
-            catch (ReflectionTypeLoadException e)
+            catch (ReflectionTypeLoadException e) when (!throwOnError)
             {
-                if (throwOnError)
-                    throw;
                 Tracer.Error("SafeGetTypes {0} - error {1}", assembly.FullName, e.Flatten(true));
             }
             return Empty.Array<Type>();
