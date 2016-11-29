@@ -36,9 +36,11 @@ namespace MugenMvvmToolkit
         internal static Exception ObjectNotInitialized(string objectName, object obj, string hint = null)
         {
             var type = obj as Type;
-            if (type != null)
-                obj = type.FullName;
-            string typeName = obj == null ? "empty" : obj.GetType().FullName;
+            string typeName;
+            if (type == null)
+                typeName = obj == null ? "empty" : obj.GetType().FullName;
+            else
+                typeName = type.FullName;
             return new InvalidOperationException($"The '{objectName}' is not initialized, type '{typeName}'. {hint}");
         }
 

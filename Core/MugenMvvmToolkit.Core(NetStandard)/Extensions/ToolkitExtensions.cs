@@ -349,17 +349,6 @@ namespace MugenMvvmToolkit
             iocContainer.BindToMethod(typeof(T), methodBindingDelegate.AsMethodBindingDelegateObject, lifecycle, name, parameters);
         }
 
-        public static void BindToBindingInfo<T>(this IIocContainer iocContainer, BindingInfo<T> binding)
-        {
-            Should.NotBeNull(iocContainer, nameof(iocContainer));
-            if (binding.IsEmpty)
-                return;
-            if (iocContainer.CanResolve<T>(binding.Name))
-                Tracer.Info("The binding with type {0} already exists.", typeof(T));
-            else
-                binding.SetBinding(iocContainer);
-        }
-
         public static void Unbind<T>([NotNull] this IIocContainer iocContainer)
         {
             Should.NotBeNull(iocContainer, nameof(iocContainer));
@@ -605,7 +594,7 @@ namespace MugenMvvmToolkit
                 iocContainer = ServiceProvider.IocContainer;
             if (iocContainer == null || iocContainer.IsDisposed || !iocContainer.CanResolve<ITaskExceptionHandler>())
                 return;
-            foreach (ITaskExceptionHandler handler in iocContainer.GetAll<ITaskExceptionHandler>())
+            foreach (ITaskExceptionHandler handler in iocContainer.GetAll(typeof(ITaskExceptionHandler)))
                 handler.Handle(sender, task);
         }
 
@@ -1001,6 +990,24 @@ namespace MugenMvvmToolkit
         #endregion
 
         #region Extensions
+
+        public static bool IsSupported([CanBeNull] this IModuleContext context, LoadMode supportedModes)
+        {
+            if (context == null)
+                return false;
+            var mode = supportedModes & context.Mode;
+            if (supportedModes.HasFlagEx(LoadMode.RuntimeDebug) || supportedModes.HasFlagEx(LoadMode.RuntimeRelease))
+            {
+                if (mode != context.Mode)
+                    return false;
+            }
+            else
+            {
+                if (mode == 0)
+                    return false;
+            }
+            return true;
+        }
 
         public static void OnPropertyChanged<TModel>(this TModel model, Func<Expression<Func<TModel, object>>> expression, ExecutionMode? executionMode = null)
             where TModel : NotifyPropertyChangedBase

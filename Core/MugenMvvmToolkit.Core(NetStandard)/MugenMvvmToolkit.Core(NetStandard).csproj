@@ -43,7 +43,6 @@
   <ItemGroup>
     <Compile Include="Annotations\Toolkit.Annotations.cs" />
     <Compile Include="ApplicationSettings.cs" />
-    <Compile Include="Attributes\PreserveAttribute.cs" />
     <Compile Include="Infrastructure\Callbacks\NavigationOperation.cs" />
     <Compile Include="Infrastructure\CompositeEqualityComparer.cs" />
     <Compile Include="Infrastructure\DesignBootstrapperBase.cs" />
@@ -65,6 +64,7 @@
     <Compile Include="Models\EventArg\ViewModelRestoredEventArgs.cs" />
     <Compile Include="Models\EventArg\ViewModelRestoringEventArgs.cs" />
     <Compile Include="Models\MultiViewModelState.cs" />
+    <Compile Include="Models\SerializerDataContainer.cs" />
     <Compile Include="MvvmApplication.cs" />
     <Compile Include="Properties\AssemblyInfoCommon.cs" />
     <Compile Include="Attributes\DisplayNameAttribute.cs" />
@@ -109,7 +109,6 @@
     <Compile Include="Models\WeakActionSubscriber.cs" />
     <Compile Include="Modules\InitializationModuleBase.cs" />
     <Compile Include="Infrastructure\Mediators\WindowViewMediatorBase.cs" />
-    <Compile Include="Modules\ModuleBase.cs" />
     <Compile Include="Infrastructure\Navigation\DefaultNavigationCachePolicy.cs" />
     <Compile Include="Infrastructure\Presenters\DynamicMultiViewModelPresenter.cs" />
     <Compile Include="Infrastructure\Presenters\DynamicViewModelNavigationPresenter.cs" />
@@ -220,8 +219,6 @@
     <Compile Include="Models\EventArg\ValueEventArgs.cs" />
     <Compile Include="Models\EventArg\ViewModelClosedEventArgs.cs" />
     <Compile Include="Models\EventArg\ViewModelClosingEventArgs.cs" />
-    <Compile Include="Models\Exceptions\DesignTimeException.cs" />
-    <Compile Include="Models\Ioc\BindingInfo.cs" />
     <Compile Include="Models\Ioc\DependencyLifecycle.cs" />
     <Compile Include="Models\Ioc\IocParameter.cs" />
     <Compile Include="Models\Ioc\IocParameterType.cs" />

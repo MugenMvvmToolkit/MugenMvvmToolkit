@@ -46,6 +46,7 @@ namespace MugenMvvmToolkit
     {
         #region Nested types
 
+        //todo move
         public interface IWeakEventHandler<in TArg>
         {
             void Handle(object sender, TArg arg);
@@ -119,14 +120,8 @@ namespace MugenMvvmToolkit
         private static readonly Dictionary<Type, Action<object, object>> SetDataContextDelegateCache;
         private static readonly Dictionary<Delegate, MemberInfo> ExpressionToMemberInfoCache;
 
-        private static readonly Func<Assembly, bool> IsToolkitAssemblyDelegate;
-        private static readonly HashSet<string> KnownPublicKeys;
-        private static readonly HashSet<string> KnownMSPublicKeys;
-        private static readonly HashSet<string> KnownAssemblyName;
-
         private static readonly Dictionary<Type, string[]> CachedIgnoreAttributes;
         private static readonly Dictionary<Type, Dictionary<string, ICollection<string>>> CachedViewModelProperties;
-        private static readonly IList<string> ExcludedProperties;
         private static readonly Dictionary<Type, Func<object, ICommand>[]> TypesToCommandsProperties;
         private static readonly Dictionary<Type, Action<object, IViewModel>> ViewToViewModelInterface;
         private static readonly Dictionary<Type, PropertyInfo> ViewModelToViewInterface;
@@ -149,42 +144,8 @@ namespace MugenMvvmToolkit
             GetDataContextDelegateCache = new Dictionary<Type, Func<object, object>>();
             SetDataContextDelegateCache = new Dictionary<Type, Action<object, object>>();
             ExpressionToMemberInfoCache = new Dictionary<Delegate, MemberInfo>(ReferenceEqualityComparer.Instance);
-            //NOTE: 7cec85d7bea7798e, 31bf3856ad364e35, b03f5f7f11d50a3a, b77a5c561934e089 - NET FRAMEWORK
-            //NOTE: 0738eb9f132ed756, 84e04ff9cfb79065 - MONO
-            //NOTE: 5803cfa389c90ce7 - Telerik
-            //NOTE: 17863af14b0044da - Autofac
-            KnownMSPublicKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            {
-                "7cec85d7bea7798e", "31bf3856ad364e35", "b03f5f7f11d50a3a",  "b77a5c561934e089"
-            };
-            KnownPublicKeys = new HashSet<string>(KnownMSPublicKeys, StringComparer.OrdinalIgnoreCase)
-            {
-                "0738eb9f132ed756", "84e04ff9cfb79065", "5803cfa389c90ce7", "17863af14b0044da"
-            };
-            KnownAssemblyName = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
-            {
-                "FormsViewGroup",
-                "Xamarin.Android.Support.v13",
-                "Xamarin.Android.Support.v4",
-                "Xamarin.Android.Support.v7.RecyclerView",
-                "Xamarin.Android.Support.v7.AppCompat",
-                "Xamarin.Android.Support.v7.CardView",
-                "Xamarin.Android.Support.Design",
-                "Xamarin.Forms.Core",
-                "Xamarin.Forms.Platform",
-                "Xamarin.Forms.Xaml",
-                "Xamarin.Forms.Platform.Android",
-                "Xamarin.Forms.Platform.iOS",
-                "Xamarin.Forms.Platform.WP8"
-            };
-            IsToolkitAssemblyDelegate = IsToolkitAssembly;
             CachedViewModelProperties = new Dictionary<Type, Dictionary<string, ICollection<string>>>();
             CachedIgnoreAttributes = new Dictionary<Type, string[]>();
-            ExcludedProperties = typeof(EditableViewModel<>)
-               .GetPropertiesEx(PropertyBindingFlag)
-               .Select(info => info.Name)
-               .Concat(new[] { Empty.IndexerPropertyChangedArgs.PropertyName })
-               .ToArray();
             TypesToCommandsProperties = new Dictionary<Type, Func<object, ICommand>[]>();
             ViewToViewModelInterface = new Dictionary<Type, Action<object, IViewModel>>();
             ViewModelToViewInterface = new Dictionary<Type, PropertyInfo>();
@@ -347,7 +308,7 @@ namespace MugenMvvmToolkit
         {
             Should.NotBeNull(assemblies, nameof(assemblies));
             var modulesToLoad = new List<Type>();
-            foreach (var assembly in SkipFrameworkAssemblies(assemblies))
+            foreach (var assembly in assemblies)
             {
                 foreach (var type in assembly.SafeGetTypes(throwOnError))
                 {
@@ -374,25 +335,6 @@ namespace MugenMvvmToolkit
             }
             modules.Sort((m1, m2) => m2.Priority.CompareTo(m1.Priority));
             return modules;
-        }
-
-        public static IEnumerable<Assembly> SkipFrameworkAssemblies(this IEnumerable<Assembly> assemblies)
-        {
-            return assemblies.Where(IsToolkitAssemblyDelegate);
-        }
-
-        public static bool IsNetFrameworkAssembly(this Assembly assembly)
-        {
-            if (assembly.IsDynamic)
-                return false;
-            return assembly.HasKnownPublicKey(true);
-        }
-
-        public static bool IsToolkitAssembly(this Assembly assembly)
-        {
-            if (assembly.IsDynamic)
-                return false;
-            return !assembly.HasKnownPublicKey(false);
         }
 
         public static bool IsPublic(this Type type)
@@ -485,14 +427,17 @@ namespace MugenMvvmToolkit
             return expressionBody.Member;
         }
 
-        internal static HashSet<string> GetIgnoreProperties(this Type type)
+        internal static HashSet<string> GetIgnoreProperties(this Type type, Type baseType)
         {
             string[] result;
             lock (CachedIgnoreAttributes)
             {
                 if (!CachedIgnoreAttributes.TryGetValue(type, out result))
                 {
-                    var list = new List<string>(ExcludedProperties);
+                    var list = baseType.GetPropertiesEx(PropertyBindingFlag)
+                        .Select(info => info.Name)
+                        .ToList();
+                    list.Add(Empty.IndexerPropertyChangedArgs.PropertyName);
                     foreach (PropertyInfo propertyInfo in type.GetPropertiesEx(PropertyBindingFlag))
                     {
                         if (propertyInfo.IsDefined(typeof(IgnorePropertyAttribute), true))
@@ -684,20 +629,6 @@ namespace MugenMvvmToolkit
             return weakEventHandler.Handle;
         }
 
-        private static bool HasKnownPublicKey(this Assembly assembly, bool msCheck)
-        {
-            var assemblyName = assembly.GetAssemblyName();
-            var bytes = assemblyName.GetPublicKeyToken();
-            if (bytes == null || bytes.Length == 0)
-                return !msCheck && KnownAssemblyName.Contains(assemblyName.Name);
-            var builder = new StringBuilder(16);
-            for (int i = 0; i < bytes.Length; i++)
-                builder.Append(bytes[i].ToString("x2"));
-            if (msCheck)
-                return KnownMSPublicKeys.Contains(builder.ToString());
-            return KnownPublicKeys.Contains(builder.ToString());
-        }
-
         [CanBeNull]
         public static MethodInfo GetMethodEx([NotNull] this Type type, string name, Type[] types, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
@@ -724,7 +655,7 @@ namespace MugenMvvmToolkit
             return null;
         }
 
-        internal static bool HasClosure(this Delegate del)
+        public static bool HasClosure(this Delegate del)
         {
             if (del.Target == null)
                 return false;

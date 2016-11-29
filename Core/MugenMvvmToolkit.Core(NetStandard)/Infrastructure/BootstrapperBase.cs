@@ -16,6 +16,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
@@ -31,6 +32,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private const int InitializedState = 1;
         private static int _state;
+        private static int _initializationThreadId;
         private static readonly ManualResetEvent InitializedEvent;
 
         #endregion
@@ -58,14 +60,18 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public void Initialize()
         {
+#if NET4
+            var managedThreadId = Thread.CurrentThread.ManagedThreadId;
+#else
+            var managedThreadId = Environment.CurrentManagedThreadId;
+#endif
             if (Interlocked.Exchange(ref _state, InitializedState) == InitializedState)
             {
-                InitializedEvent.WaitOne();
-                var current = Current;
-                if (!ReferenceEquals(current, this))
-                    Tracer.Error(ExceptionManager.ObjectInitialized(typeof(BootstrapperBase).Name, Current).Message);
+                if (_initializationThreadId != managedThreadId)
+                    InitializedEvent.WaitOne();
                 return;
             }
+            _initializationThreadId = managedThreadId;
             Current = this;
             InitializeInternal();
             InitializedEvent.Set();

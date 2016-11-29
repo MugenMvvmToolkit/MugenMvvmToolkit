@@ -478,7 +478,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             if (parameters.Length > 0)
                 return ", " + string.Join(",", parameters.Select(info => $"typeof({info.ParameterType.GetPrettyName()})"));
-            return string.Empty;
+            return $", {typeof(Empty).FullName}.{nameof(Empty.Array)}<{typeof(Type).FullName}>()";
         }
 
         protected virtual Delegate TryCreateDelegateInternal(Type delegateType, object target, MethodInfo method)
@@ -492,7 +492,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     result = TryCreateMethodDelegate(delegateType, method);
                     CachedDelegates[cacheKey] = result;
                     if (result != null)
-                        GenerateDelegateFactoryCode(delegateType, method);
+                        GenerateDelegateFactoryCode(delegateType, result);
                 }
                 if (result == null)
                     return null;
