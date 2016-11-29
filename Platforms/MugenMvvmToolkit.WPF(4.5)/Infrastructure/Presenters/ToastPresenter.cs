@@ -38,6 +38,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
@@ -191,7 +192,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Infrastructure.Presenters
                 RepositionMethod = (Action<Popup>)ServiceProvider.ReflectionManager.GetMethodDelegate(typeof(Action<Popup>), method);
         }
 #endif
-
+        [Preserve(Conditional = true)]
         public ToastPresenter([NotNull]IThreadManager threadManager)
         {
             Should.NotBeNull(threadManager, nameof(threadManager));

@@ -40,6 +40,7 @@ using UIKit;
 
 namespace MugenMvvmToolkit.iOS
 {
+    //todo move to module
     public static partial class PlatformExtensions
     {
         #region Nested types
@@ -471,9 +472,7 @@ namespace MugenMvvmToolkit.iOS
 
         internal static PlatformInfo GetPlatformInfo()
         {
-            Version result;
-            Version.TryParse(UIDevice.CurrentDevice.SystemVersion, out result);
-            return new PlatformInfo(PlatformType.iOS, result);
+            return new PlatformInfo(PlatformType.iOS, UIDevice.CurrentDevice.SystemVersion);
         }
 
         internal static NSIndexPath[] CreateNSIndexPathArray(int startingPosition, int count)
@@ -516,7 +515,7 @@ namespace MugenMvvmToolkit.iOS
             button.SetTitle(title, button.State);
             ParentObserver.GetOrAdd(button).Parent = actionSheet;
             if (!string.IsNullOrEmpty(binding))
-                button.SetBindings(binding, sources);
+                button.BindFromExpression(binding, sources);
         }
 
         private static void AddButtonOS8([NotNull] this UIActionSheet actionSheet, string title, string binding, IList<object> sources)

@@ -17,10 +17,10 @@
 #endregion
 
 using System;
-using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models;
@@ -45,19 +45,6 @@ namespace MugenMvvmToolkit.UWP.Modules
 {
     public class InitializationModule : InitializationModuleBase
     {
-        #region Constructors
-
-        public InitializationModule()
-        {
-        }
-
-        protected InitializationModule(LoadMode loadMode, int priority)
-            : base(loadMode, priority)
-        {
-        }
-
-        #endregion
-
         #region Properties
 
 #if WPF
@@ -66,11 +53,9 @@ namespace MugenMvvmToolkit.UWP.Modules
 
         #endregion
 
-        #region Overrides of InitializationModuleBase
-
-        protected override bool LoadInternal()
+        public override bool Load(IModuleContext context)
         {
-            if (base.LoadInternal())
+            if (base.Load(context))
             {
 #if WPF
                 if (UseNativeCommandManager)
@@ -83,109 +68,81 @@ namespace MugenMvvmToolkit.UWP.Modules
                         .Invoke(ExecutionMode.AsynchronousOnUiThread, handler, handler, (h1, h2) => System.Windows.Input.CommandManager.RequerySuggested -= h1);
                 }
 #elif WINDOWS_UWP
-                IocContainer.BindToBindingInfo(GetApplicationStateManager());
+                BindApplicationStateManager(context, context.IocContainer);
 #endif
                 return true;
             }
             return false;
         }
 
-        protected override BindingInfo<IMessagePresenter> GetMessagePresenter()
+        protected override void BindMessagePresenter(IModuleContext context, IIocContainer container)
         {
 #if WPF
-            if (Context.Platform.Platform != PlatformType.WPF)
-                return BindingInfo<IMessagePresenter>.Empty;
+            if (context.Platform.Platform != PlatformType.WPF)
+                return;
 #endif
-            return BindingInfo<IMessagePresenter>.FromType<MessagePresenter>(DependencyLifecycle.SingleInstance);
+            container.Bind<IMessagePresenter, MessagePresenter>(DependencyLifecycle.SingleInstance);
         }
 
 #if !NET4
-        protected override BindingInfo<IAttachedValueProvider> GetAttachedValueProvider()
+        protected override void BindAttachedValueProvider(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<IAttachedValueProvider>.FromType<AttachedValueProvider>(DependencyLifecycle.SingleInstance);
+            IAttachedValueProvider attachedValueProvider = new AttachedValueProvider();
+            ServiceProvider.AttachedValueProvider = attachedValueProvider;
+            container.BindToConstant(attachedValueProvider);
         }
 #endif
-
-
-#if !WINDOWS_UWP
-        protected override BindingInfo<IReflectionManager> GetReflectionManager()
-        {
-            return BindingInfo<IReflectionManager>.FromType<ExpressionReflectionManagerEx>(DependencyLifecycle.SingleInstance);
-        }
-#endif
-        protected override BindingInfo<IOperationCallbackFactory> GetOperationCallbackFactory()
-        {
-            return BindingInfo<IOperationCallbackFactory>.FromType<SerializableOperationCallbackFactory>(DependencyLifecycle.SingleInstance);
-        }
 
 #if WINDOWS_UWP
-        protected virtual BindingInfo<IApplicationStateManager> GetApplicationStateManager()
+        protected void BindApplicationStateManager(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<IApplicationStateManager>.FromType<ApplicationStateManager>(DependencyLifecycle.SingleInstance);
+            container.Bind<IApplicationStateManager, ApplicationStateManager>(DependencyLifecycle.SingleInstance);
+        }
+#else
+        protected override void BindReflectionManager(IModuleContext context, IIocContainer container)
+        {
+            IReflectionManager reflectionManager = new ExpressionReflectionManagerEx();
+            ServiceProvider.ReflectionManager = reflectionManager;
+            container.BindToConstant(reflectionManager);
         }
 #endif
+        protected override void BindOperationCallbackFactory(IModuleContext context, IIocContainer container)
+        {
+            container.Bind<IOperationCallbackFactory, SerializableOperationCallbackFactory>(DependencyLifecycle.SingleInstance);
+        }
 
-        protected override BindingInfo<IViewModelPresenter> GetViewModelPresenter()
+        protected override void BindViewModelPresenter(IModuleContext context, IIocContainer container)
         {
 #if WPF
-            if (Context.Platform.Platform != PlatformType.WPF)
+            if (context.Platform.Platform != PlatformType.WPF)
             {
-                MvvmApplication.Initialized += MvvmApplicationOnInitialized;
-                return BindingInfo<IViewModelPresenter>.Empty;
+                ServiceProvider.Initialized += MvvmApplicationOnInitialized;
+                return;
             }
 #endif
-            return BindingInfo<IViewModelPresenter>.FromMethod((container, list) =>
+            container.BindToMethod((iocContainer, list) =>
             {
-                var presenter = new ViewModelPresenter();
+                IViewModelPresenter presenter = new ViewModelPresenter();
                 presenter.DynamicPresenters.Add(new DynamicViewModelNavigationPresenter());
                 presenter.DynamicPresenters.Add(
-                                    new DynamicViewModelWindowPresenter(container.Get<IViewMappingProvider>(), container.Get<IViewManager>(),
-                                        container.Get<IWrapperManager>(), container.Get<IThreadManager>(),
-                                        container.Get<IOperationCallbackManager>()));
+                                    new DynamicViewModelWindowPresenter(iocContainer.Get<IViewMappingProvider>(), iocContainer.Get<IViewManager>(),
+                                        iocContainer.Get<IWrapperManager>(), iocContainer.Get<IThreadManager>(),
+                                        iocContainer.Get<IOperationCallbackManager>()));
                 return presenter;
             }, DependencyLifecycle.SingleInstance);
         }
 
 #if WPF
-        protected override BindingInfo<ITracer> GetTracer()
+        protected override void BindTracer(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<ITracer>.FromType<TracerEx>(DependencyLifecycle.SingleInstance);
-        }
-#endif
-        protected override BindingInfo<IThreadManager> GetThreadManager()
-        {
-#if WPF
-            if (Context.Platform.Platform != PlatformType.WPF)
-                return BindingInfo<IThreadManager>.Empty;
-            return BindingInfo<IThreadManager>.FromMethod((container, list) => new ThreadManager(System.Windows.Threading.Dispatcher.CurrentDispatcher), DependencyLifecycle.SingleInstance);
-#elif WINDOWS_UWP
-            if (Context.Mode.HasFlagEx(LoadMode.Design) && Windows.UI.Xaml.Window.Current.Dispatcher == null)
-                return base.GetThreadManager();
-            return BindingInfo<IThreadManager>.FromMethod((container, list) => new ThreadManager(Windows.UI.Xaml.Window.Current.Dispatcher), DependencyLifecycle.SingleInstance);
-#endif
+            ITracer tracer = new TracerEx();
+            ServiceProvider.Tracer = tracer;
+            container.BindToConstant(tracer);
         }
 
-        protected override BindingInfo<INavigationProvider> GetNavigationProvider()
-        {
-            return BindingInfo<INavigationProvider>.FromType<NavigationProvider>(DependencyLifecycle.SingleInstance);
-        }
-
-        protected override BindingInfo<IToastPresenter> GetToastPresenter()
-        {
-#if WPF
-            if (Context.Platform.Platform != PlatformType.WPF)
-                return BindingInfo<IToastPresenter>.Empty;
-#endif
-            return BindingInfo<IToastPresenter>.FromType<ToastPresenter>(DependencyLifecycle.SingleInstance);
-        }
-
-        #endregion
-
-        #region Methods
-#if WPF
         private static void MvvmApplicationOnInitialized(object sender, EventArgs eventArgs)
         {
-            MvvmApplication.Initialized -= MvvmApplicationOnInitialized;
+            ServiceProvider.Initialized -= MvvmApplicationOnInitialized;
             IViewModelPresenter presenter;
             if (ServiceProvider.TryGet(out presenter))
             {
@@ -194,6 +151,32 @@ namespace MugenMvvmToolkit.UWP.Modules
             }
         }
 #endif
-        #endregion
+
+        protected override void BindThreadManager(IModuleContext context, IIocContainer container)
+        {
+#if WPF
+            if (context.Platform.Platform == PlatformType.WPF)
+                container.BindToMethod<IThreadManager>((c, list) => new ThreadManager(System.Windows.Threading.Dispatcher.CurrentDispatcher), DependencyLifecycle.SingleInstance);
+#elif WINDOWS_UWP
+            if (context.Mode.HasFlagEx(LoadMode.Design) && Windows.UI.Xaml.Window.Current.Dispatcher == null)
+                base.BindThreadManager(context, container);
+            else
+                container.BindToMethod<IThreadManager>((c, list) => new ThreadManager(Windows.UI.Xaml.Window.Current.Dispatcher), DependencyLifecycle.SingleInstance);
+#endif
+        }
+
+        protected override void BindNavigationProvider(IModuleContext context, IIocContainer container)
+        {
+            container.Bind<INavigationProvider, NavigationProvider>(DependencyLifecycle.SingleInstance);
+        }
+
+        protected override void BindToastPresenter(IModuleContext context, IIocContainer container)
+        {
+#if WPF
+            if (context.Platform.Platform != PlatformType.WPF)
+                return;
+#endif
+            container.Bind<IToastPresenter, ToastPresenter>(DependencyLifecycle.SingleInstance);
+        }
     }
 }

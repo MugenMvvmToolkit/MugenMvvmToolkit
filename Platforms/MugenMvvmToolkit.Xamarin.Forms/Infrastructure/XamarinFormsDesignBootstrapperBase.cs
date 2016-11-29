@@ -16,7 +16,6 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.Reflection;
 using MugenMvvmToolkit.Infrastructure;
@@ -53,7 +52,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         protected override PlatformInfo GetPlatformInfo()
         {
-            return new PlatformInfo(PlatformType.Unknown, new Version(0, 0));
+            return new PlatformInfo(PlatformType.Unknown, "0.0");
         }
 
         #endregion

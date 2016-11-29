@@ -19,6 +19,7 @@
 using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Infrastructure.Presenters;
@@ -95,6 +96,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
             IsOpenViewConstant = DataConstant.Create<bool>(type, nameof(IsOpenViewConstant));
         }
 
+        [Preserve(Conditional = true)]
         public DynamicViewModelWindowPresenter([NotNull] IViewMappingProvider viewMappingProvider,
             [NotNull] IViewManager viewManager,
             [NotNull] IWrapperManager wrapperManager, [NotNull] IThreadManager threadManager,

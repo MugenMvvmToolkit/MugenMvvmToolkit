@@ -22,7 +22,6 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Models.Exceptions;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -55,7 +54,10 @@ namespace MugenMvvmToolkit.Xamarin.Forms.MarkupExtensions
                 : CreateBinding(targetObject, path, isDesignMode);
 
             if (isDesignMode && binding is InvalidDataBinding)
-                throw new DesignTimeException(((InvalidDataBinding)binding).Exception);
+            {
+                var exception = ((InvalidDataBinding)binding).Exception;
+                throw new InvalidOperationException(exception.Flatten(true), exception);
+            }
             return GetDefaultValue(targetObject, null, binding, path);
         }
 

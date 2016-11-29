@@ -33,6 +33,7 @@ using UIKit;
 
 namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
 {
+    //todo fix type usage
     public class MvvmViewControllerMediator : IMvvmViewControllerMediator
     {
         #region Fields

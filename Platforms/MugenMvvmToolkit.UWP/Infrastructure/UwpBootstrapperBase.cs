@@ -25,7 +25,6 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
@@ -90,7 +89,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
         public virtual void Start(IDataContext context = null)
         {
             Initialize();
-            MvvmApplication.Current.Start(context);
+            ServiceProvider.Application.Start(context);
         }
 
         public async Task InitializeAsync()
@@ -122,8 +121,8 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
 
         internal static void SetDefaultPlatformValues()
         {
-            DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
-            DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
+            ApplicationSettings.MultiViewModelPresenterCanShowViewModel = CanShowViewModelTabPresenter;
+            ApplicationSettings.NavigationPresenterCanShowViewModel = CanShowViewModelNavigationPresenter;
         }
 
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)

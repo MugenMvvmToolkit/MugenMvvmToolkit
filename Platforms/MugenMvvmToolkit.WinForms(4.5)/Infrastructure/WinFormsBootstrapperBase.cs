@@ -24,7 +24,6 @@ using System.Windows.Forms;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -47,7 +46,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
         static WinFormsBootstrapperBase()
         {
             ReflectionExtensions.GetTypesDefault = assembly => assembly.GetTypes();
-            DynamicViewModelNavigationPresenter.CanShowViewModelDefault = (model, context, arg3) => false;
+            ApplicationSettings.NavigationPresenterCanShowViewModel = (model, context, arg3) => false;
             BindingServiceProvider.ValueConverter = BindingReflectionExtensions.Convert;
             ViewManager.ViewCleared += OnViewCleared;
         }
@@ -105,7 +104,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
             context = context.ToNonReadOnly();
             if (!context.Contains(NavigationConstants.IsDialog))
                 context.Add(NavigationConstants.IsDialog, false);
-            var app = MvvmApplication.Current;
+            var app = ServiceProvider.Application;
             app.IocContainer.Get<IViewModelPresenter>().DynamicPresenters.Add(this);
             app.Start(context);
         }

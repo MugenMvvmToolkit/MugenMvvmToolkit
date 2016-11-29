@@ -16,13 +16,12 @@
 
 #endregion
 
-using System.Threading;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
-using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.IoC;
 using MugenMvvmToolkit.Modules;
 using MugenMvvmToolkit.Xamarin.Forms.Infrastructure;
@@ -34,31 +33,19 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Modules
 {
     public class InitializationModule : InitializationModuleBase
     {
-        #region Cosntructors
+        #region Methods
 
-        public InitializationModule()
+        protected override void BindOperationCallbackFactory(IModuleContext context, IIocContainer container)
         {
+            container.Bind<IOperationCallbackFactory, SerializableOperationCallbackFactory>(DependencyLifecycle.SingleInstance);
         }
 
-        protected InitializationModule(LoadMode mode, int priority)
-            : base(mode, priority)
+        protected override void BindViewModelPresenter(IModuleContext context, IIocContainer container)
         {
-        }
-
-        #endregion
-
-        #region Overrides of InitializationModuleBase
-
-        protected override BindingInfo<IOperationCallbackFactory> GetOperationCallbackFactory()
-        {
-            return BindingInfo<IOperationCallbackFactory>.FromType<SerializableOperationCallbackFactory>(DependencyLifecycle.SingleInstance);
-        }
-
-        protected override BindingInfo<IViewModelPresenter> GetViewModelPresenter()
-        {
-            return BindingInfo<IViewModelPresenter>.FromMethod((container, list) =>
+            container.Bind<RestorableViewModelPresenter, RestorableViewModelPresenter>(DependencyLifecycle.SingleInstance);
+            container.BindToMethod((iocContainer, list) =>
             {
-                var presenter = new ViewModelPresenter();
+                IViewModelPresenter presenter = container.Get<RestorableViewModelPresenter>();
                 presenter.DynamicPresenters.Add(new DynamicViewModelNavigationPresenter());
                 presenter.DynamicPresenters.Add(
                     new DynamicViewModelWindowPresenter(container.Get<IViewMappingProvider>(),
@@ -69,25 +56,27 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Modules
             }, DependencyLifecycle.SingleInstance);
         }
 
-        protected override BindingInfo<IViewMappingProvider> GetViewMappingProvider()
+        protected override void BindViewMappingProvider(IModuleContext context, IIocContainer container)
         {
-            var assemblies = Context.Assemblies;
-            return BindingInfo<IViewMappingProvider>.FromMethod((adapter, list) => new ViewMappingProviderEx(assemblies) { IsSupportedUriNavigation = false }, DependencyLifecycle.SingleInstance);
+            IViewMappingProvider viewMappingProvider = new ViewMappingProviderEx(context.Assemblies) {IsSupportedUriNavigation = false};
+            container.BindToConstant(viewMappingProvider);
         }
 
-        protected override BindingInfo<IThreadManager> GetThreadManager()
+        protected override void BindThreadManager(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<IThreadManager>.FromMethod((container, list) => new ThreadManager(ServiceProvider.UiSynchronizationContext), DependencyLifecycle.SingleInstance);
+            container.BindToMethod((iocContainer, list) => new ThreadManager(ServiceProvider.UiSynchronizationContext), DependencyLifecycle.SingleInstance);
         }
 
-        protected override BindingInfo<INavigationProvider> GetNavigationProvider()
+        protected override void BindNavigationProvider(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<INavigationProvider>.FromType<NavigationProvider>(DependencyLifecycle.SingleInstance);
+            container.Bind<INavigationProvider, NavigationProvider>(DependencyLifecycle.SingleInstance);
         }
 
-        protected override BindingInfo<IAttachedValueProvider> GetAttachedValueProvider()
+        protected override void BindAttachedValueProvider(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<IAttachedValueProvider>.FromType<AttachedValueProvider>(DependencyLifecycle.SingleInstance);
+            IAttachedValueProvider attachedValueProvider = new AttachedValueProvider();
+            ServiceProvider.AttachedValueProvider = attachedValueProvider;
+            container.BindToConstant(attachedValueProvider);
         }
 
         #endregion

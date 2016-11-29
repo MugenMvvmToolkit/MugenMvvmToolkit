@@ -39,13 +39,14 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Binding.Modules
 {
     public class PlatformDataBindingModuleEx : PlatformDataBindingModule
     {
-        #region Overrides of DataBindingModule
-
-        protected override IBindingErrorProvider GetBindingErrorProvider(IModuleContext context)
-        {
-            return new BindingErrorProvider();
-        }
-
-        #endregion
+        //todo fix
+//        #region Overrides of DataBindingModule
+//
+//        protected override IBindingErrorProvider GetBindingErrorProvider(IModuleContext context)
+//        {
+//            return new BindingErrorProvider();
+//        }
+//
+//        #endregion
     }
 }

@@ -16,15 +16,15 @@
 
 #endregion
 
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
-using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models.IoC;
 using MugenMvvmToolkit.Xamarin.Forms.Modules;
 using Xamarin.Forms;
 #if ANDROID && XAMARIN_FORMS
 using Android.App;
 using Android.Content;
-using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Xamarin.Forms.Android.Infrastructure;
 using MugenMvvmToolkit.Xamarin.Forms.Android.Infrastructure.Presenters;
 namespace MugenMvvmToolkit.Xamarin.Forms.Android.Modules
@@ -52,57 +52,10 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Modules
 {
     public class InitializationModuleEx : InitializationModule
     {
-        #region Cosntructors
-
-        public InitializationModuleEx()
-        {
-        }
-
-        protected InitializationModuleEx(LoadMode mode, int priority)
-            : base(mode, priority)
-        {
-        }
-
-        #endregion
-
         #region Methods
 
-#if ANDROID
-        private static Activity GetActivity(Context context)
-        {
-            while (true)
-            {
-                var activity = context as Activity;
-                if (activity == null)
-                {
-                    var wrapper = context as ContextWrapper;
-                    if (wrapper == null)
-                        return null;
-                    context = wrapper.BaseContext;
-                    continue;
-                }
-                return activity;
-            }
-        }
-#endif
-
-        private static bool IsLastPage(Page page)
-        {
-            return page.Navigation != null && page.Navigation.NavigationStack.Count == 1;
-        }
-
-        #endregion
-
-        #region Overrides of InitializationModule
-
-#if ANDROID
-        protected override BindingInfo<ITracer> GetTracer()
-        {
-            return BindingInfo<ITracer>.FromType<TracerEx>(DependencyLifecycle.SingleInstance);
-        }
-#endif
-        protected override bool LoadInternal()
-        {
+        public override bool Load(IModuleContext context)
+        {//todo move to ext method
 #if ANDROID
             XamarinFormsExtensions.SendBackButtonPressed = page =>
             {
@@ -134,17 +87,48 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Modules
                 return application.Terminate;
             };
 #endif
-            return base.LoadInternal();
+            return base.Load(context);
         }
 
-        protected override BindingInfo<IMessagePresenter> GetMessagePresenter()
+        protected override void BindMessagePresenter(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<IMessagePresenter>.FromType<MessagePresenter>(DependencyLifecycle.SingleInstance);
+            container.Bind<IMessagePresenter, MessagePresenter>(DependencyLifecycle.SingleInstance);
         }
 
-        protected override BindingInfo<IToastPresenter> GetToastPresenter()
+        protected override void BindToastPresenter(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<IToastPresenter>.FromType<ToastPresenter>(DependencyLifecycle.SingleInstance);
+            container.Bind<IToastPresenter, ToastPresenter>(DependencyLifecycle.SingleInstance);
+        }
+
+#if ANDROID
+        protected override void BindTracer(IModuleContext context, IIocContainer container)
+        {
+            ITracer tracer = new TracerEx();
+            ServiceProvider.Tracer = tracer;
+            container.BindToConstant(tracer);
+        }
+
+        private static Activity GetActivity(Context context)
+        {
+            while (true)
+            {
+                var activity = context as Activity;
+                if (activity == null)
+                {
+                    var wrapper = context as ContextWrapper;
+                    if (wrapper == null)
+                        return null;
+                    context = wrapper.BaseContext;
+                    continue;
+                }
+                return activity;
+            }
+        }
+#endif
+
+        private static bool IsLastPage(Page page)
+        {
+            return page.Navigation != null && page.Navigation.NavigationStack.Count == 1;
         }
 
         #endregion

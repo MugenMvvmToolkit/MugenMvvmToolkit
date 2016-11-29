@@ -104,15 +104,11 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
         public PlatformInfo GetPlatformInfo()
         {
 #if WINDOWS_PHONE
-            return new PlatformInfo(PlatformType.XamarinFormsWinPhone, Environment.OSVersion.Version);
-#elif TOUCH
-            Version result;
-            Version.TryParse(UIKit.UIDevice.CurrentDevice.SystemVersion, out result);
-            return new PlatformInfo(PlatformType.XamarinFormsiOS, result);
-#elif ANDROID
-            Version result;
-            Version.TryParse(global::Android.OS.Build.VERSION.Release, out result);
-            return new PlatformInfo(PlatformType.XamarinFormsAndroid, result);
+            return new PlatformInfo(PlatformType.XamarinFormsWinPhone, Environment.OSVersion.Version.ToString());
+#elif TOUCH            
+            return new PlatformInfo(PlatformType.XamarinFormsiOS, UIKit.UIDevice.CurrentDevice.SystemVersion);
+#elif ANDROID            
+            return new PlatformInfo(PlatformType.XamarinFormsAndroid, global::Android.OS.Build.VERSION.Release);
 #elif WINDOWS_UWP
             // get the system version number
             var deviceFamilyVersion = AnalyticsInfo.VersionInfo.DeviceFamilyVersion;
@@ -122,13 +118,12 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
             var buildVersion = (version & 0x00000000FFFF0000L) >> 16;
             var revisionVersion = (version & 0x000000000000FFFFL);
             var isPhone = new EasClientDeviceInformation().OperatingSystem.SafeContains("WindowsPhone", StringComparison.OrdinalIgnoreCase);
-            return new PlatformInfo(isPhone ? PlatformType.XamarinFormsUWPPhone : PlatformType.XamarinFormsUWP,
-                new Version((int)majorVersion, (int)minorVersion, (int)buildVersion, (int)revisionVersion));
+            return new PlatformInfo(isPhone ? PlatformType.XamarinFormsUWPPhone : PlatformType.XamarinFormsUWP, new Version((int)majorVersion, (int)minorVersion, (int)buildVersion, (int)revisionVersion).ToString());
 #elif NETFX_CORE            
             var isPhone = new EasClientDeviceInformation().OperatingSystem.SafeContains("WindowsPhone", StringComparison.OrdinalIgnoreCase);
             var isWinRT10 = typeof(DependencyObject).GetMethodEx("RegisterPropertyChangedCallback", MemberFlags.Instance | MemberFlags.Public) != null;
             var version = isWinRT10 ? new Version(10, 0) : new Version(8, 1);
-            return new PlatformInfo(isPhone ? PlatformType.XamarinFormsWinRTPhone : PlatformType.XamarinFormsWinRT, version);
+            return new PlatformInfo(isPhone ? PlatformType.XamarinFormsWinRTPhone : PlatformType.XamarinFormsWinRT, version.ToString());
 #endif
         }
 

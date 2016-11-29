@@ -88,12 +88,15 @@
     <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\Models\Enums.cs">
       <Link>Models\Enums.cs</Link>
     </Compile>
+    <Compile Include="Binding\AttachedMembersRegistration.cs" />
     <Compile Include="Binding\Infrastructure\BindingContextManagerEx.cs" />
     <Compile Include="Infrastructure\Mediators\ModalViewMediator.cs" />
     <Compile Include="Infrastructure\Navigation\NavigationService.cs" />
+    <Compile Include="Infrastructure\Presenters\RestorableViewModelPresenter.cs" />
     <Compile Include="Infrastructure\ViewMappingProviderEx.cs" />
     <Compile Include="Infrastructure\XamarinFormsDesignBootstrapperBase.cs" />
     <Compile Include="Infrastructure\XamarinFormsBootstrapperBase.cs" />
+    <Compile Include="Interfaces\Presenters\IRestorableViewModelPresenter.cs" />
     <Compile Include="Modules\InitializationModule.cs" />
     <Compile Include="Interfaces\Views\IModalView.cs" />
     <Compile Include="MarkupExtensions\DataBindingExtension.cs" />

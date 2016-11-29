@@ -26,7 +26,6 @@ using System.Windows.Navigation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Mediators;
@@ -112,7 +111,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
             }
             if (_rootWindow != null)
             {
-                var iocContainer = MvvmApplication.Current.IocContainer;
+                var iocContainer = ServiceProvider.IocContainer;
                 IWindowViewMediator mediator = new WindowViewMediator(_rootWindow, viewModel, iocContainer.Get<IThreadManager>(),
                     iocContainer.Get<IViewManager>(), iocContainer.Get<IWrapperManager>(),
                     iocContainer.Get<IOperationCallbackManager>());
@@ -132,7 +131,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
             context = context.ToNonReadOnly();
             if (!context.Contains(NavigationConstants.IsDialog))
                 context.Add(NavigationConstants.IsDialog, false);
-            var app = MvvmApplication.Current;
+            var app = ServiceProvider.Application;
             var viewModelType = app.GetStartViewModelType();
 
             var mappingProvider = app.IocContainer.Get<IViewMappingProvider>();
@@ -174,8 +173,8 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
         internal static void SetDefaultPlatformValues()
         {
             ReflectionExtensions.GetTypesDefault = assembly => assembly.GetTypes();
-            DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
-            DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
+            ApplicationSettings.MultiViewModelPresenterCanShowViewModel = CanShowViewModelTabPresenter;
+            ApplicationSettings.NavigationPresenterCanShowViewModel = CanShowViewModelNavigationPresenter;
         }
 
         private void ApplicationOnStartup(object sender, StartupEventArgs args)

@@ -153,7 +153,7 @@ namespace MugenMvvmToolkit.UWP
             var revisionVersion = (version & 0x000000000000FFFFL);
             var isPhone = new EasClientDeviceInformation().OperatingSystem.SafeContains("WindowsPhone", StringComparison.OrdinalIgnoreCase);
             return new PlatformInfo(isPhone ? PlatformType.UWPPhone : PlatformType.UWP,
-                new Version((int)majorVersion, (int)minorVersion, (int)buildVersion, (int)revisionVersion));
+                new Version((int)majorVersion, (int)minorVersion, (int)buildVersion, (int)revisionVersion).ToString());
         }
 
         internal static NavigationMode ToNavigationMode(this Windows.UI.Xaml.Navigation.NavigationMode mode)

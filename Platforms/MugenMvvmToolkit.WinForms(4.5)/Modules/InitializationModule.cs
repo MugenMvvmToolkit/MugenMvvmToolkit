@@ -19,10 +19,10 @@
 using System;
 using System.Threading;
 using System.Windows.Forms;
-using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.IoC;
@@ -35,103 +35,85 @@ namespace MugenMvvmToolkit.WinForms.Modules
 {
     public class InitializationModule : InitializationModuleBase
     {
-        #region Constructors
+        #region Methods
 
-        public InitializationModule()
+        protected override void BindOperationCallbackFactory(IModuleContext context, IIocContainer container)
         {
+            container.Bind<IOperationCallbackFactory, SerializableOperationCallbackFactory>(DependencyLifecycle.SingleInstance);
         }
 
-        protected InitializationModule(LoadMode mode, int priority)
-            : base(mode, priority)
+        protected override void BindItemsSourceDecorator(IModuleContext context, IIocContainer container)
         {
+            container.Bind<IItemsSourceDecorator, BindingListItemsSourceDecorator>(DependencyLifecycle.SingleInstance);
         }
 
-        #endregion
-
-        #region Properties
-
-        public bool UseSimpleThreadManager { get; set; }
-
-        #endregion
-
-        #region Overrides of InitializationModuleBase
-
-        protected override BindingInfo<IOperationCallbackFactory> GetOperationCallbackFactory()
+        protected override void BindMessagePresenter(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<IOperationCallbackFactory>.FromType<SerializableOperationCallbackFactory>(DependencyLifecycle.SingleInstance);
+            if (context.Platform.Platform == PlatformType.WinForms)
+                container.Bind<IMessagePresenter, MessagePresenter>(DependencyLifecycle.SingleInstance);
         }
 
-        protected override BindingInfo<IItemsSourceDecorator> GetItemsSourceDecorator()
+        protected override void BindToastPresenter(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<IItemsSourceDecorator>.FromType<BindingListItemsSourceDecorator>(DependencyLifecycle.SingleInstance);
+            if (context.Platform.Platform == PlatformType.WinForms)
+                container.Bind<IToastPresenter, ToastPresenter>(DependencyLifecycle.SingleInstance);
         }
 
-        protected override BindingInfo<IMessagePresenter> GetMessagePresenter()
+        protected override void BindThreadManager(IModuleContext context, IIocContainer container)
         {
-            if (Context.Platform.Platform == PlatformType.WinForms)
-                return BindingInfo<IMessagePresenter>.FromType<MessagePresenter>(DependencyLifecycle.SingleInstance);
-            return BindingInfo<IMessagePresenter>.Empty;
-        }
-
-        protected override BindingInfo<IToastPresenter> GetToastPresenter()
-        {
-            if (Context.Platform.Platform == PlatformType.WinForms)
-                return BindingInfo<IToastPresenter>.FromType<ToastPresenter>(DependencyLifecycle.SingleInstance);
-            return BindingInfo<IToastPresenter>.Empty;
-        }
-
-        protected override BindingInfo<IThreadManager> GetThreadManager()
-        {
-            if (Context.Platform.Platform != PlatformType.WinForms)
-                return BindingInfo<IThreadManager>.Empty;
-            if (UseSimpleThreadManager)
-                return BindingInfo<IThreadManager>.FromType<SynchronousThreadManager>(DependencyLifecycle.SingleInstance);
-            return BindingInfo<IThreadManager>.FromMethod((container, list) =>
+            if (context.Platform.Platform != PlatformType.WinForms)
+                return;
+            container.BindToMethod<IThreadManager>((iocContainer, list) =>
             {
-                var context = SynchronizationContext.Current as WindowsFormsSynchronizationContext;
-                if (context == null)
+                var syncContext = SynchronizationContext.Current as WindowsFormsSynchronizationContext;
+                if (syncContext == null)
                 {
-                    context = new WindowsFormsSynchronizationContext();
-                    SynchronizationContext.SetSynchronizationContext(context);
+                    syncContext = new WindowsFormsSynchronizationContext();
+                    SynchronizationContext.SetSynchronizationContext(syncContext);
                     WindowsFormsSynchronizationContext.AutoInstall = false;
                 }
-                return new ThreadManager(context);
+                return new ThreadManager(syncContext);
             }, DependencyLifecycle.SingleInstance);
         }
 
-        protected override BindingInfo<IReflectionManager> GetReflectionManager()
+        protected override void BindReflectionManager(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<IReflectionManager>.FromType<ExpressionReflectionManagerEx>(DependencyLifecycle.SingleInstance);
+            IReflectionManager reflectionManager = new ExpressionReflectionManagerEx();
+            ServiceProvider.ReflectionManager = reflectionManager;
+            container.BindToConstant(reflectionManager);
         }
 
-        protected override BindingInfo<IViewModelPresenter> GetViewModelPresenter()
+        protected override void BindViewModelPresenter(IModuleContext context, IIocContainer container)
         {
-            if (Context.Platform.Platform == PlatformType.WinForms)
-                return BindingInfo<IViewModelPresenter>.FromMethod((container, list) =>
+            if (context.Platform.Platform == PlatformType.WinForms)
+            {
+
+                container.BindToMethod((iocContainer, list) =>
                 {
-                    var presenter = new ViewModelPresenter();
+                    IViewModelPresenter presenter = new ViewModelPresenter();
                     presenter.DynamicPresenters.Add(
-                        new DynamicViewModelWindowPresenter(container.Get<IViewMappingProvider>(),
-                            container.Get<IViewManager>(), container.Get<IWrapperManager>(), container.Get<IThreadManager>(),
-                            container.Get<IOperationCallbackManager>()));
+                        new DynamicViewModelWindowPresenter(iocContainer.Get<IViewMappingProvider>(),
+                            iocContainer.Get<IViewManager>(), iocContainer.Get<IWrapperManager>(), iocContainer.Get<IThreadManager>(),
+                            iocContainer.Get<IOperationCallbackManager>()));
                     return presenter;
                 }, DependencyLifecycle.SingleInstance);
-            MvvmApplication.Initialized += MvvmApplicationOnInitialized;
-            return BindingInfo<IViewModelPresenter>.Empty;
+            }
+            else
+            {
+                ServiceProvider.Initialized += MvvmApplicationOnInitialized;
+            }
         }
 
-        protected override BindingInfo<ITracer> GetTracer()
+        protected override void BindTracer(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<ITracer>.FromType<TracerEx>(DependencyLifecycle.SingleInstance);
+            ITracer tracer = new TracerEx();
+            ServiceProvider.Tracer = tracer;
+            container.BindToConstant(tracer);
         }
-
-        #endregion
-
-        #region Methods
 
         private static void MvvmApplicationOnInitialized(object sender, EventArgs eventArgs)
         {
-            MvvmApplication.Initialized -= MvvmApplicationOnInitialized;
+            ServiceProvider.Initialized -= MvvmApplicationOnInitialized;
             IViewModelPresenter presenter;
             if (ServiceProvider.TryGet(out presenter))
                 presenter.DynamicPresenters.Add(ServiceProvider.Get<DynamicViewModelWindowPresenter>());

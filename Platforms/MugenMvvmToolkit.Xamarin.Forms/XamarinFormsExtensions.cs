@@ -121,11 +121,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms
             return typeFrom.GetTypeInfo().IsAssignableFrom(typeTo.GetTypeInfo());
         }
 
-        internal static PlatformInfo GetPlatformInfo()
-        {
-            return new PlatformInfo(Device.OnPlatform(PlatformType.XamarinFormsiOS, PlatformType.XamarinFormsAndroid, PlatformType.XamarinFormsWinPhone), new Version(0, 0));
-        }
-
         internal static void AsEventHandler<TArg>(this Action action, object sender, TArg arg)
         {
             action();

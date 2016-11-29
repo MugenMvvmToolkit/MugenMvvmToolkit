@@ -83,6 +83,7 @@
       <Link>Infrastructure\TracerEx.cs</Link>
     </Compile>
     <Compile Include="Binding\AttachedMembers.cs" />
+    <Compile Include="Binding\AttachedMembersRegistration.cs" />
     <Compile Include="Binding\Infrastructure\ItemsSourceGeneratorBase.cs" />
     <Compile Include="Binding\Interfaces\IItemsSourceGenerator.cs" />
     <Compile Include="Binding\Models\AutoCompleteItem.cs" />

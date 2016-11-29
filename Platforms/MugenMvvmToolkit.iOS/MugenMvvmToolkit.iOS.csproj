@@ -92,6 +92,7 @@
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\interfaces\navigation\INavigationService.cs">
       <Link>Interfaces\Navigation\INavigationService.cs</Link>
     </Compile>
+    <Compile Include="Binding\AttachedMembersRegistration.cs" />
     <Compile Include="Binding\Converters\BooleanToCheckmarkAccessoryConverter.cs" />
     <Compile Include="Binding\Infrastructure\DataTemplateProvider.cs" />
     <Compile Include="Binding\Infrastructure\DefaultTableCellTemplateSelector.cs" />
@@ -126,9 +127,6 @@
     <Compile Include="Models\EventArg\NavigationEventArgs.cs" />
     <Compile Include="Binding\Models\ParentObserver.cs" />
     <Compile Include="Modules\InitializationModule.cs" />
-    <Compile Include="Binding\Modules\PlatformDataBindingModuleDialog.cs" />
-    <Compile Include="Binding\Modules\PlatformDataBindingModuleCollectionView.cs" />
-    <Compile Include="Binding\Modules\PlatformDataBindingModuleTableView.cs" />
     <Compile Include="Binding\Modules\PlatformDataBindingModule.cs" />
     <Compile Include="Binding\AttachedMembers.cs" />
     <Compile Include="PlatformExtensions.cs" />

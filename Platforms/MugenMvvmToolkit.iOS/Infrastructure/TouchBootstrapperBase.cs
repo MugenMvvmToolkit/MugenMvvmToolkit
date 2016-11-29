@@ -23,7 +23,6 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Parse;
 using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
@@ -39,6 +38,7 @@ using UIKit;
 
 namespace MugenMvvmToolkit.iOS.Infrastructure
 {
+    //todo linker types
     public abstract class TouchBootstrapperBase : BootstrapperBase, IDynamicViewModelPresenter
     {
         #region Fields
@@ -54,8 +54,8 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
         static TouchBootstrapperBase()
         {
             ReflectionExtensions.GetTypesDefault = assembly => assembly.GetTypes();
-            DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
-            DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
+            ApplicationSettings.MultiViewModelPresenterCanShowViewModel = CanShowViewModelTabPresenter;
+            ApplicationSettings.NavigationPresenterCanShowViewModel = CanShowViewModelNavigationPresenter;
             ServiceProvider.WeakReferenceFactory = PlatformExtensions.CreateWeakReference;
             ViewManager.DisposeView = true;
             CompiledExpressionInvoker.SupportCoalesceExpression = false;
@@ -110,7 +110,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
         public virtual void Start(IDataContext context = null)
         {
             Initialize();
-            var app = MvvmApplication.Current;
+            var app = ServiceProvider.Application;
             app.IocContainer.Get<IViewModelPresenter>().DynamicPresenters.Add(this);
             app.Start(context);
         }
