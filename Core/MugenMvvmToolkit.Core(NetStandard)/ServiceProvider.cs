@@ -20,8 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using MugenMvvmToolkit.Infrastructure.Callbacks;
-using MugenMvvmToolkit.Infrastructure.Validation;
+using System.Runtime.CompilerServices;
 using MugenMvvmToolkit.Interfaces.Validation;
 using System.Threading;
 using JetBrains.Annotations;
@@ -52,7 +51,9 @@ namespace MugenMvvmToolkit
         private static Func<object, WeakReference> _weakReferenceFactory;
         private static IViewModelProvider _viewModelProvider;
         private static Func<IViewModel, IViewModelSettings> _viewModelSettingsFactory;
-        internal static SynchronizationContext UiSynchronizationContextField;        
+        internal static SynchronizationContext UiSynchronizationContextField;
+        private static bool? _isDesignMode;
+        private static IMvvmApplication _application;
 
         #endregion
 
@@ -66,11 +67,6 @@ namespace MugenMvvmToolkit
             EntityConstructorInfos = new Dictionary<Type, ConstructorInfo>();
             DefaultEntityFactory = DefaultEntityFactoryMethod;
             ObjectToSubscriberConverter = ObjectToSubscriberConverterImpl;
-
-            var current = MvvmApplication.Current;
-            if (current != null && current.IsInitialized)
-                Initialize(current);
-            MvvmApplication.Initialized += MvvmApplicationOnInitialized;
         }
 
         #endregion
@@ -123,15 +119,19 @@ namespace MugenMvvmToolkit
         [CanBeNull]
         public static IOperationCallbackStateManager OperationCallbackStateManager { get; set; }
 
-        public static IIocContainer IocContainer
+        [NotNull]
+        public static IMvvmApplication Application
         {
             get
             {
-                if (MvvmApplication.Current == null)
-                    return null;
-                return MvvmApplication.Current.IocContainer;
+                if (_application == null)
+                    ThrowNotInitialized();
+                return _application;
             }
+            private set { _application = value; }
         }
+
+        public static IIocContainer IocContainer => Application.IocContainer;
 
         [NotNull]
         public static IThreadManager ThreadManager
@@ -139,7 +139,7 @@ namespace MugenMvvmToolkit
             get
             {
                 if (_threadManager == null)
-                    _threadManager = new SynchronousThreadManager();
+                    ThrowNotInitialized();
                 return _threadManager;
             }
             set { _threadManager = value; }
@@ -151,7 +151,7 @@ namespace MugenMvvmToolkit
             get
             {
                 if (_attachedValueProvider == null)
-                    Interlocked.CompareExchange(ref _attachedValueProvider, new AttachedValueProviderDefault(), null);
+                    ThrowNotInitialized();
                 return _attachedValueProvider;
             }
             set { _attachedValueProvider = value; }
@@ -163,7 +163,7 @@ namespace MugenMvvmToolkit
             get
             {
                 if (_reflectionManager == null)
-                    Interlocked.CompareExchange(ref _reflectionManager, new ExpressionReflectionManager(), null);
+                    ThrowNotInitialized();
                 return _reflectionManager;
             }
             set { _reflectionManager = value; }
@@ -187,7 +187,7 @@ namespace MugenMvvmToolkit
             get
             {
                 if (_operationCallbackFactory == null)
-                    return DefaultOperationCallbackFactory.Instance;
+                    ThrowNotInitialized();
                 return _operationCallbackFactory;
             }
             set { _operationCallbackFactory = value; }
@@ -199,7 +199,7 @@ namespace MugenMvvmToolkit
             get
             {
                 if (_validatorProvider == null)
-                    Interlocked.CompareExchange(ref _validatorProvider, new ValidatorProvider(), null);
+                    ThrowNotInitialized();
                 return _validatorProvider;
             }
             set { _validatorProvider = value; }
@@ -211,7 +211,7 @@ namespace MugenMvvmToolkit
             get
             {
                 if (_viewModelProvider == null)
-                    Interlocked.CompareExchange(ref _viewModelProvider, new ViewModelProvider(IocContainer), null);
+                    ThrowNotInitialized();
                 return _viewModelProvider;
             }
             set { _viewModelProvider = value; }
@@ -223,13 +223,11 @@ namespace MugenMvvmToolkit
             get
             {
                 if (_eventAggregator == null)
-                    Interlocked.CompareExchange(ref _eventAggregator, new EventAggregator(), null);
+                    ThrowNotInitialized();
                 return _eventAggregator;
             }
             set { _eventAggregator = value; }
         }
-
-        private static bool? _isDesignMode;
 
         public static bool IsDesignMode
         {
@@ -242,13 +240,46 @@ namespace MugenMvvmToolkit
             set { _isDesignMode = value; }
         }
 
+        public static event EventHandler Initialized;
+
         #endregion
 
         #region Methods
 
+        public static void Initialize(IMvvmApplication application)
+        {
+            Should.NotBeNull(application, nameof(application));
+            Application = application;
+            if (!application.IsInitialized)
+                return;
+            var iocContainer = application.IocContainer;
+            TryInitialize(iocContainer, ref _tracer);
+            TryInitialize(iocContainer, ref _reflectionManager);
+            TryInitialize(iocContainer, ref _attachedValueProvider);
+            TryInitialize(iocContainer, ref _threadManager);
+            TryInitialize(iocContainer, ref _operationCallbackFactory);
+            TryInitialize(iocContainer, ref _validatorProvider);
+            TryInitialize(iocContainer, ref _viewModelProvider);
+            TryInitialize(iocContainer, ref _eventAggregator);
+
+            if (OperationCallbackStateManager == null)
+            {
+                IOperationCallbackStateManager stateManager = null;
+                TryInitialize(iocContainer, ref stateManager);
+                OperationCallbackStateManager = stateManager;
+            }
+            if (ItemsSourceDecorator == null)
+            {
+                IItemsSourceDecorator decorator = null;
+                TryInitialize(iocContainer, ref decorator);
+                ItemsSourceDecorator = decorator;
+            }
+            Initialized?.Invoke(application, EventArgs.Empty);
+        }
+
         [Pure]
         public static bool TryGet(Type type, out object result, string name = null,
-            params IIocParameter[] parameters)
+             params IIocParameter[] parameters)
         {
             var iocContainer = IocContainer;
             if (iocContainer == null)
@@ -314,36 +345,9 @@ namespace MugenMvvmToolkit
             return decorator.Decorate(owner, itemsSource);
         }
 
-        private static void MvvmApplicationOnInitialized(object sender, EventArgs eventArgs)
+        private static void ThrowNotInitialized([CallerMemberName]string propertyName = "")
         {
-            Initialize(MvvmApplication.Current);
-        }
-
-        private static void Initialize(IMvvmApplication application)
-        {
-            Should.NotBeNull(application, nameof(application));
-            var iocContainer = application.IocContainer;
-            TryInitialize(iocContainer, ref _tracer);
-            TryInitialize(iocContainer, ref _reflectionManager);
-            TryInitialize(iocContainer, ref _attachedValueProvider);
-            TryInitialize(iocContainer, ref _threadManager);
-            TryInitialize(iocContainer, ref _operationCallbackFactory);
-            TryInitialize(iocContainer, ref _validatorProvider);
-            TryInitialize(iocContainer, ref _viewModelProvider);
-            TryInitialize(iocContainer, ref _eventAggregator);
-
-            if (OperationCallbackStateManager == null)
-            {
-                IOperationCallbackStateManager stateManager = null;
-                TryInitialize(iocContainer, ref stateManager);
-                OperationCallbackStateManager = stateManager;
-            }
-            if (ItemsSourceDecorator == null)
-            {
-                IItemsSourceDecorator decorator = null;
-                TryInitialize(iocContainer, ref decorator);
-                ItemsSourceDecorator = decorator;
-            }
+            throw ExceptionManager.ObjectNotInitialized(propertyName, typeof(ServiceProvider));
         }
 
         private static void TryInitialize<TService>(IIocContainer iocContainer, ref TService service)

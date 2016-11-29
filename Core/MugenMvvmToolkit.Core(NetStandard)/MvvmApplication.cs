@@ -46,17 +46,15 @@ namespace MugenMvvmToolkit
         {
             if (ServiceProvider.UiSynchronizationContextField == null)
                 ServiceProvider.UiSynchronizationContextField = SynchronizationContext.Current;
-            Current = this;
             _mode = mode;
             _platform = PlatformInfo.Unknown;
             _context = new DataContext();
+            ServiceProvider.Initialize(this);
         }
 
         #endregion
 
         #region Properties
-
-        public static IMvvmApplication Current { get; protected set; }
 
         public virtual bool IsInitialized => _isInitialized;
 
@@ -71,8 +69,6 @@ namespace MugenMvvmToolkit
         #endregion
 
         #region Methods
-
-        public static event EventHandler Initialized;
 
         protected virtual void StartInternal([CanBeNull] IDataContext context)
         {
@@ -120,11 +116,6 @@ namespace MugenMvvmToolkit
             return assemblies.GetModules(true);
         }
 
-        protected static void RaiseInitialized(IMvvmApplication sender)
-        {
-            Initialized?.Invoke(sender, EventArgs.Empty);
-        }
-
         #endregion
 
         #region Implementation of interfaces
@@ -137,13 +128,12 @@ namespace MugenMvvmToolkit
             if (_isInitialized)
                 return;
             _isInitialized = true;
-            Current = this;
             _platform = platform;
             _iocContainer = iocContainer;
             if (context != null)
                 Context.Merge(context);
             OnInitialize(assemblies);
-            RaiseInitialized(this);
+            ServiceProvider.Initialize(this);
         }
 
         public void Start(IDataContext context = null)
