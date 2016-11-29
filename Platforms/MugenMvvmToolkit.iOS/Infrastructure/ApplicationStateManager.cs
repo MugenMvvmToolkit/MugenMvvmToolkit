@@ -53,6 +53,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public ApplicationStateManager([NotNull] ISerializer serializer, [NotNull] IViewModelProvider viewModelProvider,
             [NotNull] IViewManager viewManager, [NotNull] IViewModelPresenter viewModelPresenter)
         {

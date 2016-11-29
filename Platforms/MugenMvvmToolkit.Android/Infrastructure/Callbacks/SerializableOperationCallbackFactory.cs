@@ -59,7 +59,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
     {
         #region Nested types
 
-        [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true, Name = "socffs")]
+        [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true)]
 #if ANDROID || TOUCH || WPF || WINFORMS
         [mscore::System.Serializable]
 #endif
@@ -344,7 +344,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
 #if ANDROID || TOUCH || WPF || WINFORMS
         [mscore::System.Serializable]
 #endif
-        [Preserve]
+        [Preserve(Conditional = true)]
         internal sealed class AwaiterSerializableCallback : ISerializableCallback
         {
             #region Constructors
@@ -606,7 +606,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
 
             #region Constructors
 
-            [Preserve, UsedImplicitly]
+            [Preserve(Conditional = true), UsedImplicitly]
             public SerializableAwaiter(IOperationResult result)
             {
                 if (result != null)
@@ -662,7 +662,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
 #if ANDROID || TOUCH || WPF || WINFORMS
         [mscore::System.Serializable]
 #endif
-        [Preserve]
+        [Preserve(Conditional = true)]
         internal sealed class DelegateSerializableCallback : ISerializableCallback
         {
             #region Fields
@@ -802,6 +802,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
                 .GetMethodEx(nameof(GetDefaultGeneric), MemberFlags.Public | MemberFlags.NonPublic | MemberFlags.Static);
         }
 
+        [Preserve(Conditional = true)]
         public SerializableOperationCallbackFactory(ISerializer serializer)
         {
             Should.NotBeNull(serializer, nameof(serializer));

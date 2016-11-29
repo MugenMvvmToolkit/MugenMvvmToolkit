@@ -19,6 +19,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Foundation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Interfaces;
@@ -87,6 +88,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Presenters
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public ToastPresenter([NotNull] IThreadManager threadManager)
         {
             Should.NotBeNull(threadManager, nameof(threadManager));

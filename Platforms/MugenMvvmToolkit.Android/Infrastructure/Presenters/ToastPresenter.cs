@@ -27,6 +27,7 @@ using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models;
+using Android.Runtime;
 
 #if XAMARIN_FORMS && ANDROID
 namespace MugenMvvmToolkit.Xamarin.Forms.Android.Infrastructure.Presenters
@@ -151,6 +152,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public ToastPresenter([NotNull] IThreadManager threadManager)
         {
             Should.NotBeNull(threadManager, nameof(threadManager));

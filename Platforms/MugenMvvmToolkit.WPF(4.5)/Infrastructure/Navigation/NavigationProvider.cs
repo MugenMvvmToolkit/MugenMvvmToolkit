@@ -23,6 +23,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
@@ -266,6 +267,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             IsNavigatedConstant = DataConstant.Create<object>(type, nameof(IsNavigatedConstant), false);
         }
 
+        [Preserve(Conditional = true)]
         public NavigationProvider([NotNull] INavigationService navigationService, [NotNull] IThreadManager threadManager,
             [NotNull] IViewMappingProvider mappingProvider, [NotNull] IViewManager viewManager,
             [NotNull] IViewModelProvider viewModelProvider, IOperationCallbackManager callbackManager, INavigationCachePolicy cachePolicy = null)

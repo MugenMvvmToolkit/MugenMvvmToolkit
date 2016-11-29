@@ -29,6 +29,7 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Navigation;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.UWP.Infrastructure.Presenters;
 using MugenMvvmToolkit.UWP.Interfaces;
 
@@ -123,6 +124,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
             KnownTypesStatic = new[] { typeof(LazySerializableContainer), typeof(DataContext) };
         }
 
+        [Preserve(Conditional = true)]
         public ApplicationStateManager([NotNull] ISerializer serializer, [NotNull] IViewModelProvider viewModelProvider,
             [NotNull] IViewManager viewManager, [NotNull] IViewModelPresenter viewModelPresenter)
         {

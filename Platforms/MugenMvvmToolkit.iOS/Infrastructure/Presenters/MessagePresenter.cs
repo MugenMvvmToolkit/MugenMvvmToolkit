@@ -18,6 +18,7 @@
 
 using System;
 using System.Threading.Tasks;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
@@ -40,6 +41,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Presenters
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public MessagePresenter(IThreadManager threadManager)
         {
             Should.NotBeNull(threadManager, nameof(threadManager));
