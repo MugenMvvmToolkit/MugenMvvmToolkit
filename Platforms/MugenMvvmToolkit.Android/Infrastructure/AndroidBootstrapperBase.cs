@@ -27,7 +27,6 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Android.Attributes;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
@@ -89,8 +88,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure
             ViewManager.AlwaysCreateNewView = true;
             ReflectionExtensions.GetTypesDefault = assembly => assembly.GetTypes();
             ServiceProvider.WeakReferenceFactory = PlatformExtensions.CreateWeakReference;
-            DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
-            DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
+            ApplicationSettings.MultiViewModelPresenterCanShowViewModel = CanShowViewModelTabPresenter;
+            ApplicationSettings.NavigationPresenterCanShowViewModel = CanShowViewModelNavigationPresenter;
             BindingServiceProvider.ValueConverter = BindingReflectionExtensions.Convert;
             Locker = new object();
         }
@@ -134,41 +133,44 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
         public static void EnsureInitialized(object sender = null, Bundle bundle = null, Func<AndroidBootstrapperBase> factory = null)
         {
-            lock (Locker)
+            if (Current == null)
             {
-                if (Current == null)
+                lock (Locker)
                 {
-                    if (factory == null)
+                    if (Current == null)
                     {
-                        Type type;
-                        var typeString = bundle?.GetString(BootTypeKey);
-                        if (string.IsNullOrEmpty(typeString))
+                        if (factory == null)
                         {
-                            BootstrapperAttribute bootstrapperAttribute = null;
-                            if (sender != null)
-                                bootstrapperAttribute = sender.GetType().Assembly.GetCustomAttribute<BootstrapperAttribute>();
-                            if (bootstrapperAttribute == null)
+                            Type type;
+                            var typeString = bundle?.GetString(BootTypeKey);
+                            if (string.IsNullOrEmpty(typeString))
                             {
-                                foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().SkipFrameworkAssemblies())
-                                {
-                                    bootstrapperAttribute = (BootstrapperAttribute)assembly
-                                        .GetCustomAttributes(typeof(BootstrapperAttribute), false)
-                                        .FirstOrDefault();
-                                    if (bootstrapperAttribute != null)
-                                        break;
-                                }
+                                BootstrapperAttribute bootstrapperAttribute = null;
+                                if (sender != null)
+                                    bootstrapperAttribute = sender.GetType().Assembly.GetCustomAttribute<BootstrapperAttribute>();
                                 if (bootstrapperAttribute == null)
-                                    throw new InvalidOperationException(@"The BootstrapperAttribute was not found.
+                                {
+                                    foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+                                    {
+                                        bootstrapperAttribute = (BootstrapperAttribute)assembly
+                                            .GetCustomAttributes(typeof(BootstrapperAttribute), false)
+                                            .FirstOrDefault();
+                                        if (bootstrapperAttribute != null)
+                                            break;
+                                    }
+                                    if (bootstrapperAttribute == null)
+                                        throw new InvalidOperationException(@"The BootstrapperAttribute was not found.
 You must specify the type of application bootstrapper using BootstrapperAttribute, for example [assembly:Bootstrapper(typeof(MyBootstrapperType))]");
+                                }
+                                type = bootstrapperAttribute.BootstrapperType;
                             }
-                            type = bootstrapperAttribute.BootstrapperType;
+                            else
+                                type = Type.GetType(typeString, true);
+                            Current = (AndroidBootstrapperBase)Activator.CreateInstance(type);
                         }
                         else
-                            type = Type.GetType(typeString, true);
-                        Current = (AndroidBootstrapperBase)Activator.CreateInstance(type);
+                            Current = factory();
                     }
-                    else
-                        Current = factory();
                 }
             }
             Current.Initialize();
@@ -184,7 +186,7 @@ You must specify the type of application bootstrapper using BootstrapperAttribut
         public virtual void Start(IDataContext context = null)
         {
             Initialize();
-            MvvmApplication.Current.Start(context);
+            ServiceProvider.Application.Start(context);
         }
 
         [NotNull]
@@ -195,7 +197,6 @@ You must specify the type of application bootstrapper using BootstrapperAttribut
             {
                 //NOTE order the assemblies to keep the support libraries at the end of array.
                 ViewAssemblies = assemblies
-                    .Where(assembly => !assembly.IsNetFrameworkAssembly())
                     .OrderBy(assembly => assembly.FullName, this)
                     .ToArray();
             }

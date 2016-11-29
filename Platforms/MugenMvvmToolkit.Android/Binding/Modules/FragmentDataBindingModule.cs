@@ -18,9 +18,8 @@
 
 using System;
 using MugenMvvmToolkit.Android.Binding.Infrastructure;
-using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Modules;
+using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Interfaces.Models;
 #if APPCOMPAT
 using FragmentManager = Android.Support.V4.App.FragmentManager;
 using Fragment = Android.Support.V4.App.Fragment;
@@ -31,31 +30,13 @@ using FragmentContentViewManager = MugenMvvmToolkit.Android.AppCompat.Infrastruc
 namespace MugenMvvmToolkit.Android.AppCompat.Modules
 #else
 using Android.App;
-using MugenMvvmToolkit.Binding.Models;
 
 namespace MugenMvvmToolkit.Android.Binding.Modules
 #endif
 {
-    public class FragmentDataBindingModule : ModuleBase
+    public class FragmentDataBindingModule : IModule
     {
-        #region Constructors
-
-        public FragmentDataBindingModule()
-            : base(true)
-        {
-        }
-
-        #endregion
-
         #region Methods
-
-        private static void RegisterMembers(IBindingMemberProvider memberProvider)
-        {
-#if !APPCOMPAT
-            //View
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.ViewGroup.AddToBackStack));
-#endif
-        }
 
         private static void OnRemoveTab(Action<TabHostItemsSourceGenerator, TabHostItemsSourceGenerator.TabInfo> baseAction, TabHostItemsSourceGenerator generator, TabHostItemsSourceGenerator.TabInfo tab)
         {
@@ -117,11 +98,12 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
         #endregion
 
-        #region Overrides of ModuleBase
+        #region Implementation of IModule
 
-        protected override bool LoadInternal()
+        public int Priority => ApplicationSettings.ModulePriorityDefault;
+
+        public bool Load(IModuleContext context)
         {
-            RegisterMembers(BindingServiceProvider.MemberProvider);
 #if !APPCOMPAT
             if (!PlatformExtensions.IsApiGreaterThanOrEqualTo17)
                 return false;
@@ -140,7 +122,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             return true;
         }
 
-        protected override void UnloadInternal()
+        public void Unload(IModuleContext context)
         {
         }
 

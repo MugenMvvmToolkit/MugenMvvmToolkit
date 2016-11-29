@@ -17,43 +17,32 @@
 #endregion
 
 using System;
-using System.Runtime.InteropServices;
+using System.Collections.Generic;
 using Android.Content;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Builders;
+using MugenMvvmToolkit.Binding.Interfaces;
 
 namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 {
-    [StructLayout(LayoutKind.Auto)]
-    public struct XmlPropertySetter<TTarget>
-        where TTarget : class
+    public sealed class XmlPropertySetter : List<IBindingBuilder>
     {
         #region Fields
 
         private readonly Context _context;
-        private readonly BindingSet _bindingSet;
-        private readonly TTarget _target;
+        private readonly object _target;
 
         #endregion
 
         #region Constructors
 
-        public XmlPropertySetter([NotNull]TTarget target, [NotNull] Context context, [NotNull] BindingSet bindingSet)
+        public XmlPropertySetter([NotNull]object target, [NotNull] Context context)
         {
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(context, nameof(context));
-            Should.NotBeNull(bindingSet, nameof(bindingSet));
             _target = target;
             _context = context;
-            _bindingSet = bindingSet;
         }
-
-        #endregion
-
-        #region Properties
-
-        public BindingSet BindingSet => _bindingSet;
 
         #endregion
 
@@ -79,12 +68,12 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             {
                 if (value.StartsWith("{"))
                 {
-                    _bindingSet.BindFromExpression(_target, propertyName, ToBindingString(value));
+                    AddRange(Bind(_target, propertyName, ToBindingString(value)));
                     return;
                 }
                 objectToSet = value;
             }
-            var member = BindingServiceProvider.MemberProvider.GetBindingMember(typeof(TTarget), propertyName, false, true);
+            var member = BindingServiceProvider.MemberProvider.GetBindingMember(_target.GetType(), propertyName, false, true);
             member.SetSingleValue(_target, convertAction == null ? objectToSet : convertAction(objectToSet));
         }
 
@@ -97,23 +86,29 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             {
                 if (value.StartsWith("{"))
                 {
-                    _bindingSet.BindFromExpression(_target, propertyName, ToBindingString(value));
+                    AddRange(Bind(_target, propertyName, ToBindingString(value)));
                     return;
                 }
                 objectToSet = value;
             }
-            var member = BindingServiceProvider.MemberProvider.GetBindingMember(typeof(TTarget), propertyName, false, true);
+            var member = BindingServiceProvider.MemberProvider.GetBindingMember(_target.GetType(), propertyName, false, true);
             member.SetSingleValue(_target, objectToSet);
         }
 
         public void SetBinding(string propertyName, string value, bool required)
         {
-            AddBinding(_bindingSet, _target, propertyName, value, required);
+            AddBinding(this, _target, propertyName, value, required);
+        }
+
+        public void Bind(object target, string expression)
+        {
+            AddRange(BindingServiceProvider.BindingProvider.CreateBuildersFromString(target, expression));
         }
 
         public void Apply()
         {
-            _bindingSet.Apply();
+            for (int i = 0; i < Count; i++)
+                this[i].Build();
         }
 
         private string TryGetResourceAsString(string value)
@@ -141,7 +136,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             return result;
         }
 
-        internal static void AddBinding(BindingSet bindingSet, object target, string propertyName, string value, bool required)
+        internal static void AddBinding(XmlPropertySetter bindingSet, object target, string propertyName, string value, bool required)
         {
             if (value == null)
             {
@@ -149,7 +144,12 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                     return;
                 value = string.Empty;
             }
-            bindingSet.BindFromExpression(target, propertyName, ToBindingString(value));
+            bindingSet.AddRange(Bind(target, propertyName, ToBindingString(value)));
+        }
+
+        private static IList<IBindingBuilder> Bind(object target, string targetPath, string bindingExpression)
+        {
+            return BindingServiceProvider.BindingProvider.CreateBuildersFromString(target, targetPath + " " + bindingExpression + ";");
         }
 
         private static string ToBindingString(string expression)

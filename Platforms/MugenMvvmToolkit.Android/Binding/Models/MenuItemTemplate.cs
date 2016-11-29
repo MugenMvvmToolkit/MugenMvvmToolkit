@@ -24,7 +24,6 @@ using Android.Views;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Android.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Builders;
 
 namespace MugenMvvmToolkit.Android.Binding.Models
 {
@@ -33,7 +32,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
         #region Properties
 
         [CanBeNull]
-        public static Action<MenuItemTemplate, IMenuItem, XmlPropertySetter<IMenuItem>> Initalized;
+        public static Action<MenuItemTemplate, IMenuItem, XmlPropertySetter> Initalized;
 
         [XmlAttribute("BIND")]
         public string Bind { get; set; }
@@ -149,16 +148,16 @@ namespace MugenMvvmToolkit.Android.Binding.Models
         {
             PlatformExtensions.ValidateTemplate(ItemsSource, Items);
             bool isSubMenu = !string.IsNullOrEmpty(ItemsSource) || (Items != null && Items.Count > 0);
-            XmlPropertySetter<IMenuItem> setter;
+            XmlPropertySetter setter;
             int groupId;
             int.TryParse(Group, out groupId);
             if (isSubMenu)
             {
                 ISubMenu subMenu = menu.AddSubMenu(groupId, id, order, string.Empty);
-                setter = new XmlPropertySetter<IMenuItem>(subMenu.Item, context, new BindingSet());
+                setter = new XmlPropertySetter(subMenu.Item, context);
                 subMenu.SetBindingMemberValue(AttachedMembers.Object.Parent, menu);
                 subMenu.Item.SetBindingMemberValue(AttachedMembers.Object.Parent, subMenu);
-                SetDataContext(subMenu, setter.BindingSet, dataContext, useContext);
+                SetDataContext(subMenu, setter, dataContext, useContext);
                 ApplySelf(subMenu.Item, setter);
 
                 if (string.IsNullOrEmpty(ItemsSource))
@@ -170,24 +169,24 @@ namespace MugenMvvmToolkit.Android.Binding.Models
                 {
                     subMenu.SetBindingMemberValue(AttachedMembers.Menu.ItemsSourceGenerator,
                         new MenuItemsSourceGenerator(subMenu, context, ItemTemplate ?? this));
-                    XmlPropertySetter<object>.AddBinding(setter.BindingSet, subMenu, AttachedMemberConstants.ItemsSource, ItemsSource, true);
+                    XmlPropertySetter.AddBinding(setter, subMenu, AttachedMemberConstants.ItemsSource, ItemsSource, true);
                 }
             }
             else
             {
                 var menuItem = menu.Add(groupId, id, order, string.Empty);
-                setter = new XmlPropertySetter<IMenuItem>(menuItem, context, new BindingSet());
+                setter = new XmlPropertySetter(menuItem, context);
                 menuItem.SetBindingMemberValue(AttachedMembers.Object.Parent, menu);
-                SetDataContext(menuItem, setter.BindingSet, dataContext, useContext);
+                SetDataContext(menuItem, setter, dataContext, useContext);
                 ApplySelf(menuItem, setter);
             }
             setter.Apply();
         }
 
-        private void ApplySelf(IMenuItem menuItem, XmlPropertySetter<IMenuItem> setter)
+        private void ApplySelf(IMenuItem menuItem, XmlPropertySetter setter)
         {
             if (!string.IsNullOrEmpty(Bind))
-                setter.BindingSet.BindFromExpression(menuItem, Bind);
+                setter.Bind(menuItem, Bind);
             setter.SetStringProperty(nameof(AlphabeticShortcut), AlphabeticShortcut);
             setter.SetStringProperty(nameof(NumericShortcut), NumericShortcut);
             setter.SetProperty(nameof(Icon), Icon);
@@ -209,12 +208,12 @@ namespace MugenMvvmToolkit.Android.Binding.Models
             setter.SetStringProperty(nameof(ActionProvider), ActionProvider);
         }
 
-        private void SetDataContext(object target, BindingSet setter, object dataContext, bool useContext)
+        private void SetDataContext(object target, XmlPropertySetter setter, object dataContext, bool useContext)
         {
             if (useContext)
                 target.SetDataContext(dataContext);
             else
-                XmlPropertySetter<object>.AddBinding(setter, target, AttachedMemberConstants.DataContext, DataContext, false);
+                XmlPropertySetter.AddBinding(setter, target, AttachedMemberConstants.DataContext, DataContext, false);
         }
 
         #endregion

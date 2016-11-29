@@ -17,29 +17,19 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using Android.App;
 using Android.Content;
 using Android.Runtime;
 using Android.Util;
 using Android.Views;
 using MugenMvvmToolkit.Android.Binding;
-using MugenMvvmToolkit.Android.Binding.Interfaces;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Binding.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Android.Views
 {
     [Register("mugenmvvmtoolkit.android.views.OptionsMenu")]
-    public sealed class OptionsMenu : View, IManualBindings
+    public sealed class OptionsMenu : View
     {
-        #region Fields
-
-        private string _bind;
-
-        #endregion
-
         #region Constructors
 
         private OptionsMenu(IntPtr javaReference, JniHandleOwnership transfer)
@@ -64,25 +54,8 @@ namespace MugenMvvmToolkit.Android.Views
         {
             if (!activity.IsAlive() || !menu.IsAlive())
                 return;
-            IBindingMemberInfo bindingMember = BindingServiceProvider
-                .MemberProvider
-                .GetBindingMember(typeof(OptionsMenu), AttachedMembers.Toolbar.MenuTemplate, false, true);
-            var value = (int?)bindingMember.GetValue(this, null);
-            if (value == null)
-                return;
-            activity.MenuInflater.Inflate(value.Value, menu, this);
-            if (!string.IsNullOrEmpty(_bind))
-                BindingServiceProvider.BindingProvider.CreateBindingsFromString(menu, _bind, null);
-        }
-
-        #endregion
-
-        #region Implementation of IManualBindings
-
-        public IList<IDataBinding> SetBindings(string bind)
-        {
-            _bind = bind;
-            return Empty.Array<IDataBinding>();
+            var template = this.GetBindingMemberValue(AttachedMembers.View.MenuTemplate);
+            menu.ApplyMenuTemplate(template, activity, this);
         }
 
         #endregion

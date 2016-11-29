@@ -33,7 +33,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
         public static readonly TypeCache<TType> Instance;
         // ReSharper disable once StaticMemberInGenericType
-        private static readonly HashSet<string> UsedTypes;
+        private static HashSet<string> _usedTypes;
 
         private readonly HashSet<Assembly> _cachedAssemblies;
         private readonly object _locker;
@@ -51,7 +51,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure
         static TypeCache()
         {
             Instance = new TypeCache<TType>();
-            UsedTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             if (AndroidBootstrapperBase.ViewAssemblies != null)
                 Initialize(AndroidBootstrapperBase.ViewAssemblies);
         }
@@ -206,7 +205,9 @@ namespace MugenMvvmToolkit.Android.Infrastructure
         {
             if (builder != null)
             {
-                if (UsedTypes.Add(name))
+                if (_usedTypes == null)
+                    _usedTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                if (_usedTypes.Add(name))
                     builder.Append("TypeCache",
                           $"{typeof(TypeCache<TType>).GetPrettyName()}.{nameof(Instance)}.{(isFullName ? nameof(AddFullName) : nameof(AddName))}(\"{name}\", typeof({type.GetPrettyName()}));");
             }

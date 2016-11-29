@@ -55,13 +55,6 @@ namespace MugenMvvmToolkit.Android.Views.Activities
 
         #endregion
 
-        #region Properties
-
-        [CanBeNull]
-        public static SplashScreenActivityBase Current { get; private set; }
-
-        #endregion
-
         #region Methods
 
         #region Overrides of Activity
@@ -78,7 +71,7 @@ namespace MugenMvvmToolkit.Android.Views.Activities
 
             if (Interlocked.Exchange(ref _state, StartedState) == DefaultState)
             {
-                Current = this;
+                PlatformExtensions.SetCurrentActivity(this, false);
                 if (AndroidBootstrapperBase.Current != null && AndroidBootstrapperBase.Current.IsInitialized)
                     StartBootstrapperCallback(this);
                 else
@@ -90,7 +83,7 @@ namespace MugenMvvmToolkit.Android.Views.Activities
 
         private static void StartBootstrapperCallback(object state)
         {
-            var activityBase = (SplashScreenActivityBase) state;
+            var activityBase = (SplashScreenActivityBase)state;
             Exception exception = null;
             AndroidBootstrapperBase bootstrapper = null;
             try
@@ -106,7 +99,7 @@ namespace MugenMvvmToolkit.Android.Views.Activities
             finally
             {
                 activityBase.OnBootstrapperStarted(bootstrapper, exception);
-                Current = null;
+                PlatformExtensions.SetCurrentActivity(activityBase, true);
                 _state = DefaultState;
             }
         }

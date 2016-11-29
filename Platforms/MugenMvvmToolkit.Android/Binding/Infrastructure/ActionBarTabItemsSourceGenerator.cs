@@ -191,7 +191,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 #else
             _actionBar.SetBindingMemberValue(AttachedMembers.ActionBar.SelectedItem, BindingExtensions.NullValue);
 #endif
-            var value = ActionBarView.GetTabContentId(_actionBar);
+            var value = ActionBarTemplate.GetTabContentId(_actionBar);
             if (value == null)
                 return;
             _actionBar.ThemedContext.GetActivity()?.FindViewById<FrameLayout>(value.Value)?.RemoveAllViews();

@@ -24,7 +24,6 @@ using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Android.Binding.Infrastructure;
 using MugenMvvmToolkit.Android.Infrastructure;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 #if APPCOMPAT
@@ -153,7 +152,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
                 if (_cleared)
                     return;
                 var bar = (ActionBar)tab.GetBindingMemberValue(AttachedMembers.Object.Parent);
-                var placeHolder = ActionBarView.GetTabContentId(bar);
+                var placeHolder = ActionBarTemplate.GetTabContentId(bar);
                 var activity = bar.ThemedContext.GetActivity();
                 SetContent(tab, ft, placeHolder, activity, bar);
                 //Set selected item data context or tab
@@ -252,13 +251,13 @@ namespace MugenMvvmToolkit.Android.Binding.Models
             var newTab = bar.NewTab();
             newTab.SetBindingMemberValue(AttachedMembers.Object.Parent, bar);
 
-            var setter = new XmlPropertySetter<ActionBar.Tab>(newTab, bar.ThemedContext, new BindingSet());
+            var setter = new XmlPropertySetter(newTab, bar.ThemedContext);
             if (useContext)
                 newTab.SetDataContext(context);
             else
                 setter.SetProperty(nameof(DataContext), DataContext);
             if (!string.IsNullOrEmpty(Bind))
-                setter.BindingSet.BindFromExpression(newTab, Bind);
+                setter.Bind(newTab, Bind);
             setter.SetBinding(nameof(ContentTemplateSelector), ContentTemplateSelector, false);
             setter.SetProperty(nameof(ContentTemplate), ContentTemplate);
             setter.SetProperty(nameof(Content), Content);

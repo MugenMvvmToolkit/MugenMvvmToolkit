@@ -57,7 +57,6 @@ namespace MugenMvvmToolkit.Android.Views
 
         private static readonly XmlSerializer Serializer;
         private static readonly EventHandler<Activity, EventArgs> DestroyedHandler;
-        private const string TabContentIdKey = "!@tabcontentId";
 
         private readonly int _resourceId;
         private readonly int _tabContentId;
@@ -101,14 +100,6 @@ namespace MugenMvvmToolkit.Android.Views
 
         #region Methods
 
-        public static int? GetTabContentId(ActionBar actionBar)
-        {
-            int value;
-            if (ServiceProvider.AttachedValueProvider.TryGetValue(actionBar, TabContentIdKey, out value))
-                return value;
-            return null;
-        }
-
         private static void ActivityViewOnDestroyed(Activity sender, EventArgs args)
         {
             ((IActivityView)sender).Mediator.Destroyed -= DestroyedHandler;
@@ -135,7 +126,7 @@ namespace MugenMvvmToolkit.Android.Views
             if (_resourceId != int.MinValue)
             {
                 if (_tabContentId != int.MinValue)
-                    ServiceProvider.AttachedValueProvider.SetValue(actionBar, TabContentIdKey, _tabContentId);
+                    ServiceProvider.AttachedValueProvider.SetValue(actionBar, ActionBarTemplate.TabContentIdKey, _tabContentId);
                 using (XmlReader reader = Context.Resources.GetLayout(_resourceId))
                 {
                     //NOTE XDocument throws an error.

@@ -21,7 +21,6 @@ using System.Xml.Serialization;
 using Android.App;
 using Android.OS;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Builders;
 using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.Android.Binding.Infrastructure;
 using MugenMvvmToolkit.Android.Interfaces.Views;
@@ -43,17 +42,9 @@ namespace MugenMvvmToolkit.Android.Binding.Models
     {
         #region Fields
 
-        private static readonly EventHandler<Activity, ValueEventArgs<Bundle>> ActivityViewOnSaveInstanceStateDelegate;
+        private static EventHandler<Activity, ValueEventArgs<Bundle>> _activityViewOnSaveInstanceStateDelegate;
         private const string SelectedTabIndexKey = "~@tabindex";
-
-        #endregion
-
-        #region Constructors
-
-        static ActionBarTemplate()
-        {
-            ActivityViewOnSaveInstanceStateDelegate = ActivityViewOnSaveInstanceState;
-        }
+        internal const string TabContentIdKey = "!@tabcontentId";
 
         #endregion
 
@@ -159,12 +150,12 @@ namespace MugenMvvmToolkit.Android.Binding.Models
             PlatformExtensions.ValidateTemplate(ItemsSource, Tabs);
             var actionBar = activity.GetActionBar();
 
-            var setter = new XmlPropertySetter<ActionBar>(actionBar, activity, new BindingSet());
+            var setter = new XmlPropertySetter(actionBar, activity);
             setter.SetEnumProperty<ActionBarNavigationMode>(nameof(NavigationMode), NavigationMode);
             setter.SetProperty(nameof(DataContext), DataContext);
 
             if (!string.IsNullOrEmpty(Bind))
-                setter.BindingSet.BindFromExpression(actionBar, Bind);
+                setter.Bind(actionBar, Bind);
             setter.SetProperty(nameof(ContextActionBarTemplate), ContextActionBarTemplate);
             setter.SetBinding(nameof(ContextActionBarVisible), ContextActionBarVisible, false);
             setter.SetProperty(nameof(BackgroundDrawable), BackgroundDrawable);
@@ -224,6 +215,14 @@ namespace MugenMvvmToolkit.Android.Binding.Models
             actionBar.ClearBindings(true, true);
         }
 
+        public static int? GetTabContentId(ActionBar actionBar)
+        {
+            int value;
+            if (ServiceProvider.AttachedValueProvider.TryGetValue(actionBar, TabContentIdKey, out value))
+                return value;
+            return null;
+        }
+
         private void TryRestoreSelectedIndex(Activity activity, ActionBar actionBar)
         {
             if (actionBar.GetNavigationMode() == ActionBarNavigationMode.Standard)
@@ -234,7 +233,9 @@ namespace MugenMvvmToolkit.Android.Binding.Models
             var activityView = activity as IActivityView;
             if (activityView == null)
                 return;
-            activityView.Mediator.SaveInstanceState += ActivityViewOnSaveInstanceStateDelegate;
+            if (_activityViewOnSaveInstanceStateDelegate == null)
+                _activityViewOnSaveInstanceStateDelegate = ActivityViewOnSaveInstanceState;
+            activityView.Mediator.SaveInstanceState += _activityViewOnSaveInstanceStateDelegate;
 
             var bundle = activityView.Mediator.Bundle;
             if (bundle != null)

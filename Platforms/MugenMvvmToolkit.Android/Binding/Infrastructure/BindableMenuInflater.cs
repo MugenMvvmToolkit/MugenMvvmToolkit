@@ -24,16 +24,18 @@ using Android.Content;
 using Android.Runtime;
 using Android.Views;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Android.Binding.Interfaces;
 using MugenMvvmToolkit.Android.Binding.Models;
 
 namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 {
-    public class BindableMenuInflater : MenuInflater
+    public class BindableMenuInflater : MenuInflater, IBindableMenuInflater
     {
         #region Fields
 
-        private static readonly XmlSerializer Serializer;
         private readonly Context _context;
+        //todo remove all
+        private static readonly XmlSerializer Serializer;
 
         #endregion
 
@@ -58,29 +60,40 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         #endregion
 
-        #region Overrides of MenuInflater
+        #region Properties
+
+        public virtual MenuInflater NestedMenuInflater { get; set; }
+
+        #endregion
+
+        #region Methods
 
         public override void Inflate(int menuRes, IMenu menu)
         {
             Inflate(menuRes, menu, _context.GetActivity() ?? _context);
         }
 
+        private static bool IsDefaultMenu(XmlDocument document)
+        {
+            var value = document.NameTable.Get("http://schemas.android.com/apk/res/android");
+            return !string.IsNullOrEmpty(value);
+        }
+
         #endregion
 
-        #region Implementation of IBindableMenuInflater
-
-        public virtual MenuInflater NestedMenuInflater { get; set; }
+        #region Implementation of interfaces
 
         public virtual void Inflate(int menuRes, IMenu menu, object parent)
         {
-            using (XmlReader reader = _context.Resources.GetLayout(menuRes))
+            //todo cache
+            using (var reader = _context.Resources.GetLayout(menuRes))
             {
                 //NOTE XDocument throws an error.
                 var document = new XmlDocument();
                 document.Load(reader);
                 if (IsDefaultMenu(document))
                 {
-                    MenuInflater menuInflater = NestedMenuInflater;
+                    var menuInflater = NestedMenuInflater;
                     if (menuInflater == null)
                         base.Inflate(menuRes, menu);
                     else
@@ -90,22 +103,11 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                 {
                     using (var stringReader = new StringReader(PlatformExtensions.XmlTagsToUpper(document.InnerXml)))
                     {
-                        var menuWrapper = (MenuTemplate)Serializer.Deserialize(stringReader);
+                        var menuWrapper = (MenuTemplate) Serializer.Deserialize(stringReader);
                         menuWrapper.Apply(menu, _context, parent);
                     }
                 }
             }
-        }
-
-        #endregion
-
-        #region Methods
-
-        private static bool IsDefaultMenu(XmlDocument document)
-        {
-            var value = document.NameTable.Get("http://schemas.android.com/apk/res/android");
-            return !string.IsNullOrEmpty(value);
-
         }
 
         #endregion

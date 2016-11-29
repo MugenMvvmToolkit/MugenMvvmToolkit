@@ -20,15 +20,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Xml;
-using System.Xml.Linq;
-using Android.Content;
 using Android.OS;
-using Android.Preferences;
-using Android.Runtime;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Android.Binding;
-using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -42,50 +35,9 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
     public abstract class MediatorBase<TTarget>
         where TTarget : class
     {
-        #region Nested types
-
-        private sealed class PreferenceChangeListener : Java.Lang.Object, ISharedPreferencesOnSharedPreferenceChangeListener
-        {
-            #region Fields
-
-            private readonly PreferenceManager _preferenceManager;
-            public bool State;
-
-            #endregion
-
-            #region Constructors
-
-            public PreferenceChangeListener(IntPtr handle, JniHandleOwnership transfer) : base(handle, transfer)
-            {
-            }
-
-            public PreferenceChangeListener(PreferenceManager preferenceManager)
-            {
-                _preferenceManager = preferenceManager;
-            }
-
-            #endregion
-
-            #region Implementation of ISharedPreferencesOnSharedPreferenceChangeListener
-
-            public void OnSharedPreferenceChanged(ISharedPreferences sharedPreferences, string key)
-            {
-                if (_preferenceManager == null)
-                {
-                    sharedPreferences.UnregisterOnSharedPreferenceChangeListener(this);
-                    return;
-                }
-                _preferenceManager.FindPreference(key)?.TryRaiseAttachedEvent(AttachedMembers.Preference.ValueChangedEvent);
-            }
-
-            #endregion
-        }
-
-        #endregion
-
         #region Fields
 
-        internal const string IgnoreStateKey = "#$@noState";
+        protected const string IgnoreStateKey = "#$@noState";
         // ReSharper disable StaticFieldInGenericType
         private static readonly Dictionary<Guid, object> ContextCache;
         private static readonly string StateKey;
@@ -97,7 +49,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         private Guid _id;
         private object _dataContext;
         private bool _isDestroyed;
-        private PreferenceChangeListener _preferenceChangeListener;
         private readonly TTarget _target;
 
         #endregion
@@ -142,9 +93,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         [NotNull]
         protected TTarget Target => _target;
 
-        [CanBeNull]
-        protected abstract PreferenceManager PreferenceManager { get; }
-
         #endregion
 
         #region Events
@@ -157,22 +105,12 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         public virtual void OnPause(Action baseOnPause)
         {
-            var manager = PreferenceManager;
-            if (manager != null)
-            {
-                if (_preferenceChangeListener != null)
-                {
-                    manager.SharedPreferences.UnregisterOnSharedPreferenceChangeListener(_preferenceChangeListener);
-                    _preferenceChangeListener.State = false;
-                }
-            }
             baseOnPause();
         }
 
         public virtual void OnResume(Action baseOnResume)
         {
             baseOnResume();
-            SetPreferenceListener();
         }
 
         public virtual void OnDestroy(Action baseOnDestroy)
@@ -180,11 +118,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             var viewModel = DataContext as IViewModel;
             if (viewModel != null && !viewModel.IsDisposed && viewModel.IocContainer != null && !viewModel.IocContainer.IsDisposed)
                 Get<IViewManager>().CleanupViewAsync(viewModel);
-            if (_preferenceChangeListener != null)
-            {
-                _preferenceChangeListener.Dispose();
-                _preferenceChangeListener = null;
-            }
             DataContext = null;
             DataContextChanged = null;
             _isDestroyed = true;
@@ -295,35 +228,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             };
         }
 
-        protected virtual void InitializePreferences(PreferenceScreen preferenceScreen, int preferencesResId)
-        {
-            preferenceScreen.SetBindingMemberValue(AttachedMembers.Object.Parent, Target);
-            SetPreferenceParent(preferenceScreen);
-            using (XmlReader reader = preferenceScreen.Context.Resources.GetXml(preferencesResId))
-            {
-                var document = new XmlDocument();
-                document.Load(reader);
-                var xDocument = XDocument.Parse(document.InnerXml);
-                foreach (var descendant in xDocument.Descendants())
-                {
-                    var bindAttr = descendant
-                        .Attributes()
-                        .FirstOrDefault(xAttribute => xAttribute.Name.LocalName.Equals("bind", StringComparison.OrdinalIgnoreCase));
-                    if (bindAttr == null)
-                        continue;
-                    var attribute = descendant.Attribute(XName.Get("key", "http://schemas.android.com/apk/res/android"));
-                    if (attribute == null)
-                    {
-                        Tracer.Error("Preference {0} must have a key to use it with bindings", descendant);
-                        continue;
-                    }
-                    var preference = preferenceScreen.FindPreference(attribute.Value);
-                    BindingServiceProvider.BindingProvider.CreateBindingsFromString(preference, bindAttr.Value);
-                }
-            }
-            SetPreferenceListener();
-        }
-
         protected T Get<T>()
         {
             var viewModel = DataContext as IViewModel;
@@ -340,21 +244,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 ContextCache.Remove(_id);
         }
 
-        private void SetPreferenceListener()
-        {
-            var manager = PreferenceManager;
-            if (manager != null)
-            {
-                if (_preferenceChangeListener == null)
-                    _preferenceChangeListener = new PreferenceChangeListener(manager);
-                if (!_preferenceChangeListener.State)
-                {
-                    manager.SharedPreferences.RegisterOnSharedPreferenceChangeListener(_preferenceChangeListener);
-                    _preferenceChangeListener.State = true;
-                }
-            }
-        }
-
         protected static void ClearCacheOnDisposeViewModel(IDisposableObject sender, EventArgs args)
         {
             sender.Disposed -= ClearCacheOnDisposeDelegate;
@@ -363,19 +252,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 var pairs = ContextCache.Where(pair => ReferenceEquals(pair.Value, sender)).ToList();
                 foreach (var pair in pairs)
                     ContextCache.Remove(pair.Key);
-            }
-        }
-
-        private static void SetPreferenceParent(Preference preference)
-        {
-            var group = preference as PreferenceGroup;
-            if (group == null)
-                return;
-            for (int i = 0; i < group.PreferenceCount; i++)
-            {
-                var p = group.GetPreference(i);
-                p.SetBindingMemberValue(AttachedMembers.Object.Parent, group);
-                SetPreferenceParent(p);
             }
         }
 

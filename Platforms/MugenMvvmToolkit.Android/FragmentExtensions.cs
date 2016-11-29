@@ -17,13 +17,10 @@
 #endregion
 
 using System;
-using System.Threading;
 using Android.Views;
-using JetBrains.Annotations;
 using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Models;
 #if APPCOMPAT
 using MugenMvvmToolkit.Android.AppCompat.Infrastructure.Mediators;
 using MugenMvvmToolkit.Android.AppCompat.Interfaces.Mediators;
@@ -43,37 +40,6 @@ namespace MugenMvvmToolkit.Android
     public static partial class PlatformExtensions
 #endif
     {
-        #region Fields
-
-        private static Func<Fragment, IDataContext, IMvvmFragmentMediator> _mvvmFragmentMediatorFactory;
-
-        #endregion
-
-        #region Constructors
-
-#if APPCOMPAT
-        static FragmentExtensions()
-        {
-            _mvvmFragmentMediatorFactory = MvvmFragmentMediatorFactoryMethod;
-        }
-#endif
-        #endregion
-
-        #region Properties
-
-        [NotNull]
-        public static Func<Fragment, IDataContext, IMvvmFragmentMediator> MvvmFragmentMediatorFactory
-        {
-            get { return _mvvmFragmentMediatorFactory; }
-            set
-            {
-                Should.PropertyNotBeNull(value);
-                _mvvmFragmentMediatorFactory = value;
-            }
-        }
-
-        #endregion
-
         #region Methods
 
         public static FragmentManager GetFragmentManager(this View view)
@@ -95,16 +61,11 @@ namespace MugenMvvmToolkit.Android
             return activity.GetFragmentManager();
         }
 
-        public static IMvvmFragmentMediator GetOrCreateMediator(this Fragment fragment, ref IMvvmFragmentMediator mediator)
+        public static object MvvmFragmentMediatorDefaultFactory(object fragment, IDataContext dataContext, Type mediatorType)
         {
-            if (mediator == null)
-                Interlocked.CompareExchange(ref mediator, MvvmFragmentMediatorFactory(fragment, DataContext.Empty), null);
-            return mediator;
-        }
-
-        private static IMvvmFragmentMediator MvvmFragmentMediatorFactoryMethod(Fragment fragment, IDataContext dataContext)
-        {
-            return new MvvmFragmentMediator(fragment);
+            if (fragment is Fragment && typeof(IMvvmFragmentMediator).IsAssignableFrom(mediatorType))
+                return new MvvmFragmentMediator((Fragment)fragment);
+            return null;
         }
 
         #endregion

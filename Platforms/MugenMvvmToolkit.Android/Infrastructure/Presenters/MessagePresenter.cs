@@ -21,13 +21,19 @@ using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.OS;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models;
 
 #if XAMARIN_FORMS && ANDROID
+using AlertDialog = Android.Support.V7.App.AlertDialog;
 namespace MugenMvvmToolkit.Xamarin.Forms.Android.Infrastructure.Presenters
+#elif APPCOMPAT
+using MugenMvvmToolkit.Android.Interfaces.Views;
+using AlertDialog = Android.Support.V7.App.AlertDialog;
+namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure.Presenters
 #elif ANDROID
 using MugenMvvmToolkit.Android.Interfaces.Views;
 
@@ -44,6 +50,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public MessagePresenter(IThreadManager threadManager)
         {
             Should.NotBeNull(threadManager, nameof(threadManager));

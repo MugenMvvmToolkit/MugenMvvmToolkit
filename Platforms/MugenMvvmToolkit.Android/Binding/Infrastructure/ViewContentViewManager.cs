@@ -21,7 +21,7 @@ using MugenMvvmToolkit.Android.Binding.Interfaces;
 
 namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 {
-    internal class ViewContentViewManager : IContentViewManager
+    public sealed class ViewContentViewManager : IContentViewManager
     {
         #region Implementation of IContentViewManager
 

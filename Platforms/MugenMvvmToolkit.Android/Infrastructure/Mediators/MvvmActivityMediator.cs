@@ -25,7 +25,6 @@ using Android.App;
 using Android.Content;
 using Android.Content.Res;
 using Android.OS;
-using Android.Preferences;
 using Android.Views;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Android.Binding.Infrastructure;
@@ -85,7 +84,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         #region Fields
 
-        private BindableMenuInflater _menuInflater;
+        private MenuInflater _menuInflater;
         private LayoutInflater _layoutInflater;
         private IMenu _menu;
         private Bundle _bundle;
@@ -184,7 +183,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             ServiceProvider.EventAggregator.Unsubscribe(this);
             Destroyed?.Invoke(Target, EventArgs.Empty);
             _view.ClearBindingsRecursively(true, true, PlatformExtensions.AggressiveViewCleanup);
-            _view.RemoveFromParent();
             _view = null;
 
             if (_metadata != null)
@@ -224,8 +222,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             Resume = null;
             Destroyed = null;
         }
-
-        protected override PreferenceManager PreferenceManager => (Target as PreferenceActivity)?.PreferenceManager;
 
         public override void OnPause(Action baseOnPause)
         {
@@ -279,9 +275,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         public virtual MenuInflater GetMenuInflater(MenuInflater baseMenuInflater)
         {
             if (_menuInflater == null)
-                _menuInflater = PlatformExtensions.MenuInflaterFactory(Target, MugenMvvmToolkit.Models.DataContext.Empty);
-            if (_menuInflater != null)
-                _menuInflater.NestedMenuInflater = baseMenuInflater;
+                _menuInflater = PlatformExtensions.MenuInflaterFactory(Target, baseMenuInflater, MugenMvvmToolkit.Models.DataContext.Empty);
             return _menuInflater ?? baseMenuInflater;
         }
 
@@ -334,14 +328,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         public virtual void AddPreferencesFromResource(Action<int> baseAddPreferencesFromResource, int preferencesResId)
         {
-            var activity = Target as PreferenceActivity;
-            if (activity == null)
-            {
-                Tracer.Error("The AddPreferencesFromResource method supported only for PreferenceActivity");
-                return;
-            }
-            baseAddPreferencesFromResource(preferencesResId);
-            InitializePreferences(activity.PreferenceScreen, preferencesResId);
+            throw new NotSupportedException();
         }
 
         void IHandler<FinishActivityMessage>.Handle(object sender, FinishActivityMessage message)

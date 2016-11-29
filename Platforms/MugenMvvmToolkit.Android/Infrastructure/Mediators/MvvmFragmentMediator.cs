@@ -22,7 +22,6 @@ using System.ComponentModel;
 using Android.App;
 using Android.Content;
 using Android.OS;
-using Android.Preferences;
 using Android.Util;
 using Android.Views;
 using JetBrains.Annotations;
@@ -93,9 +92,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         private View _view;
         private bool _removed;
         private bool _isStarted;
-#if !APPCOMPAT
-        private bool _isPreferenceContext;
-#endif
 
         #endregion
 
@@ -157,28 +153,13 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 if (savedInstanceState != null && savedInstanceState.ContainsKey(IgnoreStateKey))
                 {
                     //prevent child fragments restore
-                    //https://github.com/android/platform_frameworks_support/blob/master/v4/java/android/support/v4/app/Fragment.java#L1945
-                    savedInstanceState.Remove("android:support:fragments");
-                    savedInstanceState.Remove("android:fragments");
+                    savedInstanceState.RemoveFragmentsState();
                     _removed = true;
                     Target.FragmentManager
                         .BeginTransaction()
                         .Remove(Target)
                         .CommitAllowingStateLoss();
                 }
-#if !APPCOMPAT
-                else if (Target is PreferenceFragment)
-                {
-                    var activity = Target.Activity as PreferenceActivity;
-                    if (activity != null)
-                    {
-                        _isPreferenceContext = true;
-                        Target.Bind(AttachedMembers.Object.DataContext)
-                            .To(activity, AttachedMembers.Object.DataContext)
-                            .Build();
-                    }
-                }
-#endif
             }
         }
 
@@ -193,18 +174,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         {
             baseOnDestroyView();
             ClearView();
-        }
-
-        protected override PreferenceManager PreferenceManager
-        {
-            get
-            {
-#if APPCOMPAT
-                return null;
-#else
-                return (Target as PreferenceFragment)?.PreferenceManager;
-#endif
-            }
         }
 
         public override void OnDestroy(Action baseOnDestroy)
@@ -227,16 +196,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             Closing = null;
             Canceled = null;
             Destroyed = null;
-        }
-
-        public override void OnSaveInstanceState(Bundle outState, Action<Bundle> baseOnSaveInstanceState)
-        {
-#if !APPCOMPAT
-            if (_isPreferenceContext)
-                baseOnSaveInstanceState(outState);
-            else
-#endif
-                base.OnSaveInstanceState(outState, baseOnSaveInstanceState);
         }
 
         public virtual void OnDetach(Action baseOnDetach)
@@ -265,7 +224,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 var dialog = dialogFragment?.Dialog;
                 if (dialog != null)
                 {
-                    TrySetTitleBinding(dialog);
+                    if (DataContext != null)
+                        dialog.BindFromExpression("Title DisplayName, Optional=true", new[] { DataContext });
                     if (_keyListener == null)
                         _keyListener = new DialogInterfaceOnKeyListener(this);
                     dialog.SetOnKeyListener(_keyListener);
@@ -292,18 +252,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         public virtual void AddPreferencesFromResource(Action<int> baseAddPreferencesFromResource, int preferencesResId)
         {
-#if APPCOMPAT
-            PreferenceFragment fragment = null;
-#else
-            var fragment = Target as PreferenceFragment;
-#endif
-            if (fragment == null)
-            {
-                Tracer.Error("The AddPreferencesFromResource method supported only for PreferenceFragment");
-                return;
-            }
-            baseAddPreferencesFromResource(preferencesResId);
-            InitializePreferences(fragment.PreferenceScreen, preferencesResId);
+            throw new NotSupportedException();
         }
 
         public virtual event EventHandler<IWindowView, CancelEventArgs> Closing;
@@ -341,7 +290,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             if (_view != null)
             {
                 _view.ClearBindingsRecursively(true, true, PlatformExtensions.AggressiveViewCleanup);
-                _view.RemoveFromParent();
                 _view = null;
                 PlatformExtensions.CleanupWeakReferences(false);
             }
@@ -360,13 +308,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             var args = new CancelEventArgs();
             closing((IWindowView)Target, args);
             return !args.Cancel;
-        }
-
-        private void TrySetTitleBinding(Dialog dialog)
-        {
-            var hasDisplayName = DataContext as IHasDisplayName;
-            if (dialog != null && hasDisplayName != null)
-                dialog.Bind(AttachedMembers.Dialog.Title).To(hasDisplayName, nameof(IHasDisplayName.DisplayName)).Build();
         }
 
         #endregion

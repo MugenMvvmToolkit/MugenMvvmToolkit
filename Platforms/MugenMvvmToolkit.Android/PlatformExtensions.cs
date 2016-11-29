@@ -33,10 +33,7 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Android.Binding;
-using MugenMvvmToolkit.Android.Binding.Infrastructure;
 using MugenMvvmToolkit.Android.Binding.Interfaces;
-using MugenMvvmToolkit.Android.Binding.Models;
 using MugenMvvmToolkit.Android.Infrastructure;
 using MugenMvvmToolkit.Android.Infrastructure.Mediators;
 using MugenMvvmToolkit.Android.Interfaces;
@@ -234,12 +231,12 @@ namespace MugenMvvmToolkit.Android
 
         public static readonly DataConstant<object> FragmentConstant;
 
-        internal static readonly bool IsApiGreaterThan10;
-        internal static readonly bool IsApiLessThanOrEqualTo10;
-        internal static readonly bool IsApiGreaterThanOrEqualTo14;
-        internal static readonly bool IsApiGreaterThanOrEqualTo17;
-        internal static readonly bool IsApiGreaterThanOrEqualTo19;
-        internal static readonly bool IsApiGreaterThanOrEqualTo21;
+        public static readonly bool IsApiGreaterThan10;
+        public static readonly bool IsApiLessThanOrEqualTo10;
+        public static readonly bool IsApiGreaterThanOrEqualTo14;
+        public static readonly bool IsApiGreaterThanOrEqualTo17;
+        public static readonly bool IsApiGreaterThanOrEqualTo19;
+        public static readonly bool IsApiGreaterThanOrEqualTo21;
         //NOTE ConditionalWeakTable invokes finalizer for value, even if the key object is still alive https://bugzilla.xamarin.com/show_bug.cgi?id=21620
         private static readonly List<object> WeakReferencesHolder;
 
@@ -252,14 +249,14 @@ namespace MugenMvvmToolkit.Android
         private static readonly Type[] ViewContextWithAttrsArgs;
         private static readonly Type[] DefaultJavaConstructorArgs;
 
-        private static Func<Activity, IDataContext, IMvvmActivityMediator> _mvvmActivityMediatorFactory;
-        private static Func<Context, IDataContext, BindableMenuInflater> _menuInflaterFactory;
+        private static Func<Context, MenuInflater, IDataContext, MenuInflater> _menuInflaterFactory;
         private static Func<Context, IDataContext, IViewFactory, LayoutInflater, LayoutInflater> _layoutInflaterFactory;
         private static Func<object, Context, object, int?, IDataTemplateSelector, object> _getContentViewDelegete;
         private static Action<object, object> _setContentViewDelegete;
         private static Func<object, bool> _isFragment;
         private static Func<object, bool> _isActionBar;
         private static WeakReference _activityRef;
+        private static Func<object, IDataContext, Type, object> _mediatorFactory;
 
         #endregion
 
@@ -274,21 +271,8 @@ namespace MugenMvvmToolkit.Android
             IsApiGreaterThanOrEqualTo19 = Build.VERSION.SdkInt >= BuildVersionCodes.Kitkat;
             IsApiGreaterThanOrEqualTo21 = Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop;
             FragmentConstant = DataConstant.Create<object>(typeof(PlatformExtensions), nameof(FragmentConstant), false);
-            _menuInflaterFactory = (context, dataContext) => new BindableMenuInflater(context);
-            _layoutInflaterFactory = (context, dataContext, factory, inflater) =>
-            {
-                if (inflater == null)
-                {
-                    Tracer.Error("The bindable inflater cannot be created without the original inflater");
-                    return null;
-                }
-                LayoutInflaterFactoryWrapper.SetFactory(inflater, factory);
-                return inflater;
-            };
             ContentViewManagerField = new ContentViewManager();
-            ContentViewManagerField.Add(new ViewContentViewManager());
-            _mvvmActivityMediatorFactory = MvvmActivityMediatorFactoryMethod;
-            _getContentViewDelegete = GetContentViewInternal;
+
             _setContentViewDelegete = ContentViewManagerField.SetContent;
             _isFragment = o => false;
             _isActionBar = _isFragment;
@@ -301,7 +285,6 @@ namespace MugenMvvmToolkit.Android
             DefaultJavaConstructorArgs = new[] { typeof(IntPtr), typeof(JniHandleOwnership) };
             WeakReferencesHolder = new List<object>(1000);
             CurrentActivityLocker = new object();
-            _mvvmFragmentMediatorFactory = MvvmFragmentMediatorFactoryMethod;
             EnableFastTextViewTextProperty = true;
 
             // ReSharper disable once ObjectCreationAsStatement
@@ -318,21 +301,24 @@ namespace MugenMvvmToolkit.Android
         [CanBeNull]
         public static IDataTemplateSelector DefaultDataTemplateSelector { get; set; }
 
-        [NotNull]
-        public static Func<Activity, IDataContext, IMvvmActivityMediator> MvvmActivityMediatorFactory
+        public static Func<object, IDataContext, Type, object> MediatorFactory
         {
-            get { return _mvvmActivityMediatorFactory; }
-            set
+            get
             {
-                Should.PropertyNotBeNull(value);
-                _mvvmActivityMediatorFactory = value;
+                AndroidBootstrapperBase.EnsureInitialized();
+                return _mediatorFactory;
             }
+            set { _mediatorFactory = value; }
         }
 
         [NotNull]
-        public static Func<Context, IDataContext, BindableMenuInflater> MenuInflaterFactory
+        public static Func<Context, MenuInflater, IDataContext, MenuInflater> MenuInflaterFactory
         {
-            get { return _menuInflaterFactory; }
+            get
+            {
+                AndroidBootstrapperBase.EnsureInitialized();
+                return _menuInflaterFactory;
+            }
             set
             {
                 Should.PropertyNotBeNull(value);
@@ -343,7 +329,11 @@ namespace MugenMvvmToolkit.Android
         [NotNull]
         public static Func<Context, IDataContext, IViewFactory, LayoutInflater, LayoutInflater> LayoutInflaterFactory
         {
-            get { return _layoutInflaterFactory; }
+            get
+            {
+                AndroidBootstrapperBase.EnsureInitialized();
+                return _layoutInflaterFactory;
+            }
             set
             {
                 Should.PropertyNotBeNull(value);
@@ -354,7 +344,11 @@ namespace MugenMvvmToolkit.Android
         [NotNull]
         public static Func<object, Context, object, int?, IDataTemplateSelector, object> GetContentView
         {
-            get { return _getContentViewDelegete; }
+            get
+            {
+                AndroidBootstrapperBase.EnsureInitialized();
+                return _getContentViewDelegete;
+            }
             set
             {
                 Should.PropertyNotBeNull(value);
@@ -362,11 +356,14 @@ namespace MugenMvvmToolkit.Android
             }
         }
 
-
         [NotNull]
         public static Action<object, object> SetContentView
         {
-            get { return _setContentViewDelegete; }
+            get
+            {
+                AndroidBootstrapperBase.EnsureInitialized();
+                return _setContentViewDelegete;
+            }
             set
             {
                 Should.PropertyNotBeNull(value);
@@ -414,11 +411,23 @@ namespace MugenMvvmToolkit.Android
         public static void Inflate(this MenuInflater menuInflater, int menuRes, IMenu menu, object parent)
         {
             Should.NotBeNull(menuInflater, nameof(menuInflater));
-            var bindableMenuInflater = menuInflater as BindableMenuInflater;
+            var bindableMenuInflater = menuInflater as IBindableMenuInflater;
             if (bindableMenuInflater == null)
                 menuInflater.Inflate(menuRes, menu);
             else
                 bindableMenuInflater.Inflate(menuRes, menu, parent);
+        }
+
+        public static void ApplyMenuTemplate(this IMenu menu, object template, Context context, object parent)
+        {
+            var menuTemplate = template as IMenuTemplate;
+            if (menuTemplate == null)
+            {
+                if (template != null)
+                    context.GetActivity()?.MenuInflater.Inflate((int)template, menu, parent);
+            }
+            else
+                menuTemplate.Apply(menu, context, parent);
         }
 
         [NotNull]
@@ -540,11 +549,66 @@ namespace MugenMvvmToolkit.Android
             WeakReferenceCollector.Collect(fullCleanup);
         }
 
-        public static IMvvmActivityMediator GetOrCreateMediator(this Activity activity, ref IMvvmActivityMediator mediator)
+        public static T GetOrCreateMediator<T>(this IJavaObject item, ref T mediator)
+            where T : class
         {
             if (mediator == null)
-                Interlocked.CompareExchange(ref mediator, MvvmActivityMediatorFactory(activity, DataContext.Empty), null);
+                Interlocked.CompareExchange(ref mediator, (T)MediatorFactory(item, DataContext.Empty, typeof(T)), null);
             return mediator;
+        }
+
+        public static object MvvmActivityMediatorDefaultFactory(object activity, IDataContext dataContext, Type mediatorType)
+        {
+            if (activity is Activity && typeof(IMvvmActivityMediator).IsAssignableFrom(mediatorType))
+                return new MvvmActivityMediator((Activity)activity);
+            return null;
+        }
+
+        public static object GetContentViewDefault(object container, Context ctx, object content, int? templateId, IDataTemplateSelector templateSelector)
+        {
+            Should.NotBeNull(container, nameof(container));
+            object result;
+            if (templateSelector != null)
+            {
+                result = GetContentInternal(container, ctx, content, templateSelector);
+                if (result is View || IsFragment(result))
+                    return result;
+                content = result;
+            }
+            if (templateId != null)
+            {
+                result = GetContentInternal(ctx, content, templateId);
+                return result;
+            }
+            var vm = content as IViewModel;
+            if (vm != null)
+                content = GetOrCreateView(vm, null);
+
+            if (content is View || IsFragment(content))
+                return content;
+
+            var selector = DefaultDataTemplateSelector;
+            if (selector != null)
+            {
+                result = GetContentInternal(container, ctx, content, selector);
+                if (result is View || IsFragment(result))
+                    return result;
+                content = result;
+            }
+            if (content == null)
+                return null;
+            Tracer.Warn("The content value {0} is not a View or Fragment.", content);
+            result = new TextView(ctx) { Text = content.ToString() };
+            return result;
+        }
+
+        public static void RemoveFragmentsState([CanBeNull] this Bundle bundle)
+        {
+            if (bundle == null)
+                return;
+            //https://github.com/android/platform_frameworks_support/blob/master/v4/java/android/support/v4/app/Fragment.java#L1945
+            bundle.Remove("android:support:fragments");
+            bundle.Remove("android:fragments");
         }
 
         internal static void RemoveFromParent([CanBeNull] this View view)
@@ -555,9 +619,7 @@ namespace MugenMvvmToolkit.Android
 
         internal static PlatformInfo GetPlatformInfo()
         {
-            Version result;
-            Version.TryParse(Build.VERSION.Release, out result);
-            return new PlatformInfo(PlatformType.Android, result);
+            return new PlatformInfo(PlatformType.Android, Build.VERSION.Release);
         }
 
         internal static WeakReference CreateWeakReference(object item)
@@ -720,49 +782,6 @@ namespace MugenMvvmToolkit.Android
             if (content != null && (template is View || IsFragment(template)))
                 template.SetDataContext(content);
             return template;
-        }
-
-        private static object GetContentViewInternal(object container, Context ctx, object content, int? templateId, IDataTemplateSelector templateSelector)
-        {
-            Should.NotBeNull(container, nameof(container));
-            object result;
-            if (templateSelector != null)
-            {
-                result = GetContentInternal(container, ctx, content, templateSelector);
-                if (result is View || IsFragment(result))
-                    return result;
-                content = result;
-            }
-            if (templateId != null)
-            {
-                result = GetContentInternal(ctx, content, templateId);
-                return result;
-            }
-            var vm = content as IViewModel;
-            if (vm != null)
-                content = GetOrCreateView(vm, null);
-
-            if (content is View || IsFragment(content))
-                return content;
-
-            var selector = DefaultDataTemplateSelector;
-            if (selector != null)
-            {
-                result = GetContentInternal(container, ctx, content, templateSelector);
-                if (result is View || IsFragment(result))
-                    return result;
-                content = result;
-            }
-            if (content == null)
-                return null;
-            Tracer.Warn("The content value {0} is not a View or Fragment.", content);
-            result = new TextView(ctx) { Text = content.ToString() };
-            return result;
-        }
-
-        private static IMvvmActivityMediator MvvmActivityMediatorFactoryMethod(Activity activity, IDataContext dataContext)
-        {
-            return new MvvmActivityMediator(activity);
         }
 
         private static WeakReference CreateWeakReference(object item, IJavaObject javaItem, bool isWeakTable)

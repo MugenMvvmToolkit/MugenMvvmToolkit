@@ -23,6 +23,6 @@ namespace MugenMvvmToolkit.Android.Interfaces
 {
     public interface IPopupMenuPresenter
     {
-        bool Show(View sourceView, View targetView, int templateId, object args, Action<object, IMenu> dismissHandler);
+        bool Show(View sourceView, View targetView, object template, object args, Action<object, IMenu> dismissHandler);
     }
 }

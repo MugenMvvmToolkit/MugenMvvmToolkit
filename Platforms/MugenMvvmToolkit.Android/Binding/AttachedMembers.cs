@@ -103,12 +103,13 @@ namespace MugenMvvmToolkit.Android.Binding
             public static readonly BindingMemberDescriptor<global::Android.Views.View, bool> Visible;
             public static readonly BindingMemberDescriptor<global::Android.Views.View, bool> Invisible;
             public static readonly BindingMemberDescriptor<global::Android.Views.View, bool> Hidden;
-            public static readonly BindingMemberDescriptor<global::Android.Views.View, int> PopupMenuTemplate;
+            public static readonly BindingMemberDescriptor<global::Android.Views.View, object> PopupMenuTemplate;
             public static readonly BindingMemberDescriptor<global::Android.Views.View, IPopupMenuPresenter> PopupMenuPresenter;
             public static readonly BindingMemberDescriptor<global::Android.Views.View, string> PopupMenuEvent;
             public static readonly BindingMemberDescriptor<global::Android.Views.View, string> PopupMenuPlacementTargetPath;
             public static readonly BindingMemberDescriptor<global::Android.Views.View, object> Fragment;
             public static readonly BindingMemberDescriptor<global::Android.Views.View, global::Android.App.Activity> Activity;
+            public static readonly BindingMemberDescriptor<global::Android.Views.View, object> MenuTemplate;
 
             #endregion
 
@@ -119,12 +120,13 @@ namespace MugenMvvmToolkit.Android.Binding
                 Visible = new BindingMemberDescriptor<global::Android.Views.View, bool>(nameof(Visible));
                 Invisible = new BindingMemberDescriptor<global::Android.Views.View, bool>(nameof(Invisible));
                 Hidden = new BindingMemberDescriptor<global::Android.Views.View, bool>(nameof(Hidden));
-                PopupMenuTemplate = new BindingMemberDescriptor<global::Android.Views.View, int>(nameof(PopupMenuTemplate));
+                PopupMenuTemplate = new BindingMemberDescriptor<global::Android.Views.View, object>(nameof(PopupMenuTemplate));
                 PopupMenuEvent = new BindingMemberDescriptor<global::Android.Views.View, string>(nameof(PopupMenuEvent));
                 PopupMenuPlacementTargetPath = new BindingMemberDescriptor<global::Android.Views.View, string>("PlacementTargetPath");
                 PopupMenuPresenter = new BindingMemberDescriptor<global::Android.Views.View, IPopupMenuPresenter>(nameof(PopupMenuPresenter));
                 Fragment = new BindingMemberDescriptor<global::Android.Views.View, object>(nameof(Fragment));
                 Activity = new BindingMemberDescriptor<global::Android.Views.View, global::Android.App.Activity>(nameof(Activity));
+                MenuTemplate = new BindingMemberDescriptor<global::Android.Views.View, object>(nameof(MenuTemplate));
             }
 
             #endregion
@@ -603,7 +605,6 @@ namespace MugenMvvmToolkit.Android.Binding
             #region Fields
 
             public static readonly BindingMemberDescriptor<TolbarEx, bool> IsActionBar;
-            public static readonly BindingMemberDescriptor<TolbarEx, int> MenuTemplate;
 
             #endregion
 
@@ -612,7 +613,6 @@ namespace MugenMvvmToolkit.Android.Binding
             static Toolbar()
             {
                 IsActionBar = new BindingMemberDescriptor<TolbarEx, bool>(nameof(IsActionBar));
-                MenuTemplate = new BindingMemberDescriptor<TolbarEx, int>(nameof(MenuTemplate));
             }
 
             #endregion

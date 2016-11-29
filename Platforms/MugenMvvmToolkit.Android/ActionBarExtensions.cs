@@ -41,7 +41,7 @@ namespace MugenMvvmToolkit.Android
         public static void SetDrawerListenerEx([NotNull] this DrawerLayout layout, DrawerLayout.IDrawerListener listener)
         {
             Should.NotBeNull(layout, nameof(layout));
-            AppCompatModule.DrawerListenerImpl.GetOrAdd(layout).SetListener(layout.Context, listener);
+            AttachedMembersRegistration.DrawerListenerImpl.GetOrAdd(layout).SetListener(layout.Context, listener);
         }
 #endif
         internal static void SetContentView([NotNull] this ViewGroup frameLayout, [NotNull] object content,

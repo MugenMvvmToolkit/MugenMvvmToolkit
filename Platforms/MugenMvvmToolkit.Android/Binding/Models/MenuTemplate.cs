@@ -22,13 +22,13 @@ using System.Xml.Serialization;
 using Android.Content;
 using Android.Views;
 using MugenMvvmToolkit.Android.Binding.Infrastructure;
+using MugenMvvmToolkit.Android.Binding.Interfaces;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Builders;
 
 namespace MugenMvvmToolkit.Android.Binding.Models
 {
     [XmlRoot("MENU", Namespace = "")]
-    public sealed class MenuTemplate
+    public sealed class MenuTemplate : IMenuTemplate
     {
         #region Properties
 
@@ -60,13 +60,13 @@ namespace MugenMvvmToolkit.Android.Binding.Models
         public void Apply(IMenu menu, Context context, object parent)
         {
             PlatformExtensions.ValidateTemplate(ItemsSource, Items);
-            var setter = new XmlPropertySetter<IMenu>(menu, context, new BindingSet());
+            var setter = new XmlPropertySetter(menu, context);
             menu.SetBindingMemberValue(AttachedMembers.Object.Parent, parent);
             setter.SetBinding(nameof(DataContext), DataContext, false);
             setter.SetBoolProperty(nameof(IsVisible), IsVisible);
             setter.SetBoolProperty(nameof(IsEnabled), IsEnabled);
             if (!string.IsNullOrEmpty(Bind))
-                setter.BindingSet.BindFromExpression(menu, Bind);
+                setter.Bind(menu, Bind);
             if (string.IsNullOrEmpty(ItemsSource))
             {
                 if (Items != null)

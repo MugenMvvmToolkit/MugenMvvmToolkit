@@ -26,7 +26,6 @@ using MugenMvvmToolkit.Android.Infrastructure.Mediators;
 using MugenMvvmToolkit.Android.Interfaces.Navigation;
 using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Android.Models.EventArg;
-using MugenMvvmToolkit.Android.Views.Activities;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -192,15 +191,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         public virtual bool CanGoForward => false;
 
-        public virtual object CurrentContent
-        {
-            get
-            {
-                if (_isPause)
-                    return null;
-                return PlatformExtensions.CurrentActivity;
-            }
-        }
+        public virtual object CurrentContent => PlatformExtensions.CurrentActivity;
 
         public virtual void GoBack()
         {
@@ -225,7 +216,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
         public virtual void OnResumeActivity(Activity activity, IDataContext context = null)
         {
             Should.NotBeNull(activity, nameof(activity));
-            if (ReferenceEquals(activity, CurrentContent))
+            if (ReferenceEquals(activity, CurrentContent) && !_isPause)
                 return;
             PlatformExtensions.SetCurrentActivity(activity, false);
             _isPause = false;
@@ -302,7 +293,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             dataContext.TryGetData(NavigationProviderConstants.BringToFront, out bringToFront);
             if (!RaiseNavigating(new NavigatingCancelEventArgs(source, bringToFront ? NavigationMode.Refresh : NavigationMode.New, parameter)))
                 return false;
-            var activity = PlatformExtensions.CurrentActivity ?? SplashScreenActivityBase.Current;
+            var activity = PlatformExtensions.CurrentActivity;
             var context = activity ?? Application.Context;
 
             var intent = new Intent(context, source.ViewType);

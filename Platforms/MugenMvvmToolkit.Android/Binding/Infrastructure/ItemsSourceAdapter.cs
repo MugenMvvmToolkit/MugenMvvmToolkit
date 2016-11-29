@@ -131,12 +131,12 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             _defaultDropDownTemplate = IsSpinner()
                 ? global::Android.Resource.Layout.SimpleDropDownItem1Line
                 : global::Android.Resource.Layout.SimpleSpinnerDropDownItem;
-            var absListView = container as AdapterView;
-            if (absListView != null)
+            var adapterView = container as AdapterView;
+            if (adapterView != null)
             {
-                var member = BindingServiceProvider.MemberProvider.GetBindingMember(absListView.GetType(), AttachedMembers.ViewGroup.DisableHierarchyListener, false, false);
+                var member = BindingServiceProvider.MemberProvider.GetBindingMember(adapterView.GetType(), AttachedMembers.ViewGroup.DisableHierarchyListener, false, false);
                 if (member.CanWrite)
-                    member.SetSingleValue(absListView, Empty.TrueObject);
+                    member.SetSingleValue(adapterView, Empty.TrueObject);
             }
         }
 
@@ -396,8 +396,8 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             ((IActivityView)sender).Mediator.Destroyed -= _listener.Handle;
             SetItemsSource(null, false);
             var adapterView = _container as AdapterView;
-            if (adapterView.IsAlive() && ReferenceEquals(PlatformDataBindingModule.GetAdapter(adapterView), this))
-                PlatformDataBindingModule.SetAdapter(adapterView, null);
+            if (adapterView.IsAlive() && ReferenceEquals(AttachedMembersRegistration.GetAdapter(adapterView), this))
+                AttachedMembersRegistration.SetAdapter(adapterView, null);
         }
 
         #endregion        

@@ -16,8 +16,9 @@
 
 #endregion
 
+using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
-using MugenMvvmToolkit.Modules;
 #if APPCOMPAT
 using MugenMvvmToolkit.Android.AppCompat.Infrastructure.Presenters;
 
@@ -28,34 +29,38 @@ using MugenMvvmToolkit.Android.Infrastructure.Presenters;
 namespace MugenMvvmToolkit.Android.Modules
 #endif
 {
-    public class FragmentInitializationModule : ModuleBase
+    public class FragmentInitializationModule : IModule
     {
-        #region Constructors
+        #region Implementation of IModule
 
-        public FragmentInitializationModule()
-            : base(false, MugenMvvmToolkit.Models.LoadMode.All, DefaultModulePriority)
+        public int Priority => ApplicationSettings.ModulePriorityDefault;
+
+        public bool Load(IModuleContext context)
         {
-        }
-
-        #endregion
-
-        #region Overrides of ModuleBase
-
-        protected override bool LoadInternal()
-        {
+            if (context.IocContainer == null)
+                return false;
             IViewModelPresenter service;
 #if APPCOMPAT
-            if (!IocContainer.TryGet(out service))
+            if (!context.IocContainer.TryGet(out service))
                 return false;
 #else
-            if (!PlatformExtensions.IsApiGreaterThanOrEqualTo17 || !IocContainer.TryGet(out service))
+            if (!PlatformExtensions.IsApiGreaterThanOrEqualTo17 || !context.IocContainer.TryGet(out service))
                 return false;
 #endif
-            service.DynamicPresenters.Add(IocContainer.Get<DynamicViewModelWindowPresenter>());
+            var mediatorFactory = PlatformExtensions.MediatorFactory;
+            PlatformExtensions.MediatorFactory = (o, dataContext, arg3) =>
+            {
+#if APPCOMPAT
+                return FragmentExtensions.MvvmFragmentMediatorDefaultFactory(o, dataContext, arg3) ?? mediatorFactory?.Invoke(o, dataContext, arg3);
+#else
+                return PlatformExtensions.MvvmFragmentMediatorDefaultFactory(o, dataContext, arg3) ?? mediatorFactory?.Invoke(o, dataContext, arg3);
+#endif
+            };
+            service.DynamicPresenters.Add(context.IocContainer.Get<DynamicViewModelWindowPresenter>());
             return true;
         }
 
-        protected override void UnloadInternal()
+        public void Unload(IModuleContext context)
         {
         }
 
