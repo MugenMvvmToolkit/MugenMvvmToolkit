@@ -16,340 +16,47 @@
 
 #endregion
 
-using System;
-using System.Collections;
-using System.Linq;
-using System.Windows.Forms;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Binding.Models.EventArg;
-using MugenMvvmToolkit.Binding.Modules;
-using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.WinForms.Binding.Converters;
-using MugenMvvmToolkit.WinForms.Binding.Infrastructure;
-using MugenMvvmToolkit.WinForms.Binding.Interfaces;
 
 namespace MugenMvvmToolkit.WinForms.Binding.Modules
 {
-    public class PlatformDataBindingModule : DataBindingModule
+    public class PlatformDataBindingModule : IModule
     {
-        #region Methods
+        #region Properties
 
-        private static void Register(IBindingMemberProvider memberProvider)
-        {
-            BindingBuilderExtensions.RegisterDefaultBindingMember<Button>(nameof(Button.Click));
-            BindingBuilderExtensions.RegisterDefaultBindingMember<TextBox>(nameof(TextBox.Text));
-            BindingBuilderExtensions.RegisterDefaultBindingMember<Label>(nameof(Label.Text));
-            BindingBuilderExtensions.RegisterDefaultBindingMember<CheckBox>(nameof(CheckBox.Checked));
-            BindingBuilderExtensions.RegisterDefaultBindingMember<ProgressBar>(nameof(ProgressBar.Value));
-
-            //Object
-            var itemsSourceMember = AttachedBindingMember.CreateAutoProperty<object, IEnumerable>(AttachedMemberConstants.ItemsSource, ObjectItemsSourceChanged);
-            var defaultMemberRegistration = new DefaultAttachedMemberRegistration<IEnumerable>(itemsSourceMember);
-            memberProvider.Register(defaultMemberRegistration.ToAttachedBindingMember<object>());
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.Object.CollectionViewManager));
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty<object, IContentViewManager>(AttachedMembers.Control.ContentViewManager.Path));
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(ItemsSourceGeneratorBase.MemberDescriptor,
-                (o, args) =>
-                {
-                    IEnumerable itemsSource = null;
-                    if (args.OldValue != null)
-                    {
-                        itemsSource = args.OldValue.ItemsSource;
-                        args.OldValue.SetItemsSource(null);
-                    }
-                    args.NewValue?.SetItemsSource(itemsSource);
-                }));
-
-            var itemTemplateMember = AttachedBindingMember.CreateAutoProperty<object, IDataTemplateSelector>(AttachedMemberConstants.ItemTemplateSelector);
-            memberProvider.Register(itemTemplateMember);
-            memberProvider.Register(typeof(object), AttachedMemberConstants.ItemTemplate, itemTemplateMember, true);
-
-            //Form
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.Form.ToastTemplateSelector));
-
-            //Control
-            var sizeChanged = memberProvider.GetBindingMember(typeof(Control), nameof(Control.SizeChanged), true, false);
-            if (sizeChanged != null)
-            {
-                memberProvider.Register(typeof(Control), "WidthChanged", sizeChanged, true);
-                memberProvider.Register(typeof(Control), "HeightChanged", sizeChanged, true);
-            }
-            memberProvider.Register(AttachedBindingMember
-                .CreateMember<Control, object>(AttachedMemberConstants.FindByNameMethod, FindByNameControlMember));
-            memberProvider.Register(AttachedBindingMember
-                .CreateMember<Control, bool>(AttachedMemberConstants.Focused, (info, control) => control.Focused,
-                    (info, control, arg3) =>
-                    {
-                        if (arg3)
-                            control.Focus();
-                    }, nameof(Control.LostFocus)));
-
-            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.Control.Content, ContentChanged));
-            var contenMember = AttachedBindingMember.CreateAutoProperty(AttachedMembers.Control.ContentTemplateSelector, ContentTemplateChanged);
-            memberProvider.Register(contenMember);
-            memberProvider.Register(typeof(Control), AttachedMemberConstants.ContentTemplate, contenMember, true);
-
-            //DateTimePicker
-            BindingBuilderExtensions.RegisterDefaultBindingMember<DateTimePicker>(nameof(DateTimePicker.Value));
-            memberProvider.Register(AttachedBindingMember.CreateMember<DateTimePicker, DateTime>(nameof(DateTimePicker.Value),
-                (info, picker) => picker.Value,
-                (info, picker, value) =>
-                {
-                    if (value < picker.MinDate)
-                        picker.Value = picker.MinDate;
-                    else if (value > picker.MaxDate)
-                        picker.Value = picker.MaxDate;
-                    else
-                        picker.Value = value;
-                }, nameof(DateTimePicker.ValueChanged)));
-
-            //ToolStripItem
-            BindingBuilderExtensions.RegisterDefaultBindingMember<ToolStripButton>(nameof(ToolStripButton.Click));
-            BindingBuilderExtensions.RegisterDefaultBindingMember<ToolStripMenuItem>(nameof(ToolStripMenuItem.Click));
-            BindingBuilderExtensions.RegisterDefaultBindingMember<ToolStripItem>(nameof(ToolStripItem.Text));
-            memberProvider.Register(AttachedBindingMember.CreateMember<ToolStripItem, object>(AttachedMemberConstants.ParentExplicit,
-                    GetParentToolStripItem, null, ObserveParentMemberToolStripItem));
-            memberProvider.Register(AttachedBindingMember.CreateMember<ToolStripItem, object>(AttachedMemberConstants.FindByNameMethod,
-                    FindByNameMemberToolStripItem));
-
-            //TabControl
-            BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.Object.ItemsSource.Override<TabControl>());
-            memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.TabControl.SelectedItem,
-                GetSelectedItemTabControl, SetSelectedItemTabControl, nameof(TabControl.Selected)));
-
-            //ComboBox
-            BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.Object.ItemsSource.Override<ComboBox>());
-            memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.Object.ItemsSource.Override<ComboBox>(),
-                    (info, box) => box.DataSource as IEnumerable,
-                    (info, box, value) => box.DataSource = value, nameof(ComboBox.DataSourceChanged)));
-            memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.ComboBox.SelectedItem,
-                    (info, box) => box.SelectedItem, (info, box, value) => box.SelectedItem = value, nameof(ComboBox.SelectedIndexChanged)));
-
-            //DataGridView
-            BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.Object.ItemsSource.Override<DataGridView>());
-            memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.Object.ItemsSource.Override<DataGridView>(),
-                    (info, view) => view.DataSource as IEnumerable, (info, view, value) =>
-                    {
-                        view.DataSource = value;
-                        view.Refresh();
-                    }, nameof(DataGridView.DataSourceChanged)));
-            memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.DataGridView.SelectedItem,
-                    GetSelectedItemDataGridView, SetSelectedItemDataGridView, (info, view, arg3) =>
-                    {
-                        arg3 = arg3.ToWeakEventListener();
-                        EventHandler handler = null;
-                        handler = (sender, args) =>
-                        {
-                            var gridView = (DataGridView)sender;
-                            Action<DataGridView, IEventListener, EventHandler> action =
-                                (dataGridView, listener, eventHandler) =>
-                                {
-                                    if (!listener.TryHandle(dataGridView, EventArgs.Empty))
-                                        dataGridView.CurrentCellChanged -= eventHandler;
-                                };
-                            //To prevent this exception 'Operation not valid because it results in a reentrant call to the SetCurrentCellAddressCore function'
-                            gridView.BeginInvoke(action, gridView, arg3, handler);
-                        };
-                        view.CurrentCellChanged += handler;
-                        return WeakActionToken.Create(view, handler,
-                            (gridView, eventHandler) => gridView.CurrentCellChanged -= eventHandler);
-                    }));
-        }
-
-        #region Control
-
-        private static void ContentTemplateChanged(Control control, AttachedMemberChangedEventArgs<IDataTemplateSelector> args)
-        {
-            UpdateContent(control, control.GetBindingMemberValue(AttachedMembers.Control.Content), args.NewValue);
-        }
-
-        private static void ContentChanged(Control control, AttachedMemberChangedEventArgs<object> args)
-        {
-            UpdateContent(control, args.NewValue, control.GetBindingMemberValue(AttachedMembers.Control.ContentTemplateSelector));
-        }
-
-        private static void UpdateContent(Control container, object value, IDataTemplateSelector selector)
-        {
-            if (selector != null)
-                value = selector.SelectTemplateWithContext(value, container);
-
-            var viewModel = value as IViewModel;
-            if (viewModel != null)
-                value = ViewModelToViewConverter.Instance.Convert(viewModel);
-
-            var viewManager = container.GetBindingMemberValue(AttachedMembers.Control.ContentViewManager);
-            if (viewManager == null)
-            {
-                container.Controls.Clear();
-                var content = value as Control;
-                if (content == null && value != null)
-                    content = new TextBox
-                    {
-                        ReadOnly = true,
-                        Text = value.ToString(),
-                        Multiline = true
-                    };
-                if (content != null)
-                {
-                    content.Dock = DockStyle.Fill;
-                    content.AutoSize = true;
-                    container.Size = content.Size;
-                    container.Controls.Add(content);
-                }
-            }
-            else
-                viewManager.SetContent(container, value);
-        }
-
-        private static object FindByNameControlMember(IBindingMemberInfo bindingMemberInfo, Control control, object[] arg3)
-        {
-            var root = PlatformExtensions.GetRootControl(control);
-            if (root != null)
-                control = root;
-            return control.Controls.Find((string)arg3[0], true).FirstOrDefault();
-        }
+        public int Priority => ApplicationSettings.ModulePriorityBinding;
 
         #endregion
 
-        #region Object
+        #region Implementation of interfaces
 
-        private static void ObjectItemsSourceChanged(object control, AttachedMemberChangedEventArgs<IEnumerable> args)
+        public bool Load(IModuleContext context)
         {
-            var generator = control.GetBindingMemberValue(ItemsSourceGeneratorBase.MemberDescriptor);
-            if (generator == null)
-            {
-                generator = new ItemsSourceGenerator(control);
-                control.SetBindingMemberValue(ItemsSourceGeneratorBase.MemberDescriptor, generator);
-            }
-            generator.SetItemsSource(args.NewValue);
+            //            if (context.Platform.Platform == PlatformType.WinForms)
+            //                return new BindingErrorProvider(); todo init service provide
+            context.TryRegisterDataTemplateSelectorsAndValueConverters(null);
+            MugenMvvmToolkit.Binding.AttachedMembersRegistration.RegisterDefaultMembers();
+
+            AttachedMembersRegistration.RegisterObjectMembers();
+            AttachedMembersRegistration.RegisterButtonMembers();
+            AttachedMembersRegistration.RegisterTextBoxMembers();
+            AttachedMembersRegistration.RegisterLabelMembers();
+            AttachedMembersRegistration.RegisterCheckBoxMembers();
+            AttachedMembersRegistration.RegisterProgressBarMembers();
+            AttachedMembersRegistration.RegisterFormMembers();
+            AttachedMembersRegistration.RegisterControlMembers();
+            AttachedMembersRegistration.RegisterDateTimePickerMembers();
+            AttachedMembersRegistration.RegisterToolStripItemMembers();
+            AttachedMembersRegistration.RegisterTabControlMembers();
+            AttachedMembersRegistration.RegisterComboBoxMembers();
+            AttachedMembersRegistration.RegisterDataGridViewMembers();
+            return true;
         }
 
-        #endregion
-
-        #region ToolStripItem
-
-        private static object FindByNameMemberToolStripItem(IBindingMemberInfo bindingMemberInfo, ToolStripItem target, object[] arg3)
+        public void Unload(IModuleContext context)
         {
-            Control control = GetOwner(target);
-            if (control == null)
-                return null;
-            return FindByNameControlMember(null, control, arg3);
-        }
-
-        private static object GetParentToolStripItem(IBindingMemberInfo bindingMemberInfo, ToolStripItem target)
-        {
-            return GetOwner(target);
-        }
-
-        private static IDisposable ObserveParentMemberToolStripItem(IBindingMemberInfo bindingMemberInfo, ToolStripItem toolStripItem, IEventListener arg3)
-        {
-            EventHandler handler = arg3.ToWeakEventListener().Handle;
-            ToolStrip owner = GetOwner(toolStripItem);
-            WeakReference ownerRef = null;
-            if (owner != null)
-            {
-                owner.ParentChanged += handler;
-                ownerRef = ServiceProvider.WeakReferenceFactory(owner);
-            }
-            toolStripItem.OwnerChanged += handler;
-            var menuItemRef = ServiceProvider.WeakReferenceFactory(toolStripItem);
-            return new ActionToken(() =>
-            {
-                if (ownerRef != null)
-                {
-                    var toolStrip = ownerRef.Target as ToolStrip;
-                    if (toolStrip != null)
-                        toolStrip.ParentChanged -= handler;
-                    ownerRef = null;
-                }
-                var item = menuItemRef.Target as ToolStripItem;
-                if (item != null)
-                    item.OwnerChanged -= handler;
-                menuItemRef = null;
-            });
-        }
-
-        private static ToolStrip GetOwner(ToolStripItem menuItem)
-        {
-            ToolStrip owner = menuItem.Owner;
-            while (owner is ToolStripDropDownMenu)
-                owner = (owner as ToolStripDropDownMenu).OwnerItem?.Owner;
-            return owner;
-        }
-
-        #endregion
-
-        #region DataGridView
-
-        private static void SetSelectedItemDataGridView(IBindingMemberInfo bindingMemberInfo, DataGridView dataGridView, object item)
-        {
-            dataGridView.ClearSelection();
-            if (item == null)
-                return;
-            for (int i = 0; i < dataGridView.Rows.Count; i++)
-            {
-                if (Equals(dataGridView.Rows[i].DataBoundItem, item))
-                {
-                    var row = dataGridView.Rows[i];
-                    row.Selected = true;
-                    if (row.Cells.Count > 0)
-                        row.Cells[0].Selected = true;
-                    break;
-                }
-            }
-        }
-
-        private static object GetSelectedItemDataGridView(IBindingMemberInfo bindingMemberInfo, DataGridView dataGridView)
-        {
-            return dataGridView.CurrentRow?.DataBoundItem;
-        }
-
-        #endregion
-
-        #region TabControl
-
-        private static object GetSelectedItemTabControl(IBindingMemberInfo bindingMemberInfo, TabControl tabControl)
-        {
-            if (tabControl.TabCount == 0 || tabControl.SelectedIndex < 0)
-                return null;
-            return tabControl.TabPages[tabControl.SelectedIndex].DataContext();
-        }
-
-        private static void SetSelectedItemTabControl(IBindingMemberInfo bindingMemberInfo, TabControl tabControl, object item)
-        {
-            foreach (TabPage tabPage in tabControl.TabPages)
-            {
-                if (Equals(tabPage.DataContext(), item))
-                {
-                    tabControl.SelectedTab = tabPage;
-                    break;
-                }
-            }
-        }
-
-        #endregion
-
-        #endregion
-
-        #region Overrides of DataBindingModule
-
-        protected override void OnLoaded(IModuleContext context)
-        {
-            Register(BindingServiceProvider.MemberProvider);
-            base.OnLoaded(context);
-        }
-
-        protected override IBindingErrorProvider GetBindingErrorProvider(IModuleContext context)
-        {
-            if (context.Platform.Platform == PlatformType.WinForms)
-                return new BindingErrorProvider();
-            return null;
         }
 
         #endregion
