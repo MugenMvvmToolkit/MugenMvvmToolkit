@@ -70,6 +70,7 @@ namespace MugenMvvmToolkit.Test
         {
             ServiceProvider.AttachedValueProvider = new AttachedValueProvider();
             ServiceProvider.ViewModelSettingsFactory = model => new DefaultViewModelSettings();
+            ServiceProvider.ReflectionManager = new ExpressionReflectionManager();            
             CanBeResolvedTypes = new List<Type>
             {
                 typeof (IThreadManager),

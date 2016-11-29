@@ -2,7 +2,6 @@
 using System.Linq.Expressions;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Binding.Modules;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Silverlight.Binding.Modules;

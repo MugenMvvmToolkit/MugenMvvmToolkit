@@ -427,7 +427,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
 
         protected override void OnInit()
         {
-            ValidatorProvider = new ValidatorProvider(false);
+            ValidatorProvider = new ValidatorProvider();
         }
 
         #endregion
