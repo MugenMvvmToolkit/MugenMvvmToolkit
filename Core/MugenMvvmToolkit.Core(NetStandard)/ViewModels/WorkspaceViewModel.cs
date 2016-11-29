@@ -24,20 +24,12 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 namespace MugenMvvmToolkit.ViewModels
 {
     [BaseViewModel(Priority = 7)]
-    public abstract class WorkspaceViewModel : WorkspaceViewModel<object>
-    {
-    }
-
-    [BaseViewModel(Priority = 7)]
-    public abstract class WorkspaceViewModel<TView> : CloseableViewModel, IWorkspaceViewModel, INavigableViewModel,
-        IViewAwareViewModel<TView>
-        where TView : class
+    public abstract class WorkspaceViewModel : CloseableViewModel, IWorkspaceViewModel, INavigableViewModel
     {
         #region Fields
 
         private string _displayName;
         private bool _isSelected;
-        private TView _view;
 
         #endregion
 
@@ -66,20 +58,6 @@ namespace MugenMvvmToolkit.ViewModels
         Task<bool> INavigableViewModel.OnNavigatingFrom(INavigationContext context)
         {
             return OnNavigatingFrom(context);
-        }
-
-        public TView View
-        {
-            get { return _view; }
-            set
-            {
-                if (ReferenceEquals(value, _view))
-                    return;
-                TView oldValue = _view;
-                _view = value;
-                OnViewChanged(oldValue, value);
-                OnPropertyChanged();
-            }
         }
 
         public virtual string DisplayName
@@ -118,10 +96,6 @@ namespace MugenMvvmToolkit.ViewModels
         }
 
         protected virtual void OnNavigatedTo(INavigationContext context)
-        {
-        }
-
-        protected virtual void OnViewChanged(TView oldView, TView newView)
         {
         }
 
