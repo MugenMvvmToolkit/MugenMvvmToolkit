@@ -23,6 +23,7 @@ using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Infrastructure.Validation;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.Validation;
@@ -31,183 +32,181 @@ using MugenMvvmToolkit.Models.IoC;
 
 namespace MugenMvvmToolkit.Modules
 {
-    public abstract class InitializationModuleBase : ModuleBase
+    public abstract class InitializationModuleBase : IModule
     {
-        #region Constructors
+        #region Properties
 
-        protected InitializationModuleBase(LoadMode mode = LoadMode.All, int priority = InitializationModulePriority)
-            : base(false, mode, priority)
-        {
-        }
-
-        #endregion
-
-        #region Overrides of IocModule
-
-        protected override bool LoadInternal()
-        {
-            IocContainer.BindToBindingInfo(GetAttachedValueProvider());
-            IocContainer.BindToBindingInfo(Mode.IsRuntimeMode() ? GetThreadManager() : GetThreadManagerInternal());
-            IocContainer.BindToBindingInfo(GetSerializer());
-            IocContainer.BindToBindingInfo(GetOperationCallbackManager());
-            IocContainer.BindToBindingInfo(GetTaskExceptionHandler());
-            IocContainer.BindToBindingInfo(GetOperationCallbackFactory());
-            IocContainer.BindToBindingInfo(GetOperationCallbackStateManager());
-            IocContainer.BindToBindingInfo(GetViewMappingProvider());
-            IocContainer.BindToBindingInfo(GetViewManager());
-            IocContainer.BindToBindingInfo(GetDisplayNameProvider());
-            IocContainer.BindToBindingInfo(GetViewModelProvider());
-            IocContainer.BindToBindingInfo(GetMessagePresenter());
-            IocContainer.BindToBindingInfo(GetToastPresenter());
-            IocContainer.BindToBindingInfo(GetViewModelPresenter());
-            IocContainer.BindToBindingInfo(GetWrapperManager());
-            IocContainer.BindToBindingInfo(GetEventAggregator());
-            IocContainer.BindToBindingInfo(GetEntityStateProvider());
-            IocContainer.BindToBindingInfo(GetValidatorProvider());
-            IocContainer.BindToBindingInfo(GetTracer());
-            IocContainer.BindToBindingInfo(GetReflectionManager());
-            IocContainer.BindToBindingInfo(GetNavigationCachePolicy());
-            IocContainer.BindToBindingInfo(GetNavigationProvider());
-            IocContainer.BindToBindingInfo(GetItemsSourceDecorator());
-            return true;
-        }
-
-        protected override void UnloadInternal()
-        {
-        }
+        public int Priority { get; set; } = ApplicationSettings.ModulePriorityInitialization;
 
         #endregion
 
         #region Methods
 
-        protected virtual BindingInfo<IItemsSourceDecorator> GetItemsSourceDecorator()
+        protected virtual void BindItemsSourceDecorator(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<IItemsSourceDecorator>.Empty;
         }
 
-        protected virtual BindingInfo<IOperationCallbackStateManager> GetOperationCallbackStateManager()
+        protected virtual void BindOperationCallbackStateManager(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<IOperationCallbackStateManager>.Empty;
         }
 
-        protected virtual BindingInfo<IAttachedValueProvider> GetAttachedValueProvider()
+        protected virtual void BindAttachedValueProvider(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<IAttachedValueProvider>.FromMethod((container, list) => ServiceProvider.AttachedValueProvider, DependencyLifecycle.SingleInstance);
+            var providerDefault = new AttachedValueProviderDefault();
+            ServiceProvider.AttachedValueProvider = providerDefault;
+            container.BindToConstant<IAttachedValueProvider>(providerDefault);
         }
 
-        protected virtual BindingInfo<IReflectionManager> GetReflectionManager()
+        protected virtual void BindReflectionManager(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<IReflectionManager>.FromMethod((container, list) => ServiceProvider.ReflectionManager, DependencyLifecycle.SingleInstance);
+            IReflectionManager reflectionManager = new ExpressionReflectionManager();
+            ServiceProvider.ReflectionManager = reflectionManager;
+            container.BindToConstant(reflectionManager);
         }
 
-        protected virtual BindingInfo<IDisplayNameProvider> GetDisplayNameProvider()
+        protected virtual void BindDisplayNameProvider(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<IDisplayNameProvider>.FromType<DisplayNameProvider>(DependencyLifecycle.SingleInstance);
+            container.Bind<IDisplayNameProvider, DisplayNameProvider>(DependencyLifecycle.SingleInstance);
         }
 
-        protected virtual BindingInfo<IViewMappingProvider> GetViewMappingProvider()
+        protected virtual void BindViewMappingProvider(IModuleContext context, IIocContainer container)
         {
-            var assemblies = Context.Assemblies;
-            var platformType = Context.Platform.Platform;
-            var isSupportedUriNavigation = platformType == PlatformType.WPF;
-            return BindingInfo<IViewMappingProvider>.FromMethod((adapter, list) =>
-            {
-                return new ViewMappingProvider(assemblies)
-                {
-                    IsSupportedUriNavigation = isSupportedUriNavigation
-                };
-            }, DependencyLifecycle.SingleInstance);
+            var platformType = context.Platform.Platform;
+            IViewMappingProvider mappingProvider = new ViewMappingProvider(context.Assemblies) {IsSupportedUriNavigation = platformType == PlatformType.WPF};
+            container.BindToConstant(mappingProvider);
         }
 
-        protected virtual BindingInfo<IViewManager> GetViewManager()
+        protected virtual void BindViewManager(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<IViewManager>.FromType<ViewManager>(DependencyLifecycle.SingleInstance);
+            container.Bind<IViewManager, ViewManager>(DependencyLifecycle.SingleInstance);
         }
 
-        protected virtual BindingInfo<IViewModelProvider> GetViewModelProvider()
+        protected virtual void BindViewModelProvider(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<IViewModelProvider>.FromMethod((adapter, list) => new ViewModelProvider(adapter.GetRoot()), DependencyLifecycle.SingleInstance);
+            IViewModelProvider viewModelProvider = new ViewModelProvider(container.GetRoot());
+            ServiceProvider.ViewModelProvider = viewModelProvider;
+            container.BindToConstant(viewModelProvider);
         }
 
-        protected virtual BindingInfo<IViewModelPresenter> GetViewModelPresenter()
+        protected virtual void BindViewModelPresenter(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<IViewModelPresenter>.FromType<ViewModelPresenter>(DependencyLifecycle.SingleInstance);
+            container.Bind<IViewModelPresenter, ViewModelPresenter>(DependencyLifecycle.SingleInstance);
         }
 
-        protected virtual BindingInfo<IMessagePresenter> GetMessagePresenter()
+        protected virtual void BindMessagePresenter(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<IMessagePresenter>.Empty;
         }
 
-        protected virtual BindingInfo<IToastPresenter> GetToastPresenter()
+        protected virtual void BindToastPresenter(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<IToastPresenter>.Empty;
         }
 
-        protected virtual BindingInfo<IWrapperManager> GetWrapperManager()
+        protected virtual void BindWrapperManager(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<IWrapperManager>.FromType<WrapperManager>(DependencyLifecycle.SingleInstance);
+            container.Bind<IWrapperManager, WrapperManager>(DependencyLifecycle.SingleInstance);
         }
 
-        protected virtual BindingInfo<IEventAggregator> GetEventAggregator()
+        protected virtual void BindEventAggregator(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<IEventAggregator>.FromMethod((container, list) => ServiceProvider.EventAggregator, DependencyLifecycle.SingleInstance);
+            IEventAggregator eventAggregator = new EventAggregator();
+            ServiceProvider.EventAggregator = eventAggregator;
+            container.BindToConstant(eventAggregator);
         }
 
-        protected virtual BindingInfo<IEntityStateManager> GetEntityStateProvider()
+        protected virtual void BindEntityStateProvider(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<IEntityStateManager>.FromType<EntityStateManager>(DependencyLifecycle.SingleInstance);
+            container.Bind<IEntityStateManager, EntityStateManager>(DependencyLifecycle.SingleInstance);
         }
 
-        protected virtual BindingInfo<IValidatorProvider> GetValidatorProvider()
+        protected virtual void BindValidatorProvider(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<IValidatorProvider>.FromMethod((container, list) => ServiceProvider.ValidatorProvider, DependencyLifecycle.SingleInstance);
+            IValidatorProvider validatorProvider = new ValidatorProvider();
+            validatorProvider.Register(typeof(ValidatableViewModelValidator));
+            validatorProvider.Register(typeof(DataAnnotationValidatior));
+            ServiceProvider.ValidatorProvider = validatorProvider;
+            container.BindToConstant(validatorProvider);
         }
 
-        protected virtual BindingInfo<ITracer> GetTracer()
+        protected virtual void BindTracer(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<ITracer>.FromInstance(Tracer.Instance);
+            container.BindToConstant<ITracer>(Tracer.Instance);
         }
 
-        protected virtual BindingInfo<ITaskExceptionHandler> GetTaskExceptionHandler()
+        protected virtual void BindTaskExceptionHandler(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<ITaskExceptionHandler>.FromInstance(Tracer.Instance);
+            container.BindToConstant<ITaskExceptionHandler>(Tracer.Instance);
         }
 
-        protected virtual BindingInfo<IThreadManager> GetThreadManager()
+        protected virtual void BindThreadManager(IModuleContext context, IIocContainer container)
         {
-            return GetThreadManagerInternal();
+            IThreadManager threadManager = new SynchronousThreadManager();
+            ServiceProvider.ThreadManager = threadManager;
+            container.BindToConstant(threadManager);
         }
 
-        protected virtual BindingInfo<INavigationProvider> GetNavigationProvider()
+        protected virtual void BindNavigationProvider(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<INavigationProvider>.Empty;
         }
 
-        protected virtual BindingInfo<INavigationCachePolicy> GetNavigationCachePolicy()
+        protected virtual void BindNavigationCachePolicy(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<INavigationCachePolicy>.FromType<DefaultNavigationCachePolicy>(DependencyLifecycle.SingleInstance);
+            container.Bind<INavigationCachePolicy, DefaultNavigationCachePolicy>(DependencyLifecycle.SingleInstance);
         }
 
-        protected virtual BindingInfo<ISerializer> GetSerializer()
+        protected virtual void BindSerializer(IModuleContext context, IIocContainer container)
         {
-            var assemblies = Context.Assemblies;
-            return BindingInfo<ISerializer>.FromMethod((container, list) => new Serializer(assemblies), DependencyLifecycle.SingleInstance);
+            var assemblies = context.Assemblies;
+            container.BindToMethod<ISerializer>((iocContainer, list) => new Serializer(assemblies), DependencyLifecycle.SingleInstance);
         }
 
-        protected virtual BindingInfo<IOperationCallbackManager> GetOperationCallbackManager()
+        protected virtual void BindOperationCallbackManager(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<IOperationCallbackManager>.FromType<OperationCallbackManager>(DependencyLifecycle.SingleInstance);
+            container.Bind<IOperationCallbackManager, OperationCallbackManager>(DependencyLifecycle.SingleInstance);
         }
 
-        protected virtual BindingInfo<IOperationCallbackFactory> GetOperationCallbackFactory()
+        protected virtual void BindOperationCallbackFactory(IModuleContext context, IIocContainer container)
         {
-            return BindingInfo<IOperationCallbackFactory>.FromInstance(DefaultOperationCallbackFactory.Instance);
+            IOperationCallbackFactory callbackFactory = new DefaultOperationCallbackFactory();
+            ServiceProvider.OperationCallbackFactory = callbackFactory;
+            container.BindToConstant(callbackFactory);
         }
 
-        private static BindingInfo<IThreadManager> GetThreadManagerInternal()
+        #endregion
+
+        #region Implementation of interfaces
+
+        public virtual bool Load(IModuleContext context)
         {
-            return BindingInfo<IThreadManager>.FromType<SynchronousThreadManager>(DependencyLifecycle.SingleInstance);
+            if (context.IocContainer == null)
+                return false;
+            BindAttachedValueProvider(context, context.IocContainer);
+            BindThreadManager(context, context.IocContainer);
+            BindSerializer(context, context.IocContainer);
+            BindOperationCallbackManager(context, context.IocContainer);
+            BindTaskExceptionHandler(context, context.IocContainer);
+            BindOperationCallbackFactory(context, context.IocContainer);
+            BindOperationCallbackStateManager(context, context.IocContainer);
+            BindViewMappingProvider(context, context.IocContainer);
+            BindViewManager(context, context.IocContainer);
+            BindDisplayNameProvider(context, context.IocContainer);
+            BindViewModelProvider(context, context.IocContainer);
+            BindMessagePresenter(context, context.IocContainer);
+            BindToastPresenter(context, context.IocContainer);
+            BindViewModelPresenter(context, context.IocContainer);
+            BindWrapperManager(context, context.IocContainer);
+            BindEventAggregator(context, context.IocContainer);
+            BindEntityStateProvider(context, context.IocContainer);
+            BindValidatorProvider(context, context.IocContainer);
+            BindTracer(context, context.IocContainer);
+            BindReflectionManager(context, context.IocContainer);
+            BindNavigationCachePolicy(context, context.IocContainer);
+            BindNavigationProvider(context, context.IocContainer);
+            BindItemsSourceDecorator(context, context.IocContainer);
+            return true;
+        }
+
+        public virtual void Unload(IModuleContext context)
+        {
         }
 
         #endregion

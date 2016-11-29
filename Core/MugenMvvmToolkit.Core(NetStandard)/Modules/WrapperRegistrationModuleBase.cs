@@ -17,49 +17,46 @@
 #endregion
 
 using MugenMvvmToolkit.Interfaces;
-using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Modules
 {
-    public abstract class WrapperRegistrationModuleBase : ModuleBase
+    public abstract class WrapperRegistrationModuleBase : IModule
     {
-        #region Constructors
+        #region Methods
 
-        protected WrapperRegistrationModuleBase()
-            : this(LoadMode.All)
+        protected virtual bool CanLoad(IModuleContext context)
         {
-        }
-
-        protected WrapperRegistrationModuleBase(LoadMode supportedModes, int priority = WrapperRegistrationModulePriority)
-            : base(false, supportedModes, priority)
-        {
-        }
-
-        #endregion
-
-        #region Overrides of ModuleBase
-
-        protected sealed override bool LoadInternal()
-        {
-            IWrapperManager wrapperManager;
-            IocContainer.TryGet(out wrapperManager);
-            var manager = wrapperManager as IConfigurableWrapperManager;
-            if (manager == null)
-                Tracer.Warn("The IConfigurableWrapperManager is not registered, the '{0}' is ignored", GetType().FullName);
-            else
-                RegisterWrappers(manager);
             return true;
         }
 
-        protected sealed override void UnloadInternal()
-        {
-        }
+        protected abstract void RegisterWrappers(IConfigurableWrapperManager wrapperManager);
 
         #endregion
 
-        #region Methods
+        #region Implementation of interfaces
 
-        protected abstract void RegisterWrappers(IConfigurableWrapperManager wrapperManager);
+        public int Priority { get; set; } = ApplicationSettings.ModulePriorityWrapperRegistration;
+
+        public bool Load(IModuleContext context)
+        {
+            if ((context.IocContainer == null) || !CanLoad(context))
+                return false;
+            IWrapperManager wrapperManager;
+            context.IocContainer.TryGet(out wrapperManager);
+            var manager = wrapperManager as IConfigurableWrapperManager;
+            if (manager == null)
+            {
+                Tracer.Warn("The IConfigurableWrapperManager is not registered, the '{0}' is ignored", GetType().FullName);
+                return false;
+            }
+            RegisterWrappers(manager);
+            return true;
+        }
+
+        public void Unload(IModuleContext context)
+        {
+        }
 
         #endregion
     }

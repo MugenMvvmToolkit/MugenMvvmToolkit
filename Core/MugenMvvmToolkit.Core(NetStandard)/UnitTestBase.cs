@@ -36,11 +36,11 @@ namespace MugenMvvmToolkit
 
         public sealed class DefaultUnitTestModule : InitializationModuleBase
         {
-            #region Constructors
+            #region Methods
 
-            public DefaultUnitTestModule(int priority = InitializationModulePriority)
-                : base(LoadMode.UnitTest, priority)
+            public override bool Load(IModuleContext context)
             {
+                return context.IsSupported(LoadMode.UnitTest) && base.Load(context);
             }
 
             #endregion
@@ -90,7 +90,7 @@ namespace MugenMvvmToolkit
 
         #region Properties
 
-        protected IIocContainer IocContainer => MvvmApplication.Current.IocContainer;
+        protected IIocContainer IocContainer => ServiceProvider.IocContainer;
 
         protected IViewModelProvider ViewModelProvider { get; set; }
 
