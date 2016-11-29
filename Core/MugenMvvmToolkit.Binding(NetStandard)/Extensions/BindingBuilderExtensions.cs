@@ -54,7 +54,45 @@ namespace MugenMvvmToolkit.Binding
 
         #region Methods
 
+        #region Clear
+
+        public static void ClearBindings<T>([CanBeNull] this T item, bool clearDataContext, bool clearAttachedValues)
+            where T : class
+        {
+            if (item == null)
+                return;
+            try
+            {
+                BindingServiceProvider.BindingManager.ClearBindings(item);
+                if (clearDataContext && BindingServiceProvider.ContextManager.HasBindingContext(item))
+                    BindingServiceProvider.ContextManager.GetBindingContext(item).Value = null;
+                if (clearAttachedValues)
+                    ServiceProvider.AttachedValueProvider.Clear(item);
+            }
+            catch (Exception e)
+            {
+                Tracer.Error(e.Flatten(true));
+            }
+        }
+
+        #endregion
+
         #region Bind
+
+        public static void BindFromExpression<TTarget>([NotNull]this TTarget target, string expression, IList<object> sources = null, IDataContext context = null) where TTarget : class
+        {
+            BindingServiceProvider.BindingProvider.CreateBindingsFromString(target, expression, sources, context);
+        }
+
+        public static void BindFromExpression<TTarget>([NotNull]this TTarget target, string targetPath, string expression, IDataContext context = null) where TTarget : class
+        {
+            BindingServiceProvider.BindingProvider.CreateBindingsFromString(target, targetPath + " " + expression, context: context);
+        }
+
+        public static void BindFromExpression<TTarget>([NotNull]this TTarget target, string targetPath, object source, string expression, IDataContext context = null) where TTarget : class
+        {
+            BindingServiceProvider.BindingProvider.CreateBindingsFromString(target, targetPath + " " + expression, new[] { source }, context);
+        }
 
         public static IBindingToSyntax<TTarget> Bind<TTarget>([NotNull]this TTarget targetGeneric) where TTarget : class
         {

@@ -60,7 +60,7 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                 MemberFlags.Public | MemberFlags.Static);
             GetEventArgsMethod = typeof(BindingSyntaxEx).GetMethodEx(nameof(GetEventArgs),
                 MemberFlags.Public | MemberFlags.Static);
-            GetErrorsMethod = typeof(BindingSyntaxEx).GetMethodEx(nameof(GetErrorsImpl),
+            GetErrorsMethod = typeof(BindingExtensions).GetMethodEx(nameof(BindingExtensions.GetErrorsImpl),
                 MemberFlags.Public | MemberFlags.Static);
             ResourceMethodImplMethod = typeof(BindingSyntaxEx).GetMethodEx(nameof(ResourceMethodImpl),
                 MemberFlags.Public | MemberFlags.Static);
@@ -128,7 +128,7 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
             return MethodNotSupported<IDataBinding>();
         }
 
-        [Preserve]
+        [Preserve(Conditional = true)]
         public static T Resource<T>(this IBindingSyntaxContext context, string name)
         {
             return (T)BindingServiceProvider
@@ -179,7 +179,7 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
             return MethodNotSupported<T>();
         }
 
-        [Preserve]
+        [Preserve(Conditional = true)]
         public static Expression ProvideExpression(IBuilderSyntaxContext context)
         {
             var mExp = context.MethodExpression;
@@ -329,39 +329,25 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
             return context.MethodExpression == context.Expression;
         }
 
-        [Preserve]
+        [Preserve(Conditional = true)]
         public static object GetEventArgs(IDataContext context)
         {
             return context.GetData(BindingConstants.CurrentEventArgs);
         }
 
-        [Preserve]
+        [Preserve(Conditional = true)]
         public static IDataBinding GetBinding(IDataContext context)
         {
             return context.GetData(BindingConstants.Binding);
         }
 
-        [Preserve]
+        [Preserve(Conditional = true)]
         public static object ResourceMethodImpl(string name, IList<Type> typeArgs, IDataContext context, params object[] args)
         {
             return BindingServiceProvider
                 .ResourceResolver
                 .ResolveMethod(name, context, true)
                 .Invoke(typeArgs, args, context);
-        }
-
-        [Preserve]
-        public static IEnumerable<object> GetErrorsImpl(Guid id, IDataContext context, object[] args)
-        {
-            var binding = context.GetData(BindingConstants.Binding);
-            if (binding == null)
-                return Empty.Array<object>();
-            foreach (var behavior in binding.Behaviors)
-            {
-                if (behavior.Id == id)
-                    return ((NotifyDataErrorsAggregatorBehavior)behavior).Errors;
-            }
-            return Empty.Array<object>();
         }
 
         private static T MethodNotSupported<T>()

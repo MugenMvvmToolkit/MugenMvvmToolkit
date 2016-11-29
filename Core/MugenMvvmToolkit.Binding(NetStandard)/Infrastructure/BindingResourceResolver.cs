@@ -327,7 +327,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         private static object GetErrorsMethod(IList<Type> types, object[] objects, IDataContext arg3)
         {
             //The first argument must always be an identifier.
-            return BindingSyntaxEx.GetErrorsImpl((Guid)objects[0], arg3, objects);
+            return BindingExtensions.GetErrorsImpl((Guid)objects[0], arg3, objects);
         }
 
         private static object GetSelfMethod(IList<Type> types, object[] items, IDataContext dataContext)

@@ -25,7 +25,7 @@ using System.Text;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Binding.Attributes;
-using MugenMvvmToolkit.Binding.Builders;
+using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
@@ -295,6 +295,28 @@ namespace MugenMvvmToolkit.Binding
         #endregion
 
         #region Methods
+
+        public static void TryRegisterDataTemplateSelectorsAndValueConverters(this IModuleContext context, Action<Type> customHandler)
+        {
+            ServiceProvider.BootstrapCodeBuilder?.AppendStatic(nameof(BindingExtensions),
+                $"{typeof(BindingServiceProvider).FullName}.DisableConverterAutoRegistration = {typeof(BindingServiceProvider).FullName}.DisableDataTemplateSelectorAutoRegistration = true;");
+            ServiceProvider.BootstrapCodeBuilder?.Append(nameof(BindingExtensions), $"var resolver = {typeof(BindingServiceProvider).FullName}.ResourceResolver;");
+            var assemblies = context.Assemblies;
+            for (var i = 0; i < assemblies.Count; i++)
+            {
+                var assembly = assemblies[i];
+                if (!BindingServiceProvider.DisableConverterAutoRegistration || !BindingServiceProvider.DisableDataTemplateSelectorAutoRegistration)
+                {
+                    var types = assembly.SafeGetTypes(!context.Mode.IsDesignMode());
+                    for (var j = 0; j < types.Count; j++)
+                    {
+                        var type = types[j];
+                        TryRegisterDataTemplateSelectorAndValueConverter(type);
+                        customHandler?.Invoke(type);
+                    }
+                }
+            }
+        }
 
         public static IDisposable TrySubscribe([NotNull] this IWeakEventManager eventManager, [NotNull] object target,
             string eventName, IEventListener listener,
@@ -581,55 +603,6 @@ namespace MugenMvvmToolkit.Binding
             BindingServiceProvider.ContextManager.GetBindingContext(source).Value = value;
         }
 
-        public static void SetBindings<T>([NotNull] this T item, [NotNull] string bindingExpression, IList<object> sources = null)
-            where T : class
-        {
-            BindingServiceProvider.BindingProvider.CreateBindingsFromString(item, bindingExpression, sources);
-        }
-
-        public static T SetBindings<T, TBindingSet>([NotNull] this T item, [NotNull] TBindingSet bindingSet,
-            [NotNull] string bindings, object[] sources = null)
-            where T : class
-            where TBindingSet : BindingSet
-        {
-            Should.NotBeNull(item, nameof(item));
-            Should.NotBeNull(bindingSet, nameof(bindingSet));
-            Should.NotBeNull(bindings, nameof(bindings));
-            bindingSet.BindFromExpression(item, bindings, sources);
-            return item;
-        }
-
-        public static T SetBindings<T, TBindingSet>([NotNull] this T item, [NotNull] TBindingSet bindingSet,
-            [NotNull] Action<TBindingSet, T> setBinding)
-            where T : class
-            where TBindingSet : BindingSet
-        {
-            Should.NotBeNull(item, nameof(item));
-            Should.NotBeNull(bindingSet, nameof(bindingSet));
-            Should.NotBeNull(setBinding, nameof(setBinding));
-            setBinding(bindingSet, item);
-            return item;
-        }
-
-        public static void ClearBindings<T>([CanBeNull] this T item, bool clearDataContext, bool clearAttachedValues)
-            where T : class
-        {
-            if (item == null)
-                return;
-            try
-            {
-                BindingServiceProvider.BindingManager.ClearBindings(item);
-                if (clearDataContext && BindingServiceProvider.ContextManager.HasBindingContext(item))
-                    BindingServiceProvider.ContextManager.GetBindingContext(item).Value = null;
-                if (clearAttachedValues)
-                    ServiceProvider.AttachedValueProvider.Clear(item);
-            }
-            catch (Exception e)
-            {
-                Tracer.Error(e.Flatten(true));
-            }
-        }
-
         public static IObserver CreateBindingSource(IRelativeSourceExpressionNode node, IDataContext context, [NotNull] object target, string pathEx)
         {
             if (target == null)
@@ -663,7 +636,7 @@ namespace MugenMvvmToolkit.Binding
             return true;
         }
 
-        [Preserve]
+        [Preserve(Conditional = true)]
         public static T GetOrAddValue<T>(IDataBinding binding, DataConstant<object> constant, Func<T> getValue)
         {
             object data;
@@ -691,6 +664,20 @@ namespace MugenMvvmToolkit.Binding
         public static BindingMemberDescriptor<TSource, IEventListener> ToChangedEvent<TSource, TValue>(this BindingMemberDescriptor<TSource, TValue> member) where TSource : class
         {
             return new BindingMemberDescriptor<TSource, IEventListener>(member.Path + AttachedMemberConstants.ChangedEventPostfix);
+        }
+
+        [Preserve(Conditional = true)]
+        public static IEnumerable<object> GetErrorsImpl(Guid id, IDataContext context, object[] args)
+        {
+            var binding = context.GetData(BindingConstants.Binding);
+            if (binding == null)
+                return Empty.Array<object>();
+            foreach (var behavior in binding.Behaviors)
+            {
+                if (behavior.Id == id)
+                    return ((NotifyDataErrorsAggregatorBehavior)behavior).Errors;
+            }
+            return Empty.Array<object>();
         }
 
         internal static void CheckDuplicateLambdaParameter(ICollection<string> parameters)
@@ -915,6 +902,42 @@ namespace MugenMvvmToolkit.Binding
         {
             return st.Substring(1, st.Length - 2);
         }
+
+        private static void TryRegisterDataTemplateSelectorAndValueConverter(Type type)
+        {
+            var isConverter = typeof(IBindingValueConverter).IsAssignableFrom(type);
+            var isTemplate = typeof(IDataTemplateSelector).IsAssignableFrom(type);
+
+            if ((!isConverter && !isTemplate) || !type.IsPublicNonAbstractClass())
+                return;
+
+            if (BindingServiceProvider.DisableConverterAutoRegistration && isConverter)
+                return;
+            if (BindingServiceProvider.DisableDataTemplateSelectorAutoRegistration && isTemplate)
+                return;
+
+            var constructor = type.GetConstructor(Empty.Array<Type>());
+            if ((constructor == null) || !constructor.IsPublic)
+                return;
+
+            var value = constructor.Invoke(Empty.Array<object>());
+            if (isTemplate)
+            {
+                BindingServiceProvider.ResourceResolver.AddObject(type.Name, value, true);
+                ServiceProvider.BootstrapCodeBuilder?.Append(nameof(BindingExtensions),
+                    $"{typeof(BindingExtensions).FullName}.AddObject(resolver, \"{type.Name}\", new {type.GetPrettyName()}(), true);");
+            }
+            else
+            {
+                BindingServiceProvider.ResourceResolver.AddConverter((IBindingValueConverter)value, type, true);
+                ServiceProvider.BootstrapCodeBuilder?.Append(nameof(BindingExtensions),
+                    $"{typeof(BindingExtensions).FullName}.AddConverter(resolver, new {type.GetPrettyName()}(), typeof({type.GetPrettyName()}), true);");
+            }
+
+            if (Tracer.TraceInformation)
+                Tracer.Info("The {0} is registered.", type);
+        }
+
 
         private static bool IsAllMembersAvailable(this IObserver observer, bool checkLastMember)
         {
