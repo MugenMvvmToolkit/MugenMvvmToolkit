@@ -36,7 +36,7 @@ namespace MugenMvvmToolkit.Models
         #region Constructors
 
         //Only for serialization
-        [Preserve]
+        [Preserve(Conditional = true)]
         internal EntityStateEntry() { }
 
         public EntityStateEntry(EntityState state, object entity)

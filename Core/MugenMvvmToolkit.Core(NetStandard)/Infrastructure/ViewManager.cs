@@ -20,6 +20,7 @@ using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -51,6 +52,7 @@ namespace MugenMvvmToolkit.Infrastructure
             SetDataContext = (o, o1) => ReflectionExtensions.SetDataContext(o, o1);
         }
 
+        [Preserve(Conditional = true)]
         public ViewManager([NotNull] IThreadManager threadManager,
             [NotNull] IViewMappingProvider viewMappingProvider, [NotNull] IWrapperManager wrapperManager)
         {

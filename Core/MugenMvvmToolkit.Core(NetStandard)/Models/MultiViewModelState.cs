@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Models
@@ -37,7 +38,7 @@ namespace MugenMvvmToolkit.Models
             SelectedIndex = DataConstant.Create<int>(type, nameof(SelectedIndex));
         }
 
-        [DataMember(Name = "s")]
+        [DataMember(Name = "s"), Preserve(Conditional = true)]
         public List<IDataContext> State;
     }
 }

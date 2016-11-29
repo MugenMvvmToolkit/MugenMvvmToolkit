@@ -22,6 +22,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -82,6 +83,7 @@ namespace MugenMvvmToolkit.Infrastructure
             ItemToWrapConstant = DataConstant.Create<object>(typeof(WrapperManager), nameof(ItemToWrapConstant), true);
         }
 
+        [Preserve(Conditional = true)]
         public WrapperManager([NotNull] IViewModelProvider viewModelProvider)
         {
             Should.NotBeNull(viewModelProvider, nameof(viewModelProvider));

@@ -20,9 +20,9 @@ using MugenMvvmToolkit.Attributes;
 
 namespace MugenMvvmToolkit.Interfaces.ViewModels
 {
-    [Preserve(AllMembers = true)]
     public interface IViewAwareViewModel<TView> : IViewModel where TView : class
     {
+        [Preserve(Conditional = true)]
         TView View { get; set; }
     }
 }

@@ -19,6 +19,7 @@
 using System.Reflection;
 using System.Resources;
 using System.Runtime.CompilerServices;
+using MugenMvvmToolkit.Attributes;
 
 [assembly: AssemblyTitle("MugenMvvmToolkit")]
 [assembly: AssemblyDescription("")]
@@ -27,6 +28,7 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: NeutralResourcesLanguage("en")]
+[assembly: LinkerSafe]
 [assembly: InternalsVisibleTo("System.Runtime.Serialization")]
 [assembly: InternalsVisibleTo("MugenMvvmToolkit.Binding")]
 [assembly: InternalsVisibleTo("MugenMvvmToolkit.UWP")]

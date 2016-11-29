@@ -39,7 +39,7 @@ namespace MugenMvvmToolkit.Models
         #region Constructors
 
         //Only for serialization
-        [Preserve]
+        [Preserve(Conditional = true)]
         internal DataConstant() { }
 
         protected internal DataConstant([NotNull] string id, bool notNull = false)

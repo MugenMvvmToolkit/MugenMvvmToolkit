@@ -45,7 +45,7 @@ namespace MugenMvvmToolkit.Interfaces.ViewModels
 
         void Clear();
 
-        [Preserve]
+        [Preserve(Conditional = true)]
         event EventHandler<IMultiViewModel, SelectedItemChangedEventArgs<IViewModel>> SelectedItemChanged;
 
         event EventHandler<IMultiViewModel, ValueEventArgs<IViewModel>> ViewModelAdded;
@@ -67,7 +67,7 @@ namespace MugenMvvmToolkit.Interfaces.ViewModels
 
         Task<bool> RemoveViewModelAsync([NotNull] TViewModel viewModel, object parameter = null);
 
-        [Preserve]
+        [Preserve(Conditional = true)]
         new event EventHandler<IMultiViewModel<TViewModel>, SelectedItemChangedEventArgs<TViewModel>> SelectedItemChanged;
 
         new event EventHandler<IMultiViewModel<TViewModel>, ValueEventArgs<TViewModel>> ViewModelAdded;

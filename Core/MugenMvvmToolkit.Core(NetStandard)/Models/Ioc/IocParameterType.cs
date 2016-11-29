@@ -41,7 +41,7 @@ namespace MugenMvvmToolkit.Models.IoC
         }
 
         //Only for serialization
-        [Preserve]
+        [Preserve(Conditional = true)]
         internal IocParameterType() { }
 
         public IocParameterType(string id)

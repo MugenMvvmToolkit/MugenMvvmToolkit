@@ -186,6 +186,8 @@ namespace MugenMvvmToolkit.ViewModels
         [CanBeNull]
         protected IEntitySnapshot EntitySnapshot => _entitySnapshot;
 
+        internal override Type BaseType => typeof(EditableViewModel<>);
+
         #endregion
 
         #region Methods

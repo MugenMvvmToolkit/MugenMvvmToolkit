@@ -48,10 +48,10 @@ namespace MugenMvvmToolkit.Interfaces.ViewModels
 
         void UpdateFilter();
 
-        [Preserve]
+        [Preserve(Conditional = true)]
         event EventHandler<IGridViewModel, SelectedItemChangedEventArgs> SelectedItemChanged;
 
-        [Preserve]
+        [Preserve(Conditional = true)]
         event EventHandler<IGridViewModel, ItemsSourceChangedEventArgs> ItemsSourceChanged;
     }
 
@@ -73,10 +73,10 @@ namespace MugenMvvmToolkit.Interfaces.ViewModels
         void SetOriginalItemsSource<TItemsSource>([NotNull] TItemsSource originalItemsSource)
             where TItemsSource : IList<T>, INotifyCollectionChanged, IList;
 
-        [Preserve]
+        [Preserve(Conditional = true)]
         new event EventHandler<IGridViewModel, SelectedItemChangedEventArgs<T>> SelectedItemChanged;
 
-        [Preserve]
+        [Preserve(Conditional = true)]
         new event EventHandler<IGridViewModel, ItemsSourceChangedEventArgs<T>> ItemsSourceChanged;
     }
 }

@@ -21,29 +21,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Serialization;
-using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
+    //todo fix nested serializable objects
     public class Serializer : ISerializer
     {
-        #region Nested types
-
-        [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true, Name = "sdc"), Serializable, Preserve(AllMembers = true)]
-        public sealed class DataContainer
-        {
-            #region Properties
-
-            [DataMember(Name = "d")]
-            public object Data { get; set; }
-
-            #endregion
-        }
-
-        #endregion
-
         #region Fields
 
         private readonly HashSet<Type> _knownTypes;
@@ -69,8 +54,8 @@ namespace MugenMvvmToolkit.Infrastructure
             Should.NotBeNull(item, nameof(item));
             EnsureInitialized();
             if (_knownTypes.Add(item.GetType()))
-                _contractSerializer = new DataContractSerializer(typeof(DataContainer), _knownTypes);
-            item = new DataContainer { Data = item };
+                _contractSerializer = new DataContractSerializer(typeof(SerializerDataContainer), _knownTypes);
+            item = new SerializerDataContainer { Data = item };
             var ms = new MemoryStream();
             _contractSerializer.WriteObject(ms, item);
             return ms;
@@ -80,7 +65,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             Should.NotBeNull(stream, nameof(stream));
             EnsureInitialized();
-            return ((DataContainer)_contractSerializer.ReadObject(stream)).Data;
+            return ((SerializerDataContainer)_contractSerializer.ReadObject(stream)).Data;
         }
 
         public bool IsSerializable(Type type)
@@ -121,7 +106,7 @@ namespace MugenMvvmToolkit.Infrastructure
                         _knownTypes.Add(typeof(DataConstant));
                         _knownTypes.Add(typeof(DataContext));
                         _knownTypes.Add(typeof(Dictionary<string, object>));
-                        _contractSerializer = new DataContractSerializer(typeof(DataContainer), _knownTypes);
+                        _contractSerializer = new DataContractSerializer(typeof(SerializerDataContainer), _knownTypes);
                         _assemblies = null;
                     }
                 }

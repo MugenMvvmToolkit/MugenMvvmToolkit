@@ -21,9 +21,9 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 
 namespace MugenMvvmToolkit.Interfaces.Views
 {
-    [Preserve(AllMembers = true)]
     public interface IViewModelAwareView<TViewModel> : IView where TViewModel : IViewModel
     {
+        [Preserve(Conditional = true)]
         TViewModel ViewModel { get; set; }
     }
 }

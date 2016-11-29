@@ -21,9 +21,9 @@ using MugenMvvmToolkit.Attributes;
 
 namespace MugenMvvmToolkit.Interfaces.Models
 {
-    [Preserve(AllMembers = true)]
     public interface IHandler<in TMessage>
     {
+        [Preserve(Conditional = true)]
         void Handle([NotNull] object sender, [NotNull] TMessage message);
     }
 

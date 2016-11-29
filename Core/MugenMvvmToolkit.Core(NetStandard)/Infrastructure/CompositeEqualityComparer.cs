@@ -52,7 +52,7 @@ namespace MugenMvvmToolkit.Infrastructure
             #region Constructors
 
             //Only for serialization
-            [Preserve]
+            [Preserve(Conditional = true)]
             internal ComparerWrapper() { }
 
             public ComparerWrapper([NotNull] IEqualityComparer<T> comparer, bool exactlySameType)

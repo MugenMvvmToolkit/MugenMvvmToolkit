@@ -72,7 +72,7 @@ namespace MugenMvvmToolkit.ViewModels
 
             _createContext = CreateContextInternal;
             _propertyMappings = type.GetViewModelToModelProperties();
-            _ignoreProperties = type.GetIgnoreProperties();
+            _ignoreProperties = type.GetIgnoreProperties(BaseType);
             _validator.Initialize(new ValidatorContext(this, _propertyMappings, _ignoreProperties, Settings.Metadata));
             AddValidator(_validator);
         }
@@ -92,6 +92,8 @@ namespace MugenMvvmToolkit.ViewModels
                 _validatorProvider = value;
             }
         }
+
+        internal virtual Type BaseType => typeof(ValidatableViewModel);
 
         #endregion
 
@@ -170,7 +172,7 @@ namespace MugenMvvmToolkit.ViewModels
             if (validator.Context == null)
                 throw ExceptionManager.ValidatorNotInitialized("validator");
             //To prevent recursive validation call.
-            if (validator is ValidatableViewModelValidator && ReferenceEquals(validator.Context.Instance, this))
+            if (validator is IValidatableViewModelValidator && ReferenceEquals(validator.Context.Instance, this))
             {
                 validator.Dispose();
                 return;
