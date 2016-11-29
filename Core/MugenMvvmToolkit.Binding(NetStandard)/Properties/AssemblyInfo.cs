@@ -19,6 +19,7 @@
 using System.Reflection;
 using System.Resources;
 using System.Runtime.CompilerServices;
+using MugenMvvmToolkit.Attributes;
 
 [assembly: AssemblyTitle("MugenMvvmToolkit.Binding")]
 [assembly: AssemblyDescription("")]
@@ -27,4 +28,5 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: NeutralResourcesLanguage("en")]
+[assembly: LinkerSafe]
 [assembly: InternalsVisibleTo("MugenMvvmToolkit.Test")]

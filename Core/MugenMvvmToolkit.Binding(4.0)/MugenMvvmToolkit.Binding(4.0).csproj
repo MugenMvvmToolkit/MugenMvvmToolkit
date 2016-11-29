@@ -69,6 +69,9 @@
     <Compile Include="..\MugenMvvmToolkit.Binding%28NetStandard%29\AttachedMemberConstants.cs">
       <Link>AttachedMemberConstants.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28NetStandard%29\AttachedMembersRegistration.cs">
+      <Link>AttachedMembersRegistration.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28NetStandard%29\Attributes\BindingSyntaxExtensionsAttribute.cs">
       <Link>Attributes\BindingSyntaxExtensionsAttribute.cs</Link>
     </Compile>
@@ -425,9 +428,6 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28NetStandard%29\Models\WeakEventListenerWrapper.cs">
       <Link>Models\WeakEventListenerWrapper.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding%28NetStandard%29\Modules\DataBindingModule.cs">
-      <Link>Modules\DataBindingModule.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28NetStandard%29\parse\BindingMemberVisitor.cs">
       <Link>Parse\BindingMemberVisitor.cs</Link>

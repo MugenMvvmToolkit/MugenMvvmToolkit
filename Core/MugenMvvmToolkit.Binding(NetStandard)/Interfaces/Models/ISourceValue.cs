@@ -30,7 +30,7 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Models
         [CanBeNull]
         object Value { get; }
 
-        [Preserve]
+        [Preserve(Conditional = true)]
         event EventHandler<ISourceValue, EventArgs> ValueChanged;
     }
 }

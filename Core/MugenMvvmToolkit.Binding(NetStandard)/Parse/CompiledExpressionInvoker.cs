@@ -70,7 +70,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             #endregion
         }
 
-        [Preserve(AllMembers = true)]
+        [Preserve(AllMembers = true, Conditional = true)]
         public sealed class MethodInvoker : Dictionary<CacheKey, Func<object[], object>>
         {
             #region Fields
@@ -389,7 +389,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             return expression.Invoke(BindingReflectionExtensions.InsertFirstArg(sourceValues, context));
         }
 
-        [Preserve]
+        [Preserve(Conditional = true)]
         public virtual object InvokeDynamicMethod(string methodName, IDataContext context, IList<Type> typeArgs, object[] items)
         {
             var resourceMethod = BindingServiceProvider.ResourceResolver.ResolveMethod(methodName, context, false);
@@ -957,7 +957,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             return typeArgs;
         }
 
-        [Preserve]
+        [Preserve(Conditional = true)]
         public static object GetMemberValueDynamic(object target, string member)
         {
             if (target == null)
@@ -965,7 +965,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             return BindingServiceProvider.MemberProvider.GetBindingMember(target.GetType(), member, false, true).GetValue(target, Empty.Array<object>());
         }
 
-        [Preserve]
+        [Preserve(Conditional = true)]
         public static object GetIndexValueDynamic(object target, object[] args, MethodInvoker methodInvoker, IDataContext context)
         {
             if (target == null)
@@ -982,7 +982,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             return methodInvoker.InvokeIndex(target, args);
         }
 
-        [Preserve]
+        [Preserve(Conditional = true)]
         public static object InvokeMemberDynamic(object target, string member, object[] args, Type[] typeArgs, MethodInvoker methodInvoker, IDataContext context)
         {
             if (target == null)

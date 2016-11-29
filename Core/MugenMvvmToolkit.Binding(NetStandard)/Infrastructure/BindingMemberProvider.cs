@@ -18,7 +18,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -367,8 +366,14 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             if (typeof(IDynamicObject).IsAssignableFrom(sourceType))
                 return new BindingMemberInfo(path, false);
-            if (typeof(ExpandoObject).IsAssignableFrom(sourceType))
+#if NET4
+            if (typeof(System.Dynamic.ExpandoObject).IsAssignableFrom(sourceType))
                 return new BindingMemberInfo(path, true);
+#else
+            //this allow linker strip ExpandoObject if it's not used
+            if (sourceType.FullName == "System.Dynamic.ExpandoObject")
+                return new BindingMemberInfo(path, true);
+#endif
 
 
             if (path.EndsWith(AttachedMemberConstants.ChangedEventPostfix, StringComparison.Ordinal))

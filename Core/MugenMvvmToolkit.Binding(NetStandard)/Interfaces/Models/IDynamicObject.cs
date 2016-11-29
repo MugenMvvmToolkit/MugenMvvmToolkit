@@ -24,7 +24,7 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Binding.Interfaces.Models
 {
-    [Preserve(AllMembers = true)]
+    [Preserve(AllMembers = true, Conditional = true)]
     public interface IDynamicObject
     {
         [CanBeNull]

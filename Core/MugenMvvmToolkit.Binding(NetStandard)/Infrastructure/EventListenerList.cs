@@ -116,7 +116,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             ServiceProvider.AttachedValueProvider.GetValue<EventListenerList>(item, path, false)?.Raise(item, message);
         }
 
-        [Preserve]
+        [Preserve(Conditional = true)]
         public void Raise<TArg>(object sender, TArg args)
         {
             bool hasDeadRef = false;

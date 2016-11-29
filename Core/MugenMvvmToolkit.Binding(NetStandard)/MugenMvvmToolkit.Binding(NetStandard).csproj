@@ -48,6 +48,7 @@
     <Compile Include="Accessors\BindingSourceAccessorBase.cs" />
     <Compile Include="Accessors\MultiBindingSourceAccessor.cs" />
     <Compile Include="AttachedMemberConstants.cs" />
+    <Compile Include="AttachedMembersRegistration.cs" />
     <Compile Include="Behaviors\DisableEqualityCheckingBehavior.cs" />
     <Compile Include="Infrastructure\DataTemplateSelectorBase.cs" />
     <Compile Include="Interfaces\IDataTemplateSelector.cs" />
@@ -86,7 +87,6 @@
     <Compile Include="Infrastructure\InvalidDataBinding.cs" />
     <Compile Include="Interfaces\Syntax\IBuilderSyntaxContext.cs" />
     <Compile Include="Models\DefaultAttachedMemberRegistration.cs" />
-    <Compile Include="Modules\DataBindingModule.cs" />
     <Compile Include="DataConstants\BindingBuilderConstants.cs" />
     <Compile Include="DataConstants\BindingConstants.cs" />
     <Compile Include="Infrastructure\BindingErrorProviderBase.cs" />
