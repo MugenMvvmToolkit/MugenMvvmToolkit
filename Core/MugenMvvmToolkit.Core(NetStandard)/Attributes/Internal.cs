@@ -16,6 +16,8 @@
 
 #endregion
 
+using System;
+
 #if !HASSERIALIZABLE
 // ReSharper disable once CheckNamespace
 namespace System
@@ -32,3 +34,26 @@ namespace System
     }
 }
 #endif
+//todo empty constructor add
+namespace MugenMvvmToolkit.Attributes
+{
+    [AttributeUsage(
+         AttributeTargets.Assembly | AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Enum | AttributeTargets.Constructor | AttributeTargets.Method |
+         AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Event | AttributeTargets.Interface | AttributeTargets.Delegate)]
+    internal sealed class PreserveAttribute : Attribute
+    {
+        #region Fields
+
+        public bool AllMembers;
+
+        public bool Conditional;
+
+        #endregion
+    }
+
+    [AttributeUsage(AttributeTargets.Assembly)]
+    internal class LinkerSafeAttribute : Attribute
+    {
+    }
+}
+
