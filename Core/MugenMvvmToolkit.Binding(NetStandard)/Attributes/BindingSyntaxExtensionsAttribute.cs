@@ -35,7 +35,7 @@ namespace MugenMvvmToolkit.Binding.Attributes
 
         #endregion
 
-        #region Fields
+        #region Constructors
 
         public BindingSyntaxMemberAttribute(string memberName)
         {
