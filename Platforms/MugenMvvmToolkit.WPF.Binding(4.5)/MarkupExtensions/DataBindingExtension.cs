@@ -23,7 +23,6 @@ using System.Windows.Markup;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Models.Exceptions;
 using System.ComponentModel;
 using MugenMvvmToolkit.WPF.Binding.Models;
 
@@ -94,7 +93,10 @@ namespace MugenMvvmToolkit.WPF.MarkupExtensions
                 : CreateBinding(targetObject, _targetMemberName, isDesignMode);
 
             if (isDesignMode && binding is InvalidDataBinding)
-                throw new DesignTimeException(((InvalidDataBinding)binding).Exception);
+            {
+                var exception = ((InvalidDataBinding)binding).Exception;
+                throw new InvalidOperationException(exception.Flatten(true), exception);
+            }
             return GetDefaultValue(targetObject, targetProperty, binding, _targetMemberName);
         }
 

@@ -88,6 +88,9 @@
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\AttachedMembers.cs">
       <Link>Binding\AttachedMembers.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\AttachedMembersRegistration.cs">
+      <Link>Binding\AttachedMembersRegistration.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Infrastructure\BindingErrorProvider.cs">
       <Link>Binding\Infrastructure\BindingErrorProvider.cs</Link>
     </Compile>

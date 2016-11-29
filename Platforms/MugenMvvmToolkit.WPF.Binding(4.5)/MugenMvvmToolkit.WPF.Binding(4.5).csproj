@@ -52,6 +52,7 @@
       <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
     <Compile Include="AttachedMembers.cs" />
+    <Compile Include="AttachedMembersRegistration.cs" />
     <Compile Include="Converters\BooleanToVisibilityConverter.cs" />
     <Compile Include="Converters\NullToVisibilityConverter.cs" />
     <Compile Include="Infrastructure\BindingContextManagerEx.cs" />
