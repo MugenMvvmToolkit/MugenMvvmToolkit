@@ -142,7 +142,7 @@ namespace MugenMvvmToolkit.Collections
 
         #region Properties
 
-        [DataMember(Name = "vi"), Preserve]
+        [DataMember(Name = "vi"), Preserve(Conditional = true)]
         internal KeyValuePair<TKey, TValue>[] ValuesInternal
         {
             get { return ToArray(); }

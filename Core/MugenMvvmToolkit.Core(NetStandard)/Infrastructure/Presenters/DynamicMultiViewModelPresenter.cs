@@ -35,7 +35,6 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
     {
         #region Fields
 
-        private static Func<IViewModel, IDataContext, IViewModelPresenter, bool> _canShowDelegateDefault;
         private readonly IOperationCallbackManager _callbackManager;
         private readonly Func<IViewModel, IDataContext, IViewModelPresenter, bool> _canShowViewModel;
         private readonly IMultiViewModel _multiViewModel;
@@ -58,31 +57,11 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Properties
 
-        [NotNull]
-        public static Func<IViewModel, IDataContext, IViewModelPresenter, bool> CanShowViewModelDefault
-        {
-            get
-            {
-                if (_canShowDelegateDefault == null)
-                    _canShowDelegateDefault = (model, context, arg3) => true;
-                return _canShowDelegateDefault;
-            }
-            set { _canShowDelegateDefault = value; }
-        }
-
         protected IMultiViewModel MultiViewModel => _multiViewModel;
 
         protected IOperationCallbackManager CallbackManager => _callbackManager;
 
-        protected Func<IViewModel, IDataContext, IViewModelPresenter, bool> CanShowViewModel
-        {
-            get
-            {
-                if (_canShowViewModel == null)
-                    return CanShowViewModelDefault;
-                return _canShowViewModel;
-            }
-        }
+        protected Func<IViewModel, IDataContext, IViewModelPresenter, bool> CanShowViewModel => _canShowViewModel;
 
         #endregion
 
@@ -98,8 +77,10 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             bool data;
             if (context.TryGetData(NavigationConstants.SuppressTabNavigation, out data) && data)
                 return null;
-            if (!CanShowViewModel(viewModel, context, parentPresenter))
+            Func<IViewModel, IDataContext, IViewModelPresenter, bool> canShow = CanShowViewModel ?? ApplicationSettings.MultiViewModelPresenterCanShowViewModel;
+            if (canShow != null && !canShow(viewModel, context, parentPresenter))
                 return null;
+
             if (MultiViewModel.ItemsSource.Any(vm => vm == viewModel))
                 MultiViewModel.SelectedItem = viewModel;
             else

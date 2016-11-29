@@ -29,7 +29,7 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure.Validation
 {
-    public class ValidatableViewModelValidator : ValidatorBase<IValidatableViewModel>
+    public class ValidatableViewModelValidator : ValidatorBase<IValidatableViewModel>, IValidatableViewModelValidator
     {
         #region Fields
 

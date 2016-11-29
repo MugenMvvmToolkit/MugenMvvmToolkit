@@ -19,6 +19,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -129,6 +130,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public ViewModelPresenter()
         {
             _dynamicPresenters = new DynamicPresentersCollection(this);

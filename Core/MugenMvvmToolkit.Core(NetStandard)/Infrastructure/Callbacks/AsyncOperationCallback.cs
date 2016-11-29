@@ -25,7 +25,7 @@ using MugenMvvmToolkit.Interfaces.Callbacks;
 namespace MugenMvvmToolkit.Infrastructure.Callbacks
 {
     [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true)]
-    [Preserve]
+    [Preserve(AllMembers = true, Conditional = true)]
     internal sealed class AsyncOperationCallback : IOperationCallback
     {
         #region Fields

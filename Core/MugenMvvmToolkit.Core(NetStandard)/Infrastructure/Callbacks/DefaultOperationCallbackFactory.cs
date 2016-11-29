@@ -113,34 +113,6 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #endregion
 
-        #region Fields
-
-        private static DefaultOperationCallbackFactory _factory;
-
-        #endregion
-
-        #region Constructors
-
-        private DefaultOperationCallbackFactory()
-        {
-        }
-
-        #endregion
-
-        #region Properties
-
-        public static IOperationCallbackFactory Instance
-        {
-            get
-            {
-                if (_factory == null)
-                    _factory = new DefaultOperationCallbackFactory();
-                return _factory;
-            }
-        }
-
-        #endregion
-
         #region Implementation of IOperationCallbackFactory
 
         public IAsyncOperationAwaiter CreateAwaiter(IAsyncOperation operation, IDataContext context)

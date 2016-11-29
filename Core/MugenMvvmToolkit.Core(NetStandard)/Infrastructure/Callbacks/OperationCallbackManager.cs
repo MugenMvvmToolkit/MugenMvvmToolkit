@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
@@ -79,6 +80,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             CallbackConstant = DataConstant.Create<CallbackDictionary>(typeof(OperationCallbackManager), nameof(CallbackConstant), true);
         }
 
+        [Preserve(Conditional = true)]
         public OperationCallbackManager(ISerializer serializer)
         {
             Should.NotBeNull(serializer, nameof(serializer));

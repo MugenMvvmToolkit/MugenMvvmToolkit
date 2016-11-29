@@ -18,6 +18,9 @@
 
 using System;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Presenters;
+using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit
@@ -25,6 +28,11 @@ namespace MugenMvvmToolkit
     public static class ApplicationSettings
     {
         #region Fields
+
+        public const int ModulePriorityInitialization = 100;
+        public const int ModulePriorityDefault = 0;
+        public const int ModulePriorityBinding = -100;
+        public const int ModulePriorityWrapperRegistration = -1000;
 
         public const string DataContractNamespace = "http://schemas.mugenmvvmtoolkit.com";
         public const string AssemblyVersion = "6.5.0.0";
@@ -43,6 +51,12 @@ namespace MugenMvvmToolkit
         #endregion
 
         #region Properties
+
+        [CanBeNull]
+        public static Func<IViewModel, IDataContext, IViewModelPresenter, bool> NavigationPresenterCanShowViewModel { get; set; }
+
+        [CanBeNull]
+        public static Func<IViewModel, IDataContext, IViewModelPresenter, bool> MultiViewModelPresenterCanShowViewModel { get; set; }
 
         [CanBeNull]
         public static Action<RelayCommandBase, EventHandler> AddCanExecuteChangedEvent { get; set; }

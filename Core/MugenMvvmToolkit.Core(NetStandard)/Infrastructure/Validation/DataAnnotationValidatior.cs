@@ -606,7 +606,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         private static Func<string> GetDisplayNameAccessor(MemberInfo member)
         {
             if (DisplayNameProvider == null && !ServiceProvider.TryGet(out DisplayNameProvider))
-                DisplayNameProvider = new DisplayNameProvider();
+                return () => member.Name;
             return DisplayNameProvider.GetDisplayNameAccessor(member);
         }
 

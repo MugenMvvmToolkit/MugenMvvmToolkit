@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
@@ -26,6 +27,36 @@ namespace MugenMvvmToolkit.Infrastructure
 {
     public abstract class AttachedValueProviderBase : IAttachedValueProvider
     {
+        #region Nested types
+
+        internal class AttachedValueDictionary : LightDictionaryBase<string, object>
+        {
+            #region Constructors
+
+            public AttachedValueDictionary()
+                : base(true)
+            {
+            }
+
+            #endregion
+
+            #region Overrides of LightDictionaryBase<string,object>
+
+            protected override bool Equals(string x, string y)
+            {
+                return x.Equals(y, StringComparison.Ordinal);
+            }
+
+            protected override int GetHashCode(string key)
+            {
+                return key.GetHashCode();
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Implementation of IAttachedValueProvider
 
         public virtual TValue AddOrUpdate<TItem, TValue>(TItem item, string path, TValue addValue,
@@ -220,6 +251,18 @@ namespace MugenMvvmToolkit.Infrastructure
         #endregion
 
         #region Methods
+
+        public static LightDictionaryBase<string, object> GetOrAddAttachedValues(NotifyPropertyChangedBase model, bool addNew)
+        {
+            if (addNew && model.AttachedValues == null)
+                Interlocked.CompareExchange(ref model.AttachedValues, new AttachedValueDictionary(), null);
+            return model.AttachedValues;
+        }
+
+        public static void ClearAttachedValues(NotifyPropertyChangedBase model)
+        {
+            model.AttachedValues?.Clear();
+        }
 
         protected abstract bool ClearInternal(object item);
 

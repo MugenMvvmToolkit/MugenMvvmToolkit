@@ -131,7 +131,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Methods
 
-        [Preserve]
+        [Preserve(Conditional = true)]
         public static IOperationResult<TType> Convert<TType>([NotNull] IOperationResult result)
         {
             Should.NotBeNull(result, nameof(result));
@@ -154,7 +154,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 .Invoke(null, new object[] { result });
         }
 
-        [Preserve]
+        [Preserve(Conditional = true)]
         public static IOperationResult<TType> CreateCancelResult<TType>(OperationType operation, object source, IDataContext context = null)
         {
             return new OperationResultImpl<TType>(operation, source, null, true, default(TType), context);
@@ -168,7 +168,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 .Invoke(null, new[] { operation, source, context });
         }
 
-        [Preserve]
+        [Preserve(Conditional = true)]
         public static IOperationResult<TType> CreateErrorResult<TType>(OperationType operation, object source, Exception exception, IDataContext context = null)
         {
             return new OperationResultImpl<TType>(operation, source, exception, false, default(TType), context);
@@ -182,7 +182,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 .Invoke(null, new[] { operation, source, exception, context });
         }
 
-        [Preserve]
+        [Preserve(Conditional = true)]
         public static IOperationResult<TType> CreateResult<TType>(OperationType operation, object source, TType result, IDataContext context = null)
         {
             return new OperationResultImpl<TType>(operation, source, null, false, result, context);

@@ -15,7 +15,7 @@
 // ****************************************************************************
 
 #endregion
-
+//todo remove preference
 using System;
 using System.Runtime.CompilerServices;
 using MugenMvvmToolkit.Collections;
@@ -140,13 +140,13 @@ namespace MugenMvvmToolkit.Infrastructure
 #elif ANDROID
         private sealed class AttachedValueDictionaryJava : Java.Lang.Object
         {
-            #region Fields
+        #region Fields
 
             public readonly AttachedValueDictionary Dictionary;
 
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             public AttachedValueDictionaryJava(IntPtr handle, JniHandleOwnership transfer)
                 : base(handle, transfer)
@@ -160,35 +160,9 @@ namespace MugenMvvmToolkit.Infrastructure
                 Dictionary = new AttachedValueDictionary();
             }
 
-            #endregion
+        #endregion
         }
 #endif
-        internal class AttachedValueDictionary : LightDictionaryBase<string, object>
-        {
-            #region Constructors
-
-            public AttachedValueDictionary()
-                : base(true)
-            {
-            }
-
-            #endregion
-
-            #region Overrides of LightDictionaryBase<string,object>
-
-            protected override bool Equals(string x, string y)
-            {
-                return x.Equals(y, StringComparison.Ordinal);
-            }
-
-            protected override int GetHashCode(string key)
-            {
-                return key.GetHashCode();
-            }
-
-            #endregion
-        }
-
         #endregion
 
         #region Fields
@@ -218,20 +192,6 @@ namespace MugenMvvmToolkit.Infrastructure
         #endregion
 
         #region Methods
-
-#if NET_STANDARD || PCL_NET4
-        public static LightDictionaryBase<string, object> GetOrAddAttachedValues(NotifyPropertyChangedBase model, bool addNew)
-        {
-            if (addNew && model.AttachedValues == null)
-                Interlocked.CompareExchange(ref model.AttachedValues, new AttachedValueDictionary(), null);
-            return model.AttachedValues;
-        }
-
-        public static void ClearAttachedValues(NotifyPropertyChangedBase model)
-        {
-            model.AttachedValues?.Clear();
-        }
-#endif
 
 #if TOUCH
         [DllImport(Constants.ObjectiveCLibrary)]
@@ -264,7 +224,7 @@ namespace MugenMvvmToolkit.Infrastructure
             var model = item as NotifyPropertyChangedBase;
             if (model != null)
             {
-                AttachedValueProviderDefault.ClearAttachedValues(model);
+                ClearAttachedValues(model);
                 return true;
             }
 #if TOUCH
@@ -311,24 +271,24 @@ namespace MugenMvvmToolkit.Infrastructure
                     return true;
                 }
             }
-            var pref = item as Preference;
-            if (pref.IsAlive() && pref.HasKey)
-            {
-                try
-                {
-                    var activityView = pref.Context as IActivityView;
-                    if (activityView != null)
-                    {
-                        var key = pref.Key + pref.GetType().FullName + pref.GetHashCode();
-                        if (activityView.Mediator.Metadata.Remove(key))
-                            return true;
-                    }
-                }
-                catch
-                {
-                    ;
-                }
-            }
+//            var pref = item as Preference;
+//            if (pref.IsAlive() && pref.HasKey)
+//            {
+//                try
+//                {
+//                    var activityView = pref.Context as IActivityView;
+//                    if (activityView != null)
+//                    {
+//                        var key = pref.Key + pref.GetType().FullName + pref.GetHashCode();
+//                        if (activityView.Mediator.Metadata.Remove(key))
+//                            return true;
+//                    }
+//                }
+//                catch
+//                {
+//                    ;
+//                }
+//            }
 #endif
             return _internalDictionary.Remove(item);
         }
@@ -337,7 +297,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             var model = item as NotifyPropertyChangedBase;
             if (model != null)
-                return AttachedValueProviderDefault.GetOrAddAttachedValues(model, true);
+                return GetOrAddAttachedValues(model, true);
 #if TOUCH
             var nsObject = item as NSObject;
             if (nsObject != null)
@@ -422,33 +382,33 @@ namespace MugenMvvmToolkit.Infrastructure
 
             //.NET object (Preference) is garbage collected and all attached members too but Java object is still alive.
             //Save values to activity dictionary.
-            var pref = item as Preference;
-            if (pref.IsAlive() && pref.HasKey)
-            {
-                try
-                {
-                    var activityView = pref.Context as IActivityView;
-                    if (activityView != null)
-                    {
-                        var metadata = activityView.Mediator.Metadata;
-                        var key = pref.Key + pref.GetType().FullName + pref.GetHashCode();
-                        object v;
-                        if (!metadata.TryGetValue(key, out v))
-                        {
-                            if (addNew)
-                            {
-                                v = new AttachedValueDictionary();
-                                metadata[key] = v;
-                            }
-                        }
-                        return (LightDictionaryBase<string, object>)v;
-                    }
-                }
-                catch
-                {
-                    ;
-                }
-            }
+//            var pref = item as Preference;
+//            if (pref.IsAlive() && pref.HasKey)
+//            {
+//                try
+//                {
+//                    var activityView = pref.Context as IActivityView;
+//                    if (activityView != null)
+//                    {
+//                        var metadata = activityView.Mediator.Metadata;
+//                        var key = pref.Key + pref.GetType().FullName + pref.GetHashCode();
+//                        object v;
+//                        if (!metadata.TryGetValue(key, out v))
+//                        {
+//                            if (addNew)
+//                            {
+//                                v = new AttachedValueDictionary();
+//                                metadata[key] = v;
+//                            }
+//                        }
+//                        return (LightDictionaryBase<string, object>)v;
+//                    }
+//                }
+//                catch
+//                {
+//                    ;
+//                }
+//            }
 #endif
             if (addNew)
                 return _internalDictionary.GetValue(item, CreateDictionaryDelegate);

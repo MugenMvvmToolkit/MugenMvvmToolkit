@@ -18,7 +18,6 @@
 
 using System;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Interfaces.Callbacks;
@@ -35,7 +34,6 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
     {
         #region Fields
 
-        private static Func<IViewModel, IDataContext, IViewModelPresenter, bool> _canShowViewModelDefault;
         private readonly Func<IViewModel, IDataContext, IViewModelPresenter, bool> _canShowViewModel;
 
         #endregion
@@ -55,17 +53,6 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Properties
 
-        [NotNull]
-        public static Func<IViewModel, IDataContext, IViewModelPresenter, bool> CanShowViewModelDefault
-        {
-            get
-            {
-                if (_canShowViewModelDefault == null)
-                    _canShowViewModelDefault = (model, context, arg3) => true;
-                return _canShowViewModelDefault;
-            }
-            set { _canShowViewModelDefault = value; }
-        }
 
         private bool CanShowViewModel(IViewModel viewModel, IDataContext context,
             IViewModelPresenter parentPresenter)
@@ -75,7 +62,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                 return false;
 
             if (_canShowViewModel == null)
-                return CanShowViewModelDefault(viewModel, context, parentPresenter);
+                return ApplicationSettings.NavigationPresenterCanShowViewModel == null || ApplicationSettings.NavigationPresenterCanShowViewModel(viewModel, context, parentPresenter);
             return _canShowViewModel(viewModel, context, parentPresenter);
         }
 

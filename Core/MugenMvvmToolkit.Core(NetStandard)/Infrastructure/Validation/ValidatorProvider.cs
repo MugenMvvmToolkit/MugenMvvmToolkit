@@ -21,7 +21,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
-using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Validation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.ViewModels;
@@ -39,18 +38,8 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         #region Constructors
 
         public ValidatorProvider()
-            : this(true)
-        {
-        }
-
-        public ValidatorProvider(bool registerDefaultValidators)
         {
             _validators = new Dictionary<Type, Type>();
-            if (registerDefaultValidators)
-            {
-                Register(typeof(ValidatableViewModelValidator));
-                Register(typeof(DataAnnotationValidatior));
-            }
         }
 
         #endregion
@@ -118,14 +107,14 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             if (context.Instance is IValidatableViewModel)
             {
                 var viewModel = context.ValidationMetadata.GetData(ViewModelConstants.ViewModel);
-                if (typeof(ValidatableViewModelValidator).IsAssignableFrom(validatorType))
+                if (typeof(IValidatableViewModelValidator).IsAssignableFrom(validatorType))
                 {
                     if (ReferenceEquals(context.Instance, viewModel))
                         return null;
                 }
                 else
                 {
-                    if (!ReferenceEquals(context.Instance, viewModel) && _validators.ContainsKey(typeof(ValidatableViewModelValidator)))
+                    if (!ReferenceEquals(context.Instance, viewModel) && _validators.ContainsKey(typeof(IValidatableViewModelValidator)))
                         return null;
                 }
             }
@@ -142,13 +131,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         [NotNull]
         protected virtual IValidatorAggregator GetValidatorAggregatorInternal()
         {
-            ValidatableViewModel viewModel;
-            IIocContainer iocContainer = ServiceProvider.IocContainer;
-            IViewModelProvider viewModelProvider;
-            if (iocContainer != null && iocContainer.TryGet(out viewModelProvider))
-                viewModel = viewModelProvider.GetViewModel<ValidatableViewModel>();
-            else
-                viewModel = new ValidatableViewModel();
+            var viewModel = ServiceProvider.ViewModelProvider.GetViewModel<ValidatableViewModel>();
             viewModel.ValidatorProvider = this;
             return viewModel;
         }
