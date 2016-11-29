@@ -29,6 +29,7 @@ namespace MugenMvvmToolkit.Models
         public static readonly PlatformInfo UnitTest;
 
         private readonly PlatformType _platform;
+        private readonly string _rawVersion;
         private readonly Version _version;
 
         #endregion
@@ -37,15 +38,16 @@ namespace MugenMvvmToolkit.Models
 
         static PlatformInfo()
         {
-            Unknown = new PlatformInfo(PlatformType.Unknown, new Version(0, 0));
-            UnitTest = new PlatformInfo(PlatformType.UnitTest, new Version(0, 0));
+            Unknown = new PlatformInfo(PlatformType.Unknown, "0.0");
+            UnitTest = new PlatformInfo(PlatformType.UnitTest, "0.0");
         }
 
-        public PlatformInfo(PlatformType platform, Version version)
+        public PlatformInfo(PlatformType platform, string rawVersion)
         {
             Should.NotBeNull(platform, nameof(platform));
             _platform = platform;
-            _version = version ?? Unknown.Version;
+            _rawVersion = rawVersion;
+            Version.TryParse(rawVersion, out _version);
         }
 
         #endregion
@@ -56,6 +58,9 @@ namespace MugenMvvmToolkit.Models
         public PlatformType Platform => _platform;
 
         [NotNull]
+        public string RawVersion => _rawVersion;
+
+        [NotNull]
         public Version Version => _version;
 
         #endregion
@@ -64,7 +69,7 @@ namespace MugenMvvmToolkit.Models
 
         public override string ToString()
         {
-            return Platform + " - " + Version;
+            return Platform + " - " + RawVersion;
         }
 
         #endregion
