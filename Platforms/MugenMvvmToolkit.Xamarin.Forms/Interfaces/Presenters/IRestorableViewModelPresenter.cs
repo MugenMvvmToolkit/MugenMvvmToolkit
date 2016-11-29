@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="PreserveAttribute.cs">
+// <copyright file="IRestorableViewModelPresenter.cs">
 // Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -17,20 +17,20 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Presenters;
 
-namespace MugenMvvmToolkit.Attributes
+namespace MugenMvvmToolkit.Xamarin.Forms.Interfaces.Presenters
 {
-    [AttributeUsage(
-         AttributeTargets.Assembly | AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Enum | AttributeTargets.Constructor | AttributeTargets.Method |
-         AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Event | AttributeTargets.Interface | AttributeTargets.Delegate)]
-    internal sealed class PreserveAttribute : Attribute
+    public interface IRestorableViewModelPresenter : IViewModelPresenter
     {
-        #region Fields
+        Func<IDictionary<string, object>> GetStateDictionary { get; set; }
 
-        public bool AllMembers;
+        void SaveState(IDataContext context = null);
 
-        public bool Conditional;
+        void ClearState(IDataContext context = null);
 
-        #endregion
+        bool TryRestore(IDataContext context = null);
     }
 }

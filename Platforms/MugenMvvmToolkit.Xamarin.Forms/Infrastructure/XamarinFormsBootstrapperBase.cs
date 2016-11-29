@@ -25,7 +25,6 @@ using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
-using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -36,6 +35,7 @@ using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
 using MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation;
 using MugenMvvmToolkit.Xamarin.Forms.Interfaces.Navigation;
+using MugenMvvmToolkit.Xamarin.Forms.Interfaces.Presenters;
 using MugenMvvmToolkit.Xamarin.Forms.Interfaces.Views;
 using Xamarin.Forms;
 
@@ -58,7 +58,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         #region Fields
 
-        private IViewModel _mainViewModel;
+        private WeakReference _mainViewModelRef;
         private readonly PlatformInfo _platform;
         private readonly IPlatformService _platformService;
         private bool _wrapToNavigationPage;
@@ -117,15 +117,15 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         INavigationOperation IDynamicViewModelPresenter.TryShowAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
         {
             parentPresenter.DynamicPresenters.Remove(this);
-            _mainViewModel = viewModel;
+            _mainViewModelRef = ServiceProvider.WeakReferenceFactory(viewModel);
 
-            var view = (Page)ViewManager.GetOrCreateView(_mainViewModel, true, context);
+            var view = (Page)ViewManager.GetOrCreateView(viewModel, true, context);
             NavigationPage page = view as NavigationPage;
             if (page == null && _wrapToNavigationPage)
                 page = CreateNavigationPage(view);
             if (page != null)
             {
-                var iocContainer = MvvmApplication.Current.IocContainer;
+                var iocContainer = ServiceProvider.IocContainer;
                 INavigationService navigationService;
                 if (!iocContainer.TryGet(out navigationService))
                 {
@@ -156,13 +156,19 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             }
             _wrapToNavigationPage = wrapToNavigationPage;
             Initialize();
-            var app = MvvmApplication.Current;
-            app.IocContainer.Get<IViewModelPresenter>().DynamicPresenters.Add(this);
+            var app = ServiceProvider.Application;
+            var viewModelPresenter = app.IocContainer.Get<IViewModelPresenter>();
+            viewModelPresenter.DynamicPresenters.Add(this);
 
-            if (_mainViewModel == null || _mainViewModel.IsDisposed)
-                app.Start(context);
+            var viewModel = _mainViewModelRef?.Target as IViewModel;
+            if (viewModel == null || viewModel.IsDisposed)
+            {
+                var presenter = viewModelPresenter as IRestorableViewModelPresenter;
+                if (presenter == null || !presenter.TryRestore(context))
+                    app.Start(context);
+            }
             else
-                _mainViewModel.ShowAsync(context);
+                viewModel.ShowAsync(context);
         }
 
         protected virtual ICollection<Assembly> GetAssemblies()
@@ -184,8 +190,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         internal static void SetDefaultPlatformValues()
         {
-            DynamicMultiViewModelPresenter.CanShowViewModelDefault = CanShowViewModelTabPresenter;
-            DynamicViewModelNavigationPresenter.CanShowViewModelDefault = CanShowViewModelNavigationPresenter;
+            ApplicationSettings.MultiViewModelPresenterCanShowViewModel = CanShowViewModelTabPresenter;
+            ApplicationSettings.NavigationPresenterCanShowViewModel = CanShowViewModelNavigationPresenter;
             ViewManager.ViewCleared += OnViewCleared;
             ViewManager.ClearDataContext = true;
             BindingServiceProvider.DataContextMemberAliases.Add(nameof(BindableObject.BindingContext));
