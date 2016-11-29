@@ -92,6 +92,7 @@
       <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
     <Compile Include="AttachedMembersDesign.cs" />
+    <Compile Include="AttachedMembersRegistration.cs" />
     <Compile Include="Infrastructure\Presenters\SnackbarToastPresenter.cs" />
     <Compile Include="Infrastructure\TabLayoutItemsSourceGenerator.cs" />
     <Compile Include="Modules\DesignModule.cs" />

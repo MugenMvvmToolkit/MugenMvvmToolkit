@@ -155,7 +155,7 @@ namespace MugenMvvmToolkit.Android.Design.Infrastructure
             {
                 tab = _tabLayout.NewTab();
                 if (item is IHasDisplayName)
-                    tab.SetBindings("Text DisplayName, Mode=OneWay");
+                    tab.BindFromExpression("Text DisplayName, Mode=OneWay, Optional=true");
                 else
                     tab.SetText(item.ToStringSafe("null"));
             }
