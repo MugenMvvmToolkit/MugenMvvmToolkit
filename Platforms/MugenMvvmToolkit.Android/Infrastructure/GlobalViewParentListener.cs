@@ -41,6 +41,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
             Instance = new GlobalViewParentListener();
         }
 
+        [Preserve(Conditional = true)]
         private GlobalViewParentListener(IntPtr handle, JniHandleOwnership transfer) : base(handle, transfer)
         {
         }

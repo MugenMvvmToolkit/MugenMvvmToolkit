@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
@@ -33,6 +34,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
     {
         #region Fields
 
+        private readonly Dictionary<int, MenuTemplate> _menuCache;
         private readonly Context _context;
         //todo remove all
         private static readonly XmlSerializer Serializer;
@@ -51,8 +53,10 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         {
             Should.NotBeNull(context, nameof(context));
             _context = context;
+            _menuCache = new Dictionary<int, MenuTemplate>();
         }
 
+        [Preserve(Conditional = true)]
         protected BindableMenuInflater(IntPtr javaReference, JniHandleOwnership transfer)
             : base(javaReference, transfer)
         {
@@ -79,32 +83,49 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             return !string.IsNullOrEmpty(value);
         }
 
+        private void InflateDefault(int menuRes, IMenu menu)
+        {
+            var menuInflater = NestedMenuInflater;
+            if (menuInflater == null)
+                base.Inflate(menuRes, menu);
+            else
+                menuInflater.Inflate(menuRes, menu);
+        }
+
         #endregion
 
         #region Implementation of interfaces
 
         public virtual void Inflate(int menuRes, IMenu menu, object parent)
         {
-            //todo cache
-            using (var reader = _context.Resources.GetLayout(menuRes))
+            MenuTemplate template;
+            if (_menuCache.TryGetValue(menuRes, out template))
             {
-                //NOTE XDocument throws an error.
-                var document = new XmlDocument();
-                document.Load(reader);
-                if (IsDefaultMenu(document))
-                {
-                    var menuInflater = NestedMenuInflater;
-                    if (menuInflater == null)
-                        base.Inflate(menuRes, menu);
-                    else
-                        menuInflater.Inflate(menuRes, menu);
-                }
+                if (template == null)
+                    InflateDefault(menuRes, menu);
                 else
+                    template.Apply(menu, _context, parent);
+            }
+            else
+            {
+                using (var reader = _context.Resources.GetLayout(menuRes))
                 {
-                    using (var stringReader = new StringReader(PlatformExtensions.XmlTagsToUpper(document.InnerXml)))
+                    //NOTE XDocument throws an error.
+                    var document = new XmlDocument();
+                    document.Load(reader);
+                    if (IsDefaultMenu(document))
                     {
-                        var menuWrapper = (MenuTemplate) Serializer.Deserialize(stringReader);
-                        menuWrapper.Apply(menu, _context, parent);
+                        InflateDefault(menuRes, menu);
+                        _menuCache[menuRes] = null;
+                    }
+                    else
+                    {
+                        using (var stringReader = new StringReader(PlatformExtensions.XmlTagsToUpper(document.InnerXml)))
+                        {
+                            var menuWrapper = (MenuTemplate)Serializer.Deserialize(stringReader);
+                            menuWrapper.Apply(menu, _context, parent);
+                            _menuCache[menuRes] = menuWrapper;
+                        }
                     }
                 }
             }
