@@ -75,7 +75,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
 
         protected virtual string GetButtonText(MessageResult button)
         {
-            return button.ToString();
+            return ApplicationSettings.MessagePresenterGetButtonText?.Invoke(button) ?? button.ToString();
         }
 
         private void ShowMessage(string messageBoxText, string caption, MessageButton button,

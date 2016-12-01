@@ -70,7 +70,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Presenters
 
         protected virtual string GetButtonText(MessageResult button)
         {
-            return button.ToString();
+            return ApplicationSettings.MessagePresenterGetButtonText?.Invoke(button) ?? button.ToString();
         }
 
         private void ShowMessage(string message, string caption, MessageButton button, TaskCompletionSource<MessageResult> tcs)

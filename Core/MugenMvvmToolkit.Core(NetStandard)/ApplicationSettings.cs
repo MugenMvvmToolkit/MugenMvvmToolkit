@@ -59,6 +59,9 @@ namespace MugenMvvmToolkit
         public static Func<IViewModel, IDataContext, IViewModelPresenter, bool> MultiViewModelPresenterCanShowViewModel { get; set; }
 
         [CanBeNull]
+        public static Func<MessageResult, string> MessagePresenterGetButtonText { get; set; }
+
+        [CanBeNull]
         public static Action<RelayCommandBase, EventHandler> AddCanExecuteChangedEvent { get; set; }
 
         [CanBeNull]

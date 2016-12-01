@@ -80,7 +80,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
 
         protected virtual string GetButtonText(MessageResult button)
         {
-            return button.ToString();
+            return ApplicationSettings.MessagePresenterGetButtonText?.Invoke(button) ?? button.ToString();
         }
 
         protected virtual int? GetIconResource(MessageImage icon)
