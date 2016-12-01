@@ -19,6 +19,7 @@
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.UI.Popups;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
@@ -45,6 +46,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public MessagePresenter(IThreadManager threadManager)
         {
             Should.NotBeNull(threadManager, nameof(threadManager));

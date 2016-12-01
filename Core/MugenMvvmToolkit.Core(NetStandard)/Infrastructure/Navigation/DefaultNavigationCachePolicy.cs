@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
@@ -35,6 +36,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public DefaultNavigationCachePolicy()
         {
             _cachedViewModels = new Dictionary<Type, List<IViewModel>>();

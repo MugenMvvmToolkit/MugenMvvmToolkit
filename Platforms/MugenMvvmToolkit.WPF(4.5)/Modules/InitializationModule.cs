@@ -124,10 +124,7 @@ namespace MugenMvvmToolkit.UWP.Modules
             {
                 IViewModelPresenter presenter = new ViewModelPresenter();
                 presenter.DynamicPresenters.Add(new DynamicViewModelNavigationPresenter());
-                presenter.DynamicPresenters.Add(
-                                    new DynamicViewModelWindowPresenter(iocContainer.Get<IViewMappingProvider>(), iocContainer.Get<IViewManager>(),
-                                        iocContainer.Get<IWrapperManager>(), iocContainer.Get<IThreadManager>(),
-                                        iocContainer.Get<IOperationCallbackManager>()));
+                presenter.DynamicPresenters.Add(iocContainer.Get<DynamicViewModelWindowPresenter>());
                 return presenter;
             }, DependencyLifecycle.SingleInstance);
         }

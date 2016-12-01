@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Serialization;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
 
@@ -39,6 +40,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public Serializer(IEnumerable<Assembly> assembliesToScan)
         {
             _knownTypes = new HashSet<Type>();

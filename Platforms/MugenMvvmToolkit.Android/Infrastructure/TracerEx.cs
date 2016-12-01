@@ -18,6 +18,7 @@
 
 using System.Diagnostics;
 using Android.Util;
+using MugenMvvmToolkit.Attributes;
 using TraceLevel = MugenMvvmToolkit.Models.TraceLevel;
 
 #if XAMARIN_FORMS
@@ -37,6 +38,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
             TraceError = true;
         }
 
+        [Preserve(Conditional = true)]
         public TracerEx()
         {
             Tag = "MugenMvvmApp";

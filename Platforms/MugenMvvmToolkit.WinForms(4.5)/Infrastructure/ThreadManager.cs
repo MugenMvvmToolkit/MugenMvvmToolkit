@@ -20,6 +20,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
 
@@ -45,6 +46,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public ThreadManager([NotNull] SynchronizationContext synchronizationContext)
         {
             Should.NotBeNull(synchronizationContext, nameof(synchronizationContext));

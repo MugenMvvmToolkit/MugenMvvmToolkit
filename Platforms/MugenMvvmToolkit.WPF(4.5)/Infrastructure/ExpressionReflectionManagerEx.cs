@@ -45,6 +45,11 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
             DelegatesCache = new Dictionary<MethodDelegateCacheKey, Func<object, Delegate>>(MemberCacheKeyComparer.Instance);
         }
 
+        [MugenMvvmToolkit.Attributes.Preserve(Conditional = true)]
+        public ExpressionReflectionManagerEx()
+        {
+        }
+
         #endregion
 
         #region Overrides of ExpressionReflectionProvider

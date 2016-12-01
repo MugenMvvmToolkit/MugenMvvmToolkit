@@ -52,9 +52,9 @@ namespace MugenMvvmToolkit.Modules
 
         protected virtual void BindAttachedValueProvider(IModuleContext context, IIocContainer container)
         {
-            var providerDefault = new AttachedValueProviderDefault();
-            ServiceProvider.AttachedValueProvider = providerDefault;
-            container.BindToConstant<IAttachedValueProvider>(providerDefault);
+            var provider = new AttachedValueProviderDefault();
+            ServiceProvider.AttachedValueProvider = provider;
+            container.BindToConstant<IAttachedValueProvider>(provider);
         }
 
         protected virtual void BindReflectionManager(IModuleContext context, IIocContainer container)

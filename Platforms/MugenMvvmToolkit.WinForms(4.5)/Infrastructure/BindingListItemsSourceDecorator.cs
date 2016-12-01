@@ -17,6 +17,7 @@
 #endregion
 
 using System.Collections.Generic;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Collections;
 using MugenMvvmToolkit.WinForms.Collections;
@@ -25,6 +26,15 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
 {
     public sealed class BindingListItemsSourceDecorator : IItemsSourceDecorator
     {
+        #region Constructors
+
+        [Preserve(Conditional = true)]
+        public BindingListItemsSourceDecorator()
+        {
+        }
+
+        #endregion
+
         #region Implementation of IItemsSourceDecorator
 
         public IList<T> Decorate<T>(object owner, IList<T> itemsSource)

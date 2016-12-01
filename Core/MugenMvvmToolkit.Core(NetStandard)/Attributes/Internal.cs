@@ -34,7 +34,7 @@ namespace System
     }
 }
 #endif
-//todo empty constructor add
+
 namespace MugenMvvmToolkit.Attributes
 {
     [AttributeUsage(

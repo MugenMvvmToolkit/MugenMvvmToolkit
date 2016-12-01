@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -117,6 +118,7 @@ namespace MugenMvvmToolkit.Infrastructure
             Tracer.TraceViewModelHandler += OnTraceViewModel;
         }
 
+        [Preserve(Conditional = true)]
         public ViewModelProvider([NotNull]IIocContainer iocContainer)
         {
             Should.NotBeNull(iocContainer, nameof(iocContainer));

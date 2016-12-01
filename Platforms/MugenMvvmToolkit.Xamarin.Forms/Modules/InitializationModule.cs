@@ -42,23 +42,18 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Modules
 
         protected override void BindViewModelPresenter(IModuleContext context, IIocContainer container)
         {
-            container.Bind<RestorableViewModelPresenter, RestorableViewModelPresenter>(DependencyLifecycle.SingleInstance);
             container.BindToMethod((iocContainer, list) =>
             {
                 IViewModelPresenter presenter = container.Get<RestorableViewModelPresenter>();
                 presenter.DynamicPresenters.Add(new DynamicViewModelNavigationPresenter());
-                presenter.DynamicPresenters.Add(
-                    new DynamicViewModelWindowPresenter(container.Get<IViewMappingProvider>(),
-                        container.Get<IViewManager>(),
-                        container.Get<IWrapperManager>(), container.Get<IThreadManager>(),
-                        container.Get<IOperationCallbackManager>()));
+                presenter.DynamicPresenters.Add(iocContainer.Get<DynamicViewModelWindowPresenter>());
                 return presenter;
             }, DependencyLifecycle.SingleInstance);
         }
 
         protected override void BindViewMappingProvider(IModuleContext context, IIocContainer container)
         {
-            IViewMappingProvider viewMappingProvider = new ViewMappingProviderEx(context.Assemblies) {IsSupportedUriNavigation = false};
+            IViewMappingProvider viewMappingProvider = new ViewMappingProviderEx(context.Assemblies) { IsSupportedUriNavigation = false };
             container.BindToConstant(viewMappingProvider);
         }
 

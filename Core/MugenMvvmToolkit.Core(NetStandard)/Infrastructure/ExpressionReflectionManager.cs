@@ -22,6 +22,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
 
@@ -161,6 +162,11 @@ namespace MugenMvvmToolkit.Infrastructure
             InvokeMethodCacheDelegate = new Dictionary<MethodDelegateCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
             EmptyParameterExpression = Expression.Parameter(typeof(object));
             NullConstantExpression = Expression.Constant(null, typeof(object));
+        }
+
+        [Preserve(Conditional = true)]
+        public ExpressionReflectionManager()
+        {
         }
 
         #endregion

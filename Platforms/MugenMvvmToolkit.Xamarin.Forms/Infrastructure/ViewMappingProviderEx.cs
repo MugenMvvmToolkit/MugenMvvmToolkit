@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Infrastructure;
 using Xamarin.Forms;
 
@@ -29,11 +30,13 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
     {
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public ViewMappingProviderEx([NotNull] IEnumerable<Assembly> assemblies)
             : base(assemblies)
         {
         }
 
+        [Preserve(Conditional = true)]
         public ViewMappingProviderEx([NotNull] IEnumerable<Assembly> assemblies, IList<string> viewPostfix,
             IList<string> viewModelPostfix)
             : base(assemblies, viewPostfix, viewModelPostfix)

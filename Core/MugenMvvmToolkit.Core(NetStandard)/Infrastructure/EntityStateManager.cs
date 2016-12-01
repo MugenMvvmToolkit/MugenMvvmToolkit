@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -150,6 +151,11 @@ namespace MugenMvvmToolkit.Infrastructure
         static EntityStateManager()
         {
             TypesToProperties = new Dictionary<Type, IList<PropertyInfo>>();
+        }
+
+        [Preserve(Conditional = true)]
+        public EntityStateManager()
+        {
         }
 
         #endregion

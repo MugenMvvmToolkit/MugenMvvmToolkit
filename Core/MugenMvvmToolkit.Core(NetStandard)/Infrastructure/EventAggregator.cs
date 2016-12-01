@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
@@ -118,11 +119,13 @@ namespace MugenMvvmToolkit.Infrastructure
             EmptyMessage = new MessageSenderCache(subscriber, subscriber, subscriber, 0);
         }
 
+        [Preserve(Conditional = true)]
         public EventAggregator()
             : this(false)
         {
         }
 
+        [Preserve(Conditional = true)]
         public EventAggregator(bool trace)
         {
             _trace = trace;

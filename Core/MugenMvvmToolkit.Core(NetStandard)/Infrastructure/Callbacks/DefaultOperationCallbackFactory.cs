@@ -19,6 +19,7 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -109,6 +110,15 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             }
 
             #endregion
+        }
+
+        #endregion
+
+        #region Constructors
+
+        [Preserve(Conditional = true)]
+        public DefaultOperationCallbackFactory()
+        {
         }
 
         #endregion

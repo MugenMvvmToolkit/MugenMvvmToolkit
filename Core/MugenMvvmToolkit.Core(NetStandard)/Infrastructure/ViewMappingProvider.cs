@@ -43,11 +43,13 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public ViewMappingProvider([NotNull] IEnumerable<Assembly> assemblies)
             : this(assemblies, null, null)
         {
         }
 
+        [Preserve(Conditional = true)]
         public ViewMappingProvider([NotNull] IEnumerable<Assembly> assemblies, IList<string> viewPostfix, IList<string> viewModelPostfix)
         {
             Should.NotBeNull(assemblies, nameof(assemblies));

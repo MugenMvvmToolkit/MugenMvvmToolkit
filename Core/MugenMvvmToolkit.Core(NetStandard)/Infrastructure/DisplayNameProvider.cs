@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Infrastructure.Validation;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
@@ -44,6 +45,11 @@ namespace MugenMvvmToolkit.Infrastructure
         static DisplayNameProvider()
         {
             MembersToNames = new Dictionary<MemberInfo, Func<string>>();
+        }
+
+        [Preserve(Conditional = true)]
+        public DisplayNameProvider()
+        {
         }
 
         #endregion

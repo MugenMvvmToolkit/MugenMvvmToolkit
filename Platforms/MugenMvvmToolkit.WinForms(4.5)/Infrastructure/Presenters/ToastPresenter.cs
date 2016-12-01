@@ -22,6 +22,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -92,6 +93,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Presenters
             ControlName = Guid.NewGuid().ToString("n");
         }
 
+        [Preserve(Conditional = true)]
         public ToastPresenter([NotNull] IThreadManager threadManager)
         {
             Should.NotBeNull(threadManager, nameof(threadManager));

@@ -18,6 +18,7 @@
 
 using System;
 using System.Threading.Tasks;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Interfaces.Callbacks;
@@ -40,10 +41,12 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public DynamicViewModelNavigationPresenter()
         {
         }
 
+        [Preserve(Conditional = true)]
         public DynamicViewModelNavigationPresenter(Func<IViewModel, IDataContext, IViewModelPresenter, bool> canShowViewModel)
         {
             _canShowViewModel = canShowViewModel;

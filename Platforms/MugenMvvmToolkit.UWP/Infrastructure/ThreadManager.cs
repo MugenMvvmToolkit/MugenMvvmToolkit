@@ -20,6 +20,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Core;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
 
@@ -35,6 +36,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public ThreadManager(CoreDispatcher dispatcher)
         {
             Should.NotBeNull(dispatcher, nameof(dispatcher));

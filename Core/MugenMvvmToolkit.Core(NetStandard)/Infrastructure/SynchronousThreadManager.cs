@@ -18,6 +18,7 @@
 
 using System;
 using System.Threading;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
 
@@ -27,6 +28,7 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public SynchronousThreadManager()
         {
             IsUiThread = true;

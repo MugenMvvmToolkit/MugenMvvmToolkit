@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Validation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
@@ -37,6 +38,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public ValidatorProvider()
         {
             _validators = new Dictionary<Type, Type>();
