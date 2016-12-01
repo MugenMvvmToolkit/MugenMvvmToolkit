@@ -15,10 +15,9 @@
 // ****************************************************************************
 
 #endregion
-//todo remove preference
+
 using System;
 using System.Runtime.CompilerServices;
-using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Models;
@@ -141,13 +140,13 @@ namespace MugenMvvmToolkit.Infrastructure
 #elif ANDROID
         private sealed class AttachedValueDictionaryJava : Java.Lang.Object
         {
-            #region Fields
+        #region Fields
 
             public readonly AttachedValueDictionary Dictionary;
 
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             public AttachedValueDictionaryJava(IntPtr handle, JniHandleOwnership transfer)
                 : base(handle, transfer)
@@ -161,7 +160,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 Dictionary = new AttachedValueDictionary();
             }
 
-            #endregion
+        #endregion
         }
 #endif
         #endregion
@@ -231,10 +230,27 @@ namespace MugenMvvmToolkit.Infrastructure
 #endif
         #endregion
 
+        #region Properties
+
+        public event Func<object, bool> ClearHandler;
+
+        public event Func<object, bool, LightDictionaryBase<string, object>> GetOrAddAttachedDictionaryHandler;
+
+        #endregion
+
         #region Overrides of AttachedValueProviderBase<WeakKey,AttachedValueDictionary>
 
         protected override bool ClearInternal(object item)
         {
+            var handler = ClearHandler?.GetInvocationList();
+            if (handler != null)
+            {
+                for (int i = 0; i < handler.Length; i++)
+                {
+                    if (((Func<object, bool>)handler[i]).Invoke(item))
+                        return true;
+                }
+            }
             var model = item as NotifyPropertyChangedBase;
             if (model != null)
             {
@@ -285,30 +301,22 @@ namespace MugenMvvmToolkit.Infrastructure
                     return true;
                 }
             }
-            //            var pref = item as Preference;
-            //            if (pref.IsAlive() && pref.HasKey)
-            //            {
-            //                try
-            //                {
-            //                    var activityView = pref.Context as IActivityView;
-            //                    if (activityView != null)
-            //                    {
-            //                        var key = pref.Key + pref.GetType().FullName + pref.GetHashCode();
-            //                        if (activityView.Mediator.Metadata.Remove(key))
-            //                            return true;
-            //                    }
-            //                }
-            //                catch
-            //                {
-            //                    ;
-            //                }
-            //            }
 #endif
             return _internalDictionary.Remove(item);
         }
 
         protected override LightDictionaryBase<string, object> GetOrAddAttachedDictionary(object item, bool addNew)
         {
+            var handler = GetOrAddAttachedDictionaryHandler?.GetInvocationList();
+            if (handler != null)
+            {
+                for (int i = 0; i < handler.Length; i++)
+                {
+                    var result = ((Func<object, bool, LightDictionaryBase<string, object>>)handler[i]).Invoke(item, addNew);
+                    if (result != null)
+                        return result;
+                }
+            }
             var model = item as NotifyPropertyChangedBase;
             if (model != null)
                 return GetOrAddAttachedValues(model, true);
@@ -393,36 +401,6 @@ namespace MugenMvvmToolkit.Infrastructure
                     return dict?.Dictionary;
                 }
             }
-
-            //.NET object (Preference) is garbage collected and all attached members too but Java object is still alive.
-            //Save values to activity dictionary.
-            //            var pref = item as Preference;
-            //            if (pref.IsAlive() && pref.HasKey)
-            //            {
-            //                try
-            //                {
-            //                    var activityView = pref.Context as IActivityView;
-            //                    if (activityView != null)
-            //                    {
-            //                        var metadata = activityView.Mediator.Metadata;
-            //                        var key = pref.Key + pref.GetType().FullName + pref.GetHashCode();
-            //                        object v;
-            //                        if (!metadata.TryGetValue(key, out v))
-            //                        {
-            //                            if (addNew)
-            //                            {
-            //                                v = new AttachedValueDictionary();
-            //                                metadata[key] = v;
-            //                            }
-            //                        }
-            //                        return (LightDictionaryBase<string, object>)v;
-            //                    }
-            //                }
-            //                catch
-            //                {
-            //                    ;
-            //                }
-            //            }
 #endif
             if (addNew)
                 return _internalDictionary.GetValue(item, CreateDictionaryDelegate);
