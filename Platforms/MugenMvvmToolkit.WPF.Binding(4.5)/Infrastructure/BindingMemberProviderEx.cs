@@ -17,7 +17,6 @@
 #endregion
 
 using System;
-using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -36,7 +35,11 @@ using Windows.UI.Xaml;
 namespace MugenMvvmToolkit.UWP.Binding.Infrastructure
 #endif
 {
-    public class BindingMemberProviderEx : BindingMemberProvider
+#if WPF
+    public class WpfBindingMemberProvider : BindingMemberProvider
+#elif WINDOWS_UWP
+    public class UwpBindingMemberProvider : BindingMemberProvider
+#endif
     {
         #region Overrides of BindingMemberProvider
 

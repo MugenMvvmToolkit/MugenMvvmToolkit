@@ -123,7 +123,7 @@ namespace MugenMvvmToolkit.Android.Design
 
         public static void RegisterTextInputLayoutMembers()
         {
-            MemberProvider.Register(AttachedBindingMember.CreateAutoProperty<EditText, string>(BindingErrorProvider.ErrorPropertyName,
+            MemberProvider.Register(AttachedBindingMember.CreateAutoProperty<EditText, string>(AndroidBindingErrorProvider.ErrorPropertyName,
                 (text, args) =>
                 {
                     var layout = text.Parent as TextInputLayout;

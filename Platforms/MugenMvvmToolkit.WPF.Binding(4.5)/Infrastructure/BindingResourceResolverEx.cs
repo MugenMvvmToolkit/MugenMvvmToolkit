@@ -32,21 +32,28 @@ using System.Windows;
 using System.Windows.Data;
 
 namespace MugenMvvmToolkit.WPF.Binding.Infrastructure
+{
+    public class WpfBindingResourceResolver : BindingResourceResolver
+    {
 #elif XAMARIN_FORMS
 using Xamarin.Forms;
 using MugenMvvmToolkit.Xamarin.Forms.Binding.Converters;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Infrastructure
+{
+    public class XamarinFormsBindingResourceResolver : BindingResourceResolver
+    {
 #elif WINDOWS_UWP
 using MugenMvvmToolkit.UWP.Binding.Converters;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
 
 namespace MugenMvvmToolkit.UWP.Binding.Infrastructure
-#endif
 {
-    public class BindingResourceResolverEx : BindingResourceResolver
+    public class UwpBindingResourceResolver : BindingResourceResolver
     {
+#endif
+
         #region Nested types
 
         private sealed class XamlResourceWrapper : ISourceValue, IEventListener

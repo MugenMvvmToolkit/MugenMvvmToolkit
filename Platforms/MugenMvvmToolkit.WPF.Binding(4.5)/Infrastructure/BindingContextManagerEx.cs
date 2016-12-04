@@ -42,7 +42,11 @@ namespace MugenMvvmToolkit.UWP.Binding.Infrastructure
 #endif
 
 {
-    public class BindingContextManagerEx : BindingContextManager
+#if WPF
+    public class WpfBindingContextManager : BindingContextManager
+#elif WINDOWS_UWP
+    public class UwpBindingContextManager : BindingContextManager
+#endif
     {
         #region Nested types
 
@@ -117,14 +121,19 @@ namespace MugenMvvmToolkit.UWP.Binding.Infrastructure
 
         #endregion
 
-        #region Properties
+        #region Constructors
 
-        static BindingContextManagerEx()
-        {
 #if WPF
+        static WpfBindingContextManager()
+        {
+
             ListenUnloadEvent = true;
-#endif
         }
+#endif
+
+        #endregion
+
+        #region Properties
 
         public static bool ListenUnloadEvent { get; set; }
 

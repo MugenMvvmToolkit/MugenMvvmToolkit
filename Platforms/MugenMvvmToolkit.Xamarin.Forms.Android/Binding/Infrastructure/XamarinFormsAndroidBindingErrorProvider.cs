@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="BindingErrorProvider.cs">
+// <copyright file="XamarinFormsAndroidBindingErrorProvider.cs">
 // Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Android.Widget;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
@@ -30,19 +31,21 @@ using View = Android.Views.View;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Android.Binding.Infrastructure
 {
-    public class BindingErrorProvider : BindingErrorProviderBase
+    public class XamarinFormsAndroidBindingErrorProvider : BindingErrorProviderBase
     {
         #region Fields
 
         protected const string NativeViewKey = "##NativeView";
+        private static int _state;
 
         #endregion
 
         #region Constructors
 
-        static BindingErrorProvider()
+        public XamarinFormsAndroidBindingErrorProvider()
         {
-            global::Xamarin.Forms.Forms.ViewInitialized += FormsOnViewInitialized;
+            if (Interlocked.Exchange(ref _state, 1) != 1)
+                global::Xamarin.Forms.Forms.ViewInitialized += FormsOnViewInitialized;
         }
 
         #endregion
@@ -51,8 +54,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Android.Binding.Infrastructure
 
         protected override void SetErrors(object target, IList<object> errors, IDataContext context)
         {
-            base.SetErrors(target, errors, context);
-
             var element = target as Element;
             if (element != null)
                 target = GetNativeView(element);

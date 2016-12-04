@@ -136,7 +136,7 @@
     <Compile Include="Binding\Modules\PlatformDataBindingModule.cs" />
     <Compile Include="Binding\Infrastructure\BindableMenuInflater.cs" />
     <Compile Include="Infrastructure\AndroidBootstrapperBase.cs" />
-    <Compile Include="Binding\Infrastructure\BindingErrorProvider.cs" />
+    <Compile Include="Binding\Infrastructure\AndroidBindingErrorProvider.cs" />
     <Compile Include="Infrastructure\Callbacks\SerializableOperationCallbackFactory.cs" />
     <Compile Include="Infrastructure\GlobalViewParentListener.cs" />
     <Compile Include="Binding\ActionBarMembersRegistration.cs" />

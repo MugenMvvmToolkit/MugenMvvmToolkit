@@ -25,6 +25,7 @@ using UIKit;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 #if XAMARIN_FORMS
+using System.Threading;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Binding;
@@ -42,7 +43,11 @@ using MugenMvvmToolkit.iOS.Views;
 namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 #endif
 {
-    public class BindingErrorProvider : BindingErrorProviderBase
+#if XAMARIN_FORMS
+    public class XamarinFormsTouchBindingErrorProvider : BindingErrorProviderBase
+#else
+    public class TouchBindingErrorProvider : BindingErrorProviderBase
+#endif
     {
         #region Nested types
 
@@ -108,7 +113,11 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             #region Fields
 
             private ValidationPopup _popup;
-            private readonly BindingErrorProvider _errorProvider;
+#if XAMARIN_FORMS
+            private readonly XamarinFormsTouchBindingErrorProvider _errorProvider;
+#else
+            private readonly TouchBindingErrorProvider _errorProvider;
+#endif
             private IntPtr _textFieldHandle;
             private NSString _message;
 
@@ -121,7 +130,11 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             {
             }
 
-            public ErrorButton(BindingErrorProvider errorProvider, UITextField textField)
+#if XAMARIN_FORMS
+            public ErrorButton(XamarinFormsTouchBindingErrorProvider errorProvider, UITextField textField)
+#else
+            public ErrorButton(TouchBindingErrorProvider errorProvider, UITextField textField)
+#endif
                 : base(new CGRect(0, 0, 25, 25))
             {
                 _errorProvider = errorProvider;
@@ -238,34 +251,41 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
 #if XAMARIN_FORMS
         protected const string NativeViewKey = "##NativeView";
+        private static int _state;
 #else
         private static readonly Func<object, UITextField> GetEntryField;
 #endif
-        private static readonly UIImage DefaultErrorImage;
+        private static UIImage _defaultErrorImage;
 
         #endregion
 
         #region Constructors
 
-        static BindingErrorProvider()
-        {
 #if XAMARIN_FORMS
-            global::Xamarin.Forms.Forms.ViewInitialized += FormsOnViewInitialized;
+        public XamarinFormsTouchBindingErrorProvider()
 #else
+        static TouchBindingErrorProvider()
+        {
             var field = typeof(EntryElement).GetField("entry", BindingFlags.NonPublic | BindingFlags.Instance);
             if (field != null && field.FieldType == typeof(UITextField))
                 GetEntryField = ServiceProvider.ReflectionManager.GetMemberGetter<UITextField>(field);
-#endif
-            DefaultErrorImage = UIImage.FromFile("error.png");
         }
 
-        public BindingErrorProvider()
+        public TouchBindingErrorProvider()
+#endif
+
         {
+#if XAMARIN_FORMS
+            if (Interlocked.Exchange(ref _state, 1) != 1)
+                global::Xamarin.Forms.Forms.ViewInitialized += FormsOnViewInitialized;
+#endif
+            if (_defaultErrorImage == null)
+                _defaultErrorImage = UIImage.FromFile("error.png");
             ErrorBorderColor = ValidationPopup.ValidationColor;
             ErrorBorderWidth = 1f;
             CornerRadius = 5f;
             RightErrorImagePosition = true;
-            ErrorImage = DefaultErrorImage;
+            ErrorImage = _defaultErrorImage;
         }
 
         #endregion
@@ -406,13 +426,11 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         protected override void SetErrors(object target, IList<object> errors, IDataContext context)
         {
-            base.SetErrors(target, errors, context);
             SetErrors(target, errors, false);
         }
 
         protected override void ClearErrors(object target, IDataContext context)
         {
-            base.SetErrors(target, Empty.Array<object>(), context);
             SetErrors(target, Empty.Array<object>(), true);
         }
 

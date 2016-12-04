@@ -91,9 +91,6 @@
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\AttachedMembersRegistration.cs">
       <Link>Binding\AttachedMembersRegistration.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Infrastructure\BindingErrorProvider.cs">
-      <Link>Binding\Infrastructure\BindingErrorProvider.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Infrastructure\CollectionViewManagerBase.cs">
       <Link>Binding\Infrastructure\CollectionViewManagerBase.cs</Link>
     </Compile>
@@ -108,6 +105,9 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Infrastructure\ItemsSourceGeneratorBase.cs">
       <Link>Binding\Infrastructure\ItemsSourceGeneratorBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Infrastructure\WinFormsBindingErrorProvider.cs">
+      <Link>Binding\Infrastructure\WinFormsBindingErrorProvider.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Interfaces\ICollectionViewManager.cs">
       <Link>Binding\Interfaces\ICollectionViewManager.cs</Link>

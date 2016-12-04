@@ -29,7 +29,7 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding.Infrastructure
 {
-    public class BindingErrorProviderBase : IBindingErrorProvider
+    public abstract class BindingErrorProviderBase : IBindingErrorProvider
     {
         #region Nested types
 
@@ -153,9 +153,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 .GetOrAdd(target, ErrorsKey, (o, o1) => new ErrorsDictionary(), null);
         }
 
-        protected virtual void SetErrors([NotNull] object target, [NotNull] IList<object> errors, [NotNull] IDataContext context)
-        {
-        }
+        protected abstract void SetErrors([NotNull] object target, [NotNull] IList<object> errors, [NotNull] IDataContext context);
 
         protected virtual void ClearErrors([NotNull] object target, [NotNull] IDataContext context)
         {

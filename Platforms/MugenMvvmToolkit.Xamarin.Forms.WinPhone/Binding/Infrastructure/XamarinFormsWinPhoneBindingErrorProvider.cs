@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="BindingErrorProvider.cs">
+// <copyright file="XamarinFormsWinPhoneBindingErrorProvider.cs">
 // Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -17,11 +17,8 @@
 #endregion
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
 using JetBrains.Annotations;
-using Microsoft.Phone.Controls;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -33,14 +30,12 @@ using Xamarin.Forms.Platform.WinPhone;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.WinPhone.Binding.Infrastructure
 {
-    public class BindingErrorProvider : BindingErrorProviderBase, IEventListener
+    public class XamarinFormsWinPhoneBindingErrorProvider : BindingErrorProviderBase, IEventListener
     {
         #region Overrides of BindingErrorProviderBase
 
         protected override void SetErrors(object target, IList<object> errors, IDataContext context)
         {
-            base.SetErrors(target, errors, context);
-
             var element = target as Element;
             if (element != null)
                 target = GetNativeView(element);

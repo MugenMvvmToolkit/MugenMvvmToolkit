@@ -89,7 +89,7 @@
       <Link>Models\Enums.cs</Link>
     </Compile>
     <Compile Include="Binding\AttachedMembersRegistration.cs" />
-    <Compile Include="Binding\Infrastructure\BindingContextManagerEx.cs" />
+    <Compile Include="Binding\Infrastructure\XamarinFormsBindingContextManager.cs" />
     <Compile Include="Infrastructure\Mediators\ModalViewMediator.cs" />
     <Compile Include="Infrastructure\Navigation\NavigationService.cs" />
     <Compile Include="Infrastructure\Presenters\RestorableViewModelPresenter.cs" />

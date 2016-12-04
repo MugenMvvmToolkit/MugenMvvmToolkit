@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="BindingErrorProvider.cs">
+// <copyright file="WinFormsBindingErrorProvider.cs">
 // Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -25,7 +25,7 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.WinForms.Binding.Infrastructure
 {
-    public class BindingErrorProvider : BindingErrorProviderBase
+    public class WinFormsBindingErrorProvider : BindingErrorProviderBase
     {
         #region Fields
 
@@ -37,7 +37,6 @@ namespace MugenMvvmToolkit.WinForms.Binding.Infrastructure
 
         protected sealed override void SetErrors(object target, IList<object> errors, IDataContext context)
         {
-            base.SetErrors(target, errors, context);
             var control = target as Control;
             if (control == null)
                 return;
@@ -69,7 +68,6 @@ namespace MugenMvvmToolkit.WinForms.Binding.Infrastructure
 
         protected sealed override void ClearErrors(object target, IDataContext context)
         {
-            base.SetErrors(target, Empty.Array<object>(), context);
             var control = target as Control;
             if (control == null)
                 return;
@@ -104,7 +102,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.Infrastructure
         {
             return ServiceProvider
                 .AttachedValueProvider
-                .GetOrAdd(rootControl, ErrorProviderName, (control, o) => ((BindingErrorProvider)o).GetErrorProvider(control), this);
+                .GetOrAdd(rootControl, ErrorProviderName, (control, o) => ((WinFormsBindingErrorProvider)o).GetErrorProvider(control), this);
         }
 
         private static void TryDispose(ErrorProvider errorProvider)

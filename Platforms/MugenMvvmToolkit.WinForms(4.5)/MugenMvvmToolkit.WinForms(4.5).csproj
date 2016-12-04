@@ -117,7 +117,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Binding\Modules\PlatformDataBindingModule.cs" />
-    <Compile Include="Binding\Infrastructure\BindingErrorProvider.cs" />
+    <Compile Include="Binding\Infrastructure\WinFormsBindingErrorProvider.cs" />
     <Compile Include="Infrastructure\BindingListItemsSourceDecorator.cs" />
     <Compile Include="Binding\Infrastructure\CollectionViewManagerBase.cs" />
     <Compile Include="Binding\Infrastructure\ContentViewManagerBase.cs" />

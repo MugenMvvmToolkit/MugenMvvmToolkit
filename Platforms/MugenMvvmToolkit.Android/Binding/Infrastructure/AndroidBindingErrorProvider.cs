@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="BindingErrorProvider.cs">
+// <copyright file="AndroidBindingErrorProvider.cs">
 // Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -25,7 +25,7 @@ using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 {
-    public class BindingErrorProvider : BindingErrorProviderBase
+    public class AndroidBindingErrorProvider : BindingErrorProviderBase
     {
         #region Fields
 
@@ -44,7 +44,6 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                 if (member != null && member.Type == typeof(string) && member.CanWrite)
                     member.SetSingleValue(target, errors.FirstOrDefault().ToStringSafe());
             }
-            base.SetErrors(target, errors, context);
         }
 
         #endregion

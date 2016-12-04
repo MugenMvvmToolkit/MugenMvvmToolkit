@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="BindingContextManagerEx.cs">
+// <copyright file="XamarinFormsBindingContextManager.cs">
 // Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -22,7 +22,7 @@ using MugenMvvmToolkit.Binding.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Infrastructure
 {
-    public class BindingContextManagerEx : BindingContextManager
+    public class XamarinFormsBindingContextManager : BindingContextManager
     {
         #region Fields
 
