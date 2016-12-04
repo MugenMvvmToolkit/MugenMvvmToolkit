@@ -37,10 +37,10 @@ namespace MugenMvvmToolkit.Models
 
         #region Constructors
 
-        public ModuleContext(PlatformInfo platform, LoadMode mode, IIocContainer iocContainer, IDataContext context,
+        public ModuleContext(PlatformInfo platformInfo, LoadMode mode, IIocContainer iocContainer, IDataContext context,
             IList<Assembly> assemblies)
         {
-            _platform = platform ?? PlatformInfo.Unknown;
+            _platform = platformInfo ?? PlatformInfo.Unknown;
             _mode = mode;
             _iocContainer = iocContainer;
             _context = context.ToNonReadOnly();
@@ -59,7 +59,7 @@ namespace MugenMvvmToolkit.Models
 
         public LoadMode Mode => _mode;
 
-        public PlatformInfo Platform => _platform;
+        public PlatformInfo PlatformInfo => _platform;
 
         #endregion
     }

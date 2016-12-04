@@ -71,8 +71,8 @@ namespace MugenMvvmToolkit.Modules
 
         protected virtual void BindViewMappingProvider(IModuleContext context, IIocContainer container)
         {
-            var platformType = context.Platform.Platform;
-            IViewMappingProvider mappingProvider = new ViewMappingProvider(context.Assemblies) {IsSupportedUriNavigation = platformType == PlatformType.WPF};
+            var platformType = context.PlatformInfo.Platform;
+            IViewMappingProvider mappingProvider = new ViewMappingProvider(context.Assemblies) { IsSupportedUriNavigation = platformType == PlatformType.WPF };
             container.BindToConstant(mappingProvider);
         }
 

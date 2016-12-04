@@ -37,6 +37,6 @@ namespace MugenMvvmToolkit.Interfaces.Models
         LoadMode Mode { get; }
 
         [NotNull]
-        PlatformInfo Platform { get; }
+        PlatformInfo PlatformInfo { get; }
     }
 }

@@ -78,7 +78,7 @@ namespace MugenMvvmToolkit.UWP.Modules
         protected override void BindMessagePresenter(IModuleContext context, IIocContainer container)
         {
 #if WPF
-            if (context.Platform.Platform != PlatformType.WPF)
+            if (context.PlatformInfo.Platform != PlatformType.WPF)
                 return;
 #endif
             container.Bind<IMessagePresenter, MessagePresenter>(DependencyLifecycle.SingleInstance);
@@ -114,7 +114,7 @@ namespace MugenMvvmToolkit.UWP.Modules
         protected override void BindViewModelPresenter(IModuleContext context, IIocContainer container)
         {
 #if WPF
-            if (context.Platform.Platform != PlatformType.WPF)
+            if (context.PlatformInfo.Platform != PlatformType.WPF)
             {
                 ServiceProvider.Initialized += MvvmApplicationOnInitialized;
                 return;
@@ -152,7 +152,7 @@ namespace MugenMvvmToolkit.UWP.Modules
         protected override void BindThreadManager(IModuleContext context, IIocContainer container)
         {
 #if WPF
-            if (context.Platform.Platform == PlatformType.WPF)
+            if (context.PlatformInfo.Platform == PlatformType.WPF)
                 container.BindToMethod<IThreadManager>((c, list) => new ThreadManager(System.Windows.Threading.Dispatcher.CurrentDispatcher), DependencyLifecycle.SingleInstance);
 #elif WINDOWS_UWP
             if (context.Mode.HasFlagEx(LoadMode.Design) && Windows.UI.Xaml.Window.Current.Dispatcher == null)
@@ -170,7 +170,7 @@ namespace MugenMvvmToolkit.UWP.Modules
         protected override void BindToastPresenter(IModuleContext context, IIocContainer container)
         {
 #if WPF
-            if (context.Platform.Platform != PlatformType.WPF)
+            if (context.PlatformInfo.Platform != PlatformType.WPF)
                 return;
 #endif
             container.Bind<IToastPresenter, ToastPresenter>(DependencyLifecycle.SingleInstance);

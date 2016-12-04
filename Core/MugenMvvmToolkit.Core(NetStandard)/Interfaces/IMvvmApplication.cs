@@ -30,7 +30,7 @@ namespace MugenMvvmToolkit.Interfaces
         bool IsInitialized { get; }
 
         [NotNull]
-        PlatformInfo Platform { get; }
+        PlatformInfo PlatformInfo { get; }
 
         LoadMode Mode { get; }
 
@@ -38,7 +38,7 @@ namespace MugenMvvmToolkit.Interfaces
 
         IDataContext Context { get; }
 
-        void Initialize(PlatformInfo platform, IIocContainer iocContainer, IList<Assembly> assemblies, IDataContext context);
+        void Initialize(PlatformInfo platformInfo, IIocContainer iocContainer, IList<Assembly> assemblies, IDataContext context);
 
         void Start(IDataContext context = null);
 

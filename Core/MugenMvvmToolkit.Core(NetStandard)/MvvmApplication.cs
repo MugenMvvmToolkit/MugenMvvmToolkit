@@ -58,7 +58,7 @@ namespace MugenMvvmToolkit
 
         public virtual bool IsInitialized => _isInitialized;
 
-        public virtual PlatformInfo Platform => _platform;
+        public virtual PlatformInfo PlatformInfo => _platform;
 
         public virtual LoadMode Mode => _mode;
 
@@ -106,7 +106,7 @@ namespace MugenMvvmToolkit
         [NotNull]
         protected virtual IModuleContext CreateModuleContext(IList<Assembly> assemblies)
         {
-            return new ModuleContext(Platform, Mode, IocContainer, Context, assemblies);
+            return new ModuleContext(PlatformInfo, Mode, IocContainer, Context, assemblies);
         }
 
         protected virtual IList<IModule> GetModules(IList<Assembly> assemblies)
@@ -120,15 +120,15 @@ namespace MugenMvvmToolkit
 
         #region Implementation of interfaces
 
-        public void Initialize(PlatformInfo platform, IIocContainer iocContainer, IList<Assembly> assemblies, IDataContext context)
+        public void Initialize(PlatformInfo platformInfo, IIocContainer iocContainer, IList<Assembly> assemblies, IDataContext context)
         {
-            Should.NotBeNull(platform, nameof(platform));
+            Should.NotBeNull(platformInfo, nameof(platformInfo));
             Should.NotBeNull(iocContainer, nameof(iocContainer));
             Should.NotBeNull(assemblies, nameof(assemblies));
             if (_isInitialized)
                 return;
             _isInitialized = true;
-            _platform = platform;
+            _platform = platformInfo;
             _iocContainer = iocContainer;
             if (context != null)
                 Context.Merge(context);

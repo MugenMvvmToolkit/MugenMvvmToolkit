@@ -49,19 +49,19 @@ namespace MugenMvvmToolkit.WinForms.Modules
 
         protected override void BindMessagePresenter(IModuleContext context, IIocContainer container)
         {
-            if (context.Platform.Platform == PlatformType.WinForms)
+            if (context.PlatformInfo.Platform == PlatformType.WinForms)
                 container.Bind<IMessagePresenter, MessagePresenter>(DependencyLifecycle.SingleInstance);
         }
 
         protected override void BindToastPresenter(IModuleContext context, IIocContainer container)
         {
-            if (context.Platform.Platform == PlatformType.WinForms)
+            if (context.PlatformInfo.Platform == PlatformType.WinForms)
                 container.Bind<IToastPresenter, ToastPresenter>(DependencyLifecycle.SingleInstance);
         }
 
         protected override void BindThreadManager(IModuleContext context, IIocContainer container)
         {
-            if (context.Platform.Platform != PlatformType.WinForms)
+            if (context.PlatformInfo.Platform != PlatformType.WinForms)
                 return;
             container.BindToMethod<IThreadManager>((iocContainer, list) =>
             {
@@ -85,7 +85,7 @@ namespace MugenMvvmToolkit.WinForms.Modules
 
         protected override void BindViewModelPresenter(IModuleContext context, IIocContainer container)
         {
-            if (context.Platform.Platform == PlatformType.WinForms)
+            if (context.PlatformInfo.Platform == PlatformType.WinForms)
             {
 
                 container.BindToMethod((iocContainer, list) =>
