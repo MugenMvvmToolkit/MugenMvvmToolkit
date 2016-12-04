@@ -38,19 +38,6 @@ namespace MugenMvvmToolkit.UWP.Binding.Infrastructure
 {
     public class BindingMemberProviderEx : BindingMemberProvider
     {
-        #region Constructors
-
-        public BindingMemberProviderEx()
-        {
-        }
-
-        public BindingMemberProviderEx([NotNull] BindingMemberProvider provider)
-            : base(provider)
-        {
-        }
-
-        #endregion
-
         #region Overrides of BindingMemberProvider
 
         protected override IBindingMemberInfo GetExplicitBindingMember(Type sourceType, string path)

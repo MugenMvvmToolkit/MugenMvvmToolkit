@@ -22,7 +22,6 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.DataConstants;
-using MugenMvvmToolkit.Binding.Extensions.Syntax;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
@@ -242,21 +241,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             this.AddType(typeof(Convert));
             this.AddType(typeof(Enumerable));
             this.AddType(typeof(Environment));
-        }
-
-        public BindingResourceResolver([NotNull] BindingResourceResolver resolver)
-        {
-            Should.NotBeNull(resolver, nameof(resolver));
-            RootElementResourceName = resolver.RootElementResourceName;
-            BindingSourceResourceName = resolver.BindingSourceResourceName;
-            SelfResourceName = resolver.SelfResourceName;
-            DataContextResourceName = resolver.DataContextResourceName;
-            _behaviors = new Dictionary<string, Func<IDataContext, IList<object>, IBindingBehavior>>(resolver._behaviors);
-            _converters = new Dictionary<string, IBindingValueConverter>(resolver._converters);
-            _dynamicMethods = new Dictionary<string, IBindingResourceMethod>(resolver._dynamicMethods);
-            _objects = new Dictionary<string, DynamicResourceObject>(resolver._objects);
-            _types = new Dictionary<string, Type>(resolver._types);
-            _aliasToMethod = new Dictionary<string, KeyValuePair<Type, string>>(resolver._aliasToMethod);
         }
 
         #endregion

@@ -66,13 +66,16 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             BehaviorComparer = new DelegateComparer<IBindingBehavior>((behavior, bindingBehavior) => bindingBehavior.Priority.CompareTo(behavior.Priority));
         }
 
-        public BindingProvider(IBindingParser parser = null)
+        public BindingProvider()
+            : this(new BindingParser(), new IBindingBehavior[] { new OneWayBindingMode() })
         {
-            _parser = parser ?? new BindingParser();
-            _defaultBehaviors = new OrderedListInternal<IBindingBehavior>(BehaviorComparer)
-            {
-                new OneWayBindingMode()
-            };
+        }
+
+        public BindingProvider([NotNull] IBindingParser parser, IEnumerable<IBindingBehavior> defaultBehaviors)
+        {
+            Should.NotBeNull(parser, nameof(parser));
+            _parser = parser;
+            _defaultBehaviors = new OrderedListInternal<IBindingBehavior>(defaultBehaviors ?? Empty.Array<IBindingBehavior>(), BehaviorComparer);
             _buildDelegate = BuildBinding;
         }
 

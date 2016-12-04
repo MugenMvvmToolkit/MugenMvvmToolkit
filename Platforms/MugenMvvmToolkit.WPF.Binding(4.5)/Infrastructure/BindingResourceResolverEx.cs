@@ -130,19 +130,6 @@ namespace MugenMvvmToolkit.UWP.Binding.Infrastructure
 
         #endregion
 
-        #region Constructors
-
-        public BindingResourceResolverEx()
-        {
-        }
-
-        public BindingResourceResolverEx([NotNull] BindingResourceResolver resolver)
-            : base(resolver)
-        {
-        }
-
-        #endregion
-
         #region Overrides of BindingResourceResolver
 
         public override IBindingValueConverter ResolveConverter(string name, IDataContext context, bool throwOnError)

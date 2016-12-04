@@ -25,14 +25,19 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Parse
 {
     public interface IBindingParser
     {
+        [NotNull]
         ICollection<string> ElementSourceAliases { get; }
 
+        [NotNull]
         ICollection<string> RelativeSourceAliases { get; }
 
+        [NotNull]
         IDictionary<string, TokenType> UnaryOperationAliases { get; }
 
+        [NotNull]
         IDictionary<string, TokenType> BinaryOperationAliases { get; }
 
+        [NotNull]
         IList<IBindingParserHandler> Handlers { get; }
 
         [NotNull]

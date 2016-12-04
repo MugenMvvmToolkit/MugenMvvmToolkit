@@ -221,6 +221,11 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             };
         }
 
+        [Preserve(Conditional = true)]
+        public DataAnnotationValidatior()
+        {
+        }
+
         #endregion
 
         #region Overrides of ValidatorBase

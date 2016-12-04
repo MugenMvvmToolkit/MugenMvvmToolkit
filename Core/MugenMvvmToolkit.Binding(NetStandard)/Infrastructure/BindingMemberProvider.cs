@@ -130,15 +130,6 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             _explicitMembersCache = new Dictionary<CacheKey, IBindingMemberInfo>(CacheKeyComparer.Instance);
         }
 
-        public BindingMemberProvider([NotNull] BindingMemberProvider provider)
-        {
-            Should.NotBeNull(provider, nameof(provider));
-            _currentPaths = new HashSet<string>(StringComparer.Ordinal);
-            _attachedMembers = provider._attachedMembers;
-            _tempMembersCache = provider._tempMembersCache;
-            _explicitMembersCache = provider._explicitMembersCache;
-        }
-
         #endregion
 
         #region Properties
