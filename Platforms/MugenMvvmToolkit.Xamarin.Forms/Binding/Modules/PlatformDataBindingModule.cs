@@ -47,7 +47,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Modules
         //        }
         //
         //        #endregion
-        public int Priority => ApplicationSettings.ModulePriorityBinding;
+        public int Priority => ApplicationSettings.ModulePriorityBinding + 1;
 
         #endregion
 
@@ -63,7 +63,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Modules
             var constructor = type.GetConstructor(Empty.Array<Type>());
             if ((constructor == null) || !constructor.IsPublic)
                 return;
-            var converter = (IValueConverter) constructor.Invoke(Empty.Array<object>());
+            var converter = (IValueConverter)constructor.Invoke(Empty.Array<object>());
             BindingServiceProvider.ResourceResolver.AddConverter(new ValueConverterWrapper(converter), type, true);
             ServiceProvider.BootstrapCodeBuilder?.Append(nameof(BindingExtensions),
                 $"{typeof(BindingExtensions).FullName}.AddConverter(resolver, new {typeof(ValueConverterWrapper).FullName}(new {type.GetPrettyName()}()), typeof({type.GetPrettyName()}, true);");

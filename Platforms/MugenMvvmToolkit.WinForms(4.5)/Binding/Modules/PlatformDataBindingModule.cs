@@ -19,6 +19,8 @@
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.WinForms.Binding.Infrastructure;
 
 namespace MugenMvvmToolkit.WinForms.Binding.Modules
 {
@@ -26,7 +28,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.Modules
     {
         #region Properties
 
-        public int Priority => ApplicationSettings.ModulePriorityBinding;
+        public int Priority => ApplicationSettings.ModulePriorityBinding + 1;
 
         #endregion
 
@@ -34,8 +36,9 @@ namespace MugenMvvmToolkit.WinForms.Binding.Modules
 
         public bool Load(IModuleContext context)
         {
-            //            if (context.Platform.Platform == PlatformType.WinForms)
-            //                return new BindingErrorProvider(); todo init service provide
+            if (context.PlatformInfo.Platform == PlatformType.WinForms)
+                BindingServiceProvider.Initialize(errorProvider: new WinFormsBindingErrorProvider(), converter: BindingReflectionExtensions.Convert);
+
             context.TryRegisterDataTemplateSelectorsAndValueConverters(null);
             MugenMvvmToolkit.Binding.AttachedMembersRegistration.RegisterDefaultMembers();
 

@@ -47,7 +47,6 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
         {
             ReflectionExtensions.GetTypesDefault = assembly => assembly.GetTypes();
             ApplicationSettings.NavigationPresenterCanShowViewModel = (model, context, arg3) => false;
-            BindingServiceProvider.ValueConverter = BindingReflectionExtensions.Convert;
             ViewManager.ViewCleared += OnViewCleared;
         }
 

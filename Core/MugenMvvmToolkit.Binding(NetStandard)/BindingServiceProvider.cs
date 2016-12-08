@@ -27,6 +27,7 @@ using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding
 {
@@ -45,15 +46,15 @@ namespace MugenMvvmToolkit.Binding
         private static IVisualTreeManager _visualTreeManager;
         private static IBindingResourceResolver _resourceResolver;
         private static IWeakEventManager _weakEventManager;
-        private static Func<IBindingMemberInfo, Type, object, object> _valueConverter;
         private static readonly Dictionary<string, int> MemberPriorities;
         private static readonly List<string> FakeMemberPrefixesField;
         private static readonly HashSet<string> DataContextMemberAliasesField;
         private static readonly Dictionary<string, IBindingBehavior> BindingModeToBehaviorField;
         private static readonly Dictionary<string, IBindingPath> BindingPathCache;
         private static Func<string, IBindingPath> _bindingPathFactory;
-        private static Func<Type, string, IBindingMemberInfo> _updateEventFinder;
         private static Func<CultureInfo> _bindingCultureInfo;
+        private static Func<Type, string, IBindingMemberInfo> _updateEventFinder;
+        private static Func<IBindingMemberInfo, Type, object, object> _valueConverter;
 
         #endregion
 
@@ -61,15 +62,7 @@ namespace MugenMvvmToolkit.Binding
 
         static BindingServiceProvider()
         {
-            BindingModeToBehaviorField = new Dictionary<string, IBindingBehavior>(StringComparer.OrdinalIgnoreCase)
-            {
-                {"Default", null},
-                {"TwoWay", new TwoWayBindingMode()},
-                {"OneWay", new OneWayBindingMode()},
-                {"OneTime", new OneTimeBindingMode()},
-                {"OneWayToSource", new OneWayToSourceBindingMode()},
-                {"None", NoneBindingMode.Instance}
-            };
+            BindingModeToBehaviorField = new Dictionary<string, IBindingBehavior>();
             MemberPriorities = new Dictionary<string, int>
             {
                 {AttachedMemberConstants.DataContext, DataContextMemberPriority},
@@ -89,11 +82,12 @@ namespace MugenMvvmToolkit.Binding
                 AttachedMemberConstants.DataContext
             };
             BindingPathCache = new Dictionary<string, IBindingPath>(StringComparer.Ordinal);
-            SetDefaultValues();
             ViewManager.GetDataContext = BindingExtensions.DataContext;
             ViewManager.SetDataContext = BindingExtensions.SetDataContext;
             BindingExceptionHandler = BindingExceptionHandlerImpl;
             BindingDebugger = BindingDebuggerImpl;
+            BindingCultureInfo = null;
+            ObservablePathDefault = true;
         }
 
         #endregion
@@ -124,14 +118,22 @@ namespace MugenMvvmToolkit.Binding
         public static Func<IBindingMemberInfo, Type, object, object> ValueConverter
         {
             get { return _valueConverter; }
-            set { _valueConverter = value ?? ((member, type, o) => o); }
+            set
+            {
+                Should.PropertyNotBeNull(value);
+                _valueConverter = value;
+            }
         }
 
         [NotNull]
         public static Func<Type, string, IBindingMemberInfo> UpdateEventFinder
         {
             get { return _updateEventFinder; }
-            set { _updateEventFinder = value ?? FindUpdateEvent; }
+            set
+            {
+                Should.PropertyNotBeNull(value);
+                _updateEventFinder = value;
+            }
         }
 
         [NotNull]
@@ -262,21 +264,54 @@ namespace MugenMvvmToolkit.Binding
             BindingExceptionHandler?.Invoke(binding, args);
         }
 
+        public static void Initialize(IBindingProvider bindingProvider = null, IBindingManager bindingManager = null,
+            IBindingResourceResolver resourceResolver = null, IBindingMemberProvider memberProvider = null, IVisualTreeManager visualTreeManager = null,
+            IWeakEventManager weakEventManager = null, IObserverProvider observerProvider = null, IBindingContextManager contextManager = null, IBindingErrorProvider errorProvider = null,
+            Func<IBindingMemberInfo, Type, object, object> converter = null, Func<string, IBindingPath> bindingPathFactory = null,
+            Func<Type, string, IBindingMemberInfo> findUpdateEvent = null, Func<CultureInfo> bindingCultureInfo = null, IDictionary<string, IBindingBehavior> bindingModeBehaviors = null)
+        {
+            ValueConverter = converter ?? ((info, type, o) => o);
+            BindingProvider = bindingProvider ?? new BindingProvider();
+            BindingManager = bindingManager ?? new BindingManager();
+            ResourceResolver = resourceResolver ?? new BindingResourceResolver();
+            MemberProvider = memberProvider ?? new BindingMemberProvider();
+            VisualTreeManager = visualTreeManager ?? new VisualTreeManager();
+            WeakEventManager = weakEventManager ?? new WeakEventManager();
+            ObserverProvider = observerProvider ?? new ObserverProvider();
+            ContextManager = contextManager ?? new BindingContextManager();
+            BindingPathFactory = bindingPathFactory ?? BindingPathFactoryImpl;
+            UpdateEventFinder = findUpdateEvent ?? FindUpdateEvent;
+            BindingCultureInfo = bindingCultureInfo;
+            ErrorProvider = errorProvider;
+            if (bindingModeBehaviors == null)
+            {
+                bindingModeBehaviors = new Dictionary<string, IBindingBehavior>
+                {
+                    {"Default", null},
+                    {"TwoWay", new TwoWayBindingMode()},
+                    {"OneWay", new OneWayBindingMode()},
+                    {"OneTime", new OneTimeBindingMode()},
+                    {"OneWayToSource", new OneWayToSourceBindingMode()},
+                    {"None", NoneBindingMode.Instance}
+                };
+            }
+            foreach (var behavior in bindingModeBehaviors)
+                BindingModeToBehavior[behavior.Key] = behavior.Value;
+        }
+
         internal static void SetDefaultValues()
         {
-            BindingCultureInfo = null;
-            _updateEventFinder = FindUpdateEvent;
-            _bindingPathFactory = BindingPathFactoryImpl;
-            _valueConverter = BindingReflectionExtensions.Convert;
-            _resourceResolver = new BindingResourceResolver();
-            _memberProvider = new BindingMemberProvider();
-            _visualTreeManager = new VisualTreeManager();
-            _weakEventManager = new WeakEventManager();
-            _bindingManager = new BindingManager();
-            _bindingProvider = new BindingProvider();
-            _observerProvider = new ObserverProvider();
-            _contextManager = new BindingContextManager();
-            ObservablePathDefault = true;
+            Initialize();
+        }
+
+        public static void InitializeFromDesignContext()
+        {
+            if (_bindingProvider == null)
+            {
+                var methodInfo = typeof(BindingServiceProvider).GetMethodEx(nameof(SetDefaultValues), MemberFlags.Static | MemberFlags.NonPublic | MemberFlags.Public);
+                if (methodInfo != null)
+                    methodInfo.Invoke(null, null);
+            }
         }
 
         private static IBindingPath BindingPathFactoryImpl(string path)

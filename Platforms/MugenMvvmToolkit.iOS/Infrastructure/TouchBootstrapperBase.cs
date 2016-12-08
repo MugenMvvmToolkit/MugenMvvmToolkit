@@ -20,7 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Parse;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
@@ -59,7 +58,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
             ServiceProvider.WeakReferenceFactory = PlatformExtensions.CreateWeakReference;
             ViewManager.DisposeView = true;
             CompiledExpressionInvoker.SupportCoalesceExpression = false;
-            BindingServiceProvider.ValueConverter = BindingReflectionExtensions.Convert;
         }
 
         protected TouchBootstrapperBase([NotNull] UIWindow window, PlatformInfo platform = null)

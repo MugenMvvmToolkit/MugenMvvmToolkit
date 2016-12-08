@@ -17,10 +17,12 @@
 #endregion
 
 using Android.App;
+using MugenMvvmToolkit.Android.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Android.Binding.Modules
 {
@@ -28,7 +30,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
     {
         #region Properties
 
-        public int Priority => ApplicationSettings.ModulePriorityBinding;
+        public int Priority => ApplicationSettings.ModulePriorityBinding + 1;
 
         #endregion
 
@@ -36,11 +38,14 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
 
         public bool Load(IModuleContext context)
         {
-            //new BindingErrorProvider() todo init service provide
+            if (context.PlatformInfo.Platform == PlatformType.Android)
+            {
+                BindingServiceProvider.Initialize(errorProvider: new AndroidBindingErrorProvider(), converter: BindingReflectionExtensions.Convert);
+                BindingServiceProvider.BindingProvider.DefaultBehaviors.Add(DisableEqualityCheckingBehavior.TargetTrueNotTwoWay);
+            }
+
             context.TryRegisterDataTemplateSelectorsAndValueConverters(null);
             MugenMvvmToolkit.Binding.AttachedMembersRegistration.RegisterDefaultMembers();
-
-            BindingServiceProvider.BindingProvider.DefaultBehaviors.Add(DisableEqualityCheckingBehavior.TargetTrueNotTwoWay);
 
             if (PlatformExtensions.IsApiGreaterThanOrEqualTo14)
             {

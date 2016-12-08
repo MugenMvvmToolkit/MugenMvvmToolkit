@@ -90,7 +90,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure
             ServiceProvider.WeakReferenceFactory = PlatformExtensions.CreateWeakReference;
             ApplicationSettings.MultiViewModelPresenterCanShowViewModel = CanShowViewModelTabPresenter;
             ApplicationSettings.NavigationPresenterCanShowViewModel = CanShowViewModelNavigationPresenter;
-            BindingServiceProvider.ValueConverter = BindingReflectionExtensions.Convert;
             Locker = new object();
         }
 

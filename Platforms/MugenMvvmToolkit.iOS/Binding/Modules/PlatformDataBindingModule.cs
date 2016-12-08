@@ -19,8 +19,10 @@
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.iOS.Binding.Converters;
+using MugenMvvmToolkit.iOS.Binding.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.iOS.Binding.Modules
 {
@@ -28,7 +30,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
     {
         #region Properties
 
-        public int Priority => ApplicationSettings.ModulePriorityBinding;
+        public int Priority => ApplicationSettings.ModulePriorityBinding + 1;
 
         #endregion
 
@@ -36,7 +38,9 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
 
         public bool Load(IModuleContext context)
         {
-            //new BindingErrorProvider() todo init service provide
+            if (context.PlatformInfo.Platform == PlatformType.iOS)
+                BindingServiceProvider.Initialize(errorProvider: new TouchBindingErrorProvider(), converter: BindingReflectionExtensions.Convert);
+
             context.TryRegisterDataTemplateSelectorsAndValueConverters(null);
             MugenMvvmToolkit.Binding.AttachedMembersRegistration.RegisterDefaultMembers();
 

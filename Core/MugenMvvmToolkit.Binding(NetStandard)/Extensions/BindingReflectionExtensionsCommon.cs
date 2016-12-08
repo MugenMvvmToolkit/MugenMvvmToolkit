@@ -46,7 +46,7 @@ namespace MugenMvvmToolkit.Binding
 // ReSharper restore CheckNamespace
 {
     // ReSharper disable once PartialTypeWithSinglePart
-    internal static partial class BindingReflectionExtensions
+    internal static partial class BindingReflectionExtensions//todo convert remove pcl
     {
 #if WPF || ANDROID || TOUCH || WINFORMS || WINDOWS_PHONE
         #region Nested types
