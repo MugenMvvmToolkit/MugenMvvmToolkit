@@ -161,7 +161,7 @@
     <Compile Include="Models\EventArg\NavigatingCancelEventArgsWrapper.cs" />
     <Compile Include="Models\EventArg\NavigationEventArgsWrapper.cs" />
     <Compile Include="Models\PopupSettings.cs" />
-    <Compile Include="Modules\PlatformWrapperRegistrationModule.cs" />
+    <Compile Include="Modules\UwpWrapperRegistrationModule.cs" />
     <Compile Include="PlatformExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\MugenMvvmToolkit.UAP.rd.xml" />

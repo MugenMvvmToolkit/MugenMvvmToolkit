@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="PlatformWrapperRegistrationModule.cs">
+// <copyright file="UwpWrapperRegistrationModule.cs">
 // Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -38,7 +38,7 @@ using MugenMvvmToolkit.UWP.Models;
 
 namespace MugenMvvmToolkit.UWP.Modules
 {
-    public class PlatformWrapperRegistrationModule : WrapperRegistrationModuleBase
+    public class UwpWrapperRegistrationModule : WrapperRegistrationModuleBase
     {
         #region Nested types
 

@@ -126,8 +126,8 @@
     <Compile Include="Models\EventArg\NavigatingCancelEventArgs.cs" />
     <Compile Include="Models\EventArg\NavigationEventArgs.cs" />
     <Compile Include="Binding\Models\ParentObserver.cs" />
-    <Compile Include="Modules\InitializationModule.cs" />
-    <Compile Include="Binding\Modules\PlatformDataBindingModule.cs" />
+    <Compile Include="Modules\TouchInitializationModule.cs" />
+    <Compile Include="Binding\Modules\TouchDataBindingModule.cs" />
     <Compile Include="Binding\AttachedMembers.cs" />
     <Compile Include="PlatformExtensions.cs" />
     <Compile Include="PlatformExtensionsCommon.cs" />

@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="PlatformDataBindingModule.cs">
+// <copyright file="WinFormsDataBindingModule.cs">
 // Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -24,7 +24,7 @@ using MugenMvvmToolkit.WinForms.Binding.Infrastructure;
 
 namespace MugenMvvmToolkit.WinForms.Binding.Modules
 {
-    public class PlatformDataBindingModule : IModule
+    public class WinFormsDataBindingModule : IModule
     {
         #region Properties
 

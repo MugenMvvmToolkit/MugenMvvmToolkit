@@ -97,12 +97,12 @@
     <Compile Include="Infrastructure\XamarinFormsDesignBootstrapperBase.cs" />
     <Compile Include="Infrastructure\XamarinFormsBootstrapperBase.cs" />
     <Compile Include="Interfaces\Presenters\IRestorableViewModelPresenter.cs" />
-    <Compile Include="Modules\InitializationModule.cs" />
+    <Compile Include="Modules\XamarinFormsInitializationModule.cs" />
     <Compile Include="Interfaces\Views\IModalView.cs" />
     <Compile Include="MarkupExtensions\DataBindingExtension.cs" />
     <Compile Include="MarkupExtensions\View.cs" />
     <Compile Include="Binding\Models\ParentObserver.cs" />
-    <Compile Include="Binding\Modules\PlatformDataBindingModule.cs" />
+    <Compile Include="Binding\Modules\XamarinFormsDataBindingModule.cs" />
     <Compile Include="XamarinFormsExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="PlatformDataBindingModule.cs">
+// <copyright file="AndroidDataBindingModule.cs">
 // Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -26,7 +26,7 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Android.Binding.Modules
 {
-    public class PlatformDataBindingModule : IModule
+    public class AndroidDataBindingModule : IModule
     {
         #region Properties
 

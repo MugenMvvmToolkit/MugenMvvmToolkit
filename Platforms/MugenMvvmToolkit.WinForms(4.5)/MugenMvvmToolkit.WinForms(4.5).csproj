@@ -116,7 +116,7 @@
     <Compile Include="Controls\ToastMessageControl.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Binding\Modules\PlatformDataBindingModule.cs" />
+    <Compile Include="Binding\Modules\WinFormsDataBindingModule.cs" />
     <Compile Include="Binding\Infrastructure\WinFormsBindingErrorProvider.cs" />
     <Compile Include="Infrastructure\BindingListItemsSourceDecorator.cs" />
     <Compile Include="Binding\Infrastructure\CollectionViewManagerBase.cs" />
@@ -125,7 +125,7 @@
     <Compile Include="Binding\Infrastructure\ItemsSourceGenerator.cs" />
     <Compile Include="Infrastructure\Presenters\MessagePresenter.cs" />
     <Compile Include="Collections\BindingListWrapper.cs" />
-    <Compile Include="Modules\InitializationModule.cs" />
+    <Compile Include="Modules\WinFormsInitializationModule.cs" />
     <Compile Include="Infrastructure\ThreadManager.cs" />
     <Compile Include="Infrastructure\Presenters\ToastPresenter.cs" />
     <Compile Include="Infrastructure\WinFormsBootstrapperBase.cs" />
@@ -133,7 +133,7 @@
     <Compile Include="Binding\Interfaces\IContentViewManager.cs" />
     <Compile Include="Binding\Interfaces\IXmlHandler.cs" />
     <Compile Include="Interfaces\Views\IWindowView.cs" />
-    <Compile Include="Modules\PlatformWrapperRegistrationModule.cs" />
+    <Compile Include="Modules\WinFormsWrapperRegistrationModule.cs" />
     <Compile Include="PlatformExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -50,7 +50,7 @@ using Application = Windows.UI.Xaml.Application;
 namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Modules
 #endif
 {
-    public class InitializationModuleEx : InitializationModule
+    public class InitializationModuleEx : XamarinFormsInitializationModule
     {
         #region Methods
 

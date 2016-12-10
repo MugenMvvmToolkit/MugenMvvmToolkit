@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="InitializationModule.cs">
+// <copyright file="AndroidInitializationModule.cs">
 // Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -35,7 +35,7 @@ using MugenMvvmToolkit.Modules;
 
 namespace MugenMvvmToolkit.Android.Modules
 {
-    public class InitializationModule : InitializationModuleBase
+    public class AndroidInitializationModule : InitializationModuleBase
     {
         #region Methods
 

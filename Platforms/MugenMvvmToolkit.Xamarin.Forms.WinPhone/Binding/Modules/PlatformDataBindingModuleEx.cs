@@ -37,16 +37,16 @@ using MugenMvvmToolkit.Xamarin.Forms.WinRT.Binding.Infrastructure;
 namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Binding.Modules
 #endif
 {
-    public class PlatformDataBindingModuleEx : PlatformDataBindingModule
+    public class PlatformDataBindingModuleEx : XamarinFormsDataBindingModule
     {
         //todo fix
-//        #region Overrides of DataBindingModule
-//
-//        protected override IBindingErrorProvider GetBindingErrorProvider(IModuleContext context)
-//        {
-//            return new BindingErrorProvider();
-//        }
-//
-//        #endregion
+        //        #region Overrides of DataBindingModule
+        //
+        //        protected override IBindingErrorProvider GetBindingErrorProvider(IModuleContext context)
+        //        {
+        //            return new BindingErrorProvider();
+        //        }
+        //
+        //        #endregion
     }
 }

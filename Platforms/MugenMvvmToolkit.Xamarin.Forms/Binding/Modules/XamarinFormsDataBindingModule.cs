@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="PlatformDataBindingModule.cs">
+// <copyright file="XamarinFormsDataBindingModule.cs">
 // Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -26,7 +26,7 @@ using Xamarin.Forms;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Modules
 {
-    public class PlatformDataBindingModule : IModule
+    public class XamarinFormsDataBindingModule : IModule
     {
         #region Properties
 

@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="PlatformWrapperRegistrationModule.cs">
+// <copyright file="WinFormsWrapperRegistrationModule.cs">
 // Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -16,66 +16,72 @@
 
 #endregion
 
+using System;
 using System.ComponentModel;
-using System.Windows;
+using System.Windows.Forms;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Modules;
-using MugenMvvmToolkit.WPF.Interfaces.Views;
+using MugenMvvmToolkit.WinForms.Interfaces.Views;
 
-namespace MugenMvvmToolkit.WPF.Modules
+namespace MugenMvvmToolkit.WinForms.Modules
 {
-    public class PlatformWrapperRegistrationModule : WrapperRegistrationModuleBase
+    public class WinFormsWrapperRegistrationModule : WrapperRegistrationModuleBase
     {
         #region Nested types
 
-        internal sealed class WindowViewWrapper : IWindowView, IViewWrapper
+        private sealed class FormViewWrapper : IWindowView, IDisposable, IViewWrapper
         {
             #region Fields
 
-            private readonly Window _window;
+            private readonly Form _form;
 
             #endregion
 
             #region Constructors
 
-            public WindowViewWrapper(Window window)
+            public FormViewWrapper(Form form)
             {
-                Should.NotBeNull(window, nameof(window));
-                _window = window;
+                Should.NotBeNull(form, nameof(form));
+                _form = form;
             }
 
             #endregion
 
             #region Implementation of IWindowView
 
-            public object View => _window;
-
             public void Show()
             {
-                _window.Show();
+                _form.Show();
             }
 
-            public bool? ShowDialog()
+            public DialogResult ShowDialog()
             {
-                return _window.ShowDialog();
+                return _form.ShowDialog();
             }
 
             public void Close()
             {
-                _window.Close();
+                _form.Close();
             }
 
-            public bool Activate()
+            public void Activate()
             {
-                return _window.Activate();
+                _form.Activate();
             }
 
             event CancelEventHandler IWindowView.Closing
             {
-                add { _window.Closing += value; }
-                remove { _window.Closing -= value; }
+                add { _form.Closing += value; }
+                remove { _form.Closing -= value; }
             }
+
+            public void Dispose()
+            {
+                _form.Dispose();
+            }
+
+            public object View => _form;
 
             #endregion
         }
@@ -86,9 +92,9 @@ namespace MugenMvvmToolkit.WPF.Modules
 
         protected override void RegisterWrappers(IConfigurableWrapperManager wrapperManager)
         {
-            wrapperManager.AddWrapper<IWindowView, WindowViewWrapper>(
-                (type, context) => typeof(Window).IsAssignableFrom(type),
-                (o, context) => new WindowViewWrapper((Window)o));
+            wrapperManager.AddWrapper<IWindowView, FormViewWrapper>(
+                (type, context) => typeof(Form).IsAssignableFrom(type),
+                (wrapper, context) => new FormViewWrapper((Form)wrapper));
         }
 
         #endregion

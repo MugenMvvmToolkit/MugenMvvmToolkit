@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="InitializationModule.cs">
+// <copyright file="WinFormsInitializationModule.cs">
 // Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -33,7 +33,7 @@ using MugenMvvmToolkit.WinForms.Infrastructure.Presenters;
 
 namespace MugenMvvmToolkit.WinForms.Modules
 {
-    public class InitializationModule : InitializationModuleBase
+    public class WinFormsInitializationModule : InitializationModuleBase
     {
         #region Methods
 

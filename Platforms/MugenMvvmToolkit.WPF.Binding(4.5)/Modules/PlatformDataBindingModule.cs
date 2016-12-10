@@ -36,6 +36,10 @@ using MugenMvvmToolkit.WPF.Binding.Converters;
 using MugenMvvmToolkit.WPF.Binding.Infrastructure;
 
 namespace MugenMvvmToolkit.WPF.Binding.Modules
+{
+
+
+    public class WpfDataBindingModule : IModule
 #elif WINDOWS_UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
@@ -46,14 +50,19 @@ using MugenMvvmToolkit.UWP.Binding.Infrastructure;
 using BooleanToVisibilityConverter = MugenMvvmToolkit.UWP.Binding.Converters.BooleanToVisibilityConverter;
 
 namespace MugenMvvmToolkit.UWP.Binding.Modules
+{
+
+    public class UwpDataBindingModule : IModule
 #endif
 
-{
-    public class PlatformDataBindingModule : IModule
     {
         #region Constructors
 
-        static PlatformDataBindingModule()
+#if WPF
+        static WpfDataBindingModule()
+#elif WINDOWS_UWP
+        static UwpDataBindingModule()
+#endif
         {
             if (View.BindChanged == null)
                 View.BindChanged = OnBindChanged;

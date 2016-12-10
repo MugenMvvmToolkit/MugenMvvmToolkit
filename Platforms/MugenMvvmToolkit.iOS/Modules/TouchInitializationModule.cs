@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="InitializationModule.cs">
+// <copyright file="TouchInitializationModule.cs">
 // Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -16,6 +16,11 @@
 
 #endregion
 
+using MugenMvvmToolkit.iOS.Infrastructure;
+using MugenMvvmToolkit.iOS.Infrastructure.Callbacks;
+using MugenMvvmToolkit.iOS.Infrastructure.Navigation;
+using MugenMvvmToolkit.iOS.Infrastructure.Presenters;
+using MugenMvvmToolkit.iOS.Interfaces;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
@@ -24,47 +29,59 @@ using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models.IoC;
 using MugenMvvmToolkit.Modules;
-using MugenMvvmToolkit.Xamarin.Forms.Infrastructure;
-using MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Callbacks;
-using MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation;
-using MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters;
 
-namespace MugenMvvmToolkit.Xamarin.Forms.Modules
+namespace MugenMvvmToolkit.iOS.Modules
 {
-    public class InitializationModule : InitializationModuleBase
+    public class TouchInitializationModule : InitializationModuleBase
     {
         #region Methods
 
-        protected override void BindOperationCallbackFactory(IModuleContext context, IIocContainer container)
+        public override bool Load(IModuleContext context)
         {
-            container.Bind<IOperationCallbackFactory, SerializableOperationCallbackFactory>(DependencyLifecycle.SingleInstance);
+            if (context.IocContainer != null)
+                BindApplicationStateManager(context, context.IocContainer);
+            return base.Load(context);
+        }
+
+        protected virtual void BindApplicationStateManager(IModuleContext context, IIocContainer container)
+        {
+            container.Bind<IApplicationStateManager, ApplicationStateManager>(DependencyLifecycle.SingleInstance);
         }
 
         protected override void BindViewModelPresenter(IModuleContext context, IIocContainer container)
         {
             container.BindToMethod((iocContainer, list) =>
             {
-                IViewModelPresenter presenter = container.Get<RestorableViewModelPresenter>();
+                IViewModelPresenter presenter = new ViewModelPresenter();
                 presenter.DynamicPresenters.Add(new DynamicViewModelNavigationPresenter());
                 presenter.DynamicPresenters.Add(iocContainer.Get<DynamicViewModelWindowPresenter>());
                 return presenter;
             }, DependencyLifecycle.SingleInstance);
         }
 
-        protected override void BindViewMappingProvider(IModuleContext context, IIocContainer container)
+        protected override void BindMessagePresenter(IModuleContext context, IIocContainer container)
         {
-            IViewMappingProvider viewMappingProvider = new ViewMappingProviderEx(context.Assemblies) { IsSupportedUriNavigation = false };
-            container.BindToConstant(viewMappingProvider);
+            container.Bind<IMessagePresenter, MessagePresenter>(DependencyLifecycle.SingleInstance);
+        }
+
+        protected override void BindToastPresenter(IModuleContext context, IIocContainer container)
+        {
+            container.Bind<IToastPresenter, ToastPresenter>(DependencyLifecycle.SingleInstance);
         }
 
         protected override void BindThreadManager(IModuleContext context, IIocContainer container)
         {
-            container.BindToMethod((iocContainer, list) => new ThreadManager(ServiceProvider.UiSynchronizationContext), DependencyLifecycle.SingleInstance);
+            container.BindToMethod<IThreadManager>((iocContainer, list) => new ThreadManager(ServiceProvider.UiSynchronizationContext), DependencyLifecycle.SingleInstance);
         }
 
         protected override void BindNavigationProvider(IModuleContext context, IIocContainer container)
         {
             container.Bind<INavigationProvider, NavigationProvider>(DependencyLifecycle.SingleInstance);
+        }
+
+        protected override void BindOperationCallbackFactory(IModuleContext context, IIocContainer container)
+        {
+            container.Bind<IOperationCallbackFactory, SerializableOperationCallbackFactory>(DependencyLifecycle.SingleInstance);
         }
 
         protected override void BindAttachedValueProvider(IModuleContext context, IIocContainer container)

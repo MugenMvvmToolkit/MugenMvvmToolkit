@@ -33,6 +33,9 @@ using MugenMvvmToolkit.WPF.Infrastructure.Navigation;
 using MugenMvvmToolkit.WPF.Infrastructure.Presenters;
 
 namespace MugenMvvmToolkit.WPF.Modules
+{
+    public class WpfInitializationModule : InitializationModuleBase
+    {
 #elif WINDOWS_UWP
 using MugenMvvmToolkit.UWP.Infrastructure;
 using MugenMvvmToolkit.UWP.Infrastructure.Navigation;
@@ -41,10 +44,11 @@ using MugenMvvmToolkit.UWP.Infrastructure.Callbacks;
 using MugenMvvmToolkit.UWP.Interfaces;
 
 namespace MugenMvvmToolkit.UWP.Modules
-#endif
 {
-    public class InitializationModule : InitializationModuleBase
+    public class UwpInitializationModule : InitializationModuleBase
     {
+#endif
+
         #region Properties
 
 #if WPF

@@ -136,8 +136,8 @@
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Modules\InitializationModule.cs">
       <Link>Modules\InitializationModule.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Modules\PlatformWrapperRegistrationModule.cs">
-      <Link>Modules\PlatformWrapperRegistrationModule.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Modules\WpfWrapperRegistrationModule.cs">
+      <Link>Modules\WpfWrapperRegistrationModule.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\PlatformExtensions.cs">
       <Link>PlatformExtensions.cs</Link>

@@ -47,7 +47,11 @@ namespace MugenMvvmToolkit.Test
             if (ValueConverterEx == null)
             {
                 //to invoke static constructor.
-                new PlatformDataBindingModule();
+#if NETFX_CORE
+                new UwpDataBindingModule();
+#else
+                new WpfDataBindingModule();
+#endif
                 ValueConverterEx = BindingServiceProvider.ValueConverter;
             }
             else

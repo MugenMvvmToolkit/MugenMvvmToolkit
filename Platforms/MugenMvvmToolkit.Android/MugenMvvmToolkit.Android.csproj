@@ -133,7 +133,7 @@
     <Compile Include="Interfaces\Views\IWindowView.cs" />
     <Compile Include="InternalExtensions.cs" />
     <Compile Include="InternalExtensionsFragment.cs" />
-    <Compile Include="Binding\Modules\PlatformDataBindingModule.cs" />
+    <Compile Include="Binding\Modules\AndroidDataBindingModule.cs" />
     <Compile Include="Binding\Infrastructure\BindableMenuInflater.cs" />
     <Compile Include="Infrastructure\AndroidBootstrapperBase.cs" />
     <Compile Include="Binding\Infrastructure\AndroidBindingErrorProvider.cs" />
@@ -143,7 +143,7 @@
     <Compile Include="Models\EventArg\ActivityResultEventArgs.cs" />
     <Compile Include="Models\WeakReferenceWeakTable.cs" />
     <Compile Include="Modules\FragmentInitializationModule.cs" />
-    <Compile Include="Modules\InitializationModule.cs" />
+    <Compile Include="Modules\AndroidInitializationModule.cs" />
     <Compile Include="Infrastructure\Mediators\MediatorBase.cs" />
     <Compile Include="Infrastructure\Presenters\ToastPresenter.cs" />
     <Compile Include="Binding\Infrastructure\DataTemplateProvider.cs" />

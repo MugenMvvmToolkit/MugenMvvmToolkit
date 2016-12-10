@@ -124,8 +124,8 @@
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Models\AutoCompleteItem.cs">
       <Link>Binding\Models\AutoCompleteItem.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Modules\PlatformDataBindingModule.cs">
-      <Link>Binding\Modules\PlatformDataBindingModule.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Modules\WinFormsDataBindingModule.cs">
+      <Link>Binding\Modules\WinFormsDataBindingModule.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Parse\Nodes\XmlAttributeExpressionNode.cs">
       <Link>Binding\Parse\Nodes\XmlAttributeExpressionNode.cs</Link>
@@ -205,11 +205,11 @@
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Interfaces\Views\IWindowView.cs">
       <Link>Interfaces\Views\IWindowView.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Modules\InitializationModule.cs">
-      <Link>Modules\InitializationModule.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Modules\WinFormsInitializationModule.cs">
+      <Link>Modules\WinFormsInitializationModule.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Modules\PlatformWrapperRegistrationModule.cs">
-      <Link>Modules\PlatformWrapperRegistrationModule.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Modules\WinFormsWrapperRegistrationModule.cs">
+      <Link>Modules\WinFormsWrapperRegistrationModule.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\PlatformExtensions.cs">
       <Link>PlatformExtensions.cs</Link>
