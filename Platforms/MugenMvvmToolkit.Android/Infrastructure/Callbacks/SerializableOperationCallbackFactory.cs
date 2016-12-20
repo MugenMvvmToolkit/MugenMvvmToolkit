@@ -911,6 +911,11 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
 
         private static bool CheckMethodParameters(MethodInfo method, out bool firstParameterSource)
         {
+            if (method.IsGenericMethodDefinition || method.IsGenericMethod)
+            {
+                firstParameterSource = false;
+                return false;
+            }
             var parameters = method.GetParameters();
             if (parameters.Length == 0)
             {

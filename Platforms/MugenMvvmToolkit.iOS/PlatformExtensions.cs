@@ -339,9 +339,10 @@ namespace MugenMvvmToolkit.iOS
             return !ServiceProvider.AttachedValueProvider.Contains(controller, NoStateKey);
         }
 
-        public static void InititalizeRestorationIdentifier([NotNull] this UIView view, bool checkRestoreMethodOverload = true)
+        public static void InititalizeRestorationIdentifier([CanBeNull] this UIView view, bool checkRestoreMethodOverload = true)
         {
-            Should.NotBeNull(view, nameof(view));
+            if (!view.IsAlive())
+                return;
             if (string.IsNullOrEmpty(view.RestorationIdentifier))
             {
                 var identifier = GenerateRestorationIdentifier(view, checkRestoreMethodOverload);
@@ -350,9 +351,10 @@ namespace MugenMvvmToolkit.iOS
             }
         }
 
-        public static void InititalizeRestorationIdentifier([NotNull] this UIViewController controller, bool checkRestoreMethodOverload = true)
+        public static void InititalizeRestorationIdentifier([CanBeNull] this UIViewController controller, bool checkRestoreMethodOverload = true)
         {
-            Should.NotBeNull(controller, nameof(controller));
+            if (!controller.IsAlive())
+                return;
             if (string.IsNullOrEmpty(controller.RestorationIdentifier) && GetHasState(controller))
             {
                 var identifier = GenerateRestorationIdentifier(controller, checkRestoreMethodOverload);
