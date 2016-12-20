@@ -551,6 +551,15 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\eventarg\ValueEventArgs.cs">
       <Link>Models\EventArg\ValueEventArgs.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Models\EventArg\ViewClearedEventArgs.cs">
+      <Link>Models\EventArg\ViewClearedEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Models\EventArg\ViewCreatedEventArgs.cs">
+      <Link>Models\EventArg\ViewCreatedEventArgs.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Models\EventArg\ViewInitializedEventArgs.cs">
+      <Link>Models\EventArg\ViewInitializedEventArgs.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\eventarg\ViewModelClosedEventArgs.cs">
       <Link>Models\EventArg\ViewModelClosedEventArgs.cs</Link>
     </Compile>

@@ -21,10 +21,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
-using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
@@ -47,7 +45,6 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
         {
             ReflectionExtensions.GetTypesDefault = assembly => assembly.GetTypes();
             ApplicationSettings.NavigationPresenterCanShowViewModel = (model, context, arg3) => false;
-            ViewManager.ViewCleared += OnViewCleared;
         }
 
         protected WinFormsBootstrapperBase(bool autoRunApplication = true, PlatformInfo platform = null)
@@ -117,32 +114,6 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
                     assemblies.AddRange(assembly.GetReferencedAssemblies().Select(Assembly.Load));
             }
             return assemblies;
-        }
-
-        private static void OnViewCleared(IViewManager viewManager, IViewModel viewModel, object arg3, IDataContext arg4)
-        {
-            try
-            {
-                var control = arg3 as Control;
-                if (control != null)
-                    ClearBindingsRecursively(control.Controls);
-                (arg3 as IDisposable)?.Dispose();
-            }
-            catch (Exception e)
-            {
-                Tracer.Error(e.Flatten());
-            }
-        }
-
-        private static void ClearBindingsRecursively(Control.ControlCollection collection)
-        {
-            if (collection == null)
-                return;
-            foreach (var item in collection.OfType<Control>())
-            {
-                ClearBindingsRecursively(item.Controls);
-                item.ClearBindings(true, true);
-            }
         }
 
         #endregion

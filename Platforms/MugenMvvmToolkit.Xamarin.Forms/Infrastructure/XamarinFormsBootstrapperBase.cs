@@ -192,7 +192,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         {
             ApplicationSettings.MultiViewModelPresenterCanShowViewModel = CanShowViewModelTabPresenter;
             ApplicationSettings.NavigationPresenterCanShowViewModel = CanShowViewModelNavigationPresenter;
-            ViewManager.ViewCleared += OnViewCleared;
             ApplicationSettings.ViewManagerClearDataContext = true;
             BindingServiceProvider.DataContextMemberAliases.Add(nameof(BindableObject.BindingContext));
             BindingServiceProvider.BindingMemberPriorities[nameof(BindableObject.BindingContext)] = BindingServiceProvider.DataContextMemberPriority;
@@ -219,18 +218,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             IViewMappingItem mappingItem = mappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);
             return mappingItem != null &&
                    typeof(Page).GetTypeInfo().IsAssignableFrom(mappingItem.ViewType.GetTypeInfo());
-        }
-
-        private static void OnViewCleared(IViewManager viewManager, IViewModel viewModel, object arg3, IDataContext arg4)
-        {
-            try
-            {
-                XamarinFormsExtensions.ClearBindingsRecursively(arg3 as BindableObject, true, true);
-            }
-            catch (Exception e)
-            {
-                Tracer.Error(e.Flatten(true));
-            }
         }
 
         #endregion

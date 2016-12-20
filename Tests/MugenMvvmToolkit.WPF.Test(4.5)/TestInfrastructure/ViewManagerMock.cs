@@ -4,6 +4,8 @@ using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
+using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.Test.TestInfrastructure
 {
@@ -50,6 +52,12 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
                 CleanupViewOnlyVmDelegate(viewModel);
             return Empty.FalseTask;
         }
+
+        public event EventHandler<IViewManager, ViewCreatedEventArgs> ViewCreated
+            ;
+        public event EventHandler<IViewManager, ViewInitializedEventArgs> ViewInitialized;
+
+        public event EventHandler<IViewManager, ViewClearedEventArgs> ViewCleared;
 
         #endregion
     }

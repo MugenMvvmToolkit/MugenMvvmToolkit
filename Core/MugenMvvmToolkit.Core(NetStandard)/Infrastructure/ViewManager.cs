@@ -26,6 +26,7 @@ using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure
@@ -67,6 +68,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Properties
 
+        //todo move
         [NotNull]
         public static Func<object, object> GetDataContext
         {
@@ -89,12 +91,6 @@ namespace MugenMvvmToolkit.Infrastructure
             }
         }
 
-        public static Action<IViewManager, IViewModel, object, IDataContext> ViewCreated { get; set; }
-
-        public static Action<IViewManager, IViewModel, object, IDataContext> ViewInitialized { get; set; }
-
-        public static Action<IViewManager, IViewModel, object, IDataContext> ViewCleared { get; set; }
-
         protected IThreadManager ThreadManager => _threadManager;
 
         protected IViewMappingProvider ViewMappingProvider => _viewMappingProvider;
@@ -113,8 +109,9 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 if (context == null)
                     context = DataContext.Empty;
-                object view = GetView(viewModel, context);
-                ViewCreated?.Invoke(this, viewModel, view, context);
+                IViewMappingItem mappingItem;
+                object view = GetView(viewModel, context, out mappingItem);
+                ViewCreated?.Invoke(this, new ViewCreatedEventArgs(view, viewModel, mappingItem, context));
                 tcs.SetResult(view);
             });
             return tcs.Task;
@@ -129,7 +126,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (context == null)
                     context = DataContext.Empty;
                 object view = GetView(viewMapping, context);
-                ViewCreated?.Invoke(this, null, view, context);
+                ViewCreated?.Invoke(this, new ViewCreatedEventArgs(view, null, viewMapping, context));
                 tcs.SetResult(view);
             });
             return tcs.Task;
@@ -152,7 +149,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (oldView != null)
                     CleanupViewInternal(viewModel, oldView, context);
                 InitializeView(viewModel, view, context);
-                ViewInitialized?.Invoke(this, viewModel, view, context);
+                ViewInitialized?.Invoke(this, new ViewInitializedEventArgs(view, viewModel, context));
                 tcs.SetResult(null);
             });
             return tcs.Task;
@@ -175,15 +172,21 @@ namespace MugenMvvmToolkit.Infrastructure
             return tcs.Task;
         }
 
+        public event EventHandler<IViewManager, ViewCreatedEventArgs> ViewCreated;
+
+        public event EventHandler<IViewManager, ViewInitializedEventArgs> ViewInitialized;
+
+        public event EventHandler<IViewManager, ViewClearedEventArgs> ViewCleared;
+
         #endregion
 
         #region Methods
 
-        protected virtual object GetView([NotNull] IViewModel viewModel, [NotNull] IDataContext context)
+        protected virtual object GetView([NotNull] IViewModel viewModel, [NotNull] IDataContext context, out IViewMappingItem mappingItem)
         {
             string viewBindingName = viewModel.GetViewName(context);
             Type vmType = viewModel.GetType();
-            IViewMappingItem mappingItem = ViewMappingProvider.FindMappingForViewModel(vmType, viewBindingName, true);
+            mappingItem = ViewMappingProvider.FindMappingForViewModel(vmType, viewBindingName, true);
             return GetView(mappingItem, context);
         }
 
@@ -229,7 +232,7 @@ namespace MugenMvvmToolkit.Infrastructure
         private void CleanupViewInternal(IViewModel viewModel, object view, IDataContext context)
         {
             CleanupView(viewModel, view, context);
-            ViewCleared?.Invoke(this, viewModel, view, context);
+            ViewCleared?.Invoke(this, new ViewClearedEventArgs(view, viewModel, context));
         }
 
         private static void InitializeViewInternal(IViewModel viewModel, object view)

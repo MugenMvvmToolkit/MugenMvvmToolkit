@@ -17,14 +17,18 @@
 #endregion
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Windows.Forms;
+using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.Models.IoC;
 using MugenMvvmToolkit.Modules;
 using MugenMvvmToolkit.WinForms.Infrastructure;
@@ -36,6 +40,16 @@ namespace MugenMvvmToolkit.WinForms.Modules
     public class WinFormsInitializationModule : InitializationModuleBase
     {
         #region Methods
+
+        protected override void BindViewManager(IModuleContext context, IIocContainer container)
+        {
+            container.BindToMethod<IViewManager>((iocContainer, list) =>
+            {
+                var viewManager = iocContainer.Get<ViewManager>();
+                viewManager.ViewCleared += OnViewCleared;
+                return viewManager;
+            }, DependencyLifecycle.SingleInstance);
+        }
 
         protected override void BindOperationCallbackFactory(IModuleContext context, IIocContainer container)
         {
@@ -114,6 +128,32 @@ namespace MugenMvvmToolkit.WinForms.Modules
             IViewModelPresenter presenter;
             if (ServiceProvider.TryGet(out presenter))
                 presenter.DynamicPresenters.Add(ServiceProvider.Get<DynamicViewModelWindowPresenter>());
+        }
+
+        private static void OnViewCleared(IViewManager viewManager, ViewClearedEventArgs args)
+        {
+            try
+            {
+                var control = args.View as Control;
+                if (control != null)
+                    ClearBindingsRecursively(control.Controls);
+                (args.View as IDisposable)?.Dispose();
+            }
+            catch (Exception e)
+            {
+                Tracer.Error(e.Flatten());
+            }
+        }
+
+        private static void ClearBindingsRecursively(Control.ControlCollection collection)
+        {
+            if (collection == null)
+                return;
+            foreach (var item in collection.OfType<Control>())
+            {
+                ClearBindingsRecursively(item.Controls);
+                item.ClearBindings(true, true);
+            }
         }
 
         #endregion

@@ -20,6 +20,8 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
+using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.Interfaces
 {
@@ -32,5 +34,11 @@ namespace MugenMvvmToolkit.Interfaces
         Task InitializeViewAsync([NotNull] IViewModel viewModel, [NotNull] object view, IDataContext context = null);
 
         Task CleanupViewAsync([NotNull] IViewModel viewModel, IDataContext context = null);
+
+        event EventHandler<IViewManager, ViewCreatedEventArgs> ViewCreated;
+
+        event EventHandler<IViewManager, ViewInitializedEventArgs> ViewInitialized;
+
+        event EventHandler<IViewManager, ViewClearedEventArgs> ViewCleared;
     }
 }
