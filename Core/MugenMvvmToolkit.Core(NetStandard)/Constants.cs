@@ -18,6 +18,7 @@
 
 using System;
 using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Interfaces.Mediators;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
@@ -145,6 +146,29 @@ namespace MugenMvvmToolkit.DataConstants
         {
             var type = typeof(OpeartionCallbackConstants);
             ContinueOnCapturedContext = DataConstant.Create<bool>(type, nameof(ContinueOnCapturedContext));
+        }
+
+        #endregion
+    }
+
+    public static class WindowPresenterConstants
+    {
+        #region Fields
+
+        public static readonly DataConstant<IWindowViewMediator> WindowViewMediator;
+        public static readonly DataConstant<object> RestoredView;
+        public static readonly DataConstant<bool> IsViewOpened;
+
+        #endregion
+
+        #region Constructors
+
+        static WindowPresenterConstants()
+        {
+            var type = typeof(WindowPresenterConstants);
+            WindowViewMediator = DataConstant.Create<IWindowViewMediator>(type, nameof(WindowViewMediator), true);
+            RestoredView = DataConstant.Create<object>(type, nameof(RestoredView), true);
+            IsViewOpened = DataConstant.Create<bool>(type, nameof(IsViewOpened));
         }
 
         #endregion

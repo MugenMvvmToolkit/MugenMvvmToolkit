@@ -73,10 +73,6 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
     {
         #region Fields
 
-        public static readonly DataConstant<IWindowViewMediator> WindowViewMediatorConstant;
-        public static readonly DataConstant<object> RestoredViewConstant;
-        public static readonly DataConstant<bool> IsOpenViewConstant;
-
         private readonly IThreadManager _threadManager;
         private readonly IOperationCallbackManager _callbackManager;
         private readonly IWrapperManager _wrapperManager;
@@ -87,14 +83,6 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
         #endregion
 
         #region Constructors
-
-        static DynamicViewModelWindowPresenter()
-        {
-            var type = typeof(DynamicViewModelWindowPresenter);
-            WindowViewMediatorConstant = DataConstant.Create<IWindowViewMediator>(type, nameof(WindowViewMediatorConstant), true);
-            RestoredViewConstant = DataConstant.Create<object>(type, nameof(RestoredViewConstant), true);
-            IsOpenViewConstant = DataConstant.Create<bool>(type, nameof(IsOpenViewConstant));
-        }
 
         [Preserve(Conditional = true)]
         public DynamicViewModelWindowPresenter([NotNull] IViewMappingProvider viewMappingProvider,
@@ -152,13 +140,13 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
 
         public bool Restore(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
         {
-            var view = context.GetData(RestoredViewConstant);
+            var view = context.GetData(WindowPresenterConstants.RestoredView);
             if (view == null)
                 return false;
             var mediator = TryCreateWindowViewMediator(viewModel, context);
             if (mediator == null)
                 return false;
-            mediator.UpdateView(view, context.GetData(IsOpenViewConstant), context);
+            mediator.UpdateView(view, context.GetData(WindowPresenterConstants.IsViewOpened), context);
             return true;
         }
 
@@ -210,11 +198,11 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
                 return null;
 
             IWindowViewMediator viewMediator;
-            if (!viewModel.Settings.Metadata.TryGetData(WindowViewMediatorConstant, out viewMediator))
+            if (!viewModel.Settings.Metadata.TryGetData(WindowPresenterConstants.WindowViewMediator, out viewMediator))
             {
                 viewMediator = CreateWindowViewMediator(viewModel, mappingItem.ViewType, context);
                 if (viewMediator != null)
-                    viewModel.Settings.Metadata.Add(WindowViewMediatorConstant, viewMediator);
+                    viewModel.Settings.Metadata.Add(WindowPresenterConstants.WindowViewMediator, viewMediator);
             }
             return viewMediator;
         }

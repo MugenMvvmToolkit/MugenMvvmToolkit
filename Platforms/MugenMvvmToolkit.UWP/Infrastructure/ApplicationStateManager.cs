@@ -30,7 +30,6 @@ using MugenMvvmToolkit.Models;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Navigation;
 using MugenMvvmToolkit.Attributes;
-using MugenMvvmToolkit.UWP.Infrastructure.Presenters;
 using MugenMvvmToolkit.UWP.Interfaces;
 
 namespace MugenMvvmToolkit.UWP.Infrastructure
@@ -218,8 +217,8 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
             context.AddOrUpdate(InitializationConstants.ViewModelType, viewModelType);
 
 #if WINDOWS_UWP
-            context.Add(DynamicViewModelWindowPresenter.RestoredViewConstant, element);
-            context.Add(DynamicViewModelWindowPresenter.IsOpenViewConstant, true);
+            context.Add(WindowPresenterConstants.RestoredView, element);
+            context.Add(WindowPresenterConstants.IsViewOpened, true);
 #endif
             IViewModel viewModel = _viewModelProvider.RestoreViewModel(viewModelState, context, true);
             _viewManager.InitializeViewAsync(viewModel, element, context).WithTaskExceptionHandler(this);

@@ -27,7 +27,6 @@ using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.iOS.Infrastructure.Presenters;
 using MugenMvvmToolkit.iOS.Interfaces;
 using MugenMvvmToolkit.iOS.Interfaces.Views;
 using MugenMvvmToolkit.iOS.Views;
@@ -181,8 +180,8 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
 
             if (item is IModalView)
             {
-                context.Add(DynamicViewModelWindowPresenter.RestoredViewConstant, item);
-                context.Add(DynamicViewModelWindowPresenter.IsOpenViewConstant, true);
+                context.Add(WindowPresenterConstants.RestoredView, item);
+                context.Add(WindowPresenterConstants.IsViewOpened, true);
             }
             var viewModel = _viewModelProvider.RestoreViewModel(viewModelState, context, true);
             _viewManager.InitializeViewAsync(viewModel, item, context).WithTaskExceptionHandler(this);

@@ -34,7 +34,6 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 #if APPCOMPAT
 using MugenMvvmToolkit.Android.AppCompat.Interfaces.Views;
-using MugenMvvmToolkit.Android.AppCompat.Infrastructure.Presenters;
 using MugenMvvmToolkit.Android.AppCompat.Interfaces.Mediators;
 using MugenMvvmToolkit.Android.Infrastructure;
 using MugenMvvmToolkit.Android.Infrastructure.Mediators;
@@ -275,8 +274,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         {
             return new DataContext
             {
-                {DynamicViewModelWindowPresenter.IsOpenViewConstant, true},
-                {DynamicViewModelWindowPresenter.RestoredViewConstant, target},
+                {WindowPresenterConstants.IsViewOpened, true},
+                {WindowPresenterConstants.RestoredView, target},
                 {NavigationConstants.SuppressPageNavigation, true}
             };
         }
