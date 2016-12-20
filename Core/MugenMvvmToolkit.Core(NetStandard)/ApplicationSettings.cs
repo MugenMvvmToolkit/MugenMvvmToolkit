@@ -95,6 +95,10 @@ namespace MugenMvvmToolkit
 
         public static bool ViewManagerClearDataContext { get; set; }
 
+        public static float ToastPresenterShortDuration { get; set; }
+
+        public static float ToastPresenterLongDuration { get; set; }
+
 #if !NONOTIFYDATAERROR
         public static string GetAllErrorsIndexerProperty { get; set; }
 #endif
@@ -105,6 +109,8 @@ namespace MugenMvvmToolkit
 
         internal static void SetDefaultValues()
         {
+            ToastPresenterShortDuration = 2000;
+            ToastPresenterLongDuration = 3500;
 #if !NONOTIFYDATAERROR
             GetAllErrorsIndexerProperty = "all";
 #endif

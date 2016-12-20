@@ -248,17 +248,7 @@ namespace MugenMvvmToolkit
         static ToolkitExtensions()
         {
             Sleeper = new ManualResetEvent(false);
-            ShortDuration = 2000;
-            LongDuration = 3500;
         }
-
-        #endregion
-
-        #region Properties
-
-        public static float ShortDuration { get; set; }
-
-        public static float LongDuration { get; set; }
 
         #endregion
 
@@ -1237,10 +1227,10 @@ namespace MugenMvvmToolkit
             switch (duration)
             {
                 case ToastDuration.Short:
-                    floatDuration = ShortDuration;
+                    floatDuration = ApplicationSettings.ToastPresenterShortDuration;
                     break;
                 case ToastDuration.Long:
-                    floatDuration = LongDuration;
+                    floatDuration = ApplicationSettings.ToastPresenterLongDuration;
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(duration));
