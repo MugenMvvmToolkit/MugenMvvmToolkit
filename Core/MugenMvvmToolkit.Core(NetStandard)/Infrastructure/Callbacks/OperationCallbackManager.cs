@@ -89,12 +89,6 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #endregion
 
-        #region Properties
-
-        public static bool AlwaysSerializeCallback { get; set; }
-
-        #endregion
-
         #region Implementation of IOperationCallbackManager
 
         public void Register(OperationType operation, object target, IOperationCallback callback, IDataContext context)
@@ -247,7 +241,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         private void RegisterInternal(CallbackDictionary callbacks, string id, IOperationCallback callback)
         {
             //Only for debug
-            if (AlwaysSerializeCallback && callback.IsSerializable)
+            if (ApplicationSettings.OperationCallbackManagerAlwaysSerializeCallback && callback.IsSerializable)
             {
                 var stream = _serializer.Serialize(callback);
                 stream.Position = 0;

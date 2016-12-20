@@ -99,6 +99,8 @@ namespace MugenMvvmToolkit
 
         public static float ToastPresenterLongDuration { get; set; }
 
+        public static bool OperationCallbackManagerAlwaysSerializeCallback { get; set; }
+
 #if !NONOTIFYDATAERROR
         public static string GetAllErrorsIndexerProperty { get; set; }
 #endif
