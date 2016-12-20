@@ -167,9 +167,11 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
         #region Methods
 
         [CanBeNull]
-        protected virtual IWindowViewMediator CreateWindowViewMediator([NotNull] IViewModel viewModel, Type viewType,
-            [NotNull] IDataContext context)
+        protected virtual IWindowViewMediator CreateWindowViewMediator([NotNull] IViewModel viewModel, Type viewType, [NotNull] IDataContext context)
         {
+            var windowViewMediator = ServiceProvider.WindowViewMediatorFactory?.Invoke(viewModel, viewType, context);
+            if (windowViewMediator != null)
+                return windowViewMediator;
 #if TOUCH
             var container = viewModel.GetIocContainer(true);
             if (_wrapperManager.CanWrap(viewType, typeof(IModalView), context))

@@ -27,6 +27,7 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
+using MugenMvvmToolkit.Interfaces.Mediators;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
@@ -113,6 +114,9 @@ namespace MugenMvvmToolkit
             get { return _instanceEventAggregatorFactory; }
             set { _instanceEventAggregatorFactory = value ?? GetInstanceEventAggregator; }
         }
+
+        [CanBeNull]
+        public static Func<IViewModel, Type, IDataContext, IWindowViewMediator> WindowViewMediatorFactory { get; set; }
 
         [CanBeNull]
         public static IItemsSourceDecorator ItemsSourceDecorator { get; set; }
