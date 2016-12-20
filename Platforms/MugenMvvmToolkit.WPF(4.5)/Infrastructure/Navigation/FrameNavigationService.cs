@@ -23,7 +23,6 @@ using System.Windows.Navigation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
@@ -151,7 +150,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
 
         protected virtual object CreateView(IViewMappingItem viewMapping, object parameter)
         {
-            return ServiceProvider.Get<IViewManager>().GetViewAsync(viewMapping, parameter as IDataContext).Result;
+            return ServiceProvider.ViewManager.GetViewAsync(viewMapping, parameter as IDataContext).Result;
         }
 
         private void ClearNavigationStackIfNeed(IDataContext context)

@@ -142,14 +142,14 @@ namespace MugenMvvmToolkit.Models
             {
                 if (!HasCanExecuteImpl)
                     return;
-                ApplicationSettings.AddCanExecuteChangedEvent?.Invoke(this, value);
+                ApplicationSettings.CommandAddCanExecuteChangedEvent?.Invoke(this, value);
                 _canExecuteChangedInternal += value;
             }
             remove
             {
                 if (!HasCanExecuteImpl)
                     return;
-                ApplicationSettings.RemoveCanExecuteChangedEvent?.Invoke(this, value);
+                ApplicationSettings.CommandRemoveCanExecuteChangedEvent?.Invoke(this, value);
                 _canExecuteChangedInternal -= value;
             }
         }

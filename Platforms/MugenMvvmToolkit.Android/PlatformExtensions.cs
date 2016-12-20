@@ -688,7 +688,7 @@ namespace MugenMvvmToolkit.Android
             //NOTE: trying to use current fragment, if any.
             var fragment = vm.Settings.Metadata.GetData(FragmentConstant, false);
             if (fragment == null)
-                return ViewManager.GetOrCreateView(vm, alwaysCreateNewView, dataContext);
+                return ServiceProvider.ViewManager.GetOrCreateView(vm, alwaysCreateNewView, dataContext);
             return fragment;
         }
 

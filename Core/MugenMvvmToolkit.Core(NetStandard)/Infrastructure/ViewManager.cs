@@ -47,7 +47,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         static ViewManager()
         {
-            AlwaysCreateNewView = false;
             GetDataContext = ReflectionExtensions.GetDataContext;
             SetDataContext = (o, o1) => ReflectionExtensions.SetDataContext(o, o1);
         }
@@ -89,12 +88,6 @@ namespace MugenMvvmToolkit.Infrastructure
                 _setDataContext = (item, context) => value(ToolkitExtensions.GetUnderlyingView<object>(item), context);
             }
         }
-
-        public static bool AlwaysCreateNewView { get; set; }
-
-        public static bool DisposeView { get; set; }
-
-        public static bool ClearDataContext { get; set; }
 
         public static Action<IViewManager, IViewModel, object, IDataContext> ViewCreated { get; set; }
 
@@ -186,27 +179,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Methods
 
-        public static object GetOrCreateView([CanBeNull] IViewModel vm, bool? alwaysCreateNewView = null,
-            IDataContext context = null)
-        {
-            if (vm == null)
-                return null;
-
-            object view;
-            if (!alwaysCreateNewView.GetValueOrDefault(AlwaysCreateNewView))
-            {
-                view = vm.Settings.Metadata.GetData(ViewModelConstants.View);
-                if (view != null)
-                    return view;
-            }
-
-            //NOTE: SYNC INVOKE.
-            var viewManager = vm.GetIocContainer(true).Get<IViewManager>();
-            view = viewManager.GetViewAsync(vm, context).Result;
-            viewManager.InitializeViewAsync(vm, view, context);
-            return view;
-        }
-
         protected virtual object GetView([NotNull] IViewModel viewModel, [NotNull] IDataContext context)
         {
             string viewBindingName = viewModel.GetViewName(context);
@@ -218,7 +190,7 @@ namespace MugenMvvmToolkit.Infrastructure
         protected virtual object GetView([NotNull] IViewMappingItem viewMapping, [NotNull] IDataContext context)
         {
             object viewObj = ServiceProvider.Get(viewMapping.ViewType);
-            if (DisposeView)
+            if (ApplicationSettings.ViewManagerDisposeView)
                 ServiceProvider.AttachedValueProvider.SetValue(viewObj, ViewManagerCreatorPath, null);
             if (Tracer.TraceInformation)
                 Tracer.Info("The view {0} for the view-model {1} was created.", viewObj.GetType(), viewMapping.ViewModelType);
@@ -247,7 +219,7 @@ namespace MugenMvvmToolkit.Infrastructure
             ReflectionExtensions.GetViewProperty(viewModel.GetType())?.SetValue<object>(viewModel, null);
 
             viewModel.Unsubscribe(ToolkitExtensions.GetUnderlyingView<object>(view));
-            if (DisposeView && ServiceProvider.AttachedValueProvider.Contains(view, ViewManagerCreatorPath))
+            if (ApplicationSettings.ViewManagerDisposeView && ServiceProvider.AttachedValueProvider.Contains(view, ViewManagerCreatorPath))
             {
                 ServiceProvider.AttachedValueProvider.Clear(view, ViewManagerCreatorPath);
                 (view as IDisposable)?.Dispose();
@@ -270,7 +242,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 viewModel.Subscribe(view);
             }
 
-            if (viewModel != null || ClearDataContext)
+            if (viewModel != null || ApplicationSettings.ViewManagerClearDataContext)
                 SetDataContext(view, viewModel);
             ReflectionExtensions.GetViewModelPropertySetter(view.GetType())?.Invoke(view, viewModel);
         }

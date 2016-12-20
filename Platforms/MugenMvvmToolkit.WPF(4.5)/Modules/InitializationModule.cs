@@ -64,10 +64,10 @@ namespace MugenMvvmToolkit.UWP.Modules
 #if WPF
                 if (UseNativeCommandManager)
                 {
-                    ApplicationSettings.AddCanExecuteChangedEvent = (@base, handler) => ServiceProvider
+                    ApplicationSettings.CommandAddCanExecuteChangedEvent = (@base, handler) => ServiceProvider
                        .ThreadManager
                        .Invoke(ExecutionMode.AsynchronousOnUiThread, handler, handler, (h1, h2) => System.Windows.Input.CommandManager.RequerySuggested += h1);
-                    ApplicationSettings.RemoveCanExecuteChangedEvent = (@base, handler) => ServiceProvider
+                    ApplicationSettings.CommandRemoveCanExecuteChangedEvent = (@base, handler) => ServiceProvider
                         .ThreadManager
                         .Invoke(ExecutionMode.AsynchronousOnUiThread, handler, handler, (h1, h2) => System.Windows.Input.CommandManager.RequerySuggested -= h1);
                 }

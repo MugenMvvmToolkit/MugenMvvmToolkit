@@ -24,14 +24,12 @@ using Foundation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
-using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.iOS.Interfaces.Navigation;
 using MugenMvvmToolkit.iOS.Interfaces.Views;
 using MugenMvvmToolkit.iOS.Models.EventArg;
 using MugenMvvmToolkit.iOS.Views;
-using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.ViewModels;
@@ -168,9 +166,9 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             if (viewController == null)
             {
                 if (viewModel == null)
-                    viewController = (UIViewController)ServiceProvider.Get<IViewManager>().GetViewAsync(source, dataContext).Result;
+                    viewController = (UIViewController)ServiceProvider.ViewManager.GetViewAsync(source, dataContext).Result;
                 else
-                    viewController = (UIViewController)ViewManager.GetOrCreateView(viewModel, null, dataContext);
+                    viewController = (UIViewController)ServiceProvider.ViewManager.GetOrCreateView(viewModel, null, dataContext);
             }
             viewController.SetNavigationParameter(parameter);
             bool shouldNavigate = true;

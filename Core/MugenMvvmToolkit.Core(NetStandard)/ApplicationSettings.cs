@@ -62,10 +62,10 @@ namespace MugenMvvmToolkit
         public static Func<MessageResult, string> MessagePresenterGetButtonText { get; set; }
 
         [CanBeNull]
-        public static Action<RelayCommandBase, EventHandler> AddCanExecuteChangedEvent { get; set; }
+        public static Action<RelayCommandBase, EventHandler> CommandAddCanExecuteChangedEvent { get; set; }
 
         [CanBeNull]
-        public static Action<RelayCommandBase, EventHandler> RemoveCanExecuteChangedEvent { get; set; }
+        public static Action<RelayCommandBase, EventHandler> CommandRemoveCanExecuteChangedEvent { get; set; }
 
         public static ExecutionMode PropertyChangeExecutionMode { get; set; }
 
@@ -88,6 +88,12 @@ namespace MugenMvvmToolkit
         public static bool ViewMappingProviderDisableAutoRegistration { get; set; }
 
         public static bool SerializerDisableAutoRegistration { get; set; }
+
+        public static bool ViewManagerAlwaysCreateNewView { get; set; }
+
+        public static bool ViewManagerDisposeView { get; set; }
+
+        public static bool ViewManagerClearDataContext { get; set; }
 
 #if !NONOTIFYDATAERROR
         public static string GetAllErrorsIndexerProperty { get; set; }

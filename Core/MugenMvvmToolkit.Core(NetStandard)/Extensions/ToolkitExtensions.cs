@@ -991,6 +991,25 @@ namespace MugenMvvmToolkit
 
         #region Extensions
 
+        public static object GetOrCreateView([NotNull]this IViewManager viewManager, [CanBeNull] IViewModel viewModel, bool? alwaysCreateNewView = null, IDataContext context = null)
+        {
+            if (viewModel == null)
+                return null;
+
+            object view;
+            if (!alwaysCreateNewView.GetValueOrDefault(ApplicationSettings.ViewManagerAlwaysCreateNewView))
+            {
+                view = viewModel.Settings.Metadata.GetData(ViewModelConstants.View);
+                if (view != null)
+                    return view;
+            }
+
+            //NOTE: SYNC INVOKE.
+            view = viewManager.GetViewAsync(viewModel, context).Result;
+            viewManager.InitializeViewAsync(viewModel, view, context).Wait();
+            return view;
+        }
+
         public static bool IsSupported([CanBeNull] this IModuleContext context, LoadMode supportedModes)
         {
             if (context == null)

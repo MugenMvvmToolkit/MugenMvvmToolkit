@@ -119,7 +119,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             parentPresenter.DynamicPresenters.Remove(this);
             _mainViewModelRef = ServiceProvider.WeakReferenceFactory(viewModel);
 
-            var view = (Page)ViewManager.GetOrCreateView(viewModel, true, context);
+            var view = (Page)ServiceProvider.ViewManager.GetOrCreateView(viewModel, true, context);
             NavigationPage page = view as NavigationPage;
             if (page == null && _wrapToNavigationPage)
                 page = CreateNavigationPage(view);
@@ -193,7 +193,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             ApplicationSettings.MultiViewModelPresenterCanShowViewModel = CanShowViewModelTabPresenter;
             ApplicationSettings.NavigationPresenterCanShowViewModel = CanShowViewModelNavigationPresenter;
             ViewManager.ViewCleared += OnViewCleared;
-            ViewManager.ClearDataContext = true;
+            ApplicationSettings.ViewManagerClearDataContext = true;
             BindingServiceProvider.DataContextMemberAliases.Add(nameof(BindableObject.BindingContext));
             BindingServiceProvider.BindingMemberPriorities[nameof(BindableObject.BindingContext)] = BindingServiceProvider.DataContextMemberPriority;
         }

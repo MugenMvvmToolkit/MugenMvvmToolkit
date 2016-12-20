@@ -54,6 +54,7 @@ namespace MugenMvvmToolkit
         internal static SynchronizationContext UiSynchronizationContextField;
         private static bool? _isDesignMode;
         private static IMvvmApplication _application;
+        private static IViewManager _viewManager;
 
         #endregion
 
@@ -218,6 +219,18 @@ namespace MugenMvvmToolkit
         }
 
         [NotNull]
+        public static IViewManager ViewManager
+        {
+            get
+            {
+                if (_viewManager == null)
+                    ThrowNotInitialized();
+                return _viewManager;
+            }
+            set { _viewManager = value; }
+        }
+
+        [NotNull]
         public static IEventAggregator EventAggregator
         {
             get
@@ -261,6 +274,7 @@ namespace MugenMvvmToolkit
             TryInitialize(iocContainer, ref _validatorProvider);
             TryInitialize(iocContainer, ref _viewModelProvider);
             TryInitialize(iocContainer, ref _eventAggregator);
+            TryInitialize(iocContainer, ref _viewManager);
 
             if (OperationCallbackStateManager == null)
             {

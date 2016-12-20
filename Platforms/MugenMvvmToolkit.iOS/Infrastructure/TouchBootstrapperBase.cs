@@ -56,7 +56,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
             ApplicationSettings.MultiViewModelPresenterCanShowViewModel = CanShowViewModelTabPresenter;
             ApplicationSettings.NavigationPresenterCanShowViewModel = CanShowViewModelNavigationPresenter;
             ServiceProvider.WeakReferenceFactory = PlatformExtensions.CreateWeakReference;
-            ViewManager.DisposeView = true;
+            ApplicationSettings.ViewManagerDisposeView = true;
             CompiledExpressionInvoker.SupportCoalesceExpression = false;
         }
 
@@ -87,7 +87,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
             parentPresenter.DynamicPresenters.Remove(this);
             if (WrapToNavigationController)
                 return parentPresenter.ShowAsync(viewModel, context);
-            _window.RootViewController = (UIViewController)ViewManager.GetOrCreateView(viewModel, null, context);
+            _window.RootViewController = (UIViewController)ServiceProvider.ViewManager.GetOrCreateView(viewModel, null, context);
             return new NavigationOperation();
         }
 

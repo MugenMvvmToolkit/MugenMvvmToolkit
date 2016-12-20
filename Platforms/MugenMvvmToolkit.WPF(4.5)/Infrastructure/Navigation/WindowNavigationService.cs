@@ -148,7 +148,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
 
         protected virtual object CreateView(IViewMappingItem viewMapping, object parameter)
         {
-            return ServiceProvider.Get<IViewManager>().GetViewAsync(viewMapping, parameter as IDataContext).Result;
+            return ServiceProvider.ViewManager.GetViewAsync(viewMapping, parameter as IDataContext).Result;
         }
 
         private void ClearNavigationStackIfNeed(IDataContext context)

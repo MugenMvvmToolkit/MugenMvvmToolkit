@@ -323,13 +323,13 @@ namespace MugenMvvmToolkit.Test.Models
             bool removeInvoked = false;
             EventHandler handler = (sender, args) => { };
             var relayCommand = CreateCommand(NodoAction, o => true);
-            ApplicationSettings.AddCanExecuteChangedEvent = (@base, eventHandler) =>
+            ApplicationSettings.CommandAddCanExecuteChangedEvent = (@base, eventHandler) =>
             {
                 @base.ShouldEqual(relayCommand);
                 addInvoked = true;
                 eventHandler.ShouldEqual(handler);
             };
-            ApplicationSettings.RemoveCanExecuteChangedEvent = (@base, eventHandler) =>
+            ApplicationSettings.CommandRemoveCanExecuteChangedEvent = (@base, eventHandler) =>
             {
                 @base.ShouldEqual(relayCommand);
                 removeInvoked = true;
@@ -341,8 +341,8 @@ namespace MugenMvvmToolkit.Test.Models
             addInvoked.ShouldBeTrue();
             removeInvoked.ShouldBeTrue();
 
-            ApplicationSettings.AddCanExecuteChangedEvent = null;
-            ApplicationSettings.RemoveCanExecuteChangedEvent = null;
+            ApplicationSettings.CommandAddCanExecuteChangedEvent = null;
+            ApplicationSettings.CommandRemoveCanExecuteChangedEvent = null;
         }
 
         [TestMethod]

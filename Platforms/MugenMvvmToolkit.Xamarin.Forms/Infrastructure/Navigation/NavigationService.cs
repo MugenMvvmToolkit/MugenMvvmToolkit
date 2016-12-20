@@ -23,7 +23,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
-using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
@@ -196,9 +195,9 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             if (page == null)
             {
                 if (viewModel == null)
-                    page = (Page)ServiceProvider.Get<IViewManager>().GetViewAsync(source, dataContext).Result;
+                    page = (Page)ServiceProvider.ViewManager.GetViewAsync(source, dataContext).Result;
                 else
-                    page = (Page)ViewManager.GetOrCreateView(viewModel, null, dataContext);
+                    page = (Page)ServiceProvider.ViewManager.GetOrCreateView(viewModel, null, dataContext);
             }
             page.SetNavigationParameter(parameter);
             ClearNavigationStackIfNeed(dataContext, page, _rootPage.PushAsync(page, animated));

@@ -85,11 +85,11 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
         static AndroidBootstrapperBase()
         {
-            ViewManager.AlwaysCreateNewView = true;
-            ReflectionExtensions.GetTypesDefault = assembly => assembly.GetTypes();
             ServiceProvider.WeakReferenceFactory = PlatformExtensions.CreateWeakReference;
+            ApplicationSettings.ViewManagerAlwaysCreateNewView = true;
             ApplicationSettings.MultiViewModelPresenterCanShowViewModel = CanShowViewModelTabPresenter;
             ApplicationSettings.NavigationPresenterCanShowViewModel = CanShowViewModelNavigationPresenter;
+            ReflectionExtensions.GetTypesDefault = assembly => assembly.GetTypes();
             Locker = new object();
         }
 
