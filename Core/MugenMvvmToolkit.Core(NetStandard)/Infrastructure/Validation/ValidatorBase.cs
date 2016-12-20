@@ -134,7 +134,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
         static ValidatorBase()
         {
-            ValidateOnPropertyChangedDefault = true;
 #if NET_STANDARD
             EmptyMappingDictionary =
                 new ReadOnlyDictionary<string, ICollection<string>>(new Dictionary<string, ICollection<string>>());
@@ -155,7 +154,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         {
             _errors = new Dictionary<string, IList<object>>(StringComparer.Ordinal);
             _validatingMembers = new List<string>();
-            ValidateOnPropertyChanged = ValidateOnPropertyChangedDefault;
+            ValidateOnPropertyChanged = ApplicationSettings.ValidatorValidateOnPropertyChanged;
         }
 
         #endregion
@@ -342,8 +341,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         #endregion
 
         #region Properties
-
-        public static bool ValidateOnPropertyChangedDefault { get; set; }
 
         protected Dictionary<string, IList<object>> Errors => _errors;
 

@@ -101,6 +101,8 @@ namespace MugenMvvmToolkit
 
         public static bool OperationCallbackManagerAlwaysSerializeCallback { get; set; }
 
+        public static bool ValidatorValidateOnPropertyChanged { get; set; }
+
 #if !NONOTIFYDATAERROR
         public static string GetAllErrorsIndexerProperty { get; set; }
 #endif
@@ -116,6 +118,7 @@ namespace MugenMvvmToolkit
 #if !NONOTIFYDATAERROR
             GetAllErrorsIndexerProperty = "all";
 #endif
+            ValidatorValidateOnPropertyChanged = true;
             MultiViewModelDisposeViewModelOnRemove = true;
             PropertyChangeExecutionMode = ExecutionMode.AsynchronousOnUiThread;
             ViewModelObservationMode = ObservationMode.ParentObserveChild;
