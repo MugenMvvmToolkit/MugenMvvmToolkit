@@ -369,7 +369,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
 
         private void OnViewDidAppearHandlerRefresh(UIViewController sender, ValueEventArgs<bool> args)
         {
-            ((IViewControllerView)sender).Mediator.ViewDidAppearHandler -= OnViewDidAppearHandlerNew;
+            ((IViewControllerView)sender).Mediator.ViewDidAppearHandler -= OnViewDidAppearHandlerRefresh;
             RaiseNavigated(sender, NavigationMode.Refresh, sender.GetNavigationParameter() as string);
         }
 
