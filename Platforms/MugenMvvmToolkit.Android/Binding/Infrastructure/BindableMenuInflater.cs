@@ -18,9 +18,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Xml;
-using System.Xml.Serialization;
 using Android.Content;
 using Android.Runtime;
 using Android.Views;
@@ -34,10 +32,8 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
     {
         #region Fields
 
-        private readonly Dictionary<int, MenuTemplate> _menuCache;
+        private static readonly Dictionary<int, object> MenuCache;
         private readonly Context _context;
-        //todo remove all
-        private static readonly XmlSerializer Serializer;
 
         #endregion
 
@@ -45,7 +41,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         static BindableMenuInflater()
         {
-            Serializer = new XmlSerializer(typeof(MenuTemplate), string.Empty);
+            MenuCache = new Dictionary<int, object>();
         }
 
         public BindableMenuInflater([NotNull] Context context)
@@ -53,7 +49,6 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         {
             Should.NotBeNull(context, nameof(context));
             _context = context;
-            _menuCache = new Dictionary<int, MenuTemplate>();
         }
 
         [Preserve(Conditional = true)]
@@ -77,9 +72,9 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             Inflate(menuRes, menu, _context.GetActivity() ?? _context);
         }
 
-        private static bool IsDefaultMenu(XmlDocument document)
+        private static bool IsDefaultMenu(XmlReader reader)
         {
-            var value = document.NameTable.Get("http://schemas.android.com/apk/res/android");
+            var value = reader.NameTable.Get("http://schemas.android.com/apk/res/android");
             return !string.IsNullOrEmpty(value);
         }
 
@@ -92,6 +87,14 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                 menuInflater.Inflate(menuRes, menu);
         }
 
+        private static bool TryGetTemplate(int res, out MenuTemplate template)
+        {
+            object value;
+            var result = MenuCache.TryGetValue(res, out value);
+            template = (MenuTemplate)value;
+            return result;
+        }
+
         #endregion
 
         #region Implementation of interfaces
@@ -99,7 +102,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         public virtual void Inflate(int menuRes, IMenu menu, object parent)
         {
             MenuTemplate template;
-            if (_menuCache.TryGetValue(menuRes, out template))
+            if (TryGetTemplate(menuRes, out template))
             {
                 if (template == null)
                     InflateDefault(menuRes, menu);
@@ -110,22 +113,16 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             {
                 using (var reader = _context.Resources.GetLayout(menuRes))
                 {
-                    //NOTE XDocument throws an error.
-                    var document = new XmlDocument();
-                    document.Load(reader);
-                    if (IsDefaultMenu(document))
+                    if (IsDefaultMenu(reader))
                     {
                         InflateDefault(menuRes, menu);
-                        _menuCache[menuRes] = null;
+                        MenuCache[menuRes] = null;
                     }
                     else
                     {
-                        using (var stringReader = new StringReader(PlatformExtensions.XmlTagsToUpper(document.InnerXml)))
-                        {
-                            var menuWrapper = (MenuTemplate)Serializer.Deserialize(stringReader);
-                            menuWrapper.Apply(menu, _context, parent);
-                            _menuCache[menuRes] = menuWrapper;
-                        }
+                        var menuWrapper = reader.Deserialize<MenuTemplate>();
+                        menuWrapper.Apply(menu, _context, parent);
+                        MenuCache[menuRes] = menuWrapper;
                     }
                 }
             }

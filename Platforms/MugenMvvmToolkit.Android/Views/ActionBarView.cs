@@ -18,9 +18,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Xml;
-using System.Xml.Serialization;
 using Android.App;
 using Android.Content;
 using Android.Content.Res;
@@ -55,8 +53,8 @@ namespace MugenMvvmToolkit.Android.Views
     {
         #region Fields
 
-        private static readonly XmlSerializer Serializer;
         private static readonly EventHandler<Activity, EventArgs> DestroyedHandler;
+        private static readonly Dictionary<int, object> TemplateCache;
 
         private readonly int _resourceId;
         private readonly int _tabContentId;
@@ -69,7 +67,7 @@ namespace MugenMvvmToolkit.Android.Views
         static ActionBarView()
         {
             DestroyedHandler = ActivityViewOnDestroyed;
-            Serializer = new XmlSerializer(typeof(ActionBarTemplate), string.Empty);
+            TemplateCache = new Dictionary<int, object>();
         }
 
         private ActionBarView(IntPtr javaReference, JniHandleOwnership transfer)
@@ -127,17 +125,18 @@ namespace MugenMvvmToolkit.Android.Views
             {
                 if (_tabContentId != int.MinValue)
                     ServiceProvider.AttachedValueProvider.SetValue(actionBar, ActionBarTemplate.TabContentIdKey, _tabContentId);
-                using (XmlReader reader = Context.Resources.GetLayout(_resourceId))
+
+
+                object templateObj;
+                if (!TemplateCache.TryGetValue(_resourceId, out templateObj))
                 {
-                    //NOTE XDocument throws an error.
-                    var document = new XmlDocument();
-                    document.Load(reader);
-                    using (var stringReader = new StringReader(PlatformExtensions.XmlTagsToUpper(document.InnerXml)))
+                    using (XmlReader reader = Context.Resources.GetLayout(_resourceId))
                     {
-                        var barTemplate = (ActionBarTemplate)Serializer.Deserialize(stringReader);
-                        barTemplate.Apply(activity);
+                        templateObj = reader.Deserialize<ActionBarTemplate>();
+                        TemplateCache[_resourceId] = templateObj;
                     }
                 }
+                ((ActionBarTemplate)templateObj).Apply(activity);
             }
 
             if (string.IsNullOrEmpty(_bind))

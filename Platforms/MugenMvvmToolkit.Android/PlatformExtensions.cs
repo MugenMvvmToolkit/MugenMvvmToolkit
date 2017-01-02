@@ -20,11 +20,10 @@ using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using System.Xml.Linq;
+using System.Xml;
 using Android.App;
 using Android.Content;
 using Android.OS;
@@ -33,7 +32,9 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Android.Binding.Infrastructure;
 using MugenMvvmToolkit.Android.Binding.Interfaces;
+using MugenMvvmToolkit.Android.Binding.Models;
 using MugenMvvmToolkit.Android.Infrastructure;
 using MugenMvvmToolkit.Android.Infrastructure.Mediators;
 using MugenMvvmToolkit.Android.Interfaces;
@@ -42,7 +43,6 @@ using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Android.Models;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
@@ -257,6 +257,7 @@ namespace MugenMvvmToolkit.Android
         private static Func<object, bool> _isActionBar;
         private static WeakReference _activityRef;
         private static Func<object, IDataContext, Type, object> _mediatorFactory;
+        private static Func<object, Context, IDataContext, IItemsSourceAdapter> _itemsSourceAdapterFactory;
 
         #endregion
 
@@ -342,6 +343,17 @@ namespace MugenMvvmToolkit.Android
         }
 
         [NotNull]
+        public static Func<object, Context, IDataContext, IItemsSourceAdapter> ItemsSourceAdapterFactory
+        {
+            get { return _itemsSourceAdapterFactory; }
+            set
+            {
+                Should.PropertyNotBeNull(value);
+                _itemsSourceAdapterFactory = value;
+            }
+        }
+
+        [NotNull]
         public static Func<object, Context, object, int?, IDataTemplateSelector, object> GetContentView
         {
             get
@@ -391,6 +403,9 @@ namespace MugenMvvmToolkit.Android
                 _isActionBar = value;
             }
         }
+
+        [CanBeNull]
+        public static Action<MenuItemTemplate, IMenuItem, XmlPropertySetter> MenuItemTemplateInitalized;
 
         public static Activity CurrentActivity => (Activity)_activityRef.Target;
 
@@ -692,22 +707,78 @@ namespace MugenMvvmToolkit.Android
             return fragment;
         }
 
-        internal static string XmlTagsToUpper(string xml)
+        internal static TItem Deserialize<TItem>(this XmlReader xmlReader)
         {
-            var xDocument = XDocument.Parse(xml);
-            foreach (var descendant in xDocument.Descendants())
+            return (TItem)Deserialize(typeof(TItem), xmlReader, true);
+        }
+
+        private static object Deserialize(Type type, XmlReader reader, bool needMoveReader)
+        {
+            object result = null;
+            while (true)
             {
-                foreach (var attribute in descendant.Attributes().ToArray())
+                if (needMoveReader)
                 {
-                    if (attribute.IsNamespaceDeclaration)
-                        continue;
-                    attribute.Remove();
-                    var newAttribute = new XAttribute(attribute.Name.ToString().ToUpper(), attribute.Value);
-                    descendant.Add(newAttribute);
+                    if (!reader.Read())
+                        break;
                 }
-                descendant.Name = descendant.Name.ToString().ToUpper();
+                needMoveReader = true;
+                switch (reader.NodeType)
+                {
+                    case XmlNodeType.Element:
+                        if (result == null)
+                        {
+                            result = type.GetConstructor(Empty.Array<Type>())?.InvokeEx() ?? Activator.CreateInstance(type);
+                            for (int attInd = 0; attInd < reader.AttributeCount; attInd++)
+                            {
+                                reader.MoveToAttribute(attInd);
+                                var property = type.GetProperty(reader.Name, BindingFlags.Instance | BindingFlags.IgnoreCase | BindingFlags.Public);
+                                if (property != null)
+                                    property.SetValueEx(result, reader.Value);
+                            }
+                            reader.MoveToElement();
+                            if (reader.IsEmptyElement)
+                                return result;
+                        }
+                        else
+                        {
+                            Type elementType = null;
+                            bool isList = false;
+                            var propertyInfo = type.GetProperty(reader.Name, BindingFlags.Instance | BindingFlags.IgnoreCase | BindingFlags.Public);
+                            if (propertyInfo != null)
+                                elementType = propertyInfo.PropertyType;
+                            else
+                            {
+                                propertyInfo = type.GetProperty("Items", BindingFlags.Instance | BindingFlags.IgnoreCase | BindingFlags.Public);
+                                if (propertyInfo != null)
+                                {
+                                    elementType = propertyInfo.PropertyType.GenericTypeArguments[0];
+                                    isList = true;
+                                }
+                            }
+                            if (elementType != null)
+                            {
+                                var item = Deserialize(elementType, reader, false);
+                                if (isList)
+                                {
+                                    var items = propertyInfo.GetValueEx<IList>(result);
+                                    if (items == null)
+                                    {
+                                        items = (IList)(propertyInfo.PropertyType.GetConstructor(Empty.Array<Type>())?.InvokeEx() ?? Activator.CreateInstance(propertyInfo.PropertyType));
+                                        propertyInfo.SetValueEx(result, items);
+                                    }
+                                    items.Add(item);
+                                }
+                                else
+                                    propertyInfo.SetValueEx(result, item);
+                            }
+                        }
+                        break;
+                    case XmlNodeType.EndElement:
+                        return result;
+                }
             }
-            return xDocument.ToString();
+            return result;
         }
 
         internal static void ValidateTemplate(string itemsSource, ICollection items)

@@ -18,7 +18,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Xml.Serialization;
 using Android.Content;
 using Android.Views;
 using MugenMvvmToolkit.Android.Binding.Infrastructure;
@@ -27,30 +26,22 @@ using MugenMvvmToolkit.Binding;
 
 namespace MugenMvvmToolkit.Android.Binding.Models
 {
-    [XmlRoot("MENU", Namespace = "")]
     public sealed class MenuTemplate : IMenuTemplate
     {
         #region Properties
 
-        [XmlAttribute("DATACONTEXT")]
         public string DataContext { get; set; }
 
-        [XmlAttribute("BIND")]
         public string Bind { get; set; }
 
-        [XmlAttribute("ISENABLED")]
         public string IsEnabled { get; set; }
 
-        [XmlAttribute("ISVISIBLE")]
         public string IsVisible { get; set; }
 
-        [XmlAttribute("ITEMSSOURCE")]
         public string ItemsSource { get; set; }
 
-        [XmlElement("ITEMTEMPLATE")]
         public MenuItemTemplate ItemTemplate { get; set; }
 
-        [XmlElement("MENUITEM")]
         public List<MenuItemTemplate> Items { get; set; }
 
         #endregion

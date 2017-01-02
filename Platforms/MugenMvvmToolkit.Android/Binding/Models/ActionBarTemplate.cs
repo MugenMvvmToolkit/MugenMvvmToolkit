@@ -17,7 +17,6 @@
 #endregion
 
 using System.Collections.Generic;
-using System.Xml.Serialization;
 using Android.App;
 using Android.OS;
 using MugenMvvmToolkit.Binding;
@@ -37,7 +36,6 @@ namespace MugenMvvmToolkit.Android.AppCompat.Models
 namespace MugenMvvmToolkit.Android.Binding.Models
 #endif
 {
-    [XmlRoot("ACTIONBAR")]
     public sealed class ActionBarTemplate
     {
         #region Fields
@@ -50,95 +48,66 @@ namespace MugenMvvmToolkit.Android.Binding.Models
 
         #region Properties
 
-        [XmlAttribute("DATACONTEXT")]
         public string DataContext { get; set; }
 
-        [XmlAttribute("BIND")]
         public string Bind { get; set; }
 
-        [XmlAttribute("BACKGROUNDDRAWABLE")]
         public string BackgroundDrawable { get; set; }
 
-        [XmlAttribute("CUSTOMVIEW")]
         public string CustomView { get; set; }
 
-        [XmlAttribute("DISPLAYHOMEASUPENABLED")]
         public string DisplayHomeAsUpEnabled { get; set; }
 
-        [XmlAttribute("DISPLAYOPTIONS")]
         public string DisplayOptions { get; set; }
 
-        [XmlAttribute("DISPLAYSHOWCUSTOMENABLED")]
         public string DisplayShowCustomEnabled { get; set; }
 
-        [XmlAttribute("DISPLAYSHOWHOMEENABLED")]
         public string DisplayShowHomeEnabled { get; set; }
 
-        [XmlAttribute("DISPLAYSHOWTITLEENABLED")]
         public string DisplayShowTitleEnabled { get; set; }
 
-        [XmlAttribute("DISPLAYUSELOGOENABLED")]
         public string DisplayUseLogoEnabled { get; set; }
 
-        [XmlAttribute("HOMEBUTTONENABLED")]
         public string HomeButtonEnabled { get; set; }
 
-        [XmlAttribute("HOMEBUTTONCLICK")]
         public string HomeButtonClick { get; set; }
 
-        [XmlAttribute("BACKBUTTONCLICK")]
         public string BackButtonClick
         {
             get { return HomeButtonClick; }
             set { HomeButtonClick = value; }
         }
 
-        [XmlAttribute("ICON")]
         public string Icon { get; set; }
 
-        [XmlAttribute("LOGO")]
         public string Logo { get; set; }
 
-        [XmlAttribute("NAVIGATIONMODE")]
         public string NavigationMode { get; set; }
 
-        [XmlAttribute("SPLITBACKGROUNDDRAWABLE")]
         public string SplitBackgroundDrawable { get; set; }
 
-        [XmlAttribute("STACKEDBACKGROUNDDRAWABLE")]
         public string StackedBackgroundDrawable { get; set; }
 
-        [XmlAttribute("ISSHOWING")]
         public string IsShowing { get; set; }
 
-        [XmlAttribute("SUBTITLE")]
         public string Subtitle { get; set; }
 
-        [XmlAttribute("TITLE")]
         public string Title { get; set; }
 
-        [XmlAttribute("VISIBLE")]
         public string Visible { get; set; }
 
-        [XmlAttribute("SELECTEDITEM")]
         public string SelectedItem { get; set; }
 
-        [XmlAttribute("ITEMSSOURCE")]
         public string ItemsSource { get; set; }
 
-        [XmlElement("RESTORETABSELECTEDINDEX")]
         public string RestoreTabSelectedIndex { get; set; }
 
-        [XmlElement("TABTEMPLATE")]
         public ActionBarTabTemplate TabTemplate { get; set; }
 
-        [XmlElement("TAB")]
-        public List<ActionBarTabTemplate> Tabs { get; set; }
+        public List<ActionBarTabTemplate> Items { get; set; }
 
-        [XmlAttribute("CONTEXTACTIONBARVISIBLE")]
         public string ContextActionBarVisible { get; set; }
 
-        [XmlAttribute("CONTEXTACTIONBARTEMPLATE")]
         public string ContextActionBarTemplate { get; set; }
 
         #endregion
@@ -147,7 +116,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
 
         public void Apply(Activity activity)
         {
-            PlatformExtensions.ValidateTemplate(ItemsSource, Tabs);
+            PlatformExtensions.ValidateTemplate(ItemsSource, Items);
             var actionBar = activity.GetActionBar();
 
             var setter = new XmlPropertySetter(actionBar, activity);
@@ -179,12 +148,12 @@ namespace MugenMvvmToolkit.Android.Binding.Models
 
             if (string.IsNullOrEmpty(ItemsSource))
             {
-                if (Tabs != null)
+                if (Items != null)
                 {
                     ActionBar.Tab firstTab = null;
-                    for (int index = 0; index < Tabs.Count; index++)
+                    for (int index = 0; index < Items.Count; index++)
                     {
-                        var tab = Tabs[index].CreateTab(actionBar);
+                        var tab = Items[index].CreateTab(actionBar);
                         if (firstTab == null)
                             firstTab = tab;
                         actionBar.AddTab(tab);

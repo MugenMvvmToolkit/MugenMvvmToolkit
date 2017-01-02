@@ -28,11 +28,9 @@ using Android.Widget;
 using Java.Lang;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Android.Binding.Interfaces;
-using MugenMvvmToolkit.Android.Binding.Modules;
 using MugenMvvmToolkit.Android.Interfaces;
 using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Interfaces.Models;
 using Object = Java.Lang.Object;
 
 namespace MugenMvvmToolkit.Android.Binding.Infrastructure
@@ -83,8 +81,6 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         #region Fields
 
-        private static Func<object, Context, IDataContext, IItemsSourceAdapter> _factory;
-
         private IEnumerable _itemsSource;
         private readonly object _container;
         private readonly NotifyCollectionChangedEventHandler _weakHandler;
@@ -102,11 +98,6 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         #endregion
 
         #region Constructors
-
-        static ItemsSourceAdapter()
-        {
-            _factory = (o, context, arg3) => new ItemsSourceAdapter(o, context, !ReferenceEquals(ViewGroupItemsSourceGenerator.Context, arg3));
-        }
 
         public ItemsSourceAdapter([NotNull] object container, Context context, bool listenCollectionChanges, string dropDownItemTemplateSelectorName = null,
             string itemTemplateSelectorName = null, string dropDownItemTemplateName = null, string itemTemplateName = null)
@@ -143,17 +134,6 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         #endregion
 
         #region Properties
-
-        [NotNull]
-        public static Func<object, Context, IDataContext, IItemsSourceAdapter> Factory
-        {
-            get { return _factory; }
-            set
-            {
-                Should.PropertyNotBeNull(value);
-                _factory = value;
-            }
-        }
 
         protected object Container => _container;
 

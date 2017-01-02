@@ -698,7 +698,7 @@ namespace MugenMvvmToolkit.Android.Binding
 
         public static void RegisterMenuItemBaseMembers()
         {
-            MenuItemTemplate.Initalized += MenuItemTemplateInitialized;
+            PlatformExtensions.MenuItemTemplateInitalized += MenuItemTemplateInitialized;
             BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.MenuItem.Click);
             MemberProvider.Register(AttachedBindingMember.CreateNotifiableMember(AttachedMembers.MenuItem.IsChecked,
                 (info, item) => item.IsChecked, (info, item, value) =>
@@ -961,7 +961,7 @@ namespace MugenMvvmToolkit.Android.Binding
             var listAdapter = sender.Adapter as IItemsSourceAdapter;
             if (listAdapter == null)
             {
-                listAdapter = ItemsSourceAdapter.Factory(sender, sender.Context, DataContext.Empty);
+                listAdapter = PlatformExtensions.ItemsSourceAdapterFactory(sender, sender.Context, DataContext.Empty);
                 sender.Adapter = listAdapter;
             }
             listAdapter.ItemsSource = args.NewValue;
@@ -1171,7 +1171,7 @@ namespace MugenMvvmToolkit.Android.Binding
             var adapter = GetAdapter(container) as IItemsSourceAdapter;
             if (adapter == null)
             {
-                adapter = ItemsSourceAdapter.Factory(container, container.Context, DataContext.Empty);
+                adapter = PlatformExtensions.ItemsSourceAdapterFactory(container, container.Context, DataContext.Empty);
                 SetAdapter(container, adapter);
             }
             adapter.ItemsSource = args.NewValue;

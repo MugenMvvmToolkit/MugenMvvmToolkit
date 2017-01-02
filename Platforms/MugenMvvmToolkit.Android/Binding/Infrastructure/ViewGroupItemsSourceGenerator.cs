@@ -48,7 +48,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         {
             Should.NotBeNull(viewGroup, nameof(viewGroup));
             _viewGroup = viewGroup;
-            _adapter = ItemsSourceAdapter.Factory(viewGroup, viewGroup.Context, Context);
+            _adapter = PlatformExtensions.ItemsSourceAdapterFactory(viewGroup, viewGroup.Context, Context);
             _collectionViewManagerMember = BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(viewGroup.GetType(), AttachedMembers.ViewGroup.CollectionViewManager, false, false);

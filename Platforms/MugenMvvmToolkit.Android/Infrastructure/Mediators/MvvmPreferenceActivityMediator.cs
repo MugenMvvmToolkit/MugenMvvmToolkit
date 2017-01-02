@@ -60,7 +60,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         public override void AddPreferencesFromResource(Action<int> baseAddPreferencesFromResource, int preferencesResId)
         {
-            base.AddPreferencesFromResource(baseAddPreferencesFromResource, preferencesResId);
             var activity = Target as PreferenceActivity;
             if (activity == null)
             {

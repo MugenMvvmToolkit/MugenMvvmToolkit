@@ -18,10 +18,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Xml.Serialization;
 using Android.Content;
 using Android.Views;
-using JetBrains.Annotations;
 using MugenMvvmToolkit.Android.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding;
 
@@ -31,82 +29,54 @@ namespace MugenMvvmToolkit.Android.Binding.Models
     {
         #region Properties
 
-        [CanBeNull]
-        public static Action<MenuItemTemplate, IMenuItem, XmlPropertySetter> Initalized;
-
-        [XmlAttribute("BIND")]
         public string Bind { get; set; }
 
-        [XmlAttribute("DATACONTEXT")]
         public string DataContext { get; set; }
 
-        [XmlAttribute("GROUP")]
         public string Group { get; set; }
 
-        [XmlAttribute("ALPHABETICSHORTCUT")]
         public string AlphabeticShortcut { get; set; }
 
-        [XmlAttribute("ICON")]
         public string Icon { get; set; }
 
-        [XmlAttribute("ISCHECKABLE")]
         public string IsCheckable { get; set; }
 
-        [XmlAttribute("ISCHECKED")]
         public string IsChecked { get; set; }
 
-        [XmlAttribute("ISENABLED")]
         public string IsEnabled { get; set; }
 
-        [XmlAttribute("ISVISIBLE")]
         public string IsVisible { get; set; }
 
-        [XmlAttribute("NUMERICSHORTCUT")]
         public string NumericShortcut { get; set; }
 
-        [XmlAttribute("TITLE")]
         public string Title { get; set; }
 
-        [XmlAttribute("TITLECONDENSED")]
         public string TitleCondensed { get; set; }
 
-        [XmlAttribute("CLICK")]
         public string Click { get; set; }
 
-        [XmlAttribute("COMMANDPARAMETER")]
         public string CommandParameter { get; set; }
 
-        [XmlAttribute("ITEMSSOURCE")]
         public string ItemsSource { get; set; }
 
-        [XmlAttribute("SHOWASACTION")]
         public string ShowAsAction { get; set; }
 
-        [XmlAttribute("ISACTIONVIEWEXPANDED")]
         public string IsActionViewExpanded { get; set; }
 
-        [XmlAttribute("ACTIONVIEW")]
         public string ActionView { get; set; }
 
-        [XmlAttribute("ACTIONVIEWTEMPLATESELECTOR")]
         public string ActionViewTemplateSelector { get; set; }
 
-        [XmlAttribute("ACTIONVIEWBIND")]
         public string ActionViewBind { get; set; }
 
-        [XmlAttribute("ACTIONPROVIDER")]
         public string ActionProvider { get; set; }
 
-        [XmlAttribute("ACTIONPROVIDERTEMPLATESELECTOR")]
         public string ActionProviderTemplateSelector { get; set; }
 
-        [XmlAttribute("ACTIONPROVIDERBIND")]
         public string ActionProviderBind { get; set; }
 
-        [XmlElement("ITEMTEMPLATE")]
         public MenuItemTemplate ItemTemplate { get; set; }
 
-        [XmlElement("MENUITEM")]
         public List<MenuItemTemplate> Items { get; set; }
 
         #endregion
@@ -147,7 +117,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
         private void ApplyInternal(IMenu menu, Context context, int id, int order, object dataContext, bool useContext)
         {
             PlatformExtensions.ValidateTemplate(ItemsSource, Items);
-            bool isSubMenu = !string.IsNullOrEmpty(ItemsSource) || (Items != null && Items.Count > 0);
+            bool isSubMenu = !string.IsNullOrEmpty(ItemsSource) || Items != null && Items.Count > 0;
             XmlPropertySetter setter;
             int groupId;
             int.TryParse(Group, out groupId);
@@ -200,7 +170,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
             setter.SetStringProperty(nameof(CommandParameter), CommandParameter);
             setter.SetBinding(nameof(Click), Click, false);
 
-            Initalized?.Invoke(this, menuItem, setter);
+            PlatformExtensions.MenuItemTemplateInitalized?.Invoke(this, menuItem, setter);
 
             setter.SetBinding(nameof(ActionViewTemplateSelector), ActionViewTemplateSelector, false);
             setter.SetBinding(nameof(ActionProviderTemplateSelector), ActionProviderTemplateSelector, false);

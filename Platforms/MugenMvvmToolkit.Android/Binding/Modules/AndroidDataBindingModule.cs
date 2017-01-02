@@ -30,7 +30,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
     {
         #region Properties
 
-        public int Priority => ApplicationSettings.ModulePriorityBinding + 1;
+        public int Priority => ApplicationSettings.ModulePriorityInitialization + 1;
 
         #endregion
 
@@ -44,6 +44,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                 BindingServiceProvider.BindingProvider.DefaultBehaviors.Add(DisableEqualityCheckingBehavior.TargetTrueNotTwoWay);
             }
 
+            PlatformExtensions.ItemsSourceAdapterFactory = (o, ctx, arg3) => new ItemsSourceAdapter(o, ctx, !ReferenceEquals(ViewGroupItemsSourceGenerator.Context, arg3));
             context.TryRegisterDataTemplateSelectorsAndValueConverters(null);
             MugenMvvmToolkit.Binding.AttachedMembersRegistration.RegisterDefaultMembers();
 

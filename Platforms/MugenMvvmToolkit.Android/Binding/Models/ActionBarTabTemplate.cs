@@ -17,18 +17,15 @@
 #endregion
 
 using System.Linq;
-using System.Xml.Serialization;
 using Android.App;
 using Android.Views;
-using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Android.Binding.Infrastructure;
 using MugenMvvmToolkit.Android.Infrastructure;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 #if APPCOMPAT
-using MugenMvvmToolkit.Android.AppCompat.Modules;
-using MugenMvvmToolkit.Android.AppCompat.Views;
+using MugenMvvmToolkit.Android.Binding;
 using Fragment = Android.Support.V4.App.Fragment;
 using FragmentTransaction = Android.Support.V4.App.FragmentTransaction;
 using ActionBar = Android.Support.V7.App.ActionBar;
@@ -191,34 +188,24 @@ namespace MugenMvvmToolkit.Android.Binding.Models
 
         #region Properties
 
-        [XmlAttribute("DATACONTEXT")]
         public string DataContext { get; set; }
 
-        [XmlAttribute("BIND")]
         public string Bind { get; set; }
 
-        [XmlAttribute("CONTENT")]
         public string Content { get; set; }
 
-        [XmlAttribute("CONTENTTEMPLATE")]
         public string ContentTemplate { get; set; }
 
-        [XmlAttribute("CONTENTTEMPLATESELECTOR")]
         public string ContentTemplateSelector { get; set; }
 
-        [XmlAttribute("CONTENTDESCRIPTION")]
         public string ContentDescription { get; set; }
 
-        [XmlAttribute("CUSTOMVIEW")]
         public string CustomView { get; set; }
 
-        [XmlAttribute("ICON")]
         public string Icon { get; set; }
 
-        [XmlAttribute("TEXT")]
         public string Text { get; set; }
 
-        [XmlAttribute("TAG")]
         public string Tag { get; set; }
 
         #endregion
