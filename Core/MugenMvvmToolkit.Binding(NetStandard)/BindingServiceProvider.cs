@@ -46,10 +46,6 @@ namespace MugenMvvmToolkit.Binding
         private static IVisualTreeManager _visualTreeManager;
         private static IBindingResourceResolver _resourceResolver;
         private static IWeakEventManager _weakEventManager;
-        private static readonly Dictionary<string, int> MemberPriorities;
-        private static readonly List<string> FakeMemberPrefixesField;
-        private static readonly HashSet<string> DataContextMemberAliasesField;
-        private static readonly Dictionary<string, IBindingBehavior> BindingModeToBehaviorField;
         private static readonly Dictionary<string, IBindingPath> BindingPathCache;
         private static Func<string, IBindingPath> _bindingPathFactory;
         private static Func<CultureInfo> _bindingCultureInfo;
@@ -62,8 +58,8 @@ namespace MugenMvvmToolkit.Binding
 
         static BindingServiceProvider()
         {
-            BindingModeToBehaviorField = new Dictionary<string, IBindingBehavior>();
-            MemberPriorities = new Dictionary<string, int>
+            BindingModeToBehavior = new Dictionary<string, IBindingBehavior>();
+            BindingMemberPriorities = new Dictionary<string, int>
             {
                 {AttachedMemberConstants.DataContext, DataContextMemberPriority},
                 {AttachedMemberConstants.ItemTemplate, TemplateMemberPriority},
@@ -72,12 +68,12 @@ namespace MugenMvvmToolkit.Binding
                 {AttachedMemberConstants.ContentTemplateSelector, TemplateMemberPriority},
                 {AttachedMemberConstants.CommandParameter, TemplateMemberPriority}
             };
-            FakeMemberPrefixesField = new List<string>
+            FakeMemberPrefixes = new List<string>
             {
                 "_Fake",
                 "Fake"
             };
-            DataContextMemberAliasesField = new HashSet<string>(StringComparer.Ordinal)
+            DataContextMemberAliases = new HashSet<string>(StringComparer.Ordinal)
             {
                 AttachedMemberConstants.DataContext
             };
@@ -106,15 +102,17 @@ namespace MugenMvvmToolkit.Binding
 
         public static bool CompiledExpressionInvokerSupportCoalesceExpression { get; set; }
 
-        public static Dictionary<string, IBindingBehavior> BindingModeToBehavior => BindingModeToBehaviorField;
-
-        public static List<string> FakeMemberPrefixes => FakeMemberPrefixesField;
+        [NotNull]
+        public static Dictionary<string, IBindingBehavior> BindingModeToBehavior { get; }
 
         [NotNull]
-        public static Dictionary<string, int> BindingMemberPriorities => MemberPriorities;
+        public static List<string> FakeMemberPrefixes { get; }
 
         [NotNull]
-        public static HashSet<string> DataContextMemberAliases => DataContextMemberAliasesField;
+        public static Dictionary<string, int> BindingMemberPriorities { get; }
+
+        [NotNull]
+        public static HashSet<string> DataContextMemberAliases { get; }
 
         [NotNull]
         public static Func<IBindingMemberInfo, Type, object, object> ValueConverter
