@@ -86,8 +86,8 @@ namespace MugenMvvmToolkit.Binding
             ViewManager.SetDataContext = BindingExtensions.SetDataContext;
             BindingExceptionHandler = BindingExceptionHandlerImpl;
             BindingDebugger = BindingDebuggerImpl;
-            BindingCultureInfo = null;
             ObservablePathDefault = true;
+            CompiledExpressionInvokerSupportCoalesceExpression = true;
         }
 
         #endregion
@@ -103,6 +103,8 @@ namespace MugenMvvmToolkit.Binding
         public static bool ObservablePathDefault { get; set; }
 
         public static bool OptionalBindingDefault { get; set; }
+
+        public static bool CompiledExpressionInvokerSupportCoalesceExpression { get; set; }
 
         public static Dictionary<string, IBindingBehavior> BindingModeToBehavior => BindingModeToBehaviorField;
 
@@ -238,10 +240,15 @@ namespace MugenMvvmToolkit.Binding
         [CanBeNull]
         public static IBindingErrorProvider ErrorProvider { get; set; }
 
+        [NotNull]
         public static Func<CultureInfo> BindingCultureInfo
         {
             get { return _bindingCultureInfo; }
-            set { _bindingCultureInfo = value ?? (() => CultureInfo.CurrentCulture); }
+            set
+            {
+                Should.PropertyNotBeNull(value);
+                _bindingCultureInfo = value;
+            }
         }
 
         [CanBeNull]
@@ -270,7 +277,7 @@ namespace MugenMvvmToolkit.Binding
             Func<IBindingMemberInfo, Type, object, object> converter = null, Func<string, IBindingPath> bindingPathFactory = null,
             Func<Type, string, IBindingMemberInfo> findUpdateEvent = null, Func<CultureInfo> bindingCultureInfo = null, IDictionary<string, IBindingBehavior> bindingModeBehaviors = null)
         {
-            ValueConverter = converter ?? ((info, type, o) => o);
+            ValueConverter = converter ?? ValueConverterDefaultImpl;
             BindingProvider = bindingProvider ?? new BindingProvider();
             BindingManager = bindingManager ?? new BindingManager();
             ResourceResolver = resourceResolver ?? new BindingResourceResolver();
@@ -279,29 +286,17 @@ namespace MugenMvvmToolkit.Binding
             WeakEventManager = weakEventManager ?? new WeakEventManager();
             ObserverProvider = observerProvider ?? new ObserverProvider();
             ContextManager = contextManager ?? new BindingContextManager();
-            BindingPathFactory = bindingPathFactory ?? BindingPathFactoryImpl;
-            UpdateEventFinder = findUpdateEvent ?? FindUpdateEvent;
-            BindingCultureInfo = bindingCultureInfo;
+            BindingPathFactory = bindingPathFactory ?? BindingPathFactoryDefaultImpl;
+            UpdateEventFinder = findUpdateEvent ?? FindUpdateEventDefaultImpl;
+            BindingCultureInfo = bindingCultureInfo ?? BindingCultureInfoDefaultImpl;
             ErrorProvider = errorProvider;
             if (bindingModeBehaviors == null)
+                InitializeDefaultBindingModeBehaviors();
+            else
             {
-                bindingModeBehaviors = new Dictionary<string, IBindingBehavior>
-                {
-                    {"Default", null},
-                    {"TwoWay", new TwoWayBindingMode()},
-                    {"OneWay", new OneWayBindingMode()},
-                    {"OneTime", new OneTimeBindingMode()},
-                    {"OneWayToSource", new OneWayToSourceBindingMode()},
-                    {"None", NoneBindingMode.Instance}
-                };
+                foreach (var behavior in bindingModeBehaviors)
+                    BindingModeToBehavior[behavior.Key] = behavior.Value;
             }
-            foreach (var behavior in bindingModeBehaviors)
-                BindingModeToBehavior[behavior.Key] = behavior.Value;
-        }
-
-        internal static void SetDefaultValues()
-        {
-            Initialize();
         }
 
         public static void InitializeFromDesignContext()
@@ -314,7 +309,37 @@ namespace MugenMvvmToolkit.Binding
             }
         }
 
-        private static IBindingPath BindingPathFactoryImpl(string path)
+        internal static void SetDefaultValues()
+        {
+            Initialize();
+        }
+
+        public static CultureInfo BindingCultureInfoDefaultImpl()
+        {
+            return CultureInfo.CurrentCulture;
+        }
+
+        public static void InitializeDefaultBindingModeBehaviors()
+        {
+            BindingModeToBehavior["Default"] = null;
+            BindingModeToBehavior["TwoWay"] = new TwoWayBindingMode();
+            BindingModeToBehavior["OneWay"] = new OneWayBindingMode();
+            BindingModeToBehavior["OneTime"] = new OneTimeBindingMode();
+            BindingModeToBehavior["OneWayToSource"] = new OneWayToSourceBindingMode();
+            BindingModeToBehavior["None"] = NoneBindingMode.Instance;
+        }
+
+        public static IBindingMemberInfo FindUpdateEventDefaultImpl(Type type, string memberName)
+        {
+            IBindingMemberInfo member = MemberProvider.GetBindingMember(type, memberName + AttachedMemberConstants.ChangedEventPostfix, false, false);
+            if (member == null || member.MemberType != BindingMemberType.Event)
+                member = MemberProvider.GetBindingMember(type, memberName + "Change", false, false);
+            if (member == null || member.MemberType != BindingMemberType.Event)
+                return null;
+            return member;
+        }
+
+        public static IBindingPath BindingPathFactoryDefaultImpl(string path)
         {
             lock (BindingPathCache)
             {
@@ -328,19 +353,14 @@ namespace MugenMvvmToolkit.Binding
             }
         }
 
+        private static object ValueConverterDefaultImpl(IBindingMemberInfo bindingMember, Type type, object value)
+        {
+            return value;
+        }
+
         private static void BindingDebuggerImpl(object sender, string tag, string message, object[] args = null)
         {
             Tracer.Error($"{tag}: {message}");
-        }
-
-        private static IBindingMemberInfo FindUpdateEvent(Type type, string memberName)
-        {
-            IBindingMemberInfo member = MemberProvider.GetBindingMember(type, memberName + AttachedMemberConstants.ChangedEventPostfix, false, false);
-            if (member == null || member.MemberType != BindingMemberType.Event)
-                member = MemberProvider.GetBindingMember(type, memberName + "Change", false, false);
-            if (member == null || member.MemberType != BindingMemberType.Event)
-                return null;
-            return member;
         }
 
         private static void BindingExceptionHandlerImpl(IDataBinding dataBinding, BindingEventArgs bindingEventArgs)
