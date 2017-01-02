@@ -152,6 +152,12 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
         }
 
         [BindingSyntaxMember]
+        public static object Member(this object target, string member)
+        {
+            return target.GetBindingMemberValue<object, object>(member);
+        }
+
+        [BindingSyntaxMember]
         public static T Member<T>(this object target, string member)
         {
             return target.GetBindingMemberValue<object, T>(member);
