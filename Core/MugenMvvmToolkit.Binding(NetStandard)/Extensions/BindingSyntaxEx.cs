@@ -319,13 +319,12 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                     firstArg = FirstLevelBoxed;
                 else
                     mExp.Arguments[1].TryGetStaticValue(out firstArg, true);
-                var node = name == nameof(Relative)
-                    ? RelativeSourceExpressionNode
-                        .CreateRelativeSource(mExp.Method.ReturnType.AssemblyQualifiedName, (uint)firstArg, null)
-                    : RelativeSourceExpressionNode.CreateElementSource(firstArg.ToString(), null);
+                var relSource = name == nameof(Relative)
+                    ? new RelativeSourceInfo(mExp.Method.ReturnType.AssemblyQualifiedName, null, null, (uint)firstArg)
+                    : new RelativeSourceInfo(RelativeSourceInfo.ElementSourceType, firstArg.ToString(), null, 0);
                 return context
                     .GetOrAddParameterExpression(name + mExp.Method.ReturnType.FullName, path, context.Expression,
-                        (dataContext, s) => BindingExtensions.CreateBindingSource(node, dataContext, dataContext.GetData(BindingBuilderConstants.Target), s));
+                        (dataContext, s) => BindingExtensions.CreateBindingSource(relSource, dataContext, dataContext.GetData(BindingBuilderConstants.Target), s));
             }
             return null;
         }

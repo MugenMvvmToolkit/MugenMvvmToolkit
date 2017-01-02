@@ -165,6 +165,7 @@
     <Compile Include="Models\Exceptions\ParseException.cs" />
     <Compile Include="Models\ExpressionNodeType.cs" />
     <Compile Include="Models\MethodData.cs" />
+    <Compile Include="Models\RelativeSourceInfo.cs" />
     <Compile Include="Models\TokenType.cs" />
     <Compile Include="Models\UnsetBindingPathMembers.cs" />
     <Compile Include="Models\WeakEventListenerWrapper.cs" />

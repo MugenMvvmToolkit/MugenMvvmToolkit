@@ -420,6 +420,9 @@
     <Compile Include="..\mugenmvvmtoolkit.binding%28NetStandard%29\models\MethodData.cs">
       <Link>Models\MethodData.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28NetStandard%29\Models\RelativeSourceInfo.cs">
+      <Link>Models\RelativeSourceInfo.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28NetStandard%29\models\TokenType.cs">
       <Link>Models\TokenType.cs</Link>
     </Compile>

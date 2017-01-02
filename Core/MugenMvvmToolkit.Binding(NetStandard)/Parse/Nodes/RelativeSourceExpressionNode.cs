@@ -26,11 +26,6 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
     {
         #region Fields
 
-        public const string RelativeSourceType = "RelativeSource";
-        public const string ElementSourceType = "ElementSource";
-        public const string SelfType = "Self";
-        public const string ContextSourceType = "ContextSource";
-
         private string _elementName;
         private uint _level;
         private string _path;
@@ -64,7 +59,7 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
         {
             return new RelativeSourceExpressionNode
             {
-                _type = ElementSourceType,
+                _type = RelativeSourceInfo.ElementSourceType,
                 _elementName = elementName,
                 _path = path
             };
@@ -72,12 +67,12 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         public static RelativeSourceExpressionNode CreateSelfSource(string path)
         {
-            return new RelativeSourceExpressionNode { _type = SelfType, _path = path };
+            return new RelativeSourceExpressionNode { _type = RelativeSourceInfo.SelfType, _path = path };
         }
 
         public static RelativeSourceExpressionNode CreateBindingContextSource(string path)
         {
-            return new RelativeSourceExpressionNode { _type = ContextSourceType, _path = path };
+            return new RelativeSourceExpressionNode { _type = RelativeSourceInfo.ContextSourceType, _path = path };
         }
 
         #endregion
@@ -101,13 +96,13 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
 
         public override string ToString()
         {
-            if (Type == SelfType)
+            if (Type == RelativeSourceInfo.SelfType)
             {
                 if (string.IsNullOrEmpty(Path))
                     return "{RelativeSource Self}";
                 return $"{{RelativeSource Self, Path={Path}}}";
             }
-            if (Type == ElementSourceType)
+            if (Type == RelativeSourceInfo.ElementSourceType)
             {
                 if (string.IsNullOrEmpty(Path))
                     return $"{{ElementSource {ElementName}}}";
@@ -133,6 +128,11 @@ namespace MugenMvvmToolkit.Binding.Parse.Nodes
         public void MergePath(string path)
         {
             _path = BindingExtensions.MergePath(_path, path);
+        }
+
+        public RelativeSourceInfo ToRelativeSourceInfo()
+        {
+            return new RelativeSourceInfo(_type, _elementName, Path, Level);
         }
 
         #endregion

@@ -17,6 +17,7 @@
 #endregion
 
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding.Models;
 
 namespace MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes
 {
@@ -34,5 +35,7 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes
         uint Level { get; }
 
         void MergePath(string path);
+
+        RelativeSourceInfo ToRelativeSourceInfo();
     }
 }

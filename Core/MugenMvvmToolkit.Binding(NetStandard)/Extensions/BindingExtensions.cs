@@ -138,7 +138,7 @@ namespace MugenMvvmToolkit.Binding
             #region Fields
 
             private readonly bool _isElementSource;
-            private readonly IRelativeSourceExpressionNode _node;
+            private readonly RelativeSourceInfo _node;
             private readonly IDisposable _subscriber;
             private WeakReference _targetReference;
             private bool _hasParent;
@@ -148,10 +148,10 @@ namespace MugenMvvmToolkit.Binding
 
             #region Constructors
 
-            public ParentSourceValue(object target, IRelativeSourceExpressionNode node)
+            public ParentSourceValue(object target, RelativeSourceInfo node)
             {
                 _node = node;
-                _isElementSource = _node.Type == RelativeSourceExpressionNode.ElementSourceType;
+                _isElementSource = _node.Type == RelativeSourceInfo.ElementSourceType;
                 _targetReference = ServiceProvider.WeakReferenceFactory(target);
                 _value = Empty.WeakReference;
                 IBindingMemberInfo rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(target.GetType());
@@ -603,17 +603,17 @@ namespace MugenMvvmToolkit.Binding
             BindingServiceProvider.ContextManager.GetBindingContext(source).Value = value;
         }
 
-        public static IObserver CreateBindingSource(IRelativeSourceExpressionNode node, IDataContext context, [NotNull] object target, string pathEx)
+        public static IObserver CreateBindingSource(RelativeSourceInfo node, IDataContext context, [NotNull] object target, string pathEx)
         {
             if (target == null)
                 throw BindingExceptionManager.InvalidBindingTarget(node.Path);
-            string path = node.Path ?? String.Empty;
+            string path = node.Path ?? string.Empty;
             if (!string.IsNullOrEmpty(pathEx))
                 path = MergePath(path, pathEx);
 
-            if (node.Type != RelativeSourceExpressionNode.SelfType)
+            if (node.Type != RelativeSourceInfo.SelfType)
             {
-                if (node.Type == RelativeSourceExpressionNode.ContextSourceType)
+                if (node.Type == RelativeSourceInfo.ContextSourceType)
                     target = BindingServiceProvider.ContextManager.GetBindingContext(target);
                 else
                     target = new ParentSourceValue(target, node);

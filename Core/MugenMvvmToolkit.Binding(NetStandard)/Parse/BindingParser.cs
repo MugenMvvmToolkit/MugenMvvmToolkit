@@ -201,14 +201,14 @@ namespace MugenMvvmToolkit.Binding.Parse
 
             _relativeSourceAliases = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
-                RelativeSourceExpressionNode.RelativeSourceType,
+                RelativeSourceInfo.RelativeSourceType,
                 "Relative",
                 "Rel"
             };
 
             _elementSourceAliases = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
             {
-                RelativeSourceExpressionNode.ElementSourceType,
+                RelativeSourceInfo.ElementSourceType,
                 "Element",
                 "El"
             };
@@ -555,19 +555,19 @@ namespace MugenMvvmToolkit.Binding.Parse
             ValidateToken(TokenType.OpenBrace);
             NextToken(true);
             string sourceName = Tokenizer.Value;
-            if (sourceName != RelativeSourceExpressionNode.RelativeSourceType && sourceName != RelativeSourceExpressionNode.ElementSourceType &&
+            if (sourceName != RelativeSourceInfo.RelativeSourceType && sourceName != RelativeSourceInfo.ElementSourceType &&
                 !RelativeSourceAliases.Contains(sourceName) && !ElementSourceAliases.Contains(sourceName))
             {
                 IExpressionNode node = ParsePrimary();
                 string memberName = node.TryGetMemberName(true, false);
                 if (string.IsNullOrEmpty(memberName))
                     throw BindingExceptionManager.UnknownIdentifierParser(sourceName, Tokenizer, Expression,
-                        RelativeSourceExpressionNode.RelativeSourceType, RelativeSourceExpressionNode.ElementSourceType);
+                        RelativeSourceInfo.RelativeSourceType, RelativeSourceInfo.ElementSourceType);
                 ValidateToken(TokenType.CloseBrace);
                 NextToken(true);
                 return RelativeSourceExpressionNode.CreateBindingContextSource(memberName);
             }
-            bool isRelativeSource = sourceName == RelativeSourceExpressionNode.RelativeSourceType || RelativeSourceAliases.Contains(sourceName);
+            bool isRelativeSource = sourceName == RelativeSourceInfo.RelativeSourceType || RelativeSourceAliases.Contains(sourceName);
             int position = Tokenizer.Position;
             NextToken(true);
             ValidateToken(TokenType.Identifier);
@@ -576,7 +576,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 throw BindingExceptionManager.InvalidMemberName(Expression, position);
             string path = string.Empty;
             uint level = 1;
-            if (typeName == RelativeSourceExpressionNode.SelfType || !isRelativeSource)
+            if (typeName == RelativeSourceInfo.SelfType || !isRelativeSource)
             {
                 if (Tokenizer.Token == TokenType.Comma)
                 {
@@ -614,7 +614,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             NextToken(true);
             RelativeSourceExpressionNode expression;
             //Self
-            if (typeName == RelativeSourceExpressionNode.SelfType)
+            if (typeName == RelativeSourceInfo.SelfType)
                 expression = RelativeSourceExpressionNode.CreateSelfSource(path);
             else if (isRelativeSource)
                 expression = RelativeSourceExpressionNode.CreateRelativeSource(typeName, level, path);
@@ -1367,7 +1367,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             }
             if (node.IsRelativeSource)
             {
-                IRelativeSourceExpressionNode r = node.RelativeSourceExpression;
+                var r = node.RelativeSourceExpression.ToRelativeSourceInfo();
                 return context => BindingExtensions.CreateBindingSource(r, context, context.GetData(BindingBuilderConstants.Target, true), null);
             }
             return context => BindSource(context, path);
