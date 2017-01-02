@@ -19,8 +19,8 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.Binding.Parse;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Xamarin.Forms.Infrastructure;
 
@@ -54,7 +54,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
 
         static PlatformBootstrapperService()
         {
-            CompiledExpressionInvoker.SupportCoalesceExpression = false;
+            BindingServiceProvider.CompiledExpressionInvokerSupportCoalesceExpression = false;
         }
 
         #endregion
