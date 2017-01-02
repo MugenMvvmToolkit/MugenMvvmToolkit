@@ -160,6 +160,7 @@
     <Compile Include="Models\EventArg\BackButtonNavigationEventArgs.cs" />
     <Compile Include="Models\EventArg\NavigatingCancelEventArgsWrapper.cs" />
     <Compile Include="Models\EventArg\NavigationEventArgsWrapper.cs" />
+    <Compile Include="Models\LazySerializableContainer.cs" />
     <Compile Include="Models\PopupSettings.cs" />
     <Compile Include="Modules\UwpWrapperRegistrationModule.cs" />
     <Compile Include="PlatformExtensions.cs" />

@@ -19,10 +19,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Attributes;
-using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -33,38 +31,6 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 {
     public class OperationCallbackManager : IOperationCallbackManager
     {
-        #region Nested types
-
-        //NOTE we cannot use default dictionary, because MONO cannot deserialize it correctly.
-        [DataContract(Namespace = ApplicationSettings.DataContractNamespace, IsReference = true), Serializable]
-        internal sealed class CallbackDictionary : LightDictionaryBase<string, List<object>>
-        {
-            #region Constructors
-
-            public CallbackDictionary()
-                : base(true)
-            {
-            }
-
-            #endregion
-
-            #region Overrides of LightDictionaryBase<string,List<object>>
-
-            protected override bool Equals(string x, string y)
-            {
-                return x.Equals(y, StringComparison.Ordinal);
-            }
-
-            protected override int GetHashCode(string key)
-            {
-                return key.GetHashCode();
-            }
-
-            #endregion
-        }
-
-        #endregion
-
         #region Fields
 
         private const string CallbacksMember = "~~#callbacks";
