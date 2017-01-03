@@ -143,6 +143,9 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\callbacks\AsyncOperationSerializableCallback.cs">
       <Link>Infrastructure\Callbacks\AsyncOperationSerializableCallback.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Infrastructure\Callbacks\CallbackDictionary.cs">
+      <Link>Infrastructure\Callbacks\CallbackDictionary.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Infrastructure\Callbacks\DefaultOperationCallbackFactory.cs">
       <Link>Infrastructure\Callbacks\DefaultOperationCallbackFactory.cs</Link>
     </Compile>

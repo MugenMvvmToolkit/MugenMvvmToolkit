@@ -120,16 +120,11 @@
     <Compile Include="..\MugenMvvmToolkit.Android\Infrastructure\TracerEx.cs">
       <Link>Infrastructure\TracerEx.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.xamarin.forms.winphone\binding\modules\PlatformDataBindingModuleEx.cs">
-      <Link>Binding\Modules\PlatformDataBindingModuleEx.cs</Link>
-    </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.xamarin.forms.winphone\modules\InitializationModuleEx.cs">
-      <Link>Modules\InitializationModuleEx.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Xamarin.Forms.WinPhone\PlatformBootstrapperService.cs">
       <Link>PlatformBootstrapperService.cs</Link>
     </Compile>
     <Compile Include="Binding\Infrastructure\XamarinFormsAndroidBindingErrorProvider.cs" />
+    <Compile Include="Modules\XamarinFormsInitializationModuleEx.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -160,6 +155,7 @@
       <Link>license.txt</Link>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Import Project="..\..\packages\Xamarin.Android.Support.Vector.Drawable.23.3.0\build\Xamarin.Android.Support.Vector.Drawable.targets" Condition="Exists('..\..\packages\Xamarin.Android.Support.Vector.Drawable.23.3.0\build\Xamarin.Android.Support.Vector.Drawable.targets')" />

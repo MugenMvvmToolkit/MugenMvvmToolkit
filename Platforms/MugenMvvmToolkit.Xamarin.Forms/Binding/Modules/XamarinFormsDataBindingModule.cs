@@ -22,6 +22,7 @@ using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Xamarin.Forms.Binding.Converters;
+using MugenMvvmToolkit.Xamarin.Forms.Binding.Infrastructure;
 using Xamarin.Forms;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Modules
@@ -30,24 +31,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Modules
     {
         #region Properties
 
-        //        #region Overrides of DataBindingModule
-
-        //
-        //        protected override IBindingContextManager GetBindingContextManager(IModuleContext context)
-        //        {
-        //            return new BindingContextManagerEx();
-        //        }
-        //
-        //        protected override IBindingResourceResolver GetBindingResourceResolver(IModuleContext context)
-        //        {
-        //            var resolver = BindingServiceProvider.ResourceResolver as BindingResourceResolver;
-        //            return resolver == null
-        //                ? new BindingResourceResolverEx()
-        //                : new BindingResourceResolverEx(resolver);
-        //        }
-        //
-        //        #endregion
-        public int Priority => ApplicationSettings.ModulePriorityBinding + 1;
+        public int Priority => ApplicationSettings.ModulePriorityInitialization + 1;
 
         #endregion
 
@@ -77,6 +61,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Modules
 
         public bool Load(IModuleContext context)
         {
+            BindingServiceProvider.Initialize(contextManager: new XamarinFormsBindingContextManager(), resourceResolver: new XamarinFormsBindingResourceResolver());
             context.TryRegisterDataTemplateSelectorsAndValueConverters(RegisterType);
             MugenMvvmToolkit.Binding.AttachedMembersRegistration.RegisterDefaultMembers();
 

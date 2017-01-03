@@ -65,11 +65,8 @@
     <Compile Include="..\MugenMvvmToolkit.iOS\Views\ValidationPopup.cs">
       <Link>Views\ValidationPopup.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Xamarin.Forms.WinPhone\Binding\Modules\PlatformDataBindingModuleEx.cs">
-      <Link>Binding\Modules\PlatformDataBindingModuleEx.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Xamarin.Forms.WinPhone\Modules\InitializationModuleEx.cs">
-      <Link>Modules\InitializationModuleEx.cs</Link>
+    <Compile Include="..\MugenMvvmToolkit.Xamarin.Forms.Android\Modules\XamarinFormsInitializationModuleEx.cs">
+      <Link>Modules\XamarinFormsInitializationModuleEx.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Xamarin.Forms.WinPhone\PlatformBootstrapperService.cs">
       <Link>PlatformBootstrapperService.cs</Link>

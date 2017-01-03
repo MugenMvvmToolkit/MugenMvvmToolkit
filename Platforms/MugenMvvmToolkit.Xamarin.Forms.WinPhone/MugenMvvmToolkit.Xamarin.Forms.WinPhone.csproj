@@ -98,11 +98,12 @@
     <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\Models\ValidationBinder.cs">
       <Link>Models\ValidationBinder.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Xamarin.Forms.Android\Modules\XamarinFormsInitializationModuleEx.cs">
+      <Link>Modules\XamarinFormsInitializationModuleEx.cs</Link>
+    </Compile>
     <Compile Include="Binding\Infrastructure\XamarinFormsWinPhoneBindingErrorProvider.cs" />
     <Compile Include="Infrastructure\Presenters\MessagePresenter.cs" />
-    <Compile Include="Modules\InitializationModuleEx.cs" />
     <Compile Include="PlatformBootstrapperService.cs" />
-    <Compile Include="Binding\Modules\PlatformDataBindingModuleEx.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -165,6 +166,7 @@
       <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).$(TargetFrameworkVersion).Overrides.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\$(TargetFrameworkIdentifier)\$(TargetFrameworkVersion)\Microsoft.$(TargetFrameworkIdentifier).CSharp.targets" />
   <ProjectExtensions />

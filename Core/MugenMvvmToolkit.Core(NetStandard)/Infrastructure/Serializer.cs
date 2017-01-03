@@ -27,7 +27,6 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
-    //todo fix nested serializable objects
     public class Serializer : ISerializer
     {
         #region Fields

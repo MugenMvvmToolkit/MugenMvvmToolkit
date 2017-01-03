@@ -25,8 +25,8 @@ using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Models.EventArg;
 #if WPF
 using System.Windows;
 using System.Windows.Data;
@@ -103,12 +103,11 @@ namespace MugenMvvmToolkit.UWP.Binding.Modules
                 Tracer.Info("The {0} converter is registered.", type);
         }
 
-        //todo fix
-        private static void OnViewCleared(IViewManager viewManager, IViewModel viewModel, object arg3, IDataContext arg4)
+        private static void OnViewCleared(IViewManager sender, ViewClearedEventArgs args)
         {
             try
             {
-                ClearBindingsRecursively(arg3 as DependencyObject);
+                ClearBindingsRecursively(args.View as DependencyObject);
             }
             catch (Exception e)
             {
@@ -130,7 +129,7 @@ namespace MugenMvvmToolkit.UWP.Binding.Modules
 
         #region Properties
 
-        public int Priority => ApplicationSettings.ModulePriorityInitialization + 1;
+        public int Priority => ApplicationSettings.ModulePriorityInitialization - 1;
 
         #endregion
 
@@ -187,6 +186,10 @@ namespace MugenMvvmToolkit.UWP.Binding.Modules
 #if !WINDOWS_UWP
             AttachedMembersRegistration.RegisterWebBrowserMembers();
 #endif
+            IViewManager viewManager = null;
+            context.IocContainer?.TryGet(out viewManager);
+            if (viewManager != null)
+                viewManager.ViewCleared += OnViewCleared;
             return true;
         }
 
