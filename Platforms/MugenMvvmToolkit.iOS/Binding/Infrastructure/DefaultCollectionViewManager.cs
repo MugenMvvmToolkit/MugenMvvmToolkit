@@ -16,11 +16,9 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using MonoTouch.Dialog;
 using MugenMvvmToolkit.iOS.Binding.Interfaces;
-using MugenMvvmToolkit.iOS.MonoTouch.Dialog;
 using UIKit;
 
 namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
@@ -47,25 +45,22 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         #endregion
 
+        #region Properties
+
+        public static Func<object, int, object, bool> InsertInternalHandler;
+
+        public static Func<object, int, bool> RemoveAtInternalHandler;
+
+        public static Func<object, bool> ClearInternalHandler;
+
+        #endregion
+
         #region Implementation of ICollectionViewManager
 
         public void Insert(object view, int index, object item)
         {
-            var section = view as Section;
-            if (section != null)
-            {
-                section.Insert(index, (Element)item);
-                ((Element)item).RaiseParentChanged();
+            if (InsertInternalHandler != null && InsertInternalHandler(view, index, item))
                 return;
-            }
-
-            var rootElement = view as RootElement;
-            if (rootElement != null)
-            {
-                rootElement.Insert(index, (Section)item);
-                ((Section)item).RaiseParentChanged();
-                return;
-            }
 
             UIViewController controller;
             UIView parentView;
@@ -94,25 +89,8 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         public void RemoveAt(object view, int index)
         {
-            var section = view as Section;
-            if (section != null)
-            {
-                var element = section[index];
-                section.Remove(index);
-                element.ClearBindingsRecursively(true, true);
-                element.DisposeEx();
+            if (RemoveAtInternalHandler != null && RemoveAtInternalHandler(view, index))
                 return;
-            }
-
-            var rootElement = view as RootElement;
-            if (rootElement != null)
-            {
-                var element = rootElement[index];
-                rootElement.RemoveAt(index);
-                element.ClearBindingsRecursively(true, true);
-                element.DisposeEx();
-                return;
-            }
 
             UIViewController controller;
             UIView parentView;
@@ -133,31 +111,8 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         public void Clear(object view)
         {
-            var section = view as Section;
-            if (section != null)
-            {
-                var elements = section.OfType<Element>().ToArray();
-                section.Clear();
-                foreach (var element in elements)
-                {
-                    element.ClearBindingsRecursively(true, true);
-                    element.DisposeEx();
-                }
+            if (ClearInternalHandler != null && ClearInternalHandler(view))
                 return;
-            }
-
-            var rootElement = view as RootElement;
-            if (rootElement != null)
-            {
-                var elements = rootElement.ToArray();
-                rootElement.Clear();
-                foreach (var element in elements)
-                {
-                    element.ClearBindingsRecursively(true, true);
-                    element.DisposeEx();
-                }
-                return;
-            }
 
             UIViewController controller;
             UIView parentView;

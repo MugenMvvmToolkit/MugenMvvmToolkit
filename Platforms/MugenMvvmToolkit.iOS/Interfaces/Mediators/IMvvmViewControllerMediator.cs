@@ -29,6 +29,8 @@ namespace MugenMvvmToolkit.iOS.Interfaces.Mediators
     {
         bool IsDisappeared { get; }
 
+        bool IsViewLoaded { get; }
+
         bool IsAppeared { get; }
 
         void ViewWillAppear([NotNull] Action<bool> baseViewWillAppear, bool animated);

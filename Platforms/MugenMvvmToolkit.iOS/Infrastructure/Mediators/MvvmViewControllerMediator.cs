@@ -19,21 +19,16 @@
 using System;
 using Foundation;
 using JetBrains.Annotations;
-using MonoTouch.Dialog;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.iOS.Binding;
-using MugenMvvmToolkit.iOS.Binding.Models;
 using MugenMvvmToolkit.iOS.Interfaces.Mediators;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
-using MugenMvvmToolkit.iOS.MonoTouch.Dialog;
 using UIKit;
 
 namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
 {
-    //todo fix type usage
     public class MvvmViewControllerMediator : IMvvmViewControllerMediator
     {
         #region Fields
@@ -71,6 +66,8 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
 
         public bool IsDisappeared => _canDispose;
 
+        public bool IsViewLoaded => _isViewLoaded;
+
         public bool IsAppeared => !_canDispose;
 
         public virtual void ViewWillAppear(Action<bool> baseViewWillAppear, bool animated)
@@ -80,45 +77,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
             var viewController = ViewController;
             if (viewController != null && !_isAppeared)
             {
-                if (viewController.View != null)
-                    ParentObserver.Raise(viewController.View, true);
-                UINavigationItem navigationItem = viewController.NavigationItem;
-                if (navigationItem != null)
-                {
-                    SetParent(navigationItem, viewController);
-                    SetParent(navigationItem.LeftBarButtonItem, viewController);
-                    SetParent(navigationItem.LeftBarButtonItems, viewController);
-                    SetParent(navigationItem.RightBarButtonItem, viewController);
-                    SetParent(navigationItem.RightBarButtonItems, viewController);
-                }
-                SetParent(viewController.EditButtonItem, viewController);
-                SetParent(viewController.ToolbarItems, viewController);
-                var dialogViewController = viewController as DialogViewController;
-                if (dialogViewController != null)
-                    SetParent(dialogViewController.Root, viewController);
-                var viewControllers = viewController.ChildViewControllers;
-                foreach (var controller in viewControllers)
-                    controller.TryRaiseAttachedEvent(AttachedMembers.Object.Parent);
-
-                var tabBarController = viewController as UITabBarController;
-                if (tabBarController == null)
-                {
-                    var splitViewController = viewController as UISplitViewController;
-                    viewControllers = splitViewController == null ? null : splitViewController.ViewControllers;
-                }
-                else
-                    viewControllers = tabBarController.ViewControllers;
-
-                if (viewControllers != null)
-                {
-                    foreach (var controller in viewControllers)
-                    {
-                        controller.TryRaiseAttachedEvent(AttachedMembers.Object.Parent);
-                        PlatformExtensions.SetHasState(controller, false);
-                    }
-                }
-
-                viewController.TryRaiseAttachedEvent(AttachedMembers.Object.Parent);
+                PlatformExtensions.ObjectLifecycleManager?.Initialize(viewController, null);
                 _isAppeared = true;
             }
             Raise(ViewWillAppearHandler, animated);
@@ -212,56 +171,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
             if (!_canDispose || !_isDisposeCalled)
                 return;
             Raise(DisposeHandler);
-
-            if (_isViewLoaded)
-            {
-                viewController.View.ClearBindingsRecursively(true, true);
-                viewController.View.DisposeEx();
-                viewController.EditButtonItem.ClearBindings(true, true);
-                viewController.EditButtonItem.DisposeEx();
-                viewController.ToolbarItems.ClearBindings(true, true);
-                viewController.ToolbarItems.DisposeEx();
-                UINavigationItem navigationItem = viewController.NavigationItem;
-                if (navigationItem != null)
-                {
-                    navigationItem.LeftBarButtonItem.ClearBindings(true, true);
-                    navigationItem.LeftBarButtonItem.DisposeEx();
-                    navigationItem.LeftBarButtonItems.ClearBindings(true, true);
-                    navigationItem.LeftBarButtonItems.DisposeEx();
-                    navigationItem.RightBarButtonItem.ClearBindings(true, true);
-                    navigationItem.RightBarButtonItem.DisposeEx();
-                    navigationItem.RightBarButtonItems.ClearBindings(true, true);
-                    navigationItem.RightBarButtonItems.DisposeEx();
-                    navigationItem.ClearBindings(true, true);
-                    navigationItem.DisposeEx();
-                }
-
-                var dialogViewController = viewController as DialogViewController;
-                if (dialogViewController != null)
-                {
-                    dialogViewController.Root.ClearBindingsRecursively(true, true);
-                    dialogViewController.Root.DisposeEx();
-                }
-            }
-
-            var tabBarController = ViewController as UITabBarController;
-            if (tabBarController == null)
-            {
-                var splitViewController = ViewController as UISplitViewController;
-                if (splitViewController != null)
-                {
-                    splitViewController.ViewControllers.ClearBindings(true, true);
-                    splitViewController.ViewControllers.DisposeEx();
-                }
-            }
-            else
-            {
-                tabBarController.ViewControllers.ClearBindings(true, true);
-                tabBarController.ViewControllers.DisposeEx();
-            }
-
-            viewController.ChildViewControllers.ClearBindings(true, true);
-            viewController.ChildViewControllers.DisposeEx();
             viewController.ClearBindings(true, true);
             viewController.DisposeEx();
             ViewDidLoadHandler = null;
@@ -273,19 +182,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
             EncodeRestorableStateHandler = null;
             DisposeHandler = null;
             _viewController = null;
-        }
-
-        private static void SetParent<T>(T[] items, UIViewController parent)
-        {
-            if (items == null)
-                return;
-            for (int index = 0; index < items.Length; index++)
-                SetParent(items[index], parent);
-        }
-
-        private static void SetParent(object item, UIViewController parent)
-        {
-            item?.SetBindingMemberValue(AttachedMembers.Object.Parent, parent);
         }
 
         private void Raise(EventHandler<UIViewController, EventArgs> handler)

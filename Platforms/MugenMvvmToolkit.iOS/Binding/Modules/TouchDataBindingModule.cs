@@ -30,7 +30,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
     {
         #region Properties
 
-        public int Priority => ApplicationSettings.ModulePriorityBinding + 1;
+        public int Priority => ApplicationSettings.ModulePriorityInitialization - 1;
 
         #endregion
 
@@ -38,6 +38,9 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
 
         public bool Load(IModuleContext context)
         {
+            PlatformExtensions.TableViewSourceFactory = (o, ctx) => new ItemsSourceTableViewSource(o);
+            PlatformExtensions.CollectionViewSourceFactory = (o, ctx) => new ItemsSourceCollectionViewSource(o);
+
             if (context.PlatformInfo.Platform == PlatformType.iOS)
                 BindingServiceProvider.Initialize(errorProvider: new TouchBindingErrorProvider(), converter: BindingReflectionExtensions.Convert);
 
@@ -70,7 +73,6 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
             AttachedMembersRegistration.RegisterSliderMembers();
             AttachedMembersRegistration.RegisterProgressViewMembers();
             AttachedMembersRegistration.RegisterCollectionViewMembers();
-            AttachedMembersRegistration.RegisterCollectionViewCellMembers();
             AttachedMembersRegistration.RegisterDialogElementMembers();
             AttachedMembersRegistration.RegisterDialogEntryElementMembers();
             AttachedMembersRegistration.RegisterStringElementMembers();

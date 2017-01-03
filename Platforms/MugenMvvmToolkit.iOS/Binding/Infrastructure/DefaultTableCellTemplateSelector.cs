@@ -19,7 +19,6 @@
 using System;
 using Foundation;
 using MugenMvvmToolkit.Binding.Builders;
-using MugenMvvmToolkit.iOS.Views;
 using UIKit;
 
 namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
@@ -28,7 +27,6 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
     {
         #region Fields
 
-        private readonly bool _bindable;
         private readonly Action<UITableViewCell, BindingSet<UITableViewCell, TSource>> _initializeTemplate;
         private readonly UITableViewCellStyle _style;
         private static readonly NSString Id = new NSString("Id" + nameof(TSource));
@@ -37,12 +35,11 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         #region Constructors
 
-        public DefaultTableCellTemplateSelector(UITableViewCellStyle style, Action<UITableViewCell, BindingSet<UITableViewCell, TSource>> initializeTemplate, bool isDefaultCellPropertiesBindable = false)
+        public DefaultTableCellTemplateSelector(UITableViewCellStyle style, Action<UITableViewCell, BindingSet<UITableViewCell, TSource>> initializeTemplate)
         {
             Should.NotBeNull(initializeTemplate, nameof(initializeTemplate));
             _style = style;
             _initializeTemplate = initializeTemplate;
-            _bindable = isDefaultCellPropertiesBindable;
         }
 
         #endregion
@@ -56,8 +53,6 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         protected override UITableViewCell SelectTemplate(UITableView container, NSString identifier)
         {
-            if (_bindable)
-                return new UITableViewCellBindable(_style, identifier);
             return new UITableViewCell(_style, identifier);
         }
 

@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Reflection;
 using System.Threading;
 using Foundation;
@@ -31,7 +30,6 @@ using MugenMvvmToolkit.iOS.Binding;
 using MugenMvvmToolkit.iOS.Binding.Infrastructure;
 using MugenMvvmToolkit.iOS.Binding.Models;
 using MugenMvvmToolkit.iOS.Infrastructure;
-using MugenMvvmToolkit.iOS.Infrastructure.Mediators;
 using MugenMvvmToolkit.iOS.Interfaces;
 using MugenMvvmToolkit.iOS.Interfaces.Mediators;
 using MugenMvvmToolkit.Models;
@@ -40,49 +38,8 @@ using UIKit;
 
 namespace MugenMvvmToolkit.iOS
 {
-    //todo move to module
     public static partial class PlatformExtensions
     {
-        #region Nested types
-
-        private sealed class ActionSheetButtonClosure
-        {
-            #region Fields
-
-            public nint Index;
-
-            #endregion
-
-            #region Properties
-
-            public bool Enabled
-            {
-                get { return true; }
-                // ReSharper disable once ValueParameterNotUsed
-                set {; }
-            }
-
-            #endregion
-
-            #region Events
-
-            public event EventHandler Click;
-
-            #endregion
-
-            #region Methods
-
-            public void OnClick(object sender, UIButtonEventArgs e)
-            {
-                if (e.ButtonIndex == Index)
-                    Click?.Invoke(sender, e);
-            }
-
-            #endregion
-        }
-
-        #endregion
-
         #region Fields
 
         private const string NavParamKey = "@~`NavParam";
@@ -92,7 +49,9 @@ namespace MugenMvvmToolkit.iOS
         private static readonly Type[] CoderParameters;
 
         private static IApplicationStateManager _applicationStateManager;
-        private static Func<UIViewController, IDataContext, IMvvmViewControllerMediator> _mvvmViewControllerMediatorFactory;
+        private static Func<object, IDataContext, Type, object> _mediatorFactory;
+        private static Func<UITableView, IDataContext, TableViewSourceBase> _tableViewSourceFactory;
+        private static Func<UICollectionView, IDataContext, CollectionViewSourceBase> _collectionViewSourceFactory;
 
         #endregion
 
@@ -102,7 +61,6 @@ namespace MugenMvvmToolkit.iOS
         {
             TypeToCounters = new Dictionary<Type, int>();
             CoderParameters = new[] { typeof(NSCoder) };
-            _mvvmViewControllerMediatorFactory = (controller, context) => new MvvmViewControllerMediator(controller);
             AttachedValueProviderSuppressFinalize = true;
         }
 
@@ -123,15 +81,40 @@ namespace MugenMvvmToolkit.iOS
         }
 
         [NotNull]
-        public static Func<UIViewController, IDataContext, IMvvmViewControllerMediator> MvvmViewControllerMediatorFactory
+        public static Func<object, IDataContext, Type, object> MediatorFactory
         {
-            get { return _mvvmViewControllerMediatorFactory; }
+            get { return _mediatorFactory; }
             set
             {
                 Should.PropertyNotBeNull(value);
-                _mvvmViewControllerMediatorFactory = value;
+                _mediatorFactory = value;
             }
         }
+
+        [NotNull]
+        public static Func<UITableView, IDataContext, TableViewSourceBase> TableViewSourceFactory
+        {
+            get { return _tableViewSourceFactory; }
+            set
+            {
+                Should.PropertyNotBeNull(value);
+                _tableViewSourceFactory = value;
+            }
+        }
+
+        [NotNull]
+        public static Func<UICollectionView, IDataContext, CollectionViewSourceBase> CollectionViewSourceFactory
+        {
+            get { return _collectionViewSourceFactory; }
+            set
+            {
+                Should.PropertyNotBeNull(value);
+                _collectionViewSourceFactory = value;
+            }
+        }
+
+        [CanBeNull]
+        public static IObjectLifecycleManager ObjectLifecycleManager { get; set; }
 
         public static bool AttachedValueProviderSuppressFinalize { get; set; }
 
@@ -139,24 +122,18 @@ namespace MugenMvvmToolkit.iOS
 
         #region Methods
 
-        public static void ShowEx<T, TParent>([NotNull] this T actionSheet, TParent parent,
-            [NotNull] Action<T, TParent> showAction)
-            where T : UIActionSheet
+        public static void DisposeEx<T>(this T[] items)
+            where T : INativeObject
         {
-            Should.NotBeNull(actionSheet, nameof(actionSheet));
-            Should.NotBeNull(showAction, nameof(showAction));
-            ParentObserver.GetOrAdd(actionSheet).Parent = parent;
-            showAction(actionSheet, parent);
+            if (items == null)
+                return;
+            for (int i = 0; i < items.Length; i++)
+                items[i].DisposeEx();
         }
 
-        public static void AddButtonWithBinding(this UIActionSheet actionSheet, string title, [NotNull] string bindingExpression, IList<object> sources = null)
+        public static void DisposeEx(this INativeObject nativeObject)
         {
-            Should.NotBeNull(actionSheet, nameof(actionSheet));
-            Should.NotBeNull(bindingExpression, nameof(bindingExpression));
-            if (IsOS8)
-                actionSheet.AddButtonOS8(title, bindingExpression, sources);
-            else
-                actionSheet.AddButtonOS7(title, bindingExpression, sources);
+            ObjectLifecycleManager?.Dispose(nativeObject, null);
         }
 
         public static void SetInputViewEx([NotNull] this UITextField textField, UIView view)
@@ -181,48 +158,6 @@ namespace MugenMvvmToolkit.iOS
             if (controller == null)
                 return null;
             return ServiceProvider.AttachedValueProvider.GetValue<string>(controller, NavParamKey, false);
-        }
-
-        public static UITableViewCell CellAtEx(this UITableView tableView, NSIndexPath indexPath)
-        {
-            Should.NotBeNull(tableView, nameof(tableView));
-            var sourceBase = tableView.Source as TableViewSourceBase;
-            if (sourceBase == null)
-                return tableView.CellAt(indexPath);
-            return sourceBase.CellAt(tableView, indexPath);
-        }
-
-        public static NSIndexPath IndexPathForCellEx(this UITableView tableView, UITableViewCell cell)
-        {
-            Should.NotBeNull(tableView, nameof(tableView));
-            var sourceBase = tableView.Source as TableViewSourceBase;
-            if (sourceBase == null)
-                return tableView.IndexPathForCell(cell);
-            return sourceBase.IndexPathForCell(tableView, cell);
-        }
-
-        public static UICollectionViewCell CellForItemEx(this UICollectionView collectionView, NSIndexPath indexPath)
-        {
-            Should.NotBeNull(collectionView, nameof(collectionView));
-            var sourceBase = collectionView.Source as CollectionViewSourceBase;
-            if (sourceBase == null)
-                return collectionView.CellForItem(indexPath);
-            return sourceBase.CellForItem(collectionView, indexPath);
-        }
-
-        public static NSIndexPath IndexPathForCellEx(this UICollectionView collectionView, UICollectionViewCell cell)
-        {
-            Should.NotBeNull(collectionView, nameof(collectionView));
-            var sourceBase = collectionView.Source as CollectionViewSourceBase;
-            if (sourceBase == null)
-                return collectionView.IndexPathForCell(cell);
-            return sourceBase.IndexPathForCell(collectionView, cell);
-        }
-
-        public static void SetEditingStyle([NotNull]this UITableViewCell cell, UITableViewCellEditingStyle editingStyle)
-        {
-            Should.NotBeNull(cell, nameof(cell));
-            cell.SetBindingMemberValue(AttachedMembers.UITableViewCell.EditingStyle, editingStyle);
         }
 
         public static void SetToolbarItemsEx([NotNull] this UIViewController controller, UIBarButtonItem[] items,
@@ -418,8 +353,25 @@ namespace MugenMvvmToolkit.iOS
         public static IMvvmViewControllerMediator GetOrCreateMediator(this UIViewController controller, ref IMvvmViewControllerMediator mediator)
         {
             if (mediator == null)
-                Interlocked.CompareExchange(ref mediator, MvvmViewControllerMediatorFactory(controller, DataContext.Empty), null);
+                Interlocked.CompareExchange(ref mediator, (IMvvmViewControllerMediator)MediatorFactory(controller, DataContext.Empty, typeof(IMvvmViewControllerMediator)), null);
             return mediator;
+        }
+
+        [CanBeNull]
+        public static T FindParent<T>([CanBeNull] this INativeObject obj)
+            where T : class
+        {
+            if (obj == null)
+                return null;
+            object item = BindingServiceProvider.VisualTreeManager.GetParent(obj);
+            while (item != null)
+            {
+                var result = item as T;
+                if (result != null)
+                    return result;
+                item = BindingServiceProvider.VisualTreeManager.GetParent(item);
+            }
+            return null;
         }
 
         internal static WeakReference CreateWeakReference(object item)
@@ -428,23 +380,6 @@ namespace MugenMvvmToolkit.iOS
             if (obj == null)
                 return new WeakReference(item, true);
             return AttachedValueProvider.GetNativeObjectWeakReference(obj);
-        }
-
-        [CanBeNull]
-        internal static T FindParent<T>([CanBeNull] this INativeObject obj)
-            where T : class
-        {
-            if (obj == null)
-                return null;
-            object item = BindingServiceProvider.VisualTreeManager.FindParent(obj);
-            while (item != null)
-            {
-                var result = item as T;
-                if (result != null)
-                    return result;
-                item = BindingServiceProvider.VisualTreeManager.FindParent(item);
-            }
-            return null;
         }
 
         internal static object SelectTemplateWithContext(this IDataTemplateSelector selector,
@@ -499,35 +434,6 @@ namespace MugenMvvmToolkit.iOS
                 return;
             for (int index = 0; index < items.Length; index++)
                 ParentObserver.Raise(items[index], true);
-        }
-
-        private static void AddButtonOS7([NotNull] this UIActionSheet actionSheet, string title, string binding, IList<object> sources)
-        {
-            var id = Guid.NewGuid().ToString("N");
-            actionSheet.AddButton(id);
-            var subviews = actionSheet.Subviews;
-            UIButton button = null;
-            if (subviews != null)
-                button = subviews.OfType<UIButton>().FirstOrDefault(view => view.CurrentTitle == id);
-            if (button == null)
-            {
-                actionSheet.AddButtonOS8(title, binding, sources);
-                return;
-            }
-            button.SetTitle(title, button.State);
-            ParentObserver.GetOrAdd(button).Parent = actionSheet;
-            if (!string.IsNullOrEmpty(binding))
-                button.BindFromExpression(binding, sources);
-        }
-
-        private static void AddButtonOS8([NotNull] this UIActionSheet actionSheet, string title, string binding, IList<object> sources)
-        {
-            var index = actionSheet.AddButton(title);
-            var buttonClosure = new ActionSheetButtonClosure { Index = index };
-            actionSheet.Clicked += buttonClosure.OnClick;
-            buttonClosure.SetBindingMemberValue(AttachedMembers.Object.Parent, actionSheet);
-            if (!string.IsNullOrEmpty(binding))
-                BindingServiceProvider.BindingProvider.CreateBindingsFromString(buttonClosure, binding, sources);
         }
 
         #endregion

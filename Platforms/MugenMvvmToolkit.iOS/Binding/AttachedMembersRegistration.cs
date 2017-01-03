@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Linq;
+using System.Reflection;
 using Foundation;
 using MonoTouch.Dialog;
 using MugenMvvmToolkit.Binding;
@@ -14,7 +15,6 @@ using MugenMvvmToolkit.iOS.Binding.Infrastructure;
 using MugenMvvmToolkit.iOS.Binding.Interfaces;
 using MugenMvvmToolkit.iOS.Binding.Models;
 using MugenMvvmToolkit.iOS.MonoTouch.Dialog;
-using MugenMvvmToolkit.iOS.Views;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
@@ -265,42 +265,80 @@ namespace MugenMvvmToolkit.iOS.Binding
             MemberProvider.Register(typeof(UICollectionView), AttachedMemberConstants.ItemTemplate, itemTemplateMember, true);
         }
 
-        public static void RegisterCollectionViewCellMembers()
-        {
-            MemberProvider.Register(AttachedBindingMember.CreateEvent(AttachedMembers.UICollectionViewCell.ClickEvent));
-            MemberProvider.Register(AttachedBindingMember
-                .CreateNotifiableMember(AttachedMembers.UICollectionViewCell.Selected, (info, cell) =>
-                    {
-                        if (CollectionViewSourceBase.HasMask(cell, CollectionViewSourceBase.InitializingStateMask))
-                            return null;
-                        var cellBindable = cell as UICollectionViewCellBindable;
-                        if (cellBindable == null)
-                            return cell.Selected;
-                        return cellBindable.SelectedBind.GetValueOrDefault();
-                    },
-                    (info, cell, arg3) =>
-                    {
-                        var cellBindable = cell as UICollectionViewCellBindable;
-                        if (cellBindable == null)
-                            cell.Selected = arg3.GetValueOrDefault();
-                        else
-                            cellBindable.SelectedBind = arg3;
-                        return true;
-                    }));
-            MemberProvider.Register(AttachedBindingMember
-                .CreateNotifiableMember(AttachedMembers.UICollectionViewCell.Highlighted, (info, cell) => cell.Highlighted,
-                    (info, cell, arg3) =>
-                    {
-                        cell.Highlighted = arg3;
-                        return true;
-                    }));
-            MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UICollectionViewCell.ShouldHighlight));
-            MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UICollectionViewCell.ShouldDeselect));
-            MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UICollectionViewCell.ShouldSelect));
-        }
-
         public static void RegisterDialogElementMembers()
         {
+            DefaultCollectionViewManager.InsertInternalHandler = (view, index, item) =>
+            {
+                var section = view as Section;
+                if (section != null)
+                {
+                    section.Insert(index, (Element)item);
+                    ((Element)item).RaiseParentChanged();
+                    return true;
+                }
+
+                var rootElement = view as RootElement;
+                if (rootElement != null)
+                {
+                    rootElement.Insert(index, (Section)item);
+                    ((Section)item).RaiseParentChanged();
+                    return true;
+                }
+                return false;
+            };
+            DefaultCollectionViewManager.RemoveAtInternalHandler = (view, index) =>
+            {
+                var section = view as Section;
+                if (section != null)
+                {
+                    var element = section[index];
+                    section.Remove(index);
+                    element.ClearBindingsRecursively(true, true);
+                    element.DisposeEx();
+                    return true;
+                }
+
+                var rootElement = view as RootElement;
+                if (rootElement != null)
+                {
+                    var element = rootElement[index];
+                    rootElement.RemoveAt(index);
+                    element.ClearBindingsRecursively(true, true);
+                    element.DisposeEx();
+                    return true;
+                }
+                return false;
+            };
+            DefaultCollectionViewManager.ClearInternalHandler = view =>
+            {
+                var section = view as Section;
+                if (section != null)
+                {
+                    var elements = section.OfType<Element>().ToArray();
+                    section.Clear();
+                    foreach (var element in elements)
+                    {
+                        element.ClearBindingsRecursively(true, true);
+                        element.DisposeEx();
+                    }
+                    return true;
+                }
+
+                var rootElement = view as RootElement;
+                if (rootElement != null)
+                {
+                    var elements = rootElement.ToArray();
+                    rootElement.Clear();
+                    foreach (var element in elements)
+                    {
+                        element.ClearBindingsRecursively(true, true);
+                        element.DisposeEx();
+                    }
+                    return true;
+                }
+                return false;
+            };
+
             BindingBuilderExtensions.RegisterDefaultBindingMember<Element>(nameof(Element.Caption));
             MemberProvider.Register(AttachedBindingMember.CreateMember<Element, string>(nameof(Element.Caption),
                 (info, element) => element.Caption,
@@ -315,6 +353,19 @@ namespace MugenMvvmToolkit.iOS.Binding
 
         public static void RegisterDialogEntryElementMembers()
         {
+            var field = typeof(EntryElement).GetField("entry", BindingFlags.NonPublic | BindingFlags.Instance);
+            if (field != null && field.FieldType == typeof(UITextField))
+            {
+                var getEntryField = ServiceProvider.ReflectionManager.GetMemberGetter<UITextField>(field);
+                TouchBindingErrorProvider.TryGetEntryField = target =>
+                {
+                    var element = target as EntryElement;
+                    if (element != null)
+                        target = getEntryField(element);
+                    return target;
+                };
+            }
+
             BindingBuilderExtensions.RegisterDefaultBindingMember<EntryElement>(nameof(EntryElement.Value));
             var member = MemberProvider.GetBindingMember(typeof(EntryElement), nameof(EntryElement.Changed), true, false);
             if (member != null)
@@ -361,7 +412,6 @@ namespace MugenMvvmToolkit.iOS.Binding
             BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UITableView.ScrollPosition] = BindingServiceProvider.TemplateMemberPriority + 1;
 
             BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.UIView.ItemsSource.Override<UITableView>());
-            MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITableView.ReadOnly));
             MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITableView.AddAnimation));
             MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITableView.RemoveAnimation));
             MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITableView.ReplaceAnimation));
@@ -390,47 +440,7 @@ namespace MugenMvvmToolkit.iOS.Binding
             MemberProvider.Register("Click", member);
             MemberProvider.Register(AttachedBindingMember.CreateEvent(AttachedMembers.UITableViewCell.DeleteClickEvent));
             MemberProvider.Register(AttachedBindingMember.CreateEvent(AttachedMembers.UITableViewCell.InsertClickEvent));
-            MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITableViewCell.Moveable));
             MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITableViewCell.TitleForDeleteConfirmation));
-            MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITableViewCell.EditingStyle));
-            MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITableViewCell.ShouldHighlight));
-            MemberProvider.Register(AttachedBindingMember.CreateEvent(AttachedMembers.UITableViewCell.ClickEvent));
-            MemberProvider.Register(AttachedBindingMember.CreateNotifiableMember(
-                AttachedMembers.UITableViewCell.Selected, (info, cell) =>
-                {
-                    if (TableViewSourceBase.HasMask(cell, TableViewSourceBase.InitializingStateMask))
-                        return null;
-                    var cellBindable = cell as UITableViewCellBindable;
-                    if (cellBindable == null)
-                        return cell.Selected;
-                    return cellBindable.SelectedBind.GetValueOrDefault();
-                }, (info, cell, arg3) =>
-                {
-                    var cellBindable = cell as UITableViewCellBindable;
-                    if (cellBindable == null)
-                        cell.Selected = arg3.GetValueOrDefault();
-                    else
-                        cellBindable.SelectedBind = arg3;
-                    return true;
-                }));
-            MemberProvider.Register(AttachedBindingMember.CreateNotifiableMember(
-                AttachedMembers.UITableViewCell.Highlighted, (info, cell) => cell.Highlighted,
-                (info, cell, arg3) =>
-                {
-                    if (cell.Highlighted == arg3)
-                        return false;
-                    cell.Highlighted = arg3;
-                    return true;
-                }));
-            MemberProvider.Register(AttachedBindingMember.CreateNotifiableMember(
-                AttachedMembers.UITableViewCell.Editing, (info, cell) => cell.Editing,
-                (info, cell, arg3) =>
-                {
-                    if (cell.Editing == arg3)
-                        return false;
-                    cell.Editing = arg3;
-                    return true;
-                }));
         }
 
         private static void SetTableViewSelectedItem(IBindingMemberInfo bindingMemberInfo, UITableView uiTableView, object arg3)
@@ -448,7 +458,7 @@ namespace MugenMvvmToolkit.iOS.Binding
         private static void TableViewItemsSourceChanged(UITableView uiTableView, AttachedMemberChangedEventArgs<IEnumerable> args)
         {
             if (uiTableView.Source == null)
-                uiTableView.Source = TableViewSourceBase.Factory(uiTableView, DataContext.Empty);
+                uiTableView.Source = PlatformExtensions.TableViewSourceFactory(uiTableView, DataContext.Empty);
             var tableViewSource = uiTableView.Source as ItemsSourceTableViewSource;
             if (tableViewSource != null)
                 tableViewSource.ItemsSource = args.NewValue;
@@ -469,7 +479,7 @@ namespace MugenMvvmToolkit.iOS.Binding
         private static void CollectionViewItemsSourceChanged(UICollectionView collectionView, AttachedMemberChangedEventArgs<IEnumerable> args)
         {
             if (collectionView.Source == null)
-                collectionView.Source = CollectionViewSourceBase.Factory(collectionView, DataContext.Empty);
+                collectionView.Source = PlatformExtensions.CollectionViewSourceFactory(collectionView, DataContext.Empty);
             var source = collectionView.Source as ItemsSourceCollectionViewSource;
             if (source != null)
                 source.ItemsSource = args.NewValue;

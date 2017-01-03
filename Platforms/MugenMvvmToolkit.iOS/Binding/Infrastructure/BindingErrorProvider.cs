@@ -35,8 +35,6 @@ using Xamarin.Forms;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.iOS.Binding.Infrastructure
 #else
-using System.Reflection;
-using MonoTouch.Dialog;
 using MugenMvvmToolkit.iOS.Interfaces;
 using MugenMvvmToolkit.iOS.Views;
 
@@ -191,7 +189,11 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
                     return;
                 _popup.RemoveFromSuperview();
                 _popup.ClearBindingsRecursively(true, true);
+#if XAMARIN_FORMS
+                _popup.Dispose();
+#else
                 _popup.DisposeEx();
+#endif
                 _popup = null;
             }
 
@@ -252,8 +254,6 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 #if XAMARIN_FORMS
         protected const string NativeViewKey = "##NativeView";
         private static int _state;
-#else
-        private static readonly Func<object, UITextField> GetEntryField;
 #endif
         private static UIImage _defaultErrorImage;
 
@@ -264,13 +264,6 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 #if XAMARIN_FORMS
         public XamarinFormsTouchBindingErrorProvider()
 #else
-        static TouchBindingErrorProvider()
-        {
-            var field = typeof(EntryElement).GetField("entry", BindingFlags.NonPublic | BindingFlags.Instance);
-            if (field != null && field.FieldType == typeof(UITextField))
-                GetEntryField = ServiceProvider.ReflectionManager.GetMemberGetter<UITextField>(field);
-        }
-
         public TouchBindingErrorProvider()
 #endif
 
@@ -302,6 +295,9 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         public bool RightErrorImagePosition { get; set; }
 
+#if !XAMARIN_FORMS
+        internal static Func<object, object> TryGetEntryField { get; set; }
+#endif
         #endregion
 
         #region Methods
@@ -331,9 +327,8 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             if (element != null)
                 target = GetNativeView(element);
 #else
-            var element = target as EntryElement;
-            if (element != null && GetEntryField != null)
-                target = GetEntryField(element);
+            if (TryGetEntryField != null)
+                target = TryGetEntryField(target);
 #endif
             var nativeObject = target as INativeObject;
             if (!nativeObject.IsAlive())
@@ -388,7 +383,11 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
                     if (errorButton != null)
                     {
                         errorButton.ClearBindingsRecursively(true, true);
+#if XAMARIN_FORMS
+                        errorButton.Dispose();
+#else
                         errorButton.DisposeEx();
+#endif
                     }
                 }
                 else

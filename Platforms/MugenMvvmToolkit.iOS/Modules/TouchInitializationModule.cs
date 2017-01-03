@@ -18,9 +18,11 @@
 
 using MugenMvvmToolkit.iOS.Infrastructure;
 using MugenMvvmToolkit.iOS.Infrastructure.Callbacks;
+using MugenMvvmToolkit.iOS.Infrastructure.Mediators;
 using MugenMvvmToolkit.iOS.Infrastructure.Navigation;
 using MugenMvvmToolkit.iOS.Infrastructure.Presenters;
 using MugenMvvmToolkit.iOS.Interfaces;
+using MugenMvvmToolkit.iOS.Interfaces.Mediators;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
@@ -29,6 +31,7 @@ using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models.IoC;
 using MugenMvvmToolkit.Modules;
+using UIKit;
 
 namespace MugenMvvmToolkit.iOS.Modules
 {
@@ -38,6 +41,15 @@ namespace MugenMvvmToolkit.iOS.Modules
 
         public override bool Load(IModuleContext context)
         {
+            var mediatorFactory = PlatformExtensions.MediatorFactory;
+            PlatformExtensions.MediatorFactory = (controller, dataContext, type) =>
+            {
+                if (controller is UIViewController && typeof(IMvvmViewControllerMediator).IsAssignableFrom(type))
+                    return new MvvmViewControllerMediator((UIViewController)controller);
+                return mediatorFactory?.Invoke(controller, dataContext, type);
+            };
+            PlatformExtensions.ObjectLifecycleManager = new DefaultObjectLifecycleManager();
+
             if (context.IocContainer != null)
                 BindApplicationStateManager(context, context.IocContainer);
             return base.Load(context);

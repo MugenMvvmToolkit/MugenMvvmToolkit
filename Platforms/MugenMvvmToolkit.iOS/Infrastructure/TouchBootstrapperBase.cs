@@ -20,7 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Parse;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -37,7 +37,6 @@ using UIKit;
 
 namespace MugenMvvmToolkit.iOS.Infrastructure
 {
-    //todo linker types
     public abstract class TouchBootstrapperBase : BootstrapperBase, IDynamicViewModelPresenter
     {
         #region Fields
@@ -53,11 +52,11 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
         static TouchBootstrapperBase()
         {
             ReflectionExtensions.GetTypesDefault = assembly => assembly.GetTypes();
-            ApplicationSettings.MultiViewModelPresenterCanShowViewModel = CanShowViewModelTabPresenter;
+            ApplicationSettings.MultiViewModelPresenterCanShowViewModel = CanShowViewModelTabPresenter;//todo fix
             ApplicationSettings.NavigationPresenterCanShowViewModel = CanShowViewModelNavigationPresenter;
             ServiceProvider.WeakReferenceFactory = PlatformExtensions.CreateWeakReference;
             ApplicationSettings.ViewManagerDisposeView = true;
-            CompiledExpressionInvoker.SupportCoalesceExpression = false;
+            BindingServiceProvider.CompiledExpressionInvokerSupportCoalesceExpression = false;
         }
 
         protected TouchBootstrapperBase([NotNull] UIWindow window, PlatformInfo platform = null)

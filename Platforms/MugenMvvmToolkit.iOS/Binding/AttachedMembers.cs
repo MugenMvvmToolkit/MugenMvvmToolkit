@@ -228,7 +228,6 @@ namespace MugenMvvmToolkit.iOS.Binding
             public new static readonly BindingMemberDescriptor<UIKit.UITableView, ITableCellTemplateSelector> ItemTemplateSelector;
             public static readonly BindingMemberDescriptor<UIKit.UITableView, object> SelectedItem;
             public static readonly BindingMemberDescriptor<UIKit.UITableView, IEventListener> SelectedItemChangedEvent;
-            public static readonly BindingMemberDescriptor<UIKit.UITableView, bool> ReadOnly;
             public static readonly BindingMemberDescriptor<UIKit.UITableView, bool?> UseAnimations;
             public static readonly BindingMemberDescriptor<UIKit.UITableView, UITableViewRowAnimation?> AddAnimation;
             public static readonly BindingMemberDescriptor<UIKit.UITableView, UITableViewRowAnimation?> RemoveAnimation;
@@ -244,7 +243,6 @@ namespace MugenMvvmToolkit.iOS.Binding
                 ItemTemplateSelector = new BindingMemberDescriptor<UIKit.UITableView, ITableCellTemplateSelector>(AttachedMemberConstants.ItemTemplateSelector);
                 SelectedItem = new BindingMemberDescriptor<UIKit.UITableView, object>(AttachedMemberConstants.SelectedItem);
                 SelectedItemChangedEvent = new BindingMemberDescriptor<UIKit.UITableView, IEventListener>("SelectedItemChanged");
-                ReadOnly = new BindingMemberDescriptor<UIKit.UITableView, bool>(nameof(ReadOnly));
                 UseAnimations = new BindingMemberDescriptor<UIKit.UITableView, bool?>(nameof(UseAnimations));
                 AddAnimation = new BindingMemberDescriptor<UIKit.UITableView, UITableViewRowAnimation?>(nameof(AddAnimation));
                 RemoveAnimation = new BindingMemberDescriptor<UIKit.UITableView, UITableViewRowAnimation?>(nameof(RemoveAnimation));
@@ -260,17 +258,9 @@ namespace MugenMvvmToolkit.iOS.Binding
             #region Fields
 
             public static readonly BindingMemberDescriptor<UIKit.UITableViewCell, IEventListener> AccessoryButtonTappedEvent;
-            public static readonly BindingMemberDescriptor<UIKit.UITableViewCell, IEventListener> ClickEvent;
-
             public static readonly BindingMemberDescriptor<UIKit.UITableViewCell, IEventListener> DeleteClickEvent;
             public static readonly BindingMemberDescriptor<UIKit.UITableViewCell, IEventListener> InsertClickEvent;
-            public static readonly BindingMemberDescriptor<UIKit.UITableViewCell, bool?> Moveable;
             public static readonly BindingMemberDescriptor<UIKit.UITableViewCell, string> TitleForDeleteConfirmation;
-            public static readonly BindingMemberDescriptor<UIKit.UITableViewCell, UITableViewCellEditingStyle?> EditingStyle;
-            public static readonly BindingMemberDescriptor<UIKit.UITableViewCell, bool?> ShouldHighlight;
-            public static readonly BindingMemberDescriptor<UIKit.UITableViewCell, bool?> Selected;
-            public static readonly BindingMemberDescriptor<UIKit.UITableViewCell, bool> Highlighted;
-            public static readonly BindingMemberDescriptor<UIKit.UITableViewCell, bool> Editing;
 
             #endregion
 
@@ -281,14 +271,7 @@ namespace MugenMvvmToolkit.iOS.Binding
                 AccessoryButtonTappedEvent = new BindingMemberDescriptor<UIKit.UITableViewCell, IEventListener>("AccessoryButtonTapped");
                 DeleteClickEvent = new BindingMemberDescriptor<UIKit.UITableViewCell, IEventListener>("DeleteClick");
                 InsertClickEvent = new BindingMemberDescriptor<UIKit.UITableViewCell, IEventListener>("InsertClick");
-                Moveable = new BindingMemberDescriptor<UIKit.UITableViewCell, bool?>(nameof(Moveable));
                 TitleForDeleteConfirmation = new BindingMemberDescriptor<UIKit.UITableViewCell, string>(nameof(TitleForDeleteConfirmation));
-                EditingStyle = new BindingMemberDescriptor<UIKit.UITableViewCell, UITableViewCellEditingStyle?>(nameof(EditingStyle));
-                ShouldHighlight = new BindingMemberDescriptor<UIKit.UITableViewCell, bool?>(nameof(ShouldHighlight));
-                Selected = new BindingMemberDescriptor<UIKit.UITableViewCell, bool?>(nameof(Selected));
-                Highlighted = new BindingMemberDescriptor<UIKit.UITableViewCell, bool>(nameof(Highlighted));
-                Editing = new BindingMemberDescriptor<UIKit.UITableViewCell, bool>(nameof(Editing));
-                ClickEvent = new BindingMemberDescriptor<UIKit.UITableViewCell, IEventListener>("Click");
             }
 
             #endregion
@@ -315,34 +298,6 @@ namespace MugenMvvmToolkit.iOS.Binding
                 SelectedItemChangedEvent = new BindingMemberDescriptor<UIKit.UICollectionView, IEventListener>("SelectedItemChanged");
                 UseAnimations = new BindingMemberDescriptor<UIKit.UICollectionView, bool?>(nameof(UseAnimations));
                 ScrollPosition = new BindingMemberDescriptor<UIKit.UICollectionView, UICollectionViewScrollPosition?>(nameof(ScrollPosition));
-            }
-
-            #endregion
-        }
-
-        public abstract class UICollectionViewCell : UIView
-        {
-            #region Fields
-
-            public static readonly BindingMemberDescriptor<UIKit.UICollectionViewCell, bool?> ShouldSelect;
-            public static readonly BindingMemberDescriptor<UIKit.UICollectionViewCell, bool?> ShouldDeselect;
-            public static readonly BindingMemberDescriptor<UIKit.UICollectionViewCell, bool?> ShouldHighlight;
-            public static readonly BindingMemberDescriptor<UIKit.UICollectionViewCell, bool?> Selected;
-            public static readonly BindingMemberDescriptor<UIKit.UICollectionViewCell, bool> Highlighted;
-            public static readonly BindingMemberDescriptor<UIKit.UICollectionViewCell, IEventListener> ClickEvent;
-
-            #endregion
-
-            #region Constructors
-
-            static UICollectionViewCell()
-            {
-                ShouldSelect = new BindingMemberDescriptor<UIKit.UICollectionViewCell, bool?>(nameof(ShouldSelect));
-                ShouldDeselect = new BindingMemberDescriptor<UIKit.UICollectionViewCell, bool?>(nameof(ShouldDeselect));
-                ShouldHighlight = new BindingMemberDescriptor<UIKit.UICollectionViewCell, bool?>(nameof(ShouldHighlight));
-                Selected = new BindingMemberDescriptor<UIKit.UICollectionViewCell, bool?>(nameof(Selected));
-                Highlighted = new BindingMemberDescriptor<UIKit.UICollectionViewCell, bool>(nameof(Highlighted));
-                ClickEvent = new BindingMemberDescriptor<UIKit.UICollectionViewCell, IEventListener>("Click");
             }
 
             #endregion
