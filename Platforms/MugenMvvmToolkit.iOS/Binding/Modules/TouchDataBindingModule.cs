@@ -42,7 +42,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
             PlatformExtensions.CollectionViewSourceFactory = (o, ctx) => new ItemsSourceCollectionViewSource(o);
 
             if (context.PlatformInfo.Platform == PlatformType.iOS)
-                BindingServiceProvider.Initialize(errorProvider: new TouchBindingErrorProvider(), converter: BindingReflectionExtensions.Convert);
+                BindingServiceProvider.Initialize(errorProvider: new TouchBindingErrorProvider());
 
             context.TryRegisterDataTemplateSelectorsAndValueConverters(null);
             MugenMvvmToolkit.Binding.AttachedMembersRegistration.RegisterDefaultMembers();

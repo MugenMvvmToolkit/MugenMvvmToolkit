@@ -193,7 +193,7 @@ namespace MugenMvvmToolkit.UWP.Binding.Infrastructure
             var currentElement = target as FrameworkElement;
             while (target != null && currentElement == null)
             {
-                target = BindingServiceProvider.VisualTreeManager.FindParent(target);
+                target = BindingServiceProvider.VisualTreeManager.GetParent(target);
                 currentElement = target as FrameworkElement;
             }
             return currentElement;

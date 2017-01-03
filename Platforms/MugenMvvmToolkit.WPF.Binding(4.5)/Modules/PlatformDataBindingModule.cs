@@ -130,7 +130,7 @@ namespace MugenMvvmToolkit.UWP.Binding.Modules
 
         #region Properties
 
-        public int Priority => ApplicationSettings.ModulePriorityBinding + 1;
+        public int Priority => ApplicationSettings.ModulePriorityInitialization + 1;
 
         #endregion
 
@@ -141,14 +141,12 @@ namespace MugenMvvmToolkit.UWP.Binding.Modules
 #if WPF
             if (context.PlatformInfo.Platform == PlatformType.WPF)
             {
-                BindingServiceProvider.Initialize(memberProvider: new WpfBindingMemberProvider(), contextManager: new WpfBindingContextManager(),
-                    errorProvider: new WpfBindingErrorProvider(), converter: BindingReflectionExtensions.Convert);
+                BindingServiceProvider.Initialize(memberProvider: new WpfBindingMemberProvider(), contextManager: new WpfBindingContextManager(), errorProvider: new WpfBindingErrorProvider());
             }
 #elif WINDOWS_UWP
             if (context.PlatformInfo.Platform == PlatformType.UWP)
             {
-                BindingServiceProvider.Initialize(memberProvider: new UwpBindingMemberProvider(), contextManager: new UwpBindingContextManager(),
-                       errorProvider: new UwpBindingErrorProvider()/*, converter: BindingReflectionExtensions.Convert*/);//todo fix
+                BindingServiceProvider.Initialize(memberProvider: new UwpBindingMemberProvider(), contextManager: new UwpBindingContextManager(), errorProvider: new UwpBindingErrorProvider());
             }
 #endif
             context.TryRegisterDataTemplateSelectorsAndValueConverters(RegisterType);

@@ -52,7 +52,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
         static TouchBootstrapperBase()
         {
             ReflectionExtensions.GetTypesDefault = assembly => assembly.GetTypes();
-            ApplicationSettings.MultiViewModelPresenterCanShowViewModel = CanShowViewModelTabPresenter;//todo fix
+            ApplicationSettings.MultiViewModelPresenterCanShowViewModel = CanShowViewModelTabPresenter;
             ApplicationSettings.NavigationPresenterCanShowViewModel = CanShowViewModelNavigationPresenter;
             ServiceProvider.WeakReferenceFactory = PlatformExtensions.CreateWeakReference;
             ApplicationSettings.ViewManagerDisposeView = true;

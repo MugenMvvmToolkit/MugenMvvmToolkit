@@ -27,7 +27,7 @@ namespace MugenMvvmToolkit.Android.AppCompat.Modules
     {
         #region Implementation of IModule
 
-        public int Priority => ApplicationSettings.ModulePriorityBinding - 2;
+        public int Priority => ApplicationSettings.ModulePriorityInitialization - 2;
 
         public bool Load(IModuleContext context)
         {

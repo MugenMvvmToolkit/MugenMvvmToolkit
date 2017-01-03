@@ -28,7 +28,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.Modules
     {
         #region Properties
 
-        public int Priority => ApplicationSettings.ModulePriorityBinding + 1;
+        public int Priority => ApplicationSettings.ModulePriorityInitialization + 1;
 
         #endregion
 
@@ -37,7 +37,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.Modules
         public bool Load(IModuleContext context)
         {
             if (context.PlatformInfo.Platform == PlatformType.WinForms)
-                BindingServiceProvider.Initialize(errorProvider: new WinFormsBindingErrorProvider(), converter: BindingReflectionExtensions.Convert);
+                BindingServiceProvider.Initialize(errorProvider: new WinFormsBindingErrorProvider());
 
             context.TryRegisterDataTemplateSelectorsAndValueConverters(null);
             MugenMvvmToolkit.Binding.AttachedMembersRegistration.RegisterDefaultMembers();

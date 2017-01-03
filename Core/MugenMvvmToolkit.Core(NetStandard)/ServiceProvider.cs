@@ -87,6 +87,15 @@ namespace MugenMvvmToolkit
         [CanBeNull]
         public static Func<Type, IEnumerable<Type>> EntityMetadataTypeProvider { get; set; }
 
+        [CanBeNull]
+        public static Func<IViewModel, Type, IDataContext, IWindowViewMediator> WindowViewMediatorFactory { get; set; }
+
+        [CanBeNull]
+        public static IItemsSourceDecorator ItemsSourceDecorator { get; set; }
+
+        [CanBeNull]
+        public static IOperationCallbackStateManager OperationCallbackStateManager { get; set; }
+
         [NotNull]
         public static SynchronizationContext UiSynchronizationContext
         {
@@ -114,15 +123,6 @@ namespace MugenMvvmToolkit
             get { return _instanceEventAggregatorFactory; }
             set { _instanceEventAggregatorFactory = value ?? GetInstanceEventAggregator; }
         }
-
-        [CanBeNull]
-        public static Func<IViewModel, Type, IDataContext, IWindowViewMediator> WindowViewMediatorFactory { get; set; }
-
-        [CanBeNull]
-        public static IItemsSourceDecorator ItemsSourceDecorator { get; set; }
-
-        [CanBeNull]
-        public static IOperationCallbackStateManager OperationCallbackStateManager { get; set; }
 
         [NotNull]
         public static IMvvmApplication Application

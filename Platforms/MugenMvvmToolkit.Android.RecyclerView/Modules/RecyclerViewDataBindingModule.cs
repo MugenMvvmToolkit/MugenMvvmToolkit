@@ -25,7 +25,7 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Modules
     {
         #region Implementation of IModule
 
-        public int Priority => ApplicationSettings.ModulePriorityBinding;
+        public int Priority => ApplicationSettings.ModulePriorityInitialization;
 
         public bool Load(IModuleContext context)
         {
