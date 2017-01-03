@@ -69,7 +69,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             private void UpdateParent(object target)
             {
                 var oldParent = _parent.Target;
-                var parent = BindingServiceProvider.VisualTreeManager.FindParent(target);
+                var parent = BindingServiceProvider.VisualTreeManager.GetParent(target);
                 if (oldParent != parent)
                 {
                     if (oldParent != null)
@@ -134,12 +134,10 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             return BindingServiceProvider.MemberProvider.GetBindingMember(type, AttachedMemberConstants.Parent, false, false);
         }
 
-        public virtual object FindParent(object target)
+        public virtual object GetParent(object target)
         {
             Should.NotBeNull(target, nameof(target));
-            Type type = target.GetType();
-            IBindingMemberInfo parentProp = GetParentMember(type);
-            return parentProp == null ? null : parentProp.GetValue(target, null);
+            return GetParentMember(target.GetType())?.GetValue(target, null);
         }
 
         public virtual object FindByName(object target, string elementName)
@@ -153,7 +151,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     ?.GetValue(target, new object[] { elementName });
                 if (result != null)
                     return result;
-                target = FindParent(target);
+                target = GetParent(target);
             }
             return null;
         }
@@ -167,7 +165,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             uint fullNameLevel = 0;
             uint nameLevel = 0;
 
-            target = FindParent(target);
+            target = GetParent(target);
             while (target != null)
             {
                 bool shortNameEqual;
@@ -189,7 +187,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                 if (nameSource != null && nameLevel == level)
                     return nameSource;
 
-                target = FindParent(target);
+                target = GetParent(target);
             }
             return null;
         }

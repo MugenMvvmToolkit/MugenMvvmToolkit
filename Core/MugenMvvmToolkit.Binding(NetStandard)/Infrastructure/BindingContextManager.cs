@@ -115,7 +115,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             private static IBindingContext GetParentBindingContext(object target)
             {
-                object parent = BindingServiceProvider.VisualTreeManager.FindParent(target);
+                object parent = BindingServiceProvider.VisualTreeManager.GetParent(target);
                 if (parent == null)
                     return null;
                 return BindingServiceProvider.ContextManager.GetBindingContext(parent);

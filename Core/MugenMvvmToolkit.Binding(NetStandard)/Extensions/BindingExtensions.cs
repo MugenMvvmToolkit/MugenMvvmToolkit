@@ -119,7 +119,7 @@ namespace MugenMvvmToolkit.Binding
 
             private static IBindingContext GetParentBindingContext(object target)
             {
-                object parent = BindingServiceProvider.VisualTreeManager.FindParent(target);
+                object parent = BindingServiceProvider.VisualTreeManager.GetParent(target);
                 if (parent == null)
                     return null;
                 return BindingServiceProvider.ContextManager.GetBindingContext(parent);
@@ -177,7 +177,7 @@ namespace MugenMvvmToolkit.Binding
                 }
 
                 IVisualTreeManager treeManager = BindingServiceProvider.VisualTreeManager;
-                _hasParent = treeManager.FindParent(target) != null;
+                _hasParent = treeManager.GetParent(target) != null;
                 Value = _isElementSource
                     ? treeManager.FindByName(target, _node.ElementName)
                     : treeManager.FindRelativeSource(target, _node.Type, _node.Level);

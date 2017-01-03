@@ -31,7 +31,7 @@ namespace MugenMvvmToolkit.Binding.Interfaces
         IBindingMemberInfo GetParentMember([NotNull] Type type);
 
         [CanBeNull]
-        object FindParent([NotNull] object target);
+        object GetParent([NotNull] object target);
 
         [CanBeNull]
         object FindByName([NotNull] object target, [NotNull] string elementName);
