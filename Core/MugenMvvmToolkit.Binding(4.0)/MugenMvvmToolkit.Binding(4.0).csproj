@@ -153,9 +153,6 @@
     <Compile Include="..\MugenMvvmToolkit.Binding%28NetStandard%29\Extensions\BindingReflectionExtensions.cs">
       <Link>Extensions\BindingReflectionExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Binding%28NetStandard%29\Extensions\BindingReflectionExtensionsCommon.cs">
-      <Link>Extensions\BindingReflectionExtensionsCommon.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Binding%28NetStandard%29\Extensions\BindingSyntaxEx.cs">
       <Link>Extensions\BindingSyntaxEx.cs</Link>
     </Compile>

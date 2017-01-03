@@ -89,18 +89,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
 
         #region Implementation of IPlatformService
 
-        public Func<IBindingMemberInfo, Type, object, object> ValueConverter
-        {
-            get
-            {
-#if WINDOWS_UWP || NETFX_CORE
-                return BindingServiceProvider.ValueConverter;
-#else
-                return BindingReflectionExtensions.Convert;
-#endif
-            }
-        }
-
         public PlatformInfo GetPlatformInfo()
         {
 #if WINDOWS_PHONE

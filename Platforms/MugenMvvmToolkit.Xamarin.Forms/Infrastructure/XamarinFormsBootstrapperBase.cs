@@ -22,7 +22,6 @@ using System.Linq;
 using System.Reflection;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Interfaces;
@@ -47,8 +46,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         public interface IPlatformService
         {
-            Func<IBindingMemberInfo, Type, object, object> ValueConverter { get; }
-
             PlatformInfo GetPlatformInfo();
 
             ICollection<Assembly> GetAssemblies();
@@ -77,7 +74,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             Should.NotBeNull(platformService, nameof(platformService));
             _platformService = platformService;
             _platform = platformService.GetPlatformInfo();
-            BindingServiceProvider.ValueConverter = platformService.ValueConverter;
         }
 
         #endregion

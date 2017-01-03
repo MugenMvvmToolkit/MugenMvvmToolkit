@@ -26,7 +26,6 @@ using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
-using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding
@@ -275,7 +274,7 @@ namespace MugenMvvmToolkit.Binding
             Func<IBindingMemberInfo, Type, object, object> converter = null, Func<string, IBindingPath> bindingPathFactory = null,
             Func<Type, string, IBindingMemberInfo> findUpdateEvent = null, Func<CultureInfo> bindingCultureInfo = null, IDictionary<string, IBindingBehavior> bindingModeBehaviors = null)
         {
-            ValueConverter = converter ?? ValueConverterDefaultImpl;
+            ValueConverter = converter ?? BindingReflectionExtensions.Convert;
             BindingProvider = bindingProvider ?? new BindingProvider();
             BindingManager = bindingManager ?? new BindingManager();
             ResourceResolver = resourceResolver ?? new BindingResourceResolver();
@@ -349,11 +348,6 @@ namespace MugenMvvmToolkit.Binding
                 }
                 return value;
             }
-        }
-
-        private static object ValueConverterDefaultImpl(IBindingMemberInfo bindingMember, Type type, object value)
-        {
-            return value;
         }
 
         private static void BindingDebuggerImpl(object sender, string tag, string message, object[] args = null)

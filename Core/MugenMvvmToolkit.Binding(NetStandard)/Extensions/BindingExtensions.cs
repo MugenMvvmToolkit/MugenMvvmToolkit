@@ -296,6 +296,11 @@ namespace MugenMvvmToolkit.Binding
 
         #region Methods
 
+        public static object Convert(IBindingMemberInfo member, Type type, object value)
+        {
+            return BindingReflectionExtensions.Convert(member, type, value);
+        }
+
         public static void TryRegisterDataTemplateSelectorsAndValueConverters(this IModuleContext context, Action<Type> customHandler)
         {
             ServiceProvider.BootstrapCodeBuilder?.AppendStatic(nameof(BindingExtensions),
