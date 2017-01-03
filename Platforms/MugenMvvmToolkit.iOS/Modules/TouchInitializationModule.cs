@@ -48,7 +48,7 @@ namespace MugenMvvmToolkit.iOS.Modules
                     return new MvvmViewControllerMediator((UIViewController)controller);
                 return mediatorFactory?.Invoke(controller, dataContext, type);
             };
-            PlatformExtensions.ObjectLifecycleManager = new DefaultObjectLifecycleManager();
+            PlatformExtensions.NativeObjectManager = new DefaultNativeObjectManager();
 
             if (context.IocContainer != null)
                 BindApplicationStateManager(context, context.IocContainer);

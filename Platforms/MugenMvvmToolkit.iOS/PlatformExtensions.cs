@@ -114,7 +114,7 @@ namespace MugenMvvmToolkit.iOS
         }
 
         [CanBeNull]
-        public static IObjectLifecycleManager ObjectLifecycleManager { get; set; }
+        public static INativeObjectManager NativeObjectManager { get; set; }
 
         public static bool AttachedValueProviderSuppressFinalize { get; set; }
 
@@ -133,7 +133,7 @@ namespace MugenMvvmToolkit.iOS
 
         public static void DisposeEx(this INativeObject nativeObject)
         {
-            ObjectLifecycleManager?.Dispose(nativeObject, null);
+            NativeObjectManager?.Dispose(nativeObject, null);
         }
 
         public static void SetInputViewEx([NotNull] this UITextField textField, UIView view)

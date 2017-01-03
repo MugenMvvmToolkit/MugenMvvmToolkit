@@ -77,7 +77,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
             var viewController = ViewController;
             if (viewController != null && !_isAppeared)
             {
-                PlatformExtensions.ObjectLifecycleManager?.Initialize(viewController, null);
+                PlatformExtensions.NativeObjectManager?.Initialize(viewController, null);
                 _isAppeared = true;
             }
             Raise(ViewWillAppearHandler, animated);
