@@ -46,7 +46,6 @@ namespace MugenMvvmToolkit
     {
         #region Nested types
 
-        //todo move
         public interface IWeakEventHandler<in TArg>
         {
             void Handle(object sender, TArg arg);

@@ -36,8 +36,6 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Fields
 
         protected const string ViewManagerCreatorPath = "@#vcreator";
-        private static Func<object, object> _getDataContext;
-        private static Action<object, object> _setDataContext;
         private readonly IThreadManager _threadManager;
         private readonly IViewMappingProvider _viewMappingProvider;
         private readonly IWrapperManager _wrapperManager;
@@ -45,12 +43,6 @@ namespace MugenMvvmToolkit.Infrastructure
         #endregion
 
         #region Constructors
-
-        static ViewManager()
-        {
-            GetDataContext = ReflectionExtensions.GetDataContext;
-            SetDataContext = (o, o1) => ReflectionExtensions.SetDataContext(o, o1);
-        }
 
         [Preserve(Conditional = true)]
         public ViewManager([NotNull] IThreadManager threadManager,
@@ -67,29 +59,6 @@ namespace MugenMvvmToolkit.Infrastructure
         #endregion
 
         #region Properties
-
-        //todo move
-        [NotNull]
-        public static Func<object, object> GetDataContext
-        {
-            get { return _getDataContext; }
-            set
-            {
-                Should.PropertyNotBeNull(value);
-                _getDataContext = item => value(ToolkitExtensions.GetUnderlyingView<object>(item));
-            }
-        }
-
-        [NotNull]
-        public static Action<object, object> SetDataContext
-        {
-            get { return _setDataContext; }
-            set
-            {
-                Should.PropertyNotBeNull(value);
-                _setDataContext = (item, context) => value(ToolkitExtensions.GetUnderlyingView<object>(item), context);
-            }
-        }
 
         protected IThreadManager ThreadManager => _threadManager;
 
@@ -246,7 +215,7 @@ namespace MugenMvvmToolkit.Infrastructure
             }
 
             if (viewModel != null || ApplicationSettings.ViewManagerClearDataContext)
-                SetDataContext(view, viewModel);
+                ToolkitExtensions.SetDataContext(view, viewModel);
             ReflectionExtensions.GetViewModelPropertySetter(view.GetType())?.Invoke(view, viewModel);
         }
 

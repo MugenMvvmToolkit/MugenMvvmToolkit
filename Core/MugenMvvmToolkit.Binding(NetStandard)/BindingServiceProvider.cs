@@ -78,8 +78,8 @@ namespace MugenMvvmToolkit.Binding
                 AttachedMemberConstants.DataContext
             };
             BindingPathCache = new Dictionary<string, IBindingPath>(StringComparer.Ordinal);
-            ViewManager.GetDataContext = BindingExtensions.DataContext;
-            ViewManager.SetDataContext = BindingExtensions.SetDataContext;
+            ToolkitExtensions.GetDataContext = BindingExtensions.DataContext;
+            ToolkitExtensions.SetDataContext = BindingExtensions.SetDataContext;
             BindingExceptionHandler = BindingExceptionHandlerImpl;
             BindingDebugger = BindingDebuggerImpl;
             ObservablePathDefault = true;

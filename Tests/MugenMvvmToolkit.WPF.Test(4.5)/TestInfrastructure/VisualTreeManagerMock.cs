@@ -36,7 +36,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
             return GetParentMember(type);
         }
 
-        object IVisualTreeManager.FindParent(object target)
+        object IVisualTreeManager.GetParent(object target)
         {
             if (FindParent == null)
                 return null;

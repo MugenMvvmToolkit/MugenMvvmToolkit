@@ -167,7 +167,7 @@ namespace MugenMvvmToolkit.WPF.Binding.Converters
         {
             if (value == null)
                 return null;
-            return ViewManager.GetDataContext(value);
+            return ToolkitExtensions.GetDataContext(value);
         }
 
         #endregion

@@ -22,7 +22,6 @@ using System.Windows.Controls;
 using System.Windows.Navigation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
-using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
@@ -127,7 +126,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             var content = CurrentContent;
-            return content != null && ViewManager.GetDataContext(content) == viewModel && CanGoBack;
+            return content != null && ToolkitExtensions.GetDataContext(content) == viewModel && CanGoBack;
         }
 
         public bool TryClose(IViewModel viewModel, IDataContext dataContext)

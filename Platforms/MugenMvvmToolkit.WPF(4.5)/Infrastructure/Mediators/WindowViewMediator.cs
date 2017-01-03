@@ -102,7 +102,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Mediators
                 if (_window == null)
                     return base.ViewModel;
                 if (ThreadManager.IsUiThread)
-                    return MugenMvvmToolkit.Infrastructure.ViewManager.GetDataContext(_window.Content) as IViewModel ?? base.ViewModel;
+                    return ToolkitExtensions.GetDataContext(_window.Content) as IViewModel ?? base.ViewModel;
                 return base.ViewModel;
             }
         }

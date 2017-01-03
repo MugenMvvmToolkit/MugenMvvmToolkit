@@ -21,8 +21,6 @@ using System.Linq;
 using System.Windows.Navigation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
-using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
@@ -116,7 +114,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             var content = CurrentContent;
-            return content != null && ViewManager.GetDataContext(content) == viewModel && CanGoBack;
+            return content != null && ToolkitExtensions.GetDataContext(content) == viewModel && CanGoBack;
         }
 
         public bool Navigate(NavigatingCancelEventArgsBase args, IDataContext dataContext)

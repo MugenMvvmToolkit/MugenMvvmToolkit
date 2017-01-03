@@ -5,7 +5,6 @@ using System.Linq;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
-using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Binding
@@ -146,11 +145,7 @@ namespace MugenMvvmToolkit.Binding
 
         public static void RegisterDefaultMembers()
         {
-            ViewManager.GetDataContext = BindingExtensions.DataContext;
-            ViewManager.SetDataContext = BindingExtensions.SetDataContext;
-
             var memberProvider = BindingServiceProvider.MemberProvider;
-
             var registration = new DefaultAttachedMemberRegistration<object>(CommandParameterInternal, AttachedMemberConstants.CommandParameter);
             memberProvider.Register(registration.ToAttachedBindingMember<object>());
             var parentMember = AttachedBindingMember.CreateMember<object, object>(AttachedMemberConstants.Parent, GetParent, SetParent, ObserveParent, ParentAttached);

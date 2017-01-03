@@ -22,7 +22,6 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using MugenMvvmToolkit.DataConstants;
-using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
@@ -131,7 +130,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             var content = CurrentContent;
-            var canClose = content != null && ViewManager.GetDataContext(content) == viewModel && CanGoBack;
+            var canClose = content != null && ToolkitExtensions.GetDataContext(content) == viewModel && CanGoBack;
             if (canClose)
                 return true;
             var viewModelId = viewModel.GetViewModelId();
@@ -147,7 +146,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             var content = CurrentContent;
-            if (content != null && ViewManager.GetDataContext(content) == viewModel && CanGoBack)
+            if (content != null && ToolkitExtensions.GetDataContext(content) == viewModel && CanGoBack)
             {
                 GoBack();
                 return true;

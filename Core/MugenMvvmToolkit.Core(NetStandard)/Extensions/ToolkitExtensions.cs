@@ -240,6 +240,8 @@ namespace MugenMvvmToolkit
         #region Fields
 
         private static readonly ManualResetEvent Sleeper;
+        private static Func<object, object> _getDataContext;
+        private static Action<object, object> _setDataContext;
 
         #endregion
 
@@ -248,6 +250,34 @@ namespace MugenMvvmToolkit
         static ToolkitExtensions()
         {
             Sleeper = new ManualResetEvent(false);
+            GetDataContext = ReflectionExtensions.GetDataContext;
+            SetDataContext = (o, o1) => ReflectionExtensions.SetDataContext(o, o1);
+        }
+
+        #endregion
+
+        #region Properties
+
+        [NotNull]
+        public static Func<object, object> GetDataContext
+        {
+            get { return _getDataContext; }
+            set
+            {
+                Should.PropertyNotBeNull(value);
+                _getDataContext = item => value(GetUnderlyingView<object>(item));
+            }
+        }
+
+        [NotNull]
+        public static Action<object, object> SetDataContext
+        {
+            get { return _setDataContext; }
+            set
+            {
+                Should.PropertyNotBeNull(value);
+                _setDataContext = (item, context) => value(GetUnderlyingView<object>(item), context);
+            }
         }
 
         #endregion

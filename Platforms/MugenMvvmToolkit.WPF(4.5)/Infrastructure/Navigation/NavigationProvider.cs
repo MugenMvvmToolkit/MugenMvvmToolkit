@@ -543,7 +543,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                 vm = CachePolicy.TryTakeViewModelFromCache(context, view);
 
             if (HasViewModel(view, vmType))
-                return (IViewModel)MugenMvvmToolkit.Infrastructure.ViewManager.GetDataContext(view);
+                return (IViewModel)ToolkitExtensions.GetDataContext(view);
             if (vm == null)
             {
                 IDataContext viewModelState = null;
@@ -791,7 +791,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         {
             if (view == null)
                 return false;
-            var viewModel = MugenMvvmToolkit.Infrastructure.ViewManager.GetDataContext(view) as IViewModel;
+            var viewModel = ToolkitExtensions.GetDataContext(view) as IViewModel;
             if (viewModel == null)
                 return false;
 
