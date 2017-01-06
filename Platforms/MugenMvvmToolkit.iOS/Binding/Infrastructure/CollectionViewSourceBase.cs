@@ -169,8 +169,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             else
                 cell = cellTemplateSelectorSupportDequeueReusableCell.DequeueReusableCell(collectionView, item, indexPath);
 
-            if (Equals(item, _selectedItem) && !cell.Selected)
-                collectionView.SelectItem(indexPath, false, UICollectionViewScrollPosition.None);
+            cell.SetDataContext(item);
             if (!HasMask(cell, InitializedStateMask))
             {
                 cell.Tag |= InitializedStateMask;
@@ -178,7 +177,6 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
                 selector.InitializeTemplate(collectionView, cell);
                 InitializeCell(cell);
             }
-            cell.SetDataContext(item);
             return cell;
         }
 

@@ -210,6 +210,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
                 ? tableView.DequeueReusableCell(selector.GetIdentifier(item, tableView), indexPath)
                 : cellTemplateSelectorSupportDequeueReusableCell.DequeueReusableCell(tableView, item, indexPath);
 
+            cell.SetDataContext(item);
             if (!HasMask(cell, InitializedStateMask))
             {
                 cell.Tag |= InitializedStateMask;
@@ -218,11 +219,6 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
                 InitializeCell(cell);
             }
             return cell;
-        }
-
-        public override void WillDisplay(UITableView tableView, UITableViewCell cell, NSIndexPath indexPath)
-        {
-            cell.SetDataContext(GetItemAt(indexPath));
         }
 
         public override nint NumberOfSections(UITableView tableView)
