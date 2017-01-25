@@ -19,6 +19,7 @@
 using System;
 using Android.Content;
 using Android.Content.Res;
+using Android.Runtime;
 using Android.Util;
 using Android.Views;
 using MugenMvvmToolkit.Android.Binding;
@@ -30,6 +31,15 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 {
     public class ViewFactory : IViewFactory
     {
+        #region Constructors
+
+        [Preserve(Conditional = true)]
+        public ViewFactory()
+        {
+        }
+
+        #endregion
+
         #region Methods
 
         protected virtual ViewResult GetViewResult(View view, Context context, IAttributeSet attrs)

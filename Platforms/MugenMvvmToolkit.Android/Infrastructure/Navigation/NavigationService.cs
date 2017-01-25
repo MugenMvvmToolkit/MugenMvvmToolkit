@@ -138,6 +138,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public NavigationService()
         {
             if (Build.VERSION.SdkInt >= BuildVersionCodes.IceCreamSandwich)
