@@ -261,6 +261,7 @@ namespace MugenMvvmToolkit.iOS.Binding
             public static readonly BindingMemberDescriptor<UIKit.UITableViewCell, IEventListener> DeleteClickEvent;
             public static readonly BindingMemberDescriptor<UIKit.UITableViewCell, IEventListener> InsertClickEvent;
             public static readonly BindingMemberDescriptor<UIKit.UITableViewCell, string> TitleForDeleteConfirmation;
+            public static readonly BindingMemberDescriptor<UIKit.UITableViewCell, UITableViewCellEditingStyle?> EditingStyle;
 
             #endregion
 
@@ -271,6 +272,7 @@ namespace MugenMvvmToolkit.iOS.Binding
                 AccessoryButtonTappedEvent = new BindingMemberDescriptor<UIKit.UITableViewCell, IEventListener>("AccessoryButtonTapped");
                 DeleteClickEvent = new BindingMemberDescriptor<UIKit.UITableViewCell, IEventListener>("DeleteClick");
                 InsertClickEvent = new BindingMemberDescriptor<UIKit.UITableViewCell, IEventListener>("InsertClick");
+                EditingStyle = new BindingMemberDescriptor<UIKit.UITableViewCell, UITableViewCellEditingStyle?>(nameof(EditingStyle));
                 TitleForDeleteConfirmation = new BindingMemberDescriptor<UIKit.UITableViewCell, string>(nameof(TitleForDeleteConfirmation));
             }
 

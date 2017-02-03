@@ -19,19 +19,18 @@
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
-using MugenMvvmToolkit.iOS.Binding.Interfaces;
 
 namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 {
-    public sealed class DataTemplateProvider : IEventListener
+    public sealed class DataTemplateProvider<TItem> : IEventListener
+        where TItem : class
     {
         #region Fields
 
         private readonly object _container;
 
         private readonly IBindingMemberInfo _templateSelectorMember;
-        private ICollectionCellTemplateSelector _collectionCellTemplateSelector;
-        private ITableCellTemplateSelector _tableCellTemplateSelector;
+        private TItem _templateSelector;
 
         #endregion
 
@@ -52,9 +51,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         #region Properties
 
-        public ITableCellTemplateSelector TableCellTemplateSelector => _tableCellTemplateSelector;
-
-        public ICollectionCellTemplateSelector CollectionCellTemplateSelector => _collectionCellTemplateSelector;
+        public TItem TemplateSelector => _templateSelector;
 
         bool IEventListener.IsAlive => true;
 
@@ -67,11 +64,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
         private void UpdateValues()
         {
             if (_templateSelectorMember != null)
-            {
-                var value = _templateSelectorMember.GetValue(_container, Empty.Array<object>());
-                _collectionCellTemplateSelector = value as ICollectionCellTemplateSelector;
-                _tableCellTemplateSelector = value as ITableCellTemplateSelector;
-            }
+                _templateSelector = _templateSelectorMember.GetValue(_container, Empty.Array<object>()) as TItem;
         }
 
         #endregion

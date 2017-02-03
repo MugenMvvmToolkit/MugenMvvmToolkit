@@ -196,7 +196,9 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         public virtual void GoBack()
         {
-            PlatformExtensions.CurrentActivity?.OnBackPressed();
+            var currentActivity = PlatformExtensions.CurrentActivity;
+            if (currentActivity != null && !currentActivity.IsFinishing)
+                currentActivity.OnBackPressed();
         }
 
         public virtual void GoForward()

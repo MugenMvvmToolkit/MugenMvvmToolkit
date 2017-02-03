@@ -93,7 +93,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
             TaskCompletionSource<MessageResult> tcs)
         {
 #if XAMARIN_FORMS
-            var activity = global::Xamarin.Forms.Forms.Context;
+            var activity = global::Xamarin.Forms.Forms.Context;//todo finishing
 #else
             var activity = PlatformExtensions.CurrentActivity;
 #endif

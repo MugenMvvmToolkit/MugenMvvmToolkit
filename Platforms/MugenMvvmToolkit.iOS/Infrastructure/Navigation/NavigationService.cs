@@ -49,6 +49,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public NavigationService([NotNull] UIWindow window,
             Func<UIWindow, UIViewController, UINavigationController> getOrCreateController = null,
             Func<UIWindow, UINavigationController> restoreNavigationController = null)

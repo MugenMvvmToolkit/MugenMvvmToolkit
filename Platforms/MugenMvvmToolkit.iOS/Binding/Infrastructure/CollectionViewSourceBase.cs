@@ -34,7 +34,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
         protected const int InitializedStateMask = 1;
 
         private readonly WeakReference _collectionView;
-        private readonly DataTemplateProvider _itemTemplateProvider;
+        private readonly DataTemplateProvider<ICollectionCellTemplateSelector> _itemTemplateProvider;
         private readonly ReflectionExtensions.IWeakEventHandler<EventArgs> _listener;
         private object _selectedItem;
 
@@ -52,7 +52,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
         {
             Should.NotBeNull(collectionView, nameof(collectionView));
             _collectionView = PlatformExtensions.CreateWeakReference(collectionView);
-            _itemTemplateProvider = new DataTemplateProvider(collectionView, itemTemplate);
+            _itemTemplateProvider = new DataTemplateProvider<ICollectionCellTemplateSelector>(collectionView, itemTemplate);
             var controllerView = collectionView.FindParent<IViewControllerView>();
             if (controllerView != null && !(controllerView is IMvvmNavigationController))
             {
@@ -87,7 +87,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             }
         }
 
-        protected DataTemplateProvider DataTemplateProvider => _itemTemplateProvider;
+        protected DataTemplateProvider<ICollectionCellTemplateSelector> DataTemplateProvider => _itemTemplateProvider;
 
         [CanBeNull]
         protected UICollectionView CollectionView => (UICollectionView)_collectionView?.Target;
@@ -111,7 +111,6 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         protected virtual void OnDisposeController(object sender, EventArgs eventArgs)
         {
-            ((IViewControllerView)sender).Mediator.DisposeHandler -= _listener.Handle;
             Dispose();
         }
 
@@ -158,7 +157,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         public override UICollectionViewCell GetCell(UICollectionView collectionView, NSIndexPath indexPath)
         {
-            var selector = _itemTemplateProvider.CollectionCellTemplateSelector;
+            var selector = _itemTemplateProvider.TemplateSelector;
             if (selector == null)
                 throw new NotSupportedException("The ItemTemplate is null to create UICollectionViewCell use the ItemTemplate with ICollectionCellTemplateSelector value.");
             object item = GetItemAt(indexPath);
@@ -207,7 +206,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
                     if (ReferenceEquals(collectionView.Source, this))
                         collectionView.Source = null;
                     var controllerView = collectionView.FindParent<IViewControllerView>();
-                    if (controllerView != null && _listener != null)
+                    if (controllerView?.Mediator != null && _listener != null)
                         controllerView.Mediator.DisposeHandler -= _listener.Handle;
                 }
             }

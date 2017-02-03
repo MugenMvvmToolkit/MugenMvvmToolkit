@@ -568,10 +568,7 @@ namespace MugenMvvmToolkit.ViewModels
                     Unsubscribe(toRemove[index]);
             }
 
-            IViewManager viewManager;
-            if (IocContainer.TryGet(out viewManager))
-                viewManager.CleanupViewAsync(this);
-
+            ServiceProvider.ViewManager.CleanupViewAsync(this);
             Settings.Metadata.Clear();
             ServiceProvider.AttachedValueProvider.Clear(this);
             CleanupWeakReference();

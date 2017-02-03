@@ -374,6 +374,14 @@ namespace MugenMvvmToolkit.iOS
             return null;
         }
 
+        public static NSIndexPath[] CreateNSIndexPathArray(int startingPosition, int count)
+        {
+            var newIndexPaths = new NSIndexPath[count];
+            for (int i = 0; i < count; i++)
+                newIndexPaths[i] = NSIndexPath.FromRowSection(i + startingPosition, 0);
+            return newIndexPaths;
+        }
+
         internal static WeakReference CreateWeakReference(object item)
         {
             var obj = item as NSObject;
@@ -410,14 +418,6 @@ namespace MugenMvvmToolkit.iOS
         internal static PlatformInfo GetPlatformInfo()
         {
             return new PlatformInfo(PlatformType.iOS, UIDevice.CurrentDevice.SystemVersion);
-        }
-
-        internal static NSIndexPath[] CreateNSIndexPathArray(int startingPosition, int count)
-        {
-            var newIndexPaths = new NSIndexPath[count];
-            for (int i = 0; i < count; i++)
-                newIndexPaths[i] = NSIndexPath.FromRowSection(i + startingPosition, 0);
-            return newIndexPaths;
         }
 
         private static void SetParent(object[] items, object parent)
