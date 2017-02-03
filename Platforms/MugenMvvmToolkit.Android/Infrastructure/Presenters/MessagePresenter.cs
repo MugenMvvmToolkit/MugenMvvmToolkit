@@ -93,9 +93,14 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
             TaskCompletionSource<MessageResult> tcs)
         {
 #if XAMARIN_FORMS
-            var activity = global::Xamarin.Forms.Forms.Context;//todo finishing
+            var activity = global::Xamarin.Forms.Forms.Context;
+            var act = activity as Activity;
+            if (act != null && act.IsFinishing)
+                activity = null;
 #else
             var activity = PlatformExtensions.CurrentActivity;
+            if (activity != null && activity.IsFinishing)
+                activity = null;
 #endif
             if (activity == null)
             {
@@ -103,7 +108,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
                 tcs.TrySetResult(defaultResult);
                 return;
             }
-            AlertDialog.Builder builder = new AlertDialog.Builder((Context)activity)
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity)
                 .SetTitle(caption)
                 .SetMessage(messageBoxText)
                 .SetCancelable(false);
