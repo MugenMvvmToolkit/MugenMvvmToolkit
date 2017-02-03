@@ -201,7 +201,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         protected void DebugInfo(string message, object[] args = null)
         {
-            BindingServiceProvider.DebugBinding(this, Path.DebugTag, $"(Path='{Path.Path}') " + message, args);
+            BindingServiceProvider.DebugBinding(this, Path.DebugTag, $"(Path='{Path.Path}') {message}", args);
         }
 
         protected internal object GetActualSource()
