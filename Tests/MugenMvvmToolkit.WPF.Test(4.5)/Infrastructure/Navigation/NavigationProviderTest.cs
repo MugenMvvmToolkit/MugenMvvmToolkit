@@ -286,9 +286,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             viewModel.CloseDelegate = obj =>
             {
                 isCancelInvoked = true;
-                var context = (INavigationContext)obj;
-                context.NavigationProvider.ShouldEqual(NavigationProvider);
-                context.NavigationMode.ShouldEqual(mode);
+                obj.ShouldBeNull();
                 return ToolkitExtensions.FromResult(false);
             };
             viewModel.OnNavigatedFromDelegate = context => isNavigatedInvoked = true;
@@ -425,8 +423,8 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             base.OnInit();
             NavigationService = new NavigationServiceMock();
             ViewPageMappingProvider = new ViewPageMappingProviderMock();
-            NavigationProvider = new NavigationProvider(NavigationService, ThreadManager, ViewPageMappingProvider,
-                ViewManager, ViewModelProvider, OperationCallbackManager);
+            NavigationProvider = new NavigationProvider(NavigationService, ThreadManager, ViewPageMappingProvider, ViewManager, ViewModelProvider, OperationCallbackManager,
+                NavigationDispatcher);
         }
 
         #endregion

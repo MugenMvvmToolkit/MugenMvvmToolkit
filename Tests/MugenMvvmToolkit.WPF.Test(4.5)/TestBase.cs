@@ -5,9 +5,11 @@ using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Infrastructure.Navigation;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Silverlight.Infrastructure;
@@ -61,6 +63,8 @@ namespace MugenMvvmToolkit.Test
 
         protected OperationCallbackManagerMock OperationCallbackManager { get; set; }
 
+        protected INavigationDispatcher NavigationDispatcher { get; set; }
+
         #endregion
 
         #region Methods
@@ -70,15 +74,17 @@ namespace MugenMvvmToolkit.Test
         {
             ServiceProvider.AttachedValueProvider = new AttachedValueProvider();
             ServiceProvider.ViewModelSettingsFactory = model => new DefaultViewModelSettings();
-            ServiceProvider.ReflectionManager = new ExpressionReflectionManager();            
+            ServiceProvider.ReflectionManager = new ExpressionReflectionManager();
             CanBeResolvedTypes = new List<Type>
             {
                 typeof (IThreadManager),
                 typeof (IViewManager),
                 typeof (IDisplayNameProvider),
                 typeof (IViewModelProvider),
-                typeof (OperationCallbackManagerMock)
+                typeof (OperationCallbackManagerMock),
+                typeof(INavigationDispatcher)
             };
+            NavigationDispatcher = new NavigationDispatcher();
             OperationCallbackManager = new OperationCallbackManagerMock();
             ViewManager = new ViewManagerMock();
             ThreadManager = new ThreadManagerMock();
@@ -120,7 +126,7 @@ namespace MugenMvvmToolkit.Test
                 Tracer.Info("Error : " + exception);
                 return;
             }
-            throw new InvalidOperationException($"The exception {typeof (T)} was not thrown.");
+            throw new InvalidOperationException($"The exception {typeof(T)} was not thrown.");
         }
 
         protected void ShouldThrow(Action action)
@@ -154,6 +160,8 @@ namespace MugenMvvmToolkit.Test
                 return ViewModelProvider;
             if (type == typeof(IOperationCallbackManager))
                 return OperationCallbackManager;
+            if (type == typeof(INavigationDispatcher))
+                return NavigationDispatcher;
             return Activator.CreateInstance(type);
         }
 

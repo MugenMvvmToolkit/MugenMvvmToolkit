@@ -303,11 +303,11 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
 
         protected WindowViewMediatorBase<TView> Create(IViewModel viewModel)
         {
-            return Create(viewModel, ThreadManager, ViewManager, _wrapperManager, OperationCallbackManager);
+            return Create(viewModel, ThreadManager, ViewManager, _wrapperManager, OperationCallbackManager, NavigationDispatcher);
         }
 
         protected abstract WindowViewMediatorBase<TView> Create(IViewModel viewModel, IThreadManager threadManager, IViewManager viewManager,
-            IWrapperManager wrapperManager, IOperationCallbackManager callbackManager);
+            IWrapperManager wrapperManager, IOperationCallbackManager callbackManager, INavigationDispatcher navigationDispatcher);
 
         #endregion
 
