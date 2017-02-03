@@ -23,12 +23,13 @@ using Android.Runtime;
 using Android.Util;
 using Android.Views;
 using MugenMvvmToolkit.Android.Binding;
+using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Binding;
 
 namespace MugenMvvmToolkit.Android.Views
 {
     [Register("mugenmvvmtoolkit.android.views.OptionsMenu")]
-    public sealed class OptionsMenu : View
+    public sealed class OptionsMenu : View, IOptionsMenu
     {
         #region Constructors
 
@@ -48,7 +49,7 @@ namespace MugenMvvmToolkit.Android.Views
 
         #endregion
 
-        #region Methods
+        #region Implementation of interfaces
 
         public void Inflate(Activity activity, IMenu menu)
         {
