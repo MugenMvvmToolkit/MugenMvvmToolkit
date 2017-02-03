@@ -27,12 +27,11 @@ using Android.Content.Res;
 using Android.OS;
 using Android.Views;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Android.Binding.Infrastructure;
 using MugenMvvmToolkit.Android.Binding.Models;
 using MugenMvvmToolkit.Android.Interfaces.Mediators;
 using MugenMvvmToolkit.Android.Interfaces.Navigation;
+using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Android.Models.EventArg;
-using MugenMvvmToolkit.Android.Views;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
@@ -160,7 +159,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         public virtual bool OnCreateOptionsMenu(IMenu menu, Func<IMenu, bool> baseOnCreateOptionsMenu)
         {
-            var optionsMenu = Target.FindViewById<OptionsMenu>(Resource.Id.OptionsMenu);
+            var optionsMenu = Target.FindViewById(Resource.Id.OptionsMenu) as IOptionsMenu;
             if (optionsMenu != null)
             {
                 _menu = menu;

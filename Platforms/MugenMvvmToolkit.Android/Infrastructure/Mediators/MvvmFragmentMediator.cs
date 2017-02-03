@@ -118,7 +118,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             if (Target.Activity == null || Target.View == null)
                 baseOnCreateOptionsMenu(menu, inflater);
             else
-                Target.View.FindViewById<OptionsMenu>(Resource.Id.OptionsMenu)?.Inflate(Target.Activity, menu);
+                (Target.View.FindViewById(Resource.Id.OptionsMenu) as IOptionsMenu)?.Inflate(Target.Activity, menu);
         }
 
         public virtual View OnCreateView(int? viewId, LayoutInflater inflater, ViewGroup container,
