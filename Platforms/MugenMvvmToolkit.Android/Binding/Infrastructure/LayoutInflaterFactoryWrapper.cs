@@ -132,7 +132,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         private View OnViewCreated(View view, string name, Context context, IAttributeSet attrs)
         {
-            if (name == "fragment" || (view != null && _lastCreatedView.Target == view))
+            if (name == "fragment" || view != null && _lastCreatedView.Target == view)
                 return view;
             ViewResult viewResult;
             if (view == null)
