@@ -244,9 +244,7 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
                     base.RegisterAdapterDataObserver(observer);
                 _observers = null;
             }
-            var member = BindingServiceProvider.MemberProvider.GetBindingMember(_recyclerView.GetType(), AttachedMembers.ViewGroup.DisableHierarchyListener, false, false);
-            if (member.CanWrite)
-                member.SetSingleValue(_recyclerView, Empty.TrueObject);
+            _recyclerView.SetDisableHierarchyListener(true);
             base.OnAttachedToRecyclerView(recyclerView);
         }
 

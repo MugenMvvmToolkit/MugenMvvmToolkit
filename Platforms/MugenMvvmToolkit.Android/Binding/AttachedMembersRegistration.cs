@@ -126,7 +126,7 @@ namespace MugenMvvmToolkit.Android.Binding
                 }
                 ParentObserver.Raise(child);
                 var childViewGroup = child as ViewGroup;
-                if (childViewGroup != null && !childViewGroup.GetBindingMemberValue(AttachedMembers.ViewGroup.DisableHierarchyListener))
+                if (childViewGroup != null && !childViewGroup.IsDisableHierarchyListener())
                     childViewGroup.SetOnHierarchyChangeListener(GlobalViewParentListener.Instance);
             }
 
@@ -1179,7 +1179,7 @@ namespace MugenMvvmToolkit.Android.Binding
 
         private static void ContentMemberAttached(ViewGroup viewGroup, MemberAttachedEventArgs args)
         {
-            viewGroup.SetBindingMemberValue(AttachedMembers.ViewGroup.DisableHierarchyListener, true);
+            viewGroup.SetDisableHierarchyListener(true);
             viewGroup.SetOnHierarchyChangeListener(ContentChangeListener.Instance);
         }
 

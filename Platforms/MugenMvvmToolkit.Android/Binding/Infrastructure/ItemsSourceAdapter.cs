@@ -122,13 +122,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             _defaultDropDownTemplate = IsSpinner()
                 ? global::Android.Resource.Layout.SimpleDropDownItem1Line
                 : global::Android.Resource.Layout.SimpleSpinnerDropDownItem;
-            var adapterView = container as AdapterView;
-            if (adapterView != null)
-            {
-                var member = BindingServiceProvider.MemberProvider.GetBindingMember(adapterView.GetType(), AttachedMembers.ViewGroup.DisableHierarchyListener, false, false);
-                if (member.CanWrite)
-                    member.SetSingleValue(adapterView, Empty.TrueObject);
-            }
+            (container as AdapterView)?.SetDisableHierarchyListener(true);
         }
 
         #endregion

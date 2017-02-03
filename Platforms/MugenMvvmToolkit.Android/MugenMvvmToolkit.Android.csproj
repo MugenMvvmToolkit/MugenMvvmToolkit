@@ -126,6 +126,7 @@
     <Compile Include="Interfaces\Mediators\IMvvmFragmentMediator.cs" />
     <Compile Include="Interfaces\Views\IFragmentView.cs" />
     <Compile Include="Interfaces\Views\IHasActivityDependency.cs" />
+    <Compile Include="Interfaces\Views\IOptionsMenu.cs" />
     <Compile Include="Interfaces\Views\IWindowView.cs" />
     <Compile Include="InternalExtensions.cs" />
     <Compile Include="InternalExtensionsFragment.cs" />

@@ -32,6 +32,7 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Android.Binding.Infrastructure;
 using MugenMvvmToolkit.Android.Binding.Interfaces;
 using MugenMvvmToolkit.Android.Binding.Models;
@@ -710,6 +711,25 @@ namespace MugenMvvmToolkit.Android
         internal static TItem Deserialize<TItem>(this XmlReader xmlReader)
         {
             return (TItem)Deserialize(typeof(TItem), xmlReader, true);
+        }
+
+        internal static bool IsDisableHierarchyListener(this ViewGroup viewGroup)
+        {
+            if (!viewGroup.IsAlive())
+                return false;
+            bool value;
+            if (viewGroup.TryGetBindingMemberValue(AttachedMembers.ViewGroup.DisableHierarchyListener, out value))
+                return value;
+            return false;
+        }
+
+        internal static void SetDisableHierarchyListener(this ViewGroup viewGroup, bool value)
+        {
+            if (!viewGroup.IsAlive())
+                return;
+            var member = BindingServiceProvider.MemberProvider.GetBindingMember(viewGroup.GetType(), AttachedMembers.ViewGroup.DisableHierarchyListener, false, false);
+            if (member != null && member.CanWrite)
+                member.SetSingleValue(viewGroup, Empty.BooleanToObject(value));
         }
 
         private static object Deserialize(Type type, XmlReader reader, bool needMoveReader)

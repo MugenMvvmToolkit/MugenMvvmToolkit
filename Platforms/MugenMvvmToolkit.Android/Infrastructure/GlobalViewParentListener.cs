@@ -58,7 +58,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
         {
             ParentObserver.Raise(child);
             var viewGroup = child as ViewGroup;
-            if (viewGroup != null && !viewGroup.GetBindingMemberValue(AttachedMembers.ViewGroup.DisableHierarchyListener))
+            if (viewGroup != null && !viewGroup.IsDisableHierarchyListener())
                 viewGroup.SetOnHierarchyChangeListener(this);
         }
 

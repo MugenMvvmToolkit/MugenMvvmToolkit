@@ -179,7 +179,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             }
 
             var viewGroup = view as ViewGroup;
-            if (viewGroup != null && !viewGroup.GetBindingMemberValue(AttachedMembers.ViewGroup.DisableHierarchyListener))
+            if (viewGroup != null && !viewGroup.IsDisableHierarchyListener())
                 viewGroup.SetOnHierarchyChangeListener(GlobalViewParentListener.Instance);
 
             _lastCreatedView = ServiceProvider.WeakReferenceFactory(view);
