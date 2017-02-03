@@ -17,7 +17,6 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using Android.App;
 using Android.Content;
@@ -26,25 +25,23 @@ using Android.Util;
 using Android.Views;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Android.Binding;
-using MugenMvvmToolkit.Android.Views;
+using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 #if APPCOMPAT
-using MugenMvvmToolkit.Android.AppCompat.Interfaces.Views;
 using MugenMvvmToolkit.Android.AppCompat.Interfaces.Mediators;
 using MugenMvvmToolkit.Android.Infrastructure;
 using MugenMvvmToolkit.Android.Infrastructure.Mediators;
 using Fragment = Android.Support.V4.App.Fragment;
 using DialogFragment = Android.Support.V4.App.DialogFragment;
+using IWindowView = MugenMvvmToolkit.Android.AppCompat.Interfaces.Views.IWindowView;
 
 namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure.Mediators
 #else
 using MugenMvvmToolkit.Android.Interfaces.Mediators;
-using MugenMvvmToolkit.Android.Infrastructure.Presenters;
-using MugenMvvmToolkit.Android.Interfaces.Views;
 
 namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 #endif
