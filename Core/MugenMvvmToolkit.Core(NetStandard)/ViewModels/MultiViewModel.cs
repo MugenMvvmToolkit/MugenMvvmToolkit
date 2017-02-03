@@ -29,6 +29,7 @@ using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Collections;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
@@ -49,6 +50,7 @@ namespace MugenMvvmToolkit.ViewModels
         private TViewModel _selectedItem;
         private bool _disposeViewModelOnRemove;
         private bool _closeViewModelsOnClose;
+        private INavigationDispatcher _navigationDispatcher;
         private EventHandler<IMultiViewModel, SelectedItemChangedEventArgs<IViewModel>> _selectedItemChangedNonGeneric;
         private EventHandler<IMultiViewModel, ValueEventArgs<IViewModel>> _viewModelAddedNonGeneric;
         private EventHandler<IMultiViewModel, ValueEventArgs<IViewModel>> _viewModelRemovedNonGeneric;
@@ -94,6 +96,16 @@ namespace MugenMvvmToolkit.ViewModels
                 if (value == _closeViewModelsOnClose) return;
                 _closeViewModelsOnClose = value;
                 OnPropertyChanged();
+            }
+        }
+
+        private INavigationDispatcher NavigationDispatcher
+        {
+            get
+            {
+                if (_navigationDispatcher == null)
+                    _navigationDispatcher = this.GetIocContainer(true).Get<INavigationDispatcher>();
+                return _navigationDispatcher;
             }
         }
 
@@ -260,8 +272,8 @@ namespace MugenMvvmToolkit.ViewModels
         {
             if (!ItemsSource.Contains(viewModel))
                 return Empty.FalseTask;
-            var result = viewModel
-                .TryCloseAsync(parameter, null, NavigationType.Tab)
+            var result = NavigationDispatcher
+                .NavigatingFromAsync(new NavigationContext(NavigationType.Tab, NavigationMode.Back, viewModel, SelectedItem, this), parameter)
                 .TryExecuteSynchronously(task =>
                 {
                     if (task.Result)
@@ -358,7 +370,7 @@ namespace MugenMvvmToolkit.ViewModels
                     if (closeableViewModel != null)
                         closeableViewModel.Closed -= _weakEventHandler;
 
-                    (viewModel as INavigableViewModel)?.OnNavigatedFrom(new NavigationContext(NavigationType.Tab, NavigationMode.Back, viewModel, SelectedItem, this));
+                    NavigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Tab, NavigationMode.Back, viewModel, SelectedItem, this));
 
                     var selectable = viewModel as ISelectable;
                     if (selectable != null)
@@ -389,27 +401,17 @@ namespace MugenMvvmToolkit.ViewModels
         private void OnSelectedItemChangedInternal(TViewModel oldValue, TViewModel newValue)
         {
             ISelectable selectable;
-            INavigableViewModel navigableViewModel;
-            NavigationContext ctx = null;
             if (ItemsSource.Contains(oldValue))
             {
                 selectable = oldValue as ISelectable;
                 if (selectable != null)
                     selectable.IsSelected = false;
-
-                navigableViewModel = oldValue as INavigableViewModel;
-                if (navigableViewModel != null)
-                {
-                    ctx = new NavigationContext(NavigationType.Tab, NavigationMode.Refresh, oldValue, newValue, this);
-                    navigableViewModel.OnNavigatedFrom(ctx);
-                }
             }
 
             selectable = newValue as ISelectable;
             if (selectable != null)
                 selectable.IsSelected = true;
-            navigableViewModel = newValue as INavigableViewModel;
-            navigableViewModel?.OnNavigatedTo(ctx ?? new NavigationContext(NavigationType.Tab, NavigationMode.Refresh, oldValue, newValue, this));
+            NavigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Tab, NavigationMode.Refresh, oldValue, newValue, this));
 
             OnSelectedItemChanged(oldValue, newValue);
             RaiseSelectedItemChanged(oldValue, newValue);
@@ -427,7 +429,7 @@ namespace MugenMvvmToolkit.ViewModels
                     closeableViewModel.Closed -= _weakEventHandler;
                 try
                 {
-                    if (!vm.TryCloseAsync(parameter, null, NavigationType.Tab).Result)
+                    if (!NavigationDispatcher.NavigatingFromAsync(new NavigationContext(NavigationType.Tab, NavigationMode.Back, vm, null, this), parameter).Result)
                     {
                         viewModels.RemoveRange(i, count - i);
                         break;

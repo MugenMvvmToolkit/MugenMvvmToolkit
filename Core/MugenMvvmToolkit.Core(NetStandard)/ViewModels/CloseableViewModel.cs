@@ -19,6 +19,7 @@
 using System.Threading.Tasks;
 using System.Windows.Input;
 using MugenMvvmToolkit.Annotations;
+using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
@@ -123,7 +124,10 @@ namespace MugenMvvmToolkit.ViewModels
 
         private Task ExecuteClose(object o)
         {
-            return this.TryCloseAsync(o, null).WithTaskExceptionHandler(this);
+            return this.GetIocContainer(true)
+                .Get<INavigationDispatcher>()
+                .NavigatingFromAsync(new NavigationContext(NavigationType.Undefined, NavigationMode.Back, this, this.GetParentViewModel(), this), o)
+                .WithTaskExceptionHandler(this);
         }
 
         #endregion

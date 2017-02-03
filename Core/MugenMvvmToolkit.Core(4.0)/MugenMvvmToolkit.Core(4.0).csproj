@@ -188,6 +188,9 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\navigation\DefaultNavigationCachePolicy.cs">
       <Link>Infrastructure\Navigation\DefaultNavigationCachePolicy.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Infrastructure\Navigation\NavigationDispatcher.cs">
+      <Link>Infrastructure\Navigation\NavigationDispatcher.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\presenters\DynamicMultiViewModelPresenter.cs">
       <Link>Infrastructure\Presenters\DynamicMultiViewModelPresenter.cs</Link>
     </Compile>
@@ -415,6 +418,9 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\navigation\INavigationContext.cs">
       <Link>Interfaces\Navigation\INavigationContext.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\Navigation\INavigationDispatcher.cs">
+      <Link>Interfaces\Navigation\INavigationDispatcher.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\navigation\INavigationProvider.cs">
       <Link>Interfaces\Navigation\INavigationProvider.cs</Link>

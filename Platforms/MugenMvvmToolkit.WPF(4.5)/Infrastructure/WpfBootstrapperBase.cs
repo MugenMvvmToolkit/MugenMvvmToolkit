@@ -30,6 +30,7 @@ using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Mediators;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
@@ -114,7 +115,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
                 var iocContainer = ServiceProvider.IocContainer;
                 IWindowViewMediator mediator = new WindowViewMediator(_rootWindow, viewModel, iocContainer.Get<IThreadManager>(),
                     iocContainer.Get<IViewManager>(), iocContainer.Get<IWrapperManager>(),
-                    iocContainer.Get<IOperationCallbackManager>());
+                    iocContainer.Get<IOperationCallbackManager>(), iocContainer.Get<INavigationDispatcher>());
                 mediator.UpdateView(new WpfWrapperRegistrationModule.WindowViewWrapper(_rootWindow), true, context);
                 _rootWindow.Show();
             }

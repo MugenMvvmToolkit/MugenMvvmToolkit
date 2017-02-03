@@ -23,7 +23,6 @@ using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.Interfaces.Navigation
 {
@@ -52,7 +51,5 @@ namespace MugenMvvmToolkit.Interfaces.Navigation
         Task NavigateAsync([CanBeNull] IOperationCallback callback, [NotNull] IDataContext context);
 
         void OnNavigated([NotNull] IViewModel viewModel, NavigationMode mode, [CanBeNull] IDataContext context);
-
-        event EventHandler<INavigationProvider, NavigatedEventArgs> Navigated;
     }
 }

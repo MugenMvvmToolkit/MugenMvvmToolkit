@@ -47,6 +47,7 @@
     <Compile Include="Infrastructure\Callbacks\NavigationOperation.cs" />
     <Compile Include="Infrastructure\CompositeEqualityComparer.cs" />
     <Compile Include="Infrastructure\DesignBootstrapperBase.cs" />
+    <Compile Include="Infrastructure\Navigation\NavigationDispatcher.cs" />
     <Compile Include="Interfaces\Callbacks\INavigationOperation.cs" />
     <Compile Include="Interfaces\Callbacks\IOperationCallbackStateManager.cs" />
     <Compile Include="Interfaces\IBootstrapCodeBuilder.cs" />
@@ -54,6 +55,7 @@
     <Compile Include="Interfaces\Models\IBusyInfo.cs" />
     <Compile Include="Interfaces\Models\IBusyToken.cs" />
     <Compile Include="Interfaces\Models\IToast.cs" />
+    <Compile Include="Interfaces\Navigation\INavigationDispatcher.cs" />
     <Compile Include="Interfaces\ViewModels\IIocContainerOwnerViewModel.cs" />
     <Compile Include="Interfaces\ViewModels\IParentAwareViewModel.cs" />
     <Compile Include="Models\AsyncRelayCommand.cs" />

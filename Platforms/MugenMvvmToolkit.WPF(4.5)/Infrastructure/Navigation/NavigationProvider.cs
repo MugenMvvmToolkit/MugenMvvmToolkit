@@ -60,7 +60,7 @@ using MugenMvvmToolkit.UWP.Interfaces.Navigation;
 namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 #endif
 {
-    public class NavigationProvider : INavigationProvider
+    public class NavigationProvider : INavigationProvider//todo change methods
     {
         #region Nested types
 
@@ -239,6 +239,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         private readonly IViewManager _viewManager;
         private readonly IViewModelProvider _viewModelProvider;
         private readonly IOperationCallbackManager _callbackManager;
+        private readonly INavigationDispatcher _navigationDispatcher;
         private readonly INavigationService _navigationService;
         private readonly IThreadManager _threadManager;
         private readonly INavigationCachePolicy _cachePolicy;
@@ -270,7 +271,8 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         [Preserve(Conditional = true)]
         public NavigationProvider([NotNull] INavigationService navigationService, [NotNull] IThreadManager threadManager,
             [NotNull] IViewMappingProvider mappingProvider, [NotNull] IViewManager viewManager,
-            [NotNull] IViewModelProvider viewModelProvider, IOperationCallbackManager callbackManager, INavigationCachePolicy cachePolicy = null)
+            [NotNull] IViewModelProvider viewModelProvider, [NotNull] IOperationCallbackManager callbackManager,
+            [NotNull] INavigationDispatcher navigationDispatcher, INavigationCachePolicy cachePolicy = null)
         {
             Should.NotBeNull(navigationService, nameof(navigationService));
             Should.NotBeNull(threadManager, nameof(threadManager));
@@ -278,12 +280,14 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             Should.NotBeNull(viewManager, nameof(viewManager));
             Should.NotBeNull(viewModelProvider, nameof(viewModelProvider));
             Should.NotBeNull(callbackManager, nameof(callbackManager));
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             _navigationService = navigationService;
             _threadManager = threadManager;
             _mappingProvider = mappingProvider;
             _viewManager = viewManager;
             _viewModelProvider = viewModelProvider;
             _callbackManager = callbackManager;
+            _navigationDispatcher = navigationDispatcher;
             _cachePolicy = cachePolicy;
             _vmReference = Empty.WeakReference;
             _closeViewModelHandler = CloseableViewModelOnClosed;
@@ -311,6 +315,9 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 
         [NotNull]
         protected IOperationCallbackManager CallbackManager => _callbackManager;
+
+        [NotNull]
+        protected INavigationDispatcher NavigationDispatcher => _navigationDispatcher;
 
         #endregion
 
@@ -401,14 +408,11 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             OnNavigated(navigationContext);
         }
 
-        public virtual event EventHandler<INavigationProvider, NavigatedEventArgs> Navigated;
-
         public virtual void Dispose()
         {
             ClearCacheIfNeed(new DataContext(NavigationProviderConstants.InvalidateAllCache.ToValue(true)), null);
             NavigationService.Navigating -= NavigationServiceOnNavigating;
             NavigationService.Navigated -= NavigationServiceOnNavigated;
-            Navigated = null;
         }
 
         #endregion
@@ -465,16 +469,6 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                     }
                 }
             }
-        }
-
-        protected virtual Task<bool> OnNavigatingFrom([NotNull] IViewModel viewModel, INavigationContext context)
-        {
-            return viewModel.TryCloseAsync(context, context);
-        }
-
-        protected virtual void OnNavigatedTo(IViewModel viewModel, INavigationContext context)
-        {
-            (viewModel as INavigableViewModel)?.OnNavigatedTo(context);
         }
 
         protected virtual INavigationContext CreateContextNavigateFrom(IViewModel viewModelFrom, NavigatingCancelEventArgsBase args)
@@ -563,11 +557,6 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             return vm;
         }
 
-        protected virtual void RaiseNavigated(INavigationContext ctx)
-        {
-            Navigated?.Invoke(this, new NavigatedEventArgs(ctx));
-        }
-
         protected bool TryCompleteOperationCallback([NotNull] IViewModel viewModel, [NotNull] INavigationContext context)
         {
             if (context.NavigationMode != NavigationMode.Back)
@@ -617,7 +606,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                 var context = CreateContextNavigateFrom(currentViewModel, args);
                 var navigateTask = _closedFromViewModel || !args.IsCancelable
                     ? Empty.TrueTask
-                    : OnNavigatingFrom(currentViewModel, context);
+                    : NavigationDispatcher.NavigatingFromAsync(context, null);
                 var t = navigateTask.TryExecuteSynchronously(task =>
                 {
                     if (!task.IsCanceled && task.IsFaulted)
@@ -674,8 +663,6 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                 return;
             }
             CurrentViewModel = vmTo;
-            (vmFrom as INavigableViewModel)?.OnNavigatedFrom(context);
-
             if (vmTo != null)
             {
                 if (!vmTo.Settings.State.Contains(IsNavigatedConstant))
@@ -690,10 +677,11 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                     closeableViewModel.Closed += _closeViewModelHandler;
                     closeableViewModel.CloseCommand = new CloseCommandWrapper(closeableViewModel.CloseCommand, this, closeableViewModel);
                 }
-                OnNavigatedTo(vmTo, context);
             }
 
-            RaiseNavigated(context);
+            NavigationDispatcher.OnNavigated(context);
+
+            //todo merge with navigation dispatcher
             if (vmFrom != null && TryCompleteOperationCallback(vmFrom, context))
                 OnViewModelClosed(vmFrom, context, false);
             if (Tracer.TraceInformation)

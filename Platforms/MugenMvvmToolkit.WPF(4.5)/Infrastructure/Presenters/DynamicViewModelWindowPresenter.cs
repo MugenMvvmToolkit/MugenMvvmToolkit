@@ -27,6 +27,7 @@ using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Mediators;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
@@ -75,6 +76,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
 
         private readonly IThreadManager _threadManager;
         private readonly IOperationCallbackManager _callbackManager;
+        private readonly INavigationDispatcher _navigationDispatcher;
         private readonly IWrapperManager _wrapperManager;
         private readonly IViewMappingProvider _viewMappingProvider;
         private readonly IViewManager _viewManager;
@@ -86,9 +88,8 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
 
         [Preserve(Conditional = true)]
         public DynamicViewModelWindowPresenter([NotNull] IViewMappingProvider viewMappingProvider,
-            [NotNull] IViewManager viewManager,
-            [NotNull] IWrapperManager wrapperManager, [NotNull] IThreadManager threadManager,
-            [NotNull] IOperationCallbackManager callbackManager)
+            [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] IThreadManager threadManager,
+            [NotNull] IOperationCallbackManager callbackManager, [NotNull] INavigationDispatcher navigationDispatcher)
         {
             Should.NotBeNull(viewMappingProvider, nameof(viewMappingProvider));
             Should.NotBeNull(viewManager, nameof(viewManager));
@@ -100,6 +101,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
             _wrapperManager = wrapperManager;
             _threadManager = threadManager;
             _callbackManager = callbackManager;
+            _navigationDispatcher = navigationDispatcher;
         }
 
         #endregion
@@ -115,6 +117,8 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
         protected IOperationCallbackManager CallbackManager => _callbackManager;
 
         protected IViewManager ViewManager => _viewManager;
+
+        protected INavigationDispatcher NavigationDispatcher => _navigationDispatcher;
 
         #endregion
 
@@ -162,11 +166,11 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
                 return windowViewMediator;
 #if TOUCH
             var container = viewModel.GetIocContainer(true);
-            if (_wrapperManager.CanWrap(viewType, typeof(IModalView), context))
-                return new ModalViewMediator(viewModel, ThreadManager, ViewManager, WrapperManager, CallbackManager, ViewMappingProvider, container.Get<IViewModelProvider>());
+            if (_wrapperManager.CanWrap(viewType, typeof(IModalView), context))//todo fix parameter
+                return new ModalViewMediator(viewModel, ThreadManager, ViewManager, WrapperManager, CallbackManager, ViewMappingProvider, container.Get<IViewModelProvider>(), NavigationDispatcher);
 #else
             if (_wrapperManager.CanWrap(viewType, typeof(IWindowView), context))
-                return new WindowViewMediator(viewModel, ThreadManager, ViewManager, WrapperManager, CallbackManager);
+                return new WindowViewMediator(viewModel, ThreadManager, ViewManager, WrapperManager, CallbackManager, NavigationDispatcher);
 #endif
             return null;
         }

@@ -171,6 +171,11 @@ namespace MugenMvvmToolkit.Modules
             container.BindToConstant(callbackFactory);
         }
 
+        protected virtual void BindNavigationDispatcher(IModuleContext context, IIocContainer container)
+        {
+            container.BindToConstant<INavigationDispatcher>(new NavigationDispatcher());
+        }
+
         #endregion
 
         #region Implementation of interfaces
@@ -179,11 +184,13 @@ namespace MugenMvvmToolkit.Modules
         {
             if (context.IocContainer == null)
                 return false;
+
             BindAttachedValueProvider(context, context.IocContainer);
             BindThreadManager(context, context.IocContainer);
             BindSerializer(context, context.IocContainer);
             BindOperationCallbackManager(context, context.IocContainer);
             BindTaskExceptionHandler(context, context.IocContainer);
+            BindNavigationDispatcher(context, context.IocContainer);
             BindOperationCallbackFactory(context, context.IocContainer);
             BindOperationCallbackStateManager(context, context.IocContainer);
             BindViewMappingProvider(context, context.IocContainer);

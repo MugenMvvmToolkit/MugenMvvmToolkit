@@ -27,13 +27,13 @@ namespace MugenMvvmToolkit.Interfaces.Navigation
     {
         NavigationMode NavigationMode { get; }
 
+        NavigationType NavigationType { get; }
+
         [CanBeNull]
         IViewModel ViewModelFrom { get; }
 
         [CanBeNull]
         IViewModel ViewModelTo { get; }
-
-        NavigationType NavigationType { get; }
 
         [CanBeNull]
         object NavigationProvider { get; }

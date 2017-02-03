@@ -230,44 +230,6 @@ namespace MugenMvvmToolkit.ViewModels
             return (IViewModel)viewModel.Settings.Metadata.GetData(ViewModelConstants.ParentViewModel)?.Target;
         }
 
-        public static Task<bool> TryCloseAsync([NotNull] this IViewModel viewModel, [CanBeNull] object parameter,
-            [CanBeNull] INavigationContext context, NavigationType type = null)
-        {
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            if (context == null)
-                context = parameter as INavigationContext ??
-                          new NavigationContext(type ?? NavigationType.Undefined, NavigationMode.Back, viewModel, viewModel.GetParentViewModel(), null);
-            if (parameter == null)
-                parameter = context;
-            //NOTE: Close view model only on back navigation.
-            ICloseableViewModel closeableViewModel = context.NavigationMode == NavigationMode.Back
-                ? viewModel as ICloseableViewModel
-                : null;
-            var navigableViewModel = viewModel as INavigableViewModel;
-            if (closeableViewModel == null && navigableViewModel == null)
-                return Empty.TrueTask;
-            if (closeableViewModel != null && navigableViewModel != null)
-            {
-                Task<bool> navigatingTask = navigableViewModel.OnNavigatingFrom(context);
-                if (navigatingTask.IsCompleted)
-                {
-                    if (navigatingTask.Result)
-                        return closeableViewModel.CloseAsync(parameter);
-                    return Empty.FalseTask;
-                }
-                return navigatingTask
-                    .TryExecuteSynchronously(task =>
-                    {
-                        if (task.Result)
-                            return closeableViewModel.CloseAsync(parameter);
-                        return Empty.FalseTask;
-                    }).Unwrap();
-            }
-            if (closeableViewModel == null)
-                return navigableViewModel.OnNavigatingFrom(context);
-            return closeableViewModel.CloseAsync(parameter);
-        }
-
         public static IIocContainer GetIocContainer([NotNull] this IViewModel viewModel, bool useGlobalContainer, bool throwOnError = true)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));

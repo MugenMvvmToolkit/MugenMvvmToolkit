@@ -53,11 +53,11 @@ namespace MugenMvvmToolkit.Models
 
         public NavigationMode NavigationMode => _navigationMode;
 
+        public NavigationType NavigationType => _type;
+
         public IViewModel ViewModelFrom => _viewModelFrom;
 
         public IViewModel ViewModelTo => _viewModelTo;
-
-        public NavigationType NavigationType => _type;
 
         public object NavigationProvider => _navigationProvider;
 

@@ -248,7 +248,9 @@ namespace MugenMvvmToolkit.ViewModels
 
         protected Task<bool> CloseAsync(object parameter = null)
         {
-            var t = this.TryCloseAsync(parameter, null);
+            var t = this.GetIocContainer(true)
+                    .Get<INavigationDispatcher>()
+                    .NavigatingFromAsync(new NavigationContext(NavigationType.Undefined, NavigationMode.Back, this, this.GetParentViewModel(), this), parameter);
             t.WithTaskExceptionHandler(this);
             return t;
         }
