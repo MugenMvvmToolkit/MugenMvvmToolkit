@@ -89,7 +89,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public void AddKnownType(Type type)
         {
-            if (_contractSerializer == null)
+            if (_contractSerializer != null)
                 throw ExceptionManager.ObjectInitialized(nameof(Serialize), null);
             _knownTypes.Add(type);
         }
