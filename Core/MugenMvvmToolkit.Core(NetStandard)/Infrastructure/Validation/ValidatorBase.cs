@@ -193,7 +193,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             var notifyPropertyChanged = Instance as INotifyPropertyChanged;
             if (notifyPropertyChanged == null)
             {
-                var vm = context.ValidationMetadata.GetData(ViewModelConstants.ViewModel);
+                var vm = context.ValidationMetadata.GetData(ValidationConstants.ViewModel);
                 if (vm != null)
                 {
                     InitializeWeakHandler();
@@ -328,7 +328,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 var notifyPropertyChanged = Instance as INotifyPropertyChanged;
                 if (notifyPropertyChanged == null)
                 {
-                    notifyPropertyChanged = Context.ValidationMetadata.GetData(ViewModelConstants.ViewModel);
+                    notifyPropertyChanged = Context.ValidationMetadata.GetData(ValidationConstants.ViewModel);
                     if (notifyPropertyChanged != null)
                         notifyPropertyChanged.PropertyChanged -= oldHandler;
                 }
@@ -429,7 +429,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
             if (Context == null)
                 return;
             var eventPublisher = Context.Instance as IEventPublisher;
-            var viewModel = Context.ValidationMetadata.GetData(ViewModelConstants.ViewModel);
+            var viewModel = Context.ValidationMetadata.GetData(ValidationConstants.ViewModel);
             eventPublisher?.Publish(this, message);
             if (viewModel != null && !ReferenceEquals(eventPublisher, viewModel))
                 viewModel.Publish(this, message);

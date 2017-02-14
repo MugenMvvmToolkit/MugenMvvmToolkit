@@ -108,7 +108,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         {
             if (context.Instance is IValidatableViewModel)
             {
-                var viewModel = context.ValidationMetadata.GetData(ViewModelConstants.ViewModel);
+                var viewModel = context.ValidationMetadata.GetData(ValidationConstants.ViewModel);
                 if (typeof(IValidatableViewModelValidator).IsAssignableFrom(validatorType))
                 {
                     if (ReferenceEquals(context.Instance, viewModel))
