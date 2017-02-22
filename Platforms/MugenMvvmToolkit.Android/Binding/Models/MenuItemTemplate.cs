@@ -65,13 +65,13 @@ namespace MugenMvvmToolkit.Android.Binding.Models
 
         public string ActionView { get; set; }
 
-        public string ActionViewTemplateSelector { get; set; }
+        public object ActionViewTemplateSelector { get; set; }
 
         public string ActionViewBind { get; set; }
 
         public string ActionProvider { get; set; }
 
-        public string ActionProviderTemplateSelector { get; set; }
+        public object ActionProviderTemplateSelector { get; set; }
 
         public string ActionProviderBind { get; set; }
 
@@ -172,8 +172,8 @@ namespace MugenMvvmToolkit.Android.Binding.Models
 
             PlatformExtensions.MenuItemTemplateInitalized?.Invoke(this, menuItem, setter);
 
-            setter.SetBinding(nameof(ActionViewTemplateSelector), ActionViewTemplateSelector, false);
-            setter.SetBinding(nameof(ActionProviderTemplateSelector), ActionProviderTemplateSelector, false);
+            setter.SetProperty(nameof(ActionViewTemplateSelector), ActionViewTemplateSelector);
+            setter.SetProperty(nameof(ActionProviderTemplateSelector), ActionProviderTemplateSelector);
             setter.SetProperty(nameof(ActionView), ActionView);
             setter.SetStringProperty(nameof(ActionProvider), ActionProvider);
         }

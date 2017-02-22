@@ -40,9 +40,33 @@ using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 {
-    public class MvvmActivityMediator : MediatorBase<Activity>, IMvvmActivityMediator, IHandler<MvvmActivityMediator.FinishActivityMessage>
+    public class MvvmActivityMediator : MediatorBase<Activity>, IMvvmActivityMediator, IHandler<MvvmActivityMediator.FinishActivityMessage>, IHandler<MvvmActivityMediator.CanFinishActivityMessage>
     {
         #region Nested types
+
+        public sealed class CanFinishActivityMessage
+        {
+            #region Fields
+
+            public readonly IViewModel ViewModel;
+
+            #endregion
+
+            #region Constructors
+
+            public CanFinishActivityMessage(IViewModel viewModel)
+            {
+                ViewModel = viewModel;
+            }
+
+            #endregion
+
+            #region Methods
+
+            public bool CanFinish { get; set; }
+
+            #endregion
+        }
 
         public sealed class FinishActivityMessage
         {
@@ -345,6 +369,12 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             {
                 _ignoreFinishNavigation = false;
             }
+        }
+
+        void IHandler<CanFinishActivityMessage>.Handle(object sender, CanFinishActivityMessage message)
+        {
+            if (message.ViewModel == null || ReferenceEquals(DataContext, message.ViewModel))
+                message.CanFinish = true;
         }
 
         public virtual Func<IMenuItem, bool> OptionsItemSelected { get; set; }

@@ -77,19 +77,24 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             member.SetSingleValue(_target, convertAction == null ? objectToSet : convertAction(objectToSet));
         }
 
-        public void SetProperty(string propertyName, string value)
+        public void SetProperty(string propertyName, object value)
         {
             if (value == null)
                 return;
-            object objectToSet = TryGetResourceIdentifier(value);
-            if (objectToSet == null)
+            var s = value as string;
+            object objectToSet = value;
+            if (!string.IsNullOrEmpty(s))
             {
-                if (value.StartsWith("{"))
+                objectToSet = TryGetResourceIdentifier(s);
+                if (objectToSet == null)
                 {
-                    AddRange(Bind(_target, propertyName, ToBindingString(value)));
-                    return;
+                    if (s.StartsWith("{"))
+                    {
+                        AddRange(Bind(_target, propertyName, ToBindingString(s)));
+                        return;
+                    }
+                    objectToSet = value;
                 }
-                objectToSet = value;
             }
             var member = BindingServiceProvider.MemberProvider.GetBindingMember(_target.GetType(), propertyName, false, true);
             member.SetSingleValue(_target, objectToSet);
