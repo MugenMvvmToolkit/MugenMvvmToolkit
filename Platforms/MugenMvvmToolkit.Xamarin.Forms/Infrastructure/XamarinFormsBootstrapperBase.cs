@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Infrastructure;
@@ -137,6 +138,11 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             }
             Application.Current.MainPage = view;
             return new NavigationOperation();
+        }
+
+        Task<bool> IDynamicViewModelPresenter.TryCloseAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
+        {
+            return null;
         }
 
         #endregion

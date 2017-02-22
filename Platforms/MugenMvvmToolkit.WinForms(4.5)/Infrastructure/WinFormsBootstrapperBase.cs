@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
@@ -88,6 +89,11 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
             if (AutoRunApplication)
                 Application.Run();
             return operation;
+        }
+
+        Task<bool> IDynamicViewModelPresenter.TryCloseAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
+        {
+            return null;
         }
 
         #endregion

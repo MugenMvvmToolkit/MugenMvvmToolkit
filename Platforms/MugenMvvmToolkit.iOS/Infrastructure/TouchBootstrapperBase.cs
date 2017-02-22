@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Infrastructure;
@@ -88,6 +89,11 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
                 return parentPresenter.ShowAsync(viewModel, context);
             _window.RootViewController = (UIViewController)ServiceProvider.ViewManager.GetOrCreateView(viewModel, null, context);
             return new NavigationOperation();
+        }
+
+        Task<bool> IDynamicViewModelPresenter.TryCloseAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
+        {
+            return null;
         }
 
         #endregion

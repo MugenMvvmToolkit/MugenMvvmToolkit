@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Navigation;
@@ -114,12 +115,16 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
             {
                 var iocContainer = ServiceProvider.IocContainer;
                 IWindowViewMediator mediator = new WindowViewMediator(_rootWindow, viewModel, iocContainer.Get<IThreadManager>(),
-                    iocContainer.Get<IViewManager>(), iocContainer.Get<IWrapperManager>(),
-                    iocContainer.Get<IOperationCallbackManager>(), iocContainer.Get<INavigationDispatcher>());
+                    iocContainer.Get<IViewManager>(), iocContainer.Get<IWrapperManager>(), iocContainer.Get<INavigationDispatcher>());
                 mediator.UpdateView(new WpfWrapperRegistrationModule.WindowViewWrapper(_rootWindow), true, context);
                 _rootWindow.Show();
             }
             return operation;
+        }
+
+        Task<bool> IDynamicViewModelPresenter.TryCloseAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
+        {
+            return null;
         }
 
         #endregion
