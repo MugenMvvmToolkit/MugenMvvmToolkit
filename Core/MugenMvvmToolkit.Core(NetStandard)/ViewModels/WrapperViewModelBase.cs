@@ -113,7 +113,7 @@ namespace MugenMvvmToolkit.ViewModels
             ViewModel.PropertyChanged += ViewModelOnPropertyChanged;
             var closeableViewModel = ViewModel as ICloseableViewModel;
             if (closeableViewModel == null)
-                CloseCommand = RelayCommandBase.FromAsyncHandler<object>(ExecuteCloseAsync, false);
+                CloseCommand = RelayCommandBase.FromAsyncHandler<object>(ExecuteCloseAsync, CanClose, false, this);
             ViewModel.Subscribe(this);
             this.Subscribe(_viewModel);
             OnWrapped(context);
@@ -271,6 +271,14 @@ namespace MugenMvvmToolkit.ViewModels
                     args = new PropertyChangedEventArgs(value);
                 OnPropertyChanged(args, ExecutionMode.None);
             }
+        }
+
+        private bool CanClose(object parameter)
+        {
+            var func = Settings.Metadata.GetData(ViewModelConstants.CanCloseHandler);
+            if (func != null && !func(this, parameter))
+                return false;
+            return true;
         }
 
         #endregion

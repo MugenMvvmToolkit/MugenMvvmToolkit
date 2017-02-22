@@ -17,18 +17,12 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.DataConstants;
-using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Interfaces;
-using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
@@ -61,173 +55,6 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 {
     public class NavigationProvider : INavigationProvider
     {
-        #region Nested types
-
-        private sealed class CloseCommandWrapper : IRelayCommand//todo change command
-        {
-            #region Fields
-
-            private static readonly IDisposable EmptyDisposable;
-            public readonly ICommand NestedCommand;
-            private readonly NavigationProvider _provider;
-            private readonly WeakReference _reference;
-
-            #endregion
-
-            #region Constructors
-
-            static CloseCommandWrapper()
-            {
-                EmptyDisposable = new ActionToken(() => { });
-            }
-
-            public CloseCommandWrapper(ICommand nestedCommand, NavigationProvider provider, IViewModel viewModel)
-            {
-                NestedCommand = nestedCommand;
-                _provider = provider;
-                _reference = ToolkitExtensions.GetWeakReference(viewModel);
-            }
-
-            #endregion
-
-            #region Properties
-
-            private IRelayCommand RelayCommand => NestedCommand as IRelayCommand;
-
-            #endregion
-
-            #region Implementation of ICommand
-
-            public bool CanExecute(object parameter)
-            {
-                var target = _reference.Target as IViewModel;
-                return target != null && _provider.NavigationService.CanClose(new DataContext { { NavigationConstants.ViewModel, target } }) &&
-                       (NestedCommand == null || NestedCommand.CanExecute(parameter));
-            }
-
-            public void Execute(object parameter)
-            {
-                var target = _reference.Target as IViewModel;
-                if (target == null)
-                    return;
-                if (NestedCommand == null)
-                    target.CloseAsync(parameter);
-                else
-                    NestedCommand.Execute(parameter);
-            }
-
-            event EventHandler ICommand.CanExecuteChanged
-            {
-                add
-                {
-                    if (NestedCommand != null)
-                        NestedCommand.CanExecuteChanged += value;
-                }
-                remove
-                {
-                    if (NestedCommand != null)
-                        NestedCommand.CanExecuteChanged -= value;
-                }
-            }
-
-            public void Dispose()
-            {
-                RelayCommand?.Dispose();
-            }
-
-            public event PropertyChangedEventHandler PropertyChanged
-            {
-                add
-                {
-                    if (RelayCommand != null)
-                        RelayCommand.PropertyChanged += value;
-                }
-                remove
-                {
-                    if (RelayCommand != null)
-                        RelayCommand.PropertyChanged -= value;
-                }
-            }
-
-            public bool IsNotificationsSuspended => RelayCommand != null && RelayCommand.IsNotificationsSuspended;
-
-            public IDisposable SuspendNotifications()
-            {
-                if (RelayCommand == null)
-                    return EmptyDisposable;
-                return RelayCommand.SuspendNotifications();
-            }
-
-            public bool HasCanExecuteImpl => true;
-
-            public CommandExecutionMode ExecutionMode
-            {
-                get
-                {
-                    if (RelayCommand == null)
-                        return CommandExecutionMode.None;
-                    return RelayCommand.ExecutionMode;
-                }
-                set
-                {
-                    if (RelayCommand != null)
-                        RelayCommand.ExecutionMode = value;
-                }
-            }
-
-            public ExecutionMode CanExecuteMode
-            {
-                get
-                {
-                    if (RelayCommand == null)
-                        return MugenMvvmToolkit.Models.ExecutionMode.None;
-                    return RelayCommand.CanExecuteMode;
-                }
-                set
-                {
-                    if (RelayCommand != null)
-                        RelayCommand.CanExecuteMode = value;
-                }
-            }
-
-            public bool IsExecuting => RelayCommand != null && RelayCommand.IsExecuting;
-
-            public IList<object> GetNotifiers()
-            {
-                if (RelayCommand == null)
-                    return Empty.Array<object>();
-                return RelayCommand.GetNotifiers();
-            }
-
-            public bool AddNotifier(object item)
-            {
-                if (RelayCommand == null)
-                    return false;
-                return RelayCommand.AddNotifier(item);
-            }
-
-            public bool RemoveNotifier(object item)
-            {
-                if (RelayCommand == null)
-                    return false;
-                return RelayCommand.RemoveNotifier(item);
-            }
-
-            public void ClearNotifiers()
-            {
-                RelayCommand?.ClearNotifiers();
-            }
-
-            public void RaiseCanExecuteChanged()
-            {
-                RelayCommand?.RaiseCanExecuteChanged();
-            }
-
-            #endregion
-        }
-
-        #endregion
-
         #region Fields
 
         private readonly INavigationCachePolicy _cachePolicy;
@@ -240,6 +67,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 
         protected static readonly DataConstant<Type> ViewModelTypeConstant;
         private static readonly DataConstant<object> IsNavigatedConstant;
+        private static readonly DataConstant<IDataContext> CloseContextConstant;
         private static readonly DataConstant<TaskCompletionSource<bool>> NavigatedTaskConstant;
 
         #endregion
@@ -252,6 +80,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             ViewModelTypeConstant = DataConstant.Create<Type>(type, nameof(ViewModelTypeConstant), true);
             IsNavigatedConstant = DataConstant.Create<object>(type, nameof(IsNavigatedConstant), false);
             NavigatedTaskConstant = DataConstant.Create<TaskCompletionSource<bool>>(type, nameof(NavigatedTaskConstant), false);
+            CloseContextConstant = DataConstant.Create<IDataContext>(type, nameof(CloseContextConstant), true);
         }
 
         [Preserve(Conditional = true)]
@@ -620,9 +449,8 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                         vmTo.Disposed += _disposeViewModelHandler;
                         vmTo.Settings.State.AddOrUpdate(IsNavigatedConstant, null);
 
-                        var closeableViewModel = vmTo as ICloseableViewModel;
-                        if (closeableViewModel != null && !(closeableViewModel.CloseCommand is CloseCommandWrapper))
-                            closeableViewModel.CloseCommand = new CloseCommandWrapper(closeableViewModel.CloseCommand, this, closeableViewModel);
+
+                        vmTo.Settings.State.AddOrUpdate(ViewModelConstants.CanCloseHandler, CanCloseViewModel);
                     }
                 }
             }
@@ -708,14 +536,8 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         {
             viewModel.Disposed -= _disposeViewModelHandler;
             viewModel.Settings.State.Remove(IsNavigatedConstant);
+            viewModel.Settings.State.Remove(ViewModelConstants.CanCloseHandler);
             CachePolicy?.Invalidate(viewModel, parameter as IDataContext);
-            var closeableViewModel = viewModel as ICloseableViewModel;
-            if (closeableViewModel != null)
-            {
-                var wrapper = closeableViewModel.CloseCommand as CloseCommandWrapper;
-                if (wrapper != null)
-                    closeableViewModel.CloseCommand = wrapper.NestedCommand;
-            }
         }
 
         private void TryCacheViewModel(INavigationContext context, object view, IViewModel viewModel)
@@ -743,6 +565,22 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                 NavigationDispatcher.OnNavigated(navigationContext);
                 OnViewModelClosed(viewModelFrom, navigationContext);
             }
+        }
+
+        private bool CanCloseViewModel(IViewModel viewModel, object parameter)
+        {
+            IDataContext context;
+            if (!viewModel.Settings.Metadata.TryGetData(CloseContextConstant, out context))
+            {
+                context = new DataContext
+                {
+                    {NavigationConstants.ViewModel, viewModel},
+                };
+                viewModel.Settings.Metadata.AddOrUpdate(CloseContextConstant, context);
+            }
+            if (parameter != null)
+                context.AddOrUpdate(NavigationConstants.CloseParameter, parameter);
+            return NavigationService.CanClose(context);
         }
 
         #endregion
