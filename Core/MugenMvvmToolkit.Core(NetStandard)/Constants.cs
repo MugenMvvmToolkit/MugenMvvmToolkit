@@ -39,9 +39,12 @@ namespace MugenMvvmToolkit.DataConstants
         public static readonly DataConstant<Guid> Id;
         public static readonly DataConstant<object> View;
         public static readonly DataConstant<WeakReference> ParentViewModel;
-        public static readonly DataConstant<IViewModel> ViewModel;
         public static readonly DataConstant<bool> StateRestored;
         public static readonly DataConstant<bool> StateNotNeeded;
+        public static readonly DataConstant<EventHandler<IViewModel, ViewModelClosingEventArgs>> ClosingEvent;
+        public static readonly DataConstant<EventHandler<IViewModel, ViewModelClosedEventArgs>> ClosedEvent;
+        public static readonly DataConstant<IViewModel> WrapperViewModel;
+        public static readonly DataConstant<Func<IViewModel, object, bool>> CanCloseHandler;
 
         #endregion
 
@@ -55,10 +58,13 @@ namespace MugenMvvmToolkit.DataConstants
             View = DataConstant.Create<object>(type, nameof(View), true);
             ViewModelTypeName = DataConstant.Create<string>(type, nameof(ViewModelTypeName), true);
             ViewModelState = DataConstant.Create<IDataContext>(type, nameof(ViewModelState), true);
-            ViewModel = DataConstant.Create<IViewModel>(type, nameof(ViewModel), true);
             ParentViewModel = DataConstant.Create<WeakReference>(type, nameof(ParentViewModel), true);
+            WrapperViewModel = DataConstant.Create<IViewModel>(type, nameof(WrapperViewModel), true);
             StateNotNeeded = DataConstant.Create<bool>(type, nameof(StateNotNeeded));
             StateRestored = DataConstant.Create<bool>(type, nameof(StateRestored));
+            ClosingEvent = DataConstant.Create<EventHandler<IViewModel, ViewModelClosingEventArgs>>(type, nameof(ClosingEvent), false);
+            ClosedEvent = DataConstant.Create<EventHandler<IViewModel, ViewModelClosedEventArgs>>(type, nameof(ClosedEvent), false);
+            CanCloseHandler = DataConstant.Create<Func<IViewModel, object, bool>>(type, nameof(CanCloseHandler), false);
         }
 
         #endregion
@@ -99,6 +105,25 @@ namespace MugenMvvmToolkit.DataConstants
         #endregion
     }
 
+    public static class ValidationConstants
+    {
+        #region Fields
+
+        public static readonly DataConstant<IViewModel> ViewModel;
+
+        #endregion
+
+        #region Constructors
+
+        static ValidationConstants()
+        {
+            var type = typeof(ViewModelConstants);
+            ViewModel = DataConstant.Create<IViewModel>(type, nameof(ViewModel), true);
+        }
+
+        #endregion
+    }
+
     public static class NavigationConstants
     {
         #region Fields
@@ -111,6 +136,9 @@ namespace MugenMvvmToolkit.DataConstants
         public static readonly DataConstant<bool> IsDialog;
         public static readonly DataConstant<bool> ClearBackStack;
         public static readonly DataConstant<bool> UseAnimations;
+        public static readonly DataConstant<object> CloseParameter;
+        public static readonly DataConstant<bool> ImmediateClose;
+        public static readonly DataConstant<bool> SuppressNavigationCallbackOnClose;
 
         #endregion
 
@@ -127,6 +155,9 @@ namespace MugenMvvmToolkit.DataConstants
             IsDialog = DataConstant.Create<bool>(type, nameof(IsDialog));
             ClearBackStack = DataConstant.Create<bool>(type, nameof(ClearBackStack));
             UseAnimations = DataConstant.Create<bool>(type, nameof(UseAnimations));
+            CloseParameter = DataConstant.Create<object>(type, nameof(CloseParameter), false);
+            ImmediateClose = DataConstant.Create<bool>(type, nameof(ImmediateClose));
+            SuppressNavigationCallbackOnClose = DataConstant.Create<bool>(type, nameof(SuppressNavigationCallbackOnClose));
         }
 
         #endregion
@@ -180,7 +211,6 @@ namespace MugenMvvmToolkit.DataConstants
 
         public static readonly DataConstant<NavigationEventArgsBase> NavigationArgs;
         public static readonly DataConstant<NavigatingCancelEventArgsBase> NavigatingCancelArgs;
-        public static readonly DataConstant<string> OperationId;
         public static readonly DataConstant<bool> BringToFront;
         public static readonly DataConstant<bool> InvalidateCache;
         public static readonly DataConstant<bool> InvalidateAllCache;
@@ -194,7 +224,6 @@ namespace MugenMvvmToolkit.DataConstants
             var type = typeof(NavigationProviderConstants);
             NavigationArgs = DataConstant.Create<NavigationEventArgsBase>(type, nameof(NavigationArgs), true);
             NavigatingCancelArgs = DataConstant.Create<NavigatingCancelEventArgsBase>(type, nameof(NavigatingCancelArgs), true);
-            OperationId = DataConstant.Create<string>(type, nameof(OperationId), false);
             BringToFront = DataConstant.Create<bool>(type, nameof(BringToFront));
             InvalidateCache = DataConstant.Create<bool>(type, nameof(InvalidateCache));
             InvalidateAllCache = DataConstant.Create<bool>(type, nameof(InvalidateAllCache));
