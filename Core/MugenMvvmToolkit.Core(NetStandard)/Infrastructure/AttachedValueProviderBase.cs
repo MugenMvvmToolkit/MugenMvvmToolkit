@@ -29,7 +29,7 @@ namespace MugenMvvmToolkit.Infrastructure
     {
         #region Nested types
 
-        internal class AttachedValueDictionary : LightDictionaryBase<string, object>
+        public class AttachedValueDictionary : LightDictionaryBase<string, object>
         {
             #region Constructors
 

@@ -73,6 +73,9 @@
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Converters\ViewModelToViewConverter.cs">
       <Link>Converters\ViewModelToViewConverter.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\AttachedValueProvider.cs">
+      <Link>Infrastructure\AttachedValueProvider.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\Bootstrapper.cs">
       <Link>Infrastructure\Bootstrapper.cs</Link>
     </Compile>

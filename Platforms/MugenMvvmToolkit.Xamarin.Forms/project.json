@@ -2,6 +2,7 @@
   "supports": {},
   "dependencies": {
     "NETStandard.Library": "1.6.1",
+    "System.Dynamic.Runtime": "4.3.0",
     "Xamarin.Forms": "2.3.3.175"
   },
   "frameworks": {

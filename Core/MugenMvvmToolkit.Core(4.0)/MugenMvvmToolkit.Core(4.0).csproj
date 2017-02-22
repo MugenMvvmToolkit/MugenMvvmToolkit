@@ -122,9 +122,6 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\ActionToken.cs">
       <Link>Infrastructure\ActionToken.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\AttachedValueProvider.cs">
-      <Link>Infrastructure\AttachedValueProvider.cs</Link>
-    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\AttachedValueProviderBase.cs">
       <Link>Infrastructure\AttachedValueProviderBase.cs</Link>
     </Compile>

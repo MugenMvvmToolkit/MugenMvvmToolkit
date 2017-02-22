@@ -49,9 +49,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28NetStandard%29\Infrastructure\AttachedValueProvider.cs">
-      <Link>Infrastructure\AttachedValueProvider.cs</Link>
-    </Compile>
     <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28NetStandard%29\Properties\AssemblyInfoCommon.cs">
       <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
@@ -60,6 +57,7 @@
     </Compile>
     <Compile Include="Converters\InverseBooleanConverter.cs" />
     <Compile Include="Converters\ViewModelToViewConverter.cs" />
+    <Compile Include="Infrastructure\AttachedValueProvider.cs" />
     <Compile Include="Infrastructure\Bootstrapper.cs" />
     <Compile Include="Infrastructure\Presenters\ToastPresenter.cs" />
     <Compile Include="Infrastructure\Presenters\DynamicViewModelWindowPresenter.cs" />

@@ -91,7 +91,6 @@
     <Compile Include="Extensions\ReflectionExtensions.cs" />
     <Compile Include="Extensions\ViewModelExtensions.cs" />
     <Compile Include="Infrastructure\ActionToken.cs" />
-    <Compile Include="Infrastructure\AttachedValueProvider.cs" />
     <Compile Include="Infrastructure\AttachedValueProviderBase.cs" />
     <Compile Include="Infrastructure\BootstrapperBase.cs" />
     <Compile Include="Infrastructure\Callbacks\AsyncOperation.cs" />

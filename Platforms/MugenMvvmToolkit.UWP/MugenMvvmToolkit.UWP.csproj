@@ -110,9 +110,6 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\core\mugenmvvmtoolkit.core%28netstandard%29\infrastructure\AttachedValueProvider.cs">
-      <Link>Infrastructure\AttachedValueProvider.cs</Link>
-    </Compile>
     <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28NetStandard%29\Properties\AssemblyInfoCommon.cs">
       <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
@@ -124,6 +121,9 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\converters\ViewModelToViewConverter.cs">
       <Link>Converters\ViewModelToViewConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\AttachedValueProvider.cs">
+      <Link>Infrastructure\AttachedValueProvider.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\Bootstrapper.cs">
       <Link>Infrastructure\Bootstrapper.cs</Link>

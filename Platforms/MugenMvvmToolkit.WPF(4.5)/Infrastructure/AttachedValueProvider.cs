@@ -50,18 +50,13 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 using System.Windows;
 
 namespace MugenMvvmToolkit.WPF.Infrastructure
-#elif NET_STANDARD || PCL_NET4
-using System.Threading;
+#elif WINFORMS
 using System.Windows;
 
-namespace MugenMvvmToolkit.Infrastructure
+namespace MugenMvvmToolkit.WinForms.Infrastructure
 #endif
 {
-#if NET_STANDARD || PCL_NET4
-    public class AttachedValueProviderDefault : AttachedValueProviderBase
-#else
     public class AttachedValueProvider : AttachedValueProviderBase
-#endif
     {
         #region Nested types
 
@@ -167,7 +162,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         #region Fields
 
-#if !WINFORMS && !NET_STANDARD && !ANDROID && !TOUCH && !XAMARIN_FORMS
+#if WINDOWS_UWP || WPF || WINFORMS
         //NOTE ConditionalWeakTable incorrectly tracks WinRT objects https://connect.microsoft.com/VisualStudio/feedback/details/930200/conditionalweaktable-incorrectly-tracks-winrt-objects
         private static readonly DependencyProperty AttachedValueDictionaryProperty = DependencyProperty.RegisterAttached(
             "AttachedValueDictionary", typeof(AttachedValueDictionary), typeof(AttachedValueProviderBase), new PropertyMetadata(default(AttachedValueDictionary)));
@@ -194,11 +189,7 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Constructors
 
         [MugenMvvmToolkit.Attributes.Preserve(Conditional = true)]
-#if NET_STANDARD || PCL_NET4
-        public AttachedValueProviderDefault()
-#else
         public AttachedValueProvider()
-#endif
         {
         }
 
@@ -277,7 +268,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 value.Dispose();
                 return true;
             }
-#elif !WINFORMS && !NET_STANDARD && !ANDROID && !TOUCH && !XAMARIN_FORMS
+#elif WINDOWS_UWP || WPF || WINFORMS
             var dependencyObject = item as DependencyObject;
             if (dependencyObject != null)
             {
@@ -347,7 +338,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 }
                 return holder.GetOrCreateDictionary();
             }
-#elif !WINFORMS && !NET_STANDARD && !ANDROID && !TOUCH && !XAMARIN_FORMS
+#elif WINDOWS_UWP || WPF || WINFORMS
             //Synchronization is not necessary because accessing the DependencyObject is possible only from the main thread.
             var dependencyObject = item as DependencyObject;
             if (dependencyObject != null)

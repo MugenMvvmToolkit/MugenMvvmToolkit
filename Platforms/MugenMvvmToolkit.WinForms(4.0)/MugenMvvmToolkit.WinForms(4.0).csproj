@@ -61,6 +61,7 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Core\MugenMvvmToolkit.Binding%284.0%29\MugenMvvmToolkit.Binding%284.0%29.csproj">
@@ -216,6 +217,9 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Converters\ViewModelToViewConverter.cs">
       <Link>Converters\ViewModelToViewConverter.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\AttachedValueProvider.cs">
+      <Link>Infrastructure\AttachedValueProvider.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\Bootstrapper.cs">
       <Link>Infrastructure\Bootstrapper.cs</Link>

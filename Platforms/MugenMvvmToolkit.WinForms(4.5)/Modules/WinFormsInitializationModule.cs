@@ -122,6 +122,13 @@ namespace MugenMvvmToolkit.WinForms.Modules
             container.BindToConstant(tracer);
         }
 
+        protected override void BindAttachedValueProvider(IModuleContext context, IIocContainer container)
+        {
+            IAttachedValueProvider attachedValueProvider = new AttachedValueProvider();
+            ServiceProvider.AttachedValueProvider = attachedValueProvider;
+            container.BindToConstant(attachedValueProvider);
+        }
+
         private static void MvvmApplicationOnInitialized(object sender, EventArgs eventArgs)
         {
             ServiceProvider.Initialized -= MvvmApplicationOnInitialized;

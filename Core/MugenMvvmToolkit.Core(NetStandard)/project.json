@@ -3,7 +3,6 @@
   "dependencies": {
     "NETStandard.Library": "1.6.1",
     "System.ComponentModel": "4.3.0",
-    "System.Dynamic.Runtime": "4.3.0",
     "System.Runtime.Serialization.Primitives": "4.3.0",
     "System.Runtime.Serialization.Xml": "4.3.0",
     "System.Xml.XmlSerializer": "4.3.0"
