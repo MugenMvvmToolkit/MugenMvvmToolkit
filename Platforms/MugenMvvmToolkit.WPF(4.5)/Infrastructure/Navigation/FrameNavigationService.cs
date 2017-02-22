@@ -23,7 +23,6 @@ using System.Windows.Navigation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.WPF.Interfaces.Navigation;
@@ -39,6 +38,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
         private readonly Frame _frame;
         private readonly bool _useUrlNavigation;
         private NavigationMode _lastMode;
+        private IDataContext _lastContext;
 
         #endregion
 
@@ -59,39 +59,20 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
 
         private void OnNavigated(object sender, NavigationEventArgs args)
         {
-            Navigated?.Invoke(this, new NavigationEventArgsWrapper(args, _lastMode.ToNavigationMode()));
+            Navigated?.Invoke(this, new NavigationEventArgsWrapper(args, _lastMode.ToNavigationMode(), _lastContext));
         }
 
         private void OnNavigating(object sender, NavigatingCancelEventArgs args)
         {
             _lastMode = args.NavigationMode;
-            Navigating?.Invoke(this, new NavigatingCancelEventArgsWrapper(args));
+            Navigating?.Invoke(this, new NavigatingCancelEventArgsWrapper(args, _lastContext));
         }
 
         #endregion
 
         #region Implementation of INavigationService
 
-        public bool CanGoBack => _frame.CanGoBack;
-
-        public bool CanGoForward => _frame.CanGoForward;
-
         public object CurrentContent => _frame.Content;
-
-        public void GoBack()
-        {
-            _frame.GoBack();
-        }
-
-        public void GoForward()
-        {
-            _frame.GoForward();
-        }
-
-        public JournalEntry RemoveBackEntry()
-        {
-            return _frame.RemoveBackEntry();
-        }
 
         public string GetParameterFromArgs(EventArgs args)
         {
@@ -104,36 +85,40 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
             return cancelEventArgs.Args.ExtraData as string;
         }
 
-        public bool Navigate(NavigatingCancelEventArgsBase args, IDataContext dataContext)
+        public bool Navigate(NavigatingCancelEventArgsBase args)
         {
             Should.NotBeNull(args, nameof(args));
             var result = NavigateInternal(args);
             if (result)
-                ClearNavigationStackIfNeed(dataContext);
+                ClearNavigationStackIfNeed(args.Context);
             return result;
         }
 
         public bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
             Should.NotBeNull(source, nameof(source));
-            var result = NavigateInternal(source, parameter);
+            var result = NavigateInternal(source, parameter, dataContext);
             if (result)
                 ClearNavigationStackIfNeed(dataContext);
             return result;
         }
 
-        public bool CanClose(IViewModel viewModel, IDataContext dataContext)
+        public bool CanClose(IDataContext dataContext)
         {
-            Should.NotBeNull(viewModel, nameof(viewModel));
+            Should.NotBeNull(dataContext, nameof(dataContext));
+            var viewModel = dataContext.GetData(NavigationConstants.ViewModel);
+            if (viewModel == null)
+                return false;
             var content = CurrentContent;
-            return content != null && ToolkitExtensions.GetDataContext(content) == viewModel && CanGoBack;
+            return content != null && ToolkitExtensions.GetDataContext(content) == viewModel && _frame.CanGoBack;
         }
 
-        public bool TryClose(IViewModel viewModel, IDataContext dataContext)
+        public bool TryClose(IDataContext dataContext)
         {
-            if (CanClose(viewModel, dataContext))
+            if (CanClose(dataContext))
             {
-                GoBack();
+                _lastContext = dataContext;
+                _frame.GoBack();
                 return true;
             }
             return false;
@@ -163,8 +148,9 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
             context.AddOrUpdate(NavigationProviderConstants.InvalidateAllCache, true);
         }
 
-        private bool NavigateInternal(IViewMappingItem source, object parameter)
+        private bool NavigateInternal(IViewMappingItem source, object parameter, IDataContext context)
         {
+            _lastContext = context;
             if (_useUrlNavigation)
             {
                 if (parameter == null)

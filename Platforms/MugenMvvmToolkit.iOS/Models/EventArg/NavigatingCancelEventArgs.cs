@@ -39,30 +39,32 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Models.EventArg
         private readonly IViewMappingItem _mapping;
         private readonly NavigationMode _navigationMode;
         private readonly string _parameter;
+        private readonly IDataContext _context;
 
         #endregion
 
         #region Constructors
 
 #if TOUCH
-        public NavigatingCancelEventArgs(IViewMappingItem mapping, NavigationMode navigationMode, string parameter)
+        public NavigatingCancelEventArgs(IViewMappingItem mapping, NavigationMode navigationMode, string parameter, IDataContext context)
         {
             _mapping = mapping;
             _navigationMode = navigationMode;
             _parameter = parameter;
+            _context = context;
             _isCancelable = true;
         }
 #else
-        public NavigatingCancelEventArgs(IViewMappingItem mapping, NavigationMode navigationMode, string parameter, bool isCancelable, bool isBackButton)
+        public NavigatingCancelEventArgs(IViewMappingItem mapping, NavigationMode navigationMode, string parameter, bool isCancelable, bool isBackButton, IDataContext context)
         {
             _mapping = mapping;
             _navigationMode = navigationMode;
             _parameter = parameter;
             _isCancelable = isCancelable;
             _isBackButton = isBackButton;
+            _context = context;
         }
 #endif
-
 
         #endregion
 
@@ -85,6 +87,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Models.EventArg
         public override NavigationMode NavigationMode => _navigationMode;
 
         public override bool IsCancelable => _isCancelable;
+
+        public override IDataContext Context => _context;
 
         #endregion
     }

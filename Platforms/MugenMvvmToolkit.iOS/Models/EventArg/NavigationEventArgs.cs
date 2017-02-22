@@ -16,6 +16,7 @@
 
 #endregion
 
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 
@@ -31,16 +32,18 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Models.EventArg
 
         private readonly object _content;
         private readonly NavigationMode _navigationMode;
+        private readonly IDataContext _context;
         private readonly string _parameter;
 
         #endregion
 
         #region Constructors
 
-        public NavigationEventArgs(object content, string parameter, NavigationMode navigationMode)
+        public NavigationEventArgs(object content, string parameter, NavigationMode navigationMode, IDataContext context)
         {
             _content = content;
             _navigationMode = navigationMode;
+            _context = context;
             _parameter = parameter;
         }
 
@@ -56,7 +59,9 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Models.EventArg
 
         public override object Content => _content;
 
-        public override NavigationMode Mode => _navigationMode;
+        public override NavigationMode NavigationMode => _navigationMode;
+
+        public override IDataContext Context => _context;
 
         #endregion
     }

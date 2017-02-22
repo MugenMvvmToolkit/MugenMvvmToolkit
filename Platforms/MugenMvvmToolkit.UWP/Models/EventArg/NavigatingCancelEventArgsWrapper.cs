@@ -18,6 +18,7 @@
 
 using Windows.UI.Xaml.Navigation;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models.EventArg;
 using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
 
@@ -30,17 +31,19 @@ namespace MugenMvvmToolkit.UWP.Models.EventArg
         private readonly NavigatingCancelEventArgs _args;
         private readonly string _parameter;
         private readonly bool _bringToFront;
+        private readonly IDataContext _context;
 
         #endregion
 
         #region Constructors
 
-        public NavigatingCancelEventArgsWrapper([NotNull] NavigatingCancelEventArgs args, string parameter, bool bringToFront)
+        public NavigatingCancelEventArgsWrapper([NotNull] NavigatingCancelEventArgs args, string parameter, bool bringToFront, IDataContext context)
         {
             Should.NotBeNull(args, nameof(args));
             _args = args;
             _parameter = parameter;
             _bringToFront = bringToFront;
+            _context = context;
         }
 
         #endregion
@@ -73,6 +76,8 @@ namespace MugenMvvmToolkit.UWP.Models.EventArg
         }
 
         public override bool IsCancelable => true;
+
+        public override IDataContext Context => _context;
 
         #endregion
     }

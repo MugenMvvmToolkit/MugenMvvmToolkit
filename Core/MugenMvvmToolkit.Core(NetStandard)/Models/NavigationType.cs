@@ -16,6 +16,8 @@
 
 #endregion
 
+using JetBrains.Annotations;
+
 namespace MugenMvvmToolkit.Models
 {
     public class NavigationType : StringConstantBase<NavigationType>
@@ -30,23 +32,27 @@ namespace MugenMvvmToolkit.Models
 
         public static readonly NavigationType Page;
 
+        [CanBeNull]
+        public readonly OperationType Operation;
+
         #endregion
 
         #region Constructors
 
         static NavigationType()
         {
-            Tab = new NavigationType("Tab");
-            Window = new NavigationType("Window");
-            Page = new NavigationType("Page");
-            Undefined = new NavigationType("Undefined");
+            Tab = new NavigationType("Tab", OperationType.TabNavigation);
+            Window = new NavigationType("Window", OperationType.WindowNavigation);
+            Page = new NavigationType("Page", OperationType.PageNavigation);
+            Undefined = new NavigationType(nameof(Undefined), null);
         }
 
-        public NavigationType(string id)
+        public NavigationType(string id, [CanBeNull] OperationType operation)
             : base(id)
         {
+            Operation = operation;
         }
 
-        #endregion
+        #endregion        
     }
 }

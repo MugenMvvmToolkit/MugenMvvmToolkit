@@ -16,6 +16,7 @@
 
 #endregion
 
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -29,6 +30,9 @@ namespace MugenMvvmToolkit.Interfaces.Presenters
 
         [CanBeNull]
         INavigationOperation TryShowAsync([NotNull] IViewModel viewModel, [NotNull] IDataContext context, [NotNull]IViewModelPresenter parentPresenter);
+
+        [CanBeNull]
+        Task<bool> TryCloseAsync([NotNull] IViewModel viewModel, [NotNull] IDataContext context, [NotNull]IViewModelPresenter parentPresenter);
     }
 
     public interface IRestorableDynamicViewModelPresenter : IDynamicViewModelPresenter

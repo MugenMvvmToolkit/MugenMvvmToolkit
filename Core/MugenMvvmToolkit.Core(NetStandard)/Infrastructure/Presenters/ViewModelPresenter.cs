@@ -18,11 +18,14 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Collections;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
@@ -124,6 +127,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         public const int DefaultMultiViewModelPresenterPriority = 0;
         public const int DefaultWindowPresenterPriority = 1;
 
+        private readonly INavigationDispatcher _navigationDispatcher;
         private readonly DynamicPresentersCollection _dynamicPresenters;
 
         #endregion
@@ -131,10 +135,18 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelPresenter()
+        public ViewModelPresenter(INavigationDispatcher navigationDispatcher)
         {
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            _navigationDispatcher = navigationDispatcher;
             _dynamicPresenters = new DynamicPresentersCollection(this);
         }
+
+        #endregion
+
+        #region Properties
+
+        protected INavigationDispatcher NavigationDispatcher => _navigationDispatcher;
 
         #endregion
 
@@ -142,11 +154,30 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         public ICollection<IDynamicViewModelPresenter> DynamicPresenters => _dynamicPresenters;
 
-        public virtual INavigationOperation ShowAsync(IViewModel viewModel, IDataContext context)
+        public INavigationOperation ShowAsync(IViewModel viewModel, IDataContext context)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            if (context == null)
-                context = DataContext.Empty;
+            return ShowInternalAsync(viewModel, context ?? DataContext.Empty);
+        }
+
+        public void Restore(IViewModel viewModel, IDataContext context)
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            RestoreInternal(viewModel, context ?? DataContext.Empty);
+        }
+
+        public Task<bool> CloseAsync(IViewModel viewModel, IDataContext context)
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            return CloseInternalAsync(viewModel, context ?? DataContext.Empty);
+        }
+
+        #endregion
+
+        #region Methods
+
+        protected virtual INavigationOperation ShowInternalAsync(IViewModel viewModel, IDataContext context)
+        {
             var presenters = _dynamicPresenters.ToArrayEx();
             for (int i = 0; i < presenters.Length; i++)
             {
@@ -161,11 +192,8 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             throw ExceptionManager.PresenterCannotShowViewModel(GetType(), viewModel.GetType());
         }
 
-        public virtual void Restore(IViewModel viewModel, IDataContext context)
+        protected virtual void RestoreInternal(IViewModel viewModel, IDataContext context)
         {
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            if (context == null)
-                context = DataContext.Empty;
             var presenters = _dynamicPresenters.ToArrayEx();
             for (int i = 0; i < presenters.Length; i++)
             {
@@ -175,9 +203,27 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             }
         }
 
-        #endregion
-
-        #region Methods
+        protected virtual Task<bool> CloseInternalAsync(IViewModel viewModel, IDataContext context)
+        {
+            var presenters = _dynamicPresenters.ToArrayEx();
+            for (int i = 0; i < presenters.Length; i++)
+            {
+                var operation = presenters[i].TryCloseAsync(viewModel, context, this);
+                if (operation != null)
+                {
+                    if (Tracer.TraceInformation)
+                        Tracer.Info("The {0} is closed by {1}", viewModel.GetType().FullName, presenters[i].GetType().FullName);
+                    return operation;
+                }
+            }
+            var wrapperViewModel = viewModel.Settings.Metadata.GetData(ViewModelConstants.WrapperViewModel);
+            if (wrapperViewModel != null)
+                return CloseInternalAsync(wrapperViewModel, context);
+            var navigationContext = context as INavigationContext;
+            if (navigationContext == null)
+                return Empty.FalseTask;
+            return NavigationDispatcher.NavigatingFromAsync(navigationContext);
+        }
 
         protected virtual void OnDynamicPresenterAdded([NotNull] IDynamicViewModelPresenter presenter)
         {

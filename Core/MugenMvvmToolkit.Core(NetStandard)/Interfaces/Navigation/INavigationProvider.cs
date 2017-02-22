@@ -19,10 +19,8 @@
 using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Interfaces.Navigation
 {
@@ -34,22 +32,14 @@ namespace MugenMvvmToolkit.Interfaces.Navigation
         [CanBeNull]
         object CurrentContent { get; }
 
-        [NotNull]
-        Task CurrentNavigationTask { get; }
-
         [CanBeNull]
         INavigationCachePolicy CachePolicy { get; }
 
-        bool CanGoBack { get; }
+        Task NavigateAsync([NotNull] IDataContext context);
 
-        bool CanGoForward { get; }
+        [CanBeNull]
+        Task<bool> TryCloseAsync([NotNull] IDataContext context);
 
-        void GoBack();
-
-        void GoForward();
-
-        Task NavigateAsync([CanBeNull] IOperationCallback callback, [NotNull] IDataContext context);
-
-        void OnNavigated([NotNull] IViewModel viewModel, NavigationMode mode, [CanBeNull] IDataContext context);
+        void Restore([NotNull] IDataContext context);
     }
 }

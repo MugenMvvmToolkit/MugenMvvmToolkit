@@ -18,6 +18,7 @@
 
 using Windows.UI.Xaml.Navigation;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models.EventArg;
 using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
 
@@ -29,16 +30,18 @@ namespace MugenMvvmToolkit.UWP.Models.EventArg
 
         private readonly NavigationEventArgs _args;
         private readonly bool _bringToFront;
+        private readonly IDataContext _context;
 
         #endregion
 
         #region Constructors
 
-        public NavigationEventArgsWrapper([NotNull] NavigationEventArgs args, bool bringToFront)
+        public NavigationEventArgsWrapper([NotNull] NavigationEventArgs args, bool bringToFront, IDataContext context)
         {
             Should.NotBeNull(args, nameof(args));
             _args = args;
             _bringToFront = bringToFront;
+            _context = context;
         }
 
         #endregion
@@ -53,7 +56,7 @@ namespace MugenMvvmToolkit.UWP.Models.EventArg
 
         public override object Content => _args.Content;
 
-        public override NavigationMode Mode
+        public override NavigationMode NavigationMode
         {
             get
             {
@@ -63,6 +66,8 @@ namespace MugenMvvmToolkit.UWP.Models.EventArg
                 return mode;
             }
         }
+
+        public override IDataContext Context => _context;
 
         #endregion
     }

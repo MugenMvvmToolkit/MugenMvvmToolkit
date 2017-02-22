@@ -40,21 +40,10 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Interfaces.Navigation
 namespace MugenMvvmToolkit.UWP.Interfaces.Navigation
 #endif
 {
-    public interface INavigationService
+    public interface INavigationService//todo remove can go back, remove back entry
     {
-        bool CanGoBack { get; }
-
-        bool CanGoForward { get; }
-
         object CurrentContent { get; }
-
-        void GoBack();
-
-        void GoForward();
-
-#if WPF
-        JournalEntry RemoveBackEntry();
-#elif ANDROID
+#if ANDROID
         void OnPauseActivity([NotNull] Activity activity, IDataContext context = null);
 
         void OnResumeActivity([NotNull] Activity activity, IDataContext context = null);
@@ -70,13 +59,13 @@ namespace MugenMvvmToolkit.UWP.Interfaces.Navigation
         [CanBeNull]
         string GetParameterFromArgs([NotNull]EventArgs args);
 
-        bool Navigate([NotNull] NavigatingCancelEventArgsBase args, [CanBeNull] IDataContext dataContext);
+        bool Navigate([NotNull] NavigatingCancelEventArgsBase args);
 
         bool Navigate([NotNull] IViewMappingItem source, [CanBeNull] string parameter, [CanBeNull] IDataContext dataContext);
+        //todo update
+        bool CanClose([NotNull] IDataContext dataContext);
 
-        bool CanClose([NotNull] IViewModel viewModel, [CanBeNull] IDataContext dataContext);
-
-        bool TryClose([NotNull]IViewModel viewModel, [CanBeNull] IDataContext dataContext);
+        bool TryClose([NotNull] IDataContext dataContext);
 
         event EventHandler<INavigationService, NavigatingCancelEventArgsBase> Navigating;
 

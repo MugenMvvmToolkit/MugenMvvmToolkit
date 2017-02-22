@@ -17,6 +17,8 @@
 #endregion
 
 using System;
+using JetBrains.Annotations;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Models.EventArg
 {
@@ -24,6 +26,9 @@ namespace MugenMvvmToolkit.Models.EventArg
     {
         public abstract object Content { get; }
 
-        public abstract NavigationMode Mode { get; }
+        public abstract NavigationMode NavigationMode { get; }
+
+        [CanBeNull]
+        public abstract IDataContext Context { get; }
     }
 }

@@ -17,6 +17,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -31,6 +32,8 @@ namespace MugenMvvmToolkit.Interfaces.Presenters
 
         [NotNull]
         INavigationOperation ShowAsync([NotNull] IViewModel viewModel, [CanBeNull] IDataContext context);
+
+        Task<bool> CloseAsync([NotNull] IViewModel viewModel, [CanBeNull] IDataContext context);
 
         void Restore([NotNull] IViewModel viewModel, [CanBeNull] IDataContext context);
     }

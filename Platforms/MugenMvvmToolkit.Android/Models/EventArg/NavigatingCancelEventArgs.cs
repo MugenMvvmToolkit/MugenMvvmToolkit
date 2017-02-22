@@ -32,6 +32,7 @@ namespace MugenMvvmToolkit.Android.Models.EventArg
         private readonly IViewMappingItem _mapping;
         private readonly NavigationMode _navigationMode;
         private readonly string _parameter;
+        private readonly IDataContext _context;
 
         #endregion
 
@@ -48,17 +49,19 @@ namespace MugenMvvmToolkit.Android.Models.EventArg
             _isCancelable = false;
         }
 
-        public NavigatingCancelEventArgs(NavigationMode navigationMode)
+        public NavigatingCancelEventArgs(NavigationMode navigationMode, IDataContext context)
         {
             _navigationMode = navigationMode;
             _isCancelable = true;
+            _context = context;
         }
 
-        public NavigatingCancelEventArgs(IViewMappingItem mapping, NavigationMode navigationMode, string parameter)
+        public NavigatingCancelEventArgs(IViewMappingItem mapping, NavigationMode navigationMode, string parameter, IDataContext context)
         {
             _mapping = mapping;
             _navigationMode = navigationMode;
             _parameter = parameter;
+            _context = context;
             _isCancelable = true;
         }
 
@@ -79,6 +82,8 @@ namespace MugenMvvmToolkit.Android.Models.EventArg
         public override NavigationMode NavigationMode => _navigationMode;
 
         public override bool IsCancelable => _isCancelable;
+
+        public override IDataContext Context => _context;
 
         #endregion
     }

@@ -18,6 +18,7 @@
 
 using System.Windows.Navigation;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models.EventArg;
 using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
 
@@ -28,15 +29,17 @@ namespace MugenMvvmToolkit.WPF.Models.EventArg
         #region Fields
 
         private readonly NavigatingCancelEventArgs _args;
+        private readonly IDataContext _context;
 
         #endregion
 
         #region Constructors
 
-        public NavigatingCancelEventArgsWrapper([NotNull] NavigatingCancelEventArgs args)
+        public NavigatingCancelEventArgsWrapper([NotNull] NavigatingCancelEventArgs args, IDataContext context)
         {
             Should.NotBeNull(args, nameof(args));
             _args = args;
+            _context = context;
         }
 
         #endregion
@@ -58,6 +61,8 @@ namespace MugenMvvmToolkit.WPF.Models.EventArg
         public override NavigationMode NavigationMode => _args.NavigationMode.ToNavigationMode();
 
         public override bool IsCancelable => true;
+
+        public override IDataContext Context => _context;
 
         #endregion
     }

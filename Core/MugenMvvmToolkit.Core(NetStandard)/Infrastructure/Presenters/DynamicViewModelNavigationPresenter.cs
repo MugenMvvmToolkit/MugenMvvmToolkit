@@ -36,26 +36,28 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         #region Fields
 
         private readonly Func<IViewModel, IDataContext, IViewModelPresenter, bool> _canShowViewModel;
+        private readonly IOperationCallbackManager _operationCallbackManager;
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public DynamicViewModelNavigationPresenter()
+        public DynamicViewModelNavigationPresenter(IOperationCallbackManager operationCallbackManager)
         {
+            Should.NotBeNull(operationCallbackManager, nameof(operationCallbackManager));
+            _operationCallbackManager = operationCallbackManager;
         }
 
-        [Preserve(Conditional = true)]
-        public DynamicViewModelNavigationPresenter(Func<IViewModel, IDataContext, IViewModelPresenter, bool> canShowViewModel)
+        public DynamicViewModelNavigationPresenter(IOperationCallbackManager operationCallbackManager, Func<IViewModel, IDataContext, IViewModelPresenter, bool> canShowViewModel)
+            : this(operationCallbackManager)
         {
             _canShowViewModel = canShowViewModel;
         }
 
         #endregion
 
-        #region Properties
-
+        #region Methods
 
         private bool CanShowViewModel(IViewModel viewModel, IDataContext context,
             IViewModelPresenter parentPresenter)
@@ -80,25 +82,26 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         {
             if (!CanShowViewModel(viewModel, context, parentPresenter))
                 return null;
-            var tcs = new TaskCompletionSource<object>();
-            var operation = new NavigationOperation(tcs.Task);
             context = context.ToNonReadOnly();
             context.AddOrUpdate(NavigationConstants.ViewModel, viewModel);
+
+            var operation = new NavigationOperation();
             var provider = viewModel.GetIocContainer(true).Get<INavigationProvider>();
-            provider.CurrentNavigationTask.TryExecuteSynchronously(_ =>
-            {
-                try
-                {
-                    var task = provider.NavigateAsync(operation.ToOperationCallback(), context);
-                    tcs.TrySetFromTask(task);
-                }
-                catch (Exception e)
-                {
-                    tcs.TrySetException(e);
-                    throw;
-                }
-            });
+            _operationCallbackManager.Register(OperationType.PageNavigation, viewModel, operation.ToOperationCallback(), context);
+            operation.SetNavigationCompletedTask(provider.NavigateAsync(context));
             return operation;
+        }
+
+        public Task<bool> TryCloseAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
+        {
+            INavigationProvider provider;
+            if (viewModel.GetIocContainer(true).TryGet(out provider))
+            {
+                context = context.ToNonReadOnly();
+                context.AddOrUpdate(NavigationConstants.ViewModel, viewModel);
+                return provider.TryCloseAsync(context);
+            }
+            return null;
         }
 
         public bool Restore(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
@@ -108,7 +111,9 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             INavigationProvider provider;
             if (viewModel.GetIocContainer(true).TryGet(out provider))
             {
-                provider.OnNavigated(viewModel, NavigationMode.Reset, context);
+                context = context.ToNonReadOnly();
+                context.AddOrUpdate(NavigationConstants.ViewModel, viewModel);
+                provider.Restore(context);
                 return true;
             }
             return false;

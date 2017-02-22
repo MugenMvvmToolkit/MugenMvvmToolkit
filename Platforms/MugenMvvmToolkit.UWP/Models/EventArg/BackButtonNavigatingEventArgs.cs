@@ -16,14 +16,11 @@
 
 #endregion
 
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 
-#if WINDOWS_UWP
 namespace MugenMvvmToolkit.UWP.Models.EventArg
-#else
-namespace MugenMvvmToolkit.WinPhone.Models.EventArg
-#endif
 {
     internal class BackButtonNavigatingEventArgs : NavigatingCancelEventArgsBase
     {
@@ -34,6 +31,8 @@ namespace MugenMvvmToolkit.WinPhone.Models.EventArg
         public override NavigationMode NavigationMode => NavigationMode.Back;
 
         public override bool IsCancelable => true;
+
+        public override IDataContext Context => null;
 
         #endregion
     }

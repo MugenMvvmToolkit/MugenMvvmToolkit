@@ -48,7 +48,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         public virtual void TryCacheViewModel(INavigationContext context, object view, IViewModel viewModel)
         {
-            if (context.NavigationMode == NavigationMode.Back)
+            if (context.NavigationMode.IsClose())
                 return;
             view = ToolkitExtensions.GetUnderlyingView<object>(view);
             Type type = view.GetType();

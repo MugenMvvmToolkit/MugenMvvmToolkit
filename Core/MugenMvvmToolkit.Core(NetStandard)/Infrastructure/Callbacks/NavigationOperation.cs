@@ -21,11 +21,11 @@ using MugenMvvmToolkit.Interfaces.Callbacks;
 
 namespace MugenMvvmToolkit.Infrastructure.Callbacks
 {
-    public class NavigationOperation : AsyncOperation<bool>, INavigationOperation
+    public class NavigationOperation : AsyncOperation<bool>, INavigationOperation//todo fix type
     {
         #region Fields
 
-        private readonly Task _task;
+        private Task _task;
 
         #endregion
 
@@ -47,6 +47,15 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         #region Implementation of INavigationOperation
 
         public Task NavigationCompletedTask => _task;
+
+        #endregion
+
+        #region Methods
+
+        public void SetNavigationCompletedTask(Task task)
+        {
+            _task = task;
+        }
 
         #endregion
     }

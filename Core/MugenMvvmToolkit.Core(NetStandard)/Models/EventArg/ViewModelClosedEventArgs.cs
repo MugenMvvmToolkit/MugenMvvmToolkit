@@ -18,6 +18,7 @@
 
 using System;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 
 namespace MugenMvvmToolkit.Models.EventArg
@@ -26,18 +27,18 @@ namespace MugenMvvmToolkit.Models.EventArg
     {
         #region Fields
 
-        private readonly object _parameter;
+        private readonly IDataContext _context;
         private readonly IViewModel _viewModel;
 
         #endregion
 
         #region Constructors
 
-        public ViewModelClosedEventArgs([NotNull] IViewModel viewModel, [CanBeNull] object parameter)
+        public ViewModelClosedEventArgs([NotNull] IViewModel viewModel, [CanBeNull] IDataContext context)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             _viewModel = viewModel;
-            _parameter = parameter;
+            _context = context;
         }
 
         #endregion
@@ -47,7 +48,7 @@ namespace MugenMvvmToolkit.Models.EventArg
         public IViewModel ViewModel => _viewModel;
 
         [CanBeNull]
-        public object Parameter => _parameter;
+        public IDataContext Context => _context;
 
         #endregion
     }

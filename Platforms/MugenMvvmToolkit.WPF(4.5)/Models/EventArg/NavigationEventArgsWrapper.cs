@@ -19,6 +19,7 @@
 using System.Windows.Navigation;
 using MugenMvvmToolkit.Models.EventArg;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Interfaces.Models;
 using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
 
 namespace MugenMvvmToolkit.WPF.Models.EventArg
@@ -29,16 +30,18 @@ namespace MugenMvvmToolkit.WPF.Models.EventArg
 
         private readonly NavigationEventArgs _args;
         private readonly NavigationMode _mode;
+        private readonly IDataContext _context;
 
         #endregion
 
         #region Constructors
 
-        public NavigationEventArgsWrapper([NotNull] NavigationEventArgs args, NavigationMode mode)
+        public NavigationEventArgsWrapper([NotNull] NavigationEventArgs args, NavigationMode mode, IDataContext context)
         {
             Should.NotBeNull(args, nameof(args));
             _args = args;
             _mode = mode;
+            _context = context;
         }
 
         #endregion
@@ -53,7 +56,9 @@ namespace MugenMvvmToolkit.WPF.Models.EventArg
 
         public override object Content => _args.Content;
 
-        public override NavigationMode Mode => _mode;
+        public override NavigationMode NavigationMode => _mode;
+
+        public override IDataContext Context => _context;
 
         #endregion
     }
