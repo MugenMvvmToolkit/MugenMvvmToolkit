@@ -104,7 +104,7 @@ namespace MugenMvvmToolkit.WinForms.Modules
 
                 container.BindToMethod((iocContainer, list) =>
                 {
-                    IViewModelPresenter presenter = new ViewModelPresenter();
+                    IViewModelPresenter presenter = iocContainer.Get<ViewModelPresenter>();
                     presenter.DynamicPresenters.Add(iocContainer.Get<DynamicViewModelWindowPresenter>());
                     return presenter;
                 }, DependencyLifecycle.SingleInstance);

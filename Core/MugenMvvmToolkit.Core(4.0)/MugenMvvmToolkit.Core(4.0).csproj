@@ -182,6 +182,9 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\ExpressionReflectionManager.cs">
       <Link>Infrastructure\ExpressionReflectionManager.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Infrastructure\Mediators\MultiViewModelNavigationMediator.cs">
+      <Link>Infrastructure\Mediators\MultiViewModelNavigationMediator.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\mediators\WindowViewMediatorBase.cs">
       <Link>Infrastructure\Mediators\WindowViewMediatorBase.cs</Link>
     </Compile>

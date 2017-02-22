@@ -64,8 +64,8 @@ namespace MugenMvvmToolkit.iOS.Modules
         {
             container.BindToMethod((iocContainer, list) =>
             {
-                IViewModelPresenter presenter = new ViewModelPresenter();
-                presenter.DynamicPresenters.Add(new DynamicViewModelNavigationPresenter());
+                IViewModelPresenter presenter = iocContainer.Get<ViewModelPresenter>();
+                presenter.DynamicPresenters.Add(iocContainer.Get<DynamicViewModelNavigationPresenter>());
                 presenter.DynamicPresenters.Add(iocContainer.Get<DynamicViewModelWindowPresenter>());
                 return presenter;
             }, DependencyLifecycle.SingleInstance);

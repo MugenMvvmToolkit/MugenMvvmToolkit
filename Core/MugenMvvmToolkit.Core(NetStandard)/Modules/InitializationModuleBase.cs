@@ -173,7 +173,7 @@ namespace MugenMvvmToolkit.Modules
 
         protected virtual void BindNavigationDispatcher(IModuleContext context, IIocContainer container)
         {
-            container.BindToConstant<INavigationDispatcher>(new NavigationDispatcher());
+            container.Bind<INavigationDispatcher, NavigationDispatcher>(DependencyLifecycle.SingleInstance);
         }
 
         #endregion

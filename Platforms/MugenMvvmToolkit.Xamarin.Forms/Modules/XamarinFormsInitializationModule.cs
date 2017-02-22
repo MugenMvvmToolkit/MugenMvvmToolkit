@@ -59,7 +59,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Modules
             container.BindToMethod((iocContainer, list) =>
             {
                 IViewModelPresenter presenter = container.Get<RestorableViewModelPresenter>();
-                presenter.DynamicPresenters.Add(new DynamicViewModelNavigationPresenter());
+                presenter.DynamicPresenters.Add(iocContainer.Get<DynamicViewModelNavigationPresenter>());
                 presenter.DynamicPresenters.Add(iocContainer.Get<DynamicViewModelWindowPresenter>());
                 return presenter;
             }, DependencyLifecycle.SingleInstance);
@@ -73,7 +73,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Modules
 
         protected override void BindThreadManager(IModuleContext context, IIocContainer container)
         {
-            container.BindToMethod((iocContainer, list) => new ThreadManager(ServiceProvider.UiSynchronizationContext), DependencyLifecycle.SingleInstance);
+            container.BindToMethod<IThreadManager>((iocContainer, list) => new ThreadManager(ServiceProvider.UiSynchronizationContext), DependencyLifecycle.SingleInstance);
         }
 
         protected override void BindNavigationProvider(IModuleContext context, IIocContainer container)

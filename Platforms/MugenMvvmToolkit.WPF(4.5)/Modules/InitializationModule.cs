@@ -126,8 +126,8 @@ namespace MugenMvvmToolkit.UWP.Modules
 #endif
             container.BindToMethod((iocContainer, list) =>
             {
-                IViewModelPresenter presenter = new ViewModelPresenter();
-                presenter.DynamicPresenters.Add(new DynamicViewModelNavigationPresenter());
+                IViewModelPresenter presenter = iocContainer.Get<ViewModelPresenter>();
+                presenter.DynamicPresenters.Add(iocContainer.Get<DynamicViewModelNavigationPresenter>());
                 presenter.DynamicPresenters.Add(iocContainer.Get<DynamicViewModelWindowPresenter>());
                 return presenter;
             }, DependencyLifecycle.SingleInstance);
@@ -147,7 +147,7 @@ namespace MugenMvvmToolkit.UWP.Modules
             IViewModelPresenter presenter;
             if (ServiceProvider.TryGet(out presenter))
             {
-                presenter.DynamicPresenters.Add(new DynamicViewModelNavigationPresenter());
+                presenter.DynamicPresenters.Add(ServiceProvider.Get<DynamicViewModelNavigationPresenter>());
                 presenter.DynamicPresenters.Add(ServiceProvider.Get<DynamicViewModelWindowPresenter>());
             }
         }

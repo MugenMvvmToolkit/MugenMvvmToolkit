@@ -479,8 +479,7 @@ namespace MugenMvvmToolkit
             Should.NotBeNull(task, nameof(task));
             Should.NotBeNull(action, nameof(action));
             if (!task.IsCompleted)
-                return task.ContinueWith(action, token,
-                    TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
+                return task.ContinueWith(action, token, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
             try
             {
                 action(task);
@@ -1534,6 +1533,12 @@ namespace MugenMvvmToolkit
         public static bool IsRuntimeReleaseMode(this LoadMode mode)
         {
             return mode.HasFlagEx(LoadMode.RuntimeRelease);
+        }
+
+        [Pure]
+        public static bool IsClose(this NavigationMode mode)
+        {
+            return mode == NavigationMode.Back || mode == NavigationMode.Remove;
         }
 
         [NotNull]
