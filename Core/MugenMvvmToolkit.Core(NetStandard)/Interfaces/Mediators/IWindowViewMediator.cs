@@ -34,9 +34,9 @@ namespace MugenMvvmToolkit.Interfaces.Mediators
         [NotNull]
         IViewModel ViewModel { get; }
 
-        Task ShowAsync([CanBeNull] IOperationCallback callback, [CanBeNull] IDataContext context);
+        Task ShowAsync([CanBeNull] IDataContext context);
 
-        Task<bool> CloseAsync([CanBeNull] object parameter);
+        Task<bool> CloseAsync([CanBeNull] IDataContext context);
 
         void UpdateView([CanBeNull] object view, bool isOpen, [CanBeNull] IDataContext context);
     }

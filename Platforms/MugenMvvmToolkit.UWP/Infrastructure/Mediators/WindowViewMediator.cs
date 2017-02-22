@@ -19,7 +19,6 @@
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
-using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
@@ -32,9 +31,8 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Mediators
         #region Constructors
 
         public WindowViewMediator([NotNull] IViewModel viewModel, [NotNull] IThreadManager threadManager,
-            [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager,
-            [NotNull] IOperationCallbackManager callbackManager, [NotNull] INavigationDispatcher navigationDispatcher)
-            : base(viewModel, threadManager, viewManager, wrapperManager, callbackManager, navigationDispatcher)
+            [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] INavigationDispatcher navigationDispatcher)
+            : base(viewModel, threadManager, viewManager, wrapperManager, navigationDispatcher)
         {
         }
 

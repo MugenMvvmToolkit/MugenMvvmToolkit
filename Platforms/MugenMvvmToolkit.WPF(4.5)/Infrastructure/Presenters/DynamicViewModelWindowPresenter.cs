@@ -142,6 +142,12 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
             return operation;
         }
 
+        public Task<bool> TryCloseAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
+        {
+            var mediator = viewModel.Settings.Metadata.GetData(WindowPresenterConstants.WindowViewMediator);
+            return mediator?.CloseAsync(context);
+        }
+
         public bool Restore(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
         {
             var view = context.GetData(WindowPresenterConstants.RestoredView);
@@ -167,10 +173,10 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
 #if TOUCH
             var container = viewModel.GetIocContainer(true);
             if (_wrapperManager.CanWrap(viewType, typeof(IModalView), context))//todo fix parameter
-                return new ModalViewMediator(viewModel, ThreadManager, ViewManager, WrapperManager, CallbackManager, ViewMappingProvider, container.Get<IViewModelProvider>(), NavigationDispatcher);
+                return new ModalViewMediator(viewModel, ThreadManager, ViewManager, WrapperManager, ViewMappingProvider, container.Get<IViewModelProvider>(), NavigationDispatcher);
 #else
             if (_wrapperManager.CanWrap(viewType, typeof(IWindowView), context))
-                return new WindowViewMediator(viewModel, ThreadManager, ViewManager, WrapperManager, CallbackManager, NavigationDispatcher);
+                return new WindowViewMediator(viewModel, ThreadManager, ViewManager, WrapperManager, NavigationDispatcher);
 #endif
             return null;
         }
@@ -179,7 +185,8 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
         {
             try
             {
-                var task = viewMediator.ShowAsync(operation.ToOperationCallback(), context);
+                CallbackManager.Register(OperationType.WindowNavigation, viewMediator.ViewModel, operation.ToOperationCallback(), context);
+                var task = viewMediator.ShowAsync(context);
                 _currentTask = task;
                 tcs.TrySetFromTask(task);
             }

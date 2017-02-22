@@ -21,15 +21,12 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
-using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Interfaces;
-using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Mediators;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure.Mediators
@@ -42,11 +39,10 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         private readonly IThreadManager _threadManager;
         private readonly IViewManager _viewManager;
         private readonly IWrapperManager _wrapperManager;
-        private readonly IOperationCallbackManager _operationCallbackManager;
         private readonly INavigationDispatcher _navigationDispatcher;
         private readonly IViewModel _viewModel;
         private CancelEventArgs _cancelArgs;
-        private object _closeParameter;
+        private IDataContext _closeParameter;
         private bool _isOpen;
         private bool _shouldClose;
 
@@ -56,25 +52,18 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         protected WindowViewMediatorBase([NotNull] IViewModel viewModel,
             [NotNull] IThreadManager threadManager, [NotNull] IViewManager viewManager,
-            [NotNull] IWrapperManager wrapperManager,
-            [NotNull] IOperationCallbackManager operationCallbackManager,
-            [NotNull] INavigationDispatcher navigationDispatcher)
+            [NotNull] IWrapperManager wrapperManager, [NotNull] INavigationDispatcher navigationDispatcher)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(threadManager, nameof(threadManager));
             Should.NotBeNull(viewManager, nameof(viewManager));
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
-            Should.NotBeNull(operationCallbackManager, nameof(operationCallbackManager));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             _viewModel = viewModel;
             _threadManager = threadManager;
             _viewManager = viewManager;
             _wrapperManager = wrapperManager;
-            _operationCallbackManager = operationCallbackManager;
             _navigationDispatcher = navigationDispatcher;
-            var closeableViewModel = viewModel as ICloseableViewModel;
-            if (closeableViewModel != null)
-                closeableViewModel.Closed += CloseableViewModelOnClosed;
         }
 
         #endregion
@@ -88,8 +77,6 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         protected IViewManager ViewManager => _viewManager;
 
         protected IThreadManager ThreadManager => _threadManager;
-
-        protected IOperationCallbackManager OperationCallbackManager => _operationCallbackManager;
 
         protected IWrapperManager WrapperManager => _wrapperManager;
 
@@ -105,13 +92,11 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         public virtual IViewModel ViewModel => _viewModel;
 
-        public Task ShowAsync(IOperationCallback callback, IDataContext context)
+        public Task ShowAsync(IDataContext context)
         {
             ViewModel.NotBeDisposed();
             if (IsOpen)
             {
-                if (callback != null)
-                    OperationCallbackManager.Register(OperationType.WindowNavigation, ViewModel, callback, context);
                 ActivateView(View, context);
                 return Empty.Task;
             }
@@ -124,26 +109,24 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                         if (!task.Result)
                         {
                             tcs.TrySetCanceled();
-                            callback?.Invoke(OperationResult.CreateCancelResult<bool?>(OperationType.WindowNavigation, ViewModel, context));
+                            NavigationDispatcher.OnNavigationCanceled(CreateOpenContext(context, NavigationMode.New));
                             return;
                         }
                         if (context == null)
                             context = DataContext.Empty;
-                        if (callback != null)
-                            OperationCallbackManager.Register(OperationType.WindowNavigation, ViewModel, callback, context);
                         _isOpen = true;
                         ShowInternal(context, tcs);
                     }
                     catch (Exception e)
                     {
                         tcs.TrySetException(e);
-                        callback?.Invoke(OperationResult.CreateErrorResult<bool?>(OperationType.WindowNavigation, ViewModel, e, context));
+                        NavigationDispatcher.OnNavigationFailed(CreateOpenContext(context, NavigationMode.New), e);
                     }
                 });
             return tcs.Task;
         }
 
-        public Task<bool> CloseAsync(object parameter)
+        public Task<bool> CloseAsync(IDataContext context)
         {
             if (!IsOpen)
             {
@@ -151,8 +134,8 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 return Empty.TrueTask;
             }
             IsClosing = true;
-            _closeParameter = parameter;
-            return OnClosing(parameter)
+            _closeParameter = context;
+            return OnClosing(context)
                 .TryExecuteSynchronously(task =>
                 {
                     try
@@ -163,7 +146,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                     }
                     catch (Exception e)
                     {
-                        OperationCallbackManager.SetResult(OperationResult.CreateErrorResult<bool?>(OperationType.WindowNavigation, ViewModel, e, CreateCloseContext()));
+                        NavigationDispatcher.OnNavigationFailed(CreateCloseContext(context), e);
                         throw;
                     }
                     finally
@@ -193,7 +176,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             OnViewUpdated(View, context);
             if (oldView == null && view != null && isOpen)
                 ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, context,
-                        (@base, dataContext) => @base.RaiseNavigated(dataContext, NavigationMode.Reset), OperationPriority.Low);
+                        (@base, dataContext) => @base.NavigationDispatcher.OnNavigated(@base.CreateOpenContext(dataContext, NavigationMode.Refresh)), OperationPriority.Low);
         }
 
         #endregion
@@ -212,15 +195,15 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         protected virtual void OnShown([NotNull] IDataContext context)
         {
-            RaiseNavigated(context, NavigationMode.New);
+            NavigationDispatcher.OnNavigated(CreateOpenContext(context, NavigationMode.New));
         }
 
-        protected virtual Task<bool> OnClosing(object parameter)
+        protected virtual Task<bool> OnClosing(IDataContext context)
         {
-            return NavigationDispatcher.NavigatingFromAsync(CreateCloseContext(), parameter);
+            return NavigationDispatcher.NavigatingFromAsync(CreateCloseContext(context));
         }
 
-        protected virtual void OnClosed(object parameter, INavigationContext context)
+        protected virtual void OnClosed(INavigationContext context)
         {
             NavigationDispatcher.OnNavigated(context);
         }
@@ -253,12 +236,6 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         {
             if (!IsClosing)
                 CompleteClose();
-        }
-
-        private void CloseableViewModelOnClosed(object sender, ViewModelClosedEventArgs args)
-        {
-            if (IsOpen && !IsClosing)
-                CloseViewImmediate();
         }
 
         private void ShowInternal(IDataContext context, TaskCompletionSource<object> tcs)
@@ -318,11 +295,8 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         private void CompleteClose()
         {
-            INavigationContext context = CreateCloseContext();
-            OnClosed(_closeParameter, context);
-
-            var result = ViewModelExtensions.GetOperationResult(ViewModel);
-            OperationCallbackManager.SetResult(OperationResult.CreateResult(OperationType.WindowNavigation, ViewModel, result, context));
+            INavigationContext context = CreateCloseContext(_closeParameter);
+            OnClosed(context);
 
             _closeParameter = null;
             _shouldClose = false;
@@ -340,9 +314,14 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             View = null;
         }
 
-        private INavigationContext CreateCloseContext()
+        private INavigationContext CreateCloseContext(IDataContext context)
         {
-            return new NavigationContext(NavigationType.Window, NavigationMode.Back, ViewModel, ViewModel.GetParentViewModel(), this);
+            return new NavigationContext(NavigationType.Window, NavigationMode.Back, ViewModel, ViewModel.GetParentViewModel(), this, context);
+        }
+
+        private NavigationContext CreateOpenContext(IDataContext context, NavigationMode mode)
+        {
+            return new NavigationContext(NavigationType.Window, mode, ViewModel.GetParentViewModel(), ViewModel, this, context);
         }
 
         private Task<bool> RaiseNavigating(IDataContext context, NavigationMode mode)
@@ -350,18 +329,8 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             var parentViewModel = ViewModel.GetParentViewModel();
             if (parentViewModel == null)
                 return Empty.TrueTask;
-            var ctx = new NavigationContext(NavigationType.Window, mode, ViewModel.GetParentViewModel(), ViewModel, this);
-            if (context != null)
-                ctx.Merge(context);
-            return NavigationDispatcher.NavigatingFromAsync(ctx, null);
-        }
-
-        private void RaiseNavigated(IDataContext context, NavigationMode mode)
-        {
-            var ctx = new NavigationContext(NavigationType.Window, mode, ViewModel.GetParentViewModel(), ViewModel, this);
-            if (context != null)
-                ctx.Merge(context);
-            NavigationDispatcher.OnNavigated(ctx);
+            var ctx = new NavigationContext(NavigationType.Window, mode, ViewModel.GetParentViewModel(), ViewModel, this, context);
+            return NavigationDispatcher.NavigatingFromAsync(ctx);
         }
 
         #endregion
