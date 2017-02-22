@@ -129,14 +129,18 @@ namespace MugenMvvmToolkit.iOS.Binding
             BindingServiceProvider.ResourceResolver.AddType(typeof(UITextFieldViewMode));
             BindingBuilderExtensions.RegisterDefaultBindingMember<UITextField>(nameof(UITextField.Text));
             NSNotificationCenter.DefaultCenter.AddObserver(UITextField.TextFieldTextDidChangeNotification, TextDidChangeNotification);
-            MemberProvider.Register(AttachedBindingMember.CreateEvent(AttachedMembers.UITextField.TextChangedEvent, SetTextFieldTextChanged));
+            var memberInfo = AttachedBindingMember.CreateEvent(AttachedMembers.UITextField.TextChangedEvent, SetTextFieldTextChanged);
+            AttachedBindingMember.TrySetRaiseAction(memberInfo, RaiseTextChanged);
+            MemberProvider.Register(memberInfo);
         }
 
         public static void RegisterTextViewMembers()
         {
             BindingBuilderExtensions.RegisterDefaultBindingMember<UITextView>(nameof(UITextView.Text));
             NSNotificationCenter.DefaultCenter.AddObserver(UITextView.TextDidChangeNotification, TextDidChangeNotification);
-            MemberProvider.Register(AttachedBindingMember.CreateEvent(AttachedMembers.UITextView.TextChangedEvent, SetTextFieldTextChanged));
+            var memberInfo = AttachedBindingMember.CreateEvent(AttachedMembers.UITextView.TextChangedEvent, SetTextFieldTextChanged);
+            AttachedBindingMember.TrySetRaiseAction(memberInfo, RaiseTextChanged);
+            MemberProvider.Register(memberInfo);
         }
 
         public static void RegisterLabelMembers()
@@ -600,6 +604,11 @@ namespace MugenMvvmToolkit.iOS.Binding
         private static IDisposable SetTextFieldTextChanged(IBindingMemberInfo bindingMemberInfo, NSObject item, IEventListener arg3)
         {
             return EventListenerList.GetOrAdd(item, TextChangedEvent).AddWithUnsubscriber(arg3);
+        }
+
+        private static void RaiseTextChanged(IBindingMemberInfo info, object field, object arg3)
+        {
+            EventListenerList.GetOrAdd(field, TextChangedEvent).Raise(field, arg3);
         }
 
         private static void TextDidChangeNotification(NSNotification nsNotification)

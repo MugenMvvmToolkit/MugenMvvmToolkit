@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
 using System.Threading;
+using System.Windows.Input;
 using Foundation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
@@ -43,6 +44,7 @@ namespace MugenMvvmToolkit.iOS
         #region Fields
 
         private const string NavParamKey = "@~`NavParam";
+        private const string NavContextKey = "@~`NavContext";
         private const string NoStateKey = "@$Nst";
 
         private static readonly Dictionary<Type, int> TypeToCounters;
@@ -380,6 +382,34 @@ namespace MugenMvvmToolkit.iOS
             for (int i = 0; i < count; i++)
                 newIndexPaths[i] = NSIndexPath.FromRowSection(i + startingPosition, 0);
             return newIndexPaths;
+        }
+
+        public static void AddButtonWithCommand([NotNull]this UIActionSheet actionSheet, string title, [NotNull] ICommand command, object parameter = null)
+        {
+            Should.NotBeNull(actionSheet, nameof(actionSheet));
+            Should.NotBeNull(command, nameof(command));
+            var index = actionSheet.AddButton(title);
+            actionSheet.Clicked += (sender, args) =>
+            {
+                if (args.ButtonIndex == index)
+                    command.Execute(parameter);
+            };
+        }
+
+        internal static void SetNavigationContext([NotNull] this UIViewController controller, IDataContext value)
+        {
+            Should.NotBeNull(controller, nameof(controller));
+            ServiceProvider.AttachedValueProvider.SetValue(controller, NavContextKey, value);
+        }
+
+        internal static IDataContext GetNavigationContext([CanBeNull] this UIViewController controller, bool remove)
+        {
+            if (controller == null)
+                return null;
+            var dataContext = ServiceProvider.AttachedValueProvider.GetValue<IDataContext>(controller, NavContextKey, false);
+            if (dataContext != null && remove)
+                ServiceProvider.AttachedValueProvider.Clear(controller, NavContextKey);
+            return dataContext;
         }
 
         internal static WeakReference CreateWeakReference(object item)
