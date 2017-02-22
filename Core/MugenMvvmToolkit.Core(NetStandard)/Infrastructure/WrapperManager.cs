@@ -168,6 +168,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 }
                 var vm = (IWrapperViewModel)_viewModelProvider.GetViewModel(wrapperType, dataContext);
                 vm.Wrap(viewModel, dataContext);
+                viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.WrapperViewModel, vm);
                 return vm;
             }
 

@@ -21,13 +21,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.ViewModels
 {
@@ -115,32 +113,12 @@ namespace MugenMvvmToolkit.ViewModels
             ViewModel.PropertyChanged += ViewModelOnPropertyChanged;
             var closeableViewModel = ViewModel as ICloseableViewModel;
             if (closeableViewModel == null)
-                CloseCommand = RelayCommandBase.FromAsyncHandler<object>(CloseAsync, false);
-            else
-            {
-                closeableViewModel.Closing += ViewModelOnClosing;
-                closeableViewModel.Closed += ViewModelOnClosed;
-            }
+                CloseCommand = RelayCommandBase.FromAsyncHandler<object>(ExecuteCloseAsync, false);
             ViewModel.Subscribe(this);
             this.Subscribe(_viewModel);
             OnWrapped(context);
             InvalidateProperties();
         }
-
-        Task<bool> ICloseableViewModel.CloseAsync(object parameter)
-        {
-            var closeableViewModel = ViewModel as ICloseableViewModel;
-            if (closeableViewModel != null)
-                return closeableViewModel.CloseAsync(parameter);
-            if (!RaiseClosing(parameter))
-                return Empty.FalseTask;
-            RaiseClosed(parameter);
-            return Empty.TrueTask;
-        }
-
-        public virtual event EventHandler<ICloseableViewModel, ViewModelClosingEventArgs> Closing;
-
-        public virtual event EventHandler<ICloseableViewModel, ViewModelClosedEventArgs> Closed;
 
         public virtual string DisplayName
         {
@@ -192,6 +170,17 @@ namespace MugenMvvmToolkit.ViewModels
                     selectable.IsSelected = value;
                 OnPropertyChanged();
             }
+        }
+
+        Task<bool> ICloseableViewModel.OnClosingAsync(IDataContext context)
+        {
+            return (ViewModel as ICloseableViewModel)?.OnClosingAsync(context);
+        }
+
+        void ICloseableViewModel.OnClosed(IDataContext context)
+        {
+            (ViewModel as ICloseableViewModel)?.OnClosed(context);
+            OnClosed(context, context?.GetData(NavigationConstants.CloseParameter));
         }
 
         void INavigableViewModel.OnNavigatedTo(INavigationContext context)
@@ -246,24 +235,20 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Methods
 
-        protected Task<bool> CloseAsync(object parameter = null)
+        private Task ExecuteCloseAsync(object parameter)
         {
-            var t = this.GetIocContainer(true)
-                    .Get<INavigationDispatcher>()
-                    .NavigatingFromAsync(new NavigationContext(NavigationType.Undefined, NavigationMode.Back, this, this.GetParentViewModel(), this), parameter);
-            t.WithTaskExceptionHandler(this);
-            return t;
+            return this.CloseAsync(parameter);
         }
 
         protected virtual void OnWrapped(IDataContext context)
         {
         }
 
-        protected virtual void OnClosed([CanBeNull] object parameter)
+        protected virtual void OnClosed(IDataContext context, object parameter)
         {
         }
 
-        protected virtual void OnShown([CanBeNull] object parameter)
+        protected virtual void OnShown(IDataContext context)
         {
         }
 
@@ -273,22 +258,6 @@ namespace MugenMvvmToolkit.ViewModels
 
         protected virtual void OnSaveState(IDataContext state)
         {
-        }
-
-        protected virtual bool RaiseClosing(object parameter)
-        {
-            var handler = Closing;
-            if (handler == null)
-                return true;
-            var args = new ViewModelClosingEventArgs(this, parameter);
-            handler(this, args);
-            return !args.Cancel;
-        }
-
-        protected virtual void RaiseClosed(object parameter)
-        {
-            Closed?.Invoke(this, new ViewModelClosedEventArgs(this, parameter));
-            OnClosed(parameter);
         }
 
         private void ViewModelOnPropertyChanged(object sender, PropertyChangedEventArgs args)
@@ -304,16 +273,6 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
-        private void ViewModelOnClosing(ICloseableViewModel sender, ViewModelClosingEventArgs args)
-        {
-            args.Cancel = !RaiseClosing(args.Parameter);
-        }
-
-        private void ViewModelOnClosed(ICloseableViewModel sender, ViewModelClosedEventArgs args)
-        {
-            RaiseClosed(args.Parameter);
-        }
-
         #endregion
 
         #region Overrides of ViewModelBase
@@ -322,16 +281,8 @@ namespace MugenMvvmToolkit.ViewModels
         {
             if (disposing)
             {
-                Closing = null;
-                Closed = null;
                 if (_viewModel != null)
                 {
-                    var closeableViewModel = _viewModel as ICloseableViewModel;
-                    if (closeableViewModel != null)
-                    {
-                        closeableViewModel.Closing -= ViewModelOnClosing;
-                        closeableViewModel.Closed -= ViewModelOnClosed;
-                    }
                     _viewModel.PropertyChanged -= ViewModelOnPropertyChanged;
                     _viewModel.Settings.Metadata.Remove(ViewModelConstants.StateNotNeeded);
                     _viewModel = null;
