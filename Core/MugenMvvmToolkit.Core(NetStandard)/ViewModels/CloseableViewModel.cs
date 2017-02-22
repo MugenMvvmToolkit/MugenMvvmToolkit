@@ -19,10 +19,10 @@
 using System.Threading.Tasks;
 using System.Windows.Input;
 using MugenMvvmToolkit.Annotations;
-using MugenMvvmToolkit.Interfaces.Navigation;
+using MugenMvvmToolkit.DataConstants;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.ViewModels
 {
@@ -31,26 +31,20 @@ namespace MugenMvvmToolkit.ViewModels
     {
         #region Fields
 
-        public static readonly object ImmediateCloseParameter;
         private ICommand _closeCommand;
 
         #endregion
 
         #region Constructors
 
-        static CloseableViewModel()
-        {
-            ImmediateCloseParameter = new object();
-        }
-
         protected CloseableViewModel()
         {
-            _closeCommand = RelayCommandBase.FromAsyncHandler<object>(ExecuteClose, CanClose, false, this);
+            _closeCommand = RelayCommandBase.FromAsyncHandler<object>(ExecuteCloseAsync, CanClose, false, this);
         }
 
         #endregion
 
-        #region Implementation of ICloseableViewModel
+        #region Properties
 
         public ICommand CloseCommand
         {
@@ -64,84 +58,41 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
-        public virtual Task<bool> CloseAsync(object parameter = null)
-        {
-            if (parameter == ImmediateCloseParameter)
-                return CloseInternal(parameter);
-            return OnClosing(parameter)
-                .TryExecuteSynchronously(task =>
-                {
-                    if (!task.Result || !RaiseClosing(parameter))
-                        return false;
-                    CloseInternal(parameter);
-                    return true;
-                });
-        }
-
-        public virtual event EventHandler<ICloseableViewModel, ViewModelClosingEventArgs> Closing;
-
-        public virtual event EventHandler<ICloseableViewModel, ViewModelClosedEventArgs> Closed;
-
         #endregion
 
         #region Methods
 
-        protected virtual bool CanClose(object param)
+        protected virtual bool CanClose(object parameter)
         {
             return true;
         }
 
-        protected virtual Task<bool> OnClosing(object parameter)
+        protected virtual Task<bool> OnClosing(IDataContext context, object parameter)
         {
             return Empty.TrueTask;
         }
 
-        protected virtual void OnClosed(object parameter)
+        protected virtual void OnClosed(IDataContext context, object parameter)
         {
         }
 
-        protected virtual bool RaiseClosing(object parameter)
+        private Task ExecuteCloseAsync(object o)
         {
-            var handler = Closing;
-            if (handler == null)
-                return true;
-            var args = new ViewModelClosingEventArgs(this, parameter);
-            handler(this, args);
-            return !args.Cancel;
-        }
-
-        protected virtual void RaiseClosed(object parameter)
-        {
-            Closed?.Invoke(this, new ViewModelClosedEventArgs(this, parameter));
-        }
-
-        private Task<bool> CloseInternal(object parameter)
-        {
-            OnClosed(parameter);
-            RaiseClosed(parameter);
-            return Empty.TrueTask;
-        }
-
-        private Task ExecuteClose(object o)
-        {
-            return this.GetIocContainer(true)
-                .Get<INavigationDispatcher>()
-                .NavigatingFromAsync(new NavigationContext(NavigationType.Undefined, NavigationMode.Back, this, this.GetParentViewModel(), this), o)
-                .WithTaskExceptionHandler(this);
+            return this.CloseAsync(o);
         }
 
         #endregion
 
-        #region Overrides of ViewModelBase
+        #region Implementation of interfaces
 
-        internal override void OnDisposeInternal(bool disposing)
+        Task<bool> ICloseableViewModel.OnClosingAsync(IDataContext context)
         {
-            if (disposing)
-            {
-                Closing = null;
-                Closed = null;
-            }
-            base.OnDisposeInternal(disposing);
+            return OnClosing(context, context?.GetData(NavigationConstants.CloseParameter));
+        }
+
+        void ICloseableViewModel.OnClosed(IDataContext context)
+        {
+            OnClosed(context, context?.GetData(NavigationConstants.CloseParameter));
         }
 
         #endregion
