@@ -47,6 +47,7 @@
     <Compile Include="Infrastructure\Callbacks\NavigationOperation.cs" />
     <Compile Include="Infrastructure\CompositeEqualityComparer.cs" />
     <Compile Include="Infrastructure\DesignBootstrapperBase.cs" />
+    <Compile Include="Infrastructure\Mediators\MultiViewModelNavigationMediator.cs" />
     <Compile Include="Infrastructure\Navigation\NavigationDispatcher.cs" />
     <Compile Include="Interfaces\Callbacks\INavigationOperation.cs" />
     <Compile Include="Interfaces\Callbacks\IOperationCallbackStateManager.cs" />

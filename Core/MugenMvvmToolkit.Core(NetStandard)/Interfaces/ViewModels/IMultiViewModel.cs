@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Interfaces.Collections;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 
@@ -41,7 +42,7 @@ namespace MugenMvvmToolkit.Interfaces.ViewModels
 
         void InsertViewModel(int index, [NotNull] IViewModel viewModel, bool setSelected = true);
 
-        Task<bool> RemoveViewModelAsync([NotNull] IViewModel viewModel, object parameter = null);
+        Task<bool> RemoveViewModelAsync([NotNull] IViewModel viewModel, IDataContext context = null);
 
         void Clear();
 
@@ -65,7 +66,7 @@ namespace MugenMvvmToolkit.Interfaces.ViewModels
 
         void InsertViewModel(int index, [NotNull] TViewModel viewModel, bool setSelected = true);
 
-        Task<bool> RemoveViewModelAsync([NotNull] TViewModel viewModel, object parameter = null);
+        Task<bool> RemoveViewModelAsync([NotNull] TViewModel viewModel, IDataContext context = null);
 
         [Preserve(Conditional = true)]
         new event EventHandler<IMultiViewModel<TViewModel>, SelectedItemChangedEventArgs<TViewModel>> SelectedItemChanged;

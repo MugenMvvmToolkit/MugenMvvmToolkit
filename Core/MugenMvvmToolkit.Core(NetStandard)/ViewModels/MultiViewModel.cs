@@ -29,7 +29,6 @@ using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Collections;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
@@ -43,14 +42,12 @@ namespace MugenMvvmToolkit.ViewModels
         #region Fields
 
         private readonly INotifiableCollection<TViewModel> _itemsSource;
-        private readonly EventHandler<ICloseableViewModel, ViewModelClosedEventArgs> _weakEventHandler;
         private readonly PropertyChangedEventHandler _propertyChangedWeakEventHandler;
 
         private bool _clearing;
         private TViewModel _selectedItem;
         private bool _disposeViewModelOnRemove;
         private bool _closeViewModelsOnClose;
-        private INavigationDispatcher _navigationDispatcher;
         private EventHandler<IMultiViewModel, SelectedItemChangedEventArgs<IViewModel>> _selectedItemChangedNonGeneric;
         private EventHandler<IMultiViewModel, ValueEventArgs<IViewModel>> _viewModelAddedNonGeneric;
         private EventHandler<IMultiViewModel, ValueEventArgs<IViewModel>> _viewModelRemovedNonGeneric;
@@ -66,11 +63,10 @@ namespace MugenMvvmToolkit.ViewModels
             Should.BeOfType<INotifiableCollection<TViewModel>>(list, "DecoratedItemsSource");
             _itemsSource = (INotifiableCollection<TViewModel>)list;
             collection.AfterCollectionChanged = OnViewModelsChanged;
-            _weakEventHandler = ReflectionExtensions.CreateWeakDelegate<MultiViewModel<TViewModel>, ViewModelClosedEventArgs, EventHandler<ICloseableViewModel, ViewModelClosedEventArgs>>(this,
-                (model, o, arg3) => model.ItemsSource.Remove((TViewModel)arg3.ViewModel), UnsubscribeAction, handler => handler.Handle);
             _propertyChangedWeakEventHandler = ReflectionExtensions.MakeWeakPropertyChangedHandler(this, (model, o, arg3) => model.OnItemPropertyChanged(o, arg3));
             DisposeViewModelOnRemove = ApplicationSettings.MultiViewModelDisposeViewModelOnRemove;
             CloseViewModelsOnClose = ApplicationSettings.MultiViewModelCloseViewModelsOnClose;
+            this.GetOrAddNavigationMediator();
         }
 
         #endregion
@@ -96,16 +92,6 @@ namespace MugenMvvmToolkit.ViewModels
                 if (value == _closeViewModelsOnClose) return;
                 _closeViewModelsOnClose = value;
                 OnPropertyChanged();
-            }
-        }
-
-        private INavigationDispatcher NavigationDispatcher
-        {
-            get
-            {
-                if (_navigationDispatcher == null)
-                    _navigationDispatcher = this.GetIocContainer(true).Get<INavigationDispatcher>();
-                return _navigationDispatcher;
             }
         }
 
@@ -153,11 +139,11 @@ namespace MugenMvvmToolkit.ViewModels
             AddViewModelInternal(viewModel, index, setSelected);
         }
 
-        public Task<bool> RemoveViewModelAsync(TViewModel viewModel, object parameter = null)
+        public Task<bool> RemoveViewModelAsync(TViewModel viewModel, IDataContext context = null)
         {
             EnsureNotDisposed();
             Should.NotBeNull(viewModel, nameof(viewModel));
-            return RemoveViewModelInternalAsync(viewModel, parameter);
+            return RemoveViewModelInternalAsync(viewModel, context);
         }
 
         public void Clear()
@@ -185,9 +171,9 @@ namespace MugenMvvmToolkit.ViewModels
             InsertViewModel(index, (TViewModel)viewModel, setSelected);
         }
 
-        Task<bool> IMultiViewModel.RemoveViewModelAsync(IViewModel viewModel, object parameter)
+        Task<bool> IMultiViewModel.RemoveViewModelAsync(IViewModel viewModel, IDataContext context)
         {
-            return RemoveViewModelAsync((TViewModel)viewModel, parameter);
+            return RemoveViewModelAsync((TViewModel)viewModel, context);
         }
 
         event EventHandler<IMultiViewModel, SelectedItemChangedEventArgs<IViewModel>> IMultiViewModel.SelectedItemChanged
@@ -268,12 +254,12 @@ namespace MugenMvvmToolkit.ViewModels
                 SelectedItem = viewModel;
         }
 
-        protected virtual Task<bool> RemoveViewModelInternalAsync([NotNull] TViewModel viewModel, object parameter)
+        protected virtual Task<bool> RemoveViewModelInternalAsync([NotNull] TViewModel viewModel, IDataContext context)
         {
             if (!ItemsSource.Contains(viewModel))
                 return Empty.FalseTask;
-            var result = NavigationDispatcher
-                .NavigatingFromAsync(new NavigationContext(NavigationType.Tab, NavigationMode.Back, viewModel, SelectedItem, this), parameter)
+            var result = viewModel
+                .CloseAsync(new NavigationContext(NavigationType.Tab, NavigationMode.Remove, viewModel, SelectedItem, this, context))
                 .TryExecuteSynchronously(task =>
                 {
                     if (task.Result)
@@ -347,9 +333,6 @@ namespace MugenMvvmToolkit.ViewModels
                     var viewModel = (TViewModel)newItems[index];
                     // ReSharper disable once NotResolvedInText
                     Should.NotBeNull(viewModel, "newItem");
-                    var closeableViewModel = viewModel as ICloseableViewModel;
-                    if (closeableViewModel != null)
-                        closeableViewModel.Closed += _weakEventHandler;
                     var selectable = viewModel as ISelectable;
                     if (selectable != null)
                         selectable.PropertyChanged += _propertyChangedWeakEventHandler;
@@ -365,12 +348,6 @@ namespace MugenMvvmToolkit.ViewModels
                     var viewModel = (TViewModel)oldItems[index];
                     if (SelectedItem == null || ReferenceEquals(SelectedItem, viewModel))
                         TryUpdateSelectedValue(oldStartingIndex + index);
-
-                    var closeableViewModel = viewModel as ICloseableViewModel;
-                    if (closeableViewModel != null)
-                        closeableViewModel.Closed -= _weakEventHandler;
-
-                    NavigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Tab, NavigationMode.Back, viewModel, SelectedItem, this));
 
                     var selectable = viewModel as ISelectable;
                     if (selectable != null)
@@ -411,34 +388,23 @@ namespace MugenMvvmToolkit.ViewModels
             selectable = newValue as ISelectable;
             if (selectable != null)
                 selectable.IsSelected = true;
-            NavigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Tab, NavigationMode.Refresh, oldValue, newValue, this));
 
             OnSelectedItemChanged(oldValue, newValue);
             RaiseSelectedItemChanged(oldValue, newValue);
         }
 
-        private bool OnClosingInternal(object parameter)
+        private bool OnClosingInternal(object contextObj)
         {
+            var context = (IDataContext)contextObj;
             var viewModels = ItemsSource.ToList();
             int count = viewModels.Count;
             for (int i = 0; i < count; i++)
             {
                 var vm = viewModels[i];
-                var closeableViewModel = vm as ICloseableViewModel;
-                if (closeableViewModel != null)
-                    closeableViewModel.Closed -= _weakEventHandler;
-                try
+                if (!vm.CloseAsync(new NavigationContext(NavigationType.Tab, NavigationMode.Remove, vm, null, this, context)).Result)
                 {
-                    if (!NavigationDispatcher.NavigatingFromAsync(new NavigationContext(NavigationType.Tab, NavigationMode.Back, vm, null, this), parameter).Result)
-                    {
-                        viewModels.RemoveRange(i, count - i);
-                        break;
-                    }
-                }
-                finally
-                {
-                    if (closeableViewModel != null)
-                        closeableViewModel.Closed += _weakEventHandler;
+                    viewModels.RemoveRange(i, count - i);
+                    break;
                 }
             }
             if (viewModels.Count == count)
@@ -454,7 +420,7 @@ namespace MugenMvvmToolkit.ViewModels
         {
             var selectableModel = sender as ISelectable;
             var vm = sender as TViewModel;
-            if (vm == null || selectableModel == null || args.PropertyName != "IsSelected")
+            if (vm == null || selectableModel == null || args.PropertyName != nameof(selectableModel.IsSelected))
                 return;
             if (selectableModel.IsSelected)
                 SelectedItem = vm;
@@ -474,22 +440,15 @@ namespace MugenMvvmToolkit.ViewModels
             }
         }
 
-        private static void UnsubscribeAction(object sender, EventHandler<ICloseableViewModel, ViewModelClosedEventArgs> eventHandler)
-        {
-            var closeableViewModel = sender as ICloseableViewModel;
-            if (closeableViewModel != null)
-                closeableViewModel.Closed -= eventHandler;
-        }
-
         #endregion
 
         #region Overrides of ViewModelBase
 
-        protected override Task<bool> OnClosing(object parameter)
+        protected override Task<bool> OnClosing(IDataContext context, object parameter)
         {
             if (CloseViewModelsOnClose && ItemsSource.Count != 0)
-                return Task.Factory.StartNew(function: OnClosingInternal, state: parameter);
-            return base.OnClosing(parameter);
+                return Task.Factory.StartNew(function: OnClosingInternal, state: context);
+            return base.OnClosing(context, parameter);
         }
 
         internal override void OnDisposeInternal(bool disposing)
