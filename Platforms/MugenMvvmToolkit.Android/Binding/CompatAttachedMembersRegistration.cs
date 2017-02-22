@@ -20,7 +20,6 @@ using System;
 using Android.Runtime;
 using Android.Views;
 using Android.Widget;
-using MugenMvvmToolkit.Android.Binding.Interfaces;
 using MugenMvvmToolkit.Android.Binding.Models;
 using MugenMvvmToolkit.Android.Infrastructure;
 using MugenMvvmToolkit.Binding;
@@ -30,6 +29,7 @@ using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using Object = Java.Lang.Object;
 #if APPCOMPAT
+using Android.Support.V4.View;
 using MugenMvvmToolkit.Android.Binding;
 using ShowAsAction = MugenMvvmToolkit.Android.AppCompat.Models.ShowAsAction;
 using ActionProvider = Android.Support.V4.View.ActionProvider;
@@ -268,7 +268,11 @@ namespace MugenMvvmToolkit.Android.Binding
                 content = template;
             if (content == null)
             {
+#if APPCOMPAT
+                MenuItemCompat.SetActionView(menuItem, null);
+#else
                 menuItem.SetActionView(null);
+#endif
                 return true;
             }
 
@@ -282,7 +286,11 @@ namespace MugenMvvmToolkit.Android.Binding
                 Type viewType = TypeCache<View>.Instance.GetTypeByName(content.ToString(), true, true);
                 actionView = viewType.CreateView(GetContextFromItem(menuItem));
             }
+#if APPCOMPAT
+            MenuItemCompat.SetActionView(menuItem, actionView);
+#else
             menuItem.SetActionView(actionView);
+#endif
 
             ParentObserver.GetOrAdd(actionView).Parent = menuItem;
             var bindings = GetActionViewBind(menuItem);
@@ -298,7 +306,11 @@ namespace MugenMvvmToolkit.Android.Binding
                 content = template;
             if (content == null)
             {
+#if APPCOMPAT
+                MenuItemCompat.SetActionProvider(menuItem, null);
+#else
                 menuItem.SetActionProvider(null);
+#endif
                 return true;
             }
 
@@ -309,7 +321,11 @@ namespace MugenMvvmToolkit.Android.Binding
                 actionProvider = (ActionProvider)Activator.CreateInstance(viewType, GetContextFromItem(menuItem));
             }
 
+#if APPCOMPAT
+            MenuItemCompat.SetActionProvider(menuItem, actionProvider);
+#else
             menuItem.SetActionProvider(actionProvider);
+#endif
             actionProvider.SetBindingMemberValue(AttachedMembers.Object.Parent, menuItem);
             var bindings = GetActionProviderBind(menuItem);
             if (!string.IsNullOrEmpty(bindings))
@@ -319,10 +335,17 @@ namespace MugenMvvmToolkit.Android.Binding
 
         private static void SetIsActionViewExpanded(IBindingMemberInfo bindingMemberInfo, IMenuItem menuItem, bool value)
         {
+#if APPCOMPAT
+            if (value)
+                MenuItemCompat.ExpandActionView(menuItem);
+            else
+                MenuItemCompat.CollapseActionView(menuItem);
+#else
             if (value)
                 menuItem.ExpandActionView();
             else
                 menuItem.CollapseActionView();
+#endif
         }
 
         private static IDisposable ObserveIsActionViewExpanded(IBindingMemberInfo bindingMemberInfo, IMenuItem menuItem, IEventListener arg3)
