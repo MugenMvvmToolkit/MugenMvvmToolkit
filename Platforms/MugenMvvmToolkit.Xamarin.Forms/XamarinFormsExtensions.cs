@@ -24,6 +24,7 @@ using System.Reflection;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using Xamarin.Forms;
 
@@ -34,6 +35,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms
         #region Fields
 
         private const string NavParamKey = "@~`NavParam";
+        private const string NavContextKey = "@~`NavContext";
         private static readonly Dictionary<Type, IBindingMemberInfo> TypeToContentMember;
 
         #endregion
@@ -70,15 +72,16 @@ namespace MugenMvvmToolkit.Xamarin.Forms
             return baseOnBackButtonPressed != null && baseOnBackButtonPressed();
         }
 
-        public static void SetNavigationParameter([NotNull] this Page controller, object value)
+        public static void SetNavigationParameter([NotNull] this Page page, object value)
         {
-            Should.NotBeNull(controller, nameof(controller));
+            Should.NotBeNull(page, nameof(page));
             if (value == null)
-                ServiceProvider.AttachedValueProvider.Clear(controller, NavParamKey);
+                ServiceProvider.AttachedValueProvider.Clear(page, NavParamKey);
             else
-                ServiceProvider.AttachedValueProvider.SetValue(controller, NavParamKey, value);
+                ServiceProvider.AttachedValueProvider.SetValue(page, NavParamKey, value);
         }
 
+        //todo save in restoration provider
         public static object GetNavigationParameter([CanBeNull] this Page controller)
         {
             if (controller == null)
@@ -124,6 +127,22 @@ namespace MugenMvvmToolkit.Xamarin.Forms
         internal static void AsEventHandler<TArg>(this Action action, object sender, TArg arg)
         {
             action();
+        }
+
+        internal static void SetNavigationContext([NotNull] this Page page, IDataContext value)
+        {
+            Should.NotBeNull(page, nameof(page));
+            ServiceProvider.AttachedValueProvider.SetValue(page, NavContextKey, value);
+        }
+
+        internal static IDataContext GetNavigationContext(this Page page, bool remove)
+        {
+            if (page == null)
+                return null;
+            var dataContext = ServiceProvider.AttachedValueProvider.GetValue<IDataContext>(page, NavContextKey, false);
+            if (dataContext != null && remove)
+                ServiceProvider.AttachedValueProvider.Clear(page, NavContextKey);
+            return dataContext;
         }
 
         private static IBindingMemberInfo GetContentMember(Type type)

@@ -25,14 +25,15 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.Validation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.Models.Messages;
 
 // ReSharper disable once CheckNamespace
@@ -46,14 +47,6 @@ namespace MugenMvvmToolkit.ViewModels
         public static Guid GetViewModelId(this IViewModel viewModel)
         {
             return ViewModelProvider.GetOrAddViewModelId(viewModel);
-        }
-
-        public static bool? GetOperationResult(IViewModel viewModel, bool? defaultValue = null)
-        {
-            var hasOperationResult = viewModel as IHasOperationResult;
-            if (hasOperationResult == null)
-                return defaultValue;
-            return hasOperationResult.OperationResult;
         }
 
         public static string GetViewName([NotNull] this IViewModel viewModel, IDataContext context = null)
@@ -124,12 +117,12 @@ namespace MugenMvvmToolkit.ViewModels
             return Wrap<T>(viewModel, new DataContext(parameters));
         }
 
-        public static INavigationOperation ShowAsync([NotNull] this IViewModel viewModel, params DataConstantValue[] parameters)
+        public static IAsyncOperation ShowAsync([NotNull] this IViewModel viewModel, params DataConstantValue[] parameters)
         {
             return viewModel.ShowAsync(parameters == null ? null : new DataContext(parameters));
         }
 
-        public static INavigationOperation ShowAsync([NotNull] this IViewModel viewModel, IDataContext context = null)
+        public static IAsyncOperation ShowAsync([NotNull] this IViewModel viewModel, IDataContext context = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             if (context == null)
@@ -140,13 +133,30 @@ namespace MugenMvvmToolkit.ViewModels
                 .ShowAsync(viewModel, context);
         }
 
-        public static INavigationOperation ShowAsync([NotNull] this IViewModel viewModel, string viewName, IDataContext context = null)
+        public static IAsyncOperation<TResult> ShowAsync<TResult>([NotNull] this IHasResultViewModel<TResult> viewModel, params DataConstantValue[] parameters)
+        {
+            return viewModel.ShowAsync(parameters == null ? null : new DataContext(parameters));
+        }
+
+        public static IAsyncOperation<TResult> ShowAsync<TResult>([NotNull] this IHasResultViewModel<TResult> viewModel, IDataContext context = null)
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            if (context == null)
+                context = DataContext.Empty;
+            return viewModel
+                .GetIocContainer(true)
+                .Get<IViewModelPresenter>()
+                .ShowAsync(viewModel, context)
+                .ContinueWith<IHasResultViewModel<TResult>, TResult>((vm, result) => vm.Result);
+        }
+
+        public static IAsyncOperation ShowAsync([NotNull] this IViewModel viewModel, string viewName, IDataContext context = null)
         {
             return viewModel.ShowAsync(null, viewName, context);
         }
 
-        public static INavigationOperation ShowAsync<T>([NotNull] this T viewModel,
-            Action<T, IOperationResult<bool>> completeCallback, string viewName = null, IDataContext context = null)
+        public static IAsyncOperation ShowAsync<T>([NotNull] this T viewModel,
+            Action<T, IOperationResult> completeCallback, string viewName = null, IDataContext context = null)
             where T : IViewModel
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
@@ -159,6 +169,50 @@ namespace MugenMvvmToolkit.ViewModels
             if (completeCallback != null)
                 operation.ContinueWith(completeCallback);
             return operation;
+        }
+
+        public static Task<bool> CloseAsync([NotNull]this IViewModel viewModel, IDataContext context = null)
+        {
+            return viewModel.GetIocContainer(true).Get<IViewModelPresenter>().CloseAsync(viewModel, context);
+        }
+
+        public static Task<bool> CloseAsync([NotNull]this IViewModel viewModel, [CanBeNull] object parameter)
+        {
+            IDataContext context = null;
+            if (parameter != null)
+            {
+                context = new DataContext();
+                context.Add(NavigationConstants.CloseParameter, parameter);
+            }
+            return viewModel.CloseAsync(context);
+        }
+
+        public static void AddClosingHandler([NotNull]this IViewModel viewModel, EventHandler<IViewModel, ViewModelClosingEventArgs> handler)
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            var eventHandler = viewModel.Settings.Metadata.GetData(ViewModelConstants.ClosingEvent) + handler;
+            viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.ClosingEvent, eventHandler);
+        }
+
+        public static void RemoveClosingHandler([NotNull]this IViewModel viewModel, EventHandler<IViewModel, ViewModelClosingEventArgs> handler)
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            var eventHandler = viewModel.Settings.Metadata.GetData(ViewModelConstants.ClosingEvent) - handler;
+            viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.ClosingEvent, eventHandler);
+        }
+
+        public static void AddClosedHandler([NotNull]this IViewModel viewModel, EventHandler<IViewModel, ViewModelClosedEventArgs> handler)
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            var eventHandler = viewModel.Settings.Metadata.GetData(ViewModelConstants.ClosedEvent) + handler;
+            viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.ClosedEvent, eventHandler);
+        }
+
+        public static void RemoveClosedHandler([NotNull]this IViewModel viewModel, EventHandler<IViewModel, ViewModelClosedEventArgs> handler)
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            var eventHandler = viewModel.Settings.Metadata.GetData(ViewModelConstants.ClosedEvent) - handler;
+            viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.ClosedEvent, eventHandler);
         }
 
         [Pure]
@@ -247,6 +301,13 @@ namespace MugenMvvmToolkit.ViewModels
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             viewModel.Publish(viewModel, StateChangedMessage.Empty);
+        }
+
+        public static MultiViewModelNavigationMediator GetOrAddNavigationMediator(this IMultiViewModel multiViewModel)
+        {
+            return ServiceProvider
+                .AttachedValueProvider
+                .GetOrAdd(multiViewModel, nameof(GetOrAddNavigationMediator), (model, o) => new MultiViewModelNavigationMediator(model), null);
         }
 
         private static DataConstantValue[] MergeParameters(IViewModel parentViewModel, ObservationMode? observationMode, DataConstantValue[] parameters)

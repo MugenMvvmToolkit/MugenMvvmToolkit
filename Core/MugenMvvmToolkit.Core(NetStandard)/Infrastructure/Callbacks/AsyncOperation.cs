@@ -22,6 +22,7 @@ using System.Diagnostics;
 using System.Threading;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Callbacks;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Infrastructure.Callbacks
 {
@@ -40,9 +41,10 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Constructors
 
-        public AsyncOperation()
+        public AsyncOperation(IDataContext context = null)
         {
             _continuations = new List<IAsyncOperationInternal>(2);
+            Context = context.ToNonReadOnly();
         }
 
         #endregion
@@ -225,6 +227,8 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         [DebuggerBrowsable(DebuggerBrowsableState.Never)]
         IOperationResult IAsyncOperation.Result => Result;
 
+        public IDataContext Context { get; }
+
         public void Wait()
         {
             InitializeHandle();
@@ -239,23 +243,22 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         public IAsyncOperation ContinueWith(IActionContinuation continuationAction)
         {
-            return AddContinuation(new AsyncOperationImpl<object, object>(continuationAction));
+            return AddContinuation(new AsyncOperationImpl<object, object>(continuationAction, Context));
         }
 
         public IAsyncOperation<T> ContinueWith<T>(IFunctionContinuation<T> continuationFunction)
         {
-            return AddContinuation(new AsyncOperationImpl<T, object>(continuationFunction));
+            return AddContinuation(new AsyncOperationImpl<T, object>(continuationFunction, Context));
         }
 
         public IAsyncOperation ContinueWith(IActionContinuation<TResult> continuationAction)
         {
-            return AddContinuation(new AsyncOperationImpl<TResult, object>(continuationAction));
+            return AddContinuation(new AsyncOperationImpl<TResult, object>(continuationAction, Context));
         }
 
-        public IAsyncOperation<TNewResult> ContinueWith<TNewResult>(
-            IFunctionContinuation<TResult, TNewResult> continuationFunction)
+        public IAsyncOperation<TNewResult> ContinueWith<TNewResult>(IFunctionContinuation<TResult, TNewResult> continuationFunction)
         {
-            return AddContinuation(new AsyncOperationImpl<TNewResult, TResult>(continuationFunction));
+            return AddContinuation(new AsyncOperationImpl<TNewResult, TResult>(continuationFunction, Context));
         }
 
         public virtual IOperationCallback ToOperationCallback()

@@ -77,7 +77,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         public int Priority => ViewModelPresenter.DefaultNavigationPresenterPriority;
 
-        public INavigationOperation TryShowAsync(IViewModel viewModel, IDataContext context,
+        public IAsyncOperation TryShowAsync(IViewModel viewModel, IDataContext context,
             IViewModelPresenter parentPresenter)
         {
             if (!CanShowViewModel(viewModel, context, parentPresenter))
@@ -85,10 +85,10 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             context = context.ToNonReadOnly();
             context.AddOrUpdate(NavigationConstants.ViewModel, viewModel);
 
-            var operation = new NavigationOperation();
+            var operation = new AsyncOperation<object>();
             var provider = viewModel.GetIocContainer(true).Get<INavigationProvider>();
             _operationCallbackManager.Register(OperationType.PageNavigation, viewModel, operation.ToOperationCallback(), context);
-            operation.SetNavigationCompletedTask(provider.NavigateAsync(context));
+            operation.Context.AddOrUpdate(NavigationConstants.NavigationCompletedTask, provider.NavigateAsync(context));
             return operation;
         }
 

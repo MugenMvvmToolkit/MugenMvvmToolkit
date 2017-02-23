@@ -29,7 +29,7 @@ namespace MugenMvvmToolkit.Interfaces.Presenters
         int Priority { get; }
 
         [CanBeNull]
-        INavigationOperation TryShowAsync([NotNull] IViewModel viewModel, [NotNull] IDataContext context, [NotNull]IViewModelPresenter parentPresenter);
+        IAsyncOperation TryShowAsync([NotNull] IViewModel viewModel, [NotNull] IDataContext context, [NotNull]IViewModelPresenter parentPresenter);
 
         [CanBeNull]
         Task<bool> TryCloseAsync([NotNull] IViewModel viewModel, [NotNull] IDataContext context, [NotNull]IViewModelPresenter parentPresenter);

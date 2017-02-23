@@ -59,13 +59,13 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Methods
 
-        protected virtual INavigationOperation TryShowInternalAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
+        protected virtual IAsyncOperation TryShowInternalAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
         {
             if (MultiViewModel.ItemsSource.Any(vm => vm == viewModel))
                 MultiViewModel.SelectedItem = viewModel;
             else
                 MultiViewModel.AddViewModel(viewModel, true);
-            var operation = new NavigationOperation();
+            var operation = new AsyncOperation<object>();
             CallbackManager.Register(OperationType.TabNavigation, viewModel, operation.ToOperationCallback(), context);
             return operation;
         }
@@ -83,8 +83,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         public int Priority => ViewModelPresenter.DefaultMultiViewModelPresenterPriority;
 
-        public INavigationOperation TryShowAsync(IViewModel viewModel, IDataContext context,
-            IViewModelPresenter parentPresenter)
+        public IAsyncOperation TryShowAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
         {
             if (!MultiViewModel.ViewModelType.IsInstanceOfType(viewModel))
                 return null;

@@ -149,11 +149,11 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
                         }
                         SetValue(field, target, anonClass);
                         break;
-                    case NavigationOperationField:
-                        var operation = new NavigationOperation();
-                        operation.SetResult(OperationResult.Convert<bool>(result));
-                        SetValue(field, target, operation);
-                        break;
+//                    case NavigationOperationField://todo fix
+//                        var operation = new NavigationOperation();
+//                        operation.SetResult(OperationResult.Convert<bool>(result));
+//                        SetValue(field, target, operation);
+//                        break;
                     case NonSerializableField:
                         object service;
                         if (State == null)
@@ -215,15 +215,15 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
                 if (isStateMachine && value is IAsyncOperationAwaiter)
                     return new FieldSnapshot { Name = field.Name, FieldType = AwaiterField };
 
-                //NavigationOperation
-                if (value is INavigationOperation)
-                {
-                    return new FieldSnapshot
-                    {
-                        Name = field.Name,
-                        FieldType = NavigationOperationField
-                    };
-                }
+//                //NavigationOperation//todo fix
+//                if (value is INavigationOperation)
+//                {
+//                    return new FieldSnapshot
+//                    {
+//                        Name = field.Name,
+//                        FieldType = NavigationOperationField
+//                    };
+//                }
 
                 //field is type.
                 if (typeof(Type).IsAssignableFrom(field.FieldType))

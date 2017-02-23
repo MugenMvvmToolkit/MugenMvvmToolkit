@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="INavigationOperation.cs">
+// <copyright file="IHasOperationResult.cs">
 // Copyright (c) 2012-2016 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -16,12 +16,10 @@
 
 #endregion
 
-using System.Threading.Tasks;
-
-namespace MugenMvvmToolkit.Interfaces.Callbacks
+namespace MugenMvvmToolkit.Interfaces.ViewModels
 {
-    public interface INavigationOperation : IAsyncOperation<bool>
+    public interface IHasResultViewModel<out TResult> : IViewModel
     {
-        Task NavigationCompletedTask { get; }
+        TResult Result { get; }
     }
 }

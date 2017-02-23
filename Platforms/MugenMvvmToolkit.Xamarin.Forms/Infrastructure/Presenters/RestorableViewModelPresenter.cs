@@ -26,6 +26,7 @@ using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.ViewModels;
 using MugenMvvmToolkit.Xamarin.Forms.Interfaces.Presenters;
@@ -33,7 +34,7 @@ using Xamarin.Forms;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters
 {
-    public class RestorableViewModelPresenter : ViewModelPresenter, IRestorableViewModelPresenter
+    public class RestorableViewModelPresenter : ViewModelPresenter, IRestorableViewModelPresenter//todo virtual methods
     {
         #region Nested types
 
@@ -73,7 +74,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public RestorableViewModelPresenter(IViewModelProvider viewModelProvider, ISerializer serializer)
+        public RestorableViewModelPresenter(INavigationDispatcher navigationDispatcher, IViewModelProvider viewModelProvider, ISerializer serializer)
+            : base(navigationDispatcher)
         {
             Should.NotBeNull(viewModelProvider, nameof(viewModelProvider));
             _viewModelProvider = viewModelProvider;
@@ -92,7 +94,15 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters
 
         #region Methods
 
-        private void OnViewModelClosed(IOperationResult<bool> operationResult)
+        protected override IAsyncOperation ShowInternalAsync(IViewModel viewModel, IDataContext context)
+        {
+            var result = base.ShowInternalAsync(viewModel, context);
+            _openedViewModels.Add(viewModel);
+            result.ContinueWith(OnViewModelClosed);
+            return result;
+        }
+
+        private void OnViewModelClosed(IOperationResult operationResult)
         {
             var viewModel = operationResult.Source as IViewModel;
             if (viewModel == null)
@@ -194,14 +204,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters
             for (var i = 0; i < viewModels.Count; i++)
                 viewModels[i].ShowAsync(context);
             return true;
-        }
-
-        public override INavigationOperation ShowAsync(IViewModel viewModel, IDataContext context)
-        {
-            var result = base.ShowAsync(viewModel, context);
-            _openedViewModels.Add(viewModel);
-            result.ContinueWith(OnViewModelClosed);
-            return result;
         }
 
         #endregion

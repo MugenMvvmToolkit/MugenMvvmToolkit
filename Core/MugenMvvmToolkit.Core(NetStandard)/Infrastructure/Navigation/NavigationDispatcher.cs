@@ -71,8 +71,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 OnClosed(context.ViewModelFrom, context);
                 if (context.NavigationType.Operation != null && !context.GetData(NavigationConstants.SuppressNavigationCallbackOnClose))
                 {
-                    var result = ViewModelExtensions.GetOperationResult(context.ViewModelFrom);
-                    var operationResult = OperationResult.CreateResult(context.NavigationType.Operation, context.ViewModelFrom, result, context);
+                    var operationResult = OperationResult.CreateResult<object>(context.NavigationType.Operation, context.ViewModelFrom, null, context);
                     CallbackManager.SetResult(operationResult);
                 }
             }
@@ -82,14 +81,14 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         {
             var viewModel = context.NavigationMode.IsClose() ? context.ViewModelFrom : context.ViewModelTo;
             if (viewModel != null && context.NavigationType.Operation != null)
-                CallbackManager.SetResult(OperationResult.CreateErrorResult<bool?>(context.NavigationType.Operation, viewModel, exception, context));
+                CallbackManager.SetResult(OperationResult.CreateErrorResult<object>(context.NavigationType.Operation, viewModel, exception, context));
         }
 
         protected virtual void OnNavigationCanceledInternal(INavigationContext context)
         {
             var viewModel = context.NavigationMode.IsClose() ? context.ViewModelFrom : context.ViewModelTo;
             if (viewModel != null && context.NavigationType.Operation != null)
-                CallbackManager.SetResult(OperationResult.CreateCancelResult<bool?>(context.NavigationType.Operation, viewModel, context));//todo change result
+                CallbackManager.SetResult(OperationResult.CreateCancelResult<object>(context.NavigationType.Operation, viewModel, context));
         }
 
         protected virtual void RaiseNavigated(INavigationContext context)

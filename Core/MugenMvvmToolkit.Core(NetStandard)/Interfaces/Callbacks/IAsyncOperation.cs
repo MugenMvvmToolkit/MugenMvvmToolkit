@@ -17,6 +17,7 @@
 #endregion
 
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Interfaces.Callbacks
 {
@@ -25,6 +26,9 @@ namespace MugenMvvmToolkit.Interfaces.Callbacks
         bool IsCompleted { get; }
 
         IOperationResult Result { get; }
+
+        [NotNull]
+        IDataContext Context { get; }
 
         void Wait();
 
@@ -48,8 +52,7 @@ namespace MugenMvvmToolkit.Interfaces.Callbacks
         IAsyncOperation ContinueWith([NotNull] IActionContinuation<TResult> continuationAction);
 
         [NotNull]
-        IAsyncOperation<TNewResult> ContinueWith<TNewResult>(
-            [NotNull] IFunctionContinuation<TResult, TNewResult> continuationFunction);
+        IAsyncOperation<TNewResult> ContinueWith<TNewResult>([NotNull] IFunctionContinuation<TResult, TNewResult> continuationFunction);
     }
 
     internal interface IAsyncOperationInternal : IAsyncOperation, IContinuation

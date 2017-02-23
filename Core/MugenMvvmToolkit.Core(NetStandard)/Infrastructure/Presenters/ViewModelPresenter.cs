@@ -154,7 +154,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         public ICollection<IDynamicViewModelPresenter> DynamicPresenters => _dynamicPresenters;
 
-        public INavigationOperation ShowAsync(IViewModel viewModel, IDataContext context)
+        public IAsyncOperation ShowAsync(IViewModel viewModel, IDataContext context)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             return ShowInternalAsync(viewModel, context ?? DataContext.Empty);
@@ -176,7 +176,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Methods
 
-        protected virtual INavigationOperation ShowInternalAsync(IViewModel viewModel, IDataContext context)
+        protected virtual IAsyncOperation ShowInternalAsync(IViewModel viewModel, IDataContext context)
         {
             var presenters = _dynamicPresenters.ToArrayEx();
             for (int i = 0; i < presenters.Length; i++)
@@ -203,6 +203,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             }
         }
 
+        [NotNull]
         protected virtual Task<bool> CloseInternalAsync(IViewModel viewModel, IDataContext context)
         {
             var presenters = _dynamicPresenters.ToArrayEx();

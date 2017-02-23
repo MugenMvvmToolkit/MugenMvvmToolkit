@@ -18,6 +18,7 @@
 
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Callbacks;
+using MugenMvvmToolkit.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Infrastructure.Callbacks
 {
@@ -34,25 +35,29 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Constructors
 
-        public AsyncOperationImpl([NotNull] IActionContinuation continuationAction)
+        public AsyncOperationImpl([NotNull] IActionContinuation continuationAction, IDataContext context)
+            : base(context)
         {
             Should.NotBeNull(continuationAction, nameof(continuationAction));
             _continuationAction = continuationAction;
         }
 
-        public AsyncOperationImpl([NotNull] IActionContinuation<T> continuationAction)
+        public AsyncOperationImpl([NotNull] IActionContinuation<T> continuationAction, IDataContext context)
+            : base(context)
         {
             Should.NotBeNull(continuationAction, nameof(continuationAction));
             _continuationActionGeneric = continuationAction;
         }
 
-        public AsyncOperationImpl([NotNull] IFunctionContinuation<T> continuationFunction)
+        public AsyncOperationImpl([NotNull] IFunctionContinuation<T> continuationFunction, IDataContext context)
+            : base(context)
         {
             Should.NotBeNull(continuationFunction, nameof(continuationFunction));
             _continuationFunction = continuationFunction;
         }
 
-        public AsyncOperationImpl([NotNull] IFunctionContinuation<TIn, T> continuationFunction)
+        public AsyncOperationImpl([NotNull] IFunctionContinuation<TIn, T> continuationFunction, IDataContext context)
+            : base(context)
         {
             Should.NotBeNull(continuationFunction, nameof(continuationFunction));
             _continuationFunctionGeneric = continuationFunction;
@@ -95,23 +100,23 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             else if (_continuationActionGeneric != null)
             {
                 callback = _continuationActionGeneric.ToSerializableCallback();
-                inputTypeName = typeof (T).AssemblyQualifiedName;
+                inputTypeName = typeof(T).AssemblyQualifiedName;
             }
             else if (_continuationFunction != null)
             {
                 callback = _continuationFunction.ToSerializableCallback();
-                inputTypeName = typeof (T).AssemblyQualifiedName;
+                inputTypeName = typeof(T).AssemblyQualifiedName;
                 isFunc = true;
             }
             else
             {
                 callback = _continuationFunctionGeneric.ToSerializableCallback();
-                inputTypeName = typeof (TIn).AssemblyQualifiedName;
+                inputTypeName = typeof(TIn).AssemblyQualifiedName;
                 isFunc = true;
             }
             if (callback == null)
                 return null;
-            return new AsyncOperationSerializableCallback(callback, inputTypeName, typeof (T).AssemblyQualifiedName,
+            return new AsyncOperationSerializableCallback(callback, inputTypeName, typeof(T).AssemblyQualifiedName,
                 isFunc, GetContinuationsCallbacks());
         }
 

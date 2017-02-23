@@ -82,13 +82,13 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
 
         int IDynamicViewModelPresenter.Priority => int.MaxValue;
 
-        INavigationOperation IDynamicViewModelPresenter.TryShowAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
+        IAsyncOperation IDynamicViewModelPresenter.TryShowAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
         {
             parentPresenter.DynamicPresenters.Remove(this);
             if (WrapToNavigationController)
                 return parentPresenter.ShowAsync(viewModel, context);
             _window.RootViewController = (UIViewController)ServiceProvider.ViewManager.GetOrCreateView(viewModel, null, context);
-            return new NavigationOperation();
+            return new AsyncOperation<object>();
         }
 
         Task<bool> IDynamicViewModelPresenter.TryCloseAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)

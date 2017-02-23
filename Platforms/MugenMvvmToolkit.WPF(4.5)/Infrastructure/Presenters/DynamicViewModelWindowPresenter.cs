@@ -126,14 +126,15 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
 
         public virtual int Priority => ViewModelPresenter.DefaultWindowPresenterPriority;
 
-        public INavigationOperation TryShowAsync(IViewModel viewModel, IDataContext context,
+        public IAsyncOperation TryShowAsync(IViewModel viewModel, IDataContext context,
             IViewModelPresenter parentPresenter)
         {
             var viewMediator = TryCreateWindowViewMediator(viewModel, context);
             if (viewMediator == null)
                 return null;
             var tcs = new TaskCompletionSource<object>();
-            var operation = new NavigationOperation(tcs.Task);
+            var operation = new AsyncOperation<object>();
+            operation.Context.AddOrUpdate(NavigationConstants.NavigationCompletedTask, tcs.Task);
 
             if (_currentTask == null)
                 Show(viewMediator, operation, context, tcs);
@@ -181,7 +182,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
             return null;
         }
 
-        private void Show(IWindowViewMediator viewMediator, INavigationOperation operation, IDataContext context, TaskCompletionSource<object> tcs)
+        private void Show(IWindowViewMediator viewMediator, IAsyncOperation operation, IDataContext context, TaskCompletionSource<object> tcs)
         {
             try
             {

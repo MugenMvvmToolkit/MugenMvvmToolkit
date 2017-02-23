@@ -914,12 +914,27 @@ namespace MugenMvvmToolkit
         }
 
         [NotNull]
-        public static IAsyncOperation<TResult> ContinueWith<TResult>([NotNull] this IAsyncOperation operation,
-            [NotNull] Func<IOperationResult, TResult> continuationFunction)
+        public static IAsyncOperation<TResult> ContinueWith<TResult>([NotNull] this IAsyncOperation operation, [NotNull] Func<IOperationResult, TResult> continuationFunction)
         {
             Should.NotBeNull(operation, nameof(operation));
             Should.NotBeNull(continuationFunction, nameof(continuationFunction));
             return operation.ContinueWith(continuationFunction: new DelegateContinuation<object, TResult, object>(continuationFunction));
+        }
+
+        [NotNull]
+        public static IAsyncOperation ContinueWith<TSource>([NotNull] this IAsyncOperation operation, [NotNull] Action<TSource, IOperationResult> continuationAction)
+        {
+            Should.NotBeNull(operation, nameof(operation));
+            Should.NotBeNull(continuationAction, nameof(continuationAction));
+            return operation.ContinueWith(continuationAction: new DelegateContinuation<object, object, TSource>(continuationAction));
+        }
+
+        [NotNull]
+        public static IAsyncOperation<TResult> ContinueWith<TSource, TResult>([NotNull] this IAsyncOperation operation, [NotNull] Func<TSource, IOperationResult, TResult> continuationFunction)
+        {
+            Should.NotBeNull(operation, nameof(operation));
+            Should.NotBeNull(continuationFunction, nameof(continuationFunction));
+            return operation.ContinueWith(continuationFunction: new DelegateContinuation<object, TResult, TSource>(continuationFunction));
         }
 
         [NotNull]

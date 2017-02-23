@@ -80,7 +80,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
 
         int IDynamicViewModelPresenter.Priority => int.MaxValue;
 
-        INavigationOperation IDynamicViewModelPresenter.TryShowAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
+        IAsyncOperation IDynamicViewModelPresenter.TryShowAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
         {
             parentPresenter.DynamicPresenters.Remove(this);
             var operation = parentPresenter.ShowAsync(viewModel, context);
