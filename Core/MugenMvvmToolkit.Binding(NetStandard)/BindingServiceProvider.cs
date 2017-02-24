@@ -274,7 +274,7 @@ namespace MugenMvvmToolkit.Binding
             Func<IBindingMemberInfo, Type, object, object> converter = null, Func<string, IBindingPath> bindingPathFactory = null,
             Func<Type, string, IBindingMemberInfo> findUpdateEvent = null, Func<CultureInfo> bindingCultureInfo = null, IDictionary<string, IBindingBehavior> bindingModeBehaviors = null)
         {
-            ValueConverter = converter ?? BindingReflectionExtensions.Convert;
+            ValueConverter = converter ?? ((info, type, arg3) => arg3);
             BindingProvider = bindingProvider ?? new BindingProvider();
             BindingManager = bindingManager ?? new BindingManager();
             ResourceResolver = resourceResolver ?? new BindingResourceResolver();
@@ -301,8 +301,7 @@ namespace MugenMvvmToolkit.Binding
             if (_bindingProvider == null)
             {
                 var methodInfo = typeof(BindingServiceProvider).GetMethodEx(nameof(SetDefaultValues), MemberFlags.Static | MemberFlags.NonPublic | MemberFlags.Public);
-                if (methodInfo != null)
-                    methodInfo.Invoke(null, null);
+                methodInfo?.Invoke(null, null);
             }
         }
 

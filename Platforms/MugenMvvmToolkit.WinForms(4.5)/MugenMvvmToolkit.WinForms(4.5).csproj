@@ -83,6 +83,9 @@
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\TracerEx.cs">
       <Link>Infrastructure\TracerEx.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\BindingConverterExtensions.cs">
+      <Link>Binding\BindingConverterExtensions.cs</Link>
+    </Compile>
     <Compile Include="Binding\AttachedMembers.cs" />
     <Compile Include="Binding\AttachedMembersRegistration.cs" />
     <Compile Include="Binding\Infrastructure\ItemsSourceGeneratorBase.cs" />

@@ -296,11 +296,6 @@ namespace MugenMvvmToolkit.Binding
 
         #region Methods
 
-        public static object Convert(IBindingMemberInfo member, Type type, object value)
-        {
-            return BindingReflectionExtensions.Convert(member, type, value);
-        }
-
         public static void TryRegisterDataTemplateSelectorsAndValueConverters(this IModuleContext context, Action<Type> customHandler)
         {
             ServiceProvider.BootstrapCodeBuilder?.AppendStatic(nameof(BindingExtensions),
@@ -685,6 +680,11 @@ namespace MugenMvvmToolkit.Binding
             return Empty.Array<object>();
         }
 
+        public static bool IsConvertible(object value)
+        {
+            return BindingReflectionExtensions.IsConvertible(value);
+        }
+
         internal static void CheckDuplicateLambdaParameter(ICollection<string> parameters)
         {
             if (parameters.Count == 0)
@@ -922,7 +922,7 @@ namespace MugenMvvmToolkit.Binding
                 return;
 
             var constructor = type.GetConstructor(Empty.Array<Type>());
-            if ((constructor == null) || !constructor.IsPublic)
+            if (constructor == null || !constructor.IsPublic)
                 return;
 
             var value = constructor.Invoke(Empty.Array<object>());

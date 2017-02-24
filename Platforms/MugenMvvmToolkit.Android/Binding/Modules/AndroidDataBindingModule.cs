@@ -40,7 +40,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
         {
             if (context.PlatformInfo.Platform == PlatformType.Android)
             {
-                BindingServiceProvider.Initialize(errorProvider: new AndroidBindingErrorProvider());
+                BindingServiceProvider.Initialize(errorProvider: new AndroidBindingErrorProvider(), converter: BindingConverterExtensions.Convert);
                 BindingServiceProvider.BindingProvider.DefaultBehaviors.Add(DisableEqualityCheckingBehavior.TargetTrueNotTwoWay);
             }
 

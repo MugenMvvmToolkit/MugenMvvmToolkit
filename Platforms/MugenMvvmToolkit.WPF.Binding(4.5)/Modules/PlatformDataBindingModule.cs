@@ -140,12 +140,14 @@ namespace MugenMvvmToolkit.UWP.Binding.Modules
 #if WPF
             if (context.PlatformInfo.Platform == PlatformType.WPF)
             {
-                BindingServiceProvider.Initialize(memberProvider: new WpfBindingMemberProvider(), contextManager: new WpfBindingContextManager(), errorProvider: new WpfBindingErrorProvider());
+                BindingServiceProvider.Initialize(memberProvider: new WpfBindingMemberProvider(), contextManager: new WpfBindingContextManager(),
+                    errorProvider: new WpfBindingErrorProvider(), converter: BindingConverterExtensions.Convert);
             }
 #elif WINDOWS_UWP
             if (context.PlatformInfo.Platform == PlatformType.UWP)
             {
-                BindingServiceProvider.Initialize(memberProvider: new UwpBindingMemberProvider(), contextManager: new UwpBindingContextManager(), errorProvider: new UwpBindingErrorProvider());
+                BindingServiceProvider.Initialize(memberProvider: new UwpBindingMemberProvider(), contextManager: new UwpBindingContextManager(),
+                    errorProvider: new UwpBindingErrorProvider(), converter: BindingConverterExtensions.Convert);
             }
 #endif
             context.TryRegisterDataTemplateSelectorsAndValueConverters(RegisterType);

@@ -96,6 +96,9 @@
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Interfaces\Navigation\INavigationService.cs">
       <Link>Interfaces\Navigation\INavigationService.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\BindingConverterExtensions.cs">
+      <Link>Binding\BindingConverterExtensions.cs</Link>
+    </Compile>
     <Compile Include="ActionBarExtensions.cs" />
     <Compile Include="Binding\AttachedMembers.cs" />
     <Compile Include="Attributes\BootstrapperAttribute.cs" />

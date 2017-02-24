@@ -56,6 +56,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Modules
 
         protected override void BindViewModelPresenter(IModuleContext context, IIocContainer container)
         {
+            container.Bind<RestorableViewModelPresenter, RestorableViewModelPresenter>(DependencyLifecycle.SingleInstance);
             container.BindToMethod((iocContainer, list) =>
             {
                 IViewModelPresenter presenter = container.Get<RestorableViewModelPresenter>();

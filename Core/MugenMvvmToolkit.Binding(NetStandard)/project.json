@@ -1,8 +1,7 @@
 ﻿{
   "supports": {},
   "dependencies": {
-    "NETStandard.Library": "1.6.1",
-    "System.ComponentModel.TypeConverter": "4.3.0"
+    "NETStandard.Library": "1.6.1"
   },
   "frameworks": {
     "netstandard1.0": {}

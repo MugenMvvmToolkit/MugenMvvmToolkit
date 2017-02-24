@@ -37,7 +37,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.Modules
         public bool Load(IModuleContext context)
         {
             if (context.PlatformInfo.Platform == PlatformType.WinForms)
-                BindingServiceProvider.Initialize(errorProvider: new WinFormsBindingErrorProvider());
+                BindingServiceProvider.Initialize(errorProvider: new WinFormsBindingErrorProvider(), converter: BindingConverterExtensions.Convert);
 
             context.TryRegisterDataTemplateSelectorsAndValueConverters(null);
             MugenMvvmToolkit.Binding.AttachedMembersRegistration.RegisterDefaultMembers();

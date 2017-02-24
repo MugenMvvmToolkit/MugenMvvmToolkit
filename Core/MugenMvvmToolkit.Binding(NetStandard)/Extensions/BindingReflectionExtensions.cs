@@ -18,14 +18,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Interfaces.Parse.Nodes;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -61,45 +58,6 @@ namespace MugenMvvmToolkit.Binding
         }
 #endif
 
-        private sealed class MultiTypeConverter : TypeConverter
-        {
-            #region Fields
-
-            private readonly TypeConverter _first;
-            private readonly TypeConverter _second;
-
-            #endregion
-
-            #region Constructors
-
-            public MultiTypeConverter(TypeConverter first, TypeConverter second)
-            {
-                _first = first;
-                _second = second;
-            }
-
-            #endregion
-
-            #region Overrides of TypeConverter
-
-            public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
-            {
-                return _first.CanConvertFrom(context, sourceType) || _second.CanConvertFrom(context, sourceType);
-            }
-
-            public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-            {
-                var type = value.GetType();
-                if (_first.CanConvertFrom(context, type))
-                    return _first.ConvertFrom(context, culture, value);
-                if (_second.CanConvertFrom(context, type))
-                    return _second.ConvertFrom(context, culture, value);
-                return base.ConvertFrom(context, culture, value);
-            }
-
-            #endregion
-        }
-
         #endregion
 
         #region Fields
@@ -111,7 +69,6 @@ namespace MugenMvvmToolkit.Binding
 #endif
         private static readonly Dictionary<Type, List<MethodInfo>> TypeToExtensionMethods;
         private static readonly Func<MethodInfo, bool> IsExtensionMethodDelegate;
-        private static readonly Dictionary<object, TypeConverter> MemberToTypeConverter;
 
         #endregion
 
@@ -120,7 +77,6 @@ namespace MugenMvvmToolkit.Binding
         static BindingReflectionExtensions()
         {
             CommaSeparator = new[] { "," };
-            MemberToTypeConverter = new Dictionary<object, TypeConverter>();
 #if NET_STANDARD
             TypeCodeTable = new Dictionary<Type, TypeCode>
             {
@@ -148,41 +104,6 @@ namespace MugenMvvmToolkit.Binding
         #endregion
 
         #region Methods
-
-        internal static object Convert(IBindingMemberInfo member, Type type, object value)
-        {
-            if (value == null)
-                return type.GetDefaultValue();
-            if (type.IsInstanceOfType(value))
-                return value;
-
-            var converter = GetTypeConverter(type, member.Member);
-            if (converter != null && converter.CanConvertFrom(value.GetType()))
-                return converter.ConvertFrom(value);
-
-#if NET_STANDARD
-            if (TypeCodeTable.ContainsKey(value.GetType()))
-#else
-            if (value is IConvertible)
-#endif
-                return System.Convert.ChangeType(value, type.GetNonNullableType(), BindingServiceProvider.BindingCultureInfo());
-
-#if NET_STANDARD
-            if (type.GetTypeInfo().IsEnum)
-#else
-            if (type.IsEnum)
-#endif
-            {
-                var s = value as string;
-                if (s == null)
-                    return Enum.ToObject(type, value);
-                return Enum.Parse(type, s, false);
-            }
-
-            if (type == typeof(string))
-                return value.ToString();
-            return value;
-        }
 
         internal static Func<object, object> GetGetPropertyAccessor(this PropertyInfo propertyInfo, MethodInfo getMethod, string path)
         {
@@ -414,6 +335,15 @@ namespace MugenMvvmToolkit.Binding
             return false;
         }
 
+        internal static bool IsConvertible(object value)
+        {
+#if NET_STANDARD
+            return TypeCodeTable.ContainsKey(value.GetType());
+#else
+            return value is IConvertible;
+#endif
+        }
+
         internal static bool IsExtensionMethod(this MethodInfo method)
         {
             return method.IsStatic && method.IsDefined(typeof(ExtensionAttribute), false) &&
@@ -432,37 +362,6 @@ namespace MugenMvvmToolkit.Binding
         internal static TValue CastFunc<TValue>(this Func<IDataContext, object> func, IDataContext context)
         {
             return (TValue)func(context);
-        }
-
-        private static TypeConverter GetTypeConverter(Type type, MemberInfo member)
-        {
-            object key = member ?? (object)type;
-            lock (MemberToTypeConverter)
-            {
-                TypeConverter value;
-                if (!MemberToTypeConverter.TryGetValue(key, out value))
-                {
-                    var memberValue = GetConverter(member);
-                    value = TypeDescriptor.GetConverter(type);
-                    if (value != null && memberValue != null)
-                        value = new MultiTypeConverter(memberValue, value);
-                    else if (value == null)
-                        value = memberValue;
-                    MemberToTypeConverter[key] = value;
-                }
-                return value;
-            }
-        }
-
-        private static TypeConverter GetConverter(MemberInfo member)
-        {
-            var attribute = member?.GetCustomAttributes(typeof(TypeConverterAttribute), true)
-                .OfType<TypeConverterAttribute>()
-                .FirstOrDefault();
-            if (attribute == null)
-                return null;
-            var constructor = Type.GetType(attribute.ConverterTypeName, false)?.GetConstructor(Empty.Array<Type>());
-            return constructor?.Invoke(Empty.Array<object>()) as TypeConverter;
         }
 
         private static IList<MethodData> FindBestMethods(ArgumentData target, IList<MethodInfo> methods, IList<ArgumentData> arguments, Type[] typeArgs)

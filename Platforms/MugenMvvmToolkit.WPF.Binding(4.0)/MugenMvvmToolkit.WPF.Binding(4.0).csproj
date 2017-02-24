@@ -54,6 +54,9 @@
     <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\AttachedMembersRegistration.cs">
       <Link>AttachedMembersRegistration.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\BindingConverterExtensions.cs">
+      <Link>BindingConverterExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\Converters\BooleanToVisibilityConverter.cs">
       <Link>Converters\BooleanToVisibilityConverter.cs</Link>
     </Compile>

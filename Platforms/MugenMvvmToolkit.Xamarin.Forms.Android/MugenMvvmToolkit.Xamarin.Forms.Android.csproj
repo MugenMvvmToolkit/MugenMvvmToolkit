@@ -120,6 +120,9 @@
     <Compile Include="..\MugenMvvmToolkit.Android\Infrastructure\TracerEx.cs">
       <Link>Infrastructure\TracerEx.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\BindingConverterExtensions.cs">
+      <Link>Binding\BindingConverterExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Xamarin.Forms.WinPhone\PlatformBootstrapperService.cs">
       <Link>PlatformBootstrapperService.cs</Link>
     </Compile>

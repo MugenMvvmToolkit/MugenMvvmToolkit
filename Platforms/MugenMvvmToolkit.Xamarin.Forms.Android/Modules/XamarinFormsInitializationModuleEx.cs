@@ -26,29 +26,34 @@ using Xamarin.Forms;
 #if ANDROID && XAMARIN_FORMS
 using Android.App;
 using Android.Content;
+using MugenMvvmToolkit.Xamarin.Forms.Android.Binding;
 using MugenMvvmToolkit.Xamarin.Forms.Android.Binding.Infrastructure;
 using MugenMvvmToolkit.Xamarin.Forms.Android.Infrastructure;
 using MugenMvvmToolkit.Xamarin.Forms.Android.Infrastructure.Presenters;
 namespace MugenMvvmToolkit.Xamarin.Forms.Android.Modules
 #elif TOUCH
+using MugenMvvmToolkit.Xamarin.Forms.iOS.Binding;
 using MugenMvvmToolkit.Xamarin.Forms.iOS.Binding.Infrastructure;
 using MugenMvvmToolkit.Xamarin.Forms.iOS.Infrastructure.Presenters;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.iOS.Modules
 #elif WINDOWS_PHONE
 using Microsoft.Phone.Controls;
+using MugenMvvmToolkit.Xamarin.Forms.WinPhone.Binding;
 using MugenMvvmToolkit.Xamarin.Forms.WinPhone.Binding.Infrastructure;
 using MugenMvvmToolkit.Xamarin.Forms.WinPhone.Infrastructure.Presenters;
 using Application = System.Windows.Application;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.WinPhone.Modules
 #elif WINDOWS_UWP
+using MugenMvvmToolkit.Xamarin.Forms.UWP.Binding;
 using MugenMvvmToolkit.Xamarin.Forms.UWP.Binding.Infrastructure;
 using MugenMvvmToolkit.Xamarin.Forms.UWP.Infrastructure.Presenters;
 using Application = Windows.UI.Xaml.Application;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.UWP.Modules
 #elif NETFX_CORE
+using MugenMvvmToolkit.Xamarin.Forms.WinRT.Binding;
 using MugenMvvmToolkit.Xamarin.Forms.WinRT.Binding.Infrastructure;
 using MugenMvvmToolkit.Xamarin.Forms.WinRT.Infrastructure.Presenters;
 using Application = Windows.UI.Xaml.Application;
@@ -67,6 +72,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Modules
 #elif NETFX_CORE
             BindingServiceProvider.ErrorProvider = new XamarinFormsWinRTBindingErrorProvider();
 #endif
+            BindingServiceProvider.ValueConverter = BindingConverterExtensions.Convert;
             //todo ext method
 #if ANDROID
             BindingServiceProvider.ErrorProvider = new XamarinFormsAndroidBindingErrorProvider();

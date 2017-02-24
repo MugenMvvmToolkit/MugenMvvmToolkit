@@ -149,9 +149,6 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\callbacks\DelegateContinuation.cs">
       <Link>Infrastructure\Callbacks\DelegateContinuation.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Infrastructure\Callbacks\NavigationOperation.cs">
-      <Link>Infrastructure\Callbacks\NavigationOperation.cs</Link>
-    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\callbacks\OperationCallbackManager.cs">
       <Link>Infrastructure\Callbacks\OperationCallbackManager.cs</Link>
     </Compile>
@@ -256,9 +253,6 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\callbacks\IFunctionContinuation.cs">
       <Link>Interfaces\Callbacks\IFunctionContinuation.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\Callbacks\INavigationOperation.cs">
-      <Link>Interfaces\Callbacks\INavigationOperation.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\callbacks\IOperationCallback.cs">
       <Link>Interfaces\Callbacks\IOperationCallback.cs</Link>
@@ -377,9 +371,6 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\models\IHasDisplayName.cs">
       <Link>Interfaces\Models\IHasDisplayName.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\models\IHasOperationResult.cs">
-      <Link>Interfaces\Models\IHasOperationResult.cs</Link>
-    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\models\IHasState.cs">
       <Link>Interfaces\Models\IHasState.cs</Link>
     </Compile>
@@ -460,6 +451,9 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\viewmodels\IGridViewModel.cs">
       <Link>Interfaces\ViewModels\IGridViewModel.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\ViewModels\IHasResultViewModel.cs">
+      <Link>Interfaces\ViewModels\IHasResultViewModel.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\ViewModels\IIocContainerOwnerViewModel.cs">
       <Link>Interfaces\ViewModels\IIocContainerOwnerViewModel.cs</Link>
