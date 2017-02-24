@@ -77,10 +77,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
 
         protected virtual INavigationProvider CreateNavigationProvider(INavigationService service)
         {
-            //todo fix
-            return null;
-            //            return new NavigationProvider(service, ThreadManager, _viewMappingProvider, ViewManager, _viewModelProvider,
-            //                OperationCallbackManager, NavigationDispatcher);
+            return new NavigationProvider(service, ThreadManager, _viewMappingProvider, ViewManager, _viewModelProvider, NavigationDispatcher);
         }
 
         private void BindProvider(UINavigationController controller)

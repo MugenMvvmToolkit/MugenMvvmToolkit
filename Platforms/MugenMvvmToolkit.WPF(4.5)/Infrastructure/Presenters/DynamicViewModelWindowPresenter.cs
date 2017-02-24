@@ -80,6 +80,9 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
         private readonly IWrapperManager _wrapperManager;
         private readonly IViewMappingProvider _viewMappingProvider;
         private readonly IViewManager _viewManager;
+#if TOUCH
+        private readonly IViewModelProvider _viewModelProvider;
+#endif
         private Task _currentTask;
 
         #endregion
@@ -87,15 +90,25 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
         #region Constructors
 
         [Preserve(Conditional = true)]
+#if TOUCH
+        public DynamicViewModelWindowPresenter([NotNull] IViewMappingProvider viewMappingProvider, [NotNull] IViewManager viewManager,
+            [NotNull] IWrapperManager wrapperManager, [NotNull] IThreadManager threadManager, [NotNull] IOperationCallbackManager callbackManager,
+            [NotNull] INavigationDispatcher navigationDispatcher, [NotNull] IViewModelProvider viewModelProvider)
+#else
         public DynamicViewModelWindowPresenter([NotNull] IViewMappingProvider viewMappingProvider,
             [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] IThreadManager threadManager,
             [NotNull] IOperationCallbackManager callbackManager, [NotNull] INavigationDispatcher navigationDispatcher)
+#endif
         {
             Should.NotBeNull(viewMappingProvider, nameof(viewMappingProvider));
             Should.NotBeNull(viewManager, nameof(viewManager));
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
             Should.NotBeNull(threadManager, nameof(threadManager));
             Should.NotBeNull(callbackManager, nameof(callbackManager));
+#if TOUCH
+            Should.NotBeNull(viewModelProvider, nameof(viewModelProvider));
+            _viewModelProvider = viewModelProvider;
+#endif
             _viewMappingProvider = viewMappingProvider;
             _viewManager = viewManager;
             _wrapperManager = wrapperManager;
@@ -108,6 +121,9 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
 
         #region Properties
 
+#if TOUCH
+        protected IViewModelProvider ViewModelProvider => _viewModelProvider;
+#endif
         protected IViewMappingProvider ViewMappingProvider => _viewMappingProvider;
 
         protected IWrapperManager WrapperManager => _wrapperManager;
@@ -173,8 +189,8 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
                 return windowViewMediator;
 #if TOUCH
             var container = viewModel.GetIocContainer(true);
-            if (_wrapperManager.CanWrap(viewType, typeof(IModalView), context))//todo fix parameter
-                return new ModalViewMediator(viewModel, ThreadManager, ViewManager, WrapperManager, ViewMappingProvider, container.Get<IViewModelProvider>(), NavigationDispatcher);
+            if (_wrapperManager.CanWrap(viewType, typeof(IModalView), context))
+                return new ModalViewMediator(viewModel, ThreadManager, ViewManager, WrapperManager, ViewMappingProvider, ViewModelProvider, NavigationDispatcher);
 #else
             if (_wrapperManager.CanWrap(viewType, typeof(IWindowView), context))
                 return new WindowViewMediator(viewModel, ThreadManager, ViewManager, WrapperManager, NavigationDispatcher);

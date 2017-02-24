@@ -9,7 +9,6 @@ using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
-using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure.Navigation
 {
@@ -141,6 +140,8 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             Should.NotBeNull(context, nameof(context));
             OnNavigatedInternal(context);
             RaiseNavigated(context);
+            if (Tracer.TraceInformation)
+                Tracer.Info($"Navigated from '{context.ViewModelFrom}' to '{context.ViewModelTo}', navigation mode '{context.NavigationMode}'");
         }
 
         public void OnNavigationFailed(INavigationContext context, Exception exception)

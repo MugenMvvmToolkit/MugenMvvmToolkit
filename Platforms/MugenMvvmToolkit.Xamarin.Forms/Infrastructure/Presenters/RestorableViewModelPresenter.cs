@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using JetBrains.Annotations;
 using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Presenters;
@@ -28,13 +29,14 @@ using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
+using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
 using MugenMvvmToolkit.Xamarin.Forms.Interfaces.Presenters;
 using Xamarin.Forms;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters
 {
-    public class RestorableViewModelPresenter : ViewModelPresenter, IRestorableViewModelPresenter//todo virtual methods
+    public class RestorableViewModelPresenter : ViewModelPresenter, IRestorableViewModelPresenter
     {
         #region Nested types
 
@@ -102,6 +104,58 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters
             return result;
         }
 
+        protected virtual void SaveStateInternal([NotNull] IDataContext context)
+        {
+            var dictionary = GetStateDictionary?.Invoke();
+            var viewModels = _openedViewModels.ToArray();
+            if (viewModels.Length == 0 || dictionary == null)
+                return;
+            for (var i = 0; i < viewModels.Length; i++)
+            {
+                var viewModel = viewModels[i];
+                var vmId = viewModel.GetViewModelId().ToString("n");
+                var state = _serializer.Serialize(_viewModelProvider.PreserveViewModel(viewModel, context)).ToArray();
+                dictionary[NumberPrefix + vmId] = i;
+                dictionary[StatePrefix + vmId] = state;
+            }
+        }
+
+        protected virtual void ClearStateInternal(IDataContext context)
+        {
+            IDictionary<string, object> dictionary;
+            var items = GetItems(out dictionary);
+            if (items == null || items.Count == 0)
+                return;
+            foreach (ViewModelState item in items)
+            {
+                dictionary.Remove(NumberPrefix + item.Id);
+                dictionary.Remove(StatePrefix + item.Id);
+            }
+        }
+
+        protected virtual bool TryRestoreInternal(IDataContext context)
+        {
+            IDictionary<string, object> dictionary;
+            var items = GetItems(out dictionary);
+            if (items == null || items.Count == 0)
+                return false;
+            var viewModels = new List<IViewModel>();
+            foreach (var item in items.OrderBy(tuple => tuple.Index))
+            {
+                dictionary.Remove(NumberPrefix + item.Id);
+                dictionary.Remove(StatePrefix + item.Id);
+                if (item.State != null)
+                    using (var ms = new MemoryStream(item.State))
+                    {
+                        var dataContext = (IDataContext)_serializer.Deserialize(ms);
+                        viewModels.Add(_viewModelProvider.RestoreViewModel(dataContext, context, true));
+                    }
+            }
+            for (var i = 0; i < viewModels.Count; i++)
+                viewModels[i].ShowAsync(context);
+            return true;
+        }
+
         private void OnViewModelClosed(IOperationResult operationResult)
         {
             var viewModel = operationResult.Source as IViewModel;
@@ -154,56 +208,19 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters
 
         #region Implementation of interfaces
 
-        public virtual void SaveState(IDataContext context)
+        public void SaveState(IDataContext context)
         {
-            var dictionary = GetStateDictionary?.Invoke();
-            var viewModels = _openedViewModels.ToArray();
-            if ((viewModels.Length == 0) || (dictionary == null))
-                return;
-            for (var i = 0; i < viewModels.Length; i++)
-            {
-                var viewModel = viewModels[i];
-                var vmId = viewModel.GetViewModelId().ToString("n");
-                var state = _serializer.Serialize(_viewModelProvider.PreserveViewModel(viewModel, context)).ToArray();
-                dictionary[NumberPrefix + vmId] = i;
-                dictionary[StatePrefix + vmId] = state;
-            }
+            SaveStateInternal(context ?? DataContext.Empty);
         }
 
-        public virtual void ClearState(IDataContext context = null)
+        public void ClearState(IDataContext context)
         {
-            IDictionary<string, object> dictionary;
-            var items = GetItems(out dictionary);
-            if (items == null || items.Count == 0)
-                return;
-            foreach (ViewModelState item in items)
-            {
-                dictionary.Remove(NumberPrefix + item.Id);
-                dictionary.Remove(StatePrefix + item.Id);
-            }
+            ClearStateInternal(context ?? DataContext.Empty);
         }
 
-        public virtual bool TryRestore(IDataContext context = null)
+        public bool TryRestore(IDataContext context)
         {
-            IDictionary<string, object> dictionary;
-            var items = GetItems(out dictionary);
-            if (items == null || items.Count == 0)
-                return false;
-            var viewModels = new List<IViewModel>();
-            foreach (var item in items.OrderBy(tuple => tuple.Index))
-            {
-                dictionary.Remove(NumberPrefix + item.Id);
-                dictionary.Remove(StatePrefix + item.Id);
-                if (item.State != null)
-                    using (var ms = new MemoryStream(item.State))
-                    {
-                        var dataContext = (IDataContext)_serializer.Deserialize(ms);
-                        viewModels.Add(_viewModelProvider.RestoreViewModel(dataContext, context, true));
-                    }
-            }
-            for (var i = 0; i < viewModels.Count; i++)
-                viewModels[i].ShowAsync(context);
-            return true;
+            return TryRestoreInternal(context ?? DataContext.Empty);
         }
 
         #endregion

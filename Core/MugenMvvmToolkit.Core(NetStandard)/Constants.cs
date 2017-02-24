@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Mediators;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -139,6 +140,7 @@ namespace MugenMvvmToolkit.DataConstants
         public static readonly DataConstant<object> CloseParameter;
         public static readonly DataConstant<bool> ImmediateClose;
         public static readonly DataConstant<bool> SuppressNavigationCallbackOnClose;
+        public static readonly DataConstant<Task> NavigationCompletedTask;
 
         #endregion
 
@@ -158,6 +160,7 @@ namespace MugenMvvmToolkit.DataConstants
             CloseParameter = DataConstant.Create<object>(type, nameof(CloseParameter), false);
             ImmediateClose = DataConstant.Create<bool>(type, nameof(ImmediateClose));
             SuppressNavigationCallbackOnClose = DataConstant.Create<bool>(type, nameof(SuppressNavigationCallbackOnClose));
+            NavigationCompletedTask = DataConstant.Create<Task>(type, nameof(NavigationCompletedTask), true);
         }
 
         #endregion

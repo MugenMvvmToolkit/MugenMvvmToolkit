@@ -11,7 +11,6 @@ using Android.Support.V7.Widget;
 using Android.Views;
 using MugenMvvmToolkit.Android.AppCompat.Infrastructure;
 using MugenMvvmToolkit.Android.Binding;
-using MugenMvvmToolkit.Android.Binding.Interfaces;
 using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
@@ -168,7 +167,6 @@ namespace MugenMvvmToolkit.Android.AppCompat
             MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.View.MenuTemplate.Override<Toolbar>(), ToolbarMenuTemplateChanged));
             MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersCompat.Toolbar.IsActionBar,
                 ToolbarIsActionBarChanged));
-
         }
 
         public static void RegisterDrawerLayoutMembers()

@@ -316,7 +316,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             {
                 if (viewModelFrom != null)
                     return new NavigationContext(NavigationType.Page, NavigationMode.Remove, viewModelFrom, null, this, args.Context);
-                Tracer.Warn("Possible bug in navigation, navigate with mode Remove mode without ViewModel");
+                Tracer.Error("Possible bug in navigation, navigate with mode Remove mode without ViewModel");
                 return null;
             }
 
@@ -349,7 +349,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             {
                 if (viewModelFrom != null)
                     return new NavigationContext(NavigationType.Page, NavigationMode.Remove, viewModelFrom, null, this, args.Context);
-                Tracer.Warn("Possible bug in navigation, navigate with mode Remove mode without ViewModel");
+                Tracer.Error("Possible bug in navigation, navigate with mode Remove mode without ViewModel");
             }
 
             var vmType = GetViewModelTypeFromParameter(NavigationService.GetParameterFromArgs(args));
@@ -436,7 +436,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             if (ReferenceEquals(vmFrom, vmTo) && mode != NavigationMode.Refresh && mode != NavigationMode.Undefined)
             {
                 if (vmFrom != null)
-                    Tracer.Warn("Possible bug in navigation, navigate to the same view model with mode " + mode);
+                    Tracer.Error("Possible bug in navigation, navigate to the same view model with mode " + mode);
                 return;
             }
             if (mode != NavigationMode.Remove)
@@ -457,7 +457,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 
             NavigationDispatcher.OnNavigated(context);
             if (context.NavigationMode.IsClose())
-                OnViewModelClosed(vmFrom, context);//todo add event
+                OnViewModelClosed(vmFrom, context);
         }
 
         private void Renavigate([NotNull] INavigationContext context, NavigatingCancelEventArgsBase args)

@@ -62,7 +62,7 @@ namespace MugenMvvmToolkit.UWP.Interfaces.Navigation
         bool Navigate([NotNull] NavigatingCancelEventArgsBase args);
 
         bool Navigate([NotNull] IViewMappingItem source, [CanBeNull] string parameter, [CanBeNull] IDataContext dataContext);
-        //todo update
+
         bool CanClose([NotNull] IDataContext dataContext);
 
         bool TryClose([NotNull] IDataContext dataContext);

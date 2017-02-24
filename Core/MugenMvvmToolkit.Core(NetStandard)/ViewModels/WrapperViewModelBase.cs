@@ -30,7 +30,7 @@ using MugenMvvmToolkit.Models;
 namespace MugenMvvmToolkit.ViewModels
 {
     public abstract class WrapperViewModelBase<TViewModel> : ViewModelBase, ICloseableViewModel, INavigableViewModel,
-                                                             IHasOperationResult, IHasDisplayName, ISelectable, IWrapperViewModel, IHasState
+                                                             IHasDisplayName, ISelectable, IWrapperViewModel, IHasState
         where TViewModel : class, IViewModel
     {
         #region Fields
@@ -41,7 +41,6 @@ namespace MugenMvvmToolkit.ViewModels
         private string _displayName;
         private TViewModel _viewModel;
         private ICommand _closeCommand;
-        private bool? _operationResult;
         private bool _isSelected;
 
         #endregion
@@ -53,10 +52,9 @@ namespace MugenMvvmToolkit.ViewModels
             _locker = new object();
             _wrappedPropertyNames = new Dictionary<string, string>
             {
-                {"CloseCommand", "CloseCommand"},
-                {"DisplayName", "DisplayName"},
-                {"IsSelected", "IsSelected"},
-                {"OperationResult", "OperationResult"}
+                {nameof(CloseCommand), nameof(CloseCommand)},
+                {nameof(DisplayName), nameof(DisplayName)},
+                {nameof(IsSelected), nameof(IsSelected)}
             };
             Settings.HandleBusyMessageMode |= HandleMode.Handle;
         }
@@ -134,18 +132,6 @@ namespace MugenMvvmToolkit.ViewModels
                 if (DisplayName == value)
                     return;
                 _displayName = value;
-                OnPropertyChanged();
-            }
-        }
-
-        public virtual bool? OperationResult
-        {
-            get { return ViewModelExtensions.GetOperationResult(ViewModel, _operationResult); }
-            protected set
-            {
-                if (OperationResult == value)
-                    return;
-                _operationResult = value;
                 OnPropertyChanged();
             }
         }

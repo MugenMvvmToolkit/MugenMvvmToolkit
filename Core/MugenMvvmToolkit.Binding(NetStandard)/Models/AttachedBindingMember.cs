@@ -224,6 +224,8 @@ namespace MugenMvvmToolkit.Binding.Models
 
             public IDisposable TryObserve(TTarget source, IEventListener listener)
             {
+                if (_memberAttachedHandler != null)
+                    RaiseAttached(source);
                 return _observeMemberDelegate?.Invoke(this, source, listener);
             }
 
