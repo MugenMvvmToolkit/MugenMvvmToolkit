@@ -19,6 +19,7 @@
 using System.Threading.Tasks;
 using Android.Support.Design.Widget;
 using Android.Views;
+using Java.Lang;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Interfaces;
@@ -32,7 +33,7 @@ namespace MugenMvvmToolkit.Android.Design.Infrastructure.Presenters
     {
         #region Nested types
 
-        private sealed class ToastImpl : Snackbar.Callback, IToast
+        private sealed class ToastImpl : BaseTransientBottomBar.BaseCallback, IToast
         {
             #region Fields
 
@@ -62,7 +63,9 @@ namespace MugenMvvmToolkit.Android.Design.Infrastructure.Presenters
             public void Show(Snackbar snackbar, float duration)
             {
                 _snackbar = snackbar;
-                _snackbar.SetCallback(this).SetDuration((int)duration).Show();
+                _snackbar.AddCallback(this);
+                _snackbar.SetDuration((int)duration);
+                _snackbar.Show();
             }
 
             public void FromToast(IToast toast)
@@ -71,7 +74,7 @@ namespace MugenMvvmToolkit.Android.Design.Infrastructure.Presenters
                 _tcs.TrySetFromTask(toast.CompletionTask);
             }
 
-            public override void OnDismissed(Snackbar snackbar, int evt)
+            public override void OnDismissed(Object snackbar, int evt)
             {
                 base.OnDismissed(snackbar, evt);
                 _tcs.TrySetResult(null);
