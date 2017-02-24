@@ -8,6 +8,5 @@
     <Import Project="$(NuGetPackageRoot)\Microsoft.Net.Native.SharedLibrary-arm\1.6.0\build\Microsoft.Net.Native.SharedLibrary-arm.targets" Condition="Exists('$(NuGetPackageRoot)\Microsoft.Net.Native.SharedLibrary-arm\1.6.0\build\Microsoft.Net.Native.SharedLibrary-arm.targets')" />
     <Import Project="$(NuGetPackageRoot)\Microsoft.Net.Native.SharedLibrary-x64\1.6.0\build\Microsoft.Net.Native.SharedLibrary-x64.targets" Condition="Exists('$(NuGetPackageRoot)\Microsoft.Net.Native.SharedLibrary-x64\1.6.0\build\Microsoft.Net.Native.SharedLibrary-x64.targets')" />
     <Import Project="$(NuGetPackageRoot)\Microsoft.Net.Native.SharedLibrary-x86\1.6.0\build\Microsoft.Net.Native.SharedLibrary-x86.targets" Condition="Exists('$(NuGetPackageRoot)\Microsoft.Net.Native.SharedLibrary-x86\1.6.0\build\Microsoft.Net.Native.SharedLibrary-x86.targets')" />
-    <Import Project="$(NuGetPackageRoot)\Xamarin.Forms\2.3.3.175\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets" Condition="Exists('$(NuGetPackageRoot)\Xamarin.Forms\2.3.3.175\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets')" />
   </ImportGroup>
 </Project>

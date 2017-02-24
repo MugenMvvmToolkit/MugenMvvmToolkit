@@ -84,8 +84,8 @@ namespace MugenMvvmToolkit.Test
                 typeof (OperationCallbackManagerMock),
                 typeof(INavigationDispatcher)
             };
-            NavigationDispatcher = new NavigationDispatcher();
             OperationCallbackManager = new OperationCallbackManagerMock();
+            NavigationDispatcher = new NavigationDispatcher(OperationCallbackManager);//todo fix
             ViewManager = new ViewManagerMock();
             ThreadManager = new ThreadManagerMock();
             ServiceProvider.ThreadManager = ThreadManager;

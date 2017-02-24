@@ -41,19 +41,11 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         public bool CanGoBack { get; set; }
 
-        public bool CanGoForward { get; set; }
-
         public object CurrentContent { get; set; }
 
         void INavigationService.GoBack()
         {
-            if (GoBack != null)
-                GoBack();
-        }
-
-        void INavigationService.GoForward()
-        {
-            throw new NotSupportedException();
+            GoBack?.Invoke();
         }
 
 #if WPF
