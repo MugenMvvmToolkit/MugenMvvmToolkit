@@ -36,6 +36,7 @@ namespace MugenMvvmToolkit.Android.Design.Modules
             AttachedMembersRegistration.RegisterTabLayoutTabMembers();
             AttachedMembersRegistration.RegisterTextInputLayoutMembers();
             AttachedMembersRegistration.RegisterSnakbarMembers();
+            AttachedMembersRegistration.RegisterBottomNavigationViewMembers();
             if (context.IocContainer != null)
             {
                 IToastPresenter toastPresenter;

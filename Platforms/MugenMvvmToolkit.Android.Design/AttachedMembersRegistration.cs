@@ -63,9 +63,19 @@ namespace MugenMvvmToolkit.Android.Design
             view.Menu.ApplyMenuTemplate(args.NewValue, view.Context, view);
         }
 
+        private static void BottomNavigationViewMenuTemplateChanged(BottomNavigationView view, AttachedMemberChangedEventArgs<object> args)
+        {
+            view.Menu.ApplyMenuTemplate(args.NewValue, view.Context, view);
+        }
+
         public static void RegisterNavigationViewMembers()
         {
             MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.View.MenuTemplate.Override<NavigationView>(), NavigationViewMenuTemplateChanged));
+        }
+
+        public static void RegisterBottomNavigationViewMembers()
+        {
+            MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.View.MenuTemplate.Override<BottomNavigationView>(), BottomNavigationViewMenuTemplateChanged));
         }
 
         public static void RegisterTabLayoutMembers()
