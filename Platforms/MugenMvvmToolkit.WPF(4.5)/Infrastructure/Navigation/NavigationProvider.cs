@@ -448,9 +448,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                     {
                         vmTo.Disposed += _disposeViewModelHandler;
                         vmTo.Settings.State.AddOrUpdate(IsNavigatedConstant, null);
-
-
-                        vmTo.Settings.State.AddOrUpdate(ViewModelConstants.CanCloseHandler, CanCloseViewModel);
+                        vmTo.Settings.Metadata.AddOrUpdate(ViewModelConstants.CanCloseHandler, CanCloseViewModel);
                     }
                 }
             }
@@ -538,7 +536,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                 return;
             viewModel.Disposed -= _disposeViewModelHandler;
             viewModel.Settings.State.Remove(IsNavigatedConstant);
-            viewModel.Settings.State.Remove(ViewModelConstants.CanCloseHandler);
+            viewModel.Settings.Metadata.Remove(ViewModelConstants.CanCloseHandler);
             CachePolicy?.Invalidate(viewModel, parameter as IDataContext);
         }
 
