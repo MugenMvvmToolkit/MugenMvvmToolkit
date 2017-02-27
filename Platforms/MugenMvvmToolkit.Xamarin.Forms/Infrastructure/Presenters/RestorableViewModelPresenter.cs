@@ -139,20 +139,20 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters
             var items = GetItems(out dictionary);
             if (items == null || items.Count == 0)
                 return false;
-            var viewModels = new List<IViewModel>();
             foreach (var item in items.OrderBy(tuple => tuple.Index))
             {
                 dictionary.Remove(NumberPrefix + item.Id);
                 dictionary.Remove(StatePrefix + item.Id);
                 if (item.State != null)
+                {
                     using (var ms = new MemoryStream(item.State))
                     {
                         var dataContext = (IDataContext)_serializer.Deserialize(ms);
-                        viewModels.Add(_viewModelProvider.RestoreViewModel(dataContext, context, true));
+                        var viewModel = _viewModelProvider.RestoreViewModel(dataContext, context, true);
+                        viewModel.ShowAsync(context);
                     }
+                }
             }
-            for (var i = 0; i < viewModels.Count; i++)
-                viewModels[i].ShowAsync(context);
             return true;
         }
 

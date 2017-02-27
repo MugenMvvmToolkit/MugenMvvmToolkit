@@ -81,7 +81,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms
                 ServiceProvider.AttachedValueProvider.SetValue(page, NavParamKey, value);
         }
 
-        //todo save in restoration provider
         public static object GetNavigationParameter([CanBeNull] this Page controller)
         {
             if (controller == null)
