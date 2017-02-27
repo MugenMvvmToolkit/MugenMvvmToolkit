@@ -179,7 +179,13 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             if (activity != null)
                 startAction = activity.GetBindingMemberValue(AttachedMembers.Activity.StartActivityDelegate);
             if (startAction == null)
-                context.StartActivity(intent);
+            {
+                var bundle = dataContext.GetData(NavigationConstants.NavigationParameter) as Bundle;
+                if (bundle == null)
+                    context.StartActivity(intent);
+                else
+                    context.StartActivity(intent, bundle);
+            }
             else
                 startAction(context, intent, source, dataContext);
         }
