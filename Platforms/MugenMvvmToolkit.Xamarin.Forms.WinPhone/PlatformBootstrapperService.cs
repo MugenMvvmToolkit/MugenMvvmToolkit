@@ -20,7 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Xamarin.Forms.Infrastructure;
 
@@ -31,7 +30,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.iOS
 #elif ANDROID
 namespace MugenMvvmToolkit.Xamarin.Forms.Android
 #elif WINDOWS_UWP
-using MugenMvvmToolkit.Binding;
 using System.IO;
 using Windows.ApplicationModel;
 using Windows.Security.ExchangeActiveSyncProvisioning;
@@ -39,7 +37,6 @@ using Windows.System.Profile;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.UWP
 #elif NETFX_CORE
-using MugenMvvmToolkit.Binding;
 using System.IO;
 using Windows.ApplicationModel;
 using Windows.Security.ExchangeActiveSyncProvisioning;

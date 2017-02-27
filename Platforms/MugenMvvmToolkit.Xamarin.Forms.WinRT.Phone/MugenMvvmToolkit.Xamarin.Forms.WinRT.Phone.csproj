@@ -103,6 +103,9 @@
     <Compile Include="..\mugenmvvmtoolkit.wpf.binding%284.5%29\infrastructure\BindingErrorProvider.cs">
       <Link>Binding\Infrastructure\BindingErrorProvider.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Xamarin.Forms.Android\InitializationExtensions.cs">
+      <Link>InitializationExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Xamarin.Forms.Android\Modules\XamarinFormsInitializationModuleEx.cs">
       <Link>Modules\XamarinFormsInitializationModuleEx.cs</Link>
     </Compile>
