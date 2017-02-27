@@ -153,7 +153,7 @@ namespace MugenMvvmToolkit.Models
         Back = 2,
         Forward = 3,
         Refresh = 4,
-        Reset = 5
+        Remove = 5
     }
 
     public enum TraceLevel
