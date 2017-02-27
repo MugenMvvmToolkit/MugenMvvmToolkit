@@ -427,9 +427,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
                                 else
                                 {
                                     type = bindingMember.Type;
-                                    memberType = bindingMember.Member == null
-                                        ? MemberTypes.Custom
-                                        : bindingMember.Member.MemberType;
+                                    memberType = (bindingMember.Member as MemberInfo)?.MemberType ?? MemberTypes.Custom;
                                 }
                             }
                             HighlightMember(memberType, startIndex, path.Length);

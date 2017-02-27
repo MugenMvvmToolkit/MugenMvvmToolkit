@@ -17,7 +17,6 @@
 #endregion
 
 using System;
-using System.Reflection;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Models;
 
@@ -32,7 +31,7 @@ namespace MugenMvvmToolkit.Binding.Interfaces.Models
         Type Type { get; }
 
         [CanBeNull]
-        MemberInfo Member { get; }
+        object Member { get; }
 
         [NotNull]
         BindingMemberType MemberType { get; }

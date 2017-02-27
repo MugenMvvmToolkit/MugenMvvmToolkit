@@ -36,14 +36,14 @@ namespace MugenMvvmToolkit.UWP.Binding
 
         private sealed class MultiTypeConverter : TypeConverter
         {
-        #region Fields
+            #region Fields
 
             private readonly TypeConverter _first;
             private readonly TypeConverter _second;
 
-        #endregion
+            #endregion
 
-        #region Constructors
+            #region Constructors
 
             public MultiTypeConverter(TypeConverter first, TypeConverter second)
             {
@@ -51,9 +51,9 @@ namespace MugenMvvmToolkit.UWP.Binding
                 _second = second;
             }
 
-        #endregion
+            #endregion
 
-        #region Overrides of TypeConverter
+            #region Overrides of TypeConverter
 
             public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
             {
@@ -70,7 +70,7 @@ namespace MugenMvvmToolkit.UWP.Binding
                 return base.ConvertFrom(context, culture, value);
             }
 
-        #endregion
+            #endregion
         }
 
         #endregion
@@ -101,7 +101,7 @@ namespace MugenMvvmToolkit.UWP.Binding
                 return value;
 
 #if !WINDOWS_UWP && !NETFX_CORE
-            var converter = GetTypeConverter(type, member.Member);
+            var converter = GetTypeConverter(type, member.Member as MemberInfo);
             if (converter != null && converter.CanConvertFrom(value.GetType()))
                 return converter.ConvertFrom(value);
 #endif

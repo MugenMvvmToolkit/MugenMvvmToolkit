@@ -48,7 +48,7 @@ namespace MugenMvvmToolkit.WPF.Binding.Models
 #if !WINDOWS_UWP
         public sealed class DependencyPropertyListener : DependencyObject, IDisposable
         {
-        #region Fields
+            #region Fields
 
             public static readonly DependencyProperty ValueProperty = DependencyProperty
                 .Register("Value", typeof(object), typeof(DependencyPropertyListener), new PropertyMetadata(null, OnValueChanged));
@@ -57,9 +57,9 @@ namespace MugenMvvmToolkit.WPF.Binding.Models
             private static readonly Action<DependencyPropertyListener> DisposeDelegate = DisposeInternal;
             private WeakEventListenerWrapper _listener;
 
-        #endregion
+            #endregion
 
-        #region Constructors
+            #region Constructors
 
             public DependencyPropertyListener(DependencyObject source, string propertyToBind, IEventListener listener)
             {
@@ -107,9 +107,9 @@ namespace MugenMvvmToolkit.WPF.Binding.Models
                     });
             }
 
-        #endregion
+            #endregion
 
-        #region Properties
+            #region Properties
 
             public object Value
             {
@@ -117,9 +117,9 @@ namespace MugenMvvmToolkit.WPF.Binding.Models
                 set { SetValue(ValueProperty, value); }
             }
 
-        #endregion
+            #endregion
 
-        #region Methods
+            #region Methods
 
             private static void OnValueChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
             {
@@ -143,9 +143,9 @@ namespace MugenMvvmToolkit.WPF.Binding.Models
                 }
             }
 
-        #endregion
+            #endregion
 
-        #region Implementation of IDisposable
+            #region Implementation of IDisposable
 
             public void Dispose()
             {
@@ -155,7 +155,7 @@ namespace MugenMvvmToolkit.WPF.Binding.Models
                     Dispatcher.BeginInvoke(DisposeDelegate, this);
             }
 
-        #endregion
+            #endregion
         }
 #endif
 
@@ -169,7 +169,7 @@ namespace MugenMvvmToolkit.WPF.Binding.Models
         private readonly bool _canWrite;
         private readonly IBindingMemberInfo _changePropertyMember;
         private readonly DependencyProperty _dependencyProperty;
-        private readonly MemberInfo _member;
+        private readonly object _member;
         private readonly string _path;
         private readonly Type _type;
 
@@ -201,7 +201,7 @@ namespace MugenMvvmToolkit.WPF.Binding.Models
         }
 
         public DependencyPropertyBindingMember([NotNull] DependencyProperty dependencyProperty, [NotNull] string path,
-            [NotNull] Type type, bool readOnly, [CanBeNull] MemberInfo member, [CanBeNull] IBindingMemberInfo changePropertyMember)
+            [NotNull] Type type, bool readOnly, [CanBeNull] object member, [CanBeNull] IBindingMemberInfo changePropertyMember)
         {
             Should.NotBeNull(dependencyProperty, nameof(dependencyProperty));
             Should.NotBeNullOrEmpty(path, nameof(path));
@@ -244,7 +244,7 @@ namespace MugenMvvmToolkit.WPF.Binding.Models
 
         public Type Type => _type;
 
-        public MemberInfo Member => _member;
+        public object Member => _member;
 
         public BindingMemberType MemberType => BindingMemberType.DependencyProperty;
 

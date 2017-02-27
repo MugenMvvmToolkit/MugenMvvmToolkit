@@ -49,7 +49,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             public DefaultListener(WeakReference @ref)
             {
-                Ref = @ref;
+                Ref = @ref ?? Empty.WeakReference;
             }
 
             #endregion

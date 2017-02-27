@@ -379,7 +379,6 @@ namespace MugenMvvmToolkit.Binding.Models
             _setValueAccessor = accessor.SetValue;
             _indexerAttachedBindingMember = attachedIndexerMember;
             _memberType = attachedIndexerMember.MemberType;
-            _member = attachedIndexerMember.Member;
             _type = attachedIndexerMember.Type;
             _canRead = attachedIndexerMember.CanRead;
             _canWrite = attachedIndexerMember.CanWrite;
@@ -394,7 +393,7 @@ namespace MugenMvvmToolkit.Binding.Models
 
         public Type Type => _type;
 
-        public MemberInfo Member => _member;
+        public object Member => (object)_member ?? _observableMember ?? _indexerAttachedBindingMember;
 
         public BindingMemberType MemberType => _memberType;
 
