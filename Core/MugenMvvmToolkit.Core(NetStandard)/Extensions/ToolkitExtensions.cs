@@ -1021,6 +1021,12 @@ namespace MugenMvvmToolkit
             return ServiceProvider.OperationCallbackFactory.CreateAwaiter(operation, new DataContext(OpeartionCallbackConstants.ContinueOnCapturedContext.ToValue(continueOnCapturedContext)));
         }
 
+        [NotNull]
+        public static Task GetNavigationCompletedTask([CanBeNull] this IAsyncOperation asyncOperation)
+        {
+            return asyncOperation?.Context.GetData(NavigationConstants.NavigationCompletedTask) ?? Empty.TrueTask;
+        }
+
         #endregion
 
         #region Extensions
