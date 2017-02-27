@@ -534,6 +534,8 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 
         private void OnViewModelClosed(IViewModel viewModel, object parameter)
         {
+            if (viewModel == null)
+                return;
             viewModel.Disposed -= _disposeViewModelHandler;
             viewModel.Settings.State.Remove(IsNavigatedConstant);
             viewModel.Settings.State.Remove(ViewModelConstants.CanCloseHandler);

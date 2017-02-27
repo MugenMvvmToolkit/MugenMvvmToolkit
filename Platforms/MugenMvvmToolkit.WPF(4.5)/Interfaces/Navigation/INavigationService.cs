@@ -19,11 +19,9 @@
 using System;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 #if WPF
-using System.Windows.Navigation;
 
 namespace MugenMvvmToolkit.WPF.Interfaces.Navigation
 #elif ANDROID
@@ -40,7 +38,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Interfaces.Navigation
 namespace MugenMvvmToolkit.UWP.Interfaces.Navigation
 #endif
 {
-    public interface INavigationService//todo remove can go back, remove back entry
+    public interface INavigationService
     {
         object CurrentContent { get; }
 #if ANDROID

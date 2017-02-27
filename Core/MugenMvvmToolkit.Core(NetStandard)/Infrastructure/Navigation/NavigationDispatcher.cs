@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Interfaces.Callbacks;
@@ -16,6 +17,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
     {
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public NavigationDispatcher([NotNull] IOperationCallbackManager callbackManager)
         {
             Should.NotBeNull(callbackManager, nameof(callbackManager));
