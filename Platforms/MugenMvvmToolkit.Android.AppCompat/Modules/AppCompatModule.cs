@@ -42,6 +42,7 @@ namespace MugenMvvmToolkit.Android.AppCompat.Modules
             AttachedMembersRegistration.RegisterPopupMenuMembers();
             AttachedMembersRegistration.RegisterMenuItemMembers();
             AttachedMembersRegistration.RegisterMenuItemActionViewMembers();
+            AttachedMembersRegistration.RegisterMenuItemActionProviderMembers();
             AttachedMembersRegistration.RegisterSearchViewMembers();
             AttachedMembersRegistration.RegisterActionBarBaseMembers();
             AttachedMembersRegistration.RegisterActionBarMembers();

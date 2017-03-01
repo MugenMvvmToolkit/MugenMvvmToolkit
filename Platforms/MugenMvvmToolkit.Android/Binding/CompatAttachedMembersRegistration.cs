@@ -43,11 +43,7 @@ namespace MugenMvvmToolkit.Android.AppCompat
 namespace MugenMvvmToolkit.Android.Binding
 #endif
 {
-#if APPCOMPAT
     partial class AttachedMembersRegistration
-#else
-    partial class AttachedMembersRegistration
-#endif
     {
         #region Nested types
 
@@ -242,9 +238,13 @@ namespace MugenMvvmToolkit.Android.Binding
         {
             MemberProvider.Register(AttachedBindingMember.CreateNotifiableMember(AttachedMembers.MenuItem.ActionView, (info, item) => item.GetActionView(), MenuItemUpdateActionView));
             MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.MenuItem.ActionViewTemplateSelector, (o, args) => RefreshValue(o, AttachedMembers.MenuItem.ActionView)));
+            MemberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.MenuItem.IsActionViewExpanded, (info, item) => item.GetIsActionViewExpanded(), SetIsActionViewExpanded, ObserveIsActionViewExpanded, (item, args) => item.SetOnActionExpandListener(new ActionViewExpandedListener(item))));
+        }
+
+        public static void RegisterMenuItemActionProviderMembers()
+        {
             MemberProvider.Register(AttachedBindingMember.CreateNotifiableMember(AttachedMembers.MenuItem.ActionProvider, (info, item) => item.GetActionProvider(), MenuItemUpdateActionProvider));
             MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.MenuItem.ActionProviderTemplateSelector, (o, args) => RefreshValue(o, AttachedMembers.MenuItem.ActionProvider)));
-            MemberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.MenuItem.IsActionViewExpanded, (info, item) => item.GetIsActionViewExpanded(), SetIsActionViewExpanded, ObserveIsActionViewExpanded, (item, args) => item.SetOnActionExpandListener(new ActionViewExpandedListener(item))));
         }
 
         public static void RegisterSearchViewMembers()

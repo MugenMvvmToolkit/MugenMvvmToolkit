@@ -90,6 +90,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             AttachedMembersRegistration.RegisterPreferenceGroupMembers();
             AttachedMembersRegistration.RegisterPopupMenuMembers();
             AttachedMembersRegistration.RegisterMenuItemActionViewMembers();
+            AttachedMembersRegistration.RegisterMenuItemActionProviderMembers();
             AttachedMembersRegistration.RegisterSearchViewMembers();
             return true;
         }
