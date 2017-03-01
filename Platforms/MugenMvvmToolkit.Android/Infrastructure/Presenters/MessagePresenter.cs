@@ -93,22 +93,21 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
             TaskCompletionSource<MessageResult> tcs)
         {
 #if XAMARIN_FORMS
-            var activity = global::Xamarin.Forms.Forms.Context;
-            var act = activity as Activity;
-            if (act != null && act.IsFinishing)
-                activity = null;
+            var context = global::Xamarin.Forms.Forms.Context;            
 #else
-            var activity = PlatformExtensions.CurrentActivity;
-            if (activity != null && activity.IsFinishing)
-                activity = null;
+            Context context = PlatformExtensions.CurrentActivity;
 #endif
-            if (activity == null)
+            var act = context as Activity;
+            if (act != null && act.IsFinishing)
+                context = Application.Context;
+
+            if (context == null)
             {
                 Tracer.Error($"{nameof(MessagePresenter)}: The current top activity is null.");
                 tcs.TrySetResult(defaultResult);
                 return;
             }
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity)
+            AlertDialog.Builder builder = new AlertDialog.Builder(context)
                 .SetTitle(caption)
                 .SetMessage(messageBoxText)
                 .SetCancelable(false);
@@ -170,7 +169,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
                 builder.SetIcon(drawable.Value);
             AlertDialog dialog = builder.Create();
 #if !XAMARIN_FORMS
-            var activityView = activity as IActivityView;
+            var activityView = context as IActivityView;
             if (activityView != null)
             {
                 EventHandler<Activity, EventArgs> handler = null;
