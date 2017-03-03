@@ -5,7 +5,7 @@ using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.Infrastructure.Mediators
 {
-    public sealed class MultiViewModelNavigationMediator
+    public sealed class MultiViewModelNavigationMediator//todo bug on iOS
     {
         #region Fields
 

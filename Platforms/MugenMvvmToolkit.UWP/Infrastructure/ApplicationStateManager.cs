@@ -154,7 +154,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
             context.Add(WindowPresenterConstants.IsViewOpened, true);
 #endif
             IViewModel viewModel = _viewModelProvider.RestoreViewModel(viewModelState, context, true);
-            _viewManager.InitializeViewAsync(viewModel, element, context).WithTaskExceptionHandler(this);
+            _viewManager.InitializeViewAsync(viewModel, element, context);
             _viewModelPresenter.Restore(viewModel, context);
         }
 

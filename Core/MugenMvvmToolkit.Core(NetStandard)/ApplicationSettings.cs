@@ -71,8 +71,6 @@ namespace MugenMvvmToolkit
 
         public static ObservationMode ViewModelObservationMode { get; set; }
 
-        public static bool HandleTaskExceptionBusyIndicator { get; set; }
-
         public static ExecutionMode CommandCanExecuteMode { get; set; }
 
         public static CommandExecutionMode CommandExecutionMode { get; set; }
@@ -122,7 +120,6 @@ namespace MugenMvvmToolkit
             MultiViewModelDisposeViewModelOnRemove = true;
             PropertyChangeExecutionMode = ExecutionMode.AsynchronousOnUiThread;
             ViewModelObservationMode = ObservationMode.ParentObserveChild;
-            HandleTaskExceptionBusyIndicator = true;
             CommandCanExecuteMode = ExecutionMode.AsynchronousOnUiThread;
             CommandExecutionMode = CommandExecutionMode.CanExecuteBeforeExecute;
             NotificationCollectionBatchSize = 100;

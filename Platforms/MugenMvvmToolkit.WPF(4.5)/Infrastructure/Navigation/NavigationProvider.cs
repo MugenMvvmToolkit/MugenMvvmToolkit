@@ -274,7 +274,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             var view = args.Content;
             if (navigationViewModel != null)
             {
-                ViewManager.InitializeViewAsync(navigationViewModel, view, context).WithTaskExceptionHandler(this);
+                ViewManager.InitializeViewAsync(navigationViewModel, view, context);
                 return navigationViewModel;
             }
 
@@ -299,7 +299,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             }
 
             if (vm != null)
-                ViewManager.InitializeViewAsync(vm, view, context).WithTaskExceptionHandler(this);
+                ViewManager.InitializeViewAsync(vm, view, context);
             return vm;
         }
 
@@ -395,7 +395,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             var navigateTask = !args.IsCancelable
                 ? Empty.TrueTask
                 : NavigationDispatcher.OnNavigatingFromAsync(context);
-            var t = navigateTask.TryExecuteSynchronously(task =>
+            navigateTask.TryExecuteSynchronously(task =>
             {
                 if (!task.IsCanceled && task.IsFaulted)
                 {
@@ -424,7 +424,6 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                     }
                 });
             });
-            t.WithTaskExceptionHandler(this);
         }
 
         protected virtual void OnNavigated(INavigationContext context)

@@ -51,7 +51,7 @@ namespace MugenMvvmToolkit.Modules
         }
 
         protected virtual void BindAttachedValueProvider(IModuleContext context, IIocContainer container)
-        {            
+        {
         }
 
         protected virtual void BindReflectionManager(IModuleContext context, IIocContainer container)
@@ -129,11 +129,6 @@ namespace MugenMvvmToolkit.Modules
             container.BindToConstant<ITracer>(Tracer.Instance);
         }
 
-        protected virtual void BindTaskExceptionHandler(IModuleContext context, IIocContainer container)
-        {
-            container.BindToConstant<ITaskExceptionHandler>(Tracer.Instance);
-        }
-
         protected virtual void BindThreadManager(IModuleContext context, IIocContainer container)
         {
             IThreadManager threadManager = new SynchronousThreadManager();
@@ -186,7 +181,6 @@ namespace MugenMvvmToolkit.Modules
             BindThreadManager(context, context.IocContainer);
             BindSerializer(context, context.IocContainer);
             BindOperationCallbackManager(context, context.IocContainer);
-            BindTaskExceptionHandler(context, context.IocContainer);
             BindNavigationDispatcher(context, context.IocContainer);
             BindOperationCallbackFactory(context, context.IocContainer);
             BindOperationCallbackStateManager(context, context.IocContainer);

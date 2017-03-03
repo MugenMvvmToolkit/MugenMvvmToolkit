@@ -258,7 +258,7 @@ namespace MugenMvvmToolkit.ViewModels
         {
             if (!ItemsSource.Contains(viewModel))
                 return Empty.FalseTask;
-            var result = viewModel
+            return viewModel
                 .CloseAsync(new NavigationContext(NavigationType.Tab, NavigationMode.Remove, viewModel, SelectedItem, this, context))
                 .TryExecuteSynchronously(task =>
                 {
@@ -266,8 +266,6 @@ namespace MugenMvvmToolkit.ViewModels
                         ItemsSource.Remove(viewModel);
                     return task.Result;
                 });
-            result.WithTaskExceptionHandler(this);
-            return result;
         }
 
         protected virtual void ClearInternal()

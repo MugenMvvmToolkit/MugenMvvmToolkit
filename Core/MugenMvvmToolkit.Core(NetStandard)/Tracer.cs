@@ -20,7 +20,6 @@
 using System;
 using System.Diagnostics;
 using System.Globalization;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -30,7 +29,7 @@ using TraceLevel = MugenMvvmToolkit.Models.TraceLevel;
 
 namespace MugenMvvmToolkit
 {
-    public class Tracer : ITracer, ITaskExceptionHandler
+    public class Tracer : ITracer
     {
         #region Fields
 
@@ -176,16 +175,6 @@ namespace MugenMvvmToolkit
         {
             if (CanTrace(level))
                 TraceInternal(level, level + ": " + string.Format(format, args));
-        }
-
-        #endregion
-
-        #region Implementation of ITaskExceptionHandler
-
-        void ITaskExceptionHandler.Handle(object sender, Task task)
-        {
-            if (task.Exception != null)
-                Error("Task exception handler - sender: {0}, exception: {1}", sender, task.Exception.Flatten(true));
         }
 
         #endregion

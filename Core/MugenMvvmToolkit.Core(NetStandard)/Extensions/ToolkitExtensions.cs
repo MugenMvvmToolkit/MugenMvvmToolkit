@@ -41,7 +41,6 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.IoC;
-using MugenMvvmToolkit.ViewModels;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvmToolkit
@@ -538,25 +537,6 @@ namespace MugenMvvmToolkit
             }
         }
 
-        public static Task WithTaskExceptionHandler([NotNull] this Task task, [NotNull] IViewModel viewModel)
-        {
-            Should.NotBeNull(task, nameof(task));
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            return task.WithTaskExceptionHandler(viewModel, viewModel.GetIocContainer(true, false));
-        }
-
-        public static Task WithTaskExceptionHandler([NotNull] this Task task, [NotNull] object sender,
-            IIocContainer iocContainer = null)
-        {
-            Should.NotBeNull(task, nameof(task));
-            Should.NotBeNull(sender, nameof(sender));
-            if (task.IsCompleted)
-                TryHandleTaskException(task, sender, iocContainer);
-            else
-                task.TryExecuteSynchronously(t => TryHandleTaskException(t, sender, iocContainer));
-            return task;
-        }
-
         public static void TrySetFromTask<TResult>(this TaskCompletionSource<TResult> tcs, Task task)
         {
             Should.NotBeNull(tcs, nameof(tcs));
@@ -601,20 +581,6 @@ namespace MugenMvvmToolkit
                 for (int index = 0; index < waitTasks.Length; index++)
                     waitTasks[index].Wait();
             }, TaskContinuationOptions.ExecuteSynchronously);
-        }
-
-        internal static void TryHandleTaskException(Task task, object sender, IIocContainer iocContainer)
-        {
-            if (!task.IsCanceled && !task.IsFaulted)
-                return;
-            if (task.Exception != null)
-                Tracer.Error(task.Exception.Flatten(true));
-            if (iocContainer == null || iocContainer.IsDisposed)
-                iocContainer = ServiceProvider.IocContainer;
-            if (iocContainer == null || iocContainer.IsDisposed || !iocContainer.CanResolve<ITaskExceptionHandler>())
-                return;
-            foreach (ITaskExceptionHandler handler in iocContainer.GetAll(typeof(ITaskExceptionHandler)))
-                handler.Handle(sender, task);
         }
 
         private static Task<T> CreateExceptionTask<T>(Exception exception, bool isCanceled)

@@ -27,13 +27,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
-using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Validation;
-using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.Models.Messages;
-using MugenMvvmToolkit.Models.Validation;
 
 namespace MugenMvvmToolkit.Infrastructure.Validation
 {
@@ -683,7 +680,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         {
             var context = Context;
             if (ValidateOnPropertyChanged && context != null && !IsDisposed)
-                ValidateAsync(args.PropertyName).WithTaskExceptionHandler(this, context.ServiceProvider as IIocContainer);
+                ValidateAsync(args.PropertyName);
         }
 
         private void TraceAsync(bool start, string propertyName)

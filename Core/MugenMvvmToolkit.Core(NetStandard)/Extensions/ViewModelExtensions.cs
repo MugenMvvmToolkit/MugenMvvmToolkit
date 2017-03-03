@@ -20,7 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
@@ -66,34 +65,19 @@ namespace MugenMvvmToolkit.ViewModels
                 tokens[i].Dispose();
         }
 
-        public static TTask WithBusyIndicator<TTask>([NotNull] this TTask task, [NotNull] IViewModel viewModel,
-            bool handleException, object message = null)
-            where TTask : Task
-        {
-            return task.WithBusyIndicator(viewModel, message, handleException);
-        }
-
-        public static TTask WithBusyIndicator<TTask>([NotNull] this TTask task, [NotNull] IViewModel viewModel,
-            object message = null, bool? handleException = null)
+        public static TTask WithBusyIndicator<TTask>([NotNull] this TTask task, [NotNull] IViewModel viewModel, object message = null)
             where TTask : Task
         {
             Should.NotBeNull(task, nameof(task));
             Should.NotBeNull(viewModel, nameof(viewModel));
-            if (handleException == null)
-                handleException = ApplicationSettings.HandleTaskExceptionBusyIndicator;
             if (task.IsCompleted)
-            {
-                if (handleException.Value)
-                    ToolkitExtensions.TryHandleTaskException(task, viewModel, viewModel.GetIocContainer(true));
                 return task;
-            }
             var token = viewModel.BeginBusy(message);
-            task.TryExecuteSynchronously(t =>
-            {
-                token.Dispose();
-                if (handleException.Value)
-                    ToolkitExtensions.TryHandleTaskException(t, viewModel, viewModel.GetIocContainer(true));
-            });
+#if NET4
+            task.TryExecuteSynchronously(t => token.Dispose());
+#else
+            task.ContinueWith((t, o) => ((IBusyToken) o).Dispose(), token, TaskContinuationOptions.ExecuteSynchronously);
+#endif            
             return task;
         }
 

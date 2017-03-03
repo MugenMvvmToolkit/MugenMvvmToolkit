@@ -307,9 +307,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, view, context, (@base, v, ctx) =>
             {
                 @base.CleanupView(v);
-                @base.ViewManager
-                     .CleanupViewAsync(@base.ViewModel, ctx)
-                     .WithTaskExceptionHandler(@base.ViewModel);
+                @base.ViewManager.CleanupViewAsync(@base.ViewModel, ctx);
             });
             View = null;
         }

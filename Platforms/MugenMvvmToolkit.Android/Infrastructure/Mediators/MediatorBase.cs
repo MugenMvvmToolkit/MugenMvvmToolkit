@@ -177,7 +177,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 DataContext = dataContext;
             else
             {
-                ServiceProvider.ViewManager.InitializeViewAsync(viewModel, target).WithTaskExceptionHandler(this);
+                ServiceProvider.ViewManager.InitializeViewAsync(viewModel, target);
                 viewModel.Disposed -= ClearCacheOnDisposeDelegate;
                 Get<IViewModelPresenter>().Restore(viewModel, CreateRestorePresenterContext(target));
             }

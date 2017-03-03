@@ -155,7 +155,6 @@
     <Compile Include="Interfaces\IReflectionManager.cs" />
     <Compile Include="Interfaces\ISerializer.cs" />
     <Compile Include="Interfaces\IStateTransitionManager.cs" />
-    <Compile Include="Interfaces\ITaskExceptionHandler.cs" />
     <Compile Include="Interfaces\IThreadManager.cs" />
     <Compile Include="Interfaces\ITracer.cs" />
     <Compile Include="Interfaces\IViewManager.cs" />

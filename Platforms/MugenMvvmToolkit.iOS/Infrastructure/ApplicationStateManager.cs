@@ -184,7 +184,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
                 context.Add(WindowPresenterConstants.IsViewOpened, true);
             }
             var viewModel = _viewModelProvider.RestoreViewModel(viewModelState, context, true);
-            _viewManager.InitializeViewAsync(viewModel, item, context).WithTaskExceptionHandler(this);
+            _viewManager.InitializeViewAsync(viewModel, item, context);
             _viewModelPresenter.Restore(viewModel, context);
         }
 

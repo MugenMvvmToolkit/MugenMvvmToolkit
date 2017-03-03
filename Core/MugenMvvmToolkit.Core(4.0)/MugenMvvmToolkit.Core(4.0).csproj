@@ -320,9 +320,6 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\IStateTransitionManager.cs">
       <Link>Interfaces\IStateTransitionManager.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\ITaskExceptionHandler.cs">
-      <Link>Interfaces\ITaskExceptionHandler.cs</Link>
-    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\IThreadManager.cs">
       <Link>Interfaces\IThreadManager.cs</Link>
     </Compile>

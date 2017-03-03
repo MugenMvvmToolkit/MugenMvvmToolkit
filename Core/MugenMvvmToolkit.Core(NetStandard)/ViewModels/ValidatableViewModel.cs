@@ -422,27 +422,21 @@ namespace MugenMvvmToolkit.ViewModels
         {
             Should.NotBeNull(instanceToValidate, nameof(instanceToValidate));
             EnsureNotDisposed();
-            Task task;
             lock (_locker)
-                task = ValidateInstanceInternal(instanceToValidate);
-            return task.WithTaskExceptionHandler(this);
+                return ValidateInstanceInternal(instanceToValidate);
         }
 
         public Task ValidateAsync(string propertyName)
         {
             Should.NotBeNull(propertyName, nameof(propertyName));
-            Task task;
             lock (_locker)
-                task = ValidateInternal(propertyName);
-            return task.WithTaskExceptionHandler(this);
+                return ValidateInternal(propertyName);
         }
 
         public Task ValidateAsync()
         {
-            Task task;
             lock (_locker)
-                task = ValidateInternal();
-            return task.WithTaskExceptionHandler(this);
+                return ValidateInternal();
         }
 
         public IList<object> GetErrors(string propertyName)
