@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 
@@ -41,7 +42,14 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         #region Constructors
 
-        public AsyncOperation(IDataContext context = null)
+        [Preserve(Conditional = true)]
+        public AsyncOperation()
+            : this(null)
+        {
+        }
+
+        [Preserve(Conditional = true)]
+        public AsyncOperation(IDataContext context)
         {
             _continuations = new List<IAsyncOperationInternal>(2);
             Context = context.ToNonReadOnly();
