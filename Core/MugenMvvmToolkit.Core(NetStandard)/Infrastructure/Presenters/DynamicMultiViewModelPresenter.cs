@@ -33,7 +33,18 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 {
     public class DynamicMultiViewModelPresenter : IDynamicViewModelPresenter
     {
+        #region Fields
+
+        protected static readonly DataConstant<object> IgnoreConstant;
+
+        #endregion
+
         #region Constructors
+
+        static DynamicMultiViewModelPresenter()
+        {
+            IgnoreConstant = DataConstant.Create<object>(typeof(DynamicMultiViewModelPresenter), nameof(IgnoreConstant), false);
+        }
 
         public DynamicMultiViewModelPresenter([NotNull] IMultiViewModel multiViewModel,
             IOperationCallbackManager callbackManager = null, Func<IViewModel, IDataContext, IViewModelPresenter, bool> canShowViewModel = null)
@@ -72,8 +83,6 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         protected virtual Task<bool> TryCloseInternalAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
         {
-            if (!MultiViewModel.ItemsSource.Contains(viewModel))
-                return null;
             return MultiViewModel.RemoveViewModelAsync(viewModel, context);
         }
 
@@ -99,8 +108,10 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         public Task<bool> TryCloseAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
         {
-            if (!MultiViewModel.ViewModelType.IsInstanceOfType(viewModel))
+            if (!MultiViewModel.ViewModelType.IsInstanceOfType(viewModel) || context.Contains(IgnoreConstant) || !MultiViewModel.ItemsSource.Contains(viewModel))
                 return null;
+            context = context.ToNonReadOnly();
+            context.AddOrUpdate(IgnoreConstant, null);
             return TryCloseInternalAsync(viewModel, context, parentPresenter);
         }
 
