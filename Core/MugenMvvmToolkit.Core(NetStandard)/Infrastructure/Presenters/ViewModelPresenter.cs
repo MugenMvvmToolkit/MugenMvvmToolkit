@@ -223,7 +223,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             var navigationContext = context as INavigationContext;
             if (navigationContext == null)
                 return Empty.FalseTask;
-            return NavigationDispatcher.NavigatingFromAsync(navigationContext);
+            return NavigationDispatcher.OnNavigatingFromAsync(navigationContext);
         }
 
         protected virtual void OnDynamicPresenterAdded([NotNull] IDynamicViewModelPresenter presenter)

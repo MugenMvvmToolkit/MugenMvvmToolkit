@@ -34,7 +34,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         #region Methods
 
-        protected virtual Task<bool> NavigatingFromInternalAsync(INavigationContext context)
+        protected virtual Task<bool> OnNavigatingFromInternalAsync(INavigationContext context)
         {
             bool data;
             if (context.TryGetData(NavigationConstants.ImmediateClose, out data) && data)
@@ -131,10 +131,10 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         public event EventHandler<INavigationDispatcher, NavigatedEventArgs> Navigated;
 
-        public Task<bool> NavigatingFromAsync(INavigationContext context)
+        public Task<bool> OnNavigatingFromAsync(INavigationContext context)
         {
             Should.NotBeNull(context, nameof(context));
-            return NavigatingFromInternalAsync(context);
+            return OnNavigatingFromInternalAsync(context);
         }
 
         public void OnNavigated(INavigationContext context)

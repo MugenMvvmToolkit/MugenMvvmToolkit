@@ -8,7 +8,7 @@ namespace MugenMvvmToolkit.Interfaces.Navigation
 {
     public interface INavigationDispatcher
     {
-        Task<bool> NavigatingFromAsync([NotNull] INavigationContext context);
+        Task<bool> OnNavigatingFromAsync([NotNull] INavigationContext context);
 
         void OnNavigated([NotNull]INavigationContext context);
 
