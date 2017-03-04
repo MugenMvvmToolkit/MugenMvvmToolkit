@@ -73,8 +73,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
             private const int NonSerializableField = 3;
             private const int ViewModelField = 4;
             private const int AnonymousClass = 5;
-            private const int NavigationOperationField = 6;
-            private const int BuilderField = 7;
+            private const int BuilderField = 6;
 
             #endregion
 
@@ -149,11 +148,6 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
                         }
                         SetValue(field, target, anonClass);
                         break;
-//                    case NavigationOperationField://todo fix
-//                        var operation = new NavigationOperation();
-//                        operation.SetResult(OperationResult.Convert<bool>(result));
-//                        SetValue(field, target, operation);
-//                        break;
                     case NonSerializableField:
                         object service;
                         if (State == null)
@@ -214,16 +208,6 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
 
                 if (isStateMachine && value is IAsyncOperationAwaiter)
                     return new FieldSnapshot { Name = field.Name, FieldType = AwaiterField };
-
-//                //NavigationOperation//todo fix
-//                if (value is INavigationOperation)
-//                {
-//                    return new FieldSnapshot
-//                    {
-//                        Name = field.Name,
-//                        FieldType = NavigationOperationField
-//                    };
-//                }
 
                 //field is type.
                 if (typeof(Type).IsAssignableFrom(field.FieldType))
