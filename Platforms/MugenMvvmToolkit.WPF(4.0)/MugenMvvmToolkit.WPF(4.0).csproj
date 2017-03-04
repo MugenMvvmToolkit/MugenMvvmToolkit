@@ -94,9 +94,6 @@
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\Navigation\WindowNavigationService.cs">
       <Link>Infrastructure\Navigation\WindowNavigationService.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\Presenters\DynamicViewModelWindowPresenter.cs">
-      <Link>Infrastructure\Presenters\DynamicViewModelWindowPresenter.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\Presenters\MessagePresenter.cs">
       <Link>Infrastructure\Presenters\MessagePresenter.cs</Link>
     </Compile>

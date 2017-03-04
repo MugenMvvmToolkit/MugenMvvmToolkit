@@ -23,6 +23,7 @@ using MugenMvvmToolkit.iOS.Infrastructure.Navigation;
 using MugenMvvmToolkit.iOS.Infrastructure.Presenters;
 using MugenMvvmToolkit.iOS.Interfaces;
 using MugenMvvmToolkit.iOS.Interfaces.Mediators;
+using MugenMvvmToolkit.iOS.Interfaces.Views;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
@@ -66,7 +67,9 @@ namespace MugenMvvmToolkit.iOS.Modules
             {
                 IViewModelPresenter presenter = iocContainer.Get<ViewModelPresenter>();
                 presenter.DynamicPresenters.Add(iocContainer.Get<DynamicViewModelNavigationPresenter>());
-                presenter.DynamicPresenters.Add(iocContainer.Get<DynamicViewModelWindowPresenter>());
+                var windowPresenter = iocContainer.Get<DynamicViewModelWindowPresenter>();
+                windowPresenter.RegisterMediatorFactory<ModalViewMediator, IModalView>();
+                presenter.DynamicPresenters.Add(windowPresenter);
                 return presenter;
             }, DependencyLifecycle.SingleInstance);
         }

@@ -155,9 +155,6 @@
     <Compile Include="..\MugenMvvmToolkit.Android\Views\Fragments\MvvmListFragment.cs">
       <Link>Views\Fragments\MvvmListFragment.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\presenters\DynamicViewModelWindowPresenter.cs">
-      <Link>Infrastructure\Presenters\DynamicViewModelWindowPresenter.cs</Link>
-    </Compile>
     <Compile Include="AttachedMembersRegistration.cs" />
     <Compile Include="Infrastructure\ItemsSourcePagerAdapter.cs" />
     <Compile Include="Models\Enums.cs" />

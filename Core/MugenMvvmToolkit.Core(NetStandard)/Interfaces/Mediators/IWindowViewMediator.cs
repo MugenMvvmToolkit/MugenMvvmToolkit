@@ -33,6 +33,8 @@ namespace MugenMvvmToolkit.Interfaces.Mediators
         [NotNull]
         IViewModel ViewModel { get; }
 
+        void Initialize([NotNull] IViewModel viewModel, [CanBeNull] IDataContext context);
+
         Task ShowAsync([CanBeNull] IDataContext context);
 
         Task<bool> CloseAsync([CanBeNull] IDataContext context);

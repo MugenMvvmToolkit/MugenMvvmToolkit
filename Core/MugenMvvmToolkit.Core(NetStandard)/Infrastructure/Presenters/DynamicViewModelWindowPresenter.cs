@@ -17,72 +17,33 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
-using MugenMvvmToolkit.Infrastructure.Presenters;
+using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Mediators;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
 
-#if APPCOMPAT
-using MugenMvvmToolkit.Android.AppCompat.Infrastructure.Mediators;
-using MugenMvvmToolkit.Android.AppCompat.Interfaces.Views;
-
-namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure.Presenters
-#elif ANDROIDCORE
-using MugenMvvmToolkit.Android.Infrastructure.Mediators;
-using MugenMvvmToolkit.Android.Interfaces.Views;
-
-namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
-#elif XAMARIN_FORMS
-using IWindowView = MugenMvvmToolkit.Xamarin.Forms.Interfaces.Views.IModalView;
-using WindowViewMediator = MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Mediators.ModalViewMediator;
-
-namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters
-#elif TOUCH
-using MugenMvvmToolkit.iOS.Interfaces.Views;
-using MugenMvvmToolkit.iOS.Infrastructure.Mediators;
-
-namespace MugenMvvmToolkit.iOS.Infrastructure.Presenters
-#elif WINFORMS
-using MugenMvvmToolkit.WinForms.Interfaces.Views;
-using MugenMvvmToolkit.WinForms.Infrastructure.Mediators;
-
-namespace MugenMvvmToolkit.WinForms.Infrastructure.Presenters
-#elif WPF
-using MugenMvvmToolkit.WPF.Infrastructure.Mediators;
-using MugenMvvmToolkit.WPF.Interfaces.Views;
-
-namespace MugenMvvmToolkit.WPF.Infrastructure.Presenters
-#elif WINDOWS_UWP
-using MugenMvvmToolkit.UWP.Infrastructure.Mediators;
-using MugenMvvmToolkit.UWP.Interfaces.Views;
-
-namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
-#endif
+namespace MugenMvvmToolkit.Infrastructure.Presenters
 {
     public class DynamicViewModelWindowPresenter : IRestorableDynamicViewModelPresenter
     {
         #region Fields
 
-        private readonly IThreadManager _threadManager;
+        private readonly List<Func<IViewModel, Type, IDataContext, IWindowViewMediator>> _mediatorRegistrations;
+
         private readonly IOperationCallbackManager _callbackManager;
-        private readonly INavigationDispatcher _navigationDispatcher;
         private readonly IWrapperManager _wrapperManager;
         private readonly IViewMappingProvider _viewMappingProvider;
-        private readonly IViewManager _viewManager;
-#if TOUCH
-        private readonly IViewModelProvider _viewModelProvider;
-#endif
         private Task _currentTask;
 
         #endregion
@@ -90,51 +51,26 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
         #region Constructors
 
         [Preserve(Conditional = true)]
-#if TOUCH
-        public DynamicViewModelWindowPresenter([NotNull] IViewMappingProvider viewMappingProvider, [NotNull] IViewManager viewManager,
-            [NotNull] IWrapperManager wrapperManager, [NotNull] IThreadManager threadManager, [NotNull] IOperationCallbackManager callbackManager,
-            [NotNull] INavigationDispatcher navigationDispatcher, [NotNull] IViewModelProvider viewModelProvider)
-#else
-        public DynamicViewModelWindowPresenter([NotNull] IViewMappingProvider viewMappingProvider,
-            [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] IThreadManager threadManager,
-            [NotNull] IOperationCallbackManager callbackManager, [NotNull] INavigationDispatcher navigationDispatcher)
-#endif
+        public DynamicViewModelWindowPresenter([NotNull] IViewMappingProvider viewMappingProvider, [NotNull] IOperationCallbackManager callbackManager, [NotNull] IWrapperManager wrapperManager)
         {
             Should.NotBeNull(viewMappingProvider, nameof(viewMappingProvider));
-            Should.NotBeNull(viewManager, nameof(viewManager));
-            Should.NotBeNull(wrapperManager, nameof(wrapperManager));
-            Should.NotBeNull(threadManager, nameof(threadManager));
             Should.NotBeNull(callbackManager, nameof(callbackManager));
-#if TOUCH
-            Should.NotBeNull(viewModelProvider, nameof(viewModelProvider));
-            _viewModelProvider = viewModelProvider;
-#endif
+            Should.NotBeNull(wrapperManager, nameof(wrapperManager));
             _viewMappingProvider = viewMappingProvider;
-            _viewManager = viewManager;
-            _wrapperManager = wrapperManager;
-            _threadManager = threadManager;
             _callbackManager = callbackManager;
-            _navigationDispatcher = navigationDispatcher;
+            _wrapperManager = wrapperManager;
+            _mediatorRegistrations = new List<Func<IViewModel, Type, IDataContext, IWindowViewMediator>>();
         }
 
         #endregion
 
         #region Properties
 
-#if TOUCH
-        protected IViewModelProvider ViewModelProvider => _viewModelProvider;
-#endif
         protected IViewMappingProvider ViewMappingProvider => _viewMappingProvider;
-
-        protected IWrapperManager WrapperManager => _wrapperManager;
-
-        protected IThreadManager ThreadManager => _threadManager;
 
         protected IOperationCallbackManager CallbackManager => _callbackManager;
 
-        protected IViewManager ViewManager => _viewManager;
-
-        protected INavigationDispatcher NavigationDispatcher => _navigationDispatcher;
+        protected IWrapperManager WrapperManager => _wrapperManager;
 
         #endregion
 
@@ -145,7 +81,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
         public IAsyncOperation TryShowAsync(IViewModel viewModel, IDataContext context,
             IViewModelPresenter parentPresenter)
         {
-            var viewMediator = TryCreateWindowViewMediator(viewModel, context);
+            var viewMediator = TryCreateMediator(viewModel, context);
             if (viewMediator == null)
                 return null;
             var tcs = new TaskCompletionSource<object>();
@@ -170,7 +106,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
             var view = context.GetData(WindowPresenterConstants.RestoredView);
             if (view == null)
                 return false;
-            var mediator = TryCreateWindowViewMediator(viewModel, context);
+            var mediator = TryCreateMediator(viewModel, context);
             if (mediator == null)
                 return false;
             mediator.UpdateView(view, context.GetData(WindowPresenterConstants.IsViewOpened), context);
@@ -181,21 +117,56 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
 
         #region Methods
 
+        public void RegisterMediatorFactory<TMediator, TView>(bool viewExactlyEqual = false)
+            where TMediator : IWindowViewMediator
+            where TView : class
+        {
+            if (viewExactlyEqual)
+            {
+                RegisterMediatorFactory((vm, type, arg3) =>
+                {
+                    if (type == typeof(TView))
+                        return vm.GetIocContainer(true).Get<TMediator>();
+                    return null;
+                });
+            }
+            else
+            {
+                RegisterMediatorFactory((vm, type, arg3) =>
+                {
+                    if (typeof(TView).IsAssignableFrom(type) || WrapperManager.CanWrap(type, typeof(TView), arg3))
+                        return vm.GetIocContainer(true).Get<TMediator>();
+                    return null;
+                });
+            }
+        }
+
+        public void RegisterMediatorFactory([NotNull] Func<IViewModel, Type, IDataContext, IWindowViewMediator> mediatorFactory)
+        {
+            Should.NotBeNull(mediatorFactory, nameof(mediatorFactory));
+            lock (_mediatorRegistrations)
+                _mediatorRegistrations.Add(mediatorFactory);
+        }
+
+        [CanBeNull]
+        protected IWindowViewMediator TryCreateMediatorFromFactory([NotNull] IViewModel viewModel, Type viewType, [NotNull] IDataContext context)
+        {
+            lock (_mediatorRegistrations)
+            {
+                for (int i = 0; i < _mediatorRegistrations.Count; i++)
+                {
+                    var mediator = _mediatorRegistrations[i].Invoke(viewModel, viewType, context);
+                    if (mediator != null)
+                        return mediator;
+                }
+            }
+            return null;
+        }
+
         [CanBeNull]
         protected virtual IWindowViewMediator CreateWindowViewMediator([NotNull] IViewModel viewModel, Type viewType, [NotNull] IDataContext context)
         {
-            var windowViewMediator = ServiceProvider.WindowViewMediatorFactory?.Invoke(viewModel, viewType, context);
-            if (windowViewMediator != null)
-                return windowViewMediator;
-#if TOUCH
-            var container = viewModel.GetIocContainer(true);
-            if (_wrapperManager.CanWrap(viewType, typeof(IModalView), context))
-                return new ModalViewMediator(viewModel, ThreadManager, ViewManager, WrapperManager, ViewMappingProvider, ViewModelProvider, NavigationDispatcher);
-#else
-            if (_wrapperManager.CanWrap(viewType, typeof(IWindowView), context))
-                return new WindowViewMediator(viewModel, ThreadManager, ViewManager, WrapperManager, NavigationDispatcher);
-#endif
-            return null;
+            return TryCreateMediatorFromFactory(viewModel, viewType, context);
         }
 
         private void Show(IWindowViewMediator viewMediator, IAsyncOperation operation, IDataContext context, TaskCompletionSource<object> tcs)
@@ -214,7 +185,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
             }
         }
 
-        private IWindowViewMediator TryCreateWindowViewMediator(IViewModel viewModel, IDataContext context)
+        private IWindowViewMediator TryCreateMediator(IViewModel viewModel, IDataContext context)
         {
             bool data;
             if (context.TryGetData(NavigationConstants.SuppressWindowNavigation, out data) && data)
@@ -230,7 +201,10 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Presenters
             {
                 viewMediator = CreateWindowViewMediator(viewModel, mappingItem.ViewType, context);
                 if (viewMediator != null)
-                    viewModel.Settings.Metadata.Add(WindowPresenterConstants.WindowViewMediator, viewMediator);
+                {
+                    viewMediator.Initialize(viewModel, context);
+                    viewModel.Settings.Metadata.AddOrUpdate(WindowPresenterConstants.WindowViewMediator, viewMediator);
+                }
             }
             return viewMediator;
         }

@@ -16,7 +16,6 @@
 
 #endregion
 
-using System;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
@@ -27,10 +26,14 @@ using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.IoC;
 using MugenMvvmToolkit.Modules;
 #if WPF
+using System;
+using System.Linq;
 using MugenMvvmToolkit.WPF.Infrastructure;
 using MugenMvvmToolkit.WPF.Infrastructure.Callbacks;
 using MugenMvvmToolkit.WPF.Infrastructure.Navigation;
 using MugenMvvmToolkit.WPF.Infrastructure.Presenters;
+using MugenMvvmToolkit.WPF.Infrastructure.Mediators;
+using MugenMvvmToolkit.WPF.Interfaces.Views;
 
 namespace MugenMvvmToolkit.WPF.Modules
 {
@@ -41,7 +44,9 @@ using MugenMvvmToolkit.UWP.Infrastructure;
 using MugenMvvmToolkit.UWP.Infrastructure.Navigation;
 using MugenMvvmToolkit.UWP.Infrastructure.Presenters;
 using MugenMvvmToolkit.UWP.Infrastructure.Callbacks;
+using MugenMvvmToolkit.UWP.Infrastructure.Mediators;
 using MugenMvvmToolkit.UWP.Interfaces;
+using MugenMvvmToolkit.UWP.Interfaces.Views;
 
 namespace MugenMvvmToolkit.UWP.Modules
 {
@@ -127,8 +132,10 @@ namespace MugenMvvmToolkit.UWP.Modules
             container.BindToMethod((iocContainer, list) =>
             {
                 IViewModelPresenter presenter = iocContainer.Get<ViewModelPresenter>();
-                presenter.DynamicPresenters.Add(iocContainer.Get<DynamicViewModelNavigationPresenter>());
-                presenter.DynamicPresenters.Add(iocContainer.Get<DynamicViewModelWindowPresenter>());
+                var windowPresenter = iocContainer.Get<DynamicViewModelWindowPresenter>();
+                windowPresenter.RegisterMediatorFactory<WindowViewMediator, IWindowView>();
+                presenter.DynamicPresenters.Add(windowPresenter);
+                presenter.DynamicPresenters.Add(iocContainer.Get<DynamicViewModelNavigationPresenter>());                
                 return presenter;
             }, DependencyLifecycle.SingleInstance);
         }
@@ -148,7 +155,14 @@ namespace MugenMvvmToolkit.UWP.Modules
             if (ServiceProvider.TryGet(out presenter))
             {
                 presenter.DynamicPresenters.Add(ServiceProvider.Get<DynamicViewModelNavigationPresenter>());
-                presenter.DynamicPresenters.Add(ServiceProvider.Get<DynamicViewModelWindowPresenter>());
+
+                var windowPresenter = presenter.DynamicPresenters.OfType<DynamicViewModelWindowPresenter>().FirstOrDefault();
+                if (windowPresenter == null)
+                {
+                    windowPresenter = ServiceProvider.Get<DynamicViewModelWindowPresenter>();
+                    presenter.DynamicPresenters.Add(windowPresenter);
+                }
+                windowPresenter.RegisterMediatorFactory<WindowViewMediator, IWindowView>();
             }
         }
 #endif

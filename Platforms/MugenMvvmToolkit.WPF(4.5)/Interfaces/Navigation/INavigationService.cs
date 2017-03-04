@@ -38,7 +38,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Interfaces.Navigation
 namespace MugenMvvmToolkit.UWP.Interfaces.Navigation
 #endif
 {
-    public interface INavigationService
+    public interface INavigationService//todo test
     {
         object CurrentContent { get; }
 #if ANDROID

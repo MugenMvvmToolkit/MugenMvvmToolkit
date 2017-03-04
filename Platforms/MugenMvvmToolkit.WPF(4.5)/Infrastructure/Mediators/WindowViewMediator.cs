@@ -22,9 +22,9 @@ using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
-using MugenMvvmToolkit.Interfaces.ViewModels;
 #if WPF
 using System.Windows.Navigation;
+using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.WPF.Interfaces.Views;
 
 namespace MugenMvvmToolkit.WPF.Infrastructure.Mediators
@@ -45,16 +45,15 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Mediators
 
         #region Constructors
 
-        public WindowViewMediator([NotNull] IViewModel viewModel, [NotNull] IThreadManager threadManager,
-            [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] INavigationDispatcher navigationDispatcher)
-            : base(viewModel, threadManager, viewManager, wrapperManager, navigationDispatcher)
+        public WindowViewMediator([NotNull] IThreadManager threadManager, [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] INavigationDispatcher navigationDispatcher)
+            : base(threadManager, viewManager, wrapperManager, navigationDispatcher)
         {
         }
 
 #if WPF
-        internal WindowViewMediator([NotNull] NavigationWindow window, [NotNull] IViewModel viewModel, [NotNull] IThreadManager threadManager,
+        internal WindowViewMediator([NotNull] NavigationWindow window, [NotNull] IThreadManager threadManager,
              [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] INavigationDispatcher navigationDispatcher)
-            : base(viewModel, threadManager, viewManager, wrapperManager, navigationDispatcher)
+            : base(threadManager, viewManager, wrapperManager, navigationDispatcher)
         {
             Should.NotBeNull(window, nameof(window));
             _window = window;

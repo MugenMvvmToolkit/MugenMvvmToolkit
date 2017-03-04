@@ -24,7 +24,6 @@ using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
-using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
 using MugenMvvmToolkit.Xamarin.Forms.Interfaces.Navigation;
@@ -44,9 +43,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Mediators
 
         #region Constructors
 
-        public ModalViewMediator([NotNull] IViewModel viewModel, [NotNull] IThreadManager threadManager,
-            [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] INavigationDispatcher navigationDispatcher)
-            : base(viewModel, threadManager, viewManager, wrapperManager, navigationDispatcher)
+        public ModalViewMediator([NotNull] IThreadManager threadManager, [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] INavigationDispatcher navigationDispatcher)
+            : base(threadManager, viewManager, wrapperManager, navigationDispatcher)
         {
             _backButtonHandler = ReflectionExtensions
                 .CreateWeakDelegate<ModalViewMediator, CancelEventArgs, EventHandler<Page, CancelEventArgs>>(this,

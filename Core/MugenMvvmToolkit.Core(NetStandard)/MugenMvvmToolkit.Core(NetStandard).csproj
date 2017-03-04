@@ -48,6 +48,7 @@
     <Compile Include="Infrastructure\DesignBootstrapperBase.cs" />
     <Compile Include="Infrastructure\Mediators\MultiViewModelNavigationMediator.cs" />
     <Compile Include="Infrastructure\Navigation\NavigationDispatcher.cs" />
+    <Compile Include="Infrastructure\Presenters\DynamicViewModelWindowPresenter.cs" />
     <Compile Include="Interfaces\Callbacks\IOperationCallbackStateManager.cs" />
     <Compile Include="Interfaces\IBootstrapCodeBuilder.cs" />
     <Compile Include="Interfaces\IMvvmApplication.cs" />

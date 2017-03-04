@@ -33,7 +33,9 @@ using MugenMvvmToolkit.Models.IoC;
 using MugenMvvmToolkit.Modules;
 using MugenMvvmToolkit.WinForms.Infrastructure;
 using MugenMvvmToolkit.WinForms.Infrastructure.Callbacks;
+using MugenMvvmToolkit.WinForms.Infrastructure.Mediators;
 using MugenMvvmToolkit.WinForms.Infrastructure.Presenters;
+using MugenMvvmToolkit.WinForms.Interfaces.Views;
 
 namespace MugenMvvmToolkit.WinForms.Modules
 {
@@ -105,7 +107,9 @@ namespace MugenMvvmToolkit.WinForms.Modules
                 container.BindToMethod((iocContainer, list) =>
                 {
                     IViewModelPresenter presenter = iocContainer.Get<ViewModelPresenter>();
-                    presenter.DynamicPresenters.Add(iocContainer.Get<DynamicViewModelWindowPresenter>());
+                    var windowPresenter = iocContainer.Get<DynamicViewModelWindowPresenter>();
+                    windowPresenter.RegisterMediatorFactory<WindowViewMediator, IWindowView>();
+                    presenter.DynamicPresenters.Add(windowPresenter);
                     return presenter;
                 }, DependencyLifecycle.SingleInstance);
             }
@@ -134,7 +138,15 @@ namespace MugenMvvmToolkit.WinForms.Modules
             ServiceProvider.Initialized -= MvvmApplicationOnInitialized;
             IViewModelPresenter presenter;
             if (ServiceProvider.TryGet(out presenter))
-                presenter.DynamicPresenters.Add(ServiceProvider.Get<DynamicViewModelWindowPresenter>());
+            {
+                var windowPresenter = presenter.DynamicPresenters.OfType<DynamicViewModelWindowPresenter>().FirstOrDefault();
+                if (windowPresenter == null)
+                {
+                    windowPresenter = ServiceProvider.Get<DynamicViewModelWindowPresenter>();
+                    presenter.DynamicPresenters.Add(windowPresenter);
+                }
+                windowPresenter.RegisterMediatorFactory<WindowViewMediator, IWindowView>();
+            }
         }
 
         private static void OnViewCleared(IViewManager viewManager, ViewClearedEventArgs args)

@@ -40,7 +40,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         private readonly IViewManager _viewManager;
         private readonly IWrapperManager _wrapperManager;
         private readonly INavigationDispatcher _navigationDispatcher;
-        private readonly IViewModel _viewModel;
+        private IViewModel _viewModel;
         private CancelEventArgs _cancelArgs;
         private IDataContext _closeParameter;
         private bool _isOpen;
@@ -50,16 +50,12 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         #region Constructors
 
-        protected WindowViewMediatorBase([NotNull] IViewModel viewModel,
-            [NotNull] IThreadManager threadManager, [NotNull] IViewManager viewManager,
-            [NotNull] IWrapperManager wrapperManager, [NotNull] INavigationDispatcher navigationDispatcher)
+        protected WindowViewMediatorBase([NotNull] IThreadManager threadManager, [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] INavigationDispatcher navigationDispatcher)
         {
-            Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(threadManager, nameof(threadManager));
             Should.NotBeNull(viewManager, nameof(viewManager));
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
-            _viewModel = viewModel;
             _threadManager = threadManager;
             _viewManager = viewManager;
             _wrapperManager = wrapperManager;
@@ -91,6 +87,17 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         object IWindowViewMediator.View => View;
 
         public virtual IViewModel ViewModel => _viewModel;
+
+        public void Initialize(IViewModel viewModel, IDataContext context)
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            if (ReferenceEquals(_viewModel, viewModel))
+                return;
+            if (_viewModel != null)
+                throw ExceptionManager.ObjectInitialized(GetType().Name, this);
+            _viewModel = viewModel;
+            OnInitialized(viewModel, context);
+        }
 
         public Task ShowAsync(IDataContext context)
         {
@@ -209,6 +216,10 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         }
 
         protected virtual void OnViewUpdated(TView view, IDataContext context)
+        {
+        }
+
+        protected virtual void OnInitialized(IViewModel viewModel, IDataContext context)
         {
         }
 

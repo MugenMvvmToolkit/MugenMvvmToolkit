@@ -29,8 +29,10 @@ using MugenMvvmToolkit.Models.IoC;
 using MugenMvvmToolkit.Modules;
 using MugenMvvmToolkit.Xamarin.Forms.Infrastructure;
 using MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Callbacks;
+using MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Mediators;
 using MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation;
 using MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters;
+using MugenMvvmToolkit.Xamarin.Forms.Interfaces.Views;
 using Xamarin.Forms;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Modules
@@ -60,8 +62,10 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Modules
             container.BindToMethod((iocContainer, list) =>
             {
                 IViewModelPresenter presenter = container.Get<RestorableViewModelPresenter>();
+                var windowPresenter = iocContainer.Get<DynamicViewModelWindowPresenter>();
+                windowPresenter.RegisterMediatorFactory<ModalViewMediator, IModalView>();
+                presenter.DynamicPresenters.Add(windowPresenter);
                 presenter.DynamicPresenters.Add(iocContainer.Get<DynamicViewModelNavigationPresenter>());
-                presenter.DynamicPresenters.Add(iocContainer.Get<DynamicViewModelWindowPresenter>());
                 return presenter;
             }, DependencyLifecycle.SingleInstance);
         }

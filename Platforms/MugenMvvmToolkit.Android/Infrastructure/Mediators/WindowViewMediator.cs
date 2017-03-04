@@ -17,21 +17,19 @@
 #endregion
 
 using System;
-using Android.App;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
-using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 #if APPCOMPAT
 using MugenMvvmToolkit.Android.AppCompat.Interfaces.Views;
 using Fragment = Android.Support.V4.App.Fragment;
-using FragmentManager = Android.Support.V4.App.FragmentManager;
 
 namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure.Mediators
 #else
+using Android.App;
 using MugenMvvmToolkit.Android.Interfaces.Views;
 
 namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
@@ -41,9 +39,9 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
     {
         #region Constructors
 
-        public WindowViewMediator([NotNull] IViewModel viewModel, [NotNull] IThreadManager threadManager,
-            [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] INavigationDispatcher navigationDispatcher)
-            : base(viewModel, threadManager, viewManager, wrapperManager, navigationDispatcher)
+        public WindowViewMediator([NotNull] IThreadManager threadManager, [NotNull] IViewManager viewManager,
+            [NotNull] IWrapperManager wrapperManager, [NotNull] INavigationDispatcher navigationDispatcher)
+            : base(threadManager, viewManager, wrapperManager, navigationDispatcher)
         {
         }
 

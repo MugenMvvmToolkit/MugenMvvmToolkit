@@ -21,7 +21,6 @@ using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
-using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.UWP.Interfaces.Views;
 
 namespace MugenMvvmToolkit.UWP.Infrastructure.Mediators
@@ -30,15 +29,15 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Mediators
     {
         #region Constructors
 
-        public WindowViewMediator([NotNull] IViewModel viewModel, [NotNull] IThreadManager threadManager,
+        public WindowViewMediator([NotNull] IThreadManager threadManager,
             [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] INavigationDispatcher navigationDispatcher)
-            : base(viewModel, threadManager, viewManager, wrapperManager, navigationDispatcher)
+            : base(threadManager, viewManager, wrapperManager, navigationDispatcher)
         {
         }
 
         #endregion
 
-        #region Overrides of WindowViewMediatorBase<IChildWindowView>
+        #region Overrides of WindowViewMediatorBase<IWindowView>
 
         protected override void ShowView(IWindowView view, bool isDialog, IDataContext context)
         {

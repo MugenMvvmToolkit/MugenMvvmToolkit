@@ -16,15 +16,17 @@
 
 #endregion
 
+using System.Linq;
+using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
 #if APPCOMPAT
-using MugenMvvmToolkit.Android.AppCompat.Infrastructure.Presenters;
-
 namespace MugenMvvmToolkit.Android.AppCompat.Modules
 #else
+using MugenMvvmToolkit.Android.Infrastructure.Mediators;
 using MugenMvvmToolkit.Android.Infrastructure.Presenters;
+using MugenMvvmToolkit.Android.Interfaces.Views;
 
 namespace MugenMvvmToolkit.Android.Modules
 #endif
@@ -56,7 +58,19 @@ namespace MugenMvvmToolkit.Android.Modules
                 return PlatformExtensions.MvvmFragmentMediatorDefaultFactory(o, dataContext, arg3) ?? mediatorFactory?.Invoke(o, dataContext, arg3);
 #endif
             };
-            service.DynamicPresenters.Add(context.IocContainer.Get<DynamicViewModelWindowPresenter>());
+
+
+            var windowPresenter = service.DynamicPresenters.OfType<DynamicViewModelWindowPresenter>().FirstOrDefault();
+            if (windowPresenter == null)
+            {
+                windowPresenter = context.IocContainer.Get<DynamicViewModelWindowPresenter>();
+                service.DynamicPresenters.Add(windowPresenter);
+            }
+#if APPCOMPAT
+            windowPresenter.RegisterMediatorFactory<Infrastructure.Mediators.WindowViewMediator, Interfaces.Views.IWindowView>();
+#else
+            windowPresenter.RegisterMediatorFactory<WindowViewMediator, IWindowView>();
+#endif
             return true;
         }
 

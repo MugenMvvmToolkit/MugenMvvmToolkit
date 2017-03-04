@@ -22,7 +22,6 @@ using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
-using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
@@ -53,10 +52,10 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
             NodoAction = () => { };
         }
 
-        public ModalViewMediator([NotNull] IViewModel viewModel, [NotNull] IThreadManager threadManager,
+        public ModalViewMediator([NotNull] IThreadManager threadManager,
             [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] IViewMappingProvider viewMappingProvider,
             [NotNull] IViewModelProvider viewModelProvider, [NotNull] INavigationDispatcher navigationDispatcher)
-            : base(viewModel, threadManager, viewManager, wrapperManager, navigationDispatcher)
+            : base(threadManager, viewManager, wrapperManager, navigationDispatcher)
         {
             Should.NotBeNull(viewMappingProvider, nameof(viewMappingProvider));
             Should.NotBeNull(viewModelProvider, nameof(viewModelProvider));

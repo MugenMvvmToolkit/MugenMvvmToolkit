@@ -194,6 +194,9 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\presenters\DynamicViewModelNavigationPresenter.cs">
       <Link>Infrastructure\Presenters\DynamicViewModelNavigationPresenter.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Infrastructure\Presenters\DynamicViewModelWindowPresenter.cs">
+      <Link>Infrastructure\Presenters\DynamicViewModelWindowPresenter.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\presenters\ViewModelPresenter.cs">
       <Link>Infrastructure\Presenters\ViewModelPresenter.cs</Link>
     </Compile>
