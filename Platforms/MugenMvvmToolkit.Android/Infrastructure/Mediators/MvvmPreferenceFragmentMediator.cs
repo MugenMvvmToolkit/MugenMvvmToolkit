@@ -1,19 +1,30 @@
 using System;
-using Android.App;
-using Android.OS;
-using Android.Preferences;
 using JetBrains.Annotations;
+
+#if APPCOMPAT
+using Android.Support.V4.App;
+using Android.Support.V7.Preferences;
+using MugenMvvmToolkit.Android.AppCompat.Infrastructure.Mediators;
+using PreferenceFragment = Android.Support.V7.Preferences.PreferenceFragmentCompat;
+
+namespace MugenMvvmToolkit.Android.PreferenceCompat.Infrastructure.Mediators
+#else
+using Android.App;
+using Android.Preferences;
+using Android.OS;
 using MugenMvvmToolkit.Binding;
 
 namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
+#endif
 {
     public class MvvmPreferenceFragmentMediator : MvvmFragmentMediator
     {
         #region Fields
 
         private PreferenceChangeListener _preferenceChangeListener;
+#if !APPCOMPAT
         private bool _isPreferenceContext;
-
+#endif
         #endregion
 
         #region Constructors
@@ -44,6 +55,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             base.OnPause(baseOnPause);
         }
 
+#if !APPCOMPAT
         public override void OnSaveInstanceState(Bundle outState, Action<Bundle> baseOnSaveInstanceState)
         {
             if (_isPreferenceContext)
@@ -59,7 +71,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             {
                 if ((savedInstanceState == null || !savedInstanceState.ContainsKey(IgnoreStateKey)) && Target is PreferenceFragment)
                 {
-                    var activity = Target.Activity as PreferenceActivity;//todo check compat
+                    var activity = Target.Activity as PreferenceActivity;
                     if (activity != null)
                     {
                         _isPreferenceContext = true;
@@ -68,6 +80,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 }
             }
         }
+#endif
 
         public override void OnDestroy(Action baseOnDestroy)
         {

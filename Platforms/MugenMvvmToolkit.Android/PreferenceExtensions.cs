@@ -1,11 +1,19 @@
 using System.Collections.Generic;
 using System.Xml;
-using Android.Preferences;
 using MugenMvvmToolkit.Android.Binding;
-using MugenMvvmToolkit.Android.Infrastructure;
 using MugenMvvmToolkit.Binding;
 
+#if APPCOMPAT
+using Android.Support.V7.Preferences;
+using MugenMvvmToolkit.Android.PreferenceCompat.Infrastructure;
+
+namespace MugenMvvmToolkit.Android.PreferenceCompat
+#else
+using Android.Preferences;
+using MugenMvvmToolkit.Android.Infrastructure;
+
 namespace MugenMvvmToolkit.Android
+#endif
 {
     public static class PreferenceExtensions
     {

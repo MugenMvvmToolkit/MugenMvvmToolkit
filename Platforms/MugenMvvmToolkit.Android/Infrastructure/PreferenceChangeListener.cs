@@ -1,12 +1,19 @@
 using System;
 using Android.Content;
-using Android.Preferences;
 using Android.Runtime;
 using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Binding;
 using Object = Java.Lang.Object;
 
+#if APPCOMPAT
+using Android.Support.V7.Preferences;
+
+namespace MugenMvvmToolkit.Android.PreferenceCompat.Infrastructure
+#else
+using Android.Preferences;
+
 namespace MugenMvvmToolkit.Android.Infrastructure
+#endif
 {
     public sealed class PreferenceChangeListener : Object, ISharedPreferencesOnSharedPreferenceChangeListener
     {
@@ -39,7 +46,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
                 sharedPreferences.UnregisterOnSharedPreferenceChangeListener(this);
                 return;
             }
-            _preferenceManager.FindPreference(key)?.TryRaiseAttachedEvent(AttachedMembers.Preference.ValueChangedEvent);
+            _preferenceManager.FindPreference(key)?.TryRaiseAttachedEvent(AttachedMembers.Preference.ValueChangedEvent.Override<Preference>());
         }
 
         #endregion        

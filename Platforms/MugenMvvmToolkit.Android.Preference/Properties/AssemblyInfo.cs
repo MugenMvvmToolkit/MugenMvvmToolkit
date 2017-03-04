@@ -17,18 +17,12 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("MugenMvvmToolkit.Android")]
+[assembly: AssemblyTitle("MugenMvvmToolkit.Android.Preference")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyProduct("MugenMvvmToolkit.Android")]
+[assembly: AssemblyProduct("MugenMvvmToolkit.Android.Preference")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]
-[assembly: InternalsVisibleTo("System.Runtime.Serialization")]
-[assembly: InternalsVisibleTo("MugenMvvmToolkit.Android.AppCompat")]
-[assembly: InternalsVisibleTo("MugenMvvmToolkit.Android.RecyclerView")]
-[assembly: InternalsVisibleTo("MugenMvvmToolkit.Android.Design")]
-[assembly: InternalsVisibleTo("MugenMvvmToolkit.Android.Preference")]

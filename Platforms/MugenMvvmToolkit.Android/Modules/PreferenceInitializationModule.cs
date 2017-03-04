@@ -1,17 +1,31 @@
-using Android.App;
-using Android.Preferences;
 using MugenMvvmToolkit.Android.Infrastructure;
-using MugenMvvmToolkit.Android.Infrastructure.Mediators;
-using MugenMvvmToolkit.Android.Interfaces.Mediators;
 using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 
+#if APPCOMPAT
+using MugenMvvmToolkit.Android.AppCompat.Interfaces.Mediators;
+using MugenMvvmToolkit.Android.PreferenceCompat.Infrastructure.Mediators;
+using Android.Support.V4.App;
+using Android.Support.V7.Preferences;
+
+namespace MugenMvvmToolkit.Android.PreferenceCompat.Modules
+#else
+using Android.App;
+using Android.Preferences;
+using MugenMvvmToolkit.Android.Infrastructure.Mediators;
+using MugenMvvmToolkit.Android.Interfaces.Mediators;
+
 namespace MugenMvvmToolkit.Android.Modules
+#endif
 {
+#if APPCOMPAT
+    public class PreferenceCompatInitializationModule : IModule
+#else
     public class PreferenceInitializationModule : IModule
+#endif
     {
         #region Properties
 
@@ -98,8 +112,10 @@ namespace MugenMvvmToolkit.Android.Modules
             var mediatorFactory = PlatformExtensions.MediatorFactory;
             PlatformExtensions.MediatorFactory = (item, dataContext, mediatorType) =>
             {
+#if !APPCOMPAT                
                 if (item is PreferenceActivity && typeof(IMvvmActivityMediator).IsAssignableFrom(mediatorType))
                     return new MvvmPreferenceActivityMediator((PreferenceActivity)item);
+#endif
                 if (item is Fragment && typeof(IMvvmFragmentMediator).IsAssignableFrom(mediatorType))
                     return new MvvmPreferenceFragmentMediator((Fragment)item);
                 return mediatorFactory?.Invoke(item, dataContext, mediatorType);

@@ -41,6 +41,7 @@ using MugenMvvmToolkit.Attributes;
 [assembly: InternalsVisibleTo("MugenMvvmToolkit.Android.AppCompat")]
 [assembly: InternalsVisibleTo("MugenMvvmToolkit.Android.RecyclerView")]
 [assembly: InternalsVisibleTo("MugenMvvmToolkit.Android.Design")]
+[assembly: InternalsVisibleTo("MugenMvvmToolkit.Android.Preference")]
 [assembly: InternalsVisibleTo("MugenMvvmToolkit.iOS")]
 [assembly: InternalsVisibleTo("MugenMvvmToolkit.Xamarin.Forms")]
 [assembly: InternalsVisibleTo("MugenMvvmToolkit.Xamarin.Forms.WinPhone")]
