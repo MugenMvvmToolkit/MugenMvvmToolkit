@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Test.TestViewModels
@@ -10,7 +11,7 @@ namespace MugenMvvmToolkit.Test.TestViewModels
 
         public bool CanCloseValue { get; set; }
 
-        public Func<object, Task<bool>> OnClosingCallback { get; set; }
+        public Func<IDataContext, object, Task<bool>> OnClosingCallback { get; set; }
 
         public bool OnClosedInvoke { get; set; }
 
@@ -23,17 +24,15 @@ namespace MugenMvvmToolkit.Test.TestViewModels
             return CanCloseValue;
         }
 
-        protected override Task<bool> OnClosing(object parameter)
+        protected override Task<bool> OnClosing(IDataContext context, object parameter)
         {
-            if (OnClosingCallback == null)
-                return Empty.TrueTask;
-            return OnClosingCallback(parameter);
+            return OnClosingCallback == null ? Empty.TrueTask : OnClosingCallback(context, parameter);
         }
 
-        protected override void OnClosed(object parameter)
+        protected override void OnClosed(IDataContext context, object parameter)
         {
             OnClosedInvoke = true;
-            base.OnClosed(parameter);
+            base.OnClosed(context, parameter);
         }
 
         #endregion

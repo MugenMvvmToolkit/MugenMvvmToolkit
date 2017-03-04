@@ -25,7 +25,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
         {
             ServiceProvider.OperationCallbackFactory = new SerializableOperationCallbackFactory(Serializer);
             var operation = new AsyncOperation<bool>();
-            IOperationResult<bool> result = OperationResult.CreateResult(OperationType.PageNavigation, this, true);
+            IOperationResult<bool> result = OperationResult.CreateResult<bool>(OperationType.PageNavigation, this, true);
 
             AsyncMethod(operation, true);
             var callback = operation.ToOperationCallback();

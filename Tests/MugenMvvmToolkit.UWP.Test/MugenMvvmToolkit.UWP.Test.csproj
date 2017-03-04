@@ -293,6 +293,9 @@
     <Compile Include="..\mugenmvvmtoolkit.wpf.test%284.5%29\testinfrastructure\IocContainerMock.cs">
       <Link>TestInfrastructure\IocContainerMock.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestInfrastructure\NavigationDispatcherMock.cs">
+      <Link>TestInfrastructure\NavigationDispatcherMock.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf.test%284.5%29\testinfrastructure\NavigationServiceMock.cs">
       <Link>TestInfrastructure\NavigationServiceMock.cs</Link>
     </Compile>
@@ -331,6 +334,9 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf.test%284.5%29\testinfrastructure\ViewManagerMock.cs">
       <Link>TestInfrastructure\ViewManagerMock.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF.Test%284.5%29\TestInfrastructure\ViewModelPresenterMock.cs">
+      <Link>TestInfrastructure\ViewModelPresenterMock.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf.test%284.5%29\testinfrastructure\ViewModelProviderMock.cs">
       <Link>TestInfrastructure\ViewModelProviderMock.cs</Link>

@@ -34,7 +34,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         public Type Type { get; set; }
 
-        public MemberInfo Member { get; set; }
+        public object Member { get; set; }
 
         public BindingMemberType MemberType { get; set; }
 

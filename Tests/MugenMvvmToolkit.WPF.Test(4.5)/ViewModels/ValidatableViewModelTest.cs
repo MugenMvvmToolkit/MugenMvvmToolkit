@@ -409,9 +409,11 @@ namespace MugenMvvmToolkit.Test.ViewModels
 
         #region Methods
 
-        protected virtual ValidatableViewModel GetValidatableViewModel()
+        protected virtual ValidatableViewModel GetValidatableViewModel(bool initialize = true)
         {
-            return GetViewModel<ValidatableViewModel>();
+            if (initialize)
+                return GetViewModel<ValidatableViewModel>();
+            return new ValidatableViewModel();
         }
 
         #endregion
@@ -428,6 +430,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
         protected override void OnInit()
         {
             ValidatorProvider = new ValidatorProvider();
+            base.OnInit();
         }
 
         #endregion
@@ -436,7 +439,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
 
         protected override ICloseableViewModel GetCloseableViewModelInternal()
         {
-            return GetValidatableViewModel();
+            return GetValidatableViewModel(false);
         }
 
         #endregion

@@ -129,6 +129,7 @@
     <Compile Include="Collections\FilterableNotifiableCollectionTest.cs" />
     <Compile Include="Infrastructure\Mediators\WindowViewMediatorBaseTest.cs" />
     <Compile Include="Infrastructure\Mediators\WindowViewMediatorTest.cs" />
+    <Compile Include="Infrastructure\Navigation\NavigationDispatcherTest.cs" />
     <Compile Include="Infrastructure\Navigation\NavigationProviderTest.cs" />
     <Compile Include="Collections\OrderedNotifiableCollectionTest.cs" />
     <Compile Include="Infrastructure\Presenters\DynamicMultiViewModelPresenterTest.cs" />
@@ -152,6 +153,7 @@
     <Compile Include="TestInfrastructure\DisplayNameProviderMock.cs" />
     <Compile Include="TestInfrastructure\EntitySnapshotMock.cs" />
     <Compile Include="TestInfrastructure\IocContainerMock.cs" />
+    <Compile Include="TestInfrastructure\NavigationDispatcherMock.cs" />
     <Compile Include="TestInfrastructure\NavigationServiceMock.cs" />
     <Compile Include="TestInfrastructure\NotifiableCollectionTracker.cs" />
     <Compile Include="TestInfrastructure\OperationCallbackFactoryMock.cs" />
@@ -164,6 +166,7 @@
     <Compile Include="TestInfrastructure\ThreadManagerMock.cs" />
     <Compile Include="TestInfrastructure\ValidationElementMock.cs" />
     <Compile Include="TestInfrastructure\ViewManagerMock.cs" />
+    <Compile Include="TestInfrastructure\ViewModelPresenterMock.cs" />
     <Compile Include="TestInfrastructure\ViewModelProviderMock.cs" />
     <Compile Include="TestInfrastructure\ViewPageMappingProviderMock.cs" />
     <Compile Include="TestModels\BusyTokenMock.cs" />

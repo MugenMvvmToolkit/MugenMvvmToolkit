@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Navigation;
@@ -10,6 +11,7 @@ using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
+using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Silverlight.Infrastructure;
@@ -63,7 +65,9 @@ namespace MugenMvvmToolkit.Test
 
         protected OperationCallbackManagerMock OperationCallbackManager { get; set; }
 
-        protected INavigationDispatcher NavigationDispatcher { get; set; }
+        protected NavigationDispatcherMock NavigationDispatcher { get; set; }
+
+        protected ViewModelPresenterMock ViewModelPresenter { get; set; }
 
         #endregion
 
@@ -82,12 +86,14 @@ namespace MugenMvvmToolkit.Test
                 typeof (IDisplayNameProvider),
                 typeof (IViewModelProvider),
                 typeof (OperationCallbackManagerMock),
-                typeof(INavigationDispatcher)
+                typeof(INavigationDispatcher),
+                typeof(IViewModelPresenter)
             };
             OperationCallbackManager = new OperationCallbackManagerMock();
-            NavigationDispatcher = new NavigationDispatcher(OperationCallbackManager);//todo fix
+            NavigationDispatcher = new NavigationDispatcherMock();
             ViewManager = new ViewManagerMock();
             ThreadManager = new ThreadManagerMock();
+            ViewModelPresenter = new ViewModelPresenterMock();
             ServiceProvider.ThreadManager = ThreadManager;
             DisplayNameProvider = new DisplayNameProviderMock();
             IocContainer = new IocContainerMock
@@ -162,6 +168,8 @@ namespace MugenMvvmToolkit.Test
                 return OperationCallbackManager;
             if (type == typeof(INavigationDispatcher))
                 return NavigationDispatcher;
+            if (type == typeof(IViewModelPresenter))
+                return ViewModelPresenter;
             return Activator.CreateInstance(type);
         }
 

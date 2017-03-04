@@ -1,13 +1,11 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
-using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Infrastructure.Presenters;
-using MugenMvvmToolkit.Interfaces.Callbacks;
+using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Test.TestInfrastructure;
 using MugenMvvmToolkit.Test.TestViewModels;
 using MugenMvvmToolkit.ViewModels;
 using Should;
@@ -24,8 +22,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Presenters
         {
             var vm = GetViewModel<NavigableViewModelMock>();
             var viewModel = GetMultiViewModel();
-            IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter(viewModel,
-                OperationCallbackManager, (model, context, arg3) => true);
+            IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter(viewModel, OperationCallbackManager, (model, context, arg3) => true);
             var task = presenter.TryShowAsync(vm, DataContext.Empty, null);
             task.ShouldNotBeNull();
             task.IsCompleted.ShouldBeFalse();
@@ -33,64 +30,28 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Presenters
         }
 
         [TestMethod]
-        public void PresentShouldInvokeCallbackOnRemove()
+        public void PresentShouldCloseViewModel()
         {
+            bool isInvoked = false;
             var vm = GetViewModel<NavigableViewModelMock>();
-            IOperationCallback operationCallback = null;
-            OperationCallbackManager.Register = (type, o, arg3, arg4) =>
-            {
-                type.ShouldEqual(OperationType.TabNavigation);
-                operationCallback = arg3;
-            };
-            OperationCallbackManager.SetResult = (o, result) =>
-            {
-                result.Operation.ShouldEqual(OperationType.TabNavigation);
-                o.ShouldEqual(vm);
-                operationCallback.Invoke(result);
-            };
-
-            vm.OperationResult = true;
             var viewModel = GetMultiViewModel();
-            ((SynchronizedNotifiableCollection<IViewModel>)viewModel.ItemsSource).ThreadManager = new ThreadManagerMock { IsUiThread = true };
-            IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter(viewModel,
-                OperationCallbackManager, (model, context, arg3) => true);
+            IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter(viewModel, OperationCallbackManager, (model, context, arg3) => true);
             var task = presenter.TryShowAsync(vm, DataContext.Empty, null);
             task.ShouldNotBeNull();
             task.IsCompleted.ShouldBeFalse();
-            viewModel.RemoveViewModelAsync(vm).Result.ShouldBeTrue();
-            task.IsCompleted.ShouldBeTrue();
-            task.Result.Result.ShouldEqual(true);
-            operationCallback.ShouldNotBeNull();
-        }
+            viewModel.ItemsSource.Contains(vm).ShouldBeTrue();
 
-        [TestMethod]
-        public void PresentShouldInvokeCallbackOnClear()
-        {
-            var vm = GetViewModel<NavigableViewModelMock>();
-            IOperationCallback operationCallback = null;
-            OperationCallbackManager.Register = (type, o, arg3, arg4) =>
+            ViewModelPresenter.CloseAsync = (model, context) =>
             {
-                type.ShouldEqual(OperationType.TabNavigation);
-                operationCallback = arg3;
+                isInvoked = true;
+                var navigationContext = (INavigationContext)context;
+                navigationContext.NavigationMode.ShouldEqual(NavigationMode.Remove);
+                navigationContext.NavigationType.ShouldEqual(NavigationType.Tab);
+                model.ShouldEqual(vm);
+                return Empty.TrueTask;
             };
-            OperationCallbackManager.SetResult = (o, result) =>
-            {
-                result.Operation.ShouldEqual(OperationType.TabNavigation);
-                o.ShouldEqual(vm);
-                operationCallback.Invoke(result);
-            };
-
-            vm.OperationResult = true;
-            var viewModel = GetMultiViewModel();
-            IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter(viewModel,
-                OperationCallbackManager);
-            var task = presenter.TryShowAsync(vm, DataContext.Empty, null);
-            task.ShouldNotBeNull();
-            task.IsCompleted.ShouldBeFalse();
-            viewModel.Clear();
-            task.IsCompleted.ShouldBeTrue();
-            task.Result.Result.ShouldEqual(true);
-            operationCallback.ShouldNotBeNull();
+            presenter.TryCloseAsync(vm, DataContext.Empty, null).Result.ShouldBeTrue();
+            isInvoked.ShouldBeTrue();
         }
 
         [TestMethod]

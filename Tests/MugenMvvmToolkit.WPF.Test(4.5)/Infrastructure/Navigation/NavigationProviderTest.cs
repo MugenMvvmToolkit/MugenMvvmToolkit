@@ -2,12 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using MugenMvvmToolkit.DataConstants;
-using MugenMvvmToolkit.Infrastructure.Navigation;
-using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Models.EventArg;
-using MugenMvvmToolkit.Silverlight.Infrastructure.Navigation;
 using MugenMvvmToolkit.Test.TestInfrastructure;
 using MugenMvvmToolkit.Test.TestModels;
 using MugenMvvmToolkit.Test.TestViewModels;
@@ -85,7 +80,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
                 {NavigationConstants.ViewModel, viewModel},
                 {NavigationConstants.ViewName, viewName}
             };
-            NavigationProvider.NavigateAsync(new OperationCallbackMock(), dataContext);
+            NavigationProvider.NavigateAsync(dataContext);
             isInvoked.ShouldBeTrue();
             isInvokedNavigate.ShouldBeTrue();
         }
@@ -117,78 +112,64 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
                 return true;
             };
 
-            NavigationProvider.NavigateAsync(new OperationCallbackMock(), new DataContext(NavigationConstants.ViewModel.ToValue(viewModel)));
+            NavigationProvider.NavigateAsync(new DataContext(NavigationConstants.ViewModel.ToValue(viewModel)));
             isInvoked.ShouldBeTrue();
             isInvokedNavigate.ShouldBeTrue();
         }
 
         [TestMethod]
-        public void ProviderShouldNavigateToViewModelAndRegisterCallback()
-        {
-            ThreadManager.ImmediateInvokeOnUiThreadAsync = true;
-            bool isInvoked = false;
-            var callbackMock = new OperationCallbackMock();
-            var viewModel = GetViewModel<NavigableViewModelMock>();
-            string param = null;
-            ViewPageMappingProvider.FindMappingForViewModel = (type, s, arg3) => PageMapping;
-            NavigationService.Navigate = (item, o, d) =>
-            {
-                param = o;
-                return true;
-            };
-            NavigationService.GetParameterFromArgs = args => param;
-            OperationCallbackManager.Register = (type, o, arg3, arg4) =>
-            {
-                type.ShouldEqual(OperationType.PageNavigation);
-                o.ShouldEqual(viewModel);
-                arg3.ShouldEqual(callbackMock);
-                isInvoked = true;
-            };
-            NavigationProvider.NavigateAsync(callbackMock, new DataContext(NavigationConstants.ViewModel.ToValue(viewModel)));
-            NavigationService.OnNavigated(new NavigationEventArgsMock(new ViewMock(), NavigationMode.New));
-            isInvoked.ShouldBeTrue();
-        }
-
-        [TestMethod]
-        public void ProviderShouldUpdateCloseCommandToGoBack()
+        public void ProviderShouldUpdateCanCloseMetadata()
         {
             ViewPageMappingProvider.FindMappingForView = (type, b) => PageMapping;
             var testView = new ViewMock();
             var viewModel = GetViewModel<NavigableViewModelMock>();
             testView.DataContext = viewModel;
 
-            viewModel.CloseCommand.ShouldBeNull();
+            viewModel.Settings.Metadata.GetData(ViewModelConstants.CanCloseHandler).ShouldBeNull();
             NavigationService.OnNavigated(new NavigationEventArgsMock(testView, NavigationMode.New));
 
-            viewModel.CloseCommand.CanExecute(null).ShouldBeFalse();
+            viewModel.Settings.Metadata.GetData(ViewModelConstants.CanCloseHandler).Invoke(viewModel, null).ShouldBeFalse();
             NavigationService.CanClose = (model, context) => true;
-            viewModel.CloseCommand.CanExecute(null).ShouldBeTrue();
+            viewModel.Settings.Metadata.GetData(ViewModelConstants.CanCloseHandler).Invoke(viewModel, null).ShouldBeTrue();
+        }
+
+        [TestMethod]
+        public void ProviderShouldNotCloseViewModelIfItIsNotOpened()
+        {
+            ViewPageMappingProvider.FindMappingForView = (type, b) => PageMapping;
+            var viewModel = GetViewModel<NavigableViewModelMock>();
 
             bool isInvoked = false;
+            NavigationService.CanClose = (model, context) => true;
             NavigationService.TryClose = (m, c) =>
             {
                 m.ShouldEqual(viewModel);
                 isInvoked = true;
                 return true;
             };
-            viewModel.CloseCommand.Execute(null);
-            isInvoked.ShouldBeTrue();
+            NavigationProvider.TryCloseAsync(new DataContext(NavigationConstants.ViewModel.ToValue(viewModel)));
+            isInvoked.ShouldBeFalse();
         }
 
         [TestMethod]
-        public void ProviderShouldUpdateCloseCommandToOldValue()
+        public void ProviderShouldCloseViewModel()
         {
             ViewPageMappingProvider.FindMappingForView = (type, b) => PageMapping;
-            var relayCommandMock = new RelayCommandMock();
+            var testView = new ViewMock();
             var viewModel = GetViewModel<NavigableViewModelMock>();
-            viewModel.CloseCommand = relayCommandMock;
+            testView.DataContext = viewModel;
+            NavigationService.OnNavigated(new NavigationEventArgsMock(testView, NavigationMode.New));
 
-
-            NavigationService.OnNavigated(new NavigationEventArgsMock(new ViewMock { DataContext = viewModel }, NavigationMode.New));
-            viewModel.CloseCommand.ShouldNotEqual(relayCommandMock);
-
-            NavigationService.OnNavigated(new NavigationEventArgsMock(null, NavigationMode.Back));
-            viewModel.CloseCommand.ShouldEqual(relayCommandMock);
+            bool isInvoked = false;
+            NavigationService.CanClose = (model, context) => true;
+            NavigationService.TryClose = (m, c) =>
+            {
+                m.ShouldEqual(viewModel);
+                isInvoked = true;
+                return true;
+            };
+            NavigationProvider.TryCloseAsync(new DataContext(NavigationConstants.ViewModel.ToValue(viewModel)));
+            isInvoked.ShouldBeTrue();
         }
 
         [TestMethod]
@@ -202,14 +183,14 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             var viewModel = GetViewModel<NavigableViewModelMock>();
             NavigationService.OnNavigated(new NavigationEventArgsMock(new ViewMock { DataContext = viewModel }, NavigationMode.New));
 
-            viewModel.OnNavigatingFromDelegate = context =>
+            NavigationDispatcher.OnNavigatingFromAsync = context =>
             {
                 isCancelInvoked = true;
                 context.NavigationProvider.ShouldEqual(NavigationProvider);
                 context.NavigationMode.ShouldEqual(mode);
                 return ToolkitExtensions.FromResult(false);
             };
-            viewModel.OnNavigatedFromDelegate = context => isNavigatedInvoked = true;
+            NavigationDispatcher.OnNavigated = context => isNavigatedInvoked = true;
 
             var cancelArgs = new NavigatingCancelEventArgsMock(mode, true) { Cancel = false };
             NavigationService.OnNavigating(cancelArgs);
@@ -229,14 +210,14 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             var viewModel = GetViewModel<NavigableViewModelMock>();
             NavigationService.OnNavigated(new NavigationEventArgsMock(new ViewMock { DataContext = viewModel }, NavigationMode.New));
 
-            viewModel.OnNavigatingFromDelegate = context =>
+            NavigationDispatcher.OnNavigatingFromAsync = context =>
             {
                 isCancelInvoked = true;
                 context.NavigationProvider.ShouldEqual(NavigationProvider);
                 context.NavigationMode.ShouldEqual(mode);
                 return ToolkitExtensions.FromResult(false);
             };
-            viewModel.OnNavigatedFromDelegate = context => isNavigatedInvoked = true;
+            NavigationDispatcher.OnNavigated = context => isNavigatedInvoked = true;
 
             var cancelArgs = new NavigatingCancelEventArgsMock(mode, false) { Cancel = false };
             NavigationService.OnNavigating(cancelArgs);
@@ -246,169 +227,22 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
         }
 
         [TestMethod]
-        public void ProviderShouldNotCallCloseAsyncMethodModeNotEqBack()
-        {
-            bool isCancelInvoked = false;
-            bool isNavigatedInvoked = false;
-            const NavigationMode mode = NavigationMode.Refresh;
-            ViewPageMappingProvider.FindMappingForView = (type, b) => PageMapping;
-            NavigationProvider.CurrentViewModel.ShouldBeNull();
-            var viewModel = GetViewModel<NavigableViewModelMock>();
-            NavigationService.OnNavigated(new NavigationEventArgsMock(new ViewMock { DataContext = viewModel }, NavigationMode.New));
-
-            viewModel.CloseDelegate = obj =>
-            {
-                isCancelInvoked = true;
-                var context = (INavigationContext)obj;
-                context.NavigationProvider.ShouldEqual(NavigationProvider);
-                context.NavigationMode.ShouldEqual(mode);
-                return ToolkitExtensions.FromResult(false);
-            };
-            viewModel.OnNavigatedFromDelegate = context => isNavigatedInvoked = true;
-
-            var cancelArgs = new NavigatingCancelEventArgsMock(mode, true) { Cancel = false };
-            NavigationService.OnNavigating(cancelArgs);
-            isCancelInvoked.ShouldBeFalse();
-            isNavigatedInvoked.ShouldBeFalse();
-        }
-
-        [TestMethod]
-        public void ProviderShouldCallCloseAsyncMethodOnBackNavigation()
-        {
-            bool isCancelInvoked = false;
-            bool isNavigatedInvoked = false;
-            const NavigationMode mode = NavigationMode.Back;
-            ViewPageMappingProvider.FindMappingForView = (type, b) => PageMapping;
-            NavigationProvider.CurrentViewModel.ShouldBeNull();
-            var viewModel = GetViewModel<NavigableViewModelMock>();
-            NavigationService.OnNavigated(new NavigationEventArgsMock(new ViewMock { DataContext = viewModel }, NavigationMode.New));
-
-            viewModel.CloseDelegate = obj =>
-            {
-                isCancelInvoked = true;
-                obj.ShouldBeNull();
-                return ToolkitExtensions.FromResult(false);
-            };
-            viewModel.OnNavigatedFromDelegate = context => isNavigatedInvoked = true;
-
-            var cancelArgs = new NavigatingCancelEventArgsMock(mode, true) { Cancel = false };
-            NavigationService.OnNavigating(cancelArgs);
-            cancelArgs.Cancel.ShouldBeTrue();
-            isCancelInvoked.ShouldBeTrue();
-            isNavigatedInvoked.ShouldBeFalse();
-        }
-
-        [TestMethod]
-        public void ProviderShouldCloseViewModelOnClosedEvent()
-        {
-            bool isInvoked = false;
-            ViewPageMappingProvider.FindMappingForView = (type, b) => PageMapping;
-            NavigationProvider.CurrentViewModel.ShouldBeNull();
-            var viewModel = GetViewModel<NavigableViewModelMock>();
-            NavigationService.OnNavigated(new NavigationEventArgsMock(new ViewMock { DataContext = viewModel }, NavigationMode.New));
-
-            NavigationService.TryClose = (model, context) =>
-            {
-                isInvoked = true;
-                model.ShouldEqual(viewModel);
-                return true;
-            };
-
-            isInvoked.ShouldBeFalse();
-            viewModel.OnClosed(new ViewModelClosedEventArgs(viewModel, viewModel));
-            isInvoked.ShouldBeTrue();
-        }
-
-        [TestMethod]
-        public void ProviderShouldCallOnNavigatedToMethod()
+        public void ProviderShouldCallOnNavigatedMethod()
         {
             bool isNavigatedInvoked = false;
             const NavigationMode mode = NavigationMode.Back;
             ViewPageMappingProvider.FindMappingForView = (type, b) => PageMapping;
             NavigationProvider.CurrentViewModel.ShouldBeNull();
             var viewModel = GetViewModel<NavigableViewModelMock>();
-            viewModel.OnNavigatedToDelegate = context =>
-            {
-                isNavigatedInvoked = true;
-                context.NavigationProvider.ShouldEqual(NavigationProvider);
-                context.NavigationMode.ShouldEqual(mode);
-            };
+            NavigationDispatcher.OnNavigated = context =>
+                    {
+                        isNavigatedInvoked = true;
+                        context.NavigationProvider.ShouldEqual(NavigationProvider);
+                        context.NavigationMode.ShouldEqual(mode);
+                    };
 
             NavigationService.OnNavigated(new NavigationEventArgsMock(new ViewMock { DataContext = viewModel }, mode));
             isNavigatedInvoked.ShouldBeTrue();
-        }
-
-        [TestMethod]
-        public void ProviderShouldCallOnNavigatedFromMethod()
-        {
-            bool isNavigatedInvoked = false;
-            const NavigationMode mode = NavigationMode.Back;
-            ViewPageMappingProvider.FindMappingForView = (type, b) => PageMapping;
-            NavigationProvider.CurrentViewModel.ShouldBeNull();
-            var viewModel = GetViewModel<NavigableViewModelMock>();
-            viewModel.OnNavigatedFromDelegate = context =>
-            {
-                isNavigatedInvoked = true;
-                context.NavigationProvider.ShouldEqual(NavigationProvider);
-                context.NavigationMode.ShouldEqual(mode);
-            };
-
-            NavigationService.OnNavigated(new NavigationEventArgsMock(new ViewMock { DataContext = viewModel }, mode));
-            isNavigatedInvoked.ShouldBeFalse();
-
-            NavigationService.OnNavigated(new NavigationEventArgsMock(null, mode));
-        }
-
-        [TestMethod]
-        public void ProviderShouldCompleteCallbackOnBackNavigation()
-        {
-            bool isInvoked = false;
-            var callbackMock = new OperationCallbackMock();
-            var viewModel = GetViewModel<NavigableViewModelMock>();
-            string param = null;
-            ViewPageMappingProvider.FindMappingForViewModel = (type, s, arg3) => PageMapping;
-            NavigationService.Navigate = (item, o, d) =>
-            {
-                param = o;
-                return true;
-            };
-            NavigationService.GetParameterFromArgs = args => param;
-            OperationCallbackManager.Register = (type, o, arg3, arg4) => { };
-            OperationCallbackManager.SetResult = (o, result) =>
-            {
-                isInvoked = true;
-            };
-            NavigationProvider.NavigateAsync(callbackMock, new DataContext(NavigationConstants.ViewModel.ToValue(viewModel)));
-            NavigationService.OnNavigated(new NavigationEventArgsMock(null, NavigationMode.New));
-
-            NavigationService.OnNavigated(new NavigationEventArgsMock(null, NavigationMode.Back));
-            isInvoked.ShouldBeTrue();
-        }
-
-        [TestMethod]
-        public void ProviderShouldNotCompleteCallbackNotOnBackNavigation()
-        {
-            bool isInvoked = false;
-            var callbackMock = new OperationCallbackMock();
-            var viewModel = GetViewModel<NavigableViewModelMock>();
-            string param = null;
-            ViewPageMappingProvider.FindMappingForViewModel = (type, s, arg3) => PageMapping;
-            NavigationService.Navigate = (item, o, d) =>
-            {
-                param = o;
-                return true;
-            };
-            NavigationService.GetParameterFromArgs = args => param;
-            OperationCallbackManager.Register = (type, o, arg3, arg4) => { };
-            OperationCallbackManager.SetResult = (o, result) =>
-            {
-                isInvoked = true;
-            };
-            NavigationProvider.NavigateAsync(callbackMock, new DataContext(NavigationConstants.ViewModel.ToValue(viewModel)));
-            NavigationService.OnNavigated(new NavigationEventArgsMock(null, NavigationMode.New));
-
-            NavigationService.OnNavigated(new NavigationEventArgsMock(null, NavigationMode.Refresh));
-            isInvoked.ShouldBeFalse();
         }
 
         #endregion
@@ -423,8 +257,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             base.OnInit();
             NavigationService = new NavigationServiceMock();
             ViewPageMappingProvider = new ViewPageMappingProviderMock();
-            NavigationProvider = new NavigationProvider(NavigationService, ThreadManager, ViewPageMappingProvider, ViewManager, ViewModelProvider, OperationCallbackManager,
-                NavigationDispatcher);
+            NavigationProvider = new NavigationProvider(NavigationService, ThreadManager, ViewPageMappingProvider, ViewManager, ViewModelProvider, NavigationDispatcher);
         }
 
         #endregion

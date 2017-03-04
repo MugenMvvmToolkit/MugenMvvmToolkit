@@ -4,20 +4,29 @@ using System.Windows.Input;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Test.TestViewModels
 {
-    public class NavigableViewModelMock : ViewModelBase, INavigableViewModel, IHasOperationResult, ICloseableViewModel, ISelectable
+    public class NavigableViewModelMock : ViewModelBase, INavigableViewModel, ICloseableViewModel, ISelectable
     {
         #region Properties
 
         public Func<INavigationContext, Task<bool>> OnNavigatingFromDelegate { get; set; }
-        public Func<object, Task<bool>> CloseDelegate { get; set; }
+
+        public Func<IDataContext, Task<bool>> ClosingDelegate { get; set; }
+
+        public Action<IDataContext> ClosedDelegate { get; set; }
+
         public Action<INavigationContext> OnNavigatedFromDelegate { get; set; }
+
         public Action<INavigationContext> OnNavigatedToDelegate { get; set; }
+
+        #region Implementation of ICloseableViewModel
+
+        public ICommand CloseCommand { get; set; }
+
+        #endregion
 
         #endregion
 
@@ -32,49 +41,12 @@ namespace MugenMvvmToolkit.Test.TestViewModels
 
         public void OnNavigatedFrom(INavigationContext context)
         {
-            if (OnNavigatedFromDelegate != null)
-                OnNavigatedFromDelegate(context);
+            OnNavigatedFromDelegate?.Invoke(context);
         }
 
         public void OnNavigatedTo(INavigationContext context)
         {
-            if (OnNavigatedToDelegate != null)
-                OnNavigatedToDelegate(context);
-        }
-
-        #endregion
-
-        #region Implementation of IHasOperationResult
-
-        public bool? OperationResult { get; set; }
-
-        #endregion
-
-        #region Implementation of ICloseableViewModel
-
-        public ICommand CloseCommand { get; set; }
-
-        public Task<bool> CloseAsync(object parameter = null)
-        {
-            if (CloseDelegate == null)
-                return Empty.TrueTask;
-            return CloseDelegate(parameter);
-        }
-
-        public event EventHandler<ICloseableViewModel, ViewModelClosingEventArgs> Closing;
-
-        public void OnClosing(ViewModelClosingEventArgs e)
-        {
-            var handler = Closing;
-            if (handler != null) handler(this, e);
-        }
-
-        public event EventHandler<ICloseableViewModel, ViewModelClosedEventArgs> Closed;
-
-        public void OnClosed(ViewModelClosedEventArgs e)
-        {
-            var handler = Closed;
-            if (handler != null) handler(this, e);
+            OnNavigatedToDelegate?.Invoke(context);
         }
 
         #endregion
@@ -82,6 +54,16 @@ namespace MugenMvvmToolkit.Test.TestViewModels
         #region Implementation of ISelectable
 
         public bool IsSelected { get; set; }
+
+        public Task<bool> OnClosingAsync(IDataContext context)
+        {
+            return ClosingDelegate?.Invoke(context);
+        }
+
+        public void OnClosed(IDataContext context)
+        {
+            ClosedDelegate?.Invoke(context);
+        }
 
         #endregion
     }

@@ -700,7 +700,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Accessors
             var sourceModel = new BindingSourceModel();
             string propertyName = GetMemberPath<BindingSourceModel>(model => model.IntProperty);
             var valueAccessor = GetAccessor(sourceModel, propertyName, EmptyContext, true);
-            BindingServiceProvider.ValueConverter = null;
+            BindingServiceProvider.ValueConverter = (info, type, arg3) => arg3;
 
             srcAccessor.GetValue = (info, context, arg3) =>
             {

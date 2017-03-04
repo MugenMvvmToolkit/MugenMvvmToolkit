@@ -1,35 +1,29 @@
-﻿using MugenMvvmToolkit.Models;
+﻿using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
-using MugenMvvmToolkit.Silverlight.Models.EventArg;
-using MugenMvvmToolkit.UWP.Models.EventArg;
-using MugenMvvmToolkit.WPF.Models.EventArg;
 
 namespace MugenMvvmToolkit.Test.TestModels
 {
     public class NavigationEventArgsMock : NavigationEventArgsBase
     {
-        #region Fields
-
-        private readonly object _content;
-        private readonly NavigationMode _mode;
-
-        #endregion
-
         #region Constructors
 
-        public NavigationEventArgsMock(object content, NavigationMode mode)
+        public NavigationEventArgsMock(object content, NavigationMode mode, IDataContext context = null)
         {
-            _content = content;
-            _mode = mode;
+            Content = content;
+            NavigationMode = mode;
+            Context = context;
         }
 
         #endregion
 
         #region Overrides of NavigationEventArgsBase
 
-        public override object Content => _content;
+        public override object Content { get; }
 
-        public override NavigationMode Mode => _mode;
+        public override NavigationMode NavigationMode { get; }
+
+        public override IDataContext Context { get; }
 
         #endregion
     }

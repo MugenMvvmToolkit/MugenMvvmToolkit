@@ -489,7 +489,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
         }
 
         [TestMethod]
-        public void VmShouldCallDisposedOnce3()
+        public virtual void VmShouldCallDisposedOnce3()
         {
             int count = 0;
             ViewModelBase viewModel = GetViewModelBase(new DataContext(InitializationConstants.IsRestored.ToValue(true)));

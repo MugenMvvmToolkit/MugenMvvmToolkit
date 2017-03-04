@@ -42,6 +42,10 @@ namespace MugenMvvmToolkit.Test.ViewModels
             viewModel.Entity.ShouldNotBeNull();
         }
 
+        public override void VmShouldCallDisposedOnce3()
+        {
+        }
+
         [TestMethod]
         public void IsEntityInitializedShouldBeFalseBeforeInitialized()
         {
@@ -446,7 +450,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
 
         #region Overrides of TestBase
 
-        protected override ValidatableViewModel GetValidatableViewModel()
+        protected override ValidatableViewModel GetValidatableViewModel(bool initialize = true)
         {
             StateManager.CreateSnapshot = o => new EntitySnapshotMock();
             var editableViewModel = GetViewModel<TestEditableViewModel>();

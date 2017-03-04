@@ -6,6 +6,8 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Silverlight.Binding.Modules;
 using MugenMvvmToolkit.UWP.Binding.Modules;
+using MugenMvvmToolkit.WPF.Binding;
+using MugenMvvmToolkit.UWP.Binding;
 using MugenMvvmToolkit.WPF.Binding.Modules;
 
 namespace MugenMvvmToolkit.Test
@@ -43,6 +45,7 @@ namespace MugenMvvmToolkit.Test
         protected override void OnInit()
         {
             BindingServiceProvider.SetDefaultValues();
+            BindingServiceProvider.ValueConverter = BindingConverterExtensions.Convert;
             base.OnInit();
             if (ValueConverterEx == null)
             {

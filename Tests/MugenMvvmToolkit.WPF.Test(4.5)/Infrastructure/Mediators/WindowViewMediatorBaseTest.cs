@@ -50,7 +50,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
                 return new DialogViewMock();
             };
 
-            windowMediator.ShowAsync(null, dataContext);
+            windowMediator.ShowAsync(dataContext);
             isInvoked.ShouldBeTrue();
         }
 
@@ -63,7 +63,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
             WindowViewMediatorBase<TView> windowMediator = Create(vm);
             windowMediator.IsOpen.ShouldBeFalse();
             view.IsShowAny.ShouldBeFalse();
-            windowMediator.ShowAsync(null, DataContext.Empty);
+            windowMediator.ShowAsync(DataContext.Empty);
             windowMediator.IsOpen.ShouldBeTrue();
             view.IsShowAny.ShouldBeTrue();
         }
@@ -75,9 +75,9 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
             var vm = GetViewModel<NavigableViewModelMock>();
             ViewManager.GetViewDelegate = (model, s) => view;
             WindowViewMediatorBase<TView> windowMediator = Create(vm);
-            windowMediator.ShowAsync(null, DataContext.Empty);
+            windowMediator.ShowAsync(DataContext.Empty);
             view.IsActivated.ShouldBeFalse();
-            windowMediator.ShowAsync(null, DataContext.Empty);
+            windowMediator.ShowAsync(DataContext.Empty);
             view.IsActivated.ShouldBeTrue();
         }
 
@@ -99,7 +99,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
             ViewManager.GetViewDelegate = (model, s) => view;
             WindowViewMediatorBase<TView> windowMediator = Create(vm);
             windowMediator.View.ShouldBeNull();
-            windowMediator.ShowAsync(null, DataContext.Empty);
+            windowMediator.ShowAsync(DataContext.Empty);
             windowMediator.View.ShouldEqual((TView)(object)view);
         }
 
@@ -111,155 +111,34 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
             ViewManager.GetViewDelegate = (model, s) => view;
             WindowViewMediatorBase<TView> windowMediator = Create(vm);
             windowMediator.View.ShouldBeNull();
-            windowMediator.ShowAsync(null, DataContext.Empty);
+            windowMediator.ShowAsync(DataContext.Empty);
             windowMediator.View.ShouldEqual((TView)(object)view);
             windowMediator.CloseAsync(null);
             windowMediator.View.ShouldBeNull();
         }
 
         [TestMethod]
-        public virtual void ShowCallbackShouldBeInvokedAfterWindowClosed()
-        {
-            var view = new DialogViewMock();
-            var vm = GetViewModel<NavigableViewModelMock>();
-            ViewManager.GetViewDelegate = (model, s) => view;
-            WindowViewMediatorBase<TView> windowMediator = Create(vm);
-
-            var mockCallback = new OperationCallbackMock();
-            bool isRegistered = false;
-            IOperationResult operationResult = null;
-            OperationCallbackManager.Register = (type, o, arg3, arg4) =>
-            {
-                type.ShouldEqual(OperationType.WindowNavigation);
-                o.ShouldEqual(vm);
-                arg3.ShouldEqual(mockCallback);
-                isRegistered = true;
-            };
-            OperationCallbackManager.SetResult = (o, result) =>
-            {
-                o.ShouldEqual(vm);
-                (result.OperationContext is INavigationContext).ShouldBeTrue();
-                operationResult = result;
-            };
-
-            windowMediator.ShowAsync(mockCallback, DataContext.Empty);
-            isRegistered.ShouldBeTrue();
-            windowMediator.CloseAsync(null).Result.ShouldBeTrue();
-            operationResult.ShouldNotBeNull();
-            operationResult.Result.ShouldBeNull();
-        }
-
-        [TestMethod]
-        public virtual void ShowCallbackShouldBeInvokedAfterWindowClosedTrueResult()
-        {
-            var view = new DialogViewMock();
-            var vm = GetViewModel<NavigableViewModelMock>();
-            ViewManager.GetViewDelegate = (model, s) => view;
-            WindowViewMediatorBase<TView> windowMediator = Create(vm);
-
-            var mockCallback = new OperationCallbackMock();
-            bool isRegistered = false;
-            IOperationResult operationResult = null;
-            OperationCallbackManager.Register = (type, o, arg3, arg4) =>
-            {
-                type.ShouldEqual(OperationType.WindowNavigation);
-                o.ShouldEqual(vm);
-                arg3.ShouldEqual(mockCallback);
-                isRegistered = true;
-            };
-            OperationCallbackManager.SetResult = (o, result) =>
-            {
-                o.ShouldEqual(vm);
-                (result.OperationContext is INavigationContext).ShouldBeTrue();
-                operationResult = result;
-            };
-
-            windowMediator.ShowAsync(mockCallback, DataContext.Empty);
-            isRegistered.ShouldBeTrue();
-
-            vm.OperationResult = true;
-            windowMediator.CloseAsync(null).Result.ShouldBeTrue();
-            operationResult.ShouldNotBeNull();
-            operationResult.Result.ShouldEqual(true);
-        }
-
-        [TestMethod]
-        public virtual void MediatorShouldCallCloseAsynMethodOnClose()
-        {
-            bool result = false;
-            bool isInvoked = false;
-            var view = new DialogViewMock();
-            var vm = GetViewModel<NavigableViewModelMock>();
-            ViewManager.GetViewDelegate = (model, s) => view;
-            WindowViewMediatorBase<TView> windowMediator = Create(vm);
-            vm.CloseDelegate = o =>
-            {
-                isInvoked = true;
-                return ToolkitExtensions.FromResult(result);
-            };
-            windowMediator.ShowAsync(null, DataContext.Empty);
-            windowMediator.CloseAsync(null).Result.ShouldBeFalse();
-            isInvoked.ShouldBeTrue();
-
-            isInvoked = false;
-            result = true;
-            windowMediator.CloseAsync(null).Result.ShouldBeTrue();
-            isInvoked.ShouldBeTrue();
-        }
-
-        [TestMethod]
-        public virtual void ClosedEventFromViewModelShouldCloseWindow()
-        {
-            var view = new DialogViewMock();
-            var vm = GetViewModel<NavigableViewModelMock>();
-            ViewManager.GetViewDelegate = (model, s) => view;
-            WindowViewMediatorBase<TView> windowMediator = Create(vm);
-
-            IOperationResult operationResult = null;
-            OperationCallbackManager.SetResult = (o, result) => operationResult = result;
-
-            windowMediator.ShowAsync(null, DataContext.Empty);
-            vm.OnClosed(new ViewModelClosedEventArgs(vm, null));
-            operationResult.ShouldNotBeNull();
-            windowMediator.IsOpen.ShouldBeFalse();
-        }
-
-        [TestMethod]
-        public virtual void ClosingEventFromViewShouldCloseWindow()
-        {
-            var view = new DialogViewMock();
-            var vm = GetViewModel<NavigableViewModelMock>();
-            ViewManager.GetViewDelegate = (model, s) => view;
-            WindowViewMediatorBase<TView> windowMediator = Create(vm);
-
-            IOperationResult operationResult = null;
-            OperationCallbackManager.SetResult = (o, result) => operationResult = result;
-
-            windowMediator.ShowAsync(null, DataContext.Empty);
-            view.Close();
-            operationResult.ShouldNotBeNull();
-            windowMediator.IsOpen.ShouldBeFalse();
-        }
-
-        [TestMethod]
-        public virtual void MediatorShouldCallOnNavigatedToMethodOnShow()
+        public virtual void MediatorShouldCallOnNavigatedOnShow()
         {
             bool isInvoked = false;
             var view = new DialogViewMock();
             var vm = GetViewModel<NavigableViewModelMock>();
             ViewManager.GetViewDelegate = (model, s) => view;
             WindowViewMediatorBase<TView> windowMediator = Create(vm);
-            vm.OnNavigatedToDelegate = context =>
+            NavigationDispatcher.OnNavigated = context =>
             {
                 isInvoked = true;
                 context.ShouldNotBeNull();
+                context.NavigationMode.ShouldEqual(NavigationMode.New);
+                context.NavigationType.ShouldEqual(NavigationType.Window);
+                context.ViewModelTo.ShouldEqual(vm);
             };
-            windowMediator.ShowAsync(null, DataContext.Empty);
+            windowMediator.ShowAsync(DataContext.Empty);
             isInvoked.ShouldBeTrue();
         }
 
         [TestMethod]
-        public virtual void MediatorShouldCallOnNavigatingFromMethodOnClose()
+        public virtual void MediatorShouldCallOnNavigatingOnClose()
         {
             bool result = false;
             bool isInvoked = false;
@@ -267,13 +146,16 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
             var vm = GetViewModel<NavigableViewModelMock>();
             ViewManager.GetViewDelegate = (model, s) => view;
             WindowViewMediatorBase<TView> windowMediator = Create(vm);
-            vm.OnNavigatingFromDelegate = o =>
+            NavigationDispatcher.OnNavigatingFromAsync = context =>
             {
-                o.ShouldNotBeNull();
                 isInvoked = true;
+                context.ShouldNotBeNull();
+                context.NavigationMode.ShouldEqual(NavigationMode.Back);
+                context.NavigationType.ShouldEqual(NavigationType.Window);
+                context.ViewModelFrom.ShouldEqual(vm);
                 return ToolkitExtensions.FromResult(result);
             };
-            windowMediator.ShowAsync(null, DataContext.Empty);
+            windowMediator.ShowAsync(DataContext.Empty);
             windowMediator.CloseAsync(null).Result.ShouldBeFalse();
             isInvoked.ShouldBeTrue();
 
@@ -291,12 +173,15 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
             var vm = GetViewModel<NavigableViewModelMock>();
             ViewManager.GetViewDelegate = (model, s) => view;
             WindowViewMediatorBase<TView> windowMediator = Create(vm);
-            vm.OnNavigatedFromDelegate = o =>
+            NavigationDispatcher.OnNavigated = context =>
             {
-                o.ShouldNotBeNull();
                 isInvoked = true;
+                context.ShouldNotBeNull();
+                context.NavigationMode.ShouldEqual(NavigationMode.Back);
+                context.NavigationType.ShouldEqual(NavigationType.Window);
+                context.ViewModelFrom.ShouldEqual(vm);
             };
-            windowMediator.ShowAsync(null, DataContext.Empty);
+            windowMediator.ShowAsync(DataContext.Empty);
             windowMediator.CloseAsync(null).Result.ShouldBeTrue();
             isInvoked.ShouldBeTrue();
         }

@@ -21,7 +21,9 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
         protected override WindowViewMediatorBase<IWindowView> Create(IViewModel viewModel, IThreadManager threadManager, IViewManager viewManager,
             IWrapperManager wrapperManager, IOperationCallbackManager callbackManager, INavigationDispatcher navigationDispatcher)
         {
-            return new WindowViewMediator(viewModel, threadManager, viewManager, wrapperManager, callbackManager, navigationDispatcher);
+            var mediator = new WindowViewMediator(threadManager, viewManager, wrapperManager, navigationDispatcher);
+            mediator.Initialize(viewModel, null);
+            return mediator;
         }
 
         #endregion

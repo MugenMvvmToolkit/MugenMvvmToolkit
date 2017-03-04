@@ -1,16 +1,13 @@
-﻿using System;
-using System.Threading.Tasks;
-using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
+﻿using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Test.TestModels;
 using MugenMvvmToolkit.ViewModels;
 using Should;
 
 namespace MugenMvvmToolkit.Test.ViewModels
 {
     [TestClass]
-    public class CloseableViewModelTest : TestBase
+    public class CloseableViewModelTest : ViewModelBaseTest
     {
         #region Nested types
 
@@ -28,77 +25,21 @@ namespace MugenMvvmToolkit.Test.ViewModels
         {
             var param = new object();
             bool isInvoked = false;
-            bool isClosingInvoked = false;
             var closeableViewModel = GetCloseableViewModel();
-            closeableViewModel.Closing += (model, args) =>
-                                                 {
-                                                     args.Parameter.ShouldEqual(param);
-                                                     isClosingInvoked = true;
-                                                 };
-            closeableViewModel.Closed += (model, args) =>
-                                                {
-                                                    args.Parameter.ShouldEqual(param);
-                                                    isInvoked = true;
-                                                };
-            closeableViewModel.CloseCommand.Execute(param);
-            isInvoked.ShouldBeTrue();
-            isClosingInvoked.ShouldBeTrue();
-        }
-
-        [TestMethod]
-        public void CloseCommandShouldCloseVmImmediateWithParameter()
-        {
-            bool isInvoked = false;
-            bool isClosingInvoked = false;
-            var closeableViewModel = GetCloseableViewModel();
-            closeableViewModel.Closing += (model, args) =>
-            {
-                isClosingInvoked = true;
-            };
-            closeableViewModel.Closed += (model, args) =>
+            ViewModelPresenter.CloseAsync += (model, context) =>
             {
                 isInvoked = true;
+                model.ShouldEqual(closeableViewModel);
+                return Empty.TrueTask;
             };
-            closeableViewModel.CloseCommand.Execute(CloseableViewModel.ImmediateCloseParameter);
-            isClosingInvoked.ShouldBeFalse();
+            closeableViewModel.CloseCommand.Execute(param);
             isInvoked.ShouldBeTrue();
         }
-
-        [TestMethod]
-        public void CloseShouldThrowExceptionIfClosedEventThrow()
-        {
-            var closeableViewModel = GetCloseableViewModel();
-            closeableViewModel.Closed += (model, parameter) =>
-            {
-                throw new TestException();
-            };
-            ShouldThrow<TestException>(() => closeableViewModel.CloseAsync(null).Wait());
-        }
-
-        [TestMethod]
-        public void CloseShouldRedirectExceptionToTask()
-        {
-            var exc = new Exception();
-
-            var closeableViewModel = GetCloseableViewModel();
-            closeableViewModel.Closed += (model, parameter) =>
-            {
-                throw exc;
-            };
-            var close = closeableViewModel.CloseAsync(null);
-            close.Status.ShouldEqual(TaskStatus.Faulted);
-            Exception exception = close.Exception;
-            while (exception is AggregateException)
-            {
-                exception = exception.InnerException;
-            }
-            exception.ShouldEqual(exc);
-        }
-
 
         [TestMethod]
         public void CloseShouldReturnTrueIfWasClosedSuccessfully()
         {
+            ViewModelPresenter.CloseAsync += (model, context) => Empty.TrueTask;
             var closeableViewModel = GetCloseableViewModel();
             closeableViewModel.CloseAsync(null).Result.ShouldBeTrue();
         }
@@ -106,8 +47,8 @@ namespace MugenMvvmToolkit.Test.ViewModels
         [TestMethod]
         public void CloseShouldReturnFalseIfWasClosedNotSuccessfully()
         {
+            ViewModelPresenter.CloseAsync += (model, context) => Empty.FalseTask;
             var closeableViewModel = GetCloseableViewModel();
-            closeableViewModel.Closing += (model, args) => args.Cancel = true;
             closeableViewModel.CloseAsync(null).Result.ShouldBeFalse();
         }
 
@@ -125,6 +66,12 @@ namespace MugenMvvmToolkit.Test.ViewModels
         protected virtual ICloseableViewModel GetCloseableViewModelInternal()
         {
             return new CloseableViewModelImpl();
+        }
+
+        protected override void OnInit()
+        {
+            base.OnInit();
+            GetViewModelBaseDelegate = () => (ViewModelBase)GetCloseableViewModelInternal();
         }
 
         #endregion

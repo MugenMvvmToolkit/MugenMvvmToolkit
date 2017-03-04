@@ -1,11 +1,7 @@
 ﻿using System;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Silverlight.Interfaces.Navigation;
-using MugenMvvmToolkit.Silverlight.Models.EventArg;
-using MugenMvvmToolkit.UWP.Interfaces.Navigation;
-using MugenMvvmToolkit.UWP.Models.EventArg;
 using MugenMvvmToolkit.WPF.Interfaces.Navigation;
-using MugenMvvmToolkit.WPF.Models.EventArg;
 #if NETFX_CORE || WINDOWS_UWP
 using Windows.UI.Xaml.Navigation;
 #elif ANDROID
@@ -14,17 +10,15 @@ using Android.App;
 using System.Windows.Navigation;
 #endif
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
+using MugenMvvmToolkit.UWP.Interfaces.Navigation;
 
 namespace MugenMvvmToolkit.Test.TestInfrastructure
 {
     public class NavigationServiceMock : INavigationService
     {
         #region Properties
-
-        public Action GoBack { get; set; }
 
         public Func<EventArgs, string> GetParameterFromArgs { get; set; }
 
@@ -33,36 +27,21 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         public Func<IViewMappingItem, string, IDataContext, bool> Navigate { get; set; }
 
         public Func<IViewModel, IDataContext, bool> TryClose { get; set; }
+
         public Func<IViewModel, IDataContext, bool> CanClose { get; set; }
 
         #endregion
 
         #region Implementation of INavigationService
 
-        public bool CanGoBack { get; set; }
-
         public object CurrentContent { get; set; }
-
-        void INavigationService.GoBack()
-        {
-            GoBack?.Invoke();
-        }
-
-#if WPF
-        JournalEntry INavigationService.RemoveBackEntry()
-        {
-            throw new NotSupportedException();
-        }
-#endif
 
         string INavigationService.GetParameterFromArgs(EventArgs args)
         {
-            if (GetParameterFromArgs == null)
-                return null;
-            return GetParameterFromArgs(args);
+            return GetParameterFromArgs?.Invoke(args);
         }
 
-        bool INavigationService.Navigate(NavigatingCancelEventArgsBase args, IDataContext dataContext)
+        bool INavigationService.Navigate(NavigatingCancelEventArgsBase args)
         {
             if (NavigateArgs == null)
                 return false;
@@ -76,16 +55,16 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
             return Navigate(source, parameter, dataContext);
         }
 
-        bool INavigationService.CanClose(IViewModel viewModel, IDataContext dataContext)
+        bool INavigationService.CanClose(IDataContext dataContext)
         {
-            return CanClose != null && CanClose(viewModel, dataContext);
+            return CanClose != null && CanClose(dataContext.GetData(NavigationConstants.ViewModel), dataContext);
         }
 
-        bool INavigationService.TryClose(IViewModel viewModel, IDataContext dataContext)
+        bool INavigationService.TryClose(IDataContext dataContext)
         {
             if (TryClose == null)
                 return false;
-            return TryClose(viewModel, dataContext);
+            return TryClose(dataContext.GetData(NavigationConstants.ViewModel), dataContext);
         }
 
         public event EventHandler<INavigationService, NavigatingCancelEventArgsBase> Navigating;
@@ -98,14 +77,12 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         public virtual void OnNavigated(NavigationEventArgsBase e)
         {
-            EventHandler<INavigationService, NavigationEventArgsBase> handler = Navigated;
-            if (handler != null) handler(this, e);
+            Navigated?.Invoke(this, e);
         }
 
         public virtual void OnNavigating(NavigatingCancelEventArgsBase e)
         {
-            EventHandler<INavigationService, NavigatingCancelEventArgsBase> handler = Navigating;
-            if (handler != null) handler(this, e);
+            Navigating?.Invoke(this, e);
         }
 
         #endregion
