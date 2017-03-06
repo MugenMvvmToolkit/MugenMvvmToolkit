@@ -27,8 +27,10 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.DataConstants;
+using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces.Collections;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
@@ -51,6 +53,7 @@ namespace MugenMvvmToolkit.ViewModels
         private EventHandler<IMultiViewModel, SelectedItemChangedEventArgs<IViewModel>> _selectedItemChangedNonGeneric;
         private EventHandler<IMultiViewModel, ValueEventArgs<IViewModel>> _viewModelAddedNonGeneric;
         private EventHandler<IMultiViewModel, ValueEventArgs<IViewModel>> _viewModelRemovedNonGeneric;
+        private static INavigationDispatcher _navigationDispatcher;
 
         #endregion
 
@@ -66,7 +69,20 @@ namespace MugenMvvmToolkit.ViewModels
             _propertyChangedWeakEventHandler = ReflectionExtensions.MakeWeakPropertyChangedHandler(this, (model, o, arg3) => model.OnItemPropertyChanged(o, arg3));
             DisposeViewModelOnRemove = ApplicationSettings.MultiViewModelDisposeViewModelOnRemove;
             CloseViewModelsOnClose = ApplicationSettings.MultiViewModelCloseViewModelsOnClose;
-            this.GetOrAddNavigationMediator();
+        }
+
+        #endregion
+
+        #region Properties
+
+        private INavigationDispatcher NavigationDispatcher
+        {
+            get
+            {
+                if (_navigationDispatcher == null)
+                    _navigationDispatcher = this.GetIocContainer(true).Get<INavigationDispatcher>();
+                return _navigationDispatcher;
+            }
         }
 
         #endregion
@@ -354,6 +370,7 @@ namespace MugenMvvmToolkit.ViewModels
                         if (selectable.IsSelected)
                             selectable.IsSelected = false;
                     }
+                    NavigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Tab, NavigationMode.Remove, viewModel, null, this));
                     OnViewModelRemoved(viewModel);
                     RaiseViewModelRemoved(viewModel);
                     if (DisposeViewModelOnRemove)
@@ -387,6 +404,7 @@ namespace MugenMvvmToolkit.ViewModels
             if (selectable != null)
                 selectable.IsSelected = true;
 
+            NavigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Tab, NavigationMode.Refresh, oldValue, newValue, this));
             OnSelectedItemChanged(oldValue, newValue);
             RaiseSelectedItemChanged(oldValue, newValue);
         }

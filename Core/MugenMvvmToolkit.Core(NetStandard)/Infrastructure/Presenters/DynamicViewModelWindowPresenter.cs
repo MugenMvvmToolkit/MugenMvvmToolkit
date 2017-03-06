@@ -23,6 +23,7 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
+using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Mediators;
@@ -117,15 +118,20 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         #region Methods
 
         public void RegisterMediatorFactory<TMediator, TView>(bool viewExactlyEqual = false)
-            where TMediator : IWindowViewMediator
+            where TMediator : WindowViewMediatorBase<TView>
             where TView : class
+        {
+            RegisterMediatorFactory(typeof(TMediator), typeof(TView), viewExactlyEqual);
+        }
+
+        public void RegisterMediatorFactory(Type mediatorType, Type viewType, bool viewExactlyEqual)
         {
             if (viewExactlyEqual)
             {
                 RegisterMediatorFactory((vm, type, arg3) =>
                 {
-                    if (type == typeof(TView))
-                        return vm.GetIocContainer(true).Get<TMediator>();
+                    if (type == viewType)
+                        return (IWindowViewMediator)vm.GetIocContainer(true).Get(mediatorType);
                     return null;
                 });
             }
@@ -133,8 +139,8 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             {
                 RegisterMediatorFactory((vm, type, arg3) =>
                 {
-                    if (typeof(TView).IsAssignableFrom(type) || WrapperManager.CanWrap(type, typeof(TView), arg3))
-                        return vm.GetIocContainer(true).Get<TMediator>();
+                    if (viewType.IsAssignableFrom(type) || WrapperManager.CanWrap(type, viewType, arg3))
+                        return (IWindowViewMediator)vm.GetIocContainer(true).Get(mediatorType);
                     return null;
                 });
             }

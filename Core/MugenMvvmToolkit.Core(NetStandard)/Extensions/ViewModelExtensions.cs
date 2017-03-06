@@ -287,13 +287,6 @@ namespace MugenMvvmToolkit.ViewModels
             viewModel.Publish(viewModel, StateChangedMessage.Empty);
         }
 
-        public static MultiViewModelNavigationMediator GetOrAddNavigationMediator(this IMultiViewModel multiViewModel)
-        {
-            return ServiceProvider
-                .AttachedValueProvider
-                .GetOrAdd(multiViewModel, nameof(GetOrAddNavigationMediator), (model, o) => new MultiViewModelNavigationMediator(model), null);
-        }
-
         private static DataConstantValue[] MergeParameters(IViewModel parentViewModel, ObservationMode? observationMode, DataConstantValue[] parameters)
         {
             if (observationMode == null && parentViewModel == null)

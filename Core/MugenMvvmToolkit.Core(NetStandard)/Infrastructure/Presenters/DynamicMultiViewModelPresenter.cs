@@ -53,7 +53,6 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             MultiViewModel = multiViewModel;
             CallbackManager = callbackManager ?? multiViewModel.GetIocContainer(true).Get<IOperationCallbackManager>();
             CanShowViewModel = canShowViewModel;
-            multiViewModel.GetOrAddNavigationMediator();
         }
 
         #endregion
