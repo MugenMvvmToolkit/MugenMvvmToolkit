@@ -1,8 +1,8 @@
 #region Copyright
 
 // ****************************************************************************
-// <copyright file="PlatformDataBindingModuleCompat.cs">
-// Copyright (c) 2012-2016 Vyacheslav Volkov
+// <copyright file="CompatAttachedMembersRegistration.cs">
+// Copyright (c) 2012-2017 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>

@@ -1,8 +1,8 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="ActionBarModule.cs">
-// Copyright (c) 2012-2016 Vyacheslav Volkov
+// <copyright file="ActionBarMembersRegistration.cs">
+// Copyright (c) 2012-2017 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>

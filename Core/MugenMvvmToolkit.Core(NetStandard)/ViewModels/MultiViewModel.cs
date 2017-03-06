@@ -2,7 +2,7 @@
 
 // ****************************************************************************
 // <copyright file="MultiViewModel.cs">
-// Copyright (c) 2012-2016 Vyacheslav Volkov
+// Copyright (c) 2012-2017 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
 // <author>Vyacheslav Volkov</author>
@@ -52,7 +52,7 @@ namespace MugenMvvmToolkit.ViewModels
         private EventHandler<IMultiViewModel, SelectedItemChangedEventArgs<IViewModel>> _selectedItemChangedNonGeneric;
         private EventHandler<IMultiViewModel, ValueEventArgs<IViewModel>> _viewModelAddedNonGeneric;
         private EventHandler<IMultiViewModel, ValueEventArgs<IViewModel>> _viewModelRemovedNonGeneric;
-        private static INavigationDispatcher _navigationDispatcher;
+        private INavigationDispatcher _navigationDispatcher;
 
         #endregion
 
