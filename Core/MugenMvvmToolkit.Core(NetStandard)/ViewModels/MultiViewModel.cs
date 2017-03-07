@@ -45,7 +45,6 @@ namespace MugenMvvmToolkit.ViewModels
         private readonly INotifiableCollection<TViewModel> _itemsSource;
         private readonly PropertyChangedEventHandler _propertyChangedWeakEventHandler;
 
-        private bool _clearing;
         private TViewModel _selectedItem;
         private bool _disposeViewModelOnRemove;
         private bool _closeViewModelsOnClose;
@@ -53,6 +52,7 @@ namespace MugenMvvmToolkit.ViewModels
         private EventHandler<IMultiViewModel, ValueEventArgs<IViewModel>> _viewModelAddedNonGeneric;
         private EventHandler<IMultiViewModel, ValueEventArgs<IViewModel>> _viewModelRemovedNonGeneric;
         private INavigationDispatcher _navigationDispatcher;
+        private INavigationContext _lastRemoveContext;
 
         #endregion
 
@@ -161,19 +161,11 @@ namespace MugenMvvmToolkit.ViewModels
             return RemoveViewModelInternalAsync(viewModel, context);
         }
 
-        public void Clear()
+        public Task<bool> ClearAsync(IDataContext context = null)
         {
             if (ItemsSource.Count == 0)
-                return;
-            try
-            {
-                _clearing = true;
-                ClearInternal();
-            }
-            catch
-            {
-                _clearing = false;
-            }
+                return Empty.TrueTask;
+            return ClearInternalAsync(context ?? DataContext.Empty);
         }
 
         void IMultiViewModel.AddViewModel(IViewModel viewModel, bool setSelected)
@@ -273,22 +265,24 @@ namespace MugenMvvmToolkit.ViewModels
         {
             if (!ItemsSource.Contains(viewModel))
                 return Empty.FalseTask;
+            var removeCtx = new NavigationContext(NavigationType.Tab, NavigationMode.Remove, viewModel, null, this, context);
             return viewModel
-                .CloseAsync(new NavigationContext(NavigationType.Tab, NavigationMode.Remove, viewModel, SelectedItem, this, context))
+                .CloseAsync()
                 .TryExecuteSynchronously(task =>
                 {
                     if (task.Result)
+                    {
+                        _lastRemoveContext = removeCtx;
                         ItemsSource.Remove(viewModel);
+                    }
                     return task.Result;
                 });
         }
 
-        protected virtual void ClearInternal()
+        protected virtual Task<bool> ClearInternalAsync(IDataContext context)
         {
-            var viewModels = ItemsSource.ToArrayEx();
-            ItemsSource.Clear();
-            SelectedItem = null;
-            OnViewModelsChanged(null, viewModels, 0);
+            var viewModels = ItemsSource.ToList();
+            return CloseAllAsync(viewModels, context);
         }
 
         protected virtual void OnSelectedItemChanged(TViewModel oldValue, TViewModel newValue)
@@ -330,10 +324,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         private void OnViewModelsChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            if (_clearing)
-                _clearing = false;
-            else
-                Should.BeSupported(e.Action != NotifyCollectionChangedAction.Reset, "The MultiViewModel.ItemsSource doesn't support Clear method.");
+            Should.BeSupported(e.Action != NotifyCollectionChangedAction.Reset, "The MultiViewModel.ItemsSource doesn't support Clear method.");
             OnViewModelsChanged(e.NewItems, e.OldItems, e.OldStartingIndex);
         }
 
@@ -349,6 +340,7 @@ namespace MugenMvvmToolkit.ViewModels
                     var selectable = viewModel as ISelectable;
                     if (selectable != null)
                         selectable.PropertyChanged += _propertyChangedWeakEventHandler;
+                    NavigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Tab, NavigationMode.New, null, viewModel, this));
                     OnViewModelAdded(viewModel);
                     RaiseViewModelAdded(viewModel);
                 }
@@ -369,7 +361,11 @@ namespace MugenMvvmToolkit.ViewModels
                         if (selectable.IsSelected)
                             selectable.IsSelected = false;
                     }
-                    NavigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Tab, NavigationMode.Remove, viewModel, null, this));
+                    INavigationContext context = _lastRemoveContext;
+                    _lastRemoveContext = null;
+                    if (context == null || context.ViewModelFrom != viewModel)
+                        context = new NavigationContext(NavigationType.Tab, NavigationMode.Remove, viewModel, null, this);
+                    NavigationDispatcher.OnNavigated(context);
                     OnViewModelRemoved(viewModel);
                     RaiseViewModelRemoved(viewModel);
                     if (DisposeViewModelOnRemove)
@@ -408,27 +404,36 @@ namespace MugenMvvmToolkit.ViewModels
             RaiseSelectedItemChanged(oldValue, newValue);
         }
 
-        private bool OnClosingInternal(object contextObj)
+        private Task<bool> CloseAllAsync(List<TViewModel> viewModels, IDataContext context)
         {
-            var context = (IDataContext)contextObj;
-            var viewModels = ItemsSource.ToList();
-            int count = viewModels.Count;
-            for (int i = 0; i < count; i++)
+            Task<bool> task = null;
+            for (var index = 0; index < viewModels.Count; index++)
             {
-                var vm = viewModels[i];
-                if (!vm.CloseAsync(new NavigationContext(NavigationType.Tab, NavigationMode.Remove, vm, null, this, context)).Result)
-                {
-                    viewModels.RemoveRange(i, count - i);
+                var viewModel = viewModels[index];
+                task = RemoveViewModelAsync(viewModel, context);
+                if (!task.IsCompleted)
                     break;
-                }
+
+                if (!task.Result)
+                    return Empty.FalseTask;
+                task = null;
+                viewModels.RemoveAt(index);
+                --index;
             }
-            if (viewModels.Count == count)
+            if (task == null)
             {
-                Clear();
-                return true;
+                SelectedItem = null;
+                return Empty.TrueTask;
             }
-            ItemsSource.RemoveRange(viewModels);
-            return false;
+            return task.ContinueWith(t =>
+            {
+                if (t.Result)
+                {
+                    viewModels.RemoveAt(0);
+                    return CloseAllAsync(viewModels, context);
+                }
+                return Empty.FalseTask;
+            }, TaskContinuationOptions.ExecuteSynchronously).Unwrap();
         }
 
         private void OnItemPropertyChanged(object sender, PropertyChangedEventArgs args)
@@ -462,7 +467,7 @@ namespace MugenMvvmToolkit.ViewModels
         protected override Task<bool> OnClosing(IDataContext context, object parameter)
         {
             if (CloseViewModelsOnClose && ItemsSource.Count != 0)
-                return Task.Factory.StartNew(function: OnClosingInternal, state: context);
+                return ClearAsync(context);
             return base.OnClosing(context, parameter);
         }
 

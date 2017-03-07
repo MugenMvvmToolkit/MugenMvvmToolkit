@@ -44,7 +44,7 @@ namespace MugenMvvmToolkit.Interfaces.ViewModels
 
         Task<bool> RemoveViewModelAsync([NotNull] IViewModel viewModel, IDataContext context = null);
 
-        void Clear();
+        Task<bool> ClearAsync(IDataContext context = null);
 
         [Preserve(Conditional = true)]
         event EventHandler<IMultiViewModel, SelectedItemChangedEventArgs<IViewModel>> SelectedItemChanged;
