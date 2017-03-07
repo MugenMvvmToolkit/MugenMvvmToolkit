@@ -156,13 +156,17 @@ namespace MugenMvvmToolkit.Test.ViewModels
         [TestMethod]
         public void ClearShouldDisposeVmIfSetToTrue()
         {
+            ThreadManager.ImmediateInvokeOnUiThreadAsync = true;
+            ThreadManager.ImmediateInvokeOnUiThread = true;
+            NavigationDispatcher.OnNavigatingFromAsync = context => Empty.TrueTask;
+            ViewModelPresenter.CloseAsync = (vm, ctx) => Empty.TrueTask;
             var viewModel = GetViewModel<NavigableViewModelMock>();
             var multiViewModel = (MultiViewModel<IViewModel>)GetMultiViewModel();
             multiViewModel.AddViewModel(viewModel);
             multiViewModel.ItemsSource.ShouldContain(viewModel);
 
             multiViewModel.DisposeViewModelOnRemove = true;
-            multiViewModel.Clear();
+            multiViewModel.ClearAsync().Result.ShouldBeTrue();
             multiViewModel.ItemsSource.ShouldNotContain(viewModel);
             multiViewModel.SelectedItem.ShouldBeNull();
             viewModel.IsDisposed.ShouldBeTrue();
@@ -172,13 +176,17 @@ namespace MugenMvvmToolkit.Test.ViewModels
         [TestMethod]
         public void ClearShouldNotDisposeVmIfSetToFalse()
         {
+            ThreadManager.ImmediateInvokeOnUiThreadAsync = true;
+            ThreadManager.ImmediateInvokeOnUiThread = true;
+            NavigationDispatcher.OnNavigatingFromAsync = context => Empty.TrueTask;
+            ViewModelPresenter.CloseAsync = (vm, ctx) => Empty.TrueTask;
             var viewModel = GetViewModel<NavigableViewModelMock>();
             var multiViewModel = (MultiViewModel<IViewModel>)GetMultiViewModel();
             multiViewModel.AddViewModel(viewModel);
             multiViewModel.ItemsSource.ShouldContain(viewModel);
 
             multiViewModel.DisposeViewModelOnRemove = false;
-            multiViewModel.Clear();
+            multiViewModel.ClearAsync().Result.ShouldBeTrue();
             multiViewModel.ItemsSource.ShouldNotContain(viewModel);
             multiViewModel.SelectedItem.ShouldBeNull();
             viewModel.IsDisposed.ShouldBeFalse();
