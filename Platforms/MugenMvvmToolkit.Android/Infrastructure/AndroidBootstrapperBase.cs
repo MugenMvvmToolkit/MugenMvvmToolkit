@@ -25,10 +25,10 @@ using Android.OS;
 using Android.Views;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Android.Attributes;
-using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
@@ -179,7 +179,12 @@ You must specify the type of application bootstrapper using BootstrapperAttribut
         {
             TypeCache<View>.Initialize(null);
             var application = CreateApplication();
-            application.Initialize(_platform, CreateIocContainer(), GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
+            var iocContainer = CreateIocContainer();
+            application.Initialize(_platform, iocContainer, GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
+
+            //Activating navigation provider
+            INavigationProvider provider;
+            iocContainer.TryGet(out provider);
         }
 
         public virtual void Start(IDataContext context = null)

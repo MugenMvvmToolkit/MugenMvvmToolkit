@@ -138,8 +138,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
                     {
                         viewControllers.RemoveAt(i);
                         viewController = controller;
-                        NavigationController.ViewControllers = viewControllers.ToArray();
-                        dataContext.AddOrUpdate(NavigationProviderConstants.InvalidateCache, true);
+                        NavigationController.SetViewControllers(viewControllers.ToArray(), false);
                         break;
                     }
                 }
@@ -153,6 +152,17 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
                     viewController = (UIViewController)ServiceProvider.ViewManager.GetOrCreateView(viewModel, null, dataContext);
             }
             viewController.SetNavigationParameter(parameter);
+
+            var view = viewController as IViewControllerView;
+            if (view != null)
+            {
+                viewController.SetNavigationContext(dataContext);
+                if (bringToFront)
+                    view.Mediator.ViewDidAppearHandler += OnViewDidAppearHandlerRefresh;
+                else
+                    view.Mediator.ViewDidAppearHandler += OnViewDidAppearHandlerNew;
+            }
+
             bool shouldNavigate = true;
             if (_window != null)
             {
@@ -171,17 +181,9 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
                 if (!ClearNavigationStackIfNeed(viewController, dataContext, animated))
                     NavigationController.PushViewController(viewController, animated);
             }
-            var view = viewController as IViewControllerView;
-            if (view == null || view.Mediator.IsAppeared)
+
+            if (view == null)
                 RaiseNavigated(viewController, bringToFront ? NavigationMode.Refresh : NavigationMode.New, parameter, dataContext);
-            else
-            {
-                viewController.SetNavigationContext(dataContext);
-                if (bringToFront)
-                    view.Mediator.ViewDidAppearHandler += OnViewDidAppearHandlerRefresh;
-                else
-                    view.Mediator.ViewDidAppearHandler += OnViewDidAppearHandlerNew;
-            }
             return true;
         }
 
@@ -350,8 +352,25 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
                 context = DataContext.Empty;
             if (context.GetData(NavigationConstants.ClearBackStack) && NavigationController != null)
             {
+                var controllers = NavigationController.ViewControllers;
+                if (controllers != null)
+                {
+                    Array.Reverse(controllers);
+                    for (int i = 0; i < controllers.Length; i++)
+                    {
+                        var controller = controllers[i];
+                        if (ReferenceEquals(controller, newItem))
+                            continue;
+                        var viewModel = controller.DataContext() as IViewModel;
+                        if (viewModel != null)
+                        {
+                            var ctx = new DataContext(context);
+                            ctx.AddOrUpdate(NavigationConstants.ViewModel, viewModel);
+                            RaiseNavigated(controller, NavigationMode.Remove, null, ctx);
+                        }
+                    }
+                }
                 NavigationController.SetViewControllers(new[] { newItem }, animated);
-                context.AddOrUpdate(NavigationProviderConstants.InvalidateAllCache, true);
                 return true;
             }
             return false;

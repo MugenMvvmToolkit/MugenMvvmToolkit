@@ -179,9 +179,6 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\mediators\WindowViewMediatorBase.cs">
       <Link>Infrastructure\Mediators\WindowViewMediatorBase.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\navigation\DefaultNavigationCachePolicy.cs">
-      <Link>Infrastructure\Navigation\DefaultNavigationCachePolicy.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Infrastructure\Navigation\NavigationDispatcher.cs">
       <Link>Infrastructure\Navigation\NavigationDispatcher.cs</Link>
     </Compile>
@@ -400,9 +397,6 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\models\IViewModelSettings.cs">
       <Link>Interfaces\Models\IViewModelSettings.cs</Link>
-    </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\navigation\INavigationCachePolicy.cs">
-      <Link>Interfaces\Navigation\INavigationCachePolicy.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\navigation\INavigationContext.cs">
       <Link>Interfaces\Navigation\INavigationContext.cs</Link>

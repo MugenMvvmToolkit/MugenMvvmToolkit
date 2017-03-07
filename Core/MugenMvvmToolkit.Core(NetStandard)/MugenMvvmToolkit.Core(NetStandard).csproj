@@ -113,7 +113,6 @@
     <Compile Include="Models\WeakActionSubscriber.cs" />
     <Compile Include="Modules\InitializationModuleBase.cs" />
     <Compile Include="Infrastructure\Mediators\WindowViewMediatorBase.cs" />
-    <Compile Include="Infrastructure\Navigation\DefaultNavigationCachePolicy.cs" />
     <Compile Include="Infrastructure\Presenters\DynamicMultiViewModelPresenter.cs" />
     <Compile Include="Infrastructure\Presenters\DynamicViewModelNavigationPresenter.cs" />
     <Compile Include="Infrastructure\Presenters\ViewModelPresenter.cs" />
@@ -178,7 +177,6 @@
     <Compile Include="Interfaces\Models\ISuspendNotifications.cs" />
     <Compile Include="Interfaces\Models\IViewMappingItem.cs" />
     <Compile Include="Interfaces\Models\IViewModelSettings.cs" />
-    <Compile Include="Interfaces\Navigation\INavigationCachePolicy.cs" />
     <Compile Include="Interfaces\Navigation\INavigationContext.cs" />
     <Compile Include="Interfaces\Navigation\INavigationProvider.cs" />
     <Compile Include="Interfaces\Presenters\IDynamicViewModelPresenter.cs" />

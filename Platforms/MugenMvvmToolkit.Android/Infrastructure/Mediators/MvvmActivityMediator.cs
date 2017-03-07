@@ -72,33 +72,46 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         {
             #region Fields
 
-            public static readonly FinishActivityMessage Instance;
-
             public readonly IViewModel ViewModel;
 
             #endregion
 
             #region Constructors
 
-            static FinishActivityMessage()
-            {
-                Instance = new FinishActivityMessage();
-            }
-
-            public FinishActivityMessage(IViewModel viewModel)
+            public FinishActivityMessage(IViewModel viewModel = null)
             {
                 ViewModel = viewModel;
-            }
-
-            private FinishActivityMessage()
-            {
             }
 
             #endregion
 
             #region Methods
 
-            public bool Finished { get; set; }
+            public bool IsFinished => !FinishedViewModels.IsNullOrEmpty();
+
+            public List<IViewModel> FinishedViewModels { get; private set; }
+
+            public IList<IViewModel> IgnoredViewModels { get; set; }
+
+            public bool CanFinish(MvvmActivityMediator mediator)
+            {
+                if (IgnoredViewModels != null)
+                {
+                    var viewModel = mediator.DataContext as IViewModel;
+                    if (viewModel != null && IgnoredViewModels.Contains(viewModel))
+                        return false;
+                }
+                return ViewModel == null || ReferenceEquals(mediator.DataContext, ViewModel);
+            }
+
+            public void AddFinishedViewModel(IViewModel viewModel)
+            {
+                if (viewModel == null)
+                    return;
+                if (FinishedViewModels == null)
+                    FinishedViewModels = new List<IViewModel>();
+                FinishedViewModels.Add(viewModel);
+            }
 
             #endregion
         }
@@ -359,10 +372,10 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             try
             {
                 _ignoreFinishNavigation = true;
-                if (message.ViewModel == null || ReferenceEquals(DataContext, message.ViewModel))
+                if (message.CanFinish(this))
                 {
                     Target.Finish();
-                    message.Finished = true;
+                    message.AddFinishedViewModel(DataContext as IViewModel);
                 }
             }
             finally

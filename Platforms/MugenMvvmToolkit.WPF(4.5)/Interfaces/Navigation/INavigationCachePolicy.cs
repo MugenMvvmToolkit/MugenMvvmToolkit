@@ -19,9 +19,14 @@
 using System.Collections.Generic;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 
-namespace MugenMvvmToolkit.Interfaces.Navigation
+#if WPF
+namespace MugenMvvmToolkit.WPF.Interfaces.Navigation
+#elif WINDOWS_UWP
+namespace MugenMvvmToolkit.UWP.Interfaces.Navigation
+#endif
 {
     public interface INavigationCachePolicy
     {

@@ -22,9 +22,16 @@ using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Models;
 
-namespace MugenMvvmToolkit.Infrastructure.Navigation
+#if WPF
+using MugenMvvmToolkit.WPF.Interfaces.Navigation;
+
+namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
+#elif WINDOWS_UWP
+using MugenMvvmToolkit.UWP.Interfaces.Navigation;
+
+namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
+#endif
 {
     public class DefaultNavigationCachePolicy : INavigationCachePolicy
     {

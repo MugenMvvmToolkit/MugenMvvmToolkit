@@ -32,9 +32,6 @@ namespace MugenMvvmToolkit.Interfaces.Navigation
         [CanBeNull]
         object CurrentContent { get; }
 
-        [CanBeNull]
-        INavigationCachePolicy CachePolicy { get; }
-
         Task NavigateAsync([NotNull] IDataContext context);
 
         [CanBeNull]

@@ -313,6 +313,12 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             dataContext.TryGetData(NavigationProviderConstants.BringToFront, out bringToFront);
             if (!RaiseNavigating(new NavigatingCancelEventArgs(source, bringToFront ? NavigationMode.Refresh : NavigationMode.New, parameter, dataContext)))
                 return false;
+
+            _isNew = true;
+            _isReorder = bringToFront;
+            _parameter = parameter;
+            _dataContext = dataContext;
+
             var activity = PlatformExtensions.CurrentActivity;
             var context = activity ?? Application.Context;
 
@@ -325,15 +331,31 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                     intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTop);
                 else
                     intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
-                ServiceProvider.EventAggregator.Publish(this, MvvmActivityMediator.FinishActivityMessage.Instance);
-                dataContext.AddOrUpdate(NavigationProviderConstants.InvalidateAllCache, true);
+                var message = new MvvmActivityMediator.FinishActivityMessage();
+                if (bringToFront)
+                {
+                    var viewModel = dataContext.GetData(NavigationConstants.ViewModel);
+                    if (viewModel != null)
+                        message.IgnoredViewModels = new[] { viewModel };
+                }
+                ServiceProvider.EventAggregator.Publish(this, message);
+                if (message.FinishedViewModels != null)
+                {
+                    message.FinishedViewModels.Reverse();
+                    foreach (var vm in message.FinishedViewModels)
+                    {
+                        var ctx = new DataContext(dataContext);
+                        ctx.AddOrUpdate(NavigationConstants.ViewModel, vm);
+                        RaiseNavigated(vm, NavigationMode.Remove, null, ctx);
+                    }
+                }
             }
+
             if (parameter != null)
                 intent.PutExtra(ParameterString, parameter);
 
             if (bringToFront)
             {
-                _isReorder = true;
                 //http://stackoverflow.com/questions/20695522/puzzling-behavior-with-reorder-to-front
                 //http://code.google.com/p/android/issues/detail?id=63570#c2
                 bool closed = false;
@@ -348,17 +370,13 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                         {
                             var message = new MvvmActivityMediator.FinishActivityMessage(viewModel);
                             ServiceProvider.EventAggregator.Publish(this, message);
-                            closed = message.Finished;
+                            closed = message.IsFinished;
                         }
                     }
                 }
                 if (!closed)
                     intent.AddFlags(ActivityFlags.ReorderToFront);
-                dataContext.AddOrUpdate(NavigationProviderConstants.InvalidateCache, true);
             }
-            _isNew = true;
-            _parameter = parameter;
-            _dataContext = dataContext;
             StartActivity(context, intent, source, dataContext);
             return true;
         }
@@ -394,9 +412,9 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
             var message = new MvvmActivityMediator.FinishActivityMessage(viewModel);
             ServiceProvider.EventAggregator.Publish(this, message);
-            if (message.Finished)
+            if (message.IsFinished)
                 RaiseNavigated(viewModel, NavigationMode.Remove, null, dataContext);
-            return message.Finished;
+            return message.IsFinished;
         }
 
         public virtual event EventHandler<INavigationService, NavigatingCancelEventArgsBase> Navigating;

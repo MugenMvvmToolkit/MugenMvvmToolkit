@@ -183,7 +183,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
                         {
                             page = p;
                             navigation.RemovePage(p);
-                            dataContext.AddOrUpdate(NavigationProviderConstants.InvalidateCache, true);
                             break;
                         }
                     }
@@ -325,14 +324,22 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             task.TryExecuteSynchronously(t =>
             {
                 var pages = navigation.NavigationStack.ToList();
+                pages.Reverse();
                 for (int i = 0; i < pages.Count; i++)
                 {
                     var toRemove = pages[i];
-                    if (toRemove != page)
-                        navigation.RemovePage(toRemove);
+                    if (toRemove == page)
+                        continue;
+                    navigation.RemovePage(toRemove);
+                    var viewModel = toRemove.DataContext() as IViewModel;
+                    if (viewModel != null)
+                    {
+                        var ctx = new DataContext(context);
+                        ctx.AddOrUpdate(NavigationConstants.ViewModel, viewModel);
+                        RaiseNavigated(toRemove, null, NavigationMode.Remove, ctx);
+                    }
                 }
             });
-            context.AddOrUpdate(NavigationProviderConstants.InvalidateAllCache, true);
         }
 
         private void SetBackNavigationContext(IDataContext context)

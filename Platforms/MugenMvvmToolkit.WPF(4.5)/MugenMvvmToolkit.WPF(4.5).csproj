@@ -59,8 +59,10 @@
     <Compile Include="Converters\ViewModelToViewConverter.cs" />
     <Compile Include="Infrastructure\AttachedValueProvider.cs" />
     <Compile Include="Infrastructure\Bootstrapper.cs" />
+    <Compile Include="Infrastructure\Navigation\DefaultNavigationCachePolicy.cs" />
     <Compile Include="Infrastructure\Presenters\ToastPresenter.cs" />
     <Compile Include="Infrastructure\WpfDesignBootstrapperBase.cs" />
+    <Compile Include="Interfaces\Navigation\INavigationCachePolicy.cs" />
     <Compile Include="Modules\WpfWrapperRegistrationModule.cs" />
     <Compile Include="MarkupExtensions\View.cs" />
     <Compile Include="Infrastructure\ExpressionReflectionManagerEx.cs" />

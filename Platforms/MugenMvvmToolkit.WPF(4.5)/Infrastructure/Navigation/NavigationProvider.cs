@@ -17,7 +17,6 @@
 #endregion
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Attributes;
@@ -30,6 +29,7 @@ using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.ViewModels;
 #if WPF
+using System.Linq;
 using MugenMvvmToolkit.WPF.Interfaces.Navigation;
 
 namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
@@ -47,6 +47,7 @@ using MugenMvvmToolkit.Xamarin.Forms.Interfaces.Navigation;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
 #elif WINDOWS_UWP
+using System.Linq;
 using System.Reflection;
 using MugenMvvmToolkit.UWP.Interfaces.Navigation;
 
@@ -57,9 +58,9 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
     {
         #region Fields
 
-        private readonly INavigationCachePolicy _cachePolicy;
+#if WPF || WINDOWS_UWP
         private readonly EventHandler<IDisposableObject, EventArgs> _disposeViewModelHandler;
-
+#endif
         private bool _ignoreNavigating;
         private TaskCompletionSource<bool> _navigatedTcs;
         private NavigatingCancelEventArgsBase _navigatingCancelArgs;
@@ -84,9 +85,12 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         }
 
         [Preserve(Conditional = true)]
-        public NavigationProvider([NotNull] INavigationService navigationService, [NotNull] IThreadManager threadManager,
-            [NotNull] IViewMappingProvider mappingProvider, [NotNull] IViewManager viewManager, [NotNull] IViewModelProvider viewModelProvider,
-            [NotNull] INavigationDispatcher navigationDispatcher, INavigationCachePolicy cachePolicy = null)
+        public NavigationProvider([NotNull] INavigationService navigationService, [NotNull] IThreadManager threadManager, [NotNull] IViewMappingProvider mappingProvider,
+            [NotNull] IViewManager viewManager, [NotNull] IViewModelProvider viewModelProvider, [NotNull] INavigationDispatcher navigationDispatcher
+#if WPF || WINDOWS_UWP
+            , INavigationCachePolicy cachePolicy = null
+#endif
+            )
         {
             Should.NotBeNull(navigationService, nameof(navigationService));
             Should.NotBeNull(threadManager, nameof(threadManager));
@@ -100,9 +104,11 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             ViewManager = viewManager;
             ViewModelProvider = viewModelProvider;
             NavigationDispatcher = navigationDispatcher;
-            _cachePolicy = cachePolicy;
-            _vmReference = Empty.WeakReference;
+#if WPF || WINDOWS_UWP
+            CachePolicy = cachePolicy;
             _disposeViewModelHandler = ViewModelOnDisposed;
+#endif
+            _vmReference = Empty.WeakReference;
 
             NavigationService.Navigating += NavigationServiceOnNavigating;
             NavigationService.Navigated += NavigationServiceOnNavigated;
@@ -132,15 +138,18 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 
         public virtual object CurrentContent => NavigationService.CurrentContent;
 
-        public INavigationCachePolicy CachePolicy => _cachePolicy;
-
+#if WPF || WINDOWS_UWP
+        public INavigationCachePolicy CachePolicy { get; }
+#endif
         #endregion
 
         #region Implementation of interfaces
 
         public void Dispose()
         {
+#if WPF || WINDOWS_UWP
             ClearCacheIfNeed(new DataContext(NavigationProviderConstants.InvalidateAllCache.ToValue(true)), null);
+#endif
             NavigationService.Navigating -= NavigationServiceOnNavigating;
             NavigationService.Navigated -= NavigationServiceOnNavigated;
             OnDispose();
@@ -246,7 +255,11 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 
             _navigatedTcs = tcs;
             if (NavigationService.Navigate(mappingItem, parameter, context))
+            {
+#if WPF || WINDOWS_UWP
                 ClearCacheIfNeed(context, viewModel);
+#endif
+            }
         }
 
         protected virtual bool TryCloseInternal(IDataContext context, TaskCompletionSource<bool> tcs)
@@ -258,9 +271,11 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         protected virtual void RestoreInternal(IViewModel viewModel, IDataContext context)
         {
             var navigationContext = new NavigationContext(NavigationType.Page, NavigationMode.Refresh, CurrentViewModel, viewModel, this, context);
+#if WPF || WINDOWS_UWP
             var currentViewModel = CurrentViewModel;
             if (currentViewModel != null)
                 TryCacheViewModel(navigationContext, CurrentContent ?? currentViewModel.Settings.Metadata.GetData(ViewModelConstants.View), currentViewModel);
+#endif
             OnNavigated(navigationContext);
         }
 
@@ -279,9 +294,10 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             }
 
             IViewModel vm = null;
+#if WPF || WINDOWS_UWP
             if (CachePolicy != null)
                 vm = CachePolicy.TryTakeViewModelFromCache(context, view);
-
+#endif
             if (HasViewModel(view, vmType))
                 return (IViewModel)ToolkitExtensions.GetDataContext(view);
             if (vm == null)
@@ -445,7 +461,9 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                 {
                     if (!vmTo.Settings.State.Contains(IsNavigatedConstant))
                     {
+#if WPF || WINDOWS_UWP
                         vmTo.Disposed += _disposeViewModelHandler;
+#endif
                         vmTo.Settings.State.AddOrUpdate(IsNavigatedConstant, null);
                         vmTo.Settings.Metadata.AddOrUpdate(ViewModelConstants.CanCloseHandler, CanCloseViewModel);
                     }
@@ -459,16 +477,20 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 
         private void Renavigate([NotNull] INavigationContext context, NavigatingCancelEventArgsBase args)
         {
+#if WPF || WINDOWS_UWP
             var currentViewModel = CurrentViewModel;
             var currentContent = CurrentContent;
+#endif
             if (_navigatingCancelArgs == null)
             {
                 if (NavigationService.Navigate(args))
                 {
+#if WPF || WINDOWS_UWP
                     if (currentContent != null && currentViewModel != null)
                         TryCacheViewModel(context, currentContent, currentViewModel);
 
                     ClearCacheIfNeed(args.Context ?? DataContext.Empty, args.Context?.GetData(NavigationConstants.ViewModel));
+#endif
                 }
                 else
                 {
@@ -478,9 +500,10 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             }
             else
             {
+#if WPF || WINDOWS_UWP
                 if (currentContent != null && currentViewModel != null)
                     TryCacheViewModel(context, currentContent, currentViewModel);
-
+#endif
                 _navigatingCancelArgs.Cancel = false;
             }
         }
@@ -523,22 +546,26 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                 context = new NavigationContext(NavigationType.Page, context.NavigationMode, context.ViewModelFrom, viewModel, context.NavigationProvider, args.Context);
         }
 
+#if WPF || WINDOWS_UWP
         private void ViewModelOnDisposed(IDisposableObject sender, EventArgs args)
         {
             if (CachePolicy != null && CachePolicy.Invalidate((IViewModel)sender, DataContext.Empty))
                 Tracer.Warn("The disposed view model " + sender.GetType().Name + " was in the navigation cache");
         }
-
-        private void OnViewModelClosed(IViewModel viewModel, object parameter)
+#endif
+        private void OnViewModelClosed(IViewModel viewModel, IDataContext context)
         {
             if (viewModel == null)
                 return;
-            viewModel.Disposed -= _disposeViewModelHandler;
             viewModel.Settings.State.Remove(IsNavigatedConstant);
             viewModel.Settings.Metadata.Remove(ViewModelConstants.CanCloseHandler);
-            CachePolicy?.Invalidate(viewModel, parameter as IDataContext);
+#if WPF || WINDOWS_UWP
+            viewModel.Disposed -= _disposeViewModelHandler;
+            CachePolicy?.Invalidate(viewModel, context);
+#endif
         }
 
+#if WPF || WINDOWS_UWP
         private void TryCacheViewModel(INavigationContext context, object view, IViewModel viewModel)
         {
             if (CachePolicy != null && view != null && viewModel != null && !context.NavigationMode.IsClose())
@@ -565,6 +592,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                 OnViewModelClosed(viewModelFrom, navigationContext);
             }
         }
+#endif
 
         private bool CanCloseViewModel(IViewModel viewModel, object parameter)
         {

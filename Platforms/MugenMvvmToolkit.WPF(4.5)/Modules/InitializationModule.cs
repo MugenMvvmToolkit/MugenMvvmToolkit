@@ -33,6 +33,7 @@ using MugenMvvmToolkit.WPF.Infrastructure.Callbacks;
 using MugenMvvmToolkit.WPF.Infrastructure.Navigation;
 using MugenMvvmToolkit.WPF.Infrastructure.Presenters;
 using MugenMvvmToolkit.WPF.Infrastructure.Mediators;
+using MugenMvvmToolkit.WPF.Interfaces.Navigation;
 using MugenMvvmToolkit.WPF.Interfaces.Views;
 
 namespace MugenMvvmToolkit.WPF.Modules
@@ -46,6 +47,7 @@ using MugenMvvmToolkit.UWP.Infrastructure.Presenters;
 using MugenMvvmToolkit.UWP.Infrastructure.Callbacks;
 using MugenMvvmToolkit.UWP.Infrastructure.Mediators;
 using MugenMvvmToolkit.UWP.Interfaces;
+using MugenMvvmToolkit.UWP.Interfaces.Navigation;
 using MugenMvvmToolkit.UWP.Interfaces.Views;
 
 namespace MugenMvvmToolkit.UWP.Modules
@@ -78,7 +80,8 @@ namespace MugenMvvmToolkit.UWP.Modules
                 }
 #elif WINDOWS_UWP
                 BindApplicationStateManager(context, context.IocContainer);
-#endif
+#endif           
+                BindNavigationCachePolicy(context, context.IocContainer);
                 return true;
             }
             return false;
@@ -135,7 +138,7 @@ namespace MugenMvvmToolkit.UWP.Modules
                 var windowPresenter = iocContainer.Get<DynamicViewModelWindowPresenter>();
                 windowPresenter.RegisterMediatorFactory<WindowViewMediator, IWindowView>();
                 presenter.DynamicPresenters.Add(windowPresenter);
-                presenter.DynamicPresenters.Add(iocContainer.Get<DynamicViewModelNavigationPresenter>());                
+                presenter.DynamicPresenters.Add(iocContainer.Get<DynamicViewModelNavigationPresenter>());
                 return presenter;
             }, DependencyLifecycle.SingleInstance);
         }
@@ -183,6 +186,11 @@ namespace MugenMvvmToolkit.UWP.Modules
         protected override void BindNavigationProvider(IModuleContext context, IIocContainer container)
         {
             container.Bind<INavigationProvider, NavigationProvider>(DependencyLifecycle.SingleInstance);
+        }
+
+        protected virtual void BindNavigationCachePolicy(IModuleContext context, IIocContainer container)
+        {
+            container.Bind<INavigationCachePolicy, DefaultNavigationCachePolicy>(DependencyLifecycle.SingleInstance);
         }
 
         protected override void BindToastPresenter(IModuleContext context, IIocContainer container)

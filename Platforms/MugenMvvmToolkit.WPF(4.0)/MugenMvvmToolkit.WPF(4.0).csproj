@@ -85,6 +85,9 @@
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\Mediators\WindowViewMediator.cs">
       <Link>Infrastructure\Mediators\WindowViewMediator.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\Navigation\DefaultNavigationCachePolicy.cs">
+      <Link>Infrastructure\Navigation\DefaultNavigationCachePolicy.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\Navigation\FrameNavigationService.cs">
       <Link>Infrastructure\Navigation\FrameNavigationService.cs</Link>
     </Compile>
@@ -114,6 +117,9 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\WpfDesignBootstrapperBase.cs">
       <Link>Infrastructure\WpfDesignBootstrapperBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Interfaces\Navigation\INavigationCachePolicy.cs">
+      <Link>Interfaces\Navigation\INavigationCachePolicy.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Interfaces\Navigation\INavigationService.cs">
       <Link>Interfaces\Navigation\INavigationService.cs</Link>

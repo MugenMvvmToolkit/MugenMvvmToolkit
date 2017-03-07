@@ -24,7 +24,7 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 
 namespace MugenMvvmToolkit.Interfaces.Presenters
 {
-    public interface IDynamicViewModelPresenter
+    public interface IDynamicViewModelPresenter //todo remove view model
     {
         int Priority { get; }
 
