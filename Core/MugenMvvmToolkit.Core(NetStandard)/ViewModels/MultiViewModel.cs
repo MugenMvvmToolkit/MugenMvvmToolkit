@@ -267,7 +267,7 @@ namespace MugenMvvmToolkit.ViewModels
                 return Empty.FalseTask;
             var removeCtx = new NavigationContext(NavigationType.Tab, NavigationMode.Remove, viewModel, null, this, context);
             return viewModel
-                .CloseAsync()
+                .CloseAsync(removeCtx)
                 .TryExecuteSynchronously(task =>
                 {
                     if (task.Result)
