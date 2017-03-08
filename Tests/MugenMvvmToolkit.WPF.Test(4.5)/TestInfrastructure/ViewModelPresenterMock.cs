@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
@@ -42,19 +43,19 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         #region Implementation of interfaces
 
-        IAsyncOperation IViewModelPresenter.ShowAsync(IViewModel viewModel, IDataContext context)
+        IAsyncOperation IViewModelPresenter.ShowAsync(IDataContext context)
         {
-            return ShowAsync?.Invoke(viewModel, context);
+            return ShowAsync?.Invoke(context.GetData(NavigationConstants.ViewModel), context);
         }
 
-        Task<bool> IViewModelPresenter.CloseAsync(IViewModel viewModel, IDataContext context)
+        Task<bool> IViewModelPresenter.CloseAsync(IDataContext context)
         {
-            return CloseAsync?.Invoke(viewModel, context);
+            return CloseAsync?.Invoke(context.GetData(NavigationConstants.ViewModel), context);
         }
 
-        void IViewModelPresenter.Restore(IViewModel viewModel, IDataContext context)
+        void IViewModelPresenter.Restore(IDataContext context)
         {
-            Restore?.Invoke(viewModel, context);
+            Restore?.Invoke(context.GetData(NavigationConstants.ViewModel), context);
         }
 
         #endregion
