@@ -42,6 +42,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             {
                 BindingServiceProvider.Initialize(errorProvider: new AndroidBindingErrorProvider(), converter: BindingConverterExtensions.Convert);
                 BindingServiceProvider.BindingProvider.DefaultBehaviors.Add(DisableEqualityCheckingBehavior.TargetTrueNotTwoWay);
+                BindingResourceExtensions.Initialize();
             }
 
             PlatformExtensions.ItemsSourceAdapterFactory = (o, ctx, arg3) => new ItemsSourceAdapter(o, ctx, !ReferenceEquals(ViewGroupItemsSourceGenerator.Context, arg3));

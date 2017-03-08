@@ -570,18 +570,17 @@ namespace MugenMvvmToolkit.Android.Binding
             }
         }
 
-        private static Context GetContextFromItem(object item)
+        internal static Context GetContextFromItem(object item)
         {
-            var parent = BindingServiceProvider.VisualTreeManager.GetParent(item);
-            while (parent != null)
+            while (item != null)
             {
-                var view = parent as View;
+                var view = item as View;
                 if (view != null)
                     return view.Context;
-                var ctx = parent as Context;
+                var ctx = item as Context;
                 if (ctx != null)
                     return ctx;
-                parent = BindingServiceProvider.VisualTreeManager.GetParent(parent);
+                item = BindingServiceProvider.VisualTreeManager.GetParent(item);
             }
             return Application.Context;
         }

@@ -17,7 +17,9 @@
 #endregion
 
 using Android.Support.V4.App;
+using Android.Support.V4.Content;
 using Android.Support.V7.App;
+using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 
@@ -31,6 +33,8 @@ namespace MugenMvvmToolkit.Android.AppCompat.Modules
 
         public bool Load(IModuleContext context)
         {
+            BindingResourceExtensions.ColorHandler = ContextCompat.GetColor;
+            BindingResourceExtensions.DrawableHandler = ContextCompat.GetDrawable;
             var isActionBar = PlatformExtensions.IsActionBar;
             var isFragment = PlatformExtensions.IsFragment;
             PlatformExtensions.IsActionBar = o => isActionBar(o) || o is ActionBar;
