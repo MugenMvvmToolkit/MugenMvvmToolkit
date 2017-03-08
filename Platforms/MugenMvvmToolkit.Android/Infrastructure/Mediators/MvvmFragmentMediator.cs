@@ -267,13 +267,14 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             Target.View?.SetDataContext(DataContext);
         }
 
-        protected override IDataContext CreateRestorePresenterContext(Fragment target)
+        protected override IDataContext CreateRestorePresenterContext(IViewModel viewModel, Fragment target)
         {
             return new DataContext
             {
                 {WindowPresenterConstants.IsViewOpened, true},
                 {WindowPresenterConstants.RestoredView, target},
-                {NavigationConstants.SuppressPageNavigation, true}
+                {NavigationConstants.SuppressPageNavigation, true},
+                {NavigationConstants.ViewModel, viewModel}
             };
         }
 

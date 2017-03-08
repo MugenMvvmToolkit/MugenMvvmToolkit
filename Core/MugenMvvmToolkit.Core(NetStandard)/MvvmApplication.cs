@@ -73,7 +73,8 @@ namespace MugenMvvmToolkit
         protected virtual void StartInternal([CanBeNull] IDataContext context)
         {
             context = context.ToNonReadOnly();
-            context.Merge(Context);
+            if (Context != null)
+                context.Merge(Context);
             IocContainer
                 .Get<IViewModelProvider>()
                 .GetViewModel(GetStartViewModelType(), context)

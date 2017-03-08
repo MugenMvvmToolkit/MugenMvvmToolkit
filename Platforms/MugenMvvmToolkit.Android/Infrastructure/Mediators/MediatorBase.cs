@@ -179,7 +179,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             {
                 ServiceProvider.ViewManager.InitializeViewAsync(viewModel, target);
                 viewModel.Disposed -= ClearCacheOnDisposeDelegate;
-                Get<IViewModelPresenter>().Restore(viewModel, CreateRestorePresenterContext(target));
+                Get<IViewModelPresenter>().Restore(CreateRestorePresenterContext(viewModel, target));
             }
         }
 
@@ -220,11 +220,12 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             }
         }
 
-        protected virtual IDataContext CreateRestorePresenterContext(TTarget target)
+        protected virtual IDataContext CreateRestorePresenterContext(IViewModel viewModel, TTarget target)
         {
             return new DataContext
             {
-                {NavigationConstants.SuppressPageNavigation, true}
+                {NavigationConstants.SuppressPageNavigation, true},
+                {NavigationConstants.ViewModel, viewModel}
             };
         }
 

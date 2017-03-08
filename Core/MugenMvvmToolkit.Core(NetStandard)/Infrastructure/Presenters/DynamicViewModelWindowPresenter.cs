@@ -78,9 +78,12 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         public virtual int Priority => ViewModelPresenter.DefaultWindowPresenterPriority;
 
-        public IAsyncOperation TryShowAsync(IViewModel viewModel, IDataContext context,
-            IViewModelPresenter parentPresenter)
+        public IAsyncOperation TryShowAsync(IDataContext context, IViewModelPresenter parentPresenter)
         {
+            var viewModel = context.GetData(NavigationConstants.ViewModel);
+            if (viewModel == null)
+                return null;
+
             var viewMediator = TryCreateMediator(viewModel, context);
             if (viewMediator == null)
                 return null;
@@ -95,16 +98,18 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             return operation;
         }
 
-        public Task<bool> TryCloseAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
+        public Task<bool> TryCloseAsync(IDataContext context, IViewModelPresenter parentPresenter)
         {
-            var mediator = viewModel.Settings.Metadata.GetData(WindowPresenterConstants.WindowViewMediator);
+            var viewModel = context.GetData(NavigationConstants.ViewModel);
+            var mediator = viewModel?.Settings.Metadata.GetData(WindowPresenterConstants.WindowViewMediator);
             return mediator?.CloseAsync(context);
         }
 
-        public bool Restore(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
+        public bool Restore(IDataContext context, IViewModelPresenter parentPresenter)
         {
             var view = context.GetData(WindowPresenterConstants.RestoredView);
-            if (view == null)
+            var viewModel = context.GetData(NavigationConstants.ViewModel);
+            if (view == null || viewModel == null)
                 return false;
             var mediator = TryCreateMediator(viewModel, context);
             if (mediator == null)

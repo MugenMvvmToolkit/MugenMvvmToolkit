@@ -22,6 +22,7 @@ using System.IO;
 using System.Linq;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Attributes;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
@@ -96,11 +97,15 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters
 
         #region Methods
 
-        protected override IAsyncOperation ShowInternalAsync(IViewModel viewModel, IDataContext context)
+        protected override IAsyncOperation ShowInternalAsync(IDataContext context)
         {
-            var result = base.ShowInternalAsync(viewModel, context);
-            _openedViewModels.Add(viewModel);
-            result.ContinueWith(OnViewModelClosed);
+            var result = base.ShowInternalAsync(context);
+            var viewModel = context.GetData(NavigationConstants.ViewModel) ?? result.Context.GetData(NavigationConstants.ViewModel);
+            if (viewModel != null)
+            {
+                _openedViewModels.Add(viewModel);
+                result.ContinueWith(OnViewModelClosed);
+            }
             return result;
         }
 

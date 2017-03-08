@@ -24,7 +24,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -76,7 +75,7 @@ namespace MugenMvvmToolkit.ViewModels
 #if NET4
             task.TryExecuteSynchronously(t => token.Dispose());
 #else
-            task.ContinueWith((t, o) => ((IBusyToken) o).Dispose(), token, TaskContinuationOptions.ExecuteSynchronously);
+            task.ContinueWith((t, o) => ((IBusyToken)o).Dispose(), token, TaskContinuationOptions.ExecuteSynchronously);
 #endif            
             return task;
         }
@@ -109,12 +108,12 @@ namespace MugenMvvmToolkit.ViewModels
         public static IAsyncOperation ShowAsync([NotNull] this IViewModel viewModel, IDataContext context = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            if (context == null)
-                context = DataContext.Empty;
+            context = context.ToNonReadOnly();
+            context.AddOrUpdate(NavigationConstants.ViewModel, viewModel);
             return viewModel
                 .GetIocContainer(true)
                 .Get<IViewModelPresenter>()
-                .ShowAsync(viewModel, context);
+                .ShowAsync(context);
         }
 
         public static IAsyncOperation<TResult> ShowAsync<TResult>([NotNull] this IHasResultViewModel<TResult> viewModel, params DataConstantValue[] parameters)
@@ -125,12 +124,12 @@ namespace MugenMvvmToolkit.ViewModels
         public static IAsyncOperation<TResult> ShowAsync<TResult>([NotNull] this IHasResultViewModel<TResult> viewModel, IDataContext context = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            if (context == null)
-                context = DataContext.Empty;
+            context = context.ToNonReadOnly();
+            context.AddOrUpdate(NavigationConstants.ViewModel, viewModel);
             return viewModel
                 .GetIocContainer(true)
                 .Get<IViewModelPresenter>()
-                .ShowAsync(viewModel, context)
+                .ShowAsync(context)
                 .ContinueWith<IHasResultViewModel<TResult>, TResult>((vm, result) => vm.Result);
         }
 
@@ -157,7 +156,10 @@ namespace MugenMvvmToolkit.ViewModels
 
         public static Task<bool> CloseAsync([NotNull]this IViewModel viewModel, IDataContext context = null)
         {
-            return viewModel.GetIocContainer(true).Get<IViewModelPresenter>().CloseAsync(viewModel, context);
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            context = context.ToNonReadOnly();
+            context.AddOrUpdate(NavigationConstants.ViewModel, viewModel);
+            return viewModel.GetIocContainer(true).Get<IViewModelPresenter>().CloseAsync(context);
         }
 
         public static Task<bool> CloseAsync([NotNull]this IViewModel viewModel, [CanBeNull] object parameter)

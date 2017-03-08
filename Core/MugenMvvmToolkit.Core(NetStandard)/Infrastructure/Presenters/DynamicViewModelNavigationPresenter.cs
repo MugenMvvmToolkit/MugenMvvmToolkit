@@ -59,8 +59,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Methods
 
-        private bool CanShowViewModel(IViewModel viewModel, IDataContext context,
-            IViewModelPresenter parentPresenter)
+        private bool CanShowViewModel(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
         {
             bool data;
             if (context.TryGetData(NavigationConstants.SuppressPageNavigation, out data) && data)
@@ -77,13 +76,12 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         public int Priority => ViewModelPresenter.DefaultNavigationPresenterPriority;
 
-        public IAsyncOperation TryShowAsync(IViewModel viewModel, IDataContext context,
-            IViewModelPresenter parentPresenter)
+        public IAsyncOperation TryShowAsync(IDataContext context, IViewModelPresenter parentPresenter)
         {
-            if (!CanShowViewModel(viewModel, context, parentPresenter))
+            var viewModel = context.GetData(NavigationConstants.ViewModel);
+            if (viewModel == null || !CanShowViewModel(viewModel, context, parentPresenter))
                 return null;
             context = context.ToNonReadOnly();
-            context.AddOrUpdate(NavigationConstants.ViewModel, viewModel);
 
             var operation = new AsyncOperation<object>();
             var provider = viewModel.GetIocContainer(true).Get<INavigationProvider>();
@@ -92,8 +90,11 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             return operation;
         }
 
-        public Task<bool> TryCloseAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
+        public Task<bool> TryCloseAsync(IDataContext context, IViewModelPresenter parentPresenter)
         {
+            var viewModel = context.GetData(NavigationConstants.ViewModel);
+            if (viewModel == null)
+                return null;
             INavigationProvider provider;
             if (viewModel.GetIocContainer(true).TryGet(out provider))
             {
@@ -104,9 +105,10 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             return null;
         }
 
-        public bool Restore(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
+        public bool Restore(IDataContext context, IViewModelPresenter parentPresenter)
         {
-            if (!CanShowViewModel(viewModel, context, parentPresenter))
+            var viewModel = context.GetData(NavigationConstants.ViewModel);
+            if (viewModel == null || !CanShowViewModel(viewModel, context, parentPresenter))
                 return false;
             INavigationProvider provider;
             if (viewModel.GetIocContainer(true).TryGet(out provider))

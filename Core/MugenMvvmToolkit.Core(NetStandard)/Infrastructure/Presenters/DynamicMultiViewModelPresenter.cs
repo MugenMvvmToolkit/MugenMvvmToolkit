@@ -91,9 +91,10 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         public int Priority => ViewModelPresenter.DefaultMultiViewModelPresenterPriority;
 
-        public IAsyncOperation TryShowAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
+        public IAsyncOperation TryShowAsync(IDataContext context, IViewModelPresenter parentPresenter)
         {
-            if (!MultiViewModel.ViewModelType.IsInstanceOfType(viewModel))
+            var viewModel = context.GetData(NavigationConstants.ViewModel);
+            if (viewModel == null || !MultiViewModel.ViewModelType.IsInstanceOfType(viewModel))
                 return null;
             bool data;
             if (context.TryGetData(NavigationConstants.SuppressTabNavigation, out data) && data)
@@ -105,9 +106,10 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             return TryShowInternalAsync(viewModel, context, parentPresenter);
         }
 
-        public Task<bool> TryCloseAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
+        public Task<bool> TryCloseAsync(IDataContext context, IViewModelPresenter parentPresenter)
         {
-            if (!MultiViewModel.ViewModelType.IsInstanceOfType(viewModel) || context.Contains(IgnoreConstant) || !MultiViewModel.ItemsSource.Contains(viewModel))
+            var viewModel = context.GetData(NavigationConstants.ViewModel);
+            if (viewModel == null || !MultiViewModel.ViewModelType.IsInstanceOfType(viewModel) || context.Contains(IgnoreConstant) || !MultiViewModel.ItemsSource.Contains(viewModel))
                 return null;
             context = context.ToNonReadOnly();
             context.AddOrUpdate(IgnoreConstant, null);

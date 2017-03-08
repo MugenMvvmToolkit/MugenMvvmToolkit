@@ -27,7 +27,6 @@ using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
-using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.WinForms.Infrastructure
@@ -80,10 +79,10 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
 
         int IDynamicViewModelPresenter.Priority => int.MaxValue;
 
-        IAsyncOperation IDynamicViewModelPresenter.TryShowAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
+        IAsyncOperation IDynamicViewModelPresenter.TryShowAsync(IDataContext context, IViewModelPresenter parentPresenter)
         {
             parentPresenter.DynamicPresenters.Remove(this);
-            var operation = parentPresenter.ShowAsync(viewModel, context);
+            var operation = parentPresenter.ShowAsync(context);
             if (ShutdownOnMainViewModelClose)
                 operation.ContinueWith(result => Application.Exit());
             if (AutoRunApplication)
@@ -91,7 +90,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
             return operation;
         }
 
-        Task<bool> IDynamicViewModelPresenter.TryCloseAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
+        Task<bool> IDynamicViewModelPresenter.TryCloseAsync(IDataContext context, IViewModelPresenter parentPresenter)
         {
             return null;
         }

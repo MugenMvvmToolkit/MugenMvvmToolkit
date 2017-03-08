@@ -172,9 +172,9 @@ namespace MugenMvvmToolkit
             return new ArgumentException($"There are no wrapper type for type '{wrapperType}'.", nameof(wrapperType));
         }
 
-        internal static Exception PresenterCannotShowViewModel(Type presenterType, Type vmType)
+        internal static Exception PresenterCannotShowRequest(Type presenterType, string request)
         {
-            return new ArgumentException($"The presenter '{presenterType}' cannot display the '{vmType}'.");
+            return new ArgumentException($"The presenter '{presenterType}' cannot display the request '{request}'.");
         }
 
         internal static Exception ExpressionShouldBeStaticValue(Expression expression, Exception exception)

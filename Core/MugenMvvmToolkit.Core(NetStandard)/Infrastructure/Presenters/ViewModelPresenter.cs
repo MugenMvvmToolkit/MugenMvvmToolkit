@@ -18,6 +18,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Attributes;
@@ -27,8 +28,6 @@ using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
-using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure.Presenters
 {
@@ -56,8 +55,6 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             #endregion
 
             #region Methods
-
-            public IDynamicViewModelPresenter this[int index] => _list[index];
 
             private static int ComparerDelegate(IDynamicViewModelPresenter x1, IDynamicViewModelPresenter x2)
             {
@@ -154,72 +151,79 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         public ICollection<IDynamicViewModelPresenter> DynamicPresenters => _dynamicPresenters;
 
-        public IAsyncOperation ShowAsync(IViewModel viewModel, IDataContext context)
+        public IAsyncOperation ShowAsync(IDataContext context)
         {
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            return ShowInternalAsync(viewModel, context ?? DataContext.Empty);
+            Should.NotBeNull(context, nameof(context));
+            return ShowInternalAsync(context);
         }
 
-        public void Restore(IViewModel viewModel, IDataContext context)
+        public void Restore(IDataContext context)
         {
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            RestoreInternal(viewModel, context ?? DataContext.Empty);
+            Should.NotBeNull(context, nameof(context));
+            RestoreInternal(context);
         }
 
-        public Task<bool> CloseAsync(IViewModel viewModel, IDataContext context)
+        public Task<bool> CloseAsync(IDataContext context)
         {
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            return CloseInternalAsync(viewModel, context ?? DataContext.Empty);
+            Should.NotBeNull(context, nameof(context));
+            return CloseInternalAsync(context);
         }
 
         #endregion
 
         #region Methods
 
-        protected virtual IAsyncOperation ShowInternalAsync(IViewModel viewModel, IDataContext context)
+        protected virtual IAsyncOperation ShowInternalAsync(IDataContext context)
         {
             var presenters = _dynamicPresenters.ToArrayEx();
             for (int i = 0; i < presenters.Length; i++)
             {
-                var operation = presenters[i].TryShowAsync(viewModel, context, this);
+                var operation = presenters[i].TryShowAsync(context, this);
                 if (operation != null)
                 {
                     if (Tracer.TraceInformation)
-                        Tracer.Info("The {0} is shown by {1}", viewModel.GetType().FullName, presenters[i].GetType().FullName);
+                        Tracer.Info("The request {0} is shown by {1}", ContextToString(context), presenters[i].GetType().FullName);
                     return operation;
                 }
             }
-            throw ExceptionManager.PresenterCannotShowViewModel(GetType(), viewModel.GetType());
+            throw ExceptionManager.PresenterCannotShowRequest(GetType(), ContextToString(context));
         }
 
-        protected virtual void RestoreInternal(IViewModel viewModel, IDataContext context)
+        protected virtual void RestoreInternal(IDataContext context)
         {
             var presenters = _dynamicPresenters.ToArrayEx();
             for (int i = 0; i < presenters.Length; i++)
             {
                 var presenter = presenters[i] as IRestorableDynamicViewModelPresenter;
-                if (presenter != null && presenter.Restore(viewModel, context, this))
+                if (presenter != null && presenter.Restore(context, this))
+                {
+                    if (Tracer.TraceInformation)
+                        Tracer.Info("The request {0} is restored by {1}", ContextToString(context), presenter.GetType().FullName);
                     return;
+                }
             }
         }
 
         [NotNull]
-        protected virtual Task<bool> CloseInternalAsync(IViewModel viewModel, IDataContext context)
+        protected virtual Task<bool> CloseInternalAsync(IDataContext context)
         {
             var presenters = _dynamicPresenters.ToArrayEx();
             for (int i = 0; i < presenters.Length; i++)
             {
-                var operation = presenters[i].TryCloseAsync(viewModel, context, this);
+                var operation = presenters[i].TryCloseAsync(context, this);
                 if (operation != null)
                 {
                     if (Tracer.TraceInformation)
-                        Tracer.Info("The {0} is closed by {1}", viewModel.GetType().FullName, presenters[i].GetType().FullName);
+                        Tracer.Info("The request {0} is closed by {1}", ContextToString(context), presenters[i].GetType().FullName);
                     return operation;
                 }
             }
-            var wrapperViewModel = viewModel.Settings.Metadata.GetData(ViewModelConstants.WrapperViewModel);
+            var wrapperViewModel = context.GetData(NavigationConstants.ViewModel)?.Settings.Metadata.GetData(ViewModelConstants.WrapperViewModel);
             if (wrapperViewModel != null)
-                return CloseInternalAsync(wrapperViewModel, context);
+            {
+                context.AddOrUpdate(NavigationConstants.ViewModel, wrapperViewModel);
+                return CloseInternalAsync(context);
+            }
             var navigationContext = context as INavigationContext;
             if (navigationContext == null)
                 return Empty.FalseTask;
@@ -232,6 +236,16 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         protected virtual void OnDynamicPresenterRemoved([NotNull] IDynamicViewModelPresenter presenter)
         {
+        }
+
+        private static string ContextToString(IDataContext context)
+        {
+            var builder = new StringBuilder("(");
+            var values = context.ToList();
+            foreach (var item in values)
+                builder.Append(item.DataConstant.Id).Append("=").Append(item.Value).Append(";");
+            builder.Append(")");
+            return builder.ToString();
         }
 
         #endregion

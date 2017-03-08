@@ -20,24 +20,22 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.ViewModels;
 
 namespace MugenMvvmToolkit.Interfaces.Presenters
 {
-    public interface IDynamicViewModelPresenter //todo remove view model
+    public interface IDynamicViewModelPresenter
     {
         int Priority { get; }
 
         [CanBeNull]
-        IAsyncOperation TryShowAsync([NotNull] IViewModel viewModel, [NotNull] IDataContext context, [NotNull]IViewModelPresenter parentPresenter);
+        IAsyncOperation TryShowAsync([NotNull] IDataContext context, [NotNull]IViewModelPresenter parentPresenter);
 
         [CanBeNull]
-        Task<bool> TryCloseAsync([NotNull] IViewModel viewModel, [NotNull] IDataContext context, [NotNull]IViewModelPresenter parentPresenter);
+        Task<bool> TryCloseAsync([NotNull] IDataContext context, [NotNull]IViewModelPresenter parentPresenter);
     }
 
     public interface IRestorableDynamicViewModelPresenter : IDynamicViewModelPresenter
     {
-        bool Restore([NotNull] IViewModel viewModel, [NotNull] IDataContext context,
-            [CanBeNull] IViewModelPresenter parentPresenter);
+        bool Restore([NotNull] IDataContext context, [NotNull] IViewModelPresenter parentPresenter);
     }
 }

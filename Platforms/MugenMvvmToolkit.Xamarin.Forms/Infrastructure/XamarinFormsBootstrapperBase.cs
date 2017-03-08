@@ -23,6 +23,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Interfaces;
@@ -111,8 +112,11 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         int IDynamicViewModelPresenter.Priority => int.MaxValue;
 
-        IAsyncOperation IDynamicViewModelPresenter.TryShowAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
+        IAsyncOperation IDynamicViewModelPresenter.TryShowAsync(IDataContext context, IViewModelPresenter parentPresenter)
         {
+            var viewModel = context.GetData(NavigationConstants.ViewModel);
+            if (viewModel == null)
+                return null;
             parentPresenter.DynamicPresenters.Remove(this);
             _mainViewModelRef = ServiceProvider.WeakReferenceFactory(viewModel);
 
@@ -140,7 +144,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             return new AsyncOperation<object>();
         }
 
-        Task<bool> IDynamicViewModelPresenter.TryCloseAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
+        Task<bool> IDynamicViewModelPresenter.TryCloseAsync(IDataContext context, IViewModelPresenter parentPresenter)
         {
             return null;
         }

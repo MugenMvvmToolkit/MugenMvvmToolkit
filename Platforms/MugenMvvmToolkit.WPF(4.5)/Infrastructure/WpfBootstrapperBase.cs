@@ -95,10 +95,10 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
 
         int IDynamicViewModelPresenter.Priority => int.MaxValue;
 
-        IAsyncOperation IDynamicViewModelPresenter.TryShowAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
+        IAsyncOperation IDynamicViewModelPresenter.TryShowAsync(IDataContext context, IViewModelPresenter parentPresenter)
         {
             parentPresenter.DynamicPresenters.Remove(this);
-            var operation = parentPresenter.ShowAsync(viewModel, context);
+            var operation = parentPresenter.ShowAsync(context);
             if (ShutdownOnMainViewModelClose)
             {
                 operation.ContinueWith(result =>
@@ -113,6 +113,9 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
             }
             if (_rootWindow != null)
             {
+                var viewModel = context.GetData(NavigationConstants.ViewModel);
+                if (viewModel == null)
+                    return null;
                 var iocContainer = ServiceProvider.IocContainer;
                 IWindowViewMediator mediator = new WindowViewMediator(_rootWindow, iocContainer.Get<IThreadManager>(),
                     iocContainer.Get<IViewManager>(), iocContainer.Get<IWrapperManager>(), iocContainer.Get<INavigationDispatcher>());
@@ -123,7 +126,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
             return operation;
         }
 
-        Task<bool> IDynamicViewModelPresenter.TryCloseAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
+        Task<bool> IDynamicViewModelPresenter.TryCloseAsync(IDataContext context, IViewModelPresenter parentPresenter)
         {
             return null;
         }

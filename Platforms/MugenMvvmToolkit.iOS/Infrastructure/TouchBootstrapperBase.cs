@@ -22,6 +22,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -82,16 +83,21 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
 
         int IDynamicViewModelPresenter.Priority => int.MaxValue;
 
-        IAsyncOperation IDynamicViewModelPresenter.TryShowAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
+        IAsyncOperation IDynamicViewModelPresenter.TryShowAsync(IDataContext context, IViewModelPresenter parentPresenter)
         {
             parentPresenter.DynamicPresenters.Remove(this);
             if (WrapToNavigationController)
-                return parentPresenter.ShowAsync(viewModel, context);
+                return parentPresenter.ShowAsync(context);
+
+            var viewModel = context.GetData(NavigationConstants.ViewModel);
+            if (viewModel == null)
+                return null;
+
             _window.RootViewController = (UIViewController)ServiceProvider.ViewManager.GetOrCreateView(viewModel, null, context);
             return new AsyncOperation<object>();
         }
 
-        Task<bool> IDynamicViewModelPresenter.TryCloseAsync(IViewModel viewModel, IDataContext context, IViewModelPresenter parentPresenter)
+        Task<bool> IDynamicViewModelPresenter.TryCloseAsync(IDataContext context, IViewModelPresenter parentPresenter)
         {
             return null;
         }
