@@ -18,6 +18,7 @@
 
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
@@ -39,7 +40,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Mediators
         protected override WindowViewMediatorBase<IWindowView> Create(IViewModel viewModel, IThreadManager threadManager, IViewManager viewManager,
             IWrapperManager wrapperManager, IOperationCallbackManager callbackManager, INavigationDispatcher navigationDispatcher)
         {
-            var mediator = new WindowViewMediator(threadManager, viewManager, wrapperManager, navigationDispatcher);
+            var mediator = new WindowViewMediator(threadManager, viewManager, wrapperManager, navigationDispatcher, new EventAggregator());
             mediator.Initialize(viewModel, null);
             return mediator;
         }

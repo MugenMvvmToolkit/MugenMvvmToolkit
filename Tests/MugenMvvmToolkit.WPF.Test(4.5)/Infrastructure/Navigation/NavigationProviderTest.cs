@@ -20,6 +20,7 @@ using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using MugenMvvmToolkit.DataConstants;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Test.TestInfrastructure;
 using MugenMvvmToolkit.Test.TestModels;
@@ -275,7 +276,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             base.OnInit();
             NavigationService = new NavigationServiceMock();
             ViewPageMappingProvider = new ViewPageMappingProviderMock();
-            NavigationProvider = new NavigationProvider(NavigationService, ThreadManager, ViewPageMappingProvider, ViewManager, ViewModelProvider, NavigationDispatcher);
+            NavigationProvider = new NavigationProvider(NavigationService, ThreadManager, ViewPageMappingProvider, ViewManager, ViewModelProvider, NavigationDispatcher, new EventAggregator(), null);
         }
 
         #endregion
