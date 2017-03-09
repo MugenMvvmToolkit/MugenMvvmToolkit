@@ -100,6 +100,7 @@
     <Compile Include="MarkupExtensions\View.cs" />
     <Compile Include="Binding\Models\ParentObserver.cs" />
     <Compile Include="Binding\Modules\XamarinFormsDataBindingModule.cs" />
+    <Compile Include="MvvmXamarinApplicationBase.cs" />
     <Compile Include="XamarinFormsExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
