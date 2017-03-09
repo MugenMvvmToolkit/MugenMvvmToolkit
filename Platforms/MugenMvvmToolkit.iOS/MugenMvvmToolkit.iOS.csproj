@@ -127,6 +127,7 @@
     <Compile Include="Modules\TouchInitializationModule.cs" />
     <Compile Include="Binding\Modules\TouchDataBindingModule.cs" />
     <Compile Include="Binding\AttachedMembers.cs" />
+    <Compile Include="MvvmAppDelegateBase.cs" />
     <Compile Include="PlatformExtensions.cs" />
     <Compile Include="PlatformExtensionsCommon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
