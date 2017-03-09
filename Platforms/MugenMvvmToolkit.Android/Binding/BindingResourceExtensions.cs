@@ -39,30 +39,17 @@ namespace MugenMvvmToolkit.Android.Binding
 
         #region Methods
 
-        public static void Initialize(bool canCacheResources = false)
+        public static void Initialize()
         {
             var descriptors = new Dictionary<string, ResourceBindingParserHandler.ResourceDescriptor>();
             ICollection<KeyValuePair<string, ResourceBindingParserHandler.ResourceDescriptor>> collection = descriptors;
-            if (canCacheResources)
-            {
-                collection.Add(CreateCacheDescriptor(nameof(Color), (context, i) => new Color(ColorHandler?.Invoke(context, i) ?? context.GetColor(i))));
-                collection.Add(CreateDescriptor(nameof(Drawable)));
-                collection.Add(CreateCacheDescriptor(nameof(Dimen), (context, i) => context.Resources.GetDimension(i)));
-                collection.Add(CreateCacheDescriptor(nameof(Bool), (context, i) => context.Resources.GetBoolean(i)));
-                collection.Add(CreateCacheDescriptor(nameof(Id), (context, i) => i));
-                collection.Add(CreateCacheDescriptor(nameof(Integer), (context, i) => context.Resources.GetInteger(i)));
-                collection.Add(CreateCacheDescriptor(nameof(String), (context, i) => context.GetString(i)));
-            }
-            else
-            {
-                collection.Add(CreateDescriptor(nameof(Color)));
-                collection.Add(CreateDescriptor(nameof(Drawable)));
-                collection.Add(CreateDescriptor(nameof(Dimen)));
-                collection.Add(CreateDescriptor(nameof(Bool)));
-                collection.Add(CreateDescriptor(nameof(Id)));
-                collection.Add(CreateDescriptor(nameof(Integer)));
-                collection.Add(CreateDescriptor(nameof(String)));
-            }
+            collection.Add(CreateDescriptor(nameof(Color), (context, i) => new Color(ColorHandler?.Invoke(context, i) ?? context.GetColor(i))));
+            collection.Add(CreateDescriptor(nameof(Drawable), null));
+            collection.Add(CreateDescriptor(nameof(Dimen), (context, i) => context.Resources.GetDimension(i)));
+            collection.Add(CreateDescriptor(nameof(Bool), (context, i) => context.Resources.GetBoolean(i)));
+            collection.Add(CreateDescriptor(nameof(Id), (context, i) => i));
+            collection.Add(CreateDescriptor(nameof(Integer), (context, i) => context.Resources.GetInteger(i)));
+            collection.Add(CreateDescriptor(nameof(String), (context, i) => context.GetString(i)));
             var handler = new ResourceBindingParserHandler(descriptors);
             BindingServiceProvider.BindingProvider.Parser.Handlers.Add(handler);
         }
@@ -126,20 +113,18 @@ namespace MugenMvvmToolkit.Android.Binding
             return target == null ? (PlatformExtensions.CurrentActivity ?? Application.Context) : AttachedMembersRegistration.GetContextFromItem(target);
         }
 
-        private static KeyValuePair<string, ResourceBindingParserHandler.ResourceDescriptor> CreateCacheDescriptor(string type, Func<Context, int, object> getResource)
+        private static KeyValuePair<string, ResourceBindingParserHandler.ResourceDescriptor> CreateDescriptor(string method, Func<Context, int, object> getResource)
         {
-            type = type.ToLower();
-            return new KeyValuePair<string, ResourceBindingParserHandler.ResourceDescriptor>(type, new ResourceBindingParserHandler.ResourceDescriptor((ctx, s) =>
-            {
-                var id = ctx.Resources.GetIdentifier(s, type, ctx.PackageName);
-                return getResource(ctx, id);
-            }));
-        }
-
-        private static KeyValuePair<string, ResourceBindingParserHandler.ResourceDescriptor> CreateDescriptor(string name)
-        {
-            return new KeyValuePair<string, ResourceBindingParserHandler.ResourceDescriptor>(name.ToLower(),
-                new ResourceBindingParserHandler.ResourceDescriptor(typeof(BindingResourceExtensions), name));
+            var type = method.ToLower();
+            var resourceDescriptor = new ResourceBindingParserHandler.ResourceDescriptor(typeof(BindingResourceExtensions), method,
+                getResource == null
+                    ? (Func<Context, string, object>)null
+                    : (ctx, s) =>
+                    {
+                        var id = ctx.Resources.GetIdentifier(s, type, ctx.PackageName);
+                        return getResource(ctx, id);
+                    });
+            return new KeyValuePair<string, ResourceBindingParserHandler.ResourceDescriptor>(type, resourceDescriptor);
         }
 
         #endregion

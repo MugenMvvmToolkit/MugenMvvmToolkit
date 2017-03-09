@@ -44,18 +44,13 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
             #region Constructors
 
-            public ResourceDescriptor(Func<Context, string, object> getResource)
-            {
-                Should.NotBeNull(getResource, nameof(getResource));
-                GetResource = getResource;
-            }
-
-            public ResourceDescriptor(Type extType, string methodName)
+            public ResourceDescriptor(Type extType, string methodName, Func<Context, string, object> getResource)
             {
                 Should.NotBeNull(extType, nameof(extType));
                 Should.NotBeNull(methodName, nameof(methodName));
                 ExtType = extType;
                 MethodName = methodName;
+                GetResource = getResource;
             }
 
             #endregion
@@ -113,11 +108,12 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             if (member?.Target == null)
                 return node;
             var target = member.Target as IMemberExpressionNode;
+            var resourceType = target?.Target as ResourceExpressionNode;
             ResourceDescriptor resourceDescriptor;
-            if (!(target?.Target is ResourceExpressionNode) || !_resourceMemberToDescriptor.TryGetValue(target.Member, out resourceDescriptor))
+            if (resourceType == null || !_resourceMemberToDescriptor.TryGetValue(target.Member, out resourceDescriptor))
                 return node;
 
-            if (resourceDescriptor.GetResource == null)
+            if (resourceType.Dynamic || resourceDescriptor.GetResource == null)
             {
                 return new MethodCallExpressionNode(new ConstantExpressionNode(resourceDescriptor.ExtType, typeof(Type)), resourceDescriptor.MethodName, new IExpressionNode[]
                 {
