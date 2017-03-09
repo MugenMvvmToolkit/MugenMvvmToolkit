@@ -168,8 +168,11 @@
     <Compile Include="Models\LazySerializableContainer.cs" />
     <Compile Include="Models\PopupSettings.cs" />
     <Compile Include="Modules\UwpWrapperRegistrationModule.cs" />
+    <Compile Include="MvvmUwpApplicationBase.cs" />
+    <Compile Include="NavigationHelper.cs" />
     <Compile Include="PlatformExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SuspensionManager.cs" />
     <EmbeddedResource Include="Properties\MugenMvvmToolkit.UAP.rd.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -183,6 +186,11 @@
       <Name>MugenMvvmToolkit.Core%28NetStandard%29</Name>
       <Private>False</Private>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <SDKReference Include="WindowsMobile, Version=10.0.10240.0">
+      <Name>Windows Mobile Extensions for the UWP</Name>
+    </SDKReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

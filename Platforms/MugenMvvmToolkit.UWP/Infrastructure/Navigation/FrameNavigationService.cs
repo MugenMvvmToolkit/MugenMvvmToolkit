@@ -17,6 +17,8 @@
 #endregion
 
 using System;
+using Windows.Foundation.Metadata;
+using Windows.Phone.UI.Input;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -53,8 +55,12 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             _frame = frame;
             _frame.Navigating += OnNavigating;
             _frame.Navigated += OnNavigated;
-            if (isRootFrame)
-                PlatformExtensions.SubscribeBackPressedEventDelegate?.Invoke(this, (o, sender, args) => ((FrameNavigationService)o).OnBackButtonPressed(args));//todo check
+            if (isRootFrame && ApiInformation.IsTypePresent("Windows.Phone.UI.Input.HardwareButtons"))
+            {
+                var handler = ReflectionExtensions.CreateWeakEventHandler<FrameNavigationService, BackPressedEventArgs>(this,
+                    (service, sender, arg3) => service.OnBackButtonPressed(arg3), (sender, h) => HardwareButtons.BackPressed -= h.Handle);
+                HardwareButtons.BackPressed += handler.Handle;
+            }
         }
 
         #endregion
@@ -177,16 +183,10 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 
         #region Methods
 
-        private void OnBackButtonPressed(object args)
+        private void OnBackButtonPressed(BackPressedEventArgs args)
         {
             if (_frame.CanGoBack)
                 return;
-            var backPressedHandledDelegate = PlatformExtensions.SetBackPressedHandledDelegate;
-            if (backPressedHandledDelegate == null)
-            {
-                RaiseNavigated(BackButtonNavigationEventArgs.Instance);
-                return;
-            }
 
             var navigating = Navigating;
             if (navigating == null)
@@ -197,7 +197,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 
             var navArgs = new BackButtonNavigatingEventArgs();
             navigating(this, navArgs);
-            backPressedHandledDelegate(args, navArgs.Cancel);
+            args.Handled = navArgs.Cancel;
         }
 
         private bool NavigateInternal(NavigatingCancelEventArgsBase args)
