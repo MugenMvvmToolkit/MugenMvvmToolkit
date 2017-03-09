@@ -26,8 +26,6 @@ namespace MugenMvvmToolkit.Android.Models.EventArg
     {
         #region Fields
 
-        public static readonly NavigatingCancelEventArgs NonCancelableEventArgs;
-
         private readonly bool _isCancelable;
         private readonly IViewMappingItem _mapping;
         private readonly NavigationMode _navigationMode;
@@ -37,17 +35,6 @@ namespace MugenMvvmToolkit.Android.Models.EventArg
         #endregion
 
         #region Constructors
-
-        static NavigatingCancelEventArgs()
-        {
-            NonCancelableEventArgs = new NavigatingCancelEventArgs();
-        }
-
-        private NavigatingCancelEventArgs()
-        {
-            _navigationMode = NavigationMode.New;
-            _isCancelable = false;
-        }
 
         public NavigatingCancelEventArgs(NavigationMode navigationMode, IDataContext context)
         {

@@ -68,6 +68,8 @@
     <Compile Include="Models\EventArg\ViewModelPreservingEventArgs.cs" />
     <Compile Include="Models\EventArg\ViewModelRestoredEventArgs.cs" />
     <Compile Include="Models\EventArg\ViewModelRestoringEventArgs.cs" />
+    <Compile Include="Models\Messages\BackgroundNavigationMessage.cs" />
+    <Compile Include="Models\Messages\ForegroundNavigationMessage.cs" />
     <Compile Include="Models\MultiViewModelState.cs" />
     <Compile Include="Models\SerializerDataContainer.cs" />
     <Compile Include="MvvmApplication.cs" />

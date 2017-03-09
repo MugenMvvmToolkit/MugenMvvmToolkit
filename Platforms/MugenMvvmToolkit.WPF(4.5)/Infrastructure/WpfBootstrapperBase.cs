@@ -118,7 +118,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
                     return null;
                 var iocContainer = ServiceProvider.IocContainer;
                 IWindowViewMediator mediator = new WindowViewMediator(_rootWindow, iocContainer.Get<IThreadManager>(),
-                    iocContainer.Get<IViewManager>(), iocContainer.Get<IWrapperManager>(), iocContainer.Get<INavigationDispatcher>());
+                    iocContainer.Get<IViewManager>(), iocContainer.Get<IWrapperManager>(), iocContainer.Get<INavigationDispatcher>(), iocContainer.Get<IEventAggregator>());
                 mediator.Initialize(viewModel, context);
                 mediator.UpdateView(new WpfWrapperRegistrationModule.WindowViewWrapper(_rootWindow), true, context);
                 _rootWindow.Show();

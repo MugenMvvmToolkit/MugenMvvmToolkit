@@ -590,6 +590,12 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\messages\AsyncValidationMessage.cs">
       <Link>Models\Messages\AsyncValidationMessage.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Models\Messages\BackgroundNavigationMessage.cs">
+      <Link>Models\Messages\BackgroundNavigationMessage.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Models\Messages\ForegroundNavigationMessage.cs">
+      <Link>Models\Messages\ForegroundNavigationMessage.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\models\messages\StateChangedMessage.cs">
       <Link>Models\Messages\StateChangedMessage.cs</Link>
     </Compile>

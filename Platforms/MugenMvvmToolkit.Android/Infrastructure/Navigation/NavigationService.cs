@@ -28,9 +28,11 @@ using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Android.Models.EventArg;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
+using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
+using MugenMvvmToolkit.Models.Messages;
 using Object = Java.Lang.Object;
 
 namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
@@ -139,13 +141,21 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public NavigationService()
+        public NavigationService(IEventAggregator eventAggregator)
         {
+            Should.NotBeNull(eventAggregator, nameof(eventAggregator));
+            EventAggregator = eventAggregator;
             if (Build.VERSION.SdkInt >= BuildVersionCodes.IceCreamSandwich)
             {
                 (Application.Context as Application)?.RegisterActivityLifecycleCallbacks(new ActivityLifecycleListener(this));
             }
         }
+
+        #endregion
+
+        #region Properties
+
+        protected IEventAggregator EventAggregator { get; }
 
         #endregion
 
@@ -224,8 +234,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             if (_isNew || _isBack || !ReferenceEquals(activity, CurrentContent))
                 return;
             _isPause = true;
-            RaiseNavigating(NavigatingCancelEventArgs.NonCancelableEventArgs);
-            RaiseNavigated(null, NavigationMode.New, null, context);
+            EventAggregator.Publish(this, new BackgroundNavigationMessage(context));
         }
 
         public virtual void OnResumeActivity(Activity activity, IDataContext context = null)
@@ -234,6 +243,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             if (ReferenceEquals(activity, CurrentContent) && !_isPause)
                 return;
             PlatformExtensions.SetCurrentActivity(activity, false);
+            var isPause = _isPause;
             _isPause = false;
             if (_isNew)
             {
@@ -247,7 +257,10 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             else
             {
                 _isBack = false;
-                RaiseNavigated(activity, NavigationMode.Back, GetParameterFromIntent(activity.Intent), MergeContext(_dataContext, context));
+                if (isPause)
+                    EventAggregator.Publish(this, new ForegroundNavigationMessage(context));
+                else
+                    RaiseNavigated(activity, NavigationMode.Back, GetParameterFromIntent(activity.Intent), MergeContext(_dataContext, context));
             }
         }
 

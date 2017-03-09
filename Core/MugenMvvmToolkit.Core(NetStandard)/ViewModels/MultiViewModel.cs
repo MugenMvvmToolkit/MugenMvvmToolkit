@@ -340,7 +340,7 @@ namespace MugenMvvmToolkit.ViewModels
                     var selectable = viewModel as ISelectable;
                     if (selectable != null)
                         selectable.PropertyChanged += _propertyChangedWeakEventHandler;
-                    NavigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Tab, NavigationMode.New, null, viewModel, this));
+                    NavigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Tab, NavigationMode.New, null, viewModel, this));//todo fix
                     OnViewModelAdded(viewModel);
                     RaiseViewModelAdded(viewModel);
                 }

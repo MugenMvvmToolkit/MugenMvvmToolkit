@@ -40,8 +40,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         #region Constructors
 
         public WindowViewMediator([NotNull] IThreadManager threadManager, [NotNull] IViewManager viewManager,
-            [NotNull] IWrapperManager wrapperManager, [NotNull] INavigationDispatcher navigationDispatcher)
-            : base(threadManager, viewManager, wrapperManager, navigationDispatcher)
+            [NotNull] IWrapperManager wrapperManager, [NotNull] INavigationDispatcher navigationDispatcher, [NotNull] IEventAggregator eventAggregator)
+            : base(threadManager, viewManager, wrapperManager, navigationDispatcher, eventAggregator)
         {
         }
 

@@ -27,6 +27,7 @@ using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
+using MugenMvvmToolkit.Models.Messages;
 using MugenMvvmToolkit.ViewModels;
 #if WPF
 using System.Linq;
@@ -54,7 +55,7 @@ using MugenMvvmToolkit.UWP.Interfaces.Navigation;
 namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 #endif
 {
-    public class NavigationProvider : INavigationProvider
+    public class NavigationProvider : INavigationProvider, IHandler<ForegroundNavigationMessage>, IHandler<BackgroundNavigationMessage>
     {
         #region Fields
 
@@ -86,9 +87,9 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 
         [Preserve(Conditional = true)]
         public NavigationProvider([NotNull] INavigationService navigationService, [NotNull] IThreadManager threadManager, [NotNull] IViewMappingProvider mappingProvider,
-            [NotNull] IViewManager viewManager, [NotNull] IViewModelProvider viewModelProvider, [NotNull] INavigationDispatcher navigationDispatcher
+            [NotNull] IViewManager viewManager, [NotNull] IViewModelProvider viewModelProvider, [NotNull] INavigationDispatcher navigationDispatcher, IEventAggregator eventAggregator
 #if WPF || WINDOWS_UWP
-            , INavigationCachePolicy cachePolicy = null
+            , INavigationCachePolicy cachePolicy
 #endif
             )
         {
@@ -98,6 +99,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             Should.NotBeNull(viewManager, nameof(viewManager));
             Should.NotBeNull(viewModelProvider, nameof(viewModelProvider));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            Should.NotBeNull(eventAggregator, nameof(eventAggregator));
             NavigationService = navigationService;
             ThreadManager = threadManager;
             ViewMappingProvider = mappingProvider;
@@ -112,6 +114,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 
             NavigationService.Navigating += NavigationServiceOnNavigating;
             NavigationService.Navigated += NavigationServiceOnNavigated;
+            eventAggregator.Subscribe(this);
         }
 
         #endregion
@@ -184,6 +187,20 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             var viewModel = GetViewModelFromContext(context);
             context = context.ToNonReadOnly();
             RestoreInternal(viewModel, context);
+        }
+
+        void IHandler<ForegroundNavigationMessage>.Handle(object sender, ForegroundNavigationMessage message)
+        {
+            var currentViewModel = CurrentViewModel;
+            if (currentViewModel != null)
+                OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Foreground, null, currentViewModel, this, message.Context));
+        }
+
+        void IHandler<BackgroundNavigationMessage>.Handle(object sender, BackgroundNavigationMessage message)
+        {
+            var currentViewModel = CurrentViewModel;
+            if (currentViewModel != null)
+                OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Background, currentViewModel, null, this, message.Context));
         }
 
         #endregion
@@ -454,7 +471,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                     Tracer.Error("Possible bug in navigation, navigate to the same view model with mode " + mode);
                 return;
             }
-            if (mode != NavigationMode.Remove)
+            if (mode != NavigationMode.Remove)//todo background
             {
                 CurrentViewModel = vmTo;
                 if (vmTo != null)

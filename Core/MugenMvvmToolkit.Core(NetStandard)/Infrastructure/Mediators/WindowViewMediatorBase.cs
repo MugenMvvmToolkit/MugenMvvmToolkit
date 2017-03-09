@@ -27,11 +27,12 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Models.Messages;
 using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure.Mediators
 {
-    public abstract class WindowViewMediatorBase<TView> : IWindowViewMediator
+    public abstract class WindowViewMediatorBase<TView> : IWindowViewMediator, IHandler<ForegroundNavigationMessage>, IHandler<BackgroundNavigationMessage>
         where TView : class
     {
         #region Fields
@@ -40,6 +41,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         private readonly IViewManager _viewManager;
         private readonly IWrapperManager _wrapperManager;
         private readonly INavigationDispatcher _navigationDispatcher;
+        private readonly IEventAggregator _eventAggregator;
         private IViewModel _viewModel;
         private CancelEventArgs _cancelArgs;
         private IDataContext _closeParameter;
@@ -50,16 +52,20 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         #region Constructors
 
-        protected WindowViewMediatorBase([NotNull] IThreadManager threadManager, [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] INavigationDispatcher navigationDispatcher)
+        protected WindowViewMediatorBase([NotNull] IThreadManager threadManager, [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] INavigationDispatcher navigationDispatcher,
+            [NotNull] IEventAggregator eventAggregator)
         {
             Should.NotBeNull(threadManager, nameof(threadManager));
             Should.NotBeNull(viewManager, nameof(viewManager));
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            Should.NotBeNull(eventAggregator, nameof(eventAggregator));
             _threadManager = threadManager;
             _viewManager = viewManager;
             _wrapperManager = wrapperManager;
             _navigationDispatcher = navigationDispatcher;
+            _eventAggregator = eventAggregator;
+            _eventAggregator.Subscribe(this);
         }
 
         #endregion
@@ -77,6 +83,8 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         protected IWrapperManager WrapperManager => _wrapperManager;
 
         protected INavigationDispatcher NavigationDispatcher => _navigationDispatcher;
+
+        protected IEventAggregator EventAggregator => _eventAggregator;
 
         #endregion
 
@@ -184,6 +192,18 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             if (oldView == null && view != null && isOpen)
                 ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, context,
                         (@base, dataContext) => @base.NavigationDispatcher.OnNavigated(@base.CreateOpenContext(dataContext, NavigationMode.Refresh)), OperationPriority.Low);
+        }
+
+        void IHandler<ForegroundNavigationMessage>.Handle(object sender, ForegroundNavigationMessage message)
+        {
+            if (IsOpen)
+                NavigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Foreground, null, ViewModel, this, message.Context));
+        }
+
+        void IHandler<BackgroundNavigationMessage>.Handle(object sender, BackgroundNavigationMessage message)
+        {
+            if (IsOpen)
+                NavigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Background, ViewModel, null, this, message.Context));
         }
 
         #endregion

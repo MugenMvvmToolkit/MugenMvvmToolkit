@@ -45,15 +45,16 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Mediators
 
         #region Constructors
 
-        public WindowViewMediator([NotNull] IThreadManager threadManager, [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] INavigationDispatcher navigationDispatcher)
-            : base(threadManager, viewManager, wrapperManager, navigationDispatcher)
+        public WindowViewMediator([NotNull] IThreadManager threadManager, [NotNull] IViewManager viewManager,
+            [NotNull] IWrapperManager wrapperManager, [NotNull] INavigationDispatcher navigationDispatcher, [NotNull] IEventAggregator eventAggregator)
+            : base(threadManager, viewManager, wrapperManager, navigationDispatcher, eventAggregator)
         {
         }
 
 #if WPF
-        internal WindowViewMediator([NotNull] NavigationWindow window, [NotNull] IThreadManager threadManager,
-             [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] INavigationDispatcher navigationDispatcher)
-            : base(threadManager, viewManager, wrapperManager, navigationDispatcher)
+        internal WindowViewMediator([NotNull] NavigationWindow window, [NotNull] IThreadManager threadManager, [NotNull] IViewManager viewManager,
+            [NotNull] IWrapperManager wrapperManager, [NotNull] INavigationDispatcher navigationDispatcher, [NotNull] IEventAggregator eventAggregator)
+            : base(threadManager, viewManager, wrapperManager, navigationDispatcher, eventAggregator)
         {
             Should.NotBeNull(window, nameof(window));
             _window = window;

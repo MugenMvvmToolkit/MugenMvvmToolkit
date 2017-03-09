@@ -54,8 +54,8 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
 
         public ModalViewMediator([NotNull] IThreadManager threadManager,
             [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] IViewMappingProvider viewMappingProvider,
-            [NotNull] IViewModelProvider viewModelProvider, [NotNull] INavigationDispatcher navigationDispatcher)
-            : base(threadManager, viewManager, wrapperManager, navigationDispatcher)
+            [NotNull] IViewModelProvider viewModelProvider, [NotNull] INavigationDispatcher navigationDispatcher, [NotNull] IEventAggregator eventAggregator)
+            : base(threadManager, viewManager, wrapperManager, navigationDispatcher, eventAggregator)
         {
             Should.NotBeNull(viewMappingProvider, nameof(viewMappingProvider));
             Should.NotBeNull(viewModelProvider, nameof(viewModelProvider));
@@ -76,7 +76,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
 
         protected virtual INavigationProvider CreateNavigationProvider(INavigationService service)
         {
-            return new NavigationProvider(service, ThreadManager, _viewMappingProvider, ViewManager, _viewModelProvider, NavigationDispatcher);
+            return new NavigationProvider(service, ThreadManager, _viewMappingProvider, ViewManager, _viewModelProvider, NavigationDispatcher, EventAggregator);
         }
 
         private void BindProvider(UINavigationController controller)

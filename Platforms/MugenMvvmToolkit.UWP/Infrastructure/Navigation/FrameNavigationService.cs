@@ -54,7 +54,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             _frame.Navigating += OnNavigating;
             _frame.Navigated += OnNavigated;
             if (isRootFrame)
-                PlatformExtensions.SubscribeBackPressedEventDelegate?.Invoke(this, (o, sender, args) => ((FrameNavigationService)o).OnBackButtonPressed(args));
+                PlatformExtensions.SubscribeBackPressedEventDelegate?.Invoke(this, (o, sender, args) => ((FrameNavigationService)o).OnBackButtonPressed(args));//todo check
         }
 
         #endregion
