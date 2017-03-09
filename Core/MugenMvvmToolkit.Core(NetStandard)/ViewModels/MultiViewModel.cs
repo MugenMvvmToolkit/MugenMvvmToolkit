@@ -340,7 +340,7 @@ namespace MugenMvvmToolkit.ViewModels
                     var selectable = viewModel as ISelectable;
                     if (selectable != null)
                         selectable.PropertyChanged += _propertyChangedWeakEventHandler;
-                    NavigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Tab, NavigationMode.New, null, viewModel, this));//todo fix
+                    viewModel.Settings.Metadata.AddOrUpdate(NavigationConstants.IsFirstNavigation, null);
                     OnViewModelAdded(viewModel);
                     RaiseViewModelAdded(viewModel);
                 }
@@ -365,6 +365,7 @@ namespace MugenMvvmToolkit.ViewModels
                     _lastRemoveContext = null;
                     if (context == null || context.ViewModelFrom != viewModel)
                         context = new NavigationContext(NavigationType.Tab, NavigationMode.Remove, viewModel, null, this);
+                    viewModel.Settings.Metadata.Remove(NavigationConstants.IsFirstNavigation);
                     NavigationDispatcher.OnNavigated(context);
                     OnViewModelRemoved(viewModel);
                     RaiseViewModelRemoved(viewModel);
@@ -399,7 +400,8 @@ namespace MugenMvvmToolkit.ViewModels
             if (selectable != null)
                 selectable.IsSelected = true;
 
-            NavigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Tab, NavigationMode.Refresh, oldValue, newValue, this));
+            NavigationMode mode = newValue != null && newValue.Settings.Metadata.Remove(NavigationConstants.IsFirstNavigation) ? NavigationMode.New : NavigationMode.Refresh;
+            NavigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Tab, mode, oldValue, newValue, this));
             OnSelectedItemChanged(oldValue, newValue);
             RaiseSelectedItemChanged(oldValue, newValue);
         }
