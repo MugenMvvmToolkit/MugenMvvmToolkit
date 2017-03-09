@@ -471,7 +471,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                     Tracer.Error("Possible bug in navigation, navigate to the same view model with mode " + mode);
                 return;
             }
-            if (mode != NavigationMode.Remove)//todo background
+            if (mode != NavigationMode.Remove && mode != NavigationMode.Background && mode != NavigationMode.Foreground)
             {
                 CurrentViewModel = vmTo;
                 if (vmTo != null)

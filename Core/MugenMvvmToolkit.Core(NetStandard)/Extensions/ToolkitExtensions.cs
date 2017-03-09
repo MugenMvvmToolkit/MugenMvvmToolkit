@@ -1528,6 +1528,12 @@ namespace MugenMvvmToolkit
             return mode == NavigationMode.Back || mode == NavigationMode.Remove;
         }
 
+        [Pure]
+        public static bool IsCloseOrBackground(this NavigationMode mode)
+        {
+            return mode.IsClose() || mode == NavigationMode.Background;
+        }
+
         [NotNull]
         public static IDataContext ToNonReadOnly([CanBeNull] this IDataContext context)
         {

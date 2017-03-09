@@ -98,14 +98,14 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         protected virtual void OnNavigationFailedInternal(INavigationContext context, Exception exception)
         {
-            var viewModel = context.NavigationMode.IsClose() ? context.ViewModelFrom : context.ViewModelTo;
+            var viewModel = context.NavigationMode.IsCloseOrBackground() ? context.ViewModelFrom : context.ViewModelTo;
             if (viewModel != null && context.NavigationType.Operation != null)
                 CallbackManager.SetResult(OperationResult.CreateErrorResult<object>(context.NavigationType.Operation, viewModel, exception, context));
         }
 
         protected virtual void OnNavigationCanceledInternal(INavigationContext context)
         {
-            var viewModel = context.NavigationMode.IsClose() ? context.ViewModelFrom : context.ViewModelTo;
+            var viewModel = context.NavigationMode.IsCloseOrBackground() ? context.ViewModelFrom : context.ViewModelTo;
             if (viewModel != null && context.NavigationType.Operation != null)
                 CallbackManager.SetResult(OperationResult.CreateCancelResult<object>(context.NavigationType.Operation, viewModel, context));
         }
