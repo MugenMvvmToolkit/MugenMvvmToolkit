@@ -57,7 +57,7 @@ namespace MugenMvvmToolkit.Android.Binding
         public static Color Color(string name, object target = null)
         {
             var context = GetContext(target);
-            var id = context.Resources.GetIdentifier(name, "color", context.PackageName);
+            var id = GetId(context, name, "color");
             if (ColorHandler == null)
                 return new Color(context.GetColor(id));
             return new Color(ColorHandler(context, id));
@@ -66,9 +66,9 @@ namespace MugenMvvmToolkit.Android.Binding
         public static Drawable Drawable(string name, object target = null)
         {
             var context = GetContext(target);
-            var id = context.Resources.GetIdentifier(name, "drawable", context.PackageName);
+            var id = GetId(context, name, "drawable");
             if (id == 0)
-                id = context.Resources.GetIdentifier(name, "mipmap", context.PackageName);
+                id = GetId(context, name, "mipmap");
             if (DrawableHandler == null)
                 return context.GetDrawable(id);
             return DrawableHandler(context, id);
@@ -77,40 +77,49 @@ namespace MugenMvvmToolkit.Android.Binding
         public static float Dimen(string name, object target = null)
         {
             var context = GetContext(target);
-            var id = context.Resources.GetIdentifier(name, "dimen", context.PackageName);
+            var id = GetId(context, name, "dimen");
             return context.Resources.GetDimension(id);
         }
 
         public static bool Bool(string name, object target = null)
         {
             var context = GetContext(target);
-            var id = context.Resources.GetIdentifier(name, "bool", context.PackageName);
+            var id = GetId(context, name, "bool");
             return context.Resources.GetBoolean(id);
         }
 
         public static int Id(string name, object target = null)
         {
             var context = GetContext(target);
-            return context.Resources.GetIdentifier(name, "id", context.PackageName);
+            return GetId(context, name, "id");
         }
 
         public static int Integer(string name, object target = null)
         {
             var context = GetContext(target);
-            var id = context.Resources.GetIdentifier(name, "integer", context.PackageName);
+            var id = GetId(context, name, "integer");
             return context.Resources.GetInteger(id);
         }
 
         public static string String(string name, object target = null)
         {
             var context = GetContext(target);
-            var id = context.Resources.GetIdentifier(name, "string", context.PackageName);
+            var id = GetId(context, name, "string");
             return context.Resources.GetString(id);
         }
 
         internal static Context GetContext(object target)
         {
             return target == null ? (PlatformExtensions.CurrentActivity ?? Application.Context) : AttachedMembersRegistration.GetContextFromItem(target);
+        }
+
+        private static int GetId(Context context, string name, string type)
+        {
+            var resources = context.Resources;
+            var id = resources.GetIdentifier(name, type, context.PackageName);
+            if (id == 0)
+                id = resources.GetIdentifier(name, type, "android");
+            return id;
         }
 
         private static KeyValuePair<string, ResourceBindingParserHandler.ResourceDescriptor> CreateDescriptor(string method, Func<Context, int, object> getResource)
@@ -121,7 +130,7 @@ namespace MugenMvvmToolkit.Android.Binding
                     ? (Func<Context, string, object>)null
                     : (ctx, s) =>
                     {
-                        var id = ctx.Resources.GetIdentifier(s, type, ctx.PackageName);
+                        var id = GetId(ctx, s, type);
                         return getResource(ctx, id);
                     });
             return new KeyValuePair<string, ResourceBindingParserHandler.ResourceDescriptor>(type, resourceDescriptor);
