@@ -76,7 +76,7 @@ namespace MugenMvvmToolkit.iOS
             get
             {
                 if (_applicationStateManager == null)
-                    Interlocked.CompareExchange(ref _applicationStateManager, ServiceProvider.Get<IApplicationStateManager>(), null);
+                    _applicationStateManager = ServiceProvider.Get<IApplicationStateManager>();
                 return _applicationStateManager;
             }
             set { _applicationStateManager = value; }
