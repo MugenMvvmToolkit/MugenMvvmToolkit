@@ -23,3 +23,4 @@ using MugenMvvmToolkit;
 [assembly: AssemblyCopyright(ApplicationSettings.AssemblyCopyright)]
 [assembly: AssemblyVersion(ApplicationSettings.AssemblyVersion)]
 [assembly: AssemblyFileVersion(ApplicationSettings.AssemblyVersion)]
+[assembly: AssemblyKeyFile(@"..\..\Solution Items\sigkey.snk")]
