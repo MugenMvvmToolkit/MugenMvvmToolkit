@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Attributes;
@@ -33,6 +34,11 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 {
     public class NavigationDispatcher : INavigationDispatcher
     {
+        #region Fields
+
+        private readonly Dictionary<NavigationType, List<WeakReference>> _navigatedViewModels;
+
+        #endregion
         #region Constructors
 
         [Preserve(Conditional = true)]
@@ -40,6 +46,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         {
             Should.NotBeNull(callbackManager, nameof(callbackManager));
             CallbackManager = callbackManager;
+            _navigatedViewModels = new Dictionary<NavigationType, List<WeakReference>>();
         }
 
         #endregion
@@ -51,6 +58,84 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         #endregion
 
         #region Methods
+
+        [NotNull]
+        protected virtual IEnumerable<NavigationType> GetOpenedNavigationTypes([NotNull] IDataContext context)
+        {
+            lock (_navigatedViewModels)
+                return _navigatedViewModels.Keys.ToArrayEx();
+        }
+
+        [NotNull]
+        protected virtual IList<IViewModel> GetOpenedViewModelsInternal([NotNull] NavigationType type, [NotNull] IDataContext context)
+        {
+            lock (_navigatedViewModels)
+            {
+                List<WeakReference> list;
+                if (!_navigatedViewModels.TryGetValue(type, out list))
+                    return Empty.Array<IViewModel>();
+                var result = new List<IViewModel>();
+                for (int i = 0; i < list.Count; i++)
+                {
+                    var target = list[i].Target as IViewModel;
+                    if (target == null)
+                    {
+                        list.RemoveAt(i);
+                        --i;
+                    }
+                    else
+                        result.Add(target);
+                }
+                if (result.Count == 0)
+                    _navigatedViewModels.Remove(type);
+                return result;
+            }
+        }
+
+        protected virtual void HandleOpenedViewModels(INavigationContext context)
+        {
+            lock (_navigatedViewModels)
+            {
+                List<WeakReference> list;
+                if (!_navigatedViewModels.TryGetValue(context.NavigationType, out list))
+                {
+                    list = new List<WeakReference>();
+                    _navigatedViewModels[context.NavigationType] = list;
+                }
+                if (context.NavigationMode == NavigationMode.New && context.ViewModelTo != null)
+                    list.Add(ServiceProvider.WeakReferenceFactory(context.ViewModelTo));
+                else if (context.NavigationMode == NavigationMode.Refresh && context.ViewModelTo != null)
+                {
+                    WeakReference viewModelRef = null;
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        var target = list[i].Target as IViewModel;
+                        if (target == null || ReferenceEquals(target, context.ViewModelTo))
+                        {
+                            if (target != null)
+                                viewModelRef = list[i];
+                            list.RemoveAt(i);
+                            --i;
+                        }
+                    }
+                    if (viewModelRef == null)
+                        viewModelRef = ServiceProvider.WeakReferenceFactory(context.ViewModelTo);
+                    list.Add(viewModelRef);
+                }
+                else if (context.NavigationMode.IsClose() && context.ViewModelFrom != null)
+                {
+                    for (int i = 0; i < list.Count; i++)
+                    {
+                        var target = list[i].Target as IViewModel;
+                        if (target == null || ReferenceEquals(target, context.ViewModelFrom))
+                        {
+                            list.RemoveAt(i);
+                            --i;
+                        }
+                    }
+                }
+            }
+        }
 
         protected virtual Task<bool> OnNavigatingFromInternalAsync(INavigationContext context)
         {
@@ -160,6 +245,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             Should.NotBeNull(context, nameof(context));
             OnNavigatedInternal(context);
             RaiseNavigated(context);
+            HandleOpenedViewModels(context);
             if (Tracer.TraceInformation)
                 Tracer.Info($"Navigated from '{context.ViewModelFrom}' to '{context.ViewModelTo}', navigation mode '{context.NavigationMode}'");
         }
@@ -175,6 +261,27 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         {
             Should.NotBeNull(context, nameof(context));
             OnNavigationCanceledInternal(context);
+        }
+
+        public IDictionary<NavigationType, IList<IViewModel>> GetOpenedViewModels(IDataContext context = null)
+        {
+            if (context == null)
+                context = DataContext.Empty;
+            var navigationTypes = GetOpenedNavigationTypes(context);
+            var dictionary = new Dictionary<NavigationType, IList<IViewModel>>();
+            foreach (var navigationType in navigationTypes)
+            {
+                var viewModels = GetOpenedViewModelsInternal(navigationType, context);
+                if (viewModels.Count != 0)
+                    dictionary[navigationType] = viewModels;
+            }
+            return dictionary;
+        }
+
+        public IList<IViewModel> GetOpenedViewModels(NavigationType type, IDataContext context = null)
+        {
+            Should.NotBeNull(type, nameof(type));
+            return GetOpenedViewModelsInternal(type, context ?? DataContext.Empty);
         }
 
         #endregion

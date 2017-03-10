@@ -29,10 +29,11 @@ namespace MugenMvvmToolkit.Interfaces.Navigation
 {
     public interface INavigationDispatcher
     {
-//        IDictionary<NavigationType, IViewModel> GetTopViewModels(IDataContext context = null);
+        [NotNull]
+        IDictionary<NavigationType, IList<IViewModel>> GetOpenedViewModels(IDataContext context = null);
 
-        //todo get TopViewModels
-//        IViewModel GetTopViewModel(NavigationType navigationType, IDataContext context = null);
+        [NotNull]
+        IList<IViewModel> GetOpenedViewModels([NotNull]NavigationType type, IDataContext context = null);
 
         Task<bool> OnNavigatingFromAsync([NotNull] INavigationContext context);
 

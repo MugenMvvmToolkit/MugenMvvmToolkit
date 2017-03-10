@@ -141,6 +141,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
                 view = page;
             }
             Application.Current.MainPage = view;
+            if (page == null)
+                ServiceProvider.Get<INavigationDispatcher>().OnNavigated(new NavigationContext(NavigationType.Window, NavigationMode.New, null, viewModel, this, context));
             return new AsyncOperation<object>();
         }
 

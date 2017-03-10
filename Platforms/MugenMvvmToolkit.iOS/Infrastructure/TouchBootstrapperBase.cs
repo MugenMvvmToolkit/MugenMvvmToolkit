@@ -33,6 +33,7 @@ using MugenMvvmToolkit.iOS.Interfaces.Navigation;
 using MugenMvvmToolkit.iOS.Interfaces.Views;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Interfaces.Callbacks;
+using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
 using UIKit;
@@ -94,6 +95,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
                 return null;
 
             _window.RootViewController = (UIViewController)ServiceProvider.ViewManager.GetOrCreateView(viewModel, null, context);
+            ServiceProvider.Get<INavigationDispatcher>().OnNavigated(new NavigationContext(NavigationType.Window, NavigationMode.New, null, viewModel, this, context));
             return new AsyncOperation<object>();
         }
 
