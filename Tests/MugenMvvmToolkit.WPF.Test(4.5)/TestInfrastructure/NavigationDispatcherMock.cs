@@ -17,8 +17,11 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
+using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 
@@ -70,6 +73,16 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         }
 
         public event EventHandler<INavigationDispatcher, NavigatedEventArgs> Navigated;
+
+        public IDictionary<NavigationType, IList<IViewModel>> GetOpenedViewModels(IDataContext context = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IList<IViewModel> GetOpenedViewModels(NavigationType type, IDataContext context = null)
+        {
+            throw new NotImplementedException();
+        }
 
         #endregion
     }
