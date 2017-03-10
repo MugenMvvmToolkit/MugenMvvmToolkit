@@ -109,7 +109,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (context == null)
                     context = DataContext.Empty;
                 view = ToolkitExtensions.GetUnderlyingView<object>(view);
-                var oldView = viewModel.Settings.Metadata.GetData(ViewModelConstants.View);
+                var oldView = viewModel.GetCurrentView<object>(false);
                 if (ReferenceEquals(oldView, view))
                 {
                     tcs.SetResult(null);
@@ -127,7 +127,7 @@ namespace MugenMvvmToolkit.Infrastructure
         public Task CleanupViewAsync(IViewModel viewModel, IDataContext context = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            object view = viewModel.Settings.Metadata.GetData(ViewModelConstants.View);
+            object view = viewModel.GetCurrentView<object>(false);
             if (view == null)
                 return Empty.Task;
             var tcs = new TaskCompletionSource<object>();
@@ -210,7 +210,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 return;
             if (viewModel != null)
             {
-                viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.View, view);
+                viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.View, ServiceProvider.WeakReferenceFactory(view));
                 viewModel.Subscribe(view);
             }
 

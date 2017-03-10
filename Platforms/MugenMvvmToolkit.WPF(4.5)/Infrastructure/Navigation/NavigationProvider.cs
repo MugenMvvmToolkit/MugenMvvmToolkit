@@ -291,7 +291,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 #if WPF || WINDOWS_UWP
             var currentViewModel = CurrentViewModel;
             if (currentViewModel != null)
-                TryCacheViewModel(navigationContext, CurrentContent ?? currentViewModel.Settings.Metadata.GetData(ViewModelConstants.View), currentViewModel);
+                TryCacheViewModel(navigationContext, CurrentContent ?? currentViewModel.GetCurrentView<object>(), currentViewModel);
 #endif
             OnNavigated(navigationContext);
         }

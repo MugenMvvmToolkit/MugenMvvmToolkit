@@ -41,6 +41,7 @@ using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.IoC;
+using MugenMvvmToolkit.ViewModels;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvmToolkit
@@ -1005,7 +1006,7 @@ namespace MugenMvvmToolkit
             object view;
             if (!alwaysCreateNewView.GetValueOrDefault(ApplicationSettings.ViewManagerAlwaysCreateNewView))
             {
-                view = viewModel.Settings.Metadata.GetData(ViewModelConstants.View);
+                view = viewModel.GetCurrentView<object>(false);
                 if (view != null)
                     return view;
             }
@@ -1120,16 +1121,21 @@ namespace MugenMvvmToolkit
         }
 
         public static TView GetUnderlyingView<TView>([CanBeNull] this IView view)
+            where TView : class
         {
             return GetUnderlyingView<TView>(viewObj: view);
         }
 
         public static TView GetUnderlyingView<TView>([CanBeNull]object viewObj)
+            where TView : class
         {
-            var wrapper = viewObj as IViewWrapper;
-            if (wrapper == null)
-                return (TView)viewObj;
-            return (TView)wrapper.View;
+            while (true)
+            {
+                var wrapper = viewObj as IViewWrapper;
+                if (wrapper?.View == null || wrapper.View == viewObj)
+                    return (TView)viewObj;
+                viewObj = wrapper.View;
+            }
         }
 
         public static IValidatorAggregator GetValidatorAggregator([NotNull] this IValidatorProvider validatorProvider,

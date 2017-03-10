@@ -33,6 +33,7 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.Models.Messages;
+using MugenMvvmToolkit.ViewModels;
 using Object = Java.Lang.Object;
 
 namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
@@ -377,8 +378,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                     var viewModel = dataContext.GetData(NavigationConstants.ViewModel);
                     if (viewModel != null)
                     {
-                        var view = viewModel.Settings.Metadata.GetData(ViewModelConstants.View);
-                        var activityView = ToolkitExtensions.GetUnderlyingView<object>(view) as Activity;
+                        var activityView = viewModel.GetCurrentView<object>() as Activity;
                         if (activityView != null && activityView.IsTaskRoot)
                         {
                             var message = new MvvmActivityMediator.FinishActivityMessage(viewModel);

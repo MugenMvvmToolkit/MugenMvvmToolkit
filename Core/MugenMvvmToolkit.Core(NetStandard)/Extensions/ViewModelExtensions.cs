@@ -56,6 +56,24 @@ namespace MugenMvvmToolkit.ViewModels
                    viewModel.Settings.Metadata.GetData(InitializationConstants.ViewName);
         }
 
+        [CanBeNull]
+        public static IViewModel GetParentViewModel([NotNull] this IViewModel viewModel)
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            return (IViewModel)viewModel.Settings.Metadata.GetData(ViewModelConstants.ParentViewModel)?.Target;
+        }
+
+        [CanBeNull]
+        public static TView GetCurrentView<TView>([NotNull] this IViewModel viewModel, bool underlyingView = true)
+            where TView : class
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            var view = viewModel.Settings.Metadata.GetData(ViewModelConstants.View);
+            if (view == null || !underlyingView)
+                return (TView)view;
+            return ToolkitExtensions.GetUnderlyingView<TView>(view);
+        }
+
         public static void ClearBusy([NotNull] this IViewModel viewModel)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
@@ -262,12 +280,6 @@ namespace MugenMvvmToolkit.ViewModels
             IViewModel parentViewModel = null, ObservationMode? observationMode = null, params DataConstantValue[] parameters) where T : IViewModel
         {
             return GetViewModel<T>(viewModelProvider, MergeParameters(parentViewModel, observationMode, parameters));
-        }
-
-        [CanBeNull]
-        public static IViewModel GetParentViewModel(this IViewModel viewModel)
-        {
-            return (IViewModel)viewModel.Settings.Metadata.GetData(ViewModelConstants.ParentViewModel)?.Target;
         }
 
         public static IIocContainer GetIocContainer([NotNull] this IViewModel viewModel, bool useGlobalContainer, bool throwOnError = true)
