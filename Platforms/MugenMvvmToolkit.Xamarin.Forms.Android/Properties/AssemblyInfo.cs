@@ -17,12 +17,6 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("MugenMvvmToolkit.Xamarin.Forms.Android")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
 [assembly: AssemblyProduct("MugenMvvmToolkit.Xamarin.Forms.Android")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-[assembly: ComVisible(false)]

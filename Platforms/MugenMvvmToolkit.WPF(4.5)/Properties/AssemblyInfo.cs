@@ -17,16 +17,9 @@
 #endregion
 
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Windows.Markup;
 
 [assembly: AssemblyTitle("MugenMvvmToolkit.WPF")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
 [assembly: AssemblyProduct("MugenMvvmToolkit.WPF")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-[assembly: ComVisible(false)]
-[assembly: Guid("921ff650-bcec-4286-a5e8-2c0348f50957")]
 [assembly: XmlnsDefinition("http://schemas.microsoft.com/winfx/2006/xaml/presentation", "MugenMvvmToolkit.WPF.MarkupExtensions")]
 [assembly: XmlnsDefinition("http://schemas.microsoft.com/winfx/2006/xaml/presentation", "MugenMvvmToolkit.WPF.Binding.Converters")]

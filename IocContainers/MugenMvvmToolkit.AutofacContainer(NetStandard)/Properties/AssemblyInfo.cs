@@ -19,8 +19,4 @@
 using System.Reflection;
 
 [assembly: AssemblyTitle("MugenMvvmToolkit.AutofacContainer")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
 [assembly: AssemblyProduct("MugenMvvmToolkit.AutofacContainer")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
