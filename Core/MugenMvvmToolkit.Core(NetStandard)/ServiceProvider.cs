@@ -378,7 +378,7 @@ namespace MugenMvvmToolkit
 
         private static WeakReference CreateWeakReference(object o)
         {
-            return new WeakReference(o, true);
+            return new WeakReference(o, false);
         }
 
         private static object DefaultEntityFactoryMethod(Type type)

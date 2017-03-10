@@ -210,7 +210,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 return;
             if (viewModel != null)
             {
-                viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.View, ServiceProvider.WeakReferenceFactory(view));
+                viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.View, view);
                 viewModel.Subscribe(view);
             }
 
