@@ -284,14 +284,6 @@
           "ref/netstandard1.3/Microsoft.Win32.Primitives.dll": {}
         }
       },
-      "MugenInjection/3.5.1": {
-        "compile": {
-          "lib/netcore45/MugenInjection.Core.dll": {}
-        },
-        "runtime": {
-          "lib/netcore45/MugenInjection.Core.dll": {}
-        }
-      },
       "NETStandard.Library/1.6.1": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "1.1.0",
@@ -2461,14 +2453,6 @@
         },
         "compile": {
           "ref/netstandard1.3/Microsoft.Win32.Primitives.dll": {}
-        }
-      },
-      "MugenInjection/3.5.1": {
-        "compile": {
-          "lib/netcore45/MugenInjection.Core.dll": {}
-        },
-        "runtime": {
-          "lib/netcore45/MugenInjection.Core.dll": {}
         }
       },
       "NETStandard.Library/1.6.1": {
@@ -4709,14 +4693,6 @@
         },
         "compile": {
           "ref/netstandard1.3/Microsoft.Win32.Primitives.dll": {}
-        }
-      },
-      "MugenInjection/3.5.1": {
-        "compile": {
-          "lib/netcore45/MugenInjection.Core.dll": {}
-        },
-        "runtime": {
-          "lib/netcore45/MugenInjection.Core.dll": {}
         }
       },
       "NETStandard.Library/1.6.1": {
@@ -7000,14 +6976,6 @@
           "ref/netstandard1.3/Microsoft.Win32.Primitives.dll": {}
         }
       },
-      "MugenInjection/3.5.1": {
-        "compile": {
-          "lib/netcore45/MugenInjection.Core.dll": {}
-        },
-        "runtime": {
-          "lib/netcore45/MugenInjection.Core.dll": {}
-        }
-      },
       "NETStandard.Library/1.6.1": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "1.1.0",
@@ -9255,14 +9223,6 @@
         },
         "compile": {
           "ref/netstandard1.3/Microsoft.Win32.Primitives.dll": {}
-        }
-      },
-      "MugenInjection/3.5.1": {
-        "compile": {
-          "lib/netcore45/MugenInjection.Core.dll": {}
-        },
-        "runtime": {
-          "lib/netcore45/MugenInjection.Core.dll": {}
         }
       },
       "NETStandard.Library/1.6.1": {
@@ -11551,14 +11511,6 @@
           "ref/netstandard1.3/Microsoft.Win32.Primitives.dll": {}
         }
       },
-      "MugenInjection/3.5.1": {
-        "compile": {
-          "lib/netcore45/MugenInjection.Core.dll": {}
-        },
-        "runtime": {
-          "lib/netcore45/MugenInjection.Core.dll": {}
-        }
-      },
       "NETStandard.Library/1.6.1": {
         "dependencies": {
           "Microsoft.NETCore.Platforms": "1.1.0",
@@ -13806,14 +13758,6 @@
         },
         "compile": {
           "ref/netstandard1.3/Microsoft.Win32.Primitives.dll": {}
-        }
-      },
-      "MugenInjection/3.5.1": {
-        "compile": {
-          "lib/netcore45/MugenInjection.Core.dll": {}
-        },
-        "runtime": {
-          "lib/netcore45/MugenInjection.Core.dll": {}
         }
       },
       "NETStandard.Library/1.6.1": {
@@ -16183,42 +16127,6 @@
         "ref/xamarinmac20/_._",
         "ref/xamarintvos10/_._",
         "ref/xamarinwatchos10/_._"
-      ]
-    },
-    "MugenInjection/3.5.1": {
-      "sha512": "GEkJqTC8KsKqg1OQiCAh7SdXbvk+aCp8xUB7mKhTXdVmFQF+1lBxph0r7MrzXjHZMv/Q+i+vBJaD64yCDrWwDg==",
-      "type": "package",
-      "path": "MugenInjection/3.5.1",
-      "files": [
-        "MugenInjection.3.5.1.nupkg.sha512",
-        "MugenInjection.nuspec",
-        "lib/net20/MugenInjection.Core.XML",
-        "lib/net20/MugenInjection.Core.dll",
-        "lib/net20/MugenInjection.Core.pdb",
-        "lib/net35-client/MugenInjection.Core.XML",
-        "lib/net35-client/MugenInjection.Core.dll",
-        "lib/net35-client/MugenInjection.Core.pdb",
-        "lib/net40-client/MugenInjection.Core.XML",
-        "lib/net40-client/MugenInjection.Core.dll",
-        "lib/net40-client/MugenInjection.Core.pdb",
-        "lib/net45-full/MugenInjection.Core.XML",
-        "lib/net45-full/MugenInjection.Core.dll",
-        "lib/net45-full/MugenInjection.Core.pdb",
-        "lib/netcore45/MugenInjection.Core.XML",
-        "lib/netcore45/MugenInjection.Core.dll",
-        "lib/netcore45/MugenInjection.Core.pdb",
-        "lib/sl4-windowsphone71/MugenInjection.Core.XML",
-        "lib/sl4-windowsphone71/MugenInjection.Core.dll",
-        "lib/sl4-windowsphone71/MugenInjection.Core.pdb",
-        "lib/sl4/MugenInjection.Core.XML",
-        "lib/sl4/MugenInjection.Core.dll",
-        "lib/sl4/MugenInjection.Core.pdb",
-        "lib/sl5/MugenInjection.Core.XML",
-        "lib/sl5/MugenInjection.Core.dll",
-        "lib/sl5/MugenInjection.Core.pdb",
-        "lib/windowsphone8/MugenInjection.Core.XML",
-        "lib/windowsphone8/MugenInjection.Core.dll",
-        "lib/windowsphone8/MugenInjection.Core.pdb"
       ]
     },
     "NETStandard.Library/1.6.1": {
@@ -22380,8 +22288,7 @@
   "projectFileDependencyGroups": {
     "": [
       "Autofac >= 4.4.0",
-      "Microsoft.NETCore.UniversalWindowsPlatform >= 5.2.2",
-      "MugenInjection >= 3.5.1"
+      "Microsoft.NETCore.UniversalWindowsPlatform >= 5.2.2"
     ],
     "UAP,Version=v10.0": []
   }

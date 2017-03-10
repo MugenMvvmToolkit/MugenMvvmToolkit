@@ -18,7 +18,7 @@
 
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MugenInjection;
+using MugenMvvmToolkit.Infrastructure;
 
 namespace MugenMvvmToolkit.Test.Ioc
 {
@@ -28,8 +28,18 @@ namespace MugenMvvmToolkit.Test.Ioc
         #region Constructors
 
         public MugenContainerTest()
-            : base(() => new MugenContainer(new MugenInjector()))
+            : base(() => new MugenContainer())
         {
+        }
+
+        #endregion
+
+        #region Methods
+
+        [TestInitialize]
+        public void SetUp()
+        {
+            ServiceProvider.ReflectionManager = new ExpressionReflectionManager();
         }
 
         #endregion

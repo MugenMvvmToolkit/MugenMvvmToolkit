@@ -17,10 +17,10 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using MugenInjection.Attributes;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Models.IoC;
 using Should;
@@ -71,6 +71,39 @@ namespace MugenMvvmToolkit.Test.Ioc
                 var simple = iocContainer.Get<Simple>();
                 simple.ShouldNotBeNull();
                 simple.ShouldNotEqual(o);
+            }
+        }
+
+        [TestMethod]
+        public virtual void TestComplexConstructor()
+        {
+            using (var iocContainer = GetIocContainer())
+            {
+                iocContainer.Bind<ISimple, Simple>(DependencyLifecycle.SingleInstance);
+                var simple = iocContainer.Get(typeof(ISimple));
+                simple.ShouldNotBeNull();
+
+                var complexDependency = iocContainer.Get<ComplexDependency>();
+                complexDependency.Simple.ShouldEqual(simple);
+                complexDependency.Simples.Single().ShouldEqual(simple);
+            }
+        }
+
+        [TestMethod]
+        public virtual void TestGetAll()
+        {
+            using (var iocContainer = GetIocContainer())
+            {
+                var simples = new List<ISimple>();
+                for (int i = 0; i < 10; i++)
+                {
+                    simples.Add(new Simple());
+                    iocContainer.BindToConstant(simples[i]);
+                }
+                var items = iocContainer.GetAll<ISimple>();
+                foreach (var simple in items)
+                    simples.Remove(simple);
+                simples.ShouldBeEmpty();
             }
         }
 
@@ -499,7 +532,6 @@ namespace MugenMvvmToolkit.Test.Ioc
 
         public string ParameterConstructor { get; set; }
 
-        [Inject]
 #if !NETFX_CORE
         [Ninject.Inject]
 #endif
@@ -517,27 +549,15 @@ namespace MugenMvvmToolkit.Test.Ioc
         public Guid Guid = Guid.NewGuid();
     }
 
-    public class IntoClass
+    public class ComplexDependency
     {
-        public IntoClass(Simple simple)
+        public ISimple Simple { get; }
+        public IEnumerable<ISimple> Simples { get; }
+
+        public ComplexDependency(ISimple simple, IEnumerable<ISimple> simples)
         {
             Simple = simple;
+            Simples = simples;
         }
-
-        public Simple Simple { get; set; }
-    }
-
-    public class IntoClass1
-    {
-        public IntoClass1(Simple simple)
-        {
-            Simple = simple;
-        }
-
-        public Simple Simple { get; set; }
-    }
-
-    public class GenericViewModel<T>
-    {
     }
 }

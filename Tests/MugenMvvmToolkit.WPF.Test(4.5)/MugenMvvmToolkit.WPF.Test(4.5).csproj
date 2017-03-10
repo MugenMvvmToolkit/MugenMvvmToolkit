@@ -40,9 +40,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\libs\WPF.MSTest\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll</HintPath>
     </Reference>
-    <Reference Include="MugenInjection.Core">
-      <HintPath>..\..\packages\MugenInjection.3.5.1\lib\net45-full\MugenInjection.Core.dll</HintPath>
-    </Reference>
     <Reference Include="Ninject">
       <HintPath>..\..\packages\Ninject.3.2.2.0\lib\net45-full\Ninject.dll</HintPath>
     </Reference>
@@ -237,9 +234,9 @@
       <Project>{c66077d8-dbfd-479d-adab-bf569263e914}</Project>
       <Name>MugenMvvmToolkit.AutofacContainer%28NetStandard%29</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\IocContainers\MugenMvvmToolkit.MugenContainer%28NET4.0%29\MugenMvvmToolkit.MugenContainer%28NET4.0%29.csproj">
-      <Project>{048706a3-6ab2-47b3-9649-ad9d4f2b15bb}</Project>
-      <Name>MugenMvvmToolkit.MugenContainer%28NET4.0%29</Name>
+    <ProjectReference Include="..\..\IocContainers\MugenMvvmToolkit.MugenContainer%28NetStandard%29\MugenMvvmToolkit.MugenContainer%28NetStandard%29.csproj">
+      <Project>{85665ac0-1551-4c29-a95a-2a20b4e023ec}</Project>
+      <Name>MugenMvvmToolkit.MugenContainer%28NetStandard%29</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\IocContainers\MugenMvvmToolkit.NinjectContainer%28NET4%29\MugenMvvmToolkit.NinjectContainer%28NET4%29.csproj">
       <Project>{1eb1a717-7102-4138-8a37-42dfd943e0f9}</Project>
