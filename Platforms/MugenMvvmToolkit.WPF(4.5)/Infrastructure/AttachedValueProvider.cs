@@ -165,7 +165,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
 #if WINDOWS_UWP || WPF || WINFORMS
         //NOTE ConditionalWeakTable incorrectly tracks WinRT objects https://connect.microsoft.com/VisualStudio/feedback/details/930200/conditionalweaktable-incorrectly-tracks-winrt-objects
         private static readonly DependencyProperty AttachedValueDictionaryProperty = DependencyProperty.RegisterAttached(
-            "AttachedValueDictionary", typeof(AttachedValueDictionary), typeof(AttachedValueProviderBase), new PropertyMetadata(default(AttachedValueDictionary)));
+            "AttachedValueDictionary", typeof(object), typeof(DependencyObject), new PropertyMetadata(null));
 #elif XAMARIN_FORMS
         private static readonly BindableProperty AttachedValueDictionaryProperty = BindableProperty
             .CreateAttached("AttachedValueDictionary", typeof(AttachedValueDictionary), typeof(AttachedValueProvider),
