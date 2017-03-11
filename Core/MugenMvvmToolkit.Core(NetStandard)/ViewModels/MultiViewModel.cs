@@ -389,19 +389,24 @@ namespace MugenMvvmToolkit.ViewModels
         private void OnSelectedItemChangedInternal(TViewModel oldValue, TViewModel newValue)
         {
             ISelectable selectable;
+            bool containsOld = false;
             if (ItemsSource.Contains(oldValue))
             {
                 selectable = oldValue as ISelectable;
                 if (selectable != null)
                     selectable.IsSelected = false;
+                containsOld = true;
             }
 
             selectable = newValue as ISelectable;
             if (selectable != null)
                 selectable.IsSelected = true;
 
-            NavigationMode mode = newValue != null && newValue.Settings.Metadata.Remove(NavigationConstants.IsFirstNavigation) ? NavigationMode.New : NavigationMode.Refresh;
-            NavigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Tab, mode, oldValue, newValue, this));
+            if (containsOld || newValue != null)
+            {
+                NavigationMode mode = newValue != null && newValue.Settings.Metadata.Remove(NavigationConstants.IsFirstNavigation) ? NavigationMode.New : NavigationMode.Refresh;
+                NavigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Tab, mode, containsOld ? oldValue : null, newValue, this));
+            }
             OnSelectedItemChanged(oldValue, newValue);
             RaiseSelectedItemChanged(oldValue, newValue);
         }
