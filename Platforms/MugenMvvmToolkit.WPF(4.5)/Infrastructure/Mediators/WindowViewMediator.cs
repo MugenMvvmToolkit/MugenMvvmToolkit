@@ -16,12 +16,16 @@
 
 #endregion
 
+using System;
 using System.ComponentModel;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
+using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.ViewModels;
+using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
 #if WPF
 using System.Windows.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
@@ -67,10 +71,19 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Mediators
 
         protected override void ShowView(IWindowView view, bool isDialog, IDataContext context)
         {
-            if (isDialog)
-                view.ShowDialog();
-            else
-                view.Show();
+            try
+            {
+                if (isDialog)
+                    view.ShowDialog();
+                else
+                    view.Show();
+            }
+            catch (Exception exception)
+            {
+                NavigationDispatcher.OnNavigationFailed(new NavigationContext(NavigationType.Window, NavigationMode.New, ViewModel.GetParentViewModel(), ViewModel, this, context), exception);
+                view.Close();
+                throw;
+            }
         }
 
         protected override void ActivateView(IWindowView view, IDataContext context)
