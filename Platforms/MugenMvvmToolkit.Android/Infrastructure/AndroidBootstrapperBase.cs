@@ -50,8 +50,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
             #region Constructors
 
-            public DefaultApp(Type startViewModelType, LoadMode mode = LoadMode.Runtime)
-                : base(mode)
+            public DefaultApp(Type startViewModelType, Action<IModuleContext> loadModulesDelegate = null, LoadMode mode = LoadMode.Runtime)
+                : base(loadModulesDelegate, mode)
             {
                 Should.NotBeNull(startViewModelType, nameof(startViewModelType));
                 Should.BeOfType<IViewModel>(startViewModelType, "startViewModelType");

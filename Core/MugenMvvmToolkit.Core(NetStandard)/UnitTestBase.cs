@@ -48,30 +48,19 @@ namespace MugenMvvmToolkit
 
         protected class UnitTestApp : MvvmApplication
         {
-            #region Fields
-
-            private readonly IModule[] _modules;
-
-            #endregion
 
             #region Constructors
 
             public UnitTestApp(LoadMode mode = LoadMode.UnitTest, params IModule[] modules)
-                : base(mode)
+                : base(mode: mode)
             {
-                _modules = modules;
+                if (!modules.IsNullOrEmpty())
+                    Modules = modules;
             }
 
             #endregion
 
             #region Methods
-
-            protected override IList<IModule> GetModules(IList<Assembly> assemblies)
-            {
-                if (_modules.IsNullOrEmpty())
-                    return base.GetModules(assemblies);
-                return _modules;
-            }
 
             protected override IModuleContext CreateModuleContext(IList<Assembly> assemblies)
             {

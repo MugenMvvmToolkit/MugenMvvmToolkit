@@ -49,7 +49,7 @@ namespace MugenMvvmToolkit.Test
             #region Constructors
 
             public UnitTestApp()
-                : base(LoadMode.UnitTest)
+                : base(null, LoadMode.UnitTest)
             {
             }
 
