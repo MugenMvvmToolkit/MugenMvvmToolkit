@@ -108,6 +108,7 @@ namespace MugenMvvmToolkit.ViewModels
             }
             //It indicates that wrapper is responsible for the view model state.
             _viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.StateNotNeeded, true);
+            _viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.WrapperViewModel, this);
             ViewModel.PropertyChanged += ViewModelOnPropertyChanged;
             var closeableViewModel = ViewModel as ICloseableViewModel;
             if (closeableViewModel == null)
