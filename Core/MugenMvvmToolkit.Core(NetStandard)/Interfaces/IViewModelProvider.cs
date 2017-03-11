@@ -29,8 +29,7 @@ namespace MugenMvvmToolkit.Interfaces
     public interface IViewModelProvider
     {
         [Pure, NotNull]
-        IViewModel GetViewModel([NotNull] GetViewModelDelegate<IViewModel> getViewModel,
-            [NotNull] IDataContext dataContext);
+        IViewModel GetViewModel([NotNull] GetViewModelDelegate<IViewModel> getViewModel, [NotNull] IDataContext dataContext);
 
         [Pure, NotNull]
         IViewModel GetViewModel([NotNull] Type viewModelType, [NotNull] IDataContext dataContext);
