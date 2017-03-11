@@ -18,9 +18,11 @@
 
 using System.Reflection;
 using MugenMvvmToolkit;
+using MugenMvvmToolkit.Attributes;
 
 [assembly: AssemblyCompany(ApplicationSettings.AssemblyCompany)]
 [assembly: AssemblyCopyright(ApplicationSettings.AssemblyCopyright)]
 [assembly: AssemblyVersion(ApplicationSettings.AssemblyVersion)]
 [assembly: AssemblyFileVersion(ApplicationSettings.AssemblyVersion)]
+[assembly: LinkerSafe]
 [assembly: AssemblyKeyFile(@"..\..\Solution Items\sigkey.snk")]

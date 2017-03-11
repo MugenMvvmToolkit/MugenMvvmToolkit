@@ -52,7 +52,7 @@ namespace MugenMvvmToolkit.Attributes
     }
 
     [AttributeUsage(AttributeTargets.Assembly)]
-    internal class LinkerSafeAttribute : Attribute
+    public class LinkerSafeAttribute : Attribute
     {
     }
 }
