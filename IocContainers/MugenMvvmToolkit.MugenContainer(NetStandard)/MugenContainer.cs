@@ -560,11 +560,13 @@ namespace MugenMvvmToolkit
 
         public IIocContainer CreateChild()
         {
+            this.NotBeDisposed();
             return new MugenContainer(this);
         }
 
         public bool CanResolve(Type service, string name = null)
         {
+            this.NotBeDisposed();
             Should.NotBeNull(service, nameof(service));
             var key = new BindingKey(service, name);
             lock (_bindingRegistrations)
@@ -579,6 +581,7 @@ namespace MugenMvvmToolkit
 
         public void Unbind(Type service)
         {
+            this.NotBeDisposed();
             Should.NotBeNull(service, nameof(service));
             lock (_bindingRegistrations)
             {
@@ -590,6 +593,7 @@ namespace MugenMvvmToolkit
 
         public void Bind(Type service, Type typeTo, DependencyLifecycle lifecycle, string name = null, params IIocParameter[] parameters)
         {
+            this.NotBeDisposed();
             Should.NotBeNull(service, nameof(service));
             Should.NotBeNull(typeTo, nameof(typeTo));
             Should.NotBeNull(lifecycle, nameof(lifecycle));
@@ -608,6 +612,7 @@ namespace MugenMvvmToolkit
 
         public void BindToMethod(Type service, Func<IIocContainer, IList<IIocParameter>, object> methodBindingDelegate, DependencyLifecycle lifecycle, string name = null, params IIocParameter[] parameters)
         {
+            this.NotBeDisposed();
             Should.NotBeNull(service, nameof(service));
             Should.NotBeNull(methodBindingDelegate, nameof(methodBindingDelegate));
             Should.NotBeNull(lifecycle, nameof(lifecycle));
@@ -626,6 +631,7 @@ namespace MugenMvvmToolkit
 
         public void BindToConstant(Type service, object instance, string name = null)
         {
+            this.NotBeDisposed();
             Should.NotBeNull(service, nameof(service));
             var key = new BindingKey(service, name);
             lock (_bindingRegistrations)
@@ -642,11 +648,13 @@ namespace MugenMvvmToolkit
 
         IEnumerable<object> IIocContainer.GetAll(Type service, string name, params IIocParameter[] parameters)
         {
+            this.NotBeDisposed();
             return GetAll(service, name, parameters);
         }
 
         public object Get(Type service, string name = null, params IIocParameter[] parameters)
         {
+            this.NotBeDisposed();
             Should.NotBeNull(service, nameof(service));
             var key = new BindingKey(service, name);
             BindingRegistration registration = null;
