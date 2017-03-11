@@ -225,6 +225,9 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters
 
         public bool TryRestore(IDataContext context)
         {
+            bool data;
+            if (context != null && context.TryGetData(ViewModelConstants.StateNotNeeded, out data) && data)
+                return false;
             return TryRestoreInternal(context ?? DataContext.Empty);
         }
 
