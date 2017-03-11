@@ -33,6 +33,7 @@ namespace MugenMvvmToolkit
         #region Fields
 
         private bool _isInitialized;
+        private readonly Action<IModuleContext> _loadModulesDelegate;
         private readonly LoadMode _mode;
         private PlatformInfo _platform;
         private IIocContainer _iocContainer;
@@ -42,10 +43,11 @@ namespace MugenMvvmToolkit
 
         #region Constructors
 
-        protected MvvmApplication(LoadMode mode = LoadMode.Runtime)
+        protected MvvmApplication(Action<IModuleContext> loadModulesDelegate = null, LoadMode mode = LoadMode.Runtime)
         {
             if (ServiceProvider.UiSynchronizationContextField == null)
                 ServiceProvider.UiSynchronizationContextField = SynchronizationContext.Current;
+            _loadModulesDelegate = loadModulesDelegate;
             _mode = mode;
             _platform = PlatformInfo.Unknown;
             _context = new DataContext();
@@ -65,6 +67,8 @@ namespace MugenMvvmToolkit
         public virtual IIocContainer IocContainer => _iocContainer;
 
         public virtual IDataContext Context => _context;
+
+        public IList<IModule> Modules { get; set; }
 
         #endregion
 
@@ -88,6 +92,11 @@ namespace MugenMvvmToolkit
 
         protected virtual void LoadModules(IList<Assembly> assemblies)
         {
+            if (_loadModulesDelegate != null)
+            {
+                _loadModulesDelegate(CreateModuleContext(assemblies));
+                return;
+            }
             var modules = GetModules(assemblies);
             if (modules != null && modules.Count != 0)
             {
@@ -114,7 +123,7 @@ namespace MugenMvvmToolkit
         {
             if (Mode == LoadMode.Design)
                 return Empty.Array<IModule>();
-            return assemblies.GetModules(true);
+            return Modules ?? assemblies.GetModules(true);
         }
 
         #endregion
