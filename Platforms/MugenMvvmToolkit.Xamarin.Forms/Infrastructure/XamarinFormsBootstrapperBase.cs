@@ -165,6 +165,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             _wrapToNavigationPage = wrapToNavigationPage;
             Initialize();
             var app = ServiceProvider.Application;
+            var context = new DataContext(app.Context);
             var viewModelPresenter = app.IocContainer.Get<IViewModelPresenter>();
             viewModelPresenter.DynamicPresenters.Add(this);
 
@@ -172,11 +173,11 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             if (viewModel == null || viewModel.IsDisposed)
             {
                 var presenter = viewModelPresenter as IRestorableViewModelPresenter;
-                if (presenter == null || !presenter.TryRestore(app.Context))
+                if (presenter == null || !presenter.TryRestore(context))
                     app.Start();
             }
             else
-                viewModel.ShowAsync(app.Context);
+                viewModel.ShowAsync(context);
         }
 
         [CanBeNull]

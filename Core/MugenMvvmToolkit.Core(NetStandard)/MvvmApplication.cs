@@ -76,10 +76,11 @@ namespace MugenMvvmToolkit
 
         protected virtual void StartInternal()
         {
+            var context = new DataContext(Context);
             IocContainer
                 .Get<IViewModelProvider>()
-                .GetViewModel(GetStartViewModelType(), Context)
-                .ShowAsync((model, result) => model.Dispose(), context: Context);
+                .GetViewModel(GetStartViewModelType(), context)
+                .ShowAsync((model, result) => model.Dispose(), context: context);
         }
 
         protected virtual void OnInitialize(IList<Assembly> assemblies)
@@ -113,7 +114,7 @@ namespace MugenMvvmToolkit
         [NotNull]
         protected virtual IModuleContext CreateModuleContext(IList<Assembly> assemblies)
         {
-            return new ModuleContext(PlatformInfo, Mode, IocContainer, Context, assemblies);
+            return new ModuleContext(PlatformInfo, Mode, IocContainer, new DataContext(Context), assemblies);
         }
 
         protected virtual IList<IModule> GetModules(IList<Assembly> assemblies)

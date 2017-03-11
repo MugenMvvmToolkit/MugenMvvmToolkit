@@ -177,7 +177,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 initializing(this, args);
                 dataContext = args.Context;
             }
-            InitializeViewModelInternal(viewModel, dataContext ?? DataContext.Empty);
+            InitializeViewModelInternal(viewModel, dataContext.ToNonReadOnly());
             var initialized = Initialized;
             if (initialized != null)
             {
@@ -359,7 +359,6 @@ namespace MugenMvvmToolkit.Infrastructure
 
         protected virtual void InitializeViewModelInternal([NotNull] IViewModel viewModel, [NotNull] IDataContext dataContext)
         {
-            dataContext = dataContext.ToNonReadOnly();
             var parentViewModel = dataContext.GetData(InitializationConstants.ParentViewModel);
             OnViewModelInitializing(viewModel, dataContext);
             InitializeParentViewModel(viewModel, parentViewModel, dataContext);

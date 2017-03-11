@@ -81,7 +81,6 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             var viewModel = context.GetData(NavigationConstants.ViewModel);
             if (viewModel == null || !CanShowViewModel(viewModel, context, parentPresenter))
                 return null;
-            context = context.ToNonReadOnly();
 
             var operation = new AsyncOperation<object>();
             var provider = viewModel.GetIocContainer(true).Get<INavigationProvider>();
@@ -97,11 +96,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                 return null;
             INavigationProvider provider;
             if (viewModel.GetIocContainer(true).TryGet(out provider))
-            {
-                context = context.ToNonReadOnly();
-                context.AddOrUpdate(NavigationConstants.ViewModel, viewModel);
                 return provider.TryCloseAsync(context);
-            }
             return null;
         }
 
@@ -113,8 +108,6 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             INavigationProvider provider;
             if (viewModel.GetIocContainer(true).TryGet(out provider))
             {
-                context = context.ToNonReadOnly();
-                context.AddOrUpdate(NavigationConstants.ViewModel, viewModel);
                 provider.Restore(context);
                 return true;
             }
