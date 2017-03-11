@@ -289,6 +289,7 @@ namespace MugenMvvmToolkit
                 ItemsSourceDecorator = decorator;
             }
             Initialized?.Invoke(application, EventArgs.Empty);
+            Initialized = null;
         }
 
         [Pure]
@@ -416,25 +417,8 @@ namespace MugenMvvmToolkit
 
         private static bool GetIsDesignMode()
         {
-            //Silverlight
-            var type = Type.GetType("System.ComponentModel.DesignerProperties, System.Windows, Version=2.0.5.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e");
-            if (type != null)
-            {
-                try
-                {
-                    var dme = type.GetPropertyEx("IsInDesignTool");
-                    if (dme == null)
-                        return false;
-                    return (bool)dme.GetValue(null, null);
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-
             //.NET
-            type = Type.GetType("System.ComponentModel.DesignerProperties, PresentationFramework, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35");
+            var type = Type.GetType("System.ComponentModel.DesignerProperties, PresentationFramework, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35");
             if (type != null)
             {
                 try
