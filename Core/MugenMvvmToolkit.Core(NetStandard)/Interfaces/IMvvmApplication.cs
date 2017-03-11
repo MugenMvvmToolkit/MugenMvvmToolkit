@@ -36,11 +36,12 @@ namespace MugenMvvmToolkit.Interfaces
 
         IIocContainer IocContainer { get; }
 
+        [NotNull]
         IDataContext Context { get; }
 
         void Initialize(PlatformInfo platformInfo, IIocContainer iocContainer, IList<Assembly> assemblies, IDataContext context);
 
-        void Start(IDataContext context = null);
+        void Start();
 
         [NotNull]
         Type GetStartViewModelType();

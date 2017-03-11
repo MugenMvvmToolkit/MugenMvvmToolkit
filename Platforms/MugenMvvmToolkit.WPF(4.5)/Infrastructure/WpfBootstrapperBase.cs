@@ -82,11 +82,18 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
 
         #region Overrides of BootstrapperBase
 
-        protected override void InitializeInternal()
+        protected override PlatformInfo Platform => _platform;
+
+        protected override IList<Assembly> GetAssemblies()
         {
-            var application = CreateApplication();
-            var iocContainer = CreateIocContainer();
-            application.Initialize(_platform, iocContainer, GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
+            var assemblies = new HashSet<Assembly>();
+            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies().Where(x => !x.IsDynamic))
+            {
+                if (assemblies.Add(assembly))
+                    assemblies.AddRange(assembly.GetReferencedAssemblies().Select(Assembly.Load));
+            }
+            TryLoadAssembly(BindingAssemblyName, assemblies);
+            return assemblies.ToArrayEx();
         }
 
         #endregion
@@ -135,17 +142,16 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
 
         #region Methods
 
-        public virtual void Start(IDataContext context = null)
+        public virtual void Start()
         {
             Initialize();
-            context = context.ToNonReadOnly();
-            if (!context.Contains(NavigationConstants.IsDialog))
-                context.Add(NavigationConstants.IsDialog, false);
             var app = ServiceProvider.Application;
+            if (!app.Context.Contains(NavigationConstants.IsDialog))
+                app.Context.Add(NavigationConstants.IsDialog, false);
             var viewModelType = app.GetStartViewModelType();
 
             var mappingProvider = app.IocContainer.Get<IViewMappingProvider>();
-            IViewMappingItem mapping = mappingProvider.FindMappingForViewModel(viewModelType, context.GetData(NavigationConstants.ViewName), true);
+            IViewMappingItem mapping = mappingProvider.FindMappingForViewModel(viewModelType, app.Context.GetData(NavigationConstants.ViewName), true);
             if (typeof(Page).IsAssignableFrom(mapping.ViewType))
             {
                 _rootWindow = CreateNavigationWindow();
@@ -153,19 +159,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
                 app.IocContainer.BindToConstant(service);
             }
             app.IocContainer.Get<IViewModelPresenter>().DynamicPresenters.Add(this);
-            app.Start(context);
-        }
-
-        protected virtual ICollection<Assembly> GetAssemblies()
-        {
-            var assemblies = new HashSet<Assembly>();
-            foreach (Assembly assembly in AppDomain.CurrentDomain.GetAssemblies().Where(x => !x.IsDynamic))
-            {
-                if (assemblies.Add(assembly))
-                    assemblies.AddRange(assembly.GetReferencedAssemblies().Select(Assembly.Load));
-            }
-            TryLoadAssembly(BindingAssemblyName, assemblies);
-            return assemblies;
+            app.Start();
         }
 
         [NotNull]

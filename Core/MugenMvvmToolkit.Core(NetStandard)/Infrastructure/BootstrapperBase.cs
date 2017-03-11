@@ -23,6 +23,7 @@ using System.Threading;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure
 {
@@ -54,6 +55,8 @@ namespace MugenMvvmToolkit.Infrastructure
 
         public IDataContext InitializationContext { get; set; }
 
+        protected abstract PlatformInfo Platform { get; }
+
         #endregion
 
         #region Methods
@@ -77,13 +80,21 @@ namespace MugenMvvmToolkit.Infrastructure
             InitializedEvent.Set();
         }
 
-        protected abstract void InitializeInternal();
+        protected virtual void InitializeInternal()
+        {
+            var application = CreateApplication();
+            var iocContainer = CreateIocContainer();
+            application.Initialize(Platform, iocContainer, GetAssemblies(), InitializationContext ?? DataContext.Empty);
+        }
 
         [NotNull]
         protected abstract IMvvmApplication CreateApplication();
 
         [NotNull]
         protected abstract IIocContainer CreateIocContainer();
+
+        [NotNull]
+        protected abstract IList<Assembly> GetAssemblies();
 
         protected internal static Assembly TryLoadAssembly(string assemblyName, ICollection<Assembly> assemblies)
         {

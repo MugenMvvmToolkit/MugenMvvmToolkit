@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -78,6 +79,8 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
 
         public bool WrapToNavigationController { get; set; }
 
+        protected override PlatformInfo Platform => _platform;
+
         #endregion
 
         #region Implementation of IDynamicViewModelPresenter
@@ -110,20 +113,18 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
 
         protected override void InitializeInternal()
         {
-            var application = CreateApplication();
-            var iocContainer = CreateIocContainer();
+            base.InitializeInternal();
             _navigationService = CreateNavigationService(_window);
             if (_navigationService != null)
-                iocContainer.BindToConstant(_navigationService);
-            application.Initialize(_platform, iocContainer, GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
+                ServiceProvider.Application.IocContainer.BindToConstant(_navigationService);
         }
 
-        public virtual void Start(IDataContext context = null)
+        public virtual void Start()
         {
             Initialize();
             var app = ServiceProvider.Application;
             app.IocContainer.Get<IViewModelPresenter>().DynamicPresenters.Add(this);
-            app.Start(context);
+            app.Start();
         }
 
         [CanBeNull]
@@ -132,9 +133,9 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
             return new NavigationService(window);
         }
 
-        protected virtual ICollection<Assembly> GetAssemblies()
+        protected override IList<Assembly> GetAssemblies()
         {
-            return AppDomain.CurrentDomain.GetAssemblies();
+            return AppDomain.CurrentDomain.GetAssemblies().Where(x => !x.IsDynamic).ToList();
         }
 
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)

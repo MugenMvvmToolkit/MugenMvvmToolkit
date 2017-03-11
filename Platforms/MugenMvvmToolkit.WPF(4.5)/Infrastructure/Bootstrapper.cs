@@ -111,7 +111,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         #region Overrides of BootstrapperBase
 
-        protected override ICollection<Assembly> GetAssemblies()
+        protected override IList<Assembly> GetAssemblies()
         {
             var assemblies = ToHashSet(_assemblies ?? base.GetAssemblies());
 #if WINDOWS_UWP || XAMARIN_FORMS
@@ -146,7 +146,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             {
                 ;
             }
-            return assemblies;
+            return assemblies.ToArrayEx();
         }
 
         protected override IMvvmApplication CreateApplication()

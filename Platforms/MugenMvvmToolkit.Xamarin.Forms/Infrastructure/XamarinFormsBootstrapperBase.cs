@@ -99,11 +99,11 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         #region Overrides of BootstrapperBase
 
-        protected override void InitializeInternal()
+        protected override PlatformInfo Platform => _platform;
+
+        protected override IList<Assembly> GetAssemblies()
         {
-            var application = CreateApplication();
-            var iocContainer = CreateIocContainer();
-            application.Initialize(_platform, iocContainer, GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
+            return _platformService.GetAssemblies().Where(x => !x.IsDynamic).ToList();
         }
 
         #endregion
@@ -155,11 +155,11 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         #region Methods
 
-        public virtual void Start(bool wrapToNavigationPage = true, IDataContext context = null)
+        public virtual void Start(bool wrapToNavigationPage = true)
         {
             if (Current != null && !ReferenceEquals(Current, this))
             {
-                Current.Start(wrapToNavigationPage, context);
+                Current.Start(wrapToNavigationPage);
                 return;
             }
             _wrapToNavigationPage = wrapToNavigationPage;
@@ -172,16 +172,11 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             if (viewModel == null || viewModel.IsDisposed)
             {
                 var presenter = viewModelPresenter as IRestorableViewModelPresenter;
-                if (presenter == null || !presenter.TryRestore(context))
-                    app.Start(context);
+                if (presenter == null || !presenter.TryRestore(app.Context))
+                    app.Start();
             }
             else
-                viewModel.ShowAsync(context);
-        }
-
-        protected virtual ICollection<Assembly> GetAssemblies()
-        {
-            return _platformService.GetAssemblies().Where(x => !x.IsDynamic).ToList();
+                viewModel.ShowAsync(app.Context);
         }
 
         [CanBeNull]

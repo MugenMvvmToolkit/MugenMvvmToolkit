@@ -44,7 +44,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
         private readonly Frame _rootFrame;
         private readonly bool _overrideAssemblies;
         private readonly PlatformInfo _platform;
-        private HashSet<Assembly> _assemblies;
+        private IList<Assembly> _assemblies;
 
         #endregion
 
@@ -72,34 +72,17 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
 
         #region Overrides of BootstrapperBase
 
+        protected override PlatformInfo Platform => _platform;
+
         protected override void InitializeInternal()
         {
-            var application = CreateApplication();
-            var iocContainer = CreateIocContainer();
+            base.InitializeInternal();
             var service = CreateNavigationService(_rootFrame);
             if (service != null)
-                iocContainer.BindToConstant(service);
-            application.Initialize(_platform, iocContainer, GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
+                ServiceProvider.Application.IocContainer.BindToConstant(service);
         }
 
-        #endregion
-
-        #region Methods
-
-        public virtual void Start(IDataContext context = null)
-        {
-            Initialize();
-            ServiceProvider.Application.Start(context);
-        }
-
-        public async Task InitializeAsync()
-        {
-            if (!_overrideAssemblies)
-                _assemblies = await GetAssembliesAsync();
-            Initialize();
-        }
-
-        protected virtual ICollection<Assembly> GetAssemblies()
+        protected override IList<Assembly> GetAssemblies()
         {
             if (_assemblies != null)
                 return _assemblies;
@@ -108,7 +91,24 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
             if (application != null)
                 assemblies.Add(application.GetType().GetAssembly());
             TryLoadAssembly(BindingAssemblyName, assemblies);
-            return assemblies;
+            return assemblies.ToArrayEx();
+        }
+
+        #endregion
+
+        #region Methods
+
+        public virtual void Start()
+        {
+            Initialize();
+            ServiceProvider.Application.Start();
+        }
+
+        public async Task InitializeAsync()
+        {
+            if (!_overrideAssemblies)
+                _assemblies = await GetAssembliesAsync();
+            Initialize();
         }
 
         [CanBeNull]
@@ -143,7 +143,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
             return mappingItem != null && typeof(Page).IsAssignableFrom(mappingItem.ViewType);
         }
 
-        private static async Task<HashSet<Assembly>> GetAssembliesAsync()
+        private static async Task<IList<Assembly>> GetAssembliesAsync()
         {
             var assemblies = new HashSet<Assembly>();
             var files = await Windows.ApplicationModel.Package.Current.InstalledLocation.GetFilesAsync();
@@ -151,7 +151,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
             {
                 try
                 {
-                    if ((file.FileType == ".dll") || (file.FileType == ".exe"))
+                    if (file.FileType == ".dll" || file.FileType == ".exe")
                     {
                         var name = new AssemblyName { Name = Path.GetFileNameWithoutExtension(file.Name) };
                         assemblies.Add(Assembly.Load(name));
@@ -163,7 +163,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
                     ;
                 }
             }
-            return assemblies;
+            return assemblies.ToArrayEx();
         }
 
         #endregion

@@ -23,7 +23,6 @@ using System.Reflection;
 using Android.App;
 using Android.OS;
 using Android.Views;
-using JetBrains.Annotations;
 using MugenMvvmToolkit.Android.Attributes;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
@@ -116,6 +115,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure
             }
         }
 
+        protected override PlatformInfo Platform => _platform;
+
         #endregion
 
         #region Methods
@@ -178,23 +179,14 @@ You must specify the type of application bootstrapper using BootstrapperAttribut
         protected override void InitializeInternal()
         {
             TypeCache<View>.Initialize(null);
-            var application = CreateApplication();
-            var iocContainer = CreateIocContainer();
-            application.Initialize(_platform, iocContainer, GetAssemblies().ToArrayEx(), InitializationContext ?? DataContext.Empty);
+            base.InitializeInternal();
 
             //Activating navigation provider
             INavigationProvider provider;
-            iocContainer.TryGet(out provider);
+            ServiceProvider.TryGet(out provider);
         }
 
-        public virtual void Start(IDataContext context = null)
-        {
-            Initialize();
-            ServiceProvider.Application.Start(context);
-        }
-
-        [NotNull]
-        protected virtual ICollection<Assembly> GetAssemblies()
+        protected override IList<Assembly> GetAssemblies()
         {
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
             if (ViewAssemblies == null)
@@ -205,6 +197,12 @@ You must specify the type of application bootstrapper using BootstrapperAttribut
                     .ToArray();
             }
             return assemblies;
+        }
+
+        public virtual void Start()
+        {
+            Initialize();
+            ServiceProvider.Application.Start();
         }
 
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext,

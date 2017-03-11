@@ -74,15 +74,12 @@ namespace MugenMvvmToolkit
 
         #region Methods
 
-        protected virtual void StartInternal([CanBeNull] IDataContext context)
+        protected virtual void StartInternal()
         {
-            context = context.ToNonReadOnly();
-            if (Context != null)
-                context.Merge(Context);
             IocContainer
                 .Get<IViewModelProvider>()
-                .GetViewModel(GetStartViewModelType(), context)
-                .ShowAsync((model, result) => model.Dispose(), context: context);
+                .GetViewModel(GetStartViewModelType(), Context)
+                .ShowAsync((model, result) => model.Dispose(), context: Context);
         }
 
         protected virtual void OnInitialize(IList<Assembly> assemblies)
@@ -146,9 +143,9 @@ namespace MugenMvvmToolkit
             ServiceProvider.Initialize(this);
         }
 
-        public void Start(IDataContext context = null)
+        public void Start()
         {
-            StartInternal(context);
+            StartInternal();
         }
 
         public abstract Type GetStartViewModelType();
