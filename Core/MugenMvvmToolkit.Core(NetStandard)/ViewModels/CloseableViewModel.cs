@@ -18,6 +18,7 @@
 
 using System.Threading.Tasks;
 using System.Windows.Input;
+using JetBrains.Annotations;
 using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -67,12 +68,12 @@ namespace MugenMvvmToolkit.ViewModels
             return true;
         }
 
-        protected virtual Task<bool> OnClosing(IDataContext context, object parameter)
+        protected virtual Task<bool> OnClosing([NotNull] IDataContext context)
         {
             return Empty.TrueTask;
         }
 
-        protected virtual void OnClosed(IDataContext context, object parameter)
+        protected virtual void OnClosed([NotNull] IDataContext context)
         {
         }
 
@@ -95,12 +96,12 @@ namespace MugenMvvmToolkit.ViewModels
 
         Task<bool> ICloseableViewModel.OnClosingAsync(IDataContext context)
         {
-            return OnClosing(context, context?.GetData(NavigationConstants.CloseParameter));
+            return OnClosing(context ?? DataContext.Empty);
         }
 
         void ICloseableViewModel.OnClosed(IDataContext context)
         {
-            OnClosed(context, context?.GetData(NavigationConstants.CloseParameter));
+            OnClosed(context ?? DataContext.Empty);
         }
 
         #endregion

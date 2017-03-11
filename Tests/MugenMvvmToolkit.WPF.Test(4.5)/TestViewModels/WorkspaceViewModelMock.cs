@@ -18,6 +18,7 @@
 
 using System;
 using System.Threading.Tasks;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.ViewModels;
 
@@ -42,15 +43,15 @@ namespace MugenMvvmToolkit.Test.TestViewModels
             return CanCloseValue;
         }
 
-        protected override Task<bool> OnClosing(IDataContext context, object parameter)
+        protected override Task<bool> OnClosing(IDataContext context)
         {
-            return OnClosingCallback == null ? Empty.TrueTask : OnClosingCallback(context, parameter);
+            return OnClosingCallback == null ? Empty.TrueTask : OnClosingCallback(context, context?.GetData(NavigationConstants.CloseParameter));
         }
 
-        protected override void OnClosed(IDataContext context, object parameter)
+        protected override void OnClosed(IDataContext context)
         {
             OnClosedInvoke = true;
-            base.OnClosed(context, parameter);
+            base.OnClosed(context);
         }
 
         #endregion

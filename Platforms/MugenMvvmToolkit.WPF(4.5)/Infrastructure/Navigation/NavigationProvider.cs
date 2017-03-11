@@ -610,7 +610,6 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             }
         }
 #endif
-
         private bool CanCloseViewModel(IViewModel viewModel, object parameter)
         {
             IDataContext context;

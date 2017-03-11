@@ -166,7 +166,7 @@ namespace MugenMvvmToolkit.ViewModels
         void ICloseableViewModel.OnClosed(IDataContext context)
         {
             (ViewModel as ICloseableViewModel)?.OnClosed(context);
-            OnClosed(context, context?.GetData(NavigationConstants.CloseParameter));
+            OnClosed(context ?? DataContext.Empty);
         }
 
         void INavigableViewModel.OnNavigatedTo(INavigationContext context)
@@ -230,7 +230,7 @@ namespace MugenMvvmToolkit.ViewModels
         {
         }
 
-        protected virtual void OnClosed(IDataContext context, object parameter)
+        protected virtual void OnClosed(IDataContext context)
         {
         }
 
