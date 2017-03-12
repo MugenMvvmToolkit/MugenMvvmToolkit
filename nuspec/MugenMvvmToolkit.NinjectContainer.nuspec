@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.NinjectContainer</id>
-    <version>6.0.0</version>
+    <version>6.5.0</version>
     <title>MugenMvvmToolkit - Ninject</title>
     <authors>Vyacheslav Volkov</authors>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -21,13 +21,5 @@
     <!-- NET 4.0 -->
     <file src="..\bin\IocContainers\Ninject\NET4.0\MugenMvvmToolkit.NinjectContainer.dll" target="lib\net40\MugenMvvmToolkit.NinjectContainer.dll" />
     <file src="..\bin\IocContainers\Ninject\NET4.0\MugenMvvmToolkit.NinjectContainer.pdb" target="lib\net40\MugenMvvmToolkit.NinjectContainer.pdb" />
-
-    <!-- SILVERLIGHT 5 -->
-    <file src="..\bin\IocContainers\Ninject\SL5\MugenMvvmToolkit.NinjectContainer.dll" target="lib\sl5\MugenMvvmToolkit.NinjectContainer.dll" />
-    <file src="..\bin\IocContainers\Ninject\SL5\MugenMvvmToolkit.NinjectContainer.pdb" target="lib\sl5\MugenMvvmToolkit.NinjectContainer.pdb" />
-
-    <!-- WP 8.0 -->
-    <file src="..\bin\IocContainers\Ninject\WP8.0\MugenMvvmToolkit.NinjectContainer.dll" target="lib\wp8\MugenMvvmToolkit.NinjectContainer.dll" />
-    <file src="..\bin\IocContainers\Ninject\WP8.0\MugenMvvmToolkit.NinjectContainer.pdb" target="lib\wp8\MugenMvvmToolkit.NinjectContainer.pdb" />
   </files>
 </package>

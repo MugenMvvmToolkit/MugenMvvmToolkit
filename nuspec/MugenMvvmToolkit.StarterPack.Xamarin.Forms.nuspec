@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.StarterPack.Xamarin.Forms</id>
-    <version>6.0.0</version>
+    <version>6.5.0</version>
     <title>MugenMvvmToolkit - Starter Pack Xamarin.Forms</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
@@ -43,31 +43,34 @@
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios</tags>
     <dependencies>
       <group targetFramework="MonoAndroid10">
-        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="6.0.0" />
+        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="6.5.0" />
       </group>
       <group targetFramework="Xamarin.iOS10">
-        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="6.0.0" />
+        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="6.5.0" />
       </group>
       <group targetFramework="wp8">
-        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="6.0.0" />
+        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="6.5.0" />
       </group>
       <group targetFramework="wpa81">
-        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="6.0.0" />
+        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="6.5.0" />
       </group>
       <group targetFramework="win81">
-        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="6.0.0" />
+        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="6.5.0" />
       </group>
-      <group targetFramework="portable-net45+win+wpa81+wp80">
-        <dependency id="MugenMvvmToolkit.AutofacContainer" version="6.0.0" />
-        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="6.0.0" />		
+      <group targetFramework="uap10.0">
+        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="6.5.0" />
+      </group>
+      <group targetFramework="netstandard1.0">
+        <dependency id="MugenMvvmToolkit.MugenContainer" version="6.5.0" />
+        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="6.5.0" />		
       </group>
     </dependencies>
   </metadata>
   <files>
-    <file src="XamarinFormsContent\App.cs.pp" target="content\portable-net45+win+wpa81+wp80\App.cs.pp" />
-    <file src="XamarinFormsContent\MainView.xaml.cs.pp" target="content\portable-net45+win+wpa81+wp80\Views\MainView.xaml.cs.pp" />
-    <file src="XamarinFormsContent\MainView.xaml.pp" target="content\portable-net45+win+wpa81+wp80\Views\MainView.xaml.pp" />
-    <file src="XamarinFormsContent\Readme.txt" target="content\portable-net45+win+wpa81+wp80\_MugenMvvmToolkitReadme.txt" />
+    <file src="XamarinFormsContent\App.cs.pp" target="content\netstandard1.0\App.cs.pp" />
+    <file src="XamarinFormsContent\MainView.xaml.cs.pp" target="content\netstandard1.0\Views\MainView.xaml.cs.pp" />
+    <file src="XamarinFormsContent\MainView.xaml.pp" target="content\netstandard1.0\Views\MainView.xaml.pp" />
+    <file src="XamarinFormsContent\Readme.txt" target="content\netstandard1.0\_MugenMvvmToolkitReadme.txt" />
 
     <!-- Android -->
     <file src="_._" target="content\MonoAndroid10\_._" />

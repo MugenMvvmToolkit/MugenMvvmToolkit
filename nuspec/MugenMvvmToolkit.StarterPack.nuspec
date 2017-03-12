@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>MugenMvvmToolkit.StarterPack</id>
-    <version>6.0.0</version>
+    <version>6.5.0</version>
     <title>MugenMvvmToolkit - Starter Pack</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
@@ -43,26 +43,22 @@
     <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios</tags>
     <dependencies>
       <group>
-        <dependency id="MugenMvvmToolkit" version="6.0.0" />
+        <dependency id="MugenMvvmToolkit" version="6.5.0" />
       </group>
       <group targetFramework="Xamarin.iOS">
-        <dependency id="MugenMvvmToolkit" version="6.0.0" />
-		<dependency id="MugenMvvmToolkit.AutofacContainer" version="6.0.0" />
+        <dependency id="MugenMvvmToolkit" version="6.5.0" />
+		<dependency id="MugenMvvmToolkit.AutofacContainer" version="6.5.0" />
       </group>
 	  <group targetFramework="MonoAndroid10">
-        <dependency id="MugenMvvmToolkit" version="6.0.0" />
-		<dependency id="MugenMvvmToolkit.AutofacContainer" version="6.0.0" />
+        <dependency id="MugenMvvmToolkit" version="6.5.0" />
+		<dependency id="MugenMvvmToolkit.AutofacContainer" version="6.5.0" />
       </group>
     </dependencies>
   </metadata>
   <files>
-    <!-- CORE PCL WINRT -->
-    <file src="CoreContent\MainViewModel.cs.pp" target="content\portable-net45+win+wpa81+wp80\ViewModels\MainViewModel.cs.pp" />
-    <file src="CoreContent\App.cs.pp" target="content\portable-net45+win+wpa81+wp80\App.cs.pp" />
-
-    <!-- CORE PCL SILVERLIGHT -->
-    <file src="CoreContent\MainViewModel.cs.pp" target="content\portable-net45+sl40+win+wp71\ViewModels\MainViewModel.cs.pp" />
-    <file src="CoreContent\App.cs.pp" target="content\portable-net45+sl40+win+wp71\App.cs.pp" />
+    <!-- NetStandard -->
+    <file src="CoreContent\MainViewModel.cs.pp" target="content\netstandard1.0\ViewModels\MainViewModel.cs.pp" />
+    <file src="CoreContent\App.cs.pp" target="content\netstandard1.0\App.cs.pp" />
 
     <!-- Android -->
     <file src="AndroidContent\Setup.cs.pp" target="content\MonoAndroid10\Setup.cs.pp" />
@@ -76,38 +72,12 @@
     <file src="TouchContent\MainView.cs.pp" target="content\Xamarin.iOS10\Views\MainView.cs.pp" />
     <file src="TouchContent\Readme.txt" target="content\Xamarin.iOS10\_MugenMvvmToolkitReadme.txt" />
 
-    <!-- WP 8.0 -->
-    <file src="WinPhoneContent\App.Xaml.cs.pp" target="content\wp8\App.Xaml.cs.pp" />
-    <file src="WinPhoneContent\MainView.xaml.cs.pp" target="content\wp8\Views\MainView.xaml.cs.pp" />
-    <file src="WinPhoneContent\MainView.xaml.pp" target="content\wp8\Views\MainView.xaml.pp" />
-    <file src="WinPhoneContent\Readme.txt" target="content\wp8\_MugenMvvmToolkitReadme.txt" />
-
-    <!-- WP 8.1 SILVERLIGHT -->
-    <file src="WinPhoneContent\App.Xaml.cs.pp" target="content\wp81\App.Xaml.cs.pp" />
-    <file src="WinPhoneContent\MainView.xaml.cs.pp" target="content\wp81\Views\MainView.xaml.cs.pp" />
-    <file src="WinPhoneContent\MainView.xaml.pp" target="content\wp81\Views\MainView.xaml.pp" />
-    <file src="WinPhoneContent\Readme.txt" target="content\wp81\_MugenMvvmToolkitReadme.txt" />
-
-    <!-- WINRT 8.1 -->
-    <file src="WinRTContent\App.Xaml.cs.pp" target="content\win81\App.Xaml.cs.pp" />
-    <file src="WinRTContent\NavigationHelper.cs.pp" target="content\win81\NavigationHelper.cs.pp" />
-    <file src="WinRTContent\SuspensionManager.cs.pp" target="content\win81\SuspensionManager.cs.pp" />
-    <file src="WinRTContent\MainView.xaml.cs.pp" target="content\win81\Views\MainView.xaml.cs.pp" />
-    <file src="WinRTContent\MainView.xaml.pp" target="content\win81\Views\MainView.xaml.pp" />
-    <file src="WinRTContent\Readme.txt" target="content\win81\_MugenMvvmToolkitReadme.txt" />
-
-    <!-- WINRT PCL -->
+    <!-- UWP fix --> 
     <file src="WinRTContent\App.Xaml.cs.pp" target="content\portable-win81+wpa81\App.Xaml.cs.pp" />
     <file src="WinRTContent\NavigationHelper.cs.pp" target="content\portable-win81+wpa81\NavigationHelper.cs.pp" />
     <file src="WinRTContent\SuspensionManager.cs.pp" target="content\portable-win81+wpa81\SuspensionManager.cs.pp" />
     <file src="WinRTContent\MainView.xaml.cs.pp" target="content\portable-win81+wpa81\Views\MainView.xaml.cs.pp" />
     <file src="WinRTContent\MainView.xaml.pp" target="content\portable-win81+wpa81\Views\MainView.xaml.pp" />
     <file src="WinRTContent\Readme.txt" target="content\portable-win81+wpa81\_MugenMvvmToolkitReadme.txt" />
-
-    <!-- SILVERLIGHT 5 -->
-    <file src="SilverlightContent\App.Xaml.cs.pp" target="content\sl5\App.Xaml.cs.pp" />
-    <file src="SilverlightContent\MainView.xaml.cs.pp" target="content\sl5\Views\MainView.xaml.cs.pp" />
-    <file src="SilverlightContent\MainView.xaml.pp" target="content\sl5\Views\MainView.xaml.pp" />
-    <file src="SilverlightContent\Readme.txt" target="content\sl5\_MugenMvvmToolkitReadme.txt" />
   </files>
 </package>
