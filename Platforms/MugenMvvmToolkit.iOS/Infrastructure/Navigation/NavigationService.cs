@@ -315,19 +315,22 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
         {
             string parameter = null;
             IDataContext context = null;
-            UIViewController oldController = null;
             var controllers = NavigationController.ViewControllers;
+            UIViewController prevController = null, currentController = null;
             if (controllers.Length > 1)
             {
-                var controller = controllers[controllers.Length - 2];
-                oldController = controllers[controllers.Length - 1];
-                parameter = controller.GetNavigationParameter() as string;
-                context = oldController.GetNavigationContext(false);
-                controller.SetNavigationContext(context);
+                prevController = controllers[controllers.Length - 2];
+                currentController = controllers[controllers.Length - 1];
+                parameter = prevController.GetNavigationParameter() as string;
+                context = currentController.GetNavigationContext(false);
+                prevController.SetNavigationContext(context);
             }
             args.Cancel = !RaiseNavigating(new NavigatingCancelEventArgs(null, NavigationMode.Back, parameter, context));
-            if (!args.Cancel)
-                oldController?.GetNavigationContext(true);
+            var viewControllerView = currentController as IViewControllerView;
+            if (args.Cancel)
+                prevController?.GetNavigationContext(true);
+            else if (viewControllerView != null && viewControllerView.Mediator.IsAppeared)
+                currentController.GetNavigationContext(true);
         }
 
         private void DidPopViewController(object sender, EventArgs eventArgs)
