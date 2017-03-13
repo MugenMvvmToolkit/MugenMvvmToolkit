@@ -26,7 +26,7 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.IoC;
 
-namespace MugenMvvmToolkit
+namespace MugenMvvmToolkit.Infrastructure
 {
     public class MugenContainer : IIocContainer
     {
