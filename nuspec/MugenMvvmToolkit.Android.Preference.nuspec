@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>MugenMvvmToolkit.Android.Preference</id>
+    <version>6.5.0</version>
+    <title>MugenMvvmToolkit - Android Support Library v7 Preference</title>
+    <authors>Vyacheslav Volkov</authors>
+    <description>
+      This package adds Android Support Library v7 Preference support for MugenMvvmToolkit.
+    </description>
+    <releaseNotes>
+    </releaseNotes>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <iconUrl>https://raw.githubusercontent.com/MugenMvvmToolkit/MugenMvvmToolkit/master/logo128_128.png</iconUrl>
+    <projectUrl>https://github.com/MugenMvvmToolkit/MugenMvvmToolkit</projectUrl>
+    <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
+    <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios</tags>
+    <dependencies>
+      <dependency id="MugenMvvmToolkit.Android.AppCompat" version="[6.5.0, 6.6.0)" />      
+      <dependency id="Xamarin.Android.Support.v7.Preference" version="25.1.1" />
+    </dependencies>
+  </metadata>
+  <files>
+    <!-- Android -->
+    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.Preference.dll" target="lib\MonoAndroid10\MugenMvvmToolkit.Android.Preference.dll" />
+    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.Preference.pdb" target="lib\MonoAndroid10\MugenMvvmToolkit.Android.Preference.pdb" />
+  </files>
+</package>
