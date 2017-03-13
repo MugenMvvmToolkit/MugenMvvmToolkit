@@ -234,10 +234,6 @@
       <Project>{c66077d8-dbfd-479d-adab-bf569263e914}</Project>
       <Name>MugenMvvmToolkit.AutofacContainer%28NetStandard%29</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\IocContainers\MugenMvvmToolkit.MugenContainer%28NetStandard%29\MugenMvvmToolkit.MugenContainer%28NetStandard%29.csproj">
-      <Project>{85665ac0-1551-4c29-a95a-2a20b4e023ec}</Project>
-      <Name>MugenMvvmToolkit.MugenContainer%28NetStandard%29</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\IocContainers\MugenMvvmToolkit.NinjectContainer%28NET4%29\MugenMvvmToolkit.NinjectContainer%28NET4%29.csproj">
       <Project>{1eb1a717-7102-4138-8a37-42dfd943e0f9}</Project>
       <Name>MugenMvvmToolkit.NinjectContainer%28NET4%29</Name>

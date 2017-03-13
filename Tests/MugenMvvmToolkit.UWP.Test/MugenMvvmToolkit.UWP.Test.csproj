@@ -524,10 +524,6 @@
       <Project>{c66077d8-dbfd-479d-adab-bf569263e914}</Project>
       <Name>MugenMvvmToolkit.AutofacContainer%28NetStandard%29</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\IocContainers\MugenMvvmToolkit.MugenContainer%28NetStandard%29\MugenMvvmToolkit.MugenContainer%28NetStandard%29.csproj">
-      <Project>{85665ac0-1551-4c29-a95a-2a20b4e023ec}</Project>
-      <Name>MugenMvvmToolkit.MugenContainer%28NetStandard%29</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Platforms\MugenMvvmToolkit.UWP.Binding\MugenMvvmToolkit.UWP.Binding.csproj">
       <Project>{fe74a328-2b5c-4598-aed0-def805b7cf5a}</Project>
       <Name>MugenMvvmToolkit.UWP.Binding</Name>
