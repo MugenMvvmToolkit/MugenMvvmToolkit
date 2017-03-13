@@ -432,14 +432,14 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             {
                 if (!task.IsCanceled && task.IsFaulted)
                 {
-                    args.Context?.GetData(NavigatedTaskConstant)?.TrySetResult(false);
+                    TryCompleteNavigationTask(args.Context, false);
                     NavigationDispatcher.OnNavigationFailed(context, task.Exception);
                     return;
                 }
 
                 if (task.IsCanceled || !task.Result)
                 {
-                    args.Context?.GetData(NavigatedTaskConstant)?.TrySetResult(false);
+                    TryCompleteNavigationTask(args.Context, false);
                     if (!context.NavigationMode.IsClose())
                         NavigationDispatcher.OnNavigationCanceled(context);
                     return;
@@ -511,7 +511,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                 }
                 else
                 {
-                    args.Context?.GetData(NavigatedTaskConstant)?.TrySetResult(false);
+                    TryCompleteNavigationTask(args.Context, false);
                     NavigationDispatcher.OnNavigationCanceled(context);
                 }
             }
@@ -548,7 +548,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             }
             finally
             {
-                e.Context?.GetData(NavigatedTaskConstant)?.TrySetResult(true);
+                TryCompleteNavigationTask(e.Context, true);
             }
         }
 
@@ -610,6 +610,15 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             }
         }
 #endif
+
+        private static void TryCompleteNavigationTask(IDataContext context, bool result)
+        {
+            if (context == null)
+                return;
+            context.GetData(NavigatedTaskConstant)?.TrySetResult(result);
+            context.Clear();
+        }
+
         private bool CanCloseViewModel(IViewModel viewModel, object parameter)
         {
             IDataContext context;

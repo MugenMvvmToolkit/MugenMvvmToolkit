@@ -104,7 +104,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 }
                 if (context.NavigationMode == NavigationMode.New && context.ViewModelTo != null)
                     list.Add(ServiceProvider.WeakReferenceFactory(context.ViewModelTo));
-                else if (context.NavigationMode == NavigationMode.Refresh && context.ViewModelTo != null)
+                else if ((context.NavigationMode == NavigationMode.Refresh || context.NavigationMode == NavigationMode.Back) && context.ViewModelTo != null)
                 {
                     WeakReference viewModelRef = null;
                     for (int i = 0; i < list.Count; i++)
@@ -122,7 +122,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                         viewModelRef = ServiceProvider.WeakReferenceFactory(context.ViewModelTo);
                     list.Add(viewModelRef);
                 }
-                else if (context.NavigationMode.IsClose() && context.ViewModelFrom != null)
+                if (context.NavigationMode.IsClose() && context.ViewModelFrom != null)
                 {
                     for (int i = 0; i < list.Count; i++)
                     {

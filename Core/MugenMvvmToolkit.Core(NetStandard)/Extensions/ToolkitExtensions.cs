@@ -35,6 +35,7 @@ using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Collections;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.Validation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
@@ -997,6 +998,12 @@ namespace MugenMvvmToolkit
         #endregion
 
         #region Extensions
+
+        public static IViewModel GetTopViewModel([NotNull] this INavigationDispatcher navigationDispatcher, [NotNull] NavigationType navigationType, IDataContext context = null)
+        {
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            return navigationDispatcher.GetOpenedViewModels(navigationType, context).LastOrDefault();
+        }
 
         public static object GetOrCreateView([NotNull]this IViewManager viewManager, [CanBeNull] IViewModel viewModel, bool? alwaysCreateNewView = null, IDataContext context = null)
         {

@@ -150,6 +150,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             {
                 (Application.Context as Application)?.RegisterActivityLifecycleCallbacks(new ActivityLifecycleListener(this));
             }
+            _isNew = true;
         }
 
         #endregion
@@ -245,15 +246,17 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                 return;
             PlatformExtensions.SetCurrentActivity(activity, false);
             var isPause = _isPause;
+            var parameter = _parameter;
+            var dataContext = _dataContext;
             _isPause = false;
+            _parameter = null;
+            _dataContext = null;
             if (_isNew)
             {
                 var isReorder = _isReorder;
                 _isNew = false;
                 _isReorder = false;
-                RaiseNavigated(activity, isReorder ? NavigationMode.Refresh : NavigationMode.New, _parameter, MergeContext(_dataContext, context));
-                _parameter = null;
-                _dataContext = null;
+                RaiseNavigated(activity, isReorder ? NavigationMode.Refresh : NavigationMode.New, parameter, MergeContext(dataContext, context));
             }
             else
             {
@@ -261,7 +264,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                 if (isPause)
                     EventAggregator.Publish(this, new ForegroundNavigationMessage(context));
                 else
-                    RaiseNavigated(activity, NavigationMode.Back, GetParameterFromIntent(activity.Intent), MergeContext(_dataContext, context));
+                    RaiseNavigated(activity, NavigationMode.Back, GetParameterFromIntent(activity.Intent), MergeContext(dataContext, context));
             }
         }
 
@@ -328,6 +331,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             if (!RaiseNavigating(new NavigatingCancelEventArgs(source, bringToFront ? NavigationMode.Refresh : NavigationMode.New, parameter, dataContext)))
                 return false;
 
+            bool clearBackStack = dataContext.GetData(NavigationConstants.ClearBackStack);
             _isNew = true;
             _isReorder = bringToFront;
             _parameter = parameter;
@@ -339,7 +343,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             var intent = new Intent(context, source.ViewType);
             if (activity == null)
                 intent.AddFlags(ActivityFlags.NewTask);
-            else if (dataContext.GetData(NavigationConstants.ClearBackStack))
+            else if (clearBackStack)
             {
                 if (PlatformExtensions.IsApiLessThanOrEqualTo10)
                     intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTop);
@@ -373,18 +377,15 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                 //http://stackoverflow.com/questions/20695522/puzzling-behavior-with-reorder-to-front
                 //http://code.google.com/p/android/issues/detail?id=63570#c2
                 bool closed = false;
-                if (PlatformExtensions.IsApiGreaterThanOrEqualTo19)
+                if (!clearBackStack && PlatformExtensions.IsApiGreaterThanOrEqualTo19)
                 {
                     var viewModel = dataContext.GetData(NavigationConstants.ViewModel);
-                    if (viewModel != null)
+                    var activityView = viewModel?.GetCurrentView<object>() as Activity;
+                    if (activityView != null && activityView.IsTaskRoot)
                     {
-                        var activityView = viewModel.GetCurrentView<object>() as Activity;
-                        if (activityView != null && activityView.IsTaskRoot)
-                        {
-                            var message = new MvvmActivityMediator.FinishActivityMessage(viewModel);
-                            ServiceProvider.EventAggregator.Publish(this, message);
-                            closed = message.IsFinished;
-                        }
+                        var message = new MvvmActivityMediator.FinishActivityMessage(viewModel);
+                        ServiceProvider.EventAggregator.Publish(this, message);
+                        closed = message.IsFinished;
                     }
                 }
                 if (!closed)
