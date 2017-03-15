@@ -19,6 +19,7 @@
 using System;
 using System.ComponentModel;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -49,6 +50,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Mediators
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public WindowViewMediator([NotNull] IThreadManager threadManager, [NotNull] IViewManager viewManager,
             [NotNull] IWrapperManager wrapperManager, [NotNull] INavigationDispatcher navigationDispatcher, [NotNull] IEventAggregator eventAggregator)
             : base(threadManager, viewManager, wrapperManager, navigationDispatcher, eventAggregator)

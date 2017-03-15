@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using Foundation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
@@ -52,6 +53,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
             NodoAction = () => { };
         }
 
+        [Preserve(Conditional = true)]
         public ModalViewMediator([NotNull] IThreadManager threadManager,
             [NotNull] IViewManager viewManager, [NotNull] IWrapperManager wrapperManager, [NotNull] IViewMappingProvider viewMappingProvider,
             [NotNull] IViewModelProvider viewModelProvider, [NotNull] INavigationDispatcher navigationDispatcher, [NotNull] IEventAggregator eventAggregator)

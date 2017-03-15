@@ -177,9 +177,12 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                 return Empty.FalseTask;
 
             var tcs = new TaskCompletionSource<bool>();
-            if (TryCloseInternal(context, tcs))
-                return tcs.Task;
-            return Empty.FalseTask;
+            ThreadManager.InvokeOnUiThreadAsync(() =>
+            {
+                if (!TryCloseInternal(context, tcs))
+                    tcs.TrySetResult(false);
+            });
+            return tcs.Task;
         }
 
         public void Restore(IDataContext context)

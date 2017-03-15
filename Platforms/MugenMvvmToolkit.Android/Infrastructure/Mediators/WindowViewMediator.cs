@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using Android.Runtime;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
@@ -39,6 +40,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
     {
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public WindowViewMediator([NotNull] IThreadManager threadManager, [NotNull] IViewManager viewManager,
             [NotNull] IWrapperManager wrapperManager, [NotNull] INavigationDispatcher navigationDispatcher, [NotNull] IEventAggregator eventAggregator)
             : base(threadManager, viewManager, wrapperManager, navigationDispatcher, eventAggregator)
