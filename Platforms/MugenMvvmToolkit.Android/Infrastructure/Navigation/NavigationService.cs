@@ -17,10 +17,12 @@
 #endregion
 
 using System;
+using System.Linq;
 using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Runtime;
+using JetBrains.Annotations;
 using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Android.Infrastructure.Mediators;
 using MugenMvvmToolkit.Android.Interfaces.Navigation;
@@ -30,6 +32,7 @@ using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.Models.Messages;
@@ -209,6 +212,16 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                 currentActivity.OnBackPressed();
         }
 
+        protected virtual bool IsNoHistory([CanBeNull] Activity activity)
+        {
+            if (activity == null)
+                return false;
+            if ((activity.Intent.Flags & ActivityFlags.NoHistory) == ActivityFlags.NoHistory)
+                return true;
+            var attribute = activity.GetType().GetCustomAttributes(typeof(ActivityAttribute), false).OfType<ActivityAttribute>().FirstOrDefault();
+            return attribute != null && attribute.NoHistory;
+        }
+
         private static IDataContext MergeContext(IDataContext ctx1, IDataContext ctx2)
         {
             if (ctx1 == null && ctx2 == null)
@@ -242,7 +255,9 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
         public virtual void OnResumeActivity(Activity activity, IDataContext context = null)
         {
             Should.NotBeNull(activity, nameof(activity));
-            if (ReferenceEquals(activity, CurrentContent) && !_isPause)
+            var prevContent = CurrentContent as Activity;
+            var activityEquals = ReferenceEquals(activity, prevContent);
+            if (activityEquals && !_isPause)
                 return;
             PlatformExtensions.SetCurrentActivity(activity, false);
             var isPause = _isPause;
@@ -257,14 +272,29 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                 _isNew = false;
                 _isReorder = false;
                 RaiseNavigated(activity, isReorder ? NavigationMode.Refresh : NavigationMode.New, parameter, MergeContext(dataContext, context));
+                if (IsNoHistory(prevContent))
+                {
+                    var viewModel = prevContent.DataContext() as IViewModel;
+                    if (viewModel != null)
+                    {
+                        RaiseNavigated(prevContent, NavigationMode.Remove, null, new DataContext
+                        {
+                            {NavigationConstants.ViewModel, viewModel}
+                        });
+                    }
+                }
             }
             else
             {
                 _isBack = false;
-                if (isPause)
+                if (isPause && activityEquals)
                     EventAggregator.Publish(this, new ForegroundNavigationMessage(context));
                 else
+                {
                     RaiseNavigated(activity, NavigationMode.Back, GetParameterFromIntent(activity.Intent), MergeContext(dataContext, context));
+                    if (isPause)
+                        EventAggregator.Publish(this, new ForegroundNavigationMessage(context));
+                }
             }
         }
 
