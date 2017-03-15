@@ -117,6 +117,7 @@
     <Compile Include="Binding\CompatAttachedMembersRegistration.cs" />
     <Compile Include="Binding\Interfaces\IItemsSourceAdapter.cs" />
     <Compile Include="Binding\Infrastructure\FragmentContentViewManager.cs" />
+    <Compile Include="Binding\PreferenceAttachedMembersRegistration.cs" />
     <Compile Include="FragmentExtensions.cs" />
     <Compile Include="Infrastructure\Mediators\MvvmFragmentMediator.cs" />
     <Compile Include="Infrastructure\Mediators\MvvmPreferenceActivityMediator.cs" />
@@ -169,6 +170,7 @@
     <Compile Include="Models\ViewResult.cs" />
     <Compile Include="Modules\PreferenceInitializationModule.cs" />
     <Compile Include="PlatformExtensions.cs" />
+    <Compile Include="Binding\PreferenceAttachedMembers.cs" />
     <Compile Include="PreferenceExtensions.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

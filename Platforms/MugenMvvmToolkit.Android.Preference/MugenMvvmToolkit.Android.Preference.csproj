@@ -89,6 +89,15 @@
     <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28NetStandard%29\Properties\AssemblyInfoCommon.cs">
       <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android\Binding\Infrastructure\PreferenceItemsSourceGenerator.cs">
+      <Link>Infrastructure\PreferenceItemsSourceGenerator.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android\Binding\PreferenceAttachedMembers.cs">
+      <Link>PreferenceAttachedMembers.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android\Binding\PreferenceAttachedMembersRegistration.cs">
+      <Link>PreferenceAttachedMembersRegistration.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Android\Infrastructure\Mediators\MvvmPreferenceFragmentMediator.cs">
       <Link>Infrastructure\Mediators\MvvmPreferenceFragmentMediator.cs</Link>
     </Compile>

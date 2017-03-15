@@ -35,6 +35,7 @@ using Android.App;
 using Android.Preferences;
 using MugenMvvmToolkit.Android.Infrastructure.Mediators;
 using MugenMvvmToolkit.Android.Interfaces.Mediators;
+using PreferenceCompatAttachedMembersRegistration = MugenMvvmToolkit.Android.Binding.AttachedMembersRegistration;
 
 namespace MugenMvvmToolkit.Android.Modules
 #endif
@@ -139,6 +140,14 @@ namespace MugenMvvmToolkit.Android.Modules
                 return mediatorFactory?.Invoke(item, dataContext, mediatorType);
             };
 
+            PreferenceCompatAttachedMembersRegistration.RegisterPreferenceMembers();
+            PreferenceCompatAttachedMembersRegistration.RegisterEditTextPreferenceMembers();
+            PreferenceCompatAttachedMembersRegistration.RegisterListPreferenceMembers();
+            PreferenceCompatAttachedMembersRegistration.RegisterPreferenceGroupMembers();
+            PreferenceCompatAttachedMembersRegistration.RegisterTwoStatePreferenceMembers();
+#if !APPCOMPAT
+            PreferenceCompatAttachedMembersRegistration.RegisterMultiSelectListPreferenceMembers();
+#endif
             return true;
         }
 

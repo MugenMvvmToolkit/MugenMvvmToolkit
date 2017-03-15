@@ -22,7 +22,6 @@ using Android.Content;
 using Android.Graphics.Drawables;
 using Android.Runtime;
 using Android.Views;
-using MugenMvvmToolkit.Android.Binding.Infrastructure;
 using MugenMvvmToolkit.Android.Binding.Interfaces;
 using MugenMvvmToolkit.Android.Binding.Models;
 using MugenMvvmToolkit.Android.Interfaces.Views;

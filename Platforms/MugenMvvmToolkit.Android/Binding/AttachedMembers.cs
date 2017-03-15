@@ -45,7 +45,7 @@ using ActionBarEx = Android.App.ActionBar;
 using TolbarEx = Android.Widget.Toolbar;
 namespace MugenMvvmToolkit.Android.Binding
 {
-    public static class AttachedMembers
+    public static partial class AttachedMembers
 #endif
     {
         #region Nested types
@@ -391,50 +391,6 @@ namespace MugenMvvmToolkit.Android.Binding
                 IsChecked = new BindingMemberDescriptor<IMenuItem, bool>(nameof(IsChecked));
                 Click = new BindingMemberDescriptor<IMenuItem, IEventListener>(nameof(Click));
                 RenderView = new BindingMemberDescriptor<IMenuItem, global::Android.Views.View>(nameof(RenderView));
-            }
-
-            #endregion
-        }
-
-        public abstract class Preference : Object
-        {
-            #region Fields
-
-            public static readonly BindingMemberDescriptor<global::Android.Preferences.Preference, bool> Click;
-            public static readonly BindingMemberDescriptor<global::Android.Preferences.Preference, IEventListener> ValueChangedEvent;
-
-            #endregion
-
-            #region Constructors
-
-            static Preference()
-            {
-                Click = new BindingMemberDescriptor<global::Android.Preferences.Preference, bool>("PreferenceClick");
-                ValueChangedEvent = new BindingMemberDescriptor<global::Android.Preferences.Preference, IEventListener>("ValueChanged");
-            }
-
-            #endregion
-        }
-
-        public abstract class PreferenceGroup : Preference
-        {
-            #region Fields
-
-            public static readonly BindingMemberDescriptor<global::Android.Preferences.PreferenceGroup, IEnumerable> ItemsSource;
-            public static readonly BindingMemberDescriptor<global::Android.Preferences.PreferenceGroup, IItemsSourceGenerator> ItemsSourceGenerator;
-            public static readonly BindingMemberDescriptor<global::Android.Preferences.PreferenceGroup, IDataTemplateSelector> ItemTemplateSelector;
-            public static readonly BindingMemberDescriptor<global::Android.Preferences.PreferenceGroup, ICollectionViewManager> CollectionViewManager;
-
-            #endregion
-
-            #region Constructors
-
-            static PreferenceGroup()
-            {
-                ItemsSource = new BindingMemberDescriptor<global::Android.Preferences.PreferenceGroup, IEnumerable>(AttachedMemberConstants.ItemsSource);
-                ItemsSourceGenerator = ItemsSourceGeneratorBase.MemberDescriptor.Override<global::Android.Preferences.PreferenceGroup>();
-                ItemTemplateSelector = new BindingMemberDescriptor<global::Android.Preferences.PreferenceGroup, IDataTemplateSelector>(AttachedMemberConstants.ItemTemplateSelector);
-                CollectionViewManager = ViewGroup.CollectionViewManager.Override<global::Android.Preferences.PreferenceGroup>();
             }
 
             #endregion

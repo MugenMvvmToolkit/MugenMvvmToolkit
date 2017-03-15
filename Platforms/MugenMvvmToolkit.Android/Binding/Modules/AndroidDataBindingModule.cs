@@ -82,13 +82,7 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
             AttachedMembersRegistration.RegisterSeekBarMembers();
             AttachedMembersRegistration.RegisterMenuMembers();
             AttachedMembersRegistration.RegisterMenuItemBaseMembers();
-            AttachedMembersRegistration.RegisterMenuItemMembers();
-            AttachedMembersRegistration.RegisterPreferenceMembers();
-            AttachedMembersRegistration.RegisterTwoStatePreferenceMembers();
-            AttachedMembersRegistration.RegisterListPreferenceMembers();
-            AttachedMembersRegistration.RegisterMultiSelectListPreferenceMembers();
-            AttachedMembersRegistration.RegisterEditTextPreferenceMembers();
-            AttachedMembersRegistration.RegisterPreferenceGroupMembers();
+            AttachedMembersRegistration.RegisterMenuItemMembers();            
             AttachedMembersRegistration.RegisterPopupMenuMembers();
             AttachedMembersRegistration.RegisterMenuItemActionViewMembers();
             AttachedMembersRegistration.RegisterMenuItemActionProviderMembers();

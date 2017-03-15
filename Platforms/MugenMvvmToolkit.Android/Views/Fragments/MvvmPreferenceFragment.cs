@@ -27,19 +27,7 @@ using MugenMvvmToolkit.Android.Interfaces.Mediators;
 using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 
-#if APPCOMPAT
-using MugenMvvmToolkit.AppCompat.Interfaces.Mediators;
-using MugenMvvmToolkit.AppCompat.Interfaces.Views;
-using FragmentManager = Android.Support.V4.App.FragmentManager;
-using Fragment = Android.Support.V4.App.Fragment;
-using PreferenceFragment = Android.Support.V4.App.PreferenceFragment;
-using FragmentTransaction = Android.Support.V4.App.FragmentTransaction;
-
-namespace MugenMvvmToolkit.AppCompat.Views.Fragments
-#else
-
 namespace MugenMvvmToolkit.Android.Views.Fragments
-#endif
 {
     public abstract class MvvmPreferenceFragment : PreferenceFragment, IFragmentView
     {

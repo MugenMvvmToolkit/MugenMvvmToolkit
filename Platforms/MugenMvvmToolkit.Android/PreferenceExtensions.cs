@@ -82,7 +82,17 @@ namespace MugenMvvmToolkit.Android
                         switch (reader.NodeType)
                         {
                             case XmlNodeType.Element:
-                                var bind = reader.GetAttribute("bind");
+                                string bind = null;
+                                for (int attInd = 0; attInd < reader.AttributeCount; attInd++)
+                                {
+                                    reader.MoveToAttribute(attInd);
+                                    if (reader.Name == "bind")
+                                    {
+                                        bind = reader.Value;
+                                        break;
+                                    }
+                                }
+                                reader.MoveToElement();
                                 var key = reader.GetAttribute("key", "http://schemas.android.com/apk/res/android");
                                 if (string.IsNullOrEmpty(bind))
                                     break;

@@ -17,12 +17,21 @@
 #endregion
 
 using System.Collections;
-using Android.Preferences;
 using MugenMvvmToolkit.Android.Binding.Interfaces;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 
+#if APPCOMPAT
+using Android.Support.V7.Preferences;
+using MugenMvvmToolkit.Android.Binding.Infrastructure;
+using AttachedMembers = MugenMvvmToolkit.Android.PreferenceCompat.PreferenceCompatAttachedMembers;
+
+namespace MugenMvvmToolkit.Android.PreferenceCompat
+#else
+using Android.Preferences;
+
 namespace MugenMvvmToolkit.Android.Binding.Infrastructure
+#endif
 {
     internal class PreferenceItemsSourceGenerator : ItemsSourceGeneratorBase
     {
@@ -79,7 +88,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                 {
                     var preference = _preference.GetPreference(removalIndex + i);
                     _preference.RemovePreference(preference);
-                    preference.SetBindingMemberValue(AttachedMembers.Object.Parent, BindingExtensions.NullValue);
+                    preference.SetBindingMemberValue(AttachedMembers.Preference.Parent, BindingExtensions.NullValue);
                 }
                 else
                 {
@@ -108,7 +117,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                     oldValues[i] = _preference.GetPreference(i);
                 _preference.RemoveAll();
                 for (int i = 0; i < oldValues.Length; i++)
-                    oldValues[i].SetBindingMemberValue(AttachedMembers.Object.Parent, BindingExtensions.NullValue);
+                    oldValues[i].SetBindingMemberValue(AttachedMembers.Preference.Parent, BindingExtensions.NullValue);
             }
             else
                 collectionViewManager.Clear(_preference);
@@ -135,7 +144,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             var preference = item as Preference;
             if (preference != null)
             {
-                preference.SetBindingMemberValue(AttachedMembers.Object.Parent, _preference);
+                preference.SetBindingMemberValue(AttachedMembers.Preference.Parent, _preference);
                 preference.Order = index;
             }
             return item;
