@@ -163,7 +163,8 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             var viewModel = GetViewModelFromContext(context);
             var tcs = new TaskCompletionSource<bool>();
             var currentTask = _navigatedTcs?.Task ?? Empty.Task;
-            currentTask.TryExecuteSynchronously(task => ThreadManager.InvokeOnUiThreadAsync(() => NavigateInternal(viewModel, context.ToNonReadOnly(), tcs)));
+            context = new DataContext(context.ToNonReadOnly());
+            currentTask.TryExecuteSynchronously(task => ThreadManager.InvokeOnUiThreadAsync(() => NavigateInternal(viewModel, context, tcs)));
             return tcs.Task;
         }
 
@@ -172,7 +173,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             var viewModel = GetViewModelFromContext(context, false);
             if (viewModel == null || !viewModel.Settings.State.Contains(IsNavigatedConstant))
                 return null;
-            context = context.ToNonReadOnly();
+            context = new DataContext(context.ToNonReadOnly());
             if (!NavigationService.CanClose(context))
                 return Empty.FalseTask;
 

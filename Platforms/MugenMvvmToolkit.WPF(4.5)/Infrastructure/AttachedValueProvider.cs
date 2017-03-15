@@ -42,8 +42,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
 using Android.OS;
 using Android.Runtime;
 using Android.Views;
-using Android.Preferences;
-using MugenMvvmToolkit.Android.Interfaces.Views;
 
 namespace MugenMvvmToolkit.Android.Infrastructure
 #elif WPF
