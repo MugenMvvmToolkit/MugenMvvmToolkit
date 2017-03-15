@@ -20,17 +20,12 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Input;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Interfaces.Models
 {
     public interface IRelayCommand : ICommand, IDisposable, ISuspendNotifications
     {
         bool HasCanExecuteImpl { get; }
-
-        CommandExecutionMode ExecutionMode { get; set; }
-
-        ExecutionMode CanExecuteMode { get; set; }
 
         bool IsExecuting { get; }
 

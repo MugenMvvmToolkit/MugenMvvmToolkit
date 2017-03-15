@@ -95,15 +95,15 @@ namespace MugenMvvmToolkit.Models
 
         public bool ExecuteAsynchronously { get; set; }
 
+        public CommandExecutionMode ExecutionMode { get; set; }
+
+        public ExecutionMode CanExecuteMode { get; set; }
+
         #endregion
 
         #region Implementation of IRelayCommand
 
         public bool HasCanExecuteImpl => _weakHandler != null;
-
-        public CommandExecutionMode ExecutionMode { get; set; }
-
-        public ExecutionMode CanExecuteMode { get; set; }
 
         public abstract bool IsExecuting { get; }
 
