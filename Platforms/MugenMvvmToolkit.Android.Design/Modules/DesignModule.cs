@@ -41,6 +41,7 @@ namespace MugenMvvmToolkit.Android.Design.Modules
             {
                 IToastPresenter toastPresenter;
                 context.IocContainer.TryGet(out toastPresenter);
+                context.IocContainer.Unbind<IToastPresenter>();
                 context.IocContainer.BindToConstant<IToastPresenter>(new SnackbarToastPresenter(context.IocContainer.Get<IThreadManager>(), toastPresenter));
             }
 
