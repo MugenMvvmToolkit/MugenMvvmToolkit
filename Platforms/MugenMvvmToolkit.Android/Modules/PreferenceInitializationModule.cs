@@ -48,7 +48,7 @@ namespace MugenMvvmToolkit.Android.Modules
     {
         #region Properties
 
-        public int Priority => ApplicationSettings.ModulePriorityDefault;
+        public int Priority => ApplicationSettings.ModulePriorityDefault - 1;
 
         #endregion
 
