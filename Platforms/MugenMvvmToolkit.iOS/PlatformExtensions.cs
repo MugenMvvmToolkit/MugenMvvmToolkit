@@ -396,6 +396,12 @@ namespace MugenMvvmToolkit.iOS
             };
         }
 
+        public static void SetEditingStyle([NotNull]this UITableViewCell cell, UITableViewCellEditingStyle editingStyle)
+        {
+            Should.NotBeNull(cell, nameof(cell));
+            cell.SetBindingMemberValue(AttachedMembers.UITableViewCell.EditingStyle, editingStyle);
+        }
+
         internal static void SetNavigationContext([NotNull] this UIViewController controller, IDataContext value)
         {
             Should.NotBeNull(controller, nameof(controller));
