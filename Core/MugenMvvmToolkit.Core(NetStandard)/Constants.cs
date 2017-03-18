@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Mediators;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
@@ -46,6 +47,7 @@ namespace MugenMvvmToolkit.DataConstants
         public static readonly DataConstant<EventHandler<IViewModel, ViewModelClosedEventArgs>> ClosedEvent;
         public static readonly DataConstant<IViewModel> WrapperViewModel;
         public static readonly DataConstant<Func<IViewModel, object, bool>> CanCloseHandler;
+        public static readonly DataConstant<Func<INavigationDispatcher, IViewModel, IDataContext, Task<bool>>> CloseHandler;
 
         #endregion
 
@@ -66,6 +68,7 @@ namespace MugenMvvmToolkit.DataConstants
             ClosingEvent = DataConstant.Create<EventHandler<IViewModel, ViewModelClosingEventArgs>>(type, nameof(ClosingEvent), false);
             ClosedEvent = DataConstant.Create<EventHandler<IViewModel, ViewModelClosedEventArgs>>(type, nameof(ClosedEvent), false);
             CanCloseHandler = DataConstant.Create<Func<IViewModel, object, bool>>(type, nameof(CanCloseHandler), false);
+            CloseHandler = DataConstant.Create<Func<INavigationDispatcher, IViewModel, IDataContext, Task<bool>>>(type, nameof(CloseHandler), true);
         }
 
         #endregion

@@ -44,6 +44,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         private readonly INotifiableCollection<TViewModel> _itemsSource;
         private readonly PropertyChangedEventHandler _propertyChangedWeakEventHandler;
+        private readonly Func<INavigationDispatcher, IViewModel, IDataContext, Task<bool>> _closeViewModelWeakHandler;
 
         private TViewModel _selectedItem;
         private bool _disposeViewModelOnRemove;
@@ -66,6 +67,12 @@ namespace MugenMvvmToolkit.ViewModels
             _itemsSource = (INotifiableCollection<TViewModel>)list;
             collection.AfterCollectionChanged = OnViewModelsChanged;
             _propertyChangedWeakEventHandler = ReflectionExtensions.MakeWeakPropertyChangedHandler(this, (model, o, arg3) => model.OnItemPropertyChanged(o, arg3));
+            var weakReference = ToolkitExtensions.GetWeakReference(this);
+            _closeViewModelWeakHandler = (dispatcher, vm, arg3) =>
+            {
+                var self = (MultiViewModel<TViewModel>)weakReference.Target;
+                return self?.CloseViewModel(dispatcher, vm, arg3) ?? Empty.FalseTask;
+            };
             DisposeViewModelOnRemove = ApplicationSettings.MultiViewModelDisposeViewModelOnRemove;
             CloseViewModelsOnClose = ApplicationSettings.MultiViewModelCloseViewModelsOnClose;
         }
@@ -263,20 +270,9 @@ namespace MugenMvvmToolkit.ViewModels
 
         protected virtual Task<bool> RemoveViewModelInternalAsync([NotNull] TViewModel viewModel, IDataContext context)
         {
-            if (!ItemsSource.Contains(viewModel))
-                return Empty.FalseTask;
-            var removeCtx = new NavigationContext(NavigationType.Tab, NavigationMode.Remove, viewModel, null, this, context);
-            return viewModel
-                .CloseAsync(removeCtx)
-                .TryExecuteSynchronously(task =>
-                {
-                    if (task.Result)
-                    {
-                        _lastRemoveContext = removeCtx;
-                        ItemsSource.Remove(viewModel);
-                    }
-                    return task.Result;
-                });
+            if (ItemsSource.Contains(viewModel))
+                return viewModel.CloseAsync(context);
+            return Empty.FalseTask;
         }
 
         protected virtual Task<bool> ClearInternalAsync(IDataContext context)
@@ -291,11 +287,13 @@ namespace MugenMvvmToolkit.ViewModels
 
         protected virtual void OnViewModelAdded([NotNull] TViewModel viewModel)
         {
+            viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.CloseHandler, CloseViewModel);
             viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.StateNotNeeded, true);
         }
 
         protected virtual void OnViewModelRemoved([NotNull] TViewModel viewModel)
         {
+            viewModel.Settings.Metadata.Remove(ViewModelConstants.CloseHandler);
             viewModel.Settings.Metadata.Remove(ViewModelConstants.StateNotNeeded);
         }
 
@@ -320,6 +318,24 @@ namespace MugenMvvmToolkit.ViewModels
                 model.SelectedItemChanged?.Invoke(model, new SelectedItemChangedEventArgs<TViewModel>(oldVm, newVm));
                 model._selectedItemChangedNonGeneric?.Invoke(model, new SelectedItemChangedEventArgs<IViewModel>(oldVm, newVm));
             });
+        }
+
+        private Task<bool> CloseViewModel(INavigationDispatcher navigationDispatcher, IViewModel viewModel, IDataContext ctx)
+        {
+            if (!(viewModel is TViewModel))
+                return Empty.FalseTask;
+            var removeCtx = new NavigationContext(NavigationType.Tab, NavigationMode.Remove, viewModel, null, this, ctx);
+            return NavigationDispatcher
+                .OnNavigatingFromAsync(removeCtx)
+                .TryExecuteSynchronously(task =>
+                {
+                    if (task.Result)
+                    {
+                        _lastRemoveContext = removeCtx;
+                        return ItemsSource.Remove((TViewModel)viewModel);
+                    }
+                    return false;
+                });
         }
 
         private void OnViewModelsChanged(object sender, NotifyCollectionChangedEventArgs e)

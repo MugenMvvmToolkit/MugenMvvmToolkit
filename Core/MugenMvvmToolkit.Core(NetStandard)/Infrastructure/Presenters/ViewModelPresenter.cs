@@ -218,16 +218,24 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                     return operation;
                 }
             }
-            var wrapperViewModel = context.GetData(NavigationConstants.ViewModel)?.Settings.Metadata.GetData(ViewModelConstants.WrapperViewModel);
-            if (wrapperViewModel != null)
+
+            var viewModel = context.GetData(NavigationConstants.ViewModel);
+
+            if (viewModel != null)
             {
-                context.AddOrUpdate(NavigationConstants.ViewModel, wrapperViewModel);
-                return CloseInternalAsync(context);
+                var closeHandler = viewModel.Settings.Metadata.GetData(ViewModelConstants.CloseHandler);
+                if (closeHandler != null)
+                    return closeHandler(NavigationDispatcher, viewModel, context);
+
+                var wrapperViewModel = viewModel.Settings.Metadata.GetData(ViewModelConstants.WrapperViewModel);
+                if (wrapperViewModel != null)
+                {
+                    context.AddOrUpdate(NavigationConstants.ViewModel, wrapperViewModel);
+                    return CloseInternalAsync(context);
+                }
             }
-            var navigationContext = context as INavigationContext;
-            if (navigationContext == null)
-                return Empty.FalseTask;
-            return NavigationDispatcher.OnNavigatingFromAsync(navigationContext);
+
+            return Empty.FalseTask;
         }
 
         protected virtual void OnDynamicPresenterAdded([NotNull] IDynamicViewModelPresenter presenter)
