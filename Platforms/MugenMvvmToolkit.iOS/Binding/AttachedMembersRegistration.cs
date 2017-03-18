@@ -463,6 +463,7 @@ namespace MugenMvvmToolkit.iOS.Binding
             MemberProvider.Register(AttachedBindingMember.CreateEvent(AttachedMembers.UITableViewCell.DeleteClickEvent));
             MemberProvider.Register(AttachedBindingMember.CreateEvent(AttachedMembers.UITableViewCell.InsertClickEvent));
             MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITableViewCell.TitleForDeleteConfirmation));
+            MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITableViewCell.EditingStyle));
         }
 
         private static void SetTableViewSelectedItem(IBindingMemberInfo bindingMemberInfo, UITableView uiTableView, object arg3)
