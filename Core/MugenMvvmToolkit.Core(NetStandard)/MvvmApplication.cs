@@ -119,8 +119,6 @@ namespace MugenMvvmToolkit
 
         protected virtual IList<IModule> GetModules(IList<Assembly> assemblies)
         {
-            if (Mode == LoadMode.Design)
-                return Empty.Array<IModule>();
             return Modules ?? assemblies.GetModules(true);
         }
 

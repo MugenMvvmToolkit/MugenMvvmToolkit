@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Windows;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Models;
 
@@ -38,7 +39,18 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
 
         #region Methods
 
-        protected override IList<Assembly> GetAssemblies()
+        protected sealed override IList<Assembly> GetAssemblies()
+        {
+            var assemblies = new HashSet<Assembly> { GetType().GetAssembly(), typeof(WpfDesignBootstrapperBase).GetAssembly() };
+            var application = Application.Current;
+            if (application != null)
+                assemblies.Add(application.GetType().GetAssembly());
+            BootstrapperBase.TryLoadAssembly(WpfBootstrapperBase.BindingAssemblyName, assemblies);
+            assemblies.AddRange(GetAssembliesInternal());
+            return assemblies.ToArrayEx();
+        }
+
+        protected virtual IList<Assembly> GetAssembliesInternal()
         {
             return AppDomain.CurrentDomain.GetAssemblies().Where(assembly => !assembly.IsDynamic).ToList();
         }

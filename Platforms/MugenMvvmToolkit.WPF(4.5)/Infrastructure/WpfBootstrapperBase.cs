@@ -47,7 +47,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
     {
         #region Fields
 
-        protected const string BindingAssemblyName = "MugenMvvmToolkit.WPF.Binding";
+        protected internal const string BindingAssemblyName = "MugenMvvmToolkit.WPF.Binding";
         private readonly PlatformInfo _platform;
         private NavigationWindow _rootWindow;
 

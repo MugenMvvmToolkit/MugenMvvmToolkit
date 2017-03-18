@@ -106,7 +106,7 @@ namespace MugenMvvmToolkit.UWP.Modules
 #endif
 
 #if WINDOWS_UWP
-        protected void BindApplicationStateManager(IModuleContext context, IIocContainer container)
+        protected virtual void BindApplicationStateManager(IModuleContext context, IIocContainer container)
         {
             container.Bind<IApplicationStateManager, ApplicationStateManager>(DependencyLifecycle.SingleInstance);
         }
@@ -176,7 +176,7 @@ namespace MugenMvvmToolkit.UWP.Modules
             if (context.PlatformInfo.Platform == PlatformType.WPF)
                 container.BindToMethod<IThreadManager>((c, list) => new ThreadManager(System.Windows.Threading.Dispatcher.CurrentDispatcher), DependencyLifecycle.SingleInstance);
 #elif WINDOWS_UWP
-            if (context.Mode.HasFlagEx(LoadMode.Design) && Windows.UI.Xaml.Window.Current.Dispatcher == null)
+            if (ServiceProvider.IsDesignMode && Windows.UI.Xaml.Window.Current.Dispatcher == null)
                 base.BindThreadManager(context, container);
             else
                 container.BindToMethod<IThreadManager>((c, list) => new ThreadManager(Windows.UI.Xaml.Window.Current.Dispatcher), DependencyLifecycle.SingleInstance);
