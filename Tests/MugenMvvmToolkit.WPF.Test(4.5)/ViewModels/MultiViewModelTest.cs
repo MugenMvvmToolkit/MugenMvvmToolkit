@@ -19,6 +19,7 @@
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MugenMvvmToolkit.Collections;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
@@ -80,12 +81,13 @@ namespace MugenMvvmToolkit.Test.ViewModels
         [TestMethod]
         public void RemoveMethodShouldCallCloseMethodFalse()
         {
+            ThreadManager.ImmediateInvokeOnUiThreadAsync = true;
             var viewModel = GetViewModel<NavigableViewModelMock>();
             var multiViewModel = GetMultiViewModel();
             multiViewModel.AddViewModel(viewModel);
             multiViewModel.ItemsSource.ShouldContain(viewModel);
 
-            ViewModelPresenter.CloseAsync = (vm, ctx) => Empty.FalseTask;
+            NavigationDispatcher.OnNavigatingFromAsync = context => Empty.FalseTask;
             multiViewModel.RemoveViewModelAsync(viewModel).Result.ShouldBeFalse();
             multiViewModel.ItemsSource.ShouldContain(viewModel);
         }
@@ -101,7 +103,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
 
             INavigationContext ctx = null;
             NavigationDispatcher.OnNavigated = context => ctx = context;
-            ViewModelPresenter.CloseAsync = (vm, c) => Empty.TrueTask;
+            NavigationDispatcher.OnNavigatingFromAsync = context => Empty.TrueTask;
             multiViewModel.RemoveViewModelAsync(viewModel).Result.ShouldBeTrue();
             multiViewModel.ItemsSource.ShouldNotContain(viewModel);
             ctx.NavigationMode.ShouldEqual(NavigationMode.Remove);
@@ -116,7 +118,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             multiViewModel.AddViewModel(viewModel);
             multiViewModel.ItemsSource.ShouldContain(viewModel);
 
-            ViewModelPresenter.CloseAsync = (vm, ctx) => Empty.TrueTask;
+            NavigationDispatcher.OnNavigatingFromAsync = context => Empty.TrueTask;
             multiViewModel.RemoveViewModelAsync(viewModel).Result.ShouldBeTrue();
             multiViewModel.ItemsSource.ShouldNotContain(viewModel);
         }
@@ -125,7 +127,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
         public void RemoveMethodShouldDisposeVmIfSetToTrue()
         {
             ThreadManager.ImmediateInvokeOnUiThreadAsync = true;
-            ViewModelPresenter.CloseAsync = (vm, ctx) => Empty.TrueTask;
+            NavigationDispatcher.OnNavigatingFromAsync = context => Empty.TrueTask;
             var viewModel = GetViewModel<NavigableViewModelMock>();
             var multiViewModel = (MultiViewModel<IViewModel>)GetMultiViewModel();
             multiViewModel.DisposeViewModelOnRemove = true;
@@ -141,7 +143,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
         public void RemoveMethodShouldNotDisposeVmIfSetToFalse()
         {
             ThreadManager.ImmediateInvokeOnUiThreadAsync = true;
-            ViewModelPresenter.CloseAsync = (vm, ctx) => Empty.TrueTask;
+            NavigationDispatcher.OnNavigatingFromAsync = context => Empty.TrueTask;
             var viewModel = GetViewModel<NavigableViewModelMock>();
             var multiViewModel = (MultiViewModel<IViewModel>)GetMultiViewModel();
             multiViewModel.DisposeViewModelOnRemove = false;
@@ -159,7 +161,6 @@ namespace MugenMvvmToolkit.Test.ViewModels
             ThreadManager.ImmediateInvokeOnUiThreadAsync = true;
             ThreadManager.ImmediateInvokeOnUiThread = true;
             NavigationDispatcher.OnNavigatingFromAsync = context => Empty.TrueTask;
-            ViewModelPresenter.CloseAsync = (vm, ctx) => Empty.TrueTask;
             var viewModel = GetViewModel<NavigableViewModelMock>();
             var multiViewModel = (MultiViewModel<IViewModel>)GetMultiViewModel();
             multiViewModel.AddViewModel(viewModel);
@@ -179,7 +180,6 @@ namespace MugenMvvmToolkit.Test.ViewModels
             ThreadManager.ImmediateInvokeOnUiThreadAsync = true;
             ThreadManager.ImmediateInvokeOnUiThread = true;
             NavigationDispatcher.OnNavigatingFromAsync = context => Empty.TrueTask;
-            ViewModelPresenter.CloseAsync = (vm, ctx) => Empty.TrueTask;
             var viewModel = GetViewModel<NavigableViewModelMock>();
             var multiViewModel = (MultiViewModel<IViewModel>)GetMultiViewModel();
             multiViewModel.AddViewModel(viewModel);
@@ -229,7 +229,8 @@ namespace MugenMvvmToolkit.Test.ViewModels
         public void ViewModelAddedEvent()
         {
             ThreadManager.ImmediateInvokeOnUiThreadAsync = true;
-            ViewModelPresenter.CloseAsync = (vm, ctx) => Empty.TrueTask;
+            NavigationDispatcher.OnNavigatingFromAsync = context => Empty.TrueTask;
+
             int isGenericInvoked = 0;
             int isNonGenericInvoked = 0;
             var viewModel = GetViewModel<NavigableViewModelMock>();
@@ -270,7 +271,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
         public void ViewModelRemovedEvent()
         {
             ThreadManager.ImmediateInvokeOnUiThreadAsync = true;
-            ViewModelPresenter.CloseAsync = (vm, ctx) => Empty.TrueTask;
+            NavigationDispatcher.OnNavigatingFromAsync = context => Empty.TrueTask;
             int isGenericInvoked = 0;
             int isNonGenericInvoked = 0;
             var viewModel = GetViewModel<NavigableViewModelMock>();
@@ -305,7 +306,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
         public void WhenVmWasAddedItShouldBeSelected()
         {
             ThreadManager.ImmediateInvokeOnUiThreadAsync = true;
-            ViewModelPresenter.CloseAsync = (vm, ctx) => Empty.TrueTask;
+            NavigationDispatcher.OnNavigatingFromAsync = context => Empty.TrueTask;
             var viewModel1 = GetViewModel<NavigableViewModelMock>();
             var viewModel2 = GetViewModel<NavigableViewModelMock>();
 
@@ -327,7 +328,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
         public void WhenSelectedItemChangedVmShouldCallOnNavigatedMethod()
         {
             ThreadManager.ImmediateInvokeOnUiThreadAsync = true;
-            ViewModelPresenter.CloseAsync = (vm, ctx) => Empty.TrueTask;
+            NavigationDispatcher.OnNavigatingFromAsync = context => Empty.TrueTask;
             NavigationDispatcher.OnNavigated = context =>
             {
                 (context.ViewModelFrom as INavigableViewModel)?.OnNavigatedFrom(context);
@@ -364,6 +365,12 @@ namespace MugenMvvmToolkit.Test.ViewModels
         #endregion
 
         #region Methods
+
+        protected override void OnInit()
+        {
+            base.OnInit();
+            ViewModelPresenter.CloseAsync = (model, context) => model.Settings.Metadata.GetData(ViewModelConstants.CloseHandler)?.Invoke(NavigationDispatcher, model, context);
+        }
 
         protected T GetViewModel()
         {
