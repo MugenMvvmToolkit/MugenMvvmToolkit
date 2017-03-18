@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
@@ -69,20 +70,7 @@ namespace MugenMvvmToolkit.UWP
                 SuspensionManager.RegisterFrame(rootFrame, "AppFrame");
                 rootFrame.NavigationFailed += OnNavigationFailed;
 
-                if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
-                {
-                    // Restore the saved session state only when appropriate
-                    try
-                    {
-                        await SuspensionManager.RestoreAsync();
-                    }
-                    catch (SuspensionManagerException ex)
-                    {
-                        // Something went wrong restoring state.
-                        // Assume there is no state and continue
-                        Tracer.Error(ex.Flatten(true));
-                    }
-                }
+                await RestoreStateAsync(e);
 
                 // Place the frame in the current Window
                 Window.Current.Content = rootFrame;
@@ -92,6 +80,21 @@ namespace MugenMvvmToolkit.UWP
                 bootstrapper?.Start();
             // Ensure the current window is active
             Window.Current.Activate();
+        }
+
+        /// <summary>
+        ///     Invoked when application execution is being suspended.  Application state is saved
+        ///     without knowing whether the application will be terminated or resumed with the contents
+        ///     of memory still intact.
+        /// </summary>
+        /// <param name="sender">The source of the suspend request.</param>
+        /// <param name="e">Details about the suspend request.</param>
+        protected virtual async void OnSuspending(object sender, SuspendingEventArgs e)
+        {
+            ServiceProvider.EventAggregator.Publish(this, new BackgroundNavigationMessage());
+            var deferral = e.SuspendingOperation.GetDeferral();
+            await SaveStateAsync(e);
+            deferral.Complete();
         }
 
         /// <summary>
@@ -109,19 +112,27 @@ namespace MugenMvvmToolkit.UWP
             ServiceProvider.EventAggregator.Publish(this, new ForegroundNavigationMessage());
         }
 
-        /// <summary>
-        ///     Invoked when application execution is being suspended.  Application state is saved
-        ///     without knowing whether the application will be terminated or resumed with the contents
-        ///     of memory still intact.
-        /// </summary>
-        /// <param name="sender">The source of the suspend request.</param>
-        /// <param name="e">Details about the suspend request.</param>
-        protected virtual async void OnSuspending(object sender, SuspendingEventArgs e)
+        protected virtual async Task RestoreStateAsync(LaunchActivatedEventArgs args)
         {
-            ServiceProvider.EventAggregator.Publish(this, new BackgroundNavigationMessage());
-            var deferral = e.SuspendingOperation.GetDeferral();
-            await SuspensionManager.SaveAsync();
-            deferral.Complete();
+            if (args.PreviousExecutionState == ApplicationExecutionState.Terminated)
+            {
+                // Restore the saved session state only when appropriate
+                try
+                {
+                    await SuspensionManager.RestoreAsync();
+                }
+                catch (SuspensionManagerException ex)
+                {
+                    // Something went wrong restoring state.
+                    // Assume there is no state and continue
+                    Tracer.Error(ex.Flatten(true));
+                }
+            }
+        }
+
+        protected virtual Task SaveStateAsync(SuspendingEventArgs args)
+        {
+            return SuspensionManager.SaveAsync();
         }
 
         #endregion
