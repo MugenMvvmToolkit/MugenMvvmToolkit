@@ -70,7 +70,8 @@ namespace MugenMvvmToolkit.UWP
                 SuspensionManager.RegisterFrame(rootFrame, "AppFrame");
                 rootFrame.NavigationFailed += OnNavigationFailed;
 
-                await RestoreStateAsync(e);
+                if (ShouldRestoreApplicationState())
+                    await RestoreStateAsync(e);
 
                 // Place the frame in the current Window
                 Window.Current.Content = rootFrame;
@@ -92,9 +93,12 @@ namespace MugenMvvmToolkit.UWP
         protected virtual async void OnSuspending(object sender, SuspendingEventArgs e)
         {
             ServiceProvider.EventAggregator.Publish(this, new BackgroundNavigationMessage());
-            var deferral = e.SuspendingOperation.GetDeferral();
-            await SaveStateAsync(e);
-            deferral.Complete();
+            if (ShouldSaveApplicationState())
+            {
+                var deferral = e.SuspendingOperation.GetDeferral();
+                await SaveStateAsync(e);
+                deferral.Complete();
+            }
         }
 
         /// <summary>
@@ -133,6 +137,16 @@ namespace MugenMvvmToolkit.UWP
         protected virtual Task SaveStateAsync(SuspendingEventArgs args)
         {
             return SuspensionManager.SaveAsync();
+        }
+
+        protected virtual bool ShouldSaveApplicationState()
+        {
+            return true;
+        }
+
+        protected virtual bool ShouldRestoreApplicationState()
+        {
+            return true;
         }
 
         #endregion

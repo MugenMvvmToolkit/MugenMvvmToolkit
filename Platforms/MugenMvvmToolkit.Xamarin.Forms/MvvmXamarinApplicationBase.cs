@@ -17,7 +17,10 @@
 #endregion
 
 using JetBrains.Annotations;
+using MugenMvvmToolkit.DataConstants;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
+using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.Messages;
 using MugenMvvmToolkit.Xamarin.Forms.Infrastructure;
 using MugenMvvmToolkit.Xamarin.Forms.Interfaces.Presenters;
@@ -36,17 +39,31 @@ namespace MugenMvvmToolkit.Xamarin.Forms
 
         #region Constructors
 
-        protected MvvmXamarinApplicationBase([NotNull]XamarinFormsBootstrapperBase.IPlatformService platformService)
+        protected MvvmXamarinApplicationBase([NotNull] XamarinFormsBootstrapperBase.IPlatformService platformService, IDataContext context = null)
         {
             Should.NotBeNull(platformService, nameof(platformService));
-            // ReSharper disable once VirtualMemberCallInConstructor
-            var bootstrapper = XamarinFormsBootstrapperBase.Current ?? CreateBootstrapper(platformService);
+
+            var bootstrapper = XamarinFormsBootstrapperBase.Current;
+            if (bootstrapper == null)
+            {
+                // ReSharper disable VirtualMemberCallInConstructor
+                bootstrapper = CreateBootstrapper(platformService, context ?? DataContext.Empty);
+                if (!ShouldRestoreApplicationState())
+                {
+                    bootstrapper.InitializationContext = bootstrapper.InitializationContext.ToNonReadOnly();
+                    bootstrapper.InitializationContext.AddOrUpdate(ViewModelConstants.StateNotNeeded, true);
+                }
+                // ReSharper restore VirtualMemberCallInConstructor
+            }
             bootstrapper.Start();
         }
 
         #endregion
 
         #region Methods
+
+        [NotNull]
+        protected abstract XamarinFormsBootstrapperBase CreateBootstrapper([NotNull] XamarinFormsBootstrapperBase.IPlatformService platformService, IDataContext context);
 
         protected override void OnResume()
         {
@@ -58,6 +75,22 @@ namespace MugenMvvmToolkit.Xamarin.Forms
         {
             base.OnSleep();
             ServiceProvider.EventAggregator.Publish(this, new BackgroundNavigationMessage());
+            if (ShouldSaveApplicationState())
+                SaveState();
+        }
+
+        protected virtual bool ShouldSaveApplicationState()
+        {
+            return true;
+        }
+
+        protected virtual bool ShouldRestoreApplicationState()
+        {
+            return true;
+        }
+
+        protected virtual void SaveState()
+        {
             if (_presenter == null && !_presenterActivated)
             {
                 _presenter = ServiceProvider.Get<IViewModelPresenter>() as IRestorableViewModelPresenter;
@@ -65,9 +98,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms
             }
             _presenter?.SaveState();
         }
-
-        [NotNull]
-        protected abstract XamarinFormsBootstrapperBase CreateBootstrapper([NotNull]XamarinFormsBootstrapperBase.IPlatformService platformService);
 
         #endregion
     }
