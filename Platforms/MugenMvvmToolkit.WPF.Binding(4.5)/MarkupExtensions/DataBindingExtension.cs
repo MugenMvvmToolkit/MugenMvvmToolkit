@@ -43,6 +43,8 @@ namespace MugenMvvmToolkit.WPF.MarkupExtensions
         public DataBindingExtension()
         {
             _targetMemberName = string.Empty;
+            if (ServiceProvider.IsDesignMode)
+                BindingServiceProvider.InitializeFromDesignContext();
         }
 
 #if WPF

@@ -53,6 +53,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.MarkupExtensions
                 return;
             if (ServiceProvider.IsDesignMode)
             {
+                BindingServiceProvider.InitializeFromDesignContext();
                 IList<IDataBinding> list = BindingServiceProvider.BindingProvider.CreateBindingsFromStringWithBindings(bindable, bindings);
                 foreach (InvalidDataBinding binding in list.OfType<InvalidDataBinding>())
                     throw binding.Exception;

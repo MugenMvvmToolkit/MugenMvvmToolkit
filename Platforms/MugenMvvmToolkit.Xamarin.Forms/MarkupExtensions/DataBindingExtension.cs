@@ -20,6 +20,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Models;
 using Xamarin.Forms;
@@ -30,6 +31,16 @@ namespace MugenMvvmToolkit.Xamarin.Forms.MarkupExtensions
     [ContentProperty("Path")]
     public partial class DataBindingExtension : IMarkupExtension
     {
+        #region Constructors
+
+        public DataBindingExtension()
+        {
+            if (ServiceProvider.IsDesignMode)
+                BindingServiceProvider.InitializeFromDesignContext();
+        }
+
+        #endregion
+
         #region Implementation of IMarkupExtension
 
         public object ProvideValue(IServiceProvider serviceProvider)
