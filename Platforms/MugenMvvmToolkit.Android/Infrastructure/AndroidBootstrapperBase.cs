@@ -180,8 +180,7 @@ You must specify the type of application bootstrapper using BootstrapperAttribut
         {
             TypeCache<View>.Initialize(null);
             base.InitializeInternal();
-
-            //Activating navigation provider
+            //Activating navigation provider if need
             INavigationProvider provider;
             ServiceProvider.TryGet(out provider);
         }
