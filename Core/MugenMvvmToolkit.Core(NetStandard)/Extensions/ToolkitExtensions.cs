@@ -999,6 +999,17 @@ namespace MugenMvvmToolkit
 
         #region Extensions
 
+        public static IList<IViewModel> GetTopViewModels([NotNull] this INavigationDispatcher navigationDispatcher, IDataContext context = null)
+        {
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            return navigationDispatcher
+                .GetOpenedViewModels(context)
+                .Values
+                .Select(list => list.LastOrDefault())
+                .Where(model => model != null)
+                .ToArray();
+        }
+
         public static IViewModel GetTopViewModel([NotNull] this INavigationDispatcher navigationDispatcher, [NotNull] NavigationType navigationType, IDataContext context = null)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
