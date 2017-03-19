@@ -23,7 +23,6 @@ using System.Linq;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.DataConstants;
-using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
@@ -65,7 +64,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters
 
         #region Fields
 
-        private readonly HashSet<IViewModel> _openedViewModels;
+        private readonly List<IViewModel> _openedViewModels;
         private readonly ISerializer _serializer;
         private readonly IViewModelProvider _viewModelProvider;
 
@@ -83,7 +82,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters
             Should.NotBeNull(viewModelProvider, nameof(viewModelProvider));
             _viewModelProvider = viewModelProvider;
             _serializer = serializer;
-            _openedViewModels = new HashSet<IViewModel>(ReferenceEqualityComparer.Instance);
+            _openedViewModels = new List<IViewModel>();
             GetStateDictionary = () => Application.Current.Properties;
         }
 
