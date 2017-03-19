@@ -41,13 +41,14 @@ using UIKit;
 
 namespace MugenMvvmToolkit.iOS.Infrastructure
 {
-    public abstract class TouchBootstrapperBase : BootstrapperBase, IDynamicViewModelPresenter
+    public abstract class TouchBootstrapperBase : BootstrapperBase, IRestorableDynamicViewModelPresenter
     {
         #region Fields
 
+        private static readonly DataConstant<object> IsRootPage = DataConstant.Create<object>(typeof(TouchBootstrapperBase), nameof(IsRootPage), false);
         private readonly UIWindow _window;
         private readonly PlatformInfo _platform;
-        private INavigationService _navigationService;
+        private bool _isStarted;
 
         #endregion
 
@@ -89,22 +90,49 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
 
         IAsyncOperation IDynamicViewModelPresenter.TryShowAsync(IDataContext context, IViewModelPresenter parentPresenter)
         {
-            parentPresenter.DynamicPresenters.Remove(this);
+            if (!_isStarted)
+            {
+                parentPresenter.DynamicPresenters.Remove(this);
+                return null;
+            }
+
             if (WrapToNavigationController)
+            {
+                parentPresenter.DynamicPresenters.Remove(this);
                 return parentPresenter.ShowAsync(context);
+            }
 
             var viewModel = context.GetData(NavigationConstants.ViewModel);
             if (viewModel == null)
                 return null;
+            var mappingItem = ServiceProvider.Get<IViewMappingProvider>().FindMappingForViewModel(viewModel.GetType(), viewModel.GetViewName(context), false);
+            if (mappingItem == null || !typeof(UIViewController).IsAssignableFrom(mappingItem.ViewType))
+                return null;
 
+            parentPresenter.DynamicPresenters.Remove(this);
             _window.RootViewController = (UIViewController)ServiceProvider.ViewManager.GetOrCreateView(viewModel, null, context);
             ServiceProvider.Get<INavigationDispatcher>().OnNavigated(new NavigationContext(NavigationType.Window, NavigationMode.New, null, viewModel, this, context));
+            viewModel.Settings.State.AddOrUpdate(IsRootPage, null);
             return new AsyncOperation<object>();
         }
 
         Task<bool> IDynamicViewModelPresenter.TryCloseAsync(IDataContext context, IViewModelPresenter parentPresenter)
         {
             return null;
+        }
+
+        bool IRestorableDynamicViewModelPresenter.Restore(IDataContext context, IViewModelPresenter parentPresenter)
+        {
+            var viewModel = context.GetData(NavigationConstants.ViewModel);
+            if (viewModel == null)
+                return false;
+            if (viewModel.Settings.State.Contains(IsRootPage))
+            {
+                parentPresenter.DynamicPresenters.Remove(this);
+                ServiceProvider.Get<INavigationDispatcher>().OnNavigated(new NavigationContext(NavigationType.Window, NavigationMode.Refresh, null, viewModel, this, context));
+                return true;
+            }
+            return false;
         }
 
         #endregion
@@ -114,23 +142,25 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
         protected override void InitializeInternal()
         {
             base.InitializeInternal();
-            _navigationService = CreateNavigationService(_window);
-            if (_navigationService != null)
-                ServiceProvider.Application.IocContainer.BindToConstant(_navigationService);
+            ServiceProvider.Get<IViewModelPresenter>().DynamicPresenters.Add(this);
+            var navigationService = CreateNavigationService(_window);
+            if (navigationService != null)
+                ServiceProvider.IocContainer.BindToConstant(navigationService);
         }
 
         public virtual void Start()
         {
             Initialize();
-            var app = ServiceProvider.Application;
-            app.IocContainer.Get<IViewModelPresenter>().DynamicPresenters.Add(this);
-            app.Start();
+            _isStarted = true;
+            ServiceProvider.Application.Start();
         }
 
         [CanBeNull]
         protected virtual INavigationService CreateNavigationService(UIWindow window)
         {
-            return new NavigationService(window);
+            if (WrapToNavigationController)
+                return new NavigationService(window);
+            return null;
         }
 
         protected override IList<Assembly> GetAssemblies()
