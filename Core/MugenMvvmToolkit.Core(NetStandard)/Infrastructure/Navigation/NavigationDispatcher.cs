@@ -243,9 +243,9 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         public void OnNavigated(INavigationContext context)
         {
             Should.NotBeNull(context, nameof(context));
+            HandleOpenedViewModels(context);
             OnNavigatedInternal(context);
             RaiseNavigated(context);
-            HandleOpenedViewModels(context);
             if (Tracer.TraceInformation)
                 Tracer.Info($"Navigated from '{context.ViewModelFrom}' to '{context.ViewModelTo}', mode '{context.NavigationMode}', type '{context.NavigationType}'");
         }
