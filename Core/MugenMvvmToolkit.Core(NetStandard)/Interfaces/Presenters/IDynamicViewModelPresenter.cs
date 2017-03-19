@@ -34,6 +34,12 @@ namespace MugenMvvmToolkit.Interfaces.Presenters
         Task<bool> TryCloseAsync([NotNull] IDataContext context, [NotNull]IViewModelPresenter parentPresenter);
     }
 
+    public interface IAwaitableDynamicViewModelPresenter : IDynamicViewModelPresenter
+    {
+        [NotNull]
+        Task WaitCurrentNavigationAsync(IDataContext context = null);
+    }
+
     public interface IRestorableDynamicViewModelPresenter : IDynamicViewModelPresenter
     {
         bool Restore([NotNull] IDataContext context, [NotNull] IViewModelPresenter parentPresenter);

@@ -32,6 +32,9 @@ namespace MugenMvvmToolkit.Interfaces.Navigation
         [CanBeNull]
         object CurrentContent { get; }
 
+        [NotNull]
+        Task CurrentNavigationTask { get; }
+
         Task NavigateAsync([NotNull] IDataContext context);
 
         [CanBeNull]

@@ -35,7 +35,7 @@ using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure.Presenters
 {
-    public class DynamicViewModelWindowPresenter : IRestorableDynamicViewModelPresenter
+    public class DynamicViewModelWindowPresenter : IRestorableDynamicViewModelPresenter, IAwaitableDynamicViewModelPresenter
     {
         #region Fields
 
@@ -116,6 +116,11 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                 return false;
             mediator.UpdateView(view, context.GetData(WindowPresenterConstants.IsViewOpened), context);
             return true;
+        }
+
+        public Task WaitCurrentNavigationAsync(IDataContext context = null)
+        {
+            return _currentTask ?? Empty.Task;
         }
 
         #endregion

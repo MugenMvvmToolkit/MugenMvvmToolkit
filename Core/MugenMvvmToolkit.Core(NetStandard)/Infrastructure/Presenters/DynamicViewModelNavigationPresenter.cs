@@ -31,7 +31,7 @@ using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure.Presenters
 {
-    public sealed class DynamicViewModelNavigationPresenter : IRestorableDynamicViewModelPresenter
+    public sealed class DynamicViewModelNavigationPresenter : IRestorableDynamicViewModelPresenter, IAwaitableDynamicViewModelPresenter
     {
         #region Fields
 
@@ -82,8 +82,11 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             if (viewModel == null || !CanShowViewModel(viewModel, context, parentPresenter))
                 return null;
 
+            INavigationProvider provider;
+            if (!viewModel.GetIocContainer(true).TryGet(out provider))
+                return null;
+
             var operation = new AsyncOperation<object>();
-            var provider = viewModel.GetIocContainer(true).Get<INavigationProvider>();
             _operationCallbackManager.Register(OperationType.PageNavigation, viewModel, operation.ToOperationCallback(), context);
             operation.Context.AddOrUpdate(NavigationConstants.NavigationCompletedTask, provider.NavigateAsync(context));
             return operation;
@@ -112,6 +115,17 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                 return true;
             }
             return false;
+        }
+
+        public Task WaitCurrentNavigationAsync(IDataContext context = null)
+        {
+            var viewModel = context?.GetData(NavigationConstants.ViewModel);
+            INavigationProvider provider;
+            if (viewModel == null)
+                ServiceProvider.TryGet(out provider);
+            else
+                viewModel.GetIocContainer(true).TryGet(out provider);
+            return provider?.CurrentNavigationTask ?? Empty.Task;
         }
 
         #endregion

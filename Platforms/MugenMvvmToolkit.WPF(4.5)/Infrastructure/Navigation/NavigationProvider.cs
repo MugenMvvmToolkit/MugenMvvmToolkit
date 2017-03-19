@@ -63,7 +63,8 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         private readonly EventHandler<IDisposableObject, EventArgs> _disposeViewModelHandler;
 #endif
         private bool _ignoreNavigating;
-        private TaskCompletionSource<bool> _navigatedTcs;
+        private TaskCompletionSource<bool> _navigationTcs;
+        private TaskCompletionSource<bool> _unobservedNavigationTcs;
         private NavigatingCancelEventArgsBase _navigatingCancelArgs;
         private WeakReference _vmReference;
 
@@ -141,6 +142,8 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 
         public virtual object CurrentContent => NavigationService.CurrentContent;
 
+        public Task CurrentNavigationTask => _navigationTcs?.Task ?? _unobservedNavigationTcs?.Task ?? Empty.Task;
+
 #if WPF || WINDOWS_UWP
         public INavigationCachePolicy CachePolicy { get; }
 #endif
@@ -162,9 +165,8 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         {
             var viewModel = GetViewModelFromContext(context);
             var tcs = new TaskCompletionSource<bool>();
-            var currentTask = _navigatedTcs?.Task ?? Empty.Task;
             context = new DataContext(context.ToNonReadOnly());
-            currentTask.TryExecuteSynchronously(task => ThreadManager.InvokeOnUiThreadAsync(() => NavigateInternal(viewModel, context, tcs)));
+            CurrentNavigationTask.TryExecuteSynchronously(task => ThreadManager.InvokeOnUiThreadAsync(() => NavigateInternal(viewModel, context, tcs)));
             return tcs.Task;
         }
 
@@ -274,7 +276,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             var mappingItem = ViewMappingProvider.FindMappingForViewModel(vmType, viewName, true);
             var parameter = GenerateNavigationParameter(vmType);
 
-            _navigatedTcs = tcs;
+            _navigationTcs = tcs;
             if (NavigationService.Navigate(mappingItem, parameter, context))
             {
 #if WPF || WINDOWS_UWP
@@ -533,6 +535,8 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         {
             try
             {
+                if ((args.Context == null || !args.Context.Contains(NavigatedTaskConstant)) && _unobservedNavigationTcs == null)
+                    _unobservedNavigationTcs = new TaskCompletionSource<bool>();
                 _navigatingCancelArgs = args;
                 OnNavigating(args);
             }
@@ -542,17 +546,19 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             }
         }
 
-        private void NavigationServiceOnNavigated(object sender, NavigationEventArgsBase e)
+        private void NavigationServiceOnNavigated(object sender, NavigationEventArgsBase args)
         {
             try
             {
-                var context = CreateContextNavigateTo(e);
-                UpdateNavigationContext(e, ref context);
+                if ((args.Context == null || !args.Context.Contains(NavigatedTaskConstant)) && _unobservedNavigationTcs == null)
+                    _unobservedNavigationTcs = new TaskCompletionSource<bool>();
+                var context = CreateContextNavigateTo(args);
+                UpdateNavigationContext(args, ref context);
                 OnNavigated(context);
             }
             finally
             {
-                TryCompleteNavigationTask(e.Context, true);
+                TryCompleteNavigationTask(args.Context, true);
             }
         }
 
@@ -615,12 +621,19 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         }
 #endif
 
-        private static void TryCompleteNavigationTask(IDataContext context, bool result)
+        private void TryCompleteNavigationTask(IDataContext context, bool result)
         {
-            if (context == null)
-                return;
-            context.GetData(NavigatedTaskConstant)?.TrySetResult(result);
-            context.Clear();
+            var unobservedNavigationTcs = _unobservedNavigationTcs;
+            if (unobservedNavigationTcs != null)
+            {
+                _unobservedNavigationTcs = null;
+                unobservedNavigationTcs.TrySetResult(result);
+            }
+            if (context != null)
+            {
+                context.GetData(NavigatedTaskConstant)?.TrySetResult(result);
+                context.Clear();
+            }
         }
 
         private bool CanCloseViewModel(IViewModel viewModel, object parameter)

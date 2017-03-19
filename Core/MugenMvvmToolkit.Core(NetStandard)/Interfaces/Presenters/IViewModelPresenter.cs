@@ -30,6 +30,9 @@ namespace MugenMvvmToolkit.Interfaces.Presenters
         ICollection<IDynamicViewModelPresenter> DynamicPresenters { get; }
 
         [NotNull]
+        Task WaitCurrentNavigationsAsync(IDataContext context = null);
+
+        [NotNull]
         IAsyncOperation ShowAsync([NotNull] IDataContext context);
 
         Task<bool> CloseAsync([NotNull] IDataContext context);

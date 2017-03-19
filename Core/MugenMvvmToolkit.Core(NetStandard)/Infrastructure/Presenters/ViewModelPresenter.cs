@@ -28,6 +28,7 @@ using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
+using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure.Presenters
 {
@@ -151,6 +152,11 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         public ICollection<IDynamicViewModelPresenter> DynamicPresenters => _dynamicPresenters;
 
+        public Task WaitCurrentNavigationsAsync(IDataContext context = null)
+        {
+            return WaitCurrentNavigationsInternalAsync(context ?? DataContext.Empty);
+        }
+
         public IAsyncOperation ShowAsync(IDataContext context)
         {
             Should.NotBeNull(context, nameof(context));
@@ -172,6 +178,18 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         #endregion
 
         #region Methods
+
+        protected virtual Task WaitCurrentNavigationsInternalAsync(IDataContext context)
+        {
+            var tasks = new List<Task>();
+            foreach (var dynamicPresenter in _dynamicPresenters)
+            {
+                var awaitablePresenter = dynamicPresenter as IAwaitableDynamicViewModelPresenter;
+                if (awaitablePresenter != null)
+                    tasks.Add(awaitablePresenter.WaitCurrentNavigationAsync(context));
+            }
+            return ToolkitExtensions.WhenAll(tasks.ToArray());
+        }
 
         protected virtual IAsyncOperation ShowInternalAsync(IDataContext context)
         {
