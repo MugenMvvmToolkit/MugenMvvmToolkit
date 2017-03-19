@@ -117,6 +117,11 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             var viewModel = context.GetData(NavigationConstants.ViewModel);
             if (viewModel == null)
                 return null;
+
+            var mappingItem = ServiceProvider.Get<IViewMappingProvider>().FindMappingForViewModel(viewModel.GetType(), viewModel.GetViewName(context), false);
+            if (mappingItem == null || !typeof(Page).IsAssignableFrom(mappingItem.ViewType))
+                return null;
+
             parentPresenter.DynamicPresenters.Remove(this);
             _mainViewModelRef = ServiceProvider.WeakReferenceFactory(viewModel);
 
@@ -133,7 +138,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
                     navigationService = CreateNavigationService();
                     iocContainer.BindToConstant(navigationService);
                 }
-                //Activating navigation provider
+
+                //Activating navigation provider if need
                 INavigationProvider provider;
                 iocContainer.TryGet(out provider);
 
