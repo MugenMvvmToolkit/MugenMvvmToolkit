@@ -58,6 +58,11 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
             Restore?.Invoke(context.GetData(NavigationConstants.ViewModel), context);
         }
 
+        public Task WaitCurrentNavigationsAsync(IDataContext context = null)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
     }
 }
