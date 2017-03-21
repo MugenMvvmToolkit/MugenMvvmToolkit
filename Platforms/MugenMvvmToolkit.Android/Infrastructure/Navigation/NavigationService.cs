@@ -205,11 +205,13 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                 startAction(context, intent, source, dataContext);
         }
 
-        protected virtual void GoBack()
+        protected virtual bool GoBack()
         {
             var currentActivity = PlatformExtensions.CurrentActivity;
-            if (currentActivity != null && !currentActivity.IsFinishing)
-                currentActivity.OnBackPressed();
+            if (_isPause || !currentActivity.IsAlive() || IsDestroyed(currentActivity) || currentActivity.IsFinishing)
+                return false;
+            currentActivity.OnBackPressed();
+            return true;
         }
 
         protected virtual bool IsNoHistory([CanBeNull] Activity activity)
@@ -220,6 +222,14 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                 return true;
             var attribute = activity.GetType().GetCustomAttributes(typeof(ActivityAttribute), false).OfType<ActivityAttribute>().FirstOrDefault();
             return attribute != null && attribute.NoHistory;
+        }
+
+        private static bool IsDestroyed(Activity activity)
+        {
+            var activityView = activity as IActivityView;
+            if (activityView == null)
+                return false;
+            return activityView.Mediator.IsDestroyed;
         }
 
         private static IDataContext MergeContext(IDataContext ctx1, IDataContext ctx2)
@@ -347,8 +357,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             var activity = PlatformExtensions.CurrentActivity;
             if (activity == null)
                 return false;
-            GoBack();
-            return activity.IsFinishing;
+            return GoBack() && activity.IsFinishing;
         }
 
         public virtual bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
@@ -447,8 +456,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             if (CurrentContent?.DataContext() == viewModel)
             {
                 _dataContext = dataContext;
-                GoBack();
-                return true;
+                return GoBack();
             }
 
             if (!CanClose(dataContext) || !RaiseNavigating(new NavigatingCancelEventArgs(NavigationMode.Remove, dataContext)))

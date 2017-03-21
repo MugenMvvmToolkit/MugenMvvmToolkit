@@ -161,8 +161,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         public virtual void OnBackPressed(Action baseOnBackPressed)
         {
-            if (!Target.IsAlive() || IsDestroyed || Target.IsFinishing)
-                return;
             var handler = BackPressing;
             if (handler != null)
             {
