@@ -176,12 +176,12 @@ namespace MugenMvvmToolkit.ViewModels
             OnShown(context);
         }
 
-        Task<bool> INavigableViewModel.OnNavigatingFrom(INavigationContext context)
+        Task<bool> INavigableViewModel.OnNavigatingFromAsync(INavigationContext context)
         {
             var navigableViewModel = ViewModel as INavigableViewModel;
             if (navigableViewModel == null)
                 return Empty.TrueTask;
-            return navigableViewModel.OnNavigatingFrom(context);
+            return navigableViewModel.OnNavigatingFromAsync(context);
         }
 
         void INavigableViewModel.OnNavigatedFrom(INavigationContext context)

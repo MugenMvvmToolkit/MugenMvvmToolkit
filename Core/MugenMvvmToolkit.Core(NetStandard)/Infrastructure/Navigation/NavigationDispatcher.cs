@@ -164,7 +164,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         protected virtual Task<bool> OnNavigatingFromAsync(INavigationContext context)
         {
-            return (context.ViewModelFrom as INavigableViewModel)?.OnNavigatingFrom(context);
+            return (context.ViewModelFrom as INavigableViewModel)?.OnNavigatingFromAsync(context);
         }
 
         protected virtual void OnNavigatedInternal(INavigationContext context)

@@ -55,9 +55,9 @@ namespace MugenMvvmToolkit.ViewModels
             OnNavigatedFrom(context);
         }
 
-        Task<bool> INavigableViewModel.OnNavigatingFrom(INavigationContext context)
+        Task<bool> INavigableViewModel.OnNavigatingFromAsync(INavigationContext context)
         {
-            return OnNavigatingFrom(context);
+            return OnNavigatingFromAsync(context);
         }
 
         public virtual string DisplayName
@@ -86,7 +86,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Methods
 
-        protected virtual Task<bool> OnNavigatingFrom(INavigationContext context)
+        protected virtual Task<bool> OnNavigatingFromAsync(INavigationContext context)
         {
             return Empty.TrueTask;
         }

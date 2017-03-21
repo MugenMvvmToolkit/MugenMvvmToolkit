@@ -50,7 +50,7 @@ namespace MugenMvvmToolkit.Test.TestViewModels
 
         #region Overrides of NavigableViewModel
 
-        public Task<bool> OnNavigatingFrom(INavigationContext context)
+        public Task<bool> OnNavigatingFromAsync(INavigationContext context)
         {
             if (OnNavigatingFromDelegate != null)
                 return OnNavigatingFromDelegate(context);

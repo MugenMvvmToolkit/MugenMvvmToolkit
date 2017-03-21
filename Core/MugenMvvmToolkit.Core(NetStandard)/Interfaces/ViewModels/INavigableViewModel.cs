@@ -26,7 +26,7 @@ namespace MugenMvvmToolkit.Interfaces.ViewModels
     {
         void OnNavigatedTo([NotNull] INavigationContext context);
 
-        Task<bool> OnNavigatingFrom([NotNull] INavigationContext context);
+        Task<bool> OnNavigatingFromAsync([NotNull] INavigationContext context);
 
         void OnNavigatedFrom([NotNull] INavigationContext context);
     }
