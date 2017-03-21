@@ -137,15 +137,16 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             }
         }
 
-        protected virtual Task<bool> OnNavigatingFromInternalAsync(INavigationContext context)
+        protected virtual Task<bool> OnNavigatingInternalAsync(INavigationContext context)
         {
             bool data;
             if (context.TryGetData(NavigationConstants.ImmediateClose, out data) && data)
                 return Empty.TrueTask;
             bool isClose = context.NavigationMode.IsClose() && context.ViewModelFrom != null;
+            var navigatingTask = OnNavigatingFromAsync(context) ?? Empty.TrueTask;
             if (!isClose)
-                return OnNavigatingFrom(context) ?? Empty.TrueTask;
-            var navigatingTask = OnNavigatingFrom(context) ?? Empty.TrueTask;
+                return navigatingTask;
+
             if (navigatingTask.IsCompleted)
             {
                 if (navigatingTask.Result)
@@ -161,7 +162,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 }).Unwrap();
         }
 
-        protected virtual Task<bool> OnNavigatingFrom(INavigationContext context)
+        protected virtual Task<bool> OnNavigatingFromAsync(INavigationContext context)
         {
             return (context.ViewModelFrom as INavigableViewModel)?.OnNavigatingFrom(context);
         }
@@ -234,10 +235,10 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         public event EventHandler<INavigationDispatcher, NavigatedEventArgs> Navigated;
 
-        public Task<bool> OnNavigatingFromAsync(INavigationContext context)
+        public Task<bool> OnNavigatingAsync(INavigationContext context)
         {
             Should.NotBeNull(context, nameof(context));
-            return OnNavigatingFromInternalAsync(context);
+            return OnNavigatingInternalAsync(context);
         }
 
         public void OnNavigated(INavigationContext context)

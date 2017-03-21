@@ -52,7 +52,7 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         #region Implementation of interfaces
 
-        Task<bool> INavigationDispatcher.OnNavigatingFromAsync(INavigationContext context)
+        Task<bool> INavigationDispatcher.OnNavigatingAsync(INavigationContext context)
         {
             return OnNavigatingFromAsync?.Invoke(context) ?? Empty.TrueTask;
         }

@@ -227,7 +227,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         protected virtual Task<bool> OnClosing(IDataContext context)
         {
-            return NavigationDispatcher.OnNavigatingFromAsync(CreateCloseContext(context));
+            return NavigationDispatcher.OnNavigatingAsync(CreateCloseContext(context));
         }
 
         protected virtual void OnClosed(INavigationContext context)
@@ -359,7 +359,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             if (parentViewModel == null)
                 return Empty.TrueTask;
             var ctx = new NavigationContext(NavigationType.Window, mode, ViewModel.GetParentViewModel(), ViewModel, this, context);
-            return NavigationDispatcher.OnNavigatingFromAsync(ctx);
+            return NavigationDispatcher.OnNavigatingAsync(ctx);
         }
 
         #endregion

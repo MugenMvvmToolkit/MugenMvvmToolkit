@@ -431,7 +431,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             {
                 navigatingFromCount = 0;
                 var ctx = new NavigationContext(NavigationType.Page, tuple.Item1, vmFrom, vmTo, this);
-                var task = navigationDispatcher.OnNavigatingFromAsync(ctx);
+                var task = navigationDispatcher.OnNavigatingAsync(ctx);
                 tuple.Item2(ctx);
                 task.Result.ShouldBeTrue();
             }
@@ -473,7 +473,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             {
                 closingCount = 0;
                 var ctx = new NavigationContext(NavigationType.Page, tuple.Item1, vmFrom, vmTo, this);
-                var task = navigationDispatcher.OnNavigatingFromAsync(ctx);
+                var task = navigationDispatcher.OnNavigatingAsync(ctx);
                 tuple.Item2(ctx);
                 task.Result.ShouldBeTrue();
             }
@@ -519,7 +519,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             {
                 closingCount = 0;
                 ctx = new NavigationContext(NavigationType.Page, tuple.Item1, vmFrom, vmTo, this);
-                var task = navigationDispatcher.OnNavigatingFromAsync(ctx);
+                var task = navigationDispatcher.OnNavigatingAsync(ctx);
                 tuple.Item2(ctx);
                 task.Result.ShouldBeTrue();
             }

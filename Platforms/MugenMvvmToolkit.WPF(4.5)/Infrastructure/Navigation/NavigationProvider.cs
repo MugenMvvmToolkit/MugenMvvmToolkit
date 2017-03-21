@@ -433,7 +433,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             args.Cancel = true;
             var navigateTask = !args.IsCancelable
                 ? Empty.TrueTask
-                : NavigationDispatcher.OnNavigatingFromAsync(context);
+                : NavigationDispatcher.OnNavigatingAsync(context);
             navigateTask.TryExecuteSynchronously(task =>
             {
                 if (!task.IsCanceled && task.IsFaulted)

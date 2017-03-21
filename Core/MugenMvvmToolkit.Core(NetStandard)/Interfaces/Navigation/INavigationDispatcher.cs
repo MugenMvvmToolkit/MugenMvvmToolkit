@@ -35,7 +35,7 @@ namespace MugenMvvmToolkit.Interfaces.Navigation
         [NotNull]
         IList<IViewModel> GetOpenedViewModels([NotNull]NavigationType type, IDataContext context = null);
 
-        Task<bool> OnNavigatingFromAsync([NotNull] INavigationContext context);
+        Task<bool> OnNavigatingAsync([NotNull] INavigationContext context);
 
         void OnNavigated([NotNull]INavigationContext context);
 
