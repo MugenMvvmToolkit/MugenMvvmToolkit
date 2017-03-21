@@ -45,6 +45,7 @@ namespace MugenMvvmToolkit.DataConstants
         public static readonly DataConstant<bool> StateNotNeeded;
         public static readonly DataConstant<EventHandler<IViewModel, ViewModelClosingEventArgs>> ClosingEvent;
         public static readonly DataConstant<EventHandler<IViewModel, ViewModelClosedEventArgs>> ClosedEvent;
+        public static readonly DataConstant<EventHandler<IViewModel, ViewModelPreservedEventArgs>> PreservedEvent;
         public static readonly DataConstant<IViewModel> WrapperViewModel;
         public static readonly DataConstant<Func<IViewModel, object, bool>> CanCloseHandler;
         public static readonly DataConstant<Func<INavigationDispatcher, IViewModel, IDataContext, Task<bool>>> CloseHandler;
@@ -67,6 +68,7 @@ namespace MugenMvvmToolkit.DataConstants
             StateRestored = DataConstant.Create<bool>(type, nameof(StateRestored));
             ClosingEvent = DataConstant.Create<EventHandler<IViewModel, ViewModelClosingEventArgs>>(type, nameof(ClosingEvent), false);
             ClosedEvent = DataConstant.Create<EventHandler<IViewModel, ViewModelClosedEventArgs>>(type, nameof(ClosedEvent), false);
+            PreservedEvent = DataConstant.Create<EventHandler<IViewModel, ViewModelPreservedEventArgs>>(type, nameof(PreservedEvent), false);
             CanCloseHandler = DataConstant.Create<Func<IViewModel, object, bool>>(type, nameof(CanCloseHandler), false);
             CloseHandler = DataConstant.Create<Func<INavigationDispatcher, IViewModel, IDataContext, Task<bool>>>(type, nameof(CloseHandler), true);
         }

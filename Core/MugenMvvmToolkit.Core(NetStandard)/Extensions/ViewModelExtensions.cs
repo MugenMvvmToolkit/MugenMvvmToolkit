@@ -193,30 +193,32 @@ namespace MugenMvvmToolkit.ViewModels
 
         public static void AddClosingHandler([NotNull]this IViewModel viewModel, EventHandler<IViewModel, ViewModelClosingEventArgs> handler)
         {
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            var eventHandler = viewModel.Settings.Metadata.GetData(ViewModelConstants.ClosingEvent) + handler;
-            viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.ClosingEvent, eventHandler);
+            viewModel.UpdateEventHandler(ViewModelConstants.ClosingEvent, handler, true);
         }
 
         public static void RemoveClosingHandler([NotNull]this IViewModel viewModel, EventHandler<IViewModel, ViewModelClosingEventArgs> handler)
         {
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            var eventHandler = viewModel.Settings.Metadata.GetData(ViewModelConstants.ClosingEvent) - handler;
-            viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.ClosingEvent, eventHandler);
+            viewModel.UpdateEventHandler(ViewModelConstants.ClosingEvent, handler, false);
         }
 
         public static void AddClosedHandler([NotNull]this IViewModel viewModel, EventHandler<IViewModel, ViewModelClosedEventArgs> handler)
         {
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            var eventHandler = viewModel.Settings.Metadata.GetData(ViewModelConstants.ClosedEvent) + handler;
-            viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.ClosedEvent, eventHandler);
+            viewModel.UpdateEventHandler(ViewModelConstants.ClosedEvent, handler, true);
         }
 
         public static void RemoveClosedHandler([NotNull]this IViewModel viewModel, EventHandler<IViewModel, ViewModelClosedEventArgs> handler)
         {
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            var eventHandler = viewModel.Settings.Metadata.GetData(ViewModelConstants.ClosedEvent) - handler;
-            viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.ClosedEvent, eventHandler);
+            viewModel.UpdateEventHandler(ViewModelConstants.ClosedEvent, handler, false);
+        }
+
+        public static void AddPreservedHandler([NotNull]this IViewModel viewModel, EventHandler<IViewModel, ViewModelPreservedEventArgs> handler)
+        {
+            viewModel.UpdateEventHandler(ViewModelConstants.PreservedEvent, handler, true);
+        }
+
+        public static void RemovePreservedHandler([NotNull]this IViewModel viewModel, EventHandler<IViewModel, ViewModelPreservedEventArgs> handler)
+        {
+            viewModel.UpdateEventHandler(ViewModelConstants.PreservedEvent, handler, false);
         }
 
         [Pure]
@@ -299,6 +301,16 @@ namespace MugenMvvmToolkit.ViewModels
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             viewModel.Publish(viewModel, StateChangedMessage.Empty);
+        }
+
+        private static void UpdateEventHandler<TEventArgs>([NotNull]this IViewModel viewModel, DataConstant<EventHandler<IViewModel, TEventArgs>> constant, EventHandler<IViewModel, TEventArgs> handler, bool add)
+            where TEventArgs : class
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            if (add)
+                viewModel.Settings.Metadata.AddOrUpdate(constant, viewModel.Settings.Metadata.GetData(constant) + handler);
+            else
+                viewModel.Settings.Metadata.AddOrUpdate(constant, viewModel.Settings.Metadata.GetData(constant) - handler);
         }
 
         private static DataConstantValue[] MergeParameters(IViewModel parentViewModel, ObservationMode? observationMode, DataConstantValue[] parameters)

@@ -47,8 +47,8 @@ namespace MugenMvvmToolkit.Models.EventArg
             get { return _state; }
             set
             {
-                _state = value;
                 Should.PropertyNotBeNull(value);
+                _state = value;                
             }
         }
 

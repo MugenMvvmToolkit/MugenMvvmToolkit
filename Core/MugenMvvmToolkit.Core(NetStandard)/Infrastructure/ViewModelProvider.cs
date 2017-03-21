@@ -215,10 +215,12 @@ namespace MugenMvvmToolkit.Infrastructure
             OnViewModelPreserved(viewModel, state, dataContext);
 
             var preserved = Preserved;
-            if (preserved != null)
+            var vmPreserved = viewModel.Settings.Metadata.GetData(ViewModelConstants.PreservedEvent);
+            if (preserved != null || vmPreserved != null)
             {
                 var args = new ViewModelPreservedEventArgs(viewModel) { Context = dataContext, State = state };
-                preserved(this, args);
+                preserved?.Invoke(this, args);
+                vmPreserved?.Invoke(viewModel, args);
                 return args.State;
             }
             return state;
