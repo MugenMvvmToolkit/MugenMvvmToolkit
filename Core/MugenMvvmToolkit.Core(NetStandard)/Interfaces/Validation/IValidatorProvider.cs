@@ -24,15 +24,12 @@ namespace MugenMvvmToolkit.Interfaces.Validation
 {
     public interface IValidatorProvider
     {
-        void Register([NotNull] Type validatorType);
-
         [Pure]
         bool IsRegistered([NotNull] Type validatorType);
 
-        bool Unregister([NotNull] Type validatorType);
+        void Register([NotNull] Type validatorType);
 
-        [NotNull]
-        IList<Type> GetValidatorTypes();
+        bool Unregister([NotNull] Type validatorType);
 
         [NotNull]
         IList<IValidator> GetValidators([NotNull] IValidatorContext context);

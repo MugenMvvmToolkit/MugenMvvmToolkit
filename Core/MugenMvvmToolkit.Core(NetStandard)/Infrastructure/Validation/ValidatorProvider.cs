@@ -69,12 +69,6 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 return _validators.Remove(validatorType);
         }
 
-        public IList<Type> GetValidatorTypes()
-        {
-            lock (_validators)
-                return _validators.Keys.ToArrayEx();
-        }
-
         public IList<IValidator> GetValidators(IValidatorContext context)
         {
             Should.NotBeNull(context, nameof(context));

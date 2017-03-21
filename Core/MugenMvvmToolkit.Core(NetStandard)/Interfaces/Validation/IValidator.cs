@@ -59,6 +59,6 @@ namespace MugenMvvmToolkit.Interfaces.Validation
         void ClearErrors();
     }
 
-    //using this interface marker instead of ValidatableViewModelValidator it allows for linker to remove ValidatableViewModelValidator
+    //using this interface marker instead of ValidatableViewModelValidator it allows linker remove ValidatableViewModelValidator
     internal interface IValidatableViewModelValidator { }
 }
