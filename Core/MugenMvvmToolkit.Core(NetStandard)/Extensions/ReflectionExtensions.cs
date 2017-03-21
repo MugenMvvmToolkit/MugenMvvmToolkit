@@ -729,11 +729,6 @@ namespace MugenMvvmToolkit
         public static PropertyInfo GetPropertyEx([NotNull] this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
             Should.NotBeNull(type, nameof(type));
-            foreach (var property in type.GetRuntimeProperties())
-            {
-                if (property.Name == name && FilterProperty(property, flags))
-                    return property;
-            }
             while (type != null)
             {
                 var typeInfo = type.GetTypeInfo();
@@ -769,11 +764,6 @@ namespace MugenMvvmToolkit
         public static FieldInfo GetFieldEx([NotNull] this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
             Should.NotBeNull(type, nameof(type));
-            foreach (var field in type.GetRuntimeFields())
-            {
-                if (field.Name == name && FilterField(field, flags))
-                    return field;
-            }
             while (type != null)
             {
                 var typeInfo = type.GetTypeInfo();
@@ -810,14 +800,19 @@ namespace MugenMvvmToolkit
         {
             Should.NotBeNull(type, nameof(type));
             MethodInfo result = null;
-            foreach (var method in type.GetMethodsEx(flags))
+            while (type != null)
             {
-                if (method.Name == name)
+                var typeInfo = type.GetTypeInfo();
+                foreach (var method in typeInfo.DeclaredMethods)
                 {
-                    if (result != null)
-                        throw new AmbiguousMatchException();
-                    result = method;
+                    if (method.Name == name && FilterMethod(method, flags))
+                    {
+                        if (result != null)
+                            throw new AmbiguousMatchException();
+                        result = method;
+                    }
                 }
+                type = type == typeof(object) ? null : typeInfo.BaseType;
             }
             return result;
         }
@@ -844,11 +839,6 @@ namespace MugenMvvmToolkit
         public static EventInfo GetEventEx(this Type type, string name, MemberFlags flags = MemberFlags.Public | MemberFlags.Static | MemberFlags.Instance)
         {
             Should.NotBeNull(type, nameof(type));
-            foreach (var @event in type.GetRuntimeEvents())
-            {
-                if (@event.Name == name && FilterMethod(@event.AddMethod ?? @event.RemoveMethod, flags))
-                    return @event;
-            }
             while (type != null)
             {
                 var typeInfo = type.GetTypeInfo();
@@ -989,6 +979,7 @@ namespace MugenMvvmToolkit
             if (property != null || !flags.HasMemberFlag(MemberFlags.NonPublic))
                 return property;
             bindingFlags |= BindingFlags.DeclaredOnly;
+            type = type.BaseType;
             while (type != null)
             {
                 property = type.GetProperty(name, bindingFlags);
@@ -1027,6 +1018,7 @@ namespace MugenMvvmToolkit
             if (field != null || !flags.HasMemberFlag(MemberFlags.NonPublic))
                 return field;
             bindingFlags |= BindingFlags.DeclaredOnly;
+            type = type.BaseType;
             while (type != null)
             {
                 field = type.GetField(name, bindingFlags);
@@ -1065,14 +1057,19 @@ namespace MugenMvvmToolkit
             if (method != null || !flags.HasMemberFlag(MemberFlags.NonPublic))
                 return method;
             bindingFlags |= BindingFlags.DeclaredOnly;
+            type = type.BaseType;
             while (type != null)
             {
-                method = type.GetMethod(name, bindingFlags);
-                if (method != null)
-                    return method;
+                var result = type.GetMethod(name, bindingFlags);
+                if (result != null)
+                {
+                    if (method != null)
+                        throw new AmbiguousMatchException();
+                    method = result;
+                }
                 type = type == typeof(object) ? null : type.BaseType;
             }
-            return null;
+            return method;
         }
 
         [NotNull]
@@ -1103,6 +1100,7 @@ namespace MugenMvvmToolkit
             if (@event != null || !flags.HasMemberFlag(MemberFlags.NonPublic))
                 return @event;
             bindingFlags |= BindingFlags.DeclaredOnly;
+            type = type.BaseType;
             while (type != null)
             {
                 @event = type.GetEvent(name, bindingFlags);
