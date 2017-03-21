@@ -882,27 +882,11 @@ namespace MugenMvvmToolkit
         }
 
         [NotNull]
-        public static IAsyncOperation<TResult> ContinueWith<TResult>([NotNull] this IAsyncOperation operation, [NotNull] Func<IOperationResult, TResult> continuationFunction)
-        {
-            Should.NotBeNull(operation, nameof(operation));
-            Should.NotBeNull(continuationFunction, nameof(continuationFunction));
-            return operation.ContinueWith(continuationFunction: new DelegateContinuation<object, TResult, object>(continuationFunction));
-        }
-
-        [NotNull]
         public static IAsyncOperation ContinueWith<TSource>([NotNull] this IAsyncOperation operation, [NotNull] Action<TSource, IOperationResult> continuationAction)
         {
             Should.NotBeNull(operation, nameof(operation));
             Should.NotBeNull(continuationAction, nameof(continuationAction));
             return operation.ContinueWith(continuationAction: new DelegateContinuation<object, object, TSource>(continuationAction));
-        }
-
-        [NotNull]
-        public static IAsyncOperation<TResult> ContinueWith<TSource, TResult>([NotNull] this IAsyncOperation operation, [NotNull] Func<TSource, IOperationResult, TResult> continuationFunction)
-        {
-            Should.NotBeNull(operation, nameof(operation));
-            Should.NotBeNull(continuationFunction, nameof(continuationFunction));
-            return operation.ContinueWith(continuationFunction: new DelegateContinuation<object, TResult, TSource>(continuationFunction));
         }
 
         [NotNull]
@@ -914,20 +898,36 @@ namespace MugenMvvmToolkit
         }
 
         [NotNull]
+        public static IAsyncOperation ContinueWith<TSource, TResult>([NotNull] this IAsyncOperation<TResult> operation, [NotNull] Action<TSource, IOperationResult<TResult>> continuationAction)
+        {
+            Should.NotBeNull(operation, nameof(operation));
+            Should.NotBeNull(continuationAction, nameof(continuationAction));
+            return operation.ContinueWith(continuationAction: new DelegateContinuation<TResult, object, TSource>(continuationAction));
+        }
+
+        [NotNull]
+        public static IAsyncOperation<TResult> ContinueWith<TResult>([NotNull] this IAsyncOperation operation, [NotNull] Func<IOperationResult, TResult> continuationFunction)
+        {
+            Should.NotBeNull(operation, nameof(operation));
+            Should.NotBeNull(continuationFunction, nameof(continuationFunction));
+            return operation.ContinueWith(continuationFunction: new DelegateContinuation<object, TResult, object>(continuationFunction));
+        }
+
+        [NotNull]
+        public static IAsyncOperation<TResult> ContinueWith<TSource, TResult>([NotNull] this IAsyncOperation operation, [NotNull] Func<TSource, IOperationResult, TResult> continuationFunction)
+        {
+            Should.NotBeNull(operation, nameof(operation));
+            Should.NotBeNull(continuationFunction, nameof(continuationFunction));
+            return operation.ContinueWith(continuationFunction: new DelegateContinuation<object, TResult, TSource>(continuationFunction));
+        }
+
+        [NotNull]
         public static IAsyncOperation<TNewResult> ContinueWith<TResult, TNewResult>([NotNull] this IAsyncOperation<TResult> operation,
             [NotNull] Func<IOperationResult<TResult>, TNewResult> continuationFunctionGeneric)
         {
             Should.NotBeNull(operation, nameof(operation));
             Should.NotBeNull(continuationFunctionGeneric, nameof(continuationFunctionGeneric));
             return operation.ContinueWith(continuationFunction: new DelegateContinuation<TResult, TNewResult, object>(continuationFunctionGeneric));
-        }
-
-        [NotNull]
-        public static IAsyncOperation ContinueWith<TSource, TResult>([NotNull] this IAsyncOperation<TResult> operation, [NotNull] Action<TSource, IOperationResult<TResult>> continuationAction)
-        {
-            Should.NotBeNull(operation, nameof(operation));
-            Should.NotBeNull(continuationAction, nameof(continuationAction));
-            return operation.ContinueWith(continuationAction: new DelegateContinuation<TResult, object, TSource>(continuationAction));
         }
 
         [NotNull]

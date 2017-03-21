@@ -29,11 +29,16 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         private readonly Delegate _delegate;
         private readonly Action<IOperationResult> _action;
+        private readonly Action<TTarget, IOperationResult> _actionWithTarget;
+
         private readonly Func<IOperationResult, TOut> _func;
+        private readonly Func<TTarget, IOperationResult, TOut> _funcWithTarget;
+
         private readonly Action<IOperationResult<TIn>> _genericAction;
         private readonly Func<IOperationResult<TIn>, TOut> _genericFunc;
-        private readonly Func<TTarget, IOperationResult<TIn>, TOut> _funcWithTarget;
-        private readonly Action<TTarget, IOperationResult<TIn>> _actionWithTarget;
+
+        private readonly Func<TTarget, IOperationResult<TIn>, TOut> _genericFuncWithTarget;
+        private readonly Action<TTarget, IOperationResult<TIn>> _genericActionWithTarget;
 
         private bool _hasCallback;
         private ISerializableCallback _serializableCallback;
@@ -49,6 +54,14 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             _delegate = action;
         }
 
+        public DelegateContinuation(Action<TTarget, IOperationResult> actionWithTarget)
+        {
+            Should.NotBeNull(actionWithTarget, nameof(actionWithTarget));
+            _actionWithTarget = actionWithTarget;
+            _delegate = actionWithTarget;
+        }
+
+
         public DelegateContinuation(Action<IOperationResult<TIn>> genericAction)
         {
             Should.NotBeNull(genericAction, nameof(genericAction));
@@ -56,11 +69,26 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             _delegate = genericAction;
         }
 
+        public DelegateContinuation(Action<TTarget, IOperationResult<TIn>> genericActionWithTarget)
+        {
+            Should.NotBeNull(genericActionWithTarget, nameof(genericActionWithTarget));
+            _genericActionWithTarget = genericActionWithTarget;
+            _delegate = genericActionWithTarget;
+        }
+
+
         public DelegateContinuation(Func<IOperationResult, TOut> func)
         {
             Should.NotBeNull(func, nameof(func));
             _func = func;
             _delegate = func;
+        }
+
+        public DelegateContinuation(Func<TTarget, IOperationResult, TOut> funcWithTarget)
+        {
+            Should.NotBeNull(funcWithTarget, nameof(funcWithTarget));
+            _funcWithTarget = funcWithTarget;
+            _delegate = funcWithTarget;
         }
 
         public DelegateContinuation(Func<IOperationResult<TIn>, TOut> genericFunc)
@@ -70,18 +98,11 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             _delegate = genericFunc;
         }
 
-        public DelegateContinuation(Action<TTarget, IOperationResult<TIn>> actionWithTarget)
+        public DelegateContinuation([NotNull] Func<TTarget, IOperationResult<TIn>, TOut> genericFuncWithTarget)
         {
-            Should.NotBeNull(actionWithTarget, nameof(actionWithTarget));
-            _actionWithTarget = actionWithTarget;
-            _delegate = actionWithTarget;
-        }
-
-        public DelegateContinuation([NotNull] Func<TTarget, IOperationResult<TIn>, TOut> funcWithTarget)
-        {
-            Should.NotBeNull(funcWithTarget, nameof(funcWithTarget));
-            _funcWithTarget = funcWithTarget;
-            _delegate = funcWithTarget;
+            Should.NotBeNull(genericFuncWithTarget, nameof(genericFuncWithTarget));
+            _genericFuncWithTarget = genericFuncWithTarget;
+            _delegate = genericFuncWithTarget;
         }
 
         #endregion
@@ -100,23 +121,26 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         void IActionContinuation.Invoke(IOperationResult result)
         {
-            _action?.Invoke(result);
+            if (_action == null)
+                _actionWithTarget?.Invoke((TTarget)result.Source, result);
+            else
+                _action.Invoke(result);
         }
 
         void IActionContinuation<TIn>.Invoke(IOperationResult<TIn> result)
         {
-            if (_genericAction != null)
-                _genericAction(result);
+            if (_genericAction == null)
+                _genericActionWithTarget?.Invoke((TTarget)result.Source, result);
             else
-                _actionWithTarget?.Invoke((TTarget)result.Source, result);
+                _genericAction(result);
         }
 
         TOut IFunctionContinuation<TIn, TOut>.Invoke(IOperationResult<TIn> result)
         {
             if (_genericFunc != null)
                 return _genericFunc(result);
-            if (_funcWithTarget != null)
-                return _funcWithTarget((TTarget)result.Source, result);
+            if (_genericFuncWithTarget != null)
+                return _genericFuncWithTarget((TTarget)result.Source, result);
             return default(TOut);
         }
 
@@ -124,6 +148,8 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
         {
             if (_func != null)
                 return _func(result);
+            if (_funcWithTarget != null)
+                return _funcWithTarget((TTarget)result.Source, result);
             return default(TOut);
         }
 
