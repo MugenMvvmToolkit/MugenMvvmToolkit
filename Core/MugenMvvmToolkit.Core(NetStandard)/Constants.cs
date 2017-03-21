@@ -19,6 +19,7 @@
 using System;
 using System.Threading.Tasks;
 using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Mediators;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
@@ -41,7 +42,6 @@ namespace MugenMvvmToolkit.DataConstants
         public static readonly DataConstant<Guid> Id;
         public static readonly DataConstant<object> View;
         public static readonly DataConstant<WeakReference> ParentViewModel;
-        public static readonly DataConstant<bool> StateRestored;
         public static readonly DataConstant<bool> StateNotNeeded;
         public static readonly DataConstant<EventHandler<IViewModel, ViewModelClosingEventArgs>> ClosingEvent;
         public static readonly DataConstant<EventHandler<IViewModel, ViewModelClosedEventArgs>> ClosedEvent;
@@ -49,6 +49,7 @@ namespace MugenMvvmToolkit.DataConstants
         public static readonly DataConstant<IViewModel> WrapperViewModel;
         public static readonly DataConstant<Func<IViewModel, object, bool>> CanCloseHandler;
         public static readonly DataConstant<Func<INavigationDispatcher, IViewModel, IDataContext, Task<bool>>> CloseHandler;
+        public static readonly DataConstant<IAsyncOperation> CurrentNavigationOperation;
 
         #endregion
 
@@ -65,12 +66,12 @@ namespace MugenMvvmToolkit.DataConstants
             ParentViewModel = DataConstant.Create<WeakReference>(type, nameof(ParentViewModel), true);
             WrapperViewModel = DataConstant.Create<IViewModel>(type, nameof(WrapperViewModel), true);
             StateNotNeeded = DataConstant.Create<bool>(type, nameof(StateNotNeeded));
-            StateRestored = DataConstant.Create<bool>(type, nameof(StateRestored));
             ClosingEvent = DataConstant.Create<EventHandler<IViewModel, ViewModelClosingEventArgs>>(type, nameof(ClosingEvent), false);
             ClosedEvent = DataConstant.Create<EventHandler<IViewModel, ViewModelClosedEventArgs>>(type, nameof(ClosedEvent), false);
             PreservedEvent = DataConstant.Create<EventHandler<IViewModel, ViewModelPreservedEventArgs>>(type, nameof(PreservedEvent), false);
             CanCloseHandler = DataConstant.Create<Func<IViewModel, object, bool>>(type, nameof(CanCloseHandler), false);
             CloseHandler = DataConstant.Create<Func<INavigationDispatcher, IViewModel, IDataContext, Task<bool>>>(type, nameof(CloseHandler), true);
+            CurrentNavigationOperation = DataConstant.Create<IAsyncOperation>(type, nameof(CurrentNavigationOperation), true);
         }
 
         #endregion
@@ -134,6 +135,8 @@ namespace MugenMvvmToolkit.DataConstants
     {
         #region Fields
 
+        internal static readonly DataConstant<object> IsFirstNavigation;
+
         public static readonly DataConstant<bool> SuppressTabNavigation;
         public static readonly DataConstant<bool> SuppressWindowNavigation;
         public static readonly DataConstant<bool> SuppressPageNavigation;
@@ -147,7 +150,6 @@ namespace MugenMvvmToolkit.DataConstants
         public static readonly DataConstant<bool> SuppressNavigationCallbackOnClose;
         public static readonly DataConstant<Task> NavigationCompletedTask;
         public static readonly DataConstant<object> NavigationParameter;
-        internal static readonly DataConstant<object> IsFirstNavigation;
 
         #endregion
 

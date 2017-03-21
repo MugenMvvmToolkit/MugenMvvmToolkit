@@ -57,6 +57,13 @@ namespace MugenMvvmToolkit.ViewModels
         }
 
         [CanBeNull]
+        public static IAsyncOperation GetCurrentNavigationOperation([NotNull] this IViewModel viewModel)
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            return viewModel.Settings.Metadata.GetData(ViewModelConstants.CurrentNavigationOperation);
+        }
+
+        [CanBeNull]
         public static IViewModel GetParentViewModel([NotNull] this IViewModel viewModel)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));

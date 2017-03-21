@@ -160,7 +160,12 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         public IAsyncOperation ShowAsync(IDataContext context)
         {
             Should.NotBeNull(context, nameof(context));
-            return ShowInternalAsync(context);
+            var result = ShowInternalAsync(context);
+            if (result == null)
+                throw ExceptionManager.PresenterCannotShowRequest(GetType(), ContextToString(context));
+            var viewModel = context.GetData(NavigationConstants.ViewModel) ?? result.Context.GetData(NavigationConstants.ViewModel);
+            viewModel?.Settings.Metadata.AddOrUpdate(ViewModelConstants.CurrentNavigationOperation, result);
+            return result;
         }
 
         public void Restore(IDataContext context)
@@ -179,6 +184,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Methods
 
+        [NotNull]
         protected virtual Task WaitCurrentNavigationsInternalAsync(IDataContext context)
         {
             var tasks = new List<Task>();
@@ -191,6 +197,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             return ToolkitExtensions.WhenAll(tasks.ToArray());
         }
 
+        [CanBeNull]
         protected virtual IAsyncOperation ShowInternalAsync(IDataContext context)
         {
             var presenters = _dynamicPresenters.ToArrayEx();
@@ -204,7 +211,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                     return operation;
                 }
             }
-            throw ExceptionManager.PresenterCannotShowRequest(GetType(), ContextToString(context));
+            return null;
         }
 
         protected virtual void RestoreInternal(IDataContext context)

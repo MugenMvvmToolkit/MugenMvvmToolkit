@@ -341,7 +341,6 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (parameters != null)
                     dataContext.AddOrUpdate(InitializationConstants.IocParameters, parameters);
             }
-            dataContext.AddOrUpdate(ViewModelConstants.StateRestored, true);
             dataContext.AddOrUpdate(InitializationConstants.IsRestored, true);
 
             var viewModel = CreateViewModel(vmType, dataContext);
