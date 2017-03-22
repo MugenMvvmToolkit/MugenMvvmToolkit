@@ -28,10 +28,11 @@ namespace MugenMvvmToolkit.iOS
     {
         #region Fields
 
+        protected const string AppVersionKey = nameof(AppVersionKey);
+        protected const string RootViewControllerKey = nameof(RootViewControllerKey);
+        
         private TouchBootstrapperBase _bootstrapper;
         private bool _isRestored;
-        private const string RootViewControllerKey = nameof(RootViewControllerKey);
-        private const string AppVersionKey = nameof(AppVersionKey);
         private static string _version;
 
         #endregion
