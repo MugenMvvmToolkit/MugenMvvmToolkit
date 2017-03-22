@@ -216,17 +216,7 @@ namespace MugenMvvmToolkit.ViewModels
         public static void RemoveClosedHandler([NotNull]this IViewModel viewModel, EventHandler<IViewModel, ViewModelClosedEventArgs> handler)
         {
             viewModel.UpdateEventHandler(ViewModelConstants.ClosedEvent, handler, false);
-        }
-
-        public static void AddPreservedHandler([NotNull]this IViewModel viewModel, EventHandler<IViewModel, ViewModelPreservedEventArgs> handler)
-        {
-            viewModel.UpdateEventHandler(ViewModelConstants.PreservedEvent, handler, true);
-        }
-
-        public static void RemovePreservedHandler([NotNull]this IViewModel viewModel, EventHandler<IViewModel, ViewModelPreservedEventArgs> handler)
-        {
-            viewModel.UpdateEventHandler(ViewModelConstants.PreservedEvent, handler, false);
-        }
+        }        
 
         [Pure]
         public static IViewModel GetViewModel([NotNull] this IViewModelProvider viewModelProvider,
