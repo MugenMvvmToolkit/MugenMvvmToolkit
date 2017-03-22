@@ -151,7 +151,6 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
                 Tuple.Create(NavigationMode.Back, fromAssert),
                 Tuple.Create(NavigationMode.Remove, fromAssert),
                 Tuple.Create(NavigationMode.New, toAssert),
-                Tuple.Create(NavigationMode.Forward, toAssert),
                 Tuple.Create(NavigationMode.Refresh, toAssert),
                 Tuple.Create(NavigationMode.Undefined, toAssert)
             };
@@ -195,7 +194,6 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
                 Tuple.Create(NavigationMode.Back, fromAssert),
                 Tuple.Create(NavigationMode.Remove, fromAssert),
                 Tuple.Create(NavigationMode.New, toAssert),
-                Tuple.Create(NavigationMode.Forward, toAssert),
                 Tuple.Create(NavigationMode.Refresh, toAssert),
                 Tuple.Create(NavigationMode.Undefined, toAssert)
             };
@@ -237,7 +235,6 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
                 Tuple.Create(NavigationMode.Back, fromAssert),
                 Tuple.Create(NavigationMode.Remove, fromAssert),
                 Tuple.Create(NavigationMode.New, toAssert),
-                Tuple.Create(NavigationMode.Forward, toAssert),
                 Tuple.Create(NavigationMode.Refresh, toAssert),
                 Tuple.Create(NavigationMode.Undefined, toAssert)
             };
@@ -282,7 +279,6 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
                 Tuple.Create(NavigationMode.Back, fromAssert),
                 Tuple.Create(NavigationMode.Remove, fromAssert),
                 Tuple.Create(NavigationMode.New, toAssert),
-                Tuple.Create(NavigationMode.Forward, toAssert),
                 Tuple.Create(NavigationMode.Refresh, toAssert),
                 Tuple.Create(NavigationMode.Undefined, toAssert)
             };
@@ -319,7 +315,6 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
                 Tuple.Create(NavigationMode.Back, fromAssert),
                 Tuple.Create(NavigationMode.Remove, fromAssert),
                 Tuple.Create(NavigationMode.New, toAssert),
-                Tuple.Create(NavigationMode.Forward, toAssert),
                 Tuple.Create(NavigationMode.Refresh, toAssert),
                 Tuple.Create(NavigationMode.Undefined, toAssert)
             };
@@ -362,7 +357,6 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
                 Tuple.Create(NavigationMode.Back, fromAssert),
                 Tuple.Create(NavigationMode.Remove, fromAssert),
                 Tuple.Create(NavigationMode.New, toAssert),
-                Tuple.Create(NavigationMode.Forward, toAssert),
                 Tuple.Create(NavigationMode.Refresh, toAssert),
                 Tuple.Create(NavigationMode.Undefined, toAssert)
             };
@@ -423,7 +417,6 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
                 Tuple.Create(NavigationMode.Back, fromAssert),
                 Tuple.Create(NavigationMode.Remove, fromAssert),
                 Tuple.Create(NavigationMode.New, toAssert),
-                Tuple.Create(NavigationMode.Forward, toAssert),
                 Tuple.Create(NavigationMode.Refresh, toAssert),
                 Tuple.Create(NavigationMode.Undefined, toAssert)
             };
@@ -465,7 +458,6 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
                 Tuple.Create(NavigationMode.Back, fromAssert),
                 Tuple.Create(NavigationMode.Remove, fromAssert),
                 Tuple.Create(NavigationMode.New, toAssert),
-                Tuple.Create(NavigationMode.Forward, toAssert),
                 Tuple.Create(NavigationMode.Refresh, toAssert),
                 Tuple.Create(NavigationMode.Undefined, toAssert)
             };
@@ -511,7 +503,6 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
                 Tuple.Create(NavigationMode.Back, fromAssert),
                 Tuple.Create(NavigationMode.Remove, fromAssert),
                 Tuple.Create(NavigationMode.New, toAssert),
-                Tuple.Create(NavigationMode.Forward, toAssert),
                 Tuple.Create(NavigationMode.Refresh, toAssert),
                 Tuple.Create(NavigationMode.Undefined, toAssert)
             };

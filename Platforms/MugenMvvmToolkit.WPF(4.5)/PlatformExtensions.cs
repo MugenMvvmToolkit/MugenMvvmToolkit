@@ -38,8 +38,6 @@ namespace MugenMvvmToolkit.WPF
                     return NavigationMode.New;
                 case System.Windows.Navigation.NavigationMode.Back:
                     return NavigationMode.Back;
-                case System.Windows.Navigation.NavigationMode.Forward:
-                    return NavigationMode.Forward;
                 case System.Windows.Navigation.NavigationMode.Refresh:
                     return NavigationMode.Refresh;
                 default:

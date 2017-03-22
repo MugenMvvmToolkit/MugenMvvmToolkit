@@ -115,9 +115,7 @@ namespace MugenMvvmToolkit.UWP
                 case Windows.UI.Xaml.Navigation.NavigationMode.New:
                     return NavigationMode.New;
                 case Windows.UI.Xaml.Navigation.NavigationMode.Back:
-                    return NavigationMode.Back;
-                case Windows.UI.Xaml.Navigation.NavigationMode.Forward:
-                    return NavigationMode.Forward;
+                    return NavigationMode.Back;                
                 case Windows.UI.Xaml.Navigation.NavigationMode.Refresh:
                     return NavigationMode.Refresh;
                 default:
