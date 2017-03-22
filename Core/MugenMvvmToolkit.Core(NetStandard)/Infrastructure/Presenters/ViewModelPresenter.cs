@@ -206,8 +206,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                 var operation = presenters[i].TryShowAsync(context, this);
                 if (operation != null)
                 {
-                    if (Tracer.TraceInformation)
-                        Tracer.Info("The request {0} is shown by {1}", ContextToString(context), presenters[i].GetType().FullName);
+                    Trace("show", context, presenters[i]);
                     return operation;
                 }
             }
@@ -222,8 +221,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                 var presenter = presenters[i] as IRestorableDynamicViewModelPresenter;
                 if (presenter != null && presenter.Restore(context, this))
                 {
-                    if (Tracer.TraceInformation)
-                        Tracer.Info("The request {0} is restored by {1}", ContextToString(context), presenter.GetType().FullName);
+                    Trace("restore", context, presenter);
                     return;
                 }
             }
@@ -238,8 +236,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                 var operation = presenters[i].TryCloseAsync(context, this);
                 if (operation != null)
                 {
-                    if (Tracer.TraceInformation)
-                        Tracer.Info("The request {0} is closed by {1}", ContextToString(context), presenters[i].GetType().FullName);
+                    Trace("close", context, presenters[i]);
                     return operation;
                 }
             }
@@ -269,6 +266,12 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         protected virtual void OnDynamicPresenterRemoved([NotNull] IDynamicViewModelPresenter presenter)
         {
+        }
+
+        private static void Trace(string requestName, IDataContext context, IDynamicViewModelPresenter presenter)
+        {
+            if (Tracer.TraceInformation)
+                Tracer.Info("The {0} request {1} is handled by {2}", requestName, ContextToString(context), presenter.GetType().FullName);
         }
 
         private static string ContextToString(IDataContext context)

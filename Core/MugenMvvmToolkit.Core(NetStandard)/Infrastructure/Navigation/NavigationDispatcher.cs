@@ -229,6 +229,12 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             viewModel.Settings.Metadata.GetData(ViewModelConstants.ClosedEvent)?.Invoke(viewModel, new ViewModelClosedEventArgs(viewModel, context));
         }
 
+        private static void Trace(string navigationName, INavigationContext context)
+        {
+            if (Tracer.TraceInformation)
+                Tracer.Info($"{navigationName}({context.NavigationMode}) from '{context.ViewModelFrom}' to '{context.ViewModelTo}', type '{context.NavigationType}'");
+        }
+
         #endregion
 
         #region Implementation of interfaces
@@ -238,6 +244,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         public Task<bool> OnNavigatingAsync(INavigationContext context)
         {
             Should.NotBeNull(context, nameof(context));
+            Trace(nameof(OnNavigatingAsync), context);
             return OnNavigatingInternalAsync(context);
         }
 
@@ -247,8 +254,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             HandleOpenedViewModels(context);
             OnNavigatedInternal(context);
             RaiseNavigated(context);
-            if (Tracer.TraceInformation)
-                Tracer.Info($"Navigated from '{context.ViewModelFrom}' to '{context.ViewModelTo}', mode '{context.NavigationMode}', type '{context.NavigationType}'");
+            Trace(nameof(OnNavigated), context);
         }
 
         public void OnNavigationFailed(INavigationContext context, Exception exception)
