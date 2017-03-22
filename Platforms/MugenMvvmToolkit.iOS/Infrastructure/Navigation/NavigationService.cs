@@ -308,6 +308,18 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             var viewModel = CurrentContent?.DataContext() as IViewModel;
             if (viewModel == null || !viewModel.Settings.State.TryGetData(NavigationConstants.UseAnimations, out animated))
                 animated = UseAnimations;
+
+            var controllers = NavigationController.ViewControllers;
+            if (controllers != null && controllers.Length == 1)
+            {
+                if (RaiseNavigating(new NavigatingCancelEventArgs(null, NavigationMode.Back, controllers[0].GetNavigationParameter() as string,
+                    controllers[0].GetNavigationContext(false))))
+                {
+                    NavigationController.SetViewControllers(Empty.Array<UIViewController>(), false);
+                    RaiseNavigated(null, NavigationMode.Back, null, controllers[0].GetNavigationContext(true));
+                }
+                return true;
+            }
             return NavigationController.PopViewController(animated) != null;
         }
 
