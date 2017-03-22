@@ -537,10 +537,10 @@ namespace MugenMvvmToolkit.Collections
                 pendingAction = c => c.RaiseResetInternal();
             }
             _pendingChanges.Add(pendingAction);
-            ThreadManager.InvokeOnUiThreadAsync(() =>
+            ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, this, (collection, _) =>
             {
-                lock (Locker)
-                    TryRaisePendingChanges();
+                lock (collection.Locker)
+                    collection.TryRaisePendingChanges();
             });
         }
 

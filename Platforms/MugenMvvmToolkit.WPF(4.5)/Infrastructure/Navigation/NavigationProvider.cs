@@ -180,10 +180,10 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                 return Empty.FalseTask;
 
             var tcs = new TaskCompletionSource<bool>();
-            ThreadManager.InvokeOnUiThreadAsync(() =>
+            ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, context, tcs, (@this, ctx, t) =>
             {
-                if (!TryCloseInternal(context, tcs))
-                    tcs.TrySetResult(false);
+                if (!@this.TryCloseInternal(ctx, t))
+                    t.TrySetResult(false);
             });
             return tcs.Task;
         }
@@ -450,16 +450,16 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                         NavigationDispatcher.OnNavigationCanceled(context);
                     return;
                 }
-                ThreadManager.InvokeOnUiThreadAsync(() =>
+                ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, context, args, (@this, ctx, e) =>
                 {
                     try
                     {
-                        _ignoreNavigating = true;
-                        Renavigate(context, args);
+                        @this._ignoreNavigating = true;
+                        @this.Renavigate(ctx, e);
                     }
                     finally
                     {
-                        _ignoreNavigating = false;
+                        @this._ignoreNavigating = false;
                     }
                 });
             });
