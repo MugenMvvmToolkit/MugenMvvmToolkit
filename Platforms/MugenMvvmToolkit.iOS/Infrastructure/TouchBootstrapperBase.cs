@@ -36,19 +36,22 @@ using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Models.Messages;
 using MugenMvvmToolkit.ViewModels;
 using UIKit;
 
 namespace MugenMvvmToolkit.iOS.Infrastructure
 {
-    public abstract class TouchBootstrapperBase : BootstrapperBase, IRestorableDynamicViewModelPresenter
+    public abstract class TouchBootstrapperBase : BootstrapperBase, IRestorableDynamicViewModelPresenter, IHandler<BackgroundNavigationMessage>, IHandler<ForegroundNavigationMessage>
     {
         #region Fields
 
-        private static readonly DataConstant<object> IsRootPage = DataConstant.Create<object>(typeof(TouchBootstrapperBase), nameof(IsRootPage), false);
+        private static readonly DataConstant<object> IsRoot = DataConstant.Create<object>(typeof(TouchBootstrapperBase), nameof(IsRoot), false);
         private readonly UIWindow _window;
         private readonly PlatformInfo _platform;
         private bool _isStarted;
+        private bool _hasRootPage;
+        private bool _skipForeground;
 
         #endregion
 
@@ -70,6 +73,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
             _window = window;
             _platform = platform ?? PlatformExtensions.GetPlatformInfo();
             WrapToNavigationController = true;
+            _skipForeground = true;
         }
 
         #endregion
@@ -84,40 +88,69 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
 
         #endregion
 
-        #region Implementation of IDynamicViewModelPresenter
+        #region Implementation of interfaces
 
         int IDynamicViewModelPresenter.Priority => int.MaxValue;
 
         IAsyncOperation IDynamicViewModelPresenter.TryShowAsync(IDataContext context, IViewModelPresenter parentPresenter)
         {
-            if (!_isStarted)
-            {
-                parentPresenter.DynamicPresenters.Remove(this);
+            if (!_isStarted || _hasRootPage)
                 return null;
-            }
 
             if (WrapToNavigationController)
             {
-                parentPresenter.DynamicPresenters.Remove(this);
+                _hasRootPage = true;
                 return parentPresenter.ShowAsync(context);
             }
 
             var viewModel = context.GetData(NavigationConstants.ViewModel);
             if (viewModel == null)
                 return null;
+
             var mappingItem = ServiceProvider.Get<IViewMappingProvider>().FindMappingForViewModel(viewModel.GetType(), viewModel.GetViewName(context), false);
             if (mappingItem == null || !typeof(UIViewController).IsAssignableFrom(mappingItem.ViewType))
                 return null;
 
-            parentPresenter.DynamicPresenters.Remove(this);
-            _window.RootViewController = (UIViewController)ServiceProvider.ViewManager.GetOrCreateView(viewModel, null, context);
-            ServiceProvider.Get<INavigationDispatcher>().OnNavigated(new NavigationContext(NavigationType.Window, NavigationMode.New, null, viewModel, this, context));
-            viewModel.Settings.State.AddOrUpdate(IsRootPage, null);
-            return new AsyncOperation<object>();
+            _hasRootPage = true;
+            viewModel.Settings.State.AddOrUpdate(IsRoot, null);
+            var operation = new AsyncOperation<object>();
+            ServiceProvider.Get<IOperationCallbackManager>().Register(OperationType.PageNavigation, viewModel, operation.ToOperationCallback(), context);
+            ServiceProvider.ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, viewModel, context,
+                (@this, vm, ctx) =>
+                {
+                    @this.Window.RootViewController = (UIViewController)ServiceProvider.ViewManager.GetOrCreateView(vm, null, ctx);
+                    ServiceProvider.Get<INavigationDispatcher>().OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.New, null, vm, @this, ctx));
+                });
+            return operation;
         }
 
         Task<bool> IDynamicViewModelPresenter.TryCloseAsync(IDataContext context, IViewModelPresenter parentPresenter)
         {
+            var viewModel = context.GetData(NavigationConstants.ViewModel);
+            if (viewModel == null)
+                return null;
+            if (viewModel.Settings.State.Contains(IsRoot))
+            {
+                var navigationContext = new NavigationContext(NavigationType.Page, NavigationMode.Remove, viewModel, null, this, context);
+                return ServiceProvider
+                    .Get<INavigationDispatcher>()
+                    .OnNavigatingAsync(navigationContext)
+                    .TryExecuteSynchronously(task =>
+                    {
+                        if (task.Result)
+                        {
+                            var controller = _window.RootViewController;
+                            _hasRootPage = false;
+                            ServiceProvider.ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, _window, controller, navigationContext, (w, c, ctx) =>
+                            {
+                                if (ReferenceEquals(w.RootViewController, c))
+                                    w.RootViewController = null;
+                                ServiceProvider.Get<INavigationDispatcher>().OnNavigated(ctx);
+                            });
+                        }
+                        return task.Result;
+                    });
+            }
             return null;
         }
 
@@ -126,13 +159,34 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
             var viewModel = context.GetData(NavigationConstants.ViewModel);
             if (viewModel == null)
                 return false;
-            if (viewModel.Settings.State.Contains(IsRootPage))
+            if (viewModel.Settings.State.Contains(IsRoot))
             {
-                parentPresenter.DynamicPresenters.Remove(this);
-                ServiceProvider.Get<INavigationDispatcher>().OnNavigated(new NavigationContext(NavigationType.Window, NavigationMode.Refresh, null, viewModel, this, context));
+                _hasRootPage = true;
+                _isStarted = true;
+                ServiceProvider.Get<INavigationDispatcher>().OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Refresh, null, viewModel, this, context));
                 return true;
             }
             return false;
+        }
+
+        void IHandler<BackgroundNavigationMessage>.Handle(object sender, BackgroundNavigationMessage message)
+        {
+            _skipForeground = false;
+            var viewModel = _window.RootViewController?.DataContext() as IViewModel;
+            if (viewModel != null && viewModel.Settings.State.Contains(IsRoot))
+                ServiceProvider.Get<INavigationDispatcher>().OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Background, viewModel, null, this, message.Context));
+        }
+
+        void IHandler<ForegroundNavigationMessage>.Handle(object sender, ForegroundNavigationMessage message)
+        {
+            if (_skipForeground)
+            {
+                _skipForeground = false;
+                return;
+            }
+            var viewModel = _window.RootViewController?.DataContext() as IViewModel;
+            if (viewModel != null && viewModel.Settings.State.Contains(IsRoot))
+                ServiceProvider.Get<INavigationDispatcher>().OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Foreground, null, viewModel, this, message.Context));
         }
 
         #endregion
@@ -142,6 +196,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
         protected override void InitializeInternal()
         {
             base.InitializeInternal();
+            ServiceProvider.EventAggregator.Subscribe(this);
             ServiceProvider.Get<IViewModelPresenter>().DynamicPresenters.Add(this);
             var navigationService = CreateNavigationService(_window);
             if (navigationService != null)
