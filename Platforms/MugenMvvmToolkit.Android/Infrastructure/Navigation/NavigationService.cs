@@ -139,6 +139,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
         private bool _isPause;
         private string _parameter;
         private IDataContext _dataContext;
+        private bool _finishFromPause;
 
         #endregion
 
@@ -208,9 +209,15 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
         protected virtual bool GoBack()
         {
             var currentActivity = PlatformExtensions.CurrentActivity;
-            if (_isPause || !currentActivity.IsAlive() || IsDestroyed(currentActivity) || currentActivity.IsFinishing)
+            if (!currentActivity.IsAlive() || IsDestroyed(currentActivity) || currentActivity.IsFinishing)
                 return false;
-            currentActivity.OnBackPressed();
+            if (_isPause)
+            {
+                _finishFromPause = true;
+                currentActivity.Finish();
+            }
+            else
+                currentActivity.OnBackPressed();
             return true;
         }
 
@@ -321,8 +328,9 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
         public virtual bool OnFinishActivity(Activity activity, bool isBackNavigation, IDataContext context = null)
         {
             Should.NotBeNull(activity, nameof(activity));
-            if (!isBackNavigation)
+            if (!isBackNavigation && !_finishFromPause)
                 return true;
+            _finishFromPause = false;
             if (!RaiseNavigating(new NavigatingCancelEventArgs(NavigationMode.Back, MergeContext(_dataContext, context))))
                 return false;
             //If it's the first activity, we need to raise the back navigation event.
