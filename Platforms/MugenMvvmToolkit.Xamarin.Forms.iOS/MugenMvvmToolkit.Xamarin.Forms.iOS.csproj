@@ -20,7 +20,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\..\bin\Platforms\Xamarin.Forms\Touch\</OutputPath>
+    <OutputPath>..\..\bin\Platforms\Xamarin.Forms\</OutputPath>
     <DefineConstants>DEBUG;__MOBILE__;__IOS__;XAMARIN_FORMS;TOUCH</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
