@@ -99,11 +99,14 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters
         protected override IAsyncOperation ShowInternalAsync(IDataContext context)
         {
             var result = base.ShowInternalAsync(context);
-            var viewModel = context.GetData(NavigationConstants.ViewModel) ?? result.Context.GetData(NavigationConstants.ViewModel);
-            if (viewModel != null)
+            if (result != null)
             {
-                _openedViewModels.Add(viewModel);
-                result.ContinueWith(OnViewModelClosed);
+                var viewModel = context.GetData(NavigationConstants.ViewModel) ?? result.Context.GetData(NavigationConstants.ViewModel);
+                if (viewModel != null)
+                {
+                    _openedViewModels.Add(viewModel);
+                    result.ContinueWith(OnViewModelClosed);
+                }
             }
             return result;
         }
