@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -33,6 +34,7 @@ using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Models.Messages;
 using MugenMvvmToolkit.ViewModels;
 using MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation;
 using MugenMvvmToolkit.Xamarin.Forms.Interfaces.Navigation;
@@ -42,7 +44,7 @@ using Xamarin.Forms;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 {
-    public abstract class XamarinFormsBootstrapperBase : BootstrapperBase, IDynamicViewModelPresenter
+    public abstract class XamarinFormsBootstrapperBase : BootstrapperBase, IDynamicViewModelPresenter, IHandler<BackgroundNavigationMessage>, IHandler<ForegroundNavigationMessage>
     {
         #region Nested types
 
@@ -57,10 +59,11 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         #region Fields
 
+        private static readonly DataConstant<object> IsRoot = DataConstant.Create<object>(typeof(XamarinFormsBootstrapperBase), nameof(IsRoot), false);
         private WeakReference _mainViewModelRef;
         private readonly PlatformInfo _platform;
         private readonly IPlatformService _platformService;
-        private bool _wrapToNavigationPage;
+        private bool _hasRootPage;
 
         #endregion
 
@@ -76,6 +79,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             Should.NotBeNull(platformService, nameof(platformService));
             _platformService = platformService;
             _platform = platformService.GetPlatformInfo();
+            WrapToNavigationPage = true;
         }
 
         #endregion
@@ -84,6 +88,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         [CanBeNull]
         public new static XamarinFormsBootstrapperBase Current => BootstrapperBase.Current as XamarinFormsBootstrapperBase;
+
+        public bool WrapToNavigationPage { get; set; }
 
         protected internal static string BindingAssemblyName
         {
@@ -108,76 +114,99 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         #endregion
 
-        #region Implementation of IDynamicViewModelPresenter
+        #region Implementation of interfaces
 
         int IDynamicViewModelPresenter.Priority => int.MaxValue;
 
         IAsyncOperation IDynamicViewModelPresenter.TryShowAsync(IDataContext context, IViewModelPresenter parentPresenter)
         {
             var viewModel = context.GetData(NavigationConstants.ViewModel);
-            if (viewModel == null)
+            if (viewModel == null || _hasRootPage)
                 return null;
 
             var mappingItem = ServiceProvider.Get<IViewMappingProvider>().FindMappingForViewModel(viewModel.GetType(), viewModel.GetViewName(context), false);
             if (mappingItem == null || !typeof(Page).IsAssignableFrom(mappingItem.ViewType))
                 return null;
 
-            parentPresenter.DynamicPresenters.Remove(this);
             _mainViewModelRef = ServiceProvider.WeakReferenceFactory(viewModel);
-
-            var view = (Page)ServiceProvider.ViewManager.GetOrCreateView(viewModel, true, context);
-            NavigationPage page = view as NavigationPage;
-            if (page == null && _wrapToNavigationPage)
-                page = CreateNavigationPage(view);
-            if (page != null)
-            {
-                var iocContainer = ServiceProvider.IocContainer;
-                INavigationService navigationService;
-                if (!iocContainer.TryGet(out navigationService))
-                {
-                    navigationService = CreateNavigationService();
-                    iocContainer.BindToConstant(navigationService);
-                }
-
-                //Activating navigation provider if need
-                INavigationProvider provider;
-                iocContainer.TryGet(out provider);
-
-                navigationService.UpdateRootPage(page);
-                view = page;
-            }
-            Application.Current.MainPage = view;
-            if (page == null)
-                ServiceProvider.Get<INavigationDispatcher>().OnNavigated(new NavigationContext(NavigationType.Window, NavigationMode.New, null, viewModel, this, context));
-            return new AsyncOperation<object>();
+            _hasRootPage = true;
+            var operation = new AsyncOperation<object>();
+            ServiceProvider.Get<IOperationCallbackManager>().Register(OperationType.PageNavigation, viewModel, operation.ToOperationCallback(), context);
+            ServiceProvider.ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, viewModel, context, InitializeRootPage);
+            return operation;
         }
 
         Task<bool> IDynamicViewModelPresenter.TryCloseAsync(IDataContext context, IViewModelPresenter parentPresenter)
         {
+            var viewModel = context.GetData(NavigationConstants.ViewModel);
+            if (viewModel == null)
+                return null;
+            if (viewModel.Settings.State.Contains(IsRoot))
+            {
+                var navigationDispatcher = ServiceProvider.Get<INavigationDispatcher>();
+                var navigationContext = new NavigationContext(NavigationType.Page, NavigationMode.Remove, viewModel, null, this, context);
+                return navigationDispatcher
+                    .OnNavigatingAsync(navigationContext)
+                    .TryExecuteSynchronously(task =>
+                    {
+                        if (task.Result)
+                        {
+                            var page = Application.Current.MainPage;
+                            _hasRootPage = false;
+                            ServiceProvider.ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, navigationDispatcher, page, navigationContext, (d, p, ctx) =>
+                            {
+                                if (ReferenceEquals(Application.Current.MainPage, p))
+                                    Application.Current.MainPage = new Page();
+                                d.OnNavigated(ctx);
+                            });
+                        }
+                        return task.Result;
+                    });
+            }
             return null;
+        }
+
+        void IHandler<BackgroundNavigationMessage>.Handle(object sender, BackgroundNavigationMessage message)
+        {
+            var viewModel = Application.Current.MainPage?.DataContext() as IViewModel;
+            if (viewModel != null && viewModel.Settings.State.Contains(IsRoot))
+                ServiceProvider.Get<INavigationDispatcher>().OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Background, viewModel, null, this, message.Context));
+        }
+
+        void IHandler<ForegroundNavigationMessage>.Handle(object sender, ForegroundNavigationMessage message)
+        {
+            var viewModel = Application.Current.MainPage?.DataContext() as IViewModel;
+            if (viewModel != null && viewModel.Settings.State.Contains(IsRoot))
+                ServiceProvider.Get<INavigationDispatcher>().OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Foreground, null, viewModel, this, message.Context));
         }
 
         #endregion
 
         #region Methods
 
-        public virtual void Start(bool wrapToNavigationPage = true)
+        protected override void InitializeInternal()
+        {
+            base.InitializeInternal();
+            ServiceProvider.Get<IViewModelPresenter>().DynamicPresenters.Add(this);
+            XamarinFormsExtensions.BackButtonPressed += OnBackButtonPressed;
+        }
+
+        public virtual void Start()
         {
             if (Current != null && !ReferenceEquals(Current, this))
             {
-                Current.Start(wrapToNavigationPage);
+                Current.Start();
                 return;
             }
-            _wrapToNavigationPage = wrapToNavigationPage;
             Initialize();
             var app = ServiceProvider.Application;
             var context = new DataContext(app.Context);
-            var viewModelPresenter = app.IocContainer.Get<IViewModelPresenter>();
-            viewModelPresenter.DynamicPresenters.Add(this);
+            _hasRootPage = false;
 
             var viewModel = _mainViewModelRef?.Target as IViewModel;
             if (viewModel == null || viewModel.IsDisposed)
             {
+                var viewModelPresenter = app.IocContainer.Get<IViewModelPresenter>();
                 var presenter = viewModelPresenter as IRestorableViewModelPresenter;
                 if (presenter == null || !presenter.TryRestore(context))
                     app.Start();
@@ -189,13 +218,57 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         [CanBeNull]
         protected virtual NavigationPage CreateNavigationPage(Page mainPage)
         {
-            return new NavigationPage(mainPage);
+            if (WrapToNavigationPage)
+                return new NavigationPage(mainPage);
+            return null;
         }
 
         [NotNull]
         protected virtual INavigationService CreateNavigationService()
         {
             return new NavigationService(ServiceProvider.ThreadManager, true);
+        }
+
+        private static void InitializeRootPage(XamarinFormsBootstrapperBase @this, IViewModel viewModel, IDataContext context)
+        {
+            var view = (Page)ServiceProvider.ViewManager.GetOrCreateView(viewModel, true, context);
+            NavigationPage page = view as NavigationPage ?? @this.CreateNavigationPage(view);
+
+            if (page != null)
+            {
+                var iocContainer = ServiceProvider.IocContainer;
+                INavigationService navigationService;
+                if (!iocContainer.TryGet(out navigationService))
+                {
+                    navigationService = @this.CreateNavigationService();
+                    iocContainer.BindToConstant(navigationService);
+                }
+
+                //Activating navigation provider if need
+                INavigationProvider provider;
+                iocContainer.TryGet(out provider);
+
+                navigationService.UpdateRootPage(page);
+                view = page;
+            }
+            Application.Current.MainPage = view;
+
+            if (page == null)
+            {
+                NavigationMode mode = viewModel.Settings.State.Contains(IsRoot) ? NavigationMode.Refresh : NavigationMode.New;
+                viewModel.Settings.State.AddOrUpdate(IsRoot, null);
+                ServiceProvider.Get<INavigationDispatcher>().OnNavigated(new NavigationContext(NavigationType.Page, mode, null, viewModel, @this, context));
+            }
+        }
+
+        private static void OnBackButtonPressed(Page sender, CancelEventArgs args)
+        {
+            var viewModel = sender.DataContext() as IViewModel;
+            if (viewModel != null && viewModel.Settings.State.Contains(IsRoot))
+            {
+                args.Cancel = true;
+                viewModel.CloseAsync();
+            }
         }
 
         internal static void SetDefaultPlatformValues()
