@@ -91,9 +91,9 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
 
         #region Implementation of INavigationService
 
-        public virtual object CurrentContent => NavigationController?.TopViewController;
+        public object CurrentContent => NavigationController?.TopViewController;
 
-        public virtual string GetParameterFromArgs(EventArgs args)
+        public string GetParameterFromArgs(EventArgs args)
         {
             Should.NotBeNull(args, nameof(args));
             var cancelArgs = args as NavigatingCancelEventArgs;
@@ -102,7 +102,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             return cancelArgs.Parameter;
         }
 
-        public virtual bool Navigate(NavigatingCancelEventArgsBase args)
+        public bool Navigate(NavigatingCancelEventArgsBase args)
         {
             Should.NotBeNull(args, nameof(args));
             if (!args.IsCancelable)
@@ -111,12 +111,12 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
                 return TryClose(args.Context);
             var eventArgs = (NavigatingCancelEventArgs)args;
             if (eventArgs.NavigationMode == NavigationMode.Back)
-                return GoBackInternal();
+                return GoBack();
             // ReSharper disable once AssignNullToNotNullAttribute
             return Navigate(eventArgs.Mapping, eventArgs.Parameter, args.Context);
         }
 
-        public virtual bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
+        public bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
             Should.NotBeNull(source, nameof(source));
             if (dataContext == null)
@@ -187,7 +187,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             return true;
         }
 
-        public virtual bool CanClose(IDataContext dataContext)
+        public bool CanClose(IDataContext dataContext)
         {
             Should.NotBeNull(dataContext, nameof(dataContext));
             var viewModel = dataContext.GetData(NavigationConstants.ViewModel);
@@ -204,7 +204,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             return false;
         }
 
-        public virtual bool TryClose(IDataContext dataContext)
+        public bool TryClose(IDataContext dataContext)
         {
             Should.NotBeNull(dataContext, nameof(dataContext));
             var viewModel = dataContext.GetData(NavigationConstants.ViewModel);
@@ -213,34 +213,39 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             if (CurrentContent?.DataContext() == viewModel)
             {
                 (CurrentContent as UIViewController)?.SetNavigationContext(dataContext);
-                return GoBackInternal();
+                return GoBack();
             }
 
-            if (!CanClose(dataContext) || !RaiseNavigating(new NavigatingCancelEventArgs(null, NavigationMode.Remove, null, dataContext)))
+            if (!CanClose(dataContext))
                 return false;
-            bool animated;
-            if (!dataContext.TryGetData(NavigationConstants.UseAnimations, out animated))
-                animated = UseAnimations;
-            var controllers = NavigationController.ViewControllers.ToList();
-            for (int i = 0; i < controllers.Count; i++)
+            bool closed = false;
+            if (RaiseNavigating(new NavigatingCancelEventArgs(null, NavigationMode.Remove, null, dataContext)))
             {
-                if (controllers[i].DataContext() == viewModel)
+                bool animated;
+                if (!dataContext.TryGetData(NavigationConstants.UseAnimations, out animated))
+                    animated = UseAnimations;
+                var controllers = NavigationController.ViewControllers.ToList();
+                for (int i = 0; i < controllers.Count; i++)
                 {
-                    controllers.RemoveAt(i);
-                    --i;
+                    if (controllers[i].DataContext() == viewModel)
+                    {
+                        controllers.RemoveAt(i);
+                        --i;
+                        closed = true;
+                    }
+                }
+                if (NavigationController.ViewControllers.Length != controllers.Count)
+                {
+                    NavigationController.SetViewControllers(controllers.ToArray(), animated);
+                    RaiseNavigated(new NavigationEventArgs(viewModel, null, NavigationMode.Remove, dataContext));
                 }
             }
-            if (NavigationController.ViewControllers.Length != controllers.Count)
-            {
-                NavigationController.SetViewControllers(controllers.ToArray(), animated);
-                RaiseNavigated(new NavigationEventArgs(viewModel, null, NavigationMode.Remove, dataContext));
-            }
-            return true;
+            return closed;
         }
 
-        public virtual event EventHandler<INavigationService, NavigatingCancelEventArgsBase> Navigating;
+        public event EventHandler<INavigationService, NavigatingCancelEventArgsBase> Navigating;
 
-        public virtual event EventHandler<INavigationService, NavigationEventArgsBase> Navigated;
+        public event EventHandler<INavigationService, NavigationEventArgsBase> Navigated;
 
         #endregion
 
@@ -302,7 +307,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             (CurrentContent?.DataContext() as IViewModel)?.InvalidateCommands();
         }
 
-        private bool GoBackInternal()
+        private bool GoBack()
         {
             bool animated;
             var viewModel = CurrentContent?.DataContext() as IViewModel;
@@ -312,11 +317,11 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             var controllers = NavigationController.ViewControllers;
             if (controllers != null && controllers.Length == 1)
             {
-                if (RaiseNavigating(new NavigatingCancelEventArgs(null, NavigationMode.Back, controllers[0].GetNavigationParameter() as string,
-                    controllers[0].GetNavigationContext(false))))
+                var controller = controllers[0];
+                if (RaiseNavigating(new NavigatingCancelEventArgs(null, NavigationMode.Back, controller.GetNavigationParameter() as string, controller.GetNavigationContext(false))))
                 {
                     NavigationController.SetViewControllers(Empty.Array<UIViewController>(), false);
-                    RaiseNavigated(null, NavigationMode.Back, null, controllers[0].GetNavigationContext(true));
+                    RaiseNavigated(null, NavigationMode.Back, null, controller.GetNavigationContext(true));
                 }
                 return true;
             }
