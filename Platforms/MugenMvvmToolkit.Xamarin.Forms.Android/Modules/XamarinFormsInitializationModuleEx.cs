@@ -16,13 +16,17 @@
 
 #endregion
 
+using System;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models.IoC;
 using MugenMvvmToolkit.Xamarin.Forms.Modules;
+using Xamarin.Forms;
 #if ANDROID && XAMARIN_FORMS
+using Android.App;
+using Android.Content;
 using MugenMvvmToolkit.Xamarin.Forms.Android.Binding;
 using MugenMvvmToolkit.Xamarin.Forms.Android.Binding.Infrastructure;
 using MugenMvvmToolkit.Xamarin.Forms.Android.Infrastructure;
@@ -64,16 +68,13 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Modules
             BindingServiceProvider.ValueConverter = BindingConverterExtensions.Convert;
 #if ANDROID
             BindingServiceProvider.ErrorProvider = new XamarinFormsAndroidBindingErrorProvider();
-            XamarinFormsExtensions.SendBackButtonPressed = AndroidInitializationExtensions.GetSendBackButtonPressedImpl();
+            XamarinFormsExtensions.SendBackButtonPressed = GetSendBackButtonPressedImpl;
 #elif WINDOWS_UWP
-            BindingServiceProvider.ErrorProvider = new XamarinFormsUwpBindingErrorProvider();
-            XamarinFormsExtensions.SendBackButtonPressed = UwpInitializationExtensions.GetSendBackButtonPressedImpl();
+            BindingServiceProvider.ErrorProvider = new XamarinFormsUwpBindingErrorProvider();            
 #elif WINDOWS_PHONE
-            BindingServiceProvider.ErrorProvider = new XamarinFormsWinPhoneBindingErrorProvider();
-            XamarinFormsExtensions.SendBackButtonPressed = WinPhoneInitializationExtensions.GetSendBackButtonPressedImpl();
+            BindingServiceProvider.ErrorProvider = new XamarinFormsWinPhoneBindingErrorProvider();            
 #elif NETFX_CORE
-            BindingServiceProvider.ErrorProvider = new XamarinFormsWinRTBindingErrorProvider();
-            XamarinFormsExtensions.SendBackButtonPressed = WinRTInitializationExtensions.GetSendBackButtonPressedImpl();
+            BindingServiceProvider.ErrorProvider = new XamarinFormsWinRTBindingErrorProvider();            
 #elif TOUCH
             BindingServiceProvider.ErrorProvider = new XamarinFormsTouchBindingErrorProvider();
 #endif
@@ -96,6 +97,31 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Modules
             ITracer tracer = new TracerEx();
             ServiceProvider.Tracer = tracer;
             container.BindToConstant(tracer);
+        }
+
+        private static Action GetSendBackButtonPressedImpl(Page page)
+        {
+            var activity = GetActivity(global::Xamarin.Forms.Forms.Context);
+            if (activity == null)
+                return null;
+            return activity.OnBackPressed;
+        }
+
+        private static Activity GetActivity(Context context)
+        {
+            while (true)
+            {
+                var activity = context as Activity;
+                if (activity == null)
+                {
+                    var wrapper = context as ContextWrapper;
+                    if (wrapper == null)
+                        return null;
+                    context = wrapper.BaseContext;
+                    continue;
+                }
+                return activity;
+            }
         }
 #endif
 

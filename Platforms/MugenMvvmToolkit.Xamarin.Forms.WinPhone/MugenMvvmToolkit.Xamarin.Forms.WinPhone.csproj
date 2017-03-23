@@ -101,9 +101,6 @@
     <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\Models\ValidationBinder.cs">
       <Link>Models\ValidationBinder.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Xamarin.Forms.Android\InitializationExtensions.cs">
-      <Link>InitializationExtensions.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Xamarin.Forms.Android\Modules\XamarinFormsInitializationModuleEx.cs">
       <Link>Modules\XamarinFormsInitializationModuleEx.cs</Link>
     </Compile>

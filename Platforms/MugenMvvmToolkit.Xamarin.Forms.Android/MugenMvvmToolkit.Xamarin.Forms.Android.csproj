@@ -127,7 +127,6 @@
       <Link>PlatformBootstrapperService.cs</Link>
     </Compile>
     <Compile Include="Binding\Infrastructure\XamarinFormsAndroidBindingErrorProvider.cs" />
-    <Compile Include="InitializationExtensions.cs" />
     <Compile Include="Modules\XamarinFormsInitializationModuleEx.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
