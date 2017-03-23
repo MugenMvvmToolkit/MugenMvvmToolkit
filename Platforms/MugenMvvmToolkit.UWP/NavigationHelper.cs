@@ -76,6 +76,14 @@ namespace MugenMvvmToolkit.UWP
     [WebHostHidden]
     public class NavigationHelper : DependencyObject
     {
+        #region Fields
+
+        private static readonly bool HasHardwareButtons = ApiInformation.IsTypePresent("Windows.Phone.UI.Input.HardwareButtons");
+        private IRelayCommand _goBackCommand;
+        private IRelayCommand _goForwardCommand;
+
+        #endregion
+
         #region Constructors
 
         /// <summary>
@@ -89,37 +97,39 @@ namespace MugenMvvmToolkit.UWP
         public NavigationHelper(Page page)
         {
             Page = page;
-            var hasHardwareButtons = ApiInformation.IsTypePresent("Windows.Phone.UI.Input.HardwareButtons");
             // When this page is part of the visual tree make two changes:
             // 1) Map application view state to visual state for the page
             // 2) Handle hardware navigation requests
             Page.Loaded += (sender, e) =>
             {
-                if (hasHardwareButtons)
+                if (HasHardwareButtons)
                     HardwareButtons.BackPressed += HardwareButtonsBackPressed;
-                else
+
+                var navigationManager = SystemNavigationManager.GetForCurrentView();
+                if (navigationManager != null)
+                    navigationManager.BackRequested += OnBackRequested;
+
+                // Keyboard and mouse navigation only apply when occupying the entire window
+                if (Page.ActualHeight == Window.Current.Bounds.Height &&
+                    Page.ActualWidth == Window.Current.Bounds.Width)
                 {
-                    // Keyboard and mouse navigation only apply when occupying the entire window
-                    if (Page.ActualHeight == Window.Current.Bounds.Height &&
-                        Page.ActualWidth == Window.Current.Bounds.Width)
-                    {
-                        // Listen to the window directly so focus isn't required
-                        Window.Current.CoreWindow.Dispatcher.AcceleratorKeyActivated += CoreDispatcherAcceleratorKeyActivated;
-                        Window.Current.CoreWindow.PointerPressed += CoreWindowPointerPressed;
-                    }
+                    // Listen to the window directly so focus isn't required
+                    Window.Current.CoreWindow.Dispatcher.AcceleratorKeyActivated += CoreDispatcherAcceleratorKeyActivated;
+                    Window.Current.CoreWindow.PointerPressed += CoreWindowPointerPressed;
                 }
             };
 
             // Undo the same changes when the page is no longer visible
             Page.Unloaded += (sender, e) =>
             {
-                if (hasHardwareButtons)
+                if (HasHardwareButtons)
                     HardwareButtons.BackPressed -= HardwareButtonsBackPressed;
-                else
-                {
-                    Window.Current.CoreWindow.Dispatcher.AcceleratorKeyActivated -= CoreDispatcherAcceleratorKeyActivated;
-                    Window.Current.CoreWindow.PointerPressed -= CoreWindowPointerPressed;
-                }
+
+                var navigationManager = SystemNavigationManager.GetForCurrentView();
+                if (navigationManager != null)
+                    navigationManager.BackRequested -= OnBackRequested;
+                Window.Current.CoreWindow.Dispatcher.AcceleratorKeyActivated -= CoreDispatcherAcceleratorKeyActivated;
+                Window.Current.CoreWindow.PointerPressed -= CoreWindowPointerPressed;
             };
         }
 
@@ -134,9 +144,6 @@ namespace MugenMvvmToolkit.UWP
         #endregion
 
         #region Navigation support
-
-        private IRelayCommand _goBackCommand;
-        private IRelayCommand _goForwardCommand;
 
         /// <summary>
         ///     <see cref="RelayCommand" /> used to bind to the back Button's Command property
@@ -196,7 +203,7 @@ namespace MugenMvvmToolkit.UWP
         /// </returns>
         public virtual bool CanGoForward()
         {
-            return Frame != null && Frame.CanGoForward;
+            return false;
         }
 
         /// <summary>
@@ -223,6 +230,15 @@ namespace MugenMvvmToolkit.UWP
         /// <param name="sender">Instance that triggered the event.</param>
         /// <param name="e">Event data describing the conditions that led to the event.</param>
         private void HardwareButtonsBackPressed(object sender, BackPressedEventArgs e)
+        {
+            if (GoBackCommand.CanExecute(null))
+            {
+                e.Handled = true;
+                GoBackCommand.Execute(null);
+            }
+        }
+
+        private void OnBackRequested(object sender, BackRequestedEventArgs e)
         {
             if (GoBackCommand.CanExecute(null))
             {

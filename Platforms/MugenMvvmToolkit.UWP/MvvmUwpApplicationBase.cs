@@ -20,6 +20,7 @@ using System;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
+using Windows.Foundation.Metadata;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
@@ -39,7 +40,10 @@ namespace MugenMvvmToolkit.UWP
         protected MvvmUwpApplicationBase()
         {
             Suspending += OnSuspending;
-            Resuming += OnResuming;
+            if (ApiInformation.IsEventPresent("Windows.UI.Xaml.Application", "EnteredBackground"))
+                EnteredBackground += OnEnteredBackground;
+            if (ApiInformation.IsEventPresent("Windows.UI.Xaml.Application", "LeavingBackground"))
+                LeavingBackground += OnLeavingBackground;
         }
 
         #endregion
@@ -92,7 +96,6 @@ namespace MugenMvvmToolkit.UWP
         /// <param name="e">Details about the suspend request.</param>
         protected virtual async void OnSuspending(object sender, SuspendingEventArgs e)
         {
-            ServiceProvider.EventAggregator.Publish(this, new BackgroundNavigationMessage());
             if (ShouldSaveApplicationState())
             {
                 var deferral = e.SuspendingOperation.GetDeferral();
@@ -111,9 +114,14 @@ namespace MugenMvvmToolkit.UWP
             throw new Exception("Failed to load Page " + e.SourcePageType.FullName);
         }
 
-        protected virtual void OnResuming(object sender, object e)
+        protected virtual void OnLeavingBackground(object sender, LeavingBackgroundEventArgs leavingBackgroundEventArgs)
         {
             ServiceProvider.EventAggregator.Publish(this, new ForegroundNavigationMessage());
+        }
+
+        protected virtual void OnEnteredBackground(object sender, EnteredBackgroundEventArgs enteredBackgroundEventArgs)
+        {
+            ServiceProvider.EventAggregator.Publish(this, new BackgroundNavigationMessage());
         }
 
         protected virtual async Task RestoreStateAsync(LaunchActivatedEventArgs args)

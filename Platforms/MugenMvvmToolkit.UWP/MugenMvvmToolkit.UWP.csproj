@@ -22,7 +22,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\bin\Platforms\UWP\</OutputPath>
     <DefineConstants>DEBUG;TRACE;NETFX_CORE;WINDOWS_UWP</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -159,8 +159,6 @@
     <Compile Include="Interfaces\IApplicationStateManager.cs" />
     <Compile Include="Interfaces\Views\IPopupView.cs" />
     <Compile Include="Interfaces\Views\IWindowView.cs" />
-    <Compile Include="Models\EventArg\BackButtonNavigatingEventArgs.cs" />
-    <Compile Include="Models\EventArg\BackButtonNavigationEventArgs.cs" />
     <Compile Include="Models\EventArg\NavigatingCancelEventArgsWrapper.cs" />
     <Compile Include="Models\EventArg\NavigationEventArgsWrapper.cs" />
     <Compile Include="Models\EventArg\RemoveNavigatingCancelEventArgs.cs" />

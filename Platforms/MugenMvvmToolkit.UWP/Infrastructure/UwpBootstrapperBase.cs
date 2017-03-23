@@ -116,7 +116,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
         {
             if (frame == null)
                 return null;
-            return new FrameNavigationService(frame, true);
+            return new FrameNavigationService(frame);
         }
 
         internal static void SetDefaultPlatformValues()
