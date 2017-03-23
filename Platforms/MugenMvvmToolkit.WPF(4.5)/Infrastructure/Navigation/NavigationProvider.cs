@@ -166,7 +166,19 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             var viewModel = GetViewModelFromContext(context);
             var tcs = new TaskCompletionSource<bool>();
             context = new DataContext(context.ToNonReadOnly());
-            CurrentNavigationTask.TryExecuteSynchronously(task => ThreadManager.InvokeOnUiThreadAsync(() => NavigateInternal(viewModel, context, tcs)));
+            CurrentNavigationTask.TryExecuteSynchronously(task => ThreadManager.InvokeOnUiThreadAsync(() =>
+            {
+                try
+                {
+                    _navigationTcs = tcs;
+                    NavigateInternal(viewModel, context, tcs);
+                }
+                catch (Exception e)
+                {
+                    tcs.TrySetException(e);
+                    throw;
+                }
+            }));
             return tcs.Task;
         }
 
@@ -180,11 +192,20 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                 return Empty.FalseTask;
 
             var tcs = new TaskCompletionSource<bool>();
-            ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, context, tcs, (@this, ctx, t) =>
+            CurrentNavigationTask.TryExecuteSynchronously(task => ThreadManager.InvokeOnUiThreadAsync(() =>
             {
-                if (!@this.TryCloseInternal(ctx, t))
-                    t.TrySetResult(false);
-            });
+                try
+                {
+                    _navigationTcs = tcs;
+                    if (!TryCloseInternal(context, tcs))
+                        tcs.TrySetResult(false);
+                }
+                catch (Exception e)
+                {
+                    tcs.TrySetException(e);
+                    throw;
+                }
+            }));
             return tcs.Task;
         }
 
@@ -276,7 +297,6 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             var mappingItem = ViewMappingProvider.FindMappingForViewModel(vmType, viewName, true);
             var parameter = GenerateNavigationParameter(vmType);
 
-            _navigationTcs = tcs;
             if (NavigationService.Navigate(mappingItem, parameter, context))
             {
 #if WPF || WINDOWS_UWP
