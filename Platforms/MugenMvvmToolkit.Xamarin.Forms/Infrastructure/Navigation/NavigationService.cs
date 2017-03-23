@@ -40,19 +40,16 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
         #region Fields
 
         private readonly IThreadManager _threadManager;
-        private readonly bool _isRootFrame;
         private NavigationPage _rootPage;
-        private bool _bringToFront;
 
         #endregion
 
         #region Constructors
 
-        public NavigationService([NotNull] IThreadManager threadManager, bool isRootFrame = false)
+        public NavigationService([NotNull] IThreadManager threadManager)
         {
             Should.NotBeNull(threadManager, nameof(threadManager));
             _threadManager = threadManager;
-            _isRootFrame = isRootFrame;
             XamarinFormsExtensions.BackButtonPressed += ReflectionExtensions
                 .CreateWeakDelegate<NavigationService, CancelEventArgs, EventHandler<Page, CancelEventArgs>>(this,
                     (service, o, arg3) => service.OnBackButtonPressed((Page)o, arg3), (o, handler) => XamarinFormsExtensions.BackButtonPressed -= handler,
@@ -70,23 +67,9 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
 
         #region Implementation of INavigationService
 
-        protected virtual bool CanGoBack => _rootPage.Navigation != null && _rootPage.Navigation.NavigationStack.Count > 1;
+        public object CurrentContent => _rootPage?.CurrentPage;
 
-        public virtual object CurrentContent => _rootPage?.CurrentPage;
-
-        protected virtual void GoBack()
-        {
-            if (_rootPage != null)
-            {
-                bool animated;
-                var viewModel = CurrentContent == null ? null : CurrentContent.DataContext() as IViewModel;
-                if (viewModel == null || !viewModel.Settings.State.TryGetData(NavigationConstants.UseAnimations, out animated))
-                    animated = UseAnimations;
-                _rootPage.PopAsync(animated);
-            }
-        }
-
-        public virtual void UpdateRootPage(NavigationPage page)
+        public void UpdateRootPage(NavigationPage page)
         {
             if (_rootPage != null)
             {
@@ -114,7 +97,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             }
         }
 
-        public virtual string GetParameterFromArgs(EventArgs args)
+        public string GetParameterFromArgs(EventArgs args)
         {
             Should.NotBeNull(args, nameof(args));
             var cancelArgs = args as NavigatingCancelEventArgs;
@@ -123,7 +106,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             return cancelArgs.Parameter;
         }
 
-        public virtual bool Navigate(NavigatingCancelEventArgsBase args)
+        public bool Navigate(NavigatingCancelEventArgsBase args)
         {
             Should.NotBeNull(args, nameof(args));
             if (!args.IsCancelable)
@@ -133,35 +116,36 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
                 return TryClose(args.Context);
 
             //Back button pressed.
-            if (eventArgs.IsBackButtonNavigation && XamarinFormsExtensions.SendBackButtonPressed != null)
+            if (eventArgs.IsBackButtonNavigation)
             {
-                var sendBackButton = XamarinFormsExtensions.SendBackButtonPressed(CurrentContent as Page);
+                var sendBackButton = XamarinFormsExtensions.SendBackButtonPressed?.Invoke(CurrentContent as Page);
                 if (sendBackButton != null)
                 {
-                    RaiseNavigated(null, null, NavigationMode.Back, args.Context);
                     sendBackButton();
+                    RaiseNavigated(null, null, NavigationMode.Back, args.Context);
                     return true;
                 }
             }
+
             if (eventArgs.NavigationMode == NavigationMode.Back)
             {
                 SetBackNavigationContext(args.Context);
-                GoBack();
-                return true;
+                return GoBack(args.Context);
             }
             // ReSharper disable once AssignNullToNotNullAttribute
             return Navigate(eventArgs.Mapping, eventArgs.Parameter, args.Context);
         }
 
-        public virtual bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
+        public bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
             Should.NotBeNull(source, nameof(source));
             if (_rootPage == null)
                 return false;
             if (dataContext == null)
                 dataContext = DataContext.Empty;
-            dataContext.TryGetData(NavigationProviderConstants.BringToFront, out _bringToFront);
-            if (!RaiseNavigating(new NavigatingCancelEventArgs(source, _bringToFront ? NavigationMode.Refresh : NavigationMode.New, parameter, true, false, dataContext)))
+            bool bringToFront;
+            dataContext.TryGetData(NavigationProviderConstants.BringToFront, out bringToFront);
+            if (!RaiseNavigating(new NavigatingCancelEventArgs(source, bringToFront ? NavigationMode.Refresh : NavigationMode.New, parameter, true, false, dataContext)))
                 return false;
 
             var viewModel = dataContext.GetData(NavigationConstants.ViewModel);
@@ -171,7 +155,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             else
                 animated = UseAnimations;
             Page page = null;
-            if (_bringToFront && viewModel != null)
+            if (bringToFront && viewModel != null)
             {
                 var navigation = _rootPage.Navigation;
                 if (navigation != null)
@@ -197,11 +181,33 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             }
             page.SetNavigationParameter(parameter);
             page.SetNavigationContext(dataContext);
+            page.SetBringToFront(bringToFront);
             ClearNavigationStackIfNeed(dataContext, page, _rootPage.PushAsync(page, animated));
             return true;
         }
 
-        public virtual bool CanClose(IDataContext dataContext)
+        public bool CanClose(IDataContext dataContext)
+        {
+            Should.NotBeNull(dataContext, nameof(dataContext));
+            var viewModel = dataContext.GetData(NavigationConstants.ViewModel);
+            if (viewModel == null)
+                return false;
+
+            if (CurrentContent?.DataContext() == viewModel)
+                return true;
+
+            var navigationStack = _rootPage.Navigation?.NavigationStack;
+            if (navigationStack == null)
+                return false;
+            for (var index = 0; index < navigationStack.Count; index++)
+            {
+                if (navigationStack[index].BindingContext == viewModel)
+                    return true;
+            }
+            return false;
+        }
+
+        public bool TryClose(IDataContext dataContext)
         {
             Should.NotBeNull(dataContext, nameof(dataContext));
             var viewModel = dataContext.GetData(NavigationConstants.ViewModel);
@@ -209,68 +215,45 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
                 return false;
 
             if (CurrentContent != null && CurrentContent.DataContext() == viewModel)
-                return CanGoBack;
-
-            var navigation = _rootPage.Navigation;
-            if (navigation == null)
-                return false;
-            foreach (var page in navigation.NavigationStack)
             {
-                if (page.BindingContext == viewModel)
-                    return true;
-            }
-            return false;
-        }
-
-        public virtual bool TryClose(IDataContext dataContext)
-        {
-            Should.NotBeNull(dataContext, nameof(dataContext));
-            var viewModel = dataContext.GetData(NavigationConstants.ViewModel);
-            if (viewModel == null || !CanClose(dataContext))
-                return false;
-
-            if (CurrentContent != null && CurrentContent.DataContext() == viewModel)
-            {
-                if (!RaiseNavigating(new NavigatingCancelEventArgs(null, NavigationMode.Back, null, true, false, dataContext)))
-                    return false;
                 SetBackNavigationContext(dataContext);
-                GoBack();
-                return true;
+                return GoBack(dataContext);
             }
-            var navigation = _rootPage.Navigation;
-            if (navigation == null)
-                return false;
 
-            if (!RaiseNavigating(new NavigatingCancelEventArgs(null, NavigationMode.Remove, null, true, false, dataContext)))
+            var navigation = _rootPage.Navigation;
+            if (navigation == null || !CanClose(dataContext))
                 return false;
 
             bool result = false;
-            var pages = navigation.NavigationStack.ToList();
-            for (int i = 0; i < pages.Count; i++)
+            if (RaiseNavigating(new NavigatingCancelEventArgs(null, NavigationMode.Remove, null, true, false, dataContext)))
             {
-                var toRemove = pages[i];
-                if (toRemove.BindingContext == viewModel)
+                var pages = navigation.NavigationStack.ToList();
+                for (int i = 0; i < pages.Count; i++)
                 {
-                    navigation.RemovePage(toRemove);
-                    pages.RemoveAt(i);
-                    result = true;
-                    --i;
+                    var toRemove = pages[i];
+                    if (toRemove.BindingContext == viewModel)
+                    {
+                        navigation.RemovePage(toRemove);
+                        pages.RemoveAt(i);
+                        result = true;
+                        --i;
+                    }
                 }
+                if (result)
+                    RaiseNavigated(null, null, NavigationMode.Remove, dataContext);
             }
-            if (result)
-                RaiseNavigated(null, null, NavigationMode.Remove, dataContext);
             return result;
         }
 
-        public virtual event EventHandler<INavigationService, NavigatingCancelEventArgsBase> Navigating;
+        public event EventHandler<INavigationService, NavigatingCancelEventArgsBase> Navigating;
 
-        public virtual event EventHandler<INavigationService, NavigationEventArgsBase> Navigated;
+        public event EventHandler<INavigationService, NavigationEventArgsBase> Navigated;
 
         #endregion
 
         #region Methods
 
-        protected bool RaiseNavigating(NavigatingCancelEventArgs args)
+        protected virtual bool RaiseNavigating(NavigatingCancelEventArgs args)
         {
             EventHandler<INavigationService, NavigatingCancelEventArgsBase> handler = Navigating;
             if (handler == null)
@@ -279,7 +262,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             return !args.Cancel;
         }
 
-        protected void RaiseNavigated(object page, string parameter, NavigationMode mode, IDataContext context)
+        protected virtual void RaiseNavigated(object page, string parameter, NavigationMode mode, IDataContext context)
         {
             Navigated?.Invoke(this, new Models.EventArg.NavigationEventArgs(page, parameter, mode, context));
         }
@@ -292,9 +275,31 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
 
         private void OnPushed(object sender, NavigationEventArgs args)
         {
-            var bringToFront = _bringToFront;
-            _bringToFront = false;
-            RaiseNavigated(args.Page, args.Page.GetNavigationParameter() as string, bringToFront ? NavigationMode.Refresh : NavigationMode.New, args.Page.GetNavigationContext(true));
+            RaiseNavigated(args.Page, args.Page.GetNavigationParameter() as string, args.Page.GetBringToFront() ? NavigationMode.Refresh : NavigationMode.New, args.Page.GetNavigationContext(true));
+        }
+
+        private bool GoBack(IDataContext context)
+        {
+            if (_rootPage == null)
+                return false;
+            if (RaiseNavigating(new NavigatingCancelEventArgs(null, NavigationMode.Back, null, true, false, context)))
+            {
+                bool animated;
+                var viewModel = CurrentContent?.DataContext() as IViewModel;
+                if (viewModel == null || !viewModel.Settings.State.TryGetData(NavigationConstants.UseAnimations, out animated))
+                    animated = UseAnimations;
+                var navigationStack = _rootPage.Navigation?.NavigationStack;
+                if (navigationStack != null && navigationStack.Count == 1)
+                {
+                    var page = navigationStack[0];
+                    _rootPage.Navigation.RemovePage(page);
+                    RaiseNavigated(null, null, NavigationMode.Back, context);
+                    return true;
+                }
+
+                _rootPage.PopAsync(animated);
+            }
+            return true;
         }
 
         private void OnBackButtonPressed(Page page, CancelEventArgs args)
@@ -302,18 +307,19 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             if (CurrentContent != page)
                 return;
 
-            var isCancelable = CanGoBack || _isRootFrame && XamarinFormsExtensions.SendBackButtonPressed != null;
-            if (isCancelable)
-            {
-                var eventArgs = new NavigatingCancelEventArgs(null, NavigationMode.Back, null, true, true, null);
-                RaiseNavigating(eventArgs);
-                args.Cancel = eventArgs.Cancel;
-            }
-            if (isCancelable && args.Cancel)
+            var navigationStack = _rootPage.Navigation?.NavigationStack;
+            if (navigationStack == null || navigationStack.Count == 0)
                 return;
-
-            if (!CanGoBack)
-                RaiseNavigated(null, null, NavigationMode.Back, null);
+            bool isBack = false;
+            if (navigationStack.Count == 1)
+            {
+                if (XamarinFormsExtensions.SendBackButtonPressed == null)
+                    return;
+                isBack = true;
+            }
+            var eventArgs = new NavigatingCancelEventArgs(null, NavigationMode.Back, null, true, isBack, null);
+            RaiseNavigating(eventArgs);
+            args.Cancel = eventArgs.Cancel;
         }
 
         private void ClearNavigationStackIfNeed(IDataContext context, Page page, Task task)

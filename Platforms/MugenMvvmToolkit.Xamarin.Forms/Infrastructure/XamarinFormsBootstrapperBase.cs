@@ -226,7 +226,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         [NotNull]
         protected virtual INavigationService CreateNavigationService()
         {
-            return new NavigationService(ServiceProvider.ThreadManager, true);
+            return new NavigationService(ServiceProvider.ThreadManager);
         }
 
         private static void InitializeRootPage(XamarinFormsBootstrapperBase @this, IViewModel viewModel, IDataContext context)
@@ -264,10 +264,31 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         private static void OnBackButtonPressed(Page sender, CancelEventArgs args)
         {
             var viewModel = sender.DataContext() as IViewModel;
-            if (viewModel != null && viewModel.Settings.State.Contains(IsRoot))
+            if (viewModel == null || !viewModel.Settings.State.Contains(IsRoot))
+                return;
+
+            var backButtonAction = XamarinFormsExtensions.SendBackButtonPressed?.Invoke(sender);
+            if (backButtonAction == null)
+                return;
+
+            var navigationDispatcher = ServiceProvider.Get<INavigationDispatcher>();
+            var context = new NavigationContext(NavigationType.Page, NavigationMode.Back, viewModel, null, Current);
+            var task = navigationDispatcher.OnNavigatingAsync(context);
+            if (task.IsCompleted)
             {
-                args.Cancel = true;
-                viewModel.CloseAsync();
+                args.Cancel = !task.Result;
+                if (task.Result)
+                    navigationDispatcher.OnNavigated(context);
+            }
+            else
+            {
+                task.TryExecuteSynchronously(t =>
+                {
+                    if (!t.Result)
+                        return;
+                    backButtonAction();
+                    navigationDispatcher.OnNavigated(context);
+                });
             }
         }
 

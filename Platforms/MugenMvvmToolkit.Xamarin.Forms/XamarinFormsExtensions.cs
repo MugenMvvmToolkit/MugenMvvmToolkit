@@ -34,8 +34,9 @@ namespace MugenMvvmToolkit.Xamarin.Forms
     {
         #region Fields
 
-        private const string NavParamKey = "@~`NavParam";
-        private const string NavContextKey = "@~`NavContext";
+        private const string NavParamKey = nameof(NavParamKey);
+        private const string NavContextKey = nameof(NavContextKey);
+        private const string NavBringToFrontKey = nameof(NavBringToFrontKey);
         private static readonly Dictionary<Type, IBindingMemberInfo> TypeToContentMember;
 
         #endregion
@@ -132,6 +133,20 @@ namespace MugenMvvmToolkit.Xamarin.Forms
         {
             Should.NotBeNull(page, nameof(page));
             ServiceProvider.AttachedValueProvider.SetValue(page, NavContextKey, value);
+        }
+
+        internal static void SetBringToFront([NotNull] this Page page, bool value)
+        {
+            Should.NotBeNull(page, nameof(page));
+            ServiceProvider.AttachedValueProvider.SetValue(page, NavContextKey, Empty.BooleanToObject(value));
+        }
+
+        internal static bool GetBringToFront([NotNull] this Page page)
+        {
+            Should.NotBeNull(page, nameof(page));
+            var value = ServiceProvider.AttachedValueProvider.GetValue<bool>(page, NavBringToFrontKey, false);
+            ServiceProvider.AttachedValueProvider.Clear(page, NavBringToFrontKey);
+            return value;
         }
 
         internal static IDataContext GetNavigationContext(this Page page, bool remove)
