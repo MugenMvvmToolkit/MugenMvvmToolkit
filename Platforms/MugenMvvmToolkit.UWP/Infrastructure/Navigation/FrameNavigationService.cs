@@ -178,6 +178,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             var wrapper = (NavigatingCancelEventArgsWrapper)args;
             if (wrapper.Args.NavigationMode == NavigationMode.Back)
             {
+                _lastContext = args.Context;
                 _frame.GoBack();
                 return true;
             }
