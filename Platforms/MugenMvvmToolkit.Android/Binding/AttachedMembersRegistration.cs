@@ -450,7 +450,7 @@ namespace MugenMvvmToolkit.Android.Binding
         private static IntPtr _textViewSetTextMethodId;
         private static Java.Lang.String _emptyString;
         private static JValue[] _nullJValue;
-        private static JValue[] _emptyStringJValue;        
+        private static JValue[] _emptyStringJValue;
 
         #endregion
 
@@ -576,7 +576,7 @@ namespace MugenMvvmToolkit.Android.Binding
                 _nullJValue = new[] { new JValue(IntPtr.Zero) };
                 _emptyString = new Java.Lang.String("");
                 _emptyStringJValue = new[] { new JValue(_emptyString.Handle) };
-                var fastTextMember = AttachedBindingMember.CreateMember<TextView, string>("TextEx", (info, view) => view.Text, (info, view, arg3) =>
+                var fastTextMember = AttachedBindingMember.CreateMember<TextView, string>("FastText", (info, view) => view.Text, (info, view, arg3) =>
                 {
                     //Default Xamarin implementation creates and release new Java.Lang.String on every text change, can be replaced with direct method call
                     //                    Java.Lang.String @string = value != null ? new Java.Lang.String(value) : (Java.Lang.String)null;
