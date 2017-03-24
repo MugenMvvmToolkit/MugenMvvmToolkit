@@ -293,13 +293,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
                     RaiseNavigated(null, null, NavigationMode.Back, context);
                 }
                 else
-                {
-                    bool animated;
-                    var viewModel = CurrentContent?.DataContext() as IViewModel;
-                    if (viewModel == null || !viewModel.Settings.State.TryGetData(NavigationConstants.UseAnimations, out animated))
-                        animated = UseAnimations;
-                    _rootPage.PopAsync(animated);
-                }
+                    _rootPage.PopAsync(IsAnimated(context, CurrentContent?.DataContext() as IViewModel));
             }
             return true;
         }
@@ -360,6 +354,16 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
                 var page = navigation.NavigationStack[navigation.NavigationStack.Count - 2];
                 page.SetNavigationContext(context);
             }
+        }
+
+        private bool IsAnimated(IDataContext context, IViewModel viewModel)
+        {
+            bool result;
+            if (context != null && context.TryGetData(NavigationConstants.UseAnimations, out result))
+                return result;
+            if (viewModel != null && viewModel.Settings.State.TryGetData(NavigationConstants.UseAnimations, out result))
+                return result;
+            return UseAnimations;
         }
 
         #endregion

@@ -111,7 +111,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
                 return TryClose(args.Context);
             var eventArgs = (NavigatingCancelEventArgs)args;
             if (eventArgs.NavigationMode == NavigationMode.Back)
-                return GoBack();
+                return GoBack(args.Context);
             // ReSharper disable once AssignNullToNotNullAttribute
             return Navigate(eventArgs.Mapping, eventArgs.Parameter, args.Context);
         }
@@ -213,7 +213,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             if (CurrentContent?.DataContext() == viewModel)
             {
                 (CurrentContent as UIViewController)?.SetNavigationContext(dataContext);
-                return GoBack();
+                return GoBack(dataContext);
             }
 
             if (!CanClose(dataContext))
@@ -221,9 +221,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             bool closed = false;
             if (RaiseNavigating(new NavigatingCancelEventArgs(null, NavigationMode.Remove, null, dataContext)))
             {
-                bool animated;
-                if (!dataContext.TryGetData(NavigationConstants.UseAnimations, out animated))
-                    animated = UseAnimations;
                 var controllers = NavigationController.ViewControllers.ToList();
                 for (int i = 0; i < controllers.Count; i++)
                 {
@@ -236,7 +233,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
                 }
                 if (NavigationController.ViewControllers.Length != controllers.Count)
                 {
-                    NavigationController.SetViewControllers(controllers.ToArray(), animated);
+                    NavigationController.SetViewControllers(controllers.ToArray(), IsAnimated(dataContext, viewModel));
                     RaiseNavigated(new NavigationEventArgs(viewModel, null, NavigationMode.Remove, dataContext));
                 }
             }
@@ -307,29 +304,33 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             (CurrentContent?.DataContext() as IViewModel)?.InvalidateCommands();
         }
 
-        private bool GoBack()
+        private bool GoBack(IDataContext context)
         {
             var controllers = NavigationController.ViewControllers;
             if (controllers == null || controllers.Length == 0)
                 return false;
 
+            var isAnimated = IsAnimated(context, CurrentContent?.DataContext() as IViewModel);
             if (controllers.Length == 1)
             {
                 var controller = controllers[0];
-                if (RaiseNavigating(new NavigatingCancelEventArgs(null, NavigationMode.Back, controller.GetNavigationParameter() as string, controller.GetNavigationContext(false))))
+                if (RaiseNavigating(new NavigatingCancelEventArgs(null, NavigationMode.Back, null, controller.GetNavigationContext(false))))
                 {
-                    NavigationController.SetViewControllers(Empty.Array<UIViewController>(), false);
-                    RaiseNavigated(null, NavigationMode.Back, null, controller.GetNavigationContext(true));
+                    var view = controller as IViewControllerView;
+                    if (view == null || view.Mediator.IsDisappeared)
+                    {
+                        NavigationController.SetViewControllers(Empty.Array<UIViewController>(), false);
+                        RaiseNavigated(null, NavigationMode.Back, null, controller.GetNavigationContext(true));
+                    }
+                    else
+                    {
+                        view.Mediator.ViewDidDisappearHandler += OnViewDidDisappearHandlerBack;
+                        NavigationController.SetViewControllers(Empty.Array<UIViewController>(), isAnimated);
+                    }
                 }
             }
             else
-            {
-                bool animated;
-                var viewModel = CurrentContent?.DataContext() as IViewModel;
-                if (viewModel == null || !viewModel.Settings.State.TryGetData(NavigationConstants.UseAnimations, out animated))
-                    animated = UseAnimations;
-                NavigationController.PopViewController(animated);
-            }
+                NavigationController.PopViewController(isAnimated);
             return true;
         }
 
@@ -401,6 +402,12 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             return false;
         }
 
+        private void OnViewDidDisappearHandlerBack(UIViewController sender, ValueEventArgs<bool> args)
+        {
+            ((IViewControllerView)sender).Mediator.ViewDidDisappearHandler -= OnViewDidDisappearHandlerBack;
+            RaiseNavigated(null, NavigationMode.Back, null, sender.GetNavigationContext(true));
+        }
+
         private void OnViewDidAppearHandlerBack(UIViewController sender, ValueEventArgs<bool> args)
         {
             ((IViewControllerView)sender).Mediator.ViewDidAppearHandler -= OnViewDidAppearHandlerBack;
@@ -417,6 +424,16 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
         {
             ((IViewControllerView)sender).Mediator.ViewDidAppearHandler -= OnViewDidAppearHandlerRefresh;
             RaiseNavigated(sender, NavigationMode.Refresh, sender.GetNavigationParameter() as string, sender.GetNavigationContext(true));
+        }
+
+        private bool IsAnimated(IDataContext context, IViewModel viewModel)
+        {
+            bool result;
+            if (context != null && context.TryGetData(NavigationConstants.UseAnimations, out result))
+                return result;
+            if (viewModel != null && viewModel.Settings.State.TryGetData(NavigationConstants.UseAnimations, out result))
+                return result;
+            return UseAnimations;
         }
 
         #endregion
