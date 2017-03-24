@@ -33,7 +33,7 @@ using MugenMvvmToolkit.Models.Messages;
 namespace MugenMvvmToolkit.ViewModels
 {
     [BaseViewModel(Priority = 9)]
-    public abstract class ViewModelBase : NotifyPropertyChangedBase, IIocContainerOwnerViewModel, IHandler<object>//todo cancel
+    public abstract class ViewModelBase : NotifyPropertyChangedBase, IIocContainerOwnerViewModel, IHandler<object>
     {
         #region Nested types
 
