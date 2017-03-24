@@ -131,15 +131,14 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         #region Fields
 
-        private const string ParameterString = "viewmodelparameter";
+        private const string ParameterId = "viewmodelparameter";
+        private const string IsBackKey = nameof(IsBackKey);
+        private const string IsFinishFromPauseKey = nameof(IsFinishFromPauseKey);
 
-        private bool _isBack;
-        private bool _isNew;
         private bool _isReorder;
         private bool _isPause;
-        private string _parameter;
-        private IDataContext _dataContext;
-        private bool _finishFromPause;
+        private IDataContext _newDataContext;
+        private IDataContext _backDataContext;
 
         #endregion
 
@@ -154,7 +153,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             {
                 (Application.Context as Application)?.RegisterActivityLifecycleCallbacks(new ActivityLifecycleListener(this));
             }
-            _isNew = true;
+            _newDataContext = DataContext.Empty;
         }
 
         #endregion
@@ -183,11 +182,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             Navigated?.Invoke(this, new NavigationEventArgs(content, parameter, mode, context));
         }
 
-        private static string GetParameterFromIntent(Intent intent)
-        {
-            return intent?.GetStringExtra(ParameterString);
-        }
-
         protected virtual void StartActivity(Context context, Intent intent, IViewMappingItem source, IDataContext dataContext)
         {
             var activity = context.GetActivity();
@@ -206,21 +200,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                 startAction(context, intent, source, dataContext);
         }
 
-        protected virtual bool GoBack()
-        {
-            var currentActivity = PlatformExtensions.CurrentActivity;
-            if (!currentActivity.IsAlive() || IsDestroyed(currentActivity) || currentActivity.IsFinishing)
-                return false;
-            if (_isPause)
-            {
-                _finishFromPause = true;
-                currentActivity.Finish();
-            }
-            else
-                currentActivity.OnBackPressed();
-            return true;
-        }
-
         protected virtual bool IsNoHistory([CanBeNull] Activity activity)
         {
             if (activity == null)
@@ -231,12 +210,33 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             return attribute != null && attribute.NoHistory;
         }
 
-        private static bool IsDestroyed(Activity activity)
+        protected virtual bool IsDestroyed(Activity activity)
         {
             var activityView = activity as IActivityView;
             if (activityView == null)
                 return false;
             return activityView.Mediator.IsDestroyed;
+        }
+
+        private bool GoBack(IDataContext context)
+        {
+            var currentActivity = PlatformExtensions.CurrentActivity;
+            if (!currentActivity.IsAlive() || IsDestroyed(currentActivity) || currentActivity.IsFinishing)
+                return false;
+            _backDataContext = context;
+            if (_isPause)
+            {
+                ServiceProvider.AttachedValueProvider.SetValue(currentActivity, IsFinishFromPauseKey, Empty.TrueObject);
+                currentActivity.Finish();
+            }
+            else
+                currentActivity.OnBackPressed();
+            return true;
+        }
+
+        private static string GetParameterFromIntent(Intent intent)
+        {
+            return intent?.GetStringExtra(ParameterId);
         }
 
         private static IDataContext MergeContext(IDataContext ctx1, IDataContext ctx2)
@@ -258,18 +258,19 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         #region Implementation of INavigationService
 
-        public virtual object CurrentContent => PlatformExtensions.CurrentActivity;
+        public object CurrentContent => PlatformExtensions.CurrentActivity;
 
-        public virtual void OnPauseActivity(Activity activity, IDataContext context = null)
+        public void OnPauseActivity(Activity activity, IDataContext context = null)
         {
             Should.NotBeNull(activity, nameof(activity));
-            if (_isNew || _isBack || !ReferenceEquals(activity, CurrentContent))
+            var isBack = ServiceProvider.AttachedValueProvider.GetValue<bool>(activity, IsBackKey, false);
+            if (_newDataContext != null || isBack || !ReferenceEquals(activity, CurrentContent))
                 return;
             _isPause = true;
             EventAggregator.Publish(this, new BackgroundNavigationMessage(context));
         }
 
-        public virtual void OnResumeActivity(Activity activity, IDataContext context = null)
+        public void OnResumeActivity(Activity activity, IDataContext context = null)
         {
             Should.NotBeNull(activity, nameof(activity));
             var prevContent = CurrentContent as Activity;
@@ -278,17 +279,27 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                 return;
             PlatformExtensions.SetCurrentActivity(activity, false);
             var isPause = _isPause;
-            var parameter = _parameter;
-            var dataContext = _dataContext;
             _isPause = false;
-            _parameter = null;
-            _dataContext = null;
-            if (_isNew)
+            if (_newDataContext == null)
+            {
+                var dataContext = _backDataContext;
+                _backDataContext = null;
+                if (isPause && activityEquals)
+                    EventAggregator.Publish(this, new ForegroundNavigationMessage(context));
+                else
+                {
+                    RaiseNavigated(activity, NavigationMode.Back, GetParameterFromIntent(activity.Intent), MergeContext(dataContext, context));
+                    if (isPause)
+                        EventAggregator.Publish(this, new ForegroundNavigationMessage(context));
+                }
+            }
+            else
             {
                 var isReorder = _isReorder;
-                _isNew = false;
+                var dataContext = _newDataContext;
+                _newDataContext = null;
                 _isReorder = false;
-                RaiseNavigated(activity, isReorder ? NavigationMode.Refresh : NavigationMode.New, parameter, MergeContext(dataContext, context));
+                RaiseNavigated(activity, isReorder ? NavigationMode.Refresh : NavigationMode.New, GetParameterFromIntent(activity.Intent), MergeContext(dataContext, context));
                 if (IsNoHistory(prevContent))
                 {
                     var viewModel = prevContent.DataContext() as IViewModel;
@@ -301,46 +312,36 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                     }
                 }
             }
-            else
-            {
-                _isBack = false;
-                if (isPause && activityEquals)
-                    EventAggregator.Publish(this, new ForegroundNavigationMessage(context));
-                else
-                {
-                    RaiseNavigated(activity, NavigationMode.Back, GetParameterFromIntent(activity.Intent), MergeContext(dataContext, context));
-                    if (isPause)
-                        EventAggregator.Publish(this, new ForegroundNavigationMessage(context));
-                }
-            }
         }
 
-        public virtual void OnStartActivity(Activity activity, IDataContext context = null)
+        public void OnStartActivity(Activity activity, IDataContext context = null)
         {
-            OnResumeActivity(activity);
+            OnResumeActivity(activity, context);
         }
 
-        public virtual void OnCreateActivity(Activity activity, IDataContext context = null)
+        public void OnCreateActivity(Activity activity, IDataContext context = null)
         {
-            OnResumeActivity(activity);
+            OnResumeActivity(activity, context);
         }
 
-        public virtual bool OnFinishActivity(Activity activity, bool isBackNavigation, IDataContext context = null)
+        public bool OnFinishActivity(Activity activity, bool isBackNavigation, IDataContext context = null)
         {
             Should.NotBeNull(activity, nameof(activity));
-            if (!isBackNavigation && !_finishFromPause)
+            var isFinishFromPause = ServiceProvider.AttachedValueProvider.GetValue<bool>(activity, IsFinishFromPauseKey, false);
+            if (!isBackNavigation && !isFinishFromPause)
                 return true;
-            _finishFromPause = false;
-            if (!RaiseNavigating(new NavigatingCancelEventArgs(NavigationMode.Back, MergeContext(_dataContext, context))))
+            if (isFinishFromPause)
+                ServiceProvider.AttachedValueProvider.Clear(activity, IsFinishFromPauseKey);
+            if (!RaiseNavigating(new NavigatingCancelEventArgs(NavigationMode.Back, MergeContext(_backDataContext, context))))
                 return false;
             //If it's the first activity, we need to raise the back navigation event.
             if (activity.IsTaskRoot)
-                RaiseNavigated(null, NavigationMode.Back, null, MergeContext(_dataContext, context));
-            _isBack = true;
+                RaiseNavigated(null, NavigationMode.Back, null, MergeContext(_backDataContext, context));
+            ServiceProvider.AttachedValueProvider.SetValue(activity, IsBackKey, Empty.TrueObject);
             return true;
         }
 
-        public virtual string GetParameterFromArgs(EventArgs args)
+        public string GetParameterFromArgs(EventArgs args)
         {
             Should.NotBeNull(args, nameof(args));
             var cancelArgs = args as NavigatingCancelEventArgs;
@@ -349,7 +350,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             return cancelArgs.Parameter;
         }
 
-        public virtual bool Navigate(NavigatingCancelEventArgsBase args)
+        public bool Navigate(NavigatingCancelEventArgsBase args)
         {
             Should.NotBeNull(args, nameof(args));
             if (!args.IsCancelable)
@@ -362,13 +363,10 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             if (eventArgs.NavigationMode != NavigationMode.Back && eventArgs.Mapping != null)
                 return Navigate(eventArgs.Mapping, eventArgs.Parameter, eventArgs.Context);
 
-            var activity = PlatformExtensions.CurrentActivity;
-            if (activity == null)
-                return false;
-            return GoBack() && activity.IsFinishing;
+            return GoBack(args.Context);
         }
 
-        public virtual bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
+        public bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
             Should.NotBeNull(source, nameof(source));
             if (dataContext == null)
@@ -379,10 +377,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                 return false;
 
             bool clearBackStack = dataContext.GetData(NavigationConstants.ClearBackStack);
-            _isNew = true;
             _isReorder = bringToFront;
-            _parameter = parameter;
-            _dataContext = dataContext;
+            _newDataContext = dataContext;
 
             var activity = PlatformExtensions.CurrentActivity;
             var context = activity ?? Application.Context;
@@ -417,7 +413,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             }
 
             if (parameter != null)
-                intent.PutExtra(ParameterString, parameter);
+                intent.PutExtra(ParameterId, parameter);
 
             if (bringToFront)
             {
@@ -442,7 +438,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             return true;
         }
 
-        public virtual bool CanClose(IDataContext dataContext)
+        public bool CanClose(IDataContext dataContext)
         {
             Should.NotBeNull(dataContext, nameof(dataContext));
             var viewModel = dataContext.GetData(NavigationConstants.ViewModel);
@@ -455,31 +451,32 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             return message.CanFinish;
         }
 
-        public virtual bool TryClose(IDataContext dataContext)
+        public bool TryClose(IDataContext dataContext)
         {
             Should.NotBeNull(dataContext, nameof(dataContext));
             var viewModel = dataContext.GetData(NavigationConstants.ViewModel);
             if (viewModel == null)
                 return false;
             if (CurrentContent?.DataContext() == viewModel)
-            {
-                _dataContext = dataContext;
-                return GoBack();
-            }
+                return GoBack(dataContext);
 
-            if (!CanClose(dataContext) || !RaiseNavigating(new NavigatingCancelEventArgs(NavigationMode.Remove, dataContext)))
+            if (!CanClose(dataContext))
                 return false;
-
-            var message = new MvvmActivityMediator.FinishActivityMessage(viewModel);
-            ServiceProvider.EventAggregator.Publish(this, message);
-            if (message.IsFinished)
-                RaiseNavigated(viewModel, NavigationMode.Remove, null, dataContext);
-            return message.IsFinished;
+            bool closed = false;
+            if (RaiseNavigating(new NavigatingCancelEventArgs(NavigationMode.Remove, dataContext)))
+            {
+                var message = new MvvmActivityMediator.FinishActivityMessage(viewModel);
+                ServiceProvider.EventAggregator.Publish(this, message);
+                if (message.IsFinished)
+                    RaiseNavigated(viewModel, NavigationMode.Remove, null, dataContext);
+                closed = message.IsFinished;
+            }
+            return closed;
         }
 
-        public virtual event EventHandler<INavigationService, NavigatingCancelEventArgsBase> Navigating;
+        public event EventHandler<INavigationService, NavigatingCancelEventArgsBase> Navigating;
 
-        public virtual event EventHandler<INavigationService, NavigationEventArgsBase> Navigated;
+        public event EventHandler<INavigationService, NavigationEventArgsBase> Navigated;
 
         #endregion
     }
