@@ -84,12 +84,12 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 if (canceled)
                 {
                     validator.OnCanceled(_propertyName, _message);
-                    _token.Cancel();
+                    _token.SafeCancel();
                 }
                 else
                 {
                     validator.OnValidated(task, _validateAll, _propertyName, _isAsync, _message);
-                    _token.Dispose();
+                    _token.SafeCancel();
                 }
             }
 
@@ -99,7 +99,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 if (validator == null)
                     return;
                 validator.OnCanceled(_propertyName, _message);
-                _token.Cancel();
+                _token.SafeCancel();
             }
 
             #endregion

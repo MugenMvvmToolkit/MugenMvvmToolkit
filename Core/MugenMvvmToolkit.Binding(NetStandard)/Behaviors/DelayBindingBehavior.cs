@@ -63,7 +63,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 {
                     if (_currentTokenSource != null)
                     {
-                        _currentTokenSource.Cancel();
+                        _currentTokenSource.SafeCancel();
                         _currentTokenSource = null;
                     }
                     if (dueTime == int.MaxValue)
@@ -86,7 +86,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 {
                     if (_currentTokenSource == null)
                         return;
-                    _currentTokenSource.Cancel();
+                    _currentTokenSource.SafeCancel();
                     _currentTokenSource = null;
                 }
             }

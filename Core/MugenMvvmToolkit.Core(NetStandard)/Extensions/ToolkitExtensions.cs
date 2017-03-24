@@ -1637,6 +1637,18 @@ namespace MugenMvvmToolkit
             }
         }
 
+        public static void SafeCancel(this CancellationTokenSource tcs)
+        {
+            try
+            {
+                tcs?.Cancel(false);
+            }
+            catch (Exception e)
+            {
+                Tracer.Error(e.Flatten(true));
+            }
+        }
+
         internal static void TraceModule(this IModule module, bool load)
         {
             if (Tracer.TraceInformation)

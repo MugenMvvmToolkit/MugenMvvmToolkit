@@ -33,7 +33,7 @@ using MugenMvvmToolkit.Models.Messages;
 namespace MugenMvvmToolkit.ViewModels
 {
     [BaseViewModel(Priority = 9)]
-    public abstract class ViewModelBase : NotifyPropertyChangedBase, IIocContainerOwnerViewModel, IHandler<object>
+    public abstract class ViewModelBase : NotifyPropertyChangedBase, IIocContainerOwnerViewModel, IHandler<object>//todo cancel
     {
         #region Nested types
 
@@ -286,7 +286,7 @@ namespace MugenMvvmToolkit.ViewModels
         static ViewModelBase()
         {
             DisposedToken = new CancellationTokenSource();
-            DisposedToken.Cancel();
+            DisposedToken.SafeCancel();
         }
 
         protected ViewModelBase()
@@ -476,7 +476,7 @@ namespace MugenMvvmToolkit.ViewModels
             finally
             {
                 if (Interlocked.CompareExchange(ref _disposeCancellationToken, DisposedToken, null) != null)
-                    _disposeCancellationToken.Cancel();
+                    _disposeCancellationToken.SafeCancel();
             }
         }
 
