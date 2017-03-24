@@ -168,6 +168,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
             NavigatingCancelEventArgs originalArgs = ((NavigatingCancelEventArgsWrapper)args).Args;
             if (originalArgs.NavigationMode == NavigationMode.Back)
             {
+                _lastContext = args.Context;
                 _window.GoBack();
                 return true;
             }

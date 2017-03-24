@@ -280,24 +280,26 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
 
         private bool GoBack(IDataContext context)
         {
-            if (_rootPage == null)
+            var navigationStack = _rootPage?.Navigation?.NavigationStack;
+            if (navigationStack == null || navigationStack.Count == 0)
                 return false;
+
             if (RaiseNavigating(new NavigatingCancelEventArgs(null, NavigationMode.Back, null, true, false, context)))
             {
-                bool animated;
-                var viewModel = CurrentContent?.DataContext() as IViewModel;
-                if (viewModel == null || !viewModel.Settings.State.TryGetData(NavigationConstants.UseAnimations, out animated))
-                    animated = UseAnimations;
-                var navigationStack = _rootPage.Navigation?.NavigationStack;
-                if (navigationStack != null && navigationStack.Count == 1)
+                if (navigationStack.Count == 1)
                 {
                     var page = navigationStack[0];
                     _rootPage.Navigation.RemovePage(page);
                     RaiseNavigated(null, null, NavigationMode.Back, context);
-                    return true;
                 }
-
-                _rootPage.PopAsync(animated);
+                else
+                {
+                    bool animated;
+                    var viewModel = CurrentContent?.DataContext() as IViewModel;
+                    if (viewModel == null || !viewModel.Settings.State.TryGetData(NavigationConstants.UseAnimations, out animated))
+                        animated = UseAnimations;
+                    _rootPage.PopAsync(animated);
+                }
             }
             return true;
         }

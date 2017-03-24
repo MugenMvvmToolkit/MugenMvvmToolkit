@@ -309,13 +309,11 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
 
         private bool GoBack()
         {
-            bool animated;
-            var viewModel = CurrentContent?.DataContext() as IViewModel;
-            if (viewModel == null || !viewModel.Settings.State.TryGetData(NavigationConstants.UseAnimations, out animated))
-                animated = UseAnimations;
-
             var controllers = NavigationController.ViewControllers;
-            if (controllers != null && controllers.Length == 1)
+            if (controllers == null || controllers.Length == 0)
+                return false;
+
+            if (controllers.Length == 1)
             {
                 var controller = controllers[0];
                 if (RaiseNavigating(new NavigatingCancelEventArgs(null, NavigationMode.Back, controller.GetNavigationParameter() as string, controller.GetNavigationContext(false))))
@@ -323,9 +321,16 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
                     NavigationController.SetViewControllers(Empty.Array<UIViewController>(), false);
                     RaiseNavigated(null, NavigationMode.Back, null, controller.GetNavigationContext(true));
                 }
-                return true;
             }
-            return NavigationController.PopViewController(animated) != null;
+            else
+            {
+                bool animated;
+                var viewModel = CurrentContent?.DataContext() as IViewModel;
+                if (viewModel == null || !viewModel.Settings.State.TryGetData(NavigationConstants.UseAnimations, out animated))
+                    animated = UseAnimations;
+                NavigationController.PopViewController(animated);
+            }
+            return true;
         }
 
         private void ShouldPopViewController(object sender, CancelEventArgs args)
