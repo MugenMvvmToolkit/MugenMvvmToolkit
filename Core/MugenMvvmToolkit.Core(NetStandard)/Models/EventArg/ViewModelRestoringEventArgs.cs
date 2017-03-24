@@ -26,20 +26,20 @@ namespace MugenMvvmToolkit.Models.EventArg
     {
         #region Fields
 
-        private IDataContext _viewModelState;
+        private IDataContext _state;
 
         #endregion
 
         #region Properties
 
         [NotNull]
-        public IDataContext ViewModelState
+        public IDataContext State
         {
-            get { return _viewModelState; }
+            get { return _state; }
             set
             {
-                _viewModelState = value;
                 Should.PropertyNotBeNull(value);
+                _state = value;
             }
         }
 

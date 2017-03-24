@@ -260,7 +260,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 var restoring = Restoring;
                 if (restoring != null)
                 {
-                    var args = new ViewModelRestoringEventArgs { Context = dataContext, ViewModelState = viewModelState };
+                    var args = new ViewModelRestoringEventArgs { Context = dataContext, State = viewModelState };
                     restoring(this, args);
                     dataContext = args.Context ?? DataContext.Empty;
                 }
@@ -278,7 +278,7 @@ namespace MugenMvvmToolkit.Infrastructure
                         var args = new ViewModelRestoredEventArgs(viewModel)
                         {
                             Context = dataContext,
-                            ViewModelState = viewModelState
+                            State = viewModelState
                         };
                         restored(this, args);
                     }

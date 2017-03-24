@@ -392,7 +392,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             {
                 sender.ShouldEqual(provider);
                 args.Context.ShouldEqual(restoreCtx);
-                args.ViewModelState.ShouldEqual(state);
+                args.State.ShouldEqual(state);
                 restoringCalled = true;
             };
             ViewModelRestoredEventArgs restoredEventArgs = null;
@@ -400,7 +400,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             {
                 sender.ShouldEqual(provider);
                 args.Context.ShouldEqual(restoreCtx);
-                args.ViewModelState.ShouldEqual(state);
+                args.State.ShouldEqual(state);
                 restoredEventArgs = args;
                 restoredCalled = true;
             };
