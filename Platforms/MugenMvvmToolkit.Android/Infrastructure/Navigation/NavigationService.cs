@@ -462,16 +462,15 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
             if (!CanClose(dataContext))
                 return false;
-            bool closed = false;
             if (RaiseNavigating(new NavigatingCancelEventArgs(NavigationMode.Remove, dataContext)))
             {
                 var message = new MvvmActivityMediator.FinishActivityMessage(viewModel);
                 ServiceProvider.EventAggregator.Publish(this, message);
                 if (message.IsFinished)
                     RaiseNavigated(viewModel, NavigationMode.Remove, null, dataContext);
-                closed = message.IsFinished;
+                return message.IsFinished;
             }
-            return closed;
+            return true;
         }
 
         public event EventHandler<INavigationService, NavigatingCancelEventArgsBase> Navigating;

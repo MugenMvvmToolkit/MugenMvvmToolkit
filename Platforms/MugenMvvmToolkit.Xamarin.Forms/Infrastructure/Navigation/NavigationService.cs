@@ -224,9 +224,9 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             if (navigation == null || !CanClose(dataContext))
                 return false;
 
-            bool result = false;
             if (RaiseNavigating(new NavigatingCancelEventArgs(null, NavigationMode.Remove, null, true, false, dataContext)))
             {
+                bool result = false;
                 var pages = navigation.NavigationStack.ToList();
                 for (int i = 0; i < pages.Count; i++)
                 {
@@ -241,8 +241,9 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
                 }
                 if (result)
                     RaiseNavigated(null, null, NavigationMode.Remove, dataContext);
+                return result;
             }
-            return result;
+            return true;
         }
 
         public event EventHandler<INavigationService, NavigatingCancelEventArgsBase> Navigating;

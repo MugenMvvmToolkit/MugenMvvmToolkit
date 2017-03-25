@@ -142,9 +142,9 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             if (!CanClose(dataContext))
                 return false;
 
-            bool closed = false;
             if (RaiseNavigatingRemove(dataContext))
             {
+                bool closed = false;
                 var viewModelId = viewModel.GetViewModelId();
                 for (int index = 0; index < _frame.BackStack.Count; index++)
                 {
@@ -157,8 +157,9 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                 }
                 if (closed)
                     RaiseNavigated(new RemoveNavigationEventArgs(dataContext));
+                return closed;
             }
-            return closed;
+            return true;
         }
 
         public event EventHandler<INavigationService, NavigatingCancelEventArgsBase> Navigating;

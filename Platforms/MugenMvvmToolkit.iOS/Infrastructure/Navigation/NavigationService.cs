@@ -218,9 +218,9 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
 
             if (!CanClose(dataContext))
                 return false;
-            bool closed = false;
             if (RaiseNavigating(new NavigatingCancelEventArgs(null, NavigationMode.Remove, null, dataContext)))
             {
+                bool closed = false;
                 var controllers = NavigationController.ViewControllers.ToList();
                 for (int i = 0; i < controllers.Count; i++)
                 {
@@ -236,8 +236,9 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
                     NavigationController.SetViewControllers(controllers.ToArray(), IsAnimated(dataContext, viewModel));
                     RaiseNavigated(new NavigationEventArgs(viewModel, null, NavigationMode.Remove, dataContext));
                 }
+                return closed;
             }
-            return closed;
+            return true;
         }
 
         public event EventHandler<INavigationService, NavigatingCancelEventArgsBase> Navigating;
