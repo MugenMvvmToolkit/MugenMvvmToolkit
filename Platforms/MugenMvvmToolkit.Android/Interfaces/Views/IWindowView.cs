@@ -34,6 +34,6 @@ namespace MugenMvvmToolkit.Android.Interfaces.Views
 
         void Dismiss();
 
-        void Activate();
+        bool Activate();
     }
 }

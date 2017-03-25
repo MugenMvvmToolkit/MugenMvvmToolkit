@@ -49,9 +49,9 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Mediators
                 view.Show();
         }
 
-        protected override void ActivateView(IWindowView view, IDataContext context)
+        protected override bool ActivateView(IWindowView view, IDataContext context)
         {
-            view.Activate();
+            return view.Activate();
         }
 
         protected override void CloseView(IWindowView view)

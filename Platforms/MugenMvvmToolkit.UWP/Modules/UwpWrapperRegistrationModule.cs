@@ -18,8 +18,6 @@
 
 using System;
 using System.ComponentModel;
-using System.Reflection;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
@@ -27,9 +25,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 using Windows.UI.Xaml.Media.Animation;
-using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
-using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Modules;
@@ -167,8 +163,9 @@ namespace MugenMvvmToolkit.UWP.Modules
                 }
             }
 
-            public void Activate()
+            public bool Activate()
             {
+                return false;
             }
 
             public event EventHandler<object, CancelEventArgs> Closing
@@ -280,9 +277,9 @@ namespace MugenMvvmToolkit.UWP.Modules
                 _flyout.Hide();
             }
 
-            public void Activate()
+            public bool Activate()
             {
-                _flyout.Focus(FocusState.Programmatic);
+                return _flyout.Focus(FocusState.Programmatic);
             }
 
             public event EventHandler<object, CancelEventArgs> Closing;
@@ -317,57 +314,36 @@ namespace MugenMvvmToolkit.UWP.Modules
         {
             #region Fields
 
-            private static readonly MethodInfo OnClosingMethod;
-            private static EventInfo _closingEvent;
-            private static PropertyInfo _cancelProperty;
-            private static MethodInfo _showAsyncMethod;
-            private static MethodInfo _hideMethod;
-
-            private readonly EventRegistrationToken? _token;
-            private readonly FrameworkElement _window;
+            private readonly ContentDialog _window;
 
             #endregion
 
             #region Constructors
 
-            static ContentDialogWrapper()
-            {
-                OnClosingMethod = typeof(ContentDialogWrapper).GetMethodEx(nameof(OnClosing),
-                    MemberFlags.Instance | MemberFlags.NonPublic);
-            }
-
-            public ContentDialogWrapper(FrameworkElement window)
+            public ContentDialogWrapper(ContentDialog window)
             {
                 _window = window;
-                if (_closingEvent == null)
-                    _closingEvent = window.GetType().GetRuntimeEvent("Closing");
-
-                Delegate handler = ServiceProvider
-                    .ReflectionManager
-                    .TryCreateDelegate(_closingEvent.EventHandlerType, this, OnClosingMethod);
-                if (handler == null)
-                {
-                    Tracer.Error("The provider cannot create delegate for event '{0}'", _closingEvent.EventHandlerType);
-                    return;
-                }
-                _token = (EventRegistrationToken)_closingEvent.AddMethod.InvokeEx(window, handler);
+                _window.Closing += OnClosing;
+                _window.Closed += OnClosed;
             }
 
             #endregion
 
             #region Methods
 
-            [UsedImplicitly]
-            private void OnClosing(object sender, object args)
+            private void OnClosing(ContentDialog sender, ContentDialogClosingEventArgs args)
             {
                 EventHandler<object, CancelEventArgs> handler = Closing;
                 if (handler == null)
                     return;
                 var eventArgs = new CancelEventArgs();
                 handler(this, eventArgs);
-                if (_cancelProperty == null)
-                    _cancelProperty = args.GetType().GetPropertyEx(nameof(CancelEventArgs.Cancel), MemberFlags.Instance | MemberFlags.Public);
-                _cancelProperty?.SetValueEx(args, eventArgs.Cancel);
+                args.Cancel = args.Cancel;
+            }
+
+            private void OnClosed(ContentDialog sender, ContentDialogClosedEventArgs args)
+            {
+                Closed?.Invoke(this, EventArgs.Empty);
             }
 
             #endregion
@@ -376,11 +352,7 @@ namespace MugenMvvmToolkit.UWP.Modules
 
             public void Show()
             {
-                if (_showAsyncMethod == null)
-                    _showAsyncMethod = _window
-                        .GetType()
-                        .GetMethodEx("ShowAsync", MemberFlags.Instance | MemberFlags.Public);
-                _showAsyncMethod?.InvokeEx(_window);
+                _window.ShowAsync();
             }
 
             public void ShowDialog()
@@ -390,22 +362,17 @@ namespace MugenMvvmToolkit.UWP.Modules
 
             public void Close()
             {
-                if (_hideMethod == null)
-                    _hideMethod = _window.GetType().GetMethodEx("Hide", MemberFlags.Instance | MemberFlags.Public);
-                _hideMethod?.InvokeEx(_window);
+                _window.Hide();
             }
 
-            public void Activate()
+            public bool Activate()
             {
+                return _window.Focus(FocusState.Programmatic);
             }
 
             public event EventHandler<object, CancelEventArgs> Closing;
 
-            public event EventHandler<object, EventArgs> Closed
-            {
-                add { }
-                remove { }
-            }
+            public event EventHandler<object, EventArgs> Closed;
 
             #endregion
 
@@ -419,8 +386,8 @@ namespace MugenMvvmToolkit.UWP.Modules
 
             public void Dispose()
             {
-                if (_token.HasValue)
-                    _closingEvent.RemoveMethod.Invoke(_window, new object[] { _token.Value });
+                _window.Closing -= OnClosing;
+                _window.Closed -= OnClosed;
             }
 
             #endregion
@@ -428,39 +395,18 @@ namespace MugenMvvmToolkit.UWP.Modules
 
         #endregion
 
-        #region Fields
-
-        private const string ContentDialogFullName = "Windows.UI.Xaml.Controls.ContentDialog";
-
-        #endregion
-
         #region Overrides of WrapperRegistrationModuleBase
 
         protected override void RegisterWrappers(IConfigurableWrapperManager wrapperManager)
         {
-            wrapperManager.AddWrapper<IWindowView, ContentDialogWrapper>(IsContentDialog,
-                (o, context) => new ContentDialogWrapper((FrameworkElement)o));
+            wrapperManager.AddWrapper<IWindowView, ContentDialogWrapper>((type, context) => typeof(ContentDialog).IsAssignableFrom(type),
+                (o, context) => new ContentDialogWrapper((ContentDialog)o));
             wrapperManager.AddWrapper<IWindowView, SettingsFlyoutWrapper>(
                 (type, context) => typeof(SettingsFlyout).IsAssignableFrom(type),
                 (o, context) => new SettingsFlyoutWrapper((SettingsFlyout)o));
             wrapperManager.AddWrapper<IWindowView, PopupWrapper>(
                 (type, context) => typeof(IPopupView).IsAssignableFrom(type),
                 (o, context) => new PopupWrapper((IPopupView)o));
-        }
-
-        #endregion
-
-        #region Methods
-
-        private static bool IsContentDialog(Type type, IDataContext context)
-        {
-            while (typeof(object) != type)
-            {
-                if (type.FullName == ContentDialogFullName)
-                    return true;
-                type = type.GetTypeInfo().BaseType;
-            }
-            return false;
         }
 
         #endregion

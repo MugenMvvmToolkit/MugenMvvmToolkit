@@ -112,7 +112,8 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             ViewModel.NotBeDisposed();
             if (IsOpen)
             {
-                ActivateView(View, context);
+                if (ActivateView(View, context))
+                    NavigationDispatcher.OnNavigated(CreateOpenContext(context, NavigationMode.Refresh));
                 return Empty.Task;
             }
             var tcs = new TaskCompletionSource<object>();
@@ -212,7 +213,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         protected abstract void ShowView([NotNull] TView view, bool isDialog, IDataContext context);
 
-        protected abstract void ActivateView([NotNull] TView view, IDataContext context);
+        protected abstract bool ActivateView([NotNull] TView view, IDataContext context);
 
         protected abstract void InitializeView([NotNull] TView view, IDataContext context);
 

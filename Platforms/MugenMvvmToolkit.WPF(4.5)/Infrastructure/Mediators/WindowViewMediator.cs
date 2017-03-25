@@ -88,9 +88,14 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Mediators
             }
         }
 
-        protected override void ActivateView(IWindowView view, IDataContext context)
+        protected override bool ActivateView(IWindowView view, IDataContext context)
         {
+#if WPF
+            return view.Activate();
+#else
             view.Activate();
+            return true;
+#endif
         }
 
         protected override void CloseView(IWindowView view)

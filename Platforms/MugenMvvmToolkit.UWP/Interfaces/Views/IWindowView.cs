@@ -31,7 +31,7 @@ namespace MugenMvvmToolkit.UWP.Interfaces.Views
 
         void Close();
 
-        void Activate();
+        bool Activate();
 
         event EventHandler<object, CancelEventArgs> Closing;
 

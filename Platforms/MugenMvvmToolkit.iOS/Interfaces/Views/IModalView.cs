@@ -30,7 +30,7 @@ namespace MugenMvvmToolkit.iOS.Interfaces.Views
 
     public interface ISupportActivationModalView : IModalView
     {
-        void Activate();
+        bool Activate();
     }
 
     public interface ITabView : IView

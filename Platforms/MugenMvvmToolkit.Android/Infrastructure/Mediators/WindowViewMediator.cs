@@ -57,9 +57,9 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             view.Show(PlatformExtensions.CurrentActivity.GetFragmentManager(), Guid.NewGuid().ToString("n"));
         }
 
-        protected override void ActivateView(IWindowView view, IDataContext context)
+        protected override bool ActivateView(IWindowView view, IDataContext context)
         {
-            view.Activate();
+            return view.Activate();
         }
 
         protected override void CloseView(IWindowView view)

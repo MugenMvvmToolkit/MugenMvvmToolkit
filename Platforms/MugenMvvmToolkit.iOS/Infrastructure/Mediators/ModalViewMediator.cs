@@ -120,9 +120,12 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
             toShow.TryRaiseAttachedEvent(AttachedMembers.Object.Parent);
         }
 
-        protected override void ActivateView(IModalView view, IDataContext context)
+        protected override bool ActivateView(IModalView view, IDataContext context)
         {
-            (view as ISupportActivationModalView)?.Activate();
+            var supportActivationModalView = view as ISupportActivationModalView;
+            if (supportActivationModalView == null)
+                return false;
+            return supportActivationModalView.Activate();
         }
 
         protected override void InitializeView(IModalView view, IDataContext context)
