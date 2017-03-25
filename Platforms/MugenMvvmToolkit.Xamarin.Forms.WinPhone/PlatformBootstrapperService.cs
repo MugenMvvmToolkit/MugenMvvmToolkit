@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Models.Messages;
 using MugenMvvmToolkit.Xamarin.Forms.Infrastructure;
 
 #if WINDOWS_PHONE
@@ -31,6 +32,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.iOS
 namespace MugenMvvmToolkit.Xamarin.Forms.Android
 #elif WINDOWS_UWP
 using System.IO;
+using Windows.Foundation.Metadata;
+using Windows.UI.Xaml;
 using Windows.ApplicationModel;
 using Windows.Security.ExchangeActiveSyncProvisioning;
 using Windows.System.Profile;
@@ -67,7 +70,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
             {
                 try
                 {
-                    if ((file.FileType == ".dll") || (file.FileType == ".exe"))
+                    if (file.FileType == ".dll" || file.FileType == ".exe")
                     {
                         var name = new AssemblyName { Name = Path.GetFileNameWithoutExtension(file.Name) };
                         assemblies.Add(Assembly.Load(name));
@@ -80,6 +83,17 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
                 }
             }
             return assemblies;
+        }
+#endif
+#if WINDOWS_UWP
+        private void OnLeavingBackground(object sender, LeavingBackgroundEventArgs leavingBackgroundEventArgs)
+        {
+            ServiceProvider.EventAggregator.Publish(this, new ForegroundNavigationMessage());
+        }
+
+        private void OnEnteredBackground(object sender, EnteredBackgroundEventArgs enteredBackgroundEventArgs)
+        {
+            ServiceProvider.EventAggregator.Publish(this, new BackgroundNavigationMessage());
         }
 #endif
         #endregion
@@ -135,6 +149,16 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
             return GetAssemblyListAsync().Result;
 #else
             return AppDomain.CurrentDomain.GetAssemblies();
+#endif
+        }
+
+        public void Initialize()
+        {
+#if WINDOWS_UWP
+            if (ApiInformation.IsEventPresent("Windows.UI.Xaml.Application", "EnteredBackground"))
+                Application.Current.EnteredBackground += OnEnteredBackground;
+            if (ApiInformation.IsEventPresent("Windows.UI.Xaml.Application", "LeavingBackground"))
+                Application.Current.LeavingBackground += OnLeavingBackground;
 #endif
         }
 

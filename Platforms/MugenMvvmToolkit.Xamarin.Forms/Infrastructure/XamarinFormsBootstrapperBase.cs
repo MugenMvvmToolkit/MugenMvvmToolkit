@@ -53,6 +53,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             PlatformInfo GetPlatformInfo();
 
             ICollection<Assembly> GetAssemblies();
+
+            void Initialize();
         }
 
         #endregion
@@ -187,6 +189,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         protected override void InitializeInternal()
         {
             base.InitializeInternal();
+            _platformService.Initialize();
             ServiceProvider.Get<IViewModelPresenter>().DynamicPresenters.Add(this);
             XamarinFormsExtensions.BackButtonPressed += OnBackButtonPressed;
         }
