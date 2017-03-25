@@ -73,7 +73,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             {
                 if (keyCode != Keycode.Back || e.Action != KeyEventActions.Up)
                     return false;
-                (_mediator.Target as DialogFragment)?.Dismiss();
+                (_mediator.Target as DialogFragment)?.DismissAllowingStateLoss();
                 return true;
             }
 
@@ -244,6 +244,12 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         {
             if (OnClosing())
                 baseDismiss();
+        }
+
+        public virtual void DismissAllowingStateLoss(Action baseDismissAllowingStateLoss)
+        {
+            if (OnClosing())
+                baseDismissAllowingStateLoss();
         }
 
         public virtual void AddPreferencesFromResource(Action<int> baseAddPreferencesFromResource, int preferencesResId)

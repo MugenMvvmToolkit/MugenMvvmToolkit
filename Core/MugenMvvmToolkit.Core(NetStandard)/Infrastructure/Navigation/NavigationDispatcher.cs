@@ -186,6 +186,8 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         protected virtual void OnNavigationFailedInternal(INavigationContext context, Exception exception)
         {
+            if (exception != null)
+                Tracer.Error(exception.Flatten(true));
             var viewModel = context.NavigationMode.IsCloseOrBackground() ? context.ViewModelFrom : context.ViewModelTo;
             if (viewModel != null && context.NavigationType.Operation != null)
                 CallbackManager.SetResult(OperationResult.CreateErrorResult<object>(context.NavigationType.Operation, viewModel, exception, context));

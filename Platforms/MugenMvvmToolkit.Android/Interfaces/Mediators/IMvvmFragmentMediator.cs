@@ -78,6 +78,8 @@ namespace MugenMvvmToolkit.Android.Interfaces.Mediators
 
         void Dismiss(Action baseDismiss);
 
+        void DismissAllowingStateLoss(Action baseDismissAllowingStateLoss);
+
         void AddPreferencesFromResource(Action<int> baseAddPreferencesFromResource, int preferencesResId);
 
         event EventHandler<Fragment, EventArgs> DataContextChanged;

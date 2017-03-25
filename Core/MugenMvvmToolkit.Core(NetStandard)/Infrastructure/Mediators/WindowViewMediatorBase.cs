@@ -166,12 +166,12 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                     try
                     {
                         if (task.Result)
-                        {
                             CloseViewImmediate();
-                            return;
+                        else
+                        {
+                            _closingTcs?.TrySetResult(false);
+                            _closingTcs = null;
                         }
-                        _closingTcs?.TrySetResult(false);
-                        _closingTcs = null;
                     }
                     catch (Exception e)
                     {

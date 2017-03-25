@@ -64,7 +64,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         protected override void CloseView(IWindowView view)
         {
-            view.Dismiss();
+            view.DismissAllowingStateLoss();
         }
 
         protected override void InitializeView(IWindowView windowView, IDataContext context)

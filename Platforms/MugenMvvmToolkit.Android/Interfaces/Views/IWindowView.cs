@@ -34,6 +34,8 @@ namespace MugenMvvmToolkit.Android.Interfaces.Views
 
         void Dismiss();
 
+        void DismissAllowingStateLoss();
+
         bool Activate();
     }
 }

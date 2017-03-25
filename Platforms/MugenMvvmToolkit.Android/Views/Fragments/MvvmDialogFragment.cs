@@ -93,6 +93,11 @@ namespace MugenMvvmToolkit.Android.Views.Fragments
             Mediator.Dismiss(base.Dismiss);
         }
 
+        public override void DismissAllowingStateLoss()
+        {
+            Mediator.DismissAllowingStateLoss(base.DismissAllowingStateLoss);
+        }
+
         public virtual bool Activate()
         {
             return false;
