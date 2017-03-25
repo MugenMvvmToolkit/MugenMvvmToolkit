@@ -990,7 +990,7 @@ namespace MugenMvvmToolkit
         }
 
         [NotNull]
-        public static Task GetNavigationCompletedTask([CanBeNull] this IAsyncOperation asyncOperation)
+        public static Task<bool> GetNavigationCompletedTask([CanBeNull] this IAsyncOperation asyncOperation)
         {
             return asyncOperation?.Context.GetData(NavigationConstants.NavigationCompletedTask) ?? Empty.TrueTask;
         }
