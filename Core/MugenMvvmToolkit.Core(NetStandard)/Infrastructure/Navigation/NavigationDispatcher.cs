@@ -94,6 +94,8 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         protected virtual void HandleOpenedViewModels(INavigationContext context)
         {
+            var viewModelFrom = context.GetData(NavigationConstants.DoNotTrackViewModelFrom) ? null : context.ViewModelFrom;
+            var viewModelTo = context.GetData(NavigationConstants.DoNotTrackViewModelTo) ? null : context.ViewModelTo;
             lock (_navigatedViewModels)
             {
                 List<WeakReference> list;
@@ -102,15 +104,15 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                     list = new List<WeakReference>();
                     _navigatedViewModels[context.NavigationType] = list;
                 }
-                if (context.NavigationMode == NavigationMode.New && context.ViewModelTo != null)
-                    list.Add(ServiceProvider.WeakReferenceFactory(context.ViewModelTo));
-                else if ((context.NavigationMode == NavigationMode.Refresh || context.NavigationMode == NavigationMode.Back) && context.ViewModelTo != null)
+                if (context.NavigationMode == NavigationMode.New && viewModelTo != null)
+                    list.Add(ServiceProvider.WeakReferenceFactory(viewModelTo));
+                else if ((context.NavigationMode == NavigationMode.Refresh || context.NavigationMode == NavigationMode.Back) && viewModelTo != null)
                 {
                     WeakReference viewModelRef = null;
                     for (int i = 0; i < list.Count; i++)
                     {
                         var target = list[i].Target as IViewModel;
-                        if (target == null || ReferenceEquals(target, context.ViewModelTo))
+                        if (target == null || ReferenceEquals(target, viewModelTo))
                         {
                             if (target != null)
                                 viewModelRef = list[i];
@@ -119,15 +121,15 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                         }
                     }
                     if (viewModelRef == null)
-                        viewModelRef = ServiceProvider.WeakReferenceFactory(context.ViewModelTo);
+                        viewModelRef = ServiceProvider.WeakReferenceFactory(viewModelTo);
                     list.Add(viewModelRef);
                 }
-                if (context.NavigationMode.IsClose() && context.ViewModelFrom != null)
+                if (context.NavigationMode.IsClose() && viewModelFrom != null)
                 {
                     for (int i = 0; i < list.Count; i++)
                     {
                         var target = list[i].Target as IViewModel;
-                        if (target == null || ReferenceEquals(target, context.ViewModelFrom))
+                        if (target == null || ReferenceEquals(target, viewModelFrom))
                         {
                             list.RemoveAt(i);
                             --i;

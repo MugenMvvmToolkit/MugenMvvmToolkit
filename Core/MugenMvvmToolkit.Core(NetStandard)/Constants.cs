@@ -148,6 +148,8 @@ namespace MugenMvvmToolkit.DataConstants
         public static readonly DataConstant<bool> SuppressNavigationCallbackOnClose;
         public static readonly DataConstant<Task<bool>> NavigationCompletedTask;
         public static readonly DataConstant<object> NavigationParameter;
+        public static readonly DataConstant<bool> DoNotTrackViewModelFrom;
+        public static readonly DataConstant<bool> DoNotTrackViewModelTo;
 
         #endregion
 
@@ -170,6 +172,8 @@ namespace MugenMvvmToolkit.DataConstants
             NavigationCompletedTask = DataConstant.Create<Task<bool>>(type, nameof(NavigationCompletedTask), true);
             NavigationParameter = DataConstant.Create<object>(type, nameof(NavigationParameter), true);
             IsFirstNavigation = DataConstant.Create<object>(type, nameof(IsFirstNavigation), false);
+            DoNotTrackViewModelFrom = DataConstant.Create<bool>(type, nameof(DoNotTrackViewModelFrom));
+            DoNotTrackViewModelTo = DataConstant.Create<bool>(type, nameof(DoNotTrackViewModelTo));
         }
 
         #endregion
