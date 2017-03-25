@@ -82,6 +82,12 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         public IAsyncOperation TryShowAsync(IDataContext context, IViewModelPresenter parentPresenter)
         {
+            if (MultiViewModel.IsDisposed)
+            {
+                Tracer.Warn($"Presenter cannot handle request {MultiViewModel} is disposed");
+                parentPresenter.DynamicPresenters.Remove(this);
+                return null;
+            }
             var viewModel = context.GetData(NavigationConstants.ViewModel);
             if (viewModel == null || !MultiViewModel.ViewModelType.IsInstanceOfType(viewModel))
                 return null;
@@ -97,6 +103,12 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         public Task<bool> TryCloseAsync(IDataContext context, IViewModelPresenter parentPresenter)
         {
+            if (MultiViewModel.IsDisposed)
+            {
+                Tracer.Warn($"Presenter cannot handle request {MultiViewModel} is disposed");
+                parentPresenter.DynamicPresenters.Remove(this);
+                return null;
+            }
             return TryCloseInternalAsync(context, parentPresenter);
         }
 
