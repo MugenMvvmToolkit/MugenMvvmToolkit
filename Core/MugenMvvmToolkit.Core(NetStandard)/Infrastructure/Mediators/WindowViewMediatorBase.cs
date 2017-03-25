@@ -48,6 +48,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         private IDataContext _closeParameter;
         private bool _isOpen;
         private bool _shouldClose;
+        private TaskCompletionSource<bool> _closingTcs;
 
         #endregion
 
@@ -75,7 +76,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         public TView View { get; private set; }
 
-        protected bool IsClosing { get; private set; }
+        protected bool IsClosing => _closingTcs != null;
 
         protected IViewManager ViewManager => _viewManager;
 
@@ -153,27 +154,33 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 Tracer.Error(ExceptionManager.WindowClosedString);
                 return Empty.TrueTask;
             }
-            IsClosing = true;
+            var closingTask = _closingTcs?.Task;
+            if (closingTask != null)
+                return closingTask;
+
+            _closingTcs = new TaskCompletionSource<bool>();
             _closeParameter = context;
-            return OnClosing(context)
+            OnClosing(context)
                 .TryExecuteSynchronously(task =>
                 {
                     try
                     {
                         if (task.Result)
+                        {
                             CloseViewImmediate();
-                        return task.Result;
+                            return;
+                        }
+                        _closingTcs?.TrySetResult(false);
+                        _closingTcs = null;
                     }
                     catch (Exception e)
                     {
+                        _closingTcs?.TrySetException(e);
+                        _closingTcs = null;
                         NavigationDispatcher.OnNavigationFailed(CreateCloseContext(context), e);
-                        throw;
-                    }
-                    finally
-                    {
-                        IsClosing = false;
                     }
                 });
+            return _closingTcs.Task;
         }
 
         public void UpdateView(object view, bool isOpen, IDataContext context)
@@ -341,6 +348,8 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             INavigationContext context = CreateCloseContext(_closeParameter);
             OnClosed(context);
 
+            _closingTcs?.TrySetResult(true);
+            _closingTcs = null;
             _closeParameter = null;
             _shouldClose = false;
             _isOpen = false;
