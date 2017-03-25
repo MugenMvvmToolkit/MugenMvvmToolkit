@@ -406,19 +406,34 @@ namespace MugenMvvmToolkit
         {
             return new EventAggregator();
         }
-
+        
         private static ISubscriber ObjectToSubscriberConverterImpl(object o, IDataContext dataContext)
         {
             if (o == null)
                 return null;
             return o as ISubscriber ?? HandlerSubscriber.Get(o);
         }
-
-
+        
         private static bool GetIsDesignMode()
         {
+            // WinForms
+            // NOTE: fisrt call should be from form constructor
+            var type = Type.GetType("System.ComponentModel.LicenseManager, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089");
+            if (type != null)
+            {
+                try
+                {
+                    var ump = type.GetPropertyEx("UsageMode")?.GetValue(null, null);
+                    if (ump != null && (int)ump == 1)
+                        return true;
+                }
+                catch
+                {
+                }
+            }
+
             //.NET
-            var type = Type.GetType("System.ComponentModel.DesignerProperties, PresentationFramework, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35");
+            type = Type.GetType("System.ComponentModel.DesignerProperties, PresentationFramework, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35");
             if (type != null)
             {
                 try
