@@ -18,6 +18,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
@@ -247,6 +248,13 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         {
         }
 
+        protected virtual IViewModel GetOpenedViewModelFrom(out bool doNotTrackNavigation)
+        {
+            var model = NavigationDispatcher.GetOpenedViewModels(NavigationType.Window).LastOrDefault(vm => !ReferenceEquals(vm, ViewModel));
+            doNotTrackNavigation = model == null;
+            return model ?? ViewModel.GetParentViewModel();
+        }
+
         protected void OnViewClosing(object sender, CancelEventArgs e)
         {
             try
@@ -349,20 +357,34 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         private INavigationContext CreateCloseContext(IDataContext context)
         {
-            return new NavigationContext(NavigationType.Window, NavigationMode.Back, ViewModel, ViewModel.GetParentViewModel(), this, context);
+            bool doNotTrackNavigation;
+            var viewModelTo = GetOpenedViewModelFrom(out doNotTrackNavigation);
+            return new NavigationContext(NavigationType.Window, NavigationMode.Back, ViewModel, viewModelTo, this, context)
+            {
+                {NavigationConstants.DoNotTrackViewModelTo, doNotTrackNavigation}
+            };
         }
 
         private NavigationContext CreateOpenContext(IDataContext context, NavigationMode mode)
         {
-            return new NavigationContext(NavigationType.Window, mode, ViewModel.GetParentViewModel(), ViewModel, this, context);
+            bool doNotTrackNavigation;
+            var viewModelFrom = GetOpenedViewModelFrom(out doNotTrackNavigation);
+            return new NavigationContext(NavigationType.Window, mode, viewModelFrom, ViewModel, this, context)
+            {
+                {NavigationConstants.DoNotTrackViewModelFrom, doNotTrackNavigation}
+            };
         }
 
         private Task<bool> RaiseNavigating(IDataContext context, NavigationMode mode)
         {
-            var parentViewModel = ViewModel.GetParentViewModel();
-            if (parentViewModel == null)
+            bool doNotTrackNavigation;
+            var viewModelFrom = GetOpenedViewModelFrom(out doNotTrackNavigation);
+            if (viewModelFrom == null)
                 return Empty.TrueTask;
-            var ctx = new NavigationContext(NavigationType.Window, mode, ViewModel.GetParentViewModel(), ViewModel, this, context);
+            var ctx = new NavigationContext(NavigationType.Window, mode, viewModelFrom, ViewModel, this, context)
+            {
+                {NavigationConstants.DoNotTrackViewModelFrom, doNotTrackNavigation}
+            };
             return NavigationDispatcher.OnNavigatingAsync(ctx);
         }
 
