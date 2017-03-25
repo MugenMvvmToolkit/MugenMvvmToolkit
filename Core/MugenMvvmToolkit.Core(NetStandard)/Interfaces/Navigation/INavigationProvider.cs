@@ -35,7 +35,7 @@ namespace MugenMvvmToolkit.Interfaces.Navigation
         [NotNull]
         Task CurrentNavigationTask { get; }
 
-        Task NavigateAsync([NotNull] IDataContext context);
+        Task<bool> NavigateAsync([NotNull] IDataContext context);
 
         [CanBeNull]
         Task<bool> TryCloseAsync([NotNull] IDataContext context);

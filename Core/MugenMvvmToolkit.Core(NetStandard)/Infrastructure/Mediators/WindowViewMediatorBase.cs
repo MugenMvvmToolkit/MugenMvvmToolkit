@@ -107,16 +107,19 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
             OnInitialized(viewModel, context);
         }
 
-        public Task ShowAsync(IDataContext context)
+        public Task<bool> ShowAsync(IDataContext context)
         {
             ViewModel.NotBeDisposed();
             if (IsOpen)
             {
                 if (ActivateView(View, context))
+                {
                     NavigationDispatcher.OnNavigated(CreateOpenContext(context, NavigationMode.Refresh));
-                return Empty.Task;
+                    return Empty.TrueTask;
+                }
+                return Empty.FalseTask;
             }
-            var tcs = new TaskCompletionSource<object>();
+            var tcs = new TaskCompletionSource<bool>();
             RaiseNavigating(context, NavigationMode.New)
                 .TryExecuteSynchronously(task =>
                 {
@@ -270,7 +273,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 CompleteClose();
         }
 
-        private void ShowInternal(IDataContext context, TaskCompletionSource<object> tcs)
+        private void ShowInternal(IDataContext context, TaskCompletionSource<bool> tcs)
         {
             ViewManager
                 .GetViewAsync(ViewModel, context)
@@ -288,7 +291,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                         (@base, dataContext, cs) =>
                         {
                             @base.OnShown(dataContext);
-                            cs.TrySetResult(null);
+                            cs.TrySetResult(true);
                         }, OperationPriority.Low);
                     ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, isDialog, context, (@base, b, arg3) =>
                     {

@@ -146,7 +146,7 @@ namespace MugenMvvmToolkit.DataConstants
         public static readonly DataConstant<object> CloseParameter;
         public static readonly DataConstant<bool> ImmediateClose;
         public static readonly DataConstant<bool> SuppressNavigationCallbackOnClose;
-        public static readonly DataConstant<Task> NavigationCompletedTask;
+        public static readonly DataConstant<Task<bool>> NavigationCompletedTask;
         public static readonly DataConstant<object> NavigationParameter;
 
         #endregion
@@ -167,7 +167,7 @@ namespace MugenMvvmToolkit.DataConstants
             CloseParameter = DataConstant.Create<object>(type, nameof(CloseParameter), false);
             ImmediateClose = DataConstant.Create<bool>(type, nameof(ImmediateClose));
             SuppressNavigationCallbackOnClose = DataConstant.Create<bool>(type, nameof(SuppressNavigationCallbackOnClose));
-            NavigationCompletedTask = DataConstant.Create<Task>(type, nameof(NavigationCompletedTask), true);
+            NavigationCompletedTask = DataConstant.Create<Task<bool>>(type, nameof(NavigationCompletedTask), true);
             NavigationParameter = DataConstant.Create<object>(type, nameof(NavigationParameter), true);
             IsFirstNavigation = DataConstant.Create<object>(type, nameof(IsFirstNavigation), false);
         }

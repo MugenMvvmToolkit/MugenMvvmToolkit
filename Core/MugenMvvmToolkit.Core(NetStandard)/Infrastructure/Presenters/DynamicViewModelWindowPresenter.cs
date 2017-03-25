@@ -87,7 +87,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             var viewMediator = TryCreateMediator(viewModel, context);
             if (viewMediator == null)
                 return null;
-            var tcs = new TaskCompletionSource<object>();
+            var tcs = new TaskCompletionSource<bool>();
             var operation = new AsyncOperation<object>();
             operation.Context.AddOrUpdate(NavigationConstants.NavigationCompletedTask, tcs.Task);
 
@@ -184,7 +184,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             return TryCreateMediatorFromFactory(viewModel, viewType, context);
         }
 
-        private void Show(IWindowViewMediator viewMediator, IAsyncOperation operation, IDataContext context, TaskCompletionSource<object> tcs)
+        private void Show(IWindowViewMediator viewMediator, IAsyncOperation operation, IDataContext context, TaskCompletionSource<bool> tcs)
         {
             try
             {

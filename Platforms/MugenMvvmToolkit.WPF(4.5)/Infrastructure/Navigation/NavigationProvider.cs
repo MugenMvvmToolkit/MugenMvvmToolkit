@@ -161,7 +161,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             OnDispose();
         }
 
-        public Task NavigateAsync(IDataContext context)
+        public Task<bool> NavigateAsync(IDataContext context)
         {
             var viewModel = GetViewModelFromContext(context);
             var tcs = new TaskCompletionSource<bool>();
