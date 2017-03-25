@@ -499,9 +499,15 @@ namespace MugenMvvmToolkit.ViewModels
             if (disposing)
             {
                 SelectedItemChanged = null;
+                _selectedItemChangedNonGeneric = null;
+                if (ItemsSource.Count != 0)
+                {
+                    var viewModels = ItemsSource.ToArray();
+                    for (int i = 0; i < viewModels.Length; i++)
+                        ItemsSource.Remove(viewModels[i]);
+                }
                 ViewModelAdded = null;
                 ViewModelRemoved = null;
-                _selectedItemChangedNonGeneric = null;
                 _viewModelAddedNonGeneric = null;
                 _viewModelRemovedNonGeneric = null;
             }
