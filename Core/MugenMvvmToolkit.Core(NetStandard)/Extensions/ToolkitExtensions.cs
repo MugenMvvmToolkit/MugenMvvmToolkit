@@ -1637,7 +1637,7 @@ namespace MugenMvvmToolkit
             }
         }
 
-        public static void SafeCancel(this CancellationTokenSource tcs)
+        public static void SafeCancel([CanBeNull]this CancellationTokenSource tcs)
         {
             try
             {

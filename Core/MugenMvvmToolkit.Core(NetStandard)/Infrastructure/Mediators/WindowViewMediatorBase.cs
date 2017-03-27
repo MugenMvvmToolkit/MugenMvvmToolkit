@@ -159,6 +159,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 return closingTask;
 
             _closingTcs = new TaskCompletionSource<bool>();
+            var result = _closingTcs.Task;
             _closeParameter = context;
             OnClosing(context)
                 .TryExecuteSynchronously(task =>
@@ -180,7 +181,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                         NavigationDispatcher.OnNavigationFailed(CreateCloseContext(context), e);
                     }
                 });
-            return _closingTcs.Task;
+            return result;
         }
 
         public void UpdateView(object view, bool isOpen, IDataContext context)
