@@ -498,14 +498,14 @@ namespace MugenMvvmToolkit.ViewModels
         {
             if (disposing)
             {
-                SelectedItemChanged = null;
-                _selectedItemChangedNonGeneric = null;
                 if (ItemsSource.Count != 0)
                 {
                     var viewModels = ItemsSource.ToArray();
                     for (int i = 0; i < viewModels.Length; i++)
-                        ItemsSource.Remove(viewModels[i]);
+                        NavigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Tab, NavigationMode.Remove, viewModels[i], null, this));
                 }
+                SelectedItemChanged = null;
+                _selectedItemChangedNonGeneric = null;
                 ViewModelAdded = null;
                 ViewModelRemoved = null;
                 _viewModelAddedNonGeneric = null;
