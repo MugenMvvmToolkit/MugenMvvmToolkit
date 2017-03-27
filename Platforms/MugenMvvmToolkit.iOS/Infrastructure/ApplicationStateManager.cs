@@ -95,12 +95,9 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
             var view = item as UIView;
             if (view != null && string.IsNullOrEmpty(view.RestorationIdentifier))
                 return;
-            object navigationParameter = (item as UIViewController).GetNavigationParameter();
+            var navigationParameter = (item as UIViewController).GetNavigationParameter();
             if (navigationParameter != null)
-            {
-                using (Stream stream = _serializer.Serialize(navigationParameter))
-                    state.Encode(stream.ToArray(), ParameterStateKey);
-            }
+                state.Encode(new NSString(navigationParameter), ParameterStateKey);
             var viewModel = item.DataContext() as IViewModel;
             if (viewModel != null)
             {
@@ -196,20 +193,15 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
                 coder.Encode(stream.ToArray(), VmStateKey);
         }
 
-        private void RestoreNavigationParameter(NSObject item, NSCoder coder)
+        private static void RestoreNavigationParameter(NSObject item, NSCoder coder)
         {
-            if (!coder.ContainsKey(ParameterStateKey))
-                return;
             var controller = item as UIViewController;
             if (controller == null)
                 return;
 
-            byte[] bytes = coder.DecodeBytes(ParameterStateKey);
-            using (var ms = new MemoryStream(bytes))
-            {
-                object parameter = _serializer.Deserialize(ms);
+            var parameter = (NSString)coder.DecodeObject(ParameterStateKey);
+            if (parameter != null)
                 controller.SetNavigationParameter(parameter);
-            }
         }
 
         #endregion

@@ -16,7 +16,6 @@
 
 #endregion
 
-using System;
 using System.ComponentModel;
 using MugenMvvmToolkit.Models;
 
@@ -24,8 +23,6 @@ namespace MugenMvvmToolkit.iOS.Interfaces.Views
 {
     public interface IMvvmNavigationController : IViewControllerView
     {
-        event EventHandler<IMvvmNavigationController, CancelEventArgs> ShouldPopViewController;
-
-        event EventHandler<IMvvmNavigationController, EventArgs> DidPopViewController;
+        event EventHandler<IMvvmNavigationController, CancelEventArgs> ShouldPopViewController;        
     }
 }

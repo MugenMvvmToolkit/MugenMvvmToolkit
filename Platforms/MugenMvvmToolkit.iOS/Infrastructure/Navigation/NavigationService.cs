@@ -87,11 +87,13 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
 
         protected UINavigationController NavigationController { get; private set; }
 
+        private UIViewController CurrentContent => NavigationController?.TopViewController;
+
         #endregion
 
         #region Implementation of INavigationService
 
-        public object CurrentContent => NavigationController?.TopViewController;
+        object INavigationService.CurrentContent => CurrentContent;
 
         public string GetParameterFromArgs(EventArgs args)
         {
@@ -212,7 +214,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
                 return false;
             if (CurrentContent?.DataContext() == viewModel)
             {
-                (CurrentContent as UIViewController)?.SetNavigationContext(dataContext);
+                CurrentContent?.SetNavigationContext(dataContext);
                 return GoBack(dataContext);
             }
 
@@ -295,10 +297,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             NavigationController = navigationController;
             var ex = navigationController as IMvvmNavigationController;
             if (ex != null)
-            {
                 ex.ShouldPopViewController += ShouldPopViewController;
-                ex.DidPopViewController += DidPopViewController;
-            }
             _window = null;
             _getOrCreateController = null;
             _restoreNavigationController = null;
@@ -337,34 +336,25 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
 
         private void ShouldPopViewController(object sender, CancelEventArgs args)
         {
-            string parameter = null;
-            IDataContext context = null;
-            var controllers = NavigationController.ViewControllers;
+            var controllers = NavigationController.ViewControllers ?? Empty.Array<UIViewController>();
             UIViewController prevController = null, currentController = null;
-            if (controllers.Length > 1)
-            {
-                prevController = controllers[controllers.Length - 2];
+            if (controllers.Length > 0)
                 currentController = controllers[controllers.Length - 1];
-                parameter = prevController.GetNavigationParameter() as string;
-                context = currentController.GetNavigationContext(false);
-                prevController.SetNavigationContext(context);
-            }
-            args.Cancel = !RaiseNavigating(new NavigatingCancelEventArgs(null, NavigationMode.Back, parameter, context));
-            var viewControllerView = currentController as IViewControllerView;
+            if (controllers.Length > 1)
+                prevController = controllers[controllers.Length - 2];
+            args.Cancel = !RaiseNavigating(new NavigatingCancelEventArgs(null, NavigationMode.Back, prevController.GetNavigationParameter(), currentController.GetNavigationContext(false)));
             if (args.Cancel)
-                prevController?.GetNavigationContext(true);
-            else if (viewControllerView != null && viewControllerView.Mediator.IsAppeared)
-                currentController.GetNavigationContext(true);
-        }
+                return;
 
-        private void DidPopViewController(object sender, EventArgs eventArgs)
-        {
-            var controller = NavigationController.TopViewController;
-            var view = controller as IViewControllerView;
-            if (view == null || view.Mediator.IsAppeared)
-                RaiseNavigated(controller, NavigationMode.Back, controller.GetNavigationParameter() as string, controller.GetNavigationContext(true));
+            var viewControllerView = currentController as IViewControllerView;
+            if (viewControllerView == null || viewControllerView.Mediator.IsDisappeared)
+                RaiseNavigated(prevController, NavigationMode.Back, prevController.GetNavigationParameter(), currentController.GetNavigationContext(false));
             else
-                view.Mediator.ViewDidAppearHandler += OnViewDidAppearHandlerBack;
+            {
+                EventHandler<UIViewController, ValueEventArgs<bool>> handler = OnViewDidDisappearHandlerBack;
+                viewControllerView.Mediator.ViewDidDisappearHandler -= handler;
+                viewControllerView.Mediator.ViewDidDisappearHandler += handler;
+            }
         }
 
         private void RaiseNavigated(object content, NavigationMode mode, string parameter, IDataContext context)
@@ -405,26 +395,23 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
 
         private void OnViewDidDisappearHandlerBack(UIViewController sender, ValueEventArgs<bool> args)
         {
+            var content = ReferenceEquals(sender, CurrentContent)
+                ? NavigationController.ViewControllers?.LastOrDefault(controller => !ReferenceEquals(controller, sender))
+                : CurrentContent;
             ((IViewControllerView)sender).Mediator.ViewDidDisappearHandler -= OnViewDidDisappearHandlerBack;
-            RaiseNavigated(null, NavigationMode.Back, null, sender.GetNavigationContext(true));
-        }
-
-        private void OnViewDidAppearHandlerBack(UIViewController sender, ValueEventArgs<bool> args)
-        {
-            ((IViewControllerView)sender).Mediator.ViewDidAppearHandler -= OnViewDidAppearHandlerBack;
-            RaiseNavigated(sender, NavigationMode.Back, sender.GetNavigationParameter() as string, sender.GetNavigationContext(true));
+            RaiseNavigated(content, NavigationMode.Back, content.GetNavigationParameter(), sender.GetNavigationContext(true));
         }
 
         private void OnViewDidAppearHandlerNew(UIViewController sender, ValueEventArgs<bool> args)
         {
             ((IViewControllerView)sender).Mediator.ViewDidAppearHandler -= OnViewDidAppearHandlerNew;
-            RaiseNavigated(sender, NavigationMode.New, sender.GetNavigationParameter() as string, sender.GetNavigationContext(true));
+            RaiseNavigated(sender, NavigationMode.New, sender.GetNavigationParameter(), sender.GetNavigationContext(true));
         }
 
         private void OnViewDidAppearHandlerRefresh(UIViewController sender, ValueEventArgs<bool> args)
         {
             ((IViewControllerView)sender).Mediator.ViewDidAppearHandler -= OnViewDidAppearHandlerRefresh;
-            RaiseNavigated(sender, NavigationMode.Refresh, sender.GetNavigationParameter() as string, sender.GetNavigationContext(true));
+            RaiseNavigated(sender, NavigationMode.Refresh, sender.GetNavigationParameter(), sender.GetNavigationContext(true));
         }
 
         private bool IsAnimated(IDataContext context, IViewModel viewModel)

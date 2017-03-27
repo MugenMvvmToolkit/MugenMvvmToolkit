@@ -157,17 +157,6 @@ namespace MugenMvvmToolkit.iOS.Views
             return false;
         }
 
-        [Export("navigationBar:didPopItem:")]
-        protected virtual void DidPopItem(UINavigationBar navigationBar, UINavigationItem item)
-        {
-            RaiseDidPopViewController();
-        }
-
-        protected void RaiseDidPopViewController()
-        {
-            DidPopViewController?.Invoke(this, EventArgs.Empty);
-        }
-
         #endregion
 
         #region Implementation of IMvvmNavigationController
@@ -175,8 +164,6 @@ namespace MugenMvvmToolkit.iOS.Views
         public virtual IMvvmViewControllerMediator Mediator => this.GetOrCreateMediator(ref _mediator);
 
         public event EventHandler<IMvvmNavigationController, CancelEventArgs> ShouldPopViewController;
-
-        public event EventHandler<IMvvmNavigationController, EventArgs> DidPopViewController;
 
         #endregion
     }

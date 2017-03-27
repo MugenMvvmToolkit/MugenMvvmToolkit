@@ -146,7 +146,7 @@ namespace MugenMvvmToolkit.iOS
                 ParentObserver.GetOrAdd(view).Parent = textField;
         }
 
-        public static void SetNavigationParameter([NotNull] this UIViewController controller, object value)
+        public static void SetNavigationParameter([NotNull] this UIViewController controller, string value)
         {
             Should.NotBeNull(controller, nameof(controller));
             if (value == null)
@@ -155,7 +155,7 @@ namespace MugenMvvmToolkit.iOS
                 ServiceProvider.AttachedValueProvider.SetValue(controller, NavParamKey, value);
         }
 
-        public static object GetNavigationParameter([CanBeNull] this UIViewController controller)
+        public static string GetNavigationParameter([CanBeNull] this UIViewController controller)
         {
             if (controller == null)
                 return null;
