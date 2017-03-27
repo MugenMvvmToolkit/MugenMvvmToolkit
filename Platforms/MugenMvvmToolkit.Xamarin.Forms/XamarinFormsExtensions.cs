@@ -73,7 +73,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms
             return baseOnBackButtonPressed != null && baseOnBackButtonPressed();
         }
 
-        public static void SetNavigationParameter([NotNull] this Page page, object value)
+        public static void SetNavigationParameter([NotNull] this Page page, string value)
         {
             Should.NotBeNull(page, nameof(page));
             if (value == null)
@@ -82,11 +82,11 @@ namespace MugenMvvmToolkit.Xamarin.Forms
                 ServiceProvider.AttachedValueProvider.SetValue(page, NavParamKey, value);
         }
 
-        public static object GetNavigationParameter([CanBeNull] this Page controller)
+        public static string GetNavigationParameter([CanBeNull] this Page controller)
         {
             if (controller == null)
                 return null;
-            return ServiceProvider.AttachedValueProvider.GetValue<object>(controller, NavParamKey, false);
+            return ServiceProvider.AttachedValueProvider.GetValue<string>(controller, NavParamKey, false);
         }
 
         public static void ClearBindingsRecursively([CanBeNull] this BindableObject item, bool clearDataContext, bool clearAttachedValues)

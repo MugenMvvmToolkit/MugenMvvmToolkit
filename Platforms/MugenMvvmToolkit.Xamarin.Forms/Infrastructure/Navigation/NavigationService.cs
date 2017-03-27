@@ -92,7 +92,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
                 if (context != null)
                     currentPage.SetNavigationParameter(NavigationProvider.GenerateNavigationParameter(context.GetType()));
                 _threadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, currentPage,
-                    (service, p) => service.RaiseNavigated(p, p.GetNavigationParameter() as string, NavigationMode.New, p.GetNavigationContext(true)),
+                    (service, p) => service.RaiseNavigated(p, p.GetNavigationParameter(), NavigationMode.New, p.GetNavigationContext(true)),
                     OperationPriority.Low);
             }
         }
@@ -128,10 +128,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             }
 
             if (eventArgs.NavigationMode == NavigationMode.Back)
-            {
-                SetBackNavigationContext(args.Context);
                 return GoBack(args.Context);
-            }
             // ReSharper disable once AssignNullToNotNullAttribute
             return Navigate(eventArgs.Mapping, eventArgs.Parameter, args.Context);
         }
@@ -215,10 +212,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
                 return false;
 
             if (CurrentContent != null && CurrentContent.DataContext() == viewModel)
-            {
-                SetBackNavigationContext(dataContext);
                 return GoBack(dataContext);
-            }
 
             var navigation = _rootPage.Navigation;
             if (navigation == null || !CanClose(dataContext))
@@ -271,12 +265,12 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
         private void OnPopped(object sender, NavigationEventArgs args)
         {
             var page = CurrentContent as Page;
-            RaiseNavigated(CurrentContent, page.GetNavigationParameter() as string, NavigationMode.Back, page.GetNavigationContext(true));
+            RaiseNavigated(CurrentContent, page.GetNavigationParameter(), NavigationMode.Back, page.GetNavigationContext(true));
         }
 
         private void OnPushed(object sender, NavigationEventArgs args)
         {
-            RaiseNavigated(args.Page, args.Page.GetNavigationParameter() as string, args.Page.GetBringToFront() ? NavigationMode.Refresh : NavigationMode.New, args.Page.GetNavigationContext(true));
+            RaiseNavigated(args.Page, args.Page.GetNavigationParameter(), args.Page.GetBringToFront() ? NavigationMode.Refresh : NavigationMode.New, args.Page.GetNavigationContext(true));
         }
 
         private bool GoBack(IDataContext context)
@@ -294,7 +288,10 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
                     RaiseNavigated(null, null, NavigationMode.Back, context);
                 }
                 else
+                {
+                    SetBackNavigationContext(context);
                     _rootPage.PopAsync(IsAnimated(context, CurrentContent?.DataContext() as IViewModel));
+                }
             }
             return true;
         }
@@ -349,10 +346,10 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
         {
             if (context == null)
                 return;
-            var navigation = _rootPage?.Navigation;
-            if (navigation?.NavigationStack.Count > 1)
+            var navigationStack = _rootPage?.Navigation?.NavigationStack;
+            if (navigationStack != null && navigationStack.Count > 1)
             {
-                var page = navigation.NavigationStack[navigation.NavigationStack.Count - 2];
+                var page = navigationStack[navigationStack.Count - 2];
                 page.SetNavigationContext(context);
             }
         }
