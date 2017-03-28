@@ -165,7 +165,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
                     page = (Page)ServiceProvider.ViewManager.GetOrCreateView(viewModel, null, dataContext);
             }
             page.SetNavigationParameter(parameter);
-            page.SetNavigationContext(dataContext);
+            page.SetNavigationContext(dataContext, false);
             page.SetBringToFront(bringToFront);
             ClearNavigationStackIfNeed(dataContext, page, _rootPage.PushAsync(page, animated));
             return true;
@@ -252,12 +252,12 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
 
         private void OnPopped(object sender, NavigationEventArgs args)
         {
-            RaiseNavigated(CurrentContent, CurrentContent.GetNavigationParameter(), NavigationMode.Back, CurrentContent.GetNavigationContext(true));
+            RaiseNavigated(CurrentContent, CurrentContent.GetNavigationParameter(), NavigationMode.Back, CurrentContent.GetNavigationContext(true, true));
         }
 
         private void OnPushed(object sender, NavigationEventArgs args)
         {
-            RaiseNavigated(args.Page, args.Page.GetNavigationParameter(), args.Page.GetBringToFront() ? NavigationMode.Refresh : NavigationMode.New, args.Page.GetNavigationContext(true));
+            RaiseNavigated(args.Page, args.Page.GetNavigationParameter(), args.Page.GetBringToFront() ? NavigationMode.Refresh : NavigationMode.New, args.Page.GetNavigationContext(false, true));
         }
 
         private bool GoBack(IDataContext context)
@@ -337,7 +337,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             if (navigationStack != null && navigationStack.Count > 1)
             {
                 var page = navigationStack[navigationStack.Count - 2];
-                page.SetNavigationContext(context);
+                page.SetNavigationContext(context, true);
             }
         }
 

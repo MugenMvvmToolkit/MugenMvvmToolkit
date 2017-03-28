@@ -36,6 +36,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms
 
         private const string NavParamKey = nameof(NavParamKey);
         private const string NavContextKey = nameof(NavContextKey);
+        private const string NavContextBackKey = NavContextKey + "Back";
         private const string NavBringToFrontKey = nameof(NavBringToFrontKey);
         private static readonly Dictionary<Type, IBindingMemberInfo> TypeToContentMember;
 
@@ -129,12 +130,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms
             action();
         }
 
-        internal static void SetNavigationContext([NotNull] this Page page, IDataContext value)
-        {
-            Should.NotBeNull(page, nameof(page));
-            ServiceProvider.AttachedValueProvider.SetValue(page, NavContextKey, value);
-        }
-
         internal static void SetBringToFront([NotNull] this Page page, bool value)
         {
             Should.NotBeNull(page, nameof(page));
@@ -149,13 +144,20 @@ namespace MugenMvvmToolkit.Xamarin.Forms
             return value;
         }
 
-        internal static IDataContext GetNavigationContext(this Page page, bool remove)
+        internal static void SetNavigationContext([NotNull] this Page page, IDataContext value, bool isBack)
+        {
+            Should.NotBeNull(page, nameof(page));
+            ServiceProvider.AttachedValueProvider.SetValue(page, isBack ? NavContextBackKey : NavContextKey, value);
+        }
+
+        internal static IDataContext GetNavigationContext(this Page page, bool isBack, bool remove)
         {
             if (page == null)
                 return null;
-            var dataContext = ServiceProvider.AttachedValueProvider.GetValue<IDataContext>(page, NavContextKey, false);
+            string key = isBack ? NavContextBackKey : NavContextKey;
+            var dataContext = ServiceProvider.AttachedValueProvider.GetValue<IDataContext>(page, key, false);
             if (dataContext != null && remove)
-                ServiceProvider.AttachedValueProvider.Clear(page, NavContextKey);
+                ServiceProvider.AttachedValueProvider.Clear(page, key);
             return dataContext;
         }
 

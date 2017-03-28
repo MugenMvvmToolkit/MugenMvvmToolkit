@@ -88,12 +88,14 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
 #if WINDOWS_UWP
         private void OnLeavingBackground(object sender, LeavingBackgroundEventArgs leavingBackgroundEventArgs)
         {
-            ServiceProvider.EventAggregator.Publish(this, new ForegroundNavigationMessage());
+            if (ServiceProvider.IsInitialized)
+                ServiceProvider.EventAggregator.Publish(this, new ForegroundNavigationMessage());
         }
 
         private void OnEnteredBackground(object sender, EnteredBackgroundEventArgs enteredBackgroundEventArgs)
         {
-            ServiceProvider.EventAggregator.Publish(this, new BackgroundNavigationMessage());
+            if (ServiceProvider.IsInitialized)
+                ServiceProvider.EventAggregator.Publish(this, new BackgroundNavigationMessage());
         }
 #endif
         #endregion
