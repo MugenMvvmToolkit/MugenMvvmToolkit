@@ -110,6 +110,8 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         public Task<bool> ShowAsync(IDataContext context)
         {
             ViewModel.NotBeDisposed();
+            if (context == null)
+                context = DataContext.Empty;
             if (IsOpen)
             {
                 if (ActivateView(View, context))
@@ -131,8 +133,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                             NavigationDispatcher.OnNavigationCanceled(CreateOpenContext(context, NavigationMode.New));
                             return;
                         }
-                        if (context == null)
-                            context = DataContext.Empty;
+
                         _isOpen = true;
                         ShowInternal(context, tcs);
                     }
@@ -157,7 +158,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 return closingTask;
 
             _closingTcs = new TaskCompletionSource<bool>();
-            var result = _closingTcs.Task;
+            closingTask = _closingTcs.Task;
             _closeParameter = context;
             OnClosing(context)
                 .TryExecuteSynchronously(task =>
@@ -179,7 +180,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                         NavigationDispatcher.OnNavigationFailed(CreateCloseContext(context), e);
                     }
                 });
-            return result;
+            return closingTask;
         }
 
         public void UpdateView(object view, bool isOpen, IDataContext context)
