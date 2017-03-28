@@ -76,12 +76,12 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         public IDictionary<NavigationType, IList<IViewModel>> GetOpenedViewModels(IDataContext context = null)
         {
-            throw new NotImplementedException();
+            return new Dictionary<NavigationType, IList<IViewModel>>();
         }
 
         public IList<IViewModel> GetOpenedViewModels(NavigationType type, IDataContext context = null)
         {
-            throw new NotImplementedException();
+            return Empty.Array<IViewModel>();
         }
 
         #endregion

@@ -46,7 +46,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
     {
         #region Fields
 
-        private static readonly DataConstant<object> IsRoot = DataConstant.Create<object>(typeof(TouchBootstrapperBase), nameof(IsRoot), false);
+        protected static readonly DataConstant<object> IsRootConstant = DataConstant.Create<object>(typeof(TouchBootstrapperBase), nameof(IsRootConstant), false);
         private readonly UIWindow _window;
         private readonly PlatformInfo _platform;
         private bool _isStarted;
@@ -112,15 +112,10 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
                 return null;
 
             _hasRootPage = true;
-            viewModel.Settings.State.AddOrUpdate(IsRoot, null);
+            viewModel.Settings.State.AddOrUpdate(IsRootConstant, null);
             var operation = new AsyncOperation<object>();
             ServiceProvider.Get<IOperationCallbackManager>().Register(OperationType.PageNavigation, viewModel, operation.ToOperationCallback(), context);
-            ServiceProvider.ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, viewModel, context,
-                (@this, vm, ctx) =>
-                {
-                    @this.Window.RootViewController = (UIViewController)ServiceProvider.ViewManager.GetOrCreateView(vm, null, ctx);
-                    ServiceProvider.Get<INavigationDispatcher>().OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.New, null, vm, @this, ctx));
-                });
+            ServiceProvider.ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, viewModel, context, (@this, vm, ctx) => @this.InitializeRootPage(vm, ctx));
             return operation;
         }
 
@@ -129,7 +124,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
             var viewModel = context.GetData(NavigationConstants.ViewModel);
             if (viewModel == null)
                 return null;
-            if (viewModel.Settings.State.Contains(IsRoot))
+            if (viewModel.Settings.State.Contains(IsRootConstant))
             {
                 var navigationContext = new NavigationContext(NavigationType.Page, NavigationMode.Remove, viewModel, null, this, context);
                 return ServiceProvider
@@ -159,7 +154,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
             var viewModel = context.GetData(NavigationConstants.ViewModel);
             if (viewModel == null)
                 return false;
-            if (viewModel.Settings.State.Contains(IsRoot))
+            if (viewModel.Settings.State.Contains(IsRootConstant))
             {
                 _hasRootPage = true;
                 _isStarted = true;
@@ -173,7 +168,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
         {
             _skipForeground = false;
             var viewModel = _window.RootViewController?.DataContext() as IViewModel;
-            if (viewModel != null && viewModel.Settings.State.Contains(IsRoot))
+            if (viewModel != null && viewModel.Settings.State.Contains(IsRootConstant))
                 ServiceProvider.Get<INavigationDispatcher>().OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Background, viewModel, null, this, message.Context));
         }
 
@@ -185,7 +180,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
                 return;
             }
             var viewModel = _window.RootViewController?.DataContext() as IViewModel;
-            if (viewModel != null && viewModel.Settings.State.Contains(IsRoot))
+            if (viewModel != null && viewModel.Settings.State.Contains(IsRootConstant))
                 ServiceProvider.Get<INavigationDispatcher>().OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Foreground, null, viewModel, this, message.Context));
         }
 
@@ -208,6 +203,12 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
             Initialize();
             _isStarted = true;
             ServiceProvider.Application.Start();
+        }
+
+        protected virtual void InitializeRootPage(IViewModel viewModel, IDataContext context)
+        {
+            Window.RootViewController = (UIViewController)ServiceProvider.ViewManager.GetOrCreateView(viewModel, null, context);
+            ServiceProvider.Get<INavigationDispatcher>().OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.New, null, viewModel, this, context));
         }
 
         [CanBeNull]
