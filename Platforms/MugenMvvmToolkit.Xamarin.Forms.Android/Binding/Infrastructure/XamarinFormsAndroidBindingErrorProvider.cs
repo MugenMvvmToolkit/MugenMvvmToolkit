@@ -62,7 +62,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Android.Binding.Infrastructure
             if (textView != null && textView.Handle != IntPtr.Zero)
             {
                 object error = errors.FirstOrDefault();
-                textView.Error = error == null ? null : error.ToString();
+                textView.Error = error?.ToString();
             }
         }
 
