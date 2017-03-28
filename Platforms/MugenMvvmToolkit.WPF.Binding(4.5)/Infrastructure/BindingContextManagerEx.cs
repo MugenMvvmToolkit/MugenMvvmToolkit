@@ -90,12 +90,8 @@ namespace MugenMvvmToolkit.UWP.Binding.Infrastructure
                 set
                 {
                     var target = (FrameworkElement)Source;
-                    if (target == null)
-                        return;
-                    if (ReferenceEquals(value, BindingConstants.UnsetValue))
-                        target.DataContext = DependencyProperty.UnsetValue;
-                    else
-                        target.DataContext = value;
+                    if (target != null)
+                        target.DataContext = ReferenceEquals(value, BindingConstants.UnsetValue) ? DependencyProperty.UnsetValue : value;
                 }
             }
 
