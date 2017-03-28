@@ -20,10 +20,8 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
-using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
@@ -31,6 +29,7 @@ using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.Xamarin.Forms.Interfaces.Navigation;
 using MugenMvvmToolkit.Xamarin.Forms.Models.EventArg;
 using Xamarin.Forms;
+using Xamarin.Forms.Internals;
 using NavigationEventArgs = Xamarin.Forms.NavigationEventArgs;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
@@ -39,17 +38,15 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
     {
         #region Fields
 
-        private readonly IThreadManager _threadManager;
         private NavigationPage _rootPage;
 
         #endregion
 
         #region Constructors
 
-        public NavigationService([NotNull] IThreadManager threadManager)
+        [Preserve(Conditional = true)]
+        public NavigationService()
         {
-            Should.NotBeNull(threadManager, nameof(threadManager));
-            _threadManager = threadManager;
             XamarinFormsExtensions.BackButtonPressed += ReflectionExtensions
                 .CreateWeakDelegate<NavigationService, CancelEventArgs, EventHandler<Page, CancelEventArgs>>(this,
                     (service, o, arg3) => service.OnBackButtonPressed((Page)o, arg3), (o, handler) => XamarinFormsExtensions.BackButtonPressed -= handler,
@@ -63,11 +60,13 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
 
         public bool UseAnimations { get; set; }
 
+        private Page CurrentContent => _rootPage?.CurrentPage;
+
         #endregion
 
         #region Implementation of INavigationService
 
-        public object CurrentContent => _rootPage?.CurrentPage;
+        object INavigationService.CurrentContent => CurrentContent;
 
         public void UpdateRootPage(NavigationPage page)
         {
@@ -84,17 +83,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
                 page.PoppedToRoot += OnPopped;
             }
             _rootPage = page;
-
-            var currentPage = CurrentContent as Page ?? page;
-            if (currentPage != null)
-            {
-                var context = currentPage.BindingContext;
-                if (context != null)
-                    currentPage.SetNavigationParameter(NavigationProvider.GenerateNavigationParameter(context.GetType()));
-                _threadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, currentPage,
-                    (service, p) => service.RaiseNavigated(p, p.GetNavigationParameter(), NavigationMode.New, p.GetNavigationContext(true)),
-                    OperationPriority.Low);
-            }
         }
 
         public string GetParameterFromArgs(EventArgs args)
@@ -118,7 +106,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             //Back button pressed.
             if (eventArgs.IsBackButtonNavigation)
             {
-                var sendBackButton = XamarinFormsExtensions.SendBackButtonPressed?.Invoke(CurrentContent as Page);
+                var sendBackButton = XamarinFormsExtensions.SendBackButtonPressed?.Invoke(CurrentContent);
                 if (sendBackButton != null)
                 {
                     sendBackButton();
@@ -264,8 +252,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
 
         private void OnPopped(object sender, NavigationEventArgs args)
         {
-            var page = CurrentContent as Page;
-            RaiseNavigated(CurrentContent, page.GetNavigationParameter(), NavigationMode.Back, page.GetNavigationContext(true));
+            RaiseNavigated(CurrentContent, CurrentContent.GetNavigationParameter(), NavigationMode.Back, CurrentContent.GetNavigationContext(true));
         }
 
         private void OnPushed(object sender, NavigationEventArgs args)
