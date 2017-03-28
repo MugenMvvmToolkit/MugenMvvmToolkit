@@ -384,12 +384,13 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             if (viewModelFrom == null)
                 return null;
 
-            GetViewModelTypeFromParameter(NavigationService.GetParameterFromArgs(args));
+            bool doNotTrackViewModelTo = false;
             if (viewModelTo == null && args.NavigationMode == NavigationMode.Back)
-                viewModelTo = viewModelFrom.GetParentViewModel();
+                viewModelTo = NavigationDispatcher.GetPreviousOpenedViewModelOrParent(viewModelFrom, NavigationType.Page, out doNotTrackViewModelTo);
             return new NavigationContext(NavigationType.Page, args.NavigationMode, viewModelFrom, viewModelTo, this, args.Context)
             {
-                {NavigationProviderConstants.NavigatingCancelArgs, args}
+                {NavigationProviderConstants.NavigatingCancelArgs, args},
+                {NavigationConstants.DoNotTrackViewModelTo, doNotTrackViewModelTo}
             };
         }
 
