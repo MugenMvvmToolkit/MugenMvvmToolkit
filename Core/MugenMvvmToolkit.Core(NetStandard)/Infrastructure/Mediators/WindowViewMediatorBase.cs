@@ -18,7 +18,6 @@
 
 using System;
 using System.ComponentModel;
-using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
@@ -29,7 +28,6 @@ using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.Messages;
-using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Infrastructure.Mediators
 {
@@ -122,7 +120,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 return Empty.FalseTask;
             }
             var tcs = new TaskCompletionSource<bool>();
-            RaiseNavigating(context, NavigationMode.New)
+            OnNavigatingTo(context)
                 .TryExecuteSynchronously(task =>
                 {
                     try
@@ -256,11 +254,37 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
         {
         }
 
-        protected virtual IViewModel GetOpenedViewModelFrom(out bool doNotTrackNavigation)
+        protected virtual INavigationContext CreateCloseContext(IDataContext context)
         {
-            var model = NavigationDispatcher.GetOpenedViewModels(NavigationType.Window).LastOrDefault(vm => !ReferenceEquals(vm, ViewModel));
-            doNotTrackNavigation = model == null;
-            return model ?? ViewModel.GetParentViewModel();
+            bool doNotTrackNavigation;
+            var viewModelTo = NavigationDispatcher.GetPreviousOpenedViewModelOrParent(ViewModel, NavigationType.Window, out doNotTrackNavigation);
+            return new NavigationContext(NavigationType.Window, NavigationMode.Back, ViewModel, viewModelTo, this, context)
+            {
+                {NavigationConstants.DoNotTrackViewModelTo, doNotTrackNavigation}
+            };
+        }
+
+        protected virtual NavigationContext CreateOpenContext(IDataContext context, NavigationMode mode)
+        {
+            bool doNotTrackNavigation;
+            var viewModelFrom = NavigationDispatcher.GetPreviousOpenedViewModelOrParent(ViewModel, NavigationType.Window, out doNotTrackNavigation);
+            return new NavigationContext(NavigationType.Window, mode, viewModelFrom, ViewModel, this, context)
+            {
+                {NavigationConstants.DoNotTrackViewModelFrom, doNotTrackNavigation}
+            };
+        }
+
+        protected virtual Task<bool> OnNavigatingTo(IDataContext context)
+        {
+            bool doNotTrackNavigation;
+            var viewModelFrom = NavigationDispatcher.GetPreviousOpenedViewModelOrParent(ViewModel, NavigationType.Window, out doNotTrackNavigation);
+            if (viewModelFrom == null)
+                return Empty.TrueTask;
+            var ctx = new NavigationContext(NavigationType.Window, NavigationMode.New, viewModelFrom, ViewModel, this, context)
+            {
+                {NavigationConstants.DoNotTrackViewModelFrom, doNotTrackNavigation}
+            };
+            return NavigationDispatcher.OnNavigatingAsync(ctx);
         }
 
         protected void OnViewClosing(object sender, CancelEventArgs e)
@@ -311,7 +335,15 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                         }, OperationPriority.Low);
                     ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, isDialog, context, (@base, b, arg3) =>
                     {
-                        @base.ShowView(@base.View, b, arg3);
+                        try
+                        {
+                            @base.ShowView(@base.View, b, arg3);
+                        }
+                        catch (Exception e)
+                        {
+                            @base.NavigationDispatcher.OnNavigationFailed(@base.CreateOpenContext(arg3, NavigationMode.New), e);
+                            throw;
+                        }
                     }, OperationPriority.High);
                 }, ViewModel.DisposeCancellationToken);
         }
@@ -363,39 +395,6 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
                 @base.ViewManager.CleanupViewAsync(@base.ViewModel, ctx);
             });
             View = null;
-        }
-
-        private INavigationContext CreateCloseContext(IDataContext context)
-        {
-            bool doNotTrackNavigation;
-            var viewModelTo = GetOpenedViewModelFrom(out doNotTrackNavigation);
-            return new NavigationContext(NavigationType.Window, NavigationMode.Back, ViewModel, viewModelTo, this, context)
-            {
-                {NavigationConstants.DoNotTrackViewModelTo, doNotTrackNavigation}
-            };
-        }
-
-        private NavigationContext CreateOpenContext(IDataContext context, NavigationMode mode)
-        {
-            bool doNotTrackNavigation;
-            var viewModelFrom = GetOpenedViewModelFrom(out doNotTrackNavigation);
-            return new NavigationContext(NavigationType.Window, mode, viewModelFrom, ViewModel, this, context)
-            {
-                {NavigationConstants.DoNotTrackViewModelFrom, doNotTrackNavigation}
-            };
-        }
-
-        private Task<bool> RaiseNavigating(IDataContext context, NavigationMode mode)
-        {
-            bool doNotTrackNavigation;
-            var viewModelFrom = GetOpenedViewModelFrom(out doNotTrackNavigation);
-            if (viewModelFrom == null)
-                return Empty.TrueTask;
-            var ctx = new NavigationContext(NavigationType.Window, mode, viewModelFrom, ViewModel, this, context)
-            {
-                {NavigationConstants.DoNotTrackViewModelFrom, doNotTrackNavigation}
-            };
-            return NavigationDispatcher.OnNavigatingAsync(ctx);
         }
 
         #endregion

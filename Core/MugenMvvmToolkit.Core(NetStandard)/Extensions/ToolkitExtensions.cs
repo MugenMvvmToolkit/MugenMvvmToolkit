@@ -1016,6 +1016,24 @@ namespace MugenMvvmToolkit
             return navigationDispatcher.GetOpenedViewModels(navigationType, context).LastOrDefault();
         }
 
+        public static IViewModel GetPreviousOpenedViewModelOrParent([NotNull] this INavigationDispatcher navigationDispatcher, [NotNull]IViewModel viewModel, [NotNull]NavigationType navigationType, out bool isParent)
+        {
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            Should.NotBeNull(navigationType, nameof(navigationType));
+            var openedViewModels = navigationDispatcher.GetOpenedViewModels(navigationType);
+            for (var i = openedViewModels.Count - 1; i >= 0; i--)
+            {
+                if (!ReferenceEquals(openedViewModels[i], viewModel))
+                {
+                    isParent = false;
+                    return viewModel;
+                }
+            }
+            isParent = true;
+            return viewModel.GetParentViewModel();
+        }
+
         public static object GetOrCreateView([NotNull]this IViewManager viewManager, [CanBeNull] IViewModel viewModel, bool? alwaysCreateNewView = null, IDataContext context = null)
         {
             if (viewModel == null)
