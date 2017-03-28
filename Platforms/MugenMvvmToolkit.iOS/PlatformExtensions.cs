@@ -45,6 +45,7 @@ namespace MugenMvvmToolkit.iOS
 
         private const string NavParamKey = "@~`NavParam";
         private const string NavContextKey = "@~`NavContext";
+        private const string NavContextBackKey = NavContextKey + "Back";
         private const string NoStateKey = "@$Nst";
 
         private static readonly Dictionary<Type, int> TypeToCounters;
@@ -402,19 +403,20 @@ namespace MugenMvvmToolkit.iOS
             cell.SetBindingMemberValue(AttachedMembers.UITableViewCell.EditingStyle, editingStyle);
         }
 
-        internal static void SetNavigationContext([NotNull] this UIViewController controller, IDataContext value)
+        internal static void SetNavigationContext([NotNull] this UIViewController controller, IDataContext value, bool isBack)
         {
             Should.NotBeNull(controller, nameof(controller));
-            ServiceProvider.AttachedValueProvider.SetValue(controller, NavContextKey, value);
+            ServiceProvider.AttachedValueProvider.SetValue(controller, isBack ? NavContextBackKey : NavContextKey, value);
         }
 
-        internal static IDataContext GetNavigationContext([CanBeNull] this UIViewController controller, bool remove)
+        internal static IDataContext GetNavigationContext([CanBeNull] this UIViewController controller, bool isBack, bool remove)
         {
             if (controller == null)
                 return null;
-            var dataContext = ServiceProvider.AttachedValueProvider.GetValue<IDataContext>(controller, NavContextKey, false);
+            string key = isBack ? NavContextBackKey : NavContextKey;
+            var dataContext = ServiceProvider.AttachedValueProvider.GetValue<IDataContext>(controller, key, false);
             if (dataContext != null && remove)
-                ServiceProvider.AttachedValueProvider.Clear(controller, NavContextKey);
+                ServiceProvider.AttachedValueProvider.Clear(controller, key);
             return dataContext;
         }
 
