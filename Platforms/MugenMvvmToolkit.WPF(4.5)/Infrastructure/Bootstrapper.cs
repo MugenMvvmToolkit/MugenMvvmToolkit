@@ -33,7 +33,6 @@ using Bootstrapper = MugenMvvmToolkit.WinForms.Infrastructure.WinFormsBootstrapp
 
 namespace MugenMvvmToolkit.WinForms.Infrastructure
 #elif WINDOWS_UWP
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Bootstrapper = MugenMvvmToolkit.UWP.Infrastructure.UwpBootstrapperBase;
 
@@ -44,7 +43,6 @@ using Bootstrapper = MugenMvvmToolkit.iOS.Infrastructure.TouchBootstrapperBase;
 
 namespace MugenMvvmToolkit.iOS.Infrastructure
 #elif XAMARIN_FORMS
-using Xamarin.Forms;
 using Bootstrapper = MugenMvvmToolkit.Xamarin.Forms.Infrastructure.XamarinFormsBootstrapperBase;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
@@ -93,7 +91,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             : base(true, platform)
 #elif WINDOWS_UWP
         public Bootstrapper([NotNull] Frame rootFrame, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, PlatformInfo platform = null)
-            : base(rootFrame, assemblies != null, platform)
+            : base(rootFrame, platform)
 #elif TOUCH
         public Bootstrapper([NotNull] UIWindow window, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, PlatformInfo platform = null)
             : base(window, platform)
@@ -111,42 +109,11 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         #region Overrides of BootstrapperBase
 
-        protected override IList<Assembly> GetAssemblies()
+        protected override void UpdateAssemblies(HashSet<Assembly> assemblies)
         {
-            var assemblies = ToHashSet(_assemblies ?? base.GetAssemblies());
-#if WINDOWS_UWP || XAMARIN_FORMS
-            assemblies.Add(GetType().GetTypeInfo().Assembly);
-            assemblies.Add(typeof(Bootstrapper).GetTypeInfo().Assembly);
-            assemblies.Add(typeof(ApplicationSettings).GetTypeInfo().Assembly);
-            assemblies.Add(typeof(T).GetTypeInfo().Assembly);
-#else
-            assemblies.Add(GetType().Assembly);
-            assemblies.Add(typeof(Bootstrapper).Assembly);
-            assemblies.Add(typeof(ApplicationSettings).Assembly);
-            assemblies.Add(typeof(T).Assembly);
-#endif
-#if !WINFORMS && !TOUCH
-            TryLoadAssembly(BindingAssemblyName, assemblies);
-#endif
-            try
-            {
-#if !WINFORMS && !TOUCH
-                var application = Application.Current;
-                if (application != null)
-                {
-#if WINDOWS_UWP || XAMARIN_FORMS
-                    assemblies.Add(application.GetType().GetTypeInfo().Assembly);
-#else
-                    assemblies.Add(application.GetType().Assembly);
-#endif
-                }
-#endif
-            }
-            catch
-            {
-                ;
-            }
-            return assemblies.ToArrayEx();
+            base.UpdateAssemblies(assemblies);
+            if (_assemblies != null)
+                assemblies.AddRange(_assemblies);
         }
 
         protected override IMvvmApplication CreateApplication()
@@ -173,12 +140,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             _application = app;
         }
 
-        private static HashSet<Assembly> ToHashSet(IEnumerable<Assembly> assemblies)
-        {
-            return assemblies as HashSet<Assembly> ?? new HashSet<Assembly>(assemblies ?? Empty.Array<Assembly>());
-        }
-
         #endregion
-
     }
 }

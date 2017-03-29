@@ -47,7 +47,8 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
             ApplicationSettings.NavigationPresenterCanShowViewModel = (model, context, arg3) => false;
         }
 
-        protected WinFormsBootstrapperBase(bool autoRunApplication = true, PlatformInfo platform = null)
+        protected WinFormsBootstrapperBase(bool autoRunApplication = true, PlatformInfo platform = null, bool isDesignMode = false)
+            : base(isDesignMode)
         {
             _platform = platform ?? PlatformExtensions.GetPlatformInfo();
             AutoRunApplication = autoRunApplication;
@@ -68,15 +69,10 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
 
         protected override PlatformInfo Platform => _platform;
 
-        protected override IList<Assembly> GetAssemblies()
+        protected override void UpdateAssemblies(HashSet<Assembly> assemblies)
         {
-            var assemblies = new HashSet<Assembly>();
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().Where(x => !x.IsDynamic))
-            {
-                if (assemblies.Add(assembly))
-                    assemblies.AddRange(assembly.GetReferencedAssemblies().Select(Assembly.Load));
-            }
-            return assemblies.ToArrayEx();
+            base.UpdateAssemblies(assemblies);
+            assemblies.AddRange(AppDomain.CurrentDomain.GetAssemblies().Where(x => !x.IsDynamic));
         }
 
         #endregion
@@ -108,11 +104,10 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
         public virtual void Start()
         {
             Initialize();
-            var app = ServiceProvider.Application;
-            if (!app.Context.Contains(NavigationConstants.IsDialog))
-                app.Context.Add(NavigationConstants.IsDialog, false);
-            app.IocContainer.Get<IViewModelPresenter>().DynamicPresenters.Add(this);
-            app.Start();
+            if (!MvvmApplication.Context.Contains(NavigationConstants.IsDialog))
+                MvvmApplication.Context.Add(NavigationConstants.IsDialog, false);
+            IocContainer.Get<IViewModelPresenter>().DynamicPresenters.Add(this);
+            MvvmApplication.Start();
         }
 
         #endregion

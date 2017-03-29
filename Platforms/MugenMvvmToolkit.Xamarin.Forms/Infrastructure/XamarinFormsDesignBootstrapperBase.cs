@@ -16,43 +16,49 @@
 
 #endregion
 
-using System.Collections.Generic;
-using System.Reflection;
-using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Xamarin.Forms.Interfaces.Navigation;
 using Xamarin.Forms;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 {
-    public abstract class XamarinFormsDesignBootstrapperBase : DesignBootstrapperBase
+    public abstract class XamarinFormsDesignBootstrapperBase : XamarinFormsBootstrapperBase
     {
         #region Constructors
 
-        static XamarinFormsDesignBootstrapperBase()
+        protected XamarinFormsDesignBootstrapperBase() : base(ServiceProvider.IsDesignMode, PlatformInfo.Unknown)
         {
-            XamarinFormsBootstrapperBase.SetDefaultPlatformValues();
         }
 
         #endregion
 
         #region Methods
 
-        protected sealed override IList<Assembly> GetAssemblies()
+        public sealed override void Start()
         {
-            var assemblies = new HashSet<Assembly> { GetType().GetAssembly(), typeof(XamarinFormsDesignBootstrapperBase).GetAssembly() };
-            var application = Application.Current;
-            if (application != null)
-                assemblies.Add(application.GetType().GetAssembly());
-            BootstrapperBase.TryLoadAssembly(XamarinFormsBootstrapperBase.BindingAssemblyName, assemblies);
-            assemblies.AddRange(GetAssembliesInternal());
-            return assemblies.ToArrayEx();
+            base.Start();
         }
 
-        protected abstract IList<Assembly> GetAssembliesInternal();
-
-        protected override PlatformInfo GetPlatformInfo()
+        protected sealed override void InitializeRootPage(IViewModel viewModel, IDataContext context)
         {
-            return new PlatformInfo(PlatformType.Unknown, "0.0");
+            base.InitializeRootPage(viewModel, context);
+        }
+
+        protected sealed override NavigationPage CreateNavigationPage(Page mainPage)
+        {
+            return base.CreateNavigationPage(mainPage);
+        }
+
+        protected sealed override INavigationService CreateNavigationService()
+        {
+            return base.CreateNavigationService();
+        }
+
+        protected sealed override void OnStart()
+        {
+            base.OnStart();
         }
 
         #endregion

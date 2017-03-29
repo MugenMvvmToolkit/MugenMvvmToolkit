@@ -16,48 +16,36 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Windows;
-using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Models;
+using System.Windows.Navigation;
+using MugenMvvmToolkit.WPF.Interfaces.Navigation;
 
 namespace MugenMvvmToolkit.WPF.Infrastructure
 {
-    public abstract class WpfDesignBootstrapperBase : DesignBootstrapperBase
+    public abstract class WpfDesignBootstrapperBase : WpfBootstrapperBase
     {
         #region Constructors
 
-        static WpfDesignBootstrapperBase()
+        protected WpfDesignBootstrapperBase() : base(ServiceProvider.IsDesignMode)
         {
-            WpfBootstrapperBase.SetDefaultPlatformValues();
         }
 
         #endregion
 
         #region Methods
 
-        protected sealed override IList<Assembly> GetAssemblies()
+        public sealed override void Start()
         {
-            var assemblies = new HashSet<Assembly> { GetType().GetAssembly(), typeof(WpfDesignBootstrapperBase).GetAssembly() };
-            var application = Application.Current;
-            if (application != null)
-                assemblies.Add(application.GetType().GetAssembly());
-            BootstrapperBase.TryLoadAssembly(WpfBootstrapperBase.BindingAssemblyName, assemblies);
-            assemblies.AddRange(GetAssembliesInternal());
-            return assemblies.ToArrayEx();
+            base.Start();
         }
 
-        protected virtual IList<Assembly> GetAssembliesInternal()
+        protected sealed override INavigationService CreateNavigationService(NavigationWindow window)
         {
-            return AppDomain.CurrentDomain.GetAssemblies().Where(assembly => !assembly.IsDynamic).ToList();
+            return base.CreateNavigationService(window);
         }
 
-        protected override PlatformInfo GetPlatformInfo()
+        protected sealed override NavigationWindow CreateNavigationWindow()
         {
-            return PlatformExtensions.GetPlatformInfo();
+            return base.CreateNavigationWindow();
         }
 
         #endregion

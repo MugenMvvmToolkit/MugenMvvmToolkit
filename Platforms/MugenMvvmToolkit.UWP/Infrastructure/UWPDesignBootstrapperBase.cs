@@ -16,43 +16,31 @@
 
 #endregion
 
-using System.Collections.Generic;
-using System.Reflection;
-using Windows.UI.Xaml;
-using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Models;
+using Windows.UI.Xaml.Controls;
+using MugenMvvmToolkit.UWP.Interfaces.Navigation;
 
 namespace MugenMvvmToolkit.UWP.Infrastructure
 {
-    public abstract class UwpDesignBootstrapperBase : DesignBootstrapperBase
+    public abstract class UwpDesignBootstrapperBase : UwpBootstrapperBase
     {
         #region Constructors
 
-        static UwpDesignBootstrapperBase()
+        protected UwpDesignBootstrapperBase() : base(ServiceProvider.IsDesignMode)
         {
-            UwpBootstrapperBase.SetDefaultPlatformValues();
         }
 
         #endregion
 
         #region Methods
 
-        protected sealed override IList<Assembly> GetAssemblies()
+        public sealed override void Start()
         {
-            var assemblies = new HashSet<Assembly> { GetType().GetAssembly(), typeof(UwpBootstrapperBase).GetAssembly() };
-            var application = Application.Current;
-            if (application != null)
-                assemblies.Add(application.GetType().GetAssembly());
-            BootstrapperBase.TryLoadAssembly(UwpBootstrapperBase.BindingAssemblyName, assemblies);
-            assemblies.AddRange(GetAssembliesInternal());
-            return assemblies.ToArrayEx();
+            base.Start();
         }
 
-        protected abstract IList<Assembly> GetAssembliesInternal();
-
-        protected override PlatformInfo GetPlatformInfo()
+        protected sealed override INavigationService CreateNavigationService(Frame frame)
         {
-            return PlatformExtensions.GetPlatformInfo();
+            return base.CreateNavigationService(frame);
         }
 
         #endregion

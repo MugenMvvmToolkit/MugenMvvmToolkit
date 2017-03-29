@@ -92,7 +92,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure
             Locker = new object();
         }
 
-        protected AndroidBootstrapperBase(PlatformInfo platform = null)
+        protected AndroidBootstrapperBase(bool isDesignMode = false, PlatformInfo platform = null)
+            : base(isDesignMode)
         {
             _platform = platform ?? PlatformExtensions.GetPlatformInfo();
         }
@@ -182,26 +183,27 @@ You must specify the type of application bootstrapper using BootstrapperAttribut
             base.InitializeInternal();
             //Activating navigation provider if need
             INavigationProvider provider;
-            ServiceProvider.TryGet(out provider);
+            IocContainer.TryGet(out provider);
         }
 
-        protected override IList<Assembly> GetAssemblies()
+        protected override void UpdateAssemblies(HashSet<Assembly> assemblies)
         {
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            base.UpdateAssemblies(assemblies);
+            var domainAssemblies = AppDomain.CurrentDomain.GetAssemblies().Where(x => !x.IsDynamic).ToList();
+            assemblies.AddRange(domainAssemblies);
             if (ViewAssemblies == null)
             {
                 //NOTE order the assemblies to keep the support libraries at the end of array.
-                ViewAssemblies = assemblies
+                ViewAssemblies = domainAssemblies
                     .OrderBy(assembly => assembly.FullName, this)
                     .ToArray();
             }
-            return assemblies;
         }
 
         public virtual void Start()
         {
             Initialize();
-            ServiceProvider.Application.Start();
+            MvvmApplication.Start();
         }
 
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext,

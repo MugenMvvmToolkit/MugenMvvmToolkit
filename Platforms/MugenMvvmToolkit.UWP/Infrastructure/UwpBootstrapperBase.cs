@@ -16,11 +16,8 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Reflection;
-using System.Threading.Tasks;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using JetBrains.Annotations;
@@ -40,11 +37,8 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
     {
         #region Fields
 
-        protected internal const string BindingAssemblyName = "MugenMvvmToolkit.UWP.Binding";
         private readonly Frame _rootFrame;
-        private readonly bool _overrideAssemblies;
         private readonly PlatformInfo _platform;
-        private IList<Assembly> _assemblies;
 
         #endregion
 
@@ -52,13 +46,19 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
 
         static UwpBootstrapperBase()
         {
-            SetDefaultPlatformValues();
+            ApplicationSettings.MultiViewModelPresenterCanShowViewModel = CanShowViewModelTabPresenter;
+            ApplicationSettings.NavigationPresenterCanShowViewModel = CanShowViewModelNavigationPresenter;
         }
 
-        protected UwpBootstrapperBase([CanBeNull] Frame rootFrame, bool overrideAssemblies, PlatformInfo platform = null)
+        protected UwpBootstrapperBase(bool isDesignMode, PlatformInfo platform = null) : base(isDesignMode)
+        {
+            _platform = platform ?? PlatformExtensions.GetPlatformInfo();
+        }
+
+        protected UwpBootstrapperBase([CanBeNull] Frame rootFrame, PlatformInfo platform = null)
+            : this(false, platform)
         {
             _rootFrame = rootFrame;
-            _overrideAssemblies = overrideAssemblies;
             _platform = platform ?? PlatformExtensions.GetPlatformInfo();
         }
 
@@ -79,19 +79,17 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
             base.InitializeInternal();
             var service = CreateNavigationService(_rootFrame);
             if (service != null)
-                ServiceProvider.Application.IocContainer.BindToConstant(service);
+                IocContainer.BindToConstant(service);
         }
 
-        protected override IList<Assembly> GetAssemblies()
+        protected override void UpdateAssemblies(HashSet<Assembly> assemblies)
         {
-            if (_assemblies != null)
-                return _assemblies;
-            var assemblies = new HashSet<Assembly> { GetType().GetAssembly(), typeof(UwpBootstrapperBase).GetAssembly() };
+            base.UpdateAssemblies(assemblies);
+            assemblies.Add(typeof(UwpBootstrapperBase).GetAssembly());
             var application = Application.Current;
             if (application != null)
                 assemblies.Add(application.GetType().GetAssembly());
-            TryLoadAssembly(BindingAssemblyName, assemblies);
-            return assemblies.ToArrayEx();
+            TryLoadAssemblyByType("AttachedMembers", "MugenMvvmToolkit.UWP.Binding", assemblies);
         }
 
         #endregion
@@ -101,14 +99,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
         public virtual void Start()
         {
             Initialize();
-            ServiceProvider.Application.Start();
-        }
-
-        public async Task InitializeAsync()
-        {
-            if (!_overrideAssemblies)
-                _assemblies = await GetAssembliesAsync();
-            Initialize();
+            MvvmApplication.Start();
         }
 
         [CanBeNull]
@@ -117,12 +108,6 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
             if (frame == null)
                 return null;
             return new FrameNavigationService(frame);
-        }
-
-        internal static void SetDefaultPlatformValues()
-        {
-            ApplicationSettings.MultiViewModelPresenterCanShowViewModel = CanShowViewModelTabPresenter;
-            ApplicationSettings.NavigationPresenterCanShowViewModel = CanShowViewModelNavigationPresenter;
         }
 
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)
@@ -141,29 +126,6 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
             var mappingProvider = container.Get<IViewMappingProvider>();
             var mappingItem = mappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);
             return mappingItem != null && typeof(Page).IsAssignableFrom(mappingItem.ViewType);
-        }
-
-        private static async Task<IList<Assembly>> GetAssembliesAsync()
-        {
-            var assemblies = new HashSet<Assembly>();
-            var files = await Windows.ApplicationModel.Package.Current.InstalledLocation.GetFilesAsync();
-            foreach (var file in files)
-            {
-                try
-                {
-                    if (file.FileType == ".dll" || file.FileType == ".exe")
-                    {
-                        var name = new AssemblyName { Name = Path.GetFileNameWithoutExtension(file.Name) };
-                        assemblies.Add(Assembly.Load(name));
-                    }
-
-                }
-                catch
-                {
-                    ;
-                }
-            }
-            return assemblies.ToArrayEx();
         }
 
         #endregion

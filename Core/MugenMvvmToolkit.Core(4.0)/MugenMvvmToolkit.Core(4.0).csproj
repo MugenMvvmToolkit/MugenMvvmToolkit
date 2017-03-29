@@ -161,9 +161,6 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\DelegateComparer.cs">
       <Link>Infrastructure\DelegateComparer.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Infrastructure\DesignBootstrapperBase.cs">
-      <Link>Infrastructure\DesignBootstrapperBase.cs</Link>
-    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\DisplayNameProvider.cs">
       <Link>Infrastructure\DisplayNameProvider.cs</Link>
     </Compile>

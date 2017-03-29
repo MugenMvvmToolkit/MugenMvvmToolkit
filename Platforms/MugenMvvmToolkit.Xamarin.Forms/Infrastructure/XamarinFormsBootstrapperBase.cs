@@ -16,7 +16,6 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -44,7 +43,7 @@ using Xamarin.Forms;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 {
-    public abstract class XamarinFormsBootstrapperBase : BootstrapperBase, IDynamicViewModelPresenter, IHandler<BackgroundNavigationMessage>, IHandler<ForegroundNavigationMessage>//todo dynamic presenter
+    public abstract class XamarinFormsBootstrapperBase : BootstrapperBase, IDynamicViewModelPresenter, IHandler<BackgroundNavigationMessage>, IHandler<ForegroundNavigationMessage>
     {
         #region Nested types
 
@@ -72,14 +71,23 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         static XamarinFormsBootstrapperBase()
         {
-            SetDefaultPlatformValues();
+            ApplicationSettings.MultiViewModelPresenterCanShowViewModel = CanShowViewModelTabPresenter;
+            ApplicationSettings.NavigationPresenterCanShowViewModel = CanShowViewModelNavigationPresenter;
+            ApplicationSettings.ViewManagerClearDataContext = true;
+            BindingServiceProvider.DataContextMemberAliases.Add(nameof(BindableObject.BindingContext));
+            BindingServiceProvider.BindingMemberPriorities[nameof(BindableObject.BindingContext)] = BindingServiceProvider.DataContextMemberPriority;
+        }
+
+        protected XamarinFormsBootstrapperBase(bool isDesignMode, PlatformInfo platform) : base(isDesignMode)
+        {
+            _platform = platform ?? PlatformInfo.Unknown;
         }
 
         protected XamarinFormsBootstrapperBase(IPlatformService platformService)
+            : this(false, platformService?.GetPlatformInfo())
         {
             Should.NotBeNull(platformService, nameof(platformService));
             _platformService = platformService;
-            _platform = platformService.GetPlatformInfo();
             WrapToNavigationPage = true;
         }
 
@@ -92,7 +100,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         public bool WrapToNavigationPage { get; set; }
 
-        protected internal static string BindingAssemblyName
+        private static string BindingAssemblyName
         {
             get
             {
@@ -108,9 +116,12 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         protected override PlatformInfo Platform => _platform;
 
-        protected override IList<Assembly> GetAssemblies()
+        protected override void UpdateAssemblies(HashSet<Assembly> assemblies)
         {
-            return _platformService.GetAssemblies().Where(x => !x.IsDynamic).ToList();
+            base.UpdateAssemblies(assemblies);
+            TryLoadAssemblyByType("PlatformBootstrapperService", BindingAssemblyName, assemblies);
+            if (!IsDesignMode)
+                assemblies.AddRange(_platformService.GetAssemblies().Where(x => !x.IsDynamic));
         }
 
         #endregion
@@ -125,13 +136,13 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             if (viewModel == null || _hasRootPage)
                 return null;
 
-            var mappingItem = ServiceProvider.Get<IViewMappingProvider>().FindMappingForViewModel(viewModel.GetType(), viewModel.GetViewName(context), false);
+            var mappingItem = IocContainer.Get<IViewMappingProvider>().FindMappingForViewModel(viewModel.GetType(), viewModel.GetViewName(context), false);
             if (mappingItem == null || !typeof(Page).IsAssignableFrom(mappingItem.ViewType))
                 return null;
 
             _hasRootPage = true;
             var operation = new AsyncOperation<object>();
-            ServiceProvider.Get<IOperationCallbackManager>().Register(OperationType.PageNavigation, viewModel, operation.ToOperationCallback(), context);
+            IocContainer.Get<IOperationCallbackManager>().Register(OperationType.PageNavigation, viewModel, operation.ToOperationCallback(), context);
             ServiceProvider.ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, viewModel, context, (@this, model, arg3) => @this.InitializeRootPage(model, arg3));
             return operation;
         }
@@ -143,7 +154,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
                 return null;
             if (viewModel.Settings.State.Contains(IsRootConstant))
             {
-                var navigationDispatcher = ServiceProvider.Get<INavigationDispatcher>();
+                var navigationDispatcher = IocContainer.Get<INavigationDispatcher>();
                 var navigationContext = new NavigationContext(NavigationType.Page, NavigationMode.Remove, viewModel, null, this, context);
                 return navigationDispatcher
                     .OnNavigatingAsync(navigationContext)
@@ -170,14 +181,14 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         {
             var viewModel = Application.Current.MainPage?.DataContext() as IViewModel;
             if (viewModel != null && viewModel.Settings.State.Contains(IsRootConstant))
-                ServiceProvider.Get<INavigationDispatcher>().OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Background, viewModel, null, this, message.Context));
+                IocContainer.Get<INavigationDispatcher>().OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Background, viewModel, null, this, message.Context));
         }
 
         void IHandler<ForegroundNavigationMessage>.Handle(object sender, ForegroundNavigationMessage message)
         {
             var viewModel = Application.Current.MainPage?.DataContext() as IViewModel;
             if (viewModel != null && viewModel.Settings.State.Contains(IsRootConstant))
-                ServiceProvider.Get<INavigationDispatcher>().OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Foreground, null, viewModel, this, message.Context));
+                IocContainer.Get<INavigationDispatcher>().OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Foreground, null, viewModel, this, message.Context));
         }
 
         #endregion
@@ -187,9 +198,12 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         protected override void InitializeInternal()
         {
             base.InitializeInternal();
-            _platformService.Initialize();
-            ServiceProvider.Get<IViewModelPresenter>().DynamicPresenters.Add(this);
-            XamarinFormsExtensions.BackButtonPressed += OnBackButtonPressed;
+            if (!IsDesignMode)
+            {
+                _platformService.Initialize();
+                IocContainer.Get<IViewModelPresenter>().DynamicPresenters.Add(this);
+                XamarinFormsExtensions.BackButtonPressed += OnBackButtonPressed;
+            }
         }
 
         public virtual void Start()
@@ -202,14 +216,13 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             Initialize();
             OnStart();
 
-            var app = ServiceProvider.Application;
-            var context = new DataContext(app.Context);
+            var context = new DataContext(MvvmApplication.Context);
             _hasRootPage = false;
 
-            var viewModelPresenter = app.IocContainer.Get<IViewModelPresenter>();
+            var viewModelPresenter = IocContainer.Get<IViewModelPresenter>();
             var presenter = viewModelPresenter as IRestorableViewModelPresenter;
             if (presenter == null || !presenter.TryRestore(context))
-                app.Start();
+                MvvmApplication.Start();
         }
 
         protected virtual void InitializeRootPage(IViewModel viewModel, IDataContext context)
@@ -223,17 +236,16 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             bool isRoot = ReferenceEquals(mainPage, navigationPage);
             if (navigationPage != null)
             {
-                var iocContainer = ServiceProvider.IocContainer;
                 INavigationService navigationService;
-                if (!iocContainer.TryGet(out navigationService))
+                if (!IocContainer.TryGet(out navigationService))
                 {
                     navigationService = CreateNavigationService();
-                    iocContainer.BindToConstant(navigationService);
+                    IocContainer.BindToConstant(navigationService);
                 }
 
                 //Activating navigation provider if need
                 INavigationProvider provider;
-                iocContainer.TryGet(out provider);
+                IocContainer.TryGet(out provider);
 
                 navigationService.UpdateRootPage(navigationPage);
                 mainPage = navigationPage;
@@ -247,7 +259,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
                     mode = NavigationMode.Refresh;
                 viewModel.Settings.State.AddOrUpdate(IsRootConstant, null);
             }
-            ServiceProvider.Get<INavigationDispatcher>().OnNavigated(new NavigationContext(NavigationType.Page, mode, null, viewModel, this, context));
+            IocContainer.Get<INavigationDispatcher>().OnNavigated(new NavigationContext(NavigationType.Page, mode, null, viewModel, this, context));
         }
 
         [CanBeNull]
@@ -264,7 +276,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         protected virtual void OnStart()
         {
-            var navigationDispatcher = ServiceProvider.Get<INavigationDispatcher>();
+            var navigationDispatcher = IocContainer.Get<INavigationDispatcher>();
             var openedViewModels = navigationDispatcher.GetOpenedViewModels(NavigationType.Page);
             foreach (var openedViewModel in openedViewModels)
             {
@@ -302,15 +314,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
                     navigationDispatcher.OnNavigated(context);
                 });
             }
-        }
-
-        internal static void SetDefaultPlatformValues()
-        {
-            ApplicationSettings.MultiViewModelPresenterCanShowViewModel = CanShowViewModelTabPresenter;
-            ApplicationSettings.NavigationPresenterCanShowViewModel = CanShowViewModelNavigationPresenter;
-            ApplicationSettings.ViewManagerClearDataContext = true;
-            BindingServiceProvider.DataContextMemberAliases.Add(nameof(BindableObject.BindingContext));
-            BindingServiceProvider.BindingMemberPriorities[nameof(BindableObject.BindingContext)] = BindingServiceProvider.DataContextMemberPriority;
         }
 
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext,

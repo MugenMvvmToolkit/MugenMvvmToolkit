@@ -68,7 +68,7 @@ namespace MugenMvvmToolkit.UWP
                 // Create a Frame to act as the navigation context and navigate to the first page
                 rootFrame = new Frame();
                 bootstrapper = CreateBootstrapper(rootFrame);
-                await bootstrapper.InitializeAsync();
+                bootstrapper.Initialize();
 
                 //Associate the frame with a SuspensionManager key                                
                 SuspensionManager.RegisterFrame(rootFrame, "AppFrame");
@@ -116,12 +116,14 @@ namespace MugenMvvmToolkit.UWP
 
         protected virtual void OnLeavingBackground(object sender, LeavingBackgroundEventArgs leavingBackgroundEventArgs)
         {
-            ServiceProvider.EventAggregator.Publish(this, new ForegroundNavigationMessage());
+            if (ServiceProvider.IsInitialized)
+                ServiceProvider.EventAggregator.Publish(this, new ForegroundNavigationMessage());
         }
 
         protected virtual void OnEnteredBackground(object sender, EnteredBackgroundEventArgs enteredBackgroundEventArgs)
         {
-            ServiceProvider.EventAggregator.Publish(this, new BackgroundNavigationMessage());
+            if (ServiceProvider.IsInitialized)
+                ServiceProvider.EventAggregator.Publish(this, new BackgroundNavigationMessage());
         }
 
         protected virtual async Task RestoreStateAsync(LaunchActivatedEventArgs args)

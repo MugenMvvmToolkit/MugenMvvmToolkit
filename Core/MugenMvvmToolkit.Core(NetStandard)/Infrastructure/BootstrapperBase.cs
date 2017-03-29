@@ -19,10 +19,13 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure
@@ -35,6 +38,7 @@ namespace MugenMvvmToolkit.Infrastructure
         private static int _state;
         private static int _initializationThreadId;
         private static readonly ManualResetEvent InitializedEvent;
+        private readonly Dictionary<string, IViewModel> _viewModelMapping;
 
         #endregion
 
@@ -43,6 +47,20 @@ namespace MugenMvvmToolkit.Infrastructure
         static BootstrapperBase()
         {
             InitializedEvent = new ManualResetEvent(false);
+        }
+
+        protected BootstrapperBase(bool isDesignMode)
+        {
+            IsDesignMode = isDesignMode;
+            if (isDesignMode)
+            {
+                _viewModelMapping = new Dictionary<string, IViewModel>();
+                var context = SynchronizationContext.Current;
+                if (context == null)
+                    Task.Factory.StartNew(StartFromDesign, this);
+                else
+                    context.Post(StartFromDesign, this);
+            }
         }
 
         #endregion
@@ -56,6 +74,12 @@ namespace MugenMvvmToolkit.Infrastructure
         public IDataContext InitializationContext { get; set; }
 
         protected abstract PlatformInfo Platform { get; }
+
+        protected IMvvmApplication MvvmApplication { get; set; }
+
+        protected IIocContainer IocContainer { get; set; }
+
+        protected bool IsDesignMode { get; }
 
         #endregion
 
@@ -80,41 +104,76 @@ namespace MugenMvvmToolkit.Infrastructure
             InitializedEvent.Set();
         }
 
-        protected virtual void InitializeInternal()
-        {
-            var application = CreateApplication();
-            var iocContainer = CreateIocContainer();
-            application.Initialize(Platform, iocContainer, GetAssemblies(), InitializationContext ?? DataContext.Empty);
-        }
-
         [NotNull]
         protected abstract IMvvmApplication CreateApplication();
 
         [NotNull]
         protected abstract IIocContainer CreateIocContainer();
 
-        [NotNull]
-        protected abstract IList<Assembly> GetAssemblies();
+        protected virtual void InitializeInternal()
+        {
+            MvvmApplication = CreateApplication();
+            IocContainer = CreateIocContainer();
+            MvvmApplication.Initialize(Platform, IocContainer, GetAssemblies(), InitializationContext ?? DataContext.Empty);
+        }
 
-        protected internal static Assembly TryLoadAssembly(string assemblyName, ICollection<Assembly> assemblies)
+        [NotNull]
+        protected virtual IList<Assembly> GetAssemblies()
+        {
+            var assemblies = new HashSet<Assembly>
+            {
+                GetType().GetAssembly(),
+                typeof(BootstrapperBase).GetAssembly()
+            };
+            TryLoadAssemblyByType("BindingServiceProvider", "MugenMvvmToolkit.Binding", assemblies);
+            if (MvvmApplication != null)
+            {
+                assemblies.Add(MvvmApplication.GetType().GetAssembly());
+                assemblies.Add(MvvmApplication.GetStartViewModelType().GetAssembly());
+            }
+            UpdateAssemblies(assemblies);
+            return assemblies.ToArrayEx();
+        }
+
+        protected virtual void UpdateAssemblies(HashSet<Assembly> assemblies)
+        {
+        }
+
+        protected virtual T GetOrAddDesignViewModel<T>(Func<IViewModelProvider, T> getViewModel, [CallerMemberName] string property = "") where T : IViewModel
+        {
+            if (!IsDesignMode)
+                return default(T);
+            IViewModel value;
+            if (!_viewModelMapping.TryGetValue(property, out value))
+            {
+                value = getViewModel(ServiceProvider.ViewModelProvider);
+                _viewModelMapping[property] = value;
+            }
+            return (T)value;
+        }
+
+        protected static void TryLoadAssemblyByType(string typeName, string namespaceAssemblyName, ICollection<Assembly> assemblies)
+        {
+            TryLoadAssemblyByType(namespaceAssemblyName + "." + typeName + ", " + namespaceAssemblyName, assemblies);
+        }
+
+        protected static void TryLoadAssemblyByType(string fullTypeName, ICollection<Assembly> assemblies)
         {
             try
             {
-#if NET_STANDARD
-                var assembly = Assembly.Load(new AssemblyName(assemblyName));
-#else
-                var assembly = Assembly.Load(assemblyName);
-#endif
-
-                if (assembly != null)
-                    assemblies?.Add(assembly);
-                return assembly;
+                //faster than Assembly.Load
+                var type = Type.GetType(fullTypeName, false);
+                if (type != null)
+                    assemblies.Add(type.GetAssembly());
             }
-            // ReSharper disable once EmptyGeneralCatchClause
             catch
             {
-                return null;
             }
+        }
+
+        private static void StartFromDesign(object state)
+        {
+            ((BootstrapperBase) state).Initialize();
         }
 
         #endregion
