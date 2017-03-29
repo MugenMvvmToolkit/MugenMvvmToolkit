@@ -74,6 +74,8 @@ namespace MugenMvvmToolkit
 
         #region Properties
 
+        public static bool IsInitialized { get; private set; }
+
         [CanBeNull]
         public static IBootstrapCodeBuilder BootstrapCodeBuilder { get; set; }
 
@@ -288,6 +290,7 @@ namespace MugenMvvmToolkit
                 TryInitialize(iocContainer, ref decorator);
                 ItemsSourceDecorator = decorator;
             }
+            IsInitialized = true;
             Initialized?.Invoke(application, EventArgs.Empty);
             Initialized = null;
         }
@@ -406,14 +409,14 @@ namespace MugenMvvmToolkit
         {
             return new EventAggregator();
         }
-        
+
         private static ISubscriber ObjectToSubscriberConverterImpl(object o, IDataContext dataContext)
         {
             if (o == null)
                 return null;
             return o as ISubscriber ?? HandlerSubscriber.Get(o);
         }
-        
+
         private static bool GetIsDesignMode()
         {
             // WinForms
