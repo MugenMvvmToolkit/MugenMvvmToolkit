@@ -39,7 +39,6 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 
         private static readonly string[] IdSeparator = { "~n|s~" };
         private readonly Frame _frame;
-        private string _lastParameter;
         private IDataContext _lastContext;
         private bool _bringToFront;
 
@@ -200,7 +199,6 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         {
             var bringToFront = _bringToFront;
             var lastContext = _lastContext;
-            _lastParameter = null;
             _lastContext = null;
             _bringToFront = false;
             var handler = Navigated;
@@ -217,23 +215,24 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                 //to restore state before navigate.
                 dp.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () => handler(this, new NavigationEventArgsWrapper(args, bringToFront, lastContext)));
             }
-            if (!bringToFront)
-                return;
-            var id = GetViewModelIdFromParameter(args.Parameter);
-            for (int index = 0; index < _frame.BackStack.Count; index++)
+            if (bringToFront)
             {
-                if (GetViewModelIdFromParameter(_frame.BackStack[index].Parameter) == id)
+                var id = GetViewModelIdFromParameter(args.Parameter);
+                for (int index = 0; index < _frame.BackStack.Count; index++)
                 {
-                    _frame.BackStack.RemoveAt(index);
-                    --index;
-                    break;
+                    if (GetViewModelIdFromParameter(_frame.BackStack[index].Parameter) == id)
+                    {
+                        _frame.BackStack.RemoveAt(index);
+                        --index;
+                        break;
+                    }
                 }
             }
         }
 
         private void OnNavigating(object sender, NavigatingCancelEventArgs args)
         {
-            Navigating?.Invoke(this, new NavigatingCancelEventArgsWrapper(args, _lastParameter, _bringToFront, _lastContext));
+            Navigating?.Invoke(this, new NavigatingCancelEventArgsWrapper(args, GetParameter(args.Parameter as string), _bringToFront, _lastContext));
         }
 
         private bool RaiseNavigatingRemove(IDataContext context)
@@ -259,7 +258,6 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                 else
                     parameter = viewModel.GetViewModelId().ToString() + IdSeparator[0] + parameter;
             }
-            _lastParameter = parameter;
             _lastContext = context;
             if (parameter == null)
                 return _frame.Navigate(type);
