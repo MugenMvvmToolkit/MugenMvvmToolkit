@@ -118,7 +118,7 @@ namespace MugenMvvmToolkit.Android.Modules
         public bool Load(IModuleContext context)
         {
             IAttachedValueProvider service;
-            if (context.IocContainer != null && context.IocContainer.TryGet(out service))
+            if (context.IocContainer.TryGet(out service))
             {
                 var attachedValueProvider = service as AttachedValueProvider;
                 if (attachedValueProvider != null)

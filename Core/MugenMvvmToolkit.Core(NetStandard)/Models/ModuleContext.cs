@@ -18,6 +18,7 @@
 
 using System.Collections.Generic;
 using System.Reflection;
+using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 
@@ -37,9 +38,10 @@ namespace MugenMvvmToolkit.Models
 
         #region Constructors
 
-        public ModuleContext(PlatformInfo platformInfo, LoadMode mode, IIocContainer iocContainer, IDataContext context,
+        public ModuleContext(PlatformInfo platformInfo, LoadMode mode, [NotNull] IIocContainer iocContainer, IDataContext context,
             IList<Assembly> assemblies)
         {
+            Should.NotBeNull(iocContainer, nameof(iocContainer));
             _platform = platformInfo ?? PlatformInfo.Unknown;
             _mode = mode;
             _iocContainer = iocContainer;

@@ -39,8 +39,6 @@ namespace MugenMvvmToolkit.Android.Modules
 
         public bool Load(IModuleContext context)
         {
-            if (context.IocContainer == null)
-                return false;
             IViewModelPresenter service;
 #if APPCOMPAT
             if (!context.IocContainer.TryGet(out service))

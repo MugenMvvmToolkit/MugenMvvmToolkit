@@ -60,11 +60,9 @@ namespace MugenMvvmToolkit.Android.Modules
             PlatformExtensions.GetContentView = PlatformExtensions.GetContentViewDefault;
             PlatformExtensions.AddContentViewManager(new ViewContentViewManager());
 
-            if (context.IocContainer != null)
-            {
-                BindNavigationService(context, context.IocContainer);
-                BindViewFactory(context, context.IocContainer);
-            }
+            BindNavigationService(context, context.IocContainer);
+            BindViewFactory(context, context.IocContainer);
+
             return base.Load(context);
         }
 

@@ -25,7 +25,7 @@ namespace MugenMvvmToolkit.Interfaces.Models
 {
     public interface IModuleContext
     {
-        [CanBeNull]
+        [NotNull]
         IIocContainer IocContainer { get; }
 
         [NotNull]

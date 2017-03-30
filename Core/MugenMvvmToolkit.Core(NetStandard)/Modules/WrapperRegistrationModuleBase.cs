@@ -40,7 +40,7 @@ namespace MugenMvvmToolkit.Modules
 
         public bool Load(IModuleContext context)
         {
-            if ((context.IocContainer == null) || !CanLoad(context))
+            if (!CanLoad(context))
                 return false;
             IWrapperManager wrapperManager;
             context.IocContainer.TryGet(out wrapperManager);

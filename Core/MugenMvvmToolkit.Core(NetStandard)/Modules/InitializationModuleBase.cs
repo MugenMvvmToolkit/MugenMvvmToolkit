@@ -169,9 +169,6 @@ namespace MugenMvvmToolkit.Modules
 
         public virtual bool Load(IModuleContext context)
         {
-            if (context.IocContainer == null)
-                return false;
-
             BindAttachedValueProvider(context, context.IocContainer);
             BindThreadManager(context, context.IocContainer);
             BindSerializer(context, context.IocContainer);
@@ -191,7 +188,7 @@ namespace MugenMvvmToolkit.Modules
             BindEntityStateProvider(context, context.IocContainer);
             BindValidatorProvider(context, context.IocContainer);
             BindTracer(context, context.IocContainer);
-            BindReflectionManager(context, context.IocContainer);            
+            BindReflectionManager(context, context.IocContainer);
             BindNavigationProvider(context, context.IocContainer);
             BindItemsSourceDecorator(context, context.IocContainer);
             return true;

@@ -37,13 +37,11 @@ namespace MugenMvvmToolkit.Android.Design.Modules
             AttachedMembersRegistration.RegisterTextInputLayoutMembers();
             AttachedMembersRegistration.RegisterSnakbarMembers();
             AttachedMembersRegistration.RegisterBottomNavigationViewMembers();
-            if (context.IocContainer != null)
-            {
-                IToastPresenter toastPresenter;
-                context.IocContainer.TryGet(out toastPresenter);
-                context.IocContainer.Unbind<IToastPresenter>();
-                context.IocContainer.BindToConstant<IToastPresenter>(new SnackbarToastPresenter(context.IocContainer.Get<IThreadManager>(), toastPresenter));
-            }
+
+            IToastPresenter toastPresenter;
+            context.IocContainer.TryGet(out toastPresenter);
+            context.IocContainer.Unbind<IToastPresenter>();
+            context.IocContainer.BindToConstant<IToastPresenter>(new SnackbarToastPresenter(context.IocContainer.Get<IThreadManager>(), toastPresenter));
 
             return true;
         }

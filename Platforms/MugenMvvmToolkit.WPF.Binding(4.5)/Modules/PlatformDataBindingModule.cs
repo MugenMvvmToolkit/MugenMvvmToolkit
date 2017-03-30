@@ -188,8 +188,8 @@ namespace MugenMvvmToolkit.UWP.Binding.Modules
 #if !WINDOWS_UWP
             AttachedMembersRegistration.RegisterWebBrowserMembers();
 #endif
-            IViewManager viewManager = null;
-            context.IocContainer?.TryGet(out viewManager);
+            IViewManager viewManager;
+            context.IocContainer.TryGet(out viewManager);
             if (viewManager != null)
                 viewManager.ViewCleared += OnViewCleared;
             return true;

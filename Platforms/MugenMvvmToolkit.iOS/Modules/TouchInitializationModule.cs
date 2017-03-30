@@ -51,8 +51,7 @@ namespace MugenMvvmToolkit.iOS.Modules
             };
             PlatformExtensions.NativeObjectManager = new DefaultNativeObjectManager();
 
-            if (context.IocContainer != null)
-                BindApplicationStateManager(context, context.IocContainer);
+            BindApplicationStateManager(context, context.IocContainer);
             return base.Load(context);
         }
 
