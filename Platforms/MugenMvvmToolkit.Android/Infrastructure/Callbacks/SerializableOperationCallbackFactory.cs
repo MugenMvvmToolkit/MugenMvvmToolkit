@@ -141,7 +141,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
                         object anonClass;
                         if (!items.TryGetValue(anonType, out anonClass))
                         {
-                            anonClass = ServiceProvider.GetOrCreate(anonType);
+                            anonClass = ServiceProvider.GetOrCreateDefault(anonType);
                             foreach (var snapshot in Snapshots)
                                 snapshot.Restore(anonType, anonClass, items, viewModels, awaiterResultType, result);
                             items[anonType] = anonClass;
@@ -736,7 +736,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
                 {
                     if (!items.TryGetValue(type, out target))
                     {
-                        target = ServiceProvider.GetOrCreate(type);
+                        target = ServiceProvider.GetOrCreateDefault(type);
                         items[type] = target;
                     }
                 }

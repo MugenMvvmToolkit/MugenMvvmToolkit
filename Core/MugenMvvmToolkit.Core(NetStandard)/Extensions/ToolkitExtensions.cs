@@ -1027,7 +1027,7 @@ namespace MugenMvvmToolkit
                 if (!ReferenceEquals(openedViewModels[i], viewModel))
                 {
                     isParent = false;
-                    return viewModel;
+                    return openedViewModels[i];
                 }
             }
             isParent = true;
@@ -1207,7 +1207,7 @@ namespace MugenMvvmToolkit
         {
             Should.NotBeNull(aggregator, nameof(aggregator));
             Should.NotBeNull(instanceToValidate, nameof(instanceToValidate));
-            var validator = ServiceProvider.GetOrCreate<TValidator>();
+            var validator = ServiceProvider.GetOrCreateDefault<TValidator>();
             validator.Initialize(aggregator.CreateContext(instanceToValidate));
             aggregator.AddValidator(validator);
             return validator;
