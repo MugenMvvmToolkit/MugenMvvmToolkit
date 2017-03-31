@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -30,6 +31,7 @@ namespace MugenMvvmToolkit.Binding.Models
 
         public static readonly WeakEventListenerWrapper Empty;
         private object _item;
+        private bool _isWeak;
 
         #endregion
 
@@ -42,7 +44,8 @@ namespace MugenMvvmToolkit.Binding.Models
 
         public WeakEventListenerWrapper(IEventListener listener)
         {
-            if (listener.IsWeak)
+            _isWeak = listener.IsWeak;
+            if (_isWeak)
                 _item = listener;
             else
                 _item = ToolkitExtensions.GetWeakReference(listener);
@@ -59,14 +62,16 @@ namespace MugenMvvmToolkit.Binding.Models
         [NotNull]
         public IEventListener EventListener
         {
+#if NET_STANDARD
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
             get
             {
-                var listener = _item as IEventListener;
-                if (listener != null)
-                    return listener;
+                if (_isWeak)
+                    return (IEventListener)_item;
                 if (_item == null)
                     return BindingExtensions.EmptyListener;
-                return ((WeakReference)_item).Target as IEventListener ?? BindingExtensions.EmptyListener;
+                return (IEventListener)((WeakReference)_item).Target ?? BindingExtensions.EmptyListener;
             }
         }
 
