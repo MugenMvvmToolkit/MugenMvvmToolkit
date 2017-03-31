@@ -23,6 +23,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
@@ -114,6 +115,11 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             MvvmApplication = CreateApplication();
             IocContainer = CreateIocContainer();
+            if (IsDesignMode)
+            {
+                InitializationContext = InitializationContext.ToNonReadOnly();
+                InitializationContext.AddOrUpdate(InitializationConstants.IsDesignMode, true);
+            }
             MvvmApplication.Initialize(Platform, IocContainer, GetAssemblies(), InitializationContext ?? DataContext.Empty);
         }
 
@@ -173,7 +179,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private static void StartFromDesign(object state)
         {
-            ((BootstrapperBase) state).Initialize();
+            ((BootstrapperBase)state).Initialize();
         }
 
         #endregion

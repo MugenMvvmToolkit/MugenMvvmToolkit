@@ -176,7 +176,7 @@ namespace MugenMvvmToolkit.UWP.Modules
             if (context.PlatformInfo.Platform == PlatformType.WPF)
                 container.BindToMethod<IThreadManager>((c, list) => new ThreadManager(System.Windows.Threading.Dispatcher.CurrentDispatcher), DependencyLifecycle.SingleInstance);
 #elif WINDOWS_UWP
-            if (ServiceProvider.IsDesignMode && Windows.UI.Xaml.Window.Current.Dispatcher == null)
+            if (context.Mode.IsDesignMode() && Windows.UI.Xaml.Window.Current.Dispatcher == null)
                 base.BindThreadManager(context, container);
             else
                 container.BindToMethod<IThreadManager>((c, list) => new ThreadManager(Windows.UI.Xaml.Window.Current.Dispatcher), DependencyLifecycle.SingleInstance);

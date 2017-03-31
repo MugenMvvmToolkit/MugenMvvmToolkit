@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
@@ -34,7 +35,7 @@ namespace MugenMvvmToolkit
 
         private bool _isInitialized;
         private readonly Action<IModuleContext> _loadModulesDelegate;
-        private readonly LoadMode _mode;
+        private readonly LoadMode? _mode;
         private PlatformInfo _platform;
         private IIocContainer _iocContainer;
         private readonly IDataContext _context;
@@ -43,7 +44,7 @@ namespace MugenMvvmToolkit
 
         #region Constructors
 
-        protected MvvmApplication(Action<IModuleContext> loadModulesDelegate = null, LoadMode mode = LoadMode.Runtime)
+        protected MvvmApplication(Action<IModuleContext> loadModulesDelegate = null, LoadMode? mode = null)
         {
             if (ServiceProvider.UiSynchronizationContextField == null)
                 ServiceProvider.UiSynchronizationContextField = SynchronizationContext.Current;
@@ -62,7 +63,7 @@ namespace MugenMvvmToolkit
 
         public virtual PlatformInfo PlatformInfo => _platform;
 
-        public virtual LoadMode Mode => _mode;
+        public virtual LoadMode Mode => _mode.GetValueOrDefault(Context.GetData(InitializationConstants.IsDesignMode) ? LoadMode.Design : LoadMode.Runtime);
 
         public virtual IIocContainer IocContainer => _iocContainer;
 
@@ -119,7 +120,7 @@ namespace MugenMvvmToolkit
 
         protected virtual IList<IModule> GetModules(IList<Assembly> assemblies)
         {
-            return Modules ?? assemblies.GetModules(true);
+            return Modules ?? assemblies.GetModules(!Mode.IsDesignMode());
         }
 
         #endregion

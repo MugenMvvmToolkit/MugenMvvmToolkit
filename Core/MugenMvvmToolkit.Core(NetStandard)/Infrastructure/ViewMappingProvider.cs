@@ -304,7 +304,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     builder.AppendStatic(typeof(ViewMappingProvider).Name, $"{typeof(ApplicationSettings).FullName}.{nameof(ApplicationSettings.ViewMappingProviderDisableAutoRegistration)} = true;");
                     builder.Append(typeof(ViewMappingProvider).Name, $"var mappingProvider = ({typeof(ViewMappingProvider).FullName}) {typeof(ServiceProvider).FullName}.Get<{typeof(IViewMappingProvider).FullName}>();");
                 }
-                InitializeMapping(assemblies.SelectMany(assembly => assembly.SafeGetTypes(true)));
+                InitializeMapping(assemblies.SelectMany(assembly => assembly.SafeGetTypes(ServiceProvider.Application == null || !ServiceProvider.Application.Mode.IsDesignMode())));
             }
         }
 

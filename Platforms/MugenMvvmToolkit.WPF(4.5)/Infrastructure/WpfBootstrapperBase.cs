@@ -94,9 +94,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
         protected override void UpdateAssemblies(HashSet<Assembly> assemblies)
         {
             base.UpdateAssemblies(assemblies);
-            if (!IsDesignMode)
-                assemblies.AddRange(AppDomain.CurrentDomain.GetAssemblies().Where(x => !x.IsDynamic));
-            assemblies.Add(typeof(WpfBootstrapperBase).Assembly);
+            assemblies.AddRange(AppDomain.CurrentDomain.GetAssemblies().Where(x => !x.IsDynamic));
             TryLoadAssemblyByType("AttachedMembers", "MugenMvvmToolkit.WPF.Binding", assemblies);
         }
 
