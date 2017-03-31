@@ -343,6 +343,15 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
                 currentController = controllers[controllers.Length - 1];
             if (controllers.Length > 1)
                 prevController = controllers[controllers.Length - 2];
+
+            //new navigation is not completed, skip back navigation
+            var newNavigationContext = currentController?.GetNavigationContext(false, false);
+            if (newNavigationContext != null && newNavigationContext.Count != 0)
+            {
+                args.Cancel = true;
+                return;
+            }
+
             args.Cancel = !RaiseNavigating(new NavigatingCancelEventArgs(null, NavigationMode.Back, prevController.GetNavigationParameter(), currentController.GetNavigationContext(true, false)));
             if (args.Cancel)
                 return;
