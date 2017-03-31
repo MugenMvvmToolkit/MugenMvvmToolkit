@@ -176,9 +176,6 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\mediators\WindowViewMediatorBase.cs">
       <Link>Infrastructure\Mediators\WindowViewMediatorBase.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Infrastructure\MugenContainer.cs">
-      <Link>Infrastructure\MugenContainer.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Infrastructure\Navigation\NavigationDispatcher.cs">
       <Link>Infrastructure\Navigation\NavigationDispatcher.cs</Link>
     </Compile>
@@ -652,6 +649,9 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Modules\WrapperRegistrationModuleBase.cs">
       <Link>Modules\WrapperRegistrationModuleBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\MugenContainer.cs">
+      <Link>MugenContainer.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\MvvmApplication.cs">
       <Link>MvvmApplication.cs</Link>
