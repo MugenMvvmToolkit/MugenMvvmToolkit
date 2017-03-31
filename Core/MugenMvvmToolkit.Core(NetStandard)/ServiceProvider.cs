@@ -20,7 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using MugenMvvmToolkit.Interfaces.Validation;
 using System.Threading;
 using JetBrains.Annotations;
@@ -53,7 +52,6 @@ namespace MugenMvvmToolkit
         private static Func<IViewModel, IViewModelSettings> _viewModelSettingsFactory;
         internal static SynchronizationContext UiSynchronizationContextField;
         private static bool? _isDesignMode;
-        private static IMvvmApplication _application;
         private static IViewManager _viewManager;
 
         #endregion
@@ -62,12 +60,15 @@ namespace MugenMvvmToolkit
 
         static ServiceProvider()
         {
-            _weakReferenceFactory = CreateWeakReference;
-            _instanceEventAggregatorFactory = GetInstanceEventAggregator;
-            _viewModelSettingsFactory = CreateViewModelSettings;
             EntityConstructorInfos = new Dictionary<Type, ConstructorInfo>();
+            // ReSharper disable AssignNullToNotNullAttribute
+            WeakReferenceFactory = null;
+            InstanceEventAggregatorFactory = null;
+            ViewModelSettingsFactory = null;
+            // ReSharper restore AssignNullToNotNullAttribute
             DefaultEntityFactory = DefaultEntityFactoryMethod;
             ObjectToSubscriberConverter = ObjectToSubscriberConverterImpl;
+            Tracer = MugenMvvmToolkit.Tracer.Instance;
         }
 
         #endregion
@@ -75,6 +76,21 @@ namespace MugenMvvmToolkit
         #region Properties
 
         public static bool IsInitialized { get; private set; }
+
+        public static IMvvmApplication Application { get; private set; }
+
+        public static IIocContainer IocContainer => Application?.IocContainer;
+
+        public static bool IsDesignMode
+        {
+            get
+            {
+                if (_isDesignMode == null)
+                    _isDesignMode = GetIsDesignMode();
+                return _isDesignMode.Value;
+            }
+            set { _isDesignMode = value; }
+        }
 
         [CanBeNull]
         public static IBootstrapCodeBuilder BootstrapCodeBuilder { get; set; }
@@ -123,136 +139,66 @@ namespace MugenMvvmToolkit
         }
 
         [NotNull]
-        public static IMvvmApplication Application
-        {
-            get
-            {
-                if (_application == null)
-                    ThrowNotInitialized();
-                return _application;
-            }
-            private set { _application = value; }
-        }
-
-        public static IIocContainer IocContainer => Application.IocContainer;
-
-        [NotNull]
         public static IThreadManager ThreadManager
         {
-            get
-            {
-                if (_threadManager == null)
-                    ThrowNotInitialized();
-                return _threadManager;
-            }
+            get { return _threadManager; }
             set { _threadManager = value; }
         }
 
         [NotNull]
         public static IAttachedValueProvider AttachedValueProvider
         {
-            get
-            {
-                if (_attachedValueProvider == null)
-                    ThrowNotInitialized();
-                return _attachedValueProvider;
-            }
+            get { return _attachedValueProvider; }
             set { _attachedValueProvider = value; }
         }
 
         [NotNull]
         public static IReflectionManager ReflectionManager
         {
-            get
-            {
-                if (_reflectionManager == null)
-                    ThrowNotInitialized();
-                return _reflectionManager;
-            }
+            get { return _reflectionManager; }
             set { _reflectionManager = value; }
         }
 
         [NotNull]
         public static ITracer Tracer
         {
-            get
-            {
-                if (_tracer == null)
-                    return MugenMvvmToolkit.Tracer.Instance;
-                return _tracer;
-            }
+            get { return _tracer; }
             set { _tracer = value; }
         }
 
         [NotNull]
         public static IOperationCallbackFactory OperationCallbackFactory
         {
-            get
-            {
-                if (_operationCallbackFactory == null)
-                    ThrowNotInitialized();
-                return _operationCallbackFactory;
-            }
+            get { return _operationCallbackFactory; }
             set { _operationCallbackFactory = value; }
         }
 
         [NotNull]
         public static IValidatorProvider ValidatorProvider
         {
-            get
-            {
-                if (_validatorProvider == null)
-                    ThrowNotInitialized();
-                return _validatorProvider;
-            }
+            get { return _validatorProvider; }
             set { _validatorProvider = value; }
         }
 
         [NotNull]
         public static IViewModelProvider ViewModelProvider
         {
-            get
-            {
-                if (_viewModelProvider == null)
-                    ThrowNotInitialized();
-                return _viewModelProvider;
-            }
+            get { return _viewModelProvider; }
             set { _viewModelProvider = value; }
         }
 
         [NotNull]
         public static IViewManager ViewManager
         {
-            get
-            {
-                if (_viewManager == null)
-                    ThrowNotInitialized();
-                return _viewManager;
-            }
+            get { return _viewManager; }
             set { _viewManager = value; }
         }
 
         [NotNull]
         public static IEventAggregator EventAggregator
         {
-            get
-            {
-                if (_eventAggregator == null)
-                    ThrowNotInitialized();
-                return _eventAggregator;
-            }
+            get { return _eventAggregator; }
             set { _eventAggregator = value; }
-        }
-
-        public static bool IsDesignMode
-        {
-            get
-            {
-                if (_isDesignMode == null)
-                    _isDesignMode = GetIsDesignMode();
-                return _isDesignMode.Value;
-            }
-            set { _isDesignMode = value; }
         }
 
         public static event EventHandler Initialized;
@@ -326,13 +272,13 @@ namespace MugenMvvmToolkit
         }
 
         [Pure]
-        public static T GetOrCreate<T>()
+        public static T GetOrCreateDefault<T>()
         {
-            return (T)GetOrCreate(typeof(T));
+            return (T)GetOrCreateDefault(typeof(T));
         }
 
         [Pure]
-        public static object GetOrCreate(Type type)
+        public static object GetOrCreateDefault(Type type)
         {
             var iocContainer = IocContainer;
             if (iocContainer == null)
@@ -361,11 +307,6 @@ namespace MugenMvvmToolkit
             if (decorator == null)
                 return itemsSource;
             return decorator.Decorate(owner, itemsSource);
-        }
-
-        private static void ThrowNotInitialized([CallerMemberName]string propertyName = "")
-        {
-            throw ExceptionManager.ObjectNotInitialized(propertyName, typeof(ServiceProvider));
         }
 
         private static void TryInitialize<TService>(IIocContainer iocContainer, ref TService service)
@@ -421,7 +362,7 @@ namespace MugenMvvmToolkit
         {
             // WinForms
             // NOTE: fisrt call should be from form constructor
-            var type = Type.GetType("System.ComponentModel.LicenseManager, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089");
+            var type = Type.GetType("System.ComponentModel.LicenseManager, System");
             if (type != null)
             {
                 try
@@ -436,14 +377,14 @@ namespace MugenMvvmToolkit
             }
 
             //.NET
-            type = Type.GetType("System.ComponentModel.DesignerProperties, PresentationFramework, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35");
+            type = Type.GetType("System.ComponentModel.DesignerProperties, PresentationFramework");
             if (type != null)
             {
                 try
                 {
                     var dmp = type.GetFieldEx("IsInDesignModeProperty")?.GetValue(null);
-                    var dpd = Type.GetType("System.ComponentModel.DependencyPropertyDescriptor, WindowsBase, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35");
-                    var typeFe = Type.GetType("System.Windows.FrameworkElement, PresentationFramework, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35");
+                    var dpd = Type.GetType("System.ComponentModel.DependencyPropertyDescriptor, WindowsBase");
+                    var typeFe = Type.GetType("System.Windows.FrameworkElement, PresentationFramework");
                     if (dpd == null || typeFe == null)
                         return false;
 
@@ -457,7 +398,7 @@ namespace MugenMvvmToolkit
                         return false;
 
                     var metadata = metaProp.GetValue(descriptor, null);
-                    var tPropMeta = Type.GetType("System.Windows.PropertyMetadata, WindowsBase, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35");
+                    var tPropMeta = Type.GetType("System.Windows.PropertyMetadata, WindowsBase");
 
                     if (metadata == null || tPropMeta == null)
                         return false;
