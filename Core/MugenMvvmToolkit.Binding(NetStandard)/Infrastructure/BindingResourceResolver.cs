@@ -328,14 +328,14 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         protected virtual ISourceValue ResolveObjectInternal([NotNull] object target, string name, IDataContext context, out bool keepValue)
         {
             keepValue = true;
-            if (SelfResourceName.Equals(name, StringComparison.Ordinal))
+            if (SelfResourceName.Equals(name))
                 return new ConstResourceObject(target);
-            if (DataContextResourceName.Equals(name, StringComparison.Ordinal))
+            if (DataContextResourceName.Equals(name))
             {
                 keepValue = false;
                 return BindingServiceProvider.ContextManager.GetBindingContext(target);
             }
-            if (RootElementResourceName.Equals(name, StringComparison.Ordinal))
+            if (RootElementResourceName.Equals(name))
             {
                 var rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(target.GetType());
                 if (rootMember != null)
@@ -451,7 +451,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         public virtual ISourceValue ResolveObject(string name, IDataContext context, bool throwOnError)
         {
             Should.NotBeNull(name, nameof(name));
-            if (context != null && BindingSourceResourceName.Equals(name, StringComparison.Ordinal))
+            if (context != null && BindingSourceResourceName.Equals(name))
             {
                 object src;
                 if (context.TryGetData(BindingBuilderConstants.Source, out src))

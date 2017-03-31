@@ -232,7 +232,7 @@ You must specify the type of application bootstrapper using BootstrapperAttribut
 
         int IComparer<string>.Compare(string x, string y)
         {
-            if (string.Equals(x, y, StringComparison.Ordinal))
+            if (string.Equals(x, y))
                 return 0;
             var xSupport = x.IndexOf(".Android.Support.", StringComparison.Ordinal) >= 0;
             var ySupport = y.IndexOf(".Android.Support.", StringComparison.Ordinal) >= 0;

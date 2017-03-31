@@ -70,7 +70,7 @@ namespace MugenMvvmToolkit.Models
                 return false;
             if (ReferenceEquals(this, other))
                 return true;
-            return _id.Equals(other._id, StringComparison.Ordinal);
+            return _id.Equals(other._id);
         }
 
         public sealed override bool Equals(object obj)
@@ -95,7 +95,7 @@ namespace MugenMvvmToolkit.Models
 
         internal bool EqualsWithoutNullCheck(TType other)
         {
-            return _id.Equals(other._id, StringComparison.Ordinal);
+            return _id.Equals(other._id);
         }
 
         public static bool operator ==(StringConstantBase<TType> left, TType right)

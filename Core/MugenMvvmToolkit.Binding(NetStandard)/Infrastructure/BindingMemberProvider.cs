@@ -98,7 +98,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             public bool Equals(CacheKey x, CacheKey y)
             {
                 return x.IgnoreAttachedMembers == y.IgnoreAttachedMembers &&
-                       x.Path.Equals(y.Path, StringComparison.Ordinal) && x.Type.Equals(y.Type);
+                       x.Path.Equals(y.Path) && x.Type.Equals(y.Type);
             }
 
             public int GetHashCode(CacheKey obj)

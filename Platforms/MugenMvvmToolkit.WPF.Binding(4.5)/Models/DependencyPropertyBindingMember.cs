@@ -184,7 +184,7 @@ namespace MugenMvvmToolkit.WPF.Binding.Models
             try
             {
                 type = DependencyProperty.UnsetValue.GetType();
-                isNamedObject = type.FullName.Equals("MS.Internal.NamedObject", StringComparison.Ordinal);
+                isNamedObject = type.FullName.Equals("MS.Internal.NamedObject");
                 var methodInfo = typeof(DependencyPropertyBindingMember).GetMethodEx(nameof(Is), MemberFlags.Static | MemberFlags.Public);
                 if (methodInfo == null || !isNamedObject)
                     IsNamedObjectFunc = o => false;

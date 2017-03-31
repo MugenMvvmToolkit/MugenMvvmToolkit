@@ -70,7 +70,7 @@ namespace MugenMvvmToolkit.WPF.MarkupExtensions
             if (!(targetObject is DependencyObject))
             {
                 var type = targetObject.GetType();
-                if (_sharedDpType == type || "System.Windows.SharedDp".Equals(type.FullName, StringComparison.Ordinal))
+                if (_sharedDpType == type || "System.Windows.SharedDp".Equals(type.FullName))
                 {
                     if (_sharedDpType == null)
                         _sharedDpType = type;

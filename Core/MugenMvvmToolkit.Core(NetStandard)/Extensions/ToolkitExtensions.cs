@@ -1356,21 +1356,22 @@ namespace MugenMvvmToolkit
 
         public static bool MemberNameEqual(string changedMember, string listenedMember, bool emptyListenedMemberResult = false)
         {
-            if (string.IsNullOrEmpty(changedMember) ||
-                changedMember.Equals(listenedMember, StringComparison.Ordinal))
+            if (string.Equals(changedMember, listenedMember) || string.IsNullOrEmpty(changedMember))
                 return true;
             if (string.IsNullOrEmpty(listenedMember))
                 return emptyListenedMemberResult;
 
             if (listenedMember[0] == '[')
             {
-                if (changedMember.Equals(ReflectionExtensions.IndexerName, StringComparison.Ordinal))
+                if (ReflectionExtensions.IndexerName.Equals(changedMember))
                     return true;
                 if (changedMember.StartsWith("Item[", StringComparison.Ordinal))
                 {
                     int i = 4, j = 0;
                     while (i < changedMember.Length)
                     {
+                        if (j >= listenedMember.Length)
+                            return false;
                         var c1 = changedMember[i];
                         var c2 = listenedMember[j];
                         if (c1 == c2)
