@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="PlatformExtensions.cs">
+// <copyright file="WpfToolkitExtensions.cs">
 // Copyright (c) 2012-2017 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -21,7 +21,7 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.WPF
 {
-    public static class PlatformExtensions
+    public static class WpfToolkitExtensions
     {
         #region Methods
 

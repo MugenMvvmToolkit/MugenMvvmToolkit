@@ -24,7 +24,7 @@ using System.Linq;
 using System.Reflection;
 
 #if XAMARIN_FORMS
-using BindingServiceProvider = MugenMvvmToolkit.Xamarin.Forms.XamarinFormsExtensions;
+using BindingServiceProvider = MugenMvvmToolkit.Xamarin.Forms.XamarinFormsToolkitExtensions;
 #else
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;

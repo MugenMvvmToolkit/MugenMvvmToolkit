@@ -122,7 +122,7 @@ namespace MugenMvvmToolkit.WPF.Binding.Converters
                 if (!string.IsNullOrEmpty(ViewName))
                     ctx.AddOrUpdate(NavigationConstants.ViewName, ViewName);
 #if ANDROID
-                return PlatformExtensions.GetOrCreateView((IViewModel)value, AlwaysCreateNewView, ctx);
+                return AndroidToolkitExtensions.GetOrCreateView((IViewModel)value, AlwaysCreateNewView, ctx);
 #else
                 return ServiceProvider.ViewManager.GetOrCreateView((IViewModel)value, AlwaysCreateNewView, ctx);
 #endif

@@ -121,7 +121,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
                 WeakReference.IsInvalid = true;
                 lock (AttachedValueHolders)
                     AttachedValueHolders.Remove(WeakReference.Handle);
-                if (PlatformExtensions.AttachedValueProviderSuppressFinalize)
+                if (TouchToolkitExtensions.AttachedValueProviderSuppressFinalize)
                     GC.SuppressFinalize(this);
                 else
                     Dispose();

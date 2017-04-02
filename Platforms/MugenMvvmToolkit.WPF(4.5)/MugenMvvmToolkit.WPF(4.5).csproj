@@ -72,7 +72,7 @@
     <Compile Include="MarkupExtensions\ViewModelToViewBinding.cs" />
     <Compile Include="Models\EventArg\NavigatingCancelEventArgsWrapper.cs" />
     <Compile Include="Models\EventArg\NavigationEventArgsWrapper.cs" />
-    <Compile Include="PlatformExtensions.cs" />
+    <Compile Include="WpfToolkitExtensions.cs" />
     <Compile Include="Infrastructure\WpfBootstrapperBase.cs" />
     <Compile Include="Modules\InitializationModule.cs" />
     <Compile Include="Infrastructure\Navigation\FrameNavigationService.cs" />

@@ -64,7 +64,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
         internal WpfBootstrapperBase(bool isDesignMode, PlatformInfo platform = null)
             : base(isDesignMode)
         {
-            _platform = platform ?? PlatformExtensions.GetPlatformInfo();
+            _platform = platform ?? WpfToolkitExtensions.GetPlatformInfo();
         }
 
         protected WpfBootstrapperBase([NotNull] Application application, bool autoStart = true, PlatformInfo platform = null)

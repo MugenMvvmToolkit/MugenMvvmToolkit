@@ -347,9 +347,9 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             {
                 IDataContext viewModelState = null;
 #if WINDOWS_UWP
-                viewModelState = PlatformExtensions.GetViewModelState(view);
+                viewModelState = UwpToolkitExtensions.GetViewModelState(view);
                 if (viewModelState != null)
-                    PlatformExtensions.SetViewModelState(view, null);
+                    UwpToolkitExtensions.SetViewModelState(view, null);
 #endif
                 vm = ViewModelProvider.RestoreViewModel(viewModelState, new DataContext
                 {
