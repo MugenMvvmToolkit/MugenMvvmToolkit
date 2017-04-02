@@ -23,7 +23,7 @@ using MugenMvvmToolkit.Binding.Interfaces;
 namespace MugenMvvmToolkit.Binding.Behaviors
 {
     //On some platforms like Android and iOS poor performance when reading properties because it is necessary to convert a native object to a NET object
-    //in this caset to reduce the number of reading disabling the equality checking
+    //in this case to reduce the number of reading disabling the equality checking
     public sealed class DisableEqualityCheckingBehavior : IBindingBehavior
     {
         #region Fields
