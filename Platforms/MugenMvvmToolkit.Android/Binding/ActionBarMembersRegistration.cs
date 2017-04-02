@@ -526,7 +526,7 @@ namespace MugenMvvmToolkit.Android.Binding
 #endif
                     if (sourceAdapter == null)
                     {
-                        sourceAdapter = PlatformExtensions.ItemsSourceAdapterFactory(actionBar, actionBar.ThemedContext, DataContext.Empty);
+                        sourceAdapter = AndroidToolkitExtensions.ItemsSourceAdapterFactory(actionBar, actionBar.ThemedContext, DataContext.Empty);
 #if APPCOMPAT
                         actionBar.SetBindingMemberValue(AttachedMembersCompat.ActionBar.ItemsSourceAdapter, sourceAdapter);
 #else

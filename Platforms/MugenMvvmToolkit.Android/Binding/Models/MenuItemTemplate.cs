@@ -116,7 +116,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
 
         private void ApplyInternal(IMenu menu, Context context, int id, int order, object dataContext, bool useContext)
         {
-            PlatformExtensions.ValidateTemplate(ItemsSource, Items);
+            AndroidToolkitExtensions.ValidateTemplate(ItemsSource, Items);
             bool isSubMenu = !string.IsNullOrEmpty(ItemsSource) || Items != null && Items.Count > 0;
             XmlPropertySetter setter;
             int groupId;
@@ -170,7 +170,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
             setter.SetStringProperty(nameof(CommandParameter), CommandParameter);
             setter.SetBinding(nameof(Click), Click, false);
 
-            PlatformExtensions.MenuItemTemplateInitalized?.Invoke(this, menuItem, setter);
+            AndroidToolkitExtensions.MenuItemTemplateInitalized?.Invoke(this, menuItem, setter);
 
             setter.SetProperty(nameof(ActionViewTemplateSelector), ActionViewTemplateSelector);
             setter.SetProperty(nameof(ActionProviderTemplateSelector), ActionProviderTemplateSelector);

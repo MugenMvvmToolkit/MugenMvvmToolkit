@@ -141,7 +141,7 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
 
         protected virtual Object InstantiateItemInternal(ViewGroup container, object item)
         {
-            return (Object)PlatformExtensions
+            return (Object)AndroidToolkitExtensions
                 .GetContentView(container, container.Context, item, _itemTemplateProvider.GetTemplateId(), _itemTemplateProvider.GetDataTemplateSelector());
         }
 

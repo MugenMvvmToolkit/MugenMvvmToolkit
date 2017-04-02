@@ -92,9 +92,9 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
             TaskCompletionSource<MessageResult> tcs)
         {
 #if XAMARIN_FORMS
-            var context = PlatformExtensions.GetCurrentContext();
+            var context = XamarinFormsAndroidToolkitExtensions.GetCurrentContext();
 #else
-            Context context = PlatformExtensions.CurrentActivity;
+            Context context = AndroidToolkitExtensions.CurrentActivity;
 #endif
             var act = context as Activity;
             if (act != null && act.IsFinishing)

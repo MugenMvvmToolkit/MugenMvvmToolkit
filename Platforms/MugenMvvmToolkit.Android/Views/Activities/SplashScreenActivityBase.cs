@@ -71,7 +71,7 @@ namespace MugenMvvmToolkit.Android.Views.Activities
 
             if (Interlocked.Exchange(ref _state, StartedState) == DefaultState)
             {
-                PlatformExtensions.SetCurrentActivity(this, false);
+                AndroidToolkitExtensions.SetCurrentActivity(this, false);
                 if (AndroidBootstrapperBase.Current != null && AndroidBootstrapperBase.Current.IsInitialized)
                     StartBootstrapperCallback(this);
                 else
@@ -99,7 +99,7 @@ namespace MugenMvvmToolkit.Android.Views.Activities
             finally
             {
                 activityBase.OnBootstrapperStarted(bootstrapper, exception);
-                PlatformExtensions.SetCurrentActivity(activityBase, true);
+                AndroidToolkitExtensions.SetCurrentActivity(activityBase, true);
                 _state = DefaultState;
             }
         }

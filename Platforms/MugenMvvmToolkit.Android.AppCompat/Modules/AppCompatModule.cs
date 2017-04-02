@@ -35,10 +35,10 @@ namespace MugenMvvmToolkit.Android.AppCompat.Modules
         {
             BindingResourceExtensions.ColorHandler = ContextCompat.GetColor;
             BindingResourceExtensions.DrawableHandler = ContextCompat.GetDrawable;
-            var isActionBar = PlatformExtensions.IsActionBar;
-            var isFragment = PlatformExtensions.IsFragment;
-            PlatformExtensions.IsActionBar = o => isActionBar(o) || o is ActionBar;
-            PlatformExtensions.IsFragment = o => isFragment(o) || o is Fragment;
+            var isActionBar = AndroidToolkitExtensions.IsActionBar;
+            var isFragment = AndroidToolkitExtensions.IsFragment;
+            AndroidToolkitExtensions.IsActionBar = o => isActionBar(o) || o is ActionBar;
+            AndroidToolkitExtensions.IsFragment = o => isFragment(o) || o is Fragment;
 
             AttachedMembersRegistration.RegisterToolbarMembers();
             AttachedMembersRegistration.RegisterDrawerLayoutMembers();

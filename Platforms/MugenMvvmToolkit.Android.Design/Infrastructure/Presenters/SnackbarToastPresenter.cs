@@ -147,7 +147,7 @@ namespace MugenMvvmToolkit.Android.Design.Infrastructure.Presenters
         public IToast ShowAsync(object content, float duration, ToastPosition position = ToastPosition.Bottom, IDataContext context = null)
         {
             View holder = null;
-            var currentActivity = PlatformExtensions.CurrentActivity;
+            var currentActivity = AndroidToolkitExtensions.CurrentActivity;
             if (currentActivity != null)
             {
                 var selector = currentActivity.GetBindingMemberValue(AttachedMembersDesign.Activity.SnackbarViewSelector);

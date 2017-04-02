@@ -75,7 +75,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
                 return;
             for (int index = 0; index < assemblies.Count; index++)
                 Instance.AddAssembly(assemblies[index]);
-            if (!PlatformExtensions.TypeCacheOnlyUsedTypeToBootstrapCodeBuilder)
+            if (!AndroidToolkitExtensions.TypeCacheOnlyUsedTypeToBootstrapCodeBuilder)
             {
                 var codeBuilder = ServiceProvider.BootstrapCodeBuilder;
                 if (codeBuilder != null)
@@ -99,20 +99,20 @@ namespace MugenMvvmToolkit.Android.Infrastructure
                 {
                     if (!_ignoreCaseFullNameCache.TryGetValue(typeName, out type))
                     {
-                        if (_ignoreCaseNameCache.TryGetValue(typeName, out type) && PlatformExtensions.TypeCacheOnlyUsedTypeToBootstrapCodeBuilder)
+                        if (_ignoreCaseNameCache.TryGetValue(typeName, out type) && AndroidToolkitExtensions.TypeCacheOnlyUsedTypeToBootstrapCodeBuilder)
                             WriteTypeUsage(ServiceProvider.BootstrapCodeBuilder, typeName, type, false);
                     }
-                    else if (PlatformExtensions.TypeCacheOnlyUsedTypeToBootstrapCodeBuilder)
+                    else if (AndroidToolkitExtensions.TypeCacheOnlyUsedTypeToBootstrapCodeBuilder)
                         WriteTypeUsage(ServiceProvider.BootstrapCodeBuilder, typeName, type, true);
                 }
                 else
                 {
                     if (!_fullNameCache.TryGetValue(typeName, out type))
                     {
-                        if (_nameCache.TryGetValue(typeName, out type) && PlatformExtensions.TypeCacheOnlyUsedTypeToBootstrapCodeBuilder)
+                        if (_nameCache.TryGetValue(typeName, out type) && AndroidToolkitExtensions.TypeCacheOnlyUsedTypeToBootstrapCodeBuilder)
                             WriteTypeUsage(ServiceProvider.BootstrapCodeBuilder, typeName, type, false);
                     }
-                    else if (PlatformExtensions.TypeCacheOnlyUsedTypeToBootstrapCodeBuilder)
+                    else if (AndroidToolkitExtensions.TypeCacheOnlyUsedTypeToBootstrapCodeBuilder)
                         WriteTypeUsage(ServiceProvider.BootstrapCodeBuilder, typeName, type, true);
                 }
             }

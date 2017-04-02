@@ -362,7 +362,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         private bool IsSpinner()
         {
-            return Container is Spinner || PlatformExtensions.IsActionBar(Container);
+            return Container is Spinner || AndroidToolkitExtensions.IsActionBar(Container);
         }
 
         private void ActivityViewOnDestroyed(Activity sender)

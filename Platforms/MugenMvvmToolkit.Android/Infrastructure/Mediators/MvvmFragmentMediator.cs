@@ -143,7 +143,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
             var viewModel = DataContext as IViewModel;
             if (viewModel != null)
-                viewModel.Settings.Metadata.AddOrUpdate(PlatformExtensions.FragmentConstant, Target);
+                viewModel.Settings.Metadata.AddOrUpdate(AndroidToolkitExtensions.FragmentConstant, Target);
             else if (DataContext == null)
             {
                 if (savedInstanceState != null && savedInstanceState.ContainsKey(IgnoreStateKey))
@@ -162,7 +162,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         public virtual void OnViewCreated(View view, Bundle savedInstanceState, Action<View, Bundle> baseOnViewCreated)
         {
             if (!(Target is DialogFragment))
-                PlatformExtensions.NotifyActivityAttached(Target.Activity, view);
+                AndroidToolkitExtensions.NotifyActivityAttached(Target.Activity, view);
             baseOnViewCreated(view, savedInstanceState);
         }
 
@@ -187,7 +187,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 _keyListener = null;
             }
 
-            (DataContext as IViewModel)?.Settings.Metadata.Remove(PlatformExtensions.FragmentConstant);
+            (DataContext as IViewModel)?.Settings.Metadata.Remove(AndroidToolkitExtensions.FragmentConstant);
             base.OnDestroy(baseOnDestroy);
             Closing = null;
             Canceled = null;
@@ -292,9 +292,9 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         {
             if (_view != null)
             {
-                _view.ClearBindingsRecursively(true, true, PlatformExtensions.AggressiveViewCleanup);
+                _view.ClearBindingsRecursively(true, true, AndroidToolkitExtensions.AggressiveViewCleanup);
                 _view = null;
-                PlatformExtensions.CleanupWeakReferences(false);
+                AndroidToolkitExtensions.CleanupWeakReferences(false);
             }
         }
 

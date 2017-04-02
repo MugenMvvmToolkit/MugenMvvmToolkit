@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="PlatformExtensions.cs">
+// <copyright file="AndroidToolkitExtensions.cs">
 // Copyright (c) 2012-2017 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -51,7 +51,7 @@ using MugenMvvmToolkit.Models;
 namespace MugenMvvmToolkit.Android
 {
     // ReSharper disable once PartialTypeWithSinglePart
-    public static partial class PlatformExtensions
+    public static partial class AndroidToolkitExtensions
     {
         #region Nested types
 
@@ -264,7 +264,7 @@ namespace MugenMvvmToolkit.Android
 
         #region Constructors
 
-        static PlatformExtensions()
+        static AndroidToolkitExtensions()
         {
             IsApiGreaterThan10 = Build.VERSION.SdkInt > BuildVersionCodes.GingerbreadMr1;
             IsApiLessThanOrEqualTo10 = !IsApiGreaterThan10;
@@ -272,7 +272,7 @@ namespace MugenMvvmToolkit.Android
             IsApiGreaterThanOrEqualTo17 = Build.VERSION.SdkInt >= BuildVersionCodes.JellyBeanMr1;
             IsApiGreaterThanOrEqualTo19 = Build.VERSION.SdkInt >= BuildVersionCodes.Kitkat;
             IsApiGreaterThanOrEqualTo21 = Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop;
-            FragmentConstant = DataConstant.Create<object>(typeof(PlatformExtensions), nameof(FragmentConstant), false);
+            FragmentConstant = DataConstant.Create<object>(typeof(AndroidToolkitExtensions), nameof(FragmentConstant), false);
             ContentViewManagerField = new ContentViewManager();
 
             _setContentViewDelegete = ContentViewManagerField.SetContent;

@@ -63,7 +63,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             JavaCastMethod = typeof(JavaObjectExtensions).GetMethod("JavaCast", BindingFlags.Static | BindingFlags.Public, null, new[] { typeof(IJavaObject) }, null);
             var inflaterClass = Class.FromType(typeof(LayoutInflater));
             FactoryField = TryGetField("mFactory", inflaterClass);
-            if (PlatformExtensions.IsApiGreaterThan10)
+            if (AndroidToolkitExtensions.IsApiGreaterThan10)
             {
                 Factory2Field = TryGetField("mFactory2", inflaterClass);
                 PrivateFactoryField = TryGetField("mPrivateFactory", inflaterClass);
@@ -102,7 +102,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                 else
                     FactoryField.Set(inflater, factoryWrapper);
             }
-            if (PlatformExtensions.IsApiGreaterThan10 && !HasFactory2(inflater))
+            if (AndroidToolkitExtensions.IsApiGreaterThan10 && !HasFactory2(inflater))
             {
                 if (factoryWrapper == null)
                     factoryWrapper = GetWrapper(inflater, factory);
@@ -160,7 +160,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                 viewResult = _viewFactory.Initialize(view, attrs);
             }
 
-            var viewCreated = PlatformExtensions.ViewCreated;
+            var viewCreated = AndroidToolkitExtensions.ViewCreated;
             if (viewCreated != null)
                 view = viewCreated(view, name, context, attrs);
 

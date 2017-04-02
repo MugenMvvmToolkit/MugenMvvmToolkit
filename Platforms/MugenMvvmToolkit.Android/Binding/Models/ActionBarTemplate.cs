@@ -116,7 +116,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
 
         public void Apply(Activity activity)
         {
-            PlatformExtensions.ValidateTemplate(ItemsSource, Items);
+            AndroidToolkitExtensions.ValidateTemplate(ItemsSource, Items);
             var actionBar = activity.GetActionBar();
 
             var setter = new XmlPropertySetter(actionBar, activity);

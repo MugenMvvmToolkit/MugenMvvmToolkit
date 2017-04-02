@@ -66,7 +66,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             var fragment = content as Fragment;
             if (fragment == null)
                 return false;
-            PlatformExtensions.ValidateViewIdFragment(targetView, fragment);
+            AndroidToolkitExtensions.ValidateViewIdFragment(targetView, fragment);
             FragmentManager manager = targetView.GetFragmentManager();
             if (manager == null)
                 return false;

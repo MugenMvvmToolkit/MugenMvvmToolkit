@@ -44,16 +44,16 @@ namespace MugenMvvmToolkit.Android.Modules
             if (!context.IocContainer.TryGet(out service))
                 return false;
 #else
-            if (!PlatformExtensions.IsApiGreaterThanOrEqualTo17 || !context.IocContainer.TryGet(out service))
+            if (!AndroidToolkitExtensions.IsApiGreaterThanOrEqualTo17 || !context.IocContainer.TryGet(out service))
                 return false;
 #endif
-            var mediatorFactory = PlatformExtensions.MediatorFactory;
-            PlatformExtensions.MediatorFactory = (o, dataContext, arg3) =>
+            var mediatorFactory = AndroidToolkitExtensions.MediatorFactory;
+            AndroidToolkitExtensions.MediatorFactory = (o, dataContext, arg3) =>
             {
 #if APPCOMPAT
                 return FragmentExtensions.MvvmFragmentMediatorDefaultFactory(o, dataContext, arg3) ?? mediatorFactory?.Invoke(o, dataContext, arg3);
 #else
-                return PlatformExtensions.MvvmFragmentMediatorDefaultFactory(o, dataContext, arg3) ?? mediatorFactory?.Invoke(o, dataContext, arg3);
+                return AndroidToolkitExtensions.MvvmFragmentMediatorDefaultFactory(o, dataContext, arg3) ?? mediatorFactory?.Invoke(o, dataContext, arg3);
 #endif
             };
 

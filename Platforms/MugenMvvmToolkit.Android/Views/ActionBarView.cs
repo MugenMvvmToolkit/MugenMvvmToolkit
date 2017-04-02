@@ -142,7 +142,7 @@ namespace MugenMvvmToolkit.Android.Views
             if (string.IsNullOrEmpty(_bind))
                 return;
             BindingServiceProvider.BindingProvider.CreateBindingsFromString(actionBar, _bind, null);
-            this.ClearBindingsRecursively(true, true, PlatformExtensions.AggressiveViewCleanup);
+            this.ClearBindingsRecursively(true, true, AndroidToolkitExtensions.AggressiveViewCleanup);
             this.RemoveFromParent();
         }
 

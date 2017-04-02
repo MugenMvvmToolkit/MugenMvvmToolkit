@@ -105,17 +105,17 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
         public bool Load(IModuleContext context)
         {
 #if !APPCOMPAT
-            if (!PlatformExtensions.IsApiGreaterThanOrEqualTo17)
+            if (!AndroidToolkitExtensions.IsApiGreaterThanOrEqualTo17)
                 return false;
 #endif
-            var isActionBar = PlatformExtensions.IsActionBar;
-            var isFragment = PlatformExtensions.IsFragment;
+            var isActionBar = AndroidToolkitExtensions.IsActionBar;
+            var isFragment = AndroidToolkitExtensions.IsFragment;
             var tabChangedDelegate = TabHostItemsSourceGenerator.TabChangedDelegate;
             var removeTabDelegate = TabHostItemsSourceGenerator.RemoveTabDelegate;
 
-            PlatformExtensions.IsActionBar = o => isActionBar(o) || o is ActionBar;
-            PlatformExtensions.IsFragment = o => isFragment(o) || o is Fragment;
-            PlatformExtensions.AddContentViewManager(new FragmentContentViewManager());
+            AndroidToolkitExtensions.IsActionBar = o => isActionBar(o) || o is ActionBar;
+            AndroidToolkitExtensions.IsFragment = o => isFragment(o) || o is Fragment;
+            AndroidToolkitExtensions.AddContentViewManager(new FragmentContentViewManager());
 
             TabHostItemsSourceGenerator.RemoveTabDelegate = (generator, info) => OnRemoveTab(removeTabDelegate, generator, info);
             TabHostItemsSourceGenerator.TabChangedDelegate = (generator, o, arg3, arg4, arg5) => OnTabChanged(tabChangedDelegate, generator, o, arg3, arg4, arg5);

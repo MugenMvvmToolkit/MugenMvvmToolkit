@@ -53,7 +53,7 @@ namespace MugenMvvmToolkit.Android
             if (view == null)
             {
                 var fragment = (Fragment)content;
-                PlatformExtensions.ValidateViewIdFragment(frameLayout, fragment);
+                AndroidToolkitExtensions.ValidateViewIdFragment(frameLayout, fragment);
                 updateAction(frameLayout, fragment, transaction);
             }
             else

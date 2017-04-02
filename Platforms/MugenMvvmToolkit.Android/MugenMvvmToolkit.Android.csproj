@@ -169,7 +169,7 @@
     <Compile Include="Binding\Models\ParentObserver.cs" />
     <Compile Include="Models\ViewResult.cs" />
     <Compile Include="Modules\PreferenceInitializationModule.cs" />
-    <Compile Include="PlatformExtensions.cs" />
+    <Compile Include="AndroidToolkitExtensions.cs" />
     <Compile Include="Binding\PreferenceAttachedMembers.cs" />
     <Compile Include="PreferenceExtensions.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />

@@ -120,7 +120,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
                     }
                     else
                         viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.StateNotNeeded, true);
-                    _content = PlatformExtensions.GetContentView(layout, layout.Context, _content,
+                    _content = AndroidToolkitExtensions.GetContentView(layout, layout.Context, _content,
                         _contentTemplateProvider.GetTemplateId(), _contentTemplateProvider.GetDataTemplateSelector());
                     if (BindingServiceProvider.BindingManager.GetBindings(tab, AttachedMembers.Object.DataContext).Any())
                         _content.SetBindingMemberValue(AttachedMembers.Object.Parent, tab);

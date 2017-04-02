@@ -37,7 +37,7 @@ using MugenMvvmToolkit.Android.Interfaces.Mediators;
 
 namespace MugenMvvmToolkit.Android
 {
-    public static partial class PlatformExtensions
+    public static partial class AndroidToolkitExtensions
 #endif
     {
         #region Methods

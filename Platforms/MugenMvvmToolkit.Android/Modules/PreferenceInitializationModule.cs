@@ -128,8 +128,8 @@ namespace MugenMvvmToolkit.Android.Modules
                 }
             }
 
-            var mediatorFactory = PlatformExtensions.MediatorFactory;
-            PlatformExtensions.MediatorFactory = (item, dataContext, mediatorType) =>
+            var mediatorFactory = AndroidToolkitExtensions.MediatorFactory;
+            AndroidToolkitExtensions.MediatorFactory = (item, dataContext, mediatorType) =>
             {
 #if !APPCOMPAT                
                 if (item is PreferenceActivity && typeof(IMvvmActivityMediator).IsAssignableFrom(mediatorType))

@@ -83,7 +83,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             {
                 if (IsAlive() && !(activity is IActivityView) && _service.CurrentContent != activity)
                 {
-                    PlatformExtensions.SetCurrentActivity(activity, false);
+                    AndroidToolkitExtensions.SetCurrentActivity(activity, false);
                     _service.RaiseNavigated(activity, NavigationMode.New, null, null);
                 }
             }
@@ -100,7 +100,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             public void OnActivityDestroyed(Activity activity)
             {
                 if (IsAlive() && !(activity is IActivityView))
-                    PlatformExtensions.SetCurrentActivity(activity, true);
+                    AndroidToolkitExtensions.SetCurrentActivity(activity, true);
             }
 
             public void OnActivityPaused(Activity activity)
@@ -220,7 +220,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         private bool GoBack(IDataContext context)
         {
-            var currentActivity = PlatformExtensions.CurrentActivity;
+            var currentActivity = AndroidToolkitExtensions.CurrentActivity;
             if (!currentActivity.IsAlive() || IsDestroyed(currentActivity) || currentActivity.IsFinishing)
                 return false;
             _backDataContext = context;
@@ -258,7 +258,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         #region Implementation of INavigationService
 
-        public object CurrentContent => PlatformExtensions.CurrentActivity;
+        public object CurrentContent => AndroidToolkitExtensions.CurrentActivity;
 
         public void OnPauseActivity(Activity activity, IDataContext context = null)
         {
@@ -277,7 +277,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             var activityEquals = ReferenceEquals(activity, prevContent);
             if (activityEquals && !_isPause)
                 return;
-            PlatformExtensions.SetCurrentActivity(activity, false);
+            AndroidToolkitExtensions.SetCurrentActivity(activity, false);
             var isPause = _isPause;
             _isPause = false;
             if (_newDataContext == null)
@@ -380,7 +380,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             _isReorder = bringToFront;
             _newDataContext = dataContext;
 
-            var activity = PlatformExtensions.CurrentActivity;
+            var activity = AndroidToolkitExtensions.CurrentActivity;
             var context = activity ?? Application.Context;
 
             var intent = new Intent(context, source.ViewType);
@@ -388,7 +388,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                 intent.AddFlags(ActivityFlags.NewTask);
             else if (clearBackStack)
             {
-                if (PlatformExtensions.IsApiLessThanOrEqualTo10)
+                if (AndroidToolkitExtensions.IsApiLessThanOrEqualTo10)
                     intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTop);
                 else
                     intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
@@ -420,7 +420,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                 //http://stackoverflow.com/questions/20695522/puzzling-behavior-with-reorder-to-front
                 //http://code.google.com/p/android/issues/detail?id=63570#c2
                 bool closed = false;
-                if (!clearBackStack && PlatformExtensions.IsApiGreaterThanOrEqualTo19)
+                if (!clearBackStack && AndroidToolkitExtensions.IsApiGreaterThanOrEqualTo19)
                 {
                     var viewModel = dataContext.GetData(NavigationConstants.ViewModel);
                     var activityView = viewModel?.GetCurrentView<object>() as Activity;

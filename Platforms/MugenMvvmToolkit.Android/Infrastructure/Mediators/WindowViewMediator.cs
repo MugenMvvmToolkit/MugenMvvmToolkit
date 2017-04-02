@@ -54,7 +54,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         protected override void ShowView(IWindowView view, bool isDialog, IDataContext context)
         {
             view.Cancelable = !isDialog;
-            view.Show(PlatformExtensions.CurrentActivity.GetFragmentManager(), Guid.NewGuid().ToString("n"));
+            view.Show(AndroidToolkitExtensions.CurrentActivity.GetFragmentManager(), Guid.NewGuid().ToString("n"));
         }
 
         protected override bool ActivateView(IWindowView view, IDataContext context)

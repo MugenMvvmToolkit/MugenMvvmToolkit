@@ -608,7 +608,7 @@ namespace MugenMvvmToolkit.Android.Binding
                     }
                 }, nameof(TextView.TextChanged));
                 MemberProvider.Register(fastTextMember);
-                if (PlatformExtensions.EnableFastTextViewTextProperty)
+                if (AndroidToolkitExtensions.EnableFastTextViewTextProperty)
                     MemberProvider.Register(nameof(TextView.Text), fastTextMember);
             }
         }
@@ -674,7 +674,7 @@ namespace MugenMvvmToolkit.Android.Binding
 
         public static void RegisterToolbarMembers()
         {
-            if (PlatformExtensions.IsApiGreaterThanOrEqualTo21)
+            if (AndroidToolkitExtensions.IsApiGreaterThanOrEqualTo21)
             {
                 MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.Toolbar.IsActionBar, ToolbarIsActionBarChanged));
                 MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.View.MenuTemplate.Override<Toolbar>(), ToolbarMenuTemplateChanged));
@@ -712,7 +712,7 @@ namespace MugenMvvmToolkit.Android.Binding
 
         public static void RegisterMenuItemBaseMembers()
         {
-            PlatformExtensions.MenuItemTemplateInitalized += MenuItemTemplateInitialized;
+            AndroidToolkitExtensions.MenuItemTemplateInitalized += MenuItemTemplateInitialized;
             BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.MenuItem.Click);
             MemberProvider.Register(AttachedBindingMember.CreateNotifiableMember(AttachedMembers.MenuItem.IsChecked,
                 (info, item) => item.IsChecked, (info, item, value) =>
@@ -896,7 +896,7 @@ namespace MugenMvvmToolkit.Android.Binding
             var listAdapter = sender.Adapter as IItemsSourceAdapter;
             if (listAdapter == null)
             {
-                listAdapter = PlatformExtensions.ItemsSourceAdapterFactory(sender, sender.Context, DataContext.Empty);
+                listAdapter = AndroidToolkitExtensions.ItemsSourceAdapterFactory(sender, sender.Context, DataContext.Empty);
                 sender.Adapter = listAdapter;
             }
             listAdapter.ItemsSource = args.NewValue;
@@ -1106,7 +1106,7 @@ namespace MugenMvvmToolkit.Android.Binding
             var adapter = GetAdapter(container) as IItemsSourceAdapter;
             if (adapter == null)
             {
-                adapter = PlatformExtensions.ItemsSourceAdapterFactory(container, container.Context, DataContext.Empty);
+                adapter = AndroidToolkitExtensions.ItemsSourceAdapterFactory(container, container.Context, DataContext.Empty);
                 SetAdapter(container, adapter);
             }
             adapter.ItemsSource = args.NewValue;
@@ -1144,10 +1144,10 @@ namespace MugenMvvmToolkit.Android.Binding
                 return;
             var templateId = sender.GetBindingMemberValue(AttachedMembers.ViewGroup.ContentTemplate);
             var templateSelector = sender.GetBindingMemberValue(AttachedMembers.ViewGroup.ContentTemplateSelector);
-            newContent = PlatformExtensions.GetContentView(sender, sender.Context, newContent, templateId, templateSelector);
+            newContent = AndroidToolkitExtensions.GetContentView(sender, sender.Context, newContent, templateId, templateSelector);
             var contentViewManager = sender.GetBindingMemberValue(AttachedMembers.ViewGroup.ContentViewManager);
             if (contentViewManager == null)
-                PlatformExtensions.SetContentView(sender, newContent);
+                AndroidToolkitExtensions.SetContentView(sender, newContent);
             else
                 contentViewManager.SetContent(sender, newContent);
         }

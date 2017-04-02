@@ -424,7 +424,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             var selector = _itemTemplateProvider.GetDataTemplateSelector();
             if (templateId == null && selector == null)
                 selector = EmptyTemplateSelector.Instance;
-            object content = PlatformExtensions.GetContentView(TabHost, TabHost.Context, item, templateId, selector);
+            object content = AndroidToolkitExtensions.GetContentView(TabHost, TabHost.Context, item, templateId, selector);
             if (content == EmptyTemplateSelector.EmptyView)
             {
                 content = null;
@@ -442,7 +442,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         private object GetContent(object item)
         {
-            return PlatformExtensions.GetContentView(TabHost, TabHost.Context,
+            return AndroidToolkitExtensions.GetContentView(TabHost, TabHost.Context,
                 item, _contentTemplateProvider.GetTemplateId(), _contentTemplateProvider.GetDataTemplateSelector());
         }
 

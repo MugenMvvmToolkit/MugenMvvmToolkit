@@ -50,7 +50,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
 
         public void Apply(IMenu menu, Context context, object parent)
         {
-            PlatformExtensions.ValidateTemplate(ItemsSource, Items);
+            AndroidToolkitExtensions.ValidateTemplate(ItemsSource, Items);
             var setter = new XmlPropertySetter(menu, context);
             menu.SetBindingMemberValue(AttachedMembers.Object.Parent, parent);
             setter.SetBinding(nameof(DataContext), DataContext, false);

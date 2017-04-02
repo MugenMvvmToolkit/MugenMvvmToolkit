@@ -45,16 +45,16 @@ namespace MugenMvvmToolkit.Android.Binding.Modules
                 BindingResourceExtensions.Initialize();
             }
 
-            PlatformExtensions.ItemsSourceAdapterFactory = (o, ctx, arg3) => new ItemsSourceAdapter(o, ctx, !ReferenceEquals(ViewGroupItemsSourceGenerator.Context, arg3));
+            AndroidToolkitExtensions.ItemsSourceAdapterFactory = (o, ctx, arg3) => new ItemsSourceAdapter(o, ctx, !ReferenceEquals(ViewGroupItemsSourceGenerator.Context, arg3));
             context.TryRegisterDataTemplateSelectorsAndValueConverters(null);
             MugenMvvmToolkit.Binding.AttachedMembersRegistration.RegisterDefaultMembers();
 
-            if (PlatformExtensions.IsApiGreaterThanOrEqualTo14)
+            if (AndroidToolkitExtensions.IsApiGreaterThanOrEqualTo14)
             {
-                var isActionBar = PlatformExtensions.IsActionBar;
-                var isFragment = PlatformExtensions.IsFragment;
-                PlatformExtensions.IsActionBar = o => isActionBar(o) || o is ActionBar;
-                PlatformExtensions.IsFragment = o => isFragment(o) || o is Fragment;
+                var isActionBar = AndroidToolkitExtensions.IsActionBar;
+                var isFragment = AndroidToolkitExtensions.IsFragment;
+                AndroidToolkitExtensions.IsActionBar = o => isActionBar(o) || o is ActionBar;
+                AndroidToolkitExtensions.IsFragment = o => isFragment(o) || o is Fragment;
 
                 AttachedMembersRegistration.RegisterActionBarBaseMembers();
                 AttachedMembersRegistration.RegisterActionBarMembers();

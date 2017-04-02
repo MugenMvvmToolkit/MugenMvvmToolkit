@@ -110,7 +110,7 @@ namespace MugenMvvmToolkit.Android.Binding
 
         internal static Context GetContext(object target)
         {
-            return target == null ? (PlatformExtensions.CurrentActivity ?? Application.Context) : AttachedMembersRegistration.GetContextFromItem(target);
+            return target == null ? (AndroidToolkitExtensions.CurrentActivity ?? Application.Context) : AttachedMembersRegistration.GetContextFromItem(target);
         }
 
         private static int GetId(Context context, string name, string type)

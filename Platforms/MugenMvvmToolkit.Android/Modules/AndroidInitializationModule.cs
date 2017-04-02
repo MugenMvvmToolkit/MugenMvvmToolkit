@@ -41,12 +41,12 @@ namespace MugenMvvmToolkit.Android.Modules
 
         public override bool Load(IModuleContext context)
         {
-            var mediatorFactory = PlatformExtensions.MediatorFactory;
-            PlatformExtensions.MediatorFactory = (o, dataContext, arg3) =>
+            var mediatorFactory = AndroidToolkitExtensions.MediatorFactory;
+            AndroidToolkitExtensions.MediatorFactory = (o, dataContext, arg3) =>
             {
-                return PlatformExtensions.MvvmActivityMediatorDefaultFactory(o, dataContext, arg3) ?? mediatorFactory?.Invoke(o, dataContext, arg3);
+                return AndroidToolkitExtensions.MvvmActivityMediatorDefaultFactory(o, dataContext, arg3) ?? mediatorFactory?.Invoke(o, dataContext, arg3);
             };
-            PlatformExtensions.LayoutInflaterFactory = (c, dataContext, factory, inflater) =>
+            AndroidToolkitExtensions.LayoutInflaterFactory = (c, dataContext, factory, inflater) =>
             {
                 if (inflater == null)
                 {
@@ -56,9 +56,9 @@ namespace MugenMvvmToolkit.Android.Modules
                 LayoutInflaterFactoryWrapper.SetFactory(inflater, factory);
                 return inflater;
             };
-            PlatformExtensions.MenuInflaterFactory = (c, baseMenuInflater, ctx) => new BindableMenuInflater(c) { NestedMenuInflater = baseMenuInflater };
-            PlatformExtensions.GetContentView = PlatformExtensions.GetContentViewDefault;
-            PlatformExtensions.AddContentViewManager(new ViewContentViewManager());
+            AndroidToolkitExtensions.MenuInflaterFactory = (c, baseMenuInflater, ctx) => new BindableMenuInflater(c) { NestedMenuInflater = baseMenuInflater };
+            AndroidToolkitExtensions.GetContentView = AndroidToolkitExtensions.GetContentViewDefault;
+            AndroidToolkitExtensions.AddContentViewManager(new ViewContentViewManager());
 
             BindNavigationService(context, context.IocContainer);
             BindViewFactory(context, context.IocContainer);

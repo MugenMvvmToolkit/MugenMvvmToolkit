@@ -30,7 +30,7 @@ namespace MugenMvvmToolkit.Android.Views
         #region Constructors
 
         public UserControl(int viewId)
-            : base(PlatformExtensions.CurrentActivity)
+            : base(AndroidToolkitExtensions.CurrentActivity)
         {
             SetOnHierarchyChangeListener(GlobalViewParentListener.Instance);
             Context.GetBindableLayoutInflater().Inflate(viewId, this, true);

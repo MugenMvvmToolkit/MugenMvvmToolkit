@@ -218,7 +218,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 Tracer.Info($"OnDestroy activity({Target})");
             ServiceProvider.EventAggregator.Unsubscribe(this);
             Destroyed?.Invoke(Target, EventArgs.Empty);
-            _view.ClearBindingsRecursively(true, true, PlatformExtensions.AggressiveViewCleanup);
+            _view.ClearBindingsRecursively(true, true, AndroidToolkitExtensions.AggressiveViewCleanup);
             _view = null;
 
             if (_metadata != null)
@@ -241,8 +241,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 _layoutInflater = null;
             }
             base.OnDestroy(baseOnDestroy);
-            ThreadPool.QueueUserWorkItem(state => PlatformExtensions.CleanupWeakReferences(true));
-            PlatformExtensions.SetCurrentActivity(Target, true);
+            ThreadPool.QueueUserWorkItem(state => AndroidToolkitExtensions.CleanupWeakReferences(true));
+            AndroidToolkitExtensions.SetCurrentActivity(Target, true);
             Target.ClearBindings(false, true);
             OptionsItemSelected = null;
             ActivityResult = null;
@@ -286,7 +286,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         {
             if (!_isStarted)
             {
-                PlatformExtensions.NotifyActivityAttached(Target, _view);
+                AndroidToolkitExtensions.NotifyActivityAttached(Target, _view);
                 _isStarted = true;
             }
             baseOnStart();
@@ -311,7 +311,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         public virtual MenuInflater GetMenuInflater(MenuInflater baseMenuInflater)
         {
             if (_menuInflater == null)
-                _menuInflater = PlatformExtensions.MenuInflaterFactory(Target, baseMenuInflater, MugenMvvmToolkit.Models.DataContext.Empty);
+                _menuInflater = AndroidToolkitExtensions.MenuInflaterFactory(Target, baseMenuInflater, MugenMvvmToolkit.Models.DataContext.Empty);
             return _menuInflater ?? baseMenuInflater;
         }
 
@@ -320,7 +320,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             if (!_isCreated)
                 return baseLayoutInflater;
             if (_layoutInflater == null)
-                _layoutInflater = PlatformExtensions.LayoutInflaterFactory(Target, null, null, baseLayoutInflater);
+                _layoutInflater = AndroidToolkitExtensions.LayoutInflaterFactory(Target, null, null, baseLayoutInflater);
             return _layoutInflater ?? baseLayoutInflater;
         }
 
