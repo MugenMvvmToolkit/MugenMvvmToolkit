@@ -150,7 +150,7 @@
     <Compile Include="Converters\NullToVisibilityConverter.cs" />
     <Compile Include="Converters\ValueConverterWrapper.cs" />
     <Compile Include="InternalExtensions.cs" />
-    <Compile Include="PlatformDataBindingExtensions.cs" />
+    <Compile Include="UwpDataBindingExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\MugenMvvmToolkit.UWP.Binding.rd.xml" />
   </ItemGroup>

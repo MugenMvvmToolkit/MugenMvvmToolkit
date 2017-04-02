@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="PlatformDataBindingExtensions.cs">
+// <copyright file="UwpDataBindingExtensions.cs">
 // Copyright (c) 2012-2017 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -24,7 +24,7 @@ using MugenMvvmToolkit.UWP.Binding.Models;
 
 namespace MugenMvvmToolkit.UWP.Binding
 {
-    public static class PlatformDataBindingExtensions
+    public static class UwpDataBindingExtensions
     {
         #region Methods
 
