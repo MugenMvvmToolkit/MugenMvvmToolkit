@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="PlatformDataBindingExtensions.cs">
+// <copyright file="XamarinFormsDataBindingExtensions.cs">
 // Copyright (c) 2012-2017 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
