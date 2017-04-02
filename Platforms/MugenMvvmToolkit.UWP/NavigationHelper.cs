@@ -371,7 +371,7 @@ namespace MugenMvvmToolkit.UWP
             {
                 var state = (Dictionary<string, object>)frameState[_pageKey];
                 //NOTE loading state of view model.
-                PlatformExtensions.ApplicationStateManager.OnLoadState(Page, state, e);
+                UwpToolkitExtensions.ApplicationStateManager.OnLoadState(Page, state, e);
                 // Pass the navigation parameter and preserved page state to the page, using
                 // the same strategy for loading suspended state and recreating pages discarded
                 // from cache
@@ -393,7 +393,7 @@ namespace MugenMvvmToolkit.UWP
             var frameState = SuspensionManager.SessionStateForFrame(Frame);
             var pageState = new Dictionary<string, object>();
             //NOTE saving state of view model.
-            PlatformExtensions.ApplicationStateManager.OnSaveState(Page, pageState, e);
+            UwpToolkitExtensions.ApplicationStateManager.OnSaveState(Page, pageState, e);
             SaveState?.Invoke(this, new SaveStateEventArgs(pageState));
             frameState[_pageKey] = pageState;
         }

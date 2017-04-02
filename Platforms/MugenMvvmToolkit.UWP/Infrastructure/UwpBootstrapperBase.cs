@@ -52,14 +52,14 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
 
         protected UwpBootstrapperBase(bool isDesignMode, PlatformInfo platform = null) : base(isDesignMode)
         {
-            _platform = platform ?? PlatformExtensions.GetPlatformInfo();
+            _platform = platform ?? UwpToolkitExtensions.GetPlatformInfo();
         }
 
         protected UwpBootstrapperBase([CanBeNull] Frame rootFrame, PlatformInfo platform = null)
             : this(false, platform)
         {
             _rootFrame = rootFrame;
-            _platform = platform ?? PlatformExtensions.GetPlatformInfo();
+            _platform = platform ?? UwpToolkitExtensions.GetPlatformInfo();
         }
 
         #endregion

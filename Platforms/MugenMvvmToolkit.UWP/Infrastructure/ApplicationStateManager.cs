@@ -123,7 +123,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
             if (eventArgs != null && eventArgs.GetHandled())
             {
                 eventArgs.SetHandled(false);
-                PlatformExtensions.SetViewModelState(eventArgs.Content, viewModelState);
+                UwpToolkitExtensions.SetViewModelState(eventArgs.Content, viewModelState);
             }
             else
                 RestoreViewModel(vmType, viewModelState, element, state, args, context);

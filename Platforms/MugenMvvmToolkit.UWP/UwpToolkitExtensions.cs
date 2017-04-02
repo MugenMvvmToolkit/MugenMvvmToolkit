@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="PlatformExtensions.cs">
+// <copyright file="UwpToolkitExtensions.cs">
 // Copyright (c) 2012-2017 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -28,7 +28,7 @@ using NavigationMode = MugenMvvmToolkit.Models.NavigationMode;
 
 namespace MugenMvvmToolkit.UWP
 {
-    public static class PlatformExtensions
+    public static class UwpToolkitExtensions
     {
         #region Fields
 
