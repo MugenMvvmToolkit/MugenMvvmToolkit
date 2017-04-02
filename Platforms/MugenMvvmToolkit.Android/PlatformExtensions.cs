@@ -51,7 +51,7 @@ using MugenMvvmToolkit.Models;
 namespace MugenMvvmToolkit.Android
 {
     // ReSharper disable once PartialTypeWithSinglePart
-    public static partial class PlatformExtensions//todo rename
+    public static partial class PlatformExtensions
     {
         #region Nested types
 
