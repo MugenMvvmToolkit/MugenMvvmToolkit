@@ -203,12 +203,12 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             if (_platformService != null)
             {
                 _platformService.Initialize();
-                XamarinFormsExtensions.ValueConverter = _platformService.ValueConverter;
+                XamarinFormsToolkitExtensions.ValueConverter = _platformService.ValueConverter;
             }
             if (!IsDesignMode)
             {
                 IocContainer.Get<IViewModelPresenter>().DynamicPresenters.Add(this);
-                XamarinFormsExtensions.BackButtonPressed += OnBackButtonPressed;
+                XamarinFormsToolkitExtensions.BackButtonPressed += OnBackButtonPressed;
             }
         }
 
@@ -297,7 +297,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             if (viewModel == null || !viewModel.Settings.State.Contains(IsRootConstant))
                 return;
 
-            var backButtonAction = XamarinFormsExtensions.SendBackButtonPressed?.Invoke(sender);
+            var backButtonAction = XamarinFormsToolkitExtensions.SendBackButtonPressed?.Invoke(sender);
             if (backButtonAction == null)
                 return;
 

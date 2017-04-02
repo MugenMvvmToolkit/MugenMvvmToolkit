@@ -1,7 +1,7 @@
 #region Copyright
 
 // ****************************************************************************
-// <copyright file="PlatformExtensions.cs">
+// <copyright file="XamarinFormsAndroidToolkitExtensions.cs">
 // Copyright (c) 2012-2017 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -22,7 +22,7 @@ using Android.Content;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Android
 {
-    public static class PlatformExtensions
+    public static class XamarinFormsAndroidToolkitExtensions
     {
         #region Properties
 

@@ -67,7 +67,7 @@
       <Link>PlatformBootstrapperService.cs</Link>
     </Compile>
     <Compile Include="Modules\XamarinFormsInitializationModuleEx.cs" />
-    <Compile Include="PlatformExtensions.cs" />
+    <Compile Include="XamarinFormsAndroidToolkitExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

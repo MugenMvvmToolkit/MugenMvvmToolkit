@@ -77,7 +77,7 @@
     <Compile Include="Modules\XamarinFormsInitializationModule.cs" />
     <Compile Include="Interfaces\Views\IModalView.cs" />
     <Compile Include="MvvmXamarinApplicationBase.cs" />
-    <Compile Include="XamarinFormsExtensions.cs" />
+    <Compile Include="XamarinFormsToolkitExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -54,7 +54,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
 #if ANDROID
         public PlatformBootstrapperService(Func<Context> getCurrentContext)
         {
-            PlatformExtensions.GetCurrentContext = getCurrentContext;
+            XamarinFormsAndroidToolkitExtensions.GetCurrentContext = getCurrentContext;
         }
 #endif
         #endregion
@@ -136,11 +136,11 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
         private static PlatformIdiom GetIdiom()
         {
 #if ANDROID
-            var context = PlatformExtensions.GetContext();
+            var context = XamarinFormsAndroidToolkitExtensions.GetContext();
             int minWidthDp = context.Resources.Configuration.SmallestScreenWidthDp;
             return minWidthDp >= 600 ? PlatformIdiom.Tablet : PlatformIdiom.Phone;
 #elif TOUCH
-            return PlatformExtensions.GetIdiom();
+            return XamarinFormsTouchToolkitExtensions.GetIdiom();
 #elif WINDOWS_UWP
             switch (AnalyticsInfo.VersionInfo.DeviceFamily)
             {

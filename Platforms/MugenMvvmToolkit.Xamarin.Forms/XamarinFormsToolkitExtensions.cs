@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="XamarinFormsExtensions.cs">
+// <copyright file="XamarinFormsToolkitExtensions.cs">
 // Copyright (c) 2012-2017 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -27,7 +27,7 @@ using Xamarin.Forms;
 
 namespace MugenMvvmToolkit.Xamarin.Forms
 {
-    public static class XamarinFormsExtensions
+    public static class XamarinFormsToolkitExtensions
     {
         #region Fields
 
@@ -40,7 +40,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms
 
         #region Constructors
 
-        static XamarinFormsExtensions()
+        static XamarinFormsToolkitExtensions()
         {
             BindingCultureInfo = () => CultureInfo.CurrentCulture;
         }

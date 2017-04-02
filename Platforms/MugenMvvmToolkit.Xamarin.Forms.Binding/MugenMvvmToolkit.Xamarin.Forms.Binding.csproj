@@ -70,7 +70,7 @@
     <Compile Include="MarkupExtensions\View.cs" />
     <Compile Include="Models\ParentObserver.cs" />
     <Compile Include="Modules\XamarinFormsDataBindingModule.cs" />
-    <Compile Include="PlatformDataBindingExtensions.cs" />
+    <Compile Include="XamarinFormsDataBindingExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

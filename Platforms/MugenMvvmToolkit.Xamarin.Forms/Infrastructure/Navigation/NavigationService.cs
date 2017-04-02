@@ -46,9 +46,9 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
         [Preserve(Conditional = true)]
         public NavigationService()
         {
-            XamarinFormsExtensions.BackButtonPressed += ReflectionExtensions
+            XamarinFormsToolkitExtensions.BackButtonPressed += ReflectionExtensions
                 .CreateWeakDelegate<NavigationService, CancelEventArgs, EventHandler<Page, CancelEventArgs>>(this,
-                    (service, o, arg3) => service.OnBackButtonPressed((Page)o, arg3), (o, handler) => XamarinFormsExtensions.BackButtonPressed -= handler,
+                    (service, o, arg3) => service.OnBackButtonPressed((Page)o, arg3), (o, handler) => XamarinFormsToolkitExtensions.BackButtonPressed -= handler,
                     handler => handler.Handle);
             UseAnimations = true;
         }
@@ -105,7 +105,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             //Back button pressed.
             if (eventArgs.IsBackButtonNavigation)
             {
-                var sendBackButton = XamarinFormsExtensions.SendBackButtonPressed?.Invoke(CurrentContent);
+                var sendBackButton = XamarinFormsToolkitExtensions.SendBackButtonPressed?.Invoke(CurrentContent);
                 if (sendBackButton != null)
                 {
                     sendBackButton();
@@ -293,7 +293,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             bool isBack = false;
             if (navigationStack.Count == 1)
             {
-                if (XamarinFormsExtensions.SendBackButtonPressed == null)
+                if (XamarinFormsToolkitExtensions.SendBackButtonPressed == null)
                     return;
                 isBack = true;
             }

@@ -91,7 +91,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Modules
         public bool Load(IModuleContext context)
         {
             BindingServiceProvider.Initialize(contextManager: new XamarinFormsBindingContextManager(), resourceResolver: new XamarinFormsBindingResourceResolver(),
-                errorProvider: new XamarinFormsBindingErrorProvider(), converter: PlatformDataBindingExtensions.Convert);
+                errorProvider: new XamarinFormsBindingErrorProvider(), converter: XamarinFormsDataBindingExtensions.Convert);
             context.TryRegisterDataTemplateSelectorsAndValueConverters(RegisterType);
             MugenMvvmToolkit.Binding.AttachedMembersRegistration.RegisterDefaultMembers();
 

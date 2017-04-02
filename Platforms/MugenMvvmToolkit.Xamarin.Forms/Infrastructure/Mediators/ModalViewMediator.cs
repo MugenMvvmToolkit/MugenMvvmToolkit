@@ -52,7 +52,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Mediators
             _backButtonHandler = ReflectionExtensions
                 .CreateWeakDelegate<ModalViewMediator, CancelEventArgs, EventHandler<Page, CancelEventArgs>>(this,
                     (service, o, arg3) => service.OnBackButtonPressed((Page)o, arg3),
-                    (o, handler) => XamarinFormsExtensions.BackButtonPressed -= handler, handler => handler.Handle);
+                    (o, handler) => XamarinFormsToolkitExtensions.BackButtonPressed -= handler, handler => handler.Handle);
             _closedHandler = ReflectionExtensions
                 .CreateWeakDelegate<ModalViewMediator, ModalPoppedEventArgs, EventHandler<ModalPoppedEventArgs>>(this,
                     (mediator, o, arg3) => mediator.OnModalClosed(arg3), (o, handler) => Application.Current.ModalPopped -= handler, handler => handler.Handle);
@@ -109,13 +109,13 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Mediators
 
         protected override void InitializeView(IModalView view, IDataContext context)
         {
-            XamarinFormsExtensions.BackButtonPressed += _backButtonHandler;
+            XamarinFormsToolkitExtensions.BackButtonPressed += _backButtonHandler;
             Application.Current.ModalPopped += _closedHandler;
         }
 
         protected override void CleanupView(IModalView view)
         {
-            XamarinFormsExtensions.BackButtonPressed -= _backButtonHandler;
+            XamarinFormsToolkitExtensions.BackButtonPressed -= _backButtonHandler;
             Application.Current.ModalPopped -= _closedHandler;
         }
 

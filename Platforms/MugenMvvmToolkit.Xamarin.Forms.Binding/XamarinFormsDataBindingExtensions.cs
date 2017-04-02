@@ -27,7 +27,7 @@ using Xamarin.Forms;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Binding
 {
-    public static class PlatformDataBindingExtensions
+    public static class XamarinFormsDataBindingExtensions
     {
         #region Fields
 
@@ -37,7 +37,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding
 
         #region Constructors
 
-        static PlatformDataBindingExtensions()
+        static XamarinFormsDataBindingExtensions()
         {
             TypeToContentMember = new Dictionary<Type, IBindingMemberInfo>();
         }
@@ -48,8 +48,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding
 
         public static object Convert(IBindingMemberInfo member, Type type, object value)
         {
-            if (XamarinFormsExtensions.ValueConverter != null)
-                return XamarinFormsExtensions.ValueConverter(member.Member as MemberInfo, type, value);
+            if (XamarinFormsToolkitExtensions.ValueConverter != null)
+                return XamarinFormsToolkitExtensions.ValueConverter(member.Member as MemberInfo, type, value);
             if (value == null)
                 return type.GetDefaultValue();
             if (type.IsInstanceOfType(value))

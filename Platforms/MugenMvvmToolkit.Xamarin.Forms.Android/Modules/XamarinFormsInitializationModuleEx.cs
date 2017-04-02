@@ -54,7 +54,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Modules
         {
 
 #if ANDROID
-            XamarinFormsExtensions.SendBackButtonPressed = GetSendBackButtonPressedImpl;
+            XamarinFormsToolkitExtensions.SendBackButtonPressed = GetSendBackButtonPressedImpl;
 #endif
             return base.Load(context);
         }
@@ -79,7 +79,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Modules
 
         private static Action GetSendBackButtonPressedImpl(object page)
         {
-            var activity = GetActivity(PlatformExtensions.GetCurrentContext());
+            var activity = GetActivity(XamarinFormsAndroidToolkitExtensions.GetCurrentContext());
             if (activity == null)
                 return null;
             return activity.OnBackPressed;
