@@ -31,6 +31,9 @@ namespace MugenMvvmToolkit
         #region Methods
 
         [DebuggerStepThrough, AssertionMethod]
+#if NET_STANDARD
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#endif
         public static void NotBeNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL)]object argumentValue, [InvokerParameterName] string paramName)
         {
             if (argumentValue == null)
