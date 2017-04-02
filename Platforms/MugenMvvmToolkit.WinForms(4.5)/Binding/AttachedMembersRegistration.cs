@@ -243,7 +243,7 @@ namespace MugenMvvmToolkit.WinForms.Binding
 
         private static object FindByNameControlMember(IBindingMemberInfo bindingMemberInfo, Control control, object[] arg3)
         {
-            var root = PlatformExtensions.GetRootControl(control);
+            var root = WinFormsToolkitExtensions.GetRootControl(control);
             if (root != null)
                 control = root;
             return control.Controls.Find((string)arg3[0], true).FirstOrDefault();

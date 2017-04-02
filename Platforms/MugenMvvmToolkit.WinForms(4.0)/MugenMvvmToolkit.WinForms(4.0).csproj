@@ -209,11 +209,11 @@
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Modules\WinFormsWrapperRegistrationModule.cs">
       <Link>Modules\WinFormsWrapperRegistrationModule.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\PlatformExtensions.cs">
-      <Link>PlatformExtensions.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Properties\AssemblyInfo.cs">
       <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\WinFormsToolkitExtensions.cs">
+      <Link>WinFormsToolkitExtensions.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Converters\ViewModelToViewConverter.cs">
       <Link>Converters\ViewModelToViewConverter.cs</Link>

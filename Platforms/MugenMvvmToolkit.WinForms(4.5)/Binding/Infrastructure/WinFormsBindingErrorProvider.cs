@@ -40,7 +40,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.Infrastructure
             var control = target as Control;
             if (control == null)
                 return;
-            Control rootControl = PlatformExtensions.GetRootControl(control);
+            Control rootControl = WinFormsToolkitExtensions.GetRootControl(control);
             if (rootControl == null)
                 return;
             ErrorProvider errorProvider = GetErrorProviderInternal(rootControl);

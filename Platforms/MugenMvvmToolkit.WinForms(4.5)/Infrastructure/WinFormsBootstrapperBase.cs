@@ -50,7 +50,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
         protected WinFormsBootstrapperBase(bool autoRunApplication = true, PlatformInfo platform = null, bool isDesignMode = false)
             : base(isDesignMode)
         {
-            _platform = platform ?? PlatformExtensions.GetPlatformInfo();
+            _platform = platform ?? WinFormsToolkitExtensions.GetPlatformInfo();
             AutoRunApplication = autoRunApplication;
             ShutdownOnMainViewModelClose = true;
         }

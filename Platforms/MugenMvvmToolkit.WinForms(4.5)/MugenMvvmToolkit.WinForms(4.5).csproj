@@ -135,7 +135,7 @@
     <Compile Include="Binding\Interfaces\IXmlHandler.cs" />
     <Compile Include="Interfaces\Views\IWindowView.cs" />
     <Compile Include="Modules\WinFormsWrapperRegistrationModule.cs" />
-    <Compile Include="PlatformExtensions.cs" />
+    <Compile Include="WinFormsToolkitExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

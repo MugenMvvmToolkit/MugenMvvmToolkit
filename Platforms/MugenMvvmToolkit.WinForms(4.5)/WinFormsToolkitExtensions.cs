@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="PlatformExtensions.cs">
+// <copyright file="WinFormsToolkitExtensions.cs">
 // Copyright (c) 2012-2017 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -32,7 +32,7 @@ using MugenMvvmToolkit.WinForms.Collections;
 
 namespace MugenMvvmToolkit.WinForms
 {
-    public static partial class PlatformExtensions
+    public static class WinFormsToolkitExtensions
     {
         #region Fields
 
@@ -42,7 +42,7 @@ namespace MugenMvvmToolkit.WinForms
 
         #region Constructors
 
-        static PlatformExtensions()
+        static WinFormsToolkitExtensions()
         {
             _getComponentName = GetComponentNameImpl;
         }

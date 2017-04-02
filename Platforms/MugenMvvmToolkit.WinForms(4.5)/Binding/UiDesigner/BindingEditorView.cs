@@ -148,7 +148,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
             {
                 if (result is Binder)
                     return false;
-                name = PlatformExtensions.GetComponentName(result);
+                name = WinFormsToolkitExtensions.GetComponentName(result);
                 if (string.IsNullOrWhiteSpace(name))
                     return false;
                 type = result.GetType();
@@ -191,7 +191,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
 
         private static string GetDisplayName(object instance, string name, Type type)
         {
-            string text = instance == null ? null : PlatformExtensions.TryGetValue(instance, "Text");
+            string text = instance == null ? null : WinFormsToolkitExtensions.TryGetValue(instance, "Text");
             return $"{name} ({type.Name}{(string.IsNullOrEmpty(text) ? "" : ", " + text)})";
         }
 

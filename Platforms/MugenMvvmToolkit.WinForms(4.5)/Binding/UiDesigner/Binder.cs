@@ -176,7 +176,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
                 for (int i = 0; i < container.Components.Count; i++)
                 {
                     var cmp = container.Components[i];
-                    if (PlatformExtensions.TryGetValue(cmp, "Name") == name)
+                    if (WinFormsToolkitExtensions.TryGetValue(cmp, "Name") == name)
                         return cmp;
                 }
                 return null;
