@@ -17,8 +17,8 @@
 #endregion
 
 using System;
-using Windows.Security.ExchangeActiveSyncProvisioning;
 using Windows.System.Profile;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml.Navigation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -101,10 +101,23 @@ namespace MugenMvvmToolkit.UWP
             var majorVersion = (version & 0xFFFF000000000000L) >> 48;
             var minorVersion = (version & 0x0000FFFF00000000L) >> 32;
             var buildVersion = (version & 0x00000000FFFF0000L) >> 16;
-            var revisionVersion = (version & 0x000000000000FFFFL);
-            var isPhone = new EasClientDeviceInformation().OperatingSystem.SafeContains("WindowsPhone", StringComparison.OrdinalIgnoreCase);
-            return new PlatformInfo(isPhone ? PlatformType.UWPPhone : PlatformType.UWP,
-                new Version((int)majorVersion, (int)minorVersion, (int)buildVersion, (int)revisionVersion).ToString());
+            var revisionVersion = version & 0x000000000000FFFFL;
+            return new PlatformInfo(PlatformType.UWP, new Version((int)majorVersion, (int)minorVersion, (int)buildVersion, (int)revisionVersion).ToString(), GetIdiom);
+        }
+
+        private static PlatformIdiom GetIdiom()
+        {
+            switch (AnalyticsInfo.VersionInfo.DeviceFamily)
+            {
+                case "Windows.Mobile":
+                    return PlatformIdiom.Phone;
+                case "Windows.Desktop":
+                    return UIViewSettings.GetForCurrentView().UserInteractionMode == UserInteractionMode.Mouse
+                        ? PlatformIdiom.Desktop
+                        : PlatformIdiom.Tablet;
+                default:
+                    return PlatformIdiom.Unknown;
+            }
         }
 
         internal static NavigationMode ToNavigationMode(this Windows.UI.Xaml.Navigation.NavigationMode mode)
@@ -115,7 +128,7 @@ namespace MugenMvvmToolkit.UWP
                 case Windows.UI.Xaml.Navigation.NavigationMode.New:
                     return NavigationMode.New;
                 case Windows.UI.Xaml.Navigation.NavigationMode.Back:
-                    return NavigationMode.Back;                
+                    return NavigationMode.Back;
                 case Windows.UI.Xaml.Navigation.NavigationMode.Refresh:
                     return NavigationMode.Refresh;
                 default:

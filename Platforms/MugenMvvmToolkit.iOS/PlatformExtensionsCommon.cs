@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Models;
 using ObjCRuntime;
 using UIKit;
 
@@ -104,6 +105,23 @@ namespace MugenMvvmToolkit.iOS
                         return;
                     }
                 }
+            }
+        }
+
+        internal static PlatformIdiom GetIdiom()
+        {
+            switch (UIDevice.CurrentDevice.UserInterfaceIdiom)
+            {
+                case UIUserInterfaceIdiom.Phone:
+                    return PlatformIdiom.Phone;
+                case UIUserInterfaceIdiom.Pad:
+                    return PlatformIdiom.Tablet;
+                case UIUserInterfaceIdiom.TV:
+                    return PlatformIdiom.TV;
+                case UIUserInterfaceIdiom.CarPlay:
+                    return PlatformIdiom.Car;
+                default:
+                    return PlatformIdiom.Unknown;
             }
         }
 

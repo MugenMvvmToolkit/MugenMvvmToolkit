@@ -144,7 +144,7 @@ namespace MugenMvvmToolkit.UWP.Binding.Modules
                     errorProvider: new WpfBindingErrorProvider(), resourceResolver: new WpfBindingResourceResolver(), converter: BindingConverterExtensions.Convert);
             }
 #elif WINDOWS_UWP
-            if (context.PlatformInfo.Platform == PlatformType.UWP || context.PlatformInfo.Platform == PlatformType.UWPPhone)
+            if (context.PlatformInfo.Platform == PlatformType.UWP)
             {
                 BindingServiceProvider.Initialize(memberProvider: new UwpBindingMemberProvider(), contextManager: new UwpBindingContextManager(),
                     errorProvider: new UwpBindingErrorProvider(), resourceResolver: new UwpBindingResourceResolver(), converter: BindingConverterExtensions.Convert);

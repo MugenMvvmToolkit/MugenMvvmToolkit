@@ -30,13 +30,7 @@ namespace MugenMvvmToolkit.Models
 
         public static readonly PlatformType UWP;
 
-        public static readonly PlatformType UWPPhone;
-
         public static readonly PlatformType WPF;
-
-        public static readonly PlatformType Unknown;
-
-        public static readonly PlatformType UnitTest;
 
         public static readonly PlatformType XamarinFormsAndroid;
 
@@ -46,11 +40,11 @@ namespace MugenMvvmToolkit.Models
 
         public static readonly PlatformType XamarinFormsWinRT;
 
-        public static readonly PlatformType XamarinFormsWinRTPhone;
-
-        public static readonly PlatformType XamarinFormsUWPPhone;
-
         public static readonly PlatformType XamarinFormsUWP;
+
+        public static readonly PlatformType Unknown;
+
+        public static readonly PlatformType UnitTest;
 
         #endregion
 
@@ -62,15 +56,12 @@ namespace MugenMvvmToolkit.Models
             iOS = new PlatformType(nameof(iOS));
             WinForms = new PlatformType(nameof(WinForms));
             UWP = new PlatformType(nameof(UWP));
-            UWPPhone = new PlatformType(nameof(UWPPhone));
             WPF = new PlatformType(nameof(WPF));
             XamarinFormsAndroid = new PlatformType(nameof(XamarinFormsAndroid));
             XamarinFormsiOS = new PlatformType(nameof(XamarinFormsiOS));
             XamarinFormsWinPhone = new PlatformType(nameof(XamarinFormsWinPhone));
             XamarinFormsWinRT = new PlatformType(nameof(XamarinFormsWinRT));
-            XamarinFormsWinRTPhone = new PlatformType(nameof(XamarinFormsWinRTPhone));
             XamarinFormsUWP = new PlatformType(nameof(XamarinFormsUWP));
-            XamarinFormsUWPPhone = new PlatformType(nameof(XamarinFormsUWPPhone));
             Unknown = new PlatformType("Unknown");
             UnitTest = new PlatformType("UnitTest");
         }

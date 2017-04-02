@@ -27,7 +27,7 @@ namespace MugenMvvmToolkit.WPF
 
         internal static PlatformInfo GetPlatformInfo()
         {
-            return new PlatformInfo(PlatformType.WPF, Environment.Version.ToString());
+            return new PlatformInfo(PlatformType.WPF, Environment.Version.ToString(), PlatformIdiom.Desktop);
         }
 
         internal static NavigationMode ToNavigationMode(this System.Windows.Navigation.NavigationMode mode)

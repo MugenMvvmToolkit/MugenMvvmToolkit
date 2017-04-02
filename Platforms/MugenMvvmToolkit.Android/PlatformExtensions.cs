@@ -51,7 +51,7 @@ using MugenMvvmToolkit.Models;
 namespace MugenMvvmToolkit.Android
 {
     // ReSharper disable once PartialTypeWithSinglePart
-    public static partial class PlatformExtensions
+    public static partial class PlatformExtensions//todo rename
     {
         #region Nested types
 
@@ -635,7 +635,14 @@ namespace MugenMvvmToolkit.Android
 
         internal static PlatformInfo GetPlatformInfo()
         {
-            return new PlatformInfo(PlatformType.Android, Build.VERSION.Release);
+            return new PlatformInfo(PlatformType.Android, Build.VERSION.Release, GetIdiom);
+        }
+
+        private static PlatformIdiom GetIdiom()
+        {
+            var context = CurrentActivity ?? Application.Context;
+            int minWidthDp = context.Resources.Configuration.SmallestScreenWidthDp;
+            return minWidthDp >= 600 ? PlatformIdiom.Tablet : PlatformIdiom.Phone;
         }
 
         internal static WeakReference CreateWeakReference(object item)

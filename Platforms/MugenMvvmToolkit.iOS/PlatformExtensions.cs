@@ -468,7 +468,7 @@ namespace MugenMvvmToolkit.iOS
 
         internal static PlatformInfo GetPlatformInfo()
         {
-            return new PlatformInfo(PlatformType.iOS, UIDevice.CurrentDevice.SystemVersion);
+            return new PlatformInfo(PlatformType.iOS, UIDevice.CurrentDevice.SystemVersion, GetIdiom);
         }
 
         private static void SetParent(object[] items, object parent)

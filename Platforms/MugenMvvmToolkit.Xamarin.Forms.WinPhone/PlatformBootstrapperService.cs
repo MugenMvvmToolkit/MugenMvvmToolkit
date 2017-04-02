@@ -35,7 +35,7 @@ using MugenMvvmToolkit.Models.Messages;
 using Windows.Foundation.Metadata;
 using Windows.UI.Xaml;
 using Windows.ApplicationModel;
-using Windows.Security.ExchangeActiveSyncProvisioning;
+using Windows.UI.ViewManagement;
 using Windows.System.Profile;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.UWP
@@ -81,11 +81,11 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
         public PlatformInfo GetPlatformInfo()
         {
 #if WINDOWS_PHONE
-            return new PlatformInfo(PlatformType.XamarinFormsWinPhone, Environment.OSVersion.Version.ToString());
-#elif TOUCH            
-            return new PlatformInfo(PlatformType.XamarinFormsiOS, UIKit.UIDevice.CurrentDevice.SystemVersion);
-#elif ANDROID            
-            return new PlatformInfo(PlatformType.XamarinFormsAndroid, global::Android.OS.Build.VERSION.Release);
+            return new PlatformInfo(PlatformType.XamarinFormsWinPhone, Environment.OSVersion.Version.ToString(), PlatformIdiom.Phone);
+#elif TOUCH
+            return new PlatformInfo(PlatformType.XamarinFormsiOS, UIKit.UIDevice.CurrentDevice.SystemVersion, GetIdiom);
+#elif ANDROID
+            return new PlatformInfo(PlatformType.XamarinFormsAndroid, global::Android.OS.Build.VERSION.Release, GetIdiom);
 #elif WINDOWS_UWP
             // get the system version number
             var deviceFamilyVersion = AnalyticsInfo.VersionInfo.DeviceFamilyVersion;
@@ -93,14 +93,17 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
             var majorVersion = (version & 0xFFFF000000000000L) >> 48;
             var minorVersion = (version & 0x0000FFFF00000000L) >> 32;
             var buildVersion = (version & 0x00000000FFFF0000L) >> 16;
-            var revisionVersion = (version & 0x000000000000FFFFL);
-            var isPhone = new EasClientDeviceInformation().OperatingSystem.SafeContains("WindowsPhone", StringComparison.OrdinalIgnoreCase);
-            return new PlatformInfo(isPhone ? PlatformType.XamarinFormsUWPPhone : PlatformType.XamarinFormsUWP, new Version((int)majorVersion, (int)minorVersion, (int)buildVersion, (int)revisionVersion).ToString());
-#elif NETFX_CORE            
-            var isPhone = new EasClientDeviceInformation().OperatingSystem.SafeContains("WindowsPhone", StringComparison.OrdinalIgnoreCase);
+            var revisionVersion = version & 0x000000000000FFFFL;
+            return new PlatformInfo(PlatformType.XamarinFormsUWP, new Version((int)majorVersion, (int)minorVersion, (int)buildVersion, (int)revisionVersion).ToString(), GetIdiom);
+#elif NETFX_CORE
             var isWinRT10 = typeof(DependencyObject).GetMethodEx("RegisterPropertyChangedCallback", MemberFlags.Instance | MemberFlags.Public) != null;
             var version = isWinRT10 ? new Version(10, 0) : new Version(8, 1);
-            return new PlatformInfo(isPhone ? PlatformType.XamarinFormsWinRTPhone : PlatformType.XamarinFormsWinRT, version.ToString());
+
+#if WINDOWS_PHONE_APP
+            return new PlatformInfo(PlatformType.XamarinFormsWinRT, version.ToString(), PlatformIdiom.Phone);
+#else
+            return new PlatformInfo(PlatformType.XamarinFormsWinRT, version.ToString(), PlatformIdiom.Tablet);
+#endif
 #endif
         }
 
@@ -127,6 +130,31 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
             return new[] { typeof(PlatformBootstrapperService).GetAssembly() };
 #else
             return AppDomain.CurrentDomain.GetAssemblies();
+#endif
+        }
+
+        private static PlatformIdiom GetIdiom()
+        {
+#if ANDROID
+            var context = PlatformExtensions.GetContext();
+            int minWidthDp = context.Resources.Configuration.SmallestScreenWidthDp;
+            return minWidthDp >= 600 ? PlatformIdiom.Tablet : PlatformIdiom.Phone;
+#elif TOUCH
+            return PlatformExtensions.GetIdiom();
+#elif WINDOWS_UWP
+            switch (AnalyticsInfo.VersionInfo.DeviceFamily)
+            {
+                case "Windows.Mobile":
+                    return PlatformIdiom.Phone;
+                case "Windows.Desktop":
+                    return UIViewSettings.GetForCurrentView().UserInteractionMode == UserInteractionMode.Mouse
+                        ? PlatformIdiom.Desktop
+                        : PlatformIdiom.Tablet;
+                default:
+                    return PlatformIdiom.Unknown;
+            }
+#else
+            return PlatformIdiom.Unknown;
 #endif
         }
 

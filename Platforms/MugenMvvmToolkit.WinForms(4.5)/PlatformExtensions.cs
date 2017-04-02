@@ -94,7 +94,7 @@ namespace MugenMvvmToolkit.WinForms
 
         internal static PlatformInfo GetPlatformInfo()
         {
-            return new PlatformInfo(PlatformType.WinForms, Environment.Version.ToString());
+            return new PlatformInfo(PlatformType.WinForms, Environment.Version.ToString(), PlatformIdiom.Desktop);
         }
 
         internal static string TryGetValue(object instance, string name)

@@ -30,6 +30,7 @@ namespace MugenMvvmToolkit.Models
 
         private readonly PlatformType _platform;
         private readonly string _rawVersion;
+        private readonly Func<PlatformIdiom> _getCurrentIdiom;
         private readonly Version _version;
 
         #endregion
@@ -38,15 +39,24 @@ namespace MugenMvvmToolkit.Models
 
         static PlatformInfo()
         {
-            Unknown = new PlatformInfo(PlatformType.Unknown, "0.0");
-            UnitTest = new PlatformInfo(PlatformType.UnitTest, "0.0");
+            Unknown = new PlatformInfo(PlatformType.Unknown, "0.0", PlatformIdiom.Unknown);
+            UnitTest = new PlatformInfo(PlatformType.UnitTest, "0.0", PlatformIdiom.Unknown);
         }
 
-        public PlatformInfo(PlatformType platform, string rawVersion)
+        public PlatformInfo(PlatformType platform, string rawVersion, PlatformIdiom idiom)
+            : this(platform, rawVersion, () => idiom)
+        {
+
+        }
+
+        public PlatformInfo(PlatformType platform, string rawVersion, Func<PlatformIdiom> getCurrentIdiom)
         {
             Should.NotBeNull(platform, nameof(platform));
+            Should.NotBeNull(rawVersion, nameof(rawVersion));
+            Should.NotBeNull(getCurrentIdiom, nameof(getCurrentIdiom));
             _platform = platform;
             _rawVersion = rawVersion;
+            _getCurrentIdiom = getCurrentIdiom;
             Version.TryParse(rawVersion, out _version);
         }
 
@@ -56,6 +66,9 @@ namespace MugenMvvmToolkit.Models
 
         [NotNull]
         public PlatformType Platform => _platform;
+
+        [NotNull]
+        public PlatformIdiom Idiom => _getCurrentIdiom();
 
         [NotNull]
         public string RawVersion => _rawVersion;
