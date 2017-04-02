@@ -16,13 +16,13 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
@@ -49,6 +49,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         public interface IPlatformService
         {
+            Func<MemberInfo, Type, object, object> ValueConverter { get; }
+
             PlatformInfo GetPlatformInfo();
 
             ICollection<Assembly> GetAssemblies();
@@ -74,8 +76,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             ApplicationSettings.MultiViewModelPresenterCanShowViewModel = CanShowViewModelTabPresenter;
             ApplicationSettings.NavigationPresenterCanShowViewModel = CanShowViewModelNavigationPresenter;
             ApplicationSettings.ViewManagerClearDataContext = true;
-            BindingServiceProvider.DataContextMemberAliases.Add(nameof(BindableObject.BindingContext));
-            BindingServiceProvider.BindingMemberPriorities[nameof(BindableObject.BindingContext)] = BindingServiceProvider.DataContextMemberPriority;
         }
 
         protected XamarinFormsBootstrapperBase(bool isDesignMode, PlatformInfo platform) : base(isDesignMode)
@@ -83,8 +83,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             _platform = platform ?? PlatformInfo.Unknown;
         }
 
-        protected XamarinFormsBootstrapperBase(IPlatformService platformService)
-            : this(false, platformService?.GetPlatformInfo())
+        protected XamarinFormsBootstrapperBase(IPlatformService platformService, bool isDesignMode = false)
+            : this(isDesignMode, platformService?.GetPlatformInfo())
         {
             Should.NotBeNull(platformService, nameof(platformService));
             _platformService = platformService;
@@ -100,16 +100,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         public bool WrapToNavigationPage { get; set; }
 
-        private static string BindingAssemblyName
-        {
-            get
-            {
-                if (Device.OS == TargetPlatform.Windows)
-                    return "MugenMvvmToolkit.Xamarin.Forms.UWP";
-                return Device.OnPlatform("MugenMvvmToolkit.Xamarin.Forms.iOS", "MugenMvvmToolkit.Xamarin.Forms.Android", "MugenMvvmToolkit.Xamarin.Forms.WinPhone");
-            }
-        }
-
         #endregion
 
         #region Overrides of BootstrapperBase
@@ -119,9 +109,21 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         protected override void UpdateAssemblies(HashSet<Assembly> assemblies)
         {
             base.UpdateAssemblies(assemblies);
-            TryLoadAssemblyByType("PlatformBootstrapperService", BindingAssemblyName, assemblies);
-            if (!IsDesignMode)
+            TryLoadAssemblyByType("AttachedMembers", "MugenMvvmToolkit.Xamarin.Forms.Binding", assemblies);
+            if (IsDesignMode)
+            {
+                TryLoadAssemblyByType("PlatformBootstrapperService", "MugenMvvmToolkit.Xamarin.Forms.Android", assemblies);
+                TryLoadAssemblyByType("PlatformBootstrapperService", "MugenMvvmToolkit.Xamarin.Forms.iOS", assemblies);
+                TryLoadAssemblyByType("PlatformBootstrapperService", "MugenMvvmToolkit.Xamarin.Forms.UWP", assemblies);
+                TryLoadAssemblyByType("PlatformBootstrapperService", "MugenMvvmToolkit.Xamarin.Forms.WinPhone", assemblies);
+                TryLoadAssemblyByType("PlatformBootstrapperService", "MugenMvvmToolkit.Xamarin.Forms.WinRT", assemblies);
+                TryLoadAssemblyByType("MugenMvvmToolkit.Xamarin.Forms.WinRT.PlatformBootstrapperService, MugenMvvmToolkit.Xamarin.Forms.WinRT.Phone", assemblies);
+            }
+            if (_platformService != null)
+            {
+                assemblies.Add(_platformService.GetType().GetAssembly());
                 assemblies.AddRange(_platformService.GetAssemblies().Where(x => !x.IsDynamic));
+            }
         }
 
         #endregion
@@ -179,14 +181,14 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         void IHandler<BackgroundNavigationMessage>.Handle(object sender, BackgroundNavigationMessage message)
         {
-            var viewModel = Application.Current.MainPage?.DataContext() as IViewModel;
+            var viewModel = Application.Current.MainPage?.BindingContext as IViewModel;
             if (viewModel != null && viewModel.Settings.State.Contains(IsRootConstant))
                 IocContainer.Get<INavigationDispatcher>().OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Background, viewModel, null, this, message.Context));
         }
 
         void IHandler<ForegroundNavigationMessage>.Handle(object sender, ForegroundNavigationMessage message)
         {
-            var viewModel = Application.Current.MainPage?.DataContext() as IViewModel;
+            var viewModel = Application.Current.MainPage?.BindingContext as IViewModel;
             if (viewModel != null && viewModel.Settings.State.Contains(IsRootConstant))
                 IocContainer.Get<INavigationDispatcher>().OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Foreground, null, viewModel, this, message.Context));
         }
@@ -198,9 +200,13 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         protected override void InitializeInternal()
         {
             base.InitializeInternal();
-            if (!IsDesignMode)
+            if (_platformService != null)
             {
                 _platformService.Initialize();
+                XamarinFormsExtensions.ValueConverter = _platformService.ValueConverter;
+            }
+            if (!IsDesignMode)
+            {
                 IocContainer.Get<IViewModelPresenter>().DynamicPresenters.Add(this);
                 XamarinFormsExtensions.BackButtonPressed += OnBackButtonPressed;
             }
@@ -287,7 +293,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         private static void OnBackButtonPressed(Page sender, CancelEventArgs args)
         {
-            var viewModel = sender.DataContext() as IViewModel;
+            var viewModel = sender.BindingContext as IViewModel;
             if (viewModel == null || !viewModel.Settings.State.Contains(IsRootConstant))
                 return;
 

@@ -145,7 +145,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
         }
 
-        protected virtual T GetOrAddDesignViewModel<T>(Func<IViewModelProvider, T> getViewModel, [CallerMemberName] string property = "") where T : IViewModel
+        public virtual T GetOrAddDesignViewModel<T>(Func<IViewModelProvider, T> getViewModel, [CallerMemberName] string property = "") where T : IViewModel
         {
             if (!IsDesignMode)
                 return default(T);

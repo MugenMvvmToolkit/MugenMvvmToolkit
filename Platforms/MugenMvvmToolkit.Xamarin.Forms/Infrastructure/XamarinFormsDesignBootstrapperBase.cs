@@ -16,9 +16,9 @@
 
 #endregion
 
+using System;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
-using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Xamarin.Forms.Interfaces.Navigation;
 using Xamarin.Forms;
 
@@ -28,17 +28,24 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
     {
         #region Constructors
 
-        protected XamarinFormsDesignBootstrapperBase() : base(ServiceProvider.IsDesignMode, PlatformInfo.Unknown)
+        protected XamarinFormsDesignBootstrapperBase(IPlatformService platformService = null, bool isDesignMode = true) : base(platformService, isDesignMode)
         {
+            ServiceProvider.IsDesignMode = isDesignMode;
         }
 
         #endregion
 
         #region Methods
 
+        public static void EnsureInitialized(Func<XamarinFormsDesignBootstrapperBase> factory)
+        {
+            Should.NotBeNull(factory, nameof(factory));
+            if (Current == null)
+                factory().Initialize();
+        }
+
         public sealed override void Start()
         {
-            base.Start();
         }
 
         protected sealed override void InitializeRootPage(IViewModel viewModel, IDataContext context)
