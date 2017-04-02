@@ -51,7 +51,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             string itemTemplate = AttachedMemberConstants.ItemTemplate)
         {
             Should.NotBeNull(collectionView, nameof(collectionView));
-            _collectionView = PlatformExtensions.CreateWeakReference(collectionView);
+            _collectionView = TouchToolkitExtensions.CreateWeakReference(collectionView);
             _itemTemplateProvider = new DataTemplateProvider<ICollectionCellTemplateSelector>(collectionView, itemTemplate);
             var controllerView = collectionView.FindParent<IViewControllerView>();
             if (controllerView != null && !(controllerView is IMvvmNavigationController))

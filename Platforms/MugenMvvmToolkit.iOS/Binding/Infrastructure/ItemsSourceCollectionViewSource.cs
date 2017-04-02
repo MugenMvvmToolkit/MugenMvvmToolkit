@@ -143,13 +143,13 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             switch (args.Action)
             {
                 case NotifyCollectionChangedAction.Add:
-                    NSIndexPath[] newIndexPaths = PlatformExtensions.CreateNSIndexPathArray(args.NewStartingIndex,
+                    NSIndexPath[] newIndexPaths = TouchToolkitExtensions.CreateNSIndexPathArray(args.NewStartingIndex,
                         args.NewItems.Count);
                     collectionView.InsertItems(newIndexPaths);
                     newIndexPaths.DisposeEx();
                     return true;
                 case NotifyCollectionChangedAction.Remove:
-                    NSIndexPath[] oldIndexPaths = PlatformExtensions.CreateNSIndexPathArray(args.OldStartingIndex, args.OldItems.Count);
+                    NSIndexPath[] oldIndexPaths = TouchToolkitExtensions.CreateNSIndexPathArray(args.OldStartingIndex, args.OldItems.Count);
                     collectionView.DeleteItems(oldIndexPaths);
                     oldIndexPaths.DisposeEx();
                     return true;

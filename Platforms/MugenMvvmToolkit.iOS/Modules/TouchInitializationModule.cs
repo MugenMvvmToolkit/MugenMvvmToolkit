@@ -42,14 +42,14 @@ namespace MugenMvvmToolkit.iOS.Modules
 
         public override bool Load(IModuleContext context)
         {
-            var mediatorFactory = PlatformExtensions.MediatorFactory;
-            PlatformExtensions.MediatorFactory = (controller, dataContext, type) =>
+            var mediatorFactory = TouchToolkitExtensions.MediatorFactory;
+            TouchToolkitExtensions.MediatorFactory = (controller, dataContext, type) =>
             {
                 if (controller is UIViewController && typeof(IMvvmViewControllerMediator).IsAssignableFrom(type))
                     return new MvvmViewControllerMediator((UIViewController)controller);
                 return mediatorFactory?.Invoke(controller, dataContext, type);
             };
-            PlatformExtensions.NativeObjectManager = new DefaultNativeObjectManager();
+            TouchToolkitExtensions.NativeObjectManager = new DefaultNativeObjectManager();
 
             BindApplicationStateManager(context, context.IocContainer);
             return base.Load(context);

@@ -113,7 +113,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
                 foreach (var controller in viewControllers)
                 {
                     controller.TryRaiseAttachedEvent(AttachedMembers.Object.Parent);
-                    PlatformExtensions.SetHasState(controller, false);
+                    TouchToolkitExtensions.SetHasState(controller, false);
                 }
             }
 

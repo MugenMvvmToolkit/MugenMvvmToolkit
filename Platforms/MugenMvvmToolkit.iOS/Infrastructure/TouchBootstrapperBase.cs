@@ -60,14 +60,14 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
             ReflectionExtensions.GetTypesDefault = assembly => assembly.GetTypes();
             ApplicationSettings.MultiViewModelPresenterCanShowViewModel = CanShowViewModelTabPresenter;
             ApplicationSettings.NavigationPresenterCanShowViewModel = CanShowViewModelNavigationPresenter;
-            ServiceProvider.WeakReferenceFactory = PlatformExtensions.CreateWeakReference;
+            ServiceProvider.WeakReferenceFactory = TouchToolkitExtensions.CreateWeakReference;
             ApplicationSettings.ViewManagerDisposeView = true;
             BindingServiceProvider.CompiledExpressionInvokerSupportCoalesceExpression = false;
         }
 
         protected TouchBootstrapperBase(bool isDesignMode, PlatformInfo platform = null) : base(isDesignMode)
         {
-            _platform = platform ?? PlatformExtensions.GetPlatformInfo();
+            _platform = platform ?? TouchToolkitExtensions.GetPlatformInfo();
         }
 
         protected TouchBootstrapperBase([NotNull] UIWindow window, PlatformInfo platform = null)

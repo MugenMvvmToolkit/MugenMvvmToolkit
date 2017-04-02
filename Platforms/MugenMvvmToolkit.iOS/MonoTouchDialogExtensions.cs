@@ -44,7 +44,7 @@ namespace MugenMvvmToolkit.iOS.MonoTouch.Dialog
 
         public static void DisposeEx(this Element element)
         {
-            PlatformExtensions.NativeObjectManager?.Dispose(element, null);
+            TouchToolkitExtensions.NativeObjectManager?.Dispose(element, null);
         }
 
         public static void ClearBindingsRecursively([CanBeNull] this Element element, bool clearDataContext, bool clearAttachedValues)

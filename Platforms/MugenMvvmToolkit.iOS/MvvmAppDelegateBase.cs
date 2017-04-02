@@ -96,7 +96,7 @@ namespace MugenMvvmToolkit.iOS
             string[] restorationIdentifierComponents, NSCoder coder)
         {
             InitializeIfNeed();
-            return PlatformExtensions.ApplicationStateManager.GetViewController(restorationIdentifierComponents, coder);
+            return TouchToolkitExtensions.ApplicationStateManager.GetViewController(restorationIdentifierComponents, coder);
         }
 
         public override void OnActivated(UIApplication application)

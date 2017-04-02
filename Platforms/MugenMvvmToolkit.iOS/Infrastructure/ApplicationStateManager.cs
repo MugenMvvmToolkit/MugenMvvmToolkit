@@ -130,7 +130,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
         public UIViewController GetViewController(string[] restorationIdentifierComponents, NSCoder coder, IDataContext context = null)
         {
             string id = restorationIdentifierComponents.LastOrDefault();
-            Type type = PlatformExtensions.GetTypeFromRestorationIdentifier(id);
+            Type type = TouchToolkitExtensions.GetTypeFromRestorationIdentifier(id);
             if (type == null)
                 return null;
             return GetViewControllerInternal(id, type, coder, context ?? DataContext.Empty);

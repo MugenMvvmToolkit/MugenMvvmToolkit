@@ -38,8 +38,8 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
 
         public bool Load(IModuleContext context)
         {
-            PlatformExtensions.TableViewSourceFactory = (o, ctx) => new ItemsSourceTableViewSource(o);
-            PlatformExtensions.CollectionViewSourceFactory = (o, ctx) => new ItemsSourceCollectionViewSource(o);
+            TouchToolkitExtensions.TableViewSourceFactory = (o, ctx) => new ItemsSourceTableViewSource(o);
+            TouchToolkitExtensions.CollectionViewSourceFactory = (o, ctx) => new ItemsSourceCollectionViewSource(o);
 
             if (context.PlatformInfo.Platform == PlatformType.iOS)
                 BindingServiceProvider.Initialize(errorProvider: new TouchBindingErrorProvider(), converter: BindingConverterExtensions.Convert);

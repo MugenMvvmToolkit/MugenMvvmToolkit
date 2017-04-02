@@ -27,14 +27,15 @@ using UIKit;
 using MugenMvvmToolkit.Xamarin.Forms.iOS.Interfaces;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.iOS
+{
+    public static partial class XamarinFormsTouchToolkitExtensions
 #else
 using MugenMvvmToolkit.iOS.Interfaces;
 
 namespace MugenMvvmToolkit.iOS
-#endif
-
 {
-    public static partial class PlatformExtensions
+    public static partial class TouchToolkitExtensions
+#endif
     {
         #region Fields
 

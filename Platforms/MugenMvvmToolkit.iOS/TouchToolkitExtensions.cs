@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="PlatformExtensions.cs">
+// <copyright file="TouchToolkitExtensions.cs">
 // Copyright (c) 2012-2017 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -39,7 +39,7 @@ using UIKit;
 
 namespace MugenMvvmToolkit.iOS
 {
-    public static partial class PlatformExtensions
+    public static partial class TouchToolkitExtensions
     {
         #region Fields
 
@@ -60,7 +60,7 @@ namespace MugenMvvmToolkit.iOS
 
         #region Constructors
 
-        static PlatformExtensions()
+        static TouchToolkitExtensions()
         {
             TypeToCounters = new Dictionary<Type, int>();
             CoderParameters = new[] { typeof(NSCoder) };

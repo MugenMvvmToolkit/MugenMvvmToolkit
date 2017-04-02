@@ -481,7 +481,7 @@ namespace MugenMvvmToolkit.iOS.Binding
         private static void TableViewItemsSourceChanged(UITableView uiTableView, AttachedMemberChangedEventArgs<IEnumerable> args)
         {
             if (uiTableView.Source == null)
-                uiTableView.Source = PlatformExtensions.TableViewSourceFactory(uiTableView, DataContext.Empty);
+                uiTableView.Source = TouchToolkitExtensions.TableViewSourceFactory(uiTableView, DataContext.Empty);
             var tableViewSource = uiTableView.Source as ItemsSourceTableViewSource;
             if (tableViewSource != null)
                 tableViewSource.ItemsSource = args.NewValue;
@@ -502,7 +502,7 @@ namespace MugenMvvmToolkit.iOS.Binding
         private static void CollectionViewItemsSourceChanged(UICollectionView collectionView, AttachedMemberChangedEventArgs<IEnumerable> args)
         {
             if (collectionView.Source == null)
-                collectionView.Source = PlatformExtensions.CollectionViewSourceFactory(collectionView, DataContext.Empty);
+                collectionView.Source = TouchToolkitExtensions.CollectionViewSourceFactory(collectionView, DataContext.Empty);
             var source = collectionView.Source as ItemsSourceCollectionViewSource;
             if (source != null)
                 source.ItemsSource = args.NewValue;
@@ -547,7 +547,7 @@ namespace MugenMvvmToolkit.iOS.Binding
                     viewController.WillMoveToParentViewController(currentController);
                     currentController.AddChildViewController(viewController);
                     viewController.DidMoveToParentViewController(currentController);
-                    PlatformExtensions.SetHasState(viewController, false);
+                    TouchToolkitExtensions.SetHasState(viewController, false);
                     value = viewController.View;
                 }
             }
@@ -640,7 +640,7 @@ namespace MugenMvvmToolkit.iOS.Binding
             if (newValue == null)
                 newValue = new UIViewController();
             else
-                PlatformExtensions.SetHasState(newValue, false);
+                TouchToolkitExtensions.SetHasState(newValue, false);
             var viewControllers = splitView.ViewControllers ?? Empty.Array<UIViewController>();
             if (viewControllers.Length == 2)
                 if (isMaster)

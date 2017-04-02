@@ -24,6 +24,7 @@ using UIKit;
 
 #if XAMARIN_FORMS
 using MugenMvvmToolkit.Xamarin.Forms.iOS.Interfaces;
+using TouchToolkitExtensions = MugenMvvmToolkit.Xamarin.Forms.iOS.XamarinFormsTouchToolkitExtensions;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.iOS.Views
 #else
@@ -61,7 +62,7 @@ namespace MugenMvvmToolkit.iOS.Views
             VerticalPadding = 10f;
             FontSize = 16f;
             CornerRadius = 4f;
-            if (PlatformExtensions.IsOS7)
+            if (TouchToolkitExtensions.IsOS7)
             {
                 BackgroundColor = UIColor.Black.ColorWithAlpha(0.8f);
                 ShadowColor = UIColor.Black.CGColor;
@@ -134,9 +135,9 @@ namespace MugenMvvmToolkit.iOS.Views
             View.Center = GetCenterPoint(View);
             View.Alpha = 0f;
             View.Layer.ZPosition = float.MaxValue;
-            PlatformExtensions.AddOrientationChangeListener(this);
+            TouchToolkitExtensions.AddOrientationChangeListener(this);
 
-            if (Owner is UIWindow && !PlatformExtensions.IsOS8)
+            if (Owner is UIWindow && !TouchToolkitExtensions.IsOS8)
                 UpdateWindowOrientation(View);
 
             Owner.AddSubview(View);
@@ -195,7 +196,7 @@ namespace MugenMvvmToolkit.iOS.Views
             if (Owner is UIScrollView)
             {
                 var uIScrollView = Owner as UIScrollView;
-                if (PlatformExtensions.IsOS7)
+                if (TouchToolkitExtensions.IsOS7)
                     height -= uIScrollView.ScrollIndicatorInsets.Top;
             }
 
@@ -286,7 +287,7 @@ namespace MugenMvvmToolkit.iOS.Views
             if (!view.IsAlive())
                 return;
             float num = 0f;
-            if (!PlatformExtensions.IsOS8)
+            if (!TouchToolkitExtensions.IsOS8)
             {
                 switch (UIApplication.SharedApplication.StatusBarOrientation)
                 {
@@ -327,7 +328,7 @@ namespace MugenMvvmToolkit.iOS.Views
                 return Owner.Bounds.Size;
 
             var rotation = UIApplication.SharedApplication.StatusBarOrientation;
-            if (!PlatformExtensions.IsOS8 && (rotation == UIInterfaceOrientation.LandscapeRight || rotation == UIInterfaceOrientation.LandscapeLeft))
+            if (!TouchToolkitExtensions.IsOS8 && (rotation == UIInterfaceOrientation.LandscapeRight || rotation == UIInterfaceOrientation.LandscapeLeft))
                 return new CGSize(Owner.Bounds.Size.Height, Owner.Bounds.Size.Width);
             return Owner.Bounds.Size;
         }
@@ -346,14 +347,14 @@ namespace MugenMvvmToolkit.iOS.Views
         public virtual void Dispose()
         {
             TaskCompletionSource.TrySetResult(null);
-            View.RemoveFromSuperview();            
+            View.RemoveFromSuperview();
 #if XAMARIN_FORMS
             View.Dispose();
 #else
             View.ClearBindingsRecursively(true, true);
             View.DisposeEx();
 #endif
-            PlatformExtensions.RemoveOrientationChangeListener(this);
+            TouchToolkitExtensions.RemoveOrientationChangeListener(this);
             ServiceProvider.AttachedValueProvider.Clear(this);
             _label = null;
         }

@@ -57,7 +57,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             Should.NotBeNull(setItems, nameof(setItems));
             _isControllerItem = typeof(UIViewController).IsAssignableFrom(typeof(TItem));
             _items = new List<KeyValuePair<object, TItem>>();
-            _containerRef = PlatformExtensions.CreateWeakReference(container);
+            _containerRef = TouchToolkitExtensions.CreateWeakReference(container);
             _setItems = setItems;
             _templateMemberInfo = BindingServiceProvider
                 .MemberProvider
@@ -161,7 +161,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
                         BindingServiceProvider.BindingProvider.CreateBindingsFromString(template, "Title DisplayName");
                     template.SetDataContext(item);
                 }
-                PlatformExtensions.SetHasState((UIViewController)template, false);
+                TouchToolkitExtensions.SetHasState((UIViewController)template, false);
             }
             return new KeyValuePair<object, TItem>(item, (TItem)template);
         }

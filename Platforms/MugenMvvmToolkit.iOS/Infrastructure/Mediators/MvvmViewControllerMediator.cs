@@ -77,7 +77,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
             var viewController = ViewController;
             if (viewController != null && !_isAppeared)
             {
-                PlatformExtensions.NativeObjectManager?.Initialize(viewController, null);
+                TouchToolkitExtensions.NativeObjectManager?.Initialize(viewController, null);
                 _isAppeared = true;
             }
             Raise(ViewWillAppearHandler, animated);
@@ -116,7 +116,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
             baseDecodeRestorableState(coder);
             var viewController = ViewController;
             if (viewController != null)
-                PlatformExtensions.ApplicationStateManager.DecodeState(viewController, coder);
+                TouchToolkitExtensions.ApplicationStateManager.DecodeState(viewController, coder);
             Raise(DecodeRestorableStateHandler, coder);
         }
 
@@ -125,7 +125,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
             baseEncodeRestorableState(coder);
             var viewController = ViewController;
             if (viewController != null)
-                PlatformExtensions.ApplicationStateManager.EncodeState(viewController, coder);
+                TouchToolkitExtensions.ApplicationStateManager.EncodeState(viewController, coder);
             Raise(EncodeRestorableStateHandler, coder);
         }
 

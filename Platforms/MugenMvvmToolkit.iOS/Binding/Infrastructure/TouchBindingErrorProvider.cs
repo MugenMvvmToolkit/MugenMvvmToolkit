@@ -114,7 +114,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
                 _errorProvider = errorProvider;
                 _textFieldHandle = textField.Handle;
                 TouchUpInside += OnTouchUpInside;
-                PlatformExtensions.AddOrientationChangeListener(this);
+                TouchToolkitExtensions.AddOrientationChangeListener(this);
             }
 
             #endregion
