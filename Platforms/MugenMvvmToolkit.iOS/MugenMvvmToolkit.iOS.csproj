@@ -100,7 +100,7 @@
     <Compile Include="MonoTouchDialogExtensions.cs" />
     <Compile Include="Infrastructure\ApplicationStateManager.cs" />
     <Compile Include="Binding\Infrastructure\ArrayItemsSourceGenerator.cs" />
-    <Compile Include="Binding\Infrastructure\BindingErrorProvider.cs" />
+    <Compile Include="Binding\Infrastructure\TouchBindingErrorProvider.cs" />
     <Compile Include="Binding\Infrastructure\CollectionCellTemplateSelectorBase.cs" />
     <Compile Include="Binding\Infrastructure\CollectionViewSourceBase.cs" />
     <Compile Include="Binding\Infrastructure\DefaultCollectionViewManager.cs" />

@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="BindingErrorProvider.cs">
+// <copyright file="XamarinFormsBindingErrorProvider.cs">
 // Copyright (c) 2012-2017 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -19,37 +19,15 @@
 using System.Collections.Generic;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
-#if WPF
-using System.Windows;
-using MugenMvvmToolkit.WPF.Binding.Models;
 
-namespace MugenMvvmToolkit.WPF.Binding.Infrastructure
+namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Infrastructure
 {
-    public class WpfBindingErrorProvider : BindingErrorProviderBase
+    public class XamarinFormsBindingErrorProvider : BindingErrorProviderBase
     {
-#elif WINDOWS_UWP
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-
-namespace MugenMvvmToolkit.UWP.Binding.Infrastructure
-{
-    public class UwpBindingErrorProvider : BindingErrorProviderBase
-    {
-#endif
-
-        #region Overrides of BindingErrorProviderBase
+        #region Methods
 
         protected override void SetErrors(object target, IList<object> errors, IDataContext context)
         {
-#if WINDOWS_UWP
-            var control = target as Control;
-            if (control != null)
-                VisualStateManager.GoToState(control, errors.Count == 0 ? "Valid" : "Invalid", true);
-#else
-            var element = target as FrameworkElement;
-            if (element != null)
-                ValidationBinder.SetErrors(element, errors);
-#endif
         }
 
         #endregion

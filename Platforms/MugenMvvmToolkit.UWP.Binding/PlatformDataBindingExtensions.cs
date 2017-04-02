@@ -24,7 +24,7 @@ using MugenMvvmToolkit.UWP.Binding.Models;
 
 namespace MugenMvvmToolkit.UWP.Binding
 {
-    public static partial class PlatformDataBindingExtensions
+    public static class PlatformDataBindingExtensions
     {
         #region Methods
 
@@ -35,10 +35,10 @@ namespace MugenMvvmToolkit.UWP.Binding
             var flyout = flyoutBase as Flyout;
             if (flyout == null)
             {
-                var menuFlyout = flyoutBase as MenuFlyout;
-                if (menuFlyout != null && menuFlyout.Items != null)
+                var items = (flyoutBase as MenuFlyout)?.Items;
+                if (items != null)
                 {
-                    foreach (MenuFlyoutItemBase item in menuFlyout.Items)
+                    foreach (MenuFlyoutItemBase item in items)
                         ParentObserver.GetOrAdd(item).Parent = placementTarget;
                 }
             }

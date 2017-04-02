@@ -19,9 +19,8 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Models.Messages;
+using MugenMvvmToolkit.Xamarin.Forms.Binding;
 using MugenMvvmToolkit.Xamarin.Forms.Infrastructure;
 
 #if WINDOWS_PHONE
@@ -29,9 +28,10 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinPhone
 #elif TOUCH
 namespace MugenMvvmToolkit.Xamarin.Forms.iOS
 #elif ANDROID
+using Android.Content;
 namespace MugenMvvmToolkit.Xamarin.Forms.Android
 #elif WINDOWS_UWP
-using System.IO;
+using MugenMvvmToolkit.Models.Messages;
 using Windows.Foundation.Metadata;
 using Windows.UI.Xaml;
 using Windows.ApplicationModel;
@@ -48,43 +48,19 @@ using Windows.UI.Xaml;
 namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
 #endif
 {
-    public sealed class PlatformBootstrapperService : XamarinFormsBootstrapperBase.IPlatformService
+    public class PlatformBootstrapperService : XamarinFormsBootstrapperBase.IPlatformService
     {
         #region Constructors
-
-        static PlatformBootstrapperService()
+#if ANDROID
+        public PlatformBootstrapperService(Func<Context> getCurrentContext)
         {
-            BindingServiceProvider.CompiledExpressionInvokerSupportCoalesceExpression = false;
+            PlatformExtensions.GetCurrentContext = getCurrentContext;
         }
-
+#endif
         #endregion
 
         #region Methods
 
-#if WINDOWS_UWP || NETFX_CORE
-        private static async System.Threading.Tasks.Task<HashSet<Assembly>> GetAssemblyListAsync()
-        {
-            var assemblies = new HashSet<Assembly>();
-            var files = await Package.Current.InstalledLocation.GetFilesAsync().AsTask().ConfigureAwait(false);
-            foreach (var file in files)
-            {
-                try
-                {
-                    if (file.FileType == ".dll" || file.FileType == ".exe")
-                    {
-                        var name = new AssemblyName { Name = Path.GetFileNameWithoutExtension(file.Name) };
-                        assemblies.Add(Assembly.Load(name));
-                    }
-
-                }
-                catch
-                {
-                    ;
-                }
-            }
-            return assemblies;
-        }
-#endif
 #if WINDOWS_UWP
         private void OnLeavingBackground(object sender, LeavingBackgroundEventArgs leavingBackgroundEventArgs)
         {
@@ -148,7 +124,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
             }
             return assemblies;
 #elif WINDOWS_UWP || NETFX_CORE
-            return GetAssemblyListAsync().Result;
+            return new[] { typeof(PlatformBootstrapperService).GetAssembly() };
 #else
             return AppDomain.CurrentDomain.GetAssemblies();
 #endif
@@ -163,6 +139,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
                 Application.Current.LeavingBackground += OnLeavingBackground;
 #endif
         }
+
+        public Func<MemberInfo, Type, object, object> ValueConverter => BindingConverterExtensions.Convert;
 
         #endregion
     }

@@ -346,11 +346,11 @@ namespace MugenMvvmToolkit.iOS.Views
         public virtual void Dispose()
         {
             TaskCompletionSource.TrySetResult(null);
-            View.RemoveFromSuperview();
-            View.ClearBindingsRecursively(true, true);
+            View.RemoveFromSuperview();            
 #if XAMARIN_FORMS
             View.Dispose();
 #else
+            View.ClearBindingsRecursively(true, true);
             View.DisposeEx();
 #endif
             PlatformExtensions.RemoveOrientationChangeListener(this);

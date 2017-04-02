@@ -28,7 +28,6 @@ using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models;
 
 #if XAMARIN_FORMS && ANDROID
-using AlertDialog = Android.Support.V7.App.AlertDialog;
 namespace MugenMvvmToolkit.Xamarin.Forms.Android.Infrastructure.Presenters
 #elif APPCOMPAT
 using MugenMvvmToolkit.Android.Interfaces.Views;
@@ -93,7 +92,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
             TaskCompletionSource<MessageResult> tcs)
         {
 #if XAMARIN_FORMS
-            var context = global::Xamarin.Forms.Forms.Context;            
+            var context = PlatformExtensions.GetCurrentContext();
 #else
             Context context = PlatformExtensions.CurrentActivity;
 #endif

@@ -403,6 +403,19 @@ namespace MugenMvvmToolkit.iOS
             cell.SetBindingMemberValue(AttachedMembers.UITableViewCell.EditingStyle, editingStyle);
         }
 
+        public static void ClearBindingsRecursively([CanBeNull]this UIView view, bool clearDataContext, bool clearAttachedValues)
+        {
+            if (!view.IsAlive())
+                return;
+            var subviews = view.Subviews;
+            if (subviews != null)
+            {
+                foreach (var subView in subviews)
+                    subView.ClearBindingsRecursively(clearDataContext, clearAttachedValues);
+            }
+            view.ClearBindings(clearDataContext, clearAttachedValues);
+        }
+
         internal static void SetNavigationContext([NotNull] this UIViewController controller, IDataContext value, bool isBack)
         {
             Should.NotBeNull(controller, nameof(controller));

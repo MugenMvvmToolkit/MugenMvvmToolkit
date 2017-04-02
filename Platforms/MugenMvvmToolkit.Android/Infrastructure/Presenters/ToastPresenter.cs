@@ -182,7 +182,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
         protected virtual void ShowInternal(object content, float duration, ToastPosition position, IDataContext context, ToastWrapper wrapper)
         {
 #if XAMARIN_FORMS
-            var ctx = global::Xamarin.Forms.Forms.Context;
+            var ctx = PlatformExtensions.GetCurrentContext();
 #else
             var ctx = PlatformExtensions.CurrentActivity;
 #endif

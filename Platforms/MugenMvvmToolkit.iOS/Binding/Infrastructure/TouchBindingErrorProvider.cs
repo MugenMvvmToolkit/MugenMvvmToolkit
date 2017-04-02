@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="BindingErrorProvider.cs">
+// <copyright file="TouchBindingErrorProvider.cs">
 // Copyright (c) 2012-2017 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -24,28 +24,12 @@ using ObjCRuntime;
 using UIKit;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
-#if XAMARIN_FORMS
-using System.Threading;
-using JetBrains.Annotations;
-using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Xamarin.Forms.iOS.Interfaces;
-using MugenMvvmToolkit.Xamarin.Forms.iOS.Views;
-using Xamarin.Forms;
-
-namespace MugenMvvmToolkit.Xamarin.Forms.iOS.Binding.Infrastructure
-#else
 using MugenMvvmToolkit.iOS.Interfaces;
 using MugenMvvmToolkit.iOS.Views;
 
 namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
-#endif
 {
-#if XAMARIN_FORMS
-    public class XamarinFormsTouchBindingErrorProvider : BindingErrorProviderBase
-#else
     public class TouchBindingErrorProvider : BindingErrorProviderBase
-#endif
     {
         #region Nested types
 
@@ -111,11 +95,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             #region Fields
 
             private ValidationPopup _popup;
-#if XAMARIN_FORMS
-            private readonly XamarinFormsTouchBindingErrorProvider _errorProvider;
-#else
             private readonly TouchBindingErrorProvider _errorProvider;
-#endif
             private IntPtr _textFieldHandle;
             private NSString _message;
 
@@ -128,12 +108,8 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             {
             }
 
-#if XAMARIN_FORMS
-            public ErrorButton(XamarinFormsTouchBindingErrorProvider errorProvider, UITextField textField)
-#else
             public ErrorButton(TouchBindingErrorProvider errorProvider, UITextField textField)
-#endif
-                : base(new CGRect(0, 0, 25, 25))
+                            : base(new CGRect(0, 0, 25, 25))
             {
                 _errorProvider = errorProvider;
                 _textFieldHandle = textField.Handle;
@@ -176,9 +152,9 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
                     superview.AddSubview(_popup);
 
                     var dict = new NSDictionary("popup", _popup);
-                    _popup.Superview.AddConstraints(NSLayoutConstraint.FromVisualFormat(@"H:|-0-[popup]-0-|",
+                    _popup.Superview?.AddConstraints(NSLayoutConstraint.FromVisualFormat(@"H:|-0-[popup]-0-|",
                             NSLayoutFormatOptions.DirectionLeadingToTrailing, null, dict));
-                    _popup.Superview.AddConstraints(NSLayoutConstraint.FromVisualFormat(@"V:|-0-[popup]-0-|",
+                    _popup.Superview?.AddConstraints(NSLayoutConstraint.FromVisualFormat(@"V:|-0-[popup]-0-|",
                         NSLayoutFormatOptions.DirectionLeadingToTrailing, null, dict));
                 }
             }
@@ -189,11 +165,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
                     return;
                 _popup.RemoveFromSuperview();
                 _popup.ClearBindingsRecursively(true, true);
-#if XAMARIN_FORMS
-                _popup.Dispose();
-#else
                 _popup.DisposeEx();
-#endif
                 _popup = null;
             }
 
@@ -251,27 +223,14 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         #region Fields
 
-#if XAMARIN_FORMS
-        protected const string NativeViewKey = "##NativeView";
-        private static int _state;
-#endif
         private static UIImage _defaultErrorImage;
 
         #endregion
 
         #region Constructors
 
-#if XAMARIN_FORMS
-        public XamarinFormsTouchBindingErrorProvider()
-#else
         public TouchBindingErrorProvider()
-#endif
-
         {
-#if XAMARIN_FORMS
-            if (Interlocked.Exchange(ref _state, 1) != 1)
-                global::Xamarin.Forms.Forms.ViewInitialized += FormsOnViewInitialized;
-#endif
             if (_defaultErrorImage == null)
                 _defaultErrorImage = UIImage.FromFile("error.png");
             ErrorBorderColor = ValidationPopup.ValidationColor;
@@ -295,9 +254,8 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         public bool RightErrorImagePosition { get; set; }
 
-#if !XAMARIN_FORMS
         internal static Func<object, object> TryGetEntryField { get; set; }
-#endif
+
         #endregion
 
         #region Methods
@@ -322,14 +280,9 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
         private void SetErrors(object target, IList<object> errors, bool isClear)
         {
             var hasErrors = errors.Count != 0;
-#if XAMARIN_FORMS
-            var element = target as Element;
-            if (element != null)
-                target = GetNativeView(element);
-#else
             if (TryGetEntryField != null)
                 target = TryGetEntryField(target);
-#endif
+
             var nativeObject = target as INativeObject;
             if (!nativeObject.IsAlive())
                 return;
@@ -383,11 +336,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
                     if (errorButton != null)
                     {
                         errorButton.ClearBindingsRecursively(true, true);
-#if XAMARIN_FORMS
-                        errorButton.Dispose();
-#else
                         errorButton.DisposeEx();
-#endif
                     }
                 }
                 else
@@ -395,30 +344,6 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             }
         }
 
-#if XAMARIN_FORMS
-        private static void FormsOnViewInitialized(object sender, ViewInitializedEventArgs args)
-        {
-            var view = args.View;
-            if (view == null || args.NativeView == null)
-                return;
-            ServiceProvider.AttachedValueProvider.SetValue(view, NativeViewKey, args.NativeView);
-            var errorProvider = BindingServiceProvider.ErrorProvider;
-            if (errorProvider == null)
-                return;
-            var dictionary = GetErrorsDictionary(view);
-            if (dictionary != null)
-            {
-                foreach (var item in dictionary)
-                    errorProvider.SetErrors(view, item.Key, item.Value, DataContext.Empty);
-            }
-        }
-
-        [CanBeNull]
-        protected virtual UIView GetNativeView([NotNull] Element element)
-        {
-            return ServiceProvider.AttachedValueProvider.GetValue<UIView>(element, NativeViewKey, false);
-        }
-#endif
         #endregion
 
         #region Overrides of BindingErrorProviderBase

@@ -21,7 +21,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Foundation;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
@@ -33,6 +32,7 @@ using MugenMvvmToolkit.Xamarin.Forms.iOS.Views;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.iOS.Infrastructure.Presenters
 #else
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.iOS.Binding;
 using MugenMvvmToolkit.iOS.Views;
 

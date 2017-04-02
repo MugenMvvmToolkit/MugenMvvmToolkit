@@ -22,23 +22,28 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
+
+#if XAMARIN_FORMS
+using BindingServiceProvider = MugenMvvmToolkit.Xamarin.Forms.XamarinFormsExtensions;
+#else
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
+#endif
 
 #if WPF
 namespace MugenMvvmToolkit.WPF.Binding
 #elif WINFORMS
 namespace MugenMvvmToolkit.WinForms.Binding
 #elif XAMARIN_FORMS && ANDROID
-namespace MugenMvvmToolkit.Xamarin.Forms.Android.Binding
+namespace MugenMvvmToolkit.Xamarin.Forms.Binding
 #elif XAMARIN_FORMS && TOUCH
-namespace MugenMvvmToolkit.Xamarin.Forms.iOS.Binding
+namespace MugenMvvmToolkit.Xamarin.Forms.Binding
 #elif XAMARIN_FORMS && WINDOWS_UWP
-namespace MugenMvvmToolkit.Xamarin.Forms.UWP.Binding
+namespace MugenMvvmToolkit.Xamarin.Forms.Binding
 #elif XAMARIN_FORMS && WINDOWS_PHONE
-namespace MugenMvvmToolkit.Xamarin.Forms.WinPhone.Binding
+namespace MugenMvvmToolkit.Xamarin.Forms.Binding
 #elif XAMARIN_FORMS && NETFX_CORE
-namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Binding
+namespace MugenMvvmToolkit.Xamarin.Forms.Binding
 #elif TOUCH
 namespace MugenMvvmToolkit.iOS.Binding
 #elif ANDROID
@@ -54,14 +59,14 @@ namespace MugenMvvmToolkit.UWP.Binding
 
         private sealed class MultiTypeConverter : TypeConverter
         {
-            #region Fields
+        #region Fields
 
             private readonly TypeConverter _first;
             private readonly TypeConverter _second;
 
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             public MultiTypeConverter(TypeConverter first, TypeConverter second)
             {
@@ -69,9 +74,9 @@ namespace MugenMvvmToolkit.UWP.Binding
                 _second = second;
             }
 
-            #endregion
+        #endregion
 
-            #region Overrides of TypeConverter
+        #region Overrides of TypeConverter
 
             public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
             {
@@ -88,7 +93,7 @@ namespace MugenMvvmToolkit.UWP.Binding
                 return base.ConvertFrom(context, culture, value);
             }
 
-            #endregion
+        #endregion
         }
 
         #endregion
@@ -107,11 +112,34 @@ namespace MugenMvvmToolkit.UWP.Binding
         }
 
         #endregion
+#else
+        private static readonly HashSet<Type> ConvertibleTypes = new HashSet<Type>
+        {
+            typeof(Boolean),
+            typeof(Char),
+            typeof(Byte),
+            typeof(Int16),
+            typeof(Int32),
+            typeof(Int64),
+            typeof(SByte),
+            typeof(UInt16),
+            typeof(UInt32),
+            typeof(UInt64),
+            typeof(Single),
+            typeof(Double),
+            typeof(DateTime),
+            typeof(Decimal),
+            typeof(String),
+        };
 #endif
 
         #region Methods
 
+#if XAMARIN_FORMS
+        public static object Convert(MemberInfo member, Type type, object value)
+#else
         public static object Convert(IBindingMemberInfo member, Type type, object value)
+#endif
         {
             if (value == null)
                 return type.GetDefaultValue();
@@ -119,18 +147,25 @@ namespace MugenMvvmToolkit.UWP.Binding
                 return value;
 
 #if !WINDOWS_UWP && !NETFX_CORE
+#if XAMARIN_FORMS
+            var converter = GetTypeConverter(type, member);
+#else
             var converter = GetTypeConverter(type, member.Member as MemberInfo);
+#endif
             if (converter != null && converter.CanConvertFrom(value.GetType()))
                 return converter.ConvertFrom(value);
 #endif
 
-#if WINDOWS_UWP || NETFX_CORE
-            if (BindingExtensions.IsConvertible(value))
+#if NETFX_CORE
+#if XAMARIN_FORMS
+            if (ConvertibleTypes.Contains(value))
 #else
+            if (BindingExtensions.IsConvertible(value))
+#endif
+#else                
             if (value is IConvertible)
 #endif
                 return System.Convert.ChangeType(value, type.GetNonNullableType(), BindingServiceProvider.BindingCultureInfo());
-
 #if WINDOWS_UWP || NETFX_CORE
             if (type.GetTypeInfo().IsEnum)
 #else

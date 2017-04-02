@@ -23,6 +23,7 @@ using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using Xamarin.Forms;
 
+// ReSharper disable once CheckNamespace
 namespace MugenMvvmToolkit.Xamarin.Forms.MarkupExtensions
 {
     public static class View

@@ -19,13 +19,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Models;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
+// ReSharper disable once CheckNamespace
 namespace MugenMvvmToolkit.Xamarin.Forms.MarkupExtensions
 {
     [ContentProperty("Path")]
@@ -76,7 +76,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.MarkupExtensions
 
         #region Properties
 
-        [CanBeNull]
         public static Func<IProvideValueTarget, IServiceProvider, string> GetTargetPropertyNameDelegate { get; set; }
 
         #endregion

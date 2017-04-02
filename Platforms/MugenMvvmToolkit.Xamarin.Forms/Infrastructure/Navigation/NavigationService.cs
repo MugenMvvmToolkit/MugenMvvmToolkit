@@ -20,7 +20,6 @@ using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
-using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
@@ -178,7 +177,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             if (viewModel == null)
                 return false;
 
-            if (CurrentContent?.DataContext() == viewModel)
+            if (CurrentContent?.BindingContext == viewModel)
                 return true;
 
             var navigationStack = _rootPage.Navigation?.NavigationStack;
@@ -199,7 +198,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             if (viewModel == null)
                 return false;
 
-            if (CurrentContent != null && CurrentContent.DataContext() == viewModel)
+            if (CurrentContent != null && CurrentContent.BindingContext == viewModel)
                 return GoBack(dataContext);
 
             var navigation = _rootPage.Navigation;
@@ -277,7 +276,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
                 else
                 {
                     SetBackNavigationContext(context);
-                    _rootPage.PopAsync(IsAnimated(context, CurrentContent?.DataContext() as IViewModel));
+                    _rootPage.PopAsync(IsAnimated(context, CurrentContent?.BindingContext as IViewModel));
                 }
             }
             return true;
@@ -318,7 +317,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
                     if (toRemove == page)
                         continue;
                     navigation.RemovePage(toRemove);
-                    var viewModel = toRemove.DataContext() as IViewModel;
+                    var viewModel = toRemove.BindingContext as IViewModel;
                     if (viewModel != null)
                     {
                         var ctx = new DataContext(context);

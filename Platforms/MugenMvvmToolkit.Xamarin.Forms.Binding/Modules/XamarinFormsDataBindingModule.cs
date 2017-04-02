@@ -21,6 +21,7 @@ using System.Reflection;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.Xamarin.Forms.Binding.Converters;
 using MugenMvvmToolkit.Xamarin.Forms.Binding.Infrastructure;
 using Xamarin.Forms;
@@ -29,6 +30,17 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Modules
 {
     public class XamarinFormsDataBindingModule : IModule
     {
+        #region Constructors
+
+        static XamarinFormsDataBindingModule()
+        {
+            BindingServiceProvider.DataContextMemberAliases.Add(nameof(BindableObject.BindingContext));
+            BindingServiceProvider.BindingMemberPriorities[nameof(BindableObject.BindingContext)] = BindingServiceProvider.DataContextMemberPriority;
+            BindingServiceProvider.CompiledExpressionInvokerSupportCoalesceExpression = false;
+        }
+
+        #endregion
+
         #region Properties
 
         public int Priority => ApplicationSettings.ModulePriorityInitialization + 1;
@@ -55,13 +67,31 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Modules
                 Tracer.Info("The {0} converter is registered.", type);
         }
 
+        private static void OnAppInitialized(object sender, EventArgs eventArgs)
+        {
+            ServiceProvider.ViewManager.ViewCleared += OnViewCleared;
+        }
+
+        private static void OnViewCleared(IViewManager viewManager, ViewClearedEventArgs args)
+        {
+            try
+            {
+                (args.View as BindableObject).ClearBindingsRecursively(true, true);
+            }
+            catch (Exception e)
+            {
+                Tracer.Error(e.Flatten(true));
+            }
+        }
+
         #endregion
 
         #region Implementation of interfaces
 
         public bool Load(IModuleContext context)
         {
-            BindingServiceProvider.Initialize(contextManager: new XamarinFormsBindingContextManager(), resourceResolver: new XamarinFormsBindingResourceResolver());
+            BindingServiceProvider.Initialize(contextManager: new XamarinFormsBindingContextManager(), resourceResolver: new XamarinFormsBindingResourceResolver(),
+                errorProvider: new XamarinFormsBindingErrorProvider(), converter: PlatformDataBindingExtensions.Convert);
             context.TryRegisterDataTemplateSelectorsAndValueConverters(RegisterType);
             MugenMvvmToolkit.Binding.AttachedMembersRegistration.RegisterDefaultMembers();
 
@@ -73,6 +103,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Modules
             AttachedMembersRegistration.RegisterButtonMembers();
             AttachedMembersRegistration.RegisterListViewMembers();
             AttachedMembersRegistration.RegisterProgressBarMembers();
+
+            ServiceProvider.Initialized += OnAppInitialized;
             return true;
         }
 

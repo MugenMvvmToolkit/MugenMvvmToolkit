@@ -55,9 +55,6 @@
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Infrastructure\ThreadManager.cs">
       <Link>Infrastructure\ThreadManager.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\converters\ViewModelToViewConverter.cs">
-      <Link>Converters\ViewModelToViewConverter.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\AttachedValueProvider.cs">
       <Link>Infrastructure\AttachedValueProvider.cs</Link>
     </Compile>
@@ -70,23 +67,6 @@
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\interfaces\navigation\INavigationService.cs">
       <Link>Interfaces\Navigation\INavigationService.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\AttachedMembers.cs">
-      <Link>Binding\AttachedMembers.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\Converters\ValueConverterWrapper.cs">
-      <Link>Converters\ValueConverterWrapper.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\Infrastructure\BindingResourceResolverEx.cs">
-      <Link>Binding\Infrastructure\BindingResourceResolverEx.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\MarkupExtensions\DataBindingExtensionCommon.cs">
-      <Link>MarkupExtensions\DataBindingExtensionCommon.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\Models\Enums.cs">
-      <Link>Models\Enums.cs</Link>
-    </Compile>
-    <Compile Include="Binding\AttachedMembersRegistration.cs" />
-    <Compile Include="Binding\Infrastructure\XamarinFormsBindingContextManager.cs" />
     <Compile Include="Infrastructure\Mediators\ModalViewMediator.cs" />
     <Compile Include="Infrastructure\Navigation\NavigationService.cs" />
     <Compile Include="Infrastructure\Presenters\RestorableViewModelPresenter.cs" />
@@ -96,10 +76,6 @@
     <Compile Include="Interfaces\Presenters\IRestorableViewModelPresenter.cs" />
     <Compile Include="Modules\XamarinFormsInitializationModule.cs" />
     <Compile Include="Interfaces\Views\IModalView.cs" />
-    <Compile Include="MarkupExtensions\DataBindingExtension.cs" />
-    <Compile Include="MarkupExtensions\View.cs" />
-    <Compile Include="Binding\Models\ParentObserver.cs" />
-    <Compile Include="Binding\Modules\XamarinFormsDataBindingModule.cs" />
     <Compile Include="MvvmXamarinApplicationBase.cs" />
     <Compile Include="XamarinFormsExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -111,11 +87,6 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\MugenMvvmToolkit.Binding%28NetStandard%29\MugenMvvmToolkit.Binding%28NetStandard%29.csproj">
-      <Project>{bd7749ab-822f-4ed2-bb75-0fef2b9ad453}</Project>
-      <Name>MugenMvvmToolkit.Binding%28NetStandard%29</Name>
-      <Private>False</Private>
-    </ProjectReference>
     <ProjectReference Include="..\..\Core\MugenMvvmToolkit.Core%28NetStandard%29\MugenMvvmToolkit.Core%28NetStandard%29.csproj">
       <Project>{f4323e9e-1608-429b-83dc-6a3670761850}</Project>
       <Name>MugenMvvmToolkit.Core%28NetStandard%29</Name>
@@ -127,6 +98,7 @@
       <Link>license.txt</Link>
     </None>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

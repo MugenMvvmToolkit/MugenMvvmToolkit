@@ -32,7 +32,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>..\..\bin\Platforms\Xamarin.Forms\</OutputPath>
-    <DefineConstants>TRACE;NETFX_CORE;WINDOWS_UWP;XAMARIN_FORMS</DefineConstants>
+    <DefineConstants>TRACE;WINDOWS_UWP;XAMARIN_FORMS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -122,9 +122,6 @@
     <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\BindingConverterExtensions.cs">
       <Link>Binding\BindingConverterExtensions.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.wpf.binding%284.5%29\infrastructure\BindingErrorProvider.cs">
-      <Link>Binding\Infrastructure\BindingErrorProvider.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Xamarin.Forms.Android\Modules\XamarinFormsInitializationModuleEx.cs">
       <Link>Modules\XamarinFormsInitializationModuleEx.cs</Link>
     </Compile>
@@ -135,11 +132,6 @@
     <EmbeddedResource Include="Properties\MugenMvvmToolkit.Xamarin.Forms.UWP.rd.xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\MugenMvvmToolkit.Binding%28NetStandard%29\MugenMvvmToolkit.Binding%28NetStandard%29.csproj">
-      <Project>{bd7749ab-822f-4ed2-bb75-0fef2b9ad453}</Project>
-      <Name>MugenMvvmToolkit.Binding%28NetStandard%29</Name>
-      <Private>False</Private>
-    </ProjectReference>
     <ProjectReference Include="..\..\Core\MugenMvvmToolkit.Core%28NetStandard%29\MugenMvvmToolkit.Core%28NetStandard%29.csproj">
       <Project>{f4323e9e-1608-429b-83dc-6a3670761850}</Project>
       <Name>MugenMvvmToolkit.Core%28NetStandard%29</Name>

@@ -19,7 +19,7 @@
 #if WINDOWS_PHONE
 using Microsoft.Phone.Controls;
 #endif
-#if NETFX_CORE
+#if NETFX_CORE || WINDOWS_UWP
 using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;

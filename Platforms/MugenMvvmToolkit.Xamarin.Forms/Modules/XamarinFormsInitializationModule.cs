@@ -16,15 +16,12 @@
 
 #endregion
 
-using System;
-using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
-using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.Models.IoC;
 using MugenMvvmToolkit.Modules;
 using MugenMvvmToolkit.Xamarin.Forms.Infrastructure;
@@ -33,7 +30,6 @@ using MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Mediators;
 using MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation;
 using MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters;
 using MugenMvvmToolkit.Xamarin.Forms.Interfaces.Views;
-using Xamarin.Forms;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Modules
 {
@@ -44,16 +40,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Modules
         protected override void BindOperationCallbackFactory(IModuleContext context, IIocContainer container)
         {
             container.Bind<IOperationCallbackFactory, SerializableOperationCallbackFactory>(DependencyLifecycle.SingleInstance);
-        }
-
-        protected override void BindViewManager(IModuleContext context, IIocContainer container)
-        {
-            container.BindToMethod<IViewManager>((iocContainer, list) =>
-            {
-                var viewManager = iocContainer.Get<ViewManager>();
-                viewManager.ViewCleared += OnViewCleared;
-                return viewManager;
-            }, DependencyLifecycle.SingleInstance);
         }
 
         protected override void BindViewModelPresenter(IModuleContext context, IIocContainer container)
@@ -91,18 +77,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Modules
             IAttachedValueProvider attachedValueProvider = new AttachedValueProvider();
             ServiceProvider.AttachedValueProvider = attachedValueProvider;
             container.BindToConstant(attachedValueProvider);
-        }
-
-        private static void OnViewCleared(IViewManager viewManager, ViewClearedEventArgs args)
-        {
-            try
-            {
-                XamarinFormsExtensions.ClearBindingsRecursively(args.View as BindableObject, true, true);
-            }
-            catch (Exception e)
-            {
-                Tracer.Error(e.Flatten(true));
-            }
         }
 
         #endregion

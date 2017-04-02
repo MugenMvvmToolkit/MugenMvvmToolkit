@@ -17,13 +17,10 @@
 #endregion
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Reflection;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using Xamarin.Forms;
@@ -38,7 +35,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms
         private const string NavContextKey = nameof(NavContextKey);
         private const string NavContextBackKey = NavContextKey + "Back";
         private const string NavBringToFrontKey = nameof(NavBringToFrontKey);
-        private static readonly Dictionary<Type, IBindingMemberInfo> TypeToContentMember;
 
         #endregion
 
@@ -46,16 +42,16 @@ namespace MugenMvvmToolkit.Xamarin.Forms
 
         static XamarinFormsExtensions()
         {
-            TypeToContentMember = new Dictionary<Type, IBindingMemberInfo>();
+            BindingCultureInfo = () => CultureInfo.CurrentCulture;
         }
 
         #endregion
 
-        #region Events
+        #region Properties
 
-        public static event EventHandler<Page, CancelEventArgs> BackButtonPressed;
+        public static Func<CultureInfo> BindingCultureInfo { get; set; }
 
-        public static Func<Page, Action> SendBackButtonPressed { get; set; }
+        public static Func<MemberInfo, Type, object, object> ValueConverter { get; set; }
 
         #endregion
 
@@ -88,34 +84,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms
             if (controller == null)
                 return null;
             return ServiceProvider.AttachedValueProvider.GetValue<string>(controller, NavParamKey, false);
-        }
-
-        public static void ClearBindingsRecursively([CanBeNull] this BindableObject item, bool clearDataContext, bool clearAttachedValues)
-        {
-            if (item == null)
-                return;
-            var contentMember = GetContentMember(item.GetType());
-            if (contentMember != null)
-            {
-                var content = contentMember.GetValue(item, null);
-                if (!(content is string))
-                {
-                    var enumerable = content as IEnumerable;
-                    if (enumerable == null)
-                        ClearBindingsRecursively(content as BindableObject, clearDataContext, clearAttachedValues);
-                    else
-                    {
-                        foreach (object child in enumerable)
-                        {
-                            var bindableObject = child as BindableObject;
-                            if (child == null || bindableObject == null)
-                                break;
-                            bindableObject.ClearBindingsRecursively(clearDataContext, clearAttachedValues);
-                        }
-                    }
-                }
-            }
-            item.ClearBindings(clearDataContext, clearAttachedValues);
         }
 
         internal static bool IsAssignableFrom([NotNull] this Type typeFrom, [NotNull] Type typeTo)
@@ -154,32 +122,20 @@ namespace MugenMvvmToolkit.Xamarin.Forms
         {
             if (page == null)
                 return null;
-            string key = isBack ? NavContextBackKey : NavContextKey;
+            var key = isBack ? NavContextBackKey : NavContextKey;
             var dataContext = ServiceProvider.AttachedValueProvider.GetValue<IDataContext>(page, key, false);
             if (dataContext != null && remove)
                 ServiceProvider.AttachedValueProvider.Clear(page, key);
             return dataContext;
         }
 
-        private static IBindingMemberInfo GetContentMember(Type type)
-        {
-            lock (TypeToContentMember)
-            {
-                IBindingMemberInfo info;
-                if (!TypeToContentMember.TryGetValue(type, out info))
-                {
-                    var attribute = type
-                        .GetTypeInfo()
-                        .GetCustomAttribute<ContentPropertyAttribute>(true);
-                    if (attribute != null)
-                        info = BindingServiceProvider
-                            .MemberProvider
-                            .GetBindingMember(type, attribute.Name, true, false);
-                    TypeToContentMember[type] = info;
-                }
-                return info;
-            }
-        }
+        #endregion
+
+        #region Events
+
+        public static event EventHandler<Page, CancelEventArgs> BackButtonPressed;
+
+        public static Func<object, Action> SendBackButtonPressed { get; set; }
 
         #endregion
     }

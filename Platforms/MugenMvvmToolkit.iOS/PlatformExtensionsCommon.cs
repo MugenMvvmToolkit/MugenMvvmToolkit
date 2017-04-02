@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Binding;
 using ObjCRuntime;
 using UIKit;
 
@@ -70,19 +69,6 @@ namespace MugenMvvmToolkit.iOS
         #endregion
 
         #region Methods
-
-        public static void ClearBindingsRecursively([CanBeNull]this UIView view, bool clearDataContext, bool clearAttachedValues)
-        {
-            if (!view.IsAlive())
-                return;
-            var subviews = view.Subviews;
-            if (subviews != null)
-            {
-                foreach (var subView in subviews)
-                    subView.ClearBindingsRecursively(clearDataContext, clearAttachedValues);
-            }
-            view.ClearBindings(clearDataContext, clearAttachedValues);
-        }
 
         public static void AddOrientationChangeListener([NotNull] IOrientationChangeListener listener)
         {

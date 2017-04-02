@@ -18,7 +18,6 @@
 
 using System;
 using System.ComponentModel;
-using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using Xamarin.Forms;
 
@@ -47,10 +46,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Models
 
         #region Properties
 
-        [CanBeNull]
         public Element Source => (Element)_view.Target;
 
-        [CanBeNull]
         public object Parent
         {
             get { return _parent.Target; }

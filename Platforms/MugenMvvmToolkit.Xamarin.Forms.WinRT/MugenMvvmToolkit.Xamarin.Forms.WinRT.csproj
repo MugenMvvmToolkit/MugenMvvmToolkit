@@ -107,7 +107,6 @@
     <None Include="..\..\Solution Items\MugenMvvmToolkit.licenseheader">
       <Link>MugenMvvmToolkit.licenseheader</Link>
     </None>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28NetStandard%29\Properties\AssemblyInfoCommon.cs">
@@ -121,9 +120,6 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\BindingConverterExtensions.cs">
       <Link>Binding\BindingConverterExtensions.cs</Link>
-    </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.wpf.binding%284.5%29\infrastructure\BindingErrorProvider.cs">
-      <Link>Binding\Infrastructure\BindingErrorProvider.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Xamarin.Forms.Android\Modules\XamarinFormsInitializationModuleEx.cs">
       <Link>Modules\XamarinFormsInitializationModuleEx.cs</Link>
@@ -139,11 +135,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\MugenMvvmToolkit.Binding%28NetStandard%29\MugenMvvmToolkit.Binding%28NetStandard%29.csproj">
-      <Project>{bd7749ab-822f-4ed2-bb75-0fef2b9ad453}</Project>
-      <Name>MugenMvvmToolkit.Binding%28NetStandard%29</Name>
-      <Private>False</Private>
-    </ProjectReference>
     <ProjectReference Include="..\..\Core\MugenMvvmToolkit.Core%28NetStandard%29\MugenMvvmToolkit.Core%28NetStandard%29.csproj">
       <Project>{f4323e9e-1608-429b-83dc-6a3670761850}</Project>
       <Name>MugenMvvmToolkit.Core%28NetStandard%29</Name>
@@ -155,39 +146,10 @@
       <Private>False</Private>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Xamarin.Forms.Core, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Xamarin.Forms.2.3.3.193\lib\win81\Xamarin.Forms.Core.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Xamarin.Forms.Platform, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Xamarin.Forms.2.3.3.193\lib\win81\Xamarin.Forms.Platform.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Xamarin.Forms.Platform.WinRT, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Xamarin.Forms.2.3.3.193\lib\win81\Xamarin.Forms.Platform.WinRT.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Xamarin.Forms.Platform.WinRT.Tablet, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Xamarin.Forms.2.3.3.193\lib\win81\Xamarin.Forms.Platform.WinRT.Tablet.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Xamarin.Forms.Xaml, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Xamarin.Forms.2.3.3.193\lib\win81\Xamarin.Forms.Xaml.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '12.0' ">
     <VisualStudioVersion>12.0</VisualStudioVersion>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
-  <Import Project="..\..\packages\Xamarin.Forms.2.3.3.193\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets" Condition="Exists('..\..\packages\Xamarin.Forms.2.3.3.193\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('..\..\packages\Xamarin.Forms.2.3.3.193\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Xamarin.Forms.2.3.3.193\build\portable-win+net45+wp80+win81+wpa81+MonoAndroid10+Xamarin.iOS10+xamarinmac20\Xamarin.Forms.targets'))" />
-  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
