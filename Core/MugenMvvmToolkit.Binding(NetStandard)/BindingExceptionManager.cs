@@ -118,8 +118,9 @@ namespace MugenMvvmToolkit.Binding
 
         internal static Exception WrapBindingException(IDataBinding binding, BindingAction action, Exception exception)
         {
+            var sourcePaths = string.Join(", ", binding.SourceAccessor.Sources.Select(observer => observer.Path));
             string message =
-                $"A binding error has occurred, when update {(action == BindingAction.UpdateSource ? "source" : "target")}, path '{binding.TargetAccessor.Source.Path}', inner exception '{exception.Message}'";
+                $"A binding error has occurred, when update {(action == BindingAction.UpdateSource ? "source" : "target")}, target '{binding.TargetAccessor.Source.Path}', source {sourcePaths}, inner exception '{exception.Message}'";
             return new InvalidOperationException(message, exception);
         }
 
