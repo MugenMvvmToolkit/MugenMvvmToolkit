@@ -473,6 +473,20 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
         }
 
         [TestMethod]
+        public void BuilderShouldUseConstantExpression()
+        {
+            var builder = new BindingBuilder();
+            builder.Bind(new object(), "empty").To<BindingSourceModel>(() => (model, ctx) => 1 + 1);
+
+            var expression = builder.GetData(BindingBuilderConstants.MultiExpression);
+            expression.Invoke(builder, new object[0]).ShouldEqual(2);
+
+            var list = builder.GetData(BindingBuilderConstants.Sources);
+            list.Count.ShouldEqual(1);
+            list[0].Invoke(builder).Path.Path.ShouldEqual(string.Empty);
+        }
+
+        [TestMethod]
         public void BuilderShouldUseEventArgs1()
         {
             var builder = new BindingBuilder();
@@ -513,7 +527,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var dataContext = new DataContext();
             var bindingMock = new DataBindingMock { GetContext = () => dataContext };
             builder.Bind(new object(), "empty").To<BindingSourceModel>(() => (model, ctx) => ctx.Binding());
-            
+
             builder.AddOrUpdate(BindingConstants.Binding, bindingMock);
             var expression = builder.GetData(BindingBuilderConstants.MultiExpression);
             expression(builder, Empty.Array<object>()).ShouldEqual(bindingMock);

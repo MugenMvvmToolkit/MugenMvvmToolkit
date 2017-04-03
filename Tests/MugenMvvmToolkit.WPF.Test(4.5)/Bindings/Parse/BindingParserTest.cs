@@ -1089,6 +1089,26 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
         }
 
         [TestMethod]
+        public void ParserShouldParseConstantExpression()
+        {
+            const string targetPath = "Text";
+            const string binding = "Text 1+1";
+            var target = new object();
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(target, binding, null, null).Single());
+            IBindingPath path = context.GetData(BindingBuilderConstants.TargetPath);
+            path.Path.ShouldEqual(targetPath);
+
+            var expression = context.GetData(BindingBuilderConstants.MultiExpression);
+            expression(context, new object[0]).ShouldEqual(2);
+
+            var sources = context.GetData(BindingBuilderConstants.Sources);
+            sources.Count.ShouldEqual(1);
+            sources[0].Invoke(context).ShouldEqual(EmptyObserver.Instance);
+        }
+
+        [TestMethod]
         public void ParserShouldParseMultiExpressionWithOneTimeScope()
         {
             const string targetPath = "Text";
@@ -2293,7 +2313,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
             var sources = context.GetData(BindingBuilderConstants.Sources);
             IObserver source = sources.Single().Invoke(context);
             var members = source.GetPathMembers(true);
-            members.LastMember.GetValue(members.PenultimateValue, null).ShouldBeNull();
+            members.LastMember.GetValue(members.PenultimateValue, null).IsUnsetValue().ShouldBeTrue();
 
             BindingServiceProvider.ContextManager.GetBindingContext(target).Value = src;
             members.LastMember.GetValue(members.PenultimateValue, null).ShouldEqual(src);

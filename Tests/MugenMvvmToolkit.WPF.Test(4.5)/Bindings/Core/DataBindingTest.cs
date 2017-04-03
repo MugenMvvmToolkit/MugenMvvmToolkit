@@ -154,7 +154,16 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
                     IsValid = b => true
                 }
             };
-            var source = new BindingSourceAccessorMock();
+            var source = new BindingSourceAccessorMock
+            {
+                Source = new ObserverMock
+                {
+                    IsValid = b => true,
+                    GetActualSource = b => new object(),
+                    Path = path,
+                }
+            };
+
 
             DataBinding binding = CreateDataBinding(target, source, bindingManager);
             source.SetValue = (func, context, arg3) => { throw new TestException(); };

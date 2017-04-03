@@ -169,7 +169,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             var bindingContext = manager.GetBindingContext(context);
             isFindParentInvoked.ShouldBeTrue();
             isObserveParentInvoked.ShouldBeTrue();
-            bindingContext.Value.ShouldBeNull();
+            bindingContext.Value.IsUnsetValue().ShouldBeTrue();
         }
 
         [TestMethod]
@@ -204,7 +204,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             var manager = CreateContextManager(managerMock);
             var bindingContext = manager.GetBindingContext(context);
             isFindParentInvoked.ShouldBeTrue();
-            bindingContext.Value.ShouldBeNull();
+            bindingContext.Value.IsUnsetValue().ShouldBeTrue();
 
             isFindParentInvoked = false;
             eventListener.ShouldNotBeNull();
@@ -244,7 +244,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Core
             var manager = CreateContextManager(managerMock);
             var bindingContext = manager.GetBindingContext(context);
             isFindParentInvoked.ShouldBeTrue();
-            bindingContext.Value.ShouldBeNull();
+            bindingContext.Value.IsUnsetValue().ShouldBeTrue();
 
             isFindParentInvoked = false;
             bindingContext.Value = context;
