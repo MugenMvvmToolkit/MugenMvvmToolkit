@@ -51,6 +51,7 @@
     <Compile Include="AttachedMembersRegistration.cs" />
     <Compile Include="Behaviors\DisableEqualityCheckingBehavior.cs" />
     <Compile Include="Infrastructure\DataTemplateSelectorBase.cs" />
+    <Compile Include="Infrastructure\EmptyObserver.cs" />
     <Compile Include="Interfaces\IDataTemplateSelector.cs" />
     <Compile Include="Interfaces\Syntax\IBindingSyntaxContext.cs" />
     <Compile Include="Models\BindingMemberDescriptor.cs" />

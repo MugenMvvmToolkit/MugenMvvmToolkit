@@ -23,6 +23,7 @@ using System.Linq.Expressions;
 using MugenMvvmToolkit.Binding.Attributes;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Extensions.Syntax;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Syntax;
 using MugenMvvmToolkit.Infrastructure;
@@ -257,7 +258,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         {
             var multiExpression = Visit(ContextReplacerVisitor.UpdateContextParameter(expression.Body));
             if (_members.Count == 0)
-                AddBuildCallback(builder => builder.GetOrAddBindingSources().Add(context => BindingExtensions.CreateBindingSource(context, string.Empty, null)));
+                AddBuildCallback(builder => builder.GetOrAddBindingSources().Add(context => EmptyObserver.Instance));
             else
             {
                 for (int i = 0; i < _members.Count; i++)

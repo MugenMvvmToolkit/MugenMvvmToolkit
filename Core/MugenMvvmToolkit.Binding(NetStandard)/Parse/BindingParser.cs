@@ -24,6 +24,7 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding.Behaviors;
 using MugenMvvmToolkit.Binding.Converters;
 using MugenMvvmToolkit.Binding.DataConstants;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Interfaces.Parse;
@@ -108,9 +109,13 @@ namespace MugenMvvmToolkit.Binding.Parse
             };
             EmptyBindingSourceDelegates = new Func<IDataContext, IObserver>[]
             {
+                context => EmptyObserver.Instance
+            };
+            var emptyPathBindingSource = new Func<IDataContext, IObserver>[]
+            {
                 BindEmptyPathSource
             };
-            EmptyPathSourceDelegate = context => context.Add(BindingBuilderConstants.Sources, EmptyBindingSourceDelegates);
+            EmptyPathSourceDelegate = context => context.Add(BindingBuilderConstants.Sources, emptyPathBindingSource);
         }
 
         public BindingParser()

@@ -180,6 +180,9 @@
     <Compile Include="..\MugenMvvmToolkit.Binding%28NetStandard%29\Infrastructure\DataTemplateSelectorBase.cs">
       <Link>Infrastructure\DataTemplateSelectorBase.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Binding%28NetStandard%29\Infrastructure\EmptyObserver.cs">
+      <Link>Infrastructure\EmptyObserver.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.binding%28NetStandard%29\infrastructure\EmptyPathObserver.cs">
       <Link>Infrastructure\EmptyPathObserver.cs</Link>
     </Compile>

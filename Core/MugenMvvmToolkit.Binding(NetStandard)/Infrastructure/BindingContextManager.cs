@@ -18,6 +18,7 @@
 
 using System;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
@@ -131,7 +132,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     return;
                 var context = GetParentBindingContext(target);
                 if (context == null)
-                    _dataContext = null;
+                    _dataContext = BindingConstants.UnsetValue;
                 else
                 {
                     WeakEventManager.AddBindingContextListener(context, this, false);
@@ -148,7 +149,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             private void RaiseValueChanged()
             {
-                var isNull = Value == null;
+                var isNull = Value.IsNullOrUnsetValue();
                 if (isNull && _isNull)
                     return;
                 _isNull = isNull;

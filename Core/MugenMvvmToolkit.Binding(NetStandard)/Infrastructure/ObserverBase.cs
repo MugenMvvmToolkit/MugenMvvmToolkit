@@ -158,13 +158,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             }
         }
 
-        protected static IBindingMemberInfo GetBindingMember(Type type, string path, bool ignoreAttached, bool optional)
+        protected IBindingMemberInfo GetBindingMember(Type type, string path, bool ignoreAttached, bool optional)
         {
             IBindingMemberInfo member = BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(type, path, ignoreAttached, !optional);
             if (member == null && Tracer.TraceWarning)
-                Tracer.Warn(BindingExceptionManager.InvalidBindingMemberFormat2, path, type);
+                Tracer.Warn(BindingExceptionManager.InvalidBindingMemberFormat2 + ", full path '{2}'", path, type, Path.Path);
             return member;
         }
 
