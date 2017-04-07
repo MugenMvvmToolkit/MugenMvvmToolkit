@@ -78,10 +78,10 @@ namespace MugenMvvmToolkit.UWP.Modules
                         .ThreadManager
                         .Invoke(ExecutionMode.AsynchronousOnUiThread, handler, handler, (h1, h2) => System.Windows.Input.CommandManager.RequerySuggested -= h1);
                 }
+                BindNavigationCachePolicy(context, context.IocContainer);
 #elif WINDOWS_UWP
                 BindApplicationStateManager(context, context.IocContainer);
-#endif           
-                BindNavigationCachePolicy(context, context.IocContainer);
+#endif                           
                 return true;
             }
             return false;
@@ -168,6 +168,11 @@ namespace MugenMvvmToolkit.UWP.Modules
                 windowPresenter.RegisterMediatorFactory<WindowViewMediator, IWindowView>();
             }
         }
+
+        protected virtual void BindNavigationCachePolicy(IModuleContext context, IIocContainer container)
+        {
+            container.Bind<INavigationCachePolicy, DefaultNavigationCachePolicy>(DependencyLifecycle.SingleInstance);
+        }
 #endif
 
         protected override void BindThreadManager(IModuleContext context, IIocContainer container)
@@ -186,11 +191,6 @@ namespace MugenMvvmToolkit.UWP.Modules
         protected override void BindNavigationProvider(IModuleContext context, IIocContainer container)
         {
             container.Bind<INavigationProvider, NavigationProvider>(DependencyLifecycle.SingleInstance);
-        }
-
-        protected virtual void BindNavigationCachePolicy(IModuleContext context, IIocContainer container)
-        {
-            container.Bind<INavigationCachePolicy, DefaultNavigationCachePolicy>(DependencyLifecycle.SingleInstance);
         }
 
         protected override void BindToastPresenter(IModuleContext context, IIocContainer container)

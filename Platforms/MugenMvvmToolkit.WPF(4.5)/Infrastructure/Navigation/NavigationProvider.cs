@@ -59,6 +59,8 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
     {
         #region Fields
 
+        private static readonly string[] IdSeparator = { "~n|v~" };
+
 #if WPF || WINDOWS_UWP
         private readonly EventHandler<IDisposableObject, EventArgs> _disposeViewModelHandler;
 #endif
@@ -89,7 +91,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         [Preserve(Conditional = true)]
         public NavigationProvider([NotNull] INavigationService navigationService, [NotNull] IThreadManager threadManager, [NotNull] IViewMappingProvider mappingProvider,
             [NotNull] IViewManager viewManager, [NotNull] IViewModelProvider viewModelProvider, [NotNull] INavigationDispatcher navigationDispatcher, IEventAggregator eventAggregator
-#if WPF || WINDOWS_UWP
+#if WPF
             , INavigationCachePolicy cachePolicy
 #endif
             )
@@ -107,7 +109,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             ViewManager = viewManager;
             ViewModelProvider = viewModelProvider;
             NavigationDispatcher = navigationDispatcher;
-#if WPF || WINDOWS_UWP
+#if WPF
             CachePolicy = cachePolicy;
             _disposeViewModelHandler = ViewModelOnDisposed;
 #endif
@@ -144,7 +146,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 
         public Task CurrentNavigationTask => _navigationTcs?.Task ?? _unobservedNavigationTcs?.Task ?? Empty.Task;
 
-#if WPF || WINDOWS_UWP
+#if WPF
         public INavigationCachePolicy CachePolicy { get; }
 #endif
         #endregion
@@ -153,7 +155,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 
         public void Dispose()
         {
-#if WPF || WINDOWS_UWP
+#if WPF
             ClearCacheIfNeed(new DataContext(NavigationProviderConstants.InvalidateAllCache.ToValue(true)), null);
 #endif
             NavigationService.Navigating -= NavigationServiceOnNavigating;
@@ -234,17 +236,22 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 
         #region Methods
 
-        public static string GenerateNavigationParameter([NotNull] Type vmType)
+        public static string GenerateNavigationParameter([NotNull] IViewModel viewModel)
         {
-            Should.NotBeNull(vmType, nameof(vmType));
-            return vmType.AssemblyQualifiedName;
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            return viewModel.GetType().AssemblyQualifiedName + IdSeparator[0] + viewModel.GetViewModelId().ToString("N");
         }
 
-        protected static Type GetViewModelTypeFromParameter(string parameter)
+        public static Type GetViewModelTypeFromParameter(string parameter, out Guid viewModelId)
         {
             if (string.IsNullOrEmpty(parameter))
+            {
+                viewModelId = Guid.Empty;
                 return null;
-            return Type.GetType(parameter, false);
+            }
+            var items = parameter.Split(IdSeparator, StringSplitOptions.RemoveEmptyEntries);
+            viewModelId = items.Length == 2 ? Guid.Parse(items[1]) : Guid.Empty;
+            return Type.GetType(items[0], false);
         }
 
         private static bool HasViewModel(object view, Type viewModelType)
@@ -293,13 +300,12 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 
             context.AddOrUpdate(NavigatedTaskConstant, tcs);
             string viewName = viewModel.GetViewName(context);
-            var vmType = viewModel.GetType();
-            var mappingItem = ViewMappingProvider.FindMappingForViewModel(vmType, viewName, true);
-            var parameter = GenerateNavigationParameter(vmType);
+            var mappingItem = ViewMappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, true);
+            var parameter = GenerateNavigationParameter(viewModel);
 
             if (NavigationService.Navigate(mappingItem, parameter, context))
             {
-#if WPF || WINDOWS_UWP
+#if WPF
                 ClearCacheIfNeed(context, viewModel);
 #endif
             }
@@ -314,7 +320,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         protected virtual void RestoreInternal(IViewModel viewModel, IDataContext context)
         {
             var navigationContext = new NavigationContext(NavigationType.Page, NavigationMode.Refresh, CurrentViewModel, viewModel, this, context);
-#if WPF || WINDOWS_UWP
+#if WPF
             var currentViewModel = CurrentViewModel;
             if (currentViewModel != null)
                 TryCacheViewModel(navigationContext, CurrentContent ?? currentViewModel.GetCurrentView<object>(), currentViewModel);
@@ -337,7 +343,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             }
 
             IViewModel vm = null;
-#if WPF || WINDOWS_UWP
+#if WPF
             if (CachePolicy != null)
                 vm = CachePolicy.TryTakeViewModelFromCache(context, view);
 #endif
@@ -363,13 +369,26 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         }
 
         [CanBeNull]
-        protected virtual INavigationContext CreateContextNavigateFrom(NavigatingCancelEventArgsBase args)
+        protected virtual INavigationContext CreateContextNavigateFrom(NavigatingCancelEventArgsBase args)//todo check parameter navigating\navigated, remove cache, remove wpf
         {
             IViewModel viewModelFrom = null, viewModelTo = null;
             if (args.NavigationMode.IsClose())
                 viewModelFrom = args.Context?.GetData(NavigationConstants.ViewModel);
             else
                 viewModelTo = args.Context?.GetData(NavigationConstants.ViewModel);
+
+            if (args.NavigationMode.IsClose())
+            {
+                Guid viewModelId;
+                if (viewModelFrom == null && GetViewModelTypeFromParameter(args.Parameter, out viewModelId) != null)
+                    viewModelFrom = ViewModelProvider.TryGetViewModelById(viewModelId);
+            }
+            else
+            {
+                Guid viewModelId;
+                if (viewModelTo == null && GetViewModelTypeFromParameter(args.Parameter, out viewModelId) != null)
+                    viewModelTo = ViewModelProvider.TryGetViewModelById(viewModelId);
+            }
 
             if (args.NavigationMode == NavigationMode.Remove)
             {
@@ -402,9 +421,25 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                 viewModelFrom = args.Context?.GetData(NavigationConstants.ViewModel);
             else
                 viewModelTo = args.Context?.GetData(NavigationConstants.ViewModel);
+
+            Guid viewModelId;
+            var vmType = GetViewModelTypeFromParameter(args.Parameter, out viewModelId);
+            if (vmType != null)
+            {
+                if (args.NavigationMode.IsClose())
+                {
+                    if (viewModelFrom == null)
+                        viewModelFrom = ViewModelProvider.TryGetViewModelById(viewModelId);
+                }
+                else
+                {
+                    if (viewModelTo == null)
+                        viewModelTo = ViewModelProvider.TryGetViewModelById(viewModelId);
+                }
+            }
+
             if (viewModelFrom == null)
                 viewModelFrom = CurrentViewModel;
-
             if (args.NavigationMode == NavigationMode.Remove)
             {
                 if (viewModelFrom != null)
@@ -412,7 +447,6 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                 Tracer.Error("Possible bug in navigation, navigate with mode Remove mode without ViewModel");
             }
 
-            var vmType = GetViewModelTypeFromParameter(NavigationService.GetParameterFromArgs(args));
             if (vmType == null)
             {
                 if (args.Content != null)
@@ -505,7 +539,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                 {
                     if (!vmTo.Settings.State.Contains(IsNavigatedConstant))
                     {
-#if WPF || WINDOWS_UWP
+#if WPF
                         vmTo.Disposed += _disposeViewModelHandler;
 #endif
                         vmTo.Settings.State.AddOrUpdate(IsNavigatedConstant, null);
@@ -521,7 +555,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 
         private void Renavigate([NotNull] INavigationContext context, NavigatingCancelEventArgsBase args)
         {
-#if WPF || WINDOWS_UWP
+#if WPF
             var currentViewModel = CurrentViewModel;
             var currentContent = CurrentContent;
 #endif
@@ -529,7 +563,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             {
                 if (NavigationService.Navigate(args))
                 {
-#if WPF || WINDOWS_UWP
+#if WPF
                     if (currentContent != null && currentViewModel != null)
                         TryCacheViewModel(context, currentContent, currentViewModel);
 
@@ -544,7 +578,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             }
             else
             {
-#if WPF || WINDOWS_UWP
+#if WPF
                 if (currentContent != null && currentViewModel != null)
                     TryCacheViewModel(context, currentContent, currentViewModel);
 #endif
@@ -594,7 +628,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                 context = new NavigationContext(NavigationType.Page, context.NavigationMode, context.ViewModelFrom, viewModel, context.NavigationProvider, args.Context);
         }
 
-#if WPF || WINDOWS_UWP
+#if WPF
         private void ViewModelOnDisposed(IDisposableObject sender, EventArgs args)
         {
             if (CachePolicy != null && CachePolicy.Invalidate((IViewModel)sender, DataContext.Empty))
@@ -607,13 +641,13 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                 return;
             viewModel.Settings.State.Remove(IsNavigatedConstant);
             viewModel.Settings.Metadata.Remove(ViewModelConstants.CanCloseHandler);
-#if WPF || WINDOWS_UWP
+#if WPF
             viewModel.Disposed -= _disposeViewModelHandler;
             CachePolicy?.Invalidate(viewModel, context);
 #endif
         }
 
-#if WPF || WINDOWS_UWP
+#if WPF
         private void TryCacheViewModel(INavigationContext context, object view, IViewModel viewModel)
         {
             if (CachePolicy != null && view != null && viewModel != null && !context.NavigationMode.IsClose())

@@ -73,14 +73,14 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Models.EventArg
         [CanBeNull]
         public IViewMappingItem Mapping => _mapping;
 
-        public string Parameter => _parameter;
-
 #if !TOUCH
         public bool IsBackButtonNavigation => _isBackButton;
 #endif
         #endregion
 
         #region Overrides of NavigatingCancelEventArgsBase
+
+        public override string Parameter => _parameter;
 
         public override bool Cancel { get; set; }
 

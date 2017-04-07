@@ -24,6 +24,8 @@ namespace MugenMvvmToolkit.Models.EventArg
 {
     public abstract class NavigatingCancelEventArgsBase : EventArgs
     {
+        public abstract string Parameter { get; }
+
         public abstract bool Cancel { get; set; }
 
         public abstract NavigationMode NavigationMode { get; }

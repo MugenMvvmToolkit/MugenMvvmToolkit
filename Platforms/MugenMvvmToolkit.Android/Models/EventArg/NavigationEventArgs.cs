@@ -46,13 +46,9 @@ namespace MugenMvvmToolkit.Android.Models.EventArg
 
         #endregion
 
-        #region Properties
-
-        public string Parameter => _parameter;
-
-        #endregion
-
         #region Overrides of NavigationEventArgsBase
+
+        public override string Parameter => _parameter;
 
         public override object Content => _content;
 

@@ -58,8 +58,6 @@ namespace MugenMvvmToolkit.Android.Models.EventArg
 
         public IViewMappingItem Mapping => _mapping;
 
-        public string Parameter => _parameter;
-
         #endregion
 
         #region Overrides of NavigatingCancelEventArgsBase
@@ -71,6 +69,8 @@ namespace MugenMvvmToolkit.Android.Models.EventArg
         public override bool IsCancelable => _isCancelable;
 
         public override IDataContext Context => _context;
+
+        public override string Parameter => _parameter;
 
         #endregion
     }

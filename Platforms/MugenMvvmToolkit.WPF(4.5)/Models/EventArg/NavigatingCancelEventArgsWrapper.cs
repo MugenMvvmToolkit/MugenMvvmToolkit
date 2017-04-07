@@ -52,6 +52,8 @@ namespace MugenMvvmToolkit.WPF.Models.EventArg
 
         #region Overrides of NavigatingCancelEventArgsBase
 
+        public override string Parameter => Args.ExtraData as string;
+
         public override bool Cancel
         {
             get { return _args.Cancel; }

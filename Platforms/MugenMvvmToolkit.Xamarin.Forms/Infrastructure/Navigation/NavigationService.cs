@@ -84,15 +84,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             _rootPage = page;
         }
 
-        public string GetParameterFromArgs(EventArgs args)
-        {
-            Should.NotBeNull(args, nameof(args));
-            var cancelArgs = args as NavigatingCancelEventArgs;
-            if (cancelArgs == null)
-                return (args as Models.EventArg.NavigationEventArgs)?.Parameter;
-            return cancelArgs.Parameter;
-        }
-
         public bool Navigate(NavigatingCancelEventArgsBase args)
         {
             Should.NotBeNull(args, nameof(args));

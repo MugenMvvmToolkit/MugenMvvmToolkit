@@ -73,17 +73,6 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Navigation
 
         public object CurrentContent => _window.Content;
 
-        public string GetParameterFromArgs(EventArgs args)
-        {
-            Should.NotBeNull(args, nameof(args));
-            var cancelEventArgs = args as NavigatingCancelEventArgsWrapper;
-            if (cancelEventArgs == null)
-            {
-                return (args as NavigationEventArgsWrapper)?.Args.ExtraData as string;
-            }
-            return cancelEventArgs.Args.ExtraData as string;
-        }
-
         public bool Navigate(NavigatingCancelEventArgsBase args)
         {
             Should.NotBeNull(args, nameof(args));

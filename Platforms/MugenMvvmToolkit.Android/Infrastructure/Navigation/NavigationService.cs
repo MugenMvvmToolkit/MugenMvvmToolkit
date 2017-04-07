@@ -341,15 +341,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             return true;
         }
 
-        public string GetParameterFromArgs(EventArgs args)
-        {
-            Should.NotBeNull(args, nameof(args));
-            var cancelArgs = args as NavigatingCancelEventArgs;
-            if (cancelArgs == null)
-                return (args as NavigationEventArgs)?.Parameter;
-            return cancelArgs.Parameter;
-        }
-
         public bool Navigate(NavigatingCancelEventArgsBase args)
         {
             Should.NotBeNull(args, nameof(args));

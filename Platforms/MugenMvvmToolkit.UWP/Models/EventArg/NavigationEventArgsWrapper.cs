@@ -54,6 +54,8 @@ namespace MugenMvvmToolkit.UWP.Models.EventArg
 
         #region Overrides of NavigationEventArgsBase
 
+        public override string Parameter => Args.Parameter as string;
+
         public override object Content => _args.Content;
 
         public override NavigationMode NavigationMode

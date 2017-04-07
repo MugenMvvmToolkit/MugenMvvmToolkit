@@ -41,6 +41,8 @@ namespace MugenMvvmToolkit.UWP.Models.EventArg
 
         #region Properties
 
+        public override string Parameter => null;
+
         public override object Content => null;
 
         public override NavigationMode NavigationMode => NavigationMode.Remove;

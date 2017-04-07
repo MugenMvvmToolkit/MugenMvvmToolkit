@@ -16,7 +16,6 @@
 
 #endregion
 
-using System;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
@@ -54,9 +53,6 @@ namespace MugenMvvmToolkit.UWP.Interfaces.Navigation
 #elif XAMARIN_FORMS
         void UpdateRootPage(NavigationPage page);
 #endif
-        [CanBeNull]
-        string GetParameterFromArgs([NotNull]EventArgs args);
-
         bool Navigate([NotNull] NavigatingCancelEventArgsBase args);
 
         bool Navigate([NotNull] IViewMappingItem source, [CanBeNull] string parameter, [CanBeNull] IDataContext dataContext);

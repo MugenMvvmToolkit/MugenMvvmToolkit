@@ -52,11 +52,11 @@ namespace MugenMvvmToolkit.UWP.Models.EventArg
 
         public NavigatingCancelEventArgs Args => _args;
 
-        public string Parameter => _parameter;
-
         #endregion
 
         #region Overrides of NavigatingCancelEventArgsBase
+
+        public override string Parameter => _parameter;
 
         public override bool Cancel
         {

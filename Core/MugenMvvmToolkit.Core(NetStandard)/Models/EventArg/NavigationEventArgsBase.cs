@@ -24,6 +24,8 @@ namespace MugenMvvmToolkit.Models.EventArg
 {
     public abstract class NavigationEventArgsBase : EventArgs
     {
+        public abstract string Parameter { get; }
+
         public abstract object Content { get; }
 
         public abstract NavigationMode NavigationMode { get; }

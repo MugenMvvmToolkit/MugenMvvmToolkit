@@ -95,15 +95,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
 
         object INavigationService.CurrentContent => CurrentContent;
 
-        public string GetParameterFromArgs(EventArgs args)
-        {
-            Should.NotBeNull(args, nameof(args));
-            var cancelArgs = args as NavigatingCancelEventArgs;
-            if (cancelArgs == null)
-                return (args as NavigationEventArgs)?.Parameter;
-            return cancelArgs.Parameter;
-        }
-
         public bool Navigate(NavigatingCancelEventArgsBase args)
         {
             Should.NotBeNull(args, nameof(args));
@@ -382,6 +373,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
                 var controllers = NavigationController.ViewControllers;
                 if (controllers != null)
                 {
+                    NavigationController.SetViewControllers(new[] { newItem }, animated);
                     Array.Reverse(controllers);
                     for (int i = 0; i < controllers.Length; i++)
                     {
@@ -397,7 +389,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
                         }
                     }
                 }
-                NavigationController.SetViewControllers(new[] { newItem }, animated);
                 return true;
             }
             return false;

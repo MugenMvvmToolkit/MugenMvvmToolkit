@@ -234,7 +234,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         protected virtual void InitializeRootPage(IViewModel viewModel, IDataContext context)
         {
             var mainPage = (Page)ServiceProvider.ViewManager.GetOrCreateView(viewModel, true, context);
-            mainPage.SetNavigationParameter(NavigationProvider.GenerateNavigationParameter(viewModel.GetType()));
+            mainPage.SetNavigationParameter(NavigationProvider.GenerateNavigationParameter(viewModel));
             NavigationPage navigationPage = mainPage as NavigationPage;
             if (WrapToNavigationPage)
                 navigationPage = CreateNavigationPage(mainPage);
