@@ -38,8 +38,6 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
     {
         #region Properties
 
-        public Func<EventArgs, string> GetParameterFromArgs { get; set; }
-
         public Func<NavigatingCancelEventArgsBase, bool> NavigateArgs { get; set; }
 
         public Func<IViewMappingItem, string, IDataContext, bool> Navigate { get; set; }
@@ -53,11 +51,6 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
         #region Implementation of INavigationService
 
         public object CurrentContent { get; set; }
-
-        string INavigationService.GetParameterFromArgs(EventArgs args)
-        {
-            return GetParameterFromArgs?.Invoke(args);
-        }
 
         bool INavigationService.Navigate(NavigatingCancelEventArgsBase args)
         {

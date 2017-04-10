@@ -26,16 +26,19 @@ namespace MugenMvvmToolkit.Test.TestModels
     {
         #region Constructors
 
-        public NavigationEventArgsMock(object content, NavigationMode mode, IDataContext context = null)
+        public NavigationEventArgsMock(object content, NavigationMode mode, string parameter = null, IDataContext context = null)
         {
             Content = content;
             NavigationMode = mode;
             Context = context;
+            Parameter = parameter;
         }
 
         #endregion
 
         #region Overrides of NavigationEventArgsBase
+
+        public override string Parameter { get; }
 
         public override object Content { get; }
 

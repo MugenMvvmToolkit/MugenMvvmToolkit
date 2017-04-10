@@ -130,7 +130,6 @@
     <Compile Include="Infrastructure\Mediators\WindowViewMediatorBaseTest.cs" />
     <Compile Include="Infrastructure\Mediators\WindowViewMediatorTest.cs" />
     <Compile Include="Infrastructure\Navigation\NavigationDispatcherTest.cs" />
-    <Compile Include="Infrastructure\Navigation\NavigationProviderTest.cs" />
     <Compile Include="Collections\OrderedNotifiableCollectionTest.cs" />
     <Compile Include="Infrastructure\Presenters\DynamicMultiViewModelPresenterTest.cs" />
     <Compile Include="Infrastructure\ViewModelProviderTest.cs" />

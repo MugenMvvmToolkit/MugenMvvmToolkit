@@ -26,16 +26,19 @@ namespace MugenMvvmToolkit.Test.TestModels
     {
         #region Constructors
 
-        public NavigatingCancelEventArgsMock(NavigationMode mode, bool isCancelable, IDataContext context = null)
+        public NavigatingCancelEventArgsMock(NavigationMode mode, bool isCancelable, string parameter = null, IDataContext context = null)
         {
             NavigationMode = mode;
             IsCancelable = isCancelable;
             Context = context;
+            Parameter = parameter;
         }
 
         #endregion
 
         #region Overrides of NavigatingCancelEventArgsBase
+
+        public override string Parameter { get; }
 
         public override bool Cancel { get; set; }
 

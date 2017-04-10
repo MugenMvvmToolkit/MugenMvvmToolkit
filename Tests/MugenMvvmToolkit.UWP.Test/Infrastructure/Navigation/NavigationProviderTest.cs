@@ -276,7 +276,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             base.OnInit();
             NavigationService = new NavigationServiceMock();
             ViewPageMappingProvider = new ViewPageMappingProviderMock();
-            NavigationProvider = new NavigationProvider(NavigationService, ThreadManager, ViewPageMappingProvider, ViewManager, ViewModelProvider, NavigationDispatcher, new EventAggregator(), null);
+            NavigationProvider = new NavigationProvider(NavigationService, ThreadManager, ViewPageMappingProvider, ViewManager, ViewModelProvider, NavigationDispatcher, new EventAggregator());
         }
 
         #endregion
