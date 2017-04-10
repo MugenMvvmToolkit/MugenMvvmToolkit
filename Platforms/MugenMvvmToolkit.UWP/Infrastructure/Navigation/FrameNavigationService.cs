@@ -22,8 +22,8 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using MugenMvvmToolkit.DataConstants;
+using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.ViewModels;
@@ -37,8 +37,8 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
     {
         #region Fields
 
-        private static readonly string[] IdSeparator = { "~n|s~" };
         private readonly Frame _frame;
+        private readonly IViewModelProvider _viewModelProvider;
         private IDataContext _lastContext;
         private bool _bringToFront;
 
@@ -46,10 +46,12 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 
         #region Constructors
 
-        public FrameNavigationService(Frame frame)
+        public FrameNavigationService(Frame frame, IViewModelProvider viewModelProvider)
         {
             Should.NotBeNull(frame, nameof(frame));
+            Should.NotBeNull(viewModelProvider, nameof(viewModelProvider));
             _frame = frame;
+            _viewModelProvider = viewModelProvider;
             _frame.Navigating += OnNavigating;
             _frame.Navigated += OnNavigated;
         }
@@ -59,20 +61,6 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         #region Implementation of INavigationService
 
         public object CurrentContent => _frame.Content;
-
-        public string GetParameterFromArgs(EventArgs args)
-        {
-            Should.NotBeNull(args, nameof(args));
-            var cancelEventArgs = args as NavigatingCancelEventArgsWrapper;
-            if (cancelEventArgs == null)
-            {
-                var eventArgs = args as NavigationEventArgsWrapper;
-                if (eventArgs == null)
-                    return null;
-                return GetParameter(eventArgs.Args.Parameter as string);
-            }
-            return GetParameter(cancelEventArgs.Parameter);
-        }
 
         public bool Navigate(NavigatingCancelEventArgsBase args)
         {
@@ -90,13 +78,10 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         {
             Should.NotBeNull(source, nameof(source));
             dataContext = dataContext.ToNonReadOnly();
-            dataContext.TryGetData(NavigationProviderConstants.BringToFront, out _bringToFront);
-            var bringToFront = _bringToFront;
-            var result = Navigate(source.ViewType, parameter, dataContext.GetData(NavigationConstants.ViewModel), dataContext);
+            dataContext.TryGetData(NavigationProvider.BringToFront, out _bringToFront);
+            var result = Navigate(source.ViewType, parameter, dataContext);
             if (result)
             {
-                if (bringToFront)
-                    dataContext.AddOrUpdate(NavigationProviderConstants.InvalidateCache, true);
                 ClearNavigationStackIfNeed(dataContext);
             }
             return result;
@@ -182,17 +167,29 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                 _frame.GoBack();
                 return true;
             }
-            return Navigate(wrapper.Args.SourcePageType, wrapper.Parameter, null, args.Context);
+            return Navigate(wrapper.Args.SourcePageType, wrapper.Parameter, args.Context);
         }
 
         private void ClearNavigationStackIfNeed(IDataContext context)
         {
             if (context == null)
                 context = DataContext.Empty;
-            if (!context.GetData(NavigationConstants.ClearBackStack) || _frame.BackStack.IsReadOnly)
+            var backStack = _frame.BackStack;
+            if (!context.GetData(NavigationConstants.ClearBackStack) || backStack.IsReadOnly)
                 return;
-            _frame.BackStack.Clear();
-            context.AddOrUpdate(NavigationProviderConstants.InvalidateAllCache, true);
+            for (int index = 0; index < backStack.Count; index++)
+            {
+                var vmId = GetViewModelIdFromParameter(backStack[index].Parameter);
+                var viewModel = _viewModelProvider.TryGetViewModelById(vmId);
+                if (viewModel != null)
+                {
+                    var ctx = new DataContext(context);
+                    ctx.AddOrUpdate(NavigationConstants.ViewModel, viewModel);
+                    RaiseNavigated(new RemoveNavigationEventArgs(ctx));
+                }
+                backStack.RemoveAt(index);
+                --index;
+            }
         }
 
         private void OnNavigated(object sender, NavigationEventArgs args)
@@ -218,12 +215,12 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             if (bringToFront)
             {
                 var id = GetViewModelIdFromParameter(args.Parameter);
-                for (int index = 0; index < _frame.BackStack.Count; index++)
+                var backStack = _frame.BackStack;
+                for (int index = 0; index < backStack.Count; index++)
                 {
-                    if (GetViewModelIdFromParameter(_frame.BackStack[index].Parameter) == id)
+                    if (GetViewModelIdFromParameter(backStack[index].Parameter) == id)
                     {
-                        _frame.BackStack.RemoveAt(index);
-                        --index;
+                        backStack.RemoveAt(index);
                         break;
                     }
                 }
@@ -232,7 +229,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 
         private void OnNavigating(object sender, NavigatingCancelEventArgs args)
         {
-            Navigating?.Invoke(this, new NavigatingCancelEventArgsWrapper(args, GetParameter(args.Parameter as string), _bringToFront, _lastContext));
+            Navigating?.Invoke(this, new NavigatingCancelEventArgsWrapper(args, args.Parameter as string, _bringToFront, _lastContext));
         }
 
         private bool RaiseNavigatingRemove(IDataContext context)
@@ -249,15 +246,8 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             Navigated?.Invoke(this, args);
         }
 
-        private bool Navigate(Type type, string parameter, IViewModel viewModel, IDataContext context)
+        private bool Navigate(Type type, string parameter, IDataContext context)
         {
-            if (viewModel != null)
-            {
-                if (parameter == null)
-                    parameter = viewModel.GetViewModelId().ToString();
-                else
-                    parameter = viewModel.GetViewModelId().ToString() + IdSeparator[0] + parameter;
-            }
             _lastContext = context;
             if (parameter == null)
                 return _frame.Navigate(type);
@@ -266,24 +256,9 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 
         private static Guid GetViewModelIdFromParameter(object parameter)
         {
-            var s = parameter as string;
-            if (string.IsNullOrEmpty(s))
-                return Guid.Empty;
-            if (s.Contains(IdSeparator[0]))
-                s = s.Split(IdSeparator, StringSplitOptions.RemoveEmptyEntries)[0];
             Guid id;
-            Guid.TryParse(s, out id);
+            NavigationProvider.GetViewModelTypeFromParameter(parameter as string, out id);
             return id;
-        }
-
-        private static string GetParameter(string parameter)
-        {
-            if (string.IsNullOrEmpty(parameter))
-                return parameter;
-            var index = parameter.IndexOf(IdSeparator[0], StringComparison.Ordinal);
-            if (index < 0)
-                return parameter;
-            return parameter.Substring(index + IdSeparator[0].Length);
         }
 
         #endregion

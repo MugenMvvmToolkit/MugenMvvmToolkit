@@ -107,7 +107,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
         {
             if (frame == null)
                 return null;
-            return new FrameNavigationService(frame);
+            return new FrameNavigationService(frame, IocContainer.Get<IViewModelProvider>());
         }
 
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)
