@@ -79,11 +79,11 @@ namespace MugenMvvmToolkit.Xamarin.Forms
                 ServiceProvider.AttachedValueProvider.SetValue(page, NavParamKey, value);
         }
 
-        public static string GetNavigationParameter([CanBeNull] this Page controller)
+        public static string GetNavigationParameter([CanBeNull] this Page page)
         {
-            if (controller == null)
+            if (page == null)
                 return null;
-            return ServiceProvider.AttachedValueProvider.GetValue<string>(controller, NavParamKey, false);
+            return ServiceProvider.AttachedValueProvider.GetValue<string>(page, NavParamKey, false);
         }
 
         internal static bool IsAssignableFrom([NotNull] this Type typeFrom, [NotNull] Type typeTo)
@@ -101,12 +101,13 @@ namespace MugenMvvmToolkit.Xamarin.Forms
         internal static void SetBringToFront([NotNull] this Page page, bool value)
         {
             Should.NotBeNull(page, nameof(page));
-            ServiceProvider.AttachedValueProvider.SetValue(page, NavContextKey, Empty.BooleanToObject(value));
+            ServiceProvider.AttachedValueProvider.SetValue(page, NavBringToFrontKey, Empty.BooleanToObject(value));
         }
 
-        internal static bool GetBringToFront([NotNull] this Page page)
+        internal static bool GetBringToFront(this Page page)
         {
-            Should.NotBeNull(page, nameof(page));
+            if (page == null)
+                return false;
             var value = ServiceProvider.AttachedValueProvider.GetValue<bool>(page, NavBringToFrontKey, false);
             ServiceProvider.AttachedValueProvider.Clear(page, NavBringToFrontKey);
             return value;

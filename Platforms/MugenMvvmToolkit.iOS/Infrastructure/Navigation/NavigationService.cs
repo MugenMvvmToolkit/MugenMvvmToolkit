@@ -115,7 +115,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             if (dataContext == null)
                 dataContext = DataContext.Empty;
             bool bringToFront;
-            dataContext.TryGetData(NavigationProviderConstants.BringToFront, out bringToFront);
+            dataContext.TryGetData(NavigationProvider.BringToFront, out bringToFront);
             if (!RaiseNavigating(new NavigatingCancelEventArgs(source, bringToFront ? NavigationMode.Refresh : NavigationMode.New, parameter, dataContext)))
                 return false;
 

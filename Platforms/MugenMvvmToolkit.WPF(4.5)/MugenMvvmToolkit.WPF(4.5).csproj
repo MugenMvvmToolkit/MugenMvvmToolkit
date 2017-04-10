@@ -59,7 +59,6 @@
     <Compile Include="Converters\ViewModelToViewConverter.cs" />
     <Compile Include="Infrastructure\AttachedValueProvider.cs" />
     <Compile Include="Infrastructure\Bootstrapper.cs" />
-    <Compile Include="Infrastructure\Navigation\DefaultNavigationCachePolicy.cs" />
     <Compile Include="Infrastructure\Presenters\ToastPresenter.cs" />
     <Compile Include="Infrastructure\WpfDesignBootstrapperBase.cs" />
     <Compile Include="Interfaces\Navigation\INavigationCachePolicy.cs" />
@@ -75,9 +74,6 @@
     <Compile Include="WpfToolkitExtensions.cs" />
     <Compile Include="Infrastructure\WpfBootstrapperBase.cs" />
     <Compile Include="Modules\InitializationModule.cs" />
-    <Compile Include="Infrastructure\Navigation\FrameNavigationService.cs" />
-    <Compile Include="Infrastructure\Navigation\NavigationProvider.cs" />
-    <Compile Include="Infrastructure\Navigation\WindowNavigationService.cs" />
     <Compile Include="Infrastructure\ThreadManager.cs" />
     <Compile Include="Interfaces\Navigation\INavigationService.cs" />
     <Compile Include="Interfaces\Views\IWindowView.cs" />

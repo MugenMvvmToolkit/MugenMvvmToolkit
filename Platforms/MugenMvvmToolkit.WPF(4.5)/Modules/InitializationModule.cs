@@ -20,20 +20,17 @@ using MugenMvvmToolkit.Infrastructure.Presenters;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
-using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.IoC;
 using MugenMvvmToolkit.Modules;
 #if WPF
 using System;
 using System.Linq;
+using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.WPF.Infrastructure;
 using MugenMvvmToolkit.WPF.Infrastructure.Callbacks;
-using MugenMvvmToolkit.WPF.Infrastructure.Navigation;
 using MugenMvvmToolkit.WPF.Infrastructure.Presenters;
 using MugenMvvmToolkit.WPF.Infrastructure.Mediators;
-using MugenMvvmToolkit.WPF.Interfaces.Navigation;
 using MugenMvvmToolkit.WPF.Interfaces.Views;
 
 namespace MugenMvvmToolkit.WPF.Modules
@@ -41,13 +38,13 @@ namespace MugenMvvmToolkit.WPF.Modules
     public class WpfInitializationModule : InitializationModuleBase
     {
 #elif WINDOWS_UWP
+using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.UWP.Infrastructure;
 using MugenMvvmToolkit.UWP.Infrastructure.Navigation;
 using MugenMvvmToolkit.UWP.Infrastructure.Presenters;
 using MugenMvvmToolkit.UWP.Infrastructure.Callbacks;
 using MugenMvvmToolkit.UWP.Infrastructure.Mediators;
 using MugenMvvmToolkit.UWP.Interfaces;
-using MugenMvvmToolkit.UWP.Interfaces.Navigation;
 using MugenMvvmToolkit.UWP.Interfaces.Views;
 
 namespace MugenMvvmToolkit.UWP.Modules
@@ -77,8 +74,7 @@ namespace MugenMvvmToolkit.UWP.Modules
                     ApplicationSettings.CommandRemoveCanExecuteChangedEvent = (@base, handler) => ServiceProvider
                         .ThreadManager
                         .Invoke(ExecutionMode.AsynchronousOnUiThread, handler, handler, (h1, h2) => System.Windows.Input.CommandManager.RequerySuggested -= h1);
-                }
-                BindNavigationCachePolicy(context, context.IocContainer);
+                }                
 #elif WINDOWS_UWP
                 BindApplicationStateManager(context, context.IocContainer);
 #endif                           
@@ -96,14 +92,12 @@ namespace MugenMvvmToolkit.UWP.Modules
             container.Bind<IMessagePresenter, MessagePresenter>(DependencyLifecycle.SingleInstance);
         }
 
-#if !NET4
         protected override void BindAttachedValueProvider(IModuleContext context, IIocContainer container)
         {
             IAttachedValueProvider attachedValueProvider = new AttachedValueProvider();
             ServiceProvider.AttachedValueProvider = attachedValueProvider;
             container.BindToConstant(attachedValueProvider);
         }
-#endif
 
 #if WINDOWS_UWP
         protected virtual void BindApplicationStateManager(IModuleContext context, IIocContainer container)
@@ -138,7 +132,9 @@ namespace MugenMvvmToolkit.UWP.Modules
                 var windowPresenter = iocContainer.Get<DynamicViewModelWindowPresenter>();
                 windowPresenter.RegisterMediatorFactory<WindowViewMediator, IWindowView>();
                 presenter.DynamicPresenters.Add(windowPresenter);
+#if !WPF
                 presenter.DynamicPresenters.Add(iocContainer.Get<DynamicViewModelNavigationPresenter>());
+#endif
                 return presenter;
             }, DependencyLifecycle.SingleInstance);
         }
@@ -157,8 +153,6 @@ namespace MugenMvvmToolkit.UWP.Modules
             IViewModelPresenter presenter;
             if (ServiceProvider.TryGet(out presenter))
             {
-                presenter.DynamicPresenters.Add(ServiceProvider.Get<DynamicViewModelNavigationPresenter>());
-
                 var windowPresenter = presenter.DynamicPresenters.OfType<DynamicViewModelWindowPresenter>().FirstOrDefault();
                 if (windowPresenter == null)
                 {
@@ -168,10 +162,10 @@ namespace MugenMvvmToolkit.UWP.Modules
                 windowPresenter.RegisterMediatorFactory<WindowViewMediator, IWindowView>();
             }
         }
-
-        protected virtual void BindNavigationCachePolicy(IModuleContext context, IIocContainer container)
+#else
+        protected override void BindNavigationProvider(IModuleContext context, IIocContainer container)
         {
-            container.Bind<INavigationCachePolicy, DefaultNavigationCachePolicy>(DependencyLifecycle.SingleInstance);
+            container.Bind<INavigationProvider, NavigationProvider>(DependencyLifecycle.SingleInstance);
         }
 #endif
 
@@ -186,11 +180,6 @@ namespace MugenMvvmToolkit.UWP.Modules
             else
                 container.BindToMethod<IThreadManager>((c, list) => new ThreadManager(Windows.UI.Xaml.Window.Current.Dispatcher), DependencyLifecycle.SingleInstance);
 #endif
-        }
-
-        protected override void BindNavigationProvider(IModuleContext context, IIocContainer container)
-        {
-            container.Bind<INavigationProvider, NavigationProvider>(DependencyLifecycle.SingleInstance);
         }
 
         protected override void BindToastPresenter(IModuleContext context, IIocContainer container)

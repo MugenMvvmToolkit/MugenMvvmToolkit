@@ -222,31 +222,4 @@ namespace MugenMvvmToolkit.DataConstants
 
         #endregion
     }
-
-    public static class NavigationProviderConstants
-    {
-        #region Fields
-
-        public static readonly DataConstant<NavigationEventArgsBase> NavigationArgs;
-        public static readonly DataConstant<NavigatingCancelEventArgsBase> NavigatingCancelArgs;
-        public static readonly DataConstant<bool> BringToFront;
-        public static readonly DataConstant<bool> InvalidateCache;
-        public static readonly DataConstant<bool> InvalidateAllCache;
-
-        #endregion
-
-        #region Constructors
-
-        static NavigationProviderConstants()
-        {
-            var type = typeof(NavigationProviderConstants);
-            NavigationArgs = DataConstant.Create<NavigationEventArgsBase>(type, nameof(NavigationArgs), true);
-            NavigatingCancelArgs = DataConstant.Create<NavigatingCancelEventArgsBase>(type, nameof(NavigatingCancelArgs), true);
-            BringToFront = DataConstant.Create<bool>(type, nameof(BringToFront));
-            InvalidateCache = DataConstant.Create<bool>(type, nameof(InvalidateCache));
-            InvalidateAllCache = DataConstant.Create<bool>(type, nameof(InvalidateAllCache));
-        }
-
-        #endregion
-    }
 }

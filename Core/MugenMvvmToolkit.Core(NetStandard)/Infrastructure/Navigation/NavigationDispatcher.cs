@@ -200,9 +200,9 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                 CallbackManager.SetResult(OperationResult.CreateCancelResult<object>(context.NavigationType.Operation, viewModel, context));
         }
 
-        protected virtual void RaiseNavigated(INavigationContext context)
+        protected virtual void RaiseNavigated(INavigationContext context, bool isCanceled, Exception exception)
         {
-            Navigated?.Invoke(this, new NavigatedEventArgs(context));
+            Navigated?.Invoke(this, new NavigatedEventArgs(context, isCanceled, exception));
         }
 
         protected virtual Task<bool> OnClosingAsync(IViewModel viewModel, IDataContext context)
@@ -257,7 +257,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             Should.NotBeNull(context, nameof(context));
             HandleOpenedViewModels(context);
             OnNavigatedInternal(context);
-            RaiseNavigated(context);
+            RaiseNavigated(context, false, null);
             Trace(nameof(OnNavigated), context);
         }
 
@@ -266,12 +266,16 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             Should.NotBeNull(context, nameof(context));
             Should.NotBeNull(exception, nameof(exception));
             OnNavigationFailedInternal(context, exception);
+            RaiseNavigated(context, false, exception);
+            Trace(nameof(OnNavigationFailed), context);
         }
 
         public void OnNavigationCanceled(INavigationContext context)
         {
             Should.NotBeNull(context, nameof(context));
             OnNavigationCanceledInternal(context);
+            RaiseNavigated(context, true, null);
+            Trace(nameof(OnNavigationCanceled), context);
         }
 
         public IDictionary<NavigationType, IList<IViewModel>> GetOpenedViewModels(IDataContext context = null)

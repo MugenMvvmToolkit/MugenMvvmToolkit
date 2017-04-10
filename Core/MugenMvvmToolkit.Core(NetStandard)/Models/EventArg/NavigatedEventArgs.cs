@@ -32,15 +32,22 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Constructors
 
-        public NavigatedEventArgs([NotNull]INavigationContext context)
+        public NavigatedEventArgs([NotNull]INavigationContext context, bool isCanceled, [CanBeNull] Exception exception)
         {
             Should.NotBeNull(context, nameof(context));
             _context = context;
+            IsCanceled = isCanceled;
+            Exception = exception;
         }
 
         #endregion
 
         #region Properties
+
+        public bool IsCanceled { get; }
+
+        [CanBeNull]
+        public Exception Exception { get; }
 
         [NotNull]
         public INavigationContext Context => _context;

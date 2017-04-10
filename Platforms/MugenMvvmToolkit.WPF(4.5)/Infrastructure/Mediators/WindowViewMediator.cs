@@ -24,8 +24,6 @@ using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 #if WPF
-using System.Windows.Navigation;
-using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.WPF.Interfaces.Views;
 
 namespace MugenMvvmToolkit.WPF.Infrastructure.Mediators
@@ -37,13 +35,6 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Mediators
 {
     public class WindowViewMediator : WindowViewMediatorBase<IWindowView>
     {
-        #region Fields
-
-#if WPF
-        private readonly NavigationWindow _window;
-#endif
-        #endregion
-
         #region Constructors
 
         [Preserve(Conditional = true)]
@@ -52,16 +43,6 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Mediators
             : base(threadManager, viewManager, wrapperManager, navigationDispatcher, eventAggregator)
         {
         }
-
-#if WPF
-        internal WindowViewMediator([NotNull] NavigationWindow window, [NotNull] IThreadManager threadManager, [NotNull] IViewManager viewManager,
-            [NotNull] IWrapperManager wrapperManager, [NotNull] INavigationDispatcher navigationDispatcher, [NotNull] IEventAggregator eventAggregator)
-            : base(threadManager, viewManager, wrapperManager, navigationDispatcher, eventAggregator)
-        {
-            Should.NotBeNull(window, nameof(window));
-            _window = window;
-        }
-#endif
 
         #endregion
 
@@ -109,19 +90,6 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Mediators
             windowView.Closing -= OnClosing;
         }
 
-#if WPF
-        public override IViewModel ViewModel
-        {
-            get
-            {
-                if (_window == null)
-                    return base.ViewModel;
-                if (ThreadManager.IsUiThread)
-                    return ToolkitExtensions.GetDataContext(_window.Content) as IViewModel ?? base.ViewModel;
-                return base.ViewModel;
-            }
-        }
-#endif
         #endregion
 
         #region Methods

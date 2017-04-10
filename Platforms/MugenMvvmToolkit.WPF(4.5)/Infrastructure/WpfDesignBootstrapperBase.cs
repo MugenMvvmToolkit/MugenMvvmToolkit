@@ -16,9 +16,6 @@
 
 #endregion
 
-using System.Windows.Navigation;
-using MugenMvvmToolkit.WPF.Interfaces.Navigation;
-
 namespace MugenMvvmToolkit.WPF.Infrastructure
 {
     public abstract class WpfDesignBootstrapperBase : WpfBootstrapperBase
@@ -36,16 +33,6 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
         public sealed override void Start()
         {
             base.Start();
-        }
-
-        protected sealed override INavigationService CreateNavigationService(NavigationWindow window)
-        {
-            return base.CreateNavigationService(window);
-        }
-
-        protected sealed override NavigationWindow CreateNavigationWindow()
-        {
-            return base.CreateNavigationWindow();
         }
 
         #endregion

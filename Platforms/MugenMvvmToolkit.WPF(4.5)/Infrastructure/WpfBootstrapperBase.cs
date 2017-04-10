@@ -23,23 +23,16 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Navigation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
-using MugenMvvmToolkit.Interfaces.Mediators;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
-using MugenMvvmToolkit.WPF.Infrastructure.Mediators;
-using MugenMvvmToolkit.WPF.Infrastructure.Navigation;
-using MugenMvvmToolkit.WPF.Interfaces.Navigation;
-using MugenMvvmToolkit.WPF.Modules;
 
 namespace MugenMvvmToolkit.WPF.Infrastructure
 {
@@ -48,7 +41,6 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
         #region Fields
 
         private readonly PlatformInfo _platform;
-        private NavigationWindow _rootWindow;
 
         #endregion
 
@@ -58,7 +50,6 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
         {
             ReflectionExtensions.GetTypesDefault = assembly => assembly.GetTypes();
             ApplicationSettings.MultiViewModelPresenterCanShowViewModel = CanShowViewModelTabPresenter;
-            ApplicationSettings.NavigationPresenterCanShowViewModel = CanShowViewModelNavigationPresenter;
         }
 
         internal WpfBootstrapperBase(bool isDesignMode, PlatformInfo platform = null)
@@ -80,8 +71,6 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
         #region Properties
 
         public bool AutoStart { get; set; }
-
-        public bool UseUriNavigation { get; set; }
 
         public bool ShutdownOnMainViewModelClose { get; set; }
 
@@ -120,17 +109,6 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
                     }
                 });
             }
-            if (_rootWindow != null)
-            {
-                var viewModel = context.GetData(NavigationConstants.ViewModel);
-                if (viewModel == null)
-                    return null;
-                IWindowViewMediator mediator = new WindowViewMediator(_rootWindow, IocContainer.Get<IThreadManager>(),
-                    IocContainer.Get<IViewManager>(), IocContainer.Get<IWrapperManager>(), IocContainer.Get<INavigationDispatcher>(), IocContainer.Get<IEventAggregator>());
-                mediator.Initialize(viewModel, context);
-                mediator.UpdateView(new WpfWrapperRegistrationModule.WindowViewWrapper(_rootWindow), true, context);
-                _rootWindow.Show();
-            }
             return operation;
         }
 
@@ -148,30 +126,8 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
             Initialize();
             if (!MvvmApplication.Context.Contains(NavigationConstants.IsDialog))
                 MvvmApplication.Context.Add(NavigationConstants.IsDialog, false);
-            var viewModelType = MvvmApplication.GetStartViewModelType();
-
-            var mappingProvider = IocContainer.Get<IViewMappingProvider>();
-            IViewMappingItem mapping = mappingProvider.FindMappingForViewModel(viewModelType, MvvmApplication.Context.GetData(NavigationConstants.ViewName), true);
-            if (typeof(Page).IsAssignableFrom(mapping.ViewType))
-            {
-                _rootWindow = CreateNavigationWindow();
-                var service = CreateNavigationService(_rootWindow);
-                IocContainer.BindToConstant(service);
-            }
             IocContainer.Get<IViewModelPresenter>().DynamicPresenters.Add(this);
             MvvmApplication.Start();
-        }
-
-        [NotNull]
-        protected virtual INavigationService CreateNavigationService(NavigationWindow window)
-        {
-            return new WindowNavigationService(window, UseUriNavigation);
-        }
-
-        [NotNull]
-        protected virtual NavigationWindow CreateNavigationWindow()
-        {
-            return new NavigationWindow();
         }
 
         private void ApplicationOnStartup(object sender, StartupEventArgs args)
@@ -190,15 +146,6 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
             var mappingProvider = container.Get<IViewMappingProvider>();
             var mappingItem = mappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);
             return mappingItem == null || !typeof(Page).IsAssignableFrom(mappingItem.ViewType);
-        }
-
-        private static bool CanShowViewModelNavigationPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)
-        {
-            var viewName = viewModel.GetViewName(dataContext);
-            var container = viewModel.GetIocContainer(true);
-            var mappingProvider = container.Get<IViewMappingProvider>();
-            var mappingItem = mappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);
-            return mappingItem != null && typeof(Page).IsAssignableFrom(mappingItem.ViewType);
         }
 
         #endregion
