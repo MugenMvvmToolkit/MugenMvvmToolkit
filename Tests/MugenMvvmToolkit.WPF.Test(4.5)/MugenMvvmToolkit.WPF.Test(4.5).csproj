@@ -153,7 +153,6 @@
     <Compile Include="TestInfrastructure\EntitySnapshotMock.cs" />
     <Compile Include="TestInfrastructure\IocContainerMock.cs" />
     <Compile Include="TestInfrastructure\NavigationDispatcherMock.cs" />
-    <Compile Include="TestInfrastructure\NavigationServiceMock.cs" />
     <Compile Include="TestInfrastructure\NotifiableCollectionTracker.cs" />
     <Compile Include="TestInfrastructure\OperationCallbackFactoryMock.cs" />
     <Compile Include="TestInfrastructure\OperationContinuationMock.cs" />
