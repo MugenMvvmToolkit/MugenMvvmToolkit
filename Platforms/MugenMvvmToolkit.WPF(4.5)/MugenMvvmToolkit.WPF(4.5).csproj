@@ -61,7 +61,6 @@
     <Compile Include="Infrastructure\Bootstrapper.cs" />
     <Compile Include="Infrastructure\Presenters\ToastPresenter.cs" />
     <Compile Include="Infrastructure\WpfDesignBootstrapperBase.cs" />
-    <Compile Include="Interfaces\Navigation\INavigationCachePolicy.cs" />
     <Compile Include="Modules\WpfWrapperRegistrationModule.cs" />
     <Compile Include="MarkupExtensions\View.cs" />
     <Compile Include="Infrastructure\ExpressionReflectionManagerEx.cs" />
@@ -75,7 +74,6 @@
     <Compile Include="Infrastructure\WpfBootstrapperBase.cs" />
     <Compile Include="Modules\InitializationModule.cs" />
     <Compile Include="Infrastructure\ThreadManager.cs" />
-    <Compile Include="Interfaces\Navigation\INavigationService.cs" />
     <Compile Include="Interfaces\Views\IWindowView.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Infrastructure\UriUtils.cs" />

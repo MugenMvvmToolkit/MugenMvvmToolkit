@@ -106,12 +106,6 @@
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\WpfDesignBootstrapperBase.cs">
       <Link>Infrastructure\WpfDesignBootstrapperBase.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Interfaces\Navigation\INavigationCachePolicy.cs">
-      <Link>Interfaces\Navigation\INavigationCachePolicy.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Interfaces\Navigation\INavigationService.cs">
-      <Link>Interfaces\Navigation\INavigationService.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Interfaces\Views\IWindowView.cs">
       <Link>Interfaces\Views\IWindowView.cs</Link>
     </Compile>

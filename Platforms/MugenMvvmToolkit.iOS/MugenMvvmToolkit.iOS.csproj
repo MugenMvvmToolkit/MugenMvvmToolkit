@@ -50,6 +50,9 @@
     <Compile Include="..\MugenMvvmToolkit.Android\Infrastructure\Navigation\NavigationProvider.cs">
       <Link>Infrastructure\Navigation\NavigationProvider.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android\Interfaces\Navigation\INavigationService.cs">
+      <Link>Interfaces\Navigation\INavigationService.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Binding\Infrastructure\CollectionViewManagerBase.cs">
       <Link>Binding\Infrastructure\CollectionViewManagerBase.cs</Link>
     </Compile>
@@ -82,9 +85,6 @@
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\Bootstrapper.cs">
       <Link>Infrastructure\Bootstrapper.cs</Link>
-    </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\interfaces\navigation\INavigationService.cs">
-      <Link>Interfaces\Navigation\INavigationService.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\BindingConverterExtensions.cs">
       <Link>Binding\BindingConverterExtensions.cs</Link>

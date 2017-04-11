@@ -87,9 +87,6 @@
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\ExpressionReflectionManagerEx.cs">
       <Link>Infrastructure\ExpressionReflectionManagerEx.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Interfaces\Navigation\INavigationService.cs">
-      <Link>Interfaces\Navigation\INavigationService.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\BindingConverterExtensions.cs">
       <Link>Binding\BindingConverterExtensions.cs</Link>
     </Compile>
@@ -125,6 +122,7 @@
     <Compile Include="Interfaces\IPopupMenuPresenter.cs" />
     <Compile Include="Interfaces\IStableIdProvider.cs" />
     <Compile Include="Interfaces\Mediators\IMvvmFragmentMediator.cs" />
+    <Compile Include="Interfaces\Navigation\INavigationService.cs" />
     <Compile Include="Interfaces\Views\IFragmentView.cs" />
     <Compile Include="Interfaces\Views\IHasActivityDependency.cs" />
     <Compile Include="Interfaces\Views\IOptionsMenu.cs" />

@@ -18,13 +18,9 @@
 
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
-#if WPF
-
-namespace MugenMvvmToolkit.WPF.Interfaces.Navigation
-#elif ANDROID
+#if ANDROID
 using Android.App;
 
 namespace MugenMvvmToolkit.Android.Interfaces.Navigation

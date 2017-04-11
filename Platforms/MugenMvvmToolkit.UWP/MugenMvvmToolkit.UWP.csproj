@@ -119,6 +119,9 @@
     <Compile Include="..\MugenMvvmToolkit.Android\Infrastructure\Navigation\NavigationProvider.cs">
       <Link>Infrastructure\Navigation\NavigationProvider.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Android\Interfaces\Navigation\INavigationService.cs">
+      <Link>Interfaces\Navigation\INavigationService.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\converters\InverseBooleanConverter.cs">
       <Link>Converters\InverseBooleanConverter.cs</Link>
     </Compile>
@@ -133,9 +136,6 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\infrastructure\presenters\ToastPresenter.cs">
       <Link>Infrastructure\Presenters\ToastPresenter.cs</Link>
-    </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\interfaces\navigation\INavigationService.cs">
-      <Link>Interfaces\Navigation\INavigationService.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\markupextensions\View.cs">
       <Link>MarkupExtensions\View.cs</Link>
