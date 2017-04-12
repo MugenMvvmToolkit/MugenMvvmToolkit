@@ -149,7 +149,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         {
             if (position < 0)
                 return null;
-            return ItemsSource.ElementAtIndex(position);
+            return ItemsSource?.ElementAtIndex(position);
         }
 
         public virtual int GetPosition(object value)
@@ -174,6 +174,8 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         public override int GetItemViewType(int position)
         {
+            if (ItemsSource == null)
+                return Adapter.IgnoreItemViewType;
             var selector = _itemTemplateProvider.GetDataTemplateSelector() as IResourceDataTemplateSelector;
             if (selector == null)
                 return 0;

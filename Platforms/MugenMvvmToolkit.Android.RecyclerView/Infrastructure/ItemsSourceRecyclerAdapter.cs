@@ -118,8 +118,8 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
         public virtual object GetRawItem(int position)
         {
             if (position < 0)
-                return null;
-            return ItemsSource.ElementAtIndex(position);
+                return null;            
+            return ItemsSource?.ElementAtIndex(position);
         }
 
         protected virtual void SetItemsSource(IEnumerable value, bool notifyDataSet)
