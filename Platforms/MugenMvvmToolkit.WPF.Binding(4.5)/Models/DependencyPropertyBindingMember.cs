@@ -48,7 +48,7 @@ namespace MugenMvvmToolkit.WPF.Binding.Models
 #if !WINDOWS_UWP
         public sealed class DependencyPropertyListener : DependencyObject, IDisposable
         {
-            #region Fields
+        #region Fields
 
             public static readonly DependencyProperty ValueProperty = DependencyProperty
                 .Register("Value", typeof(object), typeof(DependencyPropertyListener), new PropertyMetadata(null, OnValueChanged));
@@ -57,9 +57,9 @@ namespace MugenMvvmToolkit.WPF.Binding.Models
             private static readonly Action<DependencyPropertyListener> DisposeDelegate = DisposeInternal;
             private WeakEventListenerWrapper _listener;
 
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             public DependencyPropertyListener(DependencyObject source, string propertyToBind, IEventListener listener)
             {
@@ -107,9 +107,9 @@ namespace MugenMvvmToolkit.WPF.Binding.Models
                     });
             }
 
-            #endregion
+        #endregion
 
-            #region Properties
+        #region Properties
 
             public object Value
             {
@@ -117,9 +117,9 @@ namespace MugenMvvmToolkit.WPF.Binding.Models
                 set { SetValue(ValueProperty, value); }
             }
 
-            #endregion
+        #endregion
 
-            #region Methods
+        #region Methods
 
             private static void OnValueChanged(DependencyObject sender, DependencyPropertyChangedEventArgs args)
             {
@@ -143,9 +143,9 @@ namespace MugenMvvmToolkit.WPF.Binding.Models
                 }
             }
 
-            #endregion
+        #endregion
 
-            #region Implementation of IDisposable
+        #region Implementation of IDisposable
 
             public void Dispose()
             {
@@ -155,7 +155,7 @@ namespace MugenMvvmToolkit.WPF.Binding.Models
                     Dispatcher.BeginInvoke(DisposeDelegate, this);
             }
 
-            #endregion
+        #endregion
         }
 #endif
 
@@ -164,8 +164,9 @@ namespace MugenMvvmToolkit.WPF.Binding.Models
 
         #region Fields
 
+#if WPF
         internal static readonly Func<object, bool> IsNamedObjectFunc;
-
+#endif
         private readonly bool _canWrite;
         private readonly IBindingMemberInfo _changePropertyMember;
         private readonly DependencyProperty _dependencyProperty;
@@ -177,6 +178,7 @@ namespace MugenMvvmToolkit.WPF.Binding.Models
 
         #region Constructors
 
+#if WPF
         static DependencyPropertyBindingMember()
         {
             Type type = null;
@@ -199,6 +201,7 @@ namespace MugenMvvmToolkit.WPF.Binding.Models
                     IsNamedObjectFunc = o => false;
             }
         }
+#endif
 
         public DependencyPropertyBindingMember([NotNull] DependencyProperty dependencyProperty, [NotNull] string path,
             [NotNull] Type type, bool readOnly, [CanBeNull] object member, [CanBeNull] IBindingMemberInfo changePropertyMember)
@@ -223,17 +226,17 @@ namespace MugenMvvmToolkit.WPF.Binding.Models
 
         #region Methods
 
-        public static bool Is<T>(object item)
-        {
-            return item is T;
-        }
-
 #if WINDOWS_UWP
         public static IDisposable ObserveProperty(DependencyObject src, DependencyProperty property, IEventListener listener)
         {
             listener = listener.ToWeakEventListener();
             var t = src.RegisterPropertyChangedCallback(property, listener.Handle);
             return WeakActionToken.Create(src, property, t, (dp, p, token) => dp.UnregisterPropertyChangedCallback(p, token));
+        }
+#else
+        public static bool Is<T>(object item)
+        {
+            return item is T;
         }
 #endif
         #endregion
@@ -257,7 +260,11 @@ namespace MugenMvvmToolkit.WPF.Binding.Models
         public object GetValue(object source, object[] args)
         {
             object value = ((DependencyObject)source).GetValue(_dependencyProperty);
-            if (ReferenceEquals(value, DependencyProperty.UnsetValue) || IsNamedObjectFunc(value))
+            if (ReferenceEquals(value, DependencyProperty.UnsetValue)
+#if WPF
+                || IsNamedObjectFunc(value)
+#endif
+                )
                 return BindingConstants.UnsetValue;
             return value;
         }
