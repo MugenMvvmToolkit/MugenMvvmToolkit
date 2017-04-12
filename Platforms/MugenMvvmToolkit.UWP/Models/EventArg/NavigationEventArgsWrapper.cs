@@ -41,7 +41,7 @@ namespace MugenMvvmToolkit.UWP.Models.EventArg
             Should.NotBeNull(args, nameof(args));
             _args = args;
             _bringToFront = bringToFront;
-            _context = context;
+            _context = context.ToNonReadOnly();
         }
 
         #endregion

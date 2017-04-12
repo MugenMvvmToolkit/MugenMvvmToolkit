@@ -40,7 +40,7 @@ namespace MugenMvvmToolkit.Android.Models.EventArg
         {
             _navigationMode = navigationMode;
             _isCancelable = true;
-            _context = context;
+            _context = context.ToNonReadOnly();
         }
 
         public NavigatingCancelEventArgs(IViewMappingItem mapping, NavigationMode navigationMode, string parameter, IDataContext context)
@@ -48,7 +48,7 @@ namespace MugenMvvmToolkit.Android.Models.EventArg
             _mapping = mapping;
             _navigationMode = navigationMode;
             _parameter = parameter;
-            _context = context;
+            _context = context.ToNonReadOnly();
             _isCancelable = true;
         }
 

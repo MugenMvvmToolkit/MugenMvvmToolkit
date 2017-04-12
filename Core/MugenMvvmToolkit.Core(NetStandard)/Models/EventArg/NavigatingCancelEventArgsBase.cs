@@ -32,7 +32,7 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         public abstract bool IsCancelable { get; }
 
-        [CanBeNull]
+        [NotNull]
         public abstract IDataContext Context { get; }
     }
 }

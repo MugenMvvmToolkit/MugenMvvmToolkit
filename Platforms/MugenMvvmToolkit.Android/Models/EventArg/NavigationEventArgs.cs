@@ -40,7 +40,7 @@ namespace MugenMvvmToolkit.Android.Models.EventArg
         {
             _content = content;
             _navigationMode = navigationMode;
-            _context = context;
+            _context = context.ToNonReadOnly();
             _parameter = parameter;
         }
 

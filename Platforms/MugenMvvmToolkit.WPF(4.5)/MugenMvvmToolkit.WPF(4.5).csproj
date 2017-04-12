@@ -68,8 +68,6 @@
     <Compile Include="Infrastructure\TracerEx.cs" />
     <Compile Include="Infrastructure\Presenters\MessagePresenter.cs" />
     <Compile Include="MarkupExtensions\ViewModelToViewBinding.cs" />
-    <Compile Include="Models\EventArg\NavigatingCancelEventArgsWrapper.cs" />
-    <Compile Include="Models\EventArg\NavigationEventArgsWrapper.cs" />
     <Compile Include="WpfToolkitExtensions.cs" />
     <Compile Include="Infrastructure\WpfBootstrapperBase.cs" />
     <Compile Include="Modules\InitializationModule.cs" />

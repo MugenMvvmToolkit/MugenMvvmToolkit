@@ -253,7 +253,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
                 INavigationProvider provider;
                 IocContainer.TryGet(out provider);
 
-                navigationService.UpdateRootPage(navigationPage);
+                navigationService.UpdateRootPage(navigationPage, viewModel);
                 mainPage = navigationPage;
             }
             Application.Current.MainPage = mainPage;

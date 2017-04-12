@@ -16,7 +16,6 @@
 
 #endregion
 
-using System;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -67,7 +66,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
 
         object INavigationService.CurrentContent => CurrentContent;
 
-        public void UpdateRootPage(NavigationPage page)
+        public void UpdateRootPage(NavigationPage page, IViewModel rootPageViewModel)
         {
             if (_rootPage != null)
             {
@@ -82,6 +81,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
                 page.PoppedToRoot += OnPopped;
             }
             _rootPage = page;
+            RaiseRootPageChanged(rootPageViewModel);
         }
 
         public bool Navigate(NavigatingCancelEventArgsBase args)
@@ -89,10 +89,10 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             Should.NotBeNull(args, nameof(args));
             if (!args.IsCancelable)
                 return false;
-            var eventArgs = (NavigatingCancelEventArgs)args;
-            if (args.NavigationMode == NavigationMode.Remove && args.Context != null)
+            if (args.NavigationMode == NavigationMode.Remove)
                 return TryClose(args.Context);
 
+            var eventArgs = (NavigatingCancelEventArgs)args;
             //Back button pressed.
             if (eventArgs.IsBackButtonNavigation)
             {
@@ -222,6 +222,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
 
         public event EventHandler<INavigationService, NavigationEventArgsBase> Navigated;
 
+        public event EventHandler<INavigationService, ValueEventArgs<IViewModel>> RootPageChanged;
+
         #endregion
 
         #region Methods
@@ -238,6 +240,11 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
         protected virtual void RaiseNavigated(object page, string parameter, NavigationMode mode, IDataContext context)
         {
             Navigated?.Invoke(this, new Models.EventArg.NavigationEventArgs(page, parameter, mode, context));
+        }
+
+        protected virtual void RaiseRootPageChanged(IViewModel viewModel)
+        {
+            RootPageChanged?.Invoke(this, new ValueEventArgs<IViewModel>(viewModel));
         }
 
         private void OnPopped(object sender, NavigationEventArgs args)

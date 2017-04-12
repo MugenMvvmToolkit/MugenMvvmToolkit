@@ -115,12 +115,6 @@
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\MarkupExtensions\ViewModelToViewBinding.cs">
       <Link>MarkupExtensions\ViewModelToViewBinding.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Models\EventArg\NavigatingCancelEventArgsWrapper.cs">
-      <Link>Models\EventArg\NavigatingCancelEventArgsWrapper.cs</Link>
-    </Compile>
-    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Models\EventArg\NavigationEventArgsWrapper.cs">
-      <Link>Models\EventArg\NavigationEventArgsWrapper.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Modules\InitializationModule.cs">
       <Link>Modules\InitializationModule.cs</Link>
     </Compile>

@@ -59,7 +59,6 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 #endif
         private static readonly string[] IdSeparator = { "~n|v~" };
 
-        private bool _ignoreNavigating;
         private TaskCompletionSource<bool> _navigationTcs;
         private TaskCompletionSource<bool> _unobservedNavigationTcs;
         private NavigatingCancelEventArgsBase _navigatingCancelArgs;
@@ -68,6 +67,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         public static readonly DataConstant<bool> BringToFront;
         protected static readonly DataConstant<Type> ViewModelTypeConstant;
         private static readonly DataConstant<object> IsNavigatedConstant;
+        private static readonly DataConstant<object> IgnoreNavigatingConstant;
         private static readonly DataConstant<IDataContext> CloseContextConstant;
         private static readonly DataConstant<TaskCompletionSource<bool>> NavigatedTaskConstant;
 
@@ -80,6 +80,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             var type = typeof(NavigationProvider);
             ViewModelTypeConstant = DataConstant.Create<Type>(type, nameof(ViewModelTypeConstant), true);
             IsNavigatedConstant = DataConstant.Create<object>(type, nameof(IsNavigatedConstant), false);
+            IgnoreNavigatingConstant = DataConstant.Create<object>(type, nameof(IgnoreNavigatingConstant), false);
             NavigatedTaskConstant = DataConstant.Create<TaskCompletionSource<bool>>(type, nameof(NavigatedTaskConstant), false);
             CloseContextConstant = DataConstant.Create<IDataContext>(type, nameof(CloseContextConstant), true);
             BringToFront = DataConstant.Create<bool>(type, nameof(BringToFront));
@@ -109,6 +110,8 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             eventAggregator.Subscribe(this);
 #if WINDOWS_UWP
             _openedViewModels = new Dictionary<Guid, IViewModel>();
+#elif XAMARIN_FORMS
+            NavigationService.RootPageChanged += NavigationServiceOnRootPageChanged;
 #endif
         }
 
@@ -146,6 +149,8 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         {
 #if WINDOWS_UWP
             _openedViewModels.Clear();
+#elif XAMARIN_FORMS
+            NavigationService.RootPageChanged -= NavigationServiceOnRootPageChanged;
 #endif
             NavigationService.Navigating -= NavigationServiceOnNavigating;
             NavigationService.Navigated -= NavigationServiceOnNavigated;
@@ -345,22 +350,9 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         {
             IViewModel viewModelFrom = null, viewModelTo = null;
             if (args.NavigationMode.IsClose())
-                viewModelFrom = args.Context?.GetData(NavigationConstants.ViewModel);
+                viewModelFrom = args.Context.GetData(NavigationConstants.ViewModel);
             else
-                viewModelTo = args.Context?.GetData(NavigationConstants.ViewModel);
-
-            if (args.NavigationMode.IsClose())
-            {
-                Guid viewModelId;
-                if (viewModelFrom == null && GetViewModelTypeFromParameter(args.Parameter, out viewModelId) != null)
-                    viewModelFrom = ViewModelProvider.TryGetViewModelById(viewModelId);
-            }
-            else
-            {
-                Guid viewModelId;
-                if (viewModelTo == null && GetViewModelTypeFromParameter(args.Parameter, out viewModelId) != null)
-                    viewModelTo = ViewModelProvider.TryGetViewModelById(viewModelId);
-            }
+                viewModelTo = args.Context.GetData(NavigationConstants.ViewModel);
 
             if (args.NavigationMode == NavigationMode.Remove)
             {
@@ -374,6 +366,10 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                 viewModelFrom = CurrentViewModel;
             if (viewModelFrom == null)
                 return null;
+
+            Guid viewModelId;
+            if (viewModelTo == null && GetViewModelTypeFromParameter(args.Parameter, out viewModelId) != null)
+                viewModelTo = ViewModelProvider.TryGetViewModelById(viewModelId);
 
             bool doNotTrackViewModelTo = false;
             if (viewModelTo == null && args.NavigationMode == NavigationMode.Back)
@@ -389,25 +385,9 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         {
             IViewModel viewModelFrom = null, viewModelTo = null;
             if (args.NavigationMode.IsClose())
-                viewModelFrom = args.Context?.GetData(NavigationConstants.ViewModel);
+                viewModelFrom = args.Context.GetData(NavigationConstants.ViewModel);
             else
-                viewModelTo = args.Context?.GetData(NavigationConstants.ViewModel);
-
-            Guid viewModelId;
-            var vmType = GetViewModelTypeFromParameter(args.Parameter, out viewModelId);
-            if (vmType != null)
-            {
-                if (args.NavigationMode.IsClose())
-                {
-                    if (viewModelFrom == null)
-                        viewModelFrom = ViewModelProvider.TryGetViewModelById(viewModelId);
-                }
-                else
-                {
-                    if (viewModelTo == null)
-                        viewModelTo = ViewModelProvider.TryGetViewModelById(viewModelId);
-                }
-            }
+                viewModelTo = args.Context.GetData(NavigationConstants.ViewModel);
 
             if (viewModelFrom == null)
                 viewModelFrom = CurrentViewModel;
@@ -418,6 +398,10 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                 Tracer.Error("Possible bug in navigation, navigate with mode Remove mode without ViewModel");
             }
 
+            Guid viewModelId;
+            var vmType = GetViewModelTypeFromParameter(args.Parameter, out viewModelId);
+            if (viewModelTo == null && vmType != null)
+                viewModelTo = ViewModelProvider.TryGetViewModelById(viewModelId);
             if (vmType == null)
             {
                 if (args.Content != null)
@@ -446,7 +430,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 
         protected virtual void OnNavigating(NavigatingCancelEventArgsBase args)
         {
-            if (_ignoreNavigating)
+            if (args.Context.Contains(IgnoreNavigatingConstant))
                 return;
             var context = CreateContextNavigateFrom(args);
             if (context == null)
@@ -474,15 +458,8 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                 }
                 ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, context, args, (@this, ctx, e) =>
                 {
-                    try
-                    {
-                        @this._ignoreNavigating = true;
-                        @this.Renavigate(ctx, e);
-                    }
-                    finally
-                    {
-                        @this._ignoreNavigating = false;
-                    }
+                    e.Context.AddOrUpdate(IgnoreNavigatingConstant, null);
+                    @this.Renavigate(ctx, e);
                 });
             });
         }
@@ -553,7 +530,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         {
             try
             {
-                if ((args.Context == null || !args.Context.Contains(NavigatedTaskConstant)) && _unobservedNavigationTcs == null)
+                if (!args.Context.Contains(NavigatedTaskConstant) && _unobservedNavigationTcs == null)
                     _unobservedNavigationTcs = new TaskCompletionSource<bool>();
                 _navigatingCancelArgs = args;
                 OnNavigating(args);
@@ -568,7 +545,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         {
             try
             {
-                if ((args.Context == null || !args.Context.Contains(NavigatedTaskConstant)) && _unobservedNavigationTcs == null)
+                if (!args.Context.Contains(NavigatedTaskConstant) && _unobservedNavigationTcs == null)
                     _unobservedNavigationTcs = new TaskCompletionSource<bool>();
                 var context = CreateContextNavigateTo(args);
                 UpdateNavigationContext(args, ref context);
@@ -579,6 +556,13 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                 TryCompleteNavigationTask(args.Context, true);
             }
         }
+
+#if XAMARIN_FORMS
+        private void NavigationServiceOnRootPageChanged(INavigationService sender, ValueEventArgs<IViewModel> args)
+        {
+            CurrentViewModel = args.Value;
+        }
+#endif
 
         private void UpdateNavigationContext(NavigationEventArgsBase args, ref INavigationContext context)
         {

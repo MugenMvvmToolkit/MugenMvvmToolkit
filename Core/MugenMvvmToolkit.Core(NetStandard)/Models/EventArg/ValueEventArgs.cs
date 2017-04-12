@@ -33,7 +33,7 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         #region Properties
 
-        public TValue Value { get; private set; }
+        public TValue Value { get; }
 
         #endregion
     }

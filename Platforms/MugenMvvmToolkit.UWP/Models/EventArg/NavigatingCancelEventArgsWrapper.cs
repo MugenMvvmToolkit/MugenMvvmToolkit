@@ -43,7 +43,7 @@ namespace MugenMvvmToolkit.UWP.Models.EventArg
             _args = args;
             _parameter = parameter;
             _bringToFront = bringToFront;
-            _context = context;
+            _context = context.ToNonReadOnly();
         }
 
         #endregion

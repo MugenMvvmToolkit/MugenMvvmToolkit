@@ -65,7 +65,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         public bool Navigate(NavigatingCancelEventArgsBase args)
         {
             Should.NotBeNull(args, nameof(args));
-            if (args.NavigationMode == MugenMvvmToolkit.Models.NavigationMode.Remove && args.Context != null)
+            if (args.NavigationMode == MugenMvvmToolkit.Models.NavigationMode.Remove)
                 return TryClose(args.Context);
 
             var result = NavigateInternal(args);
@@ -158,7 +158,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         {
             if (!args.IsCancelable)
                 return false;
-            if (args is RemoveNavigatingCancelEventArgs && args.Context != null)
+            if (args is RemoveNavigatingCancelEventArgs)
                 return TryClose(args.Context);
             var wrapper = (NavigatingCancelEventArgsWrapper)args;
             if (wrapper.Args.NavigationMode == NavigationMode.Back)

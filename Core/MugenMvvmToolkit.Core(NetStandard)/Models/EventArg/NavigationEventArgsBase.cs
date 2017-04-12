@@ -30,7 +30,7 @@ namespace MugenMvvmToolkit.Models.EventArg
 
         public abstract NavigationMode NavigationMode { get; }
 
-        [CanBeNull]
+        [NotNull]
         public abstract IDataContext Context { get; }
     }
 }

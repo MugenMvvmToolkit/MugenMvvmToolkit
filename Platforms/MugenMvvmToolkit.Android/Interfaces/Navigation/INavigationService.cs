@@ -18,6 +18,7 @@
 
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 #if ANDROID
@@ -37,6 +38,15 @@ namespace MugenMvvmToolkit.UWP.Interfaces.Navigation
     public interface INavigationService
     {
         object CurrentContent { get; }
+
+        bool Navigate([NotNull] NavigatingCancelEventArgsBase args);
+
+        bool Navigate([NotNull] IViewMappingItem source, [CanBeNull] string parameter, [CanBeNull] IDataContext dataContext);
+
+        bool CanClose([NotNull] IDataContext dataContext);
+
+        bool TryClose([NotNull] IDataContext dataContext);
+
 #if ANDROID
         void OnPauseActivity([NotNull] Activity activity, IDataContext context = null);
 
@@ -48,15 +58,10 @@ namespace MugenMvvmToolkit.UWP.Interfaces.Navigation
 
         bool OnFinishActivity([NotNull] Activity activity, bool isBackNavigation, IDataContext context = null);
 #elif XAMARIN_FORMS
-        void UpdateRootPage(NavigationPage page);
+        void UpdateRootPage(NavigationPage page, IViewModel rootPageViewModel);
+
+        event EventHandler<INavigationService, ValueEventArgs<IViewModel>> RootPageChanged;
 #endif
-        bool Navigate([NotNull] NavigatingCancelEventArgsBase args);
-
-        bool Navigate([NotNull] IViewMappingItem source, [CanBeNull] string parameter, [CanBeNull] IDataContext dataContext);
-
-        bool CanClose([NotNull] IDataContext dataContext);
-
-        bool TryClose([NotNull] IDataContext dataContext);
 
         event EventHandler<INavigationService, NavigatingCancelEventArgsBase> Navigating;
 

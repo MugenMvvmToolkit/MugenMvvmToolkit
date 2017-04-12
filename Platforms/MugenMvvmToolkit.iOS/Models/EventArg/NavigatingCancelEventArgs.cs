@@ -51,7 +51,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Models.EventArg
             _mapping = mapping;
             _navigationMode = navigationMode;
             _parameter = parameter;
-            _context = context;
+            _context = context.ToNonReadOnly();
             _isCancelable = true;
         }
 #else
@@ -62,7 +62,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Models.EventArg
             _parameter = parameter;
             _isCancelable = isCancelable;
             _isBackButton = isBackButton;
-            _context = context;
+            _context = context.ToNonReadOnly();
         }
 #endif
 

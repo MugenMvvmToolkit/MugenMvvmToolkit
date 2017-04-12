@@ -100,11 +100,12 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             Should.NotBeNull(args, nameof(args));
             if (!args.IsCancelable)
                 return false;
-            if (args.NavigationMode == NavigationMode.Remove && args.Context != null)
+            if (args.NavigationMode == NavigationMode.Remove)
                 return TryClose(args.Context);
-            var eventArgs = (NavigatingCancelEventArgs)args;
-            if (eventArgs.NavigationMode == NavigationMode.Back)
+            if (args.NavigationMode == NavigationMode.Back)
                 return GoBack(args.Context);
+
+            var eventArgs = (NavigatingCancelEventArgs)args;
             // ReSharper disable once AssignNullToNotNullAttribute
             return Navigate(eventArgs.Mapping, eventArgs.Parameter, args.Context);
         }

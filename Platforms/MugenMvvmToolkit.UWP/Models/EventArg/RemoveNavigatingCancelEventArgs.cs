@@ -34,7 +34,7 @@ namespace MugenMvvmToolkit.UWP.Models.EventArg
 
         public RemoveNavigatingCancelEventArgs(IDataContext context)
         {
-            _context = context;
+            _context = context.ToNonReadOnly();
         }
 
         #endregion
