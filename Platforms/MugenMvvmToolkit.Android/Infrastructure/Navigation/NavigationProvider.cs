@@ -184,9 +184,6 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             if (viewModel == null || !viewModel.Settings.State.Contains(IsNavigatedConstant))
                 return null;
             context = new DataContext(context.ToNonReadOnly());
-            if (!NavigationService.CanClose(context))
-                return Empty.FalseTask;
-
             var tcs = new TaskCompletionSource<bool>();
             CurrentNavigationTask.TryExecuteSynchronously(task => ThreadManager.InvokeOnUiThreadAsync(() =>
             {
