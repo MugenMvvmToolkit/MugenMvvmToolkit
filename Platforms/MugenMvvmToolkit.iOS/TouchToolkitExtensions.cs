@@ -377,11 +377,11 @@ namespace MugenMvvmToolkit.iOS
             return null;
         }
 
-        public static NSIndexPath[] CreateNSIndexPathArray(int startingPosition, int count)
+        public static NSIndexPath[] CreateNSIndexPathArray(int startingPosition, int count, int section = 0)
         {
             var newIndexPaths = new NSIndexPath[count];
             for (int i = 0; i < count; i++)
-                newIndexPaths[i] = NSIndexPath.FromRowSection(i + startingPosition, 0);
+                newIndexPaths[i] = NSIndexPath.FromRowSection(i + startingPosition, section);
             return newIndexPaths;
         }
 
