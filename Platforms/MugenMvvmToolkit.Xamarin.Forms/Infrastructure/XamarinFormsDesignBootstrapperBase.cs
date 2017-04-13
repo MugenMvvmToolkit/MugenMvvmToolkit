@@ -30,7 +30,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         protected XamarinFormsDesignBootstrapperBase(IPlatformService platformService = null, bool isDesignMode = true) : base(platformService, isDesignMode)
         {
-            ServiceProvider.IsDesignMode = isDesignMode;
         }
 
         #endregion

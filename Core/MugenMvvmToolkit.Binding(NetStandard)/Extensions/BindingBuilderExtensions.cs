@@ -46,6 +46,8 @@ namespace MugenMvvmToolkit.Binding
 
         static BindingBuilderExtensions()
         {
+            if (ServiceProvider.IsDesignMode)
+                BindingServiceProvider.InitializeFromDesignContext();
             SyntaxBuilderConstant = DataConstant.Create<object>(typeof(BindingBuilderExtensions), nameof(SyntaxBuilderConstant), true);
             DefautBindingMemberDescriptor = new BindingMemberDescriptor<object, string>("DefautBindingMember");
         }

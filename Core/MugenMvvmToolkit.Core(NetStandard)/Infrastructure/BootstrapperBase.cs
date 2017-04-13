@@ -52,7 +52,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         protected BootstrapperBase(bool isDesignMode)
         {
-            IsDesignMode = isDesignMode;
+            ServiceProvider.IsDesignMode = isDesignMode;
             if (isDesignMode)
             {
                 _viewModelMapping = new Dictionary<string, IViewModel>();
@@ -80,7 +80,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         protected IIocContainer IocContainer { get; set; }
 
-        protected bool IsDesignMode { get; }
+        protected bool IsDesignMode => ServiceProvider.IsDesignMode;
 
         #endregion
 
