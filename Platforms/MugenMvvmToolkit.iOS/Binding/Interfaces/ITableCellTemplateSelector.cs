@@ -26,7 +26,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Interfaces
     {
         void Initialize([NotNull] UITableView container);
 
-        NSString GetIdentifier([CanBeNull] object item, [NotNull] UITableView container);
+        NSString GetIdentifier(object item, [NotNull] UITableView container);
 
         void InitializeTemplate([NotNull] UITableView container, UITableViewCell cell);
     }

@@ -26,7 +26,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Interfaces
     {
         void Initialize([NotNull] UICollectionView container);
 
-        NSString GetIdentifier([CanBeNull] object item, [NotNull] UICollectionView container);
+        NSString GetIdentifier(object item, [NotNull] UICollectionView container);
 
         void InitializeTemplate([NotNull] UICollectionView container, UICollectionViewCell cell);
     }

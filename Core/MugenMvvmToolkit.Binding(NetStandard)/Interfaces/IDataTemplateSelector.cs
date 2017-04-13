@@ -22,6 +22,6 @@ namespace MugenMvvmToolkit.Binding.Interfaces
 {
     public interface IDataTemplateSelector
     {
-        object SelectTemplate([CanBeNull] object item, [NotNull] object container);
+        object SelectTemplate(object item, [NotNull] object container);
     }
 }

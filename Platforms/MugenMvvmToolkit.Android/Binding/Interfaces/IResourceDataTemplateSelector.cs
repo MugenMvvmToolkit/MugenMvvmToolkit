@@ -25,6 +25,6 @@ namespace MugenMvvmToolkit.Android.Binding.Interfaces
     {
         int TemplateTypeCount { get; }
 
-        new int SelectTemplate([CanBeNull] object item, [NotNull] object container);
+        new int SelectTemplate(object item, [NotNull] object container);
     }
 }
