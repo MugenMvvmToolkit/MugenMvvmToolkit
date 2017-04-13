@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -29,13 +30,7 @@ using EventType = System.Windows.DependencyPropertyChangedEventArgs;
 
 namespace MugenMvvmToolkit.WPF.Binding.Infrastructure
 #elif WINDOWS_UWP
-using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.Binding.Interfaces;
-using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Binding.Models.EventArg;
-using MugenMvvmToolkit.Interfaces.Models;
 using Windows.UI.Xaml;
-using MugenMvvmToolkit.UWP.Binding.Models;
 using EventType = System.Object;
 
 namespace MugenMvvmToolkit.UWP.Binding.Infrastructure
@@ -50,11 +45,12 @@ namespace MugenMvvmToolkit.UWP.Binding.Infrastructure
     {
         #region Nested types
 
-        private sealed class FrameworkElementBindingContext : IBindingContext
+        public sealed class FrameworkElementBindingContext : IBindingContext
         {
             #region Fields
 
             private readonly WeakReference _sourceReference;
+            private bool _isUnset;
 
             #endregion
 
@@ -66,6 +62,7 @@ namespace MugenMvvmToolkit.UWP.Binding.Infrastructure
                 element.DataContextChanged += RaiseDataContextChanged;
                 if (ListenUnloadEvent)
                     element.Unloaded += ElementOnUnloaded;
+                _isUnset = IsUnset(element);
             }
 
             #endregion
@@ -80,12 +77,18 @@ namespace MugenMvvmToolkit.UWP.Binding.Infrastructure
             {
                 get
                 {
+                    if (_isUnset)
+                        return BindingConstants.UnsetValue;
+#if WPF
                     object context = ((FrameworkElement)Source)?.DataContext;
                     if (context == null)
                         return null;
                     if (DependencyPropertyBindingMember.IsNamedObjectFunc(context))
                         return BindingConstants.UnsetValue;
                     return context;
+#else
+                    return ((FrameworkElement)Source)?.DataContext;
+#endif
                 }
                 set
                 {
@@ -103,6 +106,7 @@ namespace MugenMvvmToolkit.UWP.Binding.Infrastructure
 
             private void RaiseDataContextChanged(object sender, EventType args)
             {
+                _isUnset = false;
                 ValueChanged?.Invoke(this, EventArgs.Empty);
             }
 
@@ -112,20 +116,19 @@ namespace MugenMvvmToolkit.UWP.Binding.Infrastructure
                     RaiseDataContextChanged(sender, default(DependencyPropertyChangedEventArgs));
             }
 
+            private static bool IsUnset(FrameworkElement element)
+            {
+                while (element != null)
+                {
+                    if (element.ReadLocalValue(FrameworkElement.DataContextProperty) != DependencyProperty.UnsetValue)
+                        return false;
+                    element = BindingServiceProvider.VisualTreeManager.GetParent(element) as FrameworkElement;
+                }
+                return true;
+            }
+
             #endregion
         }
-
-        #endregion
-
-        #region Constructors
-
-#if WPF
-        static WpfBindingContextManager()
-        {
-
-            ListenUnloadEvent = true;
-        }
-#endif
 
         #endregion
 
@@ -139,10 +142,10 @@ namespace MugenMvvmToolkit.UWP.Binding.Infrastructure
 
         protected override IBindingContext CreateBindingContext(object item)
         {
-            var member = item as FrameworkElement;
-            if (member == null)
+            var element = item as FrameworkElement;
+            if (element == null)
                 return base.CreateBindingContext(item);
-            return new FrameworkElementBindingContext(member);
+            return new FrameworkElementBindingContext(element);
         }
 
         #endregion
