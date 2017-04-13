@@ -44,6 +44,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
         private UIWindow _window;
         private Func<UIWindow, UIViewController, UINavigationController> _getOrCreateController;
         private Func<UIWindow, UINavigationController> _restoreNavigationController;
+        private NSObject _windowObserver;
 
         #endregion
 
@@ -60,13 +61,11 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             _restoreNavigationController = restoreNavigationController;
             if (_window.RootViewController == null)
             {
-                NSObject observer = null;
-                observer = UIWindow.Notifications.ObserveDidBecomeVisible((sender, args) =>
+                _windowObserver = UIWindow.Notifications.ObserveDidBecomeVisible((sender, args) =>
                 {
                     var uiWindow = _window;
-                    if (uiWindow != null)
+                    if (uiWindow?.RootViewController != null)
                         InitializeNavigationController(RestoreNavigationController(uiWindow));
-                    observer.Dispose();
                 });
             }
             UseAnimations = true;
@@ -163,7 +162,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
                 bool navigated;
                 InitializeNavigationController(GetNavigationController(_window, viewController, out navigated));
                 shouldNavigate = !navigated;
-                _window = null;
             }
             if (shouldNavigate)
             {
@@ -288,6 +286,8 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             if (ex != null)
                 ex.ShouldPopViewController += ShouldPopViewController;
             _window = null;
+            _windowObserver?.Dispose();
+            _windowObserver = null;
             _getOrCreateController = null;
             _restoreNavigationController = null;
             (CurrentContent?.DataContext() as IViewModel)?.InvalidateCommands();
