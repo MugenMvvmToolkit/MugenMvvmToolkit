@@ -247,19 +247,19 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             return ((IActivityView)activity).Mediator.State;
         }
 
-        private static IDataContext MergeContext(IDataContext ctx1, IDataContext ctx2)
+        private static IDataContext MergeContext(IDataContext ctx1, IDataContext navContext)
         {
-            if (ctx1 == null && ctx2 == null)
+            if (ctx1 == null && navContext == null)
                 return null;
-            if (ctx1 != null && ctx2 != null)
+            if (ctx1 != null && navContext != null)
             {
                 ctx1 = ctx1.ToNonReadOnly();
-                ctx1.Merge(ctx2);
+                ctx1.Merge(navContext);
                 return ctx1;
             }
             if (ctx1 != null)
                 return ctx1;
-            return ctx2;
+            return new DataContext(navContext);
         }
 
         private void SetBackground(bool value, IDataContext context)
