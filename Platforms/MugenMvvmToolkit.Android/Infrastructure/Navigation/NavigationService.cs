@@ -303,14 +303,14 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         object INavigationService.CurrentContent => AndroidToolkitExtensions.CurrentActivity;
 
-        public void OnPauseActivity(Activity activity, IDataContext context = null)
+        public void OnPauseActivity(Activity activity, IDataContext context)
         {
             Should.NotBeNull(activity, nameof(activity));
             if (!GetState(activity).ContainsKey(IsBackKey) && ReferenceEquals(activity, CurrentContent))
                 SetBackground(true, context);
         }
 
-        public void OnResumeActivity(Activity activity, IDataContext context = null)
+        public void OnResumeActivity(Activity activity, IDataContext context)
         {
             Should.NotBeNull(activity, nameof(activity));
             SetBackground(false, context);
@@ -345,17 +345,17 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             }
         }
 
-        public void OnStartActivity(Activity activity, IDataContext context = null)
+        public void OnStartActivity(Activity activity, IDataContext context)
         {
             OnResumeActivity(activity, context);
         }
 
-        public void OnCreateActivity(Activity activity, IDataContext context = null)
+        public void OnCreateActivity(Activity activity, IDataContext context)
         {
             OnResumeActivity(activity, context);
         }
 
-        public bool OnFinishActivity(Activity activity, bool isBackNavigation, IDataContext context = null)
+        public bool OnFinishActivity(Activity activity, bool isBackNavigation, IDataContext context)
         {
             Should.NotBeNull(activity, nameof(activity));
             var bundle = GetState(activity);
@@ -383,7 +383,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             return true;
         }
 
-        public void OnDestroyActivity(Activity activity, IDataContext context = null)
+        public void OnDestroyActivity(Activity activity, IDataContext context)
         {
             Should.NotBeNull(activity, nameof(activity));
             var bundle = GetState(activity);
@@ -418,8 +418,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
         public bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
             Should.NotBeNull(source, nameof(source));
-            if (dataContext == null)
-                dataContext = DataContext.Empty;
+            Should.NotBeNull(dataContext, nameof(dataContext));
             bool bringToFront;
             dataContext.TryGetData(NavigationProvider.BringToFront, out bringToFront);
             if (!RaiseNavigating(new NavigatingCancelEventArgs(source, bringToFront ? NavigationMode.Refresh : NavigationMode.New, parameter, dataContext)))

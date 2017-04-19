@@ -41,24 +41,24 @@ namespace MugenMvvmToolkit.UWP.Interfaces.Navigation
 
         bool Navigate([NotNull] NavigatingCancelEventArgsBase args);
 
-        bool Navigate([NotNull] IViewMappingItem source, [CanBeNull] string parameter, [CanBeNull] IDataContext dataContext);
+        bool Navigate([NotNull] IViewMappingItem source, [CanBeNull] string parameter, [NotNull] IDataContext dataContext);
 
         bool CanClose([NotNull] IDataContext dataContext);
 
         bool TryClose([NotNull] IDataContext dataContext);
 
 #if ANDROID
-        void OnPauseActivity([NotNull] Activity activity, IDataContext context = null);
+        void OnPauseActivity([NotNull] Activity activity, IDataContext context);
 
-        void OnResumeActivity([NotNull] Activity activity, IDataContext context = null);
+        void OnResumeActivity([NotNull] Activity activity, IDataContext context);
 
-        void OnStartActivity([NotNull] Activity activity, IDataContext context = null);
+        void OnStartActivity([NotNull] Activity activity, IDataContext context);
 
-        void OnCreateActivity([NotNull] Activity activity, IDataContext context = null);
+        void OnCreateActivity([NotNull] Activity activity, IDataContext context);
 
-        bool OnFinishActivity([NotNull] Activity activity, bool isBackNavigation, IDataContext context = null);
+        bool OnFinishActivity([NotNull] Activity activity, bool isBackNavigation, IDataContext context);
 
-        void OnDestroyActivity([NotNull] Activity activity, IDataContext context = null);
+        void OnDestroyActivity([NotNull] Activity activity, IDataContext context);
 #elif XAMARIN_FORMS
         void UpdateRootPage(NavigationPage page, IViewModel rootPageViewModel);
 

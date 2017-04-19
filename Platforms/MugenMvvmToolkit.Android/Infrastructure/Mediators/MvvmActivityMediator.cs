@@ -159,6 +159,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         public virtual Bundle Bundle => _bundle;
 
+        public IDataContext NavigationContext { get; set; }
+
         public virtual void OnBackPressed(Action baseOnBackPressed)
         {
             var handler = BackPressing;
@@ -186,7 +188,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             _isCreated = true;
 
             var service = Get<INavigationService>();
-            service.OnCreateActivity(Target);
+            service.OnCreateActivity(Target, NavigationContext);
 
             Created?.Invoke(Target, new ValueEventArgs<Bundle>(savedInstanceState));
 
@@ -240,7 +242,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 _layoutInflater.Dispose();
                 _layoutInflater = null;
             }
-            ServiceProvider.Get<INavigationService>().OnDestroyActivity(Target);
+            ServiceProvider.Get<INavigationService>().OnDestroyActivity(Target, NavigationContext);
             base.OnDestroy(baseOnDestroy);
             ThreadPool.QueueUserWorkItem(state => AndroidToolkitExtensions.CleanupWeakReferences(true));
             AndroidToolkitExtensions.SetCurrentActivity(Target, true);
@@ -263,7 +265,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         public override void OnPause(Action baseOnPause)
         {
             var service = Get<INavigationService>();
-            service.OnPauseActivity(Target);
+            service.OnPauseActivity(Target, NavigationContext);
             Paused?.Invoke(Target, EventArgs.Empty);
             base.OnPause(baseOnPause);
         }
@@ -279,7 +281,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             base.OnResume(baseOnResume);
 
             var service = Get<INavigationService>();
-            service.OnResumeActivity(Target);
+            service.OnResumeActivity(Target, NavigationContext);
             Resume?.Invoke(Target, EventArgs.Empty);
         }
 
@@ -293,7 +295,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             baseOnStart();
 
             var service = Get<INavigationService>();
-            service.OnStartActivity(Target);
+            service.OnStartActivity(Target, NavigationContext);
             Started?.Invoke(Target, EventArgs.Empty);
         }
 
@@ -330,7 +332,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             if (!_ignoreFinishNavigation)
             {
                 var navigationService = Get<INavigationService>();
-                if (!navigationService.OnFinishActivity(Target, _isBackNavigation))
+                if (!navigationService.OnFinishActivity(Target, _isBackNavigation, NavigationContext))
                     return;
             }
             ClearContextCache();

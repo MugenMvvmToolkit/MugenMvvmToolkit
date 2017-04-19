@@ -26,6 +26,7 @@ using Android.OS;
 using Android.Views;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Android.Models.EventArg;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 
@@ -46,6 +47,8 @@ namespace MugenMvvmToolkit.Android.Interfaces.Mediators
 
         [CanBeNull]
         Bundle Bundle { get; }
+
+        IDataContext NavigationContext { get; set; }
 
         void OnBackPressed(Action baseOnBackPressed);
 
