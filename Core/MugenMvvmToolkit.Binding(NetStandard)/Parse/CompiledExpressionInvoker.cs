@@ -79,6 +79,14 @@ namespace MugenMvvmToolkit.Binding.Parse
 
             #endregion
 
+            #region Constructors
+
+            public MethodInvoker() : base(CacheKeyComparer.Instance)
+            {
+            }
+
+            #endregion
+
             #region Methods
 
             public object InvokeIndex(object target, object[] args)
