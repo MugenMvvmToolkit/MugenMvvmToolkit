@@ -35,6 +35,8 @@ namespace MugenMvvmToolkit.Android.Interfaces.Mediators
     {
         IDictionary<string, object> Metadata { get; }
 
+        Bundle State { get; }
+
         Activity Activity { get; }
 
         bool IsDestroyed { get; }

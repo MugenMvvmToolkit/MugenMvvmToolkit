@@ -17,12 +17,12 @@
 #endregion
 
 using System;
-using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Runtime;
-using JetBrains.Annotations;
 using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Android.Infrastructure.Mediators;
 using MugenMvvmToolkit.Android.Interfaces.Navigation;
@@ -105,10 +105,14 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
             public void OnActivityPaused(Activity activity)
             {
+                if (IsAlive() && !(activity is IActivityView) && ReferenceEquals(activity, _service.CurrentContent))
+                    _service.SetBackground(true, null);
             }
 
             public void OnActivityResumed(Activity activity)
             {
+                if (IsAlive() && !(activity is IActivityView))
+                    _service.SetBackground(false, null);
             }
 
             public void OnActivitySaveInstanceState(Activity activity, Bundle outState)
@@ -132,35 +136,44 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
         #region Fields
 
         private const string ParameterId = "viewmodelparameter";
+        private const string IsFinishPauseKey = nameof(IsFinishPauseKey);
         private const string IsBackKey = nameof(IsBackKey);
-        private const string IsFinishFromPauseKey = nameof(IsFinishFromPauseKey);
+        private const string IsFinishedKey = nameof(IsFinishedKey);
+        private const string IsOpenedKey = nameof(IsOpenedKey);
 
-        private bool _isReorder;
-        private bool _isPause;
-        private IDataContext _newDataContext;
-        private IDataContext _backDataContext;
+        private IDataContext _newContext;
+        private IDataContext _backContext;
+        private bool _isBackground;
+        private bool _isBackgroundSet;
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public NavigationService(IEventAggregator eventAggregator)
+        public NavigationService(IEventAggregator eventAggregator, IThreadManager threadManager)
         {
             Should.NotBeNull(eventAggregator, nameof(eventAggregator));
+            Should.NotBeNull(threadManager, nameof(threadManager));
+            ThreadManager = threadManager;
             EventAggregator = eventAggregator;
             if (Build.VERSION.SdkInt >= BuildVersionCodes.IceCreamSandwich)
             {
                 (Application.Context as Application)?.RegisterActivityLifecycleCallbacks(new ActivityLifecycleListener(this));
             }
-            _newDataContext = DataContext.Empty;
         }
 
         #endregion
 
         #region Properties
 
+        protected IThreadManager ThreadManager { get; }
+
         protected IEventAggregator EventAggregator { get; }
+
+        protected Activity CurrentContent => AndroidToolkitExtensions.CurrentActivity;
+
+        protected bool IsBackground => _isBackground;
 
         #endregion
 
@@ -200,16 +213,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                 startAction(context, intent, source, dataContext);
         }
 
-        protected virtual bool IsNoHistory([CanBeNull] Activity activity)
-        {
-            if (activity == null)
-                return false;
-            if ((activity.Intent.Flags & ActivityFlags.NoHistory) == ActivityFlags.NoHistory)
-                return true;
-            var attribute = activity.GetType().GetCustomAttributes(typeof(ActivityAttribute), false).OfType<ActivityAttribute>().FirstOrDefault();
-            return attribute != null && attribute.NoHistory;
-        }
-
         protected virtual bool IsDestroyed(Activity activity)
         {
             var activityView = activity as IActivityView;
@@ -223,10 +226,10 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             var currentActivity = AndroidToolkitExtensions.CurrentActivity;
             if (!currentActivity.IsAlive() || IsDestroyed(currentActivity) || currentActivity.IsFinishing)
                 return false;
-            _backDataContext = context;
-            if (_isPause)
+            _backContext = context;
+            if (IsBackground)
             {
-                ServiceProvider.AttachedValueProvider.SetValue(currentActivity, IsFinishFromPauseKey, Empty.TrueObject);
+                GetState(currentActivity).PutBoolean(IsFinishPauseKey, true);
                 currentActivity.Finish();
             }
             else
@@ -237,6 +240,11 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
         private static string GetParameterFromIntent(Intent intent)
         {
             return intent?.GetStringExtra(ParameterId);
+        }
+
+        private static Bundle GetState(Activity activity)
+        {
+            return ((IActivityView)activity).Mediator.State;
         }
 
         private static IDataContext MergeContext(IDataContext ctx1, IDataContext ctx2)
@@ -254,63 +262,86 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             return ctx2;
         }
 
+        private void SetBackground(bool value, IDataContext context)
+        {
+            if (_isBackground == value)
+                return;
+            _isBackground = value;
+            if (value)
+            {
+                var delayTask = Task.Delay(AndroidToolkitExtensions.BackgroundNotificationDelay);
+                if (SynchronizationContext.Current == null)
+                    delayTask.ContinueWith(RaiseBackground, context);
+                else
+                    delayTask.ContinueWith(RaiseBackground, context, TaskScheduler.FromCurrentSynchronizationContext());
+            }
+            else
+            {
+                if (_isBackgroundSet)
+                {
+                    _isBackgroundSet = false;
+                    EventAggregator.Publish(this, new ForegroundNavigationMessage(context));
+                }
+            }
+        }
+
+        private void RaiseBackground(Task t, object state)
+        {
+            ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, state, (@this, ctx) =>
+            {
+                if (IsBackground)
+                {
+                    @this.EventAggregator.Publish(@this, new BackgroundNavigationMessage(ctx as IDataContext));
+                    _isBackgroundSet = true;
+                }
+            }, OperationPriority.Low);
+        }
+
         #endregion
 
         #region Implementation of INavigationService
 
-        public object CurrentContent => AndroidToolkitExtensions.CurrentActivity;
+        object INavigationService.CurrentContent => AndroidToolkitExtensions.CurrentActivity;
 
         public void OnPauseActivity(Activity activity, IDataContext context = null)
         {
             Should.NotBeNull(activity, nameof(activity));
-            var isBack = ServiceProvider.AttachedValueProvider.GetValue<bool>(activity, IsBackKey, false);
-            if (_newDataContext != null || isBack || !ReferenceEquals(activity, CurrentContent))
-                return;
-            _isPause = true;
-            EventAggregator.Publish(this, new BackgroundNavigationMessage(context));
+            if (!GetState(activity).ContainsKey(IsBackKey) && ReferenceEquals(activity, CurrentContent))
+                SetBackground(true, context);
         }
 
         public void OnResumeActivity(Activity activity, IDataContext context = null)
         {
             Should.NotBeNull(activity, nameof(activity));
-            var prevContent = CurrentContent as Activity;
-            var activityEquals = ReferenceEquals(activity, prevContent);
-            if (activityEquals && !_isPause)
+            SetBackground(false, context);
+            var prevContent = CurrentContent;
+            if (ReferenceEquals(activity, prevContent))
                 return;
             AndroidToolkitExtensions.SetCurrentActivity(activity, false);
-            var isPause = _isPause;
-            _isPause = false;
-            if (_newDataContext == null)
+            var bundle = GetState(activity);
+            if (bundle.ContainsKey(IsOpenedKey))
             {
-                var dataContext = _backDataContext;
-                _backDataContext = null;
-                if (isPause && activityEquals)
-                    EventAggregator.Publish(this, new ForegroundNavigationMessage(context));
+                NavigationMode mode;
+                IDataContext ctx = _backContext;
+                if (ctx != null || prevContent != null && GetState(prevContent).ContainsKey(IsBackKey))
+                {
+                    mode = NavigationMode.Back;
+                    _backContext = null;
+                }
                 else
                 {
-                    RaiseNavigated(activity, NavigationMode.Back, GetParameterFromIntent(activity.Intent), MergeContext(dataContext, context));
-                    if (isPause)
-                        EventAggregator.Publish(this, new ForegroundNavigationMessage(context));
+                    ctx = _newContext;
+                    _newContext = null;
+                    mode = NavigationMode.Refresh;
                 }
+                RaiseNavigated(activity, mode, GetParameterFromIntent(activity.Intent), MergeContext(ctx, context));
             }
             else
             {
-                var isReorder = _isReorder;
-                var dataContext = _newDataContext;
-                _newDataContext = null;
-                _isReorder = false;
-                RaiseNavigated(activity, isReorder ? NavigationMode.Refresh : NavigationMode.New, GetParameterFromIntent(activity.Intent), MergeContext(dataContext, context));
-                if (IsNoHistory(prevContent))
-                {
-                    var viewModel = prevContent.DataContext() as IViewModel;
-                    if (viewModel != null)
-                    {
-                        RaiseNavigated(prevContent, NavigationMode.Remove, null, new DataContext
-                        {
-                            {NavigationConstants.ViewModel, viewModel}
-                        });
-                    }
-                }
+                bundle.PutBoolean(IsOpenedKey, true);
+                var newContext = _newContext;
+                _newContext = null;
+                RaiseNavigated(activity, NavigationMode.New, GetParameterFromIntent(activity.Intent), MergeContext(newContext, context));
             }
         }
 
@@ -327,18 +358,46 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
         public bool OnFinishActivity(Activity activity, bool isBackNavigation, IDataContext context = null)
         {
             Should.NotBeNull(activity, nameof(activity));
-            var isFinishFromPause = ServiceProvider.AttachedValueProvider.GetValue<bool>(activity, IsFinishFromPauseKey, false);
+            var bundle = GetState(activity);
+            var isFinishFromPause = bundle.ContainsKey(IsFinishPauseKey);
             if (!isBackNavigation && !isFinishFromPause)
+            {
+                bundle.PutBoolean(IsFinishedKey, true);
                 return true;
+            }
+
             if (isFinishFromPause)
-                ServiceProvider.AttachedValueProvider.Clear(activity, IsFinishFromPauseKey);
-            if (!RaiseNavigating(new NavigatingCancelEventArgs(NavigationMode.Back, MergeContext(_backDataContext, context))))
+                bundle.Remove(IsFinishPauseKey);
+            if (!RaiseNavigating(new NavigatingCancelEventArgs(NavigationMode.Back, MergeContext(_backContext, context))))
                 return false;
+
             //If it's the first activity, we need to raise the back navigation event.
             if (activity.IsTaskRoot)
-                RaiseNavigated(null, NavigationMode.Back, null, MergeContext(_backDataContext, context));
-            ServiceProvider.AttachedValueProvider.SetValue(activity, IsBackKey, Empty.TrueObject);
+            {
+                var backContext = _backContext;
+                _backContext = null;
+                RaiseNavigated(null, NavigationMode.Back, null, MergeContext(backContext, context));
+            }
+            bundle.PutBoolean(IsBackKey, true);
+            bundle.PutBoolean(IsFinishedKey, true);
             return true;
+        }
+
+        public void OnDestroyActivity(Activity activity, IDataContext context = null)
+        {
+            Should.NotBeNull(activity, nameof(activity));
+            var bundle = GetState(activity);
+            if (activity.IsFinishing && !bundle.ContainsKey(IsFinishedKey))
+            {
+                var viewModel = activity.DataContext() as IViewModel;
+                if (viewModel != null)
+                {
+                    RaiseNavigated(activity, NavigationMode.Remove, null, new DataContext
+                    {
+                        {NavigationConstants.ViewModel, viewModel}
+                    });
+                }
+            }
         }
 
         public bool Navigate(NavigatingCancelEventArgsBase args)
@@ -366,14 +425,13 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             if (!RaiseNavigating(new NavigatingCancelEventArgs(source, bringToFront ? NavigationMode.Refresh : NavigationMode.New, parameter, dataContext)))
                 return false;
 
+            _newContext = dataContext;
             bool clearBackStack = dataContext.GetData(NavigationConstants.ClearBackStack);
-            _isReorder = bringToFront;
-            _newDataContext = dataContext;
-
             var activity = AndroidToolkitExtensions.CurrentActivity;
             var context = activity ?? Application.Context;
 
             var intent = new Intent(context, source.ViewType);
+
             if (activity == null)
                 intent.AddFlags(ActivityFlags.NewTask);
             else if (clearBackStack)

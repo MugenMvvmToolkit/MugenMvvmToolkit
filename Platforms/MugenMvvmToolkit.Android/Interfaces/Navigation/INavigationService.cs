@@ -18,7 +18,6 @@
 
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 #if ANDROID
@@ -28,6 +27,7 @@ namespace MugenMvvmToolkit.Android.Interfaces.Navigation
 #elif TOUCH
 namespace MugenMvvmToolkit.iOS.Interfaces.Navigation
 #elif XAMARIN_FORMS
+using MugenMvvmToolkit.Interfaces.ViewModels;
 using Xamarin.Forms;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Interfaces.Navigation
@@ -57,6 +57,8 @@ namespace MugenMvvmToolkit.UWP.Interfaces.Navigation
         void OnCreateActivity([NotNull] Activity activity, IDataContext context = null);
 
         bool OnFinishActivity([NotNull] Activity activity, bool isBackNavigation, IDataContext context = null);
+
+        void OnDestroyActivity([NotNull] Activity activity, IDataContext context = null);
 #elif XAMARIN_FORMS
         void UpdateRootPage(NavigationPage page, IViewModel rootPageViewModel);
 

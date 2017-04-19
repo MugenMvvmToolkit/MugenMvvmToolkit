@@ -240,6 +240,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 _layoutInflater.Dispose();
                 _layoutInflater = null;
             }
+            ServiceProvider.Get<INavigationService>().OnDestroyActivity(Target);
             base.OnDestroy(baseOnDestroy);
             ThreadPool.QueueUserWorkItem(state => AndroidToolkitExtensions.CleanupWeakReferences(true));
             AndroidToolkitExtensions.SetCurrentActivity(Target, true);

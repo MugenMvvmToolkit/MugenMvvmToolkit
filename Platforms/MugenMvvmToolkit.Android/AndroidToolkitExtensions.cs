@@ -288,6 +288,7 @@ namespace MugenMvvmToolkit.Android
             WeakReferencesHolder = new List<object>(1000);
             CurrentActivityLocker = new object();
             EnableFastTextViewTextProperty = true;
+            BackgroundNotificationDelay = 200;
 
             // ReSharper disable once ObjectCreationAsStatement
             new WeakReferenceCollector();
@@ -417,6 +418,8 @@ namespace MugenMvvmToolkit.Android
         public static Func<object, bool> IsTargetAlive { get; set; }
 
         public static bool TypeCacheOnlyUsedTypeToBootstrapCodeBuilder { get; set; }
+
+        public static int BackgroundNotificationDelay { get; set; }
 
         public static event EventHandler CurrentActivityChanged;
 

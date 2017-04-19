@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using Android.OS;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
@@ -49,6 +50,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         private Guid _id;
         private object _dataContext;
         private bool _isDestroyed;
+        private Bundle _state;
         private readonly TTarget _target;
 
         #endregion
@@ -85,6 +87,16 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 _dataContext = value;
                 OnDataContextChanged(oldValue, _dataContext);
                 DataContextChanged?.Invoke(Target, EventArgs.Empty);
+            }
+        }
+
+        public virtual Bundle State
+        {
+            get
+            {
+                if (_state == null)
+                    Interlocked.CompareExchange(ref _state, new Bundle(), null);
+                return _state;
             }
         }
 
@@ -126,6 +138,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         public virtual void OnSaveInstanceState(Bundle outState, Action<Bundle> baseOnSaveInstanceState)
         {
+            if (_state != null)
+                outState.PutBundle(nameof(State), _state);
             lock (ContextCache)
                 ContextCache[_id] = DataContext;
             outState.PutString(IdKey, _id.ToString());
@@ -150,6 +164,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         protected void OnCreate(Bundle bundle)
         {
+            if (bundle != null)
+                _state = bundle.GetBundle(nameof(State));
             if (_id == Guid.Empty)
                 _id = Guid.NewGuid();
             var oldId = bundle?.GetString(IdKey);
