@@ -74,7 +74,7 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         public TView View { get; private set; }
 
-        protected bool IsClosing => _closingTcs != null;
+        protected bool IsClosing => _cancelArgs != null;
 
         protected IViewManager ViewManager => _viewManager;
 
