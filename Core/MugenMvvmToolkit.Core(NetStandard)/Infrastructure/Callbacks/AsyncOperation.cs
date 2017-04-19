@@ -120,8 +120,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             return null;
         }
 
-        private T AddContinuation<T>(T asyncOperation)
-            where T : IAsyncOperationInternal
+        private IAsyncOperationInternal AddContinuation(IAsyncOperationInternal asyncOperation)
         {
             if (!IsCompleted)
             {
@@ -256,7 +255,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         public IAsyncOperation<T> ContinueWith<T>(IFunctionContinuation<T> continuationFunction)
         {
-            return AddContinuation(new AsyncOperationImpl<T, object>(continuationFunction, Context));
+            return (IAsyncOperation<T>)AddContinuation(new AsyncOperationImpl<T, object>(continuationFunction, Context));
         }
 
         public IAsyncOperation ContinueWith(IActionContinuation<TResult> continuationAction)
@@ -266,7 +265,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
 
         public IAsyncOperation<TNewResult> ContinueWith<TNewResult>(IFunctionContinuation<TResult, TNewResult> continuationFunction)
         {
-            return AddContinuation(new AsyncOperationImpl<TNewResult, TResult>(continuationFunction, Context));
+            return (IAsyncOperation<TNewResult>)AddContinuation(new AsyncOperationImpl<TNewResult, TResult>(continuationFunction, Context));
         }
 
         public virtual IOperationCallback ToOperationCallback()
