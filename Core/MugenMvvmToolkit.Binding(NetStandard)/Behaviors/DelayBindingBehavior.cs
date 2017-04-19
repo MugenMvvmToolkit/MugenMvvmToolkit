@@ -34,15 +34,15 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 #if NET_STANDARD
         private sealed class Timer
         {
-        #region Fields
+            #region Fields
 
             private readonly Action<object> _callback;
             private readonly object _state;
             private CancellationTokenSource _currentTokenSource;
 
-        #endregion
+            #endregion
 
-        #region Constructors
+            #region Constructors
 
             public Timer(Action<object> callback, object state, int dueTime, int period)
             {
@@ -51,9 +51,9 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 Change(dueTime, period);
             }
 
-        #endregion
+            #endregion
 
-        #region Methods
+            #region Methods
 
             public void Change(int dueTime, int period)
             {
@@ -66,7 +66,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                         _currentTokenSource.SafeCancel();
                         _currentTokenSource = null;
                     }
-                    if (dueTime == int.MaxValue)
+                    if (dueTime == Timeout.Infinite)
                         return;
                     _currentTokenSource = new CancellationTokenSource();
                     token = _currentTokenSource.Token;
@@ -91,7 +91,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 }
             }
 
-        #endregion
+            #endregion
         }
 #endif
 
@@ -166,7 +166,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 Binding.TargetAccessor.ValueChanging += OnValueChanging;
             else
                 Binding.SourceAccessor.ValueChanging += OnValueChanging;
-            _timer = new Timer(CallbackInternalDelegate, ServiceProvider.WeakReferenceFactory(this), int.MaxValue, int.MaxValue);
+            _timer = new Timer(CallbackInternalDelegate, ServiceProvider.WeakReferenceFactory(this), Timeout.Infinite, Timeout.Infinite);
             return true;
         }
 
@@ -193,7 +193,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             if (args.Cancel || _isUpdating)
                 return;
             args.Cancel = true;
-            _timer.Change(Delay, int.MaxValue);
+            _timer.Change(Delay, Timeout.Infinite);
             _context = SynchronizationContext.Current ?? ServiceProvider.UiSynchronizationContext;
         }
 
@@ -220,7 +220,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 if (!IsAttached)
                     return;
                 _isUpdating = true;
-                _timer.Change(int.MaxValue, int.MaxValue);
+                _timer.Change(Timeout.Infinite, Timeout.Infinite);
                 var binding = Binding;
                 if (binding != null)
                 {
