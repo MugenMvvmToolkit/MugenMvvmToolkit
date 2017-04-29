@@ -266,27 +266,6 @@ namespace MugenMvvmToolkit.iOS.Binding
             BindingBuilderExtensions.RegisterDefaultBindingMember<UIProgressView>(nameof(UIProgressView.Progress));
         }
 
-        public static void RegisterCollectionViewMembers()
-        {
-            BindingServiceProvider.ResourceResolver.AddType(typeof(UICollectionViewScrollPosition));
-            BindingServiceProvider.ResourceResolver.AddType(typeof(UICollectionViewScrollDirection));
-
-            BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UICollectionView.UseAnimations] = BindingServiceProvider.TemplateMemberPriority + 1;
-            BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UICollectionView.ScrollPosition] = BindingServiceProvider.TemplateMemberPriority + 1;
-
-            BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.UIView.ItemsSource.Override<UICollectionView>());
-            MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UICollectionView.UseAnimations));
-            MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UICollectionView.ScrollPosition));
-            MemberProvider.Register(AttachedBindingMember.CreateEvent(AttachedMembers.UICollectionView.SelectedItemChangedEvent));
-            MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UIView.ItemsSource.Override<UICollectionView>(), CollectionViewItemsSourceChanged));
-            MemberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.UICollectionView.SelectedItem,
-                GetCollectionViewSelectedItem, SetCollectionViewSelectedItem,
-                (info, view, arg3) => (IDisposable)view.SetBindingMemberValue(AttachedMembers.UICollectionView.SelectedItemChangedEvent, arg3)));
-            var itemTemplateMember = AttachedBindingMember.CreateAutoProperty(AttachedMembers.UICollectionView.ItemTemplateSelector, (view, args) => args.NewValue?.Initialize(view));
-            MemberProvider.Register(itemTemplateMember);
-            MemberProvider.Register(typeof(UICollectionView), AttachedMemberConstants.ItemTemplate, itemTemplateMember, true);
-        }
-
         public static void RegisterDialogElementMembers()
         {
             DefaultCollectionViewManager.InsertInternalHandler = (view, index, item) =>
@@ -464,6 +443,39 @@ namespace MugenMvvmToolkit.iOS.Binding
             MemberProvider.Register(AttachedBindingMember.CreateEvent(AttachedMembers.UITableViewCell.InsertClickEvent));
             MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITableViewCell.TitleForDeleteConfirmation));
             MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UITableViewCell.EditingStyle));
+            BindingServiceProvider.MemberProvider.Register(AttachedBindingMember.CreateMember<UITableViewCell, bool?>(nameof(UITableViewCell.Selected),
+                (info, target) => TableViewSourceBase.CellMediator.GetMediator(target, true).SelectedBind,
+                (info, cell, arg3) => TableViewSourceBase.CellMediator.GetMediator(cell, true).SelectedBind = arg3,
+                (info, cell, arg3) => TableViewSourceBase.CellMediator.GetMediator(cell, true).AddWithUnsubscriber(arg3)));
+        }
+
+        public static void RegisterCollectionViewMembers()
+        {
+            BindingServiceProvider.ResourceResolver.AddType(typeof(UICollectionViewScrollPosition));
+            BindingServiceProvider.ResourceResolver.AddType(typeof(UICollectionViewScrollDirection));
+
+            BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UICollectionView.UseAnimations] = BindingServiceProvider.TemplateMemberPriority + 1;
+            BindingServiceProvider.BindingMemberPriorities[AttachedMembers.UICollectionView.ScrollPosition] = BindingServiceProvider.TemplateMemberPriority + 1;
+
+            BindingBuilderExtensions.RegisterDefaultBindingMember(AttachedMembers.UIView.ItemsSource.Override<UICollectionView>());
+            MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UICollectionView.UseAnimations));
+            MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UICollectionView.ScrollPosition));
+            MemberProvider.Register(AttachedBindingMember.CreateEvent(AttachedMembers.UICollectionView.SelectedItemChangedEvent));
+            MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UIView.ItemsSource.Override<UICollectionView>(), CollectionViewItemsSourceChanged));
+            MemberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.UICollectionView.SelectedItem,
+                GetCollectionViewSelectedItem, SetCollectionViewSelectedItem,
+                (info, view, arg3) => (IDisposable)view.SetBindingMemberValue(AttachedMembers.UICollectionView.SelectedItemChangedEvent, arg3)));
+            var itemTemplateMember = AttachedBindingMember.CreateAutoProperty(AttachedMembers.UICollectionView.ItemTemplateSelector, (view, args) => args.NewValue?.Initialize(view));
+            MemberProvider.Register(itemTemplateMember);
+            MemberProvider.Register(typeof(UICollectionView), AttachedMemberConstants.ItemTemplate, itemTemplateMember, true);
+        }
+
+        public static void RegisterCollectionViewCellMembers()
+        {
+            BindingServiceProvider.MemberProvider.Register(AttachedBindingMember.CreateMember<UICollectionViewCell, bool?>(nameof(UICollectionViewCell.Selected),
+                (info, target) => CollectionViewSourceBase.CellMediator.GetMediator(target, true).SelectedBind,
+                (info, cell, arg3) => CollectionViewSourceBase.CellMediator.GetMediator(cell, true).SelectedBind = arg3,
+                (info, cell, arg3) => CollectionViewSourceBase.CellMediator.GetMediator(cell, true).AddWithUnsubscriber(arg3)));
         }
 
         private static void SetTableViewSelectedItem(IBindingMemberInfo bindingMemberInfo, UITableView uiTableView, object arg3)

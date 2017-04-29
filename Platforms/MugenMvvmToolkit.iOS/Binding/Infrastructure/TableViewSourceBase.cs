@@ -20,6 +20,7 @@ using System;
 using Foundation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.iOS.Binding.Interfaces;
 using MugenMvvmToolkit.iOS.Binding.Models;
 using MugenMvvmToolkit.iOS.Interfaces.Views;
@@ -29,6 +30,105 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 {
     public abstract class TableViewSourceBase : UITableViewSource
     {
+        #region Nested types
+
+        public class CellMediator : EventListenerList
+        {
+            #region Fields
+
+            private UITableViewCell _cell;
+            private NSIndexPath _path;
+            private bool? _selectedBind;
+            private UITableView _tableView;
+
+            #endregion
+
+            #region Properties
+
+            public bool? SelectedBind
+            {
+                get { return _selectedBind; }
+                set
+                {
+                    if (value == _selectedBind)
+                        return;
+                    _selectedBind = value;
+                    if (_cell != null && value != null)
+                        SetSelected(value.Value);
+                }
+            }
+
+            #endregion
+
+            #region Methods
+
+            private void OnAttach()
+            {
+                if (SelectedBind == null)
+                    Raise(_cell, EventArgs.Empty);
+                else
+                    SetSelected(SelectedBind.Value);
+            }
+
+            private void SetSelected(bool value)
+            {
+                _cell.Selected = value;
+                if (value)
+                    _tableView.SelectRow(_path, false, UITableViewScrollPosition.None);
+                else
+                    _tableView.DeselectRow(_path, false);
+                Raise(_cell, EventArgs.Empty);
+            }
+
+            public static void SetFromCell(UITableView tableView, NSIndexPath path, bool value)
+            {
+                var cell = tableView.CellAt(path);
+                if (cell == null)
+                    return;
+                var mediator = GetMediator(cell, false);
+                if (mediator != null && mediator._selectedBind != value)
+                {
+                    mediator._selectedBind = value;
+                    if (mediator._cell != null)
+                        mediator.Raise(mediator._cell, EventArgs.Empty);
+                }
+            }
+
+            public static void Attach(UITableView tableView, UITableViewCell cell, NSIndexPath path)
+            {
+                var mediator = GetMediator(cell, false);
+                if (mediator != null)
+                {
+                    mediator._tableView = tableView;
+                    mediator._cell = cell;
+                    mediator._path = path;
+                    mediator.OnAttach();
+                }
+            }
+
+            public static void Deattach(UITableViewCell cell)
+            {
+                var mediator = GetMediator(cell, false);
+                if (mediator != null)
+                {
+                    mediator._tableView = null;
+                    mediator._cell = null;
+                    mediator._path = null;
+                }
+            }
+
+            public static CellMediator GetMediator(UITableViewCell cell, bool add)
+            {
+                if (add)
+                    return ServiceProvider.AttachedValueProvider.GetOrAdd(cell, nameof(CellMediator), (viewCell, o) => new CellMediator(), null);
+                return ServiceProvider.AttachedValueProvider.GetValue<CellMediator>(cell, nameof(CellMediator), false);
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Fields
 
         protected const int InitializedStateMask = 1;
@@ -220,6 +320,16 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             return cell;
         }
 
+        public override void WillDisplay(UITableView tableView, UITableViewCell cell, NSIndexPath indexPath)
+        {
+            CellMediator.Attach(tableView, cell, indexPath);
+        }
+
+        public override void CellDisplayingEnded(UITableView tableView, UITableViewCell cell, NSIndexPath indexPath)
+        {
+            CellMediator.Deattach(cell);
+        }
+
         public override UITableViewCellEditingStyle EditingStyleForRow(UITableView tableView, NSIndexPath indexPath)
         {
             UITableViewCellEditingStyle? value;
@@ -234,13 +344,14 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         public override void RowSelected(UITableView tableView, NSIndexPath indexPath)
         {
-            var item = GetItemAt(indexPath);
-            UpdateSelectedItemInternal(tableView, item, true);
+            UpdateSelectedItemInternal(tableView, GetItemAt(indexPath), true);
+            CellMediator.SetFromCell(tableView, indexPath, true);
         }
 
         public override void RowDeselected(UITableView tableView, NSIndexPath indexPath)
         {
             UpdateSelectedItemInternal(tableView, GetItemAt(indexPath), false);
+            CellMediator.SetFromCell(tableView, indexPath, false);
         }
 
         protected override void Dispose(bool disposing)

@@ -73,6 +73,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Modules
             AttachedMembersRegistration.RegisterSliderMembers();
             AttachedMembersRegistration.RegisterProgressViewMembers();
             AttachedMembersRegistration.RegisterCollectionViewMembers();
+            AttachedMembersRegistration.RegisterCollectionViewCellMembers();
             AttachedMembersRegistration.RegisterDialogElementMembers();
             AttachedMembersRegistration.RegisterDialogEntryElementMembers();
             AttachedMembersRegistration.RegisterStringElementMembers();
