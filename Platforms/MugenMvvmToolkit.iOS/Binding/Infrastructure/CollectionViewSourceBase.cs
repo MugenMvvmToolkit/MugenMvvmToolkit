@@ -20,6 +20,7 @@ using System;
 using Foundation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.iOS.Binding.Interfaces;
 using MugenMvvmToolkit.iOS.Binding.Models;
 using MugenMvvmToolkit.iOS.Interfaces.Views;
@@ -29,6 +30,105 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 {
     public abstract class CollectionViewSourceBase : UICollectionViewSource
     {
+        #region Nested types
+
+        public class CellMediator : EventListenerList
+        {
+            #region Fields
+
+            private UICollectionViewCell _cell;
+            private NSIndexPath _path;
+            private bool? _selectedBind;
+            private UICollectionView _collectionView;
+
+            #endregion
+
+            #region Properties
+
+            public bool? SelectedBind
+            {
+                get { return _selectedBind; }
+                set
+                {
+                    if (value == _selectedBind)
+                        return;
+                    _selectedBind = value;
+                    if (_cell != null && value != null)
+                        SetSelected(value.Value);
+                }
+            }
+
+            #endregion
+
+            #region Methods
+
+            private void OnAttach()
+            {
+                if (SelectedBind == null)
+                    Raise(_cell, EventArgs.Empty);
+                else
+                    SetSelected(SelectedBind.Value);
+            }
+
+            private void SetSelected(bool value)
+            {
+                _cell.Selected = value;
+                if (value)
+                    _collectionView.SelectItem(_path, false, UICollectionViewScrollPosition.None);
+                else
+                    _collectionView.DeselectItem(_path, false);
+                Raise(_cell, EventArgs.Empty);
+            }
+
+            public static void SetFromCell(UICollectionView collectionView, NSIndexPath path, bool value)
+            {
+                var cell = collectionView.CellForItem(path);
+                if (cell == null)
+                    return;
+                var mediator = GetMediator(cell, false);
+                if (mediator != null && mediator._selectedBind != value)
+                {
+                    mediator._selectedBind = value;
+                    if (mediator._cell != null)
+                        mediator.Raise(mediator._cell, EventArgs.Empty);
+                }
+            }
+
+            public static void Attach(UICollectionView collectionView, UICollectionViewCell cell, NSIndexPath path)
+            {
+                var mediator = GetMediator(cell, false);
+                if (mediator != null)
+                {
+                    mediator._collectionView = collectionView;
+                    mediator._cell = cell;
+                    mediator._path = path;
+                    mediator.OnAttach();
+                }
+            }
+
+            public static void Deattach(UICollectionViewCell cell)
+            {
+                var mediator = GetMediator(cell, false);
+                if (mediator != null)
+                {
+                    mediator._collectionView = null;
+                    mediator._cell = null;
+                    mediator._path = null;
+                }
+            }
+
+            public static CellMediator GetMediator(UICollectionViewCell cell, bool add)
+            {
+                if (add)
+                    return ServiceProvider.AttachedValueProvider.GetOrAdd(cell, nameof(CellMediator), (viewCell, o) => new CellMediator(), null);
+                return ServiceProvider.AttachedValueProvider.GetValue<CellMediator>(cell, nameof(CellMediator), false);
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Fields
 
         protected const int InitializedStateMask = 1;
@@ -125,7 +225,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             SetSelectedItem(collectionView, null, false);
         }
 
-        internal static bool HasMask(UICollectionViewCell cell, int mask)
+        private static bool HasMask(UICollectionViewCell cell, int mask)
         {
             return (cell.Tag & mask) == mask;
         }
@@ -176,17 +276,25 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
                 selector.InitializeTemplate(collectionView, cell);
                 InitializeCell(cell);
             }
+            CellMediator.Attach(collectionView, cell, indexPath);
             return cell;
+        }
+
+        public override void CellDisplayingEnded(UICollectionView collectionView, UICollectionViewCell cell, NSIndexPath indexPath)
+        {
+            CellMediator.Deattach(cell);
         }
 
         public override void ItemDeselected(UICollectionView collectionView, NSIndexPath indexPath)
         {
             UpdateSelectedItemInternal(collectionView, GetItemAt(indexPath), false);
+            CellMediator.SetFromCell(collectionView, indexPath, false);
         }
 
         public override void ItemSelected(UICollectionView collectionView, NSIndexPath indexPath)
         {
             UpdateSelectedItemInternal(collectionView, GetItemAt(indexPath), true);
+            CellMediator.SetFromCell(collectionView, indexPath, true);
         }
 
         public override nint NumberOfSections(UICollectionView collectionView)
