@@ -23,13 +23,12 @@ using JetBrains.Annotations;
 
 namespace MugenMvvmToolkit.Android
 {
-    [Preserve(AllMembers = true)]
     internal static class LinkerInclude
     {
-        [Preserve(AllMembers = true)]
-        private abstract class LinkerIncludeAdapter : AdapterView
+        public abstract class LinkerIncludeAdapter : AdapterView
         {
-            private LinkerIncludeAdapter(Context context)
+            [Preserve(Conditional = true)]
+            public LinkerIncludeAdapter(Context context)
                 : base(context)
             {
                 RawAdapter = RawAdapter;
@@ -37,9 +36,10 @@ namespace MugenMvvmToolkit.Android
         }
 
         [UsedImplicitly]
-        private static void IncludeAdapterView<T>(AdapterView<T> adapter) where T : IAdapter
+        public static void IncludeAdapterView<T>(AdapterView<T> adapterView, LinkerIncludeAdapter rawAdapterView) where T : IAdapter
         {
-            adapter.Adapter = adapter.Adapter;
+            if (adapterView != null)
+                adapterView.Adapter = adapterView.Adapter;
         }
     }
 }

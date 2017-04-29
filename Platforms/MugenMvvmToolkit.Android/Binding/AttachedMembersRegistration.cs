@@ -520,6 +520,7 @@ namespace MugenMvvmToolkit.Android.Binding
 
         public static void RegisterAdapterViewMembers()
         {
+            LinkerInclude.IncludeAdapterView<IAdapter>(null, null);
             MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.AdapterView.SelectedItem, AdapterViewSelectedItemChanged, AdapterViewSelectedItemMemberAttached));
             var selectedItemPosMember = AttachedBindingMember.CreateAutoProperty(AttachedMembers.AdapterView.SelectedItemPosition, AdapterViewSelectedItemPositionChanged,
                 AdapterViewSelectedItemPositionMemberAttached, (view, info) => view.SelectedItemPosition);
