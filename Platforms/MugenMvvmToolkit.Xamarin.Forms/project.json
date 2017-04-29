@@ -3,7 +3,7 @@
   "dependencies": {
     "NETStandard.Library": "1.6.1",
     "System.Dynamic.Runtime": "4.3.0",
-    "Xamarin.Forms": "2.3.3.193"
+    "Xamarin.Forms": "2.3.4.231"
   },
   "frameworks": {
     "netstandard1.0": {

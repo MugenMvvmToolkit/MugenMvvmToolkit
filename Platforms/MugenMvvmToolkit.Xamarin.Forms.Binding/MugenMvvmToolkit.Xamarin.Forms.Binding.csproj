@@ -45,9 +45,6 @@
     <Compile Include="..\..\Core\MugenMvvmToolkit.Core%28NetStandard%29\Properties\AssemblyInfoCommon.cs">
       <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
-    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\converters\ViewModelToViewConverter.cs">
-      <Link>Converters\ViewModelToViewConverter.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF.Binding%284.5%29\AttachedMembers.cs">
       <Link>AttachedMembers.cs</Link>
     </Compile>
