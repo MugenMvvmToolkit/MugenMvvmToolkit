@@ -114,10 +114,9 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
         public bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
             Should.NotBeNull(source, nameof(source));
+            Should.NotBeNull(dataContext, nameof(dataContext));
             if (_rootPage == null)
                 return false;
-            if (dataContext == null)
-                dataContext = DataContext.Empty;
             bool bringToFront;
             dataContext.TryGetData(NavigationProvider.BringToFront, out bringToFront);
             if (!RaiseNavigating(new NavigatingCancelEventArgs(source, bringToFront ? NavigationMode.Refresh : NavigationMode.New, parameter, true, false, dataContext)))
@@ -168,12 +167,13 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             if (viewModel == null)
                 return false;
 
+            var navigationStack = _rootPage.Navigation?.NavigationStack;
+            if (navigationStack == null || navigationStack.Count <= 1)
+                return false;
+
             if (CurrentContent?.BindingContext == viewModel)
                 return true;
 
-            var navigationStack = _rootPage.Navigation?.NavigationStack;
-            if (navigationStack == null)
-                return false;
             for (var index = 0; index < navigationStack.Count; index++)
             {
                 if (navigationStack[index].BindingContext == viewModel)
@@ -260,22 +260,12 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
         private bool GoBack(IDataContext context)
         {
             var navigationStack = _rootPage?.Navigation?.NavigationStack;
-            if (navigationStack == null || navigationStack.Count == 0)
+            if (navigationStack == null || navigationStack.Count <= 1)
                 return false;
-
             if (RaiseNavigating(new NavigatingCancelEventArgs(null, NavigationMode.Back, null, true, false, context)))
             {
-                if (navigationStack.Count == 1)
-                {
-                    var page = navigationStack[0];
-                    _rootPage.Navigation.RemovePage(page);
-                    RaiseNavigated(null, null, NavigationMode.Back, context);
-                }
-                else
-                {
-                    SetBackNavigationContext(context);
-                    _rootPage.PopAsync(IsAnimated(context, CurrentContent?.BindingContext as IViewModel));
-                }
+                SetBackNavigationContext(context);
+                _rootPage.PopAsync(IsAnimated(context, CurrentContent?.BindingContext as IViewModel));
             }
             return true;
         }
