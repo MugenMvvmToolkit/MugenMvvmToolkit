@@ -76,6 +76,23 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             ApplicationSettings.MultiViewModelPresenterCanShowViewModel = CanShowViewModelTabPresenter;
             ApplicationSettings.NavigationPresenterCanShowViewModel = CanShowViewModelNavigationPresenter;
             ApplicationSettings.ViewManagerClearDataContext = true;
+            var getContext = ToolkitExtensions.GetDataContext;
+            ToolkitExtensions.GetDataContext = o =>
+            {
+                var bindableObject = o as BindableObject;
+                if (bindableObject == null)
+                    return getContext.Invoke(o);
+                return bindableObject.BindingContext;
+            };
+            var setContext = ToolkitExtensions.SetDataContext;
+            ToolkitExtensions.SetDataContext = (item, value) =>
+            {
+                var bindableObject = item as BindableObject;
+                if (bindableObject == null)
+                    setContext(item, value);
+                else
+                    bindableObject.BindingContext = value;
+            };
         }
 
         protected XamarinFormsBootstrapperBase(bool isDesignMode, PlatformInfo platform) : base(isDesignMode)

@@ -68,13 +68,15 @@ namespace MugenMvvmToolkit.Xamarin.Forms
         protected override void OnResume()
         {
             base.OnResume();
-            ServiceProvider.EventAggregator.Publish(this, new ForegroundNavigationMessage());
+            if (ServiceProvider.IsInitialized && ServiceProvider.Application.PlatformInfo.Platform != PlatformType.XamarinFormsUWP)
+                ServiceProvider.EventAggregator.Publish(this, new ForegroundNavigationMessage());
         }
 
         protected override void OnSleep()
         {
             base.OnSleep();
-            ServiceProvider.EventAggregator.Publish(this, new BackgroundNavigationMessage());
+            if (ServiceProvider.IsInitialized && ServiceProvider.Application.PlatformInfo.Platform != PlatformType.XamarinFormsUWP)
+                ServiceProvider.EventAggregator.Publish(this, new BackgroundNavigationMessage());
             if (ShouldSaveApplicationState())
                 SaveState();
         }
