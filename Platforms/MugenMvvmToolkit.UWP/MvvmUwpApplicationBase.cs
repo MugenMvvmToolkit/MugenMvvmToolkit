@@ -31,6 +31,12 @@ namespace MugenMvvmToolkit.UWP
 {
     public abstract class MvvmUwpApplicationBase : Application
     {
+        #region Fields
+
+        private static bool _isStarted;
+
+        #endregion
+
         #region Constructors
 
         /// <summary>
@@ -116,8 +122,10 @@ namespace MugenMvvmToolkit.UWP
 
         protected virtual void OnLeavingBackground(object sender, LeavingBackgroundEventArgs leavingBackgroundEventArgs)
         {
-            if (ServiceProvider.IsInitialized)
+            if (_isStarted && ServiceProvider.IsInitialized)
                 ServiceProvider.EventAggregator.Publish(this, new ForegroundNavigationMessage());
+            else
+                _isStarted = true;
         }
 
         protected virtual void OnEnteredBackground(object sender, EnteredBackgroundEventArgs enteredBackgroundEventArgs)
