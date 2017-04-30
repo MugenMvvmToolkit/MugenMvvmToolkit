@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Linq;
 using Foundation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
@@ -31,6 +32,7 @@ using MugenMvvmToolkit.iOS.Infrastructure.Navigation;
 using MugenMvvmToolkit.iOS.Interfaces.Navigation;
 using MugenMvvmToolkit.iOS.Interfaces.Views;
 using MugenMvvmToolkit.iOS.Views;
+using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
 using UIKit;
 
@@ -81,6 +83,20 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
             return new NavigationProvider(service, ThreadManager, _viewMappingProvider, ViewManager, _viewModelProvider, NavigationDispatcher, EventAggregator);
         }
 
+        protected virtual UIViewController GetCurrentViewController()
+        {
+            var viewModel = NavigationDispatcher.GetTopViewModel(NavigationType.Window) ?? NavigationDispatcher.GetTopViewModel(NavigationType.Page);
+            var controller = viewModel.GetCurrentView<object>() as UIViewController;
+            if (controller == null)
+                return (UIViewController)ViewModel
+                    .GetIocContainer(true)
+                    .Get<INavigationService>()
+                    .CurrentContent;
+            var weakThis = ServiceProvider.WeakReferenceFactory(this);
+            viewModel.AddClosedHandler((sender, args) => ((ModalViewMediator)weakThis.Target)?.OnViewClosed(sender, args));
+            return controller;
+        }
+
         private void BindProvider(UINavigationController controller)
         {
             var navigationService = new NavigationService(controller);
@@ -99,10 +115,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
 
         protected override void ShowView(IModalView view, bool isDialog, IDataContext context)
         {
-            var parentController = (UIViewController)ViewModel
-                .GetIocContainer(true)
-                .Get<INavigationService>()
-                .CurrentContent;
+            var parentController = GetCurrentViewController();
             var toShow = view.GetUnderlyingView<UIViewController>();
             bool animated;
             if (context.TryGetData(NavigationConstants.UseAnimations, out animated))
