@@ -136,6 +136,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
                 TryLoadAssemblyByType("PlatformBootstrapperService", "MugenMvvmToolkit.Xamarin.Forms.WinRT", assemblies);
                 TryLoadAssemblyByType("MugenMvvmToolkit.Xamarin.Forms.WinRT.PlatformBootstrapperService, MugenMvvmToolkit.Xamarin.Forms.WinRT.Phone", assemblies);
             }
+            if (Application.Current != null)
+                assemblies.Add(Application.Current.GetType().GetAssembly());
             if (_platformService != null)
             {
                 assemblies.Add(_platformService.GetType().GetAssembly());

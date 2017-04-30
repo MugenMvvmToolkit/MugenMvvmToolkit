@@ -114,6 +114,9 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             base.UpdateAssemblies(assemblies);
             if (_assemblies != null)
                 assemblies.AddRange(_assemblies);
+            assemblies.Add(typeof(T).GetAssembly());
+            if (_application != null)
+                assemblies.Add(_application.GetType().GetAssembly());
         }
 
         protected override IMvvmApplication CreateApplication()
