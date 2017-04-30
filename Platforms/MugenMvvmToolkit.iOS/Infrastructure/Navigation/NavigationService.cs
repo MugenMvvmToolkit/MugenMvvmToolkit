@@ -112,8 +112,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
         public bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
             Should.NotBeNull(source, nameof(source));
-            if (dataContext == null)
-                dataContext = DataContext.Empty;
+            Should.NotBeNull(dataContext, nameof(dataContext));
             bool bringToFront;
             dataContext.TryGetData(NavigationProvider.BringToFront, out bringToFront);
             if (!RaiseNavigating(new NavigatingCancelEventArgs(source, bringToFront ? NavigationMode.Refresh : NavigationMode.New, parameter, dataContext)))

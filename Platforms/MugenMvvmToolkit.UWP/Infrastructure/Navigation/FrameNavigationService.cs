@@ -77,13 +77,11 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         public bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
             Should.NotBeNull(source, nameof(source));
-            dataContext = dataContext.ToNonReadOnly();
+            Should.NotBeNull(dataContext, nameof(dataContext));
             dataContext.TryGetData(NavigationProvider.BringToFront, out _bringToFront);
             var result = Navigate(source.ViewType, parameter, dataContext);
             if (result)
-            {
                 ClearNavigationStackIfNeed(dataContext);
-            }
             return result;
         }
 
