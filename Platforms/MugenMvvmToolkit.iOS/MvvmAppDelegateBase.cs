@@ -30,9 +30,10 @@ namespace MugenMvvmToolkit.iOS
 
         protected const string AppVersionKey = nameof(AppVersionKey);
         protected const string RootViewControllerKey = nameof(RootViewControllerKey);
-        
+
         private TouchBootstrapperBase _bootstrapper;
         private bool _isRestored;
+        private bool _isStarted;
         private static string _version;
 
         #endregion
@@ -81,6 +82,14 @@ namespace MugenMvvmToolkit.iOS
             ServiceProvider.EventAggregator.Publish(this, new BackgroundNavigationMessage());
         }
 
+        public override void OnActivated(UIApplication application)
+        {
+            if (_isStarted)
+                ServiceProvider.EventAggregator.Publish(this, new ForegroundNavigationMessage());
+            else
+                _isStarted = true;
+        }
+
         public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
         {
             InitializeIfNeed();
@@ -97,11 +106,6 @@ namespace MugenMvvmToolkit.iOS
         {
             InitializeIfNeed();
             return TouchToolkitExtensions.ApplicationStateManager.GetViewController(restorationIdentifierComponents, coder);
-        }
-
-        public override void OnActivated(UIApplication application)
-        {
-            ServiceProvider.EventAggregator.Publish(this, new ForegroundNavigationMessage());
         }
 
         public override bool ShouldRestoreApplicationState(UIApplication application, NSCoder coder)

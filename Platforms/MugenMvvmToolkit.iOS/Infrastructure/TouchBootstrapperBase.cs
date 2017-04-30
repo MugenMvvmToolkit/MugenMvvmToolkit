@@ -16,7 +16,9 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -49,7 +51,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
         private readonly PlatformInfo _platform;
         private bool _isStarted;
         private bool _hasRootPage;
-        private bool _skipForeground;
 
         #endregion
 
@@ -76,7 +77,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
             Should.NotBeNull(window, nameof(window));
             _window = window;
             WrapToNavigationController = true;
-            _skipForeground = true;
         }
 
         #endregion
@@ -169,7 +169,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
 
         void IHandler<BackgroundNavigationMessage>.Handle(object sender, BackgroundNavigationMessage message)
         {
-            _skipForeground = false;
             var viewModel = _window.RootViewController?.DataContext() as IViewModel;
             if (viewModel != null && viewModel.Settings.State.Contains(IsRootConstant))
                 IocContainer.Get<INavigationDispatcher>().OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Background, viewModel, null, this, message.Context));
@@ -177,11 +176,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
 
         void IHandler<ForegroundNavigationMessage>.Handle(object sender, ForegroundNavigationMessage message)
         {
-            if (_skipForeground)
-            {
-                _skipForeground = false;
-                return;
-            }
             var viewModel = _window.RootViewController?.DataContext() as IViewModel;
             if (viewModel != null && viewModel.Settings.State.Contains(IsRootConstant))
                 IocContainer.Get<INavigationDispatcher>().OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Foreground, null, viewModel, this, message.Context));
@@ -225,8 +219,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
         protected override void UpdateAssemblies(HashSet<Assembly> assemblies)
         {
             base.UpdateAssemblies(assemblies);
-            assemblies.Add(typeof(BindingServiceProvider).Assembly);
-            assemblies.Add(typeof(TouchBootstrapperBase).Assembly);
+            assemblies.AddRange(AppDomain.CurrentDomain.GetAssemblies().Where(x => !x.IsDynamic));
         }
 
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)
