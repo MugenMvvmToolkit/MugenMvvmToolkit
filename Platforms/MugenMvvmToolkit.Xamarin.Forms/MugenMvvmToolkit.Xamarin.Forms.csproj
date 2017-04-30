@@ -61,6 +61,9 @@
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Infrastructure\ThreadManager.cs">
       <Link>Infrastructure\ThreadManager.cs</Link>
     </Compile>
+    <Compile Include="..\mugenmvvmtoolkit.wpf%284.5%29\converters\ViewModelToViewConverter.cs">
+      <Link>Converters\ViewModelToViewConverter.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\AttachedValueProvider.cs">
       <Link>Infrastructure\AttachedValueProvider.cs</Link>
     </Compile>

@@ -58,7 +58,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Converters
 #elif XAMARIN_FORMS
 using MugenMvvmToolkit.Interfaces.Models;
 using Xamarin.Forms;
-using IValueConverter = MugenMvvmToolkit.Binding.Interfaces.IBindingValueConverter;
+using IValueConverter = Xamarin.Forms.IValueConverter;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Converters
 #elif WPF
@@ -109,7 +109,7 @@ namespace MugenMvvmToolkit.WPF.Binding.Converters
 
 #if WINDOWS_UWP
         public object Convert(object value, Type targetType = null, object parameter = null, string language = null)
-#elif ANDROID || WINFORMS || TOUCH || XAMARIN_FORMS
+#elif ANDROID || WINFORMS || TOUCH
         public object Convert(object value, Type targetType = null, object parameter = null, CultureInfo culture = null, IDataContext context = null)
 #else
         public object Convert(object value, Type targetType = null, object parameter = null, CultureInfo culture = null)
@@ -137,7 +137,7 @@ namespace MugenMvvmToolkit.WPF.Binding.Converters
 #elif TOUCH
                 return new UITextView(new RectangleF(10, 10, 300, 30)) { TextColor = UIColor.Red, Editable = false, DataDetectorTypes = UIDataDetectorType.None, Text = exception.Flatten(true) };
 #elif XAMARIN_FORMS
-                return new Label{TextColor = Color.Red, Text = exception.Flatten(true) };
+                return new Label { TextColor = Color.Red, Text = exception.Flatten(true) };
 #else
                 return new TextBox
                 {
@@ -158,7 +158,7 @@ namespace MugenMvvmToolkit.WPF.Binding.Converters
 
 #if WINDOWS_UWP
         public object ConvertBack(object value, Type targetType = null, object parameter = null, string language = null)
-#elif ANDROID || WINFORMS || TOUCH || XAMARIN_FORMS
+#elif ANDROID || WINFORMS || TOUCH
         public object ConvertBack(object value, Type targetType = null, object parameter = null, CultureInfo culture = null, IDataContext context = null)
 #else
         public object ConvertBack(object value, Type targetType = null, object parameter = null, CultureInfo culture = null)
