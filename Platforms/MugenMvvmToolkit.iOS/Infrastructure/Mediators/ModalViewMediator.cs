@@ -85,15 +85,24 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
 
         protected virtual UIViewController GetCurrentViewController()
         {
-            var viewModel = NavigationDispatcher.GetTopViewModel(NavigationType.Window) ?? NavigationDispatcher.GetTopViewModel(NavigationType.Page);
+            bool isWindow = true;
+            var viewModel = NavigationDispatcher.GetTopViewModel(NavigationType.Window);
+            if (viewModel == null)
+            {
+                isWindow = false;
+                viewModel = NavigationDispatcher.GetTopViewModel(NavigationType.Page);
+            }
             var controller = viewModel.GetCurrentView<object>() as UIViewController;
             if (controller == null)
                 return (UIViewController)ViewModel
                     .GetIocContainer(true)
                     .Get<INavigationService>()
                     .CurrentContent;
-            var weakThis = ServiceProvider.WeakReferenceFactory(this);
-            viewModel.AddClosedHandler((sender, args) => ((ModalViewMediator)weakThis.Target)?.OnViewClosed(sender, args));
+            if (isWindow)
+            {
+                var weakThis = ServiceProvider.WeakReferenceFactory(this);
+                viewModel.AddClosedHandler((sender, args) => ((ModalViewMediator)weakThis.Target)?.OnViewClosed(sender, args));
+            }
             return controller;
         }
 

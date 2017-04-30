@@ -348,7 +348,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
                 return;
 
             var viewControllerView = currentController as IViewControllerView;
-            if (viewControllerView == null)
+            if (viewControllerView == null || viewControllerView.Mediator.IsDisappeared)
                 RaiseNavigated(prevController, NavigationMode.Back, prevController.GetNavigationParameter(), currentController.GetNavigationContext(true, true));
             else
             {
