@@ -385,7 +385,9 @@ namespace MugenMvvmToolkit.ViewModels
             context.TryGetData(InitializationConstants.IsRestored, out restored);
             if (restored)
                 Interlocked.CompareExchange(ref _state, RestoredState, InitializedState);
-            IocContainer = context.GetData(InitializationConstants.IocContainer);
+            var container = context.GetData(InitializationConstants.IocContainer);
+            if (container != null)
+                IocContainer = container;
 
             OnInitializing(context);
             OnInitializedInternal();
