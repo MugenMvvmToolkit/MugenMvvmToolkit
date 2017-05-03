@@ -17,7 +17,6 @@
 #endregion
 
 using System;
-using System.Linq;
 using Foundation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;

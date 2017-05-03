@@ -28,7 +28,6 @@ using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Syntax;
 using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Binding.Parse.Nodes;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;

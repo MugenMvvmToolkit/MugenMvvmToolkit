@@ -19,9 +19,7 @@
 using System;
 using Android.Runtime;
 using Android.Views;
-using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Android.Binding.Models;
-using MugenMvvmToolkit.Binding;
 using Object = Java.Lang.Object;
 
 namespace MugenMvvmToolkit.Android.Infrastructure

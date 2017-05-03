@@ -35,7 +35,6 @@ using System.Windows.Media;
 using System.Windows.Threading;
 #endif
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Attributes;

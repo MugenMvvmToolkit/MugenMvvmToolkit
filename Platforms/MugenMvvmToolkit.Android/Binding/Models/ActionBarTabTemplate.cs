@@ -32,8 +32,6 @@ using ActionBar = Android.Support.V7.App.ActionBar;
 
 namespace MugenMvvmToolkit.Android.AppCompat.Models
 #else
-using MugenMvvmToolkit.Android.Binding.Modules;
-using MugenMvvmToolkit.Android.Views;
 
 namespace MugenMvvmToolkit.Android.Binding.Models
 #endif

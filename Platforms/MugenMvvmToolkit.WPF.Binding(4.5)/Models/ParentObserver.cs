@@ -27,7 +27,6 @@ using System;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
-using MugenMvvmToolkit.Binding.Interfaces.Models;
 
 #if WPF
 namespace MugenMvvmToolkit.WPF.Binding.Models

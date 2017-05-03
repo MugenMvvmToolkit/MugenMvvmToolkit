@@ -17,7 +17,6 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 #if WINDOWS_UWP
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;

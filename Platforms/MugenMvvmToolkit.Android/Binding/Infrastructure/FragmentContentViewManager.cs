@@ -19,10 +19,10 @@
 using Android.OS;
 using Android.Views;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Android.Binding.Interfaces;
 using MugenMvvmToolkit.Binding;
 #if APPCOMPAT
+using MugenMvvmToolkit.Android.Binding;
 using FragmentManager = Android.Support.V4.App.FragmentManager;
 using Fragment = Android.Support.V4.App.Fragment;
 using FragmentTransaction = Android.Support.V4.App.FragmentTransaction;

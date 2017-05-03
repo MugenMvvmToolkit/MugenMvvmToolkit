@@ -19,7 +19,6 @@
 using System;
 using System.Threading.Tasks;
 using Android.App;
-using Android.Content;
 using Android.OS;
 using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Interfaces;
@@ -30,10 +29,12 @@ using MugenMvvmToolkit.Models;
 #if XAMARIN_FORMS && ANDROID
 namespace MugenMvvmToolkit.Xamarin.Forms.Android.Infrastructure.Presenters
 #elif APPCOMPAT
+using Android.Content;
 using MugenMvvmToolkit.Android.Interfaces.Views;
 using AlertDialog = Android.Support.V7.App.AlertDialog;
 namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure.Presenters
 #elif ANDROID
+using Android.Content;
 using MugenMvvmToolkit.Android.Interfaces.Views;
 
 namespace MugenMvvmToolkit.Android.Infrastructure.Presenters

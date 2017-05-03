@@ -23,19 +23,18 @@ using System.Windows;
 using System.Windows.Data;
 #endif
 using System;
-using System.Reflection;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Models;
 
 #if WINDOWS_UWP
+using MugenMvvmToolkit.Infrastructure;
 
 namespace MugenMvvmToolkit.UWP.Binding.Models
 #elif WPF
+using MugenMvvmToolkit.Models;
 using BindingEx = System.Windows.Data.Binding;
 
 namespace MugenMvvmToolkit.WPF.Binding.Models

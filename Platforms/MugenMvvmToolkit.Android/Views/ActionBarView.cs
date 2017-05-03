@@ -33,7 +33,6 @@ using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Models;
 #if APPCOMPAT
 using MugenMvvmToolkit.Android.AppCompat.Models;
-using ActionBar = Android.Support.V7.App.ActionBar;
 
 namespace MugenMvvmToolkit.Android.AppCompat.Views
 #else

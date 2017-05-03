@@ -25,7 +25,6 @@ using MugenMvvmToolkit.Interfaces.Presenters;
 namespace MugenMvvmToolkit.Android.AppCompat.Modules
 #else
 using MugenMvvmToolkit.Android.Infrastructure.Mediators;
-using MugenMvvmToolkit.Android.Infrastructure.Presenters;
 using MugenMvvmToolkit.Android.Interfaces.Views;
 
 namespace MugenMvvmToolkit.Android.Modules

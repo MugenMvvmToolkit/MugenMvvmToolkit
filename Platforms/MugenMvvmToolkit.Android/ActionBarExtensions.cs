@@ -22,7 +22,6 @@ using JetBrains.Annotations;
 
 #if APPCOMPAT
 using Android.Support.V4.Widget;
-using MugenMvvmToolkit.Android.AppCompat.Modules;
 using Fragment = Android.Support.V4.App.Fragment;
 using FragmentTransaction = Android.Support.V4.App.FragmentTransaction;
 

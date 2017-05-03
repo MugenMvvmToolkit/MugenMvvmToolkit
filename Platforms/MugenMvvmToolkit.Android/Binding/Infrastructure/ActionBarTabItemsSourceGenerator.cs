@@ -18,13 +18,12 @@
 
 using System.Collections;
 using Android.Widget;
-using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Android.Binding.Interfaces;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 #if APPCOMPAT
+using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Android.AppCompat.Models;
-using MugenMvvmToolkit.Android.AppCompat.Views;
 using MugenMvvmToolkit.Android.Binding.Infrastructure;
 using ActionBar = Android.Support.V7.App.ActionBar;
 
@@ -32,7 +31,6 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
 #else
 using Android.App;
 using MugenMvvmToolkit.Android.Binding.Models;
-using MugenMvvmToolkit.Android.Views;
 
 namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 #endif

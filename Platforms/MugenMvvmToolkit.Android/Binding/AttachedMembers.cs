@@ -19,18 +19,14 @@
 using System;
 using System.Collections;
 using Android.App;
-using Android.Content;
 using Java.Lang;
 using MugenMvvmToolkit.Android.Binding.Infrastructure;
 using MugenMvvmToolkit.Android.Binding.Interfaces;
-using MugenMvvmToolkit.Android.Interfaces;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
-using MugenMvvmToolkit.Interfaces.Models;
 #if APPCOMPAT
-using Java.Lang;
 using MugenMvvmToolkit.Android.Binding;
 using ActionBarEx = Android.Support.V7.App.ActionBar;
 using TolbarEx = Android.Support.V7.Widget.Toolbar;
@@ -39,8 +35,11 @@ namespace MugenMvvmToolkit.Android.AppCompat
 {
     public static class AttachedMembersCompat
 #else
+using Android.Content;
 using Android.Views;
 using System.Collections.Generic;
+using MugenMvvmToolkit.Android.Interfaces;
+using MugenMvvmToolkit.Interfaces.Models;
 using ActionBarEx = Android.App.ActionBar;
 using TolbarEx = Android.Widget.Toolbar;
 namespace MugenMvvmToolkit.Android.Binding
@@ -53,7 +52,7 @@ namespace MugenMvvmToolkit.Android.Binding
 #if !APPCOMPAT
         public abstract class Object
         {
-            #region Fields
+        #region Fields
 
             public static readonly BindingMemberDescriptor<object, object> DataContext;
             public static BindingMemberDescriptor<object, object> Parent;
@@ -61,9 +60,9 @@ namespace MugenMvvmToolkit.Android.Binding
             public static readonly BindingMemberDescriptor<object, IEnumerable<object>> Errors;
             public static readonly BindingMemberDescriptor<object, IStableIdProvider> StableIdProvider;
 
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             static Object()
             {
@@ -74,18 +73,18 @@ namespace MugenMvvmToolkit.Android.Binding
                 StableIdProvider = new BindingMemberDescriptor<object, IStableIdProvider>(nameof(StableIdProvider));
             }
 
-            #endregion
+        #endregion
         }
 
         public abstract class Activity : AttachedMembers.Object
         {
-            #region Fields
+        #region Fields
 
             public static readonly BindingMemberDescriptor<global::Android.App.Activity, IDataTemplateSelector> ToastTemplateSelector;
             public static readonly BindingMemberDescriptor<global::Android.App.Activity, Action<Context, Intent, IViewMappingItem, IDataContext>> StartActivityDelegate;
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             static Activity()
             {
@@ -93,12 +92,12 @@ namespace MugenMvvmToolkit.Android.Binding
                 StartActivityDelegate = new BindingMemberDescriptor<global::Android.App.Activity, Action<Context, Intent, IViewMappingItem, IDataContext>>(nameof(StartActivityDelegate));
             }
 
-            #endregion
+        #endregion
         }
 
         public abstract class View : Object
         {
-            #region Fields
+        #region Fields
 
             public static readonly BindingMemberDescriptor<global::Android.Views.View, bool> Visible;
             public static readonly BindingMemberDescriptor<global::Android.Views.View, bool> Invisible;
@@ -111,9 +110,9 @@ namespace MugenMvvmToolkit.Android.Binding
             public static readonly BindingMemberDescriptor<global::Android.Views.View, global::Android.App.Activity> Activity;
             public static readonly BindingMemberDescriptor<global::Android.Views.View, object> MenuTemplate;
 
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             static View()
             {
@@ -129,30 +128,30 @@ namespace MugenMvvmToolkit.Android.Binding
                 MenuTemplate = new BindingMemberDescriptor<global::Android.Views.View, object>(nameof(MenuTemplate));
             }
 
-            #endregion
+        #endregion
         }
 
         public abstract class Dialog : Object
         {
-            #region Fields
+        #region Fields
 
             public static readonly BindingMemberDescriptor<global::Android.App.Dialog, string> Title;
 
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             static Dialog()
             {
                 Title = new BindingMemberDescriptor<global::Android.App.Dialog, string>(nameof(Title));
             }
 
-            #endregion
+        #endregion
         }
 
         public abstract class ViewGroup : View
         {
-            #region Fields
+        #region Fields
 
             public static readonly BindingMemberDescriptor<global::Android.Views.ViewGroup, object> Content;
             public static readonly BindingMemberDescriptor<global::Android.Views.ViewGroup, IContentViewManager> ContentViewManager;
@@ -167,9 +166,9 @@ namespace MugenMvvmToolkit.Android.Binding
             public static readonly BindingMemberDescriptor<global::Android.Views.ViewGroup, ICollectionViewManager> CollectionViewManager;
             public static readonly BindingMemberDescriptor<global::Android.Views.ViewGroup, bool> DisableHierarchyListener;
 
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             static ViewGroup()
             {
@@ -187,12 +186,12 @@ namespace MugenMvvmToolkit.Android.Binding
                 CollectionViewManager = new BindingMemberDescriptor<global::Android.Views.ViewGroup, ICollectionViewManager>(nameof(CollectionViewManager));
             }
 
-            #endregion
+        #endregion
         }
 
         public abstract class AdapterView : ViewGroup
         {
-            #region Fields
+        #region Fields
 
             public static readonly BindingMemberDescriptor<global::Android.Widget.AdapterView, int?> DropDownItemTemplate;
             public static readonly BindingMemberDescriptor<global::Android.Widget.AdapterView, IDataTemplateSelector> DropDownItemTemplateSelector;
@@ -200,9 +199,9 @@ namespace MugenMvvmToolkit.Android.Binding
             public static readonly BindingMemberDescriptor<global::Android.Widget.AdapterView, object> SelectedItem;
             public static readonly BindingMemberDescriptor<global::Android.Widget.AdapterView, bool?> ScrollToSelectedItem;
 
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             static AdapterView()
             {
@@ -213,19 +212,19 @@ namespace MugenMvvmToolkit.Android.Binding
                 ScrollToSelectedItem = new BindingMemberDescriptor<global::Android.Widget.AdapterView, bool?>(nameof(ScrollToSelectedItem));
             }
 
-            #endregion
+        #endregion
         }
 
         public abstract class TabHost : ViewGroup
         {
-            #region Fields
+        #region Fields
 
             public static readonly BindingMemberDescriptor<global::Android.Widget.TabHost, object> SelectedItem;
             public static readonly BindingMemberDescriptor<global::Android.Widget.TabHost, bool?> RestoreSelectedIndex;
 
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             static TabHost()
             {
@@ -233,39 +232,39 @@ namespace MugenMvvmToolkit.Android.Binding
                 RestoreSelectedIndex = new BindingMemberDescriptor<global::Android.Widget.TabHost, bool?>(nameof(RestoreSelectedIndex));
             }
 
-            #endregion
+        #endregion
         }
 
         public abstract class TabSpec : Object
         {
-            #region Fields
+        #region Fields
 
             public static readonly BindingMemberDescriptor<global::Android.Widget.TabHost.TabSpec, string> Title;
 
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             static TabSpec()
             {
                 Title = new BindingMemberDescriptor<global::Android.Widget.TabHost.TabSpec, string>(nameof(Title));
             }
 
-            #endregion
+        #endregion
         }
 
         public abstract class AutoCompleteTextView : View
         {
-            #region Fields
+        #region Fields
 
             public static readonly BindingMemberDescriptor<global::Android.Widget.AutoCompleteTextView, int?> ItemTemplate;
             public static readonly BindingMemberDescriptor<global::Android.Widget.AutoCompleteTextView, IDataTemplateSelector> ItemTemplateSelector;
             public static readonly BindingMemberDescriptor<global::Android.Widget.AutoCompleteTextView, IEnumerable> ItemsSource;
             public static readonly BindingMemberDescriptor<global::Android.Widget.AutoCompleteTextView, ICharSequence> FilterText;
 
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             static AutoCompleteTextView()
             {
@@ -275,75 +274,75 @@ namespace MugenMvvmToolkit.Android.Binding
                 FilterText = new BindingMemberDescriptor<global::Android.Widget.AutoCompleteTextView, ICharSequence>(nameof(FilterText));
             }
 
-            #endregion
+        #endregion
         }
 
         public abstract class DatePicker : View
         {
-            #region Fields
+        #region Fields
 
             public static readonly BindingMemberDescriptor<global::Android.Widget.DatePicker, DateTime> SelectedDate;
 
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             static DatePicker()
             {
                 SelectedDate = new BindingMemberDescriptor<global::Android.Widget.DatePicker, DateTime>(nameof(SelectedDate));
             }
 
-            #endregion
+        #endregion
         }
 
         public abstract class TimePicker : View
         {
-            #region Fields
+        #region Fields
 
             public static readonly BindingMemberDescriptor<global::Android.Widget.TimePicker, TimeSpan> SelectedTime;
 
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             static TimePicker()
             {
                 SelectedTime = new BindingMemberDescriptor<global::Android.Widget.TimePicker, TimeSpan>(nameof(SelectedTime));
             }
 
-            #endregion
+        #endregion
         }
 
         public abstract class ImageView : View
         {
-            #region Fields
+        #region Fields
 
             public static readonly BindingMemberDescriptor<global::Android.Widget.ImageView, object> ImageSource;
 
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             static ImageView()
             {
                 ImageSource = new BindingMemberDescriptor<global::Android.Widget.ImageView, object>(nameof(ImageSource));
             }
 
-            #endregion
+        #endregion
         }
 
         public abstract class Menu : Object
         {
-            #region Fields
+        #region Fields
 
             public static readonly BindingMemberDescriptor<IMenu, IItemsSourceGenerator> ItemsSourceGenerator;
             public static readonly BindingMemberDescriptor<IMenu, IEnumerable> ItemsSource;
             public static readonly BindingMemberDescriptor<IMenu, bool?> Enabled;
             public static readonly BindingMemberDescriptor<IMenu, bool?> Visible;
 
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             static Menu()
             {
@@ -353,12 +352,12 @@ namespace MugenMvvmToolkit.Android.Binding
                 Visible = new BindingMemberDescriptor<IMenu, bool?>(nameof(Visible));
             }
 
-            #endregion
+        #endregion
         }
 
         public abstract class MenuItem : Object
         {
-            #region Fields
+        #region Fields
 
             public static readonly BindingMemberDescriptor<IMenuItem, object> ActionView;
             public static readonly BindingMemberDescriptor<IMenuItem, IDataTemplateSelector> ActionViewTemplateSelector;
@@ -373,9 +372,9 @@ namespace MugenMvvmToolkit.Android.Binding
             public static readonly BindingMemberDescriptor<IMenuItem, string> TitleCondensed;
             public static readonly BindingMemberDescriptor<IMenuItem, global::Android.Views.View> RenderView;
 
-            #endregion
+        #endregion
 
-            #region Constructors
+        #region Constructors
 
             static MenuItem()
             {
@@ -393,7 +392,7 @@ namespace MugenMvvmToolkit.Android.Binding
                 RenderView = new BindingMemberDescriptor<IMenuItem, global::Android.Views.View>(nameof(RenderView));
             }
 
-            #endregion
+        #endregion
         }
 #else
         public abstract class View : AttachedMembers.View

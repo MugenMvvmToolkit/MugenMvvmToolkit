@@ -16,13 +16,13 @@
 
 #endregion
 
-using System;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models.IoC;
 using MugenMvvmToolkit.Xamarin.Forms.Modules;
 #if ANDROID && XAMARIN_FORMS
+using System;
 using Android.App;
 using Android.Content;
 using MugenMvvmToolkit.Xamarin.Forms.Android.Infrastructure;
