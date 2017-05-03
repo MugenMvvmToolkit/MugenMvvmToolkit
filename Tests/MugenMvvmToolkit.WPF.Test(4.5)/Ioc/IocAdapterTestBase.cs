@@ -514,6 +514,18 @@ namespace MugenMvvmToolkit.Test.Ioc
             }
         }
 
+        [TestMethod]
+        public virtual void ShouldHandleCycle()
+        {
+            using (IIocContainer iocContainer = GetIocContainer())
+            {
+                Action action = () => iocContainer.Get<TestCycle1>();
+                action.ShouldThrow();
+                action = () => iocContainer.GetAll<TestCycle1>();
+                action.ShouldThrow();
+            }
+        }
+
         #endregion
     }
 
@@ -558,6 +570,20 @@ namespace MugenMvvmToolkit.Test.Ioc
         {
             Simple = simple;
             Simples = simples;
+        }
+    }
+
+    public class TestCycle1
+    {
+        public TestCycle1(TestCycle2 test)
+        {
+        }
+    }
+
+    public class TestCycle2
+    {
+        public TestCycle2(TestCycle1 test)
+        {
         }
     }
 }

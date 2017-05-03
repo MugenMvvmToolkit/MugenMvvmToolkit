@@ -129,7 +129,7 @@ namespace MugenMvvmToolkit.Test.Ioc
                     return new Simple();
                 }, DependencyLifecycle.TransientInstance, named);
 
-                var simple = (ISimple) iocContainer.Get(typeof (ISimple), named, parameters);
+                var simple = (ISimple)iocContainer.Get(typeof(ISimple), named, parameters);
                 simple.ShouldNotBeNull();
                 iocContainer.Get<ISimple>(named, parameters).ShouldNotEqual(simple);
                 iocContainer.Get(typeof(ISimple), named, parameters).ShouldNotEqual(simple);
@@ -192,6 +192,15 @@ namespace MugenMvvmToolkit.Test.Ioc
 
                 iocContainer.Unbind(typeof(ISimple));
                 Action action = () => iocContainer.Get<ISimple>().ShouldEqual(constValue);
+                action.ShouldThrow();
+            }
+        }
+
+        public override void ShouldHandleCycle()
+        {
+            using (IIocContainer iocContainer = GetIocContainer())
+            {
+                Action action = () => iocContainer.Get<TestCycle1>();
                 action.ShouldThrow();
             }
         }
