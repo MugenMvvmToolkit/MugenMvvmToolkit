@@ -77,6 +77,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
                     _tableView.SelectRow(_path, false, UITableViewScrollPosition.None);
                 else
                     _tableView.DeselectRow(_path, false);
+                (_tableView.Source as TableViewSourceBase)?.UpdateSelectedItemInternal(_tableView, _path, value);
                 Raise(_cell, EventArgs.Empty);
             }
 
@@ -254,6 +255,12 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             tableView.TryRaiseAttachedEvent(AttachedMembers.UITableView.SelectedItemChangedEvent);
         }
 
+        private void UpdateSelectedItemInternal(UITableView tableView, NSIndexPath indexPath, bool selected)
+        {
+            if (tableView != null && indexPath != null)
+                UpdateSelectedItemInternal(tableView, GetItemAt(indexPath), selected);
+        }
+
         private void UpdateSelectedItemInternal(UITableView tableView, object item, bool selected)
         {
             if (selected)
@@ -344,13 +351,13 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         public override void RowSelected(UITableView tableView, NSIndexPath indexPath)
         {
-            UpdateSelectedItemInternal(tableView, GetItemAt(indexPath), true);
+            UpdateSelectedItemInternal(tableView, indexPath, true);
             CellMediator.SetFromCell(tableView, indexPath, true);
         }
 
         public override void RowDeselected(UITableView tableView, NSIndexPath indexPath)
         {
-            UpdateSelectedItemInternal(tableView, GetItemAt(indexPath), false);
+            UpdateSelectedItemInternal(tableView, indexPath, false);
             CellMediator.SetFromCell(tableView, indexPath, false);
         }
 

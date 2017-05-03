@@ -77,6 +77,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
                     _collectionView.SelectItem(_path, false, UICollectionViewScrollPosition.None);
                 else
                     _collectionView.DeselectItem(_path, false);
+                (_collectionView.Source as CollectionViewSourceBase)?.UpdateSelectedItemInternal(_collectionView, _path, value);
                 Raise(_cell, EventArgs.Empty);
             }
 
@@ -240,6 +241,12 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             collectionView.TryRaiseAttachedEvent(AttachedMembers.UICollectionView.SelectedItemChangedEvent);
         }
 
+        private void UpdateSelectedItemInternal(UICollectionView collectionView, NSIndexPath indexPath, bool selected)
+        {
+            if (collectionView != null && indexPath != null)
+                UpdateSelectedItemInternal(collectionView, GetItemAt(indexPath), selected);
+        }
+
         private void UpdateSelectedItemInternal(UICollectionView collectionView, object item, bool selected)
         {
             if (selected)
@@ -287,13 +294,13 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
         public override void ItemDeselected(UICollectionView collectionView, NSIndexPath indexPath)
         {
-            UpdateSelectedItemInternal(collectionView, GetItemAt(indexPath), false);
+            UpdateSelectedItemInternal(collectionView, indexPath, false);
             CellMediator.SetFromCell(collectionView, indexPath, false);
         }
 
         public override void ItemSelected(UICollectionView collectionView, NSIndexPath indexPath)
         {
-            UpdateSelectedItemInternal(collectionView, GetItemAt(indexPath), true);
+            UpdateSelectedItemInternal(collectionView, indexPath, true);
             CellMediator.SetFromCell(collectionView, indexPath, true);
         }
 
