@@ -180,6 +180,19 @@ namespace MugenMvvmToolkit.Test.ViewModels
             isInvoked.ShouldBeTrue();
         }
 
+        [TestMethod]
+        public void VmShouldUseParentIocContainer()
+        {
+            ViewModelBase viewModel = GetViewModelBase();
+
+            viewModel = viewModel.GetViewModel<TestViewModelBase>();
+            var oldIocContainer = viewModel.IocContainer;
+            ((IIocContainerOwnerViewModel)viewModel).RequestOwnIocContainer();
+            var childVm = viewModel.GetViewModel<TestViewModelBase>();
+            childVm.IocContainer.ShouldEqual(viewModel.IocContainer);
+            childVm.IocContainer.ShouldNotEqual(oldIocContainer);
+        }
+
         #endregion
 
         #region Properties
