@@ -30,7 +30,7 @@ namespace MugenMvvmToolkit.WinForms.Modules
     {
         #region Nested types
 
-        private sealed class FormViewWrapper : IWindowView, IDisposable, IViewWrapper
+        public class FormViewWrapper : IWindowView, IDisposable, IViewWrapper
         {
             #region Fields
 

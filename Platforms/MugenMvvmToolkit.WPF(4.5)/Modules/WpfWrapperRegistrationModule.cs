@@ -29,7 +29,7 @@ namespace MugenMvvmToolkit.WPF.Modules
     {
         #region Nested types
 
-        internal sealed class WindowViewWrapper : IWindowView, IViewWrapper
+        public class WindowViewWrapper : IWindowView, IViewWrapper
         {
             #region Fields
 
