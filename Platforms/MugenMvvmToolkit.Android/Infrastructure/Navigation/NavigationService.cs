@@ -244,7 +244,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         private static Bundle GetState(Activity activity)
         {
-            return ((IActivityView)activity).Mediator.State;
+            var activityView = activity as IActivityView;
+            return activityView?.Mediator.State ?? new Bundle();
         }
 
         private static IDataContext MergeContext(IDataContext ctx1, IDataContext navContext)
