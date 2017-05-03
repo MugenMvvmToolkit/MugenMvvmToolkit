@@ -413,10 +413,7 @@ namespace MugenMvvmToolkit.Infrastructure
             var iocContainer = context.GetData(InitializationConstants.IocContainer);
             if (iocContainer != null)
                 return iocContainer;
-            IViewModel parent = null;
-            var parentViewModel = context.GetData(ViewModelConstants.ParentViewModel);
-            if (parentViewModel != null)
-                parent = parentViewModel.Target as IViewModel;
+            var parent = context.GetData(InitializationConstants.ParentViewModel);
             if (parent == null)
                 return IocContainer;
             return parent.GetIocContainer(false) ?? IocContainer;
