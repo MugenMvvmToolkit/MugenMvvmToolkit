@@ -70,6 +70,7 @@ namespace MugenMvvmToolkit
         {
             #region Fields
 
+            private bool _isActivating;
             private readonly MugenContainer _container;
             private readonly DependencyLifecycle _lifecycle;
             private IIocParameter[] _parameters;
@@ -114,64 +115,59 @@ namespace MugenMvvmToolkit
                 if (_hasValue)
                     return _value;
 
-                parameters = MergeParameters(parameters);
-                if (_methodBindingDelegate != null)
+                bool lockTaken = false;
+                try
                 {
-                    if (_lifecycle == DependencyLifecycle.SingleInstance)
-                    {
-                        if (!_hasValue)
-                        {
-                            lock (this)
-                            {
-                                if (!_hasValue)
-                                {
-                                    _value = _methodBindingDelegate(_container, parameters);
-                                    _hasValue = true;
-                                    _methodBindingDelegate = null;
-                                    _parameters = null;
-                                }
-                            }
-                        }
+                    Monitor.Enter(this, ref lockTaken);
+                    if (_hasValue)
                         return _value;
-                    }
-                    return _methodBindingDelegate.Invoke(_container, parameters);
-                }
 
-                if (_type != null)
-                {
-                    var constructor = FindConstructor(_type, parameters);
-                    if (constructor == null)
-                        throw new InvalidOperationException($"Constructor for type {_type} is null, can't activate this service.");
+                    if (_isActivating)
+                        throw new InvalidOperationException($"A cyclical dependency was detected for type {_type}");
+                    _isActivating = true;
 
-                    if (_lifecycle == DependencyLifecycle.SingleInstance)
+                    parameters = MergeParameters(parameters);
+                    if (_methodBindingDelegate != null)
                     {
-                        if (!_hasValue)
+                        if (_lifecycle == DependencyLifecycle.SingleInstance)
                         {
-                            lock (this)
-                            {
-                                if (!_hasValue)
-                                {
-                                    _value = constructor.InvokeEx(GetParameters(constructor, parameters));
-                                    SetProperties(_value, parameters);
-                                    _hasValue = true;
-                                    _type = null;
-                                    _parameters = null;
-                                }
-                            }
+                            _value = _methodBindingDelegate(_container, parameters);
+                            _hasValue = true;
+                            _methodBindingDelegate = null;
+                            _parameters = null;
+                            return _value;
                         }
-                        return _value;
+                        return _methodBindingDelegate.Invoke(_container, parameters);
                     }
 
-                    var result = constructor.InvokeEx(GetParameters(constructor, parameters));
-                    SetProperties(result, parameters);
-                    return result;
-                }
+                    if (_type != null)
+                    {
+                        var constructor = FindConstructor(_type, parameters);
+                        if (constructor == null)
+                            throw new InvalidOperationException($"Constructor for type {_type} is null, can't activate this service.");
 
-                //waiting activation
-                lock (this)
-                {
+                        if (_lifecycle == DependencyLifecycle.SingleInstance)
+                        {
+                            _value = constructor.InvokeEx(GetParameters(constructor, parameters));
+                            SetProperties(_value, parameters);
+                            _hasValue = true;
+                            _type = null;
+                            _parameters = null;
+                            return _value;
+                        }
+
+                        var result = constructor.InvokeEx(GetParameters(constructor, parameters));
+                        SetProperties(result, parameters);
+                        return result;
+                    }
+                    return _value;
                 }
-                return _value;
+                finally
+                {
+                    _isActivating = false;
+                    if (lockTaken)
+                        Monitor.Exit(this);
+                }
             }
 
             private static void SetProperties(object item, IList<IIocParameter> parameters)
@@ -283,11 +279,7 @@ namespace MugenMvvmToolkit
                 ConstructorInfo result = null;
                 var bestCount = -1;
                 var currentCountParameter = 0;
-                List<ConstructorInfo> constructorInfos;
-                lock (this)
-                {
-                    constructorInfos = GetConstuctors(service);
-                }
+                var constructorInfos = GetConstuctors(service);
                 if (constructorInfos.Count == 1)
                     return constructorInfos[0];
                 foreach (var constructorInfo in constructorInfos)
@@ -421,7 +413,7 @@ namespace MugenMvvmToolkit
                     result[i] = registrations[i].Resolve(parameters);
                 return result;
             }
-            if (_parent != null)
+            if (_parent != null && _parent.HasRegistration(key))
                 return _parent.GetAll(service, name, parameters);
 
             object value;
@@ -531,6 +523,16 @@ namespace MugenMvvmToolkit
             return array;
         }
 
+        private bool HasRegistration(BindingKey key)
+        {
+            bool result;
+            lock (_bindingRegistrations)
+                result = _bindingRegistrations.ContainsKey(key);
+            if (result || _parent == null)
+                return result;
+            return _parent.HasRegistration(key);
+        }
+
         #endregion
 
         #region Implementation of interfaces
@@ -541,13 +543,9 @@ namespace MugenMvvmToolkit
                 return;
             IsDisposed = true;
             lock (_bindingRegistrations)
-            {
                 _bindingRegistrations.Clear();
-            }
             lock (_selfActivatedRegistrations)
-            {
                 _selfActivatedRegistrations.Clear();
-            }
             Disposed?.Invoke(this, EventArgs.Empty);
         }
 
@@ -671,7 +669,7 @@ namespace MugenMvvmToolkit
             }
             if (registration != null)
                 return registration.Resolve(parameters);
-            if (_parent != null)
+            if (_parent != null && _parent.HasRegistration(key))
                 return _parent.Get(service, name, parameters);
             return Resolve(service, parameters);
         }
