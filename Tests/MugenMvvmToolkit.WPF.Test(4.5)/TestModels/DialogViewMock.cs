@@ -71,7 +71,7 @@ namespace MugenMvvmToolkit.Test.TestModels
 
         #endregion
 
-        #region Implementation of IDialogViewBase
+        #region Implementation of IWindowView
 
         public void Show()
         {
@@ -109,10 +109,8 @@ namespace MugenMvvmToolkit.Test.TestModels
             IsActivated = true;
         }
 #endif
-
-        #endregion
-
-        #region Implementation of IDialogView
+        
+        public object Owner { get; set; }
 
 #if WPF
         event CancelEventHandler IWindowView.Closing
@@ -127,7 +125,6 @@ namespace MugenMvvmToolkit.Test.TestModels
             remove { CancelChildEventHandler -= value; }
         }
 #endif
-
 
         public bool? ShowDialog()
         {

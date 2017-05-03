@@ -17,12 +17,15 @@
 #endregion
 
 using System.ComponentModel;
+using System.Linq;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Attributes;
+using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
+using MugenMvvmToolkit.Models;
 #if WPF
 using MugenMvvmToolkit.WPF.Interfaces.Views;
 
@@ -50,6 +53,13 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Mediators
 
         protected override void ShowView(IWindowView view, bool isDialog, IDataContext context)
         {
+            var currentViewModel = context.GetData(NavigationConstants.ViewModel);
+            var topViewModel = NavigationDispatcher.GetOpenedViewModels(NavigationType.Window).LastOrDefault(vm => vm != currentViewModel);
+            if (topViewModel != null)
+            {
+                view.Owner = topViewModel.Settings.Metadata.GetData(ViewModelConstants.View);
+            }
+
             try
             {
                 if (isDialog)
