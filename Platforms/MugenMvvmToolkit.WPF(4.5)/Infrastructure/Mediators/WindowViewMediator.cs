@@ -56,9 +56,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Mediators
             var currentViewModel = context.GetData(NavigationConstants.ViewModel);
             var topViewModel = NavigationDispatcher.GetOpenedViewModels(NavigationType.Window).LastOrDefault(vm => vm != currentViewModel);
             if (topViewModel != null)
-            {
                 view.Owner = topViewModel.Settings.Metadata.GetData(ViewModelConstants.View);
-            }
 
             try
             {

@@ -74,7 +74,12 @@ namespace MugenMvvmToolkit.WPF.Modules
             public object Owner
             {
                 get { return _window.Owner; }
-                set { _window.Owner = (Window) value; }
+                set
+                {
+                    var window = value as Window;
+                    if (window != null)
+                        _window.Owner = window;
+                }
             }
 
             event CancelEventHandler IWindowView.Closing
