@@ -105,7 +105,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
             public void OnActivityPaused(Activity activity)
             {
-                if (IsAlive() && !(activity is IActivityView) && ReferenceEquals(activity, _service.CurrentContent))
+                if (IsAlive() && !(activity is IActivityView) && ReferenceEquals(activity, _service.CurrentContent) && !activity.IsFinishing)
                     _service.SetBackground(true, null);
             }
 
@@ -137,7 +137,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         private const string ParameterId = "viewmodelparameter";
         private const string IsFinishPauseKey = nameof(IsFinishPauseKey);
-        private const string IsBackKey = nameof(IsBackKey);
         private const string IsFinishedKey = nameof(IsFinishedKey);
         private const string IsOpenedKey = nameof(IsOpenedKey);
 
@@ -244,8 +243,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         private static Bundle GetState(Activity activity)
         {
-            var activityView = activity as IActivityView;
-            return activityView?.Mediator.State ?? new Bundle();
+            var result = (activity as IActivityView)?.Mediator.State;
+            return result ?? ServiceProvider.AttachedValueProvider.GetOrAdd(activity, nameof(GetState), (view, o) => new Bundle(), null);
         }
 
         private static IDataContext MergeContext(IDataContext ctx1, IDataContext navContext)
@@ -307,7 +306,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
         public void OnPauseActivity(Activity activity, IDataContext context)
         {
             Should.NotBeNull(activity, nameof(activity));
-            if (!GetState(activity).ContainsKey(IsBackKey) && ReferenceEquals(activity, CurrentContent))
+            if (ReferenceEquals(activity, CurrentContent) && !activity.IsFinishing)
                 SetBackground(true, context);
         }
 
@@ -324,7 +323,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             {
                 NavigationMode mode;
                 IDataContext ctx = _backContext;
-                if (ctx != null || prevContent != null && GetState(prevContent).ContainsKey(IsBackKey))
+                if (ctx != null || prevContent != null && prevContent.IsFinishing)
                 {
                     mode = NavigationMode.Back;
                     _backContext = null;
@@ -379,7 +378,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                 _backContext = null;
                 RaiseNavigated(null, NavigationMode.Back, null, MergeContext(backContext, context));
             }
-            bundle.PutBoolean(IsBackKey, true);
             bundle.PutBoolean(IsFinishedKey, true);
             return true;
         }
