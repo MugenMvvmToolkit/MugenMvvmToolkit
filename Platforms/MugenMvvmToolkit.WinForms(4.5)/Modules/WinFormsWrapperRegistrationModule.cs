@@ -34,7 +34,7 @@ namespace MugenMvvmToolkit.WinForms.Modules
         {
             #region Fields
 
-            private readonly Form _form;
+            protected readonly Form Form;
 
             #endregion
 
@@ -43,7 +43,7 @@ namespace MugenMvvmToolkit.WinForms.Modules
             public FormViewWrapper(Form form)
             {
                 Should.NotBeNull(form, nameof(form));
-                _form = form;
+                Form = form;
             }
 
             #endregion
@@ -52,47 +52,47 @@ namespace MugenMvvmToolkit.WinForms.Modules
 
             public void Show()
             {
-                _form.Show();
+                Form.Show();
             }
 
             public DialogResult ShowDialog()
             {
-                return _form.ShowDialog();
+                return Form.ShowDialog();
             }
 
             public void Close()
             {
-                _form.Close();
+                Form.Close();
             }
 
             public void Activate()
             {
-                _form.Activate();
+                Form.Activate();
             }
 
             public object Owner
             {
-                get { return _form.Owner; }
+                get { return Form.Owner; }
                 set
                 {
                     var form = value as Form;
                     if (form != null)
-                        _form.Owner = form;
+                        Form.Owner = form;
                 }
             }
 
             event CancelEventHandler IWindowView.Closing
             {
-                add { _form.Closing += value; }
-                remove { _form.Closing -= value; }
+                add { Form.Closing += value; }
+                remove { Form.Closing -= value; }
             }
 
             public void Dispose()
             {
-                _form.Dispose();
+                Form.Dispose();
             }
 
-            public object View => _form;
+            public object View => Form;
 
             #endregion
         }

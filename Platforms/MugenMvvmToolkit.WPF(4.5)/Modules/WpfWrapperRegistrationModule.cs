@@ -33,7 +33,7 @@ namespace MugenMvvmToolkit.WPF.Modules
         {
             #region Fields
 
-            private readonly Window _window;
+            protected readonly Window Window;
 
             #endregion
 
@@ -42,50 +42,50 @@ namespace MugenMvvmToolkit.WPF.Modules
             public WindowViewWrapper(Window window)
             {
                 Should.NotBeNull(window, nameof(window));
-                _window = window;
+                Window = window;
             }
 
             #endregion
 
             #region Implementation of IWindowView
 
-            public object View => _window;
+            public object View => Window;
 
             public void Show()
             {
-                _window.Show();
+                Window.Show();
             }
 
             public bool? ShowDialog()
             {
-                return _window.ShowDialog();
+                return Window.ShowDialog();
             }
 
             public void Close()
             {
-                _window.Close();
+                Window.Close();
             }
 
             public bool Activate()
             {
-                return _window.Activate();
+                return Window.Activate();
             }
 
             public object Owner
             {
-                get { return _window.Owner; }
+                get { return Window.Owner; }
                 set
                 {
                     var window = value as Window;
                     if (window != null)
-                        _window.Owner = window;
+                        Window.Owner = window;
                 }
             }
 
             event CancelEventHandler IWindowView.Closing
             {
-                add { _window.Closing += value; }
-                remove { _window.Closing -= value; }
+                add { Window.Closing += value; }
+                remove { Window.Closing -= value; }
             }
 
             #endregion
