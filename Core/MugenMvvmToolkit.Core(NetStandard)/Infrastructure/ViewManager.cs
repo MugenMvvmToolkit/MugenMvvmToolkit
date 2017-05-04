@@ -25,6 +25,7 @@ using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
+using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.ViewModels;
@@ -172,7 +173,7 @@ namespace MugenMvvmToolkit.Infrastructure
         protected virtual void InitializeView([NotNull] IViewModel viewModel, [CanBeNull] object view,
             [NotNull] IDataContext context)
         {
-            InitializeViewInternal(viewModel, view);
+            InitializeViewInternal(viewModel, view, context);
             PropertyInfo viewProperty = ReflectionExtensions.GetViewProperty(viewModel.GetType());
             if (viewProperty == null)
                 return;
@@ -186,7 +187,7 @@ namespace MugenMvvmToolkit.Infrastructure
         protected virtual void CleanupView([NotNull] IViewModel viewModel, [NotNull] object view,
             [NotNull] IDataContext context)
         {
-            InitializeViewInternal(null, view);
+            InitializeViewInternal(null, view, context);
             viewModel.Settings.Metadata.Remove(ViewModelConstants.View);
             ReflectionExtensions.GetViewProperty(viewModel.GetType())?.SetValue<object>(viewModel, null);
 
@@ -204,7 +205,7 @@ namespace MugenMvvmToolkit.Infrastructure
             ViewCleared?.Invoke(this, new ViewClearedEventArgs(view, viewModel, context));
         }
 
-        private static void InitializeViewInternal(IViewModel viewModel, object view)
+        private static void InitializeViewInternal(IViewModel viewModel, object view, IDataContext context)
         {
             if (view == null)
                 return;
@@ -217,6 +218,8 @@ namespace MugenMvvmToolkit.Infrastructure
             if (viewModel != null || ApplicationSettings.ViewManagerClearDataContext)
                 ToolkitExtensions.SetDataContext(view, viewModel);
             ReflectionExtensions.GetViewModelPropertySetter(view.GetType())?.Invoke(view, viewModel);
+            if (viewModel != null)
+                (view as IInitializableView)?.Initialize(viewModel, context);
         }
 
         #endregion
