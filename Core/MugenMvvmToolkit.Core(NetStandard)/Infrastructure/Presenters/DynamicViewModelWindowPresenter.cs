@@ -17,10 +17,10 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Attributes;
+using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Infrastructure.Mediators;
@@ -37,9 +37,46 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 {
     public class DynamicViewModelWindowPresenter : IRestorableDynamicViewModelPresenter, IAwaitableDynamicViewModelPresenter
     {
+        #region Nested types
+
+        private sealed class MediatorRegistration : IComparable<MediatorRegistration>
+        {
+            #region Fields
+
+            private readonly int _priority;
+            public readonly Func<IViewModel, Type, IDataContext, IWindowViewMediator> Factory;
+
+            #endregion
+
+            #region Constructors
+
+            public MediatorRegistration(int priority, Func<IViewModel, Type, IDataContext, IWindowViewMediator> factory)
+            {
+                _priority = priority;
+                Factory = factory;
+            }
+
+            #endregion
+
+            #region Implementation of interfaces
+
+            public int CompareTo(MediatorRegistration other)
+            {
+                if (ReferenceEquals(this, other))
+                    return 0;
+                if (ReferenceEquals(null, other))
+                    return 1;
+                return other._priority.CompareTo(_priority);
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Fields
 
-        private readonly List<Func<IViewModel, Type, IDataContext, IWindowViewMediator>> _mediatorRegistrations;
+        private readonly OrderedListInternal<MediatorRegistration> _mediatorRegistrations;
 
         private readonly IOperationCallbackManager _callbackManager;
         private readonly IWrapperManager _wrapperManager;
@@ -59,7 +96,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             _viewMappingProvider = viewMappingProvider;
             _callbackManager = callbackManager;
             _wrapperManager = wrapperManager;
-            _mediatorRegistrations = new List<Func<IViewModel, Type, IDataContext, IWindowViewMediator>>();
+            _mediatorRegistrations = new OrderedListInternal<MediatorRegistration>();
         }
 
         #endregion
@@ -127,14 +164,14 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
 
         #region Methods
 
-        public void RegisterMediatorFactory<TMediator, TView>(bool viewExactlyEqual = false)
+        public void RegisterMediatorFactory<TMediator, TView>(bool viewExactlyEqual = false, int priority = 0)
             where TMediator : WindowViewMediatorBase<TView>
             where TView : class
         {
-            RegisterMediatorFactory(typeof(TMediator), typeof(TView), viewExactlyEqual);
+            RegisterMediatorFactory(typeof(TMediator), typeof(TView), viewExactlyEqual, priority);
         }
 
-        public void RegisterMediatorFactory(Type mediatorType, Type viewType, bool viewExactlyEqual)
+        public void RegisterMediatorFactory(Type mediatorType, Type viewType, bool viewExactlyEqual, int priority = 0)
         {
             if (viewExactlyEqual)
             {
@@ -143,7 +180,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                     if (type == viewType)
                         return (IWindowViewMediator)vm.GetIocContainer(true).Get(mediatorType);
                     return null;
-                });
+                }, priority);
             }
             else
             {
@@ -152,15 +189,15 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                     if (viewType.IsAssignableFrom(type) || WrapperManager.CanWrap(type, viewType, arg3))
                         return (IWindowViewMediator)vm.GetIocContainer(true).Get(mediatorType);
                     return null;
-                });
+                }, priority);
             }
         }
 
-        public void RegisterMediatorFactory([NotNull] Func<IViewModel, Type, IDataContext, IWindowViewMediator> mediatorFactory)
+        public void RegisterMediatorFactory([NotNull] Func<IViewModel, Type, IDataContext, IWindowViewMediator> mediatorFactory, int priority = 0)
         {
             Should.NotBeNull(mediatorFactory, nameof(mediatorFactory));
             lock (_mediatorRegistrations)
-                _mediatorRegistrations.Add(mediatorFactory);
+                _mediatorRegistrations.Add(new MediatorRegistration(priority, mediatorFactory));
         }
 
         [CanBeNull]
@@ -170,7 +207,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             {
                 for (int i = 0; i < _mediatorRegistrations.Count; i++)
                 {
-                    var mediator = _mediatorRegistrations[i].Invoke(viewModel, viewType, context);
+                    var mediator = _mediatorRegistrations[i].Factory.Invoke(viewModel, viewType, context);
                     if (mediator != null)
                         return mediator;
                 }
@@ -224,6 +261,6 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             return viewMediator;
         }
 
-        #endregion
+        #endregion        
     }
 }
