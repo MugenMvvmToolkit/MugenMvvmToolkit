@@ -24,6 +24,7 @@ using Android.OS;
 using Android.Util;
 using Android.Views;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 #if APPCOMPAT
 using MugenMvvmToolkit.Android.AppCompat.Interfaces.Views;
@@ -40,11 +41,14 @@ namespace MugenMvvmToolkit.Android.Interfaces.Mediators
     {
         Fragment Fragment { get; }
 
+        [NotNull]
         Bundle State { get; }
 
         bool IsDestroyed { get; }
 
         object DataContext { get; set; }
+
+        IDataContext NavigationContext { get; set; }
 
         void OnAttach([NotNull]Activity activity, [NotNull] Action<Activity> baseOnAttach);
 

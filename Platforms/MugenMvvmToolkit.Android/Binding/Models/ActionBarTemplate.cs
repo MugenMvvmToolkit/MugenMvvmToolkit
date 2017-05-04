@@ -206,7 +206,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
                 _activityViewOnSaveInstanceStateDelegate = ActivityViewOnSaveInstanceState;
             activityView.Mediator.SaveInstanceState += _activityViewOnSaveInstanceStateDelegate;
 
-            var bundle = activityView.Mediator.Bundle;
+            var bundle = activityView.Mediator.SavedInstanceState;
             if (bundle != null)
             {
                 var i = bundle.GetInt(SelectedTabIndexKey, int.MinValue);

@@ -100,6 +100,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             }
         }
 
+        public IDataContext NavigationContext { get; set; }
+
         public bool IsDestroyed => _isDestroyed;
 
         [NotNull]
@@ -193,7 +195,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 DataContext = dataContext;
             else
             {
-                ServiceProvider.ViewManager.InitializeViewAsync(viewModel, target);
+                ServiceProvider.ViewManager.InitializeViewAsync(viewModel, target, NavigationContext);
                 viewModel.Disposed -= ClearCacheOnDisposeDelegate;
                 Get<IViewModelPresenter>().Restore(CreateRestorePresenterContext(viewModel, target));
             }

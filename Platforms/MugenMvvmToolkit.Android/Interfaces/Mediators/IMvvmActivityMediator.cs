@@ -36,6 +36,7 @@ namespace MugenMvvmToolkit.Android.Interfaces.Mediators
     {
         IDictionary<string, object> Metadata { get; }
 
+        [NotNull]
         Bundle State { get; }
 
         Activity Activity { get; }
@@ -46,7 +47,7 @@ namespace MugenMvvmToolkit.Android.Interfaces.Mediators
         object DataContext { get; set; }
 
         [CanBeNull]
-        Bundle Bundle { get; }
+        Bundle SavedInstanceState { get; }
 
         IDataContext NavigationContext { get; set; }
 

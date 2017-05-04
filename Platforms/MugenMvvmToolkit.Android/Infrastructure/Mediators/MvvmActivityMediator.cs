@@ -123,7 +123,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         private MenuInflater _menuInflater;
         private LayoutInflater _layoutInflater;
         private IMenu _menu;
-        private Bundle _bundle;
+        private Bundle _savedInstanceState;
         private bool _isBackNavigation;
         private View _view;
         private bool _ignoreFinishNavigation;
@@ -157,9 +157,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         Activity IMvvmActivityMediator.Activity => Target;
 
-        public virtual Bundle Bundle => _bundle;
-
-        public IDataContext NavigationContext { get; set; }
+        public virtual Bundle SavedInstanceState => _savedInstanceState;
 
         public virtual void OnBackPressed(Action baseOnBackPressed)
         {
@@ -181,7 +179,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             AndroidBootstrapperBase.EnsureInitialized(Target, savedInstanceState);
             if (Tracer.TraceInformation)
                 Tracer.Info("OnCreate activity({0})", Target);
-            _bundle = savedInstanceState;
+            _savedInstanceState = savedInstanceState;
             OnCreate(savedInstanceState);
 
             baseOnCreate(savedInstanceState);

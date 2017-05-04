@@ -152,7 +152,7 @@ namespace MugenMvvmToolkit.Android.AppCompat.Infrastructure
             var activityView = _viewPager.Context as IActivityView;
             if (activityView == null)
                 return;
-            var bundle = activityView.Mediator.Bundle;
+            var bundle = activityView.Mediator.SavedInstanceState;
             if (bundle != null)
             {
                 var i = bundle.GetInt(StateKey, int.MinValue);

@@ -453,7 +453,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             var activityView = TabHost.Context as IActivityView;
             if (activityView == null)
                 return;
-            var bundle = activityView.Mediator.Bundle;
+            var bundle = activityView.Mediator.SavedInstanceState;
             if (bundle != null)
             {
                 var i = bundle.GetInt(SelectedTabIndexKey, int.MinValue);
