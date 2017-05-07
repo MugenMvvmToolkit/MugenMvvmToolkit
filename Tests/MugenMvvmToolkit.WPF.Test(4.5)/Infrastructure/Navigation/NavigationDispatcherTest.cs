@@ -51,23 +51,32 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
 
             var openedViewModelsDict = navigationDispatcher.GetOpenedViewModels();
             openedViewModelsDict.Count.ShouldEqual(1);
-            openedViewModelsDict[NavigationType.Page].Single().ShouldEqual(vm1);
+            openedViewModelsDict[NavigationType.Page].Single().ViewModel.ShouldEqual(vm1);
+            openedViewModelsDict[NavigationType.Page].Single().NavigationProvider.ShouldEqual(this);
+            openedViewModelsDict[NavigationType.Page].Single().NavigationType.ShouldEqual(NavigationType.Page);
 
             var openedViewModels = navigationDispatcher.GetOpenedViewModels(NavigationType.Page);
-            openedViewModels.Single().ShouldEqual(vm1);
+            openedViewModels.Single().ViewModel.ShouldEqual(vm1);
+            openedViewModels.Single().NavigationProvider.ShouldEqual(this);
 
             navigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.New, vm1, vm2, this));
 
             openedViewModelsDict = navigationDispatcher.GetOpenedViewModels();
             openedViewModelsDict.Count.ShouldEqual(1);
             openedViewModelsDict[NavigationType.Page].Count.ShouldEqual(2);
-            openedViewModelsDict[NavigationType.Page][0].ShouldEqual(vm1);
-            openedViewModelsDict[NavigationType.Page][1].ShouldEqual(vm2);
+            openedViewModelsDict[NavigationType.Page][0].ViewModel.ShouldEqual(vm1);
+            openedViewModelsDict[NavigationType.Page][0].NavigationProvider.ShouldEqual(this);
+            openedViewModelsDict[NavigationType.Page][0].NavigationType.ShouldEqual(NavigationType.Page);
+            openedViewModelsDict[NavigationType.Page][1].ViewModel.ShouldEqual(vm2);
+            openedViewModelsDict[NavigationType.Page][1].NavigationProvider.ShouldEqual(this);
+            openedViewModelsDict[NavigationType.Page][1].NavigationType.ShouldEqual(NavigationType.Page);
 
             openedViewModels = navigationDispatcher.GetOpenedViewModels(NavigationType.Page);
             openedViewModels.Count.ShouldEqual(2);
-            openedViewModels[0].ShouldEqual(vm1);
-            openedViewModels[1].ShouldEqual(vm2);
+            openedViewModels[0].ViewModel.ShouldEqual(vm1);
+            openedViewModels[0].NavigationProvider.ShouldEqual(this);
+            openedViewModels[1].ViewModel.ShouldEqual(vm2);
+            openedViewModels[1].NavigationProvider.ShouldEqual(this);
         }
 
         [TestMethod]
@@ -83,10 +92,14 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
             navigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Remove, vm1, null, this));
             var openedViewModelsDict = navigationDispatcher.GetOpenedViewModels();
             openedViewModelsDict.Count.ShouldEqual(1);
-            openedViewModelsDict[NavigationType.Page].Single().ShouldEqual(vm2);
+            openedViewModelsDict[NavigationType.Page].Single().ViewModel.ShouldEqual(vm2);
+            openedViewModelsDict[NavigationType.Page].Single().NavigationProvider.ShouldEqual(this);
+            openedViewModelsDict[NavigationType.Page].Single().NavigationType.ShouldEqual(NavigationType.Page);
 
             var openedViewModels = navigationDispatcher.GetOpenedViewModels(NavigationType.Page);
-            openedViewModels.Single().ShouldEqual(vm2);
+            openedViewModels.Single().ViewModel.ShouldEqual(vm2);
+            openedViewModels.Single().NavigationProvider.ShouldEqual(this);
+            openedViewModels.Single().NavigationType.ShouldEqual(NavigationType.Page);
 
             navigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Back, vm2, null, this));
 
@@ -106,19 +119,27 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Navigation
 
             var openedViewModelsDict = navigationDispatcher.GetOpenedViewModels();
             openedViewModelsDict.Count.ShouldEqual(1);
-            openedViewModelsDict[NavigationType.Page].Last().ShouldEqual(vm2);
+            openedViewModelsDict[NavigationType.Page].Last().ViewModel.ShouldEqual(vm2);
+            openedViewModelsDict[NavigationType.Page].Last().NavigationProvider.ShouldEqual(this);
+            openedViewModelsDict[NavigationType.Page].Last().NavigationType.ShouldEqual(NavigationType.Page);
 
             var openedViewModels = navigationDispatcher.GetOpenedViewModels(NavigationType.Page);
-            openedViewModels.Last().ShouldEqual(vm2);
+            openedViewModels.Last().ViewModel.ShouldEqual(vm2);
+            openedViewModels.Last().NavigationProvider.ShouldEqual(this);
+            openedViewModels.Last().NavigationType.ShouldEqual(NavigationType.Page);
 
             navigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Refresh, null, vm1, this));
 
             openedViewModelsDict = navigationDispatcher.GetOpenedViewModels();
             openedViewModelsDict.Count.ShouldEqual(1);
-            openedViewModelsDict[NavigationType.Page].Last().ShouldEqual(vm1);
+            openedViewModelsDict[NavigationType.Page].Last().ViewModel.ShouldEqual(vm1);
+            openedViewModelsDict[NavigationType.Page].Last().NavigationProvider.ShouldEqual(this);
+            openedViewModelsDict[NavigationType.Page].Last().NavigationType.ShouldEqual(NavigationType.Page);
 
             openedViewModels = navigationDispatcher.GetOpenedViewModels(NavigationType.Page);
-            openedViewModels.Last().ShouldEqual(vm1);
+            openedViewModels.Last().ViewModel.ShouldEqual(vm1);
+            openedViewModels.Last().NavigationProvider.ShouldEqual(this);
+            openedViewModels.Last().NavigationType.ShouldEqual(NavigationType.Page);
         }
 
         [TestMethod]

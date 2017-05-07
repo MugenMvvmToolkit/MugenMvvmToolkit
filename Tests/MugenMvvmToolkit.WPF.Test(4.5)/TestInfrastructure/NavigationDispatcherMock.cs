@@ -21,7 +21,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
-using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 
@@ -74,14 +73,14 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         public event EventHandler<INavigationDispatcher, NavigatedEventArgs> Navigated;
 
-        public IDictionary<NavigationType, IList<IViewModel>> GetOpenedViewModels(IDataContext context = null)
+        public IDictionary<NavigationType, IList<IOpenedViewModelInfo>> GetOpenedViewModels(IDataContext context = null)
         {
-            return new Dictionary<NavigationType, IList<IViewModel>>();
+            return new Dictionary<NavigationType, IList<IOpenedViewModelInfo>>();
         }
 
-        public IList<IViewModel> GetOpenedViewModels(NavigationType type, IDataContext context = null)
+        public IList<IOpenedViewModelInfo> GetOpenedViewModels(NavigationType type, IDataContext context = null)
         {
-            return Empty.Array<IViewModel>();
+            return Empty.Array<IOpenedViewModelInfo>();
         }
 
         #endregion
