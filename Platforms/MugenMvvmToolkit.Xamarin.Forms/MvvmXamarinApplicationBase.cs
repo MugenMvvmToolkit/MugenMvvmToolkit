@@ -34,6 +34,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms
 
         private IRestorableViewModelPresenter _presenter;
         private bool _presenterActivated;
+        private static bool _isBackground;
 
         #endregion
 
@@ -65,18 +66,34 @@ namespace MugenMvvmToolkit.Xamarin.Forms
         [NotNull]
         protected abstract XamarinFormsBootstrapperBase CreateBootstrapper([NotNull] XamarinFormsBootstrapperBase.IPlatformService platformService, IDataContext context);
 
+        protected override void OnStart()
+        {
+            base.OnStart();
+            if (_isBackground)
+            {
+                Raise(new ForegroundNavigationMessage());
+                _isBackground = false;
+            }
+        }
+
         protected override void OnResume()
         {
             base.OnResume();
-            if (ServiceProvider.IsInitialized && ServiceProvider.Application.PlatformInfo.Platform != PlatformType.XamarinFormsUWP)
-                ServiceProvider.EventAggregator.Publish(this, new ForegroundNavigationMessage());
+            if (_isBackground)
+            {
+                Raise(new ForegroundNavigationMessage());
+                _isBackground = false;
+            }
         }
 
         protected override void OnSleep()
         {
             base.OnSleep();
-            if (ServiceProvider.IsInitialized && ServiceProvider.Application.PlatformInfo.Platform != PlatformType.XamarinFormsUWP)
-                ServiceProvider.EventAggregator.Publish(this, new BackgroundNavigationMessage());
+            if (!_isBackground)
+            {
+                Raise(new BackgroundNavigationMessage());
+                _isBackground = true;
+            }
             if (ShouldSaveApplicationState())
                 SaveState();
         }
@@ -99,6 +116,12 @@ namespace MugenMvvmToolkit.Xamarin.Forms
                 _presenterActivated = true;
             }
             _presenter?.SaveState();
+        }
+
+        private void Raise(object message)
+        {
+            if (ServiceProvider.IsInitialized && ServiceProvider.Application.PlatformInfo.Platform != PlatformType.XamarinFormsUWP)
+                ServiceProvider.EventAggregator.Publish(this, message);
         }
 
         #endregion
