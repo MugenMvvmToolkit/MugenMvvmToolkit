@@ -370,7 +370,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 
             bool doNotTrackViewModelTo = false;
             if (viewModelTo == null && args.NavigationMode == NavigationMode.Back)
-                viewModelTo = NavigationDispatcher.GetPreviousOpenedViewModelOrParent(viewModelFrom, NavigationType.Page, out doNotTrackViewModelTo);
+                viewModelTo = NavigationDispatcher.GetPreviousOpenedViewModelOrParent(viewModelFrom, NavigationType.Page, out doNotTrackViewModelTo, this);
             return new NavigationContext(NavigationType.Page, args.NavigationMode, viewModelFrom, viewModelTo, this, args.Context)
             {
                 {NavigationConstants.DoNotTrackViewModelTo, doNotTrackViewModelTo}
