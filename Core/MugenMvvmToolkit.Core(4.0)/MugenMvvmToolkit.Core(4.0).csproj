@@ -404,6 +404,9 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\navigation\INavigationProvider.cs">
       <Link>Interfaces\Navigation\INavigationProvider.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\Navigation\IOpenedViewModelInfo.cs">
+      <Link>Interfaces\Navigation\IOpenedViewModelInfo.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\presenters\IDynamicViewModelPresenter.cs">
       <Link>Interfaces\Presenters\IDynamicViewModelPresenter.cs</Link>
     </Compile>

@@ -45,6 +45,7 @@
     <Compile Include="ApplicationSettings.cs" />
     <Compile Include="Infrastructure\Callbacks\CallbackDictionary.cs" />
     <Compile Include="Infrastructure\CompositeEqualityComparer.cs" />
+    <Compile Include="Interfaces\Navigation\IOpenedViewModelInfo.cs" />
     <Compile Include="Interfaces\Views\IInitializableView.cs" />
     <Compile Include="Models\PlatformIdiom.cs" />
     <Compile Include="MugenContainer.cs" />

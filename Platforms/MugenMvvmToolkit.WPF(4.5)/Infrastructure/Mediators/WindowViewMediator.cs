@@ -53,7 +53,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Mediators
 
         protected override void ShowView(IWindowView view, bool isDialog, IDataContext context)
         {
-            var topViewModel = NavigationDispatcher.GetOpenedViewModels(NavigationType.Window).LastOrDefault(vm => vm != ViewModel);
+            var topViewModel = NavigationDispatcher.GetOpenedViewModels(NavigationType.Window).LastOrDefault(vm => vm.ViewModel != ViewModel)?.ViewModel;
             if (topViewModel != null)
                 view.Owner = topViewModel.Settings.Metadata.GetData(ViewModelConstants.View);
 

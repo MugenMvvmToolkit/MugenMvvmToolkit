@@ -306,7 +306,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
             foreach (var openedViewModel in openedViewModels)
             {
                 Tracer.Warn($"There is an open view model {openedViewModel} after app restart");
-                navigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Remove, openedViewModel, null, this));
+                navigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Remove, openedViewModel.ViewModel, null, this));
             }
         }
 

@@ -21,7 +21,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 
@@ -30,10 +29,10 @@ namespace MugenMvvmToolkit.Interfaces.Navigation
     public interface INavigationDispatcher
     {
         [NotNull]
-        IDictionary<NavigationType, IList<IViewModel>> GetOpenedViewModels(IDataContext context = null);
+        IDictionary<NavigationType, IList<IOpenedViewModelInfo>> GetOpenedViewModels(IDataContext context = null);
 
         [NotNull]
-        IList<IViewModel> GetOpenedViewModels([NotNull]NavigationType type, IDataContext context = null);
+        IList<IOpenedViewModelInfo> GetOpenedViewModels([NotNull]NavigationType type, IDataContext context = null);
 
         Task<bool> OnNavigatingAsync([NotNull] INavigationContext context);
 

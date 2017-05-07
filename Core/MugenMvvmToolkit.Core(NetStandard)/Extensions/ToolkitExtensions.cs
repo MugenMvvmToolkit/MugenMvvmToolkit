@@ -1002,21 +1002,27 @@ namespace MugenMvvmToolkit
         public static IList<IViewModel> GetTopViewModels([NotNull] this INavigationDispatcher navigationDispatcher, IDataContext context = null)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
-            return navigationDispatcher
-                .GetOpenedViewModels(context)
-                .Values
-                .Select(list => list.LastOrDefault())
-                .Where(model => model != null)
-                .ToArray();
+            var result = new List<IViewModel>();
+            foreach (var list in navigationDispatcher.GetOpenedViewModels(context).Values)
+            {
+                if (list.Count != 0)
+                    result.Add(list.Last().ViewModel);
+            }
+            return result;
         }
 
-        public static IViewModel GetTopViewModel([NotNull] this INavigationDispatcher navigationDispatcher, [NotNull] NavigationType navigationType, IDataContext context = null)
+        public static IViewModel GetTopViewModel([NotNull] this INavigationDispatcher navigationDispatcher, [NotNull] NavigationType navigationType, object navigationProvider = null, IDataContext context = null)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
-            return navigationDispatcher.GetOpenedViewModels(navigationType, context).LastOrDefault();
+            var openedViewModels = navigationDispatcher.GetOpenedViewModels(navigationType, context);
+            if (openedViewModels.Count == 0)
+                return null;
+            if (navigationProvider == null)
+                return openedViewModels.Last().ViewModel;
+            return openedViewModels.LastOrDefault(info => ReferenceEquals(info.NavigationProvider, navigationProvider))?.ViewModel;
         }
 
-        public static IViewModel GetPreviousOpenedViewModelOrParent([NotNull] this INavigationDispatcher navigationDispatcher, [NotNull]IViewModel viewModel, [NotNull]NavigationType navigationType, out bool isParent)
+        public static IViewModel GetPreviousOpenedViewModelOrParent([NotNull] this INavigationDispatcher navigationDispatcher, [NotNull]IViewModel viewModel, [NotNull]NavigationType navigationType, out bool isParent, object navigationProvider = null)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(viewModel, nameof(viewModel));
@@ -1024,10 +1030,11 @@ namespace MugenMvvmToolkit
             var openedViewModels = navigationDispatcher.GetOpenedViewModels(navigationType);
             for (var i = openedViewModels.Count - 1; i >= 0; i--)
             {
-                if (!ReferenceEquals(openedViewModels[i], viewModel))
+                var info = openedViewModels[i];
+                if (!ReferenceEquals(info.ViewModel, viewModel) && (navigationProvider == null || ReferenceEquals(info.NavigationProvider, navigationProvider)))
                 {
                     isParent = false;
-                    return openedViewModels[i];
+                    return info.ViewModel;
                 }
             }
             isParent = true;

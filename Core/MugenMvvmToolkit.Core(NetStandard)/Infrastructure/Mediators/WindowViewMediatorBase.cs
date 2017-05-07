@@ -208,13 +208,13 @@ namespace MugenMvvmToolkit.Infrastructure.Mediators
 
         void IHandler<ForegroundNavigationMessage>.Handle(object sender, ForegroundNavigationMessage message)
         {
-            if (IsOpen && !ViewModel.IsDisposed)
+            if (IsOpen && _viewModel != null && !ViewModel.IsDisposed)
                 NavigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Foreground, null, ViewModel, this, message.Context));
         }
 
         void IHandler<BackgroundNavigationMessage>.Handle(object sender, BackgroundNavigationMessage message)
         {
-            if (IsOpen && !ViewModel.IsDisposed)
+            if (IsOpen && _viewModel != null && !ViewModel.IsDisposed)
                 NavigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Background, ViewModel, null, this, message.Context));
         }
 
