@@ -233,7 +233,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             }
             else
                 currentActivity.OnBackPressed();
-            return true;
+            return currentActivity.IsFinishing;
         }
 
         private static string GetParameterFromIntent(Intent intent)
