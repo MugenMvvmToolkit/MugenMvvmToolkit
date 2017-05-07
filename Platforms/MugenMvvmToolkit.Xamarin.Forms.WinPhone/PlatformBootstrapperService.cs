@@ -50,6 +50,12 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
 {
     public class PlatformBootstrapperService : XamarinFormsBootstrapperBase.IPlatformService
     {
+        #region Fields
+#if WINDOWS_UWP
+        private static bool _isStarted;
+#endif
+        #endregion
+
         #region Constructors
 #if ANDROID
         public PlatformBootstrapperService(Func<Context> getCurrentContext)
@@ -64,8 +70,10 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
 #if WINDOWS_UWP
         private void OnLeavingBackground(object sender, LeavingBackgroundEventArgs leavingBackgroundEventArgs)
         {
-            if (ServiceProvider.IsInitialized)
+            if (_isStarted && ServiceProvider.IsInitialized)
                 ServiceProvider.EventAggregator.Publish(this, new ForegroundNavigationMessage());
+            else
+                _isStarted = true;
         }
 
         private void OnEnteredBackground(object sender, EnteredBackgroundEventArgs enteredBackgroundEventArgs)
