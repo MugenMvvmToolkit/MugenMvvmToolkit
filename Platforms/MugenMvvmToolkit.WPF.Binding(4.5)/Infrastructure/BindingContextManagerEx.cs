@@ -118,6 +118,8 @@ namespace MugenMvvmToolkit.UWP.Binding.Infrastructure
 
             private static bool IsUnset(FrameworkElement element)
             {
+                if (element.DataContext != null)
+                    return false;
                 while (element != null)
                 {
                     if (element.ReadLocalValue(FrameworkElement.DataContextProperty) != DependencyProperty.UnsetValue)

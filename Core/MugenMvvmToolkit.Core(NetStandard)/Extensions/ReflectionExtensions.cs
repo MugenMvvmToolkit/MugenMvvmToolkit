@@ -350,9 +350,9 @@ namespace MugenMvvmToolkit
         {
 #if NET_STANDARD
             var typeInfo = type.GetTypeInfo();
-            return typeInfo.IsClass && !typeInfo.IsAbstract && (typeInfo.IsPublic || typeInfo.IsNestedPublic);
+            return typeInfo.IsClass && !typeInfo.IsAbstract && (typeInfo.IsPublic || typeInfo.IsNestedPublic) && !typeInfo.IsGenericTypeDefinition;
 #else
-            return type.IsClass && !type.IsAbstract && (type.IsPublic || type.IsNestedPublic);
+            return type.IsClass && !type.IsAbstract && (type.IsPublic || type.IsNestedPublic) && !type.IsGenericTypeDefinition;
 #endif
         }
 
