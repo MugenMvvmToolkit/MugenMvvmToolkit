@@ -178,9 +178,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                     list = new List<WeakOpenedViewModelInfo>();
                     _openedViewModels[context.NavigationType] = list;
                 }
-                if (context.NavigationMode == NavigationMode.New && viewModelTo != null)
-                    list.Add(new WeakOpenedViewModelInfo(viewModelTo, context.NavigationProvider, context.NavigationType));
-                else if ((context.NavigationMode == NavigationMode.Refresh || context.NavigationMode == NavigationMode.Back) && viewModelTo != null)
+                if (viewModelTo != null && (context.NavigationMode == NavigationMode.Refresh || context.NavigationMode == NavigationMode.Back || context.NavigationMode == NavigationMode.New))
                 {
                     WeakOpenedViewModelInfo viewModelRef = null;
                     for (int i = 0; i < list.Count; i++)
@@ -198,7 +196,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                         viewModelRef = new WeakOpenedViewModelInfo(viewModelTo, context.NavigationProvider, context.NavigationType);
                     list.Add(viewModelRef);
                 }
-                if (context.NavigationMode.IsClose() && viewModelFrom != null)
+                if (viewModelFrom != null && context.NavigationMode.IsClose())
                 {
                     for (int i = 0; i < list.Count; i++)
                     {
