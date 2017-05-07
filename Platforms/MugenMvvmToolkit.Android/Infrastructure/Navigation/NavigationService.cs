@@ -317,6 +317,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             var prevContent = CurrentContent;
             if (ReferenceEquals(activity, prevContent))
                 return;
+            var viewModel = activity.DataContext() as IViewModel;
+            viewModel?.Settings.Metadata.Remove(NavigationProvider.BringToFront);
             AndroidToolkitExtensions.SetCurrentActivity(activity, false);
             var bundle = GetState(activity);
             if (bundle.ContainsKey(IsOpenedKey))
@@ -389,7 +391,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             if (activity.IsFinishing && !bundle.ContainsKey(IsFinishedKey))
             {
                 var viewModel = activity.DataContext() as IViewModel;
-                if (viewModel != null)
+                if (viewModel != null && !viewModel.Settings.Metadata.Contains(NavigationProvider.BringToFront))
                 {
                     RaiseNavigated(activity, NavigationMode.Remove, null, new DataContext
                     {
@@ -463,12 +465,12 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
             if (bringToFront)
             {
+                var viewModel = dataContext.GetData(NavigationConstants.ViewModel);
                 //http://stackoverflow.com/questions/20695522/puzzling-behavior-with-reorder-to-front
                 //http://code.google.com/p/android/issues/detail?id=63570#c2
                 bool closed = false;
                 if (!clearBackStack && AndroidToolkitExtensions.IsApiGreaterThanOrEqualTo19)
                 {
-                    var viewModel = dataContext.GetData(NavigationConstants.ViewModel);
                     var activityView = viewModel?.GetCurrentView<object>() as Activity;
                     if (activityView != null && activityView.IsTaskRoot)
                     {
@@ -479,6 +481,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                 }
                 if (!closed)
                     intent.AddFlags(ActivityFlags.ReorderToFront);
+                viewModel?.Settings.Metadata.AddOrUpdate(NavigationProvider.BringToFront, true);
             }
             StartActivity(context, intent, source, dataContext);
             return true;
