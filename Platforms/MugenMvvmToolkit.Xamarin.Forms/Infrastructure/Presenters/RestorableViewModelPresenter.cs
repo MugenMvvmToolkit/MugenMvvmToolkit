@@ -198,7 +198,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters
                 }
                 else if (keyPair.Key.StartsWith(NumberPrefix, StringComparison.Ordinal))
                 {
-                    var id = keyPair.Key.Replace(StatePrefix, string.Empty);
+                    var id = keyPair.Key.Replace(NumberPrefix, string.Empty);
                     var restoreTuple = items.Find(tuple => tuple.Id == id);
                     if (restoreTuple == null)
                     {

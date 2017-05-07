@@ -288,6 +288,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             var eventArgs = new NavigatingCancelEventArgs(null, NavigationMode.Back, null, true, isBack, null);
             RaiseNavigating(eventArgs);
             args.Cancel = eventArgs.Cancel;
+            if (!args.Cancel && isBack)
+                RaiseNavigated(null, null, NavigationMode.Back, DataContext.Empty);
         }
 
         private void ClearNavigationStackIfNeed(IDataContext context, Page page, Task task)
