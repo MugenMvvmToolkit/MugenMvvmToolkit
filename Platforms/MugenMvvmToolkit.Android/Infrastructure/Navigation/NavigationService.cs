@@ -419,7 +419,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             if (activity.IsFinishing && !bundle.ContainsKey(IsFinishedKey))
             {
                 var viewModel = activity.DataContext() as IViewModel;
-                if (viewModel != null && !viewModel.Settings.Metadata.Contains(NavigationProvider.BringToFront))
+                if (viewModel != null && !viewModel.IsDisposed && !viewModel.Settings.Metadata.Contains(NavigationProvider.BringToFront))
                 {
                     RaiseNavigated(activity, NavigationMode.Remove, null, new DataContext
                     {
