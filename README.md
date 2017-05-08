@@ -1,30 +1,28 @@
 [![MugenMvvmToolkit](https://raw.githubusercontent.com/MugenMvvmToolkit/MugenMvvmToolkit/master/logo_horizontal.png)](https://github.com/MugenMvvmToolkit/MugenMvvmToolkit)
 
 ----------
-Mugen MVVM Toolkit makes it easier to develop cross-platform application using the Model-View-ViewModel design pattern. The Mugen MVVM Toolkit makes extensive use of Portable Class Libraries to provide maintainable cross platform C# native applications.
+Mugen MVVM Toolkit makes it easier to develop cross-platform application using the Model-View-ViewModel design pattern. The Mugen MVVM Toolkit makes extensive use of Net Standard Library to provide maintainable cross platform C# native applications.
 The Mugen MVVM Toolkit provides a cross-platform MVVM development framework built on top of:
 
  - WinForms
  - WPF
- - Silverlight 5
- - Silverlight for WP8, WP8.1
  - Xamarin.Android
  - Xamarin.iOS
  - Xamarin.Forms
- - WinRT XAML framework for Windows 8 Store apps
+ - UWP
  
-#Questions & support
+# Questions & support
 We have a [group on Slack](http://www.mugenmvvmtoolkit.com/) where we will be glad to answer your questions.
 
-#Documentation
+# Documentation
 Please chek out MugenMvvmToolkit [documentation](https://mugenmvvmtoolkit.readme.io/docs).
 
-#Links
+# Links
  - [Nuget](http://www.nuget.org/packages?q=MugenMvvmToolkit)
  - [Samples](https://github.com/MugenMvvmToolkit/MugenMvvmToolkit.Samples)
  - [MugenMvvmToolkit.Fody plugin repository](https://github.com/MugenMvvmToolkit/MugenMvvmToolkit.Fody)
 
-#Features
+# Features
 The MVVM framework includes the following features that differs this project from other frameworks:
  - Deep integration with each platform.
  - Supports state preservation and restoration for mobile platforms.
@@ -33,11 +31,11 @@ The MVVM framework includes the following features that differs this project fro
  - Supports all kinds of navigation like modal window, page navigation, tab navigation, back stack fragment navigation for android. You can also easily add a new kind of navigation.
  - Navigation system works with view models and allows to expect the completion of the operation. You can pass any parameters between view models. 
 
-#Installation
+# Installation
 
 Under Visual Studio you can use [NuGet Package Manager](https://www.nuget.org/) to get MugenMvvmToolkit.
 
-To start developing under **iOS, Android, Windows Phone, WinRT, Silverlight** or **PCL** platforms use:
+To start developing under **iOS, Android, UWP** platforms use:
 ```
 PM> Install-Package MugenMvvmToolkit.StarterPack
 ```
@@ -52,7 +50,7 @@ To start developing under **Windows Forms**  use:
 PM> Install-Package MugenMvvmToolkit.StarterPack.WinForms
 ```
 
-#Navigation example
+# Navigation example
 
 An example of how the navigation looks in other frameworks:
 ```csharp
@@ -70,7 +68,7 @@ using (var editorVm = GetViewModel<ProductEditorViewModel>())
 }
 ```
 
-*For WinRT and WP you should install the [MugenMvvmToolkit.Fody](http://www.nuget.org/packages/MugenMvvmToolkit.Fody/) plugin to support async operation restore.*
+*For UWP you should install the [MugenMvvmToolkit.Fody](http://www.nuget.org/packages/MugenMvvmToolkit.Fody/) plugin to support async operation restore.*
  - Good design mode support, for xaml platforms supports the creation of design view model with any constructor parameters.
  - Supports bindings on all platforms, all of the native binding features available for WPF platform available on all platforms and even more.
  - Binding supports C# language expressions like Linq, Extension methods, method call, ternary operator (?:), coalescing operator (??), null conditional operator (?.) etc.
