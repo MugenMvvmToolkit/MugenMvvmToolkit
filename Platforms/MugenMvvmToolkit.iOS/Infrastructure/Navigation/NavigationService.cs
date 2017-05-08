@@ -113,13 +113,22 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
         {
             Should.NotBeNull(source, nameof(source));
             Should.NotBeNull(dataContext, nameof(dataContext));
+
+            var viewModel = dataContext.GetData(NavigationConstants.ViewModel);
+            var currentView = viewModel?.GetCurrentView<object>();
+            if (currentView != null && ReferenceEquals(currentView, CurrentContent))
+            {
+                ClearNavigationStackIfNeed((UIViewController)currentView, dataContext, false);
+                RaiseNavigated(currentView, NavigationMode.Refresh, parameter, dataContext);
+                return true;
+            }
+
             bool bringToFront;
             dataContext.TryGetData(NavigationProvider.BringToFront, out bringToFront);
             if (!RaiseNavigating(new NavigatingCancelEventArgs(source, bringToFront ? NavigationMode.Refresh : NavigationMode.New, parameter, dataContext)))
                 return false;
 
             UIViewController viewController = null;
-            IViewModel viewModel = dataContext.GetData(NavigationConstants.ViewModel);
             if (bringToFront && viewModel != null)
             {
                 var viewControllers = new List<UIViewController>(NavigationController.ViewControllers);
