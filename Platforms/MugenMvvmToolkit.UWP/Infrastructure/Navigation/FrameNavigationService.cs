@@ -65,24 +65,30 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         public bool Navigate(NavigatingCancelEventArgsBase args)
         {
             Should.NotBeNull(args, nameof(args));
+            if (!args.IsCancelable)
+                return false;
+
             if (args.NavigationMode == MugenMvvmToolkit.Models.NavigationMode.Remove)
                 return TryClose(args.Context);
 
-            var result = NavigateInternal(args);
-            if (result)
-                ClearNavigationStackIfNeed(args.Context);
-            return result;
+            if (args is RemoveNavigatingCancelEventArgs)
+                return TryClose(args.Context);
+
+            var wrapper = (NavigatingCancelEventArgsWrapper)args;
+            if (wrapper.Args.NavigationMode == NavigationMode.Back)
+            {
+                _lastContext = args.Context;
+                _frame.GoBack();
+                return true;
+            }
+            return Navigate(wrapper.Args.SourcePageType, wrapper.Parameter, args.Context);
         }
 
         public bool Navigate(IViewMappingItem source, string parameter, IDataContext dataContext)
         {
             Should.NotBeNull(source, nameof(source));
             Should.NotBeNull(dataContext, nameof(dataContext));
-            dataContext.TryGetData(NavigationProvider.BringToFront, out _bringToFront);
-            var result = Navigate(source.ViewType, parameter, dataContext);
-            if (result)
-                ClearNavigationStackIfNeed(dataContext);
-            return result;
+            return Navigate(source.ViewType, parameter, dataContext);
         }
 
         public bool CanClose(IDataContext dataContext)
@@ -152,28 +158,10 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 
         #region Methods
 
-        private bool NavigateInternal(NavigatingCancelEventArgsBase args)
+        private void ClearNavigationStack(IDataContext context)
         {
-            if (!args.IsCancelable)
-                return false;
-            if (args is RemoveNavigatingCancelEventArgs)
-                return TryClose(args.Context);
-            var wrapper = (NavigatingCancelEventArgsWrapper)args;
-            if (wrapper.Args.NavigationMode == NavigationMode.Back)
-            {
-                _lastContext = args.Context;
-                _frame.GoBack();
-                return true;
-            }
-            return Navigate(wrapper.Args.SourcePageType, wrapper.Parameter, args.Context);
-        }
-
-        private void ClearNavigationStackIfNeed(IDataContext context)
-        {
-            if (context == null)
-                context = DataContext.Empty;
             var backStack = _frame.BackStack;
-            if (!context.GetData(NavigationConstants.ClearBackStack) || backStack.IsReadOnly)
+            if (backStack.IsReadOnly)
                 return;
             for (int index = 0; index < backStack.Count; index++)
             {
@@ -246,10 +234,13 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 
         private bool Navigate(Type type, string parameter, IDataContext context)
         {
+            context.TryGetData(NavigationProvider.BringToFront, out _bringToFront);
+            var clearBackStack = context.GetData(NavigationConstants.ClearBackStack);
             _lastContext = context;
-            if (parameter == null)
-                return _frame.Navigate(type);
-            return _frame.Navigate(type, parameter);
+            var result = parameter == null ? _frame.Navigate(type) : _frame.Navigate(type, parameter);
+            if (result && clearBackStack)
+                ClearNavigationStack(context);
+            return result;
         }
 
         private static Guid GetViewModelIdFromParameter(object parameter)
