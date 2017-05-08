@@ -473,6 +473,9 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\viewmodels\IWrapperViewModel.cs">
       <Link>Interfaces\ViewModels\IWrapperViewModel.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\Views\ICleanableView.cs">
+      <Link>Interfaces\Views\ICleanableView.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\Views\IInitializableView.cs">
       <Link>Interfaces\Views\IInitializableView.cs</Link>
     </Compile>

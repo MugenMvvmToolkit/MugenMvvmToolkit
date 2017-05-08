@@ -218,7 +218,9 @@ namespace MugenMvvmToolkit.Infrastructure
             if (viewModel != null || ApplicationSettings.ViewManagerClearDataContext)
                 ToolkitExtensions.SetDataContext(view, viewModel);
             ReflectionExtensions.GetViewModelPropertySetter(view.GetType())?.Invoke(view, viewModel);
-            if (viewModel != null)
+            if (viewModel == null)
+                (view as ICleanableView)?.Cleanup(context);
+            else
                 (view as IInitializableView)?.Initialize(viewModel, context);
         }
 
