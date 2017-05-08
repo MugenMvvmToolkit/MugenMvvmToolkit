@@ -15,7 +15,7 @@ namespace $rootnamespace$
 
         protected override IIocContainer CreateIocContainer()
         {
-            return new AutofacContainer();
+            return new MugenContainer();
         }
 
         protected override IMvvmApplication CreateApplication()

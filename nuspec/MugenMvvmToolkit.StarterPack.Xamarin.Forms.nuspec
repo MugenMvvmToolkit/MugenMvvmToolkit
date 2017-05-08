@@ -7,16 +7,15 @@
     <authors>Vyacheslav Volkov</authors>
     <description>
       This package contains the 'Getting Started' assemblies for Xamarin.Forms platform.
-      Mugen MVVM Toolkit makes it easier to develop cross-platform application using the Model-View-ViewModel design pattern.
-      The Mugen MVVM Toolkit provides a cross-platform MVVM development framework built on top of:
+      Mugen MVVM Toolkit makes it easier to develop cross-platform application using the Model-View-ViewModel design pattern. 
+	  The Mugen MVVM Toolkit makes extensive use of Net Standard Library to provide maintainable cross platform C# native applications. 
+	  The Mugen MVVM Toolkit provides a cross-platform MVVM development framework built on top of:
       - WinForms
       - WPF
-      - Silverlight 5
-      - Silverlight for WP8, WP8.1
       - Xamarin.Android
       - Xamarin.iOS
       - Xamarin.Forms
-      - WinRT XAML framework for Windows Store apps
+      - UWP
       The MVVM framework includes the following features that differs this project from other frameworks:
       - Deep integration with each platform.
       - Supports state preservation and restoration for mobile platforms.
@@ -40,30 +39,9 @@
     <iconUrl>https://raw.githubusercontent.com/MugenMvvmToolkit/MugenMvvmToolkit/master/logo128_128.png</iconUrl>
     <projectUrl>https://github.com/MugenMvvmToolkit/MugenMvvmToolkit</projectUrl>
     <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
-    <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios</tags>
+    <tags>mugen mvvm toolkit binding wpf winforms android uwp cross platform ios xamarin forms xamforms</tags>
     <dependencies>
-      <group targetFramework="MonoAndroid10">
-        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="6.5.0" />
-      </group>
-      <group targetFramework="Xamarin.iOS10">
-        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="6.5.0" />
-      </group>
-      <group targetFramework="wp8">
-        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="6.5.0" />
-      </group>
-      <group targetFramework="wpa81">
-        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="6.5.0" />
-      </group>
-      <group targetFramework="win81">
-        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="6.5.0" />
-      </group>
-      <group targetFramework="uap10.0">
-        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="6.5.0" />
-      </group>
-      <group targetFramework="netstandard1.0">
-        <dependency id="MugenMvvmToolkit.MugenContainer" version="6.5.0" />
-        <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="6.5.0" />		
-      </group>
+      <dependency id="MugenMvvmToolkit.Xamarin.Forms" version="6.5.0" />
     </dependencies>
   </metadata>
   <files>

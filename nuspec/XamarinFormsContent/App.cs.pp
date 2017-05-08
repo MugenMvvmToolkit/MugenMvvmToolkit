@@ -1,16 +1,28 @@
 using MugenMvvmToolkit;
+using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Xamarin.Forms;
 using MugenMvvmToolkit.Xamarin.Forms.Infrastructure;
-using Xamarin.Forms;
 
 namespace $rootnamespace$
 {
-    public class App : Application
+    public class App : MvvmXamarinApplicationBase
     {
+        #region Constructors
+
         public App(XamarinFormsBootstrapperBase.IPlatformService platformService)
+            : base(platformService)
         {
-            XamarinFormsBootstrapperBase bootstrapper = XamarinFormsBootstrapperBase.Current ??
-                                                        new Bootstrapper<Core.App>(platformService, new AutofacContainer());
-            bootstrapper.Start();
         }
+
+        #endregion
+
+        #region Methods
+
+        protected override XamarinFormsBootstrapperBase CreateBootstrapper(XamarinFormsBootstrapperBase.IPlatformService platformService, IDataContext context)
+        {
+            return new Bootstrapper<Core.App>(platformService, new MugenContainer());
+        }
+
+        #endregion			
     }
 }

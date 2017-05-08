@@ -1,4 +1,5 @@
 using System.Windows;
+using MugenMvvmToolkit;
 using MugenMvvmToolkit.WPF.Infrastructure;
 
 namespace $rootnamespace$
@@ -8,7 +9,7 @@ namespace $rootnamespace$
         public App()
         {
             // ReSharper disable once ObjectCreationAsStatement
-            new Bootstrapper<Core.App>(this, new IIocContainer());
+            new Bootstrapper<Core.App>(this, new MugenContainer());
         }
     }
 }

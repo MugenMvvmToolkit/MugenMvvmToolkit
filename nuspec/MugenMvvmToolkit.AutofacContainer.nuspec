@@ -9,19 +9,21 @@
     <projectUrl>https://github.com/MugenMvvmToolkit/MugenMvvmToolkit</projectUrl>
     <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
     <iconUrl>https://raw.githubusercontent.com/MugenMvvmToolkit/MugenMvvmToolkit/master/logo128_128.png</iconUrl>
-    <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios di ioc</tags>
+    <tags>mugen mvvm toolkit binding wpf winforms android uwp cross platform ios xamarin forms xamforms</tags>
     <description>Extension for Autofac providing integration with Mugen MVVM Toolkit.</description>
     <dependencies>
       <group>
         <dependency id="Autofac" version="[3.5.2, 3.6.0)" />
+        <dependency id="MugenMvvmToolkit" version="[6.5.0, 6.6.0)" />
       </group>
       <group targetFramework=".NETStandard1.1">
         <dependency id="Autofac" version="[4.4.0, 4.5.0)" />
+        <dependency id="MugenMvvmToolkit" version="[6.5.0, 6.6.0)" />
       </group>      
     </dependencies>
   </metadata>
   <files>
-    <!-- PCL -->
+    <!-- NetStandard -->
     <file src="..\bin\IocContainers\Autofac\netstandard\MugenMvvmToolkit.AutofacContainer.dll" target="lib\netstandard1.1\MugenMvvmToolkit.AutofacContainer.dll" />
     <file src="..\bin\IocContainers\Autofac\netstandard\MugenMvvmToolkit.AutofacContainer.pdb" target="lib\netstandard1.1\MugenMvvmToolkit.AutofacContainer.pdb" />
 

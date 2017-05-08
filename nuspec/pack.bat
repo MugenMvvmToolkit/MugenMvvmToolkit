@@ -5,7 +5,13 @@ nuget pack MugenMvvmToolkit.AutofacContainer.nuspec
 nuget pack MugenMvvmToolkit.NinjectContainer.nuspec
 nuget pack MugenMvvmToolkit.WinForms.nuspec
 nuget pack MugenMvvmToolkit.WPF.nuspec
+nuget pack MugenMvvmToolkit.WPF.Binding.nuspec
+nuget pack MugenMvvmToolkit.UWP.nuspec
+nuget pack MugenMvvmToolkit.UWP.Binding.nuspec
+nuget pack MugenMvvmToolkit.iOS.nuspec
 nuget pack MugenMvvmToolkit.Xamarin.Forms.nuspec
+nuget pack MugenMvvmToolkit.Xamarin.Forms.Binding.nuspec
+nuget pack MugenMvvmToolkit.Android.nuspec
 nuget pack MugenMvvmToolkit.Android.AppCompat.nuspec
 nuget pack MugenMvvmToolkit.Android.Design.nuspec
 nuget pack MugenMvvmToolkit.Android.Preference.nuspec

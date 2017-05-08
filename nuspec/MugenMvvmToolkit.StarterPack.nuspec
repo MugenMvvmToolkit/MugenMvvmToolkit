@@ -6,17 +6,16 @@
     <title>MugenMvvmToolkit - Starter Pack</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
-      This package contains the 'Getting Started' assemblies for WinRT, WinPhone, Silverlight, Android, iOS, PCL platforms.
-      Mugen MVVM Toolkit makes it easier to develop cross-platform application using the Model-View-ViewModel design pattern.
-      The Mugen MVVM Toolkit provides a cross-platform MVVM development framework built on top of:
+      This package contains the 'Getting Started' assemblies for UWP, Android, iOS platforms.
+      Mugen MVVM Toolkit makes it easier to develop cross-platform application using the Model-View-ViewModel design pattern. 
+	  The Mugen MVVM Toolkit makes extensive use of Net Standard Library to provide maintainable cross platform C# native applications. 
+	  The Mugen MVVM Toolkit provides a cross-platform MVVM development framework built on top of:
       - WinForms
       - WPF
-      - Silverlight 5
-      - Silverlight for WP8, WP8.1
       - Xamarin.Android
       - Xamarin.iOS
       - Xamarin.Forms
-      - WinRT XAML framework for Windows Store apps
+      - UWP
       The MVVM framework includes the following features that differs this project from other frameworks:
       - Deep integration with each platform.
       - Supports state preservation and restoration for mobile platforms.
@@ -40,19 +39,9 @@
     <iconUrl>https://raw.githubusercontent.com/MugenMvvmToolkit/MugenMvvmToolkit/master/logo128_128.png</iconUrl>
     <projectUrl>https://github.com/MugenMvvmToolkit/MugenMvvmToolkit</projectUrl>
     <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
-    <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios</tags>
+    <tags>mugen mvvm toolkit binding wpf winforms android uwp cross platform ios xamarin forms xamforms</tags>
     <dependencies>
-      <group>
-        <dependency id="MugenMvvmToolkit" version="6.5.0" />
-      </group>
-      <group targetFramework="Xamarin.iOS">
-        <dependency id="MugenMvvmToolkit" version="6.5.0" />
-		<dependency id="MugenMvvmToolkit.AutofacContainer" version="6.5.0" />
-      </group>
-	  <group targetFramework="MonoAndroid10">
-        <dependency id="MugenMvvmToolkit" version="6.5.0" />
-		<dependency id="MugenMvvmToolkit.AutofacContainer" version="6.5.0" />
-      </group>
+      <dependency id="MugenMvvmToolkit" version="6.5.0" />
     </dependencies>
   </metadata>
   <files>
@@ -71,13 +60,5 @@
     <file src="TouchContent\Setup.cs.pp" target="content\Xamarin.iOS10\AppDelegate.cs.pp" />
     <file src="TouchContent\MainView.cs.pp" target="content\Xamarin.iOS10\Views\MainView.cs.pp" />
     <file src="TouchContent\Readme.txt" target="content\Xamarin.iOS10\_MugenMvvmToolkitReadme.txt" />
-
-    <!-- UWP fix --> 
-    <file src="WinRTContent\App.Xaml.cs.pp" target="content\portable-win81+wpa81\App.Xaml.cs.pp" />
-    <file src="WinRTContent\NavigationHelper.cs.pp" target="content\portable-win81+wpa81\NavigationHelper.cs.pp" />
-    <file src="WinRTContent\SuspensionManager.cs.pp" target="content\portable-win81+wpa81\SuspensionManager.cs.pp" />
-    <file src="WinRTContent\MainView.xaml.cs.pp" target="content\portable-win81+wpa81\Views\MainView.xaml.cs.pp" />
-    <file src="WinRTContent\MainView.xaml.pp" target="content\portable-win81+wpa81\Views\MainView.xaml.pp" />
-    <file src="WinRTContent\Readme.txt" target="content\portable-win81+wpa81\_MugenMvvmToolkitReadme.txt" />
   </files>
 </package>

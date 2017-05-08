@@ -1,12 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
-    <id>MugenMvvmToolkit.Android.RecyclerView</id>
+    <id>MugenMvvmToolkit.UWP.Binding</id>
     <version>6.5.0</version>
-    <title>MugenMvvmToolkit - Android Support Library v7 RecyclerView</title>
+    <title>MugenMvvmToolkit - Binding Extensions UWP</title>
     <authors>Vyacheslav Volkov</authors>
     <description>
-      This package adds Android Support Library v7 RecyclerView support for MugenMvvmToolkit.
+      This package contains the binding extensions for UWP.
+      Mugen MVVM Toolkit makes it easier to develop cross-platform application using the Model-View-ViewModel design pattern. 
+	  The Mugen MVVM Toolkit makes extensive use of Net Standard Library to provide maintainable cross platform C# native applications. 
+	  The Mugen MVVM Toolkit provides a cross-platform MVVM development framework built on top of:
+      - WinForms
+      - WPF
+      - Xamarin.Android
+      - Xamarin.iOS
+      - Xamarin.Forms
+      - UWP
+      The MVVM framework includes the following features that differs this project from other frameworks:
+      - Deep integration with each platform.
+      - Supports state preservation and restoration for mobile platforms.
+      - Full Fragment support for Android, you do not need to worry about activity, fragments, sub-fragments or their state all this makes the framework.
+      - Solves the nested user controls problem in MVVM, all view models are dynamically created by you, using the GetViewModel method and you do not need to use the ViewModelLocator.
+      - Supports all kinds of navigation like modal window, page navigation, tab navigation, back stack fragment navigation for android. You can also easily add a new kind of navigation.
+      - Navigation system works with view models and allows to expect the completion of the operation. You can pass any parameters between view models.
+      - Good design mode support, for xaml platforms supports the creation of design view model with any constructor parameters.
+      - Supports bindings on all platforms, all of the native binding features available for WPF platform available on all platforms and even more.
+      - Binding supports C# language expressions like Linq, Extension methods, method call, ternary operator (?:), coalescing operator (??), etc.
+      - Supports subscription to any control event.
+      - Built-in support for validation.
+      - You can easily write their own extensions for bindings.
+      - Supports attached members (properties, events, methods), you can extend any object as you want.
+      - Special editor for WinForms, you do not need to write code to create bindings.
+      - Binding parser builds syntax tree that allows you to easily change or extend the bindings, without manipulation of the raw text.
+      - Binding supports fluent syntax.
+      - Excellent binding performance.
     </description>
     <releaseNotes>
 Breaking changes:
@@ -165,12 +192,12 @@ Changes:
     <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
     <tags>mugen mvvm toolkit binding wpf winforms android uwp cross platform ios xamarin forms xamforms</tags>
     <dependencies>
-      <dependency id="MugenMvvmToolkit.Android" version="[6.5.0, 6.6.0)" />      
-      <dependency id="Xamarin.Android.Support.v7.RecyclerView" version="25.3.1" />
+      <dependency id="MugenMvvmToolkit.UWP" version="[6.5.0, 6.6.0)" />
+      <dependency id="MugenMvvmToolkit.Binding" version="[6.5.0, 6.6.0)" />
     </dependencies>
   </metadata>
-  <files>    
-    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.RecyclerView.dll" target="lib\MonoAndroid10\MugenMvvmToolkit.Android.RecyclerView.dll" />
-    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.RecyclerView.pdb" target="lib\MonoAndroid10\MugenMvvmToolkit.Android.RecyclerView.pdb" />
+  <files>
+    <file src="..\bin\Platforms\UWP\MugenMvvmToolkit.UWP.Binding.dll" target="lib\uap10.0\MugenMvvmToolkit.UWP.Binding.dll" />
+    <file src="..\bin\Platforms\UWP\MugenMvvmToolkit.UWP.Binding.pdb" target="lib\uap10.0\MugenMvvmToolkit.UWP.Binding.pdb" />
   </files>
 </package>

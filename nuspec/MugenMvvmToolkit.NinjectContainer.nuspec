@@ -9,11 +9,12 @@
     <projectUrl>https://github.com/MugenMvvmToolkit/MugenMvvmToolkit</projectUrl>
     <licenseUrl>http://opensource.org/licenses/MS-PL</licenseUrl>
     <iconUrl>https://raw.githubusercontent.com/MugenMvvmToolkit/MugenMvvmToolkit/master/logo128_128.png</iconUrl>
-    <tags>mugen mvvm toolkit binding wpf winforms android windows phone winrt binding cross platform ios ioc di</tags>
+    <tags>mugen mvvm toolkit binding wpf winforms android uwp cross platform ios xamarin forms xamforms</tags>
     <description>Extension for Ninject providing integration with Mugen MVVM Toolkit.</description>
     <dependencies>
       <dependency id="Ninject" version="[3.2.2.0]" />
       <dependency id="Ninject.Extensions.ChildKernel" version="[3.2.0.0]" />
+      <dependency id="MugenMvvmToolkit" version="[6.5.0, 6.6.0)" />
     </dependencies>
   </metadata>
 
