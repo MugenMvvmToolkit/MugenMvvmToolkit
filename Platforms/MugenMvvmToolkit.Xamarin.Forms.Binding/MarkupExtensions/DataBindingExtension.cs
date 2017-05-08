@@ -19,6 +19,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Models;
@@ -55,7 +56,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.MarkupExtensions
             var path = GetTargetPropertyName(provideValueTarget, serviceProvider);
             if (path == null)
             {
-                Tracer.Error($"{GetType().Name}: DataBindingExtension cannot obtain target property on '{targetObject}' object");
+                Tracer.Error($"{GetType().Name}: DataBindingExtension cannot obtain target property on '{targetObject}'");
                 return GetEmptyValue();
             }
 
@@ -84,9 +85,13 @@ namespace MugenMvvmToolkit.Xamarin.Forms.MarkupExtensions
 
         protected virtual string GetTargetPropertyName(IProvideValueTarget provideValueTarget, IServiceProvider serviceProvider)
         {
-            //NOTE Xamarin doesn't support this property.
-            //return serviceProvider.GetService<IProvideValueTarget>().TargetProperty;
-            //http://forums.xamarin.com/discussion/36884/missing-implementation-of-iprovidevaluetarget-targetproperty-property-imarkupextension
+            var targetProperty = provideValueTarget.TargetProperty;
+            var bindableProperty = targetProperty as BindableProperty;
+            if (bindableProperty != null)
+                return bindableProperty.PropertyName;
+            var memberInfo = targetProperty as MemberInfo;
+            if (memberInfo != null)
+                return memberInfo.Name;
 
             if (GetTargetPropertyNameDelegate != null)
                 return GetTargetPropertyNameDelegate(provideValueTarget, serviceProvider);
