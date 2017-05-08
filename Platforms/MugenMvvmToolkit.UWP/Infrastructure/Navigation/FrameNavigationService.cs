@@ -29,6 +29,7 @@ using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.ViewModels;
 using MugenMvvmToolkit.UWP.Interfaces.Navigation;
 using MugenMvvmToolkit.UWP.Models.EventArg;
+using NavigationEventArgs = MugenMvvmToolkit.UWP.Models.EventArg.NavigationEventArgs;
 using NavigationMode = Windows.UI.Xaml.Navigation.NavigationMode;
 
 namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
@@ -71,9 +72,6 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             if (args.NavigationMode == MugenMvvmToolkit.Models.NavigationMode.Remove)
                 return TryClose(args.Context);
 
-            if (args is RemoveNavigatingCancelEventArgs)
-                return TryClose(args.Context);
-
             var wrapper = (NavigatingCancelEventArgsWrapper)args;
             if (wrapper.Args.NavigationMode == NavigationMode.Back)
             {
@@ -88,6 +86,17 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         {
             Should.NotBeNull(source, nameof(source));
             Should.NotBeNull(dataContext, nameof(dataContext));
+            var clearBackStack = dataContext.GetData(NavigationConstants.ClearBackStack);
+            var viewModel = dataContext.GetData(NavigationConstants.ViewModel);
+            var currentView = viewModel?.GetCurrentView<object>();
+            if (currentView != null && ReferenceEquals(currentView, CurrentContent))
+            {
+                if (clearBackStack)
+                    ClearNavigationStack(dataContext);
+                RaiseNavigated(new NavigationEventArgs(MugenMvvmToolkit.Models.NavigationMode.Refresh, dataContext, currentView, parameter));
+                return true;
+            }
+
             return Navigate(source.ViewType, parameter, dataContext);
         }
 
@@ -144,7 +153,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                     }
                 }
                 if (closed)
-                    RaiseNavigated(new RemoveNavigationEventArgs(dataContext));
+                    RaiseNavigated(new NavigationEventArgs(MugenMvvmToolkit.Models.NavigationMode.Remove, dataContext, null, null));
                 return closed;
             }
             return true;
@@ -171,14 +180,14 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                 {
                     var ctx = new DataContext(context);
                     ctx.AddOrUpdate(NavigationConstants.ViewModel, viewModel);
-                    RaiseNavigated(new RemoveNavigationEventArgs(ctx));
+                    RaiseNavigated(new NavigationEventArgs(MugenMvvmToolkit.Models.NavigationMode.Remove, ctx, null, null));
                 }
                 backStack.RemoveAt(index);
                 --index;
             }
         }
 
-        private void OnNavigated(object sender, NavigationEventArgs args)
+        private void OnNavigated(object sender, Windows.UI.Xaml.Navigation.NavigationEventArgs args)
         {
             var bringToFront = _bringToFront;
             var lastContext = _lastContext;
