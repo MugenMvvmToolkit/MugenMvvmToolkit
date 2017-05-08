@@ -156,7 +156,10 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             page.SetNavigationParameter(parameter);
             page.SetNavigationContext(dataContext, false);
             page.SetBringToFront(bringToFront);
-            ClearNavigationStackIfNeed(dataContext, page, _rootPage.PushAsync(page, animated));
+            var clearBackStack = dataContext.GetData(NavigationConstants.ClearBackStack);
+            var pushAsync = _rootPage.PushAsync(page, animated);
+            if (clearBackStack)
+                ClearNavigationStack(dataContext, page, pushAsync);
             return true;
         }
 
@@ -292,10 +295,10 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
                 RaiseNavigated(null, null, NavigationMode.Back, DataContext.Empty);
         }
 
-        private void ClearNavigationStackIfNeed(IDataContext context, Page page, Task task)
+        private void ClearNavigationStack(IDataContext context, Page page, Task task)
         {
             var navigation = _rootPage.Navigation;
-            if (navigation == null || context == null || !context.GetData(NavigationConstants.ClearBackStack))
+            if (navigation == null)
                 return;
             task.TryExecuteSynchronously(t =>
             {
