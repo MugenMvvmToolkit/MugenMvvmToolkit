@@ -297,6 +297,34 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             }, OperationPriority.Low);
         }
 
+        private void ClearBackStack(Intent intent, IViewModel viewModel, bool bringToFront, IDataContext dataContext)
+        {
+            if (intent != null)
+            {
+                if (AndroidToolkitExtensions.IsApiLessThanOrEqualTo10)
+                    intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTop);
+                else
+                    intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
+            }
+            var message = new MvvmActivityMediator.FinishActivityMessage();
+            if (bringToFront)
+            {
+                if (viewModel != null)
+                    message.IgnoredViewModels = new[] { viewModel };
+            }
+            ServiceProvider.EventAggregator.Publish(this, message);
+            if (message.FinishedViewModels != null)
+            {
+                message.FinishedViewModels.Reverse();
+                foreach (var vm in message.FinishedViewModels)
+                {
+                    var ctx = new DataContext(dataContext);
+                    ctx.AddOrUpdate(NavigationConstants.ViewModel, vm);
+                    RaiseNavigated(vm, NavigationMode.Remove, null, ctx);
+                }
+            }
+        }
+
         #endregion
 
         #region Implementation of INavigationService
@@ -420,13 +448,24 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
         {
             Should.NotBeNull(source, nameof(source));
             Should.NotBeNull(dataContext, nameof(dataContext));
+
+            bool clearBackStack = dataContext.GetData(NavigationConstants.ClearBackStack);
+            var viewModel = dataContext.GetData(NavigationConstants.ViewModel);
+            var currentView = viewModel?.GetCurrentView<object>();
+            if (currentView != null && ReferenceEquals(currentView, CurrentContent))
+            {
+                if (clearBackStack)
+                    ClearBackStack(null, viewModel, true, dataContext);
+                RaiseNavigated(currentView, NavigationMode.Refresh, parameter, dataContext);
+                return true;
+            }
+
             bool bringToFront;
             dataContext.TryGetData(NavigationProvider.BringToFront, out bringToFront);
             if (!RaiseNavigating(new NavigatingCancelEventArgs(source, bringToFront ? NavigationMode.Refresh : NavigationMode.New, parameter, dataContext)))
                 return false;
 
             _newContext = dataContext;
-            bool clearBackStack = dataContext.GetData(NavigationConstants.ClearBackStack);
             var activity = AndroidToolkitExtensions.CurrentActivity;
             var context = activity ?? Application.Context;
 
@@ -435,37 +474,13 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             if (activity == null)
                 intent.AddFlags(ActivityFlags.NewTask);
             else if (clearBackStack)
-            {
-                if (AndroidToolkitExtensions.IsApiLessThanOrEqualTo10)
-                    intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTop);
-                else
-                    intent.AddFlags(ActivityFlags.NewTask | ActivityFlags.ClearTask);
-                var message = new MvvmActivityMediator.FinishActivityMessage();
-                if (bringToFront)
-                {
-                    var viewModel = dataContext.GetData(NavigationConstants.ViewModel);
-                    if (viewModel != null)
-                        message.IgnoredViewModels = new[] { viewModel };
-                }
-                ServiceProvider.EventAggregator.Publish(this, message);
-                if (message.FinishedViewModels != null)
-                {
-                    message.FinishedViewModels.Reverse();
-                    foreach (var vm in message.FinishedViewModels)
-                    {
-                        var ctx = new DataContext(dataContext);
-                        ctx.AddOrUpdate(NavigationConstants.ViewModel, vm);
-                        RaiseNavigated(vm, NavigationMode.Remove, null, ctx);
-                    }
-                }
-            }
+                ClearBackStack(intent, viewModel, bringToFront, dataContext);
 
             if (parameter != null)
                 intent.PutExtra(ParameterId, parameter);
 
             if (bringToFront)
             {
-                var viewModel = dataContext.GetData(NavigationConstants.ViewModel);
                 //http://stackoverflow.com/questions/20695522/puzzling-behavior-with-reorder-to-front
                 //http://code.google.com/p/android/issues/detail?id=63570#c2
                 bool closed = false;

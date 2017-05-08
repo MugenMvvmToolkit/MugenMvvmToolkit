@@ -280,11 +280,6 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 
         protected virtual void NavigateInternal(IViewModel viewModel, IDataContext context, TaskCompletionSource<bool> tcs)
         {
-            if (ReferenceEquals(viewModel, CurrentViewModel))
-            {
-                tcs.SetResult(true);
-                return;
-            }
             //The view model is already shown as page and we need to bring it to front
             if (viewModel.Settings.State.Contains(IsNavigatedConstant))
                 context.AddOrUpdate(BringToFront, true);
@@ -496,7 +491,6 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 #if WINDOWS_UWP                
                     lock (_openedViewModels)
                         _openedViewModels.Remove(vmFrom.GetViewModelId());
-                
 #endif
                 }
             }
