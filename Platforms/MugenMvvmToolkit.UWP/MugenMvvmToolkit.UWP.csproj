@@ -156,7 +156,7 @@
     <Compile Include="Models\EventArg\NavigatingCancelEventArgsWrapper.cs" />
     <Compile Include="Models\EventArg\NavigationEventArgsWrapper.cs" />
     <Compile Include="Models\EventArg\RemoveNavigatingCancelEventArgs.cs" />
-    <Compile Include="Models\EventArg\RemoveNavigationEventArgs.cs" />
+    <Compile Include="Models\EventArg\NavigationEventArgs.cs" />
     <Compile Include="Models\LazySerializableContainer.cs" />
     <Compile Include="Models\PopupSettings.cs" />
     <Compile Include="Modules\UwpWrapperRegistrationModule.cs" />

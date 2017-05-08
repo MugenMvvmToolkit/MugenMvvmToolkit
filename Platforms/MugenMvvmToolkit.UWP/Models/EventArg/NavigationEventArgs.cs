@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="RemoveNavigationEventArgs.cs">
+// <copyright file="NavigationEventArgs.cs">
 // Copyright (c) 2012-2017 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -22,30 +22,36 @@ using MugenMvvmToolkit.Models.EventArg;
 
 namespace MugenMvvmToolkit.UWP.Models.EventArg
 {
-    public class RemoveNavigationEventArgs : NavigationEventArgsBase
+    public class NavigationEventArgs : NavigationEventArgsBase
     {
         #region Fields
 
         private readonly IDataContext _context;
+        private readonly string _parameter;
+        private readonly object _content;
+        private readonly NavigationMode _navigationMode;
 
         #endregion
 
         #region Constructors
 
-        public RemoveNavigationEventArgs(IDataContext context)
+        public NavigationEventArgs(NavigationMode navigationMode, IDataContext context, object content, string parameter)
         {
+            _navigationMode = navigationMode;
             _context = context.ToNonReadOnly();
+            _content = content;
+            _parameter = parameter;
         }
 
         #endregion
 
         #region Properties
 
-        public override string Parameter => null;
+        public override string Parameter => _parameter;
 
-        public override object Content => null;
+        public override object Content => _content;
 
-        public override NavigationMode NavigationMode => NavigationMode.Remove;
+        public override NavigationMode NavigationMode => _navigationMode;
 
         public override IDataContext Context => _context;
 

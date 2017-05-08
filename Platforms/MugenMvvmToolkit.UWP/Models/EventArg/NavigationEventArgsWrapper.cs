@@ -28,7 +28,7 @@ namespace MugenMvvmToolkit.UWP.Models.EventArg
     {
         #region Fields
 
-        private readonly NavigationEventArgs _args;
+        private readonly Windows.UI.Xaml.Navigation.NavigationEventArgs _args;
         private readonly bool _bringToFront;
         private readonly IDataContext _context;
 
@@ -36,7 +36,7 @@ namespace MugenMvvmToolkit.UWP.Models.EventArg
 
         #region Constructors
 
-        public NavigationEventArgsWrapper([NotNull] NavigationEventArgs args, bool bringToFront, IDataContext context)
+        public NavigationEventArgsWrapper([NotNull] Windows.UI.Xaml.Navigation.NavigationEventArgs args, bool bringToFront, IDataContext context)
         {
             Should.NotBeNull(args, nameof(args));
             _args = args;
@@ -48,7 +48,7 @@ namespace MugenMvvmToolkit.UWP.Models.EventArg
 
         #region Properties
 
-        public NavigationEventArgs Args => _args;
+        public Windows.UI.Xaml.Navigation.NavigationEventArgs Args => _args;
 
         #endregion
 

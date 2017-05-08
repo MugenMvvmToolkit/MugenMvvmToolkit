@@ -24,6 +24,7 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
+using MugenMvvmToolkit.ViewModels;
 using MugenMvvmToolkit.Xamarin.Forms.Interfaces.Navigation;
 using MugenMvvmToolkit.Xamarin.Forms.Models.EventArg;
 using Xamarin.Forms;
@@ -117,12 +118,23 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             Should.NotBeNull(dataContext, nameof(dataContext));
             if (_rootPage == null)
                 return false;
+
+            var clearBackStack = dataContext.GetData(NavigationConstants.ClearBackStack);
+            var viewModel = dataContext.GetData(NavigationConstants.ViewModel);
+            var currentView = viewModel?.GetCurrentView<object>();
+            if (currentView != null && ReferenceEquals(currentView, CurrentContent))
+            {
+                if (clearBackStack)
+                    ClearNavigationStack(dataContext, (Page)currentView, Empty.Task);
+                RaiseNavigated(currentView, parameter, NavigationMode.Refresh, dataContext);
+                return true;
+            }
+
             bool bringToFront;
             dataContext.TryGetData(NavigationProvider.BringToFront, out bringToFront);
             if (!RaiseNavigating(new NavigatingCancelEventArgs(source, bringToFront ? NavigationMode.Refresh : NavigationMode.New, parameter, true, false, dataContext)))
                 return false;
 
-            var viewModel = dataContext.GetData(NavigationConstants.ViewModel);
             bool animated;
             if (dataContext.TryGetData(NavigationConstants.UseAnimations, out animated))
                 viewModel?.Settings.State.AddOrUpdate(NavigationConstants.UseAnimations, animated);
@@ -156,7 +168,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             page.SetNavigationParameter(parameter);
             page.SetNavigationContext(dataContext, false);
             page.SetBringToFront(bringToFront);
-            var clearBackStack = dataContext.GetData(NavigationConstants.ClearBackStack);
             var pushAsync = _rootPage.PushAsync(page, animated);
             if (clearBackStack)
                 ClearNavigationStack(dataContext, page, pushAsync);
