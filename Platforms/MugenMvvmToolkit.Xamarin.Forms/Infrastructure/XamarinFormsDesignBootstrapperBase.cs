@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using JetBrains.Annotations;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Xamarin.Forms.Interfaces.Navigation;
@@ -36,11 +37,14 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
 
         #region Methods
 
-        public static void EnsureInitialized(Func<XamarinFormsDesignBootstrapperBase> factory)
+        [CanBeNull]
+        public static T EnsureInitialized<T>(Func<T> factory)
+            where T : XamarinFormsDesignBootstrapperBase
         {
             Should.NotBeNull(factory, nameof(factory));
             if (Current == null)
                 factory().Initialize();
+            return Current as T;
         }
 
         public sealed override void Start()

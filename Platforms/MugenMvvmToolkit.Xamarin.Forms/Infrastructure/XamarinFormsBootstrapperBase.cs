@@ -103,7 +103,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         protected XamarinFormsBootstrapperBase(IPlatformService platformService, bool isDesignMode = false)
             : this(isDesignMode, platformService?.GetPlatformInfo())
         {
-            Should.NotBeNull(platformService, nameof(platformService));
             _platformService = platformService;
             WrapToNavigationPage = true;
         }

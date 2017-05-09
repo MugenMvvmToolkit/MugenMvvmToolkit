@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -145,7 +144,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
         }
 
-        public virtual T GetOrAddDesignViewModel<T>(Func<IViewModelProvider, T> getViewModel, [CallerMemberName] string property = "") where T : IViewModel
+        internal T GetOrAddDesignViewModelInternal<T>(Func<IViewModelProvider, T> getViewModel, string property) where T : IViewModel
         {
             if (!IsDesignMode)
                 return default(T);

@@ -24,12 +24,14 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.DataConstants;
+using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
@@ -998,6 +1000,14 @@ namespace MugenMvvmToolkit
         #endregion
 
         #region Extensions
+
+        public static T GetOrAddDesignViewModel<T>(this BootstrapperBase bootstrapper, Func<IViewModelProvider, T> getViewModel, [CallerMemberName] string property = "")
+            where T : IViewModel
+        {
+            if (bootstrapper == null)
+                return default(T);
+            return bootstrapper.GetOrAddDesignViewModelInternal(getViewModel, property);
+        }
 
         public static IList<IViewModel> GetTopViewModels([NotNull] this INavigationDispatcher navigationDispatcher, IDataContext context = null)
         {
