@@ -23,6 +23,9 @@ using System.Reflection;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
+using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Xamarin.Forms.Infrastructure;
 using Xamarin.Forms;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Binding
@@ -32,6 +35,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding
         #region Fields
 
         private static readonly Dictionary<Type, IBindingMemberInfo> TypeToContentMember;
+        private static bool _initializedFromDesign;
 
         #endregion
 
@@ -45,6 +49,28 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding
         #endregion
 
         #region Methods
+
+        public static void InitializeFromDesignContext()
+        {
+            BindingServiceProvider.InitializeFromDesignContext();
+            if (!_initializedFromDesign)
+            {
+                _initializedFromDesign = true;
+                var methodInfo = typeof(XamarinFormsDataBindingExtensions).GetMethodEx(nameof(InitializeFromDesignContextInternal), MemberFlags.Static | MemberFlags.NonPublic | MemberFlags.Public);
+                methodInfo?.Invoke(null, null);
+            }
+        }
+
+        internal static void InitializeFromDesignContextInternal()
+        {
+            BindingServiceProvider.ValueConverter = Convert;
+            if (ServiceProvider.AttachedValueProvider == null)
+                ServiceProvider.AttachedValueProvider = new AttachedValueProvider();
+            if (ServiceProvider.ReflectionManager == null)
+                ServiceProvider.ReflectionManager = new ExpressionReflectionManager();
+            if (ServiceProvider.ThreadManager == null)
+                ServiceProvider.ThreadManager = new SynchronousThreadManager();
+        }
 
         public static object Convert(IBindingMemberInfo member, Type type, object value)
         {

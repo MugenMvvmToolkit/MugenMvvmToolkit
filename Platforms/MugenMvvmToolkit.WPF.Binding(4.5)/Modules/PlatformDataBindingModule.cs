@@ -78,7 +78,11 @@ namespace MugenMvvmToolkit.UWP.Binding.Modules
                 return;
             if (ServiceProvider.IsDesignMode)
             {
-                BindingServiceProvider.InitializeFromDesignContext();
+#if WINDOWS_UWP
+                UwpDataBindingExtensions.InitializeFromDesignContext();
+#else
+                WpfDataBindingExtensions.InitializeFromDesignContext();
+#endif
                 IList<IDataBinding> list = BindingServiceProvider.BindingProvider.CreateBindingsFromStringWithBindings(sender, bindings, null);
                 foreach (InvalidDataBinding binding in list.OfType<InvalidDataBinding>())
                     throw binding.Exception;

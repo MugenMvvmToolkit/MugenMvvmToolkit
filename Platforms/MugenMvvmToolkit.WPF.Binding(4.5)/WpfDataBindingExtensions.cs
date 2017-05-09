@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="UwpDataBindingExtensions.cs">
+// <copyright file="WpfDataBindingExtensions.cs">
 // Copyright (c) 2012-2017 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -16,19 +16,14 @@
 
 #endregion
 
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.UWP.Binding.Models;
-using MugenMvvmToolkit.UWP.Infrastructure;
+using MugenMvvmToolkit.WPF.Infrastructure;
 
-namespace MugenMvvmToolkit.UWP.Binding
+namespace MugenMvvmToolkit.WPF.Binding
 {
-    public static class UwpDataBindingExtensions
+    public static class WpfDataBindingExtensions
     {
         #region Fields
 
@@ -38,36 +33,14 @@ namespace MugenMvvmToolkit.UWP.Binding
 
         #region Methods
 
-        public static void ShowAtEx([NotNull] this FlyoutBase flyoutBase, [NotNull] FrameworkElement placementTarget)
-        {
-            Should.NotBeNull(flyoutBase, nameof(flyoutBase));
-            Should.NotBeNull(placementTarget, nameof(placementTarget));
-            var flyout = flyoutBase as Flyout;
-            if (flyout == null)
-            {
-                var items = (flyoutBase as MenuFlyout)?.Items;
-                if (items != null)
-                {
-                    foreach (MenuFlyoutItemBase item in items)
-                        ParentObserver.GetOrAdd(item).Parent = placementTarget;
-                }
-            }
-            else
-            {
-                var content = flyout.Content as FrameworkElement;
-                if (content != null)
-                    ParentObserver.GetOrAdd(content).Parent = placementTarget;
-            }
-            flyoutBase.ShowAt(placementTarget);
-        }
-
         public static void InitializeFromDesignContext()
         {
             BindingServiceProvider.InitializeFromDesignContext();
             if (!_initializedFromDesign)
             {
                 _initializedFromDesign = true;
-                var methodInfo = typeof(UwpDataBindingExtensions).GetMethodEx(nameof(InitializeFromDesignContextInternal), MemberFlags.Static | MemberFlags.NonPublic | MemberFlags.Public);
+                var methodInfo = typeof(WpfDataBindingExtensions).GetMethodEx(nameof(InitializeFromDesignContextInternal),
+                    MemberFlags.Static | MemberFlags.NonPublic | MemberFlags.Public);
                 methodInfo?.Invoke(null, null);
             }
         }

@@ -24,6 +24,7 @@ using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
 using System.ComponentModel;
+using MugenMvvmToolkit.WPF.Binding;
 using MugenMvvmToolkit.WPF.Binding.Models;
 
 // ReSharper disable once CheckNamespace
@@ -44,7 +45,7 @@ namespace MugenMvvmToolkit.WPF.MarkupExtensions
         {
             _targetMemberName = string.Empty;
             if (ServiceProvider.IsDesignMode)
-                BindingServiceProvider.InitializeFromDesignContext();
+                WpfDataBindingExtensions.InitializeFromDesignContext();
         }
 
 #if WPF

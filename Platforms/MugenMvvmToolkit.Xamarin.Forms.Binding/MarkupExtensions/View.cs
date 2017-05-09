@@ -21,6 +21,7 @@ using System.Linq;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces;
+using MugenMvvmToolkit.Xamarin.Forms.Binding;
 using Xamarin.Forms;
 
 // ReSharper disable once CheckNamespace
@@ -54,7 +55,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.MarkupExtensions
                 return;
             if (ServiceProvider.IsDesignMode)
             {
-                BindingServiceProvider.InitializeFromDesignContext();
+                XamarinFormsDataBindingExtensions.InitializeFromDesignContext();
                 IList<IDataBinding> list = BindingServiceProvider.BindingProvider.CreateBindingsFromStringWithBindings(bindable, bindings);
                 foreach (InvalidDataBinding binding in list.OfType<InvalidDataBinding>())
                     throw binding.Exception;

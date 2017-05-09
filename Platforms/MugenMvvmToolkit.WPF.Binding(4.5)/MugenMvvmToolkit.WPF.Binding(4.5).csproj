@@ -66,6 +66,7 @@
     <Compile Include="Converters\ValueConverterWrapper.cs" />
     <Compile Include="Modules\PlatformDataBindingModule.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WpfDataBindingExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\Solution Items\MugenMvvmToolkit.licenseheader">

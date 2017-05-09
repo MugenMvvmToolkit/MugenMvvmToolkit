@@ -20,9 +20,9 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Xamarin.Forms.Binding;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
@@ -37,7 +37,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.MarkupExtensions
         public DataBindingExtension()
         {
             if (ServiceProvider.IsDesignMode)
-                BindingServiceProvider.InitializeFromDesignContext();
+                XamarinFormsDataBindingExtensions.InitializeFromDesignContext();
         }
 
         #endregion
