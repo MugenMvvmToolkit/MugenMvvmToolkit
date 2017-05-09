@@ -33,7 +33,9 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Infrastructure
         {
             #region Fields
 
+            private static bool? _isWindows;
             private readonly WeakReference _sourceReference;
+            private bool _changed;
 
             #endregion
 
@@ -42,7 +44,10 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Infrastructure
             public BindableObjectBindingContext(BindableObject element)
             {
                 _sourceReference = ServiceProvider.WeakReferenceFactory(element);
-                element.BindingContextChanged += RaiseDataContextChanged;
+                if (IsWindows())
+                    element.BindingContextChanged += RaiseDataContextChangedWindows;
+                else
+                    element.BindingContextChanged += RaiseDataContextChanged;
             }
 
             #endregion
@@ -74,6 +79,43 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Infrastructure
 
             #region Methods
 
+            private static bool IsWindows()
+            {
+                if (_isWindows == null)
+                {
+                    var platform = ServiceProvider.Application?.PlatformInfo.Platform;
+                    _isWindows = platform != null && (platform == PlatformType.XamarinFormsUWP || platform == PlatformType.XamarinFormsWinPhone ||
+                                                      platform == PlatformType.XamarinFormsWinRT);
+
+                }
+                return _isWindows.Value;
+            }
+
+            private void RaiseDataContextChangedWindows(object sender, EventArgs args)
+            {
+                //note hack for uwp cell binding context for first time it contains root binding context instead of item binding context
+                if (!_changed)
+                {
+                    _changed = true;
+                    var element = sender as Element;
+                    if (element != null)
+                    {
+                        var cell = element;
+                        while (cell != null)
+                        {
+                            if (cell is Cell)
+                                break;
+                            cell = cell.Parent;
+                        }
+                        var bindingContext = cell?.BindingContext;
+                        if (bindingContext != null && ReferenceEquals(bindingContext, cell.Parent?.BindingContext) && ReferenceEquals(bindingContext, element.BindingContext))
+                            return;
+                    }
+                }
+
+                ValueChanged?.Invoke(this, EventArgs.Empty);
+            }
+
             private void RaiseDataContextChanged(object sender, EventArgs args)
             {
                 ValueChanged?.Invoke(this, EventArgs.Empty);
@@ -94,6 +136,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Infrastructure
             return new BindableObjectBindingContext(bindableObject);
         }
 
-        #endregion
+        #endregion        
     }
 }
