@@ -24,6 +24,7 @@ using Windows.Foundation.Metadata;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
+using JetBrains.Annotations;
 using MugenMvvmToolkit.Models.Messages;
 using MugenMvvmToolkit.UWP.Infrastructure;
 
@@ -58,6 +59,12 @@ namespace MugenMvvmToolkit.UWP
 
         protected abstract UwpBootstrapperBase CreateBootstrapper(Frame frame);
 
+        [NotNull]
+        protected virtual Frame CreateRootFrame()
+        {
+            return new Frame();
+        }
+
         /// <summary>
         ///     Invoked when the application is launched normally by the end user.  Other entry points
         ///     will be used such as when the application is launched to open a specific file.
@@ -72,7 +79,7 @@ namespace MugenMvvmToolkit.UWP
             if (rootFrame == null)
             {
                 // Create a Frame to act as the navigation context and navigate to the first page
-                rootFrame = new Frame();
+                rootFrame = CreateRootFrame();
                 bootstrapper = CreateBootstrapper(rootFrame);
                 bootstrapper.Initialize();
 
