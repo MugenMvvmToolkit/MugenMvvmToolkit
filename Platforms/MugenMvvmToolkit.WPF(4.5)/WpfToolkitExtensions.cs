@@ -30,21 +30,6 @@ namespace MugenMvvmToolkit.WPF
             return new PlatformInfo(PlatformType.WPF, Environment.Version.ToString(), PlatformIdiom.Desktop);
         }
 
-        internal static NavigationMode ToNavigationMode(this System.Windows.Navigation.NavigationMode mode)
-        {
-            switch (mode)
-            {
-                case System.Windows.Navigation.NavigationMode.New:
-                    return NavigationMode.New;
-                case System.Windows.Navigation.NavigationMode.Back:
-                    return NavigationMode.Back;
-                case System.Windows.Navigation.NavigationMode.Refresh:
-                    return NavigationMode.Refresh;
-                default:
-                    return NavigationMode.Undefined;
-            }
-        }
-
         #endregion
     }
 }
