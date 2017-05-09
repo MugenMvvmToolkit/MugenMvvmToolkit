@@ -81,6 +81,40 @@ namespace MugenMvvmToolkit
 
         #endregion
 
+        #region Constructor
+
+        public AutofacContainer()
+            : this(new ContainerBuilder())
+        {
+        }
+
+        public AutofacContainer(ContainerBuilder containerBuilder)
+        {
+            Should.NotBeNull(containerBuilder, nameof(containerBuilder));
+            containerBuilder.RegisterSource(new AnyConcreteTypeNotAlreadyRegisteredSource
+            {
+                RegistrationConfiguration = builder => builder.ExternallyOwned()
+            });
+            Container = containerBuilder.Build();
+            Id = Interlocked.Increment(ref _idCounter);
+        }
+
+        private AutofacContainer(ILifetimeScope container, IIocContainer parent)
+        {
+            Should.NotBeNull(container, nameof(container));
+            Container = container;
+            Parent = parent;
+            var containerBuilder = new ContainerBuilder();
+            containerBuilder.RegisterSource(new AnyConcreteTypeNotAlreadyRegisteredSource
+            {
+                RegistrationConfiguration = builder => builder.ExternallyOwned()
+            });
+            containerBuilder.Update(container.ComponentRegistry);
+            Id = Interlocked.Increment(ref _idCounter);
+        }
+
+        #endregion
+
         #region Properties
 
         public bool ThrowOnUnbind { get; set; }
@@ -149,40 +183,6 @@ namespace MugenMvvmToolkit
             if (iocParameters != null)
                 result.AddRange(iocParameters);
             return result;
-        }
-
-        #endregion
-
-        #region Constructor
-
-        public AutofacContainer()
-            : this(new ContainerBuilder())
-        {
-        }
-
-        public AutofacContainer(ContainerBuilder containerBuilder)
-        {
-            Should.NotBeNull(containerBuilder, nameof(containerBuilder));
-            containerBuilder.RegisterSource(new AnyConcreteTypeNotAlreadyRegisteredSource
-            {
-                RegistrationConfiguration = builder => builder.ExternallyOwned()
-            });
-            Container = containerBuilder.Build();
-            Id = Interlocked.Increment(ref _idCounter);
-        }
-
-        private AutofacContainer(ILifetimeScope container, IIocContainer parent)
-        {
-            Should.NotBeNull(container, nameof(container));
-            Container = container;
-            Parent = parent;
-            var containerBuilder = new ContainerBuilder();
-            containerBuilder.RegisterSource(new AnyConcreteTypeNotAlreadyRegisteredSource
-            {
-                RegistrationConfiguration = builder => builder.ExternallyOwned()
-            });
-            containerBuilder.Update(container.ComponentRegistry);
-            Id = Interlocked.Increment(ref _idCounter);
         }
 
         #endregion
