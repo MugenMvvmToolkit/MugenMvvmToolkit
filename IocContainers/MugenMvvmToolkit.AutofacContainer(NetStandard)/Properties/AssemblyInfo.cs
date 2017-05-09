@@ -17,6 +17,8 @@
 #endregion
 
 using System.Reflection;
+using MugenMvvmToolkit.Attributes;
 
 [assembly: AssemblyTitle("MugenMvvmToolkit.AutofacContainer")]
 [assembly: AssemblyProduct("MugenMvvmToolkit.AutofacContainer")]
+[assembly: LinkerSafe]

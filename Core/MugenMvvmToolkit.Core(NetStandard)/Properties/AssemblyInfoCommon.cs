@@ -16,6 +16,8 @@
 
 #endregion
 
+//#define SIGNASSEMBLY
+
 using System.Reflection;
 using MugenMvvmToolkit;
 
@@ -23,4 +25,6 @@ using MugenMvvmToolkit;
 [assembly: AssemblyCopyright(ApplicationSettings.AssemblyCopyright)]
 [assembly: AssemblyVersion(ApplicationSettings.AssemblyVersion)]
 [assembly: AssemblyFileVersion(ApplicationSettings.AssemblyVersion)]
+#if SIGNASSEMBLY
 [assembly: AssemblyKeyFile(@"..\..\Solution Items\sigkey.snk")]
+#endif

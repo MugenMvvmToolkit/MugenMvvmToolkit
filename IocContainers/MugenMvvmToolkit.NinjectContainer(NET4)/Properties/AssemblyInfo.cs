@@ -17,6 +17,8 @@
 #endregion
 
 using System.Reflection;
+using MugenMvvmToolkit.Attributes;
 
 [assembly: AssemblyTitle("MugenMvvmToolkit.NinjectContainer")]
 [assembly: AssemblyProduct("MugenMvvmToolkit.NinjectContainer")]
+[assembly: LinkerSafe]
