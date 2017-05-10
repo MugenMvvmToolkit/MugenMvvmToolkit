@@ -92,6 +92,8 @@ namespace MugenMvvmToolkit
             set { _isDesignMode = value; }
         }
 
+        internal static bool? IsDesignModeRaw => _isDesignMode;
+
         [CanBeNull]
         public static IBootstrapCodeBuilder BootstrapCodeBuilder { get; set; }
 
@@ -430,6 +432,24 @@ namespace MugenMvvmToolkit
                     return false;
                 }
             }
+
+            //XamForms
+            type = Type.GetType("MugenMvvmToolkit.Xamarin.Forms.XamarinFormsToolkitExtensions, MugenMvvmToolkit.Xamarin.Forms");
+            if (type != null)
+            {
+                try
+                {
+                    var property = type.GetPropertyEx(nameof(IsDesignMode), MemberFlags.Static | MemberFlags.Public);
+                    if (property == null)
+                        return false;
+                    return (bool)property.GetValue(null, null);
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+
             return false;
         }
 

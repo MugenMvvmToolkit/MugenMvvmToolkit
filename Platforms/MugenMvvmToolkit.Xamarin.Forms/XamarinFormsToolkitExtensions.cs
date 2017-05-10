@@ -49,6 +49,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms
 
         #region Properties
 
+        public static bool IsDesignMode => Application.Current == null || ServiceProvider.IsDesignModeRaw.GetValueOrDefault();
+
         public static Func<CultureInfo> BindingCultureInfo { get; set; }
 
         public static Func<MemberInfo, Type, object, object> ValueConverter { get; set; }

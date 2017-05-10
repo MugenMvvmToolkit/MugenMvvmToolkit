@@ -36,7 +36,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.MarkupExtensions
 
         public DataBindingExtension()
         {
-            if (ServiceProvider.IsDesignMode)
+            if (XamarinFormsToolkitExtensions.IsDesignMode)
                 XamarinFormsDataBindingExtensions.InitializeFromDesignContext();
         }
 
@@ -60,7 +60,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.MarkupExtensions
                 return GetEmptyValue();
             }
 
-            var isDesignMode = ServiceProvider.IsDesignMode;
+            var isDesignMode = XamarinFormsToolkitExtensions.IsDesignMode;
             var binding = HasValue
                 ? CreateBindingBuilder(targetObject, path).Build()
                 : CreateBinding(targetObject, path, isDesignMode);

@@ -38,9 +38,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms
 
         #region Constructors
 
-        protected MvvmXamarinApplicationBase([NotNull] XamarinFormsBootstrapperBase.IPlatformService platformService, IDataContext context = null)
+        protected MvvmXamarinApplicationBase(XamarinFormsBootstrapperBase.IPlatformService platformService, IDataContext context = null)
         {
-            Should.NotBeNull(platformService, nameof(platformService));
             if (context == null)
                 context = DataContext.Empty;
             var bootstrapper = XamarinFormsBootstrapperBase.Current;
@@ -63,7 +62,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms
         #region Methods
 
         [NotNull]
-        protected abstract XamarinFormsBootstrapperBase CreateBootstrapper([NotNull] XamarinFormsBootstrapperBase.IPlatformService platformService, IDataContext context);
+        protected abstract XamarinFormsBootstrapperBase CreateBootstrapper(XamarinFormsBootstrapperBase.IPlatformService platformService, IDataContext context);
 
         protected override void OnStart()
         {
