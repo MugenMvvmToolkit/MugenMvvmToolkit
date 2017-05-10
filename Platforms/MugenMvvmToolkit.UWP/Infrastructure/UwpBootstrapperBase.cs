@@ -18,6 +18,8 @@
 
 using System.Collections.Generic;
 using System.Reflection;
+using Windows.ApplicationModel;
+using Windows.Foundation.Metadata;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using JetBrains.Annotations;
@@ -80,6 +82,14 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
             var service = CreateNavigationService(_rootFrame);
             if (service != null)
                 IocContainer.BindToConstant(service);
+            var application = Application.Current;
+            if (application != null)
+            {
+                if (ApiInformation.IsEventPresent("Windows.UI.Xaml.Application", "EnteredBackground"))
+                    application.EnteredBackground += OnEnteredBackground;
+                if (ApiInformation.IsEventPresent("Windows.UI.Xaml.Application", "LeavingBackground"))
+                    application.LeavingBackground += OnLeavingBackground;
+            }
         }
 
         protected override void UpdateAssemblies(HashSet<Assembly> assemblies)
@@ -108,6 +118,16 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
             if (frame == null)
                 return null;
             return new FrameNavigationService(frame, IocContainer.Get<IViewModelProvider>());
+        }
+
+        private static void OnLeavingBackground(object sender, LeavingBackgroundEventArgs leavingBackgroundEventArgs)
+        {
+            ServiceProvider.Application?.SetApplicationState(ApplicationState.Active, null);
+        }
+
+        private static void OnEnteredBackground(object sender, EnteredBackgroundEventArgs enteredBackgroundEventArgs)
+        {
+            ServiceProvider.Application?.SetApplicationState(ApplicationState.Background, null);
         }
 
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)

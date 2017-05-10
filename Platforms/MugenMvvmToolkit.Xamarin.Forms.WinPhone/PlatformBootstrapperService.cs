@@ -50,12 +50,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
 {
     public class PlatformBootstrapperService : XamarinFormsBootstrapperBase.IPlatformService
     {
-        #region Fields
-#if WINDOWS_UWP
-        private static bool _isStarted;
-#endif
-        #endregion
-
         #region Constructors
 #if ANDROID
         public PlatformBootstrapperService(Func<Context> getCurrentContext)
@@ -68,18 +62,14 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
         #region Methods
 
 #if WINDOWS_UWP
-        private void OnLeavingBackground(object sender, LeavingBackgroundEventArgs leavingBackgroundEventArgs)
+        private static void OnLeavingBackground(object sender, LeavingBackgroundEventArgs leavingBackgroundEventArgs)
         {
-            if (_isStarted && ServiceProvider.IsInitialized)
-                ServiceProvider.EventAggregator.Publish(this, new ForegroundNavigationMessage());
-            else
-                _isStarted = true;
+            ServiceProvider.Application?.SetApplicationState(ApplicationState.Active, null);
         }
 
-        private void OnEnteredBackground(object sender, EnteredBackgroundEventArgs enteredBackgroundEventArgs)
+        private static void OnEnteredBackground(object sender, EnteredBackgroundEventArgs enteredBackgroundEventArgs)
         {
-            if (ServiceProvider.IsInitialized)
-                ServiceProvider.EventAggregator.Publish(this, new BackgroundNavigationMessage());
+            ServiceProvider.Application?.SetApplicationState(ApplicationState.Background, null);
         }
 #endif
         #endregion
@@ -169,10 +159,14 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
         public void Initialize()
         {
 #if WINDOWS_UWP
-            if (ApiInformation.IsEventPresent("Windows.UI.Xaml.Application", "EnteredBackground"))
-                Application.Current.EnteredBackground += OnEnteredBackground;
-            if (ApiInformation.IsEventPresent("Windows.UI.Xaml.Application", "LeavingBackground"))
-                Application.Current.LeavingBackground += OnLeavingBackground;
+            var application = Application.Current;
+            if (application != null)
+            {
+                if (ApiInformation.IsEventPresent("Windows.UI.Xaml.Application", "EnteredBackground"))
+                    application.EnteredBackground += OnEnteredBackground;
+                if (ApiInformation.IsEventPresent("Windows.UI.Xaml.Application", "LeavingBackground"))
+                    application.LeavingBackground += OnLeavingBackground;
+            }
 #endif
         }
 

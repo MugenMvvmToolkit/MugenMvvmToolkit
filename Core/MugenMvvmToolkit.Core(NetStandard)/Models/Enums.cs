@@ -181,4 +181,10 @@ namespace MugenMvvmToolkit.Models
         Ignored = 2,
         Invalid = 3
     }
+
+    public enum ApplicationState
+    {
+        Active = 1,
+        Background = 2
+    }
 }

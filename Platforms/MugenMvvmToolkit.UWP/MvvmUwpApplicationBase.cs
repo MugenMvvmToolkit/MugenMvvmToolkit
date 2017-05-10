@@ -20,24 +20,16 @@ using System;
 using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
-using Windows.Foundation.Metadata;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using JetBrains.Annotations;
-using MugenMvvmToolkit.Models.Messages;
 using MugenMvvmToolkit.UWP.Infrastructure;
 
 namespace MugenMvvmToolkit.UWP
 {
     public abstract class MvvmUwpApplicationBase : Application
     {
-        #region Fields
-
-        private static bool _isStarted;
-
-        #endregion
-
         #region Constructors
 
         /// <summary>
@@ -47,10 +39,6 @@ namespace MugenMvvmToolkit.UWP
         protected MvvmUwpApplicationBase()
         {
             Suspending += OnSuspending;
-            if (ApiInformation.IsEventPresent("Windows.UI.Xaml.Application", "EnteredBackground"))
-                EnteredBackground += OnEnteredBackground;
-            if (ApiInformation.IsEventPresent("Windows.UI.Xaml.Application", "LeavingBackground"))
-                LeavingBackground += OnLeavingBackground;
         }
 
         #endregion
@@ -125,20 +113,6 @@ namespace MugenMvvmToolkit.UWP
         protected virtual void OnNavigationFailed(object sender, NavigationFailedEventArgs e)
         {
             throw new Exception("Failed to load Page " + e.SourcePageType.FullName);
-        }
-
-        protected virtual void OnLeavingBackground(object sender, LeavingBackgroundEventArgs leavingBackgroundEventArgs)
-        {
-            if (_isStarted && ServiceProvider.IsInitialized)
-                ServiceProvider.EventAggregator.Publish(this, new ForegroundNavigationMessage());
-            else
-                _isStarted = true;
-        }
-
-        protected virtual void OnEnteredBackground(object sender, EnteredBackgroundEventArgs enteredBackgroundEventArgs)
-        {
-            if (ServiceProvider.IsInitialized)
-                ServiceProvider.EventAggregator.Publish(this, new BackgroundNavigationMessage());
         }
 
         protected virtual async Task RestoreStateAsync(LaunchActivatedEventArgs args)

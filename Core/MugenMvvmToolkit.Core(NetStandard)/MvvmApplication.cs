@@ -25,6 +25,7 @@ using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.Models.Messages;
 using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit
@@ -39,6 +40,7 @@ namespace MugenMvvmToolkit
         private PlatformInfo _platform;
         private IIocContainer _iocContainer;
         private readonly IDataContext _context;
+        private ApplicationState _applicationState;
 
         #endregion
 
@@ -50,6 +52,7 @@ namespace MugenMvvmToolkit
                 ServiceProvider.UiSynchronizationContextField = SynchronizationContext.Current;
             _loadModulesDelegate = loadModulesDelegate;
             _mode = mode;
+            _applicationState = ApplicationState.Active;
             _platform = PlatformInfo.Unknown;
             _context = new DataContext();
             ServiceProvider.Initialize(this);
@@ -60,6 +63,8 @@ namespace MugenMvvmToolkit
         #region Properties
 
         public virtual bool IsInitialized => _isInitialized;
+
+        public ApplicationState ApplicationState => _applicationState;
 
         public virtual PlatformInfo PlatformInfo => _platform;
 
@@ -123,6 +128,10 @@ namespace MugenMvvmToolkit
             return Modules ?? assemblies.GetModules(!Mode.IsDesignMode());
         }
 
+        protected virtual void OnApplicationStateChanged(ApplicationState oldState, ApplicationState newState, IDataContext context)
+        {
+        }
+
         #endregion
 
         #region Implementation of interfaces
@@ -139,8 +148,30 @@ namespace MugenMvvmToolkit
             _iocContainer = iocContainer;
             if (context != null)
                 Context.Merge(context);
+            _iocContainer.BindToConstant<IMvvmApplication>(this);
             OnInitialize(assemblies);
             ServiceProvider.Initialize(this);
+        }
+
+        public void SetApplicationState(ApplicationState value, IDataContext context)
+        {
+            if (_applicationState == value)
+                return;
+            var oldState = _applicationState;
+            _applicationState = value;
+            if (IsInitialized)
+            {
+                switch (value)
+                {
+                    case ApplicationState.Active:
+                        ServiceProvider.EventAggregator.Publish(this, new ForegroundNavigationMessage(context));
+                        break;
+                    case ApplicationState.Background:
+                        ServiceProvider.EventAggregator.Publish(this, new BackgroundNavigationMessage(context));
+                        break;
+                }
+            }
+            OnApplicationStateChanged(oldState, value, context ?? DataContext.Empty);
         }
 
         public void Start()

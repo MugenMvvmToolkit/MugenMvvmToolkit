@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Foundation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
@@ -193,6 +194,8 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
             var navigationService = CreateNavigationService(_window);
             if (navigationService != null)
                 IocContainer.BindToConstant(navigationService);
+            UIApplication.Notifications.ObserveDidEnterBackground(OnApplicationDidEnterBackground);
+            UIApplication.Notifications.ObserveDidBecomeActive(OnApplicationDidBecomeActive);
         }
 
         public virtual void Start()
@@ -220,6 +223,16 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
         {
             base.UpdateAssemblies(assemblies);
             assemblies.AddRange(AppDomain.CurrentDomain.GetAssemblies().Where(x => !x.IsDynamic));
+        }
+
+        private static void OnApplicationDidBecomeActive(object sender, NSNotificationEventArgs nsNotificationEventArgs)
+        {
+            ServiceProvider.Application?.SetApplicationState(ApplicationState.Active, null);
+        }
+
+        private static void OnApplicationDidEnterBackground(object sender, NSNotificationEventArgs nsNotificationEventArgs)
+        {
+            ServiceProvider.Application?.SetApplicationState(ApplicationState.Background, null);
         }
 
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)

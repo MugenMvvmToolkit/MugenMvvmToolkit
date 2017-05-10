@@ -35,7 +35,6 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
-using MugenMvvmToolkit.Models.Messages;
 using MugenMvvmToolkit.ViewModels;
 using Object = Java.Lang.Object;
 
@@ -280,7 +279,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                 if (_isBackgroundSet)
                 {
                     _isBackgroundSet = false;
-                    EventAggregator.Publish(this, new ForegroundNavigationMessage(context));
+                    ServiceProvider.Application?.SetApplicationState(ApplicationState.Active, context);
                 }
             }
         }
@@ -291,8 +290,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             {
                 if (IsBackground)
                 {
-                    @this.EventAggregator.Publish(@this, new BackgroundNavigationMessage(ctx as IDataContext));
-                    _isBackgroundSet = true;
+                    ServiceProvider.Application?.SetApplicationState(ApplicationState.Background, ctx as IDataContext);
+                    @this._isBackgroundSet = true;
                 }
             }, OperationPriority.Low);
         }
@@ -312,7 +311,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                 if (viewModel != null)
                     message.IgnoredViewModels = new[] { viewModel };
             }
-            ServiceProvider.EventAggregator.Publish(this, message);
+            EventAggregator.Publish(this, message);
             if (message.FinishedViewModels != null)
             {
                 message.FinishedViewModels.Reverse();
@@ -490,7 +489,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                     if (activityView != null && activityView.IsTaskRoot)
                     {
                         var message = new MvvmActivityMediator.FinishActivityMessage(viewModel);
-                        ServiceProvider.EventAggregator.Publish(this, message);
+                        EventAggregator.Publish(this, message);
                         closed = message.IsFinished;
                     }
                 }
@@ -511,7 +510,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             if (CurrentContent?.DataContext() == viewModel)
                 return true;
             var message = new MvvmActivityMediator.CanFinishActivityMessage(viewModel);
-            ServiceProvider.EventAggregator.Publish(this, message);
+            EventAggregator.Publish(this, message);
             return message.CanFinish;
         }
 
@@ -529,7 +528,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             if (RaiseNavigating(new NavigatingCancelEventArgs(NavigationMode.Remove, dataContext)))
             {
                 var message = new MvvmActivityMediator.FinishActivityMessage(viewModel);
-                ServiceProvider.EventAggregator.Publish(this, message);
+                EventAggregator.Publish(this, message);
                 if (message.IsFinished)
                     RaiseNavigated(viewModel, NavigationMode.Remove, null, dataContext);
                 return message.IsFinished;

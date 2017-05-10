@@ -21,7 +21,6 @@ using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models;
-using MugenMvvmToolkit.Models.Messages;
 using MugenMvvmToolkit.Xamarin.Forms.Infrastructure;
 using MugenMvvmToolkit.Xamarin.Forms.Interfaces.Presenters;
 using Xamarin.Forms;
@@ -34,7 +33,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms
 
         private IRestorableViewModelPresenter _presenter;
         private bool _presenterActivated;
-        private static bool _isBackground;
 
         #endregion
 
@@ -43,13 +41,14 @@ namespace MugenMvvmToolkit.Xamarin.Forms
         protected MvvmXamarinApplicationBase([NotNull] XamarinFormsBootstrapperBase.IPlatformService platformService, IDataContext context = null)
         {
             Should.NotBeNull(platformService, nameof(platformService));
-
+            if (context == null)
+                context = DataContext.Empty;
             var bootstrapper = XamarinFormsBootstrapperBase.Current;
             if (bootstrapper == null)
             {
                 // ReSharper disable VirtualMemberCallInConstructor
-                bootstrapper = CreateBootstrapper(platformService, context ?? DataContext.Empty);
-                if (!ShouldRestoreApplicationState())
+                bootstrapper = CreateBootstrapper(platformService, context);
+                if (!ShouldRestoreApplicationState(context))
                 {
                     bootstrapper.InitializationContext = bootstrapper.InitializationContext.ToNonReadOnly();
                     bootstrapper.InitializationContext.AddOrUpdate(ViewModelConstants.StateNotNeeded, true);
@@ -69,31 +68,22 @@ namespace MugenMvvmToolkit.Xamarin.Forms
         protected override void OnStart()
         {
             base.OnStart();
-            if (_isBackground)
-            {
-                Raise(new ForegroundNavigationMessage());
-                _isBackground = false;
-            }
+            if (ServiceProvider.Application != null && ServiceProvider.Application.PlatformInfo.Platform != PlatformType.XamarinFormsUWP)
+                ServiceProvider.Application.SetApplicationState(ApplicationState.Active, null);
         }
 
         protected override void OnResume()
         {
             base.OnResume();
-            if (_isBackground)
-            {
-                Raise(new ForegroundNavigationMessage());
-                _isBackground = false;
-            }
+            if (ServiceProvider.Application != null && ServiceProvider.Application.PlatformInfo.Platform != PlatformType.XamarinFormsUWP)
+                ServiceProvider.Application.SetApplicationState(ApplicationState.Active, null);
         }
 
         protected override void OnSleep()
         {
             base.OnSleep();
-            if (!_isBackground)
-            {
-                Raise(new BackgroundNavigationMessage());
-                _isBackground = true;
-            }
+            if (ServiceProvider.Application != null && ServiceProvider.Application.PlatformInfo.Platform != PlatformType.XamarinFormsUWP)
+                ServiceProvider.Application.SetApplicationState(ApplicationState.Background, null);
             if (ShouldSaveApplicationState())
                 SaveState();
         }
@@ -103,7 +93,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms
             return true;
         }
 
-        protected virtual bool ShouldRestoreApplicationState()
+        protected virtual bool ShouldRestoreApplicationState(IDataContext context)
         {
             return true;
         }
@@ -116,12 +106,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms
                 _presenterActivated = true;
             }
             _presenter?.SaveState();
-        }
-
-        private void Raise(object message)
-        {
-            if (ServiceProvider.IsInitialized && ServiceProvider.Application.PlatformInfo.Platform != PlatformType.XamarinFormsUWP)
-                ServiceProvider.EventAggregator.Publish(this, message);
         }
 
         #endregion

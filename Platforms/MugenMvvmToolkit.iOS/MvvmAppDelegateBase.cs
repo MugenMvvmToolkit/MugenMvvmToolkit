@@ -19,7 +19,6 @@
 using Foundation;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.iOS.Infrastructure;
-using MugenMvvmToolkit.Models.Messages;
 using UIKit;
 
 namespace MugenMvvmToolkit.iOS
@@ -33,7 +32,6 @@ namespace MugenMvvmToolkit.iOS
 
         private TouchBootstrapperBase _bootstrapper;
         private bool _isRestored;
-        private bool _isStarted;
         private static string _version;
 
         #endregion
@@ -75,19 +73,6 @@ namespace MugenMvvmToolkit.iOS
                 _isRestored = true;
                 Window.RootViewController = controller;
             }
-        }
-
-        public override void DidEnterBackground(UIApplication application)
-        {
-            ServiceProvider.EventAggregator.Publish(this, new BackgroundNavigationMessage());
-        }
-
-        public override void OnActivated(UIApplication application)
-        {
-            if (_isStarted)
-                ServiceProvider.EventAggregator.Publish(this, new ForegroundNavigationMessage());
-            else
-                _isStarted = true;
         }
 
         public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)

@@ -29,6 +29,8 @@ namespace MugenMvvmToolkit.Interfaces
     {
         bool IsInitialized { get; }
 
+        ApplicationState ApplicationState { get; }
+
         [NotNull]
         PlatformInfo PlatformInfo { get; }
 
@@ -40,6 +42,8 @@ namespace MugenMvvmToolkit.Interfaces
         IDataContext Context { get; }
 
         void Initialize(PlatformInfo platformInfo, IIocContainer iocContainer, IList<Assembly> assemblies, IDataContext context);
+
+        void SetApplicationState(ApplicationState value, [CanBeNull] IDataContext context);
 
         void Start();
 
