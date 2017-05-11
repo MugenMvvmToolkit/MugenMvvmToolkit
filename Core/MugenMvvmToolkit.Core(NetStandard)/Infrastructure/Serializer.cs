@@ -124,7 +124,7 @@ namespace MugenMvvmToolkit.Infrastructure
             }
             foreach (Assembly assembly in assemblies)
             {
-                foreach (Type type in assembly.SafeGetTypes(ServiceProvider.Application == null || !ServiceProvider.Application.Mode.IsDesignMode()))
+                foreach (Type type in assembly.SafeGetTypes(!ServiceProvider.IsDesignMode))
                 {
 #if NET_STANDARD
                     var typeInfo = type.GetTypeInfo();

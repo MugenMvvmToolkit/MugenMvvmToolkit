@@ -52,10 +52,8 @@ namespace MugenMvvmToolkit
             #region Constructors
 
             public UnitTestApp(LoadMode mode = LoadMode.UnitTest, params IModule[] modules)
-                : base(mode: mode)
+                : base(mode, modules)
             {
-                if (!modules.IsNullOrEmpty())
-                    Modules = modules;
             }
 
             #endregion

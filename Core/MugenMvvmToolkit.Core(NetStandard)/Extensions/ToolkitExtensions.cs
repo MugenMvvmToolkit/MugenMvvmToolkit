@@ -24,7 +24,6 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -243,6 +242,9 @@ namespace MugenMvvmToolkit
         #region Fields
 
         private static readonly ManualResetEvent Sleeper;
+        private static readonly PropertyInfo AssemblyLocationProperty;
+        private static readonly ConstructorInfo FileInfoConstructor;
+        private static readonly PropertyInfo FileInfoLastWriteTimeProperty;
         private static Func<object, object> _getDataContext;
         private static Action<object, object> _setDataContext;
 
@@ -255,6 +257,13 @@ namespace MugenMvvmToolkit
             Sleeper = new ManualResetEvent(false);
             GetDataContext = ReflectionExtensions.GetDataContext;
             SetDataContext = (o, o1) => ReflectionExtensions.SetDataContext(o, o1);
+            AssemblyLocationProperty = typeof(Assembly).GetPropertyEx("Location");
+            var fileInfoType = Type.GetType("System.IO.FileInfo", false);
+            if (fileInfoType != null)
+            {
+                FileInfoConstructor = fileInfoType.GetConstructor(new[] { typeof(string) });
+                FileInfoLastWriteTimeProperty = fileInfoType.GetPropertyEx("LastWriteTime");
+            }
         }
 
         #endregion
@@ -1001,12 +1010,12 @@ namespace MugenMvvmToolkit
 
         #region Extensions
 
-        public static T GetOrAddDesignViewModel<T>(this BootstrapperBase bootstrapper, Func<IViewModelProvider, T> getViewModel, [CallerMemberName] string property = "")
+        public static T GetDesignViewModel<T>(this BootstrapperBase bootstrapper, Func<IViewModelProvider, T> getViewModel)
             where T : IViewModel
         {
-            if (bootstrapper == null)
+            if (bootstrapper == null || !ServiceProvider.IsDesignMode)
                 return default(T);
-            return bootstrapper.GetOrAddDesignViewModelInternal(getViewModel, property);
+            return getViewModel(ServiceProvider.ViewModelProvider);
         }
 
         public static IList<IViewModel> GetTopViewModels([NotNull] this INavigationDispatcher navigationDispatcher, IDataContext context = null)
@@ -1682,6 +1691,42 @@ namespace MugenMvvmToolkit
             catch (Exception e)
             {
                 Tracer.Error(e.Flatten(true));
+            }
+        }
+
+        internal static IEnumerable<Assembly> FilterDesignAssemblies(this IEnumerable<Assembly> assemblies)
+        {
+            var dictionary = new Dictionary<string, Assembly>();
+            foreach (var assembly in assemblies)
+            {
+                Assembly value = assembly;
+                Assembly currentAssembly;
+                if (dictionary.TryGetValue(assembly.FullName, out currentAssembly))
+                {
+                    if (GetLastWriteTime(value) < GetLastWriteTime(currentAssembly))
+                        value = currentAssembly;
+                }
+                dictionary[value.FullName] = value;
+            }
+
+            return dictionary.Values;
+        }
+
+        private static DateTime GetLastWriteTime(Assembly assembly)
+        {
+            if (AssemblyLocationProperty == null || FileInfoConstructor == null || FileInfoLastWriteTimeProperty == null)
+                return DateTime.MinValue;
+            try
+            {
+                var value = AssemblyLocationProperty.GetValue(assembly, null) as string;
+                if (string.IsNullOrEmpty(value))
+                    return DateTime.MinValue;
+                var fileInfo = FileInfoConstructor.Invoke(new object[] { value });
+                return (DateTime)FileInfoLastWriteTimeProperty.GetValue(fileInfo, null);
+            }
+            catch
+            {
+                return DateTime.MinValue;
             }
         }
 

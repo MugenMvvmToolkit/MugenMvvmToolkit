@@ -27,19 +27,17 @@ namespace MugenMvvmToolkit.Interfaces
 {
     public interface IMvvmApplication
     {
-        bool IsInitialized { get; }
-
         ApplicationState ApplicationState { get; }
+
+        bool IsInitialized { get; }
 
         [NotNull]
         PlatformInfo PlatformInfo { get; }
 
-        LoadMode Mode { get; }
-
-        IIocContainer IocContainer { get; }
-
         [NotNull]
         IDataContext Context { get; }
+
+        IIocContainer IocContainer { get; }
 
         void Initialize(PlatformInfo platformInfo, IIocContainer iocContainer, IList<Assembly> assemblies, IDataContext context);
 

@@ -20,12 +20,10 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
-using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
-using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure
@@ -35,32 +33,18 @@ namespace MugenMvvmToolkit.Infrastructure
         #region Fields
 
         private const int InitializedState = 1;
-        private static int _state;
-        private static int _initializationThreadId;
-        private static readonly ManualResetEvent InitializedEvent;
-        private readonly Dictionary<string, IViewModel> _viewModelMapping;
+        private int _state;
+        private int _initializationThreadId;
+        private readonly ManualResetEvent _initializedEvent;
 
         #endregion
 
         #region Constructors
 
-        static BootstrapperBase()
-        {
-            InitializedEvent = new ManualResetEvent(false);
-        }
-
         protected BootstrapperBase(bool isDesignMode)
         {
+            _initializedEvent = new ManualResetEvent(false);
             ServiceProvider.IsDesignMode = isDesignMode;
-            if (isDesignMode)
-            {
-                _viewModelMapping = new Dictionary<string, IViewModel>();
-                var context = SynchronizationContext.Current;
-                if (context == null)
-                    Task.Factory.StartNew(StartFromDesign, this);
-                else
-                    context.Post(StartFromDesign, this);
-            }
         }
 
         #endregion
@@ -95,13 +79,13 @@ namespace MugenMvvmToolkit.Infrastructure
             if (Interlocked.Exchange(ref _state, InitializedState) == InitializedState)
             {
                 if (_initializationThreadId != managedThreadId)
-                    InitializedEvent.WaitOne();
+                    _initializedEvent.WaitOne();
                 return;
             }
             _initializationThreadId = managedThreadId;
             Current = this;
             InitializeInternal();
-            InitializedEvent.Set();
+            _initializedEvent.Set();
         }
 
         [NotNull]
@@ -144,19 +128,6 @@ namespace MugenMvvmToolkit.Infrastructure
         {
         }
 
-        internal T GetOrAddDesignViewModelInternal<T>(Func<IViewModelProvider, T> getViewModel, string property) where T : IViewModel
-        {
-            if (!IsDesignMode)
-                return default(T);
-            IViewModel value;
-            if (!_viewModelMapping.TryGetValue(property, out value))
-            {
-                value = getViewModel(ServiceProvider.ViewModelProvider);
-                _viewModelMapping[property] = value;
-            }
-            return (T)value;
-        }
-
         protected static void TryLoadAssemblyByType(string typeName, string namespaceAssemblyName, ICollection<Assembly> assemblies)
         {
             TryLoadAssemblyByType(namespaceAssemblyName + "." + typeName + ", " + namespaceAssemblyName, assemblies);
@@ -174,11 +145,6 @@ namespace MugenMvvmToolkit.Infrastructure
             catch
             {
             }
-        }
-
-        private static void StartFromDesign(object state)
-        {
-            ((BootstrapperBase)state).Initialize();
         }
 
         #endregion

@@ -49,8 +49,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
             #region Constructors
 
-            public DefaultApp(Type startViewModelType, Action<IModuleContext> loadModulesDelegate = null, LoadMode mode = LoadMode.Runtime)
-                : base(loadModulesDelegate, mode)
+            public DefaultApp(Type startViewModelType, LoadMode mode = LoadMode.Runtime, IList<IModule> modules = null, Action<IModuleContext> loadModulesDelegate = null)
+                : base(mode, modules, loadModulesDelegate)
             {
                 Should.NotBeNull(startViewModelType, nameof(startViewModelType));
                 Should.BeOfType<IViewModel>(startViewModelType, "startViewModelType");
@@ -124,12 +124,15 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
         public static AndroidBootstrapperBase GetOrCreateBootstrapper(Func<AndroidBootstrapperBase> factory)
         {
-            lock (Locker)
+            if (Current == null)
             {
-                if (Current == null)
-                    Current = factory();
-                return Current;
+                lock (Locker)
+                {
+                    if (Current == null)
+                        Current = factory();
+                }
             }
+            return Current;
         }
 
         public static void EnsureInitialized(object sender = null, Bundle bundle = null, Func<AndroidBootstrapperBase> factory = null)

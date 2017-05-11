@@ -35,26 +35,28 @@ namespace MugenMvvmToolkit
         #region Fields
 
         private bool _isInitialized;
-        private readonly Action<IModuleContext> _loadModulesDelegate;
-        private readonly LoadMode? _mode;
+        private readonly LoadMode? _moduleLoadMode;
         private PlatformInfo _platform;
         private IIocContainer _iocContainer;
         private readonly IDataContext _context;
         private ApplicationState _applicationState;
+        private readonly Action<IModuleContext> _loadModulesDelegate;
 
         #endregion
 
         #region Constructors
 
-        protected MvvmApplication(Action<IModuleContext> loadModulesDelegate = null, LoadMode? mode = null)
+        protected MvvmApplication(LoadMode? moduleLoadMode = null, IList<IModule> modules = null, Action<IModuleContext> loadModulesDelegate = null)
         {
             if (ServiceProvider.UiSynchronizationContextField == null)
                 ServiceProvider.UiSynchronizationContextField = SynchronizationContext.Current;
-            _loadModulesDelegate = loadModulesDelegate;
-            _mode = mode;
+            _moduleLoadMode = moduleLoadMode;
             _applicationState = ApplicationState.Active;
             _platform = PlatformInfo.Unknown;
             _context = new DataContext();
+            _loadModulesDelegate = loadModulesDelegate;
+            if (!modules.IsNullOrEmpty())
+                Modules = modules;
             ServiceProvider.Initialize(this);
         }
 
@@ -62,17 +64,15 @@ namespace MugenMvvmToolkit
 
         #region Properties
 
-        public virtual bool IsInitialized => _isInitialized;
+        public bool IsInitialized => _isInitialized;
 
         public ApplicationState ApplicationState => _applicationState;
 
-        public virtual PlatformInfo PlatformInfo => _platform;
+        public PlatformInfo PlatformInfo => _platform;
 
-        public virtual LoadMode Mode => _mode.GetValueOrDefault(Context.GetData(InitializationConstants.IsDesignMode) ? LoadMode.Design : LoadMode.Runtime);
+        public IIocContainer IocContainer => _iocContainer;
 
-        public virtual IIocContainer IocContainer => _iocContainer;
-
-        public virtual IDataContext Context => _context;
+        public IDataContext Context => _context;
 
         public IList<IModule> Modules { get; set; }
 
@@ -120,12 +120,13 @@ namespace MugenMvvmToolkit
         [NotNull]
         protected virtual IModuleContext CreateModuleContext(IList<Assembly> assemblies)
         {
-            return new ModuleContext(PlatformInfo, Mode, IocContainer, new DataContext(Context), assemblies);
+            var mode = _moduleLoadMode.GetValueOrDefault(Context.GetData(InitializationConstants.IsDesignMode) ? LoadMode.Design : LoadMode.Runtime);
+            return new ModuleContext(PlatformInfo, mode, IocContainer, new DataContext(Context), assemblies);
         }
 
         protected virtual IList<IModule> GetModules(IList<Assembly> assemblies)
         {
-            return Modules ?? assemblies.GetModules(!Mode.IsDesignMode());
+            return Modules ?? assemblies.GetModules(!ServiceProvider.IsDesignMode);
         }
 
         protected virtual void OnApplicationStateChanged(ApplicationState oldState, ApplicationState newState, IDataContext context)
