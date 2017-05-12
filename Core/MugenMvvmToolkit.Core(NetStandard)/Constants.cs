@@ -89,6 +89,7 @@ namespace MugenMvvmToolkit.DataConstants
         public static readonly DataConstant<Type> ViewModelType;
         public static readonly DataConstant<bool> IgnoreViewModelCache;
         public static readonly DataConstant<bool> IsDesignMode;
+        public static readonly DataConstant<bool> CanDisposeView;
 
         #endregion
 
@@ -107,6 +108,7 @@ namespace MugenMvvmToolkit.DataConstants
             ViewModelType = DataConstant.Create<Type>(type, nameof(ViewModelType), true);
             IgnoreViewModelCache = DataConstant.Create<bool>(type, nameof(IgnoreViewModelCache));
             IsDesignMode = DataConstant.Create<bool>(type, nameof(IsDesignMode));
+            CanDisposeView = DataConstant.Create<bool>(type, nameof(CanDisposeView));
         }
 
         #endregion

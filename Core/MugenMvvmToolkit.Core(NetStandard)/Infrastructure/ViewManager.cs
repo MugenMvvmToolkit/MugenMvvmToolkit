@@ -192,7 +192,7 @@ namespace MugenMvvmToolkit.Infrastructure
             ReflectionExtensions.GetViewProperty(viewModel.GetType())?.SetValue<object>(viewModel, null);
 
             viewModel.Unsubscribe(ToolkitExtensions.GetUnderlyingView<object>(view));
-            if (ApplicationSettings.ViewManagerDisposeView && ServiceProvider.AttachedValueProvider.Contains(view, ViewManagerCreatorPath))
+            if (ServiceProvider.AttachedValueProvider.Contains(view, ViewManagerCreatorPath))
             {
                 ServiceProvider.AttachedValueProvider.Clear(view, ViewManagerCreatorPath);
                 (view as IDisposable)?.Dispose();
@@ -213,6 +213,8 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.View, view);
                 viewModel.Subscribe(view);
+                if (context.GetData(InitializationConstants.CanDisposeView))
+                    ServiceProvider.AttachedValueProvider.SetValue(view, ViewManagerCreatorPath, null);
             }
 
             if (viewModel != null || ApplicationSettings.ViewManagerClearDataContext)

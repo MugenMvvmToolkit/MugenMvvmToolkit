@@ -174,6 +174,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
         {
             context = context.ToNonReadOnly();
             context.AddOrUpdate(InitializationConstants.ViewModelType, viewModelType);
+            context.AddOrUpdate(InitializationConstants.CanDisposeView, true);
 
             if (item is IModalView)
             {
