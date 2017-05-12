@@ -134,7 +134,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         #region Fields
 
-        private const string ParameterId = "viewmodelparameter";
+        public const string IntentParameterKey = "viewmodelparameter";
         private const string IsFinishPauseKey = nameof(IsFinishPauseKey);
         private const string IsFinishedKey = nameof(IsFinishedKey);
         private const string IsOpenedKey = nameof(IsOpenedKey);
@@ -237,7 +237,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         private static string GetParameterFromIntent(Intent intent)
         {
-            return intent?.GetStringExtra(ParameterId);
+            return intent?.GetStringExtra(IntentParameterKey);
         }
 
         private static Bundle GetState(Activity activity)
@@ -476,10 +476,12 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                 ClearBackStack(intent, viewModel, bringToFront, dataContext);
 
             if (parameter != null)
-                intent.PutExtra(ParameterId, parameter);
+                intent.PutExtra(IntentParameterKey, parameter);
 
             if (bringToFront)
             {
+                if (viewModel != null)
+                    intent.PutExtra(MvvmActivityMediator.IntentViewModelIdKey, viewModel.GetViewModelId().ToString("N"));
                 //http://stackoverflow.com/questions/20695522/puzzling-behavior-with-reorder-to-front
                 //http://code.google.com/p/android/issues/detail?id=63570#c2
                 bool closed = false;

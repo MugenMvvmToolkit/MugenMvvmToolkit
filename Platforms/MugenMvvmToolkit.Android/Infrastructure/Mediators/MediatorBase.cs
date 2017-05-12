@@ -87,6 +87,14 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 _dataContext = value;
                 OnDataContextChanged(oldValue, _dataContext);
                 DataContextChanged?.Invoke(Target, EventArgs.Empty);
+                if (value != null)
+                {
+                    lock (ContextCache)
+                    {
+                        if (ContextCache.ContainsKey(_id))
+                            ContextCache[_id] = value;
+                    }
+                }
             }
         }
 

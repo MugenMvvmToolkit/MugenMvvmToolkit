@@ -20,6 +20,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Threading;
 using Android.App;
 using Android.Content;
@@ -28,19 +29,23 @@ using Android.OS;
 using Android.Views;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Android.Binding.Models;
+using MugenMvvmToolkit.Android.Infrastructure.Navigation;
 using MugenMvvmToolkit.Android.Interfaces.Mediators;
 using MugenMvvmToolkit.Android.Interfaces.Navigation;
 using MugenMvvmToolkit.Android.Interfaces.Views;
 using MugenMvvmToolkit.Android.Models.EventArg;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
+using MugenMvvmToolkit.ViewModels;
 
 namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 {
-    public class MvvmActivityMediator : MediatorBase<Activity>, IMvvmActivityMediator, IHandler<MvvmActivityMediator.FinishActivityMessage>, IHandler<MvvmActivityMediator.CanFinishActivityMessage>
+    public class MvvmActivityMediator : MediatorBase<Activity>, IMvvmActivityMediator, IHandler<MvvmActivityMediator.FinishActivityMessage>,
+        IHandler<MvvmActivityMediator.CanFinishActivityMessage>
     {
         #region Nested types
 
@@ -120,6 +125,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         #region Fields
 
+        public const string IntentViewModelIdKey = "~vm_id~";
         private MenuInflater _menuInflater;
         private LayoutInflater _layoutInflater;
         private IMenu _menu;
@@ -192,6 +198,83 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
             if (viewId.HasValue)
                 Target.SetContentView(viewId.Value);
+        }
+
+        public virtual void OnNewIntent(Intent intent, Action<Intent> baseOnNewIntent)
+        {
+            baseOnNewIntent(intent);
+            //note android doesn't support reorder activity by instance it will reorder it using type, we need to manually change view model if need
+            var oldViewModel = DataContext as IViewModel;
+            Guid id;
+            if (oldViewModel != null && Guid.TryParse(intent.GetStringExtra(IntentViewModelIdKey), out id))
+            {
+                var newViewModel = ServiceProvider.ViewModelProvider.TryGetViewModelById(id);
+                if (newViewModel != null && !ReferenceEquals(newViewModel, oldViewModel))
+                {
+                    var navigationDispatcher = ServiceProvider.Get<INavigationDispatcher>();
+                    var openedViewModels = navigationDispatcher.GetOpenedViewModels(NavigationType.Page).ToList();
+                    var viewModels = openedViewModels
+                        .Select(info => info.ViewModel)
+                        .Where(vm => vm.GetCurrentView<object>()?.GetType() == Target.GetType())
+                        .ToList();
+
+                    var from = viewModels.IndexOf(newViewModel);
+                    var to = viewModels.IndexOf(oldViewModel);
+
+                    if (from < 0 || to < 0)
+                        return;
+
+                    for (int i = to; i > from; i--)
+                    {
+                        var viewModel = viewModels[i];
+                        var currentView = viewModels[i - 1].GetCurrentView<object>();
+                        if (currentView != null)
+                        {
+                            ServiceProvider.ViewManager.InitializeViewAsync(viewModel, currentView);
+                            var activity = currentView as Activity;
+                            if (activity != null)
+                            {
+                                var newIntent = new Intent(activity.Intent);
+                                newIntent.PutExtra(NavigationService.IntentParameterKey, NavigationProvider.GenerateNavigationParameter(viewModel));
+                                activity.Intent = newIntent;
+                            }
+                        }
+                    }
+                    var newParameter = intent.GetStringExtra(NavigationService.IntentParameterKey);
+                    var oldParameter = Target.Intent.GetStringExtra(NavigationService.IntentParameterKey);
+                    if (newParameter != null && !string.Equals(newParameter, oldParameter))
+                    {
+                        var newIntent = new Intent(Target.Intent);
+                        newIntent.PutExtra(NavigationService.IntentParameterKey, newParameter);
+                        Target.Intent = newIntent;
+                    }
+                    ServiceProvider.ViewManager.InitializeViewAsync(newViewModel, Target);
+
+                    int freeIndex = -1;
+                    for (int i = 0; i < openedViewModels.Count; i++)
+                    {
+                        var viewModelInfo = openedViewModels[i];
+                        if (freeIndex == -1 && ReferenceEquals(viewModelInfo.ViewModel, newViewModel))
+                        {
+                            ++i;
+                            freeIndex = i;
+                            openedViewModels.Insert(i, null);
+                            continue;
+                        }
+                        if (freeIndex != -1 && viewModelInfo.ViewModel.GetCurrentView<object>()?.GetType() == Target.GetType())
+                        {
+                            openedViewModels[freeIndex] = viewModelInfo;
+                            openedViewModels[i] = null;
+                            freeIndex = i;
+                        }
+                    }
+                    if (freeIndex != -1)
+                    {
+                        openedViewModels.RemoveAt(freeIndex);
+                        navigationDispatcher.UpdateOpenedViewModels(NavigationType.Page, openedViewModels);
+                    }
+                }
+            }
         }
 
         public virtual bool OnCreateOptionsMenu(IMenu menu, Func<IMenu, bool> baseOnCreateOptionsMenu)

@@ -51,6 +51,11 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
 
         #region Implementation of interfaces
 
+        public void UpdateOpenedViewModels(NavigationType type, IList<IOpenedViewModelInfo> viewModelInfos, IDataContext context = null)
+        {
+            throw new NotImplementedException();
+        }
+
         Task<bool> INavigationDispatcher.OnNavigatingAsync(INavigationContext context)
         {
             return OnNavigatingFromAsync?.Invoke(context) ?? Empty.TrueTask;

@@ -55,6 +55,8 @@ namespace MugenMvvmToolkit.Android.Interfaces.Mediators
 
         void OnCreate(int? viewId, Bundle savedInstanceState, [NotNull] Action<Bundle> baseOnCreate);
 
+        void OnNewIntent(Intent intent, [NotNull]Action<Intent> baseOnNewIntent);
+
         bool OnCreateOptionsMenu(IMenu menu, Func<IMenu, bool> baseOnCreateOptionsMenu);
 
         void OnDestroy([NotNull] Action baseOnDestroy);

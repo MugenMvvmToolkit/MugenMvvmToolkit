@@ -97,6 +97,11 @@ namespace MugenMvvmToolkit.Android.AppCompat.Views.Activities
             Mediator.SetContentView(layoutResID);
         }
 
+        protected override void OnNewIntent(Intent intent)
+        {
+            Mediator.OnNewIntent(intent, base.OnNewIntent);
+        }
+
         public override bool OnOptionsItemSelected(IMenuItem item)
         {
             return Mediator.OnOptionsItemSelected(item, base.OnOptionsItemSelected);
