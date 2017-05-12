@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Attributes;
@@ -36,7 +37,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
     {
         #region Nested types
 
-        private sealed class OpenedViewModelInfo : IOpenedViewModelInfo
+        protected sealed class OpenedViewModelInfo : IOpenedViewModelInfo
         {
             #region Constructors
 
@@ -61,7 +62,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
             #endregion
         }
 
-        private sealed class WeakOpenedViewModelInfo
+        protected sealed class WeakOpenedViewModelInfo
         {
             #region Fields
 
@@ -109,7 +110,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
         #region Fields
 
-        private readonly Dictionary<NavigationType, List<WeakOpenedViewModelInfo>> _openedViewModels;
+        protected readonly Dictionary<NavigationType, List<WeakOpenedViewModelInfo>> OpenedViewModels;
 
         #endregion
 
@@ -120,7 +121,7 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         {
             Should.NotBeNull(callbackManager, nameof(callbackManager));
             CallbackManager = callbackManager;
-            _openedViewModels = new Dictionary<NavigationType, List<WeakOpenedViewModelInfo>>();
+            OpenedViewModels = new Dictionary<NavigationType, List<WeakOpenedViewModelInfo>>();
         }
 
         #endregion
@@ -136,17 +137,17 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         [NotNull]
         protected virtual IEnumerable<NavigationType> GetOpenedNavigationTypes([NotNull] IDataContext context)
         {
-            lock (_openedViewModels)
-                return _openedViewModels.Keys.ToArrayEx();
+            lock (OpenedViewModels)
+                return OpenedViewModels.Keys.ToArrayEx();
         }
 
         [NotNull]
         protected virtual IList<IOpenedViewModelInfo> GetOpenedViewModelsInternal([NotNull] NavigationType type, [NotNull] IDataContext context)
         {
-            lock (_openedViewModels)
+            lock (OpenedViewModels)
             {
                 List<WeakOpenedViewModelInfo> list;
-                if (!_openedViewModels.TryGetValue(type, out list))
+                if (!OpenedViewModels.TryGetValue(type, out list))
                     return Empty.Array<IOpenedViewModelInfo>();
                 var result = new List<IOpenedViewModelInfo>();
                 for (int i = 0; i < list.Count; i++)
@@ -161,8 +162,19 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
                         result.Add(target);
                 }
                 if (result.Count == 0)
-                    _openedViewModels.Remove(type);
+                    OpenedViewModels.Remove(type);
                 return result;
+            }
+        }
+
+        protected virtual void UpdateOpenedViewModelsInternal([NotNull]NavigationType type, [NotNull] IList<IOpenedViewModelInfo> viewModelInfos, [NotNull] IDataContext context)
+        {
+            lock (OpenedViewModels)
+            {
+                if (viewModelInfos.Count == 0)
+                    OpenedViewModels.Remove(type);
+                else
+                    OpenedViewModels[type] = viewModelInfos.Select(info => new WeakOpenedViewModelInfo(info.ViewModel, info.NavigationProvider, info.NavigationType)).ToList();
             }
         }
 
@@ -170,13 +182,13 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         {
             var viewModelFrom = context.GetData(NavigationConstants.DoNotTrackViewModelFrom) ? null : context.ViewModelFrom;
             var viewModelTo = context.GetData(NavigationConstants.DoNotTrackViewModelTo) ? null : context.ViewModelTo;
-            lock (_openedViewModels)
+            lock (OpenedViewModels)
             {
                 List<WeakOpenedViewModelInfo> list;
-                if (!_openedViewModels.TryGetValue(context.NavigationType, out list))
+                if (!OpenedViewModels.TryGetValue(context.NavigationType, out list))
                 {
                     list = new List<WeakOpenedViewModelInfo>();
-                    _openedViewModels[context.NavigationType] = list;
+                    OpenedViewModels[context.NavigationType] = list;
                 }
                 if (viewModelTo != null && (context.NavigationMode == NavigationMode.Refresh || context.NavigationMode == NavigationMode.Back || context.NavigationMode == NavigationMode.New))
                 {
@@ -316,6 +328,13 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
         #region Implementation of interfaces
 
         public event EventHandler<INavigationDispatcher, NavigatedEventArgs> Navigated;
+
+        public void UpdateOpenedViewModels(NavigationType type, IList<IOpenedViewModelInfo> viewModelInfos, IDataContext context = null)
+        {
+            Should.NotBeNull(type, nameof(type));
+            Should.NotBeNull(viewModelInfos, nameof(viewModelInfos));
+            UpdateOpenedViewModelsInternal(type, viewModelInfos, context ?? DataContext.Empty);
+        }
 
         public Task<bool> OnNavigatingAsync(INavigationContext context)
         {
