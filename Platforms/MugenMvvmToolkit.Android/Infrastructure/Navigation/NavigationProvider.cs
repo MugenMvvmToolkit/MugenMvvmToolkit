@@ -65,11 +65,11 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         private WeakReference _vmReference;
 
         public static readonly DataConstant<bool> BringToFront;
+        public static readonly DataConstant<object> IsNavigatedConstant;
         protected static readonly DataConstant<Type> ViewModelTypeConstant;
-        private static readonly DataConstant<object> IsNavigatedConstant;
-        private static readonly DataConstant<object> IgnoreNavigatingConstant;
-        private static readonly DataConstant<IDataContext> CloseContextConstant;
-        private static readonly DataConstant<TaskCompletionSource<bool>> NavigatedTaskConstant;
+        protected static readonly DataConstant<object> IgnoreNavigatingConstant;
+        protected static readonly DataConstant<IDataContext> CloseContextConstant;
+        protected static readonly DataConstant<TaskCompletionSource<bool>> NavigatedTaskConstant;
 
         #endregion
 

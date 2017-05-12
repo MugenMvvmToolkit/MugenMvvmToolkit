@@ -284,6 +284,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
                 viewModel.Settings.State.AddOrUpdate(IsRootConstant, null);
             }
             IocContainer.Get<INavigationDispatcher>().OnNavigated(new NavigationContext(NavigationType.Page, mode, null, viewModel, this, context));
+            viewModel.Settings.State.AddOrUpdate(NavigationProvider.IsNavigatedConstant, null);
         }
 
         [CanBeNull]
