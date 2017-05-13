@@ -38,6 +38,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
         #region Fields
 
         private NavigationPage _rootPage;
+        private const string BackNavHandledKey = nameof(BackNavHandledKey);
 
         #endregion
 
@@ -100,6 +101,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
                 var sendBackButton = XamarinFormsToolkitExtensions.SendBackButtonPressed?.Invoke(CurrentContent);
                 if (sendBackButton != null)
                 {
+                    CurrentContent.SetNavigationContext(args.Context, true);
+                    ServiceProvider.AttachedValueProvider.SetValue(CurrentContent, BackNavHandledKey, null);
                     sendBackButton();
                     RaiseNavigated(null, null, NavigationMode.Back, args.Context);
                     return true;
@@ -299,10 +302,10 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
                     return;
                 isBack = true;
             }
-            var eventArgs = new NavigatingCancelEventArgs(null, NavigationMode.Back, null, true, isBack, null);
+            var eventArgs = new NavigatingCancelEventArgs(null, NavigationMode.Back, null, true, isBack, page.GetNavigationContext(true, true));
             RaiseNavigating(eventArgs);
             args.Cancel = eventArgs.Cancel;
-            if (!args.Cancel && isBack)
+            if (!args.Cancel && isBack && !ServiceProvider.AttachedValueProvider.Clear(page, BackNavHandledKey))
                 RaiseNavigated(null, null, NavigationMode.Back, DataContext.Empty);
         }
 
