@@ -65,7 +65,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         private WeakReference _vmReference;
 
         public static readonly DataConstant<bool> BringToFront;
-        public static readonly DataConstant<object> IsNavigatedConstant;
+        protected static readonly DataConstant<object> IsNavigatedConstant;
         protected static readonly DataConstant<Type> ViewModelTypeConstant;
         protected static readonly DataConstant<object> IgnoreNavigatingConstant;
         protected static readonly DataConstant<IDataContext> CloseContextConstant;
@@ -299,7 +299,8 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 
         protected virtual void RestoreInternal(IViewModel viewModel, IDataContext context)
         {
-            var navigationContext = new NavigationContext(NavigationType.Page, NavigationMode.Refresh, CurrentViewModel, viewModel, this, context);
+            var opened = viewModel.Settings.State.Contains(IsNavigatedConstant);
+            var navigationContext = new NavigationContext(NavigationType.Page, opened ? NavigationMode.Refresh : NavigationMode.New, CurrentViewModel, viewModel, this, context);
             OnNavigated(navigationContext);
         }
 
