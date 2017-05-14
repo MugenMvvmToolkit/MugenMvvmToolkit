@@ -48,6 +48,10 @@ namespace MugenMvvmToolkit.iOS.Binding
         private const string ContentControllerPath = "#$!contentctr";
 
         private static readonly EventHandler<UITabBarSelectionEventArgs> SelecectedControllerChangedHandler;
+        // ReSharper disable NotAccessedField.Local
+        private static NSObject _textObserver;
+        private static NSObject _textObserver1;
+        // ReSharper restore NotAccessedField.Local
 
         #endregion
 
@@ -146,7 +150,7 @@ namespace MugenMvvmToolkit.iOS.Binding
         {
             BindingServiceProvider.ResourceResolver.AddType(typeof(UITextFieldViewMode));
             BindingBuilderExtensions.RegisterDefaultBindingMember<UITextField>(nameof(UITextField.Text));
-            NSNotificationCenter.DefaultCenter.AddObserver(UITextField.TextFieldTextDidChangeNotification, TextDidChangeNotification);
+            _textObserver = NSNotificationCenter.DefaultCenter.AddObserver(UITextField.TextFieldTextDidChangeNotification, TextDidChangeNotification);
             var memberInfo = AttachedBindingMember.CreateEvent(AttachedMembers.UITextField.TextChangedEvent, SetTextFieldTextChanged);
             AttachedBindingMember.TrySetRaiseAction(memberInfo, RaiseTextChanged);
             MemberProvider.Register(memberInfo);
@@ -155,7 +159,7 @@ namespace MugenMvvmToolkit.iOS.Binding
         public static void RegisterTextViewMembers()
         {
             BindingBuilderExtensions.RegisterDefaultBindingMember<UITextView>(nameof(UITextView.Text));
-            NSNotificationCenter.DefaultCenter.AddObserver(UITextView.TextDidChangeNotification, TextDidChangeNotification);
+            _textObserver1 = NSNotificationCenter.DefaultCenter.AddObserver(UITextView.TextDidChangeNotification, TextDidChangeNotification);
             var memberInfo = AttachedBindingMember.CreateEvent(AttachedMembers.UITextView.TextChangedEvent, SetTextFieldTextChanged);
             AttachedBindingMember.TrySetRaiseAction(memberInfo, RaiseTextChanged);
             MemberProvider.Register(memberInfo);
