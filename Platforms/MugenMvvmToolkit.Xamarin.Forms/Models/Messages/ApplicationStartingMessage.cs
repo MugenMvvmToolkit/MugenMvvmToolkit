@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="XamarinFormsDesignBootstrapperBase.cs">
+// <copyright file="ApplicationStartingMessage.cs">
 // Copyright (c) 2012-2017 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -16,21 +16,19 @@
 
 #endregion
 
-namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
+namespace MugenMvvmToolkit.Xamarin.Forms.Models.Messages
 {
-    public abstract class XamarinFormsDesignBootstrapperBase : XamarinFormsBootstrapperBase
+    public class ApplicationStartingMessage
     {
-        #region Constructors
+        #region Fields
 
-        protected XamarinFormsDesignBootstrapperBase(IPlatformService platformService = null, bool isDesignMode = true) : base(platformService, isDesignMode)
-        {
-        }
+        public static readonly ApplicationStartingMessage Instance = new ApplicationStartingMessage();
 
         #endregion
 
-        #region Methods
+        #region Constructors
 
-        public sealed override void Start()
+        private ApplicationStartingMessage()
         {
         }
 

@@ -73,10 +73,12 @@
     <Compile Include="Infrastructure\Mediators\ModalViewMediator.cs" />
     <Compile Include="Infrastructure\Navigation\NavigationService.cs" />
     <Compile Include="Infrastructure\Presenters\RestorableViewModelPresenter.cs" />
+    <Compile Include="Infrastructure\Presenters\XamarinFormsRootDynamicViewModelPresenter.cs" />
     <Compile Include="Infrastructure\ViewMappingProviderEx.cs" />
     <Compile Include="Infrastructure\XamarinFormsDesignBootstrapperBase.cs" />
     <Compile Include="Infrastructure\XamarinFormsBootstrapperBase.cs" />
     <Compile Include="Interfaces\Presenters\IRestorableViewModelPresenter.cs" />
+    <Compile Include="Models\Messages\ApplicationStartingMessage.cs" />
     <Compile Include="Modules\XamarinFormsInitializationModule.cs" />
     <Compile Include="Interfaces\Views\IModalView.cs" />
     <Compile Include="MvvmXamarinApplicationBase.cs" />
@@ -101,7 +103,6 @@
       <Link>license.txt</Link>
     </None>
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
