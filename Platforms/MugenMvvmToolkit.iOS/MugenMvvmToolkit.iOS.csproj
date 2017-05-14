@@ -94,6 +94,7 @@
     <Compile Include="Binding\Infrastructure\DataTemplateProvider.cs" />
     <Compile Include="Binding\Infrastructure\DefaultTableCellTemplateSelector.cs" />
     <Compile Include="Infrastructure\DefaultNativeObjectManager.cs" />
+    <Compile Include="Infrastructure\Presenters\TouchRootDynamicViewModelPresenter.cs" />
     <Compile Include="Interfaces\INativeObjectManager.cs" />
     <Compile Include="Interfaces\Views\IViewControllerView.cs" />
     <Compile Include="Models\NativeObjectWeakReference.cs" />
