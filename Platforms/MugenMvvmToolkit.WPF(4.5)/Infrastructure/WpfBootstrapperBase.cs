@@ -20,30 +20,23 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
-using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
+using MugenMvvmToolkit.WPF.Infrastructure.Presenters;
 
 namespace MugenMvvmToolkit.WPF.Infrastructure
 {
-    public abstract class WpfBootstrapperBase : BootstrapperBase, IDynamicViewModelPresenter
+    public abstract class WpfBootstrapperBase : BootstrapperBase
     {
-        #region Fields
-
-        private readonly PlatformInfo _platform;
-
-        #endregion
-
         #region Constructors
 
         static WpfBootstrapperBase()
@@ -55,7 +48,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
         internal WpfBootstrapperBase(bool isDesignMode, PlatformInfo platform = null)
             : base(isDesignMode)
         {
-            _platform = platform ?? WpfToolkitExtensions.GetPlatformInfo();
+            Platform = platform ?? WpfToolkitExtensions.GetPlatformInfo();
         }
 
         protected WpfBootstrapperBase([NotNull] Application application, bool autoStart = true, PlatformInfo platform = null)
@@ -74,56 +67,9 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
 
         public bool ShutdownOnMainViewModelClose { get; set; }
 
-        #endregion
+        public Func<IIocContainer, IDynamicViewModelPresenter> RootPresenterFactory { get; set; }
 
-        #region Overrides of BootstrapperBase
-
-        protected override PlatformInfo Platform => _platform;
-
-        protected override void UpdateAssemblies(HashSet<Assembly> assemblies)
-        {
-            base.UpdateAssemblies(assemblies);
-            try
-            {
-                assemblies.AddRange(AppDomain.CurrentDomain.GetAssemblies().Where(x => !x.IsDynamic));
-            }
-            catch
-            {
-                if (!IsDesignMode)
-                    throw;
-            }
-            TryLoadAssemblyByType("AttachedMembers", "MugenMvvmToolkit.WPF.Binding", assemblies);
-        }
-
-        #endregion
-
-        #region Implementation of IDynamicViewModelPresenter
-
-        int IDynamicViewModelPresenter.Priority => int.MaxValue;
-
-        IAsyncOperation IDynamicViewModelPresenter.TryShowAsync(IDataContext context, IViewModelPresenter parentPresenter)
-        {
-            parentPresenter.DynamicPresenters.Remove(this);
-            var operation = parentPresenter.ShowAsync(context);
-            if (ShutdownOnMainViewModelClose)
-            {
-                operation.ContinueWith(result =>
-                {
-                    Application application = Application.Current;
-                    if (application != null)
-                    {
-                        Action action = application.Shutdown;
-                        application.Dispatcher.BeginInvoke(action);
-                    }
-                });
-            }
-            return operation;
-        }
-
-        Task<bool> IDynamicViewModelPresenter.TryCloseAsync(IDataContext context, IViewModelPresenter parentPresenter)
-        {
-            return null;
-        }
+        protected override PlatformInfo Platform { get; }
 
         #endregion
 
@@ -134,8 +80,17 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
             Initialize();
             if (!MvvmApplication.Context.Contains(NavigationConstants.IsDialog))
                 MvvmApplication.Context.Add(NavigationConstants.IsDialog, false);
-            IocContainer.Get<IViewModelPresenter>().DynamicPresenters.Add(this);
+            var rootPresenter = GetRootPresenter();
+            if (rootPresenter != null)
+                IocContainer.Get<IViewModelPresenter>().DynamicPresenters.Add(rootPresenter);
             MvvmApplication.Start();
+        }
+
+        protected virtual IDynamicViewModelPresenter GetRootPresenter()
+        {
+            if (RootPresenterFactory != null)
+                return RootPresenterFactory(IocContainer);
+            return new WpfRootDynamicViewModelPresenter {ShutdownOnMainViewModelClose = ShutdownOnMainViewModelClose};
         }
 
         private void ApplicationOnStartup(object sender, StartupEventArgs args)
@@ -154,6 +109,21 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
             var mappingProvider = container.Get<IViewMappingProvider>();
             var mappingItem = mappingProvider.FindMappingForViewModel(viewModel.GetType(), viewName, false);
             return mappingItem == null || !typeof(Page).IsAssignableFrom(mappingItem.ViewType);
+        }
+
+        protected override void UpdateAssemblies(HashSet<Assembly> assemblies)
+        {
+            base.UpdateAssemblies(assemblies);
+            try
+            {
+                assemblies.AddRange(AppDomain.CurrentDomain.GetAssemblies().Where(x => !x.IsDynamic));
+            }
+            catch
+            {
+                if (!IsDesignMode)
+                    throw;
+            }
+            TryLoadAssemblyByType("AttachedMembers", "MugenMvvmToolkit.WPF.Binding", assemblies);
         }
 
         #endregion

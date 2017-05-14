@@ -91,6 +91,9 @@
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\Presenters\ToastPresenter.cs">
       <Link>Infrastructure\Presenters\ToastPresenter.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\Presenters\WpfRootDynamicViewModelPresenter.cs">
+      <Link>Infrastructure\Presenters\WpfRootDynamicViewModelPresenter.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WPF%284.5%29\Infrastructure\ThreadManager.cs">
       <Link>Infrastructure\ThreadManager.cs</Link>
     </Compile>
