@@ -188,6 +188,9 @@
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Infrastructure\BindingListItemsSourceDecorator.cs">
       <Link>Infrastructure\BindingListItemsSourceDecorator.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Infrastructure\Mediators\WinFormsRootDynamicViewModelPresenter.cs">
+      <Link>Infrastructure\Mediators\WinFormsRootDynamicViewModelPresenter.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.WinForms%284.5%29\Infrastructure\Presenters\MessagePresenter.cs">
       <Link>Infrastructure\Presenters\MessagePresenter.cs</Link>
     </Compile>

@@ -20,25 +20,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
-using MugenMvvmToolkit.Interfaces.Callbacks;
-using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.WinForms.Infrastructure.Mediators;
 
 namespace MugenMvvmToolkit.WinForms.Infrastructure
 {
-    public abstract class WinFormsBootstrapperBase : BootstrapperBase, IDynamicViewModelPresenter
+    public abstract class WinFormsBootstrapperBase : BootstrapperBase
     {
-        #region Fields
-
-        private readonly PlatformInfo _platform;
-
-        #endregion
-
         #region Constructors
 
         static WinFormsBootstrapperBase()
@@ -50,7 +42,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
         protected WinFormsBootstrapperBase(bool autoRunApplication = true, PlatformInfo platform = null, bool isDesignMode = false)
             : base(isDesignMode)
         {
-            _platform = platform ?? WinFormsToolkitExtensions.GetPlatformInfo();
+            Platform = platform ?? WinFormsToolkitExtensions.GetPlatformInfo();
             AutoRunApplication = autoRunApplication;
             ShutdownOnMainViewModelClose = true;
         }
@@ -63,39 +55,9 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
 
         public bool ShutdownOnMainViewModelClose { get; set; }
 
-        #endregion
+        public Func<IIocContainer, IDynamicViewModelPresenter> RootPresenterFactory { get; set; }
 
-        #region Overrides of BootstrapperBase
-
-        protected override PlatformInfo Platform => _platform;
-
-        protected override void UpdateAssemblies(HashSet<Assembly> assemblies)
-        {
-            base.UpdateAssemblies(assemblies);
-            assemblies.AddRange(AppDomain.CurrentDomain.GetAssemblies().Where(x => !x.IsDynamic));
-        }
-
-        #endregion
-
-        #region Implementation of IDynamicViewModelPresenter
-
-        int IDynamicViewModelPresenter.Priority => int.MaxValue;
-
-        IAsyncOperation IDynamicViewModelPresenter.TryShowAsync(IDataContext context, IViewModelPresenter parentPresenter)
-        {
-            parentPresenter.DynamicPresenters.Remove(this);
-            var operation = parentPresenter.ShowAsync(context);
-            if (ShutdownOnMainViewModelClose)
-                operation.ContinueWith(result => Application.Exit());
-            if (AutoRunApplication)
-                Application.Run();
-            return operation;
-        }
-
-        Task<bool> IDynamicViewModelPresenter.TryCloseAsync(IDataContext context, IViewModelPresenter parentPresenter)
-        {
-            return null;
-        }
+        protected override PlatformInfo Platform { get; }
 
         #endregion
 
@@ -106,8 +68,27 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure
             Initialize();
             if (!MvvmApplication.Context.Contains(NavigationConstants.IsDialog))
                 MvvmApplication.Context.Add(NavigationConstants.IsDialog, false);
-            IocContainer.Get<IViewModelPresenter>().DynamicPresenters.Add(this);
+            var rootPresenter = GetRootPresenter();
+            if (rootPresenter != null)
+                IocContainer.Get<IViewModelPresenter>().DynamicPresenters.Add(rootPresenter);
             MvvmApplication.Start();
+        }
+
+        protected virtual IDynamicViewModelPresenter GetRootPresenter()
+        {
+            if (RootPresenterFactory != null)
+                return RootPresenterFactory(IocContainer);
+            return new WinFormsRootDynamicViewModelPresenter
+            {
+                ShutdownOnMainViewModelClose = ShutdownOnMainViewModelClose,
+                AutoRunApplication = AutoRunApplication
+            };
+        }
+
+        protected override void UpdateAssemblies(HashSet<Assembly> assemblies)
+        {
+            base.UpdateAssemblies(assemblies);
+            assemblies.AddRange(AppDomain.CurrentDomain.GetAssemblies().Where(x => !x.IsDynamic));
         }
 
         #endregion

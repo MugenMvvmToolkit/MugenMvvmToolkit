@@ -124,6 +124,7 @@
     <Compile Include="Binding\Infrastructure\ContentViewManagerBase.cs" />
     <Compile Include="Binding\Infrastructure\DefaultCollectionViewManager.cs" />
     <Compile Include="Binding\Infrastructure\ItemsSourceGenerator.cs" />
+    <Compile Include="Infrastructure\Mediators\WinFormsRootDynamicViewModelPresenter.cs" />
     <Compile Include="Infrastructure\Presenters\MessagePresenter.cs" />
     <Compile Include="Collections\BindingListWrapper.cs" />
     <Compile Include="Modules\WinFormsInitializationModule.cs" />
