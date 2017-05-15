@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Attributes;
@@ -410,6 +411,16 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 #endif
 
                             vmType = type;
+                    }
+                    else if (viewModelTo == null || items.Count > 1)
+                    {
+                        var viewModel = ToolkitExtensions.GetDataContext(args.Content) as IViewModel;
+                        var type = viewModel?.GetType();
+                        if (type != null && items.Any(item => item.ViewModelType == type))
+                        {
+                            viewModelTo = viewModel;
+                            vmType = type;
+                        }
                     }
                 }
                 if (vmType == null)
