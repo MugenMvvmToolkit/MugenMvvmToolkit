@@ -147,6 +147,7 @@
     <Compile Include="Infrastructure\Mediators\WindowViewMediator.cs" />
     <Compile Include="Infrastructure\Navigation\FrameNavigationService.cs" />
     <Compile Include="Infrastructure\Presenters\MessagePresenter.cs" />
+    <Compile Include="Infrastructure\Presenters\UwpRootDynamicViewModelPresenter.cs" />
     <Compile Include="Infrastructure\ThreadManager.cs" />
     <Compile Include="Infrastructure\UwpBootstrapperBase.cs" />
     <Compile Include="Infrastructure\UwpDesignBootstrapperBase.cs" />

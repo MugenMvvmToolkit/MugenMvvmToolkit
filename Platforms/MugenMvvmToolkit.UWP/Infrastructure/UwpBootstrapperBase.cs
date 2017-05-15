@@ -16,13 +16,13 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Windows.ApplicationModel;
 using Windows.Foundation.Metadata;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using JetBrains.Annotations;
 using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -30,8 +30,7 @@ using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.ViewModels;
-using MugenMvvmToolkit.UWP.Infrastructure.Navigation;
-using MugenMvvmToolkit.UWP.Interfaces.Navigation;
+using MugenMvvmToolkit.UWP.Infrastructure.Presenters;
 
 namespace MugenMvvmToolkit.UWP.Infrastructure
 {
@@ -39,7 +38,6 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
     {
         #region Fields
 
-        private readonly Frame _rootFrame;
         private readonly PlatformInfo _platform;
 
         #endregion
@@ -57,10 +55,9 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
             _platform = platform ?? UwpToolkitExtensions.GetPlatformInfo();
         }
 
-        protected UwpBootstrapperBase([CanBeNull] Frame rootFrame, PlatformInfo platform = null)
+        protected UwpBootstrapperBase(PlatformInfo platform = null)
             : this(false, platform)
         {
-            _rootFrame = rootFrame;
             _platform = platform ?? UwpToolkitExtensions.GetPlatformInfo();
         }
 
@@ -68,7 +65,9 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
 
         #region Properties
 
-        protected Frame RootFrame => _rootFrame;
+        public Func<IIocContainer, IDynamicViewModelPresenter> RootPresenterFactory { get; set; }
+
+        public Func<Frame> FrameFactory { get; set; }
 
         #endregion
 
@@ -79,9 +78,11 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
         protected override void InitializeInternal()
         {
             base.InitializeInternal();
-            var service = CreateNavigationService(_rootFrame);
-            if (service != null)
-                IocContainer.BindToConstant(service);
+
+            var rootPresenter = GetRootPresenter();
+            if (rootPresenter != null)
+                IocContainer.Get<IViewModelPresenter>().DynamicPresenters.Add(rootPresenter);
+
             var application = Application.Current;
             if (application != null)
             {
@@ -112,12 +113,13 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
             MvvmApplication.Start();
         }
 
-        [CanBeNull]
-        protected virtual INavigationService CreateNavigationService(Frame frame)
+        protected virtual IDynamicViewModelPresenter GetRootPresenter()
         {
-            if (frame == null)
-                return null;
-            return new FrameNavigationService(frame, IocContainer.Get<IViewModelProvider>());
+            if (RootPresenterFactory != null)
+                return RootPresenterFactory(IocContainer);
+            var presenter = IocContainer.Get<UwpRootDynamicViewModelPresenter>();
+            presenter.FrameFactory = FrameFactory;
+            return presenter;
         }
 
         private static void OnLeavingBackground(object sender, LeavingBackgroundEventArgs leavingBackgroundEventArgs)

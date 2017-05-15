@@ -16,9 +16,6 @@
 
 #endregion
 
-using Windows.UI.Xaml.Controls;
-using MugenMvvmToolkit.UWP.Interfaces.Navigation;
-
 namespace MugenMvvmToolkit.UWP.Infrastructure
 {
     public abstract class UwpDesignBootstrapperBase : UwpBootstrapperBase
@@ -36,11 +33,6 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
         public sealed override void Start()
         {
             base.Start();
-        }
-
-        protected sealed override INavigationService CreateNavigationService(Frame frame)
-        {
-            return base.CreateNavigationService(frame);
         }
 
         #endregion

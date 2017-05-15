@@ -33,7 +33,6 @@ using Bootstrapper = MugenMvvmToolkit.WinForms.Infrastructure.WinFormsBootstrapp
 
 namespace MugenMvvmToolkit.WinForms.Infrastructure
 #elif WINDOWS_UWP
-using Windows.UI.Xaml.Controls;
 using Bootstrapper = MugenMvvmToolkit.UWP.Infrastructure.UwpBootstrapperBase;
 
 namespace MugenMvvmToolkit.UWP.Infrastructure
@@ -90,8 +89,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         public Bootstrapper([NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, PlatformInfo platform = null)
             : base(true, platform)
 #elif WINDOWS_UWP
-        public Bootstrapper([NotNull] Frame rootFrame, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, PlatformInfo platform = null)
-            : base(rootFrame, platform)
+        public Bootstrapper([NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, PlatformInfo platform = null)
+            : base(platform)
 #elif TOUCH
         public Bootstrapper([NotNull] UIWindow window, [NotNull] IIocContainer iocContainer, IEnumerable<Assembly> assemblies = null, PlatformInfo platform = null)
             : base(window, platform)
