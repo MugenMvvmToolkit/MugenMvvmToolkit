@@ -74,8 +74,6 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters
             OperationCallbackManager = operationCallbackManager;
             ThreadManager = threadManager;
             EventAggregator = eventAggregator;
-
-            XamarinFormsToolkitExtensions.BackButtonPressed += OnBackButtonPressed;
         }
 
         #endregion
@@ -137,10 +135,13 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters
                 {
                     _subscribed = true;
                     EventAggregator.Subscribe(this);
+                    XamarinFormsToolkitExtensions.BackButtonPressed += OnBackButtonPressed;
                 }
                 if (viewModel.Settings.State.Contains(IsRootConstant))
                     mode = NavigationMode.Refresh;
-                viewModel.Settings.State.AddOrUpdate(IsRootConstant, null);
+                else
+                    viewModel.Settings.State.AddOrUpdate(IsRootConstant, null);
+                viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.CanCloseHandler, CanCloseViewModel);
                 NavigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Page, mode, null, viewModel, this, context));
             }
             else
@@ -153,9 +154,9 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters
         [CanBeNull]
         protected virtual NavigationPage CreateNavigationPage(Page mainPage)
         {
-            if (NavigationPageFactory != null)
-                return NavigationPageFactory(mainPage);
-            return new NavigationPage(mainPage);
+            if (NavigationPageFactory == null)
+                return new NavigationPage(mainPage);
+            return NavigationPageFactory(mainPage);
         }
 
         [NotNull]
@@ -167,33 +168,10 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters
         protected virtual void OnBackButtonPressed(Page sender, CancelEventArgs args)
         {
             var viewModel = sender.BindingContext as IViewModel;
-            if (viewModel == null || !viewModel.Settings.State.Contains(IsRootConstant) || viewModel.Settings.Metadata.Contains(IsClosed))
+            if (viewModel == null)
                 return;
-
-            var backButtonAction = XamarinFormsToolkitExtensions.SendBackButtonPressed?.Invoke(sender);
-            if (backButtonAction == null)
-                return;
-
-            var context = new NavigationContext(NavigationType.Page, NavigationMode.Back, viewModel, null, this);
-            var task = NavigationDispatcher.OnNavigatingAsync(context);
-            if (task.IsCompleted)
-            {
-                args.Cancel = !task.Result;
-                if (task.Result)
-                    NavigationDispatcher.OnNavigated(context);
-            }
-            else
-            {
-                args.Cancel = true;
-                task.TryExecuteSynchronously(t =>
-                {
-                    if (!t.Result)
-                        return;
-                    context.ViewModelFrom?.Settings.Metadata.AddOrUpdate(IsClosed, null);
-                    backButtonAction();
-                    NavigationDispatcher.OnNavigated(context);
-                });
-            }
+            var task = TryCloseRootAsync(viewModel, DataContext.Empty);
+            args.Cancel = task != null && (!task.IsCompleted || !task.Result);
         }
 
         protected virtual void OnApplicationStart()
@@ -204,6 +182,46 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters
                 Tracer.Warn($"There is an open view model {openedViewModel} after app restart");
                 NavigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Remove, openedViewModel.ViewModel, null, this));
             }
+        }
+
+        protected virtual bool CanCloseViewModel(IViewModel viewModel, object o)
+        {
+            return XamarinFormsToolkitExtensions.SendBackButtonPressed != null && viewModel.Settings.State.Contains(IsRootConstant);
+        }
+
+        private Task<bool> TryCloseRootAsync(IViewModel viewModel, IDataContext context)
+        {
+            if (viewModel == null || !viewModel.Settings.State.Contains(IsRootConstant) || viewModel.Settings.Metadata.Contains(IsClosed))
+                return null;
+
+            var currentView = viewModel.GetCurrentView<object>();
+
+            var backButtonAction = XamarinFormsToolkitExtensions.SendBackButtonPressed?.Invoke(currentView);
+            if (backButtonAction == null)
+                return null;
+
+            var navigationContext = new NavigationContext(NavigationType.Page, NavigationMode.Back, viewModel, null, this, context);
+            var task = NavigationDispatcher.OnNavigatingAsync(navigationContext);
+            if (task.IsCompleted)
+            {
+                if (task.Result)
+                {
+                    viewModel.Settings.Metadata.AddOrUpdate(IsClosed, null);
+                    _hasRootPage = false;
+                    NavigationDispatcher.OnNavigated(navigationContext);
+                }
+                return task;
+            }
+            return task.TryExecuteSynchronously(t =>
+            {
+                if (!t.Result)
+                    return false;
+                _hasRootPage = false;
+                viewModel.Settings.Metadata.AddOrUpdate(IsClosed, null);
+                backButtonAction();
+                NavigationDispatcher.OnNavigated(navigationContext);
+                return true;
+            });
         }
 
         #endregion
@@ -221,7 +239,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters
                 return null;
 
             _hasRootPage = true;
-            var operation = new AsyncOperation<object>(); //todo can close
+            var operation = new AsyncOperation<object>();
             OperationCallbackManager.Register(OperationType.PageNavigation, viewModel, operation.ToOperationCallback(), context);
             ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, viewModel, context, (@this, model, arg3) => @this.InitializeRootPage(model, arg3));
             return operation;
@@ -230,42 +248,19 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters
         public Task<bool> TryCloseAsync(IDataContext context, IViewModelPresenter parentPresenter)
         {
             var viewModel = context.GetData(NavigationConstants.ViewModel);
-            if (viewModel == null)
-                return null;
-            if (viewModel.Settings.State.Contains(IsRootConstant))
-            {
-                var navigationContext = new NavigationContext(NavigationType.Page, NavigationMode.Remove, viewModel, null, this, context);
-                return NavigationDispatcher
-                    .OnNavigatingAsync(navigationContext)
-                    .TryExecuteSynchronously(task =>
-                    {
-                        if (task.Result)
-                        {
-                            var page = Application.Current.MainPage;
-                            _hasRootPage = false;
-                            ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, NavigationDispatcher, page, navigationContext, (d, p, ctx) =>
-                            {
-                                if (ReferenceEquals(Application.Current.MainPage, p))
-                                    Application.Current.MainPage = new Page();
-                                d.OnNavigated(ctx);
-                            });
-                        }
-                        return task.Result;
-                    });
-            }
-            return null;
+            return TryCloseRootAsync(viewModel, context);
         }
 
-        void IHandler<BackgroundNavigationMessage>.Handle(object sender, BackgroundNavigationMessage message)//todo fix
+        void IHandler<BackgroundNavigationMessage>.Handle(object sender, BackgroundNavigationMessage message)
         {
-            var viewModel = Application.Current.MainPage?.BindingContext as IViewModel;
+            var viewModel = Application.Current?.MainPage?.BindingContext as IViewModel;
             if (viewModel != null && viewModel.Settings.State.Contains(IsRootConstant))
                 NavigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Background, viewModel, null, this, message.Context));
         }
 
         void IHandler<ForegroundNavigationMessage>.Handle(object sender, ForegroundNavigationMessage message)
         {
-            var viewModel = Application.Current.MainPage?.BindingContext as IViewModel;
+            var viewModel = Application.Current?.MainPage?.BindingContext as IViewModel;
             if (viewModel != null && viewModel.Settings.State.Contains(IsRootConstant))
                 NavigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Foreground, null, viewModel, this, message.Context));
         }
