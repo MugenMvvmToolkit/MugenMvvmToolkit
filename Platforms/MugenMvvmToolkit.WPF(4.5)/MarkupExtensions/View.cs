@@ -154,8 +154,29 @@ namespace MugenMvvmToolkit.UWP.MarkupExtensions
         private static void OnBindChangedCallback(DependencyObject sender, DependencyPropertyChangedEventArgs args)
         {
             var bindChanged = BindChanged;
-            Should.MethodBeSupported(ServiceProvider.IsDesignMode || bindChanged != null, "BindChanged");
-            bindChanged?.Invoke(sender, (string)args.NewValue);
+            var bind = (string)args.NewValue;
+            if (ServiceProvider.IsDesignMode)
+            {
+                if (bindChanged == null)
+                    return;
+                if (ServiceProvider.IsInitialized)
+                    bindChanged.Invoke(sender, bind);
+                else
+                {
+                    var weakSender = ServiceProvider.WeakReferenceFactory(sender);
+                    ServiceProvider.Initialized += (o, eventArgs) =>
+                    {
+                        var target = (DependencyObject)weakSender.Target;
+                        if (target != null)
+                            bindChanged.Invoke(target, bind);
+                    };
+                }
+            }
+            else
+            {
+                Should.MethodBeSupported(bindChanged != null, "View.Bind");
+                bindChanged.Invoke(sender, bind);
+            }
         }
 
         private static void SetValueEx<T>(this DependencyObject dp, DependencyProperty property, T value)
