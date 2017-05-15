@@ -158,19 +158,19 @@ namespace MugenMvvmToolkit.UWP.MarkupExtensions
             if (ServiceProvider.IsDesignMode)
             {
                 if (bindChanged == null)
-                    return;
-                if (ServiceProvider.IsInitialized)
-                    bindChanged.Invoke(sender, bind);
-                else
                 {
+                    if (ServiceProvider.IsInitialized)
+                        return;
                     var weakSender = ServiceProvider.WeakReferenceFactory(sender);
                     ServiceProvider.Initialized += (o, eventArgs) =>
                     {
                         var target = (DependencyObject)weakSender.Target;
                         if (target != null)
-                            bindChanged.Invoke(target, bind);
+                            BindChanged?.Invoke(target, bind);
                     };
                 }
+                else
+                    bindChanged.Invoke(sender, bind);
             }
             else
             {
