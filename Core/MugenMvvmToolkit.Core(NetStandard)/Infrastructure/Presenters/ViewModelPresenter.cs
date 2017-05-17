@@ -168,10 +168,10 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             return result;
         }
 
-        public void Restore(IDataContext context)
+        public bool Restore(IDataContext context)
         {
             Should.NotBeNull(context, nameof(context));
-            RestoreInternal(context);
+            return RestoreInternal(context);
         }
 
         public Task<bool> CloseAsync(IDataContext context)
@@ -213,7 +213,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             return null;
         }
 
-        protected virtual void RestoreInternal(IDataContext context)
+        protected virtual bool RestoreInternal(IDataContext context)
         {
             var presenters = _dynamicPresenters.ToArrayEx();
             for (int i = 0; i < presenters.Length; i++)
@@ -222,9 +222,10 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                 if (presenter != null && presenter.Restore(context, this))
                 {
                     Trace("restore", context, presenter);
-                    return;
+                    return true;
                 }
             }
+            return false;
         }
 
         [NotNull]

@@ -37,6 +37,6 @@ namespace MugenMvvmToolkit.Interfaces.Presenters
 
         Task<bool> CloseAsync([NotNull] IDataContext context);
 
-        void Restore([NotNull] IDataContext context);
+        bool Restore([NotNull] IDataContext context);
     }
 }
