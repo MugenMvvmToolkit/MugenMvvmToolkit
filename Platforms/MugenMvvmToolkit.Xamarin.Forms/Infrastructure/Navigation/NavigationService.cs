@@ -185,10 +185,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
                 return false;
 
             var navigationStack = _rootPage.Navigation?.NavigationStack;
-            if (navigationStack == null || navigationStack.Count == 0)
-                return false;
-
-            if (navigationStack.Count == 1 && XamarinFormsToolkitExtensions.SendBackButtonPressed == null)
+            if (navigationStack == null || navigationStack.Count <= 1)
                 return false;
 
             if (CurrentContent?.BindingContext == viewModel)
