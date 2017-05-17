@@ -144,7 +144,7 @@ namespace MugenMvvmToolkit
                     {
                         var constructor = FindConstructor(_type, parameters);
                         if (constructor == null)
-                            throw new InvalidOperationException($"Constructor for type {_type} is null, can't activate this service.");
+                            throw new InvalidOperationException($"Cannot find constructor for type {_type}, cannot activate this service");
 
                         if (_lifecycle == DependencyLifecycle.SingleInstance)
                         {
@@ -427,7 +427,7 @@ namespace MugenMvvmToolkit
             object value;
             if (TryResolve(service, parameters, out value))
                 return value;
-            throw new InvalidOperationException($"For service {service}, binding not found.");
+            throw new InvalidOperationException($"Cannot find binding for type {service}");
         }
 
         private bool TryResolve(Type service, IIocParameter[] parameters, out object value)
@@ -662,7 +662,7 @@ namespace MugenMvvmToolkit
                 if (_bindingRegistrations.TryGetValue(key, out list))
                 {
                     if (list.Count > 1)
-                        throw new InvalidOperationException($"For type {service}, you have more that once binding");
+                        throw new InvalidOperationException($"Cannot activate type {service} found more that one binding");
                     if (list.Count == 1)
                         registration = list[0];
                 }
