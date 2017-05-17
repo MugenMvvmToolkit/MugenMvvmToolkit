@@ -342,7 +342,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             Should.NotBeNull(activity, nameof(activity));
             SetBackground(false, context);
             var prevContent = CurrentContent;
-            if ((_newContext == null || _newContext.Count == 0) && ReferenceEquals(activity, prevContent))
+            if ((_newContext == null || !_newContext.GetData(NavigationProvider.BringToFront)) && ReferenceEquals(activity, prevContent))
                 return;
             var viewModel = activity.DataContext() as IViewModel;
             viewModel?.Settings.Metadata.Remove(NavigationProvider.BringToFront);
