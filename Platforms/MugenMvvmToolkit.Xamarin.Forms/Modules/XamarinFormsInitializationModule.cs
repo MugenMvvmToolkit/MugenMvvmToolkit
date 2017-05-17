@@ -51,7 +51,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Modules
                 var windowPresenter = iocContainer.Get<DynamicViewModelWindowPresenter>();
                 windowPresenter.RegisterMediatorFactory<ModalViewMediator, IModalView>();
                 presenter.DynamicPresenters.Add(windowPresenter);
-                presenter.DynamicPresenters.Add(iocContainer.Get<DynamicViewModelNavigationPresenter>());
+                presenter.DynamicPresenters.Add(new DynamicViewModelNavigationPresenter());
                 return presenter;
             }, DependencyLifecycle.SingleInstance);
         }

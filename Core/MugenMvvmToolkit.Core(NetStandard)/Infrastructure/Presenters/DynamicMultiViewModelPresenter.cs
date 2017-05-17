@@ -21,7 +21,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
-using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
@@ -35,12 +34,10 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
     {
         #region Constructors
 
-        public DynamicMultiViewModelPresenter([NotNull] IMultiViewModel multiViewModel,
-            IOperationCallbackManager callbackManager = null, Func<IViewModel, IDataContext, IViewModelPresenter, bool> canShowViewModel = null)
+        public DynamicMultiViewModelPresenter([NotNull] IMultiViewModel multiViewModel, Func<IViewModel, IDataContext, IViewModelPresenter, bool> canShowViewModel = null)
         {
             Should.NotBeNull(multiViewModel, nameof(multiViewModel));
             MultiViewModel = multiViewModel;
-            CallbackManager = callbackManager ?? multiViewModel.GetIocContainer(true).Get<IOperationCallbackManager>();
             CanShowViewModel = canShowViewModel;
         }
 
@@ -49,8 +46,6 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         #region Properties
 
         protected IMultiViewModel MultiViewModel { get; }
-
-        protected IOperationCallbackManager CallbackManager { get; }
 
         protected Func<IViewModel, IDataContext, IViewModelPresenter, bool> CanShowViewModel { get; }
 
@@ -64,9 +59,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
                 MultiViewModel.SelectedItem = viewModel;
             else
                 MultiViewModel.AddViewModel(viewModel, true);
-            var operation = new AsyncOperation<object>();
-            CallbackManager.Register(OperationType.TabNavigation, viewModel, operation.ToOperationCallback(), context);
-            return operation;
+            return viewModel.RegisterNavigationOperation(OperationType.TabNavigation, context);
         }
 
         protected virtual Task<bool> TryCloseInternalAsync(IDataContext context, IViewModelPresenter parentPresenter)

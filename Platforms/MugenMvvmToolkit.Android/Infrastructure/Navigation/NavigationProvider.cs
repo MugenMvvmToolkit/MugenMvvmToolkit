@@ -88,8 +88,8 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         }
 
         [Preserve(Conditional = true)]
-        public NavigationProvider([NotNull] INavigationService navigationService, [NotNull] IThreadManager threadManager, [NotNull] IViewMappingProvider mappingProvider,
-            [NotNull] IViewManager viewManager, [NotNull] IViewModelProvider viewModelProvider, [NotNull] INavigationDispatcher navigationDispatcher, IEventAggregator eventAggregator)
+        public NavigationProvider([NotNull] INavigationService navigationService, [NotNull] IThreadManager threadManager, [NotNull] IViewMappingProvider mappingProvider, [NotNull] IViewManager viewManager,
+            [NotNull] IViewModelProvider viewModelProvider, [NotNull] INavigationDispatcher navigationDispatcher, IEventAggregator eventAggregator)
         {
             Should.NotBeNull(navigationService, nameof(navigationService));
             Should.NotBeNull(threadManager, nameof(threadManager));
@@ -335,7 +335,12 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             }, true);
 
             if (vm != null)
+            {
                 ViewManager.InitializeViewAsync(vm, view, context);
+                if (viewModelState == null && !vm.Settings.Metadata.GetData(NavigationConstants.DoNotDisposeNoStateViewModel))
+                    vm.RegisterNavigationOperation(OperationType.PageNavigation, context)
+                        .ContinueWith<IViewModel>((viewModel, result) => viewModel.Dispose());
+            }
             return vm;
         }
 
@@ -352,7 +357,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             {
                 if (viewModelFrom != null)
                     return new NavigationContext(NavigationType.Page, NavigationMode.Remove, viewModelFrom, null, this, args.Context);
-                Tracer.Error("Possible bug in navigation, navigate with mode Remove mode without ViewModel");
+                Tracer.Error("Possible bug in navigation, navigate with Remove mode without ViewModel");
                 return null;
             }
 
@@ -389,7 +394,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             {
                 if (viewModelFrom != null)
                     return new NavigationContext(NavigationType.Page, NavigationMode.Remove, viewModelFrom, null, this, args.Context);
-                Tracer.Error("Possible bug in navigation, navigate with mode Remove mode without ViewModel");
+                Tracer.Error("Possible bug in navigation, navigate with Remove mode without ViewModel");
             }
 
             Guid viewModelId;

@@ -154,6 +154,7 @@ namespace MugenMvvmToolkit.DataConstants
         public static readonly DataConstant<object> NavigationParameter;
         public static readonly DataConstant<bool> DoNotTrackViewModelFrom;
         public static readonly DataConstant<bool> DoNotTrackViewModelTo;
+        public static readonly DataConstant<bool> DoNotDisposeNoStateViewModel;
 
         #endregion
 
@@ -178,6 +179,7 @@ namespace MugenMvvmToolkit.DataConstants
             IsFirstNavigation = DataConstant.Create<object>(type, nameof(IsFirstNavigation), false);
             DoNotTrackViewModelFrom = DataConstant.Create<bool>(type, nameof(DoNotTrackViewModelFrom));
             DoNotTrackViewModelTo = DataConstant.Create<bool>(type, nameof(DoNotTrackViewModelTo));
+            DoNotDisposeNoStateViewModel = DataConstant.Create<bool>(type, nameof(DoNotDisposeNoStateViewModel));
         }
 
         #endregion

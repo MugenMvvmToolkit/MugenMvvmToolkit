@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -61,6 +62,18 @@ namespace MugenMvvmToolkit.ViewModels
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             return viewModel.Settings.Metadata.GetData(ViewModelConstants.CurrentNavigationOperation);
+        }
+
+        [NotNull]
+        public static IAsyncOperation RegisterNavigationOperation([NotNull] this IViewModel viewModel, [NotNull] OperationType operationType, IDataContext context = null)
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            Should.NotBeNull(operationType, nameof(operationType));
+            var asyncOperation = new AsyncOperation<object>();
+            viewModel.GetIocContainer(true)
+                .Get<IOperationCallbackManager>()
+                .Register(operationType, viewModel, asyncOperation.ToOperationCallback(), context ?? DataContext.Empty);
+            return asyncOperation;
         }
 
         [CanBeNull]
@@ -216,7 +229,7 @@ namespace MugenMvvmToolkit.ViewModels
         public static void RemoveClosedHandler([NotNull]this IViewModel viewModel, EventHandler<IViewModel, ViewModelClosedEventArgs> handler)
         {
             viewModel.UpdateEventHandler(ViewModelConstants.ClosedEvent, handler, false);
-        }        
+        }
 
         [Pure]
         public static IViewModel GetViewModel([NotNull] this IViewModelProvider viewModelProvider,

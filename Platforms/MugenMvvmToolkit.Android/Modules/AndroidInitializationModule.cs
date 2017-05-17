@@ -88,7 +88,7 @@ namespace MugenMvvmToolkit.Android.Modules
             container.BindToMethod((iocContainer, list) =>
             {
                 IViewModelPresenter presenter = iocContainer.Get<ViewModelPresenter>();
-                presenter.DynamicPresenters.Add(iocContainer.Get<DynamicViewModelNavigationPresenter>());
+                presenter.DynamicPresenters.Add(new DynamicViewModelNavigationPresenter());
                 return presenter;
             }, DependencyLifecycle.SingleInstance);
         }

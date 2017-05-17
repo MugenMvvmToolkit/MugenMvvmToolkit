@@ -133,7 +133,7 @@ namespace MugenMvvmToolkit.UWP.Modules
                 windowPresenter.RegisterMediatorFactory<WindowViewMediator, IWindowView>();
                 presenter.DynamicPresenters.Add(windowPresenter);
 #if !WPF
-                presenter.DynamicPresenters.Add(iocContainer.Get<DynamicViewModelNavigationPresenter>());
+                presenter.DynamicPresenters.Add(new DynamicViewModelNavigationPresenter());
 #endif
                 return presenter;
             }, DependencyLifecycle.SingleInstance);

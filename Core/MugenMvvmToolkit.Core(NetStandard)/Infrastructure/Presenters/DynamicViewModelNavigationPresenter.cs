@@ -20,7 +20,6 @@ using System;
 using System.Threading.Tasks;
 using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.DataConstants;
-using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
@@ -36,21 +35,17 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
         #region Fields
 
         private readonly Func<IViewModel, IDataContext, IViewModelPresenter, bool> _canShowViewModel;
-        private readonly IOperationCallbackManager _operationCallbackManager;
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public DynamicViewModelNavigationPresenter(IOperationCallbackManager operationCallbackManager)
+        public DynamicViewModelNavigationPresenter()
         {
-            Should.NotBeNull(operationCallbackManager, nameof(operationCallbackManager));
-            _operationCallbackManager = operationCallbackManager;
         }
 
-        public DynamicViewModelNavigationPresenter(IOperationCallbackManager operationCallbackManager, Func<IViewModel, IDataContext, IViewModelPresenter, bool> canShowViewModel)
-            : this(operationCallbackManager)
+        public DynamicViewModelNavigationPresenter(Func<IViewModel, IDataContext, IViewModelPresenter, bool> canShowViewModel)
         {
             _canShowViewModel = canShowViewModel;
         }
@@ -86,8 +81,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             if (!viewModel.GetIocContainer(true).TryGet(out provider))
                 return null;
 
-            var operation = new AsyncOperation<object>();
-            _operationCallbackManager.Register(OperationType.PageNavigation, viewModel, operation.ToOperationCallback(), context);
+            var operation = viewModel.RegisterNavigationOperation(OperationType.PageNavigation, context);
             operation.Context.AddOrUpdate(NavigationConstants.NavigationCompletedTask, provider.NavigateAsync(context));
             return operation;
         }
