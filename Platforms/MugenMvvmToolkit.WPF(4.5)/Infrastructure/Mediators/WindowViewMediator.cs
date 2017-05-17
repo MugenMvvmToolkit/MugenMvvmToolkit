@@ -17,7 +17,6 @@
 #endregion
 
 using System.ComponentModel;
-using System.Linq;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.DataConstants;
@@ -25,7 +24,7 @@ using MugenMvvmToolkit.Infrastructure.Mediators;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
-using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.ViewModels;
 #if WPF
 using MugenMvvmToolkit.WPF.Interfaces.Views;
 
@@ -53,9 +52,23 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Mediators
 
         protected override void ShowView(IWindowView view, bool isDialog, IDataContext context)
         {
-            var topViewModel = NavigationDispatcher.GetOpenedViewModels(NavigationType.Window).LastOrDefault(vm => vm.ViewModel != ViewModel)?.ViewModel;
-            if (topViewModel != null)
-                view.Owner = topViewModel.Settings.Metadata.GetData(ViewModelConstants.View);
+            var viewModel = context.GetData(NavigationConstants.ViewModel);
+            if (viewModel != null)
+            {
+                var parentViewModel = viewModel.GetParentViewModel();
+                while (parentViewModel != null)
+                {
+                    var windowViewMediator = parentViewModel.Settings.Metadata.GetData(WindowPresenterConstants.WindowViewMediator);
+                    if (windowViewMediator?.View != null)
+                    {
+                        view.Owner = windowViewMediator.View;
+                        break;
+                    }
+
+                    parentViewModel = parentViewModel.Settings.Metadata.GetData(ViewModelConstants.WrapperViewModel) ??
+                                      parentViewModel.GetParentViewModel();
+                }
+            }
 
             try
             {
