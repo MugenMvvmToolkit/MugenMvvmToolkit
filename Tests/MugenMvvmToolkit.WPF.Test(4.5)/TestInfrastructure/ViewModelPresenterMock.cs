@@ -53,9 +53,10 @@ namespace MugenMvvmToolkit.Test.TestInfrastructure
             return CloseAsync?.Invoke(context.GetData(NavigationConstants.ViewModel), context);
         }
 
-        void IViewModelPresenter.Restore(IDataContext context)
+        bool IViewModelPresenter.Restore(IDataContext context)
         {
             Restore?.Invoke(context.GetData(NavigationConstants.ViewModel), context);
+            return true;
         }
 
         public Task WaitCurrentNavigationsAsync(IDataContext context = null)
