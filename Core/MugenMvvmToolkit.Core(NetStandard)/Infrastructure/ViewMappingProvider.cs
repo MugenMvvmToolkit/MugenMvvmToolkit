@@ -200,7 +200,7 @@ namespace MugenMvvmToolkit.Infrastructure
                     vmTypes.Remove(vType.Key);
                     foreach (Type viewModelType in list)
                     {
-                        //NOTE: ignore if view is already has mapping.
+                        //NOTE: ignore if view already has mapping.
                         AddMapping(new ViewMappingItem(viewModelType, originalViewType, null,
                             GetUri(originalViewType, viewModelType, null, UriKind.Relative)), false);
                     }
