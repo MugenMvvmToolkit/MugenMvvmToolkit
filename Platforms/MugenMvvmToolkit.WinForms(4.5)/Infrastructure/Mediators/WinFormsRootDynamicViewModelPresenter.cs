@@ -42,7 +42,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Mediators
 
         public bool ShutdownOnMainViewModelClose { get; set; }
 
-        public int Priority => int.MaxValue;
+        public int Priority => int.MaxValue - 1;
 
         #endregion
 
