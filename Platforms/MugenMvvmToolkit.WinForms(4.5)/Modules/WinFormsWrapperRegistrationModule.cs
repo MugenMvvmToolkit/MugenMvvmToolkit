@@ -73,12 +73,7 @@ namespace MugenMvvmToolkit.WinForms.Modules
             public object Owner
             {
                 get { return Form.Owner; }
-                set
-                {
-                    var form = value as Form;
-                    if (form != null)
-                        Form.Owner = form;
-                }
+                set { Form.Owner = ToolkitExtensions.GetUnderlyingView<object>(value) as Form; }
             }
 
             event CancelEventHandler IWindowView.Closing

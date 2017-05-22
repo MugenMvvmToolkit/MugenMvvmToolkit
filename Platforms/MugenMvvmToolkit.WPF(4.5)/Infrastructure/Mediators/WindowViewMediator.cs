@@ -52,22 +52,18 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Mediators
 
         protected override void ShowView(IWindowView view, bool isDialog, IDataContext context)
         {
-            var viewModel = context.GetData(NavigationConstants.ViewModel);
-            if (viewModel != null)
+            var parentViewModel = ViewModel.GetParentViewModel();
+            while (parentViewModel != null)
             {
-                var parentViewModel = viewModel.GetParentViewModel();
-                while (parentViewModel != null)
+                var windowViewMediator = parentViewModel.Settings.Metadata.GetData(WindowPresenterConstants.WindowViewMediator);
+                if (windowViewMediator?.View != null)
                 {
-                    var windowViewMediator = parentViewModel.Settings.Metadata.GetData(WindowPresenterConstants.WindowViewMediator);
-                    if (windowViewMediator?.View != null)
-                    {
-                        view.Owner = windowViewMediator.View;
-                        break;
-                    }
-
-                    parentViewModel = parentViewModel.Settings.Metadata.GetData(ViewModelConstants.WrapperViewModel) ??
-                                      parentViewModel.GetParentViewModel();
+                    view.Owner = windowViewMediator.View;
+                    break;
                 }
+
+                parentViewModel = parentViewModel.Settings.Metadata.GetData(ViewModelConstants.WrapperViewModel) ??
+                                  parentViewModel.GetParentViewModel();
             }
 
             try
