@@ -104,6 +104,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters
                 var viewModel = context.GetData(NavigationConstants.ViewModel) ?? result.Context.GetData(NavigationConstants.ViewModel);
                 if (viewModel != null)
                 {
+                    _openedViewModels.Remove(viewModel);
                     _openedViewModels.Add(viewModel);
                     result.ContinueWith(OnViewModelClosed);
                 }
@@ -229,7 +230,19 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters
         {
             bool data;
             if (context != null && context.TryGetData(ViewModelConstants.StateNotNeeded, out data) && data)
+            {
+                IDictionary<string, object> dictionary;
+                var items = GetItems(out dictionary);
+                if (items != null)
+                {
+                    foreach (var item in items)
+                    {
+                        dictionary.Remove(NumberPrefix + item.Id);
+                        dictionary.Remove(StatePrefix + item.Id);
+                    }
+                }
                 return false;
+            }
             return TryRestoreInternal(context ?? DataContext.Empty);
         }
 
