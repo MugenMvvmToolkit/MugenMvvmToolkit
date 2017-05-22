@@ -156,6 +156,7 @@ namespace MugenMvvmToolkit.DataConstants
         public static readonly DataConstant<bool> DoNotTrackViewModelFrom;
         public static readonly DataConstant<bool> DoNotTrackViewModelTo;
         public static readonly DataConstant<bool> DoNotDisposeNoStateViewModel;
+        public static readonly DataConstant<bool> IgnoreOwner;
 
         #endregion
 
@@ -182,6 +183,7 @@ namespace MugenMvvmToolkit.DataConstants
             DoNotTrackViewModelFrom = DataConstant.Create<bool>(type, nameof(DoNotTrackViewModelFrom));
             DoNotTrackViewModelTo = DataConstant.Create<bool>(type, nameof(DoNotTrackViewModelTo));
             DoNotDisposeNoStateViewModel = DataConstant.Create<bool>(type, nameof(DoNotDisposeNoStateViewModel));
+            IgnoreOwner = DataConstant.Create<bool>(type, nameof(IgnoreOwner));
         }
 
         #endregion
