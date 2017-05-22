@@ -104,6 +104,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
         public static IList<Assembly> ViewAssemblies { get; protected set; }
 
+        public static Func<AndroidBootstrapperBase> BootstrapperFactory { get; set; }
+
         public new static AndroidBootstrapperBase Current { get; private set; }
 
         internal static string BootstrapperType
@@ -137,6 +139,8 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
         public static void EnsureInitialized(object sender = null, Bundle bundle = null, Func<AndroidBootstrapperBase> factory = null)
         {
+            if (factory == null)
+                factory = BootstrapperFactory;
             if (Current == null)
             {
                 lock (Locker)

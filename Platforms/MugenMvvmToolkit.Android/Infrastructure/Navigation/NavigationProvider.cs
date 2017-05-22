@@ -111,8 +111,6 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
             eventAggregator.Subscribe(this);
 #if WINDOWS_UWP
             _openedViewModels = new Dictionary<Guid, IViewModel>();
-#elif XAMARIN_FORMS
-            NavigationService.RootPageChanged += NavigationServiceOnRootPageChanged;
 #endif
         }
 
@@ -150,8 +148,6 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
         {
 #if WINDOWS_UWP
             _openedViewModels.Clear();
-#elif XAMARIN_FORMS
-            NavigationService.RootPageChanged -= NavigationServiceOnRootPageChanged;
 #endif
             NavigationService.Navigating -= NavigationServiceOnNavigating;
             NavigationService.Navigated -= NavigationServiceOnNavigated;
@@ -564,13 +560,6 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                 TryCompleteNavigationTask(args.Context, true);
             }
         }
-
-#if XAMARIN_FORMS
-        private void NavigationServiceOnRootPageChanged(INavigationService sender, ValueEventArgs<IViewModel> args)
-        {
-            CurrentViewModel = args.Value;
-        }
-#endif
 
         private void UpdateNavigationContext(NavigationEventArgsBase args, ref INavigationContext context)
         {

@@ -142,6 +142,7 @@ namespace MugenMvvmToolkit.DataConstants
         public static readonly DataConstant<bool> SuppressTabNavigation;
         public static readonly DataConstant<bool> SuppressWindowNavigation;
         public static readonly DataConstant<bool> SuppressPageNavigation;
+        public static readonly DataConstant<bool> SuppressRootNavigation;
         public static readonly DataConstant<IViewModel> ViewModel;
         public static readonly DataConstant<string> ViewName;
         public static readonly DataConstant<bool> IsDialog;
@@ -166,6 +167,7 @@ namespace MugenMvvmToolkit.DataConstants
             SuppressPageNavigation = DataConstant.Create<bool>(type, nameof(SuppressPageNavigation));
             SuppressWindowNavigation = DataConstant.Create<bool>(type, nameof(SuppressWindowNavigation));
             SuppressTabNavigation = DataConstant.Create<bool>(type, nameof(SuppressTabNavigation));
+            SuppressRootNavigation = DataConstant.Create<bool>(type, nameof(SuppressRootNavigation));
             ViewModel = DataConstant.Create<IViewModel>(type, nameof(ViewModel), true);
             ViewName = DataConstant.Create<string>(type, nameof(ViewName), false);
             IsDialog = DataConstant.Create<bool>(type, nameof(IsDialog));
