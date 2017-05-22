@@ -149,7 +149,6 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             Should.NotBeNull(getViewModel, nameof(getViewModel));
             Should.NotBeNull(dataContext, nameof(dataContext));
-            dataContext = dataContext.ToNonReadOnly();
             IViewModel viewModel = getViewModel(GetIocContainer(dataContext));
             if (!viewModel.IsInitialized)
                 InitializeViewModel(viewModel, dataContext);
@@ -177,7 +176,9 @@ namespace MugenMvvmToolkit.Infrastructure
                 initializing(this, args);
                 dataContext = args.Context;
             }
-            InitializeViewModelInternal(viewModel, dataContext.ToNonReadOnly());
+            if (dataContext == null || dataContext != DataContext.Empty)
+                dataContext = new DataContext(dataContext ?? DataContext.Empty);
+            InitializeViewModelInternal(viewModel, dataContext);
             var initialized = Initialized;
             if (initialized != null)
             {
@@ -200,6 +201,8 @@ namespace MugenMvvmToolkit.Infrastructure
                 preserving(this, args);
                 dataContext = args.Context ?? DataContext.Empty;
             }
+            if (dataContext != DataContext.Empty)
+                dataContext = new DataContext(dataContext);
             IDataContext state = PreserveViewModelInternal(viewModel, dataContext);
 
             GetOrAddViewModelId(viewModel);
@@ -228,7 +231,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             try
             {
-                dataContext = dataContext.ToNonReadOnly();
+                dataContext = new DataContext(dataContext ?? DataContext.Empty);
                 if (viewModelState == null)
                     viewModelState = DataContext.Empty;
                 else
