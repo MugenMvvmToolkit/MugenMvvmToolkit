@@ -487,10 +487,9 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
                 if (vmTo != null)
                 {
                     if (!vmTo.Settings.State.Contains(IsNavigatedConstant))
-                    {
                         vmTo.Settings.State.AddOrUpdate(IsNavigatedConstant, null);
+                    if (!vmTo.Settings.Metadata.Contains(ViewModelConstants.CanCloseHandler))
                         vmTo.Settings.Metadata.AddOrUpdate(ViewModelConstants.CanCloseHandler, CanCloseViewModel);
-                    }
                 }
             }
 

@@ -137,9 +137,9 @@ namespace MugenMvvmToolkit.UWP
 
         #region Properties
 
-        private Page Page { get; }
+        protected Page Page { get; }
 
-        private Frame Frame => Page.Frame;
+        protected Frame Frame => Page.Frame;
 
         #endregion
 
@@ -229,7 +229,7 @@ namespace MugenMvvmToolkit.UWP
         /// </summary>
         /// <param name="sender">Instance that triggered the event.</param>
         /// <param name="e">Event data describing the conditions that led to the event.</param>
-        private void HardwareButtonsBackPressed(object sender, BackPressedEventArgs e)
+        protected virtual void HardwareButtonsBackPressed(object sender, BackPressedEventArgs e)
         {
             if (GoBackCommand.CanExecute(null))
             {
@@ -238,7 +238,7 @@ namespace MugenMvvmToolkit.UWP
             }
         }
 
-        private void OnBackRequested(object sender, BackRequestedEventArgs e)
+        protected virtual void OnBackRequested(object sender, BackRequestedEventArgs e)
         {
             if (GoBackCommand.CanExecute(null))
             {
@@ -254,7 +254,7 @@ namespace MugenMvvmToolkit.UWP
         /// </summary>
         /// <param name="sender">Instance that triggered the event.</param>
         /// <param name="e">Event data describing the conditions that led to the event.</param>
-        private void CoreDispatcherAcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs e)
+        protected virtual void CoreDispatcherAcceleratorKeyActivated(CoreDispatcher sender, AcceleratorKeyEventArgs e)
         {
             var virtualKey = e.VirtualKey;
 
@@ -297,7 +297,7 @@ namespace MugenMvvmToolkit.UWP
         /// </summary>
         /// <param name="sender">Instance that triggered the event.</param>
         /// <param name="e">Event data describing the conditions that led to the event.</param>
-        private void CoreWindowPointerPressed(CoreWindow sender, PointerEventArgs e)
+        protected virtual void CoreWindowPointerPressed(CoreWindow sender, PointerEventArgs e)
         {
             var properties = e.CurrentPoint.Properties;
 
@@ -315,6 +315,11 @@ namespace MugenMvvmToolkit.UWP
                 if (backPressed) GoBackCommand.Execute(null);
                 if (forwardPressed) GoForwardCommand.Execute(null);
             }
+        }
+
+        protected virtual Dictionary<string, object> GetSessionState()
+        {
+            return SuspensionManager.SessionStateForFrame(Frame);
         }
 
         #endregion
@@ -347,10 +352,10 @@ namespace MugenMvvmToolkit.UWP
         ///     Event data that describes how this page was reached.  The Parameter
         ///     property provides the group to be displayed.
         /// </param>
-        public void OnNavigatedTo(NavigationEventArgs e)
+        public virtual void OnNavigatedTo(NavigationEventArgs e)
         {
-            var frameState = SuspensionManager.SessionStateForFrame(Frame);
-            _pageKey = "Page-" + Frame.BackStackDepth;
+            var frameState = GetSessionState();
+            _pageKey = e.Parameter as string ?? "Page-" + Frame.BackStackDepth;
 
             if (e.NavigationMode == NavigationMode.New)
             {
@@ -388,9 +393,9 @@ namespace MugenMvvmToolkit.UWP
         ///     Event data that describes how this page was reached.  The Parameter
         ///     property provides the group to be displayed.
         /// </param>
-        public void OnNavigatedFrom(NavigationEventArgs e)
+        public virtual void OnNavigatedFrom(NavigationEventArgs e)
         {
-            var frameState = SuspensionManager.SessionStateForFrame(Frame);
+            var frameState = GetSessionState();
             var pageState = new Dictionary<string, object>();
             //NOTE saving state of view model.
             UwpToolkitExtensions.ApplicationStateManager.OnSaveState(Page, pageState, e);
