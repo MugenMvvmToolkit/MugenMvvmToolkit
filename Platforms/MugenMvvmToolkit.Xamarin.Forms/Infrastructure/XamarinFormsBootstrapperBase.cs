@@ -162,7 +162,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
                 return;
             }
             Initialize();
-            IocContainer.Get<IEventAggregator>().Publish(this, ApplicationStartingMessage.Instance);
+            ServiceProvider.EventAggregator.Publish(this, ApplicationStartingMessage.Instance);
 
             var context = new DataContext(MvvmApplication.Context);
             var viewModelPresenter = IocContainer.Get<IViewModelPresenter>();
