@@ -57,8 +57,6 @@ namespace MugenMvvmToolkit.Android.Views.Activities
 
         #region Methods
 
-        #region Overrides of Activity
-
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -78,8 +76,6 @@ namespace MugenMvvmToolkit.Android.Views.Activities
                     ThreadPool.QueueUserWorkItem(StartBootstrapperCallback, this);
             }
         }
-
-        #endregion
 
         private static void StartBootstrapperCallback(object state)
         {

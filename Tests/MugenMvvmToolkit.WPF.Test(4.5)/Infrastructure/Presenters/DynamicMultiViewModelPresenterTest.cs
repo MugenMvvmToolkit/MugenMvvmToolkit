@@ -41,7 +41,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Presenters
         {
             var vm = GetViewModel<NavigableViewModelMock>();
             var viewModel = GetMultiViewModel();
-            IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter(viewModel, OperationCallbackManager, (model, context, arg3) => true);
+            IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter(viewModel, (model, context, arg3) => true);
             var task = presenter.TryShowAsync(new DataContext(NavigationConstants.ViewModel.ToValue(vm)), ViewModelPresenter);
             task.ShouldNotBeNull();
             task.IsCompleted.ShouldBeFalse();
@@ -54,8 +54,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Presenters
             bool canShow = false;
             var vm = GetViewModel<NavigableViewModelMock>();
             var viewModel = GetMultiViewModel();
-            IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter(viewModel,
-                OperationCallbackManager, (model, context, arg3) => canShow);
+            IDynamicViewModelPresenter presenter = new DynamicMultiViewModelPresenter(viewModel, (model, context, arg3) => canShow);
             var task = presenter.TryShowAsync(new DataContext(NavigationConstants.ViewModel.ToValue(vm)), ViewModelPresenter);
             task.ShouldBeNull();
             viewModel.ItemsSource.Contains(vm).ShouldBeFalse();
