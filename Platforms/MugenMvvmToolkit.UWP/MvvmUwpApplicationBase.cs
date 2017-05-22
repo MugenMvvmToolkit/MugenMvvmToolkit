@@ -20,6 +20,8 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
+using JetBrains.Annotations;
 using MugenMvvmToolkit.UWP.Infrastructure;
 
 namespace MugenMvvmToolkit.UWP
@@ -41,7 +43,13 @@ namespace MugenMvvmToolkit.UWP
 
         #region Methods
 
-        protected abstract UwpBootstrapperBase CreateBootstrapper();
+        protected abstract UwpBootstrapperBase CreateBootstrapper(Frame frame);
+
+        [NotNull]
+        protected virtual Frame CreateRootFrame()
+        {
+            return new Frame();
+        }
 
         /// <summary>
         ///     Invoked when the application is launched normally by the end user.  Other entry points
@@ -50,20 +58,29 @@ namespace MugenMvvmToolkit.UWP
         /// <param name="e">Details about the launch request and process.</param>
         protected override async void OnLaunched(LaunchActivatedEventArgs e)
         {
-            var rootContent = Window.Current.Content;
+            var rootFrame = Window.Current.Content as Frame;
             UwpBootstrapperBase bootstrapper = null;
             // Do not repeat app initialization when the Window already has content,
             // just ensure that the window is active
-            if (rootContent == null)
+            if (rootFrame == null)
             {
-                bootstrapper = CreateBootstrapper();
+                // Create a Frame to act as the navigation context and navigate to the first page
+                rootFrame = CreateRootFrame();
+                bootstrapper = CreateBootstrapper(rootFrame);
                 bootstrapper.Initialize();
+
+                //Associate the frame with a SuspensionManager key                                
+                SuspensionManager.RegisterFrame(rootFrame, "AppFrame");
 
                 if (ShouldRestoreApplicationState())
                     await RestoreStateAsync(e);
+
+                // Place the frame in the current Window
+                Window.Current.Content = rootFrame;
             }
 
-            bootstrapper?.Start();
+            if (rootFrame.Content == null)
+                bootstrapper?.Start();
             // Ensure the current window is active
             Window.Current.Activate();
         }

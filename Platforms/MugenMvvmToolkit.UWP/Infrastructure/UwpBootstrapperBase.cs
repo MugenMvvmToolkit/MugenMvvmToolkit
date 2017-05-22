@@ -29,8 +29,9 @@ using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Presenters;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
+using MugenMvvmToolkit.UWP.Infrastructure.Navigation;
 using MugenMvvmToolkit.ViewModels;
-using MugenMvvmToolkit.UWP.Infrastructure.Presenters;
+using MugenMvvmToolkit.UWP.Interfaces.Navigation;
 
 namespace MugenMvvmToolkit.UWP.Infrastructure
 {
@@ -55,9 +56,10 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
             _platform = platform ?? UwpToolkitExtensions.GetPlatformInfo();
         }
 
-        protected UwpBootstrapperBase(PlatformInfo platform = null)
+        protected UwpBootstrapperBase(Frame frame = null, PlatformInfo platform = null)
             : this(false, platform)
         {
+            Frame = frame;
             _platform = platform ?? UwpToolkitExtensions.GetPlatformInfo();
         }
 
@@ -67,7 +69,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
 
         public Func<IIocContainer, IDynamicViewModelPresenter> RootPresenterFactory { get; set; }
 
-        public Func<Frame> FrameFactory { get; set; }
+        public Frame Frame { get; set; }
 
         #endregion
 
@@ -79,6 +81,13 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
         {
             base.InitializeInternal();
 
+            if (Frame != null)
+            {
+                var service = CreateNavigationService(Frame);
+                if (service != null)
+                    IocContainer.BindToConstant(service);
+            }
+
             var rootPresenter = GetRootPresenter();
             if (rootPresenter != null)
                 IocContainer.Get<IViewModelPresenter>().DynamicPresenters.Add(rootPresenter);
@@ -86,9 +95,9 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
             var application = Application.Current;
             if (application != null)
             {
-                if (ApiInformation.IsEventPresent("Windows.UI.Xaml.Application", "EnteredBackground"))
+                if (ApiInformation.IsEventPresent("Windows.UI.Xaml.Application", nameof(Application.EnteredBackground)))
                     application.EnteredBackground += OnEnteredBackground;
-                if (ApiInformation.IsEventPresent("Windows.UI.Xaml.Application", "LeavingBackground"))
+                if (ApiInformation.IsEventPresent("Windows.UI.Xaml.Application", nameof(Application.LeavingBackground)))
                     application.LeavingBackground += OnLeavingBackground;
             }
         }
@@ -115,11 +124,12 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
 
         protected virtual IDynamicViewModelPresenter GetRootPresenter()
         {
-            if (RootPresenterFactory != null)
-                return RootPresenterFactory(IocContainer);
-            var presenter = IocContainer.Get<UwpRootDynamicViewModelPresenter>();
-            presenter.FrameFactory = FrameFactory;
-            return presenter;
+            return RootPresenterFactory?.Invoke(IocContainer);
+        }
+
+        protected virtual INavigationService CreateNavigationService(Frame frame)
+        {
+            return new FrameNavigationService(frame, ServiceProvider.Get<IViewModelProvider>());
         }
 
         private static void OnLeavingBackground(object sender, LeavingBackgroundEventArgs leavingBackgroundEventArgs)
