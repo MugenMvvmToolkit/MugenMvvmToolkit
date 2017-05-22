@@ -194,7 +194,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             if (viewModel == null)
                 return false;
             var controllers = NavigationController?.ViewControllers;
-            if (controllers == null)
+            if (controllers == null || controllers.Length <= 1)
                 return false;
             for (int i = 0; i < controllers.Length; i++)
             {
@@ -211,7 +211,11 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             if (viewModel == null)
                 return false;
             if (CurrentContent?.DataContext() == viewModel)
+            {
+                if (NavigationController.ViewControllers.Length <= 1)
+                    return false;
                 return GoBack(dataContext);
+            }
 
             if (!CanClose(dataContext))
                 return false;
