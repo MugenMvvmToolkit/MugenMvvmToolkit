@@ -39,7 +39,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Presenters
 
         #region Properties
 
-        public int Priority => int.MaxValue;
+        public int Priority => int.MaxValue - 1;
 
         public bool ShutdownOnMainViewModelClose { get; set; }
 
@@ -50,9 +50,9 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Presenters
         public virtual IAsyncOperation TryShowAsync(IDataContext context, IViewModelPresenter parentPresenter)
         {
             parentPresenter.DynamicPresenters.Remove(this);
-            var operation = parentPresenter.ShowAsync(context);
             if (ShutdownOnMainViewModelClose)
             {
+                var operation = parentPresenter.ShowAsync(context);
                 operation.ContinueWith(result =>
                 {
                     var application = Application.Current;
@@ -62,8 +62,9 @@ namespace MugenMvvmToolkit.WPF.Infrastructure.Presenters
                         application.Dispatcher.BeginInvoke(action);
                     }
                 });
+                return operation;
             }
-            return operation;
+            return null;
         }
 
         public virtual Task<bool> TryCloseAsync(IDataContext context, IViewModelPresenter parentPresenter)
