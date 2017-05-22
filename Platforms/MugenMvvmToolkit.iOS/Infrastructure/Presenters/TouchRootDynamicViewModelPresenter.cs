@@ -20,7 +20,6 @@ using System.Threading.Tasks;
 using Foundation;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
-using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
@@ -34,15 +33,12 @@ using UIKit;
 
 namespace MugenMvvmToolkit.iOS.Infrastructure.Presenters
 {
-    public class TouchRootDynamicViewModelPresenter : IRestorableDynamicViewModelPresenter, IHandler<BackgroundNavigationMessage>,
-        IHandler<ForegroundNavigationMessage>
+    public class TouchRootDynamicViewModelPresenter : IRestorableDynamicViewModelPresenter, IHandler<BackgroundNavigationMessage>, IHandler<ForegroundNavigationMessage>
     {
         #region Fields
 
-        private bool _hasRootPage;
-        private bool _subscribed;
-
         protected static readonly DataConstant<object> IsRootConstant;
+        private bool _initialized;
 
         #endregion
 
@@ -50,25 +46,23 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Presenters
 
         static TouchRootDynamicViewModelPresenter()
         {
-            IsRootConstant = DataConstant.Create<object>(typeof(TouchBootstrapperBase), nameof(IsRootConstant), false);
+            IsRootConstant = DataConstant.Create<object>(typeof(TouchRootDynamicViewModelPresenter), nameof(IsRootConstant), false);
         }
 
         [Preserve(Conditional = true)]
-        public TouchRootDynamicViewModelPresenter(IViewManager viewManager, INavigationDispatcher navigationDispatcher, IViewMappingProvider viewMappingProvider,
-            IOperationCallbackManager operationCallbackManager, IThreadManager threadManager, IEventAggregator eventAggregator)
+        public TouchRootDynamicViewModelPresenter(IViewManager viewManager, INavigationDispatcher navigationDispatcher,
+            IViewMappingProvider viewMappingProvider, IThreadManager threadManager, IEventAggregator eventAggregator)
         {
             Should.NotBeNull(viewManager, nameof(viewManager));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(viewMappingProvider, nameof(viewMappingProvider));
-            Should.NotBeNull(operationCallbackManager, nameof(operationCallbackManager));
             Should.NotBeNull(threadManager, nameof(threadManager));
             Should.NotBeNull(eventAggregator, nameof(eventAggregator));
             ViewManager = viewManager;
             NavigationDispatcher = navigationDispatcher;
             ViewMappingProvider = viewMappingProvider;
-            OperationCallbackManager = operationCallbackManager;
             ThreadManager = threadManager;
-            EventAggregator = eventAggregator;
+            eventAggregator.Subscribe(this);
         }
 
         #endregion
@@ -77,11 +71,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Presenters
 
         protected INavigationDispatcher NavigationDispatcher { get; }
 
-        protected IOperationCallbackManager OperationCallbackManager { get; }
-
         protected IThreadManager ThreadManager { get; }
-
-        protected IEventAggregator EventAggregator { get; }
 
         protected IViewManager ViewManager { get; }
 
@@ -89,15 +79,13 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Presenters
 
         public UIWindow Window { get; set; }
 
-        public bool WrapToNavigationController { get; set; }
-
-        int IDynamicViewModelPresenter.Priority => int.MaxValue;
+        int IDynamicViewModelPresenter.Priority => int.MaxValue - 1;
 
         #endregion
 
         #region Methods
 
-        protected virtual void InitializeRootPage(IViewModel viewModel, IDataContext context)
+        protected virtual void InitializeRootView(IViewModel viewModel, IDataContext context)
         {
             Window.RootViewController = (UIViewController)ViewManager.GetOrCreateView(viewModel, null, context);
             NavigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.New, null, viewModel, this, context));
@@ -123,14 +111,11 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Presenters
 
         public virtual IAsyncOperation TryShowAsync(IDataContext context, IViewModelPresenter parentPresenter)
         {
-            if (_hasRootPage)
+            if (_initialized)
                 return null;
 
-            if (WrapToNavigationController)
-            {
-                _hasRootPage = true;
-                return parentPresenter.ShowAsync(context);
-            }
+            if (context.GetData(NavigationConstants.SuppressRootNavigation))
+                return null;
 
             var viewModel = context.GetData(NavigationConstants.ViewModel);
             if (viewModel == null || Window == null)
@@ -140,57 +125,31 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Presenters
             if (mappingItem == null || !typeof(UIViewController).IsAssignableFrom(mappingItem.ViewType))
                 return null;
 
-            if (!_subscribed)
-            {
-                _subscribed = true;
-                EventAggregator.Subscribe(this);
-            }
-            _hasRootPage = true;
+            _initialized = true;
+
             viewModel.Settings.State.AddOrUpdate(IsRootConstant, null);
-            var operation = new AsyncOperation<object>();
-            OperationCallbackManager.Register(OperationType.PageNavigation, viewModel, operation.ToOperationCallback(), context);
-            ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, viewModel, context, (@this, vm, ctx) => @this.InitializeRootPage(vm, ctx));
+            viewModel.Settings.Metadata.Add(ViewModelConstants.CanCloseHandler, (model, o) => false);
+            var operation = viewModel.RegisterNavigationOperation(OperationType.PageNavigation, context);
+            ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, viewModel, context, (@this, vm, ctx) => @this.InitializeRootView(vm, ctx));
             return operation;
         }
 
         public virtual Task<bool> TryCloseAsync(IDataContext context, IViewModelPresenter parentPresenter)
         {
-            var viewModel = context.GetData(NavigationConstants.ViewModel);
-            if (viewModel == null || Window == null)
-                return null;
-            if (viewModel.Settings.State.Contains(IsRootConstant))
-            {
-                var navigationContext = new NavigationContext(NavigationType.Page, NavigationMode.Remove, viewModel, null, this, context);
-                return NavigationDispatcher
-                    .OnNavigatingAsync(navigationContext)
-                    .TryExecuteSynchronously(task =>
-                    {
-                        if (task.Result)
-                        {
-                            var controller = Window.RootViewController;
-                            _hasRootPage = false;
-                            ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, controller, navigationContext, (@this, c, ctx) =>
-                            {
-                                var w = @this.Window;
-                                if (ReferenceEquals(w.RootViewController, c))
-                                    w.RootViewController = null;
-                                @this.NavigationDispatcher.OnNavigated(ctx);
-                            });
-                        }
-                        return task.Result;
-                    });
-            }
             return null;
         }
 
         public virtual bool Restore(IDataContext context, IViewModelPresenter parentPresenter)
         {
+            _initialized = true;
+
             var viewModel = context.GetData(NavigationConstants.ViewModel);
             if (viewModel == null)
                 return false;
+
             if (viewModel.Settings.State.Contains(IsRootConstant))
             {
-                _hasRootPage = true;
+                viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.CanCloseHandler, (model, o) => false);
                 NavigationDispatcher.OnNavigated(new NavigationContext(NavigationType.Page, NavigationMode.Refresh, null, viewModel, this, context));
                 return true;
             }

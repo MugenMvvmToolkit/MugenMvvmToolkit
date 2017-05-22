@@ -93,12 +93,17 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
         protected override void InitializeInternal()
         {
             base.InitializeInternal();
+
+            if (WrapToNavigationController)
+            {
+                var result = CreateNavigationService();
+                if (result != null)
+                    IocContainer.BindToConstant(result);
+            }
+
             var rootPresenter = GetRootPresenter();
             if (rootPresenter != null)
                 IocContainer.Get<IViewModelPresenter>().DynamicPresenters.Add(rootPresenter);
-            var navigationService = CreateNavigationService(Window);
-            if (navigationService != null)
-                IocContainer.BindToConstant(navigationService);
             _backgroundObserver = UIApplication.Notifications.ObserveDidEnterBackground(OnApplicationDidEnterBackground);
             _foregroundObserver = UIApplication.Notifications.ObserveDidBecomeActive(OnApplicationDidBecomeActive);
         }
@@ -107,14 +112,6 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
         {
             Initialize();
             MvvmApplication.Start();
-        }
-
-        [CanBeNull]
-        protected virtual INavigationService CreateNavigationService(UIWindow window)
-        {
-            if (WrapToNavigationController)
-                return new NavigationService(window);
-            return null;
         }
 
         protected override void UpdateAssemblies(HashSet<Assembly> assemblies)
@@ -127,10 +124,16 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
         {
             if (RootPresenterFactory != null)
                 return RootPresenterFactory(IocContainer);
+            if (WrapToNavigationController)
+                return null;
             var presenter = IocContainer.Get<TouchRootDynamicViewModelPresenter>();
-            presenter.WrapToNavigationController = WrapToNavigationController;
             presenter.Window = Window;
             return presenter;
+        }
+
+        protected virtual INavigationService CreateNavigationService()
+        {
+            return new NavigationService(Window);
         }
 
         private static void OnApplicationDidBecomeActive(object sender, NSNotificationEventArgs nsNotificationEventArgs)
