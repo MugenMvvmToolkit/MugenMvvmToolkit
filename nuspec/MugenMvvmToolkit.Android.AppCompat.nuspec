@@ -170,7 +170,7 @@ Changes:
     </dependencies>
   </metadata>
   <files>
-    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.AppCompat.dll" target="lib\MonoAndroid10\MugenMvvmToolkit.Android.AppCompat.dll" />
-    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.AppCompat.pdb" target="lib\MonoAndroid10\MugenMvvmToolkit.Android.AppCompat.pdb" />
+    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.AppCompat.dll" target="lib\MonoAndroid70\MugenMvvmToolkit.Android.AppCompat.dll" />
+    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.AppCompat.pdb" target="lib\MonoAndroid70\MugenMvvmToolkit.Android.AppCompat.pdb" />
   </files>
 </package>

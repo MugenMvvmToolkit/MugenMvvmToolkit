@@ -193,7 +193,7 @@ Changes:
     <tags>mugen mvvm toolkit binding wpf winforms android uwp cross platform ios xamarin forms xamforms</tags>
     <dependencies>
       <dependency id="MugenMvvmToolkit" version="[6.5.0, 6.6.0)" />
-      <dependency id="Xamarin.Forms" version="2.3.4.231" />
+      <dependency id="Xamarin.Forms" version="2.3.4.247" />
     </dependencies>
   </metadata>
   <files>

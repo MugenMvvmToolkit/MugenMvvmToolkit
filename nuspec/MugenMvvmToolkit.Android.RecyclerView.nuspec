@@ -170,7 +170,7 @@ Changes:
     </dependencies>
   </metadata>
   <files>    
-    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.RecyclerView.dll" target="lib\MonoAndroid10\MugenMvvmToolkit.Android.RecyclerView.dll" />
-    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.RecyclerView.pdb" target="lib\MonoAndroid10\MugenMvvmToolkit.Android.RecyclerView.pdb" />
+    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.RecyclerView.dll" target="lib\MonoAndroid70\MugenMvvmToolkit.Android.RecyclerView.dll" />
+    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.RecyclerView.pdb" target="lib\MonoAndroid70\MugenMvvmToolkit.Android.RecyclerView.pdb" />
   </files>
 </package>

@@ -196,7 +196,7 @@ Changes:
     </dependencies>
   </metadata>  
   <files>
-    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.dll" target="lib\MonoAndroid10\MugenMvvmToolkit.Android.dll" />
-    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.pdb" target="lib\MonoAndroid10\MugenMvvmToolkit.Android.pdb" />
+    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.dll" target="lib\MonoAndroid\MugenMvvmToolkit.Android.dll" />
+    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.pdb" target="lib\MonoAndroid\MugenMvvmToolkit.Android.pdb" />
   </files>
 </package>

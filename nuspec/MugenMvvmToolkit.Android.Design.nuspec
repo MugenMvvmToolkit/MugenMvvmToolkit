@@ -170,7 +170,7 @@ Changes:
     </dependencies>
   </metadata>
   <files>
-    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.Design.dll" target="lib\MonoAndroid10\MugenMvvmToolkit.Android.Design.dll" />
-    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.Design.pdb" target="lib\MonoAndroid10\MugenMvvmToolkit.Android.Design.pdb" />
+    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.Design.dll" target="lib\MonoAndroid70\MugenMvvmToolkit.Android.Design.dll" />
+    <file src="..\bin\Platforms\Android\MugenMvvmToolkit.Android.Design.pdb" target="lib\MonoAndroid70\MugenMvvmToolkit.Android.Design.pdb" />
   </files>
 </package>
