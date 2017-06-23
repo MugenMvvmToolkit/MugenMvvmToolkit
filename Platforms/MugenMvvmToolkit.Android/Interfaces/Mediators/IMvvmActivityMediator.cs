@@ -81,6 +81,8 @@ namespace MugenMvvmToolkit.Android.Interfaces.Mediators
 
         void Finish(Action baseFinish);
 
+        void FinishAfterTransition(Action baseFinishAfterTransition);
+
         void OnConfigurationChanged(Configuration newConfig, Action<Configuration> baseOnConfigurationChanged);
 
         void OnPostCreate(Bundle savedInstanceState, Action<Bundle> baseOnPostCreate);

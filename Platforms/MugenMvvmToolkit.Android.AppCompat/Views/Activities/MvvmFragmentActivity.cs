@@ -82,6 +82,11 @@ namespace MugenMvvmToolkit.Android.AppCompat.Views.Activities
             Mediator.Finish(base.Finish);
         }
 
+        public override void FinishAfterTransition()
+        {
+            Mediator.FinishAfterTransition(base.FinishAfterTransition);
+        }
+
         protected override void OnActivityResult(int requestCode, Result resultCode, Intent data)
         {
             Mediator.OnActivityResult(base.OnActivityResult, requestCode, resultCode, data);

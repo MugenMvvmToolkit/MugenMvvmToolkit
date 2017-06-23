@@ -420,6 +420,18 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             baseFinish();
         }
 
+        public virtual void FinishAfterTransition(Action baseFinishAfterTransition)
+        {
+            if (!_ignoreFinishNavigation)
+            {
+                var navigationService = Get<INavigationService>();
+                if (!navigationService.OnFinishActivity(Target, _isBackNavigation, NavigationContext))
+                    return;
+                _ignoreFinishNavigation = true;
+            }
+            baseFinishAfterTransition();
+        }
+
         public virtual void OnConfigurationChanged(Configuration newConfig, Action<Configuration> baseOnConfigurationChanged)
         {
             baseOnConfigurationChanged(newConfig);

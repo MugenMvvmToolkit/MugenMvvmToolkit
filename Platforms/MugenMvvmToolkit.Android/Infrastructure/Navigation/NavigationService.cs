@@ -219,10 +219,17 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             return activityView.Mediator.IsDestroyed;
         }
 
+        protected virtual bool IsFinishing(Activity activity)
+        {
+            if (activity.IsFinishing)
+                return true;
+            return GetState(activity).ContainsKey(IsFinishedKey);
+        }
+
         private bool GoBack(IDataContext context)
         {
             var currentActivity = AndroidToolkitExtensions.CurrentActivity;
-            if (!currentActivity.IsAlive() || IsDestroyed(currentActivity) || currentActivity.IsFinishing)
+            if (!currentActivity.IsAlive() || IsDestroyed(currentActivity) || IsFinishing(currentActivity))
                 return false;
             _backContext = context;
             if (IsBackground)
@@ -232,7 +239,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             }
             else
                 currentActivity.OnBackPressed();
-            return currentActivity.IsFinishing;
+            return IsFinishing(currentActivity);
         }
 
         private static string GetParameterFromIntent(Intent intent)
@@ -333,7 +340,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
         public void OnPauseActivity(Activity activity, IDataContext context)
         {
             Should.NotBeNull(activity, nameof(activity));
-            if (ReferenceEquals(activity, CurrentContent) && !activity.IsFinishing)
+            if (ReferenceEquals(activity, CurrentContent) && !IsFinishing(activity))
                 SetBackground(true, context);
         }
 
@@ -342,7 +349,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             Should.NotBeNull(activity, nameof(activity));
             SetBackground(false, context);
             var prevContent = CurrentContent;
-            if ((_newContext == null || activity.IsFinishing || !_newContext.GetData(NavigationProvider.BringToFront)) && ReferenceEquals(activity, prevContent))
+            if ((_newContext == null || IsFinishing(activity) || !_newContext.GetData(NavigationProvider.BringToFront)) && ReferenceEquals(activity, prevContent))
                 return;
             var viewModel = activity.DataContext() as IViewModel;
             viewModel?.Settings.Metadata.Remove(NavigationProvider.BringToFront);
@@ -352,7 +359,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             {
                 NavigationMode mode;
                 IDataContext ctx = _backContext;
-                if (ctx != null || prevContent != null && prevContent.IsFinishing)
+                if (ctx != null || prevContent != null && IsFinishing(prevContent))
                 {
                     mode = NavigationMode.Back;
                     _backContext = null;
@@ -376,7 +383,6 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
 
         public void OnStartActivity(Activity activity, IDataContext context)
         {
-            OnResumeActivity(activity, context);
         }
 
         public void OnCreateActivity(Activity activity, IDataContext context)
