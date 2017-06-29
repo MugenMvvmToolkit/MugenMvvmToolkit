@@ -48,6 +48,7 @@
     <Compile Include="Accessors\BindingSourceAccessorBase.cs" />
     <Compile Include="Accessors\MultiBindingSourceAccessor.cs" />
     <Compile Include="AttachedMemberConstants.cs" />
+    <Compile Include="AttachedMembersBase.cs" />
     <Compile Include="AttachedMembersRegistration.cs" />
     <Compile Include="Behaviors\DisableEqualityCheckingBehavior.cs" />
     <Compile Include="Infrastructure\DataTemplateSelectorBase.cs" />

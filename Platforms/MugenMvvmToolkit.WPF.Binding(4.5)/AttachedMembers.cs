@@ -16,7 +16,6 @@
 
 #endregion
 
-using System.Collections.Generic;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Models;
 #if WINDOWS_UWP
@@ -41,28 +40,8 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding
     {
         #region Nested types
 
-        public abstract class Object
+        public abstract class Object : AttachedMembersBase.Object
         {
-            #region Fields
-
-            public static readonly BindingMemberDescriptor<object, object> DataContext;
-            public static BindingMemberDescriptor<object, object> Parent;
-            public static readonly BindingMemberDescriptor<object, object> CommandParameter;
-            public static readonly BindingMemberDescriptor<object, IEnumerable<object>> Errors;
-
-            #endregion
-
-            #region Constructors
-
-            static Object()
-            {
-                DataContext = new BindingMemberDescriptor<object, object>(AttachedMemberConstants.DataContext);
-                Parent = new BindingMemberDescriptor<object, object>(AttachedMemberConstants.Parent);
-                CommandParameter = new BindingMemberDescriptor<object, object>(AttachedMemberConstants.CommandParameter);
-                Errors = new BindingMemberDescriptor<object, IEnumerable<object>>(AttachedMemberConstants.ErrorsPropertyMember);
-            }
-
-            #endregion
         }
 
 #if XAMARIN_FORMS

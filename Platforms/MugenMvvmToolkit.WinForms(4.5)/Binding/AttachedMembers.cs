@@ -17,7 +17,6 @@
 #endregion
 
 using System.Collections;
-using System.Collections.Generic;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces;
 using MugenMvvmToolkit.Binding.Models;
@@ -30,14 +29,9 @@ namespace MugenMvvmToolkit.WinForms.Binding
     {
         #region Nested types
 
-        public abstract class Object
+        public abstract class Object : AttachedMembersBase.Object
         {
             #region Fields
-
-            public static readonly BindingMemberDescriptor<object, object> DataContext;
-            public static BindingMemberDescriptor<object, object> Parent;
-            public static readonly BindingMemberDescriptor<object, object> CommandParameter;
-            public static readonly BindingMemberDescriptor<object, IEnumerable<object>> Errors;
 
             public static readonly BindingMemberDescriptor<object, IEnumerable> ItemsSource;
             public static readonly BindingMemberDescriptor<object, IItemsSourceGenerator> ItemsSourceGenerator;
@@ -50,11 +44,6 @@ namespace MugenMvvmToolkit.WinForms.Binding
 
             static Object()
             {
-                DataContext = new BindingMemberDescriptor<object, object>(AttachedMemberConstants.DataContext);
-                Parent = new BindingMemberDescriptor<object, object>(AttachedMemberConstants.Parent);
-                CommandParameter = new BindingMemberDescriptor<object, object>(AttachedMemberConstants.CommandParameter);
-                Errors = new BindingMemberDescriptor<object, IEnumerable<object>>(AttachedMemberConstants.ErrorsPropertyMember);
-
                 ItemsSource = new BindingMemberDescriptor<object, IEnumerable>(AttachedMemberConstants.ItemsSource);
                 ItemsSourceGenerator = new BindingMemberDescriptor<object, IItemsSourceGenerator>(ItemsSourceGeneratorBase.MemberDescriptor);
                 ItemTemplateSelector = new BindingMemberDescriptor<object, IDataTemplateSelector>(AttachedMemberConstants.ItemTemplateSelector);
