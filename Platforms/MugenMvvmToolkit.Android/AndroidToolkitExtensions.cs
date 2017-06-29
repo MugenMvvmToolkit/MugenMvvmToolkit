@@ -421,6 +421,8 @@ namespace MugenMvvmToolkit.Android
 
         public static int BackgroundNotificationDelay { get; set; }
 
+        public static List<KeyValuePair<object, string>> CurrentLayoutBindings { get; set; }
+
         public static event EventHandler CurrentActivityChanged;
 
         #endregion
@@ -630,6 +632,38 @@ namespace MugenMvvmToolkit.Android
             bundle.Remove("android:fragments");
         }
 
+        public static LayoutInflaterResult InflateEx(this LayoutInflater layoutInflater, int resource, ViewGroup root, bool attachToRoot)
+        {
+            var oldBindings = CurrentLayoutBindings;
+            try
+            {
+                var newBindings = new LayoutInflaterResult();
+                CurrentLayoutBindings = newBindings;
+                newBindings.View = layoutInflater.Inflate(resource, root, attachToRoot);
+                return newBindings;
+            }
+            finally
+            {
+                CurrentLayoutBindings = oldBindings;
+            }
+        }
+
+        public static LayoutInflaterResult InflateEx(this LayoutInflater layoutInflater, XmlReader parser, ViewGroup root, bool attachToRoot)//todo list fix, exception fix, scopecontext
+        {
+            var oldBindings = CurrentLayoutBindings;
+            try
+            {
+                var newBindings = new LayoutInflaterResult();
+                CurrentLayoutBindings = newBindings;
+                newBindings.View = layoutInflater.Inflate(parser, root, attachToRoot);
+                return newBindings;
+            }
+            finally
+            {
+                CurrentLayoutBindings = oldBindings;
+            }
+        }
+
         internal static void RemoveFromParent([CanBeNull] this View view)
         {
             if (view.IsAlive())
@@ -639,13 +673,6 @@ namespace MugenMvvmToolkit.Android
         internal static PlatformInfo GetPlatformInfo()
         {
             return new PlatformInfo(PlatformType.Android, Build.VERSION.Release, GetIdiom);
-        }
-
-        private static PlatformIdiom GetIdiom()
-        {
-            var context = CurrentActivity ?? Application.Context;
-            int minWidthDp = context.Resources.Configuration.SmallestScreenWidthDp;
-            return minWidthDp >= 600 ? PlatformIdiom.Tablet : PlatformIdiom.Phone;
         }
 
         internal static WeakReference CreateWeakReference(object item)
@@ -742,6 +769,121 @@ namespace MugenMvvmToolkit.Android
                 member.SetSingleValue(viewGroup, Empty.BooleanToObject(value));
         }
 
+        internal static void ValidateTemplate(string itemsSource, ICollection items)
+        {
+            if (!string.IsNullOrEmpty(itemsSource) && items != null && items.Count > 0)
+                throw new InvalidOperationException("Operation is not valid while ItemsSource is in use.");
+        }
+
+        [AssertionMethod]
+        internal static bool IsAlive([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] this IJavaObject javaObj)
+        {
+            return javaObj != null && javaObj.Handle != IntPtr.Zero;
+        }
+
+        internal static View CreateView(this Type type, Context ctx)
+        {
+            var func = ViewToContextConstructor.GetOrAdd(type, t =>
+            {
+                var c = t.GetConstructor(ViewContextArgs);
+                if (c == null)
+                    return null;
+                return ServiceProvider.ReflectionManager.GetActivatorDelegate(c);
+            });
+            if (func == null)
+                return (View)Activator.CreateInstance(type, ctx);
+            return (View)func(new object[] { ctx });
+        }
+
+        internal static View CreateView(this Type type, Context ctx, IAttributeSet attrs)
+        {
+            var func = ViewToContextWithAttrsConstructor.GetOrAdd(type, t =>
+            {
+                var c = t.GetConstructor(ViewContextWithAttrsArgs);
+                if (c == null)
+                    return null;
+                return ServiceProvider.ReflectionManager.GetActivatorDelegate(c);
+            });
+            if (func == null)
+                return type.CreateView(ctx);
+            return (View)func(new object[] { ctx, attrs });
+        }
+
+        internal static string ToStringSafe<T>(this T item, string defaultValue = null)
+            where T : class
+        {
+            if (item == null)
+                return defaultValue;
+            return item.ToString();
+        }
+
+        internal static void ValidateViewIdFragment(View view, object content)
+        {
+            if (view.Id == View.NoId)
+                throw new ArgumentException($"To use a fragment {view}, you must specify the id for view {content}, for instance: @+id/placeholder", nameof(view));
+        }
+
+        private static PlatformIdiom GetIdiom()
+        {
+            var context = CurrentActivity ?? Application.Context;
+            int minWidthDp = context.Resources.Configuration.SmallestScreenWidthDp;
+            return minWidthDp >= 600 ? PlatformIdiom.Tablet : PlatformIdiom.Phone;
+        }
+
+        private static View GetContentInternal(Context ctx, object content, int? templateId)
+        {
+            if (templateId == null)
+                return null;
+            var result = ctx.GetBindableLayoutInflater().InflateEx(templateId.Value, null, false);
+            if (content != null)
+                result.View.SetDataContext(content);
+            result.ApplyBindings();
+            return result.View;
+        }
+
+        private static object GetContentInternal(object container, Context ctx, object content, IDataTemplateSelector templateSelector)
+        {
+            var template = templateSelector.SelectTemplate(content, container);
+            if (template is int)
+                return GetContentInternal(ctx, content, (int)template);
+            if (content != null && (template is View || IsFragment(template)))
+                template.SetDataContext(content);
+            return template;
+        }
+
+        private static WeakReference CreateWeakReference(object item, IJavaObject javaItem, bool isWeakTable)
+        {
+            if (javaItem == null)
+            {
+                if (isWeakTable)
+                    return new WeakReferenceWeakTable(item);
+                return new WeakReference(item, true);
+            }
+            if (isWeakTable)
+                return new JavaObjectWeakReferenceWeakTable(javaItem);
+            return new JavaObjectWeakReference(javaItem);
+        }
+
+        private static void TryDispose(this IJavaObject javaObject)
+        {
+            if (!javaObject.IsAlive())
+                return;
+            var hasDefaultConstructor = ObjectToDefaultJavaConstructor
+                .GetOrAdd(javaObject.GetType(), type =>
+                {
+                    var constructor = type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, DefaultJavaConstructorArgs, null);
+                    if (constructor == null)
+                    {
+                        if (Tracer.TraceWarning)
+                            Tracer.Warn($"The type {type} cannot be disposed");
+                        return false;
+                    }
+                    return true;
+                });
+            if (hasDefaultConstructor)
+                javaObject.Dispose();
+        }
+
         private static object Deserialize(Type type, XmlReader reader, bool needMoveReader)
         {
             object result = null;
@@ -809,113 +951,6 @@ namespace MugenMvvmToolkit.Android
                 }
             }
             return result;
-        }
-
-        internal static void ValidateTemplate(string itemsSource, ICollection items)
-        {
-            if (!string.IsNullOrEmpty(itemsSource) && items != null && items.Count > 0)
-                throw new InvalidOperationException("Operation is not valid while ItemsSource is in use.");
-        }
-
-        [AssertionMethod]
-        internal static bool IsAlive([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] this IJavaObject javaObj)
-        {
-            return javaObj != null && javaObj.Handle != IntPtr.Zero;
-        }
-
-        internal static View CreateView(this Type type, Context ctx)
-        {
-            var func = ViewToContextConstructor.GetOrAdd(type, t =>
-            {
-                var c = t.GetConstructor(ViewContextArgs);
-                if (c == null)
-                    return null;
-                return ServiceProvider.ReflectionManager.GetActivatorDelegate(c);
-            });
-            if (func == null)
-                return (View)Activator.CreateInstance(type, ctx);
-            return (View)func(new object[] { ctx });
-        }
-
-        internal static View CreateView(this Type type, Context ctx, IAttributeSet attrs)
-        {
-            var func = ViewToContextWithAttrsConstructor.GetOrAdd(type, t =>
-            {
-                var c = t.GetConstructor(ViewContextWithAttrsArgs);
-                if (c == null)
-                    return null;
-                return ServiceProvider.ReflectionManager.GetActivatorDelegate(c);
-            });
-            if (func == null)
-                return type.CreateView(ctx);
-            return (View)func(new object[] { ctx, attrs });
-        }
-
-        internal static string ToStringSafe<T>(this T item, string defaultValue = null)
-            where T : class
-        {
-            if (item == null)
-                return defaultValue;
-            return item.ToString();
-        }
-
-        internal static void ValidateViewIdFragment(View view, object content)
-        {
-            if (view.Id == View.NoId)
-                throw new ArgumentException($"To use a fragment {view}, you must specify the id for view {content}, for instance: @+id/placeholder", nameof(view));
-        }
-
-        private static View GetContentInternal(Context ctx, object content, int? templateId)
-        {
-            if (templateId == null)
-                return null;
-            var newView = ctx.GetBindableLayoutInflater().Inflate(templateId.Value, null);
-            if (content != null)
-                newView.SetDataContext(content);
-            return newView;
-        }
-
-        private static object GetContentInternal(object container, Context ctx, object content, IDataTemplateSelector templateSelector)
-        {
-            var template = templateSelector.SelectTemplate(content, container);
-            if (template is int)
-                return GetContentInternal(ctx, content, (int)template);
-            if (content != null && (template is View || IsFragment(template)))
-                template.SetDataContext(content);
-            return template;
-        }
-
-        private static WeakReference CreateWeakReference(object item, IJavaObject javaItem, bool isWeakTable)
-        {
-            if (javaItem == null)
-            {
-                if (isWeakTable)
-                    return new WeakReferenceWeakTable(item);
-                return new WeakReference(item, true);
-            }
-            if (isWeakTable)
-                return new JavaObjectWeakReferenceWeakTable(javaItem);
-            return new JavaObjectWeakReference(javaItem);
-        }
-
-        private static void TryDispose(this IJavaObject javaObject)
-        {
-            if (!javaObject.IsAlive())
-                return;
-            var hasDefaultConstructor = ObjectToDefaultJavaConstructor
-                .GetOrAdd(javaObject.GetType(), type =>
-                {
-                    var constructor = type.GetConstructor(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic, null, DefaultJavaConstructorArgs, null);
-                    if (constructor == null)
-                    {
-                        if (Tracer.TraceWarning)
-                            Tracer.Warn($"The type {type} cannot be disposed");
-                        return false;
-                    }
-                    return true;
-                });
-            if (hasDefaultConstructor)
-                javaObject.Dispose();
         }
 
         #endregion

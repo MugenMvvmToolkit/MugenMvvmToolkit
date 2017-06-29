@@ -170,11 +170,16 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                 var bind = viewResult.Bind;
                 if (!string.IsNullOrEmpty(bind))
                 {
-                    var manualBindings = view as IManualBindings;
-                    if (manualBindings == null)
-                        BindingServiceProvider.BindingProvider.CreateBindingsFromString(view, bind);
+                    if (AndroidToolkitExtensions.CurrentLayoutBindings == null)
+                    {
+                        var manualBindings = view as IManualBindings;
+                        if (manualBindings == null)
+                            BindingServiceProvider.BindingProvider.CreateBindingsFromString(view, bind);
+                        else
+                            manualBindings.SetBindings(bind);
+                    }
                     else
-                        manualBindings.SetBindings(bind);
+                        AndroidToolkitExtensions.CurrentLayoutBindings.Add(new KeyValuePair<object, string>(view, bind));
                 }
             }
 

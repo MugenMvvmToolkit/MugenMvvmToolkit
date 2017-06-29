@@ -126,9 +126,11 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             ClearView();
             if (viewId.HasValue)
             {
-                _view = inflater.ToBindableLayoutInflater().Inflate(viewId.Value, container, false);
+                var result = inflater.ToBindableLayoutInflater().InflateEx(viewId.Value, container, false);
+                _view = result.View;
                 _view.SetBindingMemberValue(AttachedMembers.View.Fragment, Target);
                 _view.SetDataContext(DataContext);
+                result.ApplyBindings();
                 return _view;
             }
             return baseOnCreateView(inflater, container, savedInstanceState);

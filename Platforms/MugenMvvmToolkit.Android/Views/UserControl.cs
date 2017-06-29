@@ -33,7 +33,7 @@ namespace MugenMvvmToolkit.Android.Views
             : base(AndroidToolkitExtensions.CurrentActivity)
         {
             SetOnHierarchyChangeListener(GlobalViewParentListener.Instance);
-            Context.GetBindableLayoutInflater().Inflate(viewId, this, true);
+            Context.GetBindableLayoutInflater().InflateEx(viewId, this, true).ApplyBindings();
         }
 
         protected UserControl(IntPtr javaReference, JniHandleOwnership transfer)

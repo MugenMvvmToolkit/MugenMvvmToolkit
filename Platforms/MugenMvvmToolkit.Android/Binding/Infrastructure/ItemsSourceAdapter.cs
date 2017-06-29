@@ -30,6 +30,7 @@ using JetBrains.Annotations;
 using MugenMvvmToolkit.Android.Binding.Interfaces;
 using MugenMvvmToolkit.Android.Interfaces;
 using MugenMvvmToolkit.Android.Interfaces.Views;
+using MugenMvvmToolkit.Android.Models;
 using MugenMvvmToolkit.Binding;
 using Object = Java.Lang.Object;
 
@@ -264,8 +265,9 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             }
         }
 
-        protected virtual View CreateView(object value, View convertView, ViewGroup parent, DataTemplateProvider templateProvider, int defaultTemplate)
+        protected virtual View CreateView(object value, View convertView, ViewGroup parent, DataTemplateProvider templateProvider, int defaultTemplate, out LayoutInflaterResult inflaterResult)
         {
+            inflaterResult = null;
             var valueView = value as View;
             if (valueView != null)
                 return valueView;
@@ -308,16 +310,16 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             }
             var oldId = GetViewTemplateId(convertView);
             if (oldId == null || oldId.Value != templateId.Value)
-                convertView = CreateView(value, parent, templateId.Value);
+                convertView = CreateView(value, parent, templateId.Value, out inflaterResult);
             convertView.SetDataContext(value);
             return convertView;
         }
 
-        protected virtual View CreateView(object value, ViewGroup parent, int templateId)
+        protected virtual View CreateView(object value, ViewGroup parent, int templateId, out LayoutInflaterResult inflaterResult)
         {
-            var view = LayoutInflater.Inflate(templateId, parent, false);
-            view.SetTag(Resource.Id.ListTemplateId, templateId);
-            return view;
+            inflaterResult = LayoutInflater.InflateEx(templateId, parent, false);
+            inflaterResult.View.SetTag(Resource.Id.ListTemplateId, templateId);
+            return inflaterResult.View;
         }
 
         protected virtual void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
@@ -356,9 +358,11 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         {
             if (ItemsSource == null)
                 return null;
-            var view = CreateView(GetRawItem(position), convertView, parent, provider, defaultTemplate);
+            LayoutInflaterResult result;
+            var view = CreateView(GetRawItem(position), convertView, parent, provider, defaultTemplate, out result);
             if (view != null && !ReferenceEquals(view, convertView))
                 view.SetBindingMemberValue(AttachedMembers.Object.Parent, Container);
+            result?.ApplyBindings();
             return view;
         }
 

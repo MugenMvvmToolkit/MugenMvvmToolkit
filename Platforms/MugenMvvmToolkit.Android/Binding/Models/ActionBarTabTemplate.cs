@@ -21,6 +21,7 @@ using Android.App;
 using Android.Views;
 using MugenMvvmToolkit.Android.Binding.Infrastructure;
 using MugenMvvmToolkit.Android.Infrastructure;
+using MugenMvvmToolkit.Android.Models;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Interfaces.ViewModels;
@@ -98,7 +99,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
 #else
                     _content = tab.GetBindingMemberValue(AttachedMembers.ActionBarTab.Content);
 #endif
-
+                    LayoutInflaterResult result = null;
                     var viewModel = _content as IViewModel;
                     if (viewModel == null)
                     {
@@ -114,7 +115,10 @@ namespace MugenMvvmToolkit.Android.Binding.Models
                             }
                         }
                         else if (_content is int)
-                            _content = activity.GetBindableLayoutInflater().Inflate((int)_content, null);
+                        {
+                            result = activity.GetBindableLayoutInflater().InflateEx((int)_content, null, false);
+                            _content = result.View;
+                        }
                     }
                     else
                         viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.StateNotNeeded, true);
@@ -122,16 +126,17 @@ namespace MugenMvvmToolkit.Android.Binding.Models
                         _contentTemplateProvider.GetTemplateId(), _contentTemplateProvider.GetDataTemplateSelector());
                     if (BindingServiceProvider.BindingManager.GetBindings(tab, AttachedMembers.Object.DataContext).Any())
                         _content.SetBindingMemberValue(AttachedMembers.Object.Parent, tab);
-                    layout.SetContentView(_content, ft, (@group, fragment, arg3) =>
+                    layout.SetContentView(_content, ft, (group, fragment, arg3) =>
                     {
                         if (fragment.IsDetached)
                             arg3.Attach(fragment);
                         else
-                            arg3.Replace(@group.Id, fragment);
+                            arg3.Replace(group.Id, fragment);
                     });
+                    result?.ApplyBindings();
                 }
                 else
-                    layout.SetContentView(_content, ft, (@group, fragment, arg3) => arg3.Attach(fragment));
+                    layout.SetContentView(_content, ft, (group, fragment, arg3) => arg3.Attach(fragment));
             }
 
             #endregion

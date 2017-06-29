@@ -28,6 +28,7 @@ using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Android.Binding.Infrastructure;
 using MugenMvvmToolkit.Android.Interfaces;
 using MugenMvvmToolkit.Android.Interfaces.Views;
+using MugenMvvmToolkit.Android.Models;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 
@@ -37,11 +38,17 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
     {
         #region Nested types
 
-        private sealed class ViewHolderImpl : global::Android.Support.V7.Widget.RecyclerView.ViewHolder, IBindingContextHolder
+        public interface IViewHolder : IBindingContextHolder
+        {
+            void ApplyBindings();
+        }
+
+        private sealed class ViewHolderImpl : global::Android.Support.V7.Widget.RecyclerView.ViewHolder, IViewHolder
         {
             #region Fields
 
             private readonly IBindingContext _bindingContext;
+            private LayoutInflaterResult _layoutInflaterResult;
 
             #endregion
 
@@ -52,13 +59,13 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
                 _bindingContext = BindingServiceProvider.ContextManager.GetBindingContext(ItemView);
             }
 
-            public ViewHolderImpl(View itemView, int viewType)
-                : base(itemView)
+            public ViewHolderImpl(LayoutInflaterResult result, int viewType)
+                : base(result.View)
             {
                 if (viewType != global::Android.Resource.Layout.SimpleListItem1)
                 {
-                    _bindingContext = BindingServiceProvider.ContextManager.GetBindingContext(itemView);
-                    _bindingContext.Value = null;
+                    _bindingContext = BindingServiceProvider.ContextManager.GetBindingContext(result.View);
+                    _layoutInflaterResult = result;
                 }
             }
 
@@ -68,6 +75,15 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
 
             //In the hundreds of times faster than the access to the ItemView field.
             public IBindingContext BindingContext => _bindingContext;
+
+            public void ApplyBindings()
+            {
+                if (_layoutInflaterResult != null)
+                {
+                    _layoutInflaterResult?.ApplyBindings();
+                    _layoutInflaterResult = null;
+                }
+            }
 
             #endregion
         }
@@ -118,7 +134,7 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
         public virtual object GetRawItem(int position)
         {
             if (position < 0)
-                return null;            
+                return null;
             return ItemsSource?.ElementAtIndex(position);
         }
 
@@ -270,6 +286,7 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
         public override void OnBindViewHolder(global::Android.Support.V7.Widget.RecyclerView.ViewHolder holder, int position)
         {
             SetDataContext(holder, GetRawItem(position));
+            (holder as IViewHolder)?.ApplyBindings();
         }
 
         public override global::Android.Support.V7.Widget.RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
@@ -278,14 +295,16 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
             global::Android.Support.V7.Widget.RecyclerView.ViewHolder viewHolder;
             if (_createViewHolderDelegate == null)
             {
-                view = _layoutInflater.Inflate(viewType, parent, false);
-                viewHolder = new ViewHolderImpl(view, viewType);
+                var result = _layoutInflater.InflateEx(viewType, parent, false);
+                view = result.View;
+                viewHolder = new ViewHolderImpl(result, viewType);
             }
             else
             {
                 viewHolder = _createViewHolderDelegate(_layoutInflater, parent, viewType);
                 view = viewHolder.ItemView;
-                view.SetDataContext(null);
+                if (!(viewHolder is IViewHolder))
+                    view.SetDataContext(null);
             }
             if (parent != null)
                 view.SetBindingMemberValue(AttachedMembers.Object.Parent, parent);

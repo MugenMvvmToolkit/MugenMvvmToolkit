@@ -22,6 +22,7 @@ using Android.Views;
 using Android.Widget;
 using MugenMvvmToolkit.Android.Binding.Models;
 using MugenMvvmToolkit.Android.Infrastructure;
+using MugenMvvmToolkit.Android.Models;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -276,9 +277,13 @@ namespace MugenMvvmToolkit.Android.Binding
                 return true;
             }
 
+            LayoutInflaterResult result = null;
             int viewId;
             if (int.TryParse(content.ToString(), out viewId))
-                content = GetContextFromItem(menuItem).GetBindableLayoutInflater().Inflate(viewId, null);
+            {
+                result = GetContextFromItem(menuItem).GetBindableLayoutInflater().InflateEx(viewId, null, false);
+                content = result.View;
+            }
 
             actionView = content as View;
             if (actionView == null)
@@ -296,6 +301,7 @@ namespace MugenMvvmToolkit.Android.Binding
             var bindings = GetActionViewBind(menuItem);
             if (!string.IsNullOrEmpty(bindings))
                 BindingServiceProvider.BindingProvider.CreateBindingsFromString(actionView, bindings, null);
+            result?.ApplyBindings();
             return true;
         }
 

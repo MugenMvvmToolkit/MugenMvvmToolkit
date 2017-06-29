@@ -388,8 +388,10 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
 
         public virtual void SetContentView(int layoutResId)
         {
-            _view = Target.LayoutInflater.Inflate(layoutResId, null);
+            var result = Target.LayoutInflater.InflateEx(layoutResId, null, false);
+            _view = result.View;
             Target.SetContentView(_view);
+            result.ApplyBindings();
         }
 
         public virtual MenuInflater GetMenuInflater(MenuInflater baseMenuInflater)

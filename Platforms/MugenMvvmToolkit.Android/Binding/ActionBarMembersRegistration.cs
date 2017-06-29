@@ -25,6 +25,7 @@ using Android.Views;
 using MugenMvvmToolkit.Android.Binding.Interfaces;
 using MugenMvvmToolkit.Android.Binding.Models;
 using MugenMvvmToolkit.Android.Interfaces.Views;
+using MugenMvvmToolkit.Android.Models;
 using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
@@ -299,13 +300,18 @@ namespace MugenMvvmToolkit.Android.Binding
                     (info, actionBar) => actionBar.CustomView,
                     (info, actionBar, value) =>
                     {
+                        LayoutInflaterResult result = null;
                         if (actionBar.CustomView != null)
                             ParentObserver.GetOrAdd(actionBar.CustomView).Parent = null;
                         if (value is int)
-                            value = actionBar.ThemedContext.GetBindableLayoutInflater().Inflate((int)value, null);
+                        {
+                            result = actionBar.ThemedContext.GetBindableLayoutInflater().InflateEx((int)value, null, false);
+                            value = result.View;
+                        }
                         actionBar.CustomView = (View)value;
                         if (actionBar.CustomView != null)
                             ParentObserver.GetOrAdd(actionBar.CustomView).Parent = actionBar;
+                        result?.ApplyBindings();
                         return true;
                     }));
             MemberProvider.Register(AttachedBindingMember
@@ -401,13 +407,18 @@ namespace MugenMvvmToolkit.Android.Binding
                 .CreateNotifiableMember(AttachedMembers.ActionBarTab.CustomView.Override<ActionBar.Tab>(),
                     (info, tab) => tab.CustomView, (info, tab, value) =>
                     {
+                        LayoutInflaterResult result = null;
                         if (tab.CustomView != null)
                             ParentObserver.GetOrAdd(tab.CustomView).Parent = null;
                         if (value is int)
-                            value = GetContextFromItem(tab).GetBindableLayoutInflater().Inflate((int)value, null);
+                        {
+                            result = GetContextFromItem(tab).GetBindableLayoutInflater().InflateEx((int)value, null, false);
+                            value = result.View;
+                        }
                         tab.SetCustomView((View)value);
                         if (tab.CustomView != null)
                             ParentObserver.GetOrAdd(tab.CustomView).Parent = tab;
+                        result?.ApplyBindings();
                         return true;
                     }));
             MemberProvider.Register(AttachedBindingMember

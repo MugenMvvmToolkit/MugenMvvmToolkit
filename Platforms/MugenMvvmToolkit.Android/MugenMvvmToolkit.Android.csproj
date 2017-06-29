@@ -138,6 +138,7 @@
     <Compile Include="Infrastructure\GlobalViewParentListener.cs" />
     <Compile Include="Binding\ActionBarMembersRegistration.cs" />
     <Compile Include="Models\EventArg\ActivityResultEventArgs.cs" />
+    <Compile Include="Models\LayoutInflaterResult.cs" />
     <Compile Include="Models\WeakReferenceWeakTable.cs" />
     <Compile Include="Modules\FragmentInitializationModule.cs" />
     <Compile Include="Modules\AndroidInitializationModule.cs" />
