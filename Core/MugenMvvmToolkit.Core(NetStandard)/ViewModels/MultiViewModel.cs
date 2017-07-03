@@ -487,11 +487,11 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Overrides of ViewModelBase
 
-        protected override Task<bool> OnClosing(IDataContext context)
+        protected override Task<bool> OnClosingAsync(IDataContext context)
         {
             if (CloseViewModelsOnClose && ItemsSource.Count != 0)
                 return ClearAsync(context);
-            return base.OnClosing(context);
+            return base.OnClosingAsync(context);
         }
 
         internal override void OnDisposeInternal(bool disposing)

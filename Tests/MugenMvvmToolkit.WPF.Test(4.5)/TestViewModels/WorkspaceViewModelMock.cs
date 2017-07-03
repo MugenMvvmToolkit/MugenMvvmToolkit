@@ -43,7 +43,7 @@ namespace MugenMvvmToolkit.Test.TestViewModels
             return CanCloseValue;
         }
 
-        protected override Task<bool> OnClosing(IDataContext context)
+        protected override Task<bool> OnClosingAsync(IDataContext context)
         {
             return OnClosingCallback == null ? Empty.TrueTask : OnClosingCallback(context, context?.GetData(NavigationConstants.CloseParameter));
         }

@@ -68,7 +68,7 @@ namespace MugenMvvmToolkit.ViewModels
             return true;
         }
 
-        protected virtual Task<bool> OnClosing([NotNull] IDataContext context)
+        protected virtual Task<bool> OnClosingAsync([NotNull] IDataContext context)
         {
             return Empty.TrueTask;
         }
@@ -96,7 +96,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         Task<bool> ICloseableViewModel.OnClosingAsync(IDataContext context)
         {
-            return OnClosing(context ?? DataContext.Empty);
+            return OnClosingAsync(context ?? DataContext.Empty);
         }
 
         void ICloseableViewModel.OnClosed(IDataContext context)
