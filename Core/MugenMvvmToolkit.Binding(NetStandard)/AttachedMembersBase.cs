@@ -1,4 +1,22 @@
-﻿using System.Collections.Generic;
+﻿#region Copyright
+
+// ****************************************************************************
+// <copyright file="AttachedMembersBase.cs">
+// Copyright (c) 2012-2017 Vyacheslav Volkov
+// </copyright>
+// ****************************************************************************
+// <author>Vyacheslav Volkov</author>
+// <email>vvs0205@outlook.com</email>
+// <project>MugenMvvmToolkit</project>
+// <web>https://github.com/MugenMvvmToolkit/MugenMvvmToolkit</web>
+// <license>
+// See license.txt in this solution or http://opensource.org/licenses/MS-PL
+// </license>
+// ****************************************************************************
+
+#endregion
+
+using System.Collections.Generic;
 using MugenMvvmToolkit.Binding.Models;
 
 namespace MugenMvvmToolkit.Binding
@@ -7,7 +25,7 @@ namespace MugenMvvmToolkit.Binding
     {
         #region Nested types
 
-        public abstract class Object //todo licence
+        public abstract class Object
         {
             #region Fields
 
@@ -17,8 +35,8 @@ namespace MugenMvvmToolkit.Binding
             public static readonly BindingMemberDescriptor<object, object> CommandParameter;
             public static readonly BindingMemberDescriptor<object, IEnumerable<object>> Errors;
             public static readonly BindingMemberDescriptor<object, bool> HasErrors;
-            public static readonly BindingMemberDescriptor<object, bool> IsFlatTree;
-            public static readonly BindingMemberDescriptor<object, bool> IsFlatContext;
+            public static readonly BindingMemberDescriptor<object, bool?> IsFlatTree;
+            public static readonly BindingMemberDescriptor<object, bool?> IsFlatContext;
 
             #endregion
 
@@ -32,8 +50,8 @@ namespace MugenMvvmToolkit.Binding
                 CommandParameter = new BindingMemberDescriptor<object, object>(AttachedMemberConstants.CommandParameter);
                 Errors = new BindingMemberDescriptor<object, IEnumerable<object>>(AttachedMemberConstants.ErrorsPropertyMember);
                 HasErrors = new BindingMemberDescriptor<object, bool>(nameof(HasErrors));
-                IsFlatTree = new BindingMemberDescriptor<object, bool>(nameof(IsFlatTree));
-                IsFlatContext = new BindingMemberDescriptor<object, bool>(nameof(IsFlatContext));
+                IsFlatTree = new BindingMemberDescriptor<object, bool?>(nameof(IsFlatTree));
+                IsFlatContext = new BindingMemberDescriptor<object, bool?>(nameof(IsFlatContext));
             }
 
             #endregion

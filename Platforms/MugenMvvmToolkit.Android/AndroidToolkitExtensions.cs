@@ -421,7 +421,7 @@ namespace MugenMvvmToolkit.Android
 
         public static int BackgroundNotificationDelay { get; set; }
 
-        public static List<KeyValuePair<object, string>> CurrentLayoutBindings { get; set; }
+        public static LayoutInflaterResult CurrentLayoutInflaterResult { get; set; }
 
         public static event EventHandler CurrentActivityChanged;
 
@@ -634,33 +634,33 @@ namespace MugenMvvmToolkit.Android
 
         public static LayoutInflaterResult InflateEx(this LayoutInflater layoutInflater, int resource, ViewGroup root, bool attachToRoot)
         {
-            var oldBindings = CurrentLayoutBindings;
+            var oldResult = CurrentLayoutInflaterResult;
             try
             {
-                var newBindings = new LayoutInflaterResult();
-                CurrentLayoutBindings = newBindings;
-                newBindings.View = layoutInflater.Inflate(resource, root, attachToRoot);
-                return newBindings;
+                var result = new LayoutInflaterResult();
+                CurrentLayoutInflaterResult = result;
+                result.View = layoutInflater.Inflate(resource, root, attachToRoot);
+                return result;
             }
             finally
             {
-                CurrentLayoutBindings = oldBindings;
+                CurrentLayoutInflaterResult = oldResult;
             }
         }
 
-        public static LayoutInflaterResult InflateEx(this LayoutInflater layoutInflater, XmlReader parser, ViewGroup root, bool attachToRoot)//todo list fix, exception fix, scopecontext
+        public static LayoutInflaterResult InflateEx(this LayoutInflater layoutInflater, XmlReader parser, ViewGroup root, bool attachToRoot)
         {
-            var oldBindings = CurrentLayoutBindings;
+            var oldResult = CurrentLayoutInflaterResult;
             try
             {
-                var newBindings = new LayoutInflaterResult();
-                CurrentLayoutBindings = newBindings;
-                newBindings.View = layoutInflater.Inflate(parser, root, attachToRoot);
-                return newBindings;
+                var result = new LayoutInflaterResult();
+                CurrentLayoutInflaterResult = result;
+                result.View = layoutInflater.Inflate(parser, root, attachToRoot);
+                return result;
             }
             finally
             {
-                CurrentLayoutBindings = oldBindings;
+                CurrentLayoutInflaterResult = oldResult;
             }
         }
 

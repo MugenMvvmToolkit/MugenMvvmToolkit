@@ -164,13 +164,14 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             if (viewCreated != null)
                 view = viewCreated(view, name, context, attrs);
 
+            string bind = null;
             if (!viewResult.IsEmpty)
             {
                 view = viewResult.View;
-                var bind = viewResult.Bind;
+                bind = viewResult.Bind;
                 if (!string.IsNullOrEmpty(bind))
                 {
-                    if (AndroidToolkitExtensions.CurrentLayoutBindings == null)
+                    if (AndroidToolkitExtensions.CurrentLayoutInflaterResult == null)
                     {
                         var manualBindings = view as IManualBindings;
                         if (manualBindings == null)
@@ -178,14 +179,31 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                         else
                             manualBindings.SetBindings(bind);
                     }
-                    else
-                        AndroidToolkitExtensions.CurrentLayoutBindings.Add(new KeyValuePair<object, string>(view, bind));
                 }
             }
 
-            var viewGroup = view as ViewGroup;
-            if (viewGroup != null && !viewGroup.IsDisableHierarchyListener())
-                viewGroup.SetOnHierarchyChangeListener(GlobalViewParentListener.Instance);
+            if (AndroidToolkitExtensions.CurrentLayoutInflaterResult == null)
+            {
+                var viewGroup = view as ViewGroup;
+                if (viewGroup != null && !viewGroup.IsDisableHierarchyListener())
+                    viewGroup.SetOnHierarchyChangeListener(GlobalViewParentListener.Instance);
+            }
+            else
+            {
+                Action<object> postAction;
+                if (view is ViewGroup)
+                {
+                    postAction = o =>
+                    {
+                        var vg = (ViewGroup)o;
+                        if (!vg.IsDisableHierarchyListener())
+                            vg.SetOnHierarchyChangeListener(GlobalViewParentListener.Instance);
+                    };
+                }
+                else
+                    postAction = null;
+                AndroidToolkitExtensions.CurrentLayoutInflaterResult.AddBindingInfo(view, bind, postAction);
+            }
 
             _lastCreatedView = ServiceProvider.WeakReferenceFactory(view);
             return view;

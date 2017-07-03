@@ -157,17 +157,17 @@ namespace MugenMvvmToolkit.UWP.Binding
 
         private static object GetParentValue(IBindingMemberInfo bindingMemberInfo, FrameworkElement target)
         {
-            return ParentObserver.GetOrAdd(target).Parent;
+            return ParentObserver.Get(target);
         }
 
         private static void SetParentValue(IBindingMemberInfo bindingMemberInfo, FrameworkElement frameworkElement, object arg3)
         {
-            ParentObserver.GetOrAdd(frameworkElement).Parent = arg3;
+            ParentObserver.Set(frameworkElement, arg3);
         }
 
         private static IDisposable ObserveParentMember(IBindingMemberInfo bindingMemberInfo, FrameworkElement o, IEventListener arg3)
         {
-            return ParentObserver.GetOrAdd(o).AddWithUnsubscriber(arg3);
+            return ParentObserver.AddListener(o, arg3);
         }
 
 #if WINDOWS_UWP

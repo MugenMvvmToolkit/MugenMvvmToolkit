@@ -302,7 +302,7 @@ namespace MugenMvvmToolkit.Android.Binding
                     {
                         LayoutInflaterResult result = null;
                         if (actionBar.CustomView != null)
-                            ParentObserver.GetOrAdd(actionBar.CustomView).Parent = null;
+                            ParentObserver.Set(actionBar.CustomView, null);
                         if (value is int)
                         {
                             result = actionBar.ThemedContext.GetBindableLayoutInflater().InflateEx((int)value, null, false);
@@ -310,7 +310,7 @@ namespace MugenMvvmToolkit.Android.Binding
                         }
                         actionBar.CustomView = (View)value;
                         if (actionBar.CustomView != null)
-                            ParentObserver.GetOrAdd(actionBar.CustomView).Parent = actionBar;
+                            ParentObserver.Set(actionBar.CustomView, actionBar);
                         result?.ApplyBindings();
                         return true;
                     }));
@@ -409,7 +409,7 @@ namespace MugenMvvmToolkit.Android.Binding
                     {
                         LayoutInflaterResult result = null;
                         if (tab.CustomView != null)
-                            ParentObserver.GetOrAdd(tab.CustomView).Parent = null;
+                            ParentObserver.Set(tab.CustomView, null);
                         if (value is int)
                         {
                             result = GetContextFromItem(tab).GetBindableLayoutInflater().InflateEx((int)value, null, false);
@@ -417,7 +417,7 @@ namespace MugenMvvmToolkit.Android.Binding
                         }
                         tab.SetCustomView((View)value);
                         if (tab.CustomView != null)
-                            ParentObserver.GetOrAdd(tab.CustomView).Parent = tab;
+                            ParentObserver.Set(tab.CustomView, tab);
                         result?.ApplyBindings();
                         return true;
                     }));

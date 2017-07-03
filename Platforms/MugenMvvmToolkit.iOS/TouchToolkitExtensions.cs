@@ -144,7 +144,7 @@ namespace MugenMvvmToolkit.iOS
             Should.NotBeNull(textField, nameof(textField));
             textField.InputView = view;
             if (view != null)
-                ParentObserver.GetOrAdd(view).Parent = textField;
+                ParentObserver.Set(view, textField);
         }
 
         public static void SetNavigationParameter([NotNull] this UIViewController controller, string value)

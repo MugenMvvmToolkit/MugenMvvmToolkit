@@ -99,8 +99,8 @@ namespace MugenMvvmToolkit.iOS.Binding
         public static void RegisterViewMembers()
         {
             MemberProvider.Register(AttachedBindingMember.CreateMember<UIView, object>(AttachedMemberConstants.Parent,
-                (info, view) => ParentObserver.GetOrAdd(view).Parent, (info, view, arg3) => ParentObserver.GetOrAdd(view).Parent = arg3,
-                (info, view, arg3) => ParentObserver.GetOrAdd(view).AddWithUnsubscriber(arg3)));
+                (info, view) => ParentObserver.Get(view), (info, view, arg3) => ParentObserver.Set(view, arg3),
+                (info, view, arg3) => ParentObserver.AddListener(view, arg3)));
             MemberProvider.Register(AttachedBindingMember.CreateMember<UIView, object>(AttachedMemberConstants.FindByNameMethod, FindViewByName));
             MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UIView.Content, ContentChanged));
             var member = AttachedBindingMember.CreateAutoProperty(AttachedMembers.UIView.ContentTemplateSelector, ContentTemplateChanged);

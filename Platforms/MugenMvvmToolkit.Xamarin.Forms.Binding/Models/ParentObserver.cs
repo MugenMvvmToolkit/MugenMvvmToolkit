@@ -18,7 +18,9 @@
 
 using System;
 using System.ComponentModel;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
+using MugenMvvmToolkit.Binding.Interfaces.Models;
 using Xamarin.Forms;
 
 namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Models
@@ -68,12 +70,53 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Models
 
         #region Methods
 
-        public static ParentObserver GetOrAdd(Element element)
+        public static object Get(Element view)
+        {
+            var value = GetOrAdd(view);
+            var parentObserver = value as ParentObserver;
+            if (parentObserver == null)
+                return (value as WeakReference)?.Target;
+            return parentObserver.Parent;
+        }
+
+        public static void Set(Element view, object parent)
+        {
+            var value = GetOrAdd(view);
+            var parentObserver = value as ParentObserver;
+            if (parentObserver != null)
+                parentObserver.Parent = parent;
+        }
+
+        public static IDisposable AddListener(Element view, IEventListener listener)
+        {
+            var value = GetOrAdd(view);
+            return (value as ParentObserver)?.AddWithUnsubscriber(listener);
+        }
+
+        private static object GetOrAdd(Element element)
         {
             return ServiceProvider
                 .AttachedValueProvider
-                .GetOrAdd(element, "#ParentListener", (frameworkElement, o) => new ParentObserver(frameworkElement),
-                    null);
+                .GetOrAdd<Element, object>(element, "#ParentListener", (item, o) =>
+                {
+                    bool? value;
+                    item.TryGetBindingMemberValue(AttachedMembersBase.Object.IsFlatTree, out value);
+                    if (value == null)
+                    {
+                        var parent = FindParent(item) as View;
+                        while (parent != null)
+                        {
+                            parent.TryGetBindingMemberValue(AttachedMembersBase.Object.IsFlatTree, out value);
+                            if (value == null)
+                                parent = FindParent(parent) as View;
+                            else if (value.Value)
+                                return ServiceProvider.WeakReferenceFactory(parent);
+                            else
+                                break;
+                        }
+                    }
+                    return new ParentObserver(item);
+                }, null);
         }
 
         private void SetParent(object source, object value)

@@ -279,7 +279,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             if (!HasMask(cell, InitializedStateMask))
             {
                 cell.Tag |= InitializedStateMask;
-                ParentObserver.GetOrAdd(cell).Parent = collectionView;
+                ParentObserver.Set(cell, collectionView);
                 selector.InitializeTemplate(collectionView, cell);
                 InitializeCell(cell);
             }

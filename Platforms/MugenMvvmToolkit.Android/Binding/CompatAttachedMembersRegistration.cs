@@ -262,7 +262,7 @@ namespace MugenMvvmToolkit.Android.Binding
         {
             var actionView = menuItem.GetActionView();
             if (actionView != null)
-                ParentObserver.GetOrAdd(actionView).Parent = null;
+                ParentObserver.Set(actionView, null);
 
             object template = menuItem.GetBindingMemberValue(AttachedMembers.MenuItem.ActionViewTemplateSelector)?.SelectTemplate(content, menuItem);
             if (template != null)
@@ -297,7 +297,7 @@ namespace MugenMvvmToolkit.Android.Binding
             menuItem.SetActionView(actionView);
 #endif
 
-            ParentObserver.GetOrAdd(actionView).Parent = menuItem;
+            ParentObserver.Set(actionView, menuItem);
             var bindings = GetActionViewBind(menuItem);
             if (!string.IsNullOrEmpty(bindings))
                 BindingServiceProvider.BindingProvider.CreateBindingsFromString(actionView, bindings, null);

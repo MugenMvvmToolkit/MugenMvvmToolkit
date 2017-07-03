@@ -842,17 +842,17 @@ namespace MugenMvvmToolkit.Android.Binding
 
         private static IDisposable ObserveViewParent(IBindingMemberInfo bindingMemberInfo, View view, IEventListener arg3)
         {
-            return ParentObserver.GetOrAdd(view).AddWithUnsubscriber(arg3);
+            return ParentObserver.AddListener(view, arg3);
         }
 
         private static object GetViewParentValue(IBindingMemberInfo arg1, View view)
         {
-            return ParentObserver.GetOrAdd(view).Parent;
+            return ParentObserver.Get(view);
         }
 
         private static void SetViewParentValue(IBindingMemberInfo bindingMemberInfo, View view, object arg3)
         {
-            ParentObserver.GetOrAdd(view).Parent = arg3;
+            ParentObserver.Set(view, arg3);
         }
 
         private static object ViewFindByNameMember(IBindingMemberInfo bindingMemberInfo, View target, object[] arg3)

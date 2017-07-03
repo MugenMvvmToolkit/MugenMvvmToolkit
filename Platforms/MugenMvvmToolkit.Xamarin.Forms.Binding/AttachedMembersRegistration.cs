@@ -106,23 +106,23 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding
 
         private static object FindByNameMemberImpl(IBindingMemberInfo bindingMemberInfo, VisualElement target, object[] arg3)
         {
-            var name = (string) arg3[0];
+            var name = (string)arg3[0];
             return target.FindByName<object>(name);
         }
 
         private static object GetParentValue(IBindingMemberInfo bindingMemberInfo, Element target)
         {
-            return ParentObserver.GetOrAdd(target).Parent;
+            return ParentObserver.Get(target);
         }
 
         private static void SetParentValue(IBindingMemberInfo bindingMemberInfo, Element element, object arg3)
         {
-            ParentObserver.GetOrAdd(element).Parent = arg3;
+            ParentObserver.Set(element, arg3);
         }
 
         private static IDisposable ObserveParentMember(IBindingMemberInfo bindingMemberInfo, Element o, IEventListener arg3)
         {
-            return ParentObserver.GetOrAdd(o).AddWithUnsubscriber(arg3);
+            return ParentObserver.AddListener(o, arg3);
         }
 
         #endregion

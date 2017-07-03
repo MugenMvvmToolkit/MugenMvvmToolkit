@@ -18,7 +18,9 @@
 
 using System;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
+using MugenMvvmToolkit.Binding.Interfaces.Models;
 using UIKit;
 
 namespace MugenMvvmToolkit.iOS.Binding.Models
@@ -64,17 +66,62 @@ namespace MugenMvvmToolkit.iOS.Binding.Models
 
         #region Methods
 
-        public static ParentObserver GetOrAdd([NotNull] UIView view)
+        public static object Get(UIView view)
+        {
+            var value = GetOrAdd(view);
+            var parentObserver = value as ParentObserver;
+            if (parentObserver == null)
+                return (value as WeakReference)?.Target;
+            return parentObserver.Parent;
+        }
+
+        public static void Set(UIView view, object parent)
+        {
+            var value = GetOrAdd(view);
+            var parentObserver = value as ParentObserver;
+            if (parentObserver != null)
+                parentObserver.Parent = parent;
+        }
+
+        public static IDisposable AddListener(UIView view, IEventListener listener)
+        {
+            var value = GetOrAdd(view);
+            return (value as ParentObserver)?.AddWithUnsubscriber(listener);
+        }
+
+        private static object GetOrAdd([NotNull] UIView view)
         {
             return ServiceProvider
                 .AttachedValueProvider
-                .GetOrAdd(view, Key, (v, o) => new ParentObserver(v), null);
+                .GetOrAdd<UIView, object>(view, Key, (item, o) =>
+                {
+                    bool? value;
+                    item.TryGetBindingMemberValue(AttachedMembersBase.Object.IsFlatTree, out value);
+                    if (value == null)
+                    {
+                        var parent = GetParent(item) as UIView;
+                        while (parent != null)
+                        {
+                            parent.TryGetBindingMemberValue(AttachedMembersBase.Object.IsFlatTree, out value);
+                            if (value == null)
+                                parent = GetParent(parent) as UIView;
+                            else if (value.Value)
+                                return ServiceProvider.WeakReferenceFactory(parent);
+                            else
+                                break;
+                        }
+                    }
+                    return new ParentObserver(item);
+                }, null);
         }
 
         public static void Raise(UIView view, bool recursively)
         {
             if (view.IsAlive())
-                GetOrAdd(view).Raise(recursively);
+            {
+                object observer = GetOrAdd(view);
+                (observer as ParentObserver)?.Raise(recursively);
+            }
         }
 
         public void Raise(bool recursively = true)

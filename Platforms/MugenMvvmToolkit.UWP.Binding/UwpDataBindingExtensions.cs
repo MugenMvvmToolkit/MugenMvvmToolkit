@@ -49,14 +49,14 @@ namespace MugenMvvmToolkit.UWP.Binding
                 if (items != null)
                 {
                     foreach (MenuFlyoutItemBase item in items)
-                        ParentObserver.GetOrAdd(item).Parent = placementTarget;
+                        ParentObserver.Set(item, placementTarget);
                 }
             }
             else
             {
                 var content = flyout.Content as FrameworkElement;
                 if (content != null)
-                    ParentObserver.GetOrAdd(content).Parent = placementTarget;
+                    ParentObserver.Set(content, placementTarget);
             }
             flyoutBase.ShowAt(placementTarget);
         }

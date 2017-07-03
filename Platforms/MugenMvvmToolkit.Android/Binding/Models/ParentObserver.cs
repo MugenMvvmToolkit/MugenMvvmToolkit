@@ -19,7 +19,9 @@
 using System;
 using Android.Views;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Binding;
 using MugenMvvmToolkit.Binding.Infrastructure;
+using MugenMvvmToolkit.Binding.Interfaces.Models;
 
 namespace MugenMvvmToolkit.Android.Binding.Models
 {
@@ -64,18 +66,34 @@ namespace MugenMvvmToolkit.Android.Binding.Models
 
         #region Methods
 
-        public static ParentObserver GetOrAdd(View view)
+        public static object Get(View view)
         {
-            return ServiceProvider
-                .AttachedValueProvider
-                .GetOrAdd(view, Key, (v, o) => new ParentObserver(v), null);
+            var value = GetOrAdd(view);
+            var parentObserver = value as ParentObserver;
+            if (parentObserver == null)
+                return (value as WeakReference)?.Target;
+            return parentObserver.Parent;
+        }
+
+        public static void Set(View view, object parent)
+        {
+            var value = GetOrAdd(view);
+            var parentObserver = value as ParentObserver;
+            if (parentObserver != null)
+                parentObserver.Parent = parent;
+        }
+
+        public static IDisposable AddListener(View view, IEventListener listener)
+        {
+            var value = GetOrAdd(view);
+            return (value as ParentObserver)?.AddWithUnsubscriber(listener);
         }
 
         public static void Raise(View view)
         {
-            ParentObserver observer;
+            object observer;
             if (ServiceProvider.AttachedValueProvider.TryGetValue(view, Key, out observer))
-                observer.Raise();
+                (observer as ParentObserver)?.Raise();
         }
 
         public void Raise()
@@ -90,6 +108,35 @@ namespace MugenMvvmToolkit.Android.Binding.Models
                 return;
             _parent = ToolkitExtensions.GetWeakReferenceOrDefault(parent, Empty.WeakReference, false);
             Raise(view, EventArgs.Empty);
+        }
+
+        private static object GetOrAdd(View view)
+        {
+            return ServiceProvider
+                .AttachedValueProvider
+                .GetOrAdd<View, object>(view, Key, (item, o) =>
+                {
+                    bool? value;
+                    item.TryGetBindingMemberValue(AttachedMembersBase.Object.IsFlatTree, out value);
+                    if (value == null)
+                    {
+                        var parent = GetParent(item) as View;
+                        while (parent != null)
+                        {
+                            parent.TryGetBindingMemberValue(AttachedMembersBase.Object.IsFlatTree, out value);
+                            if (value == null)
+                                parent = GetParent(parent) as View;
+                            else if (value.Value)
+                            {
+                                (view as ViewGroup)?.SetDisableHierarchyListener(true);
+                                return ServiceProvider.WeakReferenceFactory(parent);
+                            }
+                            else
+                                break;
+                        }
+                    }
+                    return new ParentObserver(item);
+                }, null);
         }
 
         private void SetParent(object value)

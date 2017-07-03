@@ -67,7 +67,11 @@ namespace MugenMvvmToolkit.Binding
             {
                 BindingServiceProvider.BindingManager.ClearBindings(item);
                 if (clearDataContext && BindingServiceProvider.ContextManager.HasBindingContext(item))
-                    BindingServiceProvider.ContextManager.GetBindingContext(item).Value = null;
+                {
+                    var bindingContext = BindingServiceProvider.ContextManager.GetBindingContext(item);
+                    if (ReferenceEquals(bindingContext.Source, item))
+                        bindingContext.Value = null;
+                }
                 if (clearAttachedValues)
                     ServiceProvider.AttachedValueProvider.Clear(item);
             }

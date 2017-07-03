@@ -278,6 +278,22 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         private static IBindingContext CreateBindingContext(object item, object state)
         {
+            bool? value;
+            item.TryGetBindingMemberValue(AttachedMembersBase.Object.IsFlatContext, out value);
+            if (value == null)
+            {
+                object parent = BindingServiceProvider.VisualTreeManager.GetParent(item);
+                while (parent != null)
+                {
+                    parent.TryGetBindingMemberValue(AttachedMembersBase.Object.IsFlatContext, out value);
+                    if (value == null)
+                        parent = BindingServiceProvider.VisualTreeManager.GetParent(parent);
+                    else if (value.Value)
+                        return ((BindingContextManager)state).GetBindingContext(parent);
+                    else
+                        break;
+                }
+            }
             return ((BindingContextManager)state).CreateBindingContext(item);
         }
 

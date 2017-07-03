@@ -58,8 +58,8 @@ namespace MugenMvvmToolkit.Binding
             {
                 var attachedParent = args[0];
                 if (_isExplicit)
-                    if ((_parentMember != null) && _parentMember.CanWrite &&
-                        ((attachedParent == null) || _parentMember.Type.IsInstanceOfType(attachedParent)))
+                    if (_parentMember != null && _parentMember.CanWrite &&
+                        (attachedParent == null || _parentMember.Type.IsInstanceOfType(attachedParent)))
                         _parentMember.SetValue(source, args);
                 return new ParentValue(attachedParent, _parentMember, _isExplicit);
             }
@@ -166,13 +166,16 @@ namespace MugenMvvmToolkit.Binding
             var memberProvider = BindingServiceProvider.MemberProvider;
             var registration = new DefaultAttachedMemberRegistration<object>(CommandParameterInternal, AttachedMemberConstants.CommandParameter);
             memberProvider.Register(registration.ToAttachedBindingMember<object>());
-            var parentMember = AttachedBindingMember.CreateMember<object, object>(AttachedMemberConstants.Parent, GetParent, SetParent, ObserveParent, ParentAttached);
+            var parentMember = AttachedBindingMember.CreateMember(AttachedMembersBase.Object.Parent, GetParent, SetParent, ObserveParent, ParentAttached);
             AttachedBindingMember.TrySetRaiseAction(parentMember, (info, o, arg3) => AttachedParentMember.Raise(o, arg3));
             memberProvider.Register(parentMember);
-            memberProvider.Register(AttachedBindingMember.CreateMember<object, object>("Root", GetRootMember, null, ObserveRootMember));
+            memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembersBase.Object.Root, GetRootMember, null, ObserveRootMember));
 
-            memberProvider.Register(AttachedBindingMember.CreateNotifiableMember<object, IEnumerable<object>>(AttachedMemberConstants.ErrorsPropertyMember, GetErrors, SetErrors));
-            memberProvider.Register(AttachedBindingMember.CreateMember<object, bool>("HasErrors", GetHasErrors, null, ObserveHasErrors));
+            memberProvider.Register(AttachedBindingMember.CreateNotifiableMember(AttachedMembersBase.Object.Errors, GetErrors, SetErrors));
+            memberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembersBase.Object.HasErrors, GetHasErrors, null, ObserveHasErrors));
+
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersBase.Object.IsFlatTree));
+            memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersBase.Object.IsFlatContext));
         }
 
         private static IDisposable ObserveParent(IBindingMemberInfo bindingMemberInfo, object o, IEventListener arg3)
@@ -245,7 +248,7 @@ namespace MugenMvvmToolkit.Binding
             if (member == null)
                 return false;
             var value = member.GetValue(o, arg3) as ICollection<object>;
-            return (value != null) && (value.Count != 0);
+            return value != null && value.Count != 0;
         }
 
         private static IDisposable ObserveHasErrors(IBindingMemberInfo bindingMemberInfo, object o, IEventListener arg3)
