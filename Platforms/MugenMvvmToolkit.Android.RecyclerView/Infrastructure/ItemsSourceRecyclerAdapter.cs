@@ -43,7 +43,12 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
             void ApplyBindings();
         }
 
-        private sealed class ViewHolderImpl : global::Android.Support.V7.Widget.RecyclerView.ViewHolder, IViewHolder
+        public interface IViewHolderEx : IViewHolder
+        {
+            LayoutInflaterResult LayoutInflaterResult { get; }
+        }
+
+        private sealed class ViewHolderImpl : global::Android.Support.V7.Widget.RecyclerView.ViewHolder, IViewHolderEx
         {
             #region Fields
 
@@ -75,6 +80,8 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
 
             //In the hundreds of times faster than the access to the ItemView field.
             public IBindingContext BindingContext => _bindingContext;
+
+            public LayoutInflaterResult LayoutInflaterResult => _layoutInflaterResult;
 
             public void ApplyBindings()
             {
