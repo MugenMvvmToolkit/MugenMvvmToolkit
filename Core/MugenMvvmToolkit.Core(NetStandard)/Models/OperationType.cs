@@ -28,15 +28,18 @@ namespace MugenMvvmToolkit.Models
 
         public static readonly OperationType PageNavigation;
 
+        public static readonly OperationType Undefined;
+
         #endregion
 
         #region Constructors
 
         static OperationType()
         {
-            TabNavigation = new OperationType("Tab");
-            WindowNavigation = new OperationType("Window");
-            PageNavigation = new OperationType("Page");
+            TabNavigation = new OperationType(nameof(NavigationType.Tab));
+            WindowNavigation = new OperationType(nameof(NavigationType.Window));
+            PageNavigation = new OperationType(nameof(NavigationType.Page));
+            Undefined = new OperationType(nameof(NavigationType.Undefined));
         }
 
         public OperationType(string id)

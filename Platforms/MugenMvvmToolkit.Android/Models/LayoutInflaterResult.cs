@@ -63,7 +63,7 @@ namespace MugenMvvmToolkit.Android.Models
         public void AddBindingInfo(object target, string bind, Action<object> postAction)
         {
             if (!string.IsNullOrEmpty(bind) || postAction != null)
-                Insert(0, new LayoutInflaterResultItem(target, bind, postAction));
+                Add(new LayoutInflaterResultItem(target, bind, postAction));
         }
 
         public void ApplyBindings()

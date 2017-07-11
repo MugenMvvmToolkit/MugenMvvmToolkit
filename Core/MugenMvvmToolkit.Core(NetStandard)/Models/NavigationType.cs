@@ -32,7 +32,7 @@ namespace MugenMvvmToolkit.Models
 
         public static readonly NavigationType Page;
 
-        [CanBeNull]
+        [NotNull]
         public readonly OperationType Operation;
 
         #endregion
@@ -50,7 +50,7 @@ namespace MugenMvvmToolkit.Models
         public NavigationType(string id, [CanBeNull] OperationType operation)
             : base(id)
         {
-            Operation = operation;
+            Operation = operation ?? OperationType.Undefined;
         }
 
         #endregion        
