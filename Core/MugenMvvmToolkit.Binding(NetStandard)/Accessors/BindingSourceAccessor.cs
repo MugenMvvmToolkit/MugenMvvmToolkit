@@ -292,17 +292,25 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 }
                 LastContext.AddOrUpdate(BindingConstants.CurrentEventArgs, message);
 
+                WeakReference reference = null;
                 var command = target as ICommand;
                 if (command != null)
                 {
+                    if (sender != null)
+                    {
+                        reference = ServiceProvider.WeakReferenceFactory(sender);
+                        ToolkitExtensions.AddCurrentBindingEventSender(reference);
+                    }
                     if (_path.IsDebuggable)
                     {
                         var parameter = GetCommandParameter(LastContext);
                         DebugInfo($"Binding invokes command '{command}' with parameter: '{parameter}', event args: '{message}'", new[] { command, parameter, message });
-                        command.Execute(GetCommandParameter(LastContext));
+                        command.Execute(parameter);
                     }
                     else
                         command.Execute(GetCommandParameter(LastContext));
+                    if (reference != null)
+                        ToolkitExtensions.RemoveCurrentBindingEventSender(reference);
                     return true;
                 }
                 var actionValue = target as BindingActionValue;
@@ -311,14 +319,22 @@ namespace MugenMvvmToolkit.Binding.Accessors
                     UnsubscribeEventHandler();
                     return false;
                 }
+                                
+                if (sender != null)
+                {
+                    reference = ServiceProvider.WeakReferenceFactory(sender);
+                    ToolkitExtensions.AddCurrentBindingEventSender(reference);
+                }
                 if (_path.IsDebuggable)
                 {
                     var args = new[] { GetCommandParameter(LastContext), message, LastContext };
                     DebugInfo($"Binding invokes member '{actionValue.Member.Path}' with parameter: '{args[0]}', event args: '{message}'", args);
-                    actionValue.TrySetValue(new[] { GetCommandParameter(LastContext), message, LastContext }, out target);
+                    actionValue.TrySetValue(args, out target);
                 }
                 else
                     actionValue.TrySetValue(new[] { GetCommandParameter(LastContext), message, LastContext }, out target);
+                if (reference != null)
+                    ToolkitExtensions.RemoveCurrentBindingEventSender(reference);
                 return true;
             }
 

@@ -245,6 +245,7 @@ namespace MugenMvvmToolkit
         private static readonly PropertyInfo AssemblyLocationProperty;
         private static readonly ConstructorInfo FileInfoConstructor;
         private static readonly PropertyInfo FileInfoLastWriteTimeProperty;
+        private static readonly List<WeakReference> CurrentBindingEventSenders;
         private static Func<object, object> _getDataContext;
         private static Action<object, object> _setDataContext;
 
@@ -258,6 +259,7 @@ namespace MugenMvvmToolkit
             GetDataContext = ReflectionExtensions.GetDataContext;
             SetDataContext = (o, o1) => ReflectionExtensions.SetDataContext(o, o1);
             AssemblyLocationProperty = typeof(Assembly).GetPropertyEx("Location");
+            CurrentBindingEventSenders = new List<WeakReference>();
             var fileInfoType = Type.GetType("System.IO.FileInfo", false);
             if (fileInfoType != null)
             {
@@ -1692,6 +1694,40 @@ namespace MugenMvvmToolkit
             {
                 Tracer.Error(e.Flatten(true));
             }
+        }
+
+        public static IList<object> GetCurrentBindingEventSenders()
+        {
+            if (CurrentBindingEventSenders.Count == 0)
+                return Empty.Array<object>();
+            var result = new List<object>();
+            lock (CurrentBindingEventSenders)
+            {
+                for (int i = 0; i < CurrentBindingEventSenders.Count; i++)
+                {
+                    var target = CurrentBindingEventSenders[i].Target;
+                    if (target == null)
+                    {
+                        CurrentBindingEventSenders.RemoveAt(i);
+                        --i;
+                    }
+                    else
+                        result.Add(target);
+                }
+            }
+            return result;
+        }
+
+        public static void AddCurrentBindingEventSender(WeakReference reference)
+        {
+            lock (CurrentBindingEventSenders)
+                CurrentBindingEventSenders.Add(reference);
+        }
+
+        public static void RemoveCurrentBindingEventSender(WeakReference reference)
+        {
+            lock (CurrentBindingEventSenders)
+                CurrentBindingEventSenders.Remove(reference);
         }
 
         internal static IEnumerable<Assembly> FilterDesignAssemblies(this IEnumerable<Assembly> assemblies)
