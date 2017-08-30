@@ -29,6 +29,8 @@ namespace MugenMvvmToolkit.Interfaces.Models
 
         bool IsExecuting { get; }
 
+        bool IsCanExecute { get; }
+
         [NotNull]
         IList<object> GetNotifiers();
 

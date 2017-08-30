@@ -34,6 +34,7 @@ namespace MugenMvvmToolkit.Models
         private static readonly Action<RelayCommandBase, EventArgs> RaiseCanExecuteChangedDelegate;
         private static readonly Action<RelayCommandBase, object, PropertyChangedEventArgs> OnPropertyChangedDelegate;
         private static readonly List<KeyValuePair<WeakReference, Action<RelayCommandBase, object>>> DisposedFlag;
+        private static readonly PropertyChangedEventArgs IsCanExecuteArgs = new PropertyChangedEventArgs(nameof(IsCanExecute));
 
         private PropertyChangedEventHandler _weakHandler;
         private List<KeyValuePair<WeakReference, Action<RelayCommandBase, object>>> _notifiers;
@@ -107,6 +108,8 @@ namespace MugenMvvmToolkit.Models
 
         public abstract bool IsExecuting { get; }
 
+        public bool IsCanExecute => CanExecute(null);
+
         public bool CanExecute(object parameter)
         {
             return !HasCanExecuteImpl || CanExecuteInternal(parameter);
@@ -177,6 +180,7 @@ namespace MugenMvvmToolkit.Models
             }
             if (_canExecuteChangedInternal != null)
                 ThreadManager.Invoke(CanExecuteMode, this, EventArgs.Empty, RaiseCanExecuteChangedDelegate);
+            OnPropertyChanged(IsCanExecuteArgs);
         }
 
         public IList<object> GetNotifiers()
