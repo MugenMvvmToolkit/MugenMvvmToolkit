@@ -50,6 +50,12 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding
 
         #region Methods
 
+        public static void SetHasNativeView(this Element element, bool value = true)
+        {
+            if (element != null)
+                MarkupExtensions.View.SetHasNativeView(element, value);
+        }
+
         public static void InitializeFromDesignContext()
         {
             BindingServiceProvider.InitializeFromDesignContext();
