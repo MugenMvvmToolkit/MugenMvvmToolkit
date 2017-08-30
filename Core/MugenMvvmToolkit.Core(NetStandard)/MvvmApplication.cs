@@ -80,6 +80,8 @@ namespace MugenMvvmToolkit
 
         #region Methods
 
+        protected abstract Type GetStartViewModelType();
+
         protected virtual void StartInternal()
         {
             var context = new DataContext(Context);
@@ -179,8 +181,6 @@ namespace MugenMvvmToolkit
         {
             StartInternal();
         }
-
-        public abstract Type GetStartViewModelType();
 
         #endregion
     }

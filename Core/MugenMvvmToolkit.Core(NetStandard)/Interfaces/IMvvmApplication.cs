@@ -44,8 +44,5 @@ namespace MugenMvvmToolkit.Interfaces
         void SetApplicationState(ApplicationState value, [CanBeNull] IDataContext context);
 
         void Start();
-
-        [NotNull]
-        Type GetStartViewModelType();
     }
 }

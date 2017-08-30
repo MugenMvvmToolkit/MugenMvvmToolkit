@@ -116,10 +116,7 @@ namespace MugenMvvmToolkit.Infrastructure
             };
             TryLoadAssemblyByType("BindingServiceProvider", "MugenMvvmToolkit.Binding", assemblies);
             if (MvvmApplication != null)
-            {
                 assemblies.Add(MvvmApplication.GetType().GetAssembly());
-                assemblies.Add(MvvmApplication.GetStartViewModelType().GetAssembly());
-            }
             UpdateAssemblies(assemblies);
             return assemblies.ToArrayEx();
         }

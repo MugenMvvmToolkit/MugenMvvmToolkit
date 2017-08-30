@@ -61,7 +61,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
             #region Methods
 
-            public override Type GetStartViewModelType()
+            protected override Type GetStartViewModelType()
             {
                 return _startViewModelType;
             }

@@ -57,7 +57,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure
         {
             #region Methods
 
-            public override Type GetStartViewModelType()
+            protected override Type GetStartViewModelType()
             {
                 return typeof(T);
             }

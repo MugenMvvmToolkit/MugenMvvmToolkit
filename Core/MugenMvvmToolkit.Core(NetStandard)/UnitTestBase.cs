@@ -65,7 +65,7 @@ namespace MugenMvvmToolkit
                 return new ModuleContext(PlatformInfo.UnitTest, LoadMode.UnitTest, IocContainer, null, assemblies);
             }
 
-            public override Type GetStartViewModelType()
+            protected override Type GetStartViewModelType()
             {
                 return typeof(IViewModel);
             }
