@@ -202,7 +202,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             }
         }
 
-        protected DataTemplateProvider<ITableCellTemplateSelector> DataTemplateProvider => _templateProvider;
+        public DataTemplateProvider<ITableCellTemplateSelector> DataTemplateProvider => _templateProvider;
 
         [CanBeNull]
         protected UITableView TableView => (UITableView)_tableView?.Target;
@@ -216,9 +216,9 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             TableView?.ReloadData();
         }
 
-        protected abstract object GetItemAt(NSIndexPath indexPath);
+        public abstract object GetItemAt(NSIndexPath indexPath);
 
-        protected abstract void SetSelectedCellByItem(UITableView tableView, object selectedItem);
+        public abstract void SetSelectedCellByItem(UITableView tableView, object selectedItem);
 
         protected virtual void InitializeCell(UITableViewCell cell)
         {

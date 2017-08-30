@@ -70,14 +70,14 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             return ItemsSource.Count();
         }
 
-        protected override object GetItemAt(NSIndexPath indexPath)
+        public override object GetItemAt(NSIndexPath indexPath)
         {
             if (indexPath == null || ItemsSource == null)
                 return null;
             return ItemsSource.ElementAtIndex(indexPath.Row);
         }
 
-        protected override void SetSelectedCellByItem(UITableView tableView, object selectedItem)
+        public override void SetSelectedCellByItem(UITableView tableView, object selectedItem)
         {
             if (selectedItem == null)
                 ClearSelection(tableView);

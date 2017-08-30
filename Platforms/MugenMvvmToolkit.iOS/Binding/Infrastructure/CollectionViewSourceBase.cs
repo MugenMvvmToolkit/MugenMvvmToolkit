@@ -188,7 +188,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             }
         }
 
-        protected DataTemplateProvider<ICollectionCellTemplateSelector> DataTemplateProvider => _itemTemplateProvider;
+        public DataTemplateProvider<ICollectionCellTemplateSelector> DataTemplateProvider => _itemTemplateProvider;
 
         [CanBeNull]
         protected UICollectionView CollectionView => (UICollectionView)_collectionView?.Target;
@@ -202,9 +202,9 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             CollectionView?.ReloadData();
         }
 
-        protected abstract object GetItemAt(NSIndexPath indexPath);
+        public abstract object GetItemAt(NSIndexPath indexPath);
 
-        protected abstract void SetSelectedCellByItem(UICollectionView collectionView, object selectedItem);
+        public abstract void SetSelectedCellByItem(UICollectionView collectionView, object selectedItem);
 
         protected virtual void InitializeCell(UICollectionViewCell cell)
         {
