@@ -2,7 +2,7 @@
   "supports": {},
   "dependencies": {
     "NETStandard.Library": "1.6.1",
-    "Xamarin.Forms": "2.3.4.247"
+    "Xamarin.Forms": "2.3.4.270"
   },
   "frameworks": {
     "netstandard1.0": {
