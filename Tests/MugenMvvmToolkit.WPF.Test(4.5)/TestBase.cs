@@ -57,7 +57,7 @@ namespace MugenMvvmToolkit.Test
 
             #region Methods
 
-            public override Type GetStartViewModelType()
+            protected override Type GetStartViewModelType()
             {
                 return typeof(IViewModel);
             }

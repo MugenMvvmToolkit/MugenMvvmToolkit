@@ -58,6 +58,8 @@ namespace MugenMvvmToolkit.Test.TestModels
 
         public bool IsExecuting { get; set; }
 
+        public bool IsCanExecute { get; set; }
+
         public IList<object> GetNotifiers()
         {
             throw new NotSupportedException();
