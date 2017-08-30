@@ -57,7 +57,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Modules
             if (!typeof(IValueConverter).GetTypeInfo().IsAssignableFrom(typeInfo) || !type.IsPublicNonAbstractClass())
                 return;
             var constructor = type.GetConstructor(Empty.Array<Type>());
-            if ((constructor == null) || !constructor.IsPublic)
+            if (constructor == null || !constructor.IsPublic)
                 return;
             var converter = (IValueConverter)constructor.Invoke(Empty.Array<object>());
             BindingServiceProvider.ResourceResolver.AddConverter(new ValueConverterWrapper(converter), type, true);

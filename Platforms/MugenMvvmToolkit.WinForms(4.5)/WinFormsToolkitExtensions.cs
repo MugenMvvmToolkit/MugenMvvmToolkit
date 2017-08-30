@@ -86,8 +86,8 @@ namespace MugenMvvmToolkit.WinForms
             if (template != null)
             {
                 template.SetDataContext(item);
-                if (!(template is Control) && !(template is ToolStripItem) && template.GetBindingMemberValue(AttachedMembers.Object.Parent) == null)
-                    template.SetBindingMemberValue(AttachedMembers.Object.Parent, container);
+                if (!(template is Control) && !(template is ToolStripItem) && template.GetBindingMemberValue(AttachedMembersBase.Object.Parent) == null)
+                    template.SetBindingMemberValue(AttachedMembersBase.Object.Parent, container);
             }
             return template;
         }

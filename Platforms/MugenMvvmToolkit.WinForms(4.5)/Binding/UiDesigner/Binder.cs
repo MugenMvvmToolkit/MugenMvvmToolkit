@@ -154,7 +154,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.UiDesigner
             }
             var container = ContainerControl;
             if (container != null && !(component is Control))
-                component.SetBindingMemberValue(AttachedMembers.Object.Parent, container);
+                component.SetBindingMemberValue(AttachedMembersBase.Object.Parent, container);
 
             Dictionary<string, string> bindings;
             if (!_controlBindings.TryGetValue(component, out bindings))

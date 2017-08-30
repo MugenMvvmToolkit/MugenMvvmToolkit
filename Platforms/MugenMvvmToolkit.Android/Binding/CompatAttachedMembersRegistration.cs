@@ -332,7 +332,7 @@ namespace MugenMvvmToolkit.Android.Binding
 #else
             menuItem.SetActionProvider(actionProvider);
 #endif
-            actionProvider.SetBindingMemberValue(AttachedMembers.Object.Parent, menuItem);
+            actionProvider.SetBindingMemberValue(AttachedMembersBase.Object.Parent, menuItem);
             var bindings = GetActionProviderBind(menuItem);
             if (!string.IsNullOrEmpty(bindings))
                 BindingServiceProvider.BindingProvider.CreateBindingsFromString(actionProvider, bindings, null);

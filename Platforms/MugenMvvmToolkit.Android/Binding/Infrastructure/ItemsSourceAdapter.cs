@@ -361,7 +361,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             LayoutInflaterResult result;
             var view = CreateView(GetRawItem(position), convertView, parent, provider, defaultTemplate, out result);
             if (view != null && !ReferenceEquals(view, convertView))
-                view.SetBindingMemberValue(AttachedMembers.Object.Parent, Container);
+                view.SetBindingMemberValue(AttachedMembersBase.Object.Parent, Container);
             result?.ApplyBindings();
             return view;
         }

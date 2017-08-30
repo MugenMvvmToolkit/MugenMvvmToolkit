@@ -52,7 +52,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
         {
             AndroidToolkitExtensions.ValidateTemplate(ItemsSource, Items);
             var setter = new XmlPropertySetter(menu, context);
-            menu.SetBindingMemberValue(AttachedMembers.Object.Parent, parent);
+            menu.SetBindingMemberValue(AttachedMembersBase.Object.Parent, parent);
             setter.SetBinding(nameof(DataContext), DataContext, false);
             setter.SetBoolProperty(nameof(IsVisible), IsVisible);
             setter.SetBoolProperty(nameof(IsEnabled), IsEnabled);

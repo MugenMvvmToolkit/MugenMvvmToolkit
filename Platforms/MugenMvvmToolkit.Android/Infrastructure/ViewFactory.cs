@@ -54,7 +54,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
                 var itemTemplateId = ReadAttributeValueId(attributes, Resource.Styleable.Binding_ItemTemplate, view, type, AttachedMembers.ViewGroup.ItemTemplate);
                 var dropDownItemTemplate = ReadAttributeValueId(attributes, Resource.Styleable.Binding_DropDownItemTemplate, view, type, AttachedMembers.AdapterView.DropDownItemTemplate);
                 var contentTemplate = ReadAttributeValueId(attributes, Resource.Styleable.Binding_ContentTemplate, view, type, AttachedMembers.ViewGroup.ContentTemplate);
-                var menuTemplate = ReadAttributeValueId(attributes, Resource.Styleable.Binding_MenuTemplate, view, type, AttachedMembers.Toolbar.MenuTemplate);
+                var menuTemplate = ReadAttributeValueId(attributes, Resource.Styleable.Binding_MenuTemplate, view, type, AttachedMembers.View.MenuTemplate);
                 var popupMenuTemplate = ReadAttributeValueId(attributes, Resource.Styleable.Binding_PopupMenuTemplate, view, type, AttachedMembers.View.PopupMenuTemplate);
                 var popupMenuEvent = ReadStringAttributeValue(attributes, Resource.Styleable.Binding_PopupMenuEvent, view, type, AttachedMembers.View.PopupMenuEvent);
                 var placementTargetPath = ReadStringAttributeValue(attributes, Resource.Styleable.Binding_PlacementTargetPath, view, type, AttachedMembers.View.PopupMenuPlacementTargetPath);

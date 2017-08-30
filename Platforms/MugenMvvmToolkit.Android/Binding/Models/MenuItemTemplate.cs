@@ -125,8 +125,8 @@ namespace MugenMvvmToolkit.Android.Binding.Models
             {
                 ISubMenu subMenu = menu.AddSubMenu(groupId, id, order, string.Empty);
                 setter = new XmlPropertySetter(subMenu.Item, context);
-                subMenu.SetBindingMemberValue(AttachedMembers.Object.Parent, menu);
-                subMenu.Item.SetBindingMemberValue(AttachedMembers.Object.Parent, subMenu);
+                subMenu.SetBindingMemberValue(AttachedMembersBase.Object.Parent, menu);
+                subMenu.Item.SetBindingMemberValue(AttachedMembersBase.Object.Parent, subMenu);
                 SetDataContext(subMenu, setter, dataContext, useContext);
                 ApplySelf(subMenu.Item, setter);
 
@@ -146,7 +146,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
             {
                 var menuItem = menu.Add(groupId, id, order, string.Empty);
                 setter = new XmlPropertySetter(menuItem, context);
-                menuItem.SetBindingMemberValue(AttachedMembers.Object.Parent, menu);
+                menuItem.SetBindingMemberValue(AttachedMembersBase.Object.Parent, menu);
                 SetDataContext(menuItem, setter, dataContext, useContext);
                 ApplySelf(menuItem, setter);
             }

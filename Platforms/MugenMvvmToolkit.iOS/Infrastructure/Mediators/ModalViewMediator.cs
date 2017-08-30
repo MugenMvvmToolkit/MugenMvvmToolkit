@@ -138,7 +138,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
                 BindProvider(nav);
             }
             parentController.PresentViewController(toShow, animated, NodoAction);
-            toShow.TryRaiseAttachedEvent(AttachedMembers.Object.Parent);
+            toShow.TryRaiseAttachedEvent(AttachedMembersBase.Object.Parent);
         }
 
         protected override bool ActivateView(IModalView view, IDataContext context)
@@ -170,7 +170,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
             presentedController?.DismissViewController(animated, () =>
             {
                 OnViewClosed(view, EventArgs.Empty);
-                controller.TryRaiseAttachedEvent(AttachedMembers.Object.Parent);
+                controller.TryRaiseAttachedEvent(AttachedMembersBase.Object.Parent);
             });
         }
 

@@ -17,6 +17,7 @@
 #endregion
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -81,7 +82,25 @@ namespace MugenMvvmToolkit.Xamarin.Forms.MarkupExtensions
             if (!(newValue is bool) || element == null)
                 return;
             if ((bool)newValue)
+            {
                 element.ChildAdded += OnChildAdded;
+                if (GetNativeViewHandler == null)
+                    return;
+
+                var content = XamarinFormsDataBindingExtensions.GetContent(element);
+                if (content is string)
+                    return;
+
+                var enumerable = content as IEnumerable;
+                if (enumerable == null)
+                    return;
+
+                foreach (var item in enumerable.OfType<BindableObject>())
+                {
+                    var nativeView = GetNativeViewHandler.Invoke(item);
+                    nativeView?.SetBindingMemberValue(AttachedMembersBase.Object.Parent, item);
+                }
+            }
             else
                 element.ChildAdded -= OnChildAdded;
         }
@@ -89,7 +108,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.MarkupExtensions
         private static void OnChildAdded(object sender, ElementEventArgs args)
         {
             var nativeView = GetNativeViewHandler?.Invoke(args.Element);
-            nativeView?.SetBindingMemberValue(AttachedMembers.Object.Parent, args.Element);
+            nativeView?.SetBindingMemberValue(AttachedMembersBase.Object.Parent, args.Element);
         }
 
         private static void OnBindPropertyChanged(object bindable, object oldValue, object newValue)
@@ -100,7 +119,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.MarkupExtensions
             var nativeView = GetNativeViewHandler?.Invoke((BindableObject)bindable);
             if (nativeView != null)
             {
-                nativeView.SetBindingMemberValue(AttachedMembers.Object.Parent, bindable);
+                nativeView.SetBindingMemberValue(AttachedMembersBase.Object.Parent, bindable);
                 bindable = nativeView;
             }
             if (XamarinFormsToolkitExtensions.IsDesignMode)

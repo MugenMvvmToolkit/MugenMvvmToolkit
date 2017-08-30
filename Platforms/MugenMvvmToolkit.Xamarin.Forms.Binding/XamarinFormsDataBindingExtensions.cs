@@ -106,28 +106,30 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding
         {
             if (item == null)
                 return;
-            var contentMember = GetContentMember(item.GetType());
-            if (contentMember != null)
+
+            var content = GetContent(item);
+            if (!(content is string))
             {
-                var content = contentMember.GetValue(item, null);
-                if (!(content is string))
+                var enumerable = content as IEnumerable;
+                if (enumerable == null)
+                    ClearBindingsRecursively(content as BindableObject, clearDataContext, clearAttachedValues);
+                else
                 {
-                    var enumerable = content as IEnumerable;
-                    if (enumerable == null)
-                        ClearBindingsRecursively(content as BindableObject, clearDataContext, clearAttachedValues);
-                    else
+                    foreach (var child in enumerable)
                     {
-                        foreach (var child in enumerable)
-                        {
-                            var bindableObject = child as BindableObject;
-                            if (child == null || bindableObject == null)
-                                break;
-                            bindableObject.ClearBindingsRecursively(clearDataContext, clearAttachedValues);
-                        }
+                        var bindableObject = child as BindableObject;
+                        if (child == null || bindableObject == null)
+                            break;
+                        bindableObject.ClearBindingsRecursively(clearDataContext, clearAttachedValues);
                     }
                 }
             }
             item.ClearBindings(clearDataContext, clearAttachedValues);
+        }
+
+        public static object GetContent(BindableObject item)
+        {
+            return GetContentMember(item.GetType())?.GetValue(item, null);
         }
 
         private static IBindingMemberInfo GetContentMember(Type type)

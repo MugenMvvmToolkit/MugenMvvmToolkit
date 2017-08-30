@@ -685,8 +685,8 @@ namespace MugenMvvmToolkit.iOS.Binding
                     ? new[] { newValue, new UIViewController() }
                     : new[] { new UIViewController(), newValue };
             for (var i = 0; i < viewControllers.Length; i++)
-                viewControllers[i].TryRaiseAttachedEvent(AttachedMembers.Object.Parent);
-            newValue.TryRaiseAttachedEvent(AttachedMembers.Object.Parent);
+                viewControllers[i].TryRaiseAttachedEvent(AttachedMembersBase.Object.Parent);
+            newValue.TryRaiseAttachedEvent(AttachedMembersBase.Object.Parent);
         }
 
         private static MvvmPickerViewModel GetOrAddPickerViewModel(UIPickerView pickerView)

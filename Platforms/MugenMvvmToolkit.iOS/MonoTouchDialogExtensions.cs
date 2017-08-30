@@ -20,7 +20,6 @@ using System.Collections;
 using JetBrains.Annotations;
 using MonoTouch.Dialog;
 using MugenMvvmToolkit.Binding;
-using MugenMvvmToolkit.iOS.Binding;
 using UIKit;
 
 // ReSharper disable once CheckNamespace
@@ -39,7 +38,7 @@ namespace MugenMvvmToolkit.iOS.MonoTouch.Dialog
         public static void RaiseParentChanged([NotNull] this Element element)
         {
             Should.NotBeNull(element, nameof(element));
-            element.TryRaiseAttachedEvent(AttachedMembers.Object.Parent);
+            element.TryRaiseAttachedEvent(AttachedMembersBase.Object.Parent);
         }
 
         public static void DisposeEx(this Element element)

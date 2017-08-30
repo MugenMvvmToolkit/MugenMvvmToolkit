@@ -189,7 +189,7 @@ namespace MugenMvvmToolkit.iOS
             where TItem : class
         {
             Should.NotBeNull(container, nameof(container));
-            item.SetBindingMemberValue(AttachedMembers.Object.Parent, container);
+            item.SetBindingMemberValue(AttachedMembersBase.Object.Parent, container);
             setAction(container, item);
         }
 
@@ -449,8 +449,8 @@ namespace MugenMvvmToolkit.iOS
             {
                 template.SetDataContext(item);
                 if (!(template is UIView) &&
-                    template.GetBindingMemberValue(AttachedMembers.Object.Parent, container) == null)
-                    template.SetBindingMemberValue(AttachedMembers.Object.Parent, container);
+                    template.GetBindingMemberValue(AttachedMembersBase.Object.Parent, container) == null)
+                    template.SetBindingMemberValue(AttachedMembersBase.Object.Parent, container);
             }
             return template;
         }
@@ -476,7 +476,7 @@ namespace MugenMvvmToolkit.iOS
             if (items == null)
                 return;
             for (int index = 0; index < items.Length; index++)
-                items[index].SetBindingMemberValue(AttachedMembers.Object.Parent, parent);
+                items[index].SetBindingMemberValue(AttachedMembersBase.Object.Parent, parent);
         }
 
         private static void RaiseParentChanged(UIView[] items)

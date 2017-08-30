@@ -314,7 +314,7 @@ namespace MugenMvvmToolkit.Android.RecyclerView.Infrastructure
                     view.SetDataContext(null);
             }
             if (parent != null)
-                view.SetBindingMemberValue(AttachedMembers.Object.Parent, parent);
+                view.SetBindingMemberValue(AttachedMembersBase.Object.Parent, parent);
             return viewHolder;
         }
 

@@ -68,7 +68,7 @@ namespace MugenMvvmToolkit.Android
 
         public static void InitializePreferences(PreferenceScreen preferenceScreen, int preferencesResId, object parent)
         {
-            preferenceScreen.SetBindingMemberValue(AttachedMembers.Object.Parent, parent);
+            preferenceScreen.SetBindingMemberValue(AttachedMembersBase.Object.Parent, parent);
             SetPreferenceParent(preferenceScreen);
 
             List<KeyValuePair<string, string>> bindings;
@@ -124,7 +124,7 @@ namespace MugenMvvmToolkit.Android
             for (var i = 0; i < group.PreferenceCount; i++)
             {
                 var p = group.GetPreference(i);
-                p.SetBindingMemberValue(AttachedMembers.Object.Parent, group);
+                p.SetBindingMemberValue(AttachedMembersBase.Object.Parent, group);
                 SetPreferenceParent(p);
             }
         }

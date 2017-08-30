@@ -73,7 +73,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
                         .Remove(fragment)
                         .CommitAllowingStateLoss();
                 }
-                tab.SetBindingMemberValue(AttachedMembers.Object.Parent, value: null);
+                tab.SetBindingMemberValue(AttachedMembersBase.Object.Parent, value: null);
                 _cleared = true;
             }
 
@@ -124,8 +124,8 @@ namespace MugenMvvmToolkit.Android.Binding.Models
                         viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.StateNotNeeded, true);
                     _content = AndroidToolkitExtensions.GetContentView(layout, layout.Context, _content,
                         _contentTemplateProvider.GetTemplateId(), _contentTemplateProvider.GetDataTemplateSelector());
-                    if (BindingServiceProvider.BindingManager.GetBindings(tab, AttachedMembers.Object.DataContext).Any())
-                        _content.SetBindingMemberValue(AttachedMembers.Object.Parent, tab);
+                    if (BindingServiceProvider.BindingManager.GetBindings(tab, AttachedMembersBase.Object.DataContext).Any())
+                        _content.SetBindingMemberValue(AttachedMembersBase.Object.Parent, tab);
                     layout.SetContentView(_content, ft, (group, fragment, arg3) =>
                     {
                         if (fragment.IsDetached)
@@ -151,7 +151,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
             {
                 if (_cleared)
                     return;
-                var bar = (ActionBar)tab.GetBindingMemberValue(AttachedMembers.Object.Parent);
+                var bar = (ActionBar)tab.GetBindingMemberValue(AttachedMembersBase.Object.Parent);
                 var placeHolder = ActionBarTemplate.GetTabContentId(bar);
                 var activity = bar.ThemedContext.GetActivity();
                 SetContent(tab, ft, placeHolder, activity, bar);
@@ -239,7 +239,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
         private ActionBar.Tab CreateTabInternal(ActionBar bar, object context, bool useContext)
         {
             var newTab = bar.NewTab();
-            newTab.SetBindingMemberValue(AttachedMembers.Object.Parent, bar);
+            newTab.SetBindingMemberValue(AttachedMembersBase.Object.Parent, bar);
 
             var setter = new XmlPropertySetter(newTab, bar.ThemedContext);
             if (useContext)

@@ -97,7 +97,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
                 SetParent(dialogViewController.Root, viewController);
             var viewControllers = viewController.ChildViewControllers;
             foreach (var controller in viewControllers)
-                controller.TryRaiseAttachedEvent(AttachedMembers.Object.Parent);
+                controller.TryRaiseAttachedEvent(AttachedMembersBase.Object.Parent);
 
             var tabBarController = viewController as UITabBarController;
             if (tabBarController == null)
@@ -112,12 +112,12 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
             {
                 foreach (var controller in viewControllers)
                 {
-                    controller.TryRaiseAttachedEvent(AttachedMembers.Object.Parent);
+                    controller.TryRaiseAttachedEvent(AttachedMembersBase.Object.Parent);
                     TouchToolkitExtensions.SetHasState(controller, false);
                 }
             }
 
-            viewController.TryRaiseAttachedEvent(AttachedMembers.Object.Parent);
+            viewController.TryRaiseAttachedEvent(AttachedMembersBase.Object.Parent);
         }
 
         private static void DisposeViewController(UIViewController viewController)
@@ -287,7 +287,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
 
         private static void SetParent(object item, UIViewController parent)
         {
-            item?.SetBindingMemberValue(AttachedMembers.Object.Parent, parent);
+            item?.SetBindingMemberValue(AttachedMembersBase.Object.Parent, parent);
         }
 
         #endregion

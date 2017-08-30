@@ -88,7 +88,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                 {
                     var preference = _preference.GetPreference(removalIndex + i);
                     _preference.RemovePreference(preference);
-                    preference.SetBindingMemberValue(AttachedMembers.Preference.Parent, BindingExtensions.NullValue);
+                    preference.SetBindingMemberValue(AttachedMembersBase.Object.Parent, BindingExtensions.NullValue);
                 }
                 else
                 {
@@ -117,7 +117,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                     oldValues[i] = _preference.GetPreference(i);
                 _preference.RemoveAll();
                 for (int i = 0; i < oldValues.Length; i++)
-                    oldValues[i].SetBindingMemberValue(AttachedMembers.Preference.Parent, BindingExtensions.NullValue);
+                    oldValues[i].SetBindingMemberValue(AttachedMembersBase.Object.Parent, BindingExtensions.NullValue);
             }
             else
                 collectionViewManager.Clear(_preference);
@@ -144,7 +144,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             var preference = item as Preference;
             if (preference != null)
             {
-                preference.SetBindingMemberValue(AttachedMembers.Preference.Parent, _preference);
+                preference.SetBindingMemberValue(AttachedMembersBase.Object.Parent, _preference);
                 preference.Order = index;
             }
             return item;
