@@ -453,7 +453,7 @@ namespace MugenMvvmToolkit.iOS.Binding
                 (info, cell, arg3) => TableViewSourceBase.CellMediator.GetMediator(cell, true).AddWithUnsubscriber(arg3)));
         }
 
-        public static void RegisterCollectionViewMembers()
+        public static void RegisterCollectionViewMembers(bool isDataSource)
         {
             BindingServiceProvider.ResourceResolver.AddType(typeof(UICollectionViewScrollPosition));
             BindingServiceProvider.ResourceResolver.AddType(typeof(UICollectionViewScrollDirection));
@@ -465,7 +465,9 @@ namespace MugenMvvmToolkit.iOS.Binding
             MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UICollectionView.UseAnimations));
             MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UICollectionView.ScrollPosition));
             MemberProvider.Register(AttachedBindingMember.CreateEvent(AttachedMembers.UICollectionView.SelectedItemChangedEvent));
-            MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.UIView.ItemsSource.Override<UICollectionView>(), CollectionViewItemsSourceChanged));
+            MemberProvider.Register(isDataSource
+                ? AttachedBindingMember.CreateAutoProperty(AttachedMembers.UIView.ItemsSource.Override<UICollectionView>(), CollectionViewItemsSourceChangedDataSource)
+                : AttachedBindingMember.CreateAutoProperty(AttachedMembers.UIView.ItemsSource.Override<UICollectionView>(), CollectionViewItemsSourceChanged));
             MemberProvider.Register(AttachedBindingMember.CreateMember(AttachedMembers.UICollectionView.SelectedItem,
                 GetCollectionViewSelectedItem, SetCollectionViewSelectedItem,
                 (info, view, arg3) => (IDisposable)view.SetBindingMemberValue(AttachedMembers.UICollectionView.SelectedItemChangedEvent, arg3)));
@@ -520,6 +522,15 @@ namespace MugenMvvmToolkit.iOS.Binding
             if (collectionView.Source == null)
                 collectionView.Source = TouchToolkitExtensions.CollectionViewSourceFactory(collectionView, DataContext.Empty);
             var source = collectionView.Source as ItemsSourceCollectionViewSource;
+            if (source != null)
+                source.ItemsSource = args.NewValue;
+        }
+
+        private static void CollectionViewItemsSourceChangedDataSource(UICollectionView collectionView, AttachedMemberChangedEventArgs<IEnumerable> args)
+        {
+            if (collectionView.DataSource == null)
+                collectionView.DataSource = TouchToolkitExtensions.CollectionViewSourceFactory(collectionView, DataContext.Empty);
+            var source = collectionView.DataSource as ItemsSourceCollectionViewSource;
             if (source != null)
                 source.ItemsSource = args.NewValue;
         }
