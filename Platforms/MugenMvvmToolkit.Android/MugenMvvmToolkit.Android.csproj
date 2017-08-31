@@ -106,6 +106,7 @@
     <Compile Include="Binding\Interfaces\IBindableMenuInflater.cs" />
     <Compile Include="Binding\Interfaces\IMenuTemplate.cs" />
     <Compile Include="Binding\Interfaces\IResourceDataTemplateSelector.cs" />
+    <Compile Include="Binding\Interfaces\IReusableViewDataTemplateSelector.cs" />
     <Compile Include="Binding\Models\ActionBarTabTemplate.cs" />
     <Compile Include="Binding\Models\ActionBarTemplate.cs" />
     <Compile Include="Binding\Modules\FragmentDataBindingModule.cs" />

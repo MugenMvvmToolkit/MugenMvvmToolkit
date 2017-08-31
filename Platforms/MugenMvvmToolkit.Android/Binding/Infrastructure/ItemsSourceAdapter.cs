@@ -279,10 +279,13 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             else
             {
                 object template;
-                if (templateProvider.TrySelectTemplate(value, out template))
+                if (templateProvider.TrySelectTemplate(value, convertView, out template))
                 {
                     if (template != null)
                     {
+                        if (ReferenceEquals(convertView, template))
+                            return convertView;
+
                         valueView = template as View;
                         if (valueView != null)
                         {

@@ -35,6 +35,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
         private IResourceDataTemplateSelector _resourceSelector;
         private int? _templateId;
         private IDataTemplateSelector _templateSelector;
+        private IReusableViewDataTemplateSelector _reusableViewTemplateSelector;
 
         #endregion
 
@@ -76,6 +77,19 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
             return true;
         }
 
+        public bool TrySelectTemplate(object value, object convertView, out object template)
+        {
+            if (_reusableViewTemplateSelector == null)
+            {
+                if (Tracer.TraceWarning && _templateSelector != null)
+                    Tracer.Warn(
+                        $"Using the non reusable template selector ({_templateSelector}) for the {_container} can lead to poor performance pleause use the {nameof(IReusableViewDataTemplateSelector)} interface");
+                return TrySelectTemplate(value, out template);
+            }
+            template = _reusableViewTemplateSelector.SelectTemplate(value, _container, convertView);
+            return true;
+        }
+
         public bool TrySelectTemplate(object value, out object template)
         {
             template = null;
@@ -102,6 +116,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                 var value = _templateSelectorMember.GetValue(_container, Empty.Array<object>());
                 _resourceSelector = value as IResourceDataTemplateSelector;
                 _templateSelector = value as IDataTemplateSelector;
+                _reusableViewTemplateSelector = value as IReusableViewDataTemplateSelector;
             }
             if (_templateMember != null)
                 _templateId = _templateMember.GetValue(_container, Empty.Array<object>()) as int?;
