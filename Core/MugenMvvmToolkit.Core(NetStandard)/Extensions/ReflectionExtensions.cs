@@ -459,10 +459,10 @@ namespace MugenMvvmToolkit
                     result = new Dictionary<string, ICollection<string>>();
                     foreach (PropertyInfo propertyInfo in type.GetPropertiesEx(PropertyBindingFlag))
                     {
-                        IEnumerable<ModelPropertyAttribute> attributes = propertyInfo
-                            .GetAttributes()
-                            .OfType<ModelPropertyAttribute>();
-                        foreach (ModelPropertyAttribute modelPropertyAttribute in attributes)
+                        var attributes = propertyInfo.GetAttributes();
+                        if (attributes == null)
+                            continue;
+                        foreach (ModelPropertyAttribute modelPropertyAttribute in attributes.OfType<ModelPropertyAttribute>())
                         {
                             ICollection<string> list;
                             if (!result.TryGetValue(modelPropertyAttribute.Property, out list))
