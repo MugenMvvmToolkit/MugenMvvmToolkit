@@ -94,6 +94,9 @@ namespace MugenMvvmToolkit.Android.Design
         public static void RegisterBottomNavigationViewMembers()
         {
             MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.View.MenuTemplate.Override<BottomNavigationView>(), BottomNavigationViewMenuTemplateChanged));
+            var eventMember = MemberProvider.GetBindingMember(typeof(BottomNavigationView), nameof(BottomNavigationView.NavigationItemSelected), true, false);
+            if (eventMember != null)
+                MemberProvider.Register(typeof(BottomNavigationView), nameof(BottomNavigationView.SelectedItemId) + AttachedMemberConstants.ChangedEventPostfix, eventMember, true);
         }
 
         public static void RegisterTabLayoutMembers()
