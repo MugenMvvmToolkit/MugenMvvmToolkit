@@ -20,6 +20,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Linq;
 using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.Collections;
 using MugenMvvmToolkit.Infrastructure;
@@ -72,6 +73,17 @@ namespace MugenMvvmToolkit.ViewModels
         IList IGridViewModel.OriginalItemsSource => (IList)OriginalItemsSource;
 
         INotifiableCollection IGridViewModel.ItemsSource => (INotifiableCollection)ItemsSource;
+
+        public int SelectedIndex
+        {
+            get { return ItemsSource.IndexOf(SelectedItem); }
+            set
+            {
+                var viewModel = ItemsSource.ElementAtOrDefault(value);
+                if (viewModel != null)
+                    SelectedItem = viewModel;
+            }
+        }
 
         object IGridViewModel.SelectedItem
         {
@@ -137,6 +149,7 @@ namespace MugenMvvmToolkit.ViewModels
 
                 OnSelectedItemChanged(oldValue, _selectedItem);
                 RaiseSelectedItemChanged(oldValue, _selectedItem);
+                OnPropertyChanged(Empty.SelectedIndexChangedArgs);
                 OnPropertyChanged(Empty.SelectedItemChangedArgs);
             }
         }

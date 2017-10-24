@@ -39,6 +39,8 @@ namespace MugenMvvmToolkit.Interfaces.ViewModels
         [NotNull]
         INotifiableCollection ItemsSource { get; }
 
+        int SelectedIndex { get; set; }
+
         object SelectedItem { get; set; }
 
         [CanBeNull]
