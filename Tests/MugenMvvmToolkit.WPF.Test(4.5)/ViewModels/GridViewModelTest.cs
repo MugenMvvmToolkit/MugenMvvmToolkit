@@ -129,6 +129,29 @@ namespace MugenMvvmToolkit.Test.ViewModels
         }
 
         [TestMethod]
+        public void SelectedIndexShouldBeSynchronizedWithSelectedItem()
+        {
+            ThreadManager.IsUiThread = true;
+            IGridViewModel gridViewModel = GetViewModel<GridViewModel<GridModel>>();
+
+            gridViewModel.SelectedItem.ShouldBeNull();
+            gridViewModel.SelectedIndex.ShouldBeLessThan(0);
+
+            var model1 = new GridModel { Name = "test" };
+            var model2 = new GridModel { Name = "test" };
+            var listItems = new List<GridModel> { model1, model2 };
+            gridViewModel.UpdateItemsSource(listItems);
+
+            gridViewModel.SelectedItem = model1;
+            gridViewModel.SelectedItem.ShouldEqual(model1);
+            gridViewModel.SelectedIndex.ShouldEqual(0);
+
+            gridViewModel.SelectedIndex = 1;
+            gridViewModel.SelectedIndex.ShouldEqual(1);
+            gridViewModel.SelectedItem.ShouldEqual(model2);
+        }
+
+        [TestMethod]
         public void WhenItemsSourceChangedSelectedItemShouldBeSetToNullTest()
         {
             var model = new GridModel { Name = "test" };

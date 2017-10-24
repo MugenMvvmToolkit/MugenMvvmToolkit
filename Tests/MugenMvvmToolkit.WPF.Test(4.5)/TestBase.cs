@@ -117,7 +117,8 @@ namespace MugenMvvmToolkit.Test
             IocContainer = new IocContainerMock
             {
                 GetFunc = GetFunc,
-                CanResolveDelegate = CanResolve
+                CanResolveDelegate = CanResolve,
+                BindToConstantFunc = (type, o, arg3) => { }
             };
             Tracer.TraceInformation = true;
             ServiceProvider.Tracer = new ConsoleTracer();

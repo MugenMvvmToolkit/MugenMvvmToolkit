@@ -193,6 +193,30 @@ namespace MugenMvvmToolkit.Test.ViewModels
         }
 
         [TestMethod]
+        public void SelectedIndexShouldBeSynchronizedWithSelectedItem()
+        {
+            ThreadManager.IsUiThread = true;
+            var multiViewModel = GetMultiViewModel();
+
+            multiViewModel.SelectedItem.ShouldBeNull();
+            multiViewModel.SelectedIndex.ShouldBeLessThan(0);
+
+            var viewModel1 = GetViewModel<NavigableViewModelMock>();
+            var viewModel2 = GetViewModel<NavigableViewModelMock>();
+
+            multiViewModel.AddViewModel(viewModel1);
+            multiViewModel.AddViewModel(viewModel2);
+
+            multiViewModel.SelectedItem = viewModel1;
+            multiViewModel.SelectedItem.ShouldEqual(viewModel1);
+            multiViewModel.SelectedIndex.ShouldEqual(0);
+
+            multiViewModel.SelectedIndex = 1;
+            multiViewModel.SelectedIndex.ShouldEqual(1);
+            multiViewModel.SelectedItem.ShouldEqual(viewModel2);
+        }
+
+        [TestMethod]
         public void SelectedItemChangedEvent()
         {
             ThreadManager.ImmediateInvokeOnUiThreadAsync = true;

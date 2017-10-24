@@ -390,8 +390,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             state.ShouldEqual(preservedEventArgs.State);
             provider.Restoring += (sender, args) =>
             {
-                sender.ShouldEqual(provider);
-                args.Context.ShouldEqual(restoreCtx);
+                sender.ShouldEqual(provider);                
                 args.State.ShouldEqual(state);
                 restoringCalled = true;
             };
@@ -399,7 +398,6 @@ namespace MugenMvvmToolkit.Test.Infrastructure
             provider.Restored += (sender, args) =>
             {
                 sender.ShouldEqual(provider);
-                args.Context.ShouldEqual(restoreCtx);
                 args.State.ShouldEqual(state);
                 restoredEventArgs = args;
                 restoredCalled = true;
