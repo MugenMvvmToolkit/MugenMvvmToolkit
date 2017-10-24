@@ -16,11 +16,12 @@
 
 #endregion
 
+using System;
 using System.Collections;
 using Android.Graphics.Drawables;
 using Android.Support.Design.Widget;
+using Android.Views;
 using Android.Widget;
-using Java.Lang;
 using MugenMvvmToolkit.Android.Binding;
 using MugenMvvmToolkit.Android.Binding.Infrastructure;
 using MugenMvvmToolkit.Android.Design.Infrastructure;
@@ -30,11 +31,45 @@ using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
 using MugenMvvmToolkit.Infrastructure;
+using Object = Java.Lang.Object;
 
 namespace MugenMvvmToolkit.Android.Design
 {
     public static class AttachedMembersRegistration
     {
+        #region Nested types
+
+        private sealed class NavigationItemSelectedListener : Object, BottomNavigationView.IOnNavigationItemSelectedListener
+        {
+            #region Fields
+
+            private readonly WeakReference _view;
+
+            #endregion
+
+            #region Constructors
+
+            public NavigationItemSelectedListener(BottomNavigationView view)
+            {
+                _view = ServiceProvider.WeakReferenceFactory(view);
+            }
+
+            #endregion
+
+            #region Implementation of interfaces
+
+            public bool OnNavigationItemSelected(IMenuItem item)
+            {
+                var bottomNavigationView = (BottomNavigationView)_view.Target;
+                bottomNavigationView?.SetBindingMemberValue(AttachedMembersDesign.BottomNavigationView.SelectedItemId, item.ItemId);
+                return true;
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Fields
 
         private static readonly IBindingMemberProvider MemberProvider = BindingServiceProvider.MemberProvider;
@@ -93,10 +128,11 @@ namespace MugenMvvmToolkit.Android.Design
 
         public static void RegisterBottomNavigationViewMembers()
         {
-            MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.View.MenuTemplate.Override<BottomNavigationView>(), BottomNavigationViewMenuTemplateChanged));
-            var eventMember = MemberProvider.GetBindingMember(typeof(BottomNavigationView), nameof(BottomNavigationView.NavigationItemSelected), true, false);
-            if (eventMember != null)
-                MemberProvider.Register(typeof(BottomNavigationView), nameof(BottomNavigationView.SelectedItemId) + AttachedMemberConstants.ChangedEventPostfix, eventMember, true);
+            MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembers.View.MenuTemplate.Override<BottomNavigationView>(),
+                BottomNavigationViewMenuTemplateChanged));
+            MemberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersDesign.BottomNavigationView.SelectedItemId,
+                (view, args) => { view.SelectedItemId = args.NewValue; }, (view, args) => { view.SetOnNavigationItemSelectedListener(new NavigationItemSelectedListener(view)); },
+                (view, info) => view.SelectedItemId));
         }
 
         public static void RegisterTabLayoutMembers()

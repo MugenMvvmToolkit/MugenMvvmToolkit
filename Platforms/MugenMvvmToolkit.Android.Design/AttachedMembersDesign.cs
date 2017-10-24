@@ -73,6 +73,24 @@ namespace MugenMvvmToolkit.Android.Design
             #endregion
         }
 
+        public abstract class BottomNavigationView : AttachedMembers.View
+        {
+            #region Fields
+
+            public static readonly BindingMemberDescriptor<global::Android.Support.Design.Widget.BottomNavigationView, int> SelectedItemId;
+
+            #endregion
+
+            #region Constructors
+
+            static BottomNavigationView()
+            {
+                SelectedItemId = new BindingMemberDescriptor<global::Android.Support.Design.Widget.BottomNavigationView, int>(nameof(SelectedItemId));
+            }
+
+            #endregion
+        }
+
         #endregion
     }
 }
