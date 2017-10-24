@@ -119,6 +119,17 @@ namespace MugenMvvmToolkit.ViewModels
 
         Type IMultiViewModel.ViewModelType => typeof(TViewModel);
 
+        public int SelectedIndex
+        {
+            get { return ItemsSource.IndexOf(SelectedItem); }
+            set
+            {
+                var viewModel = ItemsSource.ElementAtOrDefault(value);
+                if (viewModel != null)
+                    SelectedItem = viewModel;
+            }
+        }
+
         IViewModel IMultiViewModel.SelectedItem
         {
             get { return SelectedItem; }
@@ -141,6 +152,7 @@ namespace MugenMvvmToolkit.ViewModels
                 TViewModel oldValue = _selectedItem;
                 _selectedItem = value;
                 OnSelectedItemChangedInternal(oldValue, _selectedItem);
+                OnPropertyChanged(Empty.SelectedIndexChangedArgs);
                 OnPropertyChanged(Empty.SelectedItemChangedArgs);
             }
         }

@@ -33,6 +33,8 @@ namespace MugenMvvmToolkit.Interfaces.ViewModels
         [NotNull]
         Type ViewModelType { get; }
 
+        int SelectedIndex { get; set; }
+
         IViewModel SelectedItem { get; set; }
 
         [NotNull]

@@ -72,6 +72,7 @@ namespace MugenMvvmToolkit
         internal static readonly PropertyChangedEventArgs IndexerPropertyChangedArgs;
         internal static readonly PropertyChangedEventArgs IsNotificationsSuspendedChangedArgs;
         internal static readonly PropertyChangedEventArgs HasChangesChangedArgs;
+        internal static readonly PropertyChangedEventArgs SelectedIndexChangedArgs;
         internal static readonly PropertyChangedEventArgs SelectedItemChangedArgs;
         internal static readonly PropertyChangedEventArgs HasErrorsChangedArgs;
         internal static readonly PropertyChangedEventArgs IsValidChangedArgs;
@@ -100,6 +101,7 @@ namespace MugenMvvmToolkit
             IndexerPropertyChangedArgs = new PropertyChangedEventArgs(ReflectionExtensions.IndexerName);
             IsNotificationsSuspendedChangedArgs = new PropertyChangedEventArgs(nameof(ISuspendNotifications.IsNotificationsSuspended));
             HasChangesChangedArgs = new PropertyChangedEventArgs(nameof(IEditableViewModel.HasChanges));
+            SelectedIndexChangedArgs = new PropertyChangedEventArgs(nameof(IGridViewModel.SelectedIndex));
             SelectedItemChangedArgs = new PropertyChangedEventArgs(nameof(IGridViewModel.SelectedItem));
             HasErrorsChangedArgs = new PropertyChangedEventArgs(nameof(IValidatableViewModel.HasErrors));
             IsValidChangedArgs = new PropertyChangedEventArgs(nameof(IValidatableViewModel.IsValid));
