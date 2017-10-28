@@ -17,6 +17,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Linq;
 using Microsoft.VisualStudio.TestPlatform.UnitTestFramework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -43,6 +44,35 @@ namespace MugenMvvmToolkit.Test.Collections
         }
 
         #region Overrides of CollectionTestBase
+
+        [TestMethod]
+        public void CollectionShouldReorder()
+        {
+            ThreadManagerMock.IsUiThread = true;
+            ThreadManagerMock.ImmediateInvokeOnUiThread = true;
+            var src = new int[] { 5, 2, 4, 1, 3 };
+            bool orderAsc = true;
+            var collection = new OrderedNotifiableCollection<int>((i, i1) =>
+                {
+                    if (orderAsc)
+                        return i.CompareTo(i1);
+                    return i1.CompareTo(i);
+                })
+            { ThreadManager = ThreadManagerMock };
+            collection.AddRange(src);
+            collection.SequenceEqual(src.OrderBy(i => i)).ShouldBeTrue();
+
+            orderAsc = false;
+            int count = 0;
+            collection.CollectionChanged += (sender, args) =>
+            {
+                if (args.Action == NotifyCollectionChangedAction.Reset)
+                    ++count;
+            };
+            collection.Reorder();
+            collection.SequenceEqual(src.OrderByDescending(i => i)).ShouldBeTrue();
+            count.ShouldEqual(1);
+        }
 
         [TestMethod]
         public override void CollectionShouldTrackChangesCorrect()
