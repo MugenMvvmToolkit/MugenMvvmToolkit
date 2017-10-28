@@ -47,6 +47,7 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
         private static readonly MethodInfo ResourceMethodInfo;
         private static readonly MethodInfo ResourceMethodImplMethod;
         private static readonly MethodInfo GetOneTimeValueMethod;
+        private static readonly MethodInfo MemberMethod;
         private static readonly object FirstLevelBoxed;
 
         #endregion
@@ -68,6 +69,9 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
             ResourceMethodInfo = typeof(BindingSyntaxEx)
                 .GetMethodsEx(MemberFlags.Public | MemberFlags.Static)
                 .First(info => info.Name == nameof(Resource) && info.GetParameters().Length == 2);
+            MemberMethod = typeof(BindingSyntaxEx)
+                .GetMethodsEx(MemberFlags.Public | MemberFlags.Static)
+                .First(info => info.Name == nameof(Member) && !info.IsGenericMethod);
             FirstLevelBoxed = 1u;
         }
 
@@ -174,6 +178,12 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
             return MethodNotSupported<T>();
         }
 
+        public static object AsErrorsSource(this IBindingSyntaxContext context, params object[] sources)
+        {
+            return MethodNotSupported<object>();
+        }
+
+        //todo add get errors for context
         public static IEnumerable<object> GetErrors(this IBindingSyntaxContext context, params object[] args)
         {
             return MethodNotSupported<IEnumerable<object>>();
@@ -194,6 +204,21 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                 if (context.IsSameExpression())
                     return Expression.Convert(Expression.Call(GetEventArgsMethod, context.ContextParameter), mExp.Method.ReturnType);
                 return null;
+            }
+
+            if (name == nameof(AsErrorsSource))
+            {
+                if (!context.IsSameExpression())
+                    return null;
+
+                var arrayExpression = mExp.Arguments[1] as NewArrayExpression;
+                if (arrayExpression == null)
+                    return null;
+
+                var args = arrayExpression.Expressions.ToArrayEx();
+                for (int i = 0; i < arrayExpression.Expressions.Count; i++)
+                    args[i] = Expression.Call(null, MemberMethod, args[i], Expression.Constant(AttachedMemberConstants.AsErrorsSource));
+                return arrayExpression.Update(args);
             }
 
             if (name == nameof(Binding))
@@ -229,6 +254,7 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                 if (!context.IsSameExpression())
                     return null;
                 var id = Guid.NewGuid();
+                bool isDirectSource = false;
                 var args = new List<Expression>();
                 var members = new List<string>();
                 var arrayExpression = mExp.Arguments[1] as NewArrayExpression;
@@ -238,7 +264,12 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                     {
                         var constantExpression = arrayExpression.Expressions[i] as ConstantExpression;
                         if (constantExpression == null)
+                        {
                             args.Add(arrayExpression.Expressions[i]);
+                            var methodCallExpression = arrayExpression.Expressions[i] as MethodCallExpression;
+                            if (!isDirectSource)
+                                isDirectSource = methodCallExpression?.Method.Name == nameof(AsErrorsSource);
+                        }
                         else
                             members.Add((string)constantExpression.Value);
                     }
@@ -254,7 +285,7 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
                         behaviors.Clear();
                         behaviors.Add(new OneTimeBindingMode(false));
                     }
-                    behaviors.Add(new NotifyDataErrorsAggregatorBehavior(id) { ErrorPaths = members.ToArray() });
+                    behaviors.Add(new NotifyDataErrorsAggregatorBehavior(id) { ErrorPaths = members.ToArray(), IsDirectSource = isDirectSource });
                 });
                 var array = Expression.NewArrayInit(typeof(object), args.Select(e => ExpressionReflectionManager.ConvertIfNeed(e, typeof(object), false)));
                 return Expression.Call(GetErrorsMethod, Expression.Constant(id), context.ContextParameter, array);

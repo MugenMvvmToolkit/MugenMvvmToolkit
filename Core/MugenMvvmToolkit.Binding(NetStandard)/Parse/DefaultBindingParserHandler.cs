@@ -43,7 +43,7 @@ namespace MugenMvvmToolkit.Binding.Parse
         internal const string GetErrorsMethod = "GetErrors";
         internal const string GetBindingMethod = "GetBinding";
 
-        private readonly Dictionary<Guid, string[]> _errorPathNames;
+        private readonly Dictionary<Guid, KeyValuePair<string[], bool>> _errorPathNames;
 
         #endregion
 
@@ -66,7 +66,7 @@ namespace MugenMvvmToolkit.Binding.Parse
 
         public DefaultBindingParserHandler()
         {
-            _errorPathNames = new Dictionary<Guid, string[]>();
+            _errorPathNames = new Dictionary<Guid, KeyValuePair<string[], bool>>();
         }
 
         #endregion
@@ -126,7 +126,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 if (!HasGetErrorsMethod(ref expression))
                     return null;
                 var pairs = _errorPathNames.ToArrayEx();
-                return dataContext => UpdateBindingContext(dataContext, pairs);
+                return dataContext => SetGetErrorsContext(dataContext, pairs);
             }
         }
 
@@ -135,18 +135,37 @@ namespace MugenMvvmToolkit.Binding.Parse
             var methodCallExpressionNode = node as IMethodCallExpressionNode;
             if (methodCallExpressionNode == null)
                 return node;
+
             if (methodCallExpressionNode.Method == GetErrorsMethod &&
                 methodCallExpressionNode.Target is ResourceExpressionNode)
             {
-                var paths = methodCallExpressionNode.Arguments
-                                        .OfType<IConstantExpressionNode>()
-                                        .Where(expressionNode => expressionNode.Type == typeof(string))
-                                        .Select(expressionNode => expressionNode.Value as string ?? string.Empty);
+                var paths = new List<string>();
+                bool isDirect = false;
+                var args = methodCallExpressionNode.Arguments.ToList();
+                for (int i = 0; i < args.Count; i++)
+                {
+                    var arg = args[i];
+                    var path = (arg as IConstantExpressionNode)?.Value as string;
+                    if (path != null)
+                    {
+                        paths.Add(path);
+                        continue;
+                    }
+                    var methodExpr = arg as IMethodCallExpressionNode;
+                    if (methodExpr?.Method == AttachedMemberConstants.AsErrorsSource && methodExpr.Target is IMemberExpressionNode)
+                    {
+                        arg = new MemberExpressionNode(methodExpr.Target, AttachedMemberConstants.AsErrorsSource);
+                        args[i] = arg;
+                    }
+
+                    if (!isDirect)
+                        isDirect = (arg as IMemberExpressionNode)?.Member == AttachedMemberConstants.AsErrorsSource;
+                }
+
                 Guid id = Guid.NewGuid();
-                _errorPathNames[id] = paths.ToArray();
+                _errorPathNames[id] = new KeyValuePair<string[], bool>(paths.ToArray(), isDirect);
                 var idNode = new ConstantExpressionNode(id, typeof(Guid));
 
-                var args = methodCallExpressionNode.Arguments.ToList();
                 //Adding binding source member if the expression does not contain members.
                 if (args.Count == 0)
                     args.Add(new MemberExpressionNode(ResourceExpressionNode.DynamicInstance,
@@ -168,7 +187,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             return _errorPathNames.Count != 0;
         }
 
-        private static void UpdateBindingContext(IDataContext dataContext, KeyValuePair<Guid, string[]>[] methods)
+        private static void SetGetErrorsContext(IDataContext dataContext, KeyValuePair<Guid, KeyValuePair<string[], bool>>[] methods)
         {
             var behaviors = dataContext.GetOrAddBehaviors();
             behaviors.Clear();
@@ -176,7 +195,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             for (int i = 0; i < methods.Length; i++)
             {
                 var pair = methods[i];
-                behaviors.Add(new NotifyDataErrorsAggregatorBehavior(pair.Key) { ErrorPaths = pair.Value });
+                behaviors.Add(new NotifyDataErrorsAggregatorBehavior(pair.Key) { ErrorPaths = pair.Value.Key, IsDirectSource = pair.Value.Value });
             }
         }
 

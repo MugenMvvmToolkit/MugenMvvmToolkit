@@ -65,6 +65,8 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         public string[] ErrorPaths { get; set; }
 
+        public bool IsDirectSource { get; set; }
+
         #endregion
 
         #region Overrides of BindingBehaviorBase
@@ -191,7 +193,17 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         private void TrySubscribe(IObserver source)
         {
-            var dataErrorInfo = source.GetPathMembers(false).PenultimateValue as INotifyDataErrorInfo;
+            var pathMembers = source.GetPathMembers(false);
+            if (IsDirectSource)
+            {
+                if (!pathMembers.AllMembersAvailable)
+                    return;
+                var value = pathMembers.GetLastMemberValue();
+                if (!ReferenceEquals(value, BindingConstants.ErrorsSourceValue))
+                    return;
+            }
+
+            var dataErrorInfo = pathMembers.PenultimateValue as INotifyDataErrorInfo;
             if (dataErrorInfo == null)
                 return;
             var subscriber = BindingServiceProvider.WeakEventManager.TrySubscribe(dataErrorInfo, ErrorsChangedEvent, this);
@@ -209,18 +221,32 @@ namespace MugenMvvmToolkit.Binding.Behaviors
 
         private void CollectErrors(ref List<object> errors, IObserver bindingSource)
         {
-            var notifyDataErrorInfo = bindingSource.GetPathMembers(false).PenultimateValue as INotifyDataErrorInfo;
+            var pathMembers = bindingSource.GetPathMembers(false);
+            if (IsDirectSource)
+            {
+                if (!pathMembers.AllMembersAvailable)
+                    return;
+                var value = pathMembers.GetLastMemberValue();
+                if (!ReferenceEquals(value, BindingConstants.ErrorsSourceValue))
+                    return;
+            }
+
+            var notifyDataErrorInfo = pathMembers.PenultimateValue as INotifyDataErrorInfo;
             if (notifyDataErrorInfo == null)
                 return;
             var path = bindingSource.Path.Parts.LastOrDefault();
-            var paths = ErrorPaths;
-            if (!string.IsNullOrEmpty(path) || paths == null || paths.Length == 0)
+            if (!IsDirectSource)
                 CollectErrors(notifyDataErrorInfo, path, ref errors);
-            if (paths != null)
+
+            var paths = ErrorPaths;
+            if (paths == null || paths.Length == 0)
             {
-                for (int i = 0; i < paths.Length; i++)
-                    CollectErrors(notifyDataErrorInfo, paths[i], ref errors);
+                if (IsDirectSource)
+                    CollectErrors(notifyDataErrorInfo, string.Empty, ref errors);
+                return;
             }
+            for (int i = 0; i < paths.Length; i++)
+                CollectErrors(notifyDataErrorInfo, paths[i], ref errors);
         }
 
         private static void CollectErrors(INotifyDataErrorInfo notifyDataErrorInfo, string path, ref List<object> errors)
@@ -264,6 +290,9 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                         return true;
                 }
             }
+            else if (IsDirectSource)
+                return true;
+
             var singleAccessor = accessor as ISingleBindingSourceAccessor;
             string path;
             if (singleAccessor != null)

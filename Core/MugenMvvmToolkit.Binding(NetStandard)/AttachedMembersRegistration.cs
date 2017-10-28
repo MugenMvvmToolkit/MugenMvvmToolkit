@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
 using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Binding.Models.EventArg;
@@ -176,6 +177,8 @@ namespace MugenMvvmToolkit.Binding
 
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersBase.Object.IsFlatTree));
             memberProvider.Register(AttachedBindingMember.CreateAutoProperty(AttachedMembersBase.Object.IsFlatContext));
+
+            memberProvider.Register(AttachedBindingMember.CreateMember<object, object>(AttachedMemberConstants.AsErrorsSource, (info, o) => BindingConstants.ErrorsSourceValue, null));
         }
 
         private static IDisposable ObserveParent(IBindingMemberInfo bindingMemberInfo, object o, IEventListener arg3)

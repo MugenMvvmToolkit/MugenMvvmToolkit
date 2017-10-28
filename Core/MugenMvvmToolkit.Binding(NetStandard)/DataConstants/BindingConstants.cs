@@ -29,10 +29,11 @@ namespace MugenMvvmToolkit.Binding.DataConstants
         public static readonly DataConstant DoNothing;
         public static readonly DataConstant UnsetValue;
         public static readonly DataConstant InvalidValue;
+        public static readonly DataConstant ErrorsSourceValue;
         public static readonly DataConstant<IDataBinding> Binding;
         public static readonly DataConstant<object> CurrentEventArgs;
         public static readonly DataConstant<WeakReference> Source;
-        public static readonly DataConstant<bool> ClearErrors;
+        public static readonly DataConstant<bool> ClearErrors;        
 
         #endregion
 
@@ -48,6 +49,7 @@ namespace MugenMvvmToolkit.Binding.DataConstants
             Binding = DataConstant.Create<IDataBinding>(type, nameof(Binding), true);
             CurrentEventArgs = DataConstant.Create<object>(type, nameof(CurrentEventArgs), false);
             ClearErrors = DataConstant.Create<bool>(type, nameof(ClearErrors));
+            ErrorsSourceValue = DataConstant.Create(type, nameof(ErrorsSourceValue));
         }
 
         #endregion

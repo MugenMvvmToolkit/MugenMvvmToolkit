@@ -53,5 +53,7 @@ namespace MugenMvvmToolkit.Binding
         public const string ContentTemplateSelector = "ContentTemplateSelector";
 
         public const string ItemTemplateSelector = "ItemTemplateSelector";
+
+        public const string AsErrorsSource = "AsErrorsSource";
     }
 }
