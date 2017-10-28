@@ -485,15 +485,24 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         public virtual IBindingBehavior ResolveBehavior(string name, IDataContext context, IList<object> args, bool throwOnError)
         {
             Should.NotBeNull(name, nameof(name));
+            const string behaviorWord = "Behavior";
             Func<IDataContext, IList<object>, IBindingBehavior> value;
             lock (_behaviors)
             {
                 if (!_behaviors.TryGetValue(name, out value))
                 {
-                    if (throwOnError)
-                        throw BindingExceptionManager.CannotResolveInstanceByName(this, "binding behavior", name);
-                    return null;
+                    if (!name.EndsWith(behaviorWord))
+                    {
+                        name += behaviorWord;
+                        _behaviors.TryGetValue(name, out value);
+                    }
                 }
+            }
+            if (value == null)
+            {
+                if (throwOnError)
+                    throw BindingExceptionManager.CannotResolveInstanceByName(this, "binding behavior", name);
+                return null;
             }
             return value(context, args);
         }

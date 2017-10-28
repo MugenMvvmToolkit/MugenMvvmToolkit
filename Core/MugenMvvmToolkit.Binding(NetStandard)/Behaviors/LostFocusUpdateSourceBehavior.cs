@@ -29,6 +29,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         #region Fields
 
         public static readonly Guid IdLostFocusUpdateSourceBehavior;
+        internal static readonly LostFocusUpdateSourceBehavior Prototype;
 
         private IDisposable _subscriber;
         private IBindingMemberInfo _member;
@@ -40,6 +41,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
         static LostFocusUpdateSourceBehavior()
         {
             IdLostFocusUpdateSourceBehavior = new Guid("9C7F0186-64A6-47F8-B0D0-1420A890B3BE");
+            Prototype = new LostFocusUpdateSourceBehavior();
         }
 
         #endregion
