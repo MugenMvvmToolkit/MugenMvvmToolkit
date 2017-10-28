@@ -183,7 +183,6 @@ namespace MugenMvvmToolkit.Binding.Extensions.Syntax
             return MethodNotSupported<object>();
         }
 
-        //todo add get errors for context
         public static IEnumerable<object> GetErrors(this IBindingSyntaxContext context, params object[] args)
         {
             return MethodNotSupported<IEnumerable<object>>();
