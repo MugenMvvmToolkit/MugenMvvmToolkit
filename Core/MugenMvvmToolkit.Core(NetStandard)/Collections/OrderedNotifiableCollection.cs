@@ -69,6 +69,34 @@ namespace MugenMvvmToolkit.Collections
 
         #endregion
 
+        #region Methods
+
+        public void Reorder()
+        {
+            lock (Locker)
+            {
+                if (IsUiThread())
+                {
+                    EnsureSynchronized();
+                    ReorderInternal(Items, NotificationType.All);
+                }
+                else
+                {
+                    InitializePendingChanges();
+                    ReorderInternal(Items, NotificationType.ChangingUnsafe);
+                    AddPendingAction(c => ((OrderedNotifiableCollection<T>)c).ReorderInternal(c.Snapshot, NotificationType.Changed), false);
+                }
+            }
+        }
+
+        private void ReorderInternal(IList<T> items, NotificationType type)
+        {
+            ((OrderedListInternal<T>)items).Reorder();
+            OnCollectionChanged(Empty.ResetEventArgs, type);
+        }
+
+        #endregion
+
         #region Overrides of SynchronizedNotifiableCollection<T>
 
         protected override IList<T> OnItemsChanged(IList<T> items)

@@ -496,6 +496,11 @@ namespace MugenMvvmToolkit.Collections
             return InsertInternal(GetInsertIndex(item), item);
         }
 
+        public void Reorder()
+        {
+            Array.Sort(Items, 0, Size, ComparerInternal);
+        }
+
         #endregion
     }
 }

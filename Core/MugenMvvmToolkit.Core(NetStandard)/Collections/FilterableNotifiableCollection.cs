@@ -163,7 +163,7 @@ namespace MugenMvvmToolkit.Collections
                 else
                 {
                     AddPendingAction(c => ((FilterableNotifiableCollection<T>)c).UpdateItem(((FilterableNotifiableCollection<T>)c)._snapshotFilterCollection, e, NotificationType.Changed), false);
-                    UpdateItem(_filterCollection, e, NotificationType.UnsafeChanged);
+                    UpdateItem(_filterCollection, e, NotificationType.ChangedUnsafe);
                 }
             }
         }
@@ -376,7 +376,7 @@ namespace MugenMvvmToolkit.Collections
             else
             {
                 AddPendingAction(c => ((FilterableNotifiableCollection<T>)c).RaiseResetInternal(), true);
-                UpdateFilterInternal(_filterCollection, value, NotificationType.UnsafeChanged);
+                UpdateFilterInternal(_filterCollection, value, NotificationType.ChangedUnsafe);
             }
         }
 

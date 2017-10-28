@@ -104,9 +104,9 @@ namespace MugenMvvmToolkit.Collections
             None = 0,
             Changing = 1,
             Changed = 2,
-            UnsafeChanged = 4,
-            ChangingUnsafe = Changing | UnsafeChanged,
-            All = Changing | Changed | UnsafeChanged
+            ChangedUnsafe = 4,
+            ChangingUnsafe = Changing | ChangedUnsafe,
+            All = Changing | Changed | ChangedUnsafe
         }
 
         #endregion
@@ -256,6 +256,8 @@ namespace MugenMvvmToolkit.Collections
             get { return _items; }
             set { _items = OnItemsChanged(value); }
         }
+
+        protected internal IList<T> Snapshot => _snapshot;
 
         protected object Locker
         {
@@ -646,7 +648,7 @@ namespace MugenMvvmToolkit.Collections
 
         protected static bool HasUnsafeFlag(NotificationType type)
         {
-            return (type & NotificationType.UnsafeChanged) == NotificationType.UnsafeChanged;
+            return (type & NotificationType.ChangedUnsafe) == NotificationType.ChangedUnsafe;
         }
 
         protected static NotifyCollectionChangingEventArgs GetCollectionChangeArgs(NotifyCollectionChangedAction action,
