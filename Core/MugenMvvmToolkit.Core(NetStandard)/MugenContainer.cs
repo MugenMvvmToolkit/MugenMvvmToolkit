@@ -427,6 +427,8 @@ namespace MugenMvvmToolkit
             object value;
             if (TryResolve(service, parameters, out value))
                 return value;
+            if (service == typeof(IServiceProvider))
+                return this;
             throw new InvalidOperationException($"Cannot find binding for type {service}");
         }
 
