@@ -1522,6 +1522,43 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
         }
 
         [TestMethod]
+        public void ParserShouldParseBindingModeFlat()
+        {
+            const string binding = "Text SourceText, {0}";
+            var modes = new Dictionary<string, Action<IList<IBindingBehavior>, IDataContext>>
+            {
+                {"Default", (list, dataContext) => list.ShouldBeEmpty()},
+                {"TwoWay", (list, dataContext) => list.Single().ShouldBeType<TwoWayBindingMode>()},
+                {"OneWay", (list, dataContext) => list.Single().ShouldBeType<OneWayBindingMode>()},
+                {"OneTime", (list, dataContext) => list.Single().ShouldBeType<OneTimeBindingMode>()},
+                {"OneWayToSource", (list, dataContext) => list.Single().ShouldBeType<OneWayToSourceBindingMode>()},
+                {"None", (list, dataContext) => list.Single().ShouldBeType<NoneBindingMode>()},
+            };
+            IBindingParser bindingParser = CreateBindingParser();
+            foreach (var mode in modes)
+            {
+                var context = new BindingBuilder(bindingParser.Parse(new object(), string.Format(binding, mode.Key), null, null).Single());
+                var behaviors = context.GetData(BindingBuilderConstants.Behaviors) ?? new List<IBindingBehavior>();
+                mode.Value(behaviors, context);
+            }
+        }
+
+        [TestMethod]
+        public void ParserShouldParseCustomBehaviorFlat()
+        {
+            const string behaviorName = "TestBehavior";
+            const string binding = "Text SourceText, TestBehavior";
+            var value = new TwoWayBindingMode();
+            var resolver = new BindingResourceResolver();
+            resolver.AddBehavior(behaviorName, (dataContext, list) => value, true);
+            IBindingParser bindingParser = CreateBindingParser(bindingProvider: new BindingProvider());
+            BindingServiceProvider.ResourceResolver = resolver;
+
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
+            context.GetData(BindingBuilderConstants.Behaviors).Single().ShouldEqual(value);
+        }
+
+        [TestMethod]
         public void ParserShouldParseCustomBehaviorByName1()
         {
             const string behaviorName = "TestBehavior";
@@ -1618,9 +1655,33 @@ namespace MugenMvvmToolkit.Test.Bindings.Parse
         }
 
         [TestMethod]
+        public void ParserShouldParseValidatesOnNotifyDataErrorsFlat()
+        {
+            const string binding = "Text SourceText, ValidatesOnNotifyDataErrors";
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
+            context.GetData(BindingBuilderConstants.Behaviors)
+                .Single()
+                .ShouldBeType<ValidatesOnNotifyDataErrorsBehavior>();
+        }
+
+        [TestMethod]
         public void ParserShouldParseValidatesOnExceptions()
         {
             const string binding = "Text SourceText, ValidatesOnExceptions=true";
+            IBindingParser bindingParser = CreateBindingParser();
+
+            var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
+            context.GetData(BindingBuilderConstants.Behaviors)
+                .Single()
+                .ShouldBeType<ValidatesOnExceptionsBehavior>();
+        }
+
+        [TestMethod]
+        public void ParserShouldParseValidatesOnExceptionsFlat()
+        {
+            const string binding = "Text SourceText, ValidatesOnExceptions";
             IBindingParser bindingParser = CreateBindingParser();
 
             var context = new BindingBuilder(bindingParser.Parse(new object(), binding, null, null).Single());
