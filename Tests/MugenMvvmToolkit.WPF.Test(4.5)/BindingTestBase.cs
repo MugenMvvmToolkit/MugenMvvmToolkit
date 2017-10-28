@@ -19,7 +19,9 @@
 using System;
 using System.Linq.Expressions;
 using MugenMvvmToolkit.Binding;
+using MugenMvvmToolkit.Binding.DataConstants;
 using MugenMvvmToolkit.Binding.Interfaces.Models;
+using MugenMvvmToolkit.Binding.Models;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Silverlight.Binding.Modules;
@@ -63,6 +65,8 @@ namespace MugenMvvmToolkit.Test
         protected override void OnInit()
         {
             BindingServiceProvider.SetDefaultValues();
+            BindingServiceProvider.MemberProvider.Register(AttachedBindingMember.CreateMember<object, object>(AttachedMemberConstants.AsErrorsSource,
+                (info, o) => BindingConstants.ErrorsSourceValue, null));
             BindingServiceProvider.ValueConverter = BindingConverterExtensions.Convert;
             base.OnInit();
             if (ValueConverterEx == null)

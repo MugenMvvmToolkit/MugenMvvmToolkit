@@ -643,6 +643,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             source.GetActualSource(true).ShouldEqual(sourceModel);
 
             var behavior = builder.GetOrAddBehaviors().OfType<NotifyDataErrorsAggregatorBehavior>().Single();
+            behavior.IsDirectSource.ShouldBeFalse();
             behavior.ErrorPaths.IsNullOrEmpty().ShouldBeTrue();
             builder.AddOrUpdate(BindingConstants.Binding, new DataBindingMock { Behaviors = new[] { behavior } });
 
@@ -663,6 +664,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             source.GetActualSource(true).ShouldEqual(sourceModel);
 
             var behavior = builder.GetOrAddBehaviors().OfType<NotifyDataErrorsAggregatorBehavior>().Single();
+            behavior.IsDirectSource.ShouldBeFalse();
             behavior.ErrorPaths.SequenceEqual(new[] { "1", "2" }).ShouldBeTrue();
             builder.AddOrUpdate(BindingConstants.Binding, new DataBindingMock { Behaviors = new[] { behavior } });
 
@@ -683,6 +685,7 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             source.GetActualSource(true).ShouldEqual(sourceModel);
 
             var behavior = builder.GetOrAddBehaviors().OfType<NotifyDataErrorsAggregatorBehavior>().Single();
+            behavior.IsDirectSource.ShouldBeFalse();
             behavior.ErrorPaths.SequenceEqual(new[] { "1", "2" }).ShouldBeTrue();
             builder.AddOrUpdate(BindingConstants.Binding, new DataBindingMock { Behaviors = new[] { behavior } });
 
@@ -710,12 +713,42 @@ namespace MugenMvvmToolkit.Test.Bindings.Extensions
             var behaviors = builder.GetOrAddBehaviors().OfType<NotifyDataErrorsAggregatorBehavior>().ToArray();
             builder.AddOrUpdate(BindingConstants.Binding, new DataBindingMock { Behaviors = behaviors });
             var behavior = behaviors.Single(b => !b.ErrorPaths.IsNullOrEmpty());
+            behavior.IsDirectSource.ShouldBeFalse();
             behavior.ErrorPaths.SequenceEqual(new[] { "1", "2" }).ShouldBeTrue();
 
             behaviors.ForEach(aggregatorBehavior => aggregatorBehavior.Errors = new[] { "1" });
             var expression = builder.GetData(BindingBuilderConstants.MultiExpression);
             var errors = (IEnumerable<object>)expression(builder, new object[] { sourceModel, sourceModel });
             errors.SequenceEqual(behaviors[0].Errors.Concat(behaviors[1].Errors)).ShouldBeTrue();
+        }
+
+        [TestMethod]
+        public void BuilderShouldUseGetErrorsMethod5()
+        {
+            var builder = new BindingBuilder();
+            var sourceModel = new BindingSourceModel
+            {
+                NestedModel = new BindingSourceNestedModel(),
+                ObjectProperty = new object()
+            };
+            builder.Bind(sourceModel, "empty").To(sourceModel, () => (model, ctx) => ctx.GetErrors(ctx.AsErrorsSource(model.NestedModel, model.ObjectProperty)));
+
+            var sources = builder.GetData(BindingBuilderConstants.Sources).Select(func => func(builder)).ToArray();
+            sources.Length.ShouldEqual(2);
+            sources[0].GetPathMembers(true).PenultimateValue.ShouldEqual(sourceModel.NestedModel);
+            sources[1].GetPathMembers(true).PenultimateValue.ShouldEqual(sourceModel.ObjectProperty);
+
+            sources[0].Path.Parts.Last().ShouldEqual(AttachedMemberConstants.AsErrorsSource);
+            sources[1].Path.Parts.Last().ShouldEqual(AttachedMemberConstants.AsErrorsSource);
+
+            var behavior = builder.GetOrAddBehaviors().OfType<NotifyDataErrorsAggregatorBehavior>().Single();
+            behavior.IsDirectSource.ShouldBeTrue();
+            behavior.ErrorPaths.IsNullOrEmpty().ShouldBeTrue();
+            builder.AddOrUpdate(BindingConstants.Binding, new DataBindingMock { Behaviors = new[] { behavior } });
+
+            var expression = builder.GetData(BindingBuilderConstants.MultiExpression);
+            behavior.Errors = new List<object> { "test" };
+            expression(builder, new object[] { BindingConstants.ErrorsSourceValue, BindingConstants.ErrorsSourceValue }).ShouldEqual(behavior.Errors);
         }
 
         [TestMethod]
