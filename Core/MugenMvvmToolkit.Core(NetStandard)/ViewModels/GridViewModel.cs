@@ -126,8 +126,6 @@ namespace MugenMvvmToolkit.ViewModels
                     return;
                 T oldValue = _selectedItem;
                 _selectedItem = OnSelectedItemChanging(value);
-                if (EqualityComparer<T>.Default.Equals(_selectedItem, oldValue))
-                    return;
 
                 if (_selectedItem != null)
                 {
