@@ -298,7 +298,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
                 {
                     if (sender != null)
                     {
-                        reference = ServiceProvider.WeakReferenceFactory(sender);
+                        reference = ToolkitServiceProvider.WeakReferenceFactory(sender);
                         ToolkitExtensions.AddCurrentBindingEventSender(reference);
                     }
                     if (_path.IsDebuggable)
@@ -322,7 +322,7 @@ namespace MugenMvvmToolkit.Binding.Accessors
                                 
                 if (sender != null)
                 {
-                    reference = ServiceProvider.WeakReferenceFactory(sender);
+                    reference = ToolkitServiceProvider.WeakReferenceFactory(sender);
                     ToolkitExtensions.AddCurrentBindingEventSender(reference);
                 }
                 if (_path.IsDebuggable)

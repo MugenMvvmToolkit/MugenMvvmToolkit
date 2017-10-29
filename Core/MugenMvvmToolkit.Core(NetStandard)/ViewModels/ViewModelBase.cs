@@ -298,7 +298,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         #region Properties
 
-        protected static bool IsDesignMode => ServiceProvider.IsDesignMode;
+        protected static bool IsDesignMode => ToolkitServiceProvider.IsDesignMode;
 
         protected internal IEventAggregator LocalEventAggregator
         {
@@ -311,7 +311,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         protected internal bool IsRestored => (_state & RestoredState) == RestoredState;
 
-        protected virtual IViewModelProvider ViewModelProvider => ServiceProvider.ViewModelProvider;
+        protected virtual IViewModelProvider ViewModelProvider => ToolkitServiceProvider.ViewModelProvider;
 
         #endregion
 
@@ -345,7 +345,7 @@ namespace MugenMvvmToolkit.ViewModels
             get
             {
                 if (_settings == null)
-                    Interlocked.CompareExchange(ref _settings, ServiceProvider.ViewModelSettingsFactory(this), null);
+                    Interlocked.CompareExchange(ref _settings, ToolkitServiceProvider.ViewModelSettingsFactory(this), null);
                 return _settings;
             }
         }
@@ -358,7 +358,7 @@ namespace MugenMvvmToolkit.ViewModels
                     return _iocContainer;
                 var viewModel = this.GetParentViewModel();
                 if (viewModel == null)
-                    return ServiceProvider.IocContainer;
+                    return ToolkitServiceProvider.IocContainer;
                 return viewModel.GetIocContainer(true, false);
             }
             protected set
@@ -570,9 +570,9 @@ namespace MugenMvvmToolkit.ViewModels
                     Unsubscribe(toRemove[index]);
             }
 
-            ServiceProvider.ViewManager.CleanupViewAsync(this);
+            ToolkitServiceProvider.ViewManager.CleanupViewAsync(this);
             Settings.Metadata.Clear();
-            ServiceProvider.AttachedValueProvider.Clear(this);
+            ToolkitServiceProvider.AttachedValueProvider.Clear(this);
             CleanupWeakReference();
             Tracer.TraceViewModel(ViewModelLifecycleType.Disposed, this);
         }
@@ -583,7 +583,7 @@ namespace MugenMvvmToolkit.ViewModels
                 return true;
             if (!required)
                 return false;
-            Interlocked.CompareExchange(ref _localEventAggregator, ServiceProvider.InstanceEventAggregatorFactory(this), null);
+            Interlocked.CompareExchange(ref _localEventAggregator, ToolkitServiceProvider.InstanceEventAggregatorFactory(this), null);
             return true;
         }
 

@@ -81,7 +81,7 @@ namespace MugenMvvmToolkit.Attributes
             MethodInfo methodInfo = propertyInfo.GetGetMethod(true);
             if (methodInfo == null)
                 throw ExceptionManager.ResourceHasNotGetter(resourceName, resourceType);
-            return (Func<string>)ServiceProvider.ReflectionManager.GetMethodDelegate(typeof(Func<string>), methodInfo);
+            return (Func<string>)ToolkitServiceProvider.ReflectionManager.GetMethodDelegate(typeof(Func<string>), methodInfo);
         }
 
         #endregion

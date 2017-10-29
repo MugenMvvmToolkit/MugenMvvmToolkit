@@ -467,13 +467,13 @@ namespace MugenMvvmToolkit.Binding.Models
 
         private void InitializeFieldSetter(object o, object o1)
         {
-            _setValueAccessorSingleAction = ServiceProvider.ReflectionManager.GetMemberSetter<object>(_member);
+            _setValueAccessorSingleAction = ToolkitServiceProvider.ReflectionManager.GetMemberSetter<object>(_member);
             _setValueAccessorSingleAction(o, o1);
         }
 
         private object InitiliazeFieldGetter(object o)
         {
-            _getValueAccessorSingle = ServiceProvider.ReflectionManager.GetMemberGetter<object>(_member);
+            _getValueAccessorSingle = ToolkitServiceProvider.ReflectionManager.GetMemberGetter<object>(_member);
             return _getValueAccessorSingle(o);
         }
 

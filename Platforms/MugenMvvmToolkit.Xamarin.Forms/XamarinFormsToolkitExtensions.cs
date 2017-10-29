@@ -49,7 +49,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms
 
         #region Properties
 
-        public static bool IsDesignMode => Application.Current == null || ServiceProvider.IsDesignModeRaw.GetValueOrDefault();
+        public static bool IsDesignMode => Application.Current == null || ToolkitServiceProvider.IsDesignModeRaw.GetValueOrDefault();
 
         public static Func<CultureInfo> BindingCultureInfo { get; set; }
 
@@ -76,16 +76,16 @@ namespace MugenMvvmToolkit.Xamarin.Forms
         {
             Should.NotBeNull(page, nameof(page));
             if (value == null)
-                ServiceProvider.AttachedValueProvider.Clear(page, NavParamKey);
+                ToolkitServiceProvider.AttachedValueProvider.Clear(page, NavParamKey);
             else
-                ServiceProvider.AttachedValueProvider.SetValue(page, NavParamKey, value);
+                ToolkitServiceProvider.AttachedValueProvider.SetValue(page, NavParamKey, value);
         }
 
         public static string GetNavigationParameter([CanBeNull] this Page page)
         {
             if (page == null)
                 return null;
-            return ServiceProvider.AttachedValueProvider.GetValue<string>(page, NavParamKey, false);
+            return ToolkitServiceProvider.AttachedValueProvider.GetValue<string>(page, NavParamKey, false);
         }
 
         internal static bool IsAssignableFrom([NotNull] this Type typeFrom, [NotNull] Type typeTo)
@@ -103,22 +103,22 @@ namespace MugenMvvmToolkit.Xamarin.Forms
         internal static void SetBringToFront([NotNull] this Page page, bool value)
         {
             Should.NotBeNull(page, nameof(page));
-            ServiceProvider.AttachedValueProvider.SetValue(page, NavBringToFrontKey, Empty.BooleanToObject(value));
+            ToolkitServiceProvider.AttachedValueProvider.SetValue(page, NavBringToFrontKey, Empty.BooleanToObject(value));
         }
 
         internal static bool GetBringToFront(this Page page)
         {
             if (page == null)
                 return false;
-            var value = ServiceProvider.AttachedValueProvider.GetValue<bool>(page, NavBringToFrontKey, false);
-            ServiceProvider.AttachedValueProvider.Clear(page, NavBringToFrontKey);
+            var value = ToolkitServiceProvider.AttachedValueProvider.GetValue<bool>(page, NavBringToFrontKey, false);
+            ToolkitServiceProvider.AttachedValueProvider.Clear(page, NavBringToFrontKey);
             return value;
         }
 
         internal static void SetNavigationContext([NotNull] this Page page, IDataContext value, bool isBack)
         {
             Should.NotBeNull(page, nameof(page));
-            ServiceProvider.AttachedValueProvider.SetValue(page, isBack ? NavContextBackKey : NavContextKey, value);
+            ToolkitServiceProvider.AttachedValueProvider.SetValue(page, isBack ? NavContextBackKey : NavContextKey, value);
         }
 
         internal static IDataContext GetNavigationContext(this Page page, bool isBack, bool remove)
@@ -126,9 +126,9 @@ namespace MugenMvvmToolkit.Xamarin.Forms
             if (page == null)
                 return null;
             var key = isBack ? NavContextBackKey : NavContextKey;
-            var dataContext = ServiceProvider.AttachedValueProvider.GetValue<IDataContext>(page, key, false);
+            var dataContext = ToolkitServiceProvider.AttachedValueProvider.GetValue<IDataContext>(page, key, false);
             if (dataContext != null && remove)
-                ServiceProvider.AttachedValueProvider.Clear(page, key);
+                ToolkitServiceProvider.AttachedValueProvider.Clear(page, key);
             return dataContext;
         }
 

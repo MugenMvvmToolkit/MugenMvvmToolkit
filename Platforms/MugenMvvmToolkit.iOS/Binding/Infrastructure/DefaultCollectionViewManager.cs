@@ -69,7 +69,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
                 TraceNotSupported(view);
                 return;
             }
-            var ctrls = ServiceProvider
+            var ctrls = ToolkitServiceProvider
                 .AttachedValueProvider
                 .GetOrAdd(parentView, ItemsPath, (uiView, o) => new List<KeyValuePair<UIViewController, UIView>>(), null);
             var itemView = item as UIView;
@@ -99,7 +99,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
                 TraceNotSupported(view);
                 return;
             }
-            var items = ServiceProvider
+            var items = ToolkitServiceProvider
                 .AttachedValueProvider
                 .GetValue<List<KeyValuePair<UIViewController, UIView>>>(parentView, ItemsPath, false);
             if (items == null)
@@ -121,7 +121,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
                 TraceNotSupported(view);
                 return;
             }
-            var items = ServiceProvider
+            var items = ToolkitServiceProvider
                 .AttachedValueProvider
                 .GetValue<List<KeyValuePair<UIViewController, UIView>>>(parentView, ItemsPath, false);
             if (items == null)

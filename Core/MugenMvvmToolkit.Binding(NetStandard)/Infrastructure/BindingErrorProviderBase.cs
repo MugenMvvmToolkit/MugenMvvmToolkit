@@ -115,7 +115,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             var dict = GetOrAddErrorsDictionary(target);
             if (context.GetData(BindingConstants.ClearErrors) && (dict.Count == 0 || (dict.Count == 1 && dict.ContainsKey(senderKey))))
             {
-                ServiceProvider.AttachedValueProvider.Clear(target, ErrorsKey);
+                ToolkitServiceProvider.AttachedValueProvider.Clear(target, ErrorsKey);
                 ClearErrors(target, context);
                 target.TryRaiseAttachedEvent(ErrorsDescriptor);
                 return;
@@ -142,12 +142,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         [CanBeNull]
         protected static ErrorsDictionary GetErrorsDictionary(object target)
         {
-            return ServiceProvider.AttachedValueProvider.GetValue<ErrorsDictionary>(target, ErrorsKey, false);
+            return ToolkitServiceProvider.AttachedValueProvider.GetValue<ErrorsDictionary>(target, ErrorsKey, false);
         }
 
         private static ErrorsDictionary GetOrAddErrorsDictionary(object target)
         {
-            return ServiceProvider
+            return ToolkitServiceProvider
                 .AttachedValueProvider
                 .GetOrAdd(target, ErrorsKey, (o, o1) => new ErrorsDictionary(), null);
         }

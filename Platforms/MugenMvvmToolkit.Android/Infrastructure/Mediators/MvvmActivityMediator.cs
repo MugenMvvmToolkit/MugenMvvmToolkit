@@ -144,7 +144,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         public MvvmActivityMediator([NotNull] Activity target)
             : base(target)
         {
-            ServiceProvider.EventAggregator.Subscribe(this);
+            ToolkitServiceProvider.EventAggregator.Subscribe(this);
         }
 
         #endregion
@@ -208,10 +208,10 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
             Guid id;
             if (oldViewModel != null && Guid.TryParse(intent.GetStringExtra(IntentViewModelIdKey), out id))
             {
-                var newViewModel = ServiceProvider.ViewModelProvider.TryGetViewModelById(id);
+                var newViewModel = ToolkitServiceProvider.ViewModelProvider.TryGetViewModelById(id);
                 if (newViewModel != null && !ReferenceEquals(newViewModel, oldViewModel))
                 {
-                    var navigationDispatcher = ServiceProvider.Get<INavigationDispatcher>();
+                    var navigationDispatcher = ToolkitServiceProvider.Get<INavigationDispatcher>();
                     var openedViewModels = navigationDispatcher.GetOpenedViewModels(NavigationType.Page).ToList();
                     var viewModels = openedViewModels
                         .Select(info => info.ViewModel)
@@ -230,7 +230,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                         var currentView = viewModels[i - 1].GetCurrentView<object>();
                         if (currentView != null)
                         {
-                            ServiceProvider.ViewManager.InitializeViewAsync(viewModel, currentView);
+                            ToolkitServiceProvider.ViewManager.InitializeViewAsync(viewModel, currentView);
                             var activity = currentView as Activity;
                             if (activity != null)
                             {
@@ -248,7 +248,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                         newIntent.PutExtra(NavigationService.IntentParameterKey, newParameter);
                         Target.Intent = newIntent;
                     }
-                    ServiceProvider.ViewManager.InitializeViewAsync(newViewModel, Target);
+                    ToolkitServiceProvider.ViewManager.InitializeViewAsync(newViewModel, Target);
 
                     int freeIndex = -1;
                     for (int i = 0; i < openedViewModels.Count; i++)
@@ -299,7 +299,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         {
             if (Tracer.TraceInformation)
                 Tracer.Info($"OnDestroy activity({Target})");
-            ServiceProvider.EventAggregator.Unsubscribe(this);
+            ToolkitServiceProvider.EventAggregator.Unsubscribe(this);
             Destroyed?.Invoke(Target, EventArgs.Empty);
             _view.ClearBindingsRecursively(true, true, AndroidToolkitExtensions.AggressiveViewCleanup);
             _view = null;
@@ -323,7 +323,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 _layoutInflater.Dispose();
                 _layoutInflater = null;
             }
-            ServiceProvider.Get<INavigationService>().OnDestroyActivity(Target, NavigationContext);
+            ToolkitServiceProvider.Get<INavigationService>().OnDestroyActivity(Target, NavigationContext);
             base.OnDestroy(baseOnDestroy);
             ThreadPool.QueueUserWorkItem(state => AndroidToolkitExtensions.CleanupWeakReferences(true));
             AndroidToolkitExtensions.SetCurrentActivity(Target, true);

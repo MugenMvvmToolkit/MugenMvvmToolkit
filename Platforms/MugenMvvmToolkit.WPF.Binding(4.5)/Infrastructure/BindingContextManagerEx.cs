@@ -58,7 +58,7 @@ namespace MugenMvvmToolkit.UWP.Binding.Infrastructure
 
             public FrameworkElementBindingContext(FrameworkElement element)
             {
-                _sourceReference = ServiceProvider.WeakReferenceFactory(element);
+                _sourceReference = ToolkitServiceProvider.WeakReferenceFactory(element);
                 element.DataContextChanged += RaiseDataContextChanged;
                 if (ListenUnloadEvent)
                     element.Unloaded += ElementOnUnloaded;

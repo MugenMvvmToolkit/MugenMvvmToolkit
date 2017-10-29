@@ -68,46 +68,46 @@ namespace MugenMvvmToolkit
         public static void TraceViewModel(ViewModelLifecycleType lifecycleType, IViewModel viewModel)
         {
             TraceViewModelHandler?.Invoke(lifecycleType, viewModel);
-            ServiceProvider.Tracer.TraceViewModel(lifecycleType, viewModel);
+            ToolkitServiceProvider.Tracer.TraceViewModel(lifecycleType, viewModel);
         }
 
         public static void Info(string message)
         {
             if (TraceInformation)
-                ServiceProvider.Tracer.Trace(TraceLevel.Information, message);
+                ToolkitServiceProvider.Tracer.Trace(TraceLevel.Information, message);
         }
 
         public static void Warn(string message)
         {
             if (TraceWarning)
-                ServiceProvider.Tracer.Trace(TraceLevel.Warning, message);
+                ToolkitServiceProvider.Tracer.Trace(TraceLevel.Warning, message);
         }
 
         public static void Error(string message)
         {
             if (TraceError)
-                ServiceProvider.Tracer.Trace(TraceLevel.Error, message);
+                ToolkitServiceProvider.Tracer.Trace(TraceLevel.Error, message);
         }
 
         [StringFormatMethod("format")]
         public static void Info(string format, params object[] args)
         {
             if (TraceInformation)
-                ServiceProvider.Tracer.Trace(TraceLevel.Information, format, args);
+                ToolkitServiceProvider.Tracer.Trace(TraceLevel.Information, format, args);
         }
 
         [StringFormatMethod("format")]
         public static void Warn(string format, params object[] args)
         {
             if (TraceWarning)
-                ServiceProvider.Tracer.Trace(TraceLevel.Warning, format, args);
+                ToolkitServiceProvider.Tracer.Trace(TraceLevel.Warning, format, args);
         }
 
         [StringFormatMethod("format")]
         public static void Error(string format, params object[] args)
         {
             if (TraceError)
-                ServiceProvider.Tracer.Trace(TraceLevel.Error, format, args);
+                ToolkitServiceProvider.Tracer.Trace(TraceLevel.Error, format, args);
         }
 
         public static bool CanTrace(TraceLevel level)

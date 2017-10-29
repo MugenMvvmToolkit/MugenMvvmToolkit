@@ -143,7 +143,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             Should.BeSupported(!path.IsEmpty, "The MultiPathObserver doesn't support the empty path members.");
             _listeners = new List<IDisposable>(path.Parts.Count - 1);
             _ignoreAttachedMembers = ignoreAttachedMembers;
-            _lastMemberListener = new LastMemberListener(ServiceProvider.WeakReferenceFactory(this));
+            _lastMemberListener = new LastMemberListener(ToolkitServiceProvider.WeakReferenceFactory(this));
             _hasStablePath = hasStablePath;
             _observable = observable;
             _optional = optional;

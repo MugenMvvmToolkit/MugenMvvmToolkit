@@ -107,7 +107,7 @@ namespace MugenMvvmToolkit.Android.AppCompat
 
             public static DrawerListenerImpl GetOrAdd(DrawerLayout drawer)
             {
-                return ServiceProvider.AttachedValueProvider.GetOrAdd(drawer, "!@!@dralist", (layout, o) =>
+                return ToolkitServiceProvider.AttachedValueProvider.GetOrAdd(drawer, "!@!@dralist", (layout, o) =>
                 {
                     var listenerImpl = new DrawerListenerImpl();
                     layout.SetDrawerListener(listenerImpl);

@@ -102,7 +102,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
                 if (sendBackButton != null)
                 {
                     CurrentContent.SetNavigationContext(args.Context, true);
-                    ServiceProvider.AttachedValueProvider.SetValue(CurrentContent, BackNavHandledKey, null);
+                    ToolkitServiceProvider.AttachedValueProvider.SetValue(CurrentContent, BackNavHandledKey, null);
                     sendBackButton();
                     RaiseNavigated(null, null, NavigationMode.Back, args.Context);
                     return true;
@@ -164,9 +164,9 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             if (page == null)
             {
                 if (viewModel == null)
-                    page = (Page)ServiceProvider.ViewManager.GetViewAsync(source, dataContext).Result;
+                    page = (Page)ToolkitServiceProvider.ViewManager.GetViewAsync(source, dataContext).Result;
                 else
-                    page = (Page)ServiceProvider.ViewManager.GetOrCreateView(viewModel, null, dataContext);
+                    page = (Page)ToolkitServiceProvider.ViewManager.GetOrCreateView(viewModel, null, dataContext);
             }
             page.SetNavigationParameter(parameter);
             page.SetNavigationContext(dataContext, false);
@@ -305,7 +305,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Navigation
             var eventArgs = new NavigatingCancelEventArgs(null, NavigationMode.Back, null, true, isBack, page.GetNavigationContext(true, true));
             RaiseNavigating(eventArgs);
             args.Cancel = eventArgs.Cancel;
-            if (!args.Cancel && isBack && !ServiceProvider.AttachedValueProvider.Clear(page, BackNavHandledKey))
+            if (!args.Cancel && isBack && !ToolkitServiceProvider.AttachedValueProvider.Clear(page, BackNavHandledKey))
                 RaiseNavigated(null, null, NavigationMode.Back, DataContext.Empty);
         }
 

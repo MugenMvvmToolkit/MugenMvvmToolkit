@@ -558,7 +558,7 @@ namespace MugenMvvmToolkit.Android
                 }
                 else if (!ReferenceEquals(currentActivity, activity))
                 {
-                    _activityRef = ServiceProvider.WeakReferenceFactory(activity);
+                    _activityRef = ToolkitServiceProvider.WeakReferenceFactory(activity);
                     changed = true;
                 }
             }
@@ -742,7 +742,7 @@ namespace MugenMvvmToolkit.Android
             //NOTE: trying to use current fragment, if any.
             var fragment = vm.Settings.Metadata.GetData(FragmentConstant, false);
             if (fragment == null)
-                return ServiceProvider.ViewManager.GetOrCreateView(vm, alwaysCreateNewView, dataContext);
+                return ToolkitServiceProvider.ViewManager.GetOrCreateView(vm, alwaysCreateNewView, dataContext);
             return fragment;
         }
 
@@ -789,7 +789,7 @@ namespace MugenMvvmToolkit.Android
                 var c = t.GetConstructor(ViewContextArgs);
                 if (c == null)
                     return null;
-                return ServiceProvider.ReflectionManager.GetActivatorDelegate(c);
+                return ToolkitServiceProvider.ReflectionManager.GetActivatorDelegate(c);
             });
             if (func == null)
                 return (View)Activator.CreateInstance(type, ctx);
@@ -803,7 +803,7 @@ namespace MugenMvvmToolkit.Android
                 var c = t.GetConstructor(ViewContextWithAttrsArgs);
                 if (c == null)
                     return null;
-                return ServiceProvider.ReflectionManager.GetActivatorDelegate(c);
+                return ToolkitServiceProvider.ReflectionManager.GetActivatorDelegate(c);
             });
             if (func == null)
                 return type.CreateView(ctx);

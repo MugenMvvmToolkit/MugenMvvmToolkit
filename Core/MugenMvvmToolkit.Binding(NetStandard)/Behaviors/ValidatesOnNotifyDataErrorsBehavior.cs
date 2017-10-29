@@ -85,7 +85,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
             if (_subscribers == null)
             {
                 _subscribers = new List<IDisposable>(accessor == null ? 1 : Binding.SourceAccessor.Sources.Count);
-                _selfReference = ServiceProvider.WeakReferenceFactory(this);
+                _selfReference = ToolkitServiceProvider.WeakReferenceFactory(this);
             }
 
             if (accessor == null)

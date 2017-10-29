@@ -123,7 +123,7 @@ namespace MugenMvvmToolkit.Android.Views
             if (_resourceId != int.MinValue)
             {
                 if (_tabContentId != int.MinValue)
-                    ServiceProvider.AttachedValueProvider.SetValue(actionBar, ActionBarTemplate.TabContentIdKey, _tabContentId);
+                    ToolkitServiceProvider.AttachedValueProvider.SetValue(actionBar, ActionBarTemplate.TabContentIdKey, _tabContentId);
 
 
                 object templateObj;

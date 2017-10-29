@@ -121,8 +121,8 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             public static CellMediator GetMediator(UICollectionViewCell cell, bool add)
             {
                 if (add)
-                    return ServiceProvider.AttachedValueProvider.GetOrAdd(cell, nameof(CellMediator), (viewCell, o) => new CellMediator(), null);
-                return ServiceProvider.AttachedValueProvider.GetValue<CellMediator>(cell, nameof(CellMediator), false);
+                    return ToolkitServiceProvider.AttachedValueProvider.GetOrAdd(cell, nameof(CellMediator), (viewCell, o) => new CellMediator(), null);
+                return ToolkitServiceProvider.AttachedValueProvider.GetValue<CellMediator>(cell, nameof(CellMediator), false);
             }
 
             #endregion

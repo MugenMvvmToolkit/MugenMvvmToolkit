@@ -49,7 +49,7 @@ namespace MugenMvvmToolkit.UWP.Binding.Models
 
         private ParentObserver(FrameworkElement view)
         {
-            _view = ServiceProvider.WeakReferenceFactory(view);
+            _view = ToolkitServiceProvider.WeakReferenceFactory(view);
             _parent = ToolkitExtensions.GetWeakReferenceOrDefault(FindParent(view), Empty.WeakReference, false);
             RoutedEventHandler handler = OnChanged;
             view.Loaded += handler;
@@ -113,7 +113,7 @@ namespace MugenMvvmToolkit.UWP.Binding.Models
 
         private static object GetOrAdd(FrameworkElement element)
         {
-            return ServiceProvider
+            return ToolkitServiceProvider
                 .AttachedValueProvider
                 .GetOrAdd<FrameworkElement, object>(element, "#ParentListener", (item, o) =>
                 {
@@ -128,7 +128,7 @@ namespace MugenMvvmToolkit.UWP.Binding.Models
                             if (value == null)
                                 parent = FindParent(parent) as FrameworkElement;
                             else if (value.Value)
-                                return ServiceProvider.WeakReferenceFactory(parent);
+                                return ToolkitServiceProvider.WeakReferenceFactory(parent);
                             else
                                 break;
                         }

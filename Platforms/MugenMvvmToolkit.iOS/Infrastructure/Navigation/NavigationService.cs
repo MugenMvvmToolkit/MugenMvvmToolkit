@@ -148,9 +148,9 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Navigation
             if (viewController == null)
             {
                 if (viewModel == null)
-                    viewController = (UIViewController)ServiceProvider.ViewManager.GetViewAsync(source, dataContext).Result;
+                    viewController = (UIViewController)ToolkitServiceProvider.ViewManager.GetViewAsync(source, dataContext).Result;
                 else
-                    viewController = (UIViewController)ServiceProvider.ViewManager.GetOrCreateView(viewModel, null, dataContext);
+                    viewController = (UIViewController)ToolkitServiceProvider.ViewManager.GetOrCreateView(viewModel, null, dataContext);
             }
             viewController.SetNavigationParameter(parameter);
 

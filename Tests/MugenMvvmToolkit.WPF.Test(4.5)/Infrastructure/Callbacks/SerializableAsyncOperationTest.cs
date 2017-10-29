@@ -41,7 +41,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
         [TestMethod]
         public void OperationShouldSerializeAsyncMethod()
         {
-            ServiceProvider.OperationCallbackFactory = new SerializableOperationCallbackFactory(Serializer);
+            ToolkitServiceProvider.OperationCallbackFactory = new SerializableOperationCallbackFactory(Serializer);
             var operation = new AsyncOperation<bool>();
             IOperationResult<bool> result = OperationResult.CreateResult<bool>(OperationType.PageNavigation, this, true);
 
@@ -66,7 +66,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
         public void OperationShouldSerializeAsyncMethodWithViewModel()
         {
             var vmMock = new NavigableViewModelMock();
-            ServiceProvider.OperationCallbackFactory = new SerializableOperationCallbackFactory(Serializer);
+            ToolkitServiceProvider.OperationCallbackFactory = new SerializableOperationCallbackFactory(Serializer);
             var operation = new AsyncOperation<bool>();
             IOperationResult<bool> result = OperationResult.CreateResult(OperationType.PageNavigation, this, true,
                 new NavigationContext(NavigationType.Page, NavigationMode.Back, vmMock, vmMock, this));

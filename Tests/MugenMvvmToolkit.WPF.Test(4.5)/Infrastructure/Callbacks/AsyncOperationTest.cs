@@ -680,7 +680,7 @@ namespace MugenMvvmToolkit.Test.Infrastructure.Callbacks
         protected override void OnInit()
         {
             OperationCallbackFactory = new OperationCallbackFactoryMock();
-            ServiceProvider.OperationCallbackFactory = OperationCallbackFactory;
+            ToolkitServiceProvider.OperationCallbackFactory = OperationCallbackFactory;
             Serializer = new Serializer(new[]
                 {
                     GetType().GetAssembly(), typeof (ApplicationSettings).GetAssembly(),

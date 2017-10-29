@@ -41,7 +41,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             public RootListener(object target)
             {
-                _target = ServiceProvider.WeakReferenceFactory(target);
+                _target = ToolkitServiceProvider.WeakReferenceFactory(target);
                 _parent = Empty.WeakReference;
                 UpdateParent(target);
                 BindingServiceProvider.VisualTreeManager.GetParentMember(target.GetType())?.TryObserve(target, this);
@@ -53,7 +53,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
             public static RootListener GetOrAdd(object target)
             {
-                return ServiceProvider
+                return ToolkitServiceProvider
                     .AttachedValueProvider
                     .GetOrAdd(target, "_#@rtls#@_", (o, o1) => new RootListener(o), null);
             }
@@ -76,7 +76,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                         GetOrAdd(oldParent).Remove(this);
                     if (parent != null)
                         GetOrAdd(parent).Add(this);
-                    _parent = ServiceProvider.WeakReferenceFactory(parent);
+                    _parent = ToolkitServiceProvider.WeakReferenceFactory(parent);
                 }
             }
 

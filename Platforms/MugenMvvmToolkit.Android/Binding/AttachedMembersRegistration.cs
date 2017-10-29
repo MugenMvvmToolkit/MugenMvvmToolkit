@@ -270,7 +270,7 @@ namespace MugenMvvmToolkit.Android.Binding
 
             protected LayoutObserver(View view, bool treeObserver)
             {
-                _viewReference = ServiceProvider.WeakReferenceFactory(view);
+                _viewReference = ToolkitServiceProvider.WeakReferenceFactory(view);
                 if (!treeObserver && Build.VERSION.SdkInt >= BuildVersionCodes.Honeycomb)
                     view.AddOnLayoutChangeListener(this);
                 else
@@ -877,9 +877,9 @@ namespace MugenMvvmToolkit.Android.Binding
         {
             setter.SetStringProperty(nameof(ShowAsAction), menuItemTemplate.ShowAsAction);
             if (!string.IsNullOrEmpty(menuItemTemplate.ActionViewBind))
-                ServiceProvider.AttachedValueProvider.SetValue(menuItem, ActionViewBindKey, menuItemTemplate.ActionViewBind);
+                ToolkitServiceProvider.AttachedValueProvider.SetValue(menuItem, ActionViewBindKey, menuItemTemplate.ActionViewBind);
             if (!string.IsNullOrEmpty(menuItemTemplate.ActionProviderBind))
-                ServiceProvider.AttachedValueProvider.SetValue(menuItem, ActionProviderBindKey, menuItemTemplate.ActionProviderBind);
+                ToolkitServiceProvider.AttachedValueProvider.SetValue(menuItem, ActionProviderBindKey, menuItemTemplate.ActionProviderBind);
         }
 
         private static void MenuItemsSourceChanged(IMenu menu, AttachedMemberChangedEventArgs<IEnumerable> args)
@@ -916,7 +916,7 @@ namespace MugenMvvmToolkit.Android.Binding
                 if (property == null)
                     _rawAdapterGetter = o => null;
                 else
-                    _rawAdapterGetter = ServiceProvider.ReflectionManager.GetMemberGetter<object>(property);
+                    _rawAdapterGetter = ToolkitServiceProvider.ReflectionManager.GetMemberGetter<object>(property);
             }
             return _rawAdapterGetter(item);
         }
@@ -929,7 +929,7 @@ namespace MugenMvvmToolkit.Android.Binding
                 if (property == null)
                     _rawAdapterSetter = (o, v) => { };
                 else
-                    _rawAdapterSetter = ServiceProvider.ReflectionManager.GetMemberSetter<object>(property);
+                    _rawAdapterSetter = ToolkitServiceProvider.ReflectionManager.GetMemberSetter<object>(property);
             }
             _rawAdapterSetter(item, adapter);
         }

@@ -108,7 +108,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 }
             }
             else
-                callbacks = ServiceProvider
+                callbacks = ToolkitServiceProvider
                     .AttachedValueProvider
                     .GetOrAdd(target, CallbacksMember, (o, o1) => new CallbackDictionary(), null);
             RegisterInternal(callbacks, operation.Id, callback);
@@ -123,8 +123,8 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             if (viewModel != null && viewModel.Settings.State.TryGetData(CallbackConstant, out data))
                 l1 = InvokeCallbacks(data, viewModel, getResult, vm => vm.Settings.State.Remove(CallbackConstant));
 
-            if (ServiceProvider.AttachedValueProvider.TryGetValue(target, CallbacksMember, out data))
-                l2 = InvokeCallbacks(data, target, getResult, o => ServiceProvider.AttachedValueProvider.Clear(o, CallbacksMember));
+            if (ToolkitServiceProvider.AttachedValueProvider.TryGetValue(target, CallbacksMember, out data))
+                l2 = InvokeCallbacks(data, target, getResult, o => ToolkitServiceProvider.AttachedValueProvider.Clear(o, CallbacksMember));
 
             if (Tracer.TraceInformation && l1 != null || l2 != null)
             {
@@ -148,8 +148,8 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
             if (viewModel != null && viewModel.Settings.State.TryGetData(CallbackConstant, out data))
                 InitializeCallbacks(data, result.Operation, ref callbacks, viewModel, vm => vm.Settings.State.Remove(CallbackConstant));
 
-            if (ServiceProvider.AttachedValueProvider.TryGetValue(target, CallbacksMember, out data))
-                InitializeCallbacks(data, result.Operation, ref callbacks, target, o => ServiceProvider.AttachedValueProvider.Clear(o, CallbacksMember));
+            if (ToolkitServiceProvider.AttachedValueProvider.TryGetValue(target, CallbacksMember, out data))
+                InitializeCallbacks(data, result.Operation, ref callbacks, target, o => ToolkitServiceProvider.AttachedValueProvider.Clear(o, CallbacksMember));
 
             if (callbacks == null)
                 return false;

@@ -106,15 +106,15 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters
             if (navigationPage != null)
             {
                 INavigationService navigationService;
-                if (!ServiceProvider.TryGet(out navigationService))
+                if (!ToolkitServiceProvider.TryGet(out navigationService))
                 {
                     navigationService = CreateNavigationService();
-                    ServiceProvider.IocContainer.BindToConstant(navigationService);
+                    ToolkitServiceProvider.IocContainer.BindToConstant(navigationService);
                 }
 
                 //Activating navigation provider if need
                 INavigationProvider provider;
-                ServiceProvider.TryGet(out provider);
+                ToolkitServiceProvider.TryGet(out provider);
 
                 navigationService.UpdateRootPage(navigationPage, viewModel);
                 mainPage = navigationPage;
@@ -139,7 +139,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Infrastructure.Presenters
             else
             {
                 mainPage.SetNavigationParameter(NavigationProvider.GenerateNavigationParameter(viewModel));
-                ServiceProvider.Get<INavigationProvider>().Restore(context);
+                ToolkitServiceProvider.Get<INavigationProvider>().Restore(context);
             }
         }
 

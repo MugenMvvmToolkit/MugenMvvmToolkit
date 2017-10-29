@@ -141,7 +141,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
                         object anonClass;
                         if (!items.TryGetValue(anonType, out anonClass))
                         {
-                            anonClass = ServiceProvider.GetOrCreateDefault(anonType);
+                            anonClass = ToolkitServiceProvider.GetOrCreateDefault(anonType);
                             foreach (var snapshot in Snapshots)
                                 snapshot.Restore(anonType, anonClass, items, viewModels, awaiterResultType, result);
                             items[anonType] = anonClass;
@@ -157,7 +157,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
                             {
                                 if (field.Name.Contains("CachedAnonymousMethodDelegate"))
                                     service = field.GetValueEx<object>(target);
-                                else if (!ServiceProvider.TryGet(serviceType, out service))
+                                else if (!ToolkitServiceProvider.TryGet(serviceType, out service))
                                 {
                                     service = field.GetValueEx<object>(target);
                                     TraceError(field, targetType);
@@ -167,7 +167,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
                         }
                         else
                         {
-                            var stateManager = ServiceProvider.OperationCallbackStateManager;
+                            var stateManager = ToolkitServiceProvider.OperationCallbackStateManager;
                             service = stateManager == null ? State : stateManager.RestoreValue(State, field, items, viewModels, result, DataContext.Empty);
                         }
                         SetValue(field, target, service);
@@ -219,7 +219,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
                         IsType = true
                     };
 
-                var stateManager = ServiceProvider.OperationCallbackStateManager;
+                var stateManager = ToolkitServiceProvider.OperationCallbackStateManager;
                 var valueState = stateManager?.SaveValue(value, field, asyncOperation, DataContext.Empty);
                 if (valueState != null)
                     return new FieldSnapshot
@@ -287,11 +287,11 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
                 var vmType = Type.GetType(TypeName, true);
                 if (State != null)
                     Guid.TryParse(State.ToString(), out id);
-                var vm = ServiceProvider.ViewModelProvider.TryGetViewModelById(id);
+                var vm = ToolkitServiceProvider.ViewModelProvider.TryGetViewModelById(id);
                 if (vm != null)
                     return vm;
 
-                var stateManager = ServiceProvider.OperationCallbackStateManager;
+                var stateManager = ToolkitServiceProvider.OperationCallbackStateManager;
                 if (stateManager != null)
                 {
                     vm = stateManager.RestoreViewModelValue(vmType, id, items, viewModels, result, DataContext.Empty);
@@ -506,7 +506,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
             public object Invoke(IOperationResult result)
             {
                 if (IsUiThread)
-                    ServiceProvider.ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, result, (callback, operationResult) => callback.InvokeInternal(operationResult));
+                    ToolkitServiceProvider.ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, this, result, (callback, operationResult) => callback.InvokeInternal(operationResult));
                 else
                     InvokeInternal(result);
                 return null;
@@ -544,7 +544,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
                 if (continueOnCapturedContext)
                 {
                     _context = SynchronizationContext.Current;
-                    _isUiThread = ServiceProvider.ThreadManager.IsUiThread;
+                    _isUiThread = ToolkitServiceProvider.ThreadManager.IsUiThread;
                 }
             }
 
@@ -736,7 +736,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Callbacks
                 {
                     if (!items.TryGetValue(type, out target))
                     {
-                        target = ServiceProvider.GetOrCreateDefault(type);
+                        target = ToolkitServiceProvider.GetOrCreateDefault(type);
                         items[type] = target;
                     }
                 }

@@ -95,7 +95,7 @@ namespace MugenMvvmToolkit.WinForms.Modules
         protected override void BindReflectionManager(IModuleContext context, IIocContainer container)
         {
             IReflectionManager reflectionManager = new ExpressionReflectionManagerEx();
-            ServiceProvider.ReflectionManager = reflectionManager;
+            ToolkitServiceProvider.ReflectionManager = reflectionManager;
             container.BindToConstant(reflectionManager);
         }
 
@@ -115,34 +115,34 @@ namespace MugenMvvmToolkit.WinForms.Modules
             }
             else
             {
-                ServiceProvider.Initialized += MvvmApplicationOnInitialized;
+                ToolkitServiceProvider.Initialized += MvvmApplicationOnInitialized;
             }
         }
 
         protected override void BindTracer(IModuleContext context, IIocContainer container)
         {
             ITracer tracer = new TracerEx();
-            ServiceProvider.Tracer = tracer;
+            ToolkitServiceProvider.Tracer = tracer;
             container.BindToConstant(tracer);
         }
 
         protected override void BindAttachedValueProvider(IModuleContext context, IIocContainer container)
         {
             IAttachedValueProvider attachedValueProvider = new AttachedValueProvider();
-            ServiceProvider.AttachedValueProvider = attachedValueProvider;
+            ToolkitServiceProvider.AttachedValueProvider = attachedValueProvider;
             container.BindToConstant(attachedValueProvider);
         }
 
         private static void MvvmApplicationOnInitialized(object sender, EventArgs eventArgs)
         {
-            ServiceProvider.Initialized -= MvvmApplicationOnInitialized;
+            ToolkitServiceProvider.Initialized -= MvvmApplicationOnInitialized;
             IViewModelPresenter presenter;
-            if (ServiceProvider.TryGet(out presenter))
+            if (ToolkitServiceProvider.TryGet(out presenter))
             {
                 var windowPresenter = presenter.DynamicPresenters.OfType<DynamicViewModelWindowPresenter>().FirstOrDefault();
                 if (windowPresenter == null)
                 {
-                    windowPresenter = ServiceProvider.Get<DynamicViewModelWindowPresenter>();
+                    windowPresenter = ToolkitServiceProvider.Get<DynamicViewModelWindowPresenter>();
                     presenter.DynamicPresenters.Add(windowPresenter);
                 }
                 windowPresenter.RegisterMediatorFactory<WindowViewMediator, IWindowView>();

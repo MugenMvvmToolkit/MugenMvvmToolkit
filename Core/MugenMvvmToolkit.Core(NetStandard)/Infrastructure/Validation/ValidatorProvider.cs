@@ -114,7 +114,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                         return null;
                 }
             }
-            IServiceProvider serviceProvider = context.ServiceProvider ?? ServiceProvider.IocContainer;
+            IServiceProvider serviceProvider = context.ServiceProvider ?? ToolkitServiceProvider.IocContainer;
             IValidator validator = serviceProvider == null
                 ? (IValidator)Activator.CreateInstance(validatorType)
                 : (IValidator)serviceProvider.GetService(validatorType);
@@ -127,7 +127,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
         [NotNull]
         protected virtual IValidatorAggregator GetValidatorAggregatorInternal()
         {
-            var viewModel = ServiceProvider.ViewModelProvider.GetViewModel<ValidatableViewModel>();
+            var viewModel = ToolkitServiceProvider.ViewModelProvider.GetViewModel<ValidatableViewModel>();
             viewModel.ValidatorProvider = this;
             return viewModel;
         }

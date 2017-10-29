@@ -75,7 +75,7 @@ namespace MugenMvvmToolkit.UWP.Binding.Infrastructure
             {
                 _key = key;
                 _value = BindingConstants.UnsetValue;
-                _reference = ServiceProvider.WeakReferenceFactory(target);
+                _reference = ToolkitServiceProvider.WeakReferenceFactory(target);
                 _unsubscriber = rootMember.TryObserve(target, this);
                 _globalResource = globalResource;
             }

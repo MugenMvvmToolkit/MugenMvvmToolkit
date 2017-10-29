@@ -139,7 +139,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         {
             var viewModel = DataContext as IViewModel;
             if (viewModel != null && !viewModel.IsDisposed && viewModel.IocContainer != null && !viewModel.IocContainer.IsDisposed)
-                ServiceProvider.ViewManager.CleanupViewAsync(viewModel);
+                ToolkitServiceProvider.ViewManager.CleanupViewAsync(viewModel);
             DataContext = null;
             DataContextChanged = null;
             _isDestroyed = true;
@@ -203,7 +203,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
                 DataContext = dataContext;
             else
             {
-                ServiceProvider.ViewManager.InitializeViewAsync(viewModel, target, NavigationContext);
+                ToolkitServiceProvider.ViewManager.InitializeViewAsync(viewModel, target, NavigationContext);
                 viewModel.Disposed -= ClearCacheOnDisposeDelegate;
                 Get<IViewModelPresenter>().Restore(CreateRestorePresenterContext(viewModel, target));
             }
@@ -259,7 +259,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Mediators
         {
             var viewModel = DataContext as IViewModel;
             if (viewModel == null)
-                return ServiceProvider.Get<T>();
+                return ToolkitServiceProvider.Get<T>();
             return viewModel.GetIocContainer(true).Get<T>();
         }
 

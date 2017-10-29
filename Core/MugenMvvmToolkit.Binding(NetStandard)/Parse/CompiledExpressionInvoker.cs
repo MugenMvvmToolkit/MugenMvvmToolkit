@@ -153,7 +153,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                         result = compile.DynamicInvoke;
                     else
                     {
-                        var del = ServiceProvider.ReflectionManager.GetMethodDelegate(methodInfo);
+                        var del = ToolkitServiceProvider.ReflectionManager.GetMethodDelegate(methodInfo);
                         result = objects => del(compile, objects);
                     }
                 }
@@ -418,7 +418,7 @@ namespace MugenMvvmToolkit.Binding.Parse
             if (methodInfo == null)
                 return @delegate.DynamicInvoke;
 
-            var invokeMethod = ServiceProvider.ReflectionManager.GetMethodDelegate(methodInfo);
+            var invokeMethod = ToolkitServiceProvider.ReflectionManager.GetMethodDelegate(methodInfo);
             return objects => invokeMethod(@delegate, objects);
         }
 

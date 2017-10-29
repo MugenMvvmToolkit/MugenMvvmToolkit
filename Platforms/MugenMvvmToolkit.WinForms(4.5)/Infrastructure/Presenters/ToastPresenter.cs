@@ -70,7 +70,7 @@ namespace MugenMvvmToolkit.WinForms.Infrastructure.Presenters
                 if (control == null)
                     return;
                 Control = null;
-                ServiceProvider.ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, control, control, (messageControl, toastMessageControl) => ClearControl(messageControl));
+                ToolkitServiceProvider.ThreadManager.Invoke(ExecutionMode.AsynchronousOnUiThread, control, control, (messageControl, toastMessageControl) => ClearControl(messageControl));
             }
 
             #endregion

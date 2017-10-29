@@ -281,10 +281,10 @@ namespace MugenMvvmToolkit.WinForms.Binding
             if (owner != null)
             {
                 owner.ParentChanged += handler;
-                ownerRef = ServiceProvider.WeakReferenceFactory(owner);
+                ownerRef = ToolkitServiceProvider.WeakReferenceFactory(owner);
             }
             toolStripItem.OwnerChanged += handler;
-            var menuItemRef = ServiceProvider.WeakReferenceFactory(toolStripItem);
+            var menuItemRef = ToolkitServiceProvider.WeakReferenceFactory(toolStripItem);
             return new ActionToken(() =>
             {
                 if (ownerRef != null)

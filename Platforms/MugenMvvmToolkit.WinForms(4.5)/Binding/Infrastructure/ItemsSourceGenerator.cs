@@ -60,7 +60,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.Infrastructure
         {
             Should.NotBeNull(view, nameof(view));
             var type = view.GetType();
-            _view = ServiceProvider.WeakReferenceFactory(view);
+            _view = ToolkitServiceProvider.WeakReferenceFactory(view);
             _itemTemplateMember = BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(type, AttachedMemberConstants.ItemTemplate, false, false);

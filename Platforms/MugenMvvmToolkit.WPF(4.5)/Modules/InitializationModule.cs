@@ -68,10 +68,10 @@ namespace MugenMvvmToolkit.UWP.Modules
 #if WPF
                 if (UseNativeCommandManager)
                 {
-                    ApplicationSettings.CommandAddCanExecuteChangedEvent = (@base, handler) => ServiceProvider
+                    ApplicationSettings.CommandAddCanExecuteChangedEvent = (@base, handler) => ToolkitServiceProvider
                        .ThreadManager
                        .Invoke(ExecutionMode.AsynchronousOnUiThread, handler, handler, (h1, h2) => System.Windows.Input.CommandManager.RequerySuggested += h1);
-                    ApplicationSettings.CommandRemoveCanExecuteChangedEvent = (@base, handler) => ServiceProvider
+                    ApplicationSettings.CommandRemoveCanExecuteChangedEvent = (@base, handler) => ToolkitServiceProvider
                         .ThreadManager
                         .Invoke(ExecutionMode.AsynchronousOnUiThread, handler, handler, (h1, h2) => System.Windows.Input.CommandManager.RequerySuggested -= h1);
                 }                
@@ -95,7 +95,7 @@ namespace MugenMvvmToolkit.UWP.Modules
         protected override void BindAttachedValueProvider(IModuleContext context, IIocContainer container)
         {
             IAttachedValueProvider attachedValueProvider = new AttachedValueProvider();
-            ServiceProvider.AttachedValueProvider = attachedValueProvider;
+            ToolkitServiceProvider.AttachedValueProvider = attachedValueProvider;
             container.BindToConstant(attachedValueProvider);
         }
 
@@ -108,7 +108,7 @@ namespace MugenMvvmToolkit.UWP.Modules
         protected override void BindReflectionManager(IModuleContext context, IIocContainer container)
         {
             IReflectionManager reflectionManager = new ExpressionReflectionManagerEx();
-            ServiceProvider.ReflectionManager = reflectionManager;
+            ToolkitServiceProvider.ReflectionManager = reflectionManager;
             container.BindToConstant(reflectionManager);
         }
 #endif
@@ -122,7 +122,7 @@ namespace MugenMvvmToolkit.UWP.Modules
 #if WPF
             if (context.PlatformInfo.Platform != PlatformType.WPF)
             {
-                ServiceProvider.Initialized += MvvmApplicationOnInitialized;
+                ToolkitServiceProvider.Initialized += MvvmApplicationOnInitialized;
                 return;
             }
 #endif
@@ -143,20 +143,20 @@ namespace MugenMvvmToolkit.UWP.Modules
         protected override void BindTracer(IModuleContext context, IIocContainer container)
         {
             ITracer tracer = new TracerEx();
-            ServiceProvider.Tracer = tracer;
+            ToolkitServiceProvider.Tracer = tracer;
             container.BindToConstant(tracer);
         }
 
         private static void MvvmApplicationOnInitialized(object sender, EventArgs eventArgs)
         {
-            ServiceProvider.Initialized -= MvvmApplicationOnInitialized;
+            ToolkitServiceProvider.Initialized -= MvvmApplicationOnInitialized;
             IViewModelPresenter presenter;
-            if (ServiceProvider.TryGet(out presenter))
+            if (ToolkitServiceProvider.TryGet(out presenter))
             {
                 var windowPresenter = presenter.DynamicPresenters.OfType<DynamicViewModelWindowPresenter>().FirstOrDefault();
                 if (windowPresenter == null)
                 {
-                    windowPresenter = ServiceProvider.Get<DynamicViewModelWindowPresenter>();
+                    windowPresenter = ToolkitServiceProvider.Get<DynamicViewModelWindowPresenter>();
                     presenter.DynamicPresenters.Add(windowPresenter);
                 }
                 windowPresenter.RegisterMediatorFactory<WindowViewMediator, IWindowView>();

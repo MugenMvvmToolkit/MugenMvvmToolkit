@@ -367,12 +367,12 @@ namespace MugenMvvmToolkit.Android.Binding
 
         private static string GetActionViewBind(IMenuItem menuItem)
         {
-            return ServiceProvider.AttachedValueProvider.GetValue<string>(menuItem, ActionViewBindKey, false);
+            return ToolkitServiceProvider.AttachedValueProvider.GetValue<string>(menuItem, ActionViewBindKey, false);
         }
 
         private static string GetActionProviderBind(IMenuItem menuItem)
         {
-            return ServiceProvider.AttachedValueProvider.GetValue<string>(menuItem, ActionProviderBindKey, false);
+            return ToolkitServiceProvider.AttachedValueProvider.GetValue<string>(menuItem, ActionProviderBindKey, false);
         }
 
         private static void PopupMenuEventChanged(View view, AttachedMemberChangedEventArgs<string> args)
@@ -382,7 +382,7 @@ namespace MugenMvvmToolkit.Android.Binding
             IBindingMemberInfo member = BindingServiceProvider
                 .MemberProvider
                 .GetBindingMember(view.GetType(), args.NewValue, false, true);
-            var presenter = ServiceProvider.AttachedValueProvider.GetOrAdd(view, "!@popup", (view1, o) => new PopupMenuPresenter(view1), null);
+            var presenter = ToolkitServiceProvider.AttachedValueProvider.GetOrAdd(view, "!@popup", (view1, o) => new PopupMenuPresenter(view1), null);
             var unsubscriber = member.SetSingleValue(view, presenter) as IDisposable;
             presenter.Update(unsubscriber);
         }

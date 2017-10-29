@@ -981,25 +981,25 @@ namespace MugenMvvmToolkit
         public static IAsyncOperationAwaiter GetAwaiter([NotNull] this IAsyncOperation operation)
         {
             Should.NotBeNull(operation, nameof(operation));
-            return ServiceProvider.OperationCallbackFactory.CreateAwaiter(operation, DataContext.Empty);
+            return ToolkitServiceProvider.OperationCallbackFactory.CreateAwaiter(operation, DataContext.Empty);
         }
 
         public static IAsyncOperationAwaiter<TResult> GetAwaiter<TResult>([NotNull] this IAsyncOperation<TResult> operation)
         {
             Should.NotBeNull(operation, nameof(operation));
-            return ServiceProvider.OperationCallbackFactory.CreateAwaiter(operation, DataContext.Empty);
+            return ToolkitServiceProvider.OperationCallbackFactory.CreateAwaiter(operation, DataContext.Empty);
         }
 
         public static IAsyncOperationAwaiter ConfigureAwait([NotNull] this IAsyncOperation operation, bool continueOnCapturedContext)
         {
             Should.NotBeNull(operation, nameof(operation));
-            return ServiceProvider.OperationCallbackFactory.CreateAwaiter(operation, new DataContext(OpeartionCallbackConstants.ContinueOnCapturedContext.ToValue(continueOnCapturedContext)));
+            return ToolkitServiceProvider.OperationCallbackFactory.CreateAwaiter(operation, new DataContext(OpeartionCallbackConstants.ContinueOnCapturedContext.ToValue(continueOnCapturedContext)));
         }
 
         public static IAsyncOperationAwaiter<TResult> ConfigureAwait<TResult>([NotNull] this IAsyncOperation<TResult> operation, bool continueOnCapturedContext)
         {
             Should.NotBeNull(operation, nameof(operation));
-            return ServiceProvider.OperationCallbackFactory.CreateAwaiter(operation, new DataContext(OpeartionCallbackConstants.ContinueOnCapturedContext.ToValue(continueOnCapturedContext)));
+            return ToolkitServiceProvider.OperationCallbackFactory.CreateAwaiter(operation, new DataContext(OpeartionCallbackConstants.ContinueOnCapturedContext.ToValue(continueOnCapturedContext)));
         }
 
         [NotNull]
@@ -1020,9 +1020,9 @@ namespace MugenMvvmToolkit
         public static T GetDesignViewModel<T>(this BootstrapperBase bootstrapper, Func<IViewModelProvider, T> getViewModel)
             where T : IViewModel
         {
-            if (bootstrapper == null || !ServiceProvider.IsDesignMode)
+            if (bootstrapper == null || !ToolkitServiceProvider.IsDesignMode)
                 return default(T);
-            return getViewModel(ServiceProvider.ViewModelProvider);
+            return getViewModel(ToolkitServiceProvider.ViewModelProvider);
         }
 
         public static IList<IViewModel> GetTopViewModels([NotNull] this INavigationDispatcher navigationDispatcher, IDataContext context = null)
@@ -1166,7 +1166,7 @@ namespace MugenMvvmToolkit
         public static ISubscriber Subscribe([NotNull] this IObservable observable, [NotNull] object instance, IDataContext context = null)
         {
             Should.NotBeNull(observable, nameof(observable));
-            var subscriber = ServiceProvider.ObjectToSubscriberConverter?.Invoke(instance, context);
+            var subscriber = ToolkitServiceProvider.ObjectToSubscriberConverter?.Invoke(instance, context);
             if (subscriber == null)
                 return null;
             return observable.Subscribe(subscriber) ? subscriber : null;
@@ -1175,7 +1175,7 @@ namespace MugenMvvmToolkit
         public static bool Unsubscribe([NotNull] this IObservable observable, [NotNull]object instance, IDataContext context = null)
         {
             Should.NotBeNull(observable, nameof(observable));
-            var subscriber = ServiceProvider.ObjectToSubscriberConverter?.Invoke(instance, context);
+            var subscriber = ToolkitServiceProvider.ObjectToSubscriberConverter?.Invoke(instance, context);
             if (subscriber == null)
                 return false;
             return observable.Unsubscribe(subscriber);
@@ -1185,7 +1185,7 @@ namespace MugenMvvmToolkit
         {
             var hasWeak = item as IHasWeakReference;
             if (hasWeak == null)
-                return ServiceProvider.WeakReferenceFactory(item);
+                return ToolkitServiceProvider.WeakReferenceFactory(item);
             return hasWeak.WeakReference;
         }
 
@@ -1240,7 +1240,7 @@ namespace MugenMvvmToolkit
         {
             Should.NotBeNull(aggregator, nameof(aggregator));
             Should.NotBeNull(instanceToValidate, nameof(instanceToValidate));
-            var validator = ServiceProvider.GetOrCreateDefault<TValidator>();
+            var validator = ToolkitServiceProvider.GetOrCreateDefault<TValidator>();
             validator.Initialize(aggregator.CreateContext(instanceToValidate));
             aggregator.AddValidator(validator);
             return validator;
@@ -1254,7 +1254,7 @@ namespace MugenMvvmToolkit
         public static void Publish([NotNull] this IEventPublisher eventPublisher, [NotNull] object sender, [NotNull] object message, ExecutionMode mode)
         {
             Should.NotBeNull(eventPublisher, nameof(eventPublisher));
-            ServiceProvider.ThreadManager.Invoke(mode, eventPublisher, sender, message, (publisher, o, arg3) => publisher.Publish(o, arg3));
+            ToolkitServiceProvider.ThreadManager.Invoke(mode, eventPublisher, sender, message, (publisher, o, arg3) => publisher.Publish(o, arg3));
         }
 
         public static byte[] ToArray([NotNull] this Stream stream)
@@ -1783,7 +1783,7 @@ namespace MugenMvvmToolkit
                 return defaultValue;
             if (checkHasWeakReference)
                 return GetWeakReference(item);
-            return ServiceProvider.WeakReferenceFactory(item);
+            return ToolkitServiceProvider.WeakReferenceFactory(item);
         }
 
         [Pure]

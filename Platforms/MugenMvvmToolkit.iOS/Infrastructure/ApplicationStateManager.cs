@@ -153,7 +153,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
                 if (type == typeof(MvvmNavigationController))
                     controller = new MvvmNavigationController();
                 else
-                    controller = (UIViewController)ServiceProvider.Get(type);
+                    controller = (UIViewController)ToolkitServiceProvider.Get(type);
             }
             controller.RestorationIdentifier = restorationIdentifier;
             return controller;

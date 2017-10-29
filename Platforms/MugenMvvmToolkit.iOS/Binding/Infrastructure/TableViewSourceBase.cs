@@ -121,8 +121,8 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
             public static CellMediator GetMediator(UITableViewCell cell, bool add)
             {
                 if (add)
-                    return ServiceProvider.AttachedValueProvider.GetOrAdd(cell, nameof(CellMediator), (viewCell, o) => new CellMediator(), null);
-                return ServiceProvider.AttachedValueProvider.GetValue<CellMediator>(cell, nameof(CellMediator), false);
+                    return ToolkitServiceProvider.AttachedValueProvider.GetOrAdd(cell, nameof(CellMediator), (viewCell, o) => new CellMediator(), null);
+                return ToolkitServiceProvider.AttachedValueProvider.GetValue<CellMediator>(cell, nameof(CellMediator), false);
             }
 
             #endregion
@@ -151,7 +151,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
         protected TableViewSourceBase([NotNull] UITableView tableView, string itemTemplate = AttachedMemberConstants.ItemTemplate)
         {
             Should.NotBeNull(tableView, nameof(tableView));
-            _tableView = ServiceProvider.WeakReferenceFactory(tableView);
+            _tableView = ToolkitServiceProvider.WeakReferenceFactory(tableView);
             _templateProvider = new DataTemplateProvider<ITableCellTemplateSelector>(tableView, itemTemplate);
             var controllerView = tableView.FindParent<IViewControllerView>();
             if (controllerView != null && !(controllerView is IMvvmNavigationController))

@@ -89,7 +89,7 @@ namespace MugenMvvmToolkit.Infrastructure
         {
             if (!rewrite)
             {
-                var builder = ServiceProvider.BootstrapCodeBuilder;
+                var builder = ToolkitServiceProvider.BootstrapCodeBuilder;
                 if (builder != null)
                 {
                     if (!_isCodeBuilderInitialized)
@@ -306,15 +306,15 @@ namespace MugenMvvmToolkit.Infrastructure
             {
                 var assemblies = _assemblies;
                 _assemblies = null;
-                if (ServiceProvider.IsDesignMode)
+                if (ToolkitServiceProvider.IsDesignMode)
                     assemblies = assemblies.FilterDesignAssemblies();
 
                 if (!ApplicationSettings.ViewMappingProviderDisableAutoRegistration)
                 {
-                    ServiceProvider.BootstrapCodeBuilder?.AppendStatic(nameof(ApplicationSettings),
+                    ToolkitServiceProvider.BootstrapCodeBuilder?.AppendStatic(nameof(ApplicationSettings),
                         $"{typeof(ApplicationSettings).FullName}.{nameof(ApplicationSettings.ViewMappingProviderDisableAutoRegistration)} = true;");
                 }
-                InitializeMapping(assemblies.SelectMany(assembly => assembly.SafeGetTypes(!ServiceProvider.IsDesignMode)));
+                InitializeMapping(assemblies.SelectMany(assembly => assembly.SafeGetTypes(!ToolkitServiceProvider.IsDesignMode)));
             }
         }
 

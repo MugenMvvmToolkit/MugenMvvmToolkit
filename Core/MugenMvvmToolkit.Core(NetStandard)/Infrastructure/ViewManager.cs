@@ -162,9 +162,9 @@ namespace MugenMvvmToolkit.Infrastructure
 
         protected virtual object GetView([NotNull] IViewMappingItem viewMapping, [NotNull] IDataContext context)
         {
-            object viewObj = ServiceProvider.Get(viewMapping.ViewType);
+            object viewObj = ToolkitServiceProvider.Get(viewMapping.ViewType);
             if (ApplicationSettings.ViewManagerDisposeView)
-                ServiceProvider.AttachedValueProvider.SetValue(viewObj, ViewManagerCreatorPath, null);
+                ToolkitServiceProvider.AttachedValueProvider.SetValue(viewObj, ViewManagerCreatorPath, null);
             if (Tracer.TraceInformation)
                 Tracer.Info("The view {0} for the view-model {1} was created.", viewObj.GetType(), viewMapping.ViewModelType);
             return viewObj;
@@ -192,9 +192,9 @@ namespace MugenMvvmToolkit.Infrastructure
             ReflectionExtensions.GetViewProperty(viewModel.GetType())?.SetValue<object>(viewModel, null);
 
             viewModel.Unsubscribe(ToolkitExtensions.GetUnderlyingView<object>(view));
-            if (ServiceProvider.AttachedValueProvider.Contains(view, ViewManagerCreatorPath))
+            if (ToolkitServiceProvider.AttachedValueProvider.Contains(view, ViewManagerCreatorPath))
             {
-                ServiceProvider.AttachedValueProvider.Clear(view, ViewManagerCreatorPath);
+                ToolkitServiceProvider.AttachedValueProvider.Clear(view, ViewManagerCreatorPath);
                 (view as IDisposable)?.Dispose();
             }
         }
@@ -214,7 +214,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.View, view);
                 viewModel.Subscribe(view);
                 if (context.GetData(InitializationConstants.CanDisposeView))
-                    ServiceProvider.AttachedValueProvider.SetValue(view, ViewManagerCreatorPath, null);
+                    ToolkitServiceProvider.AttachedValueProvider.SetValue(view, ViewManagerCreatorPath, null);
             }
 
             if (viewModel != null || ApplicationSettings.ViewManagerClearDataContext)

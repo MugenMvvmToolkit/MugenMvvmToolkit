@@ -115,7 +115,7 @@ namespace MugenMvvmToolkit.Infrastructure.Callbacks
                 return _serializableCallback;
 
             _hasCallback = true;
-            _serializableCallback = ServiceProvider.OperationCallbackFactory.CreateSerializableCallback(_delegate);
+            _serializableCallback = ToolkitServiceProvider.OperationCallbackFactory.CreateSerializableCallback(_delegate);
             return _serializableCallback;
         }
 

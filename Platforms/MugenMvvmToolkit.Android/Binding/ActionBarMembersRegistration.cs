@@ -89,7 +89,7 @@ namespace MugenMvvmToolkit.Android.Binding
 
             public static HomeButtonImpl GetOrAdd(ActionBar actionBar)
             {
-                return ServiceProvider.AttachedValueProvider.GetOrAdd(actionBar, "~2`homelist", (bar, o) =>
+                return ToolkitServiceProvider.AttachedValueProvider.GetOrAdd(actionBar, "~2`homelist", (bar, o) =>
                 {
                     var listener = new HomeButtonImpl(actionBar);
                     var activity = actionBar.ThemedContext.GetActivity() as IActivityView;
@@ -452,7 +452,7 @@ namespace MugenMvvmToolkit.Android.Binding
         private static void ActionBarContextActionBarVisibleChanged(ActionBar actionBar,
             AttachedMemberChangedEventArgs<bool> args)
         {
-            var attachedValueProvider = ServiceProvider.AttachedValueProvider;
+            var attachedValueProvider = ToolkitServiceProvider.AttachedValueProvider;
 
             var actionMode = attachedValueProvider.GetValue<ActionMode>(actionBar, ActionBarActionModeKey, false);
             actionMode?.Finish();

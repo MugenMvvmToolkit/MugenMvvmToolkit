@@ -81,7 +81,7 @@ namespace MugenMvvmToolkit.Attributes
 
             if (!typeof(IEnumerable<Type>).IsAssignableFrom(methodInfo.ReturnType))
                 throw ExceptionManager.ResourceHasNotGetter(resourceName, resourceType);
-            return (Func<IEnumerable<Type>>)ServiceProvider.ReflectionManager.GetMethodDelegate(typeof(Func<IEnumerable<Type>>), methodInfo);
+            return (Func<IEnumerable<Type>>)ToolkitServiceProvider.ReflectionManager.GetMethodDelegate(typeof(Func<IEnumerable<Type>>), methodInfo);
         }
 
         #endregion

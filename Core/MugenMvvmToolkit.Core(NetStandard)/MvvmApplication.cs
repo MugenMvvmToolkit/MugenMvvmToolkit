@@ -48,8 +48,8 @@ namespace MugenMvvmToolkit
 
         protected MvvmApplication(LoadMode? moduleLoadMode = null, IList<IModule> modules = null, Action<IModuleContext> loadModulesDelegate = null)
         {
-            if (ServiceProvider.UiSynchronizationContextField == null)
-                ServiceProvider.UiSynchronizationContextField = SynchronizationContext.Current;
+            if (ToolkitServiceProvider.UiSynchronizationContextField == null)
+                ToolkitServiceProvider.UiSynchronizationContextField = SynchronizationContext.Current;
             _moduleLoadMode = moduleLoadMode;
             _applicationState = ApplicationState.Active;
             _platform = PlatformInfo.Unknown;
@@ -57,7 +57,7 @@ namespace MugenMvvmToolkit
             _loadModulesDelegate = loadModulesDelegate;
             if (!modules.IsNullOrEmpty())
                 Modules = modules;
-            ServiceProvider.Initialize(this);
+            ToolkitServiceProvider.Initialize(this);
         }
 
         #endregion
@@ -112,7 +112,7 @@ namespace MugenMvvmToolkit
                     var module = modules[index];
                     if (module.Load(context))
                     {
-                        ServiceProvider.BootstrapCodeBuilder?.Append(nameof(LoadModules), $"new {module.GetType().GetPrettyName()}().Load(context);", ApplicationSettings.CodeBuilderHighPriority);
+                        ToolkitServiceProvider.BootstrapCodeBuilder?.Append(nameof(LoadModules), $"new {module.GetType().GetPrettyName()}().Load(context);", ApplicationSettings.CodeBuilderHighPriority);
                         module.TraceModule(true);
                     }
                 }
@@ -128,7 +128,7 @@ namespace MugenMvvmToolkit
 
         protected virtual IList<IModule> GetModules(IList<Assembly> assemblies)
         {
-            return Modules ?? assemblies.GetModules(!ServiceProvider.IsDesignMode);
+            return Modules ?? assemblies.GetModules(!ToolkitServiceProvider.IsDesignMode);
         }
 
         protected virtual void OnApplicationStateChanged(ApplicationState oldState, ApplicationState newState, IDataContext context)
@@ -153,7 +153,7 @@ namespace MugenMvvmToolkit
                 Context.Merge(context);
             _iocContainer.BindToConstant<IMvvmApplication>(this);
             OnInitialize(assemblies);
-            ServiceProvider.Initialize(this);
+            ToolkitServiceProvider.Initialize(this);
         }
 
         public void SetApplicationState(ApplicationState value, IDataContext context)
@@ -167,10 +167,10 @@ namespace MugenMvvmToolkit
                 switch (value)
                 {
                     case ApplicationState.Active:
-                        ServiceProvider.EventAggregator.Publish(this, new ForegroundNavigationMessage(context));
+                        ToolkitServiceProvider.EventAggregator.Publish(this, new ForegroundNavigationMessage(context));
                         break;
                     case ApplicationState.Background:
-                        ServiceProvider.EventAggregator.Publish(this, new BackgroundNavigationMessage(context));
+                        ToolkitServiceProvider.EventAggregator.Publish(this, new BackgroundNavigationMessage(context));
                         break;
                 }
             }

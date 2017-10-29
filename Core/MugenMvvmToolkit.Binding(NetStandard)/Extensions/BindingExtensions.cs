@@ -152,7 +152,7 @@ namespace MugenMvvmToolkit.Binding
             {
                 _node = node;
                 _isElementSource = _node.Type == RelativeSourceInfo.ElementSourceType;
-                _targetReference = ServiceProvider.WeakReferenceFactory(target);
+                _targetReference = ToolkitServiceProvider.WeakReferenceFactory(target);
                 _value = Empty.WeakReference;
                 IBindingMemberInfo rootMember = BindingServiceProvider.VisualTreeManager.GetRootMember(target.GetType());
                 if (rootMember != null)
@@ -300,11 +300,11 @@ namespace MugenMvvmToolkit.Binding
         {
             if (!BindingServiceProvider.DisableConverterAutoRegistration || !BindingServiceProvider.DisableDataTemplateSelectorAutoRegistration)
             {
-                ServiceProvider.BootstrapCodeBuilder?.AppendStatic(nameof(ApplicationSettings),
+                ToolkitServiceProvider.BootstrapCodeBuilder?.AppendStatic(nameof(ApplicationSettings),
                       $"{typeof(BindingServiceProvider).FullName}.DisableConverterAutoRegistration = {typeof(BindingServiceProvider).FullName}.DisableDataTemplateSelectorAutoRegistration = true;");
             }
 
-            Action initializeAction = () => ServiceProvider.BootstrapCodeBuilder?.Append(nameof(BindingExtensions), $"var resolver = {typeof(BindingServiceProvider).FullName}.ResourceResolver;");
+            Action initializeAction = () => ToolkitServiceProvider.BootstrapCodeBuilder?.Append(nameof(BindingExtensions), $"var resolver = {typeof(BindingServiceProvider).FullName}.ResourceResolver;");
             var assemblies = context.Assemblies;
             for (var i = 0; i < assemblies.Count; i++)
             {
@@ -418,7 +418,7 @@ namespace MugenMvvmToolkit.Binding
         {
             Should.NotBeNull(contextManager, nameof(contextManager));
             if (BindingServiceProvider.DataContextMemberAliases.Contains(targetPath))
-                return ServiceProvider.AttachedValueProvider.GetOrAdd(target, "#$@wrapdata", (o, o1) => new BindingContextWrapper(o), null);
+                return ToolkitServiceProvider.AttachedValueProvider.GetOrAdd(target, "#$@wrapdata", (o, o1) => new BindingContextWrapper(o), null);
             return contextManager.GetBindingContext(target);
         }
 
@@ -938,13 +938,13 @@ namespace MugenMvvmToolkit.Binding
             if (isTemplate)
             {
                 BindingServiceProvider.ResourceResolver.AddObject(type.Name, value, true);
-                ServiceProvider.BootstrapCodeBuilder?.Append(nameof(BindingExtensions),
+                ToolkitServiceProvider.BootstrapCodeBuilder?.Append(nameof(BindingExtensions),
                     $"{typeof(BindingExtensions).FullName}.AddObject(resolver, \"{type.Name}\", new {type.GetPrettyName()}(), true);");
             }
             else
             {
                 BindingServiceProvider.ResourceResolver.AddConverter((IBindingValueConverter)value, type, true);
-                ServiceProvider.BootstrapCodeBuilder?.Append(nameof(BindingExtensions),
+                ToolkitServiceProvider.BootstrapCodeBuilder?.Append(nameof(BindingExtensions),
                     $"{typeof(BindingExtensions).FullName}.AddConverter(resolver, new {type.GetPrettyName()}(), typeof({type.GetPrettyName()}), true);");
             }
 

@@ -97,7 +97,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Infrastructure.Presenters
                 if (closeAction == null)
                     return;
                 CloseAction = null;
-                ServiceProvider.ThreadManager.InvokeOnUiThreadAsync(closeAction);
+                ToolkitServiceProvider.ThreadManager.InvokeOnUiThreadAsync(closeAction);
             }
 
             #endregion
@@ -188,7 +188,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Infrastructure.Presenters
         {
             var method = typeof(Popup).GetMethod("Reposition", BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance);
             if (method != null)
-                RepositionMethod = (Action<Popup>)ServiceProvider.ReflectionManager.GetMethodDelegate(typeof(Action<Popup>), method);
+                RepositionMethod = (Action<Popup>)ToolkitServiceProvider.ReflectionManager.GetMethodDelegate(typeof(Action<Popup>), method);
         }
 #endif
         [Preserve(Conditional = true)]
@@ -257,7 +257,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Infrastructure.Presenters
             {
                 TaskCompletionSource = tcs
             };
-            ServiceProvider.AttachedValueProvider.AddOrUpdate(placementTarget, PopupAttachedValuePath, (window, o) => (EventClosure)o,
+            ToolkitServiceProvider.AttachedValueProvider.AddOrUpdate(placementTarget, PopupAttachedValuePath, (window, o) => (EventClosure)o,
                 (item, value, currentValue, state) =>
                 {
                     currentValue.Clear();

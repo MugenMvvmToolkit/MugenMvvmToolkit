@@ -79,7 +79,7 @@ namespace MugenMvvmToolkit.Android.Modules
         protected override void BindReflectionManager(IModuleContext context, IIocContainer container)
         {
             IReflectionManager reflectionManager = new ExpressionReflectionManagerEx();
-            ServiceProvider.ReflectionManager = reflectionManager;
+            ToolkitServiceProvider.ReflectionManager = reflectionManager;
             container.BindToConstant(reflectionManager);
         }
 
@@ -106,14 +106,14 @@ namespace MugenMvvmToolkit.Android.Modules
         protected override void BindTracer(IModuleContext context, IIocContainer container)
         {
             ITracer tracer = new TracerEx();
-            ServiceProvider.Tracer = tracer;
+            ToolkitServiceProvider.Tracer = tracer;
             container.BindToConstant(tracer);
         }
 
         protected override void BindThreadManager(IModuleContext context, IIocContainer container)
         {
-            ServiceProvider.ThreadManager = new ThreadManager(Application.SynchronizationContext);
-            container.BindToConstant(ServiceProvider.ThreadManager);
+            ToolkitServiceProvider.ThreadManager = new ThreadManager(Application.SynchronizationContext);
+            container.BindToConstant(ToolkitServiceProvider.ThreadManager);
         }
 
         protected override void BindNavigationProvider(IModuleContext context, IIocContainer container)
@@ -129,7 +129,7 @@ namespace MugenMvvmToolkit.Android.Modules
         protected override void BindAttachedValueProvider(IModuleContext context, IIocContainer container)
         {
             IAttachedValueProvider attachedValueProvider = new AttachedValueProvider();
-            ServiceProvider.AttachedValueProvider = attachedValueProvider;
+            ToolkitServiceProvider.AttachedValueProvider = attachedValueProvider;
             container.BindToConstant(attachedValueProvider);
         }
 

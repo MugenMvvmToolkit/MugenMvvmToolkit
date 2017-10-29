@@ -77,7 +77,7 @@ namespace MugenMvvmToolkit
 
         #region Properties
 
-        protected IIocContainer IocContainer => ServiceProvider.IocContainer;
+        protected IIocContainer IocContainer => ToolkitServiceProvider.IocContainer;
 
         protected IViewModelProvider ViewModelProvider { get; set; }
 

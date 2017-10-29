@@ -41,7 +41,7 @@ namespace MugenMvvmToolkit.Models
             Should.NotBeNull(method, nameof(method));
             _reference = ToolkitExtensions.GetWeakReference(target);
             _method = method;
-            _delegate = (Action<object, object, T>)ServiceProvider
+            _delegate = (Action<object, object, T>)ToolkitServiceProvider
                 .ReflectionManager
                 .GetMethodDelegate(typeof(Action<object, object, T>), method);
             _hash = ActionSubscriber<object>.ActionSubscriberGetHashCode(target, method);

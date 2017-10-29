@@ -44,7 +44,7 @@ namespace MugenMvvmToolkit.WPF.MarkupExtensions
         public DataBindingExtension()
         {
             _targetMemberName = string.Empty;
-            if (ServiceProvider.IsDesignMode)
+            if (ToolkitServiceProvider.IsDesignMode)
                 WpfDataBindingExtensions.InitializeFromDesignContext();
         }
 
@@ -90,7 +90,7 @@ namespace MugenMvvmToolkit.WPF.MarkupExtensions
             if (_targetMemberName == null)
                 return GetEmptyValue();
 
-            var isDesignMode = ServiceProvider.IsDesignMode;
+            var isDesignMode = ToolkitServiceProvider.IsDesignMode;
             IDataBinding binding = HasValue
                 ? CreateBindingBuilder(targetObject, _targetMemberName).Build()
                 : CreateBinding(targetObject, _targetMemberName, isDesignMode);

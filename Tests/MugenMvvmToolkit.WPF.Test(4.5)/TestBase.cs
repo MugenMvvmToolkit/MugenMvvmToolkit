@@ -94,9 +94,9 @@ namespace MugenMvvmToolkit.Test
         [TestInitialize]
         public void SetUp()
         {
-            ServiceProvider.AttachedValueProvider = new AttachedValueProvider();
-            ServiceProvider.ViewModelSettingsFactory = model => new DefaultViewModelSettings();
-            ServiceProvider.ReflectionManager = new ExpressionReflectionManager();
+            ToolkitServiceProvider.AttachedValueProvider = new AttachedValueProvider();
+            ToolkitServiceProvider.ViewModelSettingsFactory = model => new DefaultViewModelSettings();
+            ToolkitServiceProvider.ReflectionManager = new ExpressionReflectionManager();
             CanBeResolvedTypes = new List<Type>
             {
                 typeof (IThreadManager),
@@ -112,7 +112,7 @@ namespace MugenMvvmToolkit.Test
             ViewManager = new ViewManagerMock();
             ThreadManager = new ThreadManagerMock();
             ViewModelPresenter = new ViewModelPresenterMock();
-            ServiceProvider.ThreadManager = ThreadManager;
+            ToolkitServiceProvider.ThreadManager = ThreadManager;
             DisplayNameProvider = new DisplayNameProviderMock();
             IocContainer = new IocContainerMock
             {
@@ -121,7 +121,7 @@ namespace MugenMvvmToolkit.Test
                 BindToConstantFunc = (type, o, arg3) => { }
             };
             Tracer.TraceInformation = true;
-            ServiceProvider.Tracer = new ConsoleTracer();
+            ToolkitServiceProvider.Tracer = new ConsoleTracer();
             ViewModelProvider = new ViewModelProvider(IocContainer);
             OnInit();
             var app = new UnitTestApp();

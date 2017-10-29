@@ -84,7 +84,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
         static AndroidBootstrapperBase()
         {
-            ServiceProvider.WeakReferenceFactory = AndroidToolkitExtensions.CreateWeakReference;
+            ToolkitServiceProvider.WeakReferenceFactory = AndroidToolkitExtensions.CreateWeakReference;
             ApplicationSettings.ViewManagerAlwaysCreateNewView = true;
             ApplicationSettings.MultiViewModelPresenterCanShowViewModel = CanShowViewModelTabPresenter;
             ApplicationSettings.NavigationPresenterCanShowViewModel = CanShowViewModelNavigationPresenter;

@@ -125,7 +125,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
 
         private static LayoutInflaterFactoryWrapper GetWrapper(LayoutInflater inflater, IViewFactory factory)
         {
-            if (factory == null && !ServiceProvider.TryGet(out factory))
+            if (factory == null && !ToolkitServiceProvider.TryGet(out factory))
                 factory = new ViewFactory();
             return new LayoutInflaterFactoryWrapper(inflater, factory);
         }
@@ -205,7 +205,7 @@ namespace MugenMvvmToolkit.Android.Binding.Infrastructure
                 AndroidToolkitExtensions.CurrentLayoutInflaterResult.AddBindingInfo(view, bind, postAction);
             }
 
-            _lastCreatedView = ServiceProvider.WeakReferenceFactory(view);
+            _lastCreatedView = ToolkitServiceProvider.WeakReferenceFactory(view);
             return view;
         }
 

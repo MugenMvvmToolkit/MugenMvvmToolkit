@@ -39,7 +39,7 @@ namespace MugenMvvmToolkit.Test.Ioc
         [TestInitialize]
         public void SetUp()
         {
-            ServiceProvider.ReflectionManager = new ExpressionReflectionManager();
+            ToolkitServiceProvider.ReflectionManager = new ExpressionReflectionManager();
         }
 
         #endregion

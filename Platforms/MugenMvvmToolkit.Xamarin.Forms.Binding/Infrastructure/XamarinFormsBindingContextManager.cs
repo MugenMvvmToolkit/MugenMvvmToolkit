@@ -43,7 +43,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Infrastructure
 
             public BindableObjectBindingContext(BindableObject element)
             {
-                _sourceReference = ServiceProvider.WeakReferenceFactory(element);
+                _sourceReference = ToolkitServiceProvider.WeakReferenceFactory(element);
                 if (IsWindows())
                     element.BindingContextChanged += RaiseDataContextChangedWindows;
                 else
@@ -83,7 +83,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Infrastructure
             {
                 if (_isWindows == null)
                 {
-                    var platform = ServiceProvider.Application?.PlatformInfo.Platform;
+                    var platform = ToolkitServiceProvider.Application?.PlatformInfo.Platform;
                     _isWindows = platform != null && (platform == PlatformType.XamarinFormsUWP || platform == PlatformType.XamarinFormsWinPhone ||
                                                       platform == PlatformType.XamarinFormsWinRT);
 

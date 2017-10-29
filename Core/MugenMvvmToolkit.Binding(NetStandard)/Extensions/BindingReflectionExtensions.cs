@@ -111,8 +111,8 @@ namespace MugenMvvmToolkit.Binding
             Should.NotBeNull(getMethod, nameof(getMethod));
             ParameterInfo[] indexParameters = propertyInfo.GetIndexParameters();
             if (indexParameters.Length == 0)
-                return ServiceProvider.ReflectionManager.GetMemberGetter<object>(propertyInfo);
-            Func<object, object[], object> @delegate = ServiceProvider
+                return ToolkitServiceProvider.ReflectionManager.GetMemberGetter<object>(propertyInfo);
+            Func<object, object[], object> @delegate = ToolkitServiceProvider
                 .ReflectionManager
                 .GetMethodDelegate(getMethod);
             object[] indexerValues = GetIndexerValues(path, indexParameters);
@@ -125,8 +125,8 @@ namespace MugenMvvmToolkit.Binding
             Should.NotBeNull(setMethod, nameof(setMethod));
             ParameterInfo[] indexParameters = propertyInfo.GetIndexParameters();
             if (indexParameters.Length == 0)
-                return ServiceProvider.ReflectionManager.GetMemberSetter<object>(propertyInfo);
-            Func<object, object[], object> @delegate = ServiceProvider
+                return ToolkitServiceProvider.ReflectionManager.GetMemberSetter<object>(propertyInfo);
+            Func<object, object[], object> @delegate = ToolkitServiceProvider
                 .ReflectionManager
                 .GetMethodDelegate(setMethod);
             object[] indexerValues = GetIndexerValues(path, indexParameters);

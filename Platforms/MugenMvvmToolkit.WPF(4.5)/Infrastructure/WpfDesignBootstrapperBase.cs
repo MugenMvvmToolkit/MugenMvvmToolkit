@@ -22,7 +22,7 @@ namespace MugenMvvmToolkit.WPF.Infrastructure
     {
         #region Constructors
 
-        protected WpfDesignBootstrapperBase() : base(ServiceProvider.IsDesignMode)
+        protected WpfDesignBootstrapperBase() : base(ToolkitServiceProvider.IsDesignMode)
         {
         }
 

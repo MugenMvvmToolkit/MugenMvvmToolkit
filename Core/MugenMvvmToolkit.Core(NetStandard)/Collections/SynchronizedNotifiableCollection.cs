@@ -188,7 +188,7 @@ namespace MugenMvvmToolkit.Collections
             get
             {
                 if (_threadManager == null)
-                    return ServiceProvider.ThreadManager;
+                    return ToolkitServiceProvider.ThreadManager;
                 return _threadManager;
             }
             set { _threadManager = value; }

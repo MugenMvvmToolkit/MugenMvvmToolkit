@@ -46,7 +46,7 @@ namespace MugenMvvmToolkit.UWP
             get
             {
                 if (_applicationStateManager == null)
-                    _applicationStateManager = ServiceProvider.Get<IApplicationStateManager>();
+                    _applicationStateManager = ToolkitServiceProvider.Get<IApplicationStateManager>();
                 return _applicationStateManager;
             }
             set { _applicationStateManager = value; }
@@ -60,32 +60,32 @@ namespace MugenMvvmToolkit.UWP
         {
             if (args.Content == null)
                 return false;
-            return ServiceProvider.AttachedValueProvider.GetValue<bool>(args.Content, HandledPath, false);
+            return ToolkitServiceProvider.AttachedValueProvider.GetValue<bool>(args.Content, HandledPath, false);
         }
 
         public static void SetHandled(this NavigationEventArgs args, bool handled)
         {
             if (args.Content == null) return;
             if (handled)
-                ServiceProvider.AttachedValueProvider.SetValue(args.Content, HandledPath, Empty.TrueObject);
+                ToolkitServiceProvider.AttachedValueProvider.SetValue(args.Content, HandledPath, Empty.TrueObject);
             else
-                ServiceProvider.AttachedValueProvider.Clear(args.Content, HandledPath);
+                ToolkitServiceProvider.AttachedValueProvider.Clear(args.Content, HandledPath);
         }
 
         public static IDataContext GetViewModelState(object content)
         {
             if (content == null)
                 return null;
-            return ServiceProvider.AttachedValueProvider.GetValue<IDataContext>(content, StatePath, false);
+            return ToolkitServiceProvider.AttachedValueProvider.GetValue<IDataContext>(content, StatePath, false);
         }
 
         public static void SetViewModelState(object content, IDataContext state)
         {
             if (content == null) return;
             if (state == null)
-                ServiceProvider.AttachedValueProvider.Clear(content, StatePath);
+                ToolkitServiceProvider.AttachedValueProvider.Clear(content, StatePath);
             else
-                ServiceProvider.AttachedValueProvider.SetValue(content, StatePath, state);
+                ToolkitServiceProvider.AttachedValueProvider.SetValue(content, StatePath, state);
         }
 
         internal static void AsEventHandler<TArg>(this Action action, object sender, TArg arg)

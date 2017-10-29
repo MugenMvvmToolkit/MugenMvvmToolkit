@@ -283,7 +283,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         protected static void GenerateDelegateFactoryCode(Type delegateType, MethodInfo method)
         {
-            var builder = ServiceProvider.BootstrapCodeBuilder;
+            var builder = ToolkitServiceProvider.BootstrapCodeBuilder;
             if (builder == null || !method.IsPublic || !delegateType.IsPublic())
                 return;
             var reflectedType = GetReflectedType(method);
@@ -304,7 +304,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         protected static void GenerateActivatorCode(ConstructorInfo constructor)
         {
-            var builder = ServiceProvider.BootstrapCodeBuilder;
+            var builder = ToolkitServiceProvider.BootstrapCodeBuilder;
             if (builder == null || !constructor.IsPublic || !constructor.DeclaringType.IsPublic())
                 return;
             var parameters = constructor.GetParameters();
@@ -320,7 +320,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         protected static void GenerateInvokeMethodCode(MethodInfo method, Type delegateType)
         {
-            var builder = ServiceProvider.BootstrapCodeBuilder;
+            var builder = ToolkitServiceProvider.BootstrapCodeBuilder;
             if (builder == null || !method.IsPublic || !delegateType.IsPublic())
                 return;
             var reflectedType = GetReflectedType(method);
@@ -346,7 +346,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         protected static void GenerateInvokeMethodCode(MethodInfo method)
         {
-            var builder = ServiceProvider.BootstrapCodeBuilder;
+            var builder = ToolkitServiceProvider.BootstrapCodeBuilder;
             if (builder == null || !method.IsPublic)
                 return;
             var reflectedType = GetReflectedType(method);
@@ -414,7 +414,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         protected static void GenerateGetterCode(MemberInfo member, Type resultType)
         {
-            var builder = ServiceProvider.BootstrapCodeBuilder;
+            var builder = ToolkitServiceProvider.BootstrapCodeBuilder;
             if (builder == null || !resultType.IsPublic())
                 return;
             var propertyInfo = member as PropertyInfo;
@@ -441,7 +441,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         protected static void GenerateSetterCode(MemberInfo member, Type delegateType, Type memberType)
         {
-            var builder = ServiceProvider.BootstrapCodeBuilder;
+            var builder = ToolkitServiceProvider.BootstrapCodeBuilder;
             if (builder == null || !delegateType.IsPublic() || !memberType.IsPublic())
                 return;
             var propertyInfo = member as PropertyInfo;

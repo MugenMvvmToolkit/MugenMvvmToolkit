@@ -75,8 +75,8 @@ namespace MugenMvvmToolkit.Infrastructure.Navigation
 
             public WeakOpenedViewModelInfo(IViewModel viewModel, object provider, NavigationType navigationType)
             {
-                _viewModelReference = ServiceProvider.WeakReferenceFactory(viewModel);
-                _providerReference = ServiceProvider.WeakReferenceFactory(provider);
+                _viewModelReference = ToolkitServiceProvider.WeakReferenceFactory(viewModel);
+                _providerReference = ToolkitServiceProvider.WeakReferenceFactory(provider);
                 NavigationType = navigationType;
             }
 

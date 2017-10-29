@@ -61,7 +61,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Modules
                 return;
             var converter = (IValueConverter)constructor.Invoke(Empty.Array<object>());
             BindingServiceProvider.ResourceResolver.AddConverter(new ValueConverterWrapper(converter), type, true);
-            ServiceProvider.BootstrapCodeBuilder?.Append(nameof(BindingExtensions),
+            ToolkitServiceProvider.BootstrapCodeBuilder?.Append(nameof(BindingExtensions),
                 $"{typeof(BindingExtensions).FullName}.AddConverter(resolver, new {typeof(ValueConverterWrapper).FullName}(new {type.GetPrettyName()}()), typeof({type.GetPrettyName()}, true);");
             if (Tracer.TraceInformation)
                 Tracer.Info("The {0} converter is registered.", type);
@@ -69,7 +69,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Modules
 
         private static void OnAppInitialized(object sender, EventArgs eventArgs)
         {
-            ServiceProvider.ViewManager.ViewCleared += OnViewCleared;
+            ToolkitServiceProvider.ViewManager.ViewCleared += OnViewCleared;
         }
 
         private static void OnViewCleared(IViewManager viewManager, ViewClearedEventArgs args)
@@ -104,7 +104,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Modules
             AttachedMembersRegistration.RegisterListViewMembers();
             AttachedMembersRegistration.RegisterProgressBarMembers();
 
-            ServiceProvider.Initialized += OnAppInitialized;
+            ToolkitServiceProvider.Initialized += OnAppInitialized;
             return true;
         }
 

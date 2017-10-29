@@ -190,7 +190,7 @@ namespace MugenMvvmToolkit.WPF.Binding.Models
                 if (methodInfo == null || !isNamedObject)
                     IsNamedObjectFunc = o => false;
                 else
-                    IsNamedObjectFunc = (Func<object, bool>)ServiceProvider.ReflectionManager.TryCreateDelegate(typeof(Func<object, bool>), null, methodInfo.MakeGenericMethod(type));
+                    IsNamedObjectFunc = (Func<object, bool>)ToolkitServiceProvider.ReflectionManager.TryCreateDelegate(typeof(Func<object, bool>), null, methodInfo.MakeGenericMethod(type));
             }
             catch
             {

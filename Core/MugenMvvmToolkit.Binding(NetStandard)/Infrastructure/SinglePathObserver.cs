@@ -89,7 +89,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             Should.BeSupported(path.IsSingle, "The SinglePathObserver supports only single path members.");
             _ignoreAttachedMembers = ignoreAttachedMembers;
-            _ref = ServiceProvider.WeakReferenceFactory(this);
+            _ref = ToolkitServiceProvider.WeakReferenceFactory(this);
             _hasStablePath = hasStablePath;
             _observable = observable;
             _optional = optional;

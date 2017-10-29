@@ -124,7 +124,7 @@ namespace MugenMvvmToolkit.WPF.Binding.Converters
 #if ANDROID
                 return AndroidToolkitExtensions.GetOrCreateView((IViewModel)value, AlwaysCreateNewView, ctx);
 #else
-                return ServiceProvider.ViewManager.GetOrCreateView((IViewModel)value, AlwaysCreateNewView, ctx);
+                return ToolkitServiceProvider.ViewManager.GetOrCreateView((IViewModel)value, AlwaysCreateNewView, ctx);
 #endif
             }
             catch (Exception exception) when (!ThrowOnError)

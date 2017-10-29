@@ -56,7 +56,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
             ReflectionExtensions.GetTypesDefault = assembly => assembly.GetTypes();
             ApplicationSettings.MultiViewModelPresenterCanShowViewModel = CanShowViewModelTabPresenter;
             ApplicationSettings.NavigationPresenterCanShowViewModel = CanShowViewModelNavigationPresenter;
-            ServiceProvider.WeakReferenceFactory = TouchToolkitExtensions.CreateWeakReference;
+            ToolkitServiceProvider.WeakReferenceFactory = TouchToolkitExtensions.CreateWeakReference;
             ApplicationSettings.ViewManagerDisposeView = true;
             BindingServiceProvider.CompiledExpressionInvokerSupportCoalesceExpression = false;
         }
@@ -138,12 +138,12 @@ namespace MugenMvvmToolkit.iOS.Infrastructure
 
         private static void OnApplicationDidBecomeActive(object sender, NSNotificationEventArgs nsNotificationEventArgs)
         {
-            ServiceProvider.Application?.SetApplicationState(ApplicationState.Active, null);
+            ToolkitServiceProvider.Application?.SetApplicationState(ApplicationState.Active, null);
         }
 
         private static void OnApplicationDidEnterBackground(object sender, NSNotificationEventArgs nsNotificationEventArgs)
         {
-            ServiceProvider.Application?.SetApplicationState(ApplicationState.Background, null);
+            ToolkitServiceProvider.Application?.SetApplicationState(ApplicationState.Background, null);
         }
 
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)

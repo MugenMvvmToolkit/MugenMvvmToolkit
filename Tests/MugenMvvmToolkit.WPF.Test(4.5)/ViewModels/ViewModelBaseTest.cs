@@ -173,7 +173,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
         {
             const string busyMessage = "busy...";
             var settings = new DefaultViewModelSettings { DefaultBusyMessage = busyMessage };
-            ServiceProvider.ViewModelSettingsFactory = model => settings;
+            ToolkitServiceProvider.ViewModelSettingsFactory = model => settings;
 
             ViewModelBase viewModel = GetViewModelBase();
 

@@ -40,7 +40,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Models
 
         private ParentObserver(UIView view)
         {
-            _view = ServiceProvider.WeakReferenceFactory(view);
+            _view = ToolkitServiceProvider.WeakReferenceFactory(view);
             _parent = ToolkitExtensions.GetWeakReferenceOrDefault(GetParent(view), Empty.WeakReference, false);
         }
 
@@ -91,7 +91,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Models
 
         private static object GetOrAdd([NotNull] UIView view)
         {
-            return ServiceProvider
+            return ToolkitServiceProvider
                 .AttachedValueProvider
                 .GetOrAdd<UIView, object>(view, Key, (item, o) =>
                 {
@@ -106,7 +106,7 @@ namespace MugenMvvmToolkit.iOS.Binding.Models
                             if (value == null)
                                 parent = GetParent(parent) as UIView;
                             else if (value.Value)
-                                return ServiceProvider.WeakReferenceFactory(parent);
+                                return ToolkitServiceProvider.WeakReferenceFactory(parent);
                             else
                                 break;
                         }

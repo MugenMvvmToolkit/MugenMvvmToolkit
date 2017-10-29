@@ -205,7 +205,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Presenters
                     : new Toast(ctx) { View = view };
             }
 
-            ServiceProvider
+            ToolkitServiceProvider
                 .AttachedValueProvider
                 .AddOrUpdate(ctx, ToastWrapperMember, (c, o) =>
                 {

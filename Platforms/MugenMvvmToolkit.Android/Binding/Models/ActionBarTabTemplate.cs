@@ -227,7 +227,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
 
         public static void ClearTab(ActionBar bar, ActionBar.Tab tab, bool removeFragment)
         {
-            var listener = ServiceProvider.AttachedValueProvider.GetValue<TabListener>(tab, ListenerKey, false);
+            var listener = ToolkitServiceProvider.AttachedValueProvider.GetValue<TabListener>(tab, ListenerKey, false);
             if (listener == null)
                 return;
             BindingServiceProvider.BindingManager.ClearBindings(tab);
@@ -260,7 +260,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
 
             var tabListener = new TabListener(new DataTemplateProvider(bar, AttachedMemberConstants.ContentTemplate,
                 AttachedMemberConstants.ContentTemplateSelector));
-            ServiceProvider.AttachedValueProvider.SetValue(newTab, ListenerKey, tabListener);
+            ToolkitServiceProvider.AttachedValueProvider.SetValue(newTab, ListenerKey, tabListener);
             newTab.SetTabListener(tabListener);
             return newTab;
         }

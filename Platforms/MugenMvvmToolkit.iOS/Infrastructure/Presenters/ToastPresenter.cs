@@ -125,7 +125,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Presenters
         {
             UIView owner = GetOwner() ?? UIApplication.SharedApplication.KeyWindow;
             toastImpl.Toast = CreateToast(content, owner, duration, position, context ?? DataContext.Empty, toastImpl.Tcs);
-            ServiceProvider.AttachedValueProvider.AddOrUpdate(owner, Key, toastImpl.Toast,
+            ToolkitServiceProvider.AttachedValueProvider.AddOrUpdate(owner, Key, toastImpl.Toast,
                 (item, value, currentValue, state) =>
                 {
                     currentValue.Hide();

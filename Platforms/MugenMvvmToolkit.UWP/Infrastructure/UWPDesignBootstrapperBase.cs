@@ -22,7 +22,7 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
     {
         #region Constructors
 
-        protected UwpDesignBootstrapperBase() : base(ServiceProvider.IsDesignMode)
+        protected UwpDesignBootstrapperBase() : base(ToolkitServiceProvider.IsDesignMode)
         {
         }
 

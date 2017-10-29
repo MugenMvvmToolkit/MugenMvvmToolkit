@@ -164,7 +164,7 @@ namespace MugenMvvmToolkit.Models
                         Type typeMessage = @interface.GetGenericArguments()[0];
                         MethodInfo method = @interface.GetMethodEx(nameof(IHandler<object>.Handle));
                         if (typeMessage.IsAssignableFrom(key.MessageType))
-                            items.Add(ServiceProvider.ReflectionManager.GetMethodDelegate(method));
+                            items.Add(ToolkitServiceProvider.ReflectionManager.GetMethodDelegate(method));
                     }
                     value = items.ToArray();
                     TypeToHandlers[key] = value;

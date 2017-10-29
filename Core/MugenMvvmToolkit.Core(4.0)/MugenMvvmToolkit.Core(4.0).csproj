@@ -677,11 +677,11 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Properties\AssemblyInfoCommon.cs">
       <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
-    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\ServiceProvider.cs">
-      <Link>ServiceProvider.cs</Link>
-    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Should.cs">
       <Link>Should.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\ToolkitServiceProvider.cs">
+      <Link>ToolkitServiceProvider.cs</Link>
     </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Tracer.cs">
       <Link>Tracer.cs</Link>

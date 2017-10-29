@@ -40,7 +40,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
 
         private ParentObserver(View view)
         {
-            _view = ServiceProvider.WeakReferenceFactory(view);
+            _view = ToolkitServiceProvider.WeakReferenceFactory(view);
             _parent = ToolkitExtensions.GetWeakReferenceOrDefault(GetParent(view), Empty.WeakReference, false);
         }
 
@@ -92,7 +92,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
         public static void Raise(View view)
         {
             object observer;
-            if (ServiceProvider.AttachedValueProvider.TryGetValue(view, Key, out observer))
+            if (ToolkitServiceProvider.AttachedValueProvider.TryGetValue(view, Key, out observer))
                 (observer as ParentObserver)?.Raise();
         }
 
@@ -112,7 +112,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
 
         private static object GetOrAdd(View view)
         {
-            return ServiceProvider
+            return ToolkitServiceProvider
                 .AttachedValueProvider
                 .GetOrAdd<View, object>(view, Key, (item, o) =>
                 {
@@ -129,7 +129,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
                             else if (value.Value)
                             {
                                 (view as ViewGroup)?.SetDisableHierarchyListener(true);
-                                return ServiceProvider.WeakReferenceFactory(parent);
+                                return ToolkitServiceProvider.WeakReferenceFactory(parent);
                             }
                             else
                                 break;

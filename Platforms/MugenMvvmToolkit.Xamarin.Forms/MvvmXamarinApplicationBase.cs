@@ -67,22 +67,22 @@ namespace MugenMvvmToolkit.Xamarin.Forms
         protected override void OnStart()
         {
             base.OnStart();
-            if (ServiceProvider.Application != null && ServiceProvider.Application.PlatformInfo.Platform != PlatformType.XamarinFormsUWP)
-                ServiceProvider.Application.SetApplicationState(ApplicationState.Active, null);
+            if (ToolkitServiceProvider.Application != null && ToolkitServiceProvider.Application.PlatformInfo.Platform != PlatformType.XamarinFormsUWP)
+                ToolkitServiceProvider.Application.SetApplicationState(ApplicationState.Active, null);
         }
 
         protected override void OnResume()
         {
             base.OnResume();
-            if (ServiceProvider.Application != null && ServiceProvider.Application.PlatformInfo.Platform != PlatformType.XamarinFormsUWP)
-                ServiceProvider.Application.SetApplicationState(ApplicationState.Active, null);
+            if (ToolkitServiceProvider.Application != null && ToolkitServiceProvider.Application.PlatformInfo.Platform != PlatformType.XamarinFormsUWP)
+                ToolkitServiceProvider.Application.SetApplicationState(ApplicationState.Active, null);
         }
 
         protected override void OnSleep()
         {
             base.OnSleep();
-            if (ServiceProvider.Application != null && ServiceProvider.Application.PlatformInfo.Platform != PlatformType.XamarinFormsUWP)
-                ServiceProvider.Application.SetApplicationState(ApplicationState.Background, null);
+            if (ToolkitServiceProvider.Application != null && ToolkitServiceProvider.Application.PlatformInfo.Platform != PlatformType.XamarinFormsUWP)
+                ToolkitServiceProvider.Application.SetApplicationState(ApplicationState.Background, null);
             if (ShouldSaveApplicationState())
                 SaveState();
         }
@@ -101,7 +101,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms
         {
             if (_presenter == null && !_presenterActivated)
             {
-                _presenter = ServiceProvider.Get<IViewModelPresenter>() as IRestorableViewModelPresenter;
+                _presenter = ToolkitServiceProvider.Get<IViewModelPresenter>() as IRestorableViewModelPresenter;
                 _presenterActivated = true;
             }
             _presenter?.SaveState();

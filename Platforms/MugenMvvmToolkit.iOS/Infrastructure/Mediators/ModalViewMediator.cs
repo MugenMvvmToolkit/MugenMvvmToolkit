@@ -99,7 +99,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
                     .CurrentContent;
             if (isWindow)
             {
-                var weakThis = ServiceProvider.WeakReferenceFactory(this);
+                var weakThis = ToolkitServiceProvider.WeakReferenceFactory(this);
                 viewModel.AddClosedHandler((sender, args) => ((ModalViewMediator)weakThis.Target)?.OnViewClosed(sender, args));
             }
             return controller;

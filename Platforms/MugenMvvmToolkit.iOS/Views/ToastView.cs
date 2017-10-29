@@ -355,7 +355,7 @@ namespace MugenMvvmToolkit.iOS.Views
             View.DisposeEx();
 #endif
             TouchToolkitExtensions.RemoveOrientationChangeListener(this);
-            ServiceProvider.AttachedValueProvider.Clear(this);
+            ToolkitServiceProvider.AttachedValueProvider.Clear(this);
             _label = null;
         }
 

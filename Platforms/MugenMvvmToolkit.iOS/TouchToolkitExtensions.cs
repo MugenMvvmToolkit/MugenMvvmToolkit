@@ -77,7 +77,7 @@ namespace MugenMvvmToolkit.iOS
             get
             {
                 if (_applicationStateManager == null)
-                    _applicationStateManager = ServiceProvider.Get<IApplicationStateManager>();
+                    _applicationStateManager = ToolkitServiceProvider.Get<IApplicationStateManager>();
                 return _applicationStateManager;
             }
             set { _applicationStateManager = value; }
@@ -151,16 +151,16 @@ namespace MugenMvvmToolkit.iOS
         {
             Should.NotBeNull(controller, nameof(controller));
             if (value == null)
-                ServiceProvider.AttachedValueProvider.Clear(controller, NavParamKey);
+                ToolkitServiceProvider.AttachedValueProvider.Clear(controller, NavParamKey);
             else
-                ServiceProvider.AttachedValueProvider.SetValue(controller, NavParamKey, value);
+                ToolkitServiceProvider.AttachedValueProvider.SetValue(controller, NavParamKey, value);
         }
 
         public static string GetNavigationParameter([CanBeNull] this UIViewController controller)
         {
             if (controller == null)
                 return null;
-            return ServiceProvider.AttachedValueProvider.GetValue<string>(controller, NavParamKey, false);
+            return ToolkitServiceProvider.AttachedValueProvider.GetValue<string>(controller, NavParamKey, false);
         }
 
         public static void SetToolbarItemsEx([NotNull] this UIViewController controller, UIBarButtonItem[] items,
@@ -262,19 +262,19 @@ namespace MugenMvvmToolkit.iOS
         {
             if (hasState)
             {
-                ServiceProvider.AttachedValueProvider.Clear(controller, NoStateKey);
+                ToolkitServiceProvider.AttachedValueProvider.Clear(controller, NoStateKey);
                 controller.InititalizeRestorationIdentifier();
             }
             else
             {
-                ServiceProvider.AttachedValueProvider.SetValue(controller, NoStateKey, NoStateKey);
+                ToolkitServiceProvider.AttachedValueProvider.SetValue(controller, NoStateKey, NoStateKey);
                 controller.RestorationIdentifier = null;
             }
         }
 
         public static bool GetHasState([NotNull] UIViewController controller)
         {
-            return !ServiceProvider.AttachedValueProvider.Contains(controller, NoStateKey);
+            return !ToolkitServiceProvider.AttachedValueProvider.Contains(controller, NoStateKey);
         }
 
         public static void InititalizeRestorationIdentifier([CanBeNull] this UIView view, bool checkRestoreMethodOverload = true)
@@ -419,7 +419,7 @@ namespace MugenMvvmToolkit.iOS
         internal static void SetNavigationContext([NotNull] this UIViewController controller, IDataContext value, bool isBack)
         {
             Should.NotBeNull(controller, nameof(controller));
-            ServiceProvider.AttachedValueProvider.SetValue(controller, isBack ? NavContextBackKey : NavContextKey, value);
+            ToolkitServiceProvider.AttachedValueProvider.SetValue(controller, isBack ? NavContextBackKey : NavContextKey, value);
         }
 
         internal static IDataContext GetNavigationContext([CanBeNull] this UIViewController controller, bool isBack, bool remove)
@@ -427,9 +427,9 @@ namespace MugenMvvmToolkit.iOS
             if (controller == null)
                 return null;
             string key = isBack ? NavContextBackKey : NavContextKey;
-            var dataContext = ServiceProvider.AttachedValueProvider.GetValue<IDataContext>(controller, key, false);
+            var dataContext = ToolkitServiceProvider.AttachedValueProvider.GetValue<IDataContext>(controller, key, false);
             if (dataContext != null && remove)
-                ServiceProvider.AttachedValueProvider.Clear(controller, key);
+                ToolkitServiceProvider.AttachedValueProvider.Clear(controller, key);
             return dataContext;
         }
 

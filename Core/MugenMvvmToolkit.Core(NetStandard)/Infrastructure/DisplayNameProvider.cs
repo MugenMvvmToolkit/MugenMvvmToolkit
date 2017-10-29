@@ -134,7 +134,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (propertyInfo == null || !propertyInfo.PropertyType.Equals(typeof(string)) ||
                     propertyInfo.GetIndexParameters().Length != 0)
                     continue;
-                Func<object, string> memberAccess = ServiceProvider.ReflectionManager.GetMemberGetter<string>(propertyInfo);
+                Func<object, string> memberAccess = ToolkitServiceProvider.ReflectionManager.GetMemberGetter<string>(propertyInfo);
                 var o = attr;
                 return () => memberAccess(o);
             }
@@ -155,7 +155,7 @@ namespace MugenMvvmToolkit.Infrastructure
                 if (methodInfo == null || !methodInfo.ReturnType.Equals(typeof(string)) ||
                     methodInfo.GetParameters().Length != 0)
                     continue;
-                Func<object, object[], object> methodDelegate = ServiceProvider.ReflectionManager.GetMethodDelegate(methodInfo);
+                Func<object, object[], object> methodDelegate = ToolkitServiceProvider.ReflectionManager.GetMethodDelegate(methodInfo);
                 object value = attr;
                 return () => (string)methodDelegate(value, Empty.Array<object>());
             }

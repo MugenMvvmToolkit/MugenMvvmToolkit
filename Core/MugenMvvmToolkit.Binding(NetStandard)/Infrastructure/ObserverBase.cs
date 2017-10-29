@@ -120,7 +120,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (source is ISourceValue)
                 _source = source;
             else
-                _source = ServiceProvider.WeakReferenceFactory(source);
+                _source = ToolkitServiceProvider.WeakReferenceFactory(source);
         }
 
         #endregion

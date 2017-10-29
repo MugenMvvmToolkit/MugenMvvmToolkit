@@ -57,7 +57,7 @@ namespace MugenMvvmToolkit.Modules
         protected virtual void BindReflectionManager(IModuleContext context, IIocContainer container)
         {
             IReflectionManager reflectionManager = new ExpressionReflectionManager();
-            ServiceProvider.ReflectionManager = reflectionManager;
+            ToolkitServiceProvider.ReflectionManager = reflectionManager;
             container.BindToConstant(reflectionManager);
         }
 
@@ -81,7 +81,7 @@ namespace MugenMvvmToolkit.Modules
         protected virtual void BindViewModelProvider(IModuleContext context, IIocContainer container)
         {
             IViewModelProvider viewModelProvider = new ViewModelProvider(container.GetRoot());
-            ServiceProvider.ViewModelProvider = viewModelProvider;
+            ToolkitServiceProvider.ViewModelProvider = viewModelProvider;
             container.BindToConstant(viewModelProvider);
         }
 
@@ -106,7 +106,7 @@ namespace MugenMvvmToolkit.Modules
         protected virtual void BindEventAggregator(IModuleContext context, IIocContainer container)
         {
             IEventAggregator eventAggregator = new EventAggregator();
-            ServiceProvider.EventAggregator = eventAggregator;
+            ToolkitServiceProvider.EventAggregator = eventAggregator;
             container.BindToConstant(eventAggregator);
         }
 
@@ -120,7 +120,7 @@ namespace MugenMvvmToolkit.Modules
             IValidatorProvider validatorProvider = new ValidatorProvider();
             validatorProvider.Register(typeof(ValidatableViewModelValidator));
             validatorProvider.Register(typeof(DataAnnotationValidatior));
-            ServiceProvider.ValidatorProvider = validatorProvider;
+            ToolkitServiceProvider.ValidatorProvider = validatorProvider;
             container.BindToConstant(validatorProvider);
         }
 
@@ -132,7 +132,7 @@ namespace MugenMvvmToolkit.Modules
         protected virtual void BindThreadManager(IModuleContext context, IIocContainer container)
         {
             IThreadManager threadManager = new SynchronousThreadManager();
-            ServiceProvider.ThreadManager = threadManager;
+            ToolkitServiceProvider.ThreadManager = threadManager;
             container.BindToConstant(threadManager);
         }
 
@@ -154,7 +154,7 @@ namespace MugenMvvmToolkit.Modules
         protected virtual void BindOperationCallbackFactory(IModuleContext context, IIocContainer container)
         {
             IOperationCallbackFactory callbackFactory = new DefaultOperationCallbackFactory();
-            ServiceProvider.OperationCallbackFactory = callbackFactory;
+            ToolkitServiceProvider.OperationCallbackFactory = callbackFactory;
             container.BindToConstant(callbackFactory);
         }
 

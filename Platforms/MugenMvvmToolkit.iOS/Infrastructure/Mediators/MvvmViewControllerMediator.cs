@@ -46,7 +46,7 @@ namespace MugenMvvmToolkit.iOS.Infrastructure.Mediators
         public MvvmViewControllerMediator([NotNull] UIViewController viewController)
         {
             Should.NotBeNull(viewController, nameof(viewController));
-            _viewController = ServiceProvider.WeakReferenceFactory(viewController);
+            _viewController = ToolkitServiceProvider.WeakReferenceFactory(viewController);
             _canDispose = true;
             var viewModel = viewController.DataContext() as IViewModel;
             if (viewModel == null || !viewModel.Settings.Metadata.Contains(ViewModelConstants.StateNotNeeded))

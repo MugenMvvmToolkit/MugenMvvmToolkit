@@ -271,7 +271,7 @@ namespace MugenMvvmToolkit.Infrastructure
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(sender, nameof(sender));
             Should.NotBeNull(message, nameof(message));
-            Func<object, IDataContext, ISubscriber> converter = ServiceProvider.ObjectToSubscriberConverter;
+            Func<object, IDataContext, ISubscriber> converter = ToolkitServiceProvider.ObjectToSubscriberConverter;
             if (converter == null)
                 return;
             ISubscriber subscriber = converter(target, context);

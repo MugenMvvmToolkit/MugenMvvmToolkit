@@ -73,7 +73,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT.Modules
         protected override void BindTracer(IModuleContext context, IIocContainer container)
         {
             ITracer tracer = new TracerEx();
-            ServiceProvider.Tracer = tracer;
+            ToolkitServiceProvider.Tracer = tracer;
             container.BindToConstant(tracer);
         }
 

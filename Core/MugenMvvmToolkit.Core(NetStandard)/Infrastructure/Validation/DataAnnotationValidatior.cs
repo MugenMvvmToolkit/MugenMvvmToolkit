@@ -336,7 +336,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                     if (propertyInfo == null)
                         func = o => Empty.Array<string>();
                     else
-                        func = ServiceProvider.ReflectionManager.GetMemberGetter<IEnumerable<string>>(propertyInfo);
+                        func = ToolkitServiceProvider.ReflectionManager.GetMemberGetter<IEnumerable<string>>(propertyInfo);
                     MemberNamesPropertyCache[type] = func;
                 }
             }
@@ -444,7 +444,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 Func<ValidationContext, object> contextConverter = TryGetValidationContextConverter(validationContextType);
                 if (contextConverter == null)
                     continue;
-                Func<object, object[], object> methodDelegate = ServiceProvider.ReflectionManager.GetMethodDelegate(methodInfo);
+                Func<object, object[], object> methodDelegate = ToolkitServiceProvider.ReflectionManager.GetMethodDelegate(methodInfo);
 #if NET_STANDARD
                 var typeInfo = type.GetTypeInfo();
                 Func<string> displayNameAccessor = GetDisplayNameAccessor(typeInfo);
@@ -483,8 +483,8 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 var validationContextConverter = TryGetValidationContextConverter(@params[1].ParameterType);
                 if (validationContextConverter == null)
                     continue;
-                Func<object, object[], object> methodDelegate = ServiceProvider.ReflectionManager.GetMethodDelegate(method);
-                Func<object, object> getPropertyValue = ServiceProvider.ReflectionManager.GetMemberGetter<object>(originalMember);
+                Func<object, object[], object> methodDelegate = ToolkitServiceProvider.ReflectionManager.GetMethodDelegate(method);
+                Func<object, object> getPropertyValue = ToolkitServiceProvider.ReflectionManager.GetMemberGetter<object>(originalMember);
                 Attribute attr = attribute;
                 Func<string> displayNameAccessor = GetDisplayNameAccessor(originalMember);
                 var element = new DynamicValidationAttribute(originalMember.Name, displayNameAccessor, getPropertyValue,
@@ -520,7 +520,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 //NOTE WinRT allows to get the constructor with three args but it fails on create.
                 try
                 {
-                    constructor.InvokeEx(type, ServiceProvider.IocContainer, CheckDictionary);
+                    constructor.InvokeEx(type, ToolkitServiceProvider.IocContainer, CheckDictionary);
                 }
                 catch
                 {
@@ -542,9 +542,9 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 !displayNameProp.PropertyType.Equals(typeof(string)) ||
                 !memberNameProp.PropertyType.Equals(typeof(string)))
                 return null;
-            Action<object, string> displayNameSetter = ServiceProvider.ReflectionManager.GetMemberSetter<string>(displayNameProp);
-            Action<object, string> memberNameSetter = ServiceProvider.ReflectionManager.GetMemberSetter<string>(memberNameProp);
-            Func<object[], object> activatorDelegate = ServiceProvider.ReflectionManager.GetActivatorDelegate(constructor);
+            Action<object, string> displayNameSetter = ToolkitServiceProvider.ReflectionManager.GetMemberSetter<string>(displayNameProp);
+            Action<object, string> memberNameSetter = ToolkitServiceProvider.ReflectionManager.GetMemberSetter<string>(memberNameProp);
+            Func<object[], object> activatorDelegate = ToolkitServiceProvider.ReflectionManager.GetActivatorDelegate(constructor);
             return context => ConverterValidationContext(context, activatorDelegate, displayNameSetter, memberNameSetter, isThree);
         }
 
@@ -570,7 +570,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
                 if (!MetadataTypeCache.TryGetValue(type, out list))
                 {
                     Attribute[] attributes = type.GetAttributes();
-                    var provider = ServiceProvider.EntityMetadataTypeProvider;
+                    var provider = ToolkitServiceProvider.EntityMetadataTypeProvider;
                     IEnumerable<Type> types = null;
                     if (provider != null)
                         types = provider(type);
@@ -610,7 +610,7 @@ namespace MugenMvvmToolkit.Infrastructure.Validation
 
         private static Func<string> GetDisplayNameAccessor(MemberInfo member)
         {
-            if (DisplayNameProvider == null && !ServiceProvider.TryGet(out DisplayNameProvider))
+            if (DisplayNameProvider == null && !ToolkitServiceProvider.TryGet(out DisplayNameProvider))
                 return () => member.Name;
             return DisplayNameProvider.GetDisplayNameAccessor(member);
         }

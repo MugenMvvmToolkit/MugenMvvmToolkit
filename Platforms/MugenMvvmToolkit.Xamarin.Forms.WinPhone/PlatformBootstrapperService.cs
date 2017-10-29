@@ -64,12 +64,12 @@ namespace MugenMvvmToolkit.Xamarin.Forms.WinRT
 #if WINDOWS_UWP
         private static void OnLeavingBackground(object sender, LeavingBackgroundEventArgs leavingBackgroundEventArgs)
         {
-            ServiceProvider.Application?.SetApplicationState(ApplicationState.Active, null);
+            ToolkitServiceProvider.Application?.SetApplicationState(ApplicationState.Active, null);
         }
 
         private static void OnEnteredBackground(object sender, EnteredBackgroundEventArgs enteredBackgroundEventArgs)
         {
-            ServiceProvider.Application?.SetApplicationState(ApplicationState.Background, null);
+            ToolkitServiceProvider.Application?.SetApplicationState(ApplicationState.Background, null);
         }
 #endif
         #endregion

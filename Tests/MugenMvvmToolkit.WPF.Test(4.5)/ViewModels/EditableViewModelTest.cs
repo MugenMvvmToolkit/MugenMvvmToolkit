@@ -47,7 +47,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
         [TestMethod]
         public void EntityShouldBeNullBeforeInitializedIfFactoryNull()
         {
-            ServiceProvider.DefaultEntityFactory = null;
+            ToolkitServiceProvider.DefaultEntityFactory = null;
             var viewModel = GetViewModel<TestEditableViewModel>();
             viewModel.Entity.ShouldBeNull();
         }
@@ -55,7 +55,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
         [TestMethod]
         public void EntityShouldBeNotNullBeforeInitializedIfFactoryNotNull()
         {
-            ServiceProvider.DefaultEntityFactory = Activator.CreateInstance;
+            ToolkitServiceProvider.DefaultEntityFactory = Activator.CreateInstance;
             var viewModel = GetViewModel<TestEditableViewModel>();
             viewModel.Entity.ShouldNotBeNull();
         }

@@ -52,7 +52,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         protected EditableViewModel()
         {
-            Func<Type, object> entityFactory = ServiceProvider.DefaultEntityFactory;
+            Func<Type, object> entityFactory = ToolkitServiceProvider.DefaultEntityFactory;
             if (entityFactory != null)
                 Entity = (T)entityFactory(typeof(T));
         }

@@ -85,7 +85,7 @@ namespace MugenMvvmToolkit.iOS.Modules
 
         protected override void BindThreadManager(IModuleContext context, IIocContainer container)
         {
-            container.BindToMethod<IThreadManager>((iocContainer, list) => new ThreadManager(ServiceProvider.UiSynchronizationContext), DependencyLifecycle.SingleInstance);
+            container.BindToMethod<IThreadManager>((iocContainer, list) => new ThreadManager(ToolkitServiceProvider.UiSynchronizationContext), DependencyLifecycle.SingleInstance);
         }
 
         protected override void BindNavigationProvider(IModuleContext context, IIocContainer container)
@@ -101,7 +101,7 @@ namespace MugenMvvmToolkit.iOS.Modules
         protected override void BindAttachedValueProvider(IModuleContext context, IIocContainer container)
         {
             IAttachedValueProvider attachedValueProvider = new AttachedValueProvider();
-            ServiceProvider.AttachedValueProvider = attachedValueProvider;
+            ToolkitServiceProvider.AttachedValueProvider = attachedValueProvider;
             container.BindToConstant(attachedValueProvider);
         }
 

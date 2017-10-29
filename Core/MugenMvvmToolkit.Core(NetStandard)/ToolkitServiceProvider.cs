@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 // ****************************************************************************
-// <copyright file="ServiceProvider.cs">
+// <copyright file="ToolkitServiceProvider.cs">
 // Copyright (c) 2012-2017 Vyacheslav Volkov
 // </copyright>
 // ****************************************************************************
@@ -32,7 +32,7 @@ using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit
 {
-    public static class ServiceProvider
+    public static class ToolkitServiceProvider
     {
         #region Fields
 
@@ -58,7 +58,7 @@ namespace MugenMvvmToolkit
 
         #region Constructors
 
-        static ServiceProvider()
+        static ToolkitServiceProvider()
         {
             EntityConstructorInfos = new Dictionary<Type, ConstructorInfo>();
             // ReSharper disable AssignNullToNotNullAttribute

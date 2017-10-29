@@ -117,13 +117,13 @@ namespace MugenMvvmToolkit.Infrastructure
 
         private void AddKnownTypes(IEnumerable<Assembly> assemblies)
         {
-            var builder = ServiceProvider.BootstrapCodeBuilder;
+            var builder = ToolkitServiceProvider.BootstrapCodeBuilder;
             if (!ApplicationSettings.SerializerDisableAutoRegistration)
                 builder?.AppendStatic(nameof(ApplicationSettings), $"{typeof(ApplicationSettings).FullName}.{nameof(ApplicationSettings.SerializerDisableAutoRegistration)} = true;");
             bool initialized = false;
             foreach (Assembly assembly in assemblies)
             {
-                foreach (Type type in assembly.SafeGetTypes(!ServiceProvider.IsDesignMode))
+                foreach (Type type in assembly.SafeGetTypes(!ToolkitServiceProvider.IsDesignMode))
                 {
 #if NET_STANDARD
                     var typeInfo = type.GetTypeInfo();

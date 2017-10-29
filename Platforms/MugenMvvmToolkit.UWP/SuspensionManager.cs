@@ -83,7 +83,7 @@ namespace MugenMvvmToolkit.UWP
                 }
 
                 // Serialize the session state synchronously to avoid asynchronous access to shared state
-                var sessionData = ServiceProvider.Get<ISerializer>().Serialize(SessionState);
+                var sessionData = ToolkitServiceProvider.Get<ISerializer>().Serialize(SessionState);
 
                 // Get an output stream for the SessionState file and write the state asynchronously
                 var file = await ApplicationData.Current.LocalFolder.CreateFileAsync(SessionStateFilename, CreationCollisionOption.ReplaceExisting);
@@ -126,7 +126,7 @@ namespace MugenMvvmToolkit.UWP
                 using (var inStream = await file.OpenSequentialReadAsync())
                 {
                     // Deserialize the Session State                                        
-                    SessionState = (Dictionary<string, object>)ServiceProvider.Get<ISerializer>().Deserialize(inStream.AsStreamForRead());
+                    SessionState = (Dictionary<string, object>)ToolkitServiceProvider.Get<ISerializer>().Deserialize(inStream.AsStreamForRead());
                 }
 
                 // Restore any registered frames to their saved state

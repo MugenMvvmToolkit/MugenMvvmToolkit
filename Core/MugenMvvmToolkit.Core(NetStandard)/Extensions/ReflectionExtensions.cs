@@ -230,7 +230,7 @@ namespace MugenMvvmToolkit
 
         public static object InvokeEx([NotNull] this ConstructorInfo constructor, params object[] parameters)
         {
-            return ServiceProvider.ReflectionManager.GetActivatorDelegate(constructor).Invoke(parameters);
+            return ToolkitServiceProvider.ReflectionManager.GetActivatorDelegate(constructor).Invoke(parameters);
         }
 
         public static object InvokeEx([NotNull] this MethodInfo method, object target)
@@ -240,17 +240,17 @@ namespace MugenMvvmToolkit
 
         public static object InvokeEx([NotNull] this MethodInfo method, object target, params object[] parameters)
         {
-            return ServiceProvider.ReflectionManager.GetMethodDelegate(method).Invoke(target, parameters);
+            return ToolkitServiceProvider.ReflectionManager.GetMethodDelegate(method).Invoke(target, parameters);
         }
 
         public static T GetValueEx<T>([NotNull] this MemberInfo member, object target)
         {
-            return ServiceProvider.ReflectionManager.GetMemberGetter<T>(member).Invoke(target);
+            return ToolkitServiceProvider.ReflectionManager.GetMemberGetter<T>(member).Invoke(target);
         }
 
         public static void SetValueEx<T>([NotNull] this MemberInfo member, object target, T value)
         {
-            ServiceProvider.ReflectionManager.GetMemberSetter<T>(member).Invoke(target, value);
+            ToolkitServiceProvider.ReflectionManager.GetMemberSetter<T>(member).Invoke(target, value);
         }
 
         public static object GetDefaultValue(this Type type)
@@ -275,7 +275,7 @@ namespace MugenMvvmToolkit
                 {
                     var property = type.GetPropertyEx("DataContext", MemberFlags.Public | MemberFlags.Instance);
                     if (property != null && property.CanRead)
-                        func = ServiceProvider.ReflectionManager.GetMemberGetter<object>(property);
+                        func = ToolkitServiceProvider.ReflectionManager.GetMemberGetter<object>(property);
                     GetDataContextDelegateCache[type] = func;
                 }
             }
@@ -293,7 +293,7 @@ namespace MugenMvvmToolkit
                 {
                     var property = type.GetPropertyEx("DataContext", MemberFlags.Public | MemberFlags.Instance);
                     if (property != null && property.CanWrite)
-                        setter = ServiceProvider.ReflectionManager.GetMemberSetter<object>(property);
+                        setter = ToolkitServiceProvider.ReflectionManager.GetMemberSetter<object>(property);
                     SetDataContextDelegateCache[type] = setter;
                 }
             }
@@ -503,7 +503,7 @@ namespace MugenMvvmToolkit
                         if (typeof(ICommand).IsAssignableFrom(p.PropertyType) && p.CanRead &&
                             p.GetIndexParameters().Length == 0)
                         {
-                            var func = ServiceProvider.ReflectionManager.GetMemberGetter<ICommand>(p);
+                            var func = ToolkitServiceProvider.ReflectionManager.GetMemberGetter<ICommand>(p);
                             if (items == null)
                                 items = new List<Func<object, ICommand>>();
                             items.Add(func);

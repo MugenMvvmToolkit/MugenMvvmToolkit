@@ -179,7 +179,7 @@ namespace MugenMvvmToolkit.ViewModels
             originalItemsSource.CollectionChanged += RaiseCollectionChanged;
 
             _originalData = originalItemsSource;
-            var list = ServiceProvider.TryDecorate(this, FilterableItemsSource);
+            var list = ToolkitServiceProvider.TryDecorate(this, FilterableItemsSource);
             Should.BeOfType<INotifiableCollection<T>>(list, "DecoratedItemsSource");
             _itemsSource = (INotifiableCollection<T>)list;
             UpdateFilter();

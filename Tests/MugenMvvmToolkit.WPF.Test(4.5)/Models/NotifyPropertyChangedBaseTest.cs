@@ -200,8 +200,8 @@ namespace MugenMvvmToolkit.Test.Models
         public void TestThreadManager()
         {
             _threadManagerMock = null;
-            ServiceProvider.ThreadManager = new ThreadManagerMock();
-            ThreadManager.ShouldEqual(ServiceProvider.ThreadManager);
+            ToolkitServiceProvider.ThreadManager = new ThreadManagerMock();
+            ThreadManager.ShouldEqual(ToolkitServiceProvider.ThreadManager);
             var localManager = new ThreadManagerMock();
             _threadManagerMock = localManager;
             ThreadManager.ShouldEqual(localManager);

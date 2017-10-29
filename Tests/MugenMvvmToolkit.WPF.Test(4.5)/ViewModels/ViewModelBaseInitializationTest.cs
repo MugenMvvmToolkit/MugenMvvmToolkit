@@ -91,7 +91,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
             bool isInvoked = false;
 
             var providerMock = new ViewModelProviderMock();
-            ServiceProvider.ViewModelProvider = providerMock;
+            ToolkitServiceProvider.ViewModelProvider = providerMock;
             var func = IocContainer.GetFunc;
             IocContainer.GetFunc = (type, s, arg3) =>
             {
@@ -156,7 +156,7 @@ namespace MugenMvvmToolkit.Test.ViewModels
         {
             ThreadManager.ImmediateInvokeAsync = true;
             var settings = new DefaultViewModelSettings();
-            ServiceProvider.ViewModelSettingsFactory = model => settings;
+            ToolkitServiceProvider.ViewModelSettingsFactory = model => settings;
             ViewModelBase viewModel = GetViewModelBase();
 
             var testViewModel = viewModel.GetViewModel<TestViewModelBase>();

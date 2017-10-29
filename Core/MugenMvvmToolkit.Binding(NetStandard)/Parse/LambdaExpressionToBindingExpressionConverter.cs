@@ -321,7 +321,7 @@ namespace MugenMvvmToolkit.Binding.Parse
                 exp = @delegate.DynamicInvoke;
             else
             {
-                Func<object, object[], object> invokeMethod = ServiceProvider.ReflectionManager.GetMethodDelegate(methodInfo);
+                Func<object, object[], object> invokeMethod = ToolkitServiceProvider.ReflectionManager.GetMethodDelegate(methodInfo);
                 exp = objects => invokeMethod(@delegate, objects);
             }
             if (withContext)

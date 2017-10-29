@@ -246,7 +246,7 @@
     <Compile Include="Models\ViewMappingItem.cs" />
     <Compile Include="Modules\WrapperRegistrationModuleBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ServiceProvider.cs" />
+    <Compile Include="ToolkitServiceProvider.cs" />
     <Compile Include="Should.cs" />
     <Compile Include="Tracer.cs" />
     <Compile Include="UnitTestBase.cs" />

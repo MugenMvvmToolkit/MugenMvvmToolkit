@@ -301,7 +301,7 @@ namespace MugenMvvmToolkit.ViewModels
             if (!viewModel.IsDisposed)
                 iocContainer = viewModel.IocContainer;
             if (iocContainer == null && useGlobalContainer)
-                iocContainer = ServiceProvider.IocContainer;
+                iocContainer = ToolkitServiceProvider.IocContainer;
             if (iocContainer == null && throwOnError)
                 throw ExceptionManager.ObjectNotInitialized("viewModel", viewModel);
             return iocContainer;

@@ -250,7 +250,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
         private static Bundle GetState(Activity activity)
         {
             var result = (activity as IActivityView)?.Mediator.State;
-            return result ?? ServiceProvider.AttachedValueProvider.GetOrAdd(activity, nameof(GetState), (view, o) => new Bundle(), null);
+            return result ?? ToolkitServiceProvider.AttachedValueProvider.GetOrAdd(activity, nameof(GetState), (view, o) => new Bundle(), null);
         }
 
         private static IDataContext MergeContext(IDataContext ctx1, IDataContext navContext)
@@ -286,7 +286,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
                 if (_isBackgroundSet)
                 {
                     _isBackgroundSet = false;
-                    ServiceProvider.Application?.SetApplicationState(ApplicationState.Active, context);
+                    ToolkitServiceProvider.Application?.SetApplicationState(ApplicationState.Active, context);
                 }
             }
         }
@@ -297,7 +297,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure.Navigation
             {
                 if (IsBackground)
                 {
-                    ServiceProvider.Application?.SetApplicationState(ApplicationState.Background, ctx as IDataContext);
+                    ToolkitServiceProvider.Application?.SetApplicationState(ApplicationState.Background, ctx as IDataContext);
                     @this._isBackgroundSet = true;
                 }
             }, OperationPriority.Low);

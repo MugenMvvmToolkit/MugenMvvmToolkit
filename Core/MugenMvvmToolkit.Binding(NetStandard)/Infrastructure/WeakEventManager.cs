@@ -235,7 +235,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(eventInfo, nameof(eventInfo));
             Should.NotBeNull(listener, nameof(listener));
-            var listenerInternal = ServiceProvider
+            var listenerInternal = ToolkitServiceProvider
                 .AttachedValueProvider
                 .GetOrAdd(target, EventPrefix + eventInfo.Name, CreateWeakListenerDelegate, eventInfo);
             if (listenerInternal.IsEmpty)
@@ -251,7 +251,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             Should.NotBeNull(propertyChanged, nameof(propertyChanged));
             Should.NotBeNull(propertyName, nameof(propertyName));
             Should.NotBeNull(listener, nameof(listener));
-            return ServiceProvider
+            return ToolkitServiceProvider
                 .AttachedValueProvider
                 .GetOrAdd(propertyChanged, PropertyChangedMember, CreateWeakPropertyListenerDelegate, null)
                 .Add(listener, propertyName);
@@ -284,7 +284,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             var src = ctx.Source;
             if (src == null)
                 return EventListenerList.EmptyListener;
-            return ServiceProvider
+            return ToolkitServiceProvider
                 .AttachedValueProvider
                 .GetOrAdd(src, BindingContextMember, CreateContextListenerDelegate, ctx);
         }
@@ -310,7 +310,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             var listenerInternal = new EventListenerList();
             object handler = eventInfo.EventHandlerType == typeof(EventHandler)
                 ? new EventHandler(listenerInternal.Raise)
-                : ServiceProvider.ReflectionManager.TryCreateDelegate(eventInfo.EventHandlerType,
+                : ToolkitServiceProvider.ReflectionManager.TryCreateDelegate(eventInfo.EventHandlerType,
                     listenerInternal, EventListenerList.RaiseMethod);
 
             if (handler == null)

@@ -46,7 +46,7 @@ namespace MugenMvvmToolkit.Binding
 
         static BindingBuilderExtensions()
         {
-            if (ServiceProvider.IsDesignMode)
+            if (ToolkitServiceProvider.IsDesignMode)
                 BindingServiceProvider.InitializeFromDesignContext();
             SyntaxBuilderConstant = DataConstant.Create<object>(typeof(BindingBuilderExtensions), nameof(SyntaxBuilderConstant), true);
             DefaultBindingMemberDescriptor = new BindingMemberDescriptor<object, string>("DefaultBindingMember");
@@ -73,7 +73,7 @@ namespace MugenMvvmToolkit.Binding
                         bindingContext.Value = null;
                 }
                 if (clearAttachedValues)
-                    ServiceProvider.AttachedValueProvider.Clear(item);
+                    ToolkitServiceProvider.AttachedValueProvider.Clear(item);
             }
             catch (Exception e)
             {

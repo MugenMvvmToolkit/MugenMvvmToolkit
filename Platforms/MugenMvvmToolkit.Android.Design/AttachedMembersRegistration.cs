@@ -51,7 +51,7 @@ namespace MugenMvvmToolkit.Android.Design
 
             public NavigationItemSelectedListener(BottomNavigationView view)
             {
-                _view = ServiceProvider.WeakReferenceFactory(view);
+                _view = ToolkitServiceProvider.WeakReferenceFactory(view);
             }
 
             #endregion

@@ -47,7 +47,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.Infrastructure
             if (errorProvider == null)
                 return;
 
-            var oldProvider = ServiceProvider
+            var oldProvider = ToolkitServiceProvider
                 .AttachedValueProvider
                 .GetValue<ErrorProvider>(target, ErrorProviderName, false);
             if (!ReferenceEquals(oldProvider, errorProvider))
@@ -57,7 +57,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.Infrastructure
                     oldProvider.SetError(control, null);
                     TryDispose(oldProvider);
                 }
-                ServiceProvider.AttachedValueProvider.SetValue(control, ErrorProviderName, errorProvider);
+                ToolkitServiceProvider.AttachedValueProvider.SetValue(control, ErrorProviderName, errorProvider);
                 if (errorProvider.Tag == null)
                     errorProvider.Tag = 1;
                 else if (errorProvider.Tag is int)
@@ -71,12 +71,12 @@ namespace MugenMvvmToolkit.WinForms.Binding.Infrastructure
             var control = target as Control;
             if (control == null)
                 return;
-            var errorProvider = ServiceProvider
+            var errorProvider = ToolkitServiceProvider
                 .AttachedValueProvider
                 .GetValue<ErrorProvider>(target, ErrorProviderName, false);
             if (errorProvider == null)
                 return;
-            ServiceProvider.AttachedValueProvider.Clear(control, ErrorProviderName);
+            ToolkitServiceProvider.AttachedValueProvider.Clear(control, ErrorProviderName);
             errorProvider.SetError(control, null);
             TryDispose(errorProvider);
         }
@@ -100,7 +100,7 @@ namespace MugenMvvmToolkit.WinForms.Binding.Infrastructure
         [CanBeNull]
         private ErrorProvider GetErrorProviderInternal(Control rootControl)
         {
-            return ServiceProvider
+            return ToolkitServiceProvider
                 .AttachedValueProvider
                 .GetOrAdd(rootControl, ErrorProviderName, (control, o) => ((WinFormsBindingErrorProvider)o).GetErrorProvider(control), this);
         }

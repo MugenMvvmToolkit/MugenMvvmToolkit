@@ -44,7 +44,7 @@ namespace MugenMvvmToolkit.Infrastructure
         protected BootstrapperBase(bool isDesignMode)
         {
             _initializedEvent = new ManualResetEvent(false);
-            ServiceProvider.IsDesignMode = isDesignMode;
+            ToolkitServiceProvider.IsDesignMode = isDesignMode;
         }
 
         #endregion
@@ -63,7 +63,7 @@ namespace MugenMvvmToolkit.Infrastructure
 
         protected IIocContainer IocContainer { get; set; }
 
-        protected bool IsDesignMode => ServiceProvider.IsDesignMode;
+        protected bool IsDesignMode => ToolkitServiceProvider.IsDesignMode;
 
         #endregion
 

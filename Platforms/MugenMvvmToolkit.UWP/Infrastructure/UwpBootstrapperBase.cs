@@ -129,17 +129,17 @@ namespace MugenMvvmToolkit.UWP.Infrastructure
 
         protected virtual INavigationService CreateNavigationService(Frame frame)
         {
-            return new FrameNavigationService(frame, ServiceProvider.Get<IViewModelProvider>());
+            return new FrameNavigationService(frame, ToolkitServiceProvider.Get<IViewModelProvider>());
         }
 
         private static void OnLeavingBackground(object sender, LeavingBackgroundEventArgs leavingBackgroundEventArgs)
         {
-            ServiceProvider.Application?.SetApplicationState(ApplicationState.Active, null);
+            ToolkitServiceProvider.Application?.SetApplicationState(ApplicationState.Active, null);
         }
 
         private static void OnEnteredBackground(object sender, EnteredBackgroundEventArgs enteredBackgroundEventArgs)
         {
-            ServiceProvider.Application?.SetApplicationState(ApplicationState.Background, null);
+            ToolkitServiceProvider.Application?.SetApplicationState(ApplicationState.Background, null);
         }
 
         private static bool CanShowViewModelTabPresenter(IViewModel viewModel, IDataContext dataContext, IViewModelPresenter arg3)

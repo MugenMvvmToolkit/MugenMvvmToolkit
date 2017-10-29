@@ -82,7 +82,7 @@ namespace MugenMvvmToolkit.Models
             set { _isNotificationsDirty = value; }
         }
 
-        protected virtual IThreadManager ThreadManager => ServiceProvider.ThreadManager;
+        protected virtual IThreadManager ThreadManager => ToolkitServiceProvider.ThreadManager;
 
         protected virtual ExecutionMode PropertyChangeExecutionMode => ApplicationSettings.PropertyChangeExecutionMode;
 
@@ -191,7 +191,7 @@ namespace MugenMvvmToolkit.Models
             get
             {
                 if (_ref == null)
-                    Interlocked.CompareExchange(ref _ref, ServiceProvider.WeakReferenceFactory(this), null);
+                    Interlocked.CompareExchange(ref _ref, ToolkitServiceProvider.WeakReferenceFactory(this), null);
                 return _ref;
             }
         }

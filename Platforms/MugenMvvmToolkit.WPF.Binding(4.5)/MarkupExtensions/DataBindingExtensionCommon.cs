@@ -324,7 +324,7 @@ namespace MugenMvvmToolkit.WPF.MarkupExtensions
             return null;
 #else
             //NOTE Сannot set property values ​​in the designer, this error will handled by MS code.
-            if (ServiceProvider.IsDesignMode)
+            if (ToolkitServiceProvider.IsDesignMode)
                 throw new InvalidOperationException();
             return DependencyProperty.UnsetValue;
 #endif

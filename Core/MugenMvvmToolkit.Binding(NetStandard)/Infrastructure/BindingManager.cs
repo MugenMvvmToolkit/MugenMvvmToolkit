@@ -56,9 +56,9 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             var dataBinding = binding as DataBinding;
             if (dataBinding == null)
             {
-                if (ServiceProvider.AttachedValueProvider.GetValue<object>(binding, IsRegisteredMember, false) != null)
+                if (ToolkitServiceProvider.AttachedValueProvider.GetValue<object>(binding, IsRegisteredMember, false) != null)
                     throw BindingExceptionManager.DuplicateBindingRegistration(binding);
-                ServiceProvider.AttachedValueProvider.SetValue(binding, IsRegisteredMember, Empty.TrueObject);
+                ToolkitServiceProvider.AttachedValueProvider.SetValue(binding, IsRegisteredMember, Empty.TrueObject);
             }
             else
             {
@@ -66,7 +66,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
                     throw BindingExceptionManager.DuplicateBindingRegistration(binding);
                 dataBinding.IsAssociated = true;
             }
-            ServiceProvider
+            ToolkitServiceProvider
                 .AttachedValueProvider
                 .AddOrUpdate(target, BindPrefix + path, binding, UpdateValueFactoryDelegate);
         }
@@ -76,14 +76,14 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             Should.NotBeNull(binding, nameof(binding));
             var dataBinding = binding as DataBinding;
             if (dataBinding == null)
-                return ServiceProvider.AttachedValueProvider.GetValue<object>(binding, IsRegisteredMember, false) != null;
+                return ToolkitServiceProvider.AttachedValueProvider.GetValue<object>(binding, IsRegisteredMember, false) != null;
             return dataBinding.IsAssociated;
         }
 
         public virtual ICollection<IDataBinding> GetBindings(object target, IDataContext context = null)
         {
             Should.NotBeNull(target, nameof(target));
-            return ServiceProvider
+            return ToolkitServiceProvider
                 .AttachedValueProvider
                 .GetValues(target, GetBindingPredicateDelegate)
                 .ToArrayEx(pair => (IDataBinding)pair.Value);
@@ -93,7 +93,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             Should.NotBeNull(target, nameof(target));
             object value;
-            if (ServiceProvider.AttachedValueProvider.TryGetValue(target, BindPrefix + path, out value))
+            if (ToolkitServiceProvider.AttachedValueProvider.TryGetValue(target, BindPrefix + path, out value))
                 return new[] { (IDataBinding)value };
             return Empty.Array<IDataBinding>();
         }
@@ -110,7 +110,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         public virtual void ClearBindings(object target, IDataContext context = null)
         {
             Should.NotBeNull(target, nameof(target));
-            IAttachedValueProvider provider = ServiceProvider.AttachedValueProvider;
+            IAttachedValueProvider provider = ToolkitServiceProvider.AttachedValueProvider;
             var values = provider.GetValues(target, GetBindingPredicateDelegate);
             for (int index = 0; index < values.Count; index++)
             {
@@ -124,11 +124,11 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
         {
             Should.NotBeNull(target, nameof(target));
             path = BindPrefix + path;
-            var binding = ServiceProvider.AttachedValueProvider.GetValue<IDataBinding>(target, path, false);
+            var binding = ToolkitServiceProvider.AttachedValueProvider.GetValue<IDataBinding>(target, path, false);
             if (binding != null)
             {
                 ClearBinding(binding);
-                ServiceProvider.AttachedValueProvider.Clear(target, path);
+                ToolkitServiceProvider.AttachedValueProvider.Clear(target, path);
             }
         }
 
@@ -152,7 +152,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             binding.Dispose();
             var dataBinding = binding as DataBinding;
             if (dataBinding == null)
-                ServiceProvider.AttachedValueProvider.Clear(binding, IsRegisteredMember);
+                ToolkitServiceProvider.AttachedValueProvider.Clear(binding, IsRegisteredMember);
             else
                 dataBinding.IsAssociated = false;
         }

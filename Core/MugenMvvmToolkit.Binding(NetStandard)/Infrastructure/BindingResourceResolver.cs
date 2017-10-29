@@ -350,13 +350,13 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             if (target == null)
                 return null;
             string key = ResourcePrefix + name;
-            var value = ServiceProvider.AttachedValueProvider.GetValue<ISourceValue>(target, key, false);
+            var value = ToolkitServiceProvider.AttachedValueProvider.GetValue<ISourceValue>(target, key, false);
             if (value != null)
                 return value;
             bool keepValue;
             value = ResolveObjectInternal(target, name, context, out keepValue);
             if (keepValue)
-                ServiceProvider.AttachedValueProvider.SetValue(target, key, value);
+                ToolkitServiceProvider.AttachedValueProvider.SetValue(target, key, value);
             return value;
         }
 

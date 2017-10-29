@@ -39,7 +39,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Models
 
         private ParentObserver(Element view)
         {
-            _view = ServiceProvider.WeakReferenceFactory(view);
+            _view = ToolkitServiceProvider.WeakReferenceFactory(view);
             _parent = ToolkitExtensions.GetWeakReferenceOrDefault(FindParent(view), Empty.WeakReference, false);
             view.PropertyChanged += OnPropertyChanged;
         }
@@ -95,7 +95,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Models
 
         private static object GetOrAdd(Element element)
         {
-            return ServiceProvider
+            return ToolkitServiceProvider
                 .AttachedValueProvider
                 .GetOrAdd<Element, object>(element, "#ParentListener", (item, o) =>
                 {
@@ -110,7 +110,7 @@ namespace MugenMvvmToolkit.Xamarin.Forms.Binding.Models
                             if (value == null)
                                 parent = FindParent(parent) as View;
                             else if (value.Value)
-                                return ServiceProvider.WeakReferenceFactory(parent);
+                                return ToolkitServiceProvider.WeakReferenceFactory(parent);
                             else
                                 break;
                         }

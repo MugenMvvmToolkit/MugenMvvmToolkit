@@ -116,7 +116,7 @@ namespace MugenMvvmToolkit.Infrastructure.Presenters
             var viewModel = context?.GetData(NavigationConstants.ViewModel);
             INavigationProvider provider;
             if (viewModel == null)
-                ServiceProvider.TryGet(out provider);
+                ToolkitServiceProvider.TryGet(out provider);
             else
                 viewModel.GetIocContainer(true).TryGet(out provider);
             return provider?.CurrentNavigationTask ?? Empty.Task;

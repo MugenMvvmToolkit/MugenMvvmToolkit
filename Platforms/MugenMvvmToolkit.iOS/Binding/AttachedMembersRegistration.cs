@@ -361,7 +361,7 @@ namespace MugenMvvmToolkit.iOS.Binding
             var field = typeof(EntryElement).GetField("entry", BindingFlags.NonPublic | BindingFlags.Instance);
             if (field != null && field.FieldType == typeof(UITextField))
             {
-                var getEntryField = ServiceProvider.ReflectionManager.GetMemberGetter<UITextField>(field);
+                var getEntryField = ToolkitServiceProvider.ReflectionManager.GetMemberGetter<UITextField>(field);
                 TouchBindingErrorProvider.TryGetEntryField = target =>
                 {
                     var element = target as EntryElement;
@@ -548,13 +548,13 @@ namespace MugenMvvmToolkit.iOS.Binding
 
         private static void UpdateContent(UIView container, object value, IDataTemplateSelector selector)
         {
-            var viewController = ServiceProvider
+            var viewController = ToolkitServiceProvider
                 .AttachedValueProvider
                 .GetValue<UIViewController>(container, ContentControllerPath, false);
             if (viewController != null)
             {
                 viewController.RemoveFromParentViewController();
-                ServiceProvider.AttachedValueProvider.Clear(container, ContentControllerPath);
+                ToolkitServiceProvider.AttachedValueProvider.Clear(container, ContentControllerPath);
                 viewController.InititalizeRestorationIdentifier();
             }
 
@@ -570,7 +570,7 @@ namespace MugenMvvmToolkit.iOS.Binding
                 var currentController = container.FindParent<UIViewController>();
                 if (currentController != null)
                 {
-                    ServiceProvider.AttachedValueProvider.SetValue(container, ContentControllerPath, viewController);
+                    ToolkitServiceProvider.AttachedValueProvider.SetValue(container, ContentControllerPath, viewController);
                     viewController.WillMoveToParentViewController(currentController);
                     currentController.AddChildViewController(viewController);
                     viewController.DidMoveToParentViewController(currentController);

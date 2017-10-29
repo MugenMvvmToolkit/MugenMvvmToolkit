@@ -108,12 +108,12 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
 
         public static EventListenerList GetOrAdd(object item, string path)
         {
-            return ServiceProvider.AttachedValueProvider.GetOrAdd(item, path, (o, o1) => new EventListenerList(), null);
+            return ToolkitServiceProvider.AttachedValueProvider.GetOrAdd(item, path, (o, o1) => new EventListenerList(), null);
         }
 
         public static void Raise(object item, string path, object message)
         {
-            ServiceProvider.AttachedValueProvider.GetValue<EventListenerList>(item, path, false)?.Raise(item, message);
+            ToolkitServiceProvider.AttachedValueProvider.GetValue<EventListenerList>(item, path, false)?.Raise(item, message);
         }
 
         [Preserve(Conditional = true)]

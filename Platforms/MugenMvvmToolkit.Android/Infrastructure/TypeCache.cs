@@ -77,7 +77,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
                 Instance.AddAssembly(assemblies[index]);
             if (!AndroidToolkitExtensions.TypeCacheOnlyUsedTypeToBootstrapCodeBuilder)
             {
-                var codeBuilder = ServiceProvider.BootstrapCodeBuilder;
+                var codeBuilder = ToolkitServiceProvider.BootstrapCodeBuilder;
                 if (codeBuilder != null)
                 {
                     foreach (var type in Instance._fullNameCache)
@@ -100,20 +100,20 @@ namespace MugenMvvmToolkit.Android.Infrastructure
                     if (!_ignoreCaseFullNameCache.TryGetValue(typeName, out type))
                     {
                         if (_ignoreCaseNameCache.TryGetValue(typeName, out type) && AndroidToolkitExtensions.TypeCacheOnlyUsedTypeToBootstrapCodeBuilder)
-                            WriteTypeUsage(ServiceProvider.BootstrapCodeBuilder, typeName, type, false);
+                            WriteTypeUsage(ToolkitServiceProvider.BootstrapCodeBuilder, typeName, type, false);
                     }
                     else if (AndroidToolkitExtensions.TypeCacheOnlyUsedTypeToBootstrapCodeBuilder)
-                        WriteTypeUsage(ServiceProvider.BootstrapCodeBuilder, typeName, type, true);
+                        WriteTypeUsage(ToolkitServiceProvider.BootstrapCodeBuilder, typeName, type, true);
                 }
                 else
                 {
                     if (!_fullNameCache.TryGetValue(typeName, out type))
                     {
                         if (_nameCache.TryGetValue(typeName, out type) && AndroidToolkitExtensions.TypeCacheOnlyUsedTypeToBootstrapCodeBuilder)
-                            WriteTypeUsage(ServiceProvider.BootstrapCodeBuilder, typeName, type, false);
+                            WriteTypeUsage(ToolkitServiceProvider.BootstrapCodeBuilder, typeName, type, false);
                     }
                     else if (AndroidToolkitExtensions.TypeCacheOnlyUsedTypeToBootstrapCodeBuilder)
-                        WriteTypeUsage(ServiceProvider.BootstrapCodeBuilder, typeName, type, true);
+                        WriteTypeUsage(ToolkitServiceProvider.BootstrapCodeBuilder, typeName, type, true);
                 }
             }
             if (type == null)
@@ -144,7 +144,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
         public void AddFullName(string name, Type type)
         {
-            AddTypeUsage(ServiceProvider.BootstrapCodeBuilder, name);
+            AddTypeUsage(ToolkitServiceProvider.BootstrapCodeBuilder, name);
             //only for initialization
             // ReSharper disable InconsistentlySynchronizedField
             _fullNameCache[name] = type;
@@ -154,7 +154,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
         public void AddName(string name, Type type)
         {
-            AddTypeUsage(ServiceProvider.BootstrapCodeBuilder, name);
+            AddTypeUsage(ToolkitServiceProvider.BootstrapCodeBuilder, name);
             //only for initialization
             // ReSharper disable InconsistentlySynchronizedField
             _nameCache[name] = type;

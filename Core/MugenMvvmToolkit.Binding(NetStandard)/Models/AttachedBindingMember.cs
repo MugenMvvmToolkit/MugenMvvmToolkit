@@ -188,7 +188,7 @@ namespace MugenMvvmToolkit.Binding.Models
             public TType GetValue(TTarget source, object[] args)
             {
                 if (_isAttachedProperty && _memberAttachedHandler == null && _getDefaultValue == null &&
-                    !ServiceProvider.AttachedValueProvider.Contains(source, Id))
+                    !ToolkitServiceProvider.AttachedValueProvider.Contains(source, Id))
                     return _defaultValue;
 
                 if (_memberAttachedHandler != null)
@@ -255,7 +255,7 @@ namespace MugenMvvmToolkit.Binding.Models
 
             private static void RaiseAttachedProperty(IBindingMemberInfo member, TTarget target, object o)
             {
-                ServiceProvider.AttachedValueProvider.GetValue<AttachedProperty<TTarget, TType>>(target, ((IAttachedBindingMemberInternal)member).Id, false)?.RaiseWithMemberChanged(target, o);
+                ToolkitServiceProvider.AttachedValueProvider.GetValue<AttachedProperty<TTarget, TType>>(target, ((IAttachedBindingMemberInternal)member).Id, false)?.RaiseWithMemberChanged(target, o);
             }
 
             private static IDisposable ObserveAttached(IBindingMemberInfo member, TTarget source, IEventListener listener)
@@ -275,7 +275,7 @@ namespace MugenMvvmToolkit.Binding.Models
 
             private static AttachedProperty<TTarget, TType> GetAttachedProperty(IAttachedBindingMemberInternal member, TTarget source)
             {
-                return ServiceProvider
+                return ToolkitServiceProvider
                     .AttachedValueProvider
                     .GetOrAdd(source, member.Id, AttachedPropertyFactoryDelegate, member);
             }
@@ -302,18 +302,18 @@ namespace MugenMvvmToolkit.Binding.Models
                     return;
                 }
                 var path = Id + IsAttachedHandlerInvokedMember;
-                var id = ServiceProvider
+                var id = ToolkitServiceProvider
                     .AttachedValueProvider
                     .GetValue<object>(source, path, false);
                 if (id != null)
                     return;
                 id = new object();
-                var attachId = ServiceProvider
+                var attachId = ToolkitServiceProvider
                     .AttachedValueProvider
                     .GetOrAdd(source, path, (o, o1) => o1, id);
                 if (ReferenceEquals(id, attachId))
                 {
-                    ServiceProvider.AttachedValueProvider.SetValue(source, path, Empty.TrueObject);
+                    ToolkitServiceProvider.AttachedValueProvider.SetValue(source, path, Empty.TrueObject);
                     _memberAttachedHandler(source, new MemberAttachedEventArgs(this));
                 }
             }

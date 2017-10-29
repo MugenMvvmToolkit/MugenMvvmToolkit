@@ -75,12 +75,12 @@ namespace MugenMvvmToolkit.UWP.Binding
         internal static void InitializeFromDesignContextInternal()
         {
             BindingServiceProvider.ValueConverter = BindingConverterExtensions.Convert;
-            if (ServiceProvider.AttachedValueProvider == null)
-                ServiceProvider.AttachedValueProvider = new AttachedValueProvider();
-            if (ServiceProvider.ReflectionManager == null)
-                ServiceProvider.ReflectionManager = new ExpressionReflectionManager();
-            if (ServiceProvider.ThreadManager == null)
-                ServiceProvider.ThreadManager = new SynchronousThreadManager();
+            if (ToolkitServiceProvider.AttachedValueProvider == null)
+                ToolkitServiceProvider.AttachedValueProvider = new AttachedValueProvider();
+            if (ToolkitServiceProvider.ReflectionManager == null)
+                ToolkitServiceProvider.ReflectionManager = new ExpressionReflectionManager();
+            if (ToolkitServiceProvider.ThreadManager == null)
+                ToolkitServiceProvider.ThreadManager = new SynchronousThreadManager();
         }
 
         #endregion

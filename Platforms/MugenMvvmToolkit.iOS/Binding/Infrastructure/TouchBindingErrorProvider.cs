@@ -69,13 +69,13 @@ namespace MugenMvvmToolkit.iOS.Binding.Infrastructure
 
             public static void Save(UIView view, object target)
             {
-                ServiceProvider.AttachedValueProvider.GetOrAdd(target, Key, (t, o) => new LayoutInfo((UIView)o), view);
+                ToolkitServiceProvider.AttachedValueProvider.GetOrAdd(target, Key, (t, o) => new LayoutInfo((UIView)o), view);
             }
 
             public static void Restore(UIView view, object target)
             {
-                var info = ServiceProvider.AttachedValueProvider.GetValue<LayoutInfo>(target, Key, false);
-                ServiceProvider.AttachedValueProvider.Clear(target, Key);
+                var info = ToolkitServiceProvider.AttachedValueProvider.GetValue<LayoutInfo>(target, Key, false);
+                ToolkitServiceProvider.AttachedValueProvider.Clear(target, Key);
                 if (info == null || info._isEmpty)
                     return;
                 var layer = view.Layer;

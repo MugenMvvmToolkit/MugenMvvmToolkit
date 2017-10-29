@@ -47,7 +47,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             {
                 _isNull = true;
                 _isParentContext = true;
-                _srcRef = ServiceProvider.WeakReferenceFactory(target);
+                _srcRef = ToolkitServiceProvider.WeakReferenceFactory(target);
                 BindingServiceProvider.VisualTreeManager.GetParentMember(target.GetType())?.TryObserve(target, this);
                 TryHandle(null, null);
             }
@@ -306,7 +306,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             Should.NotBeNull(item, nameof(item));
             if (item is IBindingContext || item is IBindingContextHolder)
                 return true;
-            return ServiceProvider.AttachedValueProvider.Contains(item, ContextMemberPath);
+            return ToolkitServiceProvider.AttachedValueProvider.Contains(item, ContextMemberPath);
         }
 
         public IBindingContext GetBindingContext(object item)
@@ -318,7 +318,7 @@ namespace MugenMvvmToolkit.Binding.Infrastructure
             var context = item as IBindingContext;
             if (context != null)
                 return context;
-            return ServiceProvider
+            return ToolkitServiceProvider
                 .AttachedValueProvider
                 .GetOrAdd(item, ContextMemberPath, CreateBindingContextDelegate, this);
         }

@@ -166,7 +166,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 Binding.TargetAccessor.ValueChanging += OnValueChanging;
             else
                 Binding.SourceAccessor.ValueChanging += OnValueChanging;
-            _timer = new Timer(CallbackInternalDelegate, ServiceProvider.WeakReferenceFactory(this), Timeout.Infinite, Timeout.Infinite);
+            _timer = new Timer(CallbackInternalDelegate, ToolkitServiceProvider.WeakReferenceFactory(this), Timeout.Infinite, Timeout.Infinite);
             return true;
         }
 
@@ -194,7 +194,7 @@ namespace MugenMvvmToolkit.Binding.Behaviors
                 return;
             args.Cancel = true;
             _timer.Change(Delay, Timeout.Infinite);
-            _context = SynchronizationContext.Current ?? ServiceProvider.UiSynchronizationContext;
+            _context = SynchronizationContext.Current ?? ToolkitServiceProvider.UiSynchronizationContext;
         }
 
         private static void CallbackInternal(object state)

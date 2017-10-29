@@ -187,7 +187,7 @@ namespace MugenMvvmToolkit.Android.Binding.Models
         public static int? GetTabContentId(ActionBar actionBar)
         {
             int value;
-            if (ServiceProvider.AttachedValueProvider.TryGetValue(actionBar, TabContentIdKey, out value))
+            if (ToolkitServiceProvider.AttachedValueProvider.TryGetValue(actionBar, TabContentIdKey, out value))
                 return value;
             return null;
         }

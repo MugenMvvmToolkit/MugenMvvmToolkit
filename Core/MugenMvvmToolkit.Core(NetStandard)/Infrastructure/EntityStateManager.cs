@@ -130,8 +130,8 @@ namespace MugenMvvmToolkit.Infrastructure
 
             public SavedState(PropertyInfo propertyInfo, object entity)
             {
-                GetValue = ServiceProvider.ReflectionManager.GetMemberGetter<object>(propertyInfo);
-                SetValue = ServiceProvider.ReflectionManager.GetMemberSetter<object>(propertyInfo);
+                GetValue = ToolkitServiceProvider.ReflectionManager.GetMemberGetter<object>(propertyInfo);
+                SetValue = ToolkitServiceProvider.ReflectionManager.GetMemberSetter<object>(propertyInfo);
                 Value = GetValue(entity);
             }
 
