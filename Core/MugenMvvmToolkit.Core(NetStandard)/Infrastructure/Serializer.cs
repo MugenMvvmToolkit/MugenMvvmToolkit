@@ -23,6 +23,7 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using MugenMvvmToolkit.Attributes;
 using MugenMvvmToolkit.Interfaces;
+using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Infrastructure
@@ -117,11 +118,9 @@ namespace MugenMvvmToolkit.Infrastructure
         private void AddKnownTypes(IEnumerable<Assembly> assemblies)
         {
             var builder = ServiceProvider.BootstrapCodeBuilder;
-            if (builder != null)
-            {
-                builder.AppendStatic(typeof(Serializer).Name, $"{typeof(ApplicationSettings).FullName}.{nameof(ApplicationSettings.SerializerDisableAutoRegistration)} = true;");
-                builder.Append(typeof(Serializer).Name, $"var serializer = ({typeof(Serializer).FullName}) {typeof(ServiceProvider).FullName}.Get<{typeof(ISerializer).FullName}>();");
-            }
+            if (!ApplicationSettings.SerializerDisableAutoRegistration)
+                builder?.AppendStatic(nameof(ApplicationSettings), $"{typeof(ApplicationSettings).FullName}.{nameof(ApplicationSettings.SerializerDisableAutoRegistration)} = true;");
+            bool initialized = false;
             foreach (Assembly assembly in assemblies)
             {
                 foreach (Type type in assembly.SafeGetTypes(!ServiceProvider.IsDesignMode))
@@ -133,11 +132,16 @@ namespace MugenMvvmToolkit.Infrastructure
                     if (!type.IsAbstract && !type.IsGenericTypeDefinition && type.IsDefined(typeof(DataContractAttribute), true))
 #endif
                     {
-                        _knownTypes.Add(type);
-                        if (type.IsPublic())
-                            builder?.Append(nameof(Serializer), $"serializer.{nameof(AddKnownType)}(typeof({type.GetPrettyName()}));");
-                        else
-                            builder?.Append(nameof(Serializer), $"serializer.{nameof(AddKnownType)}(\"{type.AssemblyQualifiedName}\");");
+                        if (!_knownTypes.Add(type) || builder == null)
+                            continue;
+                        if (!initialized)
+                        {
+                            builder.Append(typeof(Serializer).Name, $"var serializer = ({typeof(Serializer).FullName}) context.{nameof(IModuleContext.IocContainer)}.Get(typeof({typeof(ISerializer).FullName}));");
+                            initialized = true;
+                        }
+                        builder.Append(nameof(Serializer), type.IsPublic()
+                            ? $"serializer.{nameof(AddKnownType)}(typeof({type.GetPrettyName()}));"
+                            : $"serializer.{nameof(AddKnownType)}(\"{type.AssemblyQualifiedName}\");");
                     }
                 }
             }

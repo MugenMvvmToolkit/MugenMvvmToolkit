@@ -34,6 +34,11 @@ namespace MugenMvvmToolkit
         public const int ModulePriorityBinding = -100;
         public const int ModulePriorityWrapperRegistration = -1000;
 
+        public const int CodeBuilderStaticPriority = 100;
+        public const int CodeBuilderHighPriority = 10;
+        public const int CodeBuilderNormalPriority = 0;
+        public const int CodeBuilderLowPriority = -100;
+
         public const string DataContractNamespace = "http://schemas.mugenmvvmtoolkit.com";
         public const string AssemblyVersion = "6.5.0.0";
         public const string AssemblyCopyright = "Copyright (c) 2012-2017 Vyacheslav Volkov";

@@ -22,12 +22,6 @@ namespace MugenMvvmToolkit.Interfaces
 {
     public interface IBootstrapCodeBuilder
     {
-        #region Methods
-
-        void AppendStatic([NotNull] string tag, [NotNull] string code);
-
-        void Append([NotNull] string tag, [NotNull] string code);
-
-        #endregion
+        void Append([NotNull] string tag, [NotNull] string code, int priority = ApplicationSettings.CodeBuilderNormalPriority);
     }
 }

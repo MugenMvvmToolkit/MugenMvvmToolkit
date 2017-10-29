@@ -1012,6 +1012,11 @@ namespace MugenMvvmToolkit
 
         #region Extensions
 
+        public static void AppendStatic(this IBootstrapCodeBuilder codeBuilder, [NotNull] string tag, [NotNull] string code)
+        {
+            codeBuilder.Append(tag, code, ApplicationSettings.CodeBuilderStaticPriority);
+        }
+
         public static T GetDesignViewModel<T>(this BootstrapperBase bootstrapper, Func<IViewModelProvider, T> getViewModel)
             where T : IViewModel
         {

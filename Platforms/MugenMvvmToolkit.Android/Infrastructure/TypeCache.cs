@@ -144,6 +144,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
         public void AddFullName(string name, Type type)
         {
+            AddTypeUsage(ServiceProvider.BootstrapCodeBuilder, name);
             //only for initialization
             // ReSharper disable InconsistentlySynchronizedField
             _fullNameCache[name] = type;
@@ -153,6 +154,7 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
         public void AddName(string name, Type type)
         {
+            AddTypeUsage(ServiceProvider.BootstrapCodeBuilder, name);
             //only for initialization
             // ReSharper disable InconsistentlySynchronizedField
             _nameCache[name] = type;
@@ -203,14 +205,20 @@ namespace MugenMvvmToolkit.Android.Infrastructure
 
         private static void WriteTypeUsage(IBootstrapCodeBuilder builder, string name, Type type, bool isFullName)
         {
-            if (builder != null)
+            if (AddTypeUsage(builder, name))
             {
-                if (_usedTypes == null)
-                    _usedTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-                if (_usedTypes.Add(name))
-                    builder.Append("TypeCache",
-                          $"{typeof(TypeCache<TType>).GetPrettyName()}.{nameof(Instance)}.{(isFullName ? nameof(AddFullName) : nameof(AddName))}(\"{name}\", typeof({type.GetPrettyName()}));");
+                builder.Append("TypeCache",
+                      $"{typeof(TypeCache<TType>).GetPrettyName()}.{nameof(Instance)}.{(isFullName ? nameof(AddFullName) : nameof(AddName))}(\"{name}\", typeof({type.GetPrettyName()}));");
             }
+        }
+
+        private static bool AddTypeUsage(IBootstrapCodeBuilder builder, string name)
+        {
+            if (builder == null)
+                return false;
+            if (_usedTypes == null)
+                _usedTypes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            return _usedTypes.Add(name);
         }
 
         #endregion

@@ -43,6 +43,7 @@
   <ItemGroup>
     <Compile Include="Annotations\Toolkit.Annotations.cs" />
     <Compile Include="ApplicationSettings.cs" />
+    <Compile Include="Infrastructure\BootstrapCodeBuilder.cs" />
     <Compile Include="Infrastructure\Callbacks\CallbackDictionary.cs" />
     <Compile Include="Infrastructure\CompositeEqualityComparer.cs" />
     <Compile Include="Interfaces\Navigation\IOpenedViewModelInfo.cs" />

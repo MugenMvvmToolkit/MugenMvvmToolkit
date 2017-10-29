@@ -125,6 +125,9 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\AttachedValueProviderBase.cs">
       <Link>Infrastructure\AttachedValueProviderBase.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Infrastructure\BootstrapCodeBuilder.cs">
+      <Link>Infrastructure\BootstrapCodeBuilder.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\BootstrapperBase.cs">
       <Link>Infrastructure\BootstrapperBase.cs</Link>
     </Compile>

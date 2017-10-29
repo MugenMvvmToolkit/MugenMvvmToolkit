@@ -298,9 +298,13 @@ namespace MugenMvvmToolkit.Binding
 
         public static void TryRegisterDataTemplateSelectorsAndValueConverters(this IModuleContext context, Action<Type> customHandler)
         {
-            ServiceProvider.BootstrapCodeBuilder?.AppendStatic(nameof(BindingExtensions),
-                $"{typeof(BindingServiceProvider).FullName}.DisableConverterAutoRegistration = {typeof(BindingServiceProvider).FullName}.DisableDataTemplateSelectorAutoRegistration = true;");
-            ServiceProvider.BootstrapCodeBuilder?.Append(nameof(BindingExtensions), $"var resolver = {typeof(BindingServiceProvider).FullName}.ResourceResolver;");
+            if (!BindingServiceProvider.DisableConverterAutoRegistration || !BindingServiceProvider.DisableDataTemplateSelectorAutoRegistration)
+            {
+                ServiceProvider.BootstrapCodeBuilder?.AppendStatic(nameof(ApplicationSettings),
+                      $"{typeof(BindingServiceProvider).FullName}.DisableConverterAutoRegistration = {typeof(BindingServiceProvider).FullName}.DisableDataTemplateSelectorAutoRegistration = true;");
+            }
+
+            Action initializeAction = () => ServiceProvider.BootstrapCodeBuilder?.Append(nameof(BindingExtensions), $"var resolver = {typeof(BindingServiceProvider).FullName}.ResourceResolver;");
             var assemblies = context.Assemblies;
             for (var i = 0; i < assemblies.Count; i++)
             {
@@ -311,7 +315,7 @@ namespace MugenMvvmToolkit.Binding
                     for (var j = 0; j < types.Count; j++)
                     {
                         var type = types[j];
-                        TryRegisterDataTemplateSelectorAndValueConverter(type);
+                        TryRegisterDataTemplateSelectorAndValueConverter(type, ref initializeAction);
                         customHandler?.Invoke(type);
                     }
                 }
@@ -908,12 +912,12 @@ namespace MugenMvvmToolkit.Binding
             return st.Substring(1, st.Length - 2);
         }
 
-        private static void TryRegisterDataTemplateSelectorAndValueConverter(Type type)
+        private static void TryRegisterDataTemplateSelectorAndValueConverter(Type type, ref Action initializeAction)
         {
             var isConverter = typeof(IBindingValueConverter).IsAssignableFrom(type);
             var isTemplate = typeof(IDataTemplateSelector).IsAssignableFrom(type);
 
-            if ((!isConverter && !isTemplate) || !type.IsPublicNonAbstractClass())
+            if (!isConverter && !isTemplate || !type.IsPublicNonAbstractClass())
                 return;
 
             if (BindingServiceProvider.DisableConverterAutoRegistration && isConverter)
@@ -925,6 +929,11 @@ namespace MugenMvvmToolkit.Binding
             if (constructor == null || !constructor.IsPublic)
                 return;
 
+            if (initializeAction != null)
+            {
+                initializeAction();
+                initializeAction = null;
+            }
             var value = constructor.Invoke(Empty.Array<object>());
             if (isTemplate)
             {

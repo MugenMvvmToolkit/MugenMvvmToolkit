@@ -288,6 +288,7 @@ namespace MugenMvvmToolkit.Android
             WeakReferencesHolder = new List<object>(1000);
             CurrentActivityLocker = new object();
             EnableFastTextViewTextProperty = true;
+            TypeCacheOnlyUsedTypeToBootstrapCodeBuilder = true;
             BackgroundNotificationDelay = 200;
 
             // ReSharper disable once ObjectCreationAsStatement
