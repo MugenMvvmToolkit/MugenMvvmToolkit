@@ -315,6 +315,7 @@ namespace MugenMvvmToolkit.WinForms.Binding
             if (item == null)
                 return;
             for (var i = 0; i < dataGridView.Rows.Count; i++)
+            {
                 if (Equals(dataGridView.Rows[i].DataBoundItem, item))
                 {
                     var row = dataGridView.Rows[i];
@@ -323,6 +324,7 @@ namespace MugenMvvmToolkit.WinForms.Binding
                         row.Cells[0].Selected = true;
                     break;
                 }
+            }
         }
 
         private static object GetSelectedItemDataGridView(IBindingMemberInfo bindingMemberInfo, DataGridView dataGridView)
