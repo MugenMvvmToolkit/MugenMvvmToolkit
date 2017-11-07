@@ -479,6 +479,9 @@
     <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\Views\ICleanableView.cs">
       <Link>Interfaces\Views\ICleanableView.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\Views\IHasFallbackMappingView.cs">
+      <Link>Interfaces\Views\IHasFallbackMappingView.cs</Link>
+    </Compile>
     <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\Views\IInitializableView.cs">
       <Link>Interfaces\Views\IInitializableView.cs</Link>
     </Compile>

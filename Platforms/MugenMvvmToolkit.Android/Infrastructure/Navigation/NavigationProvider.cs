@@ -26,6 +26,7 @@ using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.ViewModels;
+using MugenMvvmToolkit.Interfaces.Views;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.EventArg;
 using MugenMvvmToolkit.Models.Messages;
@@ -413,14 +414,19 @@ namespace MugenMvvmToolkit.UWP.Infrastructure.Navigation
 
                             vmType = type;
                     }
-                    else if (viewModelTo == null || items.Count > 1)
+                    else if (viewModelTo == null)
                     {
                         var viewModel = ToolkitExtensions.GetDataContext(args.Content) as IViewModel;
-                        var type = viewModel?.GetType();
-                        if (type != null && items.Any(item => item.ViewModelType == type))
+                        if (viewModel == null)
+                            vmType = (args.Content as IHasFallbackMappingView)?.GetViewModelType(args.Context);
+                        else
                         {
-                            viewModelTo = viewModel;
-                            vmType = type;
+                            var type = viewModel.GetType();
+                            if (items.Any(item => item.ViewModelType == type))
+                            {
+                                viewModelTo = viewModel;
+                                vmType = type;
+                            }
                         }
                     }
                 }
