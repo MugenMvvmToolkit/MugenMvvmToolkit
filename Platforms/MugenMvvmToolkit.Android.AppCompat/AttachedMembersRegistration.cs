@@ -110,7 +110,7 @@ namespace MugenMvvmToolkit.Android.AppCompat
                 return ToolkitServiceProvider.AttachedValueProvider.GetOrAdd(drawer, "!@!@dralist", (layout, o) =>
                 {
                     var listenerImpl = new DrawerListenerImpl();
-                    layout.SetDrawerListener(listenerImpl);
+                    layout.AddDrawerListener(listenerImpl);
                     return listenerImpl;
                 }, null);
             }

@@ -21,7 +21,6 @@ using Android.Views;
 using JetBrains.Annotations;
 
 #if APPCOMPAT
-using Android.Support.V4.Widget;
 using Fragment = Android.Support.V4.App.Fragment;
 using FragmentTransaction = Android.Support.V4.App.FragmentTransaction;
 
@@ -36,13 +35,6 @@ namespace MugenMvvmToolkit.Android
     {
         #region Methods
 
-#if APPCOMPAT
-        public static void SetDrawerListenerEx([NotNull] this DrawerLayout layout, DrawerLayout.IDrawerListener listener)
-        {
-            Should.NotBeNull(layout, nameof(layout));
-            AttachedMembersRegistration.DrawerListenerImpl.GetOrAdd(layout).SetListener(layout.Context, listener);
-        }
-#endif
         internal static void SetContentView([NotNull] this ViewGroup frameLayout, [NotNull] object content,
                     [NotNull] FragmentTransaction transaction,
                     [NotNull] Action<ViewGroup, Fragment, FragmentTransaction> updateAction)
