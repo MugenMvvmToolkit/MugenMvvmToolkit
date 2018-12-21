@@ -66,8 +66,7 @@ namespace MugenMvvm.Infrastructure
                 };
             }
 
-            public WeakActionTokenInternal(Action<TTarget, TArg1, TArg2> action, TTarget target, TArg1 arg1,
-                TArg2 arg2)
+            public WeakActionTokenInternal(Action<TTarget, TArg1, TArg2> action, TTarget target, TArg1 arg1, TArg2 arg2)
             {
                 Should.NotBeNull(action, nameof(action));
                 Should.NotBeNull(target, nameof(target));
