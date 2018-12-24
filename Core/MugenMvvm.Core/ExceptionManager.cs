@@ -11,7 +11,7 @@ namespace MugenMvvm
 
         public static Exception EnumIsNotValid(Type type, object value)
         {
-            var message = string.Format("'{0}' is not a valid in {1}", value, type);
+            var message = $"'{value}' is not a valid in {type}";
             return new ArgumentException(message, nameof(value));
         }
 
@@ -23,6 +23,11 @@ namespace MugenMvvm
         internal static Exception IndexOutOfRangeCollection(string paramName)
         {
             return new ArgumentOutOfRangeException(paramName, "Index must be within the bounds of the collection.");
+        }
+
+        internal static Exception EnumOutOfRange(string paramName, Enum @enum)
+        {
+            return new ArgumentOutOfRangeException(paramName, $"Unhandled enum - '{@enum}'");
         }
 
         #endregion

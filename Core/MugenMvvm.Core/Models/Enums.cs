@@ -25,6 +25,13 @@ namespace MugenMvvm.Models
         HandleAndNotifySubscribers = Handle | NotifySubscribers
     }
 
+    public enum TraceLevel
+    {
+        Information = 0,
+        Warning = 1,
+        Error = 2
+    }
+
     public enum SubscriberResult
     {
         Handled = 1,

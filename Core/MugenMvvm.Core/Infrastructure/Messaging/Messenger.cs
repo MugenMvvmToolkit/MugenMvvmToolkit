@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using MugenMvvm.Collections;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces;
@@ -17,15 +16,18 @@ namespace MugenMvvm.Infrastructure.Messaging
 
         private readonly HashSet<KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>> _subscribers;
         private readonly IThreadDispatcher _threadDispatcher;
+        private readonly ITracer _tracer;
 
         #endregion
 
         #region Constructors
 
-        public Messenger(IThreadDispatcher threadDispatcher)
+        public Messenger(IThreadDispatcher threadDispatcher, ITracer tracer)
         {
             Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
+            Should.NotBeNull(tracer, nameof(tracer));
             _threadDispatcher = threadDispatcher;
+            _tracer = tracer;
             _subscribers = new HashSet<KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>>(this);
         }
 
@@ -56,7 +58,8 @@ namespace MugenMvvm.Infrastructure.Messaging
             lock (_subscribers)
             {
                 var subscribers = new IMessengerSubscriber[_subscribers.Count];
-                foreach (var subscriber in _subscribers) subscribers[index++] = subscriber.Value;
+                foreach (var subscriber in _subscribers) 
+                    subscribers[index++] = subscriber.Value;
                 return subscribers;
             }
         }
@@ -151,24 +154,14 @@ namespace MugenMvvm.Infrastructure.Messaging
                     if (result == SubscriberResult.Handled)
                     {
                         if (trace)
-                            Trace(_sender, _message, subscribers[i]);
+                            _messenger._tracer.Warn(MessageConstants.MessageSentFromToFormat3.Format(_message, _sender, subscribers[i]));
                     }
                     else if (result == SubscriberResult.Invalid)
                         _messenger.Unsubscribe(subscribers[i]);
                 }
             }
 
-            #endregion
-
-            #region Methods
-
-            private static void Trace(object sender, object message, object target)
-            {
-                //                Tracer.Warn("The message '{0}' from '{1}' was sended to '{2}'", message.GetType(),
-                //                    sender.GetType(), target);//todo add
-            }
-
-            #endregion
+            #endregion            
         }
 
         private sealed class MessengerContext : HashSet<object>, IMessengerContext

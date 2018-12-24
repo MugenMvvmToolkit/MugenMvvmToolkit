@@ -31,16 +31,15 @@ namespace MugenMvvm.Collections
         public ArrayListLight(IEnumerable<T> collection)
         {
             Should.NotBeNull(collection, nameof(collection));
-            var objs = collection as ICollection<T>;
-            if (objs != null)
+            if (collection is ICollection<T> items)
             {
-                var count = objs.Count;
+                var count = items.Count;
                 if (count == 0)
                     _items = Default.EmptyArray<T>();
                 else
                 {
                     _items = new T[count];
-                    objs.CopyTo(_items, 0);
+                    items.CopyTo(_items, 0);
                     _size = count;
                 }
             }
