@@ -37,6 +37,21 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
         }
 
         [Fact]
+        public void BeginWithMessageShouldUpdateBusyInfoNullMessageNotNullDefault()
+        {
+            var defaultMsg = new object();
+            var busyIndicator = GetBusyIndicator(defaultMsg);
+            var token = busyIndicator.Begin(message: null);
+            busyIndicator.BusyInfo.ShouldNotBeNull();
+            busyIndicator.BusyInfo.Message.ShouldEqual(defaultMsg);
+            token.IsCompleted.ShouldBeFalse();
+
+            token.Dispose();
+            token.IsCompleted.ShouldBeTrue();
+            busyIndicator.BusyInfo.ShouldBeNull();
+        }
+
+        [Fact]
         public void BeginWithMessageShouldUpdateBusyInfoNotNullMessage()
         {
             var busyIndicator = GetBusyIndicator();

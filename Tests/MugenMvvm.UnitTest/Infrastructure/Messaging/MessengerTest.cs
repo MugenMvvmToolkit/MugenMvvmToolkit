@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Infrastructure.Messaging;
 using MugenMvvm.Infrastructure.Metadata;
@@ -17,6 +16,13 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
     public class MessengerTest : UnitTestBase
     {
         #region Methods
+
+        [Fact]
+        public void MessengerShouldValidateArgsNull()
+        {
+            Assert.Throws<ArgumentNullException>(() => new Messenger(null!, new TestTracer()));
+            Assert.Throws<ArgumentNullException>(() => new Messenger(new TestThreadDispatcher(), null!));
+        }
 
         [Fact]
         public void SubscribeShouldAddListener()
@@ -231,7 +237,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
                 HandleDelegate = (o, o1, arg3) => subscriberResult
             };
             var traced = false;
-            var tracer = new TestTracer { Trace = (level, s) => traced = true };
+            var tracer = new TestTracer {Trace = (level, s) => traced = true};
             var messenger = CreateMessenger(tracer: tracer);
             messenger.Subscribe(listener);
             messenger.Publish(this, listener);
@@ -239,10 +245,10 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
         }
 
         [Fact]
-        public void MessengerShouldAvoidLooping1()
+        public void MessengerShouldAvoidLooping()
         {
-            IMessenger messenger1 = CreateMessenger();
-            IMessenger messenger2 = CreateMessenger();
+            var messenger1 = CreateMessenger();
+            var messenger2 = CreateMessenger();
             messenger1.Subscribe(new MessengerRepublisherSubscriber(messenger2));
             messenger2.Subscribe(new MessengerRepublisherSubscriber(messenger1));
             messenger1.Publish(messenger1, new object());
@@ -263,28 +269,28 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
             m3.Subscribe(new MessengerRepublisherSubscriber(m3));
 
             var subscribers = new List<TestSubscriber>();
-            for (int i = 0; i < 1000; i++)
+            for (var i = 0; i < 1000; i++)
             {
-                var subscriber = new TestSubscriber { HandleDelegate = (o, o1, arg3) => SubscriberResult.Handled };
+                var subscriber = new TestSubscriber {HandleDelegate = (o, o1, arg3) => SubscriberResult.Handled};
                 subscribers.Add(subscriber);
                 m1.Subscribe(subscriber);
 
-                subscriber = new TestSubscriber { HandleDelegate = (o, o1, arg3) => SubscriberResult.Handled };
+                subscriber = new TestSubscriber {HandleDelegate = (o, o1, arg3) => SubscriberResult.Handled};
                 subscribers.Add(subscriber);
                 m2.Subscribe(subscriber);
 
-                subscriber = new TestSubscriber { HandleDelegate = (o, o1, arg3) => SubscriberResult.Handled };
+                subscriber = new TestSubscriber {HandleDelegate = (o, o1, arg3) => SubscriberResult.Handled};
                 subscribers.Add(subscriber);
                 m3.Subscribe(subscriber);
             }
 
             const int count = 1000;
             var messages = new HashSet<object>();
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
                 messages.Add(new object());
 
             var tasks = new List<Task>();
-            for (int i = 0; i < messages.Count; i++)
+            for (var i = 0; i < messages.Count; i++)
             {
                 var o = messages.ElementAt(i);
                 tasks.Add(Task.Run(() => m1.Publish(o, o)));
@@ -405,6 +411,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
                 {
                     Messages.Add(message);
                 }
+
                 return HandleDelegate(sender, message, messengerContext);
             }
 

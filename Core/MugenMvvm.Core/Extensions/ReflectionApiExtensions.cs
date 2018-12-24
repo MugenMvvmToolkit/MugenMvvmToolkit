@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
 using MugenMvvm.Interfaces;
 using MugenMvvm.Models;
 
@@ -12,17 +13,23 @@ namespace MugenMvvm
     {
         #region Properties
 
-        public static Func<Type, MemberFlags, IEnumerable<FieldInfo>> GetFields { get; set; }
-
         public static Func<Type, string, MemberFlags, FieldInfo> GetField { get; set; }
+
+        public static Func<Type, MemberFlags, IEnumerable<FieldInfo>> GetFields { get; set; }
 
         public static Func<Type, string, MemberFlags, PropertyInfo> GetProperty { get; set; }
 
+        public static Func<Type, string, MemberFlags, MethodInfo> GetMethod { get; set; }
+
         public static Func<Type, MemberFlags, IEnumerable<MethodInfo>> GetMethods { get; set; }
+
+        public static Func<Type, Type, bool> IsAssignableFrom { get; set; }
 
         public static Func<Type, Type, bool, bool> IsDefined { get; set; }
 
         public static Func<Type, bool> IsClass { get; set; }
+
+        public static Func<Type, bool> IsValueType { get; set; }
 
         #endregion
 
@@ -40,6 +47,12 @@ namespace MugenMvvm
             return GetProperty(type, name, flags);
         }
 
+        public static MethodInfo GetMethodUnified(this Type type, string name, MemberFlags flags)
+        {
+            Should.NotBeNull(type, nameof(type));
+            return GetMethod(type, name, flags);
+        }
+
         public static IEnumerable<FieldInfo> GetFieldsUnified(this Type type, MemberFlags flags)
         {
             Should.NotBeNull(type, nameof(type));
@@ -50,6 +63,13 @@ namespace MugenMvvm
         {
             Should.NotBeNull(type, nameof(type));
             return GetMethods(type, flags);
+        }
+
+        public static bool IsAssignableFromUnified(this Type type, Type typeFrom)
+        {
+            Should.NotBeNull(type, nameof(type));
+            Should.NotBeNull(typeFrom, nameof(typeFrom));
+            return IsAssignableFrom(type, typeFrom);
         }
 
         public static bool IsDefinedUnified(this Type type, Type attributeType, bool inherit)
@@ -65,6 +85,12 @@ namespace MugenMvvm
             return IsClass(type);
         }
 
+        public static bool IsValueTypeUnified(this Type type)
+        {
+            Should.NotBeNull(type, nameof(type));
+            return IsValueType(type);
+        }
+
         public static T GetValueEx<T>(this MemberInfo member, object? target)
         {
             throw new NotImplementedException();
@@ -73,12 +99,30 @@ namespace MugenMvvm
         public static TDelegate GetMethodDelegate<TDelegate>(this IReflectionManager reflectionManager, MethodInfo method) where TDelegate : Delegate
         {
             Should.NotBeNull(method, nameof(method));
-            return (TDelegate) reflectionManager.GetMethodDelegate(typeof(TDelegate), method);
+            return (TDelegate)reflectionManager.GetMethodDelegate(typeof(TDelegate), method);
         }
 
         public static bool IsAnonymousClass(this Type type)
         {
             return type.IsDefinedUnified(typeof(CompilerGeneratedAttribute), false) && type.IsClassUnified();
+        }
+
+        [Pure]
+        public static bool HasMemberFlag(this MemberFlags es, MemberFlags value)
+        {
+            return (es & value) == value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool EqualsEx(this Type x, Type y)//note idk why but default implementation doesn't use ReferenceEquals before equals check
+        {
+            return ReferenceEquals(x, y) || x.Equals(y);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool EqualsEx(this MemberInfo x, MemberInfo y)
+        {
+            return ReferenceEquals(x, y) || x.Equals(y);
         }
 
         #endregion

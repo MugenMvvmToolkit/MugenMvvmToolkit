@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Interfaces;
+﻿using MugenMvvm.Infrastructure;
+using MugenMvvm.Interfaces;
 using MugenMvvm.UnitTest.TestInfrastructure;
 using Xunit;
 
@@ -12,8 +13,10 @@ namespace MugenMvvm.UnitTest
 
         public UnitTestBase()
         {
+            UnifiedReflectionApiInitializer.Initialize();
             Singleton<IWeakReferenceFactory>.Initialize(new TestWeakReferenceFactory());
             Singleton<IThreadDispatcher>.Initialize(new TestThreadDispatcher());
+            Singleton<IReflectionManager>.Initialize(new ExpressionReflectionManager());
         }
 
         #endregion

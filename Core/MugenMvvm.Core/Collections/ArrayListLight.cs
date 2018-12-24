@@ -22,10 +22,7 @@ namespace MugenMvvm.Collections
 
         public ArrayListLight(uint capacity)
         {
-            if (capacity == 0)
-                _items = Default.EmptyArray<T>();
-            else
-                _items = new T[capacity];
+            _items = capacity == 0 ? Default.EmptyArray<T>() : new T[capacity];
         }
 
         public ArrayListLight(IEnumerable<T> collection)
@@ -47,7 +44,7 @@ namespace MugenMvvm.Collections
             {
                 _size = 0;
                 _items = Default.EmptyArray<T>();
-                foreach (var obj in collection)
+                foreach (var obj in collection!)
                     Add(obj);
             }
         }
@@ -58,7 +55,7 @@ namespace MugenMvvm.Collections
 
         private uint Capacity
         {
-            get => (uint)_items.Length;
+            get => (uint) _items.Length;
             set
             {
                 if (value < _size)
@@ -79,7 +76,7 @@ namespace MugenMvvm.Collections
 
         #endregion
 
-        #region Methods        
+        #region Methods
 
         public T[] GetItemsWithLock(out int size)
         {
@@ -128,7 +125,7 @@ namespace MugenMvvm.Collections
         public void Add(T item)
         {
             if (_size == _items.Length)
-                EnsureCapacity((uint)_size + 1);
+                EnsureCapacity((uint) _size + 1);
             _items[_size++] = item;
         }
 
@@ -161,7 +158,7 @@ namespace MugenMvvm.Collections
             if (_size == 0)
                 return Default.EmptyArray<T>();
             var result = new T[_size];
-            for (int i = 0; i < result.Length; i++)
+            for (var i = 0; i < result.Length; i++)
                 result[i] = _items[i];
 
             return result;
@@ -209,9 +206,7 @@ namespace MugenMvvm.Collections
         {
             if (_items.Length >= min)
                 return;
-            var num = (uint)(_items.Length == 0 ? DefaultCapacity : _items.Length * 2);
-            if (num > uint.MaxValue)
-                num = 2146435071;
+            var num = (uint) (_items.Length == 0 ? DefaultCapacity : _items.Length * 2);
             if (num < min)
                 num = min;
             Capacity = num;

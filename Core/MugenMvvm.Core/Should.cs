@@ -35,6 +35,13 @@ namespace MugenMvvm
                 throw new NotSupportedException(error);
         }
 
+        [DebuggerStepThrough, AssertionMethod]
+        public static void BeValid(string paramName, [AssertionCondition(AssertionConditionType.IS_TRUE)] bool validation)
+        {
+            if (!validation)
+                throw new ArgumentException($"Argument '{paramName}' is not valid");
+        }
+
         #endregion
     }
 }

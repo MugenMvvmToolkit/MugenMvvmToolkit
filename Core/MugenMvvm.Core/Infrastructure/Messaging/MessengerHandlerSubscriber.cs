@@ -29,7 +29,7 @@ namespace MugenMvvm.Infrastructure.Messaging
                 .FirstOrDefault(info => nameof(Invoke).Equals(info.Name));
             Should.BeSupported(InvokeMethodInfo != null, nameof(InvokeMethodInfo));
 
-            MessageTypeToDelegate = new Dictionary<Type, Func<object?, object?[], object?>>();
+            MessageTypeToDelegate = new Dictionary<Type, Func<object?, object?[], object?>>(MemberInfoComparer.Instance);
         }
 
         public MessengerHandlerSubscriber(IMessengerHandler handler)
@@ -75,7 +75,7 @@ namespace MugenMvvm.Infrastructure.Messaging
                 }
             }
 
-            if (func.Invoke(null, new[] {target, sender, message, messengerContext}) == null)
+            if (func.Invoke(null, new[] { target, sender, message, messengerContext }) == null)
                 return SubscriberResult.Ignored;
             return SubscriberResult.Handled;
         }
