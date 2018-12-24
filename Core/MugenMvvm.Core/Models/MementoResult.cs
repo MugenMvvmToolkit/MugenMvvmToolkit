@@ -1,4 +1,4 @@
-﻿using MugenMvvm.Interfaces;
+﻿using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Serialization;
 
 namespace MugenMvvm.Models
@@ -20,13 +20,13 @@ namespace MugenMvvm.Models
 
         private MementoResult()
         {
-            Context = Default.Context;
+            Metadata = Default.MetadataContext;
         }
 
-        public MementoResult(object target, IReadOnlyContext? context = null)
+        public MementoResult(object target, IReadOnlyMetadataContext? metadata = null)
         {
             IsRestored = true;
-            Context = context ?? Default.Context;
+            Metadata = metadata ?? Default.MetadataContext;
             Target = target;
         }
 
@@ -36,7 +36,7 @@ namespace MugenMvvm.Models
 
         public bool IsRestored { get; }
 
-        public IReadOnlyContext Context { get; }
+        public IReadOnlyMetadataContext Metadata { get; }
 
         public object? Target { get; }
 

@@ -1,5 +1,5 @@
 ﻿using System;
-using MugenMvvm.Interfaces;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Models;
 
 namespace MugenMvvm
@@ -8,9 +8,9 @@ namespace MugenMvvm
     {
         #region Properties
 
-        public static IContextKey<ViewModelLifecycleState> LifecycleState { get; set; }
+        public static IMetadataContextKey<ViewModelLifecycleState> LifecycleState { get; set; }
 
-        public static IContextKey<Guid> Id { get; set; }
+        public static IMetadataContextKey<Guid> Id { get; set; }
 
         #endregion
     }

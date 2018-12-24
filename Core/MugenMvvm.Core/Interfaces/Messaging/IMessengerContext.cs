@@ -1,8 +1,10 @@
-﻿namespace MugenMvvm.Interfaces.Messaging
+﻿using MugenMvvm.Interfaces.Metadata;
+
+namespace MugenMvvm.Interfaces.Messaging
 {
     public interface IMessengerContext
     {
-        IContext Metadata { get; }
+        IMetadataContext Metadata { get; }
 
         bool MarkAsHandled(object handler);
     }

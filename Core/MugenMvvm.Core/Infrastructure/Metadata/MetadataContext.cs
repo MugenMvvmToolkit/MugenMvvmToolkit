@@ -3,29 +3,29 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
-using MugenMvvm.Interfaces;
+using MugenMvvm.Attributes;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Models;
-using MugenMvvm.Attributes;
 
-namespace MugenMvvm.Infrastructure
+namespace MugenMvvm.Infrastructure.Metadata
 {
-    public class Context : IContext, IEqualityComparer<IContextKey>
+    public class MetadataContext : IMetadataContext, IEqualityComparer<IMetadataContextKey>
     {
         #region Fields
 
-        private readonly Dictionary<IContextKey, object?> _values;
+        private readonly Dictionary<IMetadataContextKey, object?> _values;
 
         #endregion
 
         #region Constructors
 
-        public Context()
+        public MetadataContext()
         {
-            _values = new Dictionary<IContextKey, object?>(this);
+            _values = new Dictionary<IMetadataContextKey, object?>(this);
         }
 
-        private Context(Dictionary<IContextKey, object?> values)
+        private MetadataContext(Dictionary<IMetadataContextKey, object?> values)
         {
             _values = values;
         }
@@ -70,14 +70,14 @@ namespace MugenMvvm.Infrastructure
             return new ContextMemento(this);
         }
 
-        public bool TryGet(IContextKey key, out object? value)
+        public bool TryGet(IMetadataContextKey contextKey, out object? value)
         {
-            Should.NotBeNull(key, nameof(key));
+            Should.NotBeNull(contextKey, nameof(contextKey));
             object? obj;
             bool hasValue;
             lock (_values)
             {
-                hasValue = _values.TryGetValue(key, out obj);
+                hasValue = _values.TryGetValue(contextKey, out obj);
             }
 
             if (hasValue)
@@ -90,9 +90,9 @@ namespace MugenMvvm.Infrastructure
             return false;
         }
 
-        public bool TryGet<T>(IContextKey<T> key, out T value)
+        public bool TryGet<T>(IMetadataContextKey<T> contextKey, out T value)
         {
-            if (TryGet(key, out object? objValue) && objValue is T v)
+            if (TryGet(contextKey, out object? objValue) && objValue is T v)
             {
                 value = v;
                 return true;
@@ -101,29 +101,29 @@ namespace MugenMvvm.Infrastructure
             return false;
         }
 
-        public bool Contains(IContextKey key)
+        public bool Contains(IMetadataContextKey contextKey)
         {
-            Should.NotBeNull(key, nameof(key));
+            Should.NotBeNull(contextKey, nameof(contextKey));
             lock (_values)
             {
-                return _values.ContainsKey(key);
+                return _values.ContainsKey(contextKey);
             }
         }
 
-        public void Set(IContextKey key, object? value)
+        public void Set(IMetadataContextKey contextKey, object? value)
         {
-            Should.NotBeNull(key, nameof(key));
-            key.Validate(value);
+            Should.NotBeNull(contextKey, nameof(contextKey));
+            contextKey.Validate(value);
             lock (_values)
             {
-                _values[key] = value;
+                _values[contextKey] = value;
             }
         }
 
-        public void Set<T>(IContextKey<T> key, T value)
+        public void Set<T>(IMetadataContextKey<T> contextKey, T value)
         {
             object? obj = value;
-            Set(key, obj);
+            Set(contextKey, obj);
         }
 
         public void Merge(IEnumerable<ContextValue> items)
@@ -132,16 +132,16 @@ namespace MugenMvvm.Infrastructure
             lock (_values)
             {
                 foreach (var item in items)
-                    _values[item.Key] = item.Value;
+                    _values[item.ContextKey] = item.Value;
             }
         }
 
-        public bool Remove(IContextKey key)
+        public bool Remove(IMetadataContextKey contextKey)
         {
-            Should.NotBeNull(key, nameof(key));
+            Should.NotBeNull(contextKey, nameof(contextKey));
             lock (_values)
             {
-                return _values.Remove(key);
+                return _values.Remove(contextKey);
             }
         }
 
@@ -153,12 +153,12 @@ namespace MugenMvvm.Infrastructure
             }
         }
 
-        bool IEqualityComparer<IContextKey>.Equals(IContextKey x, IContextKey y)
+        bool IEqualityComparer<IMetadataContextKey>.Equals(IMetadataContextKey x, IMetadataContextKey y)
         {
             return string.Equals(x.Key, y.Key, StringComparison.Ordinal);
         }
 
-        int IEqualityComparer<IContextKey>.GetHashCode(IContextKey obj)
+        int IEqualityComparer<IMetadataContextKey>.GetHashCode(IMetadataContextKey obj)
         {
             if (obj == null)
                 return 0;
@@ -169,7 +169,7 @@ namespace MugenMvvm.Infrastructure
 
         #region Methods
 
-        public void Add<T>(IContextKey<T> constant, T value)
+        public void Add<T>(IMetadataContextKey<T> constant, T value)
         {
             Set(constant, value);
         }
@@ -187,10 +187,10 @@ namespace MugenMvvm.Infrastructure
 
             [IgnoreDataMember]
             [XmlIgnore]
-            private Context? _context;
+            private MetadataContext? _metadataContext;
 
             [DataMember(Name = "K")]
-            internal IList<IContextKey>? Keys;
+            internal IList<IMetadataContextKey>? Keys;
 
             [DataMember(Name = "V")]
             internal IList<object?>? Values;
@@ -203,9 +203,9 @@ namespace MugenMvvm.Infrastructure
             {
             }
 
-            internal ContextMemento(Context context)
+            internal ContextMemento(MetadataContext metadataContext)
             {
-                _context = context;
+                _metadataContext = metadataContext;
             }
 
             #endregion
@@ -213,7 +213,7 @@ namespace MugenMvvm.Infrastructure
             #region Properties
 
             [IgnoreDataMember]
-            public Type TargetType => typeof(Context);
+            public Type TargetType => typeof(MetadataContext);
 
             #endregion
 
@@ -221,15 +221,15 @@ namespace MugenMvvm.Infrastructure
 
             public void Preserve(ISerializationContext serializationContext)
             {
-                if (_context == null)
+                if (_metadataContext == null)
                     return;
-                KeyValuePair<IContextKey, object?>[] currentValues;
-                lock (_context._values)
+                KeyValuePair<IMetadataContextKey, object?>[] currentValues;
+                lock (_metadataContext._values)
                 {
-                    currentValues = _context._values.ToArray();
+                    currentValues = _metadataContext._values.ToArray();
                 }
 
-                Keys = new List<IContextKey>();
+                Keys = new List<IMetadataContextKey>();
                 Values = new List<object?>();
                 foreach (var keyPair in currentValues)
                 {
@@ -245,15 +245,15 @@ namespace MugenMvvm.Infrastructure
             {
                 Should.NotBeNull(Keys, nameof(Keys));
                 Should.NotBeNull(Values, nameof(Values));
-                if (serializationContext.Mode != SerializationMode.Clone && _context != null)
-                    return new MementoResult(_context, serializationContext.Metadata);
+                if (serializationContext.Mode != SerializationMode.Clone && _metadataContext != null)
+                    return new MementoResult(_metadataContext, serializationContext.Metadata);
 
                 lock (this)
                 {
-                    if (serializationContext.Mode != SerializationMode.Clone && _context != null)
-                        return new MementoResult(_context, serializationContext.Metadata);
+                    if (serializationContext.Mode != SerializationMode.Clone && _metadataContext != null)
+                        return new MementoResult(_metadataContext, serializationContext.Metadata);
 
-                    var dictionary = new Dictionary<IContextKey, object?>();
+                    var dictionary = new Dictionary<IMetadataContextKey, object?>();
                     for (var i = 0; i < Keys!.Count; i++)
                     {
                         var key = Keys![i];
@@ -262,8 +262,8 @@ namespace MugenMvvm.Infrastructure
                             dictionary[key] = Default.SerializableNullValue.From(value);
                     }
 
-                    _context = new Context(dictionary);
-                    return new MementoResult(_context, serializationContext.Metadata);
+                    _metadataContext = new MetadataContext(dictionary);
+                    return new MementoResult(_metadataContext, serializationContext.Metadata);
                 }
             }
 

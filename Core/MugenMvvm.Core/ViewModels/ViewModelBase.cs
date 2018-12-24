@@ -11,6 +11,7 @@ using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Models;
 using MugenMvvm.Attributes;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.ViewModels
 {
@@ -29,11 +30,11 @@ namespace MugenMvvm.ViewModels
 
         #region Constructors
 
-        protected ViewModelBase(IContext? metadata)
+        protected ViewModelBase(IMetadataContext? metadata)
         {
             var dispatcher = Singleton<IViewModelDispatcher>.Instance;
-            Metadata = metadata ?? dispatcher.GetMetadataContext(this, Default.Context);
-            dispatcher.OnLifecycleChanged(this, ViewModelLifecycleState.Created, Default.Context);
+            Metadata = metadata ?? dispatcher.GetMetadataContext(this, Default.MetadataContext);
+            dispatcher.OnLifecycleChanged(this, ViewModelLifecycleState.Created, Default.MetadataContext);
         }
 
         protected ViewModelBase()
@@ -68,7 +69,7 @@ namespace MugenMvvm.ViewModels
             }
         }
 
-        public IContext Metadata { get; }
+        public IMetadataContext Metadata { get; }
 
         public bool IsBusy => BusyInfo != null;
 
@@ -98,7 +99,7 @@ namespace MugenMvvm.ViewModels
             //            ToolkitServiceProvider.AttachedValueProvider.Clear(this);
             Metadata.Clear();
             CleanupWeakReference();
-            Singleton<IViewModelDispatcher>.Instance.OnLifecycleChanged(this, ViewModelLifecycleState.Disposed, Default.Context);
+            Singleton<IViewModelDispatcher>.Instance.OnLifecycleChanged(this, ViewModelLifecycleState.Disposed, Default.MetadataContext);
         }
 
         public IMemento? GetMemento()
@@ -124,17 +125,17 @@ namespace MugenMvvm.ViewModels
             _state = DisposedState;
             OnDisposeInternal(false);
             OnDispose(false);
-            Singleton<IViewModelDispatcher>.Instance.OnLifecycleChanged(this, ViewModelLifecycleState.Finalized, Default.Context);
+            Singleton<IViewModelDispatcher>.Instance.OnLifecycleChanged(this, ViewModelLifecycleState.Finalized, Default.MetadataContext);
         }
 
         protected virtual IBusyIndicatorProvider GetBusyIndicatorProvider()
         {
-            return Singleton<IViewModelDispatcher>.Instance.GetBusyIndicatorProvider(this, Default.Context);
+            return Singleton<IViewModelDispatcher>.Instance.GetBusyIndicatorProvider(this, Default.MetadataContext);
         }
 
         protected virtual IMessenger GetInternalMessenger()
         {
-            return Singleton<IViewModelDispatcher>.Instance.GetMessenger(this, Default.Context);
+            return Singleton<IViewModelDispatcher>.Instance.GetMessenger(this, Default.MetadataContext);
         }
 
         internal virtual void OnDisposeInternal(bool disposing)
@@ -253,7 +254,7 @@ namespace MugenMvvm.ViewModels
             private IViewModel? _viewModel;
 
             [DataMember(Name = "C")]
-            protected internal IContext Context;
+            protected internal IMetadataContext Metadata;
 
             [DataMember(Name = "T")]
             internal Type ViewModelType;
@@ -276,7 +277,7 @@ namespace MugenMvvm.ViewModels
             protected internal ViewModelMemento(IViewModel viewModel)
             {
                 _viewModel = viewModel;
-                Context = viewModel.Metadata;
+                Metadata = viewModel.Metadata;
                 ViewModelType = viewModel.GetType();
             }
 
@@ -295,13 +296,13 @@ namespace MugenMvvm.ViewModels
             {
                 if (_viewModel == null)
                     return;
-                Context = _viewModel.Metadata;
+                Metadata = _viewModel.Metadata;
                 OnPreserveInternal(_viewModel!, serializationContext);
             }
 
             public IMementoResult Restore(ISerializationContext serializationContext)
             {
-                Should.NotBeNull(Context, nameof(Context));
+                Should.NotBeNull(Metadata, nameof(Metadata));
                 if (serializationContext.Mode != SerializationMode.Clone && _viewModel != null)
                     return new MementoResult(_viewModel, serializationContext.Metadata);
 
@@ -313,7 +314,7 @@ namespace MugenMvvm.ViewModels
                         if (_viewModel != null)
                             return new MementoResult(_viewModel, serializationContext.Metadata);
 
-                        if (Context.TryGet(ViewModelMetadataKeys.Id, out var id))
+                        if (Metadata.TryGet(ViewModelMetadataKeys.Id, out var id))
                         {
                             _viewModel = dispatcher.TryGetViewModelById(id, serializationContext.Metadata);
                             if (_viewModel != null)
@@ -322,7 +323,7 @@ namespace MugenMvvm.ViewModels
                     }
 
                     _viewModel = RestoreInternal(serializationContext);
-                    _viewModel.Metadata.Merge(Context);
+                    _viewModel.Metadata.Merge(Metadata);
                     _viewModel.Metadata.Set(ViewModelMetadataKeys.LifecycleState, ViewModelLifecycleState.Restored);
                     OnRestoredInternal(_viewModel, serializationContext);
                     dispatcher.OnLifecycleChanged(_viewModel, ViewModelLifecycleState.Restored, serializationContext.Metadata);

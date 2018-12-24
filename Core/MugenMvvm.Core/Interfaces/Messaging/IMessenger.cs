@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Models;
 
 namespace MugenMvvm.Interfaces.Messaging
@@ -7,7 +8,7 @@ namespace MugenMvvm.Interfaces.Messaging
     {
         IReadOnlyList<IMessengerSubscriber> GetSubscribers();
 
-        IMessengerContext GetContext(IContext? metadata);
+        IMessengerContext GetContext(IMetadataContext? metadata);
 
         void Publish(object sender, object message, IMessengerContext? messengerContext = null);
 

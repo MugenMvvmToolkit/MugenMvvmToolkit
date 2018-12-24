@@ -1,5 +1,6 @@
 ﻿using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.Messaging;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.ViewModels
@@ -10,6 +11,6 @@ namespace MugenMvvm.Interfaces.ViewModels
 
         IBusyIndicatorProvider BusyIndicatorProvider { get; }
 
-        IContext Metadata { get; }
+        IMetadataContext Metadata { get; }
     }
 }

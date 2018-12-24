@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Models;
 
 namespace MugenMvvm.Interfaces.Serialization
@@ -11,6 +12,6 @@ namespace MugenMvvm.Interfaces.Serialization
 
         ISerializer Serializer { get; }
 
-        IContext Metadata { get; }
+        IMetadataContext Metadata { get; }
     }
 }

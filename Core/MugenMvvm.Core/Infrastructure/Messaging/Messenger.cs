@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Threading;
 using MugenMvvm.Collections;
+using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.Messaging;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Models;
 
@@ -59,7 +61,7 @@ namespace MugenMvvm.Infrastructure.Messaging
             }
         }
 
-        public IMessengerContext GetContext(IContext? metadata)
+        public IMessengerContext GetContext(IMetadataContext? metadata)
         {
             return new MessengerContext(metadata);
         }
@@ -173,13 +175,13 @@ namespace MugenMvvm.Infrastructure.Messaging
         {
             #region Fields
 
-            private IContext? _metadata;
+            private IMetadataContext? _metadata;
 
             #endregion
 
             #region Constructors
 
-            public MessengerContext(IContext? metadata)
+            public MessengerContext(IMetadataContext? metadata)
             {
                 _metadata = metadata;
             }
@@ -188,12 +190,12 @@ namespace MugenMvvm.Infrastructure.Messaging
 
             #region Properties
 
-            public IContext Metadata
+            public IMetadataContext Metadata
             {
                 get
                 {
                     if (_metadata == null)
-                        MugenExtensions.LazyInitialize(ref _metadata, new Context());
+                        MugenExtensions.LazyInitialize(ref _metadata, new MetadataContext());
                     return _metadata!;
                 }
             }

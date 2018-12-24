@@ -2,13 +2,13 @@
 using System.Reflection;
 using System.Runtime.Serialization;
 using MugenMvvm.Attributes;
-using MugenMvvm.Interfaces;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Models;
 
-namespace MugenMvvm.Infrastructure
+namespace MugenMvvm.Infrastructure.Metadata
 {
-    public class ContextKey : IContextKey
+    public class MetadataContextKey : IMetadataContextKey
     {
         #region Fields
 
@@ -21,7 +21,7 @@ namespace MugenMvvm.Infrastructure
 
         #region Constructors
 
-        protected ContextKey(string key, Action<object?>? validateAction, Func<object?, ISerializationContext, bool>? canSerialize, Type? type, string? fieldOrPropertyName)
+        protected MetadataContextKey(string key, Action<object?>? validateAction, Func<object?, ISerializationContext, bool>? canSerialize, Type? type, string? fieldOrPropertyName)
         {
             _validateAction = validateAction;
             _canSerialize = canSerialize;
@@ -87,11 +87,11 @@ namespace MugenMvvm.Infrastructure
             {
             }
 
-            internal ContextKeyMemento(ContextKey key)
+            internal ContextKeyMemento(MetadataContextKey contextKey)
             {
-                TargetTypeField = key.GetType();
-                DeclaredType = key._type!;
-                FieldOrPropertyName = key._fieldOrPropertyName!;
+                TargetTypeField = contextKey.GetType();
+                DeclaredType = contextKey._type!;
+                FieldOrPropertyName = contextKey._fieldOrPropertyName!;
             }
 
             #endregion
@@ -116,7 +116,7 @@ namespace MugenMvvm.Infrastructure
                 MemberInfo member = DeclaredType.GetFieldUnified(FieldOrPropertyName, MemberFlags.StaticOnly);
                 if (member == null)
                     member = DeclaredType.GetPropertyUnified(FieldOrPropertyName, MemberFlags.StaticOnly);
-                var contextKey = member?.GetValueEx<IContextKey>(null);
+                var contextKey = member?.GetValueEx<IMetadataContextKey>(null);
                 if (contextKey == null)
                     return MementoResult.Unrestored;
                 return new MementoResult(contextKey, serializationContext.Metadata);
@@ -128,11 +128,11 @@ namespace MugenMvvm.Infrastructure
         #endregion
     }
 
-    public class ContextKey<T> : ContextKey, IContextKey<T>
+    public class MetadataContextKey<T> : MetadataContextKey, IMetadataContextKey<T>
     {
         #region Constructors
 
-        protected internal ContextKey(string key, Action<object?>? validateAction, Func<object?, ISerializationContext, bool>? canSerialize, Type? type, string? fieldOrPropertyName)
+        protected internal MetadataContextKey(string key, Action<object?>? validateAction, Func<object?, ISerializationContext, bool>? canSerialize, Type? type, string? fieldOrPropertyName)
             : base(key, validateAction, canSerialize, type, fieldOrPropertyName)
         {
         }

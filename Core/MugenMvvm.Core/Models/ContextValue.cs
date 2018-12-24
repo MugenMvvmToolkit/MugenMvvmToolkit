@@ -1,4 +1,5 @@
 ﻿using MugenMvvm.Interfaces;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Models
 {
@@ -6,11 +7,11 @@ namespace MugenMvvm.Models
     {
         #region Constructors
 
-        public ContextValue(IContextKey key, object? value)
+        public ContextValue(IMetadataContextKey contextKey, object? value)
         {
-            Should.NotBeNull(key, nameof(key));
-            key.Validate(value);
-            Key = key;
+            Should.NotBeNull(contextKey, nameof(contextKey));
+            contextKey.Validate(value);
+            ContextKey = contextKey;
             Value = value;
         }
 
@@ -18,7 +19,7 @@ namespace MugenMvvm.Models
 
         #region Properties
 
-        public IContextKey Key { get; }
+        public IMetadataContextKey ContextKey { get; }
 
         public object? Value { get; }
 

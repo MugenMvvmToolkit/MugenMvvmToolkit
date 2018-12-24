@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MugenMvvm.Infrastructure;
 using MugenMvvm.Infrastructure.Messaging;
+using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Models;
 using Should;
 using Xunit;
-using Context = MugenMvvm.Infrastructure.Context;
 
 namespace MugenMvvm.UnitTest.Infrastructure.Messaging
 {
@@ -113,7 +114,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
         [Fact]
         public void GetContextShouldCreateContextNotNullMetadata()
         {
-            var context = new Context();
+            var context = new MetadataContext();
             var messenger = new Messenger(Singleton<IThreadDispatcher>.Instance);
             var messengerContext = messenger.GetContext(context);
             messengerContext.Metadata.ShouldEqual(context);

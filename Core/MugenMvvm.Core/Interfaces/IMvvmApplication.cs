@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Interfaces.Models;
+﻿using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Models;
 
 namespace MugenMvvm.Interfaces
@@ -9,6 +10,6 @@ namespace MugenMvvm.Interfaces
         
         IDeviceInfo DeviceInfo { get; }
 
-        void OnStateChanged(ApplicationState value, IReadOnlyContext context);
+        void OnStateChanged(ApplicationState value, IReadOnlyMetadataContext metadataContext);
     }
 }

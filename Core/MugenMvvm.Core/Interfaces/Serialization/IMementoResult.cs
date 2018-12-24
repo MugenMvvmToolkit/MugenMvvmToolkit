@@ -1,10 +1,12 @@
-﻿namespace MugenMvvm.Interfaces.Serialization
+﻿using MugenMvvm.Interfaces.Metadata;
+
+namespace MugenMvvm.Interfaces.Serialization
 {
     public interface IMementoResult
     {
         bool IsRestored { get; }
 
-        IReadOnlyContext Context { get; }
+        IReadOnlyMetadataContext Metadata { get; }
 
         object? Target { get; }
     }

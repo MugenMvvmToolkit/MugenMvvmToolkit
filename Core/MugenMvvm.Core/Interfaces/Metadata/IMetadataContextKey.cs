@@ -1,9 +1,9 @@
 ﻿using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Serialization;
 
-namespace MugenMvvm.Interfaces
+namespace MugenMvvm.Interfaces.Metadata
 {
-    public interface IContextKey : IHasMemento
+    public interface IMetadataContextKey : IHasMemento
     {
         string Key { get; }
 
@@ -12,7 +12,7 @@ namespace MugenMvvm.Interfaces
         bool CanSerialize(object? item, ISerializationContext context);
     }
 
-    public interface IContextKey<in T> : IContextKey
+    public interface IMetadataContextKey<in T> : IMetadataContextKey
     {
     }
 }

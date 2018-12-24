@@ -7,6 +7,7 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
 using MugenMvvm.Interfaces;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Models;
@@ -25,7 +26,7 @@ namespace MugenMvvm
 
 
         public static readonly NullValue SerializableNullValue;
-        public static readonly IReadOnlyContext Context;
+        public static readonly IReadOnlyMetadataContext MetadataContext;
 
         #endregion
 
@@ -37,7 +38,7 @@ namespace MugenMvvm
             IsNotificationsSuspendedChangedArgs = new PropertyChangedEventArgs(nameof(ISuspendNotifications.IsNotificationsSuspended));
             IsBusyChangedArgs = new PropertyChangedEventArgs(nameof(ViewModelBase.IsBusy));
             BusyInfoChangedArgs = new PropertyChangedEventArgs(nameof(ViewModelBase.BusyInfo));
-            Context = new EmptyContext();
+            MetadataContext = new EmptyContext();
             SerializableNullValue = new NullValue();
         }
 
@@ -96,7 +97,7 @@ namespace MugenMvvm
             #endregion
         }
 
-        private sealed class EmptyContext : IReadOnlyContext
+        private sealed class EmptyContext : IReadOnlyMetadataContext
         {
             #region Fields
 
@@ -129,19 +130,19 @@ namespace MugenMvvm
                 return _emptyMemento;
             }
 
-            public bool TryGet(IContextKey key, out object? value)
+            public bool TryGet(IMetadataContextKey contextKey, out object? value)
             {
                 value = null;
                 return false;
             }
 
-            public bool TryGet<T>(IContextKey<T> key, out T value)
+            public bool TryGet<T>(IMetadataContextKey<T> contextKey, out T value)
             {
                 value = default!;
                 return false;
             }
 
-            public bool Contains(IContextKey key)
+            public bool Contains(IMetadataContextKey contextKey)
             {
                 return false;
             }
@@ -169,7 +170,7 @@ namespace MugenMvvm
 
             public IMementoResult Restore(ISerializationContext serializationContext)
             {
-                return new MementoResult(Context, serializationContext.Metadata);
+                return new MementoResult(MetadataContext, serializationContext.Metadata);
             }
 
             #endregion
