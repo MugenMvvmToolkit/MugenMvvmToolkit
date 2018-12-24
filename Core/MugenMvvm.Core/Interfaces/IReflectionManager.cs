@@ -8,5 +8,7 @@ namespace MugenMvvm.Interfaces
         Delegate? TryCreateDelegate(Type delegateType, object? target, MethodInfo method);
 
         Func<object?, object?[], object?> GetMethodDelegate(MethodInfo method);
+
+        Delegate GetMethodDelegate(Type delegateType, MethodInfo method);
     }
 }

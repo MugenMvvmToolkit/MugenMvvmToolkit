@@ -13,6 +13,7 @@ namespace MugenMvvm.UnitTest
         public UnitTestBase()
         {
             Singleton<IWeakReferenceFactory>.Initialize(new TestWeakReferenceFactory());
+            Singleton<IThreadDispatcher>.Initialize(new TestThreadDispatcher());
         }
 
         #endregion

@@ -84,6 +84,20 @@ namespace MugenMvvm.UnitTest
                 list.ShouldContain(listener);
         }
 
+        [Fact]
+        public virtual void RemoveAllListenersShouldRemoveAllListeners()
+        {
+            var listener1 = CreateListener();
+            var listener2 = CreateListener();
+            var hasEventListener = GetHasEventListener();
+            hasEventListener.AddListener(listener1);
+            hasEventListener.AddListener(listener2);
+            hasEventListener.GetListeners().ShouldContain(listener1, listener2);
+
+            hasEventListener.RemoveAllListeners();
+            hasEventListener.GetListeners().ShouldBeEmpty();
+        }
+
         protected abstract T CreateListener();
 
         protected abstract IHasEventListener<T> GetHasEventListener();

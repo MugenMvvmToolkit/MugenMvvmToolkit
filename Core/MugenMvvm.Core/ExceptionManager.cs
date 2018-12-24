@@ -4,6 +4,9 @@ namespace MugenMvvm
 {
     internal static class ExceptionManager
     {
+        public const string StaticDelegateCannotBeWeak = "The static delegate cannot be converted to weak delegate.";
+        public const string AnonymousDelegateCannotBeWeak = "The anonymous delegate cannot be converted to weak delegate.";
+
         #region Methods
 
         public static Exception EnumIsNotValid(Type type, object value)

@@ -7,10 +7,15 @@ namespace MugenMvvm.UnitTest
     {
         #region Methods
 
+        public static void ShouldContain<T>(this IEnumerable<T> enumerable, IEnumerable<T> itemsEnumerable)
+        {
+            foreach (var item in itemsEnumerable)
+                CollectionAssertExtensions.ShouldContain(enumerable, item);
+        }
+
         public static void ShouldContain<T>(this IEnumerable<T> enumerable, params T[] items)
         {
-            foreach (var item in items)
-                CollectionAssertExtensions.ShouldContain(enumerable, item);
+            ShouldContain(enumerable, itemsEnumerable: items);
         }
 
         #endregion

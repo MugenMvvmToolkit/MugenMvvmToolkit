@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Reflection;
+using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Models;
 
@@ -24,6 +26,14 @@ namespace MugenMvvm.Infrastructure.Messaging
             _action = action;
         }
 
+        public WeakDelegateMessengerSubscriber(Action<object, TMessage, IMessengerContext> action)
+        {
+            Should.BeSupported(action.Target != null, ExceptionManager.StaticDelegateCannotBeWeak);
+            Should.BeSupported(!action.Target.GetType().IsAnonymousClass(), ExceptionManager.AnonymousDelegateCannotBeWeak);
+            _reference = MugenExtensions.GetWeakReference(action.Target);
+            _action = Singleton<IReflectionManager>.Instance.GetMethodDelegate<Action<TTarget, object, TMessage, IMessengerContext>>(action.GetMethodInfo());
+        }
+
         #endregion
 
         #region Implementation of interfaces
@@ -35,7 +45,7 @@ namespace MugenMvvm.Infrastructure.Messaging
 
         public SubscriberResult Handle(object sender, object message, IMessengerContext messengerContext)
         {
-            var target = (TTarget) _reference.Target;
+            var target = (TTarget)_reference.Target;
             if (target == null)
                 return SubscriberResult.Invalid;
             if (message is TMessage m)

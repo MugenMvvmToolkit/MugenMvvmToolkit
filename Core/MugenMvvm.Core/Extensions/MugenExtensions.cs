@@ -41,13 +41,6 @@ namespace MugenMvvm
             return task;
         }
 
-        public static void RemoveAllListeners(this IBusyIndicatorProvider busyIndicatorProvider)
-        {
-            Should.NotBeNull(busyIndicatorProvider, nameof(busyIndicatorProvider));
-            foreach (var listener in busyIndicatorProvider.GetListeners())
-                busyIndicatorProvider.RemoveListener(listener);
-        }
-
         public static void ClearBusy(this IBusyIndicatorProvider provider)
         {
             Should.NotBeNull(provider, nameof(provider));
@@ -65,6 +58,14 @@ namespace MugenMvvm
         {
             Should.NotBeNull(messenger, nameof(messenger));
             var subscriber = new WeakDelegateMessengerSubscriber<TTarget, TMessage>(target, action);
+            messenger.Subscribe(subscriber, executionMode);
+            return subscriber;
+        }
+
+        public static IMessengerSubscriber SubscribeWeak<TMessage>(this IMessenger messenger, Action<object, TMessage, IMessengerContext> action, ThreadExecutionMode? executionMode = null)
+        {
+            Should.NotBeNull(messenger, nameof(messenger));
+            var subscriber = new WeakDelegateMessengerSubscriber<object, TMessage>(action);
             messenger.Subscribe(subscriber, executionMode);
             return subscriber;
         }
@@ -95,6 +96,13 @@ namespace MugenMvvm
         #endregion
 
         #region Common
+
+        public static void RemoveAllListeners<T>(this IHasEventListener<T> hasEventListener) where T : class
+        {
+            Should.NotBeNull(hasEventListener, nameof(hasEventListener));
+            foreach (var listener in hasEventListener.GetListeners())
+                hasEventListener.RemoveListener(listener);
+        }
 
         [Pure]
         public static T GetService<T>(this IServiceProvider serviceProvider)
@@ -148,14 +156,14 @@ namespace MugenMvvm
             handler.Execute(null);
         }
 
-        internal static bool LazyInitialize<T>(ref T item, T value) where T : class?
+        internal static bool LazyInitialize<T>(ref T item, T value) where T : class ?
         {
             return Interlocked.CompareExchange(ref item, value, null) == null;
         }
 
         internal static bool LazyInitializeLock<TTarget, TValue>(ref TValue item, TTarget target, Func<TTarget, TValue> getValue, object locker)
             where TTarget : class
-            where TValue : class?
+            where TValue : class ?
         {
             if (item != null)
                 return false;

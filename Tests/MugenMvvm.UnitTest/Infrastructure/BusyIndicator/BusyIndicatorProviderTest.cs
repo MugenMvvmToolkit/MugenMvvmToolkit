@@ -516,6 +516,125 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
             notificationCount.ShouldEqual(1);
         }
 
+        [Fact]
+        public void BeginWithTokenShouldSuspendToken()
+        {
+            var rootIndicator = GetBusyIndicator();
+            var busyToken = rootIndicator.Begin(message: null);
+
+            var busyIndicator = GetBusyIndicator();
+            var token = busyIndicator.Begin(busyToken);
+
+            busyIndicator.BusyInfo.ShouldNotBeNull();
+            var suspendNotifications = rootIndicator.SuspendNotifications();
+
+            busyIndicator.BusyInfo.ShouldBeNull();
+            suspendNotifications.Dispose();
+            busyIndicator.BusyInfo.ShouldNotBeNull();
+        }
+
+        [Fact]
+        public void BeginWithTokenShouldNotNotifyOnBusyChangedSuspend()
+        {
+            int notificationCount = 0;
+            var listener = new TestBusyIndicatorProviderListener { OnBusyChanged = () => Interlocked.Increment(ref notificationCount) };
+
+            var rootIndicator = GetBusyIndicator();
+            var busyToken = rootIndicator.Begin(message: null);
+
+            var busyIndicator = GetBusyIndicator();
+            busyIndicator.AddListener(listener);
+            var token = busyIndicator.Begin(busyToken);
+
+            notificationCount.ShouldEqual(1);
+            busyIndicator.BusyInfo.ShouldNotBeNull();
+
+            notificationCount = 0;
+            var suspendNotifications = rootIndicator.SuspendNotifications();
+
+            notificationCount.ShouldEqual(1);
+            busyIndicator.BusyInfo.ShouldBeNull();
+
+            notificationCount = 0;
+            suspendNotifications.Dispose();
+
+            notificationCount.ShouldEqual(1);
+            busyIndicator.BusyInfo.ShouldNotBeNull();
+        }
+
+        [Fact]
+        public void BeginWithTokenShouldSuspendTokenParallel()
+        {
+            const int count = 1000;
+            var providers = new List<IBusyIndicatorProvider>();
+            var tokens = new List<IBusyToken>();
+            var messages = new List<object>();
+
+            for (int i = 0; i < count; i++)
+            {
+                object obj = i;
+                var rootIndicator = GetBusyIndicator();
+                var busyToken = rootIndicator.Begin(obj);
+                providers.Add(rootIndicator);
+                tokens.Add(busyToken);
+                messages.Add(obj);
+            }
+
+            var busyIndicator = GetBusyIndicator();
+            foreach (var busyToken in tokens)
+                busyIndicator.Begin(busyToken);
+
+
+            int notificationCount = 0;
+            var listener = new TestBusyIndicatorProviderListener { OnBusyChanged = () => Interlocked.Increment(ref notificationCount) };
+            busyIndicator.AddListener(listener);
+
+            var tasks = new List<Task<IDisposable>>();
+            foreach (var indicatorProvider in providers)
+                tasks.Add(Task.Run(() => indicatorProvider.SuspendNotifications()));
+
+            Task.WaitAll(tasks.ToArray());
+            notificationCount.ShouldEqual(count);
+
+            busyIndicator.BusyInfo.ShouldBeNull();
+
+            notificationCount = 0;
+            var disposables = tasks.Select(task => task.Result).ToList();
+            tasks.Clear();
+            foreach (var disposable in disposables)
+            {
+                var d = disposable;
+                tasks.Add(Task.Run(() =>
+                {
+                    d.Dispose();
+                    return d;
+                }));
+            }
+
+            Task.WaitAll(tasks.ToArray());
+
+            notificationCount.ShouldEqual(count);
+
+            busyIndicator.BusyInfo.ShouldNotBeNull();
+
+            var list = busyIndicator.BusyInfo.GetMessages();
+            messages.ShouldContain(list);
+        }
+
+        [Fact]
+        public void ClearBusyShouldClearAllBusy()
+        {
+            var busyIndicator = GetBusyIndicator();
+            busyIndicator.Begin(message: null);
+            busyIndicator.Begin(message: null);
+
+            busyIndicator.GetTokens().Count.ShouldEqual(2);
+
+            busyIndicator.ClearBusy();
+            busyIndicator.GetTokens().Count.ShouldEqual(0);
+            busyIndicator.BusyInfo.ShouldBeNull();
+        }
+
         protected virtual IBusyIndicatorProvider GetBusyIndicator(object? defaultMessage = null)
         {
             return new BusyIndicatorProvider(defaultMessage);
