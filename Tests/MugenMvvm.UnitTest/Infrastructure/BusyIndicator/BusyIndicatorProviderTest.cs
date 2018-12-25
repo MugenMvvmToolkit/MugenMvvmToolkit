@@ -660,7 +660,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
             return new TestBusyIndicatorProviderListener();
         }
 
-        protected override IHasEventListener<IBusyIndicatorProviderListener> GetHasEventListener()
+        protected override IHasListeners<IBusyIndicatorProviderListener> GetHasEventListener()
         {
             return GetBusyIndicator();
         }

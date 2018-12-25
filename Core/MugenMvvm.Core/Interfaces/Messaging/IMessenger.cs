@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Infrastructure.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Models;
 
@@ -6,7 +7,7 @@ namespace MugenMvvm.Interfaces.Messaging
 {
     public interface IMessenger
     {
-        IReadOnlyList<IMessengerSubscriber> GetSubscribers();
+        IReadOnlyList<MessengerSubscriberInfo> GetSubscribers();
 
         IMessengerContext GetContext(IMetadataContext? metadata);
 

@@ -1,7 +1,7 @@
 ﻿using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Serialization;
 
-namespace MugenMvvm.Models
+namespace MugenMvvm.Infrastructure.Serialization
 {
     public class MementoResult : IMementoResult
     {

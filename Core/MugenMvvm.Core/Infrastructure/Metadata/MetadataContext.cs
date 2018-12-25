@@ -4,17 +4,19 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using MugenMvvm.Attributes;
+using MugenMvvm.Collections;
+using MugenMvvm.Infrastructure.Serialization;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Serialization;
-using MugenMvvm.Models;
 
 namespace MugenMvvm.Infrastructure.Metadata
 {
-    public class MetadataContext : IMetadataContext, IEqualityComparer<IMetadataContextKey>
+    public class MetadataContext : IObservableMetadataContext
     {
         #region Fields
 
         private readonly Dictionary<IMetadataContextKey, object?> _values;
+        private ArrayListLight<IObservableMetadataContextListener>? _listeners;
 
         #endregion
 
@@ -22,7 +24,7 @@ namespace MugenMvvm.Infrastructure.Metadata
 
         public MetadataContext()
         {
-            _values = new Dictionary<IMetadataContextKey, object?>(this);
+            _values = new Dictionary<IMetadataContextKey, object?>();
         }
 
         private MetadataContext(Dictionary<IMetadataContextKey, object?> values)
@@ -49,12 +51,12 @@ namespace MugenMvvm.Infrastructure.Metadata
 
         #region Implementation of interfaces
 
-        public IEnumerator<ContextValue> GetEnumerator()
+        public IEnumerator<MetadataContextValue> GetEnumerator()
         {
-            IEnumerable<ContextValue> list;
+            IEnumerable<MetadataContextValue> list;
             lock (_values)
             {
-                list = _values.ToArray(pair => new ContextValue(pair.Key, pair.Value));
+                list = _values.ToArray(pair => new MetadataContextValue(pair.Key, pair.Value));
             }
 
             return list.GetEnumerator();
@@ -97,6 +99,7 @@ namespace MugenMvvm.Infrastructure.Metadata
                 value = v;
                 return true;
             }
+
             value = default!;
             return false;
         }
@@ -118,6 +121,7 @@ namespace MugenMvvm.Infrastructure.Metadata
             {
                 _values[contextKey] = value;
             }
+            OnContextChanged(contextKey);
         }
 
         public void Set<T>(IMetadataContextKey<T> contextKey, T value)
@@ -126,43 +130,70 @@ namespace MugenMvvm.Infrastructure.Metadata
             Set(contextKey, obj);
         }
 
-        public void Merge(IEnumerable<ContextValue> items)
+        public void Merge(IEnumerable<MetadataContextValue> items)
         {
             Should.NotBeNull(items, nameof(items));
+            bool changed = false;
             lock (_values)
             {
                 foreach (var item in items)
+                {
                     _values[item.ContextKey] = item.Value;
+                    changed = true;
+                }
             }
+            if (changed)
+                OnContextChanged(null);
         }
 
         public bool Remove(IMetadataContextKey contextKey)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
+            bool changed;
             lock (_values)
             {
-                return _values.Remove(contextKey);
+                changed = _values.Remove(contextKey);
             }
+            if (changed)
+                OnContextChanged(contextKey);
+            return changed;
         }
 
         public void Clear()
         {
+            bool changed;
             lock (_values)
             {
+                changed = _values.Count > 0;
                 _values.Clear();
             }
+            if (changed)
+                OnContextChanged(null);
         }
 
-        bool IEqualityComparer<IMetadataContextKey>.Equals(IMetadataContextKey x, IMetadataContextKey y)
+        public void AddListener(IObservableMetadataContextListener listener)
         {
-            return string.Equals(x.Key, y.Key, StringComparison.Ordinal);
+            Should.NotBeNull(listener, nameof(listener));
+            if (_listeners == null)
+                MugenExtensions.LazyInitialize(ref _listeners, new ArrayListLight<IObservableMetadataContextListener>());
+            _listeners!.AddWithLock(listener);
         }
 
-        int IEqualityComparer<IMetadataContextKey>.GetHashCode(IMetadataContextKey obj)
+        public void RemoveListener(IObservableMetadataContextListener listener)
         {
-            if (obj == null)
-                return 0;
-            return obj.GetHashCode();
+            Should.NotBeNull(listener, nameof(listener));
+            _listeners?.RemoveWithLock(listener);
+        }
+
+        public IReadOnlyList<IObservableMetadataContextListener> GetListeners()
+        {
+            if (_listeners == null)
+                return Default.EmptyArray<IObservableMetadataContextListener>();
+            var items = _listeners.GetItemsWithLock(out var size);
+            var listeners = new IObservableMetadataContextListener[size];
+            for (int i = 0; i < size; i++)
+                listeners[i] = items[i];
+            return listeners;
         }
 
         #endregion
@@ -172,6 +203,16 @@ namespace MugenMvvm.Infrastructure.Metadata
         public void Add<T>(IMetadataContextKey<T> constant, T value)
         {
             Set(constant, value);
+        }
+
+        private void OnContextChanged(IMetadataContextKey? key)
+        {
+            var items = _listeners?.GetItems(out _);
+            if (items != null)
+            {
+                for (var i = 0; i < items.Length; i++)
+                    items[i]?.OnContextChanged(this, key);
+            }
         }
 
         #endregion
@@ -194,6 +235,9 @@ namespace MugenMvvm.Infrastructure.Metadata
 
             [DataMember(Name = "V")]
             internal IList<object?>? Values;
+
+            [DataMember(Name = "L")]
+            internal IList<IObservableMetadataContextListener?>? Listeners;
 
             #endregion
 
@@ -229,6 +273,7 @@ namespace MugenMvvm.Infrastructure.Metadata
                     currentValues = _metadataContext._values.ToArray();
                 }
 
+                Listeners = _metadataContext._listeners?.GetItems(out int size).ToSerializable(serializationContext.Serializer, size);
                 Keys = new List<IMetadataContextKey>();
                 Values = new List<object?>();
                 foreach (var keyPair in currentValues)
@@ -245,12 +290,12 @@ namespace MugenMvvm.Infrastructure.Metadata
             {
                 Should.NotBeNull(Keys, nameof(Keys));
                 Should.NotBeNull(Values, nameof(Values));
-                if (serializationContext.Mode != SerializationMode.Clone && _metadataContext != null)
+                if (_metadataContext != null)
                     return new MementoResult(_metadataContext, serializationContext.Metadata);
 
                 lock (this)
                 {
-                    if (serializationContext.Mode != SerializationMode.Clone && _metadataContext != null)
+                    if (_metadataContext != null)
                         return new MementoResult(_metadataContext, serializationContext.Metadata);
 
                     var dictionary = new Dictionary<IMetadataContextKey, object?>();
@@ -263,6 +308,16 @@ namespace MugenMvvm.Infrastructure.Metadata
                     }
 
                     _metadataContext = new MetadataContext(dictionary);
+
+                    if (Listeners != null)
+                    {
+                        foreach (var listener in Listeners)
+                        {
+                            if (listener != null)
+                                _metadataContext.AddListener(listener);
+                        }
+                    }
+
                     return new MementoResult(_metadataContext, serializationContext.Metadata);
                 }
             }

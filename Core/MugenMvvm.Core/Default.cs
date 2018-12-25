@@ -6,6 +6,8 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
+using MugenMvvm.Infrastructure.Metadata;
+using MugenMvvm.Infrastructure.Serialization;
 using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -113,9 +115,9 @@ namespace MugenMvvm
 
             #region Implementation of interfaces
 
-            public IEnumerator<ContextValue> GetEnumerator()
+            public IEnumerator<MetadataContextValue> GetEnumerator()
             {
-                return Enumerable.Empty<ContextValue>().GetEnumerator();
+                return Enumerable.Empty<MetadataContextValue>().GetEnumerator();
             }
 
             IEnumerator IEnumerable.GetEnumerator()

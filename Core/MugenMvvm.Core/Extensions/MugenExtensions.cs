@@ -7,7 +7,9 @@ using MugenMvvm.Infrastructure.Messaging;
 using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.Messaging;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Models;
 
@@ -90,7 +92,7 @@ namespace MugenMvvm
         {
             Should.NotBeNull(messenger, nameof(messenger));
             foreach (var subscriber in messenger.GetSubscribers())
-                messenger.Unsubscribe(subscriber);
+                messenger.Unsubscribe(subscriber.Subscriber);
         }
 
         #endregion
@@ -143,6 +145,18 @@ namespace MugenMvvm
 
         #endregion
 
+        #region Metadata
+
+        public static T Get<T>(this IMetadataContext metadataContext, IMetadataContextKey<T> key, T defaultValue = default)
+        {
+            Should.NotBeNull(metadataContext, nameof(metadataContext));
+            if (metadataContext.TryGet(key, out var value))
+                return value;
+            return defaultValue;
+        }
+
+        #endregion
+
         #region Common
 
         [StringFormatMethod("format")]
@@ -153,11 +167,11 @@ namespace MugenMvvm
             return string.Format(format, args);
         }
 
-        public static void RemoveAllListeners<T>(this IHasEventListener<T> hasEventListener) where T : class
+        public static void RemoveAllListeners<T>(this IHasListeners<T> hasListeners) where T : class
         {
-            Should.NotBeNull(hasEventListener, nameof(hasEventListener));
-            foreach (var listener in hasEventListener.GetListeners())
-                hasEventListener.RemoveListener(listener);
+            Should.NotBeNull(hasListeners, nameof(hasListeners));
+            foreach (var listener in hasListeners.GetListeners())
+                hasListeners.RemoveListener(listener);
         }
 
         [Pure]
@@ -212,6 +226,34 @@ namespace MugenMvvm
             handler.Execute(null);
         }
 
+        #endregion
+
+        #region Internal
+
+        internal static IList<T>? ToSerializable<T>(this IReadOnlyList<T>? items, ISerializer serializer, int? size = null)            
+        {
+            if (items == null)
+                return null;
+            List<T> result = null;
+            for (int i = 0; i < size.GetValueOrDefault(items.Count); i++)
+            {
+                var listener = items[i];
+                if (serializer.CanSerialize(listener.GetType()))
+                {
+                    if (result == null)
+                        result = new List<T>();
+                    result.Add(listener);
+                }
+            }
+
+            return result;
+        }
+
+        internal static bool HasFlagEx(this BusyMessageHandlerType handlerMode, BusyMessageHandlerType value)
+        {
+            return (handlerMode & value) == value;
+        }
+
         internal static bool LazyInitialize<T>(ref T item, T value) where T : class ?
         {
             return Interlocked.CompareExchange(ref item, value, null) == null;
@@ -219,7 +261,7 @@ namespace MugenMvvm
 
         internal static bool LazyInitializeLock<TTarget, TValue>(ref TValue item, TTarget target, Func<TTarget, TValue> getValue, object locker)
             where TTarget : class
-            where TValue : class ?
+            where TValue : class?
         {
             if (item != null)
                 return false;

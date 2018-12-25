@@ -100,7 +100,7 @@ namespace MugenMvvm.UnitTest
 
         protected abstract T CreateListener();
 
-        protected abstract IHasEventListener<T> GetHasEventListener();
+        protected abstract IHasListeners<T> GetHasEventListener();
 
         #endregion
     }

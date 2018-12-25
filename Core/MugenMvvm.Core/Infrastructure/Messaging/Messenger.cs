@@ -52,14 +52,14 @@ namespace MugenMvvm.Infrastructure.Messaging
             return obj.Value.GetHashCode();
         }
 
-        public IReadOnlyList<IMessengerSubscriber> GetSubscribers()
+        public IReadOnlyList<MessengerSubscriberInfo> GetSubscribers()
         {
             var index = 0;
             lock (_subscribers)
             {
-                var subscribers = new IMessengerSubscriber[_subscribers.Count];
-                foreach (var subscriber in _subscribers) 
-                    subscribers[index++] = subscriber.Value;
+                var subscribers = new MessengerSubscriberInfo[_subscribers.Count];
+                foreach (var subscriber in _subscribers)
+                    subscribers[index++] = new MessengerSubscriberInfo(subscriber.Value, subscriber.Key);
                 return subscribers;
             }
         }

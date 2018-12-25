@@ -24,36 +24,38 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
             Assert.Throws<ArgumentNullException>(() => new Messenger(new TestThreadDispatcher(), null!));
         }
 
-        [Fact]
-        public void SubscribeShouldAddListener()
+        [Theory]
+        [MemberData(nameof(GetExecutionModes))]
+        public void SubscribeShouldAddListener(ThreadExecutionMode executionMode)
         {
-            var item = new TestSubscriber();
+            var subscriber = new TestSubscriber();
             var messenger = CreateMessenger();
-            messenger.Subscribe(item);
-            messenger.GetSubscribers().ShouldContain(item);
+            messenger.Subscribe(subscriber, executionMode);
+            var single = messenger.GetSubscribers().Single();
+            single.Subscriber.ShouldEqual(subscriber);
+            single.ExecutionMode.ShouldEqual(executionMode);
         }
 
         [Fact]
         public void SubscribeShouldAddListenerOnce()
         {
-            var item = new TestSubscriber();
+            var subscriber = new TestSubscriber();
             var messenger = CreateMessenger();
-            messenger.Subscribe(item);
-            messenger.Subscribe(item);
-            var list = messenger.GetSubscribers();
-            list.ShouldContain(item);
-            list.Count.ShouldEqual(1);
+            messenger.Subscribe(subscriber);
+            messenger.Subscribe(subscriber);
+            messenger.GetSubscribers().Single().Subscriber.ShouldEqual(subscriber);
         }
 
         [Fact]
         public void UnsubscribeShouldRemoveListener()
         {
-            var listener = new TestSubscriber();
+            var subscriber = new TestSubscriber();
             var messenger = CreateMessenger();
-            messenger.Subscribe(listener);
-            messenger.GetSubscribers().ShouldContain(listener);
+            messenger.Subscribe(subscriber);
+            messenger.GetSubscribers().Single().Subscriber.ShouldEqual(subscriber);
 
-            messenger.Unsubscribe(listener);
+            messenger.Unsubscribe(subscriber);
+            messenger.GetSubscribers().ShouldBeEmpty();
         }
 
         [Fact]
@@ -74,9 +76,9 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
                 --i;
             }
 
-            var list = messenger.GetSubscribers();
-            foreach (var listener in subscribers)
-                list.ShouldContain(listener);
+            var list = messenger.GetSubscribers().Select(info => info.Subscriber).ToList();
+            foreach (var subscriber in subscribers)
+                list.ShouldContain(subscriber);
         }
 
         [Fact]
@@ -103,7 +105,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
                 tasks.Add(Task.Run(() => messenger.Unsubscribe(subscribers[i1])));
             }
 
-            var list = messenger.GetSubscribers();
+            var list = messenger.GetSubscribers().Select(info => info.Subscriber).ToList();
             foreach (var listener in subscribers.Skip(subscribers.Count / 2))
                 list.ShouldContain(listener);
         }
@@ -116,7 +118,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
             var messenger = CreateMessenger();
             messenger.Subscribe(subscriber1);
             messenger.Subscribe(subscriber2);
-            messenger.GetSubscribers().ShouldContain(subscriber1, subscriber2);
+            messenger.GetSubscribers().Select(info => info.Subscriber).ShouldContain(subscriber1, subscriber2);
 
             messenger.UnsubscribeAll();
             messenger.GetSubscribers().ShouldBeEmpty();
@@ -237,7 +239,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
                 HandleDelegate = (o, o1, arg3) => subscriberResult
             };
             var traced = false;
-            var tracer = new TestTracer {Trace = (level, s) => traced = true};
+            var tracer = new TestTracer { Trace = (level, s) => traced = true };
             var messenger = CreateMessenger(tracer: tracer);
             messenger.Subscribe(listener);
             messenger.Publish(this, listener);
@@ -271,15 +273,15 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
             var subscribers = new List<TestSubscriber>();
             for (var i = 0; i < 1000; i++)
             {
-                var subscriber = new TestSubscriber {HandleDelegate = (o, o1, arg3) => SubscriberResult.Handled};
+                var subscriber = new TestSubscriber { HandleDelegate = (o, o1, arg3) => SubscriberResult.Handled };
                 subscribers.Add(subscriber);
                 m1.Subscribe(subscriber);
 
-                subscriber = new TestSubscriber {HandleDelegate = (o, o1, arg3) => SubscriberResult.Handled};
+                subscriber = new TestSubscriber { HandleDelegate = (o, o1, arg3) => SubscriberResult.Handled };
                 subscribers.Add(subscriber);
                 m2.Subscribe(subscriber);
 
-                subscriber = new TestSubscriber {HandleDelegate = (o, o1, arg3) => SubscriberResult.Handled};
+                subscriber = new TestSubscriber { HandleDelegate = (o, o1, arg3) => SubscriberResult.Handled };
                 subscribers.Add(subscriber);
                 m3.Subscribe(subscriber);
             }

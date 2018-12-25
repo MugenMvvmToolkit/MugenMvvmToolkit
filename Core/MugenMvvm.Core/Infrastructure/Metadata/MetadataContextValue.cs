@@ -1,13 +1,12 @@
-﻿using MugenMvvm.Interfaces;
-using MugenMvvm.Interfaces.Metadata;
+﻿using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Models
+namespace MugenMvvm.Infrastructure.Metadata
 {
-    public struct ContextValue
+    public struct MetadataContextValue
     {
         #region Constructors
 
-        public ContextValue(IMetadataContextKey contextKey, object? value)
+        public MetadataContextValue(IMetadataContextKey contextKey, object? value)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             contextKey.Validate(value);

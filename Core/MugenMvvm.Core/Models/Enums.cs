@@ -17,7 +17,7 @@ namespace MugenMvvm.Models
     }
 
     [Flags]
-    public enum BusyMessageMode
+    public enum BusyMessageHandlerType
     {
         None = 0,
         Handle = 1,
@@ -64,7 +64,8 @@ namespace MugenMvvm.Models
         public static readonly ViewModelLifecycleState Created = new ViewModelLifecycleState(1);
         public static readonly ViewModelLifecycleState Disposed = new ViewModelLifecycleState(2);
         public static readonly ViewModelLifecycleState Finalized = new ViewModelLifecycleState(3);
-        public static readonly ViewModelLifecycleState Restored = new ViewModelLifecycleState(4);//todo add more
+        public static readonly ViewModelLifecycleState Restoring = new ViewModelLifecycleState(4);
+        public static readonly ViewModelLifecycleState Restored = new ViewModelLifecycleState(5);
 
         #endregion
 

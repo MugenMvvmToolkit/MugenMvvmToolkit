@@ -1,17 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Xml.Serialization;
-using MugenMvvm.Infrastructure;
+using MugenMvvm.Attributes;
+using MugenMvvm.Infrastructure.Messaging;
+using MugenMvvm.Infrastructure.Serialization;
 using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.Messaging;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Models;
-using MugenMvvm.Attributes;
-using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.ViewModels
 {
@@ -30,7 +32,7 @@ namespace MugenMvvm.ViewModels
 
         #region Constructors
 
-        protected ViewModelBase(IMetadataContext? metadata)
+        protected ViewModelBase(IObservableMetadataContext? metadata)
         {
             var dispatcher = Singleton<IViewModelDispatcher>.Instance;
             Metadata = metadata ?? dispatcher.GetMetadataContext(this, Default.MetadataContext);
@@ -53,7 +55,8 @@ namespace MugenMvvm.ViewModels
             get
             {
                 if (_internalMessenger == null && MugenExtensions.LazyInitializeLock(ref _internalMessenger, this, vm => vm.GetInternalMessenger(), this))
-                    _internalMessenger!.Subscribe((IMessengerSubscriber)GetDispatcherHandler(), ThreadExecutionMode.Main);
+                    _internalMessenger
+                !.Subscribe((IMessengerSubscriber)GetDispatcherHandler(), ThreadExecutionMode.Main);
                 return _internalMessenger!;
             }
         }
@@ -64,12 +67,13 @@ namespace MugenMvvm.ViewModels
             {
                 if (_busyIndicatorProvider == null &&
                     MugenExtensions.LazyInitializeLock(ref _busyIndicatorProvider, this, vm => vm.GetBusyIndicatorProvider(), this))
-                    _busyIndicatorProvider!.AddListener((IBusyIndicatorProviderListener)GetDispatcherHandler());
+                    _busyIndicatorProvider
+                !.AddListener((IBusyIndicatorProviderListener)GetDispatcherHandler());
                 return _busyIndicatorProvider!;
             }
         }
 
-        public IMetadataContext Metadata { get; }
+        public IObservableMetadataContext Metadata { get; }
 
         public bool IsBusy => BusyInfo != null;
 
@@ -153,27 +157,32 @@ namespace MugenMvvm.ViewModels
 
         private protected override DispatcherHandler CreateDispatcherHandler()
         {
-            return new ViewModelDispatcherHandler(this);
+            return new ViewModelHandler(this);
         }
 
         #endregion
 
         #region Nested types
 
-        private protected class ViewModelDispatcherHandler : DispatcherHandler, IBusyIndicatorProviderListener, IMessengerSubscriber
+        internal sealed class ViewModelHandler : DispatcherHandler, IBusyIndicatorProviderListener, IMessengerSubscriber, IObservableMetadataContextListener, IHasMemento
         {
             #region Constructors
 
-            public ViewModelDispatcherHandler(NotifyPropertyChangedBase target)
+            public ViewModelHandler(NotifyPropertyChangedBase target)
                 : base(target)
             {
+                OnContextChanged(Target.Metadata, null);
             }
 
             #endregion
 
             #region Properties
 
-            private new ViewModelBase Target => (ViewModelBase)base.Target;
+            public new ViewModelBase Target => (ViewModelBase)base.Target;
+
+            private bool BroadcastAllMessages { get; set; }
+
+            private BusyMessageHandlerType BusyMessageHandlerType { get; set; }
 
             #endregion
 
@@ -190,13 +199,18 @@ namespace MugenMvvm.ViewModels
                 Target.OnPropertyChanged(Default.BusyInfoChangedArgs);
             }
 
+            public IMemento? GetMemento()
+            {
+                return new ViewModelHandlerMemento(this);
+            }
+
             public bool Equals(IMessengerSubscriber other)
             {
                 if (ReferenceEquals(null, other))
                     return false;
                 if (ReferenceEquals(this, other))
                     return true;
-                return other is ViewModelDispatcherHandler handler && ReferenceEquals(Target, handler.Target);
+                return other is ViewModelHandler handler && ReferenceEquals(Target, handler.Target);
             }
 
             public SubscriberResult Handle(object sender, object message, IMessengerContext messengerContext)
@@ -204,14 +218,26 @@ namespace MugenMvvm.ViewModels
                 if (ReferenceEquals(sender, Target))
                     return SubscriberResult.Ignored;
 
-                //                if (message is IBusyToken busyToken)
-                //                {
-                //                    Target.BusyIndicatorProvider.Begin(busyToken);
-                //                }
-                //                else if (Target.BroadcastAllMessages || message is IBroadcastMessage)
-                //                    Target._internalMessenger?.Publish(sender, message, messengerContext);
+                if (message is IBusyToken busyToken)
+                {
+                    var messageMode = BusyMessageHandlerType;
+                    if (messageMode.HasFlagEx(BusyMessageHandlerType.Handle))
+                        Target.BusyIndicatorProvider.Begin(busyToken);
+                    if (messageMode.HasFlagEx(BusyMessageHandlerType.NotifySubscribers))
+                        Target._internalMessenger?.Publish(sender, busyToken, messengerContext);
+                }
+                else if (BroadcastAllMessages || message is IBroadcastMessage)
+                    Target._internalMessenger?.Publish(sender, message, messengerContext);
 
                 return SubscriberResult.Handled;
+            }
+
+            public void OnContextChanged(IObservableMetadataContext metadataContext, IMetadataContextKey? key)
+            {
+                if (key == null || key.Equals(ViewModelMetadataKeys.BroadcastAllMessages))
+                    BroadcastAllMessages = Target.Metadata.Get(ViewModelMetadataKeys.BroadcastAllMessages);
+                if (key == null || key.Equals(ViewModelMetadataKeys.BusyMessageHandlerType))
+                    BusyMessageHandlerType = Target.Metadata.Get(ViewModelMetadataKeys.BusyMessageHandlerType, BusyMessageHandlerType.Handle);
             }
 
             #endregion
@@ -224,7 +250,7 @@ namespace MugenMvvm.ViewModels
                     return false;
                 if (ReferenceEquals(this, obj))
                     return true;
-                if (obj is ViewModelDispatcherHandler handler)
+                if (obj is ViewModelHandler handler)
                     return Equals(handler);
                 return false;
             }
@@ -254,10 +280,16 @@ namespace MugenMvvm.ViewModels
             private IViewModel? _viewModel;
 
             [DataMember(Name = "C")]
-            protected internal IMetadataContext Metadata;
+            protected internal IObservableMetadataContext Metadata;
 
             [DataMember(Name = "T")]
-            internal Type ViewModelType;
+            internal Type? ViewModelType;
+
+            [DataMember(Name = "S")]
+            internal IList<MessengerSubscriberInfo>? Subscribers;
+
+            [DataMember(Name = "B")]
+            internal IList<IBusyIndicatorProviderListener>? BusyListeners;
 
             protected static readonly object RestorationLocker;
 
@@ -270,7 +302,7 @@ namespace MugenMvvm.ViewModels
                 RestorationLocker = new object();
             }
 
-            internal ViewModelMemento()
+            protected internal ViewModelMemento()
             {
             }
 
@@ -286,7 +318,7 @@ namespace MugenMvvm.ViewModels
             #region Properties
 
             [IgnoreDataMember]
-            public Type TargetType => ViewModelType;
+            public Type TargetType => ViewModelType!;
 
             #endregion
 
@@ -297,35 +329,43 @@ namespace MugenMvvm.ViewModels
                 if (_viewModel == null)
                     return;
                 Metadata = _viewModel.Metadata;
+                if (_viewModel is ViewModelBase vm)
+                {
+                    Subscribers = vm._internalMessenger?.GetSubscribers().ToSerializable(serializationContext.Serializer);
+                    BusyListeners = vm._busyIndicatorProvider?.GetListeners().ToSerializable(serializationContext.Serializer);
+                }
+                else
+                {
+                    Subscribers = _viewModel.InternalMessenger.GetSubscribers().ToSerializable(serializationContext.Serializer);
+                    BusyListeners = _viewModel.BusyIndicatorProvider?.GetListeners().ToSerializable(serializationContext.Serializer);
+                }
                 OnPreserveInternal(_viewModel!, serializationContext);
             }
 
             public IMementoResult Restore(ISerializationContext serializationContext)
             {
                 Should.NotBeNull(Metadata, nameof(Metadata));
-                if (serializationContext.Mode != SerializationMode.Clone && _viewModel != null)
+                Should.NotBeNull(ViewModelType, nameof(ViewModelType));
+                if (_viewModel != null)
                     return new MementoResult(_viewModel, serializationContext.Metadata);
 
                 var dispatcher = Singleton<IViewModelDispatcher>.Instance;
                 lock (RestorationLocker)
                 {
-                    if (serializationContext.Mode != SerializationMode.Clone)
+                    if (_viewModel != null)
+                        return new MementoResult(_viewModel, serializationContext.Metadata);
+
+                    if (Metadata.TryGet(ViewModelMetadataKeys.Id, out var id))
                     {
+                        _viewModel = dispatcher.GetViewModelById(id, serializationContext.Metadata);
                         if (_viewModel != null)
                             return new MementoResult(_viewModel, serializationContext.Metadata);
-
-                        if (Metadata.TryGet(ViewModelMetadataKeys.Id, out var id))
-                        {
-                            _viewModel = dispatcher.TryGetViewModelById(id, serializationContext.Metadata);
-                            if (_viewModel != null)
-                                return new MementoResult(_viewModel, serializationContext.Metadata);
-                        }
                     }
 
                     _viewModel = RestoreInternal(serializationContext);
-                    _viewModel.Metadata.Merge(Metadata);
-                    _viewModel.Metadata.Set(ViewModelMetadataKeys.LifecycleState, ViewModelLifecycleState.Restored);
-                    OnRestoredInternal(_viewModel, serializationContext);
+                    dispatcher.OnLifecycleChanged(_viewModel, ViewModelLifecycleState.Restoring, serializationContext.Metadata);
+                    RestoreInternal(_viewModel);
+                    OnRestoringInternal(_viewModel, serializationContext);
                     dispatcher.OnLifecycleChanged(_viewModel, ViewModelLifecycleState.Restored, serializationContext.Metadata);
                     return new MementoResult(_viewModel, serializationContext.Metadata);
                 }
@@ -341,11 +381,80 @@ namespace MugenMvvm.ViewModels
 
             protected virtual IViewModel RestoreInternal(ISerializationContext serializationContext)
             {
-                return (IViewModel)serializationContext.ServiceProvider.GetService(ViewModelType);//todo fix to viewmodel provider
+                return (IViewModel)serializationContext.ServiceProvider.GetService(ViewModelType);
             }
 
-            protected virtual void OnRestoredInternal(IViewModel viewModel, ISerializationContext serializationContext)
+            protected virtual void OnRestoringInternal(IViewModel viewModel, ISerializationContext serializationContext)
             {
+            }
+
+            private void RestoreInternal(IViewModel viewModel)
+            {
+                var listeners = Metadata.GetListeners();
+                foreach (var listener in listeners)
+                    viewModel.Metadata.AddListener(listener);
+                viewModel.Metadata.Merge(Metadata);
+
+                if (BusyListeners != null)
+                {
+                    foreach (var busyListener in BusyListeners)
+                    {
+                        if (busyListener != null)
+                            viewModel.BusyIndicatorProvider.AddListener(busyListener);
+                    }
+                }
+
+                if (Subscribers != null)
+                {
+                    foreach (var subscriber in Subscribers)
+                    {
+                        if (subscriber.Subscriber != null)
+                            viewModel.InternalMessenger.Subscribe(subscriber.Subscriber, subscriber.ExecutionMode);
+                    }
+                }
+            }
+
+            #endregion
+        }
+
+        [Serializable]
+        [DataContract(Namespace = BuildConstants.DataContractNamespace)]
+        [Preserve(Conditional = true, AllMembers = true)]
+        public sealed class ViewModelHandlerMemento : IMemento
+        {
+            [DataMember(Name = "V")]
+            public readonly ViewModelBase ViewModel;
+
+            #region Constructors
+
+            internal ViewModelHandlerMemento(ViewModelHandler handler)
+            {
+                ViewModel = handler.Target;
+            }
+
+            internal ViewModelHandlerMemento()
+            {
+            }
+
+            #endregion
+
+            #region Properties
+
+            [IgnoreDataMember]
+            public Type TargetType => typeof(ViewModelHandler);
+
+            #endregion
+
+            #region Implementation of interfaces
+
+            public void Preserve(ISerializationContext serializationContext)
+            {
+            }
+
+            public IMementoResult Restore(ISerializationContext serializationContext)
+            {
+                Should.NotBeNull(ViewModel, nameof(ViewModel));
+                return new MementoResult(ViewModel.GetDispatcherHandler(), serializationContext.Metadata);
             }
 
             #endregion
