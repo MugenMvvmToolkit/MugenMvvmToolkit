@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace MugenMvvm.Collections
 {
-    public class ArrayListLight<T>
+    public class LightArrayList<T>
     {
         #region Fields
 
@@ -15,17 +15,17 @@ namespace MugenMvvm.Collections
 
         #region Constructors
 
-        public ArrayListLight()
+        public LightArrayList()
         {
             _items = Default.EmptyArray<T>();
         }
 
-        public ArrayListLight(uint capacity)
+        public LightArrayList(uint capacity)
         {
             _items = capacity == 0 ? Default.EmptyArray<T>() : new T[capacity];
         }
 
-        public ArrayListLight(IEnumerable<T> collection)
+        public LightArrayList(IEnumerable<T> collection)
         {
             Should.NotBeNull(collection, nameof(collection));
             if (collection is ICollection<T> items)

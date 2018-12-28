@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using JetBrains.Annotations;
+using MugenMvvm.Collections;
 using MugenMvvm.Infrastructure;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
@@ -18,6 +19,7 @@ namespace MugenMvvm.Models
         private WeakReference? _ref;
         private int _suspendCount;
         private IThreadDispatcher? _threadDispatcher;
+        internal LightDictionaryBase<string, object?>? AttachedValues;
 
         #endregion
 
@@ -190,7 +192,7 @@ namespace MugenMvvm.Models
 
             public virtual void Execute(object? state)
             {
-                Target.RaisePropertyChangedEvent((PropertyChangedEventArgs) state!);
+                Target.RaisePropertyChangedEvent((PropertyChangedEventArgs)state!);
             }
 
             #endregion

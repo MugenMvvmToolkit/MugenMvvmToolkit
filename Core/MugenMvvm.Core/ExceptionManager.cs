@@ -36,6 +36,16 @@ namespace MugenMvvm
             return new InvalidOperationException(MessageConstants.DuplicateViewMappingFormat3.Format(viewType, viewModelType, name));
         }
 
+        internal static Exception WrapperTypeShouldBeNonAbstract(Type wrapperType)
+        {
+            return new ArgumentException(MessageConstants.WrapperTypeShouldBeNonAbstractFormat1.Format(wrapperType), nameof(wrapperType));
+        }
+
+        internal static Exception WrapperTypeNotSupported(Type wrapperType)
+        {
+            return new ArgumentException(MessageConstants.WrapperTypeNotSupportedFormat1.Format(wrapperType), nameof(wrapperType));
+        }
+
         #endregion
     }
 }

@@ -13,7 +13,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
 
         private readonly object? _defaultBusyMessage;
         private BusyToken? _busyTail;
-        private ArrayListLight<IBusyIndicatorProviderListener>? _listeners;
+        private LightArrayList<IBusyIndicatorProviderListener>? _listeners;
         private int _suspendCount;
         private readonly object _locker;
 
@@ -80,7 +80,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
         {
             Should.NotBeNull(listener, nameof(listener));
             if (_listeners == null)
-                MugenExtensions.LazyInitialize(ref _listeners, new ArrayListLight<IBusyIndicatorProviderListener>());
+                MugenExtensions.LazyInitialize(ref _listeners, new LightArrayList<IBusyIndicatorProviderListener>());
             _listeners!.AddWithLock(listener);
         }
 
@@ -160,13 +160,13 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
 
             private readonly BusyIndicatorProvider _provider;
 
-            private ArrayListLight<IBusyTokenCallback>? _listeners;
+            private LightArrayList<IBusyTokenCallback>? _listeners;
             private BusyToken? _next;
             private BusyToken? _prev;
             private bool _suspended;
             private bool _suspendedExternal;
 
-            private static readonly ArrayListLight<IBusyTokenCallback> CompletedList;
+            private static readonly LightArrayList<IBusyTokenCallback> CompletedList;
 
             #endregion
 
@@ -174,7 +174,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
 
             static BusyToken()
             {
-                CompletedList = new ArrayListLight<IBusyTokenCallback>(1);
+                CompletedList = new LightArrayList<IBusyTokenCallback>(1);
             }
 
             public BusyToken(BusyIndicatorProvider provider, object? message)
@@ -278,7 +278,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                     if (!IsCompleted)
                     {
                         if (_listeners == null)
-                            _listeners = new ArrayListLight<IBusyTokenCallback>(2);
+                            _listeners = new LightArrayList<IBusyTokenCallback>(2);
                         _listeners.Add(callback);
                         callback.OnSuspendChanged(IsSuspended);
                         return;

@@ -120,7 +120,7 @@ namespace MugenMvvm.Infrastructure.Messaging
 
         #region Nested types
 
-        private sealed class ThreadDispatcherExecutor : ArrayListLight<IMessengerSubscriber>, IThreadDispatcherHandler
+        private sealed class ThreadDispatcherExecutor : LightArrayList<IMessengerSubscriber>, IThreadDispatcherHandler
         {
             #region Fields
 

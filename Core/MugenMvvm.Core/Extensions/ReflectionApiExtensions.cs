@@ -26,7 +26,11 @@ namespace MugenMvvm
 
         public static Func<Type, MemberFlags, IEnumerable<MethodInfo>> GetMethods { get; set; }
 
+        public static Func<Type, MemberFlags, IEnumerable<ConstructorInfo>> GetConstructors { get; set; }
+
         public static Func<Type, Type, bool> IsAssignableFrom { get; set; }
+
+        public static Func<Type, object, bool> IsInstanceOfType { get; set; }
 
         public static Func<Type, Type, bool, bool> IsDefined { get; set; }
 
@@ -96,6 +100,12 @@ namespace MugenMvvm
             return GetMethods(type, flags);
         }
 
+        public static IEnumerable<ConstructorInfo> GetConstructorsUnified(this Type type, MemberFlags flags)
+        {
+            Should.NotBeNull(type, nameof(type));
+            return GetConstructors(type, flags);
+        }
+
         public static IEnumerable<Attribute> GetCustomAttributesUnified(this Type type, Type attributeType, bool inherit)
         {
             Should.NotBeNull(type, nameof(type));
@@ -119,6 +129,12 @@ namespace MugenMvvm
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(typeFrom, nameof(typeFrom));
             return IsAssignableFrom(type, typeFrom);
+        }
+
+        public static bool IsInstanceOfTypeUnified(this Type type, object item)
+        {
+            Should.NotBeNull(type, nameof(type));
+            return IsInstanceOfType(type, item);
         }
 
         public static bool IsDefinedUnified(this Type type, Type attributeType, bool inherit)
@@ -176,11 +192,6 @@ namespace MugenMvvm
             return GetSetMethod(propertyInfo, nonPublic);
         }
 
-        public static T GetValueEx<T>(this MemberInfo member, object? target)
-        {
-            return Singleton<IReflectionManager>.Instance.GetMemberGetter<T>(member).Invoke(target);
-        }
-
         public static bool IsStatic(this MemberInfo member)
         {
             if (member is PropertyInfo propertyInfo)
@@ -232,6 +243,21 @@ namespace MugenMvvm
         public static bool HasMemberFlag(this MemberFlags es, MemberFlags value)
         {
             return (es & value) == value;
+        }
+
+        public static T GetValueEx<T>(this MemberInfo member, object? target)
+        {
+            return Singleton<IReflectionManager>.Instance.GetMemberGetter<T>(member).Invoke(target);
+        }
+
+        public static object InvokeEx(this ConstructorInfo constructor)
+        {
+            return constructor.InvokeEx(Default.EmptyArray<object>());
+        }
+
+        public static object InvokeEx(this ConstructorInfo constructor, params object[] parameters)
+        {
+            throw new NotImplementedException();//todo fix
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

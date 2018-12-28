@@ -16,7 +16,7 @@ namespace MugenMvvm.Infrastructure.Metadata
         #region Fields
 
         private readonly Dictionary<IMetadataContextKey, object?> _values;
-        private ArrayListLight<IObservableMetadataContextListener>? _listeners;
+        private LightArrayList<IObservableMetadataContextListener>? _listeners;
 
         #endregion
 
@@ -30,6 +30,13 @@ namespace MugenMvvm.Infrastructure.Metadata
         private MetadataContext(Dictionary<IMetadataContextKey, object?> values)
         {
             _values = values;
+        }
+
+        public MetadataContext(IReadOnlyMetadataContext context)
+            : this()
+        {
+            Should.NotBeNull(context, nameof(context));
+            Merge(context);
         }
 
         #endregion
@@ -129,6 +136,7 @@ namespace MugenMvvm.Infrastructure.Metadata
             {
                 _values[contextKey] = value;
             }
+
             OnContextChanged(contextKey);
         }
 
@@ -141,7 +149,7 @@ namespace MugenMvvm.Infrastructure.Metadata
         public void Merge(IEnumerable<MetadataContextValue> items)
         {
             Should.NotBeNull(items, nameof(items));
-            bool changed = false;
+            var changed = false;
             lock (_values)
             {
                 foreach (var item in items)
@@ -150,6 +158,7 @@ namespace MugenMvvm.Infrastructure.Metadata
                     changed = true;
                 }
             }
+
             if (changed)
                 OnContextChanged(null);
         }
@@ -162,6 +171,7 @@ namespace MugenMvvm.Infrastructure.Metadata
             {
                 changed = _values.Remove(contextKey);
             }
+
             if (changed)
                 OnContextChanged(contextKey);
             return changed;
@@ -175,6 +185,7 @@ namespace MugenMvvm.Infrastructure.Metadata
                 changed = _values.Count > 0;
                 _values.Clear();
             }
+
             if (changed)
                 OnContextChanged(null);
         }
@@ -183,7 +194,7 @@ namespace MugenMvvm.Infrastructure.Metadata
         {
             Should.NotBeNull(listener, nameof(listener));
             if (_listeners == null)
-                MugenExtensions.LazyInitialize(ref _listeners, new ArrayListLight<IObservableMetadataContextListener>());
+                MugenExtensions.LazyInitialize(ref _listeners, new LightArrayList<IObservableMetadataContextListener>());
             _listeners!.AddWithLock(listener);
         }
 
@@ -199,7 +210,7 @@ namespace MugenMvvm.Infrastructure.Metadata
                 return Default.EmptyArray<IObservableMetadataContextListener>();
             var items = _listeners.GetItemsWithLock(out var size);
             var listeners = new IObservableMetadataContextListener[size];
-            for (int i = 0; i < size; i++)
+            for (var i = 0; i < size; i++)
                 listeners[i] = items[i];
             return listeners;
         }
@@ -234,18 +245,13 @@ namespace MugenMvvm.Infrastructure.Metadata
         {
             #region Fields
 
-            [IgnoreDataMember]
-            [XmlIgnore]
-            private MetadataContext? _metadataContext;
+            [IgnoreDataMember] [XmlIgnore] private MetadataContext? _metadataContext;
 
-            [DataMember(Name = "K")]
-            internal IList<IMetadataContextKey>? Keys;
+            [DataMember(Name = "K")] internal IList<IMetadataContextKey>? Keys;
 
-            [DataMember(Name = "V")]
-            internal IList<object?>? Values;
+            [DataMember(Name = "L")] internal IList<IObservableMetadataContextListener?>? Listeners;
 
-            [DataMember(Name = "L")]
-            internal IList<IObservableMetadataContextListener?>? Listeners;
+            [DataMember(Name = "V")] internal IList<object?>? Values;
 
             #endregion
 
@@ -307,7 +313,9 @@ namespace MugenMvvm.Infrastructure.Metadata
                         return new MementoResult(_metadataContext, serializationContext.Metadata);
 
                     var dictionary = new Dictionary<IMetadataContextKey, object?>();
-                    for (var i = 0; i < Keys!.Count; i++)
+                    for (var i = 0; i < Keys!.
+                    Count;
+                    i++)
                     {
                         var key = Keys![i];
                         var value = Values![i];
