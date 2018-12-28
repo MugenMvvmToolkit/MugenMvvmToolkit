@@ -12,5 +12,9 @@ namespace MugenMvvm.Interfaces.ViewModels
         IBusyIndicatorProvider BusyIndicatorProvider { get; }
 
         IObservableMetadataContext Metadata { get; }
+
+//        void Subscribe(IViewModel viewModel);
+
+//        void Unsubscribe(IViewModel viewModel);
     }
 }

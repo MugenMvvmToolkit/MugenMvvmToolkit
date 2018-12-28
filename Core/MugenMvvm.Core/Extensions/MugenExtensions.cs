@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -160,7 +163,7 @@ namespace MugenMvvm
         #region Common
 
         [StringFormatMethod("format")]
-        public static string Format(this string format, params object[] args)
+        public static string Format(this string format, params object?[] args)
         {
             Should.NotBeNull(format, nameof(format));
             Should.NotBeNull(args, nameof(args));
@@ -224,6 +227,73 @@ namespace MugenMvvm
         public static void ExecuteNullState(this IThreadDispatcherHandler handler)
         {
             handler.Execute(null);
+        }
+
+        #endregion
+
+        #region Collections
+
+        public static IReadOnlyCollection<TValue> ToReadOnlyCollection<TKey, TValue>(this Dictionary<TKey, TValue>.ValueCollection? collection)
+        {
+            if (collection == null)
+                return Default.EmptyArray<TValue>();
+            if (collection is IReadOnlyCollection<TValue> readOnlyCollection)
+                return readOnlyCollection;
+            return collection.ToList();
+        }
+
+        #endregion
+
+        #region Execptions
+
+        [Pure]
+        public static string Flatten(this Exception exception, bool includeStackTrace = false)
+        {
+            return exception.Flatten(string.Empty, includeStackTrace);
+        }
+
+        [Pure]
+        public static string Flatten(this Exception exception, string message, bool includeStackTrace = false)
+        {
+            Should.NotBeNull(exception, nameof(exception));
+            var sb = new StringBuilder(message);
+            FlattenInternal(exception, sb, includeStackTrace);
+            return sb.ToString();
+        }
+
+        private static void FlattenInternal(Exception exception, StringBuilder sb, bool includeStackTrace)
+        {
+            if (exception is AggregateException aggregateException)
+            {
+                sb.AppendLine(aggregateException.Message);
+                if (includeStackTrace)
+                {
+                    sb.Append(exception.StackTrace);
+                    sb.AppendLine();
+                }
+                for (int index = 0; index < aggregateException.InnerExceptions.Count; index++)
+                    FlattenInternal(aggregateException.InnerExceptions[index], sb, includeStackTrace);
+                return;
+            }
+
+            while (exception != null)
+            {
+                sb.AppendLine(exception.Message);
+                if (includeStackTrace)
+                    sb.Append(exception.StackTrace);
+
+                if (exception is ReflectionTypeLoadException loadException)
+                {
+                    if (includeStackTrace)
+                        sb.AppendLine();
+                    for (int index = 0; index < loadException.LoaderExceptions.Length; index++)
+                        FlattenInternal(loadException.LoaderExceptions[index], sb, includeStackTrace);
+                }
+
+                exception = exception.InnerException;
+                if (exception != null && includeStackTrace)
+                    sb.AppendLine();
+            }
         }
 
         #endregion

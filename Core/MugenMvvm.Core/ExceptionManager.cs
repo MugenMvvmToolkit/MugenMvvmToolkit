@@ -31,6 +31,11 @@ namespace MugenMvvm
             return new InvalidOperationException(MessageConstants.CommandCannotBeExecutedString);
         }
 
+        internal static Exception DuplicateViewMapping(Type viewType, Type viewModelType, string? name)
+        {
+            return new InvalidOperationException(MessageConstants.DuplicateViewMappingFormat3.Format(viewType, viewModelType, name));
+        }
+
         #endregion
     }
 }

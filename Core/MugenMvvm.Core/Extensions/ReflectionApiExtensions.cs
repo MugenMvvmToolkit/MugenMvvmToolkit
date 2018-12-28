@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using MugenMvvm.Infrastructure;
 using MugenMvvm.Interfaces;
 using MugenMvvm.Models;
 
@@ -23,19 +24,37 @@ namespace MugenMvvm
 
         public static Func<Type, string, MemberFlags, MethodInfo> GetMethod { get; set; }
 
-        public static Func<Type, MemberFlags, IEnumerable<MethodInfo>> GetMethods { get; set; }        
+        public static Func<Type, MemberFlags, IEnumerable<MethodInfo>> GetMethods { get; set; }
 
         public static Func<Type, Type, bool> IsAssignableFrom { get; set; }
 
         public static Func<Type, Type, bool, bool> IsDefined { get; set; }
 
+        public static Func<Type, Assembly> GetAssembly { get; set; }
+
+        public static Func<Type, Type, bool, IEnumerable<Attribute>> GetCustomAttributes { get; set; }
+
+        public static Func<Type, Type> GetBaseType { get; set; }
+
         public static Func<Type, bool> IsClass { get; set; }
 
         public static Func<Type, bool> IsValueType { get; set; }
 
+        public static Func<Type, bool> IsGenericType { get; set; }
+
+        public static Func<Type, bool> IsInterface { get; set; }
+
+        public static Func<Type, bool> IsAbstract { get; set; }
+
+        public static Func<Type, bool> IsGenericTypeDefinition { get; set; }
+
         public static Func<PropertyInfo, bool, MethodInfo> GetGetMethod { get; set; }
 
         public static Func<PropertyInfo, bool, MethodInfo> GetSetMethod { get; set; }
+
+        public static Func<Assembly, IList<Type>> GetTypes { get; set; }
+
+        public static Func<Assembly, AssemblyName> GetAssemblyName { get; set; }
 
         #endregion
 
@@ -77,6 +96,24 @@ namespace MugenMvvm
             return GetMethods(type, flags);
         }
 
+        public static IEnumerable<Attribute> GetCustomAttributesUnified(this Type type, Type attributeType, bool inherit)
+        {
+            Should.NotBeNull(type, nameof(type));
+            return GetCustomAttributes(type, attributeType, inherit);
+        }
+
+        public static Type GetBaseTypeUnified(this Type type)
+        {
+            Should.NotBeNull(type, nameof(type));
+            return GetBaseType(type);
+        }
+
+        public static Assembly GetAssemblyUnified(this Type type)
+        {
+            Should.NotBeNull(type, nameof(type));
+            return GetAssembly(type);
+        }
+
         public static bool IsAssignableFromUnified(this Type type, Type typeFrom)
         {
             Should.NotBeNull(type, nameof(type));
@@ -97,10 +134,34 @@ namespace MugenMvvm
             return IsClass(type);
         }
 
+        public static bool IsAbstractUnified(this Type type)
+        {
+            Should.NotBeNull(type, nameof(type));
+            return IsAbstract(type);
+        }
+
+        public static bool IsInterfaceUnified(this Type type)
+        {
+            Should.NotBeNull(type, nameof(type));
+            return IsInterface(type);
+        }
+
         public static bool IsValueTypeUnified(this Type type)
         {
             Should.NotBeNull(type, nameof(type));
             return IsValueType(type);
+        }
+
+        public static bool IsGenericTypeUnified(this Type type)
+        {
+            Should.NotBeNull(type, nameof(type));
+            return IsGenericType(type);
+        }
+
+        public static bool IsGenericTypeDefinitionUnified(this Type type)
+        {
+            Should.NotBeNull(type, nameof(type));
+            return IsGenericTypeDefinition(type);
         }
 
         public static MethodInfo GetGetMethodUnified(this PropertyInfo propertyInfo, bool nonPublic)
@@ -144,6 +205,27 @@ namespace MugenMvvm
         public static bool IsAnonymousClass(this Type type)
         {
             return type.IsDefinedUnified(typeof(CompilerGeneratedAttribute), false) && type.IsClassUnified();
+        }
+
+        public static IList<Type> GetTypesUnified(this Assembly assembly, bool throwOnError)
+        {
+            Should.NotBeNull(assembly, nameof(assembly));
+            try
+            {
+                return GetTypes(assembly);
+            }
+            catch (ReflectionTypeLoadException e) when (!throwOnError)
+            {
+                if (Tracer.TraceError)
+                    Tracer.Error(e.Flatten(true));
+            }
+            return Default.EmptyArray<Type>();
+        }
+
+        public static AssemblyName GetAssemblyNameUnified(this Assembly assembly)
+        {
+            Should.NotBeNull(assembly, nameof(assembly));
+            return GetAssemblyName(assembly);
         }
 
         [Pure]

@@ -12,6 +12,10 @@
         public const string CapacityShouldBeGreaterOrEqual = "The Capacity should be greater or equal than collection.";
         public const string IndexMustBeWithinBounds = "Index must be within the bounds of the collection.";
         public const string UnhandledEnumFormat1 = "Unhandled enum - '{0}'";
+        public const string DuplicateViewMappingFormat3 = "The mapping already exist for the '{0}' to the '{1}' with name '{2}'";
+        public const string ArgumentCannotBeNull = "Argument '{0}' cannot be null or empty";
+        public const string ArgumentIsNotValid = "Argument '{0}' is not valid";
+        public const string ArgumentShouldBeOfType = "Type '{0}' should be of type '{1}', but is not.";
 
         #endregion
     }

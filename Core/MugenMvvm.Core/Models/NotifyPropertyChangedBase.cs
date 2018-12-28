@@ -10,7 +10,7 @@ using MugenMvvm.Interfaces.Threading;
 
 namespace MugenMvvm.Models
 {
-    public class NotifyPropertyChangedBase : ISuspendNotifications, IHasWeakReference
+    public class NotifyPropertyChangedBase : INotifyPropertyChangedEx, IHasWeakReference
     {
         #region Fields
 
@@ -66,14 +66,14 @@ namespace MugenMvvm.Models
             return WeakActionToken.Create(this, @base => @base.EndSuspendNotifications());
         }
 
-        #endregion
-
-        #region Methods
-
         public void InvalidateProperties()
         {
             OnPropertyChanged(Default.EmptyPropertyChangedArgs);
         }
+
+        #endregion
+
+        #region Methods
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")

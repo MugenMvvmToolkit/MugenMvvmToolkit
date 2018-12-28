@@ -1,14 +1,11 @@
-﻿using System.ComponentModel;
-using MugenMvvm.Interfaces.Models;
+﻿using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Commands
 {
-    public interface IBindableRelayCommandMediator : INotifyPropertyChanged, IHasDisplayName, ISuspendNotifications
+    public interface IBindableRelayCommandMediator : INotifyPropertyChangedEx, IHasDisplayName
     {
         bool IsCanExecuteNullParameter { get; }
 
         bool IsCanExecuteLastParameter { get; }
-
-        void InvalidateProperties();
     }
 }
