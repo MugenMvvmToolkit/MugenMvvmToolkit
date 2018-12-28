@@ -29,8 +29,8 @@ namespace MugenMvvm.Infrastructure.Messaging
         public WeakDelegateMessengerSubscriber(Action<object, TMessage, IMessengerContext> action)
         {
             Should.NotBeNull(action, nameof(action));
-            Should.BeSupported(action.Target != null, ExceptionManager.StaticDelegateCannotBeWeak);
-            Should.BeSupported(!action.Target.GetType().IsAnonymousClass(), ExceptionManager.AnonymousDelegateCannotBeWeak);
+            Should.BeSupported(action.Target != null, MessageConstants.StaticDelegateCannotBeWeak);
+            Should.BeSupported(!action.Target.GetType().IsAnonymousClass(), MessageConstants.AnonymousDelegateCannotBeWeak);
             _reference = MugenExtensions.GetWeakReference(action.Target);
             _action = Singleton<IReflectionManager>.Instance.GetMethodDelegate<Action<TTarget, object, TMessage, IMessengerContext>>(action.GetMethodInfo());
         }

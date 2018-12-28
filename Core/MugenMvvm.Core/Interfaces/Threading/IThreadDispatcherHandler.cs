@@ -1,4 +1,4 @@
-﻿namespace MugenMvvm.Interfaces.Models
+﻿namespace MugenMvvm.Interfaces.Threading
 {
     public interface IThreadDispatcherHandler
     {

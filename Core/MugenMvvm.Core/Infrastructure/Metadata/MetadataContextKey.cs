@@ -89,6 +89,11 @@ namespace MugenMvvm.Infrastructure.Metadata
             return _canSerialize(item, context);
         }
 
+        public object? GetDefaultValue(IReadOnlyMetadataContext context, object? defaultValue)
+        {
+            throw new NotImplementedException();
+        }
+
         public bool Equals(IMetadataContextKey other)
         {
             return string.Equals(Key, other.Key);
@@ -190,13 +195,17 @@ namespace MugenMvvm.Infrastructure.Metadata
         {
             #region Constructors
 
-            protected internal MetadataContextKeyInternal(string key, Action<object?>? validateAction, Func<object?, ISerializationContext, bool>? canSerialize, Type? type,
-                string? fieldOrPropertyName)
+            protected internal MetadataContextKeyInternal(string key, Action<object?>? validateAction, Func<object?, ISerializationContext, bool>? canSerialize, Type? type, string? fieldOrPropertyName)
                 : base(key, validateAction, canSerialize, type, fieldOrPropertyName)
             {
             }
 
             #endregion
+
+            public T GetDefaultValue(IReadOnlyMetadataContext context, T defaultValue)
+            {
+                throw new NotImplementedException();
+            }
         }
 
         [Serializable]
@@ -241,7 +250,11 @@ namespace MugenMvvm.Infrastructure.Metadata
 
             public IMementoResult Restore(ISerializationContext serializationContext)
             {
-                var contextKey = ConstantMember?.GetValueEx<IMetadataContextKey>(null);
+                object contextKey;
+                if (ConstantMember is PropertyInfo propertyInfo)
+                    contextKey = propertyInfo.GetValue(null);
+                else
+                    contextKey = ((FieldInfo) ConstantMember).GetValue(null);
                 if (contextKey == null)
                     return MementoResult.Unrestored;
                 return new MementoResult(contextKey, serializationContext.Metadata);

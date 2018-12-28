@@ -1,8 +1,7 @@
 ﻿using System;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Models;
 
-namespace MugenMvvm.Interfaces
+namespace MugenMvvm.Interfaces.Threading
 {
     public interface IThreadDispatcher
     {

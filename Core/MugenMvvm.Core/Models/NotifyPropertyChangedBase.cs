@@ -5,8 +5,8 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using JetBrains.Annotations;
 using MugenMvvm.Infrastructure;
-using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Threading;
 
 namespace MugenMvvm.Models
 {
@@ -51,6 +51,12 @@ namespace MugenMvvm.Models
 
         #endregion
 
+        #region Events
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        #endregion
+
         #region Implementation of interfaces
 
         public IDisposable SuspendNotifications()
@@ -59,8 +65,6 @@ namespace MugenMvvm.Models
                 OnBeginSuspendNotifications();
             return WeakActionToken.Create(this, @base => @base.EndSuspendNotifications());
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         #endregion
 
@@ -103,9 +107,9 @@ namespace MugenMvvm.Models
                 if (IsNotificationsSuspended)
                     IsNotificationsDirty = true;
                 if (PropertyChangedExecutionMode == ThreadExecutionMode.Current)
-                    RaisePropertyChangedRaw(args);
+                    RaisePropertyChangedEvent(args);
                 else if (PropertyChangedExecutionMode == ThreadExecutionMode.Main && ThreadDispatcher.IsOnMainThread)
-                    RaisePropertyChangedRaw(args);
+                    RaisePropertyChangedEvent(args);
                 else
                     ThreadDispatcher.Execute(GetDispatcherHandler(), PropertyChangedExecutionMode, args);
             }
@@ -116,10 +120,6 @@ namespace MugenMvvm.Models
         }
 
         protected virtual void OnEndSuspendNotifications()
-        {
-        }
-
-        internal virtual void OnPropertyChangedInternal(PropertyChangedEventArgs args)
         {
         }
 
@@ -134,10 +134,9 @@ namespace MugenMvvm.Models
                 _ref.Target = null;
         }
 
-        protected void RaisePropertyChangedRaw(PropertyChangedEventArgs args)
+        protected virtual void RaisePropertyChangedEvent(PropertyChangedEventArgs args)
         {
             PropertyChanged?.Invoke(this, args);
-            OnPropertyChangedInternal(args);
         }
 
         private void EndSuspendNotifications()
@@ -191,7 +190,7 @@ namespace MugenMvvm.Models
 
             public virtual void Execute(object? state)
             {
-                Target.RaisePropertyChangedRaw((PropertyChangedEventArgs)state!);
+                Target.RaisePropertyChangedEvent((PropertyChangedEventArgs) state!);
             }
 
             #endregion

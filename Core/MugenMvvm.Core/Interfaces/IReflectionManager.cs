@@ -8,5 +8,7 @@ namespace MugenMvvm.Interfaces
         Func<object?, object?[], object?> GetMethodDelegate(MethodInfo method);
 
         Delegate GetMethodDelegate(Type delegateType, MethodInfo method);
+
+        Func<object?, TType> GetMemberGetter<TType>(MemberInfo member);
     }
 }

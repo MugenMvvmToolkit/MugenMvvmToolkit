@@ -72,7 +72,7 @@ namespace MugenMvvm.Infrastructure.Metadata
             return new ContextMemento(this);
         }
 
-        public bool TryGet(IMetadataContextKey contextKey, out object? value)
+        public bool TryGet(IMetadataContextKey contextKey, out object? value, object? defaultValue = null)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             object? obj;
@@ -88,19 +88,27 @@ namespace MugenMvvm.Infrastructure.Metadata
                 return true;
             }
 
-            value = default;
+            value = contextKey.GetDefaultValue(this, defaultValue);
             return false;
         }
 
-        public bool TryGet<T>(IMetadataContextKey<T> contextKey, out T value)
+        public bool TryGet<T>(IMetadataContextKey<T> contextKey, out T value, T defaultValue = default)
         {
-            if (TryGet(contextKey, out object? objValue) && objValue is T v)
+            Should.NotBeNull(contextKey, nameof(contextKey));
+            object? obj;
+            bool hasValue;
+            lock (_values)
             {
-                value = v;
+                hasValue = _values.TryGetValue(contextKey, out obj);
+            }
+
+            if (hasValue)
+            {
+                value = (T)obj;
                 return true;
             }
 
-            value = default!;
+            value = contextKey.GetDefaultValue(this, defaultValue);
             return false;
         }
 

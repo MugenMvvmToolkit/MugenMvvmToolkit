@@ -4,30 +4,31 @@ namespace MugenMvvm
 {
     internal static class ExceptionManager
     {
-        public const string StaticDelegateCannotBeWeak = "The static delegate cannot be converted to weak delegate.";
-        public const string AnonymousDelegateCannotBeWeak = "The anonymous delegate cannot be converted to weak delegate.";
-
         #region Methods
 
         public static Exception EnumIsNotValid(Type type, object value)
         {
-            var message = $"'{value}' is not a valid in {type}";
-            return new ArgumentException(message, nameof(value));
+            return new ArgumentException(MessageConstants.EnumIsNotValidFormat2.Format(value, type), nameof(value));
         }
 
         internal static Exception CapacityLessThanCollection(string paramName)
         {
-            return new ArgumentOutOfRangeException(paramName, "The Capacity should be greater or equal than collection.");
+            return new ArgumentOutOfRangeException(paramName, MessageConstants.CapacityShouldBeGreaterOrEqual);
         }
 
         internal static Exception IndexOutOfRangeCollection(string paramName)
         {
-            return new ArgumentOutOfRangeException(paramName, "Index must be within the bounds of the collection.");
+            return new ArgumentOutOfRangeException(paramName, MessageConstants.IndexMustBeWithinBounds);
         }
 
         internal static Exception EnumOutOfRange(string paramName, Enum @enum)
         {
-            return new ArgumentOutOfRangeException(paramName, $"Unhandled enum - '{@enum}'");
+            return new ArgumentOutOfRangeException(paramName, MessageConstants.UnhandledEnumFormat1.Format(@enum));
+        }
+
+        internal static Exception CommandCannotBeExecuted()
+        {
+            return new InvalidOperationException(MessageConstants.CommandCannotBeExecutedString);
         }
 
         #endregion

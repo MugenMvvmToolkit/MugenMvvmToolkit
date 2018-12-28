@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Models;
 
 namespace MugenMvvm.Infrastructure.Messaging
@@ -22,6 +23,7 @@ namespace MugenMvvm.Infrastructure.Messaging
 
         #region Constructors
 
+        [Preserve(Conditional = true)] 
         public Messenger(IThreadDispatcher threadDispatcher, ITracer tracer)
         {
             Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));

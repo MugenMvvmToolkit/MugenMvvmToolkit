@@ -8,11 +8,10 @@ using System.Threading.Tasks;
 using MugenMvvm.Attributes;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Infrastructure.Serialization;
-using MugenMvvm.Interfaces;
+using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Serialization;
-using MugenMvvm.Models;
 using MugenMvvm.ViewModels;
 
 namespace MugenMvvm
@@ -25,10 +24,18 @@ namespace MugenMvvm
         internal static readonly PropertyChangedEventArgs IsNotificationsSuspendedChangedArgs;
         internal static readonly PropertyChangedEventArgs IsBusyChangedArgs;
         internal static readonly PropertyChangedEventArgs BusyInfoChangedArgs;
+        internal static readonly PropertyChangedEventArgs DisplayNameChangedArgs;
+        internal static readonly PropertyChangedEventArgs IsCanExecuteNullChangedArgs;
+        internal static readonly PropertyChangedEventArgs IsCanExecuteLastChangedArgs;
 
 
         public static readonly NullValue SerializableNullValue;
         public static readonly IReadOnlyMetadataContext MetadataContext;
+        public static readonly IDisposable Disposable;
+        public static readonly WeakReference WeakReference;
+        public static readonly Task CompletedTask;
+        public static readonly Task<bool> TrueTask;
+        public static readonly Task<bool> FalseTask;
 
         #endregion
 
@@ -40,8 +47,18 @@ namespace MugenMvvm
             IsNotificationsSuspendedChangedArgs = new PropertyChangedEventArgs(nameof(ISuspendNotifications.IsNotificationsSuspended));
             IsBusyChangedArgs = new PropertyChangedEventArgs(nameof(ViewModelBase.IsBusy));
             BusyInfoChangedArgs = new PropertyChangedEventArgs(nameof(ViewModelBase.BusyInfo));
+            DisplayNameChangedArgs = new PropertyChangedEventArgs(nameof(IHasDisplayName.DisplayName));
+            IsCanExecuteNullChangedArgs = new PropertyChangedEventArgs(nameof(IBindableRelayCommandMediator.IsCanExecuteNullParameter));
+            IsCanExecuteLastChangedArgs = new PropertyChangedEventArgs(nameof(IBindableRelayCommandMediator.IsCanExecuteLastParameter));
+
+
             MetadataContext = new EmptyContext();
             SerializableNullValue = new NullValue();
+            WeakReference = new WeakReference(null, false);
+            Disposable = (IDisposable)MetadataContext;
+            TrueTask = Task.FromResult(true);
+            FalseTask = Task.FromResult(false);
+            CompletedTask = FalseTask;
         }
 
         #endregion
@@ -99,7 +116,7 @@ namespace MugenMvvm
             #endregion
         }
 
-        private sealed class EmptyContext : IReadOnlyMetadataContext
+        private sealed class EmptyContext : IReadOnlyMetadataContext, IDisposable
         {
             #region Fields
 
@@ -114,6 +131,10 @@ namespace MugenMvvm
             #endregion
 
             #region Implementation of interfaces
+
+            public void Dispose()
+            {
+            }
 
             public IEnumerator<MetadataContextValue> GetEnumerator()
             {
@@ -132,15 +153,15 @@ namespace MugenMvvm
                 return _emptyMemento;
             }
 
-            public bool TryGet(IMetadataContextKey contextKey, out object? value)
+            public bool TryGet(IMetadataContextKey contextKey, out object? value, object? defaultValue = null)
             {
-                value = null;
+                value = contextKey.GetDefaultValue(this, defaultValue);
                 return false;
             }
 
-            public bool TryGet<T>(IMetadataContextKey<T> contextKey, out T value)
+            public bool TryGet<T>(IMetadataContextKey<T> contextKey, out T value, T defaultValue = default)
             {
-                value = default!;
+                value = contextKey.GetDefaultValue(this, defaultValue);
                 return false;
             }
 

@@ -10,6 +10,7 @@ using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Serialization;
+using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Models;
 
@@ -147,12 +148,11 @@ namespace MugenMvvm
 
         #region Metadata
 
-        public static T Get<T>(this IMetadataContext metadataContext, IMetadataContextKey<T> key, T defaultValue = default)
+        public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IMetadataContextKey<T> key, T defaultValue = default)
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));
-            if (metadataContext.TryGet(key, out var value))
-                return value;
-            return defaultValue;
+            metadataContext.TryGet(key, out var value, defaultValue);
+            return value;
         }
 
         #endregion
@@ -230,7 +230,7 @@ namespace MugenMvvm
 
         #region Internal
 
-        internal static IList<T>? ToSerializable<T>(this IReadOnlyList<T>? items, ISerializer serializer, int? size = null)            
+        internal static IList<T>? ToSerializable<T>(this IReadOnlyList<T>? items, ISerializer serializer, int? size = null)
         {
             if (items == null)
                 return null;
@@ -261,7 +261,7 @@ namespace MugenMvvm
 
         internal static bool LazyInitializeLock<TTarget, TValue>(ref TValue item, TTarget target, Func<TTarget, TValue> getValue, object locker)
             where TTarget : class
-            where TValue : class?
+            where TValue : class ?
         {
             if (item != null)
                 return false;

@@ -19,9 +19,11 @@ namespace MugenMvvm
 
         public static Func<Type, string, MemberFlags, PropertyInfo> GetProperty { get; set; }
 
+        public static Func<Type, MemberFlags, IEnumerable<PropertyInfo>> GetProperties { get; set; }
+
         public static Func<Type, string, MemberFlags, MethodInfo> GetMethod { get; set; }
 
-        public static Func<Type, MemberFlags, IEnumerable<MethodInfo>> GetMethods { get; set; }
+        public static Func<Type, MemberFlags, IEnumerable<MethodInfo>> GetMethods { get; set; }        
 
         public static Func<Type, Type, bool> IsAssignableFrom { get; set; }
 
@@ -30,6 +32,10 @@ namespace MugenMvvm
         public static Func<Type, bool> IsClass { get; set; }
 
         public static Func<Type, bool> IsValueType { get; set; }
+
+        public static Func<PropertyInfo, bool, MethodInfo> GetGetMethod { get; set; }
+
+        public static Func<PropertyInfo, bool, MethodInfo> GetSetMethod { get; set; }
 
         #endregion
 
@@ -57,6 +63,12 @@ namespace MugenMvvm
         {
             Should.NotBeNull(type, nameof(type));
             return GetFields(type, flags);
+        }
+
+        public static IEnumerable<PropertyInfo> GetPropertiesUnified(this Type type, MemberFlags flags)
+        {
+            Should.NotBeNull(type, nameof(type));
+            return GetProperties(type, flags);
         }
 
         public static IEnumerable<MethodInfo> GetMethodsUnified(this Type type, MemberFlags flags)
@@ -91,9 +103,36 @@ namespace MugenMvvm
             return IsValueType(type);
         }
 
+        public static MethodInfo GetGetMethodUnified(this PropertyInfo propertyInfo, bool nonPublic)
+        {
+            Should.NotBeNull(propertyInfo, nameof(propertyInfo));
+            return GetGetMethod(propertyInfo, nonPublic);
+        }
+
+        public static MethodInfo GetSetMethodUnified(this PropertyInfo propertyInfo, bool nonPublic)
+        {
+            Should.NotBeNull(propertyInfo, nameof(propertyInfo));
+            return GetSetMethod(propertyInfo, nonPublic);
+        }
+
         public static T GetValueEx<T>(this MemberInfo member, object? target)
         {
-            throw new NotImplementedException();
+            return Singleton<IReflectionManager>.Instance.GetMemberGetter<T>(member).Invoke(target);
+        }
+
+        public static bool IsStatic(this MemberInfo member)
+        {
+            if (member is PropertyInfo propertyInfo)
+            {
+                MethodInfo method = propertyInfo.CanRead
+                    ? propertyInfo.GetGetMethodUnified(true)
+                    : propertyInfo.GetSetMethodUnified(true);
+                return method != null && method.IsStatic;
+            }
+
+            if (member is MethodInfo methodInfo)
+                return methodInfo.IsStatic;
+            return member is FieldInfo fieldInfo && fieldInfo.IsStatic;
         }
 
         public static TDelegate GetMethodDelegate<TDelegate>(this IReflectionManager reflectionManager, MethodInfo method) where TDelegate : Delegate

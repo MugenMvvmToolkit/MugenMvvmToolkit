@@ -1,6 +1,7 @@
 ﻿using System;
 using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Models;
 
 namespace MugenMvvm.UnitTest.TestInfrastructure

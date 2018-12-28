@@ -6,6 +6,7 @@ using MugenMvvm.Infrastructure.Messaging;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.Messaging;
+using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Models;
 using MugenMvvm.UnitTest.TestInfrastructure;
 using Should;

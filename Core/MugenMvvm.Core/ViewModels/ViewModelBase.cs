@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Xml.Serialization;
@@ -55,8 +56,7 @@ namespace MugenMvvm.ViewModels
             get
             {
                 if (_internalMessenger == null && MugenExtensions.LazyInitializeLock(ref _internalMessenger, this, vm => vm.GetInternalMessenger(), this))
-                    _internalMessenger
-                !.Subscribe((IMessengerSubscriber)GetDispatcherHandler(), ThreadExecutionMode.Main);
+                    _internalMessenger!.Subscribe((IMessengerSubscriber)GetDispatcherHandler(), ThreadExecutionMode.Main);
                 return _internalMessenger!;
             }
         }
@@ -67,8 +67,7 @@ namespace MugenMvvm.ViewModels
             {
                 if (_busyIndicatorProvider == null &&
                     MugenExtensions.LazyInitializeLock(ref _busyIndicatorProvider, this, vm => vm.GetBusyIndicatorProvider(), this))
-                    _busyIndicatorProvider
-                !.AddListener((IBusyIndicatorProviderListener)GetDispatcherHandler());
+                    _busyIndicatorProvider!.AddListener((IBusyIndicatorProviderListener)GetDispatcherHandler());
                 return _busyIndicatorProvider!;
             }
         }
@@ -81,6 +80,12 @@ namespace MugenMvvm.ViewModels
 
         #endregion
 
+        #region Events
+
+        public event Action<IDisposableObject, EventArgs> Disposed;
+
+        #endregion
+
         #region Implementation of interfaces
 
         public void Dispose()
@@ -88,8 +93,6 @@ namespace MugenMvvm.ViewModels
             if (Interlocked.Exchange(ref _state, DisposedState) == DisposedState)
                 return;
             GC.SuppressFinalize(this);
-            //                if (Settings.DisposeCommands)
-            //                    ReflectionExtensions.DisposeCommands(this);
             ClearPropertyChangedSubscribers();
             OnDisposeInternal(true);
             OnDispose(true);
@@ -99,11 +102,12 @@ namespace MugenMvvm.ViewModels
             _busyIndicatorProvider?.ClearBusy();
             _busyIndicatorProvider?.RemoveAllListeners();
             _internalMessenger?.UnsubscribeAll();
+            //                if (Settings.DisposeCommands)
+            //                    ReflectionExtensions.DisposeCommands(this);
             //            ToolkitServiceProvider.ViewManager.CleanupViewAsync(this);            
             //            ToolkitServiceProvider.AttachedValueProvider.Clear(this);
-            Metadata.Clear();
-            CleanupWeakReference();
             Singleton<IViewModelDispatcher>.Instance.OnLifecycleChanged(this, ViewModelLifecycleState.Disposed, Default.MetadataContext);
+            CleanupWeakReference();
         }
 
         public IMemento? GetMemento()
@@ -113,11 +117,14 @@ namespace MugenMvvm.ViewModels
             return _memento;
         }
 
-        public event Action<IDisposableObject, EventArgs> Disposed;
-
         #endregion
 
         #region Methods
+
+        protected internal void InvalidateCommands()
+        {
+            Publish(Default.EmptyPropertyChangedArgs);
+        }
 
         protected void Publish(object message, IMessengerContext? messengerContext = null)
         {
@@ -158,6 +165,12 @@ namespace MugenMvvm.ViewModels
         private protected override DispatcherHandler CreateDispatcherHandler()
         {
             return new ViewModelHandler(this);
+        }
+
+        protected override void RaisePropertyChangedEvent(PropertyChangedEventArgs args)
+        {
+            base.RaisePropertyChangedEvent(args);
+            InvalidateCommands();
         }
 
         #endregion
@@ -226,7 +239,7 @@ namespace MugenMvvm.ViewModels
                     if (messageMode.HasFlagEx(BusyMessageHandlerType.NotifySubscribers))
                         Target._internalMessenger?.Publish(sender, busyToken, messengerContext);
                 }
-                else if (BroadcastAllMessages || message is IBroadcastMessage)
+                else if (BroadcastAllMessages || message is IBroadcastMessage || message is NotifyPropertyChangedBase)
                     Target._internalMessenger?.Publish(sender, message, messengerContext);
 
                 return SubscriberResult.Handled;
@@ -234,10 +247,10 @@ namespace MugenMvvm.ViewModels
 
             public void OnContextChanged(IObservableMetadataContext metadataContext, IMetadataContextKey? key)
             {
-                if (key == null || key.Equals(ViewModelMetadataKeys.BroadcastAllMessages))
-                    BroadcastAllMessages = Target.Metadata.Get(ViewModelMetadataKeys.BroadcastAllMessages);
-                if (key == null || key.Equals(ViewModelMetadataKeys.BusyMessageHandlerType))
-                    BusyMessageHandlerType = Target.Metadata.Get(ViewModelMetadataKeys.BusyMessageHandlerType, BusyMessageHandlerType.Handle);
+                if (key == null || key.Equals(ViewModelMetadata.BroadcastAllMessages))
+                    BroadcastAllMessages = Target.Metadata.Get(ViewModelMetadata.BroadcastAllMessages);
+                if (key == null || key.Equals(ViewModelMetadata.BusyMessageHandlerType))
+                    BusyMessageHandlerType = Target.Metadata.Get(ViewModelMetadata.BusyMessageHandlerType, BusyMessageHandlerType.Handle);
             }
 
             #endregion
@@ -275,21 +288,15 @@ namespace MugenMvvm.ViewModels
         {
             #region Fields
 
-            [IgnoreDataMember]
-            [XmlIgnore]
-            private IViewModel? _viewModel;
+            [IgnoreDataMember] [XmlIgnore] private IViewModel? _viewModel;
 
-            [DataMember(Name = "C")]
-            protected internal IObservableMetadataContext Metadata;
+            [DataMember(Name = "B")] internal IList<IBusyIndicatorProviderListener>? BusyListeners;
 
-            [DataMember(Name = "T")]
-            internal Type? ViewModelType;
+            [DataMember(Name = "C")] protected internal IObservableMetadataContext Metadata;
 
-            [DataMember(Name = "S")]
-            internal IList<MessengerSubscriberInfo>? Subscribers;
+            [DataMember(Name = "S")] internal IList<MessengerSubscriberInfo>? Subscribers;
 
-            [DataMember(Name = "B")]
-            internal IList<IBusyIndicatorProviderListener>? BusyListeners;
+            [DataMember(Name = "T")] internal Type? ViewModelType;
 
             protected static readonly object RestorationLocker;
 
@@ -339,6 +346,7 @@ namespace MugenMvvm.ViewModels
                     Subscribers = _viewModel.InternalMessenger.GetSubscribers().ToSerializable(serializationContext.Serializer);
                     BusyListeners = _viewModel.BusyIndicatorProvider?.GetListeners().ToSerializable(serializationContext.Serializer);
                 }
+
                 OnPreserveInternal(_viewModel!, serializationContext);
             }
 
@@ -355,7 +363,7 @@ namespace MugenMvvm.ViewModels
                     if (_viewModel != null)
                         return new MementoResult(_viewModel, serializationContext.Metadata);
 
-                    if (Metadata.TryGet(ViewModelMetadataKeys.Id, out var id))
+                    if (Metadata.TryGet(ViewModelMetadata.Id, out var id))
                     {
                         _viewModel = dispatcher.GetViewModelById(id, serializationContext.Metadata);
                         if (_viewModel != null)
@@ -422,8 +430,11 @@ namespace MugenMvvm.ViewModels
         [Preserve(Conditional = true, AllMembers = true)]
         public sealed class ViewModelHandlerMemento : IMemento
         {
-            [DataMember(Name = "V")]
-            public readonly ViewModelBase ViewModel;
+            #region Fields
+
+            [DataMember(Name = "V")] public readonly ViewModelBase ViewModel;
+
+            #endregion
 
             #region Constructors
 

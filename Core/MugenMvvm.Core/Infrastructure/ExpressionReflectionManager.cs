@@ -12,109 +12,11 @@ namespace MugenMvvm.Infrastructure
 {
     public class ExpressionReflectionManager : IReflectionManager
     {
-
-        protected sealed class MemberCacheKeyComparer : IEqualityComparer<MethodDelegateCacheKey>, IEqualityComparer<MemberInfoDelegateCacheKey>
-        {
-            #region Fields
-
-            public static readonly MemberCacheKeyComparer Instance;
-
-            #endregion
-
-            #region Constructors
-
-            static MemberCacheKeyComparer()
-            {
-                Instance = new MemberCacheKeyComparer();
-            }
-
-            private MemberCacheKeyComparer()
-            {
-            }
-
-            #endregion
-
-            #region Implementation of IEqualityComparer<in MemberInfoDelegateCacheKey>
-
-            bool IEqualityComparer<MemberInfoDelegateCacheKey>.Equals(MemberInfoDelegateCacheKey x, MemberInfoDelegateCacheKey y)
-            {
-                return x.DelegateType.EqualsEx(y.DelegateType) && x.Member.EqualsEx(y.Member);
-            }
-
-            int IEqualityComparer<MemberInfoDelegateCacheKey>.GetHashCode(MemberInfoDelegateCacheKey obj)
-            {
-                unchecked
-                {
-                    return (obj.DelegateType.GetHashCode() * 397) ^ obj.Member.GetHashCode();
-                }
-            }
-
-            #endregion
-
-            #region Implementation of IEqualityComparer<in MethodDelegateCacheKey>
-
-            bool IEqualityComparer<MethodDelegateCacheKey>.Equals(MethodDelegateCacheKey x, MethodDelegateCacheKey y)
-            {
-                return x.DelegateType.EqualsEx(y.DelegateType) && x.Method.EqualsEx(y.Method);
-            }
-
-            int IEqualityComparer<MethodDelegateCacheKey>.GetHashCode(MethodDelegateCacheKey obj)
-            {
-                unchecked
-                {
-                    return (obj.DelegateType.GetHashCode() * 397) ^ obj.Method.GetHashCode();
-                }
-            }
-
-            #endregion
-        }
-
-        [StructLayout(LayoutKind.Auto)]
-        protected struct MethodDelegateCacheKey
-        {
-            #region Fields
-
-            public MethodInfo Method;
-            public Type DelegateType;
-
-            #endregion
-
-            #region Constructors
-
-            public MethodDelegateCacheKey(MethodInfo method, Type delegateType)
-            {
-                Method = method;
-                DelegateType = delegateType;
-            }
-
-            #endregion
-        }
-
-        [StructLayout(LayoutKind.Auto)]
-        protected struct MemberInfoDelegateCacheKey
-        {
-            #region Fields
-
-            public MemberInfo Member;
-            public Type DelegateType;
-
-            #endregion
-
-            #region Constructors
-
-            public MemberInfoDelegateCacheKey(MemberInfo member, Type delegateType)
-            {
-                Member = member;
-                DelegateType = delegateType;
-            }
-
-            #endregion
-        }
-
         #region Fields
 
         private static readonly Dictionary<MethodInfo, Func<object?, object?[], object?>> InvokeMethodCache;
         private static readonly Dictionary<MethodDelegateCacheKey, Delegate> InvokeMethodCacheDelegate;
+        private static readonly Dictionary<MemberInfoDelegateCacheKey, Delegate> MemberGetterCache;
         private static readonly ParameterExpression EmptyParameterExpression;
         private static readonly ConstantExpression NullConstantExpression;
 
@@ -126,6 +28,7 @@ namespace MugenMvvm.Infrastructure
         {
             InvokeMethodCache = new Dictionary<MethodInfo, Func<object?, object?[], object?>>(MemberInfoComparer.Instance);
             InvokeMethodCacheDelegate = new Dictionary<MethodDelegateCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
+            MemberGetterCache = new Dictionary<MemberInfoDelegateCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
             EmptyParameterExpression = Expression.Parameter(typeof(object));
             NullConstantExpression = Expression.Constant(null, typeof(object));
         }
@@ -152,9 +55,42 @@ namespace MugenMvvm.Infrastructure
             return GetMethodDelegateInternal(delegateType, method);
         }
 
+        public Func<object, TType> GetMemberGetter<TType>(MemberInfo member)
+        {
+            Should.NotBeNull(member, nameof(member));
+            return GetMemberGetterInternal<TType>(member);
+        }
+
         #endregion
 
         #region Methods
+
+        protected virtual Func<object?, TType> GetMemberGetterInternal<TType>(MemberInfo member)
+        {
+            var key = new MemberInfoDelegateCacheKey(member, typeof(TType));
+            lock (MemberGetterCache)
+            {
+                if (!MemberGetterCache.TryGetValue(key, out var value))
+                {
+                    var target = Expression.Parameter(typeof(object), "instance");
+                    MemberExpression accessExp;
+                    if (member.IsStatic())
+                        accessExp = Expression.MakeMemberAccess(null, member);
+                    else
+                    {
+                        var declaringType = member.DeclaringType;
+                        accessExp = Expression.MakeMemberAccess(ConvertIfNeed(target, declaringType, false), member);
+                    }
+
+                    value = Expression
+                        .Lambda<Func<object?, TType>>(ConvertIfNeed(accessExp, typeof(TType), false), target)
+                        .Compile();
+                    MemberGetterCache[key] = value;
+                }
+
+                return (Func<object?, TType>)value;
+            }
+        }
 
         protected virtual Delegate GetMethodDelegateInternal(Type delegateType, MethodInfo method)
         {
@@ -163,12 +99,12 @@ namespace MugenMvvm.Infrastructure
                 var cacheKey = new MethodDelegateCacheKey(method, delegateType);
                 if (!InvokeMethodCacheDelegate.TryGetValue(cacheKey, out var value))
                 {
-                    MethodInfo delegateMethod = delegateType.GetMethodUnified(nameof(Action.Invoke), MemberFlags.InstanceOnly);
+                    var delegateMethod = delegateType.GetMethodUnified(nameof(Action.Invoke), MemberFlags.InstanceOnly);
                     if (delegateMethod == null)
                         throw new ArgumentException(string.Empty, nameof(delegateType));
 
                     var delegateParams = delegateMethod.GetParameters().ToList();
-                    ParameterInfo[] methodParams = method.GetParameters();
+                    var methodParams = method.GetParameters();
                     var expressions = new List<Expression>();
                     var parameters = new List<ParameterExpression>();
                     if (!method.IsStatic)
@@ -178,10 +114,11 @@ namespace MugenMvvm.Infrastructure
                         expressions.Add(ConvertIfNeed(thisParam, method.DeclaringType, false));
                         delegateParams.RemoveAt(0);
                     }
+
                     Should.BeValid("delegateType", delegateParams.Count == methodParams.Length);
-                    for (int i = 0; i < methodParams.Length; i++)
+                    for (var i = 0; i < methodParams.Length; i++)
                     {
-                        ParameterExpression parameter = Expression.Parameter(delegateParams[i].ParameterType, i.ToString());
+                        var parameter = Expression.Parameter(delegateParams[i].ParameterType, i.ToString());
                         parameters.Add(parameter);
                         expressions.Add(ConvertIfNeed(parameter, methodParams[i].ParameterType, false));
                     }
@@ -191,7 +128,7 @@ namespace MugenMvvm.Infrastructure
                         callExpression = Expression.Call(null, method, expressions.ToArray());
                     else
                     {
-                        Expression @this = expressions[0];
+                        var @this = expressions[0];
                         expressions.RemoveAt(0);
                         callExpression = Expression.Call(@this, method, expressions.ToArray());
                     }
@@ -202,6 +139,7 @@ namespace MugenMvvm.Infrastructure
                     value = lambdaExpression.Compile();
                     InvokeMethodCacheDelegate[cacheKey] = value;
                 }
+
                 return value;
             }
         }
@@ -291,6 +229,108 @@ namespace MugenMvvm.Infrastructure
             if (!exactly && !expression.Type.IsValueTypeUnified() && !type.IsValueTypeUnified() && type.IsAssignableFromUnified(expression.Type))
                 return expression;
             return Expression.Convert(expression, type);
+        }
+
+        #endregion
+
+        #region Nested types
+
+        protected sealed class MemberCacheKeyComparer : IEqualityComparer<MethodDelegateCacheKey>, IEqualityComparer<MemberInfoDelegateCacheKey>
+        {
+            #region Fields
+
+            public static readonly MemberCacheKeyComparer Instance;
+
+            #endregion
+
+            #region Constructors
+
+            static MemberCacheKeyComparer()
+            {
+                Instance = new MemberCacheKeyComparer();
+            }
+
+            private MemberCacheKeyComparer()
+            {
+            }
+
+            #endregion
+
+            #region Implementation of IEqualityComparer<in MemberInfoDelegateCacheKey>
+
+            bool IEqualityComparer<MemberInfoDelegateCacheKey>.Equals(MemberInfoDelegateCacheKey x, MemberInfoDelegateCacheKey y)
+            {
+                return x.DelegateType.EqualsEx(y.DelegateType) && x.Member.EqualsEx(y.Member);
+            }
+
+            int IEqualityComparer<MemberInfoDelegateCacheKey>.GetHashCode(MemberInfoDelegateCacheKey obj)
+            {
+                unchecked
+                {
+                    return obj.DelegateType.GetHashCode() * 397 ^ obj.Member.GetHashCode();
+                }
+            }
+
+            #endregion
+
+            #region Implementation of IEqualityComparer<in MethodDelegateCacheKey>
+
+            bool IEqualityComparer<MethodDelegateCacheKey>.Equals(MethodDelegateCacheKey x, MethodDelegateCacheKey y)
+            {
+                return x.DelegateType.EqualsEx(y.DelegateType) && x.Method.EqualsEx(y.Method);
+            }
+
+            int IEqualityComparer<MethodDelegateCacheKey>.GetHashCode(MethodDelegateCacheKey obj)
+            {
+                unchecked
+                {
+                    return obj.DelegateType.GetHashCode() * 397 ^ obj.Method.GetHashCode();
+                }
+            }
+
+            #endregion
+        }
+
+        [StructLayout(LayoutKind.Auto)]
+        protected struct MethodDelegateCacheKey
+        {
+            #region Fields
+
+            public MethodInfo Method;
+            public Type DelegateType;
+
+            #endregion
+
+            #region Constructors
+
+            public MethodDelegateCacheKey(MethodInfo method, Type delegateType)
+            {
+                Method = method;
+                DelegateType = delegateType;
+            }
+
+            #endregion
+        }
+
+        [StructLayout(LayoutKind.Auto)]
+        protected struct MemberInfoDelegateCacheKey
+        {
+            #region Fields
+
+            public MemberInfo Member;
+            public Type DelegateType;
+
+            #endregion
+
+            #region Constructors
+
+            public MemberInfoDelegateCacheKey(MemberInfo member, Type delegateType)
+            {
+                Member = member;
+                DelegateType = delegateType;
+            }
+
+            #endregion
         }
 
         #endregion
