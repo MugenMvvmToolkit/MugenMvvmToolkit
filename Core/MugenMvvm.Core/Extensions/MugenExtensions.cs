@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvm.Infrastructure.Messaging;
+using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.Messaging;
@@ -22,7 +23,24 @@ namespace MugenMvvm
 {
     public static class MugenExtensions
     {
-        #region Methods
+        #region Fields
+
+        private static Action<object>? _notNullValidateAction;
+
+        #endregion
+
+        #region Collections
+
+        public static IReadOnlyCollection<TValue> ToReadOnlyCollection<TKey, TValue>(this Dictionary<TKey, TValue>.ValueCollection? collection)
+        {
+            if (collection == null)
+                return Default.EmptyArray<TValue>();
+            if (collection is IReadOnlyCollection<TValue> readOnlyCollection)
+                return readOnlyCollection;
+            return collection.ToList();
+        }
+
+        #endregion
 
         #region BusyIndicatorProvider
 
@@ -59,7 +77,8 @@ namespace MugenMvvm
 
         #region Messenger
 
-        public static IMessengerSubscriber SubscribeWeak<TTarget, TMessage>(this IMessenger messenger, TTarget target, Action<TTarget, object, TMessage, IMessengerContext> action, ThreadExecutionMode? executionMode = null)
+        public static IMessengerSubscriber SubscribeWeak<TTarget, TMessage>(this IMessenger messenger, TTarget target, Action<TTarget, object, TMessage, IMessengerContext> action,
+            ThreadExecutionMode? executionMode = null)
             where TTarget : class
         {
             Should.NotBeNull(messenger, nameof(messenger));
@@ -68,7 +87,8 @@ namespace MugenMvvm
             return subscriber;
         }
 
-        public static IMessengerSubscriber SubscribeWeak<TMessage>(this IMessenger messenger, Action<object, TMessage, IMessengerContext> action, ThreadExecutionMode? executionMode = null)
+        public static IMessengerSubscriber SubscribeWeak<TMessage>(this IMessenger messenger, Action<object, TMessage, IMessengerContext> action,
+            ThreadExecutionMode? executionMode = null)
         {
             Should.NotBeNull(messenger, nameof(messenger));
             var subscriber = new WeakDelegateMessengerSubscriber<object, TMessage>(action);
@@ -76,7 +96,8 @@ namespace MugenMvvm
             return subscriber;
         }
 
-        public static IMessengerSubscriber Subscribe<TMessage>(this IMessenger messenger, Action<object, TMessage, IMessengerContext> action, ThreadExecutionMode? executionMode = null)
+        public static IMessengerSubscriber Subscribe<TMessage>(this IMessenger messenger, Action<object, TMessage, IMessengerContext> action,
+            ThreadExecutionMode? executionMode = null)
         {
             Should.NotBeNull(messenger, nameof(messenger));
             var subscriber = new DelegateMessengerSubscriber<TMessage>(action);
@@ -158,6 +179,13 @@ namespace MugenMvvm
             return value;
         }
 
+        public static MetadataContextKey.Builder<T> NotNull<T>(this MetadataContextKey.Builder<T> builder) where T : class
+        {
+            if (_notNullValidateAction == null)
+                _notNullValidateAction = value => Should.NotBeNull(value, nameof(value));
+            return builder.WithValidation(_notNullValidateAction);
+        }
+
         #endregion
 
         #region Common
@@ -231,20 +259,7 @@ namespace MugenMvvm
 
         #endregion
 
-        #region Collections
-
-        public static IReadOnlyCollection<TValue> ToReadOnlyCollection<TKey, TValue>(this Dictionary<TKey, TValue>.ValueCollection? collection)
-        {
-            if (collection == null)
-                return Default.EmptyArray<TValue>();
-            if (collection is IReadOnlyCollection<TValue> readOnlyCollection)
-                return readOnlyCollection;
-            return collection.ToList();
-        }
-
-        #endregion
-
-        #region Execptions
+        #region Exceptions
 
         [Pure]
         public static string Flatten(this Exception exception, bool includeStackTrace = false)
@@ -271,7 +286,8 @@ namespace MugenMvvm
                     sb.Append(exception.StackTrace);
                     sb.AppendLine();
                 }
-                for (int index = 0; index < aggregateException.InnerExceptions.Count; index++)
+
+                for (var index = 0; index < aggregateException.InnerExceptions.Count; index++)
                     FlattenInternal(aggregateException.InnerExceptions[index], sb, includeStackTrace);
                 return;
             }
@@ -286,7 +302,7 @@ namespace MugenMvvm
                 {
                     if (includeStackTrace)
                         sb.AppendLine();
-                    for (int index = 0; index < loadException.LoaderExceptions.Length; index++)
+                    for (var index = 0; index < loadException.LoaderExceptions.Length; index++)
                         FlattenInternal(loadException.LoaderExceptions[index], sb, includeStackTrace);
                 }
 
@@ -305,7 +321,7 @@ namespace MugenMvvm
             if (items == null)
                 return null;
             List<T> result = null;
-            for (int i = 0; i < size.GetValueOrDefault(items.Count); i++)
+            for (var i = 0; i < size.GetValueOrDefault(items.Count); i++)
             {
                 var listener = items[i];
                 if (serializer.CanSerialize(listener.GetType()))
@@ -343,8 +359,6 @@ namespace MugenMvvm
                 return true;
             }
         }
-
-        #endregion
 
         #endregion
     }

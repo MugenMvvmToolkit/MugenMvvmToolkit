@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Models;
 
 namespace MugenMvvm
@@ -18,6 +19,7 @@ namespace MugenMvvm
         private static IMetadataContextKey<ViewModelLifecycleState> _lifecycleState;
         private static IMetadataContextKey<bool> _broadcastAllMessages;
         private static IMetadataContextKey<BusyMessageHandlerType> _busyMessageHandlerType;
+        private static IMetadataContextKey<IViewModel> _parentViewModel;
 
         #endregion
 
@@ -67,6 +69,24 @@ namespace MugenMvvm
             set => _busyMessageHandlerType = value;
         }
 
+        public static IMetadataContextKey<IViewModel?> ParentViewModel
+        {
+            get
+            {
+                if (_parentViewModel == null)
+                {
+                    _parentViewModel = GetBuilder<IViewModel?>(nameof(ParentViewModel))
+                           .NotNull()
+                           .Serializable()
+                           .Getter((context, o) => (IViewModel)((WeakReference)o).Target)
+                           .Setter((context, model) => MugenExtensions.GetWeakReference(model))
+                           .Build();
+                }
+                return _parentViewModel;
+            }
+            set => _parentViewModel = value;
+        }
+
         #endregion
 
         #region Methods
@@ -104,12 +124,12 @@ namespace MugenMvvm
             set => _allowMultipleExecution = value;
         }
 
-        public static IMetadataContextKey<IReadOnlyCollection<string>> IgnoreProperties
+        public static IMetadataContextKey<IReadOnlyCollection<string>?> IgnoreProperties
         {
             get
             {
                 if (_ignoreProperties == null)
-                    _ignoreProperties = GetBuilder<IReadOnlyCollection<string>>(nameof(IgnoreProperties)).NotNull().Build();
+                    _ignoreProperties = GetBuilder<IReadOnlyCollection<string>?>(nameof(IgnoreProperties)).NotNull().Build();
                 return _ignoreProperties;
             }
             set => _ignoreProperties = value;
@@ -126,23 +146,23 @@ namespace MugenMvvm
             set => _executionMode = value;
         }
 
-        public static IMetadataContextKey<ThreadExecutionMode> EventThreadMode
+        public static IMetadataContextKey<ThreadExecutionMode?> EventThreadMode
         {
             get
             {
                 if (_eventThreadMode == null)
-                    _eventThreadMode = GetBuilder<ThreadExecutionMode>(nameof(EventThreadMode)).Serializable().NotNull().Build();
+                    _eventThreadMode = GetBuilder<ThreadExecutionMode?>(nameof(EventThreadMode)).Serializable().NotNull().Build();
                 return _eventThreadMode;
             }
             set => _eventThreadMode = value;
         }
 
-        public static IMetadataContextKey<Func<string>> DisplayName
+        public static IMetadataContextKey<Func<string>?> DisplayName
         {
             get
             {
                 if (_displayName == null)
-                    _displayName = GetBuilder<Func<string>>(nameof(DisplayName)).NotNull().Build();
+                    _displayName = GetBuilder<Func<string>?>(nameof(DisplayName)).NotNull().Build();
                 return _displayName;
             }
             set => _displayName = value;

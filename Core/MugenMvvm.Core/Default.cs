@@ -153,12 +153,6 @@ namespace MugenMvvm
                 return _emptyMemento;
             }
 
-            public bool TryGet(IMetadataContextKey contextKey, out object? value, object? defaultValue = null)
-            {
-                value = contextKey.GetDefaultValue(this, defaultValue);
-                return false;
-            }
-
             public bool TryGet<T>(IMetadataContextKey<T> contextKey, out T value, T defaultValue = default)
             {
                 value = contextKey.GetDefaultValue(this, defaultValue);

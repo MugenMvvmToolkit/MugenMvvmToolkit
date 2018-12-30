@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Interfaces.Metadata;
+﻿using System.Collections.Generic;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Infrastructure.Metadata
 {
@@ -6,10 +7,13 @@ namespace MugenMvvm.Infrastructure.Metadata
     {
         #region Constructors
 
-        public MetadataContextValue(IMetadataContextKey contextKey, object? value)
+        public MetadataContextValue(KeyValuePair<IMetadataContextKey, object?> pair)
+            : this(pair.Key, pair.Value)
         {
-            Should.NotBeNull(contextKey, nameof(contextKey));
-            contextKey.Validate(value);
+        }
+
+        private MetadataContextValue(IMetadataContextKey contextKey, object? value)
+        {
             ContextKey = contextKey;
             Value = value;
         }
@@ -21,6 +25,17 @@ namespace MugenMvvm.Infrastructure.Metadata
         public IMetadataContextKey ContextKey { get; }
 
         public object? Value { get; }
+
+        #endregion
+
+        #region Methods
+
+        public static MetadataContextValue Create<T>(IMetadataContextKey<T> contextKey, T value)
+        {
+            Should.NotBeNull(contextKey, nameof(contextKey));
+            contextKey.Validate(value);
+            return new MetadataContextValue(contextKey, value);
+        }
 
         #endregion
     }

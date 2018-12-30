@@ -8,15 +8,6 @@ namespace MugenMvvm.Interfaces.Metadata
     {
         string Key { get; }
 
-        void Validate(object? item);
-
         bool CanSerialize(object? item, ISerializationContext context);
-
-        object? GetDefaultValue(IReadOnlyMetadataContext context, object? defaultValue);
-    }
-
-    public interface IMetadataContextKey<T> : IMetadataContextKey
-    {
-        T GetDefaultValue(IReadOnlyMetadataContext context, T defaultValue);
     }
 }

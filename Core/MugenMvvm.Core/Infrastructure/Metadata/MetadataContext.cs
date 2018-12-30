@@ -63,7 +63,7 @@ namespace MugenMvvm.Infrastructure.Metadata
             IEnumerable<MetadataContextValue> list;
             lock (_values)
             {
-                list = _values.ToArray(pair => new MetadataContextValue(pair.Key, pair.Value));
+                list = _values.ToArray(pair => new MetadataContextValue(pair));
             }
 
             return list.GetEnumerator();
@@ -79,26 +79,6 @@ namespace MugenMvvm.Infrastructure.Metadata
             return new ContextMemento(this);
         }
 
-        public bool TryGet(IMetadataContextKey contextKey, out object? value, object? defaultValue = null)
-        {
-            Should.NotBeNull(contextKey, nameof(contextKey));
-            object? obj;
-            bool hasValue;
-            lock (_values)
-            {
-                hasValue = _values.TryGetValue(contextKey, out obj);
-            }
-
-            if (hasValue)
-            {
-                value = obj;
-                return true;
-            }
-
-            value = contextKey.GetDefaultValue(this, defaultValue);
-            return false;
-        }
-
         public bool TryGet<T>(IMetadataContextKey<T> contextKey, out T value, T defaultValue = default)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
@@ -111,7 +91,7 @@ namespace MugenMvvm.Infrastructure.Metadata
 
             if (hasValue)
             {
-                value = (T)obj;
+                value = contextKey.GetValue(this, obj);
                 return true;
             }
 
@@ -128,22 +108,16 @@ namespace MugenMvvm.Infrastructure.Metadata
             }
         }
 
-        public void Set(IMetadataContextKey contextKey, object? value)
+        public void Set<T>(IMetadataContextKey<T> contextKey, T value)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             contextKey.Validate(value);
+            object? obj = contextKey.SetValue(this, value);
             lock (_values)
             {
-                _values[contextKey] = value;
+                _values[contextKey] = obj;
             }
-
             OnContextChanged(contextKey);
-        }
-
-        public void Set<T>(IMetadataContextKey<T> contextKey, T value)
-        {
-            object? obj = value;
-            Set(contextKey, obj);
         }
 
         public void Merge(IEnumerable<MetadataContextValue> items)
@@ -245,13 +219,18 @@ namespace MugenMvvm.Infrastructure.Metadata
         {
             #region Fields
 
-            [IgnoreDataMember] [XmlIgnore] private MetadataContext? _metadataContext;
+            [IgnoreDataMember]
+            [XmlIgnore]
+            private MetadataContext? _metadataContext;
 
-            [DataMember(Name = "K")] internal IList<IMetadataContextKey>? Keys;
+            [DataMember(Name = "K")]
+            internal IList<IMetadataContextKey>? Keys;
 
-            [DataMember(Name = "L")] internal IList<IObservableMetadataContextListener?>? Listeners;
+            [DataMember(Name = "L")]
+            internal IList<IObservableMetadataContextListener?>? Listeners;
 
-            [DataMember(Name = "V")] internal IList<object?>? Values;
+            [DataMember(Name = "V")]
+            internal IList<object?>? Values;
 
             #endregion
 
@@ -313,9 +292,7 @@ namespace MugenMvvm.Infrastructure.Metadata
                         return new MementoResult(_metadataContext, serializationContext.Metadata);
 
                     var dictionary = new Dictionary<IMetadataContextKey, object?>();
-                    for (var i = 0; i < Keys!.
-                    Count;
-                    i++)
+                    for (var i = 0; i < Keys!.Count; i++)
                     {
                         var key = Keys![i];
                         var value = Values![i];
