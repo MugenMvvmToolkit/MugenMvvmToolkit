@@ -2,19 +2,23 @@
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Models;
 
 namespace MugenMvvm.Interfaces.ViewModels
 {
-    public interface IViewModel : ISuspendNotifications, IDisposableObject, IHasMemento
+    public interface IViewModel : INotifyPropertyChangedEx, IDisposableObject, IHasMemento
     {
-        IMessenger InternalMessenger { get; }
-
         IBusyIndicatorProvider BusyIndicatorProvider { get; }
 
         IObservableMetadataContext Metadata { get; }
 
-//        void Subscribe(IViewModel viewModel);
 
-//        void Unsubscribe(IViewModel viewModel);
+        void Publish(object message, IMessengerContext? messengerContext = null);
+
+        void Publish(object sender, object message, IMessengerContext? messengerContext = null);
+
+        void Subscribe(object item, ThreadExecutionMode? executionMode = null);
+
+        void Unsubscribe(object item);
     }
 }

@@ -44,7 +44,7 @@ namespace MugenMvvm.Infrastructure.Commands.Mediators
                 {
                     if (notifier is IViewModel vm)
                     {
-                        vm.InternalMessenger.Subscribe(GetSubscriber());
+                        vm.Subscribe(GetSubscriber(), eventExecutionMode);
                         continue;
                     }
 

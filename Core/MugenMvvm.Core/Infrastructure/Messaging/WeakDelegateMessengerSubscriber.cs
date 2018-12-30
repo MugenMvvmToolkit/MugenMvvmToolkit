@@ -6,7 +6,7 @@ using MugenMvvm.Models;
 
 namespace MugenMvvm.Infrastructure.Messaging
 {
-    public class WeakDelegateMessengerSubscriber<TTarget, TMessage> : IMessengerSubscriber
+    public sealed class WeakDelegateMessengerSubscriber<TTarget, TMessage> : IMessengerSubscriber
         where TTarget : class
     {
         #region Fields

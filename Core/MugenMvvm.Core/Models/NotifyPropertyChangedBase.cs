@@ -171,7 +171,7 @@ namespace MugenMvvm.Models
 
         #region Nested types
 
-        internal class DispatcherHandler : IThreadDispatcherHandler
+        private protected class DispatcherHandler : IThreadDispatcherHandler
         {
             #region Fields
 

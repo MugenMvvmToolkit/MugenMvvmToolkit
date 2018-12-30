@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Infrastructure.Commands
 {
-    public class AsyncRelayCommand<T> : RelayCommandBase<T>
+    public sealed class AsyncRelayCommand<T> : RelayCommandBase<T>
     {
         #region Constructors
 

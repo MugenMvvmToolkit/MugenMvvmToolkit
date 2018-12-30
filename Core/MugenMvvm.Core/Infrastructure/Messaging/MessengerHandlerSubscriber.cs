@@ -9,7 +9,7 @@ using MugenMvvm.Models;
 
 namespace MugenMvvm.Infrastructure.Messaging
 {
-    public class MessengerHandlerSubscriber : IMessengerSubscriber
+    public sealed class MessengerHandlerSubscriber : IMessengerSubscriber
     {
         #region Fields
 
@@ -43,7 +43,7 @@ namespace MugenMvvm.Infrastructure.Messaging
 
         #region Properties
 
-        private object Target => _reference.Target;
+        private object? Target => _reference.Target;
 
         #endregion
 

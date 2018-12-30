@@ -4,7 +4,7 @@ using MugenMvvm.Models;
 
 namespace MugenMvvm.Infrastructure.Messaging
 {
-    public class DelegateMessengerSubscriber<TMessage> : IMessengerSubscriber
+    public sealed class DelegateMessengerSubscriber<TMessage> : IMessengerSubscriber
     {
         #region Fields
 

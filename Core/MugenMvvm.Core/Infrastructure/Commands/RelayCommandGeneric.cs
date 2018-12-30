@@ -3,7 +3,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Infrastructure.Commands
 {
-    public class RelayCommand<T> : RelayCommandBase<T>
+    public sealed class RelayCommand<T> : RelayCommandBase<T>
     {
         #region Constructors
 

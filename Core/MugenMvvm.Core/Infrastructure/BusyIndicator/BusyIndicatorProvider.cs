@@ -21,7 +21,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
 
         #region Constructors
 
-        [Preserve(Conditional = true)] 
+        [Preserve(Conditional = true)]
         public BusyIndicatorProvider(object? defaultBusyMessage = null)
         {
             _defaultBusyMessage = defaultBusyMessage;

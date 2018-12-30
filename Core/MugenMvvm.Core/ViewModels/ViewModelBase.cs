@@ -22,11 +22,12 @@ namespace MugenMvvm.ViewModels
     {
         #region Fields
 
+        internal ViewModelMessengerSubscriber? Subscriber;
         private IBusyIndicatorProvider? _busyIndicatorProvider;
         private IMessenger? _internalMessenger;
         private IMemento? _memento;
         private int _state;
-
+        
         private const int DisposedState = 1;
 
         #endregion
@@ -51,16 +52,6 @@ namespace MugenMvvm.ViewModels
 
         public bool IsDisposed => _state == DisposedState;
 
-        public IMessenger InternalMessenger
-        {
-            get
-            {
-                if (_internalMessenger == null && MugenExtensions.LazyInitializeLock(ref _internalMessenger, this, vm => vm.GetInternalMessenger(), this))
-                    _internalMessenger!.Subscribe((IMessengerSubscriber)GetDispatcherHandler(), ThreadExecutionMode.Main);
-                return _internalMessenger!;
-            }
-        }
-
         public IBusyIndicatorProvider BusyIndicatorProvider
         {
             get
@@ -76,7 +67,7 @@ namespace MugenMvvm.ViewModels
 
         public bool IsBusy => BusyInfo != null;
 
-        public IBusyInfo? BusyInfo => BusyIndicatorProvider.BusyInfo;
+        public IBusyInfo? BusyInfo => _busyIndicatorProvider?.BusyInfo;
 
         #endregion
 
@@ -101,11 +92,8 @@ namespace MugenMvvm.ViewModels
 
             _busyIndicatorProvider?.ClearBusy();
             _busyIndicatorProvider?.RemoveAllListeners();
-            _internalMessenger?.UnsubscribeAll();
-            //                if (Settings.DisposeCommands)
-            //                    ReflectionExtensions.DisposeCommands(this);
-            //            ToolkitServiceProvider.ViewManager.CleanupViewAsync(this);            
-            //            ToolkitServiceProvider.AttachedValueProvider.Clear(this);
+            GetInternalMessenger(false)?.UnsubscribeAll();
+            //todo cleanup
             Singleton<IViewModelDispatcher>.Instance.OnLifecycleChanged(this, ViewModelLifecycleState.Disposed, Default.MetadataContext);
             CleanupWeakReference();
         }
@@ -117,18 +105,38 @@ namespace MugenMvvm.ViewModels
             return _memento;
         }
 
+        public void Publish(object message, IMessengerContext? messengerContext = null)
+        {
+            Should.NotBeNull(message, nameof(message));
+            PublishInternal(this, message, messengerContext);
+        }
+
+        public void Publish(object sender, object message, IMessengerContext? messengerContext = null)
+        {
+            Should.NotBeNull(sender, nameof(sender));
+            Should.NotBeNull(message, nameof(message));
+            PublishInternal(sender, message, messengerContext);
+        }
+
+        public void Subscribe(object item, ThreadExecutionMode? executionMode = null)
+        {
+            Should.NotBeNull(item, nameof(item));
+            SubscribeInternal(item, executionMode);
+        }
+
+        public void Unsubscribe(object item)
+        {
+            Should.NotBeNull(item, nameof(item));
+            UnsubscribeInternal(item);
+        }
+
         #endregion
 
         #region Methods
 
-        protected internal void InvalidateCommands()
+        public void InvalidateCommands()
         {
             Publish(Default.EmptyPropertyChangedArgs);
-        }
-
-        protected void Publish(object message, IMessengerContext? messengerContext = null)
-        {
-            _internalMessenger?.Publish(this, message, messengerContext);
         }
 
         protected void OnFinalized()
@@ -144,9 +152,51 @@ namespace MugenMvvm.ViewModels
             return Singleton<IViewModelDispatcher>.Instance.GetBusyIndicatorProvider(this, Default.MetadataContext);
         }
 
-        protected virtual IMessenger GetInternalMessenger()
+        protected virtual IMessenger? GetInternalMessenger(bool initializeIfNeed)
         {
-            return Singleton<IViewModelDispatcher>.Instance.GetMessenger(this, Default.MetadataContext);
+            if (!initializeIfNeed)
+                return _internalMessenger;
+            if (_internalMessenger == null)
+                MugenExtensions.LazyInitializeLock(ref _internalMessenger, this, vm => Singleton<IViewModelDispatcher>.Instance.GetMessenger(vm, Default.MetadataContext), this);
+            return _internalMessenger!;
+        }
+
+        protected virtual void PublishInternal(object sender, object message, IMessengerContext? messengerContext)
+        {
+            GetInternalMessenger(false)?.Publish(sender, message, messengerContext);
+        }
+
+        protected virtual void SubscribeInternal(object item, ThreadExecutionMode? executionMode)
+        {
+            if (item is IViewModel viewModel)
+            {
+                if (viewModel.Metadata.Get(ViewModelMetadata.BusyMessageHandlerType).HasFlagEx(BusyMessageHandlerType.Handle))
+                {
+                    var tokens = _busyIndicatorProvider?.GetTokens();
+                    if (tokens != null)
+                    {
+                        for (var index = 0; index < tokens.Count; index++)
+                            viewModel.BusyIndicatorProvider.Begin(tokens[index]);
+                    }
+                }
+                GetInternalMessenger(true)!.Subscribe(ViewModelMessengerSubscriber.GetSubscriber(viewModel), executionMode);
+            }
+
+            if (item is IMessengerSubscriber subscriber)
+                GetInternalMessenger(true)!.Subscribe(subscriber, executionMode);
+            else if (item is IMessengerHandler handler)
+                GetInternalMessenger(true)!.Subscribe(new MessengerHandlerSubscriber(handler), executionMode);
+        }
+
+        protected virtual void UnsubscribeInternal(object item)
+        {
+            if (item is IViewModel viewModel)
+                GetInternalMessenger(false)?.Unsubscribe(ViewModelMessengerSubscriber.GetSubscriber(viewModel));
+
+            if (item is IMessengerSubscriber subscriber)
+                GetInternalMessenger(false)?.Unsubscribe(subscriber);
+            else if (item is IMessengerHandler handler)
+                GetInternalMessenger(false)?.Unsubscribe(new MessengerHandlerSubscriber(handler));
         }
 
         internal virtual void OnDisposeInternal(bool disposing)
@@ -164,38 +214,33 @@ namespace MugenMvvm.ViewModels
 
         private protected override DispatcherHandler CreateDispatcherHandler()
         {
-            return new ViewModelHandler(this);
+            return new ViewModelDispatcherHandler(this);
         }
 
         protected override void RaisePropertyChangedEvent(PropertyChangedEventArgs args)
         {
             base.RaisePropertyChangedEvent(args);
-            InvalidateCommands();
+            Publish(args);
         }
 
         #endregion
 
         #region Nested types
 
-        internal sealed class ViewModelHandler : DispatcherHandler, IBusyIndicatorProviderListener, IMessengerSubscriber, IObservableMetadataContextListener, IHasMemento
+        private sealed class ViewModelDispatcherHandler : DispatcherHandler, IBusyIndicatorProviderListener
         {
             #region Constructors
 
-            public ViewModelHandler(NotifyPropertyChangedBase target)
+            public ViewModelDispatcherHandler(NotifyPropertyChangedBase target)
                 : base(target)
             {
-                OnContextChanged(Target.Metadata, null);
             }
 
             #endregion
 
             #region Properties
 
-            public new ViewModelBase Target => (ViewModelBase)base.Target;
-
-            private bool BroadcastAllMessages { get; set; }
-
-            private BusyMessageHandlerType BusyMessageHandlerType { get; set; }
+            private new ViewModelBase Target => (ViewModelBase)base.Target;
 
             #endregion
 
@@ -212,72 +257,6 @@ namespace MugenMvvm.ViewModels
                 Target.OnPropertyChanged(Default.BusyInfoChangedArgs);
             }
 
-            public IMemento? GetMemento()
-            {
-                return new ViewModelHandlerMemento(this);
-            }
-
-            public bool Equals(IMessengerSubscriber other)
-            {
-                if (ReferenceEquals(null, other))
-                    return false;
-                if (ReferenceEquals(this, other))
-                    return true;
-                return other is ViewModelHandler handler && ReferenceEquals(Target, handler.Target);
-            }
-
-            public SubscriberResult Handle(object sender, object message, IMessengerContext messengerContext)
-            {
-                if (ReferenceEquals(sender, Target))
-                    return SubscriberResult.Ignored;
-
-                if (message is IBusyToken busyToken)
-                {
-                    var messageMode = BusyMessageHandlerType;
-                    if (messageMode.HasFlagEx(BusyMessageHandlerType.Handle))
-                        Target.BusyIndicatorProvider.Begin(busyToken);
-                    if (messageMode.HasFlagEx(BusyMessageHandlerType.NotifySubscribers))
-                        Target._internalMessenger?.Publish(sender, busyToken, messengerContext);
-                }
-                else if (BroadcastAllMessages || message is IBroadcastMessage || message is NotifyPropertyChangedBase)
-                    Target._internalMessenger?.Publish(sender, message, messengerContext);
-
-                return SubscriberResult.Handled;
-            }
-
-            public void OnContextChanged(IObservableMetadataContext metadataContext, IMetadataContextKey? key)
-            {
-                if (key == null || key.Equals(ViewModelMetadata.BroadcastAllMessages))
-                    BroadcastAllMessages = Target.Metadata.Get(ViewModelMetadata.BroadcastAllMessages);
-                if (key == null || key.Equals(ViewModelMetadata.BusyMessageHandlerType))
-                    BusyMessageHandlerType = Target.Metadata.Get(ViewModelMetadata.BusyMessageHandlerType, BusyMessageHandlerType.Handle);
-            }
-
-            #endregion
-
-            #region Methods
-
-            public override bool Equals(object obj)
-            {
-                if (ReferenceEquals(null, obj))
-                    return false;
-                if (ReferenceEquals(this, obj))
-                    return true;
-                if (obj is ViewModelHandler handler)
-                    return Equals(handler);
-                return false;
-            }
-
-            public override int GetHashCode()
-            {
-                return Target.GetHashCode();
-            }
-
-            public override string ToString()
-            {
-                return Target.ToString();
-            }
-
             #endregion
         }
 
@@ -288,15 +267,21 @@ namespace MugenMvvm.ViewModels
         {
             #region Fields
 
-            [IgnoreDataMember] [XmlIgnore] private IViewModel? _viewModel;
+            [IgnoreDataMember]
+            [XmlIgnore]
+            private IViewModel? _viewModel;
 
-            [DataMember(Name = "B")] internal IList<IBusyIndicatorProviderListener>? BusyListeners;
+            [DataMember(Name = "B")]
+            internal IList<IBusyIndicatorProviderListener>? BusyListeners;
 
-            [DataMember(Name = "C")] protected internal IObservableMetadataContext Metadata;
+            [DataMember(Name = "C")]
+            protected internal IObservableMetadataContext Metadata;
 
-            [DataMember(Name = "S")] internal IList<MessengerSubscriberInfo>? Subscribers;
+            [DataMember(Name = "S")]
+            internal IList<MessengerSubscriberInfo>? Subscribers;
 
-            [DataMember(Name = "T")] internal Type? ViewModelType;
+            [DataMember(Name = "T")]
+            internal Type? ViewModelType;
 
             protected static readonly object RestorationLocker;
 
@@ -338,14 +323,11 @@ namespace MugenMvvm.ViewModels
                 Metadata = _viewModel.Metadata;
                 if (_viewModel is ViewModelBase vm)
                 {
-                    Subscribers = vm._internalMessenger?.GetSubscribers().ToSerializable(serializationContext.Serializer);
+                    Subscribers = vm.GetInternalMessenger(false)?.GetSubscribers().ToSerializable(serializationContext.Serializer);
                     BusyListeners = vm._busyIndicatorProvider?.GetListeners().ToSerializable(serializationContext.Serializer);
                 }
                 else
-                {
-                    Subscribers = _viewModel.InternalMessenger.GetSubscribers().ToSerializable(serializationContext.Serializer);
                     BusyListeners = _viewModel.BusyIndicatorProvider?.GetListeners().ToSerializable(serializationContext.Serializer);
-                }
 
                 OnPreserveInternal(_viewModel!, serializationContext);
             }
@@ -412,60 +394,14 @@ namespace MugenMvvm.ViewModels
                     }
                 }
 
-                if (Subscribers != null)
+                if (Subscribers != null && viewModel is ViewModelBase vm)
                 {
                     foreach (var subscriber in Subscribers)
                     {
                         if (subscriber.Subscriber != null)
-                            viewModel.InternalMessenger.Subscribe(subscriber.Subscriber, subscriber.ExecutionMode);
+                            vm.GetInternalMessenger(true)!.Subscribe(subscriber.Subscriber, subscriber.ExecutionMode);
                     }
                 }
-            }
-
-            #endregion
-        }
-
-        [Serializable]
-        [DataContract(Namespace = BuildConstants.DataContractNamespace)]
-        [Preserve(Conditional = true, AllMembers = true)]
-        public sealed class ViewModelHandlerMemento : IMemento
-        {
-            #region Fields
-
-            [DataMember(Name = "V")] public readonly ViewModelBase ViewModel;
-
-            #endregion
-
-            #region Constructors
-
-            internal ViewModelHandlerMemento(ViewModelHandler handler)
-            {
-                ViewModel = handler.Target;
-            }
-
-            internal ViewModelHandlerMemento()
-            {
-            }
-
-            #endregion
-
-            #region Properties
-
-            [IgnoreDataMember]
-            public Type TargetType => typeof(ViewModelHandler);
-
-            #endregion
-
-            #region Implementation of interfaces
-
-            public void Preserve(ISerializationContext serializationContext)
-            {
-            }
-
-            public IMementoResult Restore(ISerializationContext serializationContext)
-            {
-                Should.NotBeNull(ViewModel, nameof(ViewModel));
-                return new MementoResult(ViewModel.GetDispatcherHandler(), serializationContext.Metadata);
             }
 
             #endregion
