@@ -27,7 +27,7 @@ namespace MugenMvvm.ViewModels
         private IMessenger? _internalMessenger;
         private IMemento? _memento;
         private int _state;
-        
+
         private const int DisposedState = 1;
 
         #endregion
@@ -345,7 +345,7 @@ namespace MugenMvvm.ViewModels
                     if (_viewModel != null)
                         return new MementoResult(_viewModel, serializationContext.Metadata);
 
-                    if (Metadata.TryGet(ViewModelMetadata.Id, out var id))
+                    if (!serializationContext.Metadata.Get(SerializationMetadata.NoCache) && Metadata.TryGet(ViewModelMetadata.Id, out var id))
                     {
                         _viewModel = dispatcher.GetViewModelById(id, serializationContext.Metadata);
                         if (_viewModel != null)

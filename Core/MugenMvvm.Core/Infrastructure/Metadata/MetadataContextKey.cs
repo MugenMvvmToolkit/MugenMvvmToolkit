@@ -15,7 +15,7 @@ namespace MugenMvvm.Infrastructure.Metadata
 
         private readonly string? _fieldOrPropertyName;
         private readonly Type? _type;
-        
+
         #endregion
 
         #region Constructors
@@ -170,12 +170,12 @@ namespace MugenMvvm.Infrastructure.Metadata
                 return this;
             }
 
-            public Builder<T> WithDefaultValue(T defaultValue)
+            public Builder<T> DefaultValue(T defaultValue)
             {
-                return WithDefaultValue((context, arg2) => defaultValue);
+                return DefaultValue((context, arg2) => defaultValue);
             }
 
-            public Builder<T> WithDefaultValue(Func<IReadOnlyMetadataContext, T, T> getDefaultValue)
+            public Builder<T> DefaultValue(Func<IReadOnlyMetadataContext, T, T> getDefaultValue)
             {
                 Should.NotBeNull(getDefaultValue, nameof(getDefaultValue));
                 Should.BeValid(nameof(getDefaultValue), _getDefaultValueFunc == null);

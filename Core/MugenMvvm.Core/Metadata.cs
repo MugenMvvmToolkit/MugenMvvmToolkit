@@ -30,7 +30,7 @@ namespace MugenMvvm
             get
             {
                 if (_id == null)
-                    _id = GetBuilder<Guid>(nameof(Id)).Serializable().Build();
+                    _id = GetBuilder<Guid>(nameof(Id)).DefaultValue(GetViewModelIdDefaultValue).Serializable().Build();
                 return _id;
             }
             set => _id = value;
@@ -76,12 +76,13 @@ namespace MugenMvvm
                 if (_parentViewModel == null)
                 {
                     _parentViewModel = GetBuilder<IViewModel?>(nameof(ParentViewModel))
-                           .NotNull()
-                           .Serializable()
-                           .Getter((context, o) => (IViewModel)((WeakReference)o).Target)
-                           .Setter((context, model) => MugenExtensions.GetWeakReference(model))
-                           .Build();
+                        .NotNull()
+                        .Serializable()
+                        .Getter((context, o) => (IViewModel) ((WeakReference) o).Target)
+                        .Setter((context, model) => MugenExtensions.GetWeakReference(model))
+                        .Build();
                 }
+
                 return _parentViewModel;
             }
             set => _parentViewModel = value;
@@ -90,6 +91,20 @@ namespace MugenMvvm
         #endregion
 
         #region Methods
+
+        private static Guid GetViewModelIdDefaultValue(IReadOnlyMetadataContext ctx, Guid value)
+        {
+            if (ctx is IMetadataContext context)
+            {
+                value = Guid.NewGuid();
+                lock (Id)
+                {
+                    context.Set(Id, value);
+                }
+            }
+
+            return value;
+        }
 
         private static MetadataContextKey.Builder<T> GetBuilder<T>(string name)
         {
@@ -175,6 +190,39 @@ namespace MugenMvvm
         private static MetadataContextKey.Builder<T> GetBuilder<T>(string name)
         {
             return MetadataContextKey.Create<T>(typeof(RelayCommandMetadata), name);
+        }
+
+        #endregion
+    }
+
+    public static class SerializationMetadata
+    {
+        #region Fields
+
+        private static IMetadataContextKey<bool> _noCache;
+
+        #endregion
+
+        #region Properties
+
+        public static IMetadataContextKey<bool> NoCache
+        {
+            get
+            {
+                if (_noCache == null)
+                    _noCache = GetBuilder<bool>(nameof(NoCache)).Serializable().Build();
+                return _noCache;
+            }
+            set => _noCache = value;
+        }
+
+        #endregion
+
+        #region Methods
+
+        private static MetadataContextKey.Builder<T> GetBuilder<T>(string name)
+        {
+            return MetadataContextKey.Create<T>(typeof(SerializationMetadata), name);
         }
 
         #endregion
