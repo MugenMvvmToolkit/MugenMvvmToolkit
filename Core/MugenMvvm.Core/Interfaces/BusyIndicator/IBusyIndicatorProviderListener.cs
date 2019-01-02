@@ -2,8 +2,8 @@
 {
     public interface IBusyIndicatorProviderListener
     {
-        void OnBeginBusy(IBusyInfo busyInfo);
+        void OnBeginBusy(IBusyIndicatorProvider busyIndicatorProvider, IBusyInfo busyInfo);
 
-        void OnBusyInfoChanged();
+        void OnBusyInfoChanged(IBusyIndicatorProvider busyIndicatorProvider);
     }
 }

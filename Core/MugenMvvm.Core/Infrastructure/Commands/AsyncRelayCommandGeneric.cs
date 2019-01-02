@@ -8,8 +8,8 @@ namespace MugenMvvm.Infrastructure.Commands
     {
         #region Constructors
 
-        public AsyncRelayCommand(Func<T, Task> execute, IReadOnlyMetadataContext? context = null)
-            : base(execute, null, null, context)
+        public AsyncRelayCommand(Func<T, Task> execute, IReadOnlyMetadataContext? metadata = null)
+            : base(execute, null, null, metadata)
         {
         }
 
@@ -18,8 +18,8 @@ namespace MugenMvvm.Infrastructure.Commands
         {
         }
 
-        public AsyncRelayCommand(Func<T, Task> execute, Func<T, bool> canExecute, IReadOnlyMetadataContext? context, params object[] notifiers)
-            : base(execute, canExecute, notifiers, context)
+        public AsyncRelayCommand(Func<T, Task> execute, Func<T, bool> canExecute, IReadOnlyMetadataContext? metadata, params object[] notifiers)
+            : base(execute, canExecute, notifiers, metadata)
         {
         }
 

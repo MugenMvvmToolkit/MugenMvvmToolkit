@@ -8,8 +8,8 @@ namespace MugenMvvm.Infrastructure.Commands
     {
         #region Constructors
 
-        public AsyncRelayCommand(Func<Task> execute, IReadOnlyMetadataContext? context = null)
-            : base(execute, null, null, context)
+        public AsyncRelayCommand(Func<Task> execute, IReadOnlyMetadataContext? metadata = null)
+            : base(execute, null, null, metadata)
         {
         }
 
@@ -18,13 +18,13 @@ namespace MugenMvvm.Infrastructure.Commands
         {
         }
 
-        public AsyncRelayCommand(Func<Task> execute, Func<bool> canExecute, IReadOnlyMetadataContext? context, params object[] notifiers)
-            : base(execute, canExecute, notifiers, context)
+        public AsyncRelayCommand(Func<Task> execute, Func<bool> canExecute, IReadOnlyMetadataContext? metadata, params object[] notifiers)
+            : base(execute, canExecute, notifiers, metadata)
         {
         }
 
-        public AsyncRelayCommand(Func<object, Task> execute, IReadOnlyMetadataContext? context = null)
-            : base(execute, null, null, context)
+        public AsyncRelayCommand(Func<object, Task> execute, IReadOnlyMetadataContext? metadata = null)
+            : base(execute, null, null, metadata)
         {
         }
 
@@ -33,8 +33,8 @@ namespace MugenMvvm.Infrastructure.Commands
         {
         }
 
-        public AsyncRelayCommand(Func<object, Task> execute, Func<object, bool> canExecute, IReadOnlyMetadataContext? context, params object[] notifiers)
-            : base(execute, canExecute, notifiers, context)
+        public AsyncRelayCommand(Func<object, Task> execute, Func<object, bool> canExecute, IReadOnlyMetadataContext? metadata, params object[] notifiers)
+            : base(execute, canExecute, notifiers, metadata)
         {
         }
 

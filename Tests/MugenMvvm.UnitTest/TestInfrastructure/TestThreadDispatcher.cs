@@ -1,5 +1,6 @@
 ﻿using System;
 using MugenMvvm.Interfaces;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Models;
@@ -12,8 +13,8 @@ namespace MugenMvvm.UnitTest.TestInfrastructure
 
         public TestThreadDispatcher()
         {
-            ExecuteHandler = (handler, mode, arg3) => handler.Execute(arg3);
-            ExecuteAction = (action, mode, arg3) => action(arg3);
+            ExecuteHandler = (handler, mode, arg3, ctx) => handler.Execute(arg3);
+            ExecuteAction = (action, mode, arg3, ctx) => action(arg3);
         }
 
         #endregion
@@ -22,22 +23,22 @@ namespace MugenMvvm.UnitTest.TestInfrastructure
 
         public bool IsOnMainThread { get; set; }
 
-        public Action<IThreadDispatcherHandler, ThreadExecutionMode, object?> ExecuteHandler { get; set; }
+        public Action<IThreadDispatcherHandler, ThreadExecutionMode, object?, IReadOnlyMetadataContext?> ExecuteHandler { get; set; }
 
-        public Action<Action<object?>, ThreadExecutionMode, object?> ExecuteAction { get; set; }
+        public Action<Action<object?>, ThreadExecutionMode, object?, IReadOnlyMetadataContext?> ExecuteAction { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        void IThreadDispatcher.Execute(IThreadDispatcherHandler handler, ThreadExecutionMode executionMode, object? state)
+        void IThreadDispatcher.Execute(IThreadDispatcherHandler handler, ThreadExecutionMode executionMode, object? state, IReadOnlyMetadataContext? metadata)
         {
-            ExecuteHandler(handler, executionMode, state);
+            ExecuteHandler(handler, executionMode, state, metadata);
         }
 
-        void IThreadDispatcher.Execute(Action<object?> action, ThreadExecutionMode executionMode, object? state)
+        void IThreadDispatcher.Execute(Action<object?> action, ThreadExecutionMode executionMode, object? state, IReadOnlyMetadataContext? metadata)
         {
-            ExecuteAction(action, executionMode, state);
+            ExecuteAction(action, executionMode, state, metadata);
         }
 
         #endregion

@@ -225,18 +225,18 @@ namespace MugenMvvm.Infrastructure.Metadata
 
             #region Implementation of interfaces
 
-            public object? SetValue(IReadOnlyMetadataContext context, T value)
+            public object? SetValue(IReadOnlyMetadataContext metadataContext, T value)
             {
                 if (SetValueFunc == null)
                     return value;
-                return SetValueFunc(context, value);
+                return SetValueFunc(metadataContext, value);
             }
 
-            public T GetDefaultValue(IReadOnlyMetadataContext context, T defaultValue)
+            public T GetDefaultValue(IReadOnlyMetadataContext metadataContext, T defaultValue)
             {
                 if (GetDefaultValueFunc == null)
                     return defaultValue;
-                return GetDefaultValueFunc(context, defaultValue);
+                return GetDefaultValueFunc(metadataContext, defaultValue);
             }
 
             public override bool CanSerialize(object? item, ISerializationContext context)
@@ -246,11 +246,11 @@ namespace MugenMvvm.Infrastructure.Metadata
                 return CanSerializeFunc(item, context);
             }
 
-            public T GetValue(IReadOnlyMetadataContext context, object? value)
+            public T GetValue(IReadOnlyMetadataContext metadataContext, object? value)
             {
                 if (GetValueFunc == null)
                     return (T)value;
-                return GetValueFunc(context, value);
+                return GetValueFunc(metadataContext, value);
             }
 
             public void Validate(T item)

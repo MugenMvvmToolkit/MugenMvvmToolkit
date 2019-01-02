@@ -32,11 +32,11 @@ namespace MugenMvvm.Infrastructure.Metadata
             _values = values;
         }
 
-        public MetadataContext(IReadOnlyMetadataContext context)
+        public MetadataContext(IReadOnlyMetadataContext metadataContext)
             : this()
         {
-            Should.NotBeNull(context, nameof(context));
-            Merge(context);
+            Should.NotBeNull(metadataContext, nameof(metadataContext));
+            Merge(metadataContext);
         }
 
         #endregion
@@ -175,7 +175,7 @@ namespace MugenMvvm.Infrastructure.Metadata
 
         private void OnContextChanged(IMetadataContextKey? key)
         {
-            var items = GetListenersInternal(out _);
+            var items = GetListenersInternal();
             if (items != null)
             {
                 for (var i = 0; i < items.Length; i++)
@@ -241,7 +241,7 @@ namespace MugenMvvm.Infrastructure.Metadata
                     currentValues = _metadataContext._values.ToArray();
                 }
 
-                Listeners = _metadataContext.GetListenersInternal(out int size).ToSerializable(serializationContext.Serializer, size);
+                Listeners = _metadataContext.GetListenersWithLockInternal(out int size).ToSerializable(serializationContext.Serializer, size);
                 Keys = new List<IMetadataContextKey>();
                 Values = new List<object?>();
                 foreach (var keyPair in currentValues)

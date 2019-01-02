@@ -11,16 +11,16 @@ namespace MugenMvvm.Interfaces
     public interface IViewModelDispatcher
     {
         [Pure]
-        IViewModel? GetViewModelById(Guid id, IReadOnlyMetadataContext metadataContext);
+        IViewModel? GetViewModelById(Guid id, IReadOnlyMetadataContext metadata);
 
 
-        IBusyIndicatorProvider GetBusyIndicatorProvider(IViewModel viewModel, IReadOnlyMetadataContext metadataContext);
+        IBusyIndicatorProvider GetBusyIndicatorProvider(IViewModel viewModel, IReadOnlyMetadataContext metadata);
 
-        IMessenger GetMessenger(IViewModel viewModel, IReadOnlyMetadataContext metadataContext);
-        
-        IObservableMetadataContext GetMetadataContext(IViewModel viewModel, IReadOnlyMetadataContext metadataContext);
+        IMessenger GetMessenger(IViewModel viewModel, IReadOnlyMetadataContext metadata);
+
+        IObservableMetadataContext GetMetadataContext(IViewModel viewModel, IReadOnlyMetadataContext metadata);
 
 
-        void OnLifecycleChanged(IViewModel viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadataContext);        
+        void OnLifecycleChanged(IViewModel viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadata);
     }
 }

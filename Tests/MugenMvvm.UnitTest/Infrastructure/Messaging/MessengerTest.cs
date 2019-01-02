@@ -195,12 +195,12 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
             ThreadExecutionMode executedMode = null;
             var dispatcher = new TestThreadDispatcher
             {
-                ExecuteAction = (action, executionMode, arg3) =>
+                ExecuteAction = (action, executionMode, arg3, ctx) =>
                 {
                     action(arg3);
                     executedMode = executionMode;
                 },
-                ExecuteHandler = (action, executionMode, arg3) =>
+                ExecuteHandler = (action, executionMode, arg3, ctx) =>
                 {
                     action.Execute(arg3);
                     executedMode = executionMode;

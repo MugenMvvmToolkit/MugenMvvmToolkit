@@ -36,6 +36,8 @@ namespace MugenMvvm
 
         public static Func<Type, Assembly> GetAssembly { get; set; }
 
+        public static Func<Type, IEnumerable<Type>> GetInterfaces { get; set; }
+
         public static Func<Type, Type, bool, IEnumerable<Attribute>> GetCustomAttributes { get; set; }
 
         public static Func<Type, Type> GetBaseType { get; set; }
@@ -116,6 +118,12 @@ namespace MugenMvvm
         {
             Should.NotBeNull(type, nameof(type));
             return GetBaseType(type);
+        }
+
+        public static IEnumerable<Type> GetInterfacesUnified(this Type type)
+        {
+            Should.NotBeNull(type, nameof(type));
+            return GetInterfaces(type);
         }
 
         public static Assembly GetAssemblyUnified(this Type type)

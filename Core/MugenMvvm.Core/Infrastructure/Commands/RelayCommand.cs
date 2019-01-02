@@ -7,8 +7,8 @@ namespace MugenMvvm.Infrastructure.Commands
     {
         #region Constructors
 
-        public RelayCommand(Action execute, IReadOnlyMetadataContext? context = null)
-            : base(execute, null, null, context)
+        public RelayCommand(Action execute, IReadOnlyMetadataContext? metadata = null)
+            : base(execute, null, null, metadata)
         {
         }
 
@@ -17,13 +17,13 @@ namespace MugenMvvm.Infrastructure.Commands
         {
         }
 
-        public RelayCommand(Action execute, Func<bool> canExecute, IReadOnlyMetadataContext? context, params object[] notifiers)
-            : base(execute, canExecute, notifiers, context)
+        public RelayCommand(Action execute, Func<bool> canExecute, IReadOnlyMetadataContext? metadata, params object[] notifiers)
+            : base(execute, canExecute, notifiers, metadata)
         {
         }
 
-        public RelayCommand(Action<object> execute, IReadOnlyMetadataContext? context = null)
-            : base(execute, null, null, context)
+        public RelayCommand(Action<object> execute, IReadOnlyMetadataContext? metadata = null)
+            : base(execute, null, null, metadata)
         {
         }
 
@@ -32,8 +32,8 @@ namespace MugenMvvm.Infrastructure.Commands
         {
         }
 
-        public RelayCommand(Action<object> execute, Func<object, bool> canExecute, IReadOnlyMetadataContext? context, params object[] notifiers)
-            : base(execute, canExecute, notifiers, context)
+        public RelayCommand(Action<object> execute, Func<object, bool> canExecute, IReadOnlyMetadataContext? metadata, params object[] notifiers)
+            : base(execute, canExecute, notifiers, metadata)
         {
         }
 

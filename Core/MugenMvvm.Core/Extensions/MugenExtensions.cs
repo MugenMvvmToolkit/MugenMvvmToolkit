@@ -16,6 +16,7 @@ using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
+using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Models;
 
 // ReSharper disable once CheckNamespace
@@ -309,6 +310,38 @@ namespace MugenMvvm
                 exception = exception.InnerException;
                 if (exception != null && includeStackTrace)
                     sb.AppendLine();
+            }
+        }
+
+        #endregion
+
+        #region Views
+
+        public static TView GetCurrentView<TView>(this IViewModel viewModel, bool underlyingView = true)
+            where TView : class ?
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            var view = viewModel.Metadata.Get(ViewModelMetadata.View);
+            if (view == null || !underlyingView)
+                return (TView)view;
+            return GetUnderlyingView<TView>(view);
+        }
+
+        public static TView GetUnderlyingView<TView>(this IView? view)
+            where TView : class ?
+        {
+            return GetUnderlyingView<TView>(viewObj: view);
+        }
+
+        public static TView GetUnderlyingView<TView>(object? viewObj)
+            where TView : class ?
+        {
+            while (true)
+            {
+                var wrapper = viewObj as IWrapperView;
+                if (wrapper?.View == null || wrapper.View == viewObj)
+                    return (TView)viewObj;
+                viewObj = wrapper.View;
             }
         }
 

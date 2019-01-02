@@ -17,29 +17,29 @@ namespace MugenMvvm.Infrastructure.Commands
 
         #region Constructors
 
-        protected RelayCommandBase(Action execute, Func<bool>? canExecute, IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext? context)
-            : this(execute, canExecute, notifiers, contextBase: context)
+        protected RelayCommandBase(Action execute, Func<bool>? canExecute, IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext? metadata)
+            : this(execute, canExecute, notifiers, metadataBase: metadata)
         {
         }
 
-        protected RelayCommandBase(Action<T> execute, Func<T, bool>? canExecute, IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext? context)
-            : this(execute, canExecute, notifiers, contextBase: context)
+        protected RelayCommandBase(Action<T> execute, Func<T, bool>? canExecute, IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext? metadata)
+            : this(execute, canExecute, notifiers, metadataBase: metadata)
         {
         }
 
-        protected RelayCommandBase(Func<Task> execute, Func<bool>? canExecute, IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext? context)
-            : this(execute, canExecute, notifiers, contextBase: context)
+        protected RelayCommandBase(Func<Task> execute, Func<bool>? canExecute, IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext? metadata)
+            : this(execute, canExecute, notifiers, metadataBase: metadata)
         {
         }
 
-        protected RelayCommandBase(Func<T, Task> execute, Func<T, bool>? canExecute, IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext? context)
-            : this(execute, canExecute, notifiers, contextBase: context)
+        protected RelayCommandBase(Func<T, Task> execute, Func<T, bool>? canExecute, IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext? metadata)
+            : this(execute, canExecute, notifiers, metadataBase: metadata)
         {
         }
 
-        protected RelayCommandBase(Delegate execute, Delegate? canExecute, IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext? contextBase)
+        protected RelayCommandBase(Delegate execute, Delegate? canExecute, IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext? metadataBase)
         {
-            Mediator = Singleton<IRelayCommandDispatcher>.Instance.GetMediator(execute, canExecute, notifiers, contextBase ?? Default.MetadataContext);
+            Mediator = Singleton<IRelayCommandDispatcher>.Instance.GetMediator(execute, canExecute, notifiers, metadataBase ?? Default.MetadataContext);
         }
 
         #endregion

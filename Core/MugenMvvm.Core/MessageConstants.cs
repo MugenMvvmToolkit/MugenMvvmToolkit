@@ -18,6 +18,8 @@
         public const string ArgumentShouldBeOfType = "Type '{0}' should be of type '{1}', but is not.";
         public const string WrapperTypeShouldBeNonAbstractFormat1 = "The wrapper type '{0}' must be non abstract";
         public const string WrapperTypeNotSupportedFormat1 = "There are no wrapper type for type '{0}'.";
+        public const string ViewCreatedFormat2 = "The view {0} for the view-model {1} was created.";
+        public const string DuplicateInterfaceFormat3 = "The '{0}' can implement an interface '{1}' only once. The '{0}' with type '{2}', implement it more that once.";
 
         #endregion
     }

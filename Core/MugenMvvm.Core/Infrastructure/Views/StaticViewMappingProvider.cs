@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces.Views;
+using MugenMvvm.Interfaces.Views.Infrastructure;
 using MugenMvvm.Models;
 
 namespace MugenMvvm.Infrastructure.Views

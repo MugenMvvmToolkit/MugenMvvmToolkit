@@ -246,12 +246,12 @@ namespace MugenMvvm.ViewModels
 
             #region Implementation of interfaces
 
-            public void OnBeginBusy(IBusyInfo busyInfo)
+            public void OnBeginBusy(IBusyIndicatorProvider busyIndicatorProvider, IBusyInfo busyInfo)
             {
                 Target.Publish(busyInfo);
             }
 
-            public void OnBusyInfoChanged()
+            public void OnBusyInfoChanged(IBusyIndicatorProvider busyIndicatorProvider)
             {
                 Target.OnPropertyChanged(Default.IsBusyChangedArgs);
                 Target.OnPropertyChanged(Default.BusyInfoChangedArgs);

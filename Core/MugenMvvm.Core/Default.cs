@@ -28,7 +28,6 @@ namespace MugenMvvm
         internal static readonly PropertyChangedEventArgs IsCanExecuteNullChangedArgs;
         internal static readonly PropertyChangedEventArgs IsCanExecuteLastChangedArgs;
 
-
         public static readonly NullValue SerializableNullValue;
         public static readonly IReadOnlyMetadataContext MetadataContext;
         public static readonly IDisposable Disposable;
@@ -36,6 +35,8 @@ namespace MugenMvvm
         public static readonly Task CompletedTask;
         public static readonly Task<bool> TrueTask;
         public static readonly Task<bool> FalseTask;
+
+        private static IReadOnlyMetadataContext _alwaysAsyncThreadDispatcherContext;
 
         #endregion
 
@@ -55,10 +56,30 @@ namespace MugenMvvm
             MetadataContext = new EmptyContext();
             SerializableNullValue = new NullValue();
             WeakReference = new WeakReference(null, false);
-            Disposable = (IDisposable)MetadataContext;
+            Disposable = (IDisposable) MetadataContext;
             TrueTask = Task.FromResult(true);
             FalseTask = Task.FromResult(false);
             CompletedTask = FalseTask;
+        }
+
+        #endregion
+
+        #region Properties
+
+        public static IReadOnlyMetadataContext AlwaysAsyncThreadDispatcherContext
+        {
+            get
+            {
+                if (_alwaysAsyncThreadDispatcherContext == null)
+                {
+                    _alwaysAsyncThreadDispatcherContext = new MetadataContext
+                    {
+                        {ThreadDispatcherMetadata.AlwaysAsync, true}
+                    };
+                }
+
+                return _alwaysAsyncThreadDispatcherContext;
+            }
         }
 
         #endregion

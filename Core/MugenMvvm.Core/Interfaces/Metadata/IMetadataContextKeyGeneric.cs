@@ -4,10 +4,10 @@
     {
         void Validate(T item);
 
-         T GetValue(IReadOnlyMetadataContext context, object? value);
+         T GetValue(IReadOnlyMetadataContext metadataContext, object? value);
 
-        object? SetValue(IReadOnlyMetadataContext context, T value);
+        object? SetValue(IReadOnlyMetadataContext metadataContext, T value);
 
-        T GetDefaultValue(IReadOnlyMetadataContext context, T defaultValue);
+        T GetDefaultValue(IReadOnlyMetadataContext metadataContext, T defaultValue);
     }
 }

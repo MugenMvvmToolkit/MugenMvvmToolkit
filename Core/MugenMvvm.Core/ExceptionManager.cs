@@ -46,6 +46,11 @@ namespace MugenMvvm
             return new ArgumentException(MessageConstants.WrapperTypeNotSupportedFormat1.Format(wrapperType), nameof(wrapperType));
         }
 
+        internal static Exception DuplicateInterface(string itemName, string interfaceName, Type type)
+        {
+            return new InvalidOperationException(MessageConstants.DuplicateInterfaceFormat3.Format(itemName, interfaceName, type));
+        }
+
         #endregion
     }
 }

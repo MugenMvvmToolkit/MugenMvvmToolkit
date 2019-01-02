@@ -21,6 +21,7 @@ namespace MugenMvvm
         private static IMetadataContextKey<BusyMessageHandlerType> _busyMessageHandlerType;
         private static IMetadataContextKey<IViewModel> _parentViewModel;
         private static IMetadataContextKey<bool> _noState;
+        private static IMetadataContextKey<object> _view;
 
         #endregion
 
@@ -98,6 +99,17 @@ namespace MugenMvvm
                 return _noState;
             }
             set => _noState = value;
+        }
+
+        public static IMetadataContextKey<object> View
+        {
+            get
+            {
+                if (_view == null)
+                    _view = GetBuilder<object>(nameof(View)).NotNull().Build();
+                return _view;
+            }
+            set => _view = value;
         }
 
         #endregion
@@ -241,6 +253,39 @@ namespace MugenMvvm
         private static MetadataContextKey.Builder<T> GetBuilder<T>(string name)
         {
             return MetadataContextKey.Create<T>(typeof(SerializationMetadata), name);
+        }
+
+        #endregion
+    }
+
+    public static class ThreadDispatcherMetadata
+    {
+        #region Fields
+
+        private static IMetadataContextKey<bool> _alwaysAsync;
+
+        #endregion
+
+        #region Properties
+
+        public static IMetadataContextKey<bool> AlwaysAsync
+        {
+            get
+            {
+                if (_alwaysAsync == null)
+                    _alwaysAsync = GetBuilder<bool>(nameof(AlwaysAsync)).Serializable().Build();
+                return _alwaysAsync;
+            }
+            set => _alwaysAsync = value;
+        }
+
+        #endregion
+
+        #region Methods
+
+        private static MetadataContextKey.Builder<T> GetBuilder<T>(string name)
+        {
+            return MetadataContextKey.Create<T>(typeof(ThreadDispatcherMetadata), name);
         }
 
         #endregion

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace MugenMvvm.Interfaces.Views
+namespace MugenMvvm.Interfaces.Views.Infrastructure
 {
     public interface IViewMappingProvider
     {

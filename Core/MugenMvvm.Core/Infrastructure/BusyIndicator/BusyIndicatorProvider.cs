@@ -105,11 +105,11 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
 
         private void OnBeginBusy(IBusyInfo busyInfo)
         {
-            var items = GetListenersInternal(out _);
+            var items = GetListenersInternal();
             if (items != null)
             {
                 for (var i = 0; i < items.Length; i++)
-                    items[i]?.OnBeginBusy(busyInfo);
+                    items[i]?.OnBeginBusy(this, busyInfo);
             }
         }
 
@@ -117,11 +117,11 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
         {
             if (!ignoreSuspend && IsNotificationsSuspended)
                 return;
-            var items = GetListenersInternal(out _);
+            var items = GetListenersInternal();
             if (items != null)
             {
                 for (var i = 0; i < items.Length; i++)
-                    items[i]?.OnBusyInfoChanged();
+                    items[i]?.OnBusyInfoChanged(this);
             }
         }
 

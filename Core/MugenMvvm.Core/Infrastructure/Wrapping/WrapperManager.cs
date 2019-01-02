@@ -12,6 +12,7 @@ using MugenMvvm.Models;
 
 namespace MugenMvvm.Infrastructure.Wrapping
 {
+    //todo rename context->metadata
 //    public class WrapperManager : IConfigurableWrapperManager
 //    {
 //        

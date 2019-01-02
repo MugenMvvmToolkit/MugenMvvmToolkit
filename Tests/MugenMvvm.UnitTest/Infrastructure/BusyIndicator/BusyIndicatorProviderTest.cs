@@ -683,12 +683,12 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
 
             #region Implementation of interfaces
 
-            void IBusyIndicatorProviderListener.OnBeginBusy(IBusyInfo busyInfo)
+            void IBusyIndicatorProviderListener.OnBeginBusy(IBusyIndicatorProvider busyIndicatorProvider, IBusyInfo busyInfo)
             {
                 OnBeginBusy?.Invoke(busyInfo);
             }
 
-            void IBusyIndicatorProviderListener.OnBusyInfoChanged()
+            void IBusyIndicatorProviderListener.OnBusyInfoChanged(IBusyIndicatorProvider busyIndicatorProvider)
             {
                 OnBusyChanged?.Invoke();
             }

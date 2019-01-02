@@ -1,6 +1,7 @@
 ﻿using System;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
+using MugenMvvm.Interfaces.Views.Infrastructure;
 
 namespace MugenMvvm.Infrastructure.Views
 {

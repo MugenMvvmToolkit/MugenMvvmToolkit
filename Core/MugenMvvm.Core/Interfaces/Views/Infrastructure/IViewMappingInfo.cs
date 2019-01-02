@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MugenMvvm.Interfaces.Views
+namespace MugenMvvm.Interfaces.Views.Infrastructure
 {
     public interface IViewMappingInfo
     {

@@ -10,6 +10,6 @@ namespace MugenMvvm.Interfaces
         
         IDeviceInfo DeviceInfo { get; }
 
-        void OnStateChanged(ApplicationState value, IReadOnlyMetadataContext metadataContext);
+        void OnStateChanged(ApplicationState value, IReadOnlyMetadataContext metadata);
     }
 }
