@@ -5,7 +5,7 @@ using System.Reflection;
 using MugenMvvm.Attributes;
 using MugenMvvm.Interfaces.ViewModels;
 
-namespace MugenMvvm.Infrastructure.ViewMapping
+namespace MugenMvvm.Infrastructure.Views
 {
     public class DynamicViewMappingProvider : StaticViewMappingProvider
     {
@@ -117,7 +117,7 @@ namespace MugenMvvm.Infrastructure.ViewMapping
                     for (int i = 0; i < viewModelAttributes.Count; i++)
                     {
                         var attribute = viewModelAttributes[i];
-                        AddMapping(new ViewMappingItem(attribute.ViewModelType, type, attribute.Name, GetUri(type, attribute.ViewModelType, attribute.Uri), attribute.UriKind), true);
+                        AddMapping(new ViewMappingInfo(attribute.ViewModelType, type, attribute.Name, GetUri(type, attribute.ViewModelType, attribute.Uri), attribute.UriKind), true);
                     }
                 }
             }
@@ -132,7 +132,7 @@ namespace MugenMvvm.Infrastructure.ViewMapping
                     foreach (Type viewModelType in list)
                     {
                         //NOTE: ignore if view already has mapping.
-                        AddMapping(new ViewMappingItem(viewModelType, originalViewType, null, GetUri(originalViewType, viewModelType, null), UriKind.Relative), false);
+                        AddMapping(new ViewMappingInfo(viewModelType, originalViewType, null, GetUri(originalViewType, viewModelType, null), UriKind.Relative), false);
                     }
                 }
             }
@@ -156,7 +156,7 @@ namespace MugenMvvm.Infrastructure.ViewMapping
                                 continue;
 
                             foreach (var viewType in viewTypes)
-                                AddMapping(new ViewMappingItem(vmType, viewType, null, GetUri(viewType, vmType, null), UriKind.Relative), false);
+                                AddMapping(new ViewMappingInfo(vmType, viewType, null, GetUri(viewType, vmType, null), UriKind.Relative), false);
                             added = true;
                             break;
                         }

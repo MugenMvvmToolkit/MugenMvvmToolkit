@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Runtime.Serialization;
+using MugenMvvm.Attributes;
 
 namespace MugenMvvm.Models
 {
@@ -39,6 +41,15 @@ namespace MugenMvvm.Models
         Invalid = 3
     }
 
+    public enum CommandExecutionMode
+    {
+        None = 0,
+        CanExecuteBeforeExecute = 1,
+        CanExecuteBeforeExecuteWithException = 2
+    }
+
+    [Serializable]
+    [DataContract(Namespace = BuildConstants.DataContractNamespace)]
     public class ApplicationState : EnumBase<ApplicationState, int>
     {
         #region Fields
@@ -54,9 +65,16 @@ namespace MugenMvvm.Models
         {
         }
 
+        [Preserve(Conditional = true)]
+        internal ApplicationState()
+        {
+        }
+
         #endregion
     }
 
+    [Serializable]
+    [DataContract(Namespace = BuildConstants.DataContractNamespace)]
     public class ViewModelLifecycleState : EnumBase<ViewModelLifecycleState, int>
     {
         #region Fields
@@ -75,9 +93,16 @@ namespace MugenMvvm.Models
         {
         }
 
+        [Preserve(Conditional = true)]
+        internal ViewModelLifecycleState()
+        {
+        }
+
         #endregion
     }
 
+    [Serializable]
+    [DataContract(Namespace = BuildConstants.DataContractNamespace)]
     public class PlatformType : EnumBase<PlatformType, string>
     {
         #region Fields
@@ -100,6 +125,11 @@ namespace MugenMvvm.Models
         {
         }
 
+        [Preserve(Conditional = true)]
+        protected PlatformType()
+        {
+        }
+
         #endregion
 
         #region Properties
@@ -112,12 +142,14 @@ namespace MugenMvvm.Models
 
         public PlatformType ToXamForms()
         {
-            return new PlatformType(Value) { IsXamForms = true };
+            return new PlatformType(Value) {IsXamForms = true};
         }
 
         #endregion
     }
 
+    [Serializable]
+    [DataContract(Namespace = BuildConstants.DataContractNamespace)]
     public class PlatformIdiom : EnumBase<PlatformIdiom, string>
     {
         #region Fields
@@ -137,9 +169,16 @@ namespace MugenMvvm.Models
         {
         }
 
+        [Preserve(Conditional = true)]
+        internal PlatformIdiom()
+        {
+        }
+
         #endregion
     }
 
+    [Serializable]
+    [DataContract(Namespace = BuildConstants.DataContractNamespace)]
     public class ThreadExecutionMode : EnumBase<ThreadExecutionMode, int>
     {
         #region Fields
@@ -156,31 +195,11 @@ namespace MugenMvvm.Models
         {
         }
 
-        #endregion
-    }
-
-    public class SerializationMode : EnumBase<ThreadExecutionMode, int>
-    {
-        #region Fields
-
-        public static readonly SerializationMode Default = new SerializationMode(1);
-        public static readonly SerializationMode Clone = new SerializationMode(2);
-
-        #endregion
-
-        #region Constructors
-
-        public SerializationMode(int value) : base(value)
+        [Preserve(Conditional = true)]
+        internal ThreadExecutionMode()
         {
         }
 
         #endregion
-    }
-
-    public enum CommandExecutionMode
-    {
-        None = 0,
-        CanExecuteBeforeExecute = 1,
-        CanExecuteBeforeExecuteWithException = 2
     }
 }

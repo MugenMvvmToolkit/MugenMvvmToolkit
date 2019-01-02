@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace MugenMvvm.Interfaces.ViewMapping
+namespace MugenMvvm.Interfaces.Views
 {
-    public interface IViewMappingItem
+    public interface IViewMappingInfo
     {
         string? Name { get; }
 

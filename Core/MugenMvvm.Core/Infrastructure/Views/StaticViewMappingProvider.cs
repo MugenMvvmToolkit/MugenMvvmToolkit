@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using MugenMvvm.Interfaces.ViewMapping;
+using MugenMvvm.Infrastructure.Internal;
+using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Models;
 
-namespace MugenMvvm.Infrastructure.ViewMapping
+namespace MugenMvvm.Infrastructure.Views
 {
     public class StaticViewMappingProvider : IViewMappingProvider
     {
         #region Fields
 
-        private readonly Dictionary<Type, Dictionary<string, IViewMappingItem>> _viewModelToMapping;
-        private readonly Dictionary<Type, List<IViewMappingItem>> _viewTypeToMapping;
+        private readonly Dictionary<Type, Dictionary<string, IViewMappingInfo>> _viewModelToMapping;
+        private readonly Dictionary<Type, List<IViewMappingInfo>> _viewTypeToMapping;
 
         #endregion
 
@@ -19,15 +20,15 @@ namespace MugenMvvm.Infrastructure.ViewMapping
 
         public StaticViewMappingProvider()
         {
-            _viewTypeToMapping = new Dictionary<Type, List<IViewMappingItem>>(MemberInfoComparer.Instance);
-            _viewModelToMapping = new Dictionary<Type, Dictionary<string, IViewMappingItem>>(MemberInfoComparer.Instance);
+            _viewTypeToMapping = new Dictionary<Type, List<IViewMappingInfo>>(MemberInfoComparer.Instance);
+            _viewModelToMapping = new Dictionary<Type, Dictionary<string, IViewMappingInfo>>(MemberInfoComparer.Instance);
         }
 
         #endregion
 
         #region Properties
 
-        public IEnumerable<IViewMappingItem> Mappings
+        public IEnumerable<IViewMappingInfo> Mappings
         {
             get
             {
@@ -42,7 +43,7 @@ namespace MugenMvvm.Infrastructure.ViewMapping
 
         #region Implementation of interfaces
 
-        public bool TryGetMappingsByView(Type viewType, out IReadOnlyCollection<IViewMappingItem>? mappings)
+        public bool TryGetMappingsByView(Type viewType, out IReadOnlyCollection<IViewMappingInfo>? mappings)
         {
             Should.NotBeNull(viewType, nameof(viewType));
             EnsureInitialized();
@@ -56,7 +57,7 @@ namespace MugenMvvm.Infrastructure.ViewMapping
             return true;
         }
 
-        public bool TryGetMappingsByViewModel(Type viewModelType, out IReadOnlyCollection<IViewMappingItem>? mappings)
+        public bool TryGetMappingsByViewModel(Type viewModelType, out IReadOnlyCollection<IViewMappingInfo>? mappings)
         {
             Should.NotBeNull(viewModelType, nameof(viewModelType));
             EnsureInitialized();
@@ -80,7 +81,7 @@ namespace MugenMvvm.Infrastructure.ViewMapping
             return true;
         }
 
-        public bool TryGetMappingByViewModel(Type viewModelType, string? viewName, out IViewMappingItem? mapping)
+        public bool TryGetMappingByViewModel(Type viewModelType, string? viewName, out IViewMappingInfo? mapping)
         {
             Should.NotBeNull(viewModelType, nameof(viewModelType));
             EnsureInitialized();
@@ -114,23 +115,23 @@ namespace MugenMvvm.Infrastructure.ViewMapping
 
         #region Methods
 
-        public void AddMapping(IViewMappingItem mappingItem, bool throwOnError = true, bool rewrite = false)
+        public void AddMapping(IViewMappingInfo mappingInfo, bool throwOnError = true, bool rewrite = false)
         {
-            if (!_viewTypeToMapping.TryGetValue(mappingItem.ViewType, out var list))
+            if (!_viewTypeToMapping.TryGetValue(mappingInfo.ViewType, out var list))
             {
-                list = new List<IViewMappingItem>();
-                _viewTypeToMapping[mappingItem.ViewType] = list;
+                list = new List<IViewMappingInfo>();
+                _viewTypeToMapping[mappingInfo.ViewType] = list;
             }
 
-            list.Add(mappingItem);
+            list.Add(mappingInfo);
 
-            if (!_viewModelToMapping.TryGetValue(mappingItem.ViewModelType, out var value))
+            if (!_viewModelToMapping.TryGetValue(mappingInfo.ViewModelType, out var value))
             {
-                value = new Dictionary<string, IViewMappingItem>();
-                _viewModelToMapping[mappingItem.ViewModelType] = value;
+                value = new Dictionary<string, IViewMappingInfo>();
+                _viewModelToMapping[mappingInfo.ViewModelType] = value;
             }
 
-            var name = mappingItem.Name ?? string.Empty;
+            var name = mappingInfo.Name ?? string.Empty;
             if (value.TryGetValue(name, out var item))
             {
                 if (throwOnError)
@@ -139,7 +140,7 @@ namespace MugenMvvm.Infrastructure.ViewMapping
                     return;
             }
 
-            value[name] = mappingItem;
+            value[name] = mappingInfo;
         }
 
         protected virtual void EnsureInitialized()

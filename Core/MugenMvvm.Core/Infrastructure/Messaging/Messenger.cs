@@ -23,7 +23,7 @@ namespace MugenMvvm.Infrastructure.Messaging
 
         #region Constructors
 
-        [Preserve(Conditional = true)] 
+        [Preserve(Conditional = true)]
         public Messenger(IThreadDispatcher threadDispatcher, ITracer tracer)
         {
             Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
@@ -148,8 +148,7 @@ namespace MugenMvvm.Infrastructure.Messaging
             public void Execute(object? state)
             {
                 var trace = _message is ITraceableMessage || _messenger.IsTraceableMessage != null && _messenger.IsTraceableMessage(_sender, _message, _context);
-                int size;
-                var subscribers = GetItems(out size);
+                var subscribers = GetItems(out var size);
                 for (var i = 0; i < size; i++)
                 {
                     var result = subscribers[i]?.Handle(_sender, _message, _context);

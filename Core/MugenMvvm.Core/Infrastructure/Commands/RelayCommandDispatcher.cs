@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Windows.Input;
 using MugenMvvm.Attributes;
 using MugenMvvm.Infrastructure.Commands.Mediators;
+using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Metadata;

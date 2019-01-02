@@ -5,18 +5,18 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
+using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Infrastructure.Serialization;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Serialization;
 
 namespace MugenMvvm.Infrastructure.Metadata
 {
-    public class MetadataContext : IObservableMetadataContext
+    public class MetadataContext : HasListenersBase<IObservableMetadataContextListener>, IObservableMetadataContext
     {
         #region Fields
 
         private readonly Dictionary<IMetadataContextKey, object?> _values;
-        private LightArrayList<IObservableMetadataContextListener>? _listeners;
 
         #endregion
 
@@ -164,31 +164,6 @@ namespace MugenMvvm.Infrastructure.Metadata
                 OnContextChanged(null);
         }
 
-        public void AddListener(IObservableMetadataContextListener listener)
-        {
-            Should.NotBeNull(listener, nameof(listener));
-            if (_listeners == null)
-                MugenExtensions.LazyInitialize(ref _listeners, new LightArrayList<IObservableMetadataContextListener>());
-            _listeners!.AddWithLock(listener);
-        }
-
-        public void RemoveListener(IObservableMetadataContextListener listener)
-        {
-            Should.NotBeNull(listener, nameof(listener));
-            _listeners?.RemoveWithLock(listener);
-        }
-
-        public IReadOnlyList<IObservableMetadataContextListener> GetListeners()
-        {
-            if (_listeners == null)
-                return Default.EmptyArray<IObservableMetadataContextListener>();
-            var items = _listeners.GetItemsWithLock(out var size);
-            var listeners = new IObservableMetadataContextListener[size];
-            for (var i = 0; i < size; i++)
-                listeners[i] = items[i];
-            return listeners;
-        }
-
         #endregion
 
         #region Methods
@@ -200,7 +175,7 @@ namespace MugenMvvm.Infrastructure.Metadata
 
         private void OnContextChanged(IMetadataContextKey? key)
         {
-            var items = _listeners?.GetItems(out _);
+            var items = GetListenersInternal(out _);
             if (items != null)
             {
                 for (var i = 0; i < items.Length; i++)
@@ -266,7 +241,7 @@ namespace MugenMvvm.Infrastructure.Metadata
                     currentValues = _metadataContext._values.ToArray();
                 }
 
-                Listeners = _metadataContext._listeners?.GetItems(out int size).ToSerializable(serializationContext.Serializer, size);
+                Listeners = _metadataContext.GetListenersInternal(out int size).ToSerializable(serializationContext.Serializer, size);
                 Keys = new List<IMetadataContextKey>();
                 Values = new List<object?>();
                 foreach (var keyPair in currentValues)

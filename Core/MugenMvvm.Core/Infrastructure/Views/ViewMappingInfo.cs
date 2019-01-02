@@ -1,14 +1,14 @@
 ﻿using System;
-using MugenMvvm.Interfaces.ViewMapping;
 using MugenMvvm.Interfaces.ViewModels;
+using MugenMvvm.Interfaces.Views;
 
-namespace MugenMvvm.Infrastructure.ViewMapping
+namespace MugenMvvm.Infrastructure.Views
 {
-    public class ViewMappingItem : IViewMappingItem
+    public class ViewMappingInfo : IViewMappingInfo
     {
         #region Constructors
 
-        public ViewMappingItem(Type viewModelType, Type viewType, string? name, string? uri, UriKind uriKind)
+        public ViewMappingInfo(Type viewModelType, Type viewType, string? name, string? uri, UriKind uriKind)
         {
             Should.BeOfType<IViewModel>(viewModelType, "viewModelType");
             Should.NotBeNull(viewType, nameof(viewType));

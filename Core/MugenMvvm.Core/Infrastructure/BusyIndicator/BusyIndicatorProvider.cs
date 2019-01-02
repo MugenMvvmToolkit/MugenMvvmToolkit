@@ -3,17 +3,17 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
+using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces.BusyIndicator;
 
 namespace MugenMvvm.Infrastructure.BusyIndicator
 {
-    public class BusyIndicatorProvider : IBusyIndicatorProvider
+    public class BusyIndicatorProvider : HasListenersBase<IBusyIndicatorProviderListener>, IBusyIndicatorProvider
     {
         #region Fields
 
         private readonly object? _defaultBusyMessage;
         private BusyToken? _busyTail;
-        private LightArrayList<IBusyIndicatorProviderListener>? _listeners;
         private int _suspendCount;
         private readonly object _locker;
 
@@ -76,31 +76,6 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
             return tail.GetTokens();
         }
 
-        public void AddListener(IBusyIndicatorProviderListener listener)
-        {
-            Should.NotBeNull(listener, nameof(listener));
-            if (_listeners == null)
-                MugenExtensions.LazyInitialize(ref _listeners, new LightArrayList<IBusyIndicatorProviderListener>());
-            _listeners!.AddWithLock(listener);
-        }
-
-        public void RemoveListener(IBusyIndicatorProviderListener listener)
-        {
-            Should.NotBeNull(listener, nameof(listener));
-            _listeners?.RemoveWithLock(listener);
-        }
-
-        public IReadOnlyList<IBusyIndicatorProviderListener> GetListeners()
-        {
-            if (_listeners == null)
-                return Default.EmptyArray<IBusyIndicatorProviderListener>();
-            var items = _listeners.GetItemsWithLock(out var size);
-            var listeners = new IBusyIndicatorProviderListener[size];
-            for (int i = 0; i < size; i++)
-                listeners[i] = items[i];
-            return listeners;
-        }
-
         #endregion
 
         #region Methods
@@ -130,7 +105,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
 
         private void OnBeginBusy(IBusyInfo busyInfo)
         {
-            var items = _listeners?.GetItems(out _);
+            var items = GetListenersInternal(out _);
             if (items != null)
             {
                 for (var i = 0; i < items.Length; i++)
@@ -142,7 +117,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
         {
             if (!ignoreSuspend && IsNotificationsSuspended)
                 return;
-            var items = _listeners?.GetItems(out _);
+            var items = GetListenersInternal(out _);
             if (items != null)
             {
                 for (var i = 0; i < items.Length; i++)

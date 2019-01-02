@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace MugenMvvm.Models
+namespace MugenMvvm.Infrastructure.Internal
 {
     public sealed class MemberInfoComparer : IEqualityComparer<MemberInfo>, IEqualityComparer<Type>
     {

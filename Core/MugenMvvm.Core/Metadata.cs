@@ -20,6 +20,7 @@ namespace MugenMvvm
         private static IMetadataContextKey<bool> _broadcastAllMessages;
         private static IMetadataContextKey<BusyMessageHandlerType> _busyMessageHandlerType;
         private static IMetadataContextKey<IViewModel> _parentViewModel;
+        private static IMetadataContextKey<bool> _noState;
 
         #endregion
 
@@ -88,6 +89,17 @@ namespace MugenMvvm
             set => _parentViewModel = value;
         }
 
+        public static IMetadataContextKey<bool> NoState
+        {
+            get
+            {
+                if (_noState == null)
+                    _noState = GetBuilder<bool>(nameof(NoState)).Serializable().Build();
+                return _noState;
+            }
+            set => _noState = value;
+        }
+
         #endregion
 
         #region Methods
@@ -99,8 +111,14 @@ namespace MugenMvvm
                 value = Guid.NewGuid();
                 lock (Id)
                 {
-                    context.Set(Id, value);
+                    if (!context.Contains(Id))
+                    {
+                        context.Set(Id, value);
+                        return value;
+                    }
                 }
+
+                return context.Get(Id);
             }
 
             return value;

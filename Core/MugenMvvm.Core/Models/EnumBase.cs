@@ -2,9 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
+using MugenMvvm.Attributes;
 
 namespace MugenMvvm.Models
 {
+    [Serializable]
+    [DataContract(Namespace = BuildConstants.DataContractNamespace)]
     public class EnumBase<TEnumeration, TValue> : IComparable<TEnumeration?>, IEquatable<TEnumeration?>
         where TEnumeration : EnumBase<TEnumeration, TValue>
         where TValue : IComparable
@@ -16,6 +20,12 @@ namespace MugenMvvm.Models
         #endregion
 
         #region Constructors
+
+        //note serialization only
+        [Preserve(Conditional = true)]
+        protected EnumBase()
+        {
+        }
 
         protected EnumBase(TValue value, string displayName)
         {
@@ -32,8 +42,10 @@ namespace MugenMvvm.Models
 
         #region Properties
 
+        [DataMember(Name = "D")]
         public string DisplayName { get; }
 
+        [DataMember(Name = "V")]
         public TValue Value { get; }
 
         private static Dictionary<TValue, TEnumeration> Enumerations

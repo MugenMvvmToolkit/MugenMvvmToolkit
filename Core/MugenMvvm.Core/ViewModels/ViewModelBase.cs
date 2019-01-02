@@ -283,6 +283,9 @@ namespace MugenMvvm.ViewModels
             [DataMember(Name = "T")]
             internal Type? ViewModelType;
 
+            [DataMember(Name = "N")]
+            protected internal bool NoState { get; set; }
+
             protected static readonly object RestorationLocker;
 
             #endregion
@@ -320,20 +323,34 @@ namespace MugenMvvm.ViewModels
             {
                 if (_viewModel == null)
                     return;
-                Metadata = _viewModel.Metadata;
-                if (_viewModel is ViewModelBase vm)
+                if (_viewModel.Metadata.Get(ViewModelMetadata.NoState))
                 {
-                    Subscribers = vm.GetInternalMessenger(false)?.GetSubscribers().ToSerializable(serializationContext.Serializer);
-                    BusyListeners = vm._busyIndicatorProvider?.GetListeners().ToSerializable(serializationContext.Serializer);
+                    NoState = true;
+                    Metadata = null;
+                    Subscribers = null;
+                    BusyListeners = null;
                 }
                 else
-                    BusyListeners = _viewModel.BusyIndicatorProvider?.GetListeners().ToSerializable(serializationContext.Serializer);
+                {
+                    NoState = false;
+                    Metadata = _viewModel.Metadata;
+                    if (_viewModel is ViewModelBase vm)
+                    {
+                        Subscribers = vm.GetInternalMessenger(false)?.GetSubscribers().ToSerializable(serializationContext.Serializer);
+                        BusyListeners = vm._busyIndicatorProvider?.GetListeners().ToSerializable(serializationContext.Serializer);
+                    }
+                    else
+                        BusyListeners = _viewModel.BusyIndicatorProvider?.GetListeners().ToSerializable(serializationContext.Serializer);
+                }
 
                 OnPreserveInternal(_viewModel!, serializationContext);
             }
 
             public IMementoResult Restore(ISerializationContext serializationContext)
             {
+                if (NoState)
+                    return MementoResult.Unrestored;
+
                 Should.NotBeNull(Metadata, nameof(Metadata));
                 Should.NotBeNull(ViewModelType, nameof(ViewModelType));
                 if (_viewModel != null)
