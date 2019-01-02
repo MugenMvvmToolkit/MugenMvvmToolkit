@@ -17,6 +17,7 @@ using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
+using MugenMvvm.Interfaces.Wrapping;
 using MugenMvvm.Models;
 
 // ReSharper disable once CheckNamespace
@@ -190,6 +191,24 @@ namespace MugenMvvm
         #endregion
 
         #region Common
+
+        public static void AddWrapper<TWrapper>(this IConfigurableWrapperManager wrapperManager, Type implementation,
+            Func<Type, IReadOnlyMetadataContext, bool>? condition = null, Func<object, IReadOnlyMetadataContext, TWrapper>? wrapperFactory = null)
+            where TWrapper : class
+        {
+            Should.NotBeNull(wrapperManager, nameof(wrapperManager));
+            wrapperManager.AddWrapper(typeof(TWrapper), implementation, condition, wrapperFactory);
+        }
+
+        public static void AddWrapper<TWrapper, TImplementation>(this IConfigurableWrapperManager wrapperManager, Func<Type, IReadOnlyMetadataContext, bool>? condition = null,
+            Func<object, IReadOnlyMetadataContext, TWrapper>? wrapperFactory = null)
+            where TWrapper : class
+            where TImplementation : class, TWrapper
+        {
+
+            Should.NotBeNull(wrapperManager, nameof(wrapperManager));
+            wrapperManager.AddWrapper(typeof(TImplementation), condition, wrapperFactory);
+        }
 
         [StringFormatMethod("format")]
         public static string Format(this string format, params object?[] args)

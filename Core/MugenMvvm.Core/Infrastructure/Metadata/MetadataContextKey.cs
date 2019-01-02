@@ -143,7 +143,7 @@ namespace MugenMvvm.Infrastructure.Metadata
 
             public Builder<T> Serializable()
             {
-                return Serializable((o, context) => true);
+                return Serializable((o, context) => context.Serializer.CanSerialize(typeof(T)));
             }
 
             public Builder<T> Serializable(Func<object?, ISerializationContext, bool> canSerialize)
