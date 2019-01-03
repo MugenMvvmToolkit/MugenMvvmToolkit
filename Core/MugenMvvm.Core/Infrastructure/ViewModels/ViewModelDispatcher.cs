@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MugenMvvm.Attributes;
 using MugenMvvm.Infrastructure.BusyIndicator;
+using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Infrastructure.Messaging;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces;
@@ -15,7 +16,7 @@ using MugenMvvm.Models;
 
 namespace MugenMvvm.Infrastructure.ViewModels
 {
-    public class ViewModelDispatcher : IViewModelDispatcher, IObservableMetadataContextListener
+    public class ViewModelDispatcher : HasListenersBase<IViewModelDispatcherListener>, IViewModelDispatcher, IObservableMetadataContextListener
     {
         #region Fields
 
@@ -121,7 +122,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
                     return null;
             }
 
-            var vm = (IViewModel) value.Target;
+            var vm = (IViewModel)value.Target;
             if (vm == null)
                 RemoveFromCache(id);
             return vm;
@@ -154,6 +155,12 @@ namespace MugenMvvm.Infrastructure.ViewModels
             var traceLevel = lifecycleState == ViewModelLifecycleState.Finalized ? TraceLevel.Error : TraceLevel.Information;
             if (Tracer.CanTrace(traceLevel))
                 Tracer.Trace(traceLevel, MessageConstants.TraceViewModelLifecycleFormat3.Format(viewModel.GetType(), viewModel.GetHashCode(), lifecycleState));
+            var listeners = GetListenersInternal();
+            if (listeners != null)
+            {
+                for (int i = 0; i < listeners.Length; i++)
+                    listeners[i]?.OnLifecycleChanged(viewModel, lifecycleState, metadata);
+            }
         }
 
         private void AddToCache(Guid id, IViewModel viewModel)

@@ -232,8 +232,10 @@ namespace MugenMvvm
             return (T)serviceProvider.GetService(typeof(T));
         }
 
-        public static WeakReference GetWeakReference(object item, bool ignoreHasWeakReference = false)
+        public static WeakReference GetWeakReference(object? item, bool ignoreHasWeakReference = false)
         {
+            if (item == null)
+                return Default.WeakReference;
             if (!ignoreHasWeakReference && item is IHasWeakReference hasWeakReference)
                 return hasWeakReference.WeakReference;
             return Singleton<IWeakReferenceFactory>.Instance.CreateWeakReference(item!);

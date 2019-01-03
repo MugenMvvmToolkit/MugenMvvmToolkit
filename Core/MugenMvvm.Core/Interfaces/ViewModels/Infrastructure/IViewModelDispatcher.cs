@@ -3,11 +3,12 @@ using JetBrains.Annotations;
 using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Models;
 
 namespace MugenMvvm.Interfaces.ViewModels.Infrastructure
 {
-    public interface IViewModelDispatcher
+    public interface IViewModelDispatcher : IHasListeners<IViewModelDispatcherListener>
     {
         [Pure]
         IBusyIndicatorProvider GetBusyIndicatorProvider(IViewModel viewModel, IReadOnlyMetadataContext metadata);
