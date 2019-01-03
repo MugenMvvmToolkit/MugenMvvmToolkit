@@ -80,7 +80,7 @@ namespace MugenMvvm
                     _parentViewModel = GetBuilder<IViewModel?>(nameof(ParentViewModel))
                         .NotNull()
                         .Serializable()
-                        .Getter((context, o) => (IViewModel) ((WeakReference) o).Target)
+                        .Getter((context, o) => (IViewModel)((WeakReference)o).Target)
                         .Setter((context, model) => MugenExtensions.GetWeakReference(model))
                         .Build();
                 }
@@ -119,20 +119,7 @@ namespace MugenMvvm
         private static Guid GetViewModelIdDefaultValue(IReadOnlyMetadataContext ctx, Guid value)
         {
             if (ctx is IMetadataContext context)
-            {
-                value = Guid.NewGuid();
-                lock (Id)
-                {
-                    if (!context.Contains(Id))
-                    {
-                        context.Set(Id, value);
-                        return value;
-                    }
-                }
-
-                return context.Get(Id);
-            }
-
+                return context.GetOrAdd(Id, (metadataContext, o, arg3) => Guid.NewGuid(), null, null);
             return value;
         }
 

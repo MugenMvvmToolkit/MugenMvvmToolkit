@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using MugenMvvm.Attributes;
-using MugenMvvm.Collections;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Infrastructure.Serialization;
 using MugenMvvm.Interfaces.Metadata;
@@ -17,26 +16,28 @@ namespace MugenMvvm.Infrastructure.Metadata
         #region Fields
 
         private readonly Dictionary<IMetadataContextKey, object?> _values;
+        private readonly IObservableMetadataContextListener? _internalListener;
 
         #endregion
 
         #region Constructors
 
-        public MetadataContext()
+        public MetadataContext(IObservableMetadataContextListener? internalListener = null)
         {
             _values = new Dictionary<IMetadataContextKey, object?>();
+            _internalListener = internalListener;
+        }
+
+        public MetadataContext(IReadOnlyMetadataContext metadataContext, IObservableMetadataContextListener? internalListener = null)
+            : this(internalListener)
+        {
+            Should.NotBeNull(metadataContext, nameof(metadataContext));
+            Merge(metadataContext);
         }
 
         private MetadataContext(Dictionary<IMetadataContextKey, object?> values)
         {
             _values = values;
-        }
-
-        public MetadataContext(IReadOnlyMetadataContext metadataContext)
-            : this()
-        {
-            Should.NotBeNull(metadataContext, nameof(metadataContext));
-            Merge(metadataContext);
         }
 
         #endregion
@@ -53,6 +54,8 @@ namespace MugenMvvm.Infrastructure.Metadata
                 }
             }
         }
+
+        private bool HasListeners => _internalListener != null || Listeners != null;
 
         #endregion
 
@@ -108,60 +111,143 @@ namespace MugenMvvm.Infrastructure.Metadata
             }
         }
 
+        public T GetOrAdd<T>(IMetadataContextKey<T> contextKey, Func<IMetadataContext, object?, object?, T> valueFactory, object? state1, object? state2)
+        {
+            Should.NotBeNull(contextKey, nameof(contextKey));
+            Should.NotBeNull(valueFactory, nameof(valueFactory));
+            object? value;
+            bool added = false;
+            lock (_values)
+            {
+                if (!_values.TryGetValue(contextKey, out value))
+                {
+                    added = true;
+                    value = contextKey.SetValue(this, valueFactory(this, state1, state2));
+                    _values[contextKey] = value;
+                }
+            }
+
+            if (added)
+                OnAdded(contextKey, value);
+            return contextKey.GetValue(this, value);
+        }
+
         public void Set<T>(IMetadataContextKey<T> contextKey, T value)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             contextKey.Validate(value);
             object? obj = contextKey.SetValue(this, value);
-            lock (_values)
+            if (HasListeners)
             {
-                _values[contextKey] = obj;
+                object? oldValue;
+                bool hasOldValue;
+                lock (_values)
+                {
+                    hasOldValue = _values.TryGetValue(contextKey, out oldValue);
+                    _values[contextKey] = obj;
+                }
+
+                if (hasOldValue)
+                    OnChanged(contextKey, oldValue, obj);
+                else
+                    OnAdded(contextKey, obj);
             }
-            OnContextChanged(contextKey);
+            else
+            {
+                lock (_values)
+                {
+                    _values[contextKey] = obj;
+                }
+            }
         }
 
         public void Merge(IEnumerable<MetadataContextValue> items)
         {
             Should.NotBeNull(items, nameof(items));
-            var changed = false;
-            lock (_values)
+            if (HasListeners)
             {
-                foreach (var item in items)
+                var values = new List<KeyValuePair<MetadataContextValue, object?>>();
+                lock (_values)
                 {
-                    _values[item.ContextKey] = item.Value;
-                    changed = true;
+                    foreach (var item in items)
+                    {
+                        KeyValuePair<MetadataContextValue, object?> value;
+                        if (_values.TryGetValue(item.ContextKey, out var oldValue))
+                            value = new KeyValuePair<MetadataContextValue, object?>(item, oldValue);
+                        else
+                            value = new KeyValuePair<MetadataContextValue, object?>(item, _values);
+                        values.Add(value);
+                        _values[item.ContextKey] = item.Value;
+                    }
+                }
+
+                foreach (var pair in values)
+                {
+                    if (ReferenceEquals(pair.Value, _values))
+                        OnAdded(pair.Key.ContextKey, pair.Key.Value);
+                    else
+                        OnChanged(pair.Key.ContextKey, pair.Value, pair.Key.Value);
                 }
             }
-
-            if (changed)
-                OnContextChanged(null);
+            else
+            {
+                lock (_values)
+                {
+                    foreach (var item in items)
+                    {
+                        _values[item.ContextKey] = item.Value;
+                    }
+                }
+            }
         }
 
         public bool Remove(IMetadataContextKey contextKey)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
-            bool changed;
-            lock (_values)
+            if (HasListeners)
             {
-                changed = _values.Remove(contextKey);
+                bool changed;
+                object? oldValue;
+                lock (_values)
+                {
+                    changed = _values.TryGetValue(contextKey, out oldValue) && _values.Remove(contextKey);
+                }
+
+                if (changed)
+                    OnRemoved(contextKey, oldValue);
+                return changed;
             }
 
-            if (changed)
-                OnContextChanged(contextKey);
-            return changed;
+            lock (_values)
+            {
+                return _values.Remove(contextKey);
+            }
         }
 
         public void Clear()
         {
-            bool changed;
-            lock (_values)
+            if (HasListeners)
             {
-                changed = _values.Count > 0;
-                _values.Clear();
-            }
+                KeyValuePair<IMetadataContextKey, object?>[] oldValues;
+                lock (_values)
+                {
+                    oldValues = _values.ToArray();
+                    _values.Clear();
+                }
 
-            if (changed)
-                OnContextChanged(null);
+                for (int i = 0; i < oldValues.Length; i++)
+                {
+                    var pair = oldValues[i];
+                    OnRemoved(pair.Key, pair.Value);
+                }
+            }
+            else
+            {
+                lock (_values)
+                {
+                    _values.Clear();
+                }
+            }
         }
 
         #endregion
@@ -173,14 +259,40 @@ namespace MugenMvvm.Infrastructure.Metadata
             Set(constant, value);
         }
 
-        private void OnContextChanged(IMetadataContextKey? key)
+        private void OnAdded(IMetadataContextKey key, object? newValue)
         {
             var items = GetListenersInternal();
             if (items != null)
             {
                 for (var i = 0; i < items.Length; i++)
-                    items[i]?.OnContextChanged(this, key);
+                    items[i]?.OnAdded(this, key, newValue);
             }
+
+            _internalListener?.OnAdded(this, key, newValue);
+        }
+
+        private void OnChanged(IMetadataContextKey key, object? oldValue, object? newValue)
+        {
+            var items = GetListenersInternal();
+            if (items != null)
+            {
+                for (var i = 0; i < items.Length; i++)
+                    items[i]?.OnChanged(this, key, oldValue, newValue);
+            }
+
+            _internalListener?.OnChanged(this, key, oldValue, newValue);
+        }
+
+        private void OnRemoved(IMetadataContextKey key, object? oldValue)
+        {
+            var items = GetListenersInternal();
+            if (items != null)
+            {
+                for (var i = 0; i < items.Length; i++)
+                    items[i]?.OnRemoved(this, key, oldValue);
+            }
+
+            _internalListener?.OnRemoved(this, key, oldValue);
         }
 
         #endregion

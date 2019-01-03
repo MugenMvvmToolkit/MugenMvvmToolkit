@@ -6,7 +6,7 @@ using MugenMvvm.Models;
 
 namespace MugenMvvm.Interfaces.ViewModels
 {
-    public interface IViewModel : INotifyPropertyChangedEx, IDisposableObject, IHasMemento
+    public interface IViewModel : INotifyPropertyChangedEx, IDisposableObject<IViewModel>, IHasMemento
     {
         IBusyIndicatorProvider BusyIndicatorProvider { get; }
 

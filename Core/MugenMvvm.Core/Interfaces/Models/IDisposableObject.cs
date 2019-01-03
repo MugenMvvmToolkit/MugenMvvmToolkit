@@ -2,10 +2,11 @@
 
 namespace MugenMvvm.Interfaces.Models
 {
-    public interface IDisposableObject : IDisposable
+    public interface IDisposableObject<out T> : IDisposable
+        where T : class
     {
         bool IsDisposed { get; }
 
-        event Action<IDisposableObject, EventArgs> Disposed;
+        event Action<T, EventArgs> Disposed;
     }
 }

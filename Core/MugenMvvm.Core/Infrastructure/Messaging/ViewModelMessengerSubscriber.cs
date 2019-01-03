@@ -31,8 +31,9 @@ namespace MugenMvvm.Infrastructure.Messaging
             Should.NotBeNull(viewModel, nameof(viewModel));
             _reference = MugenExtensions.GetWeakReference(viewModel);
             _hashCode = viewModel.GetHashCode();
-            OnContextChanged(Target.Metadata, null);
             viewModel.Metadata.AddListener(this);
+            BroadcastAllMessages = viewModel.Metadata.Get(ViewModelMetadata.BroadcastAllMessages);
+            BusyMessageHandlerType = viewModel.Metadata.Get(ViewModelMetadata.BusyMessageHandlerType);
         }
 
         #endregion
@@ -89,12 +90,28 @@ namespace MugenMvvm.Infrastructure.Messaging
             return SubscriberResult.Handled;
         }
 
-        public void OnContextChanged(IObservableMetadataContext metadataContext, IMetadataContextKey? key)
+        void IObservableMetadataContextListener.OnAdded(IObservableMetadataContext metadataContext, IMetadataContextKey key, object? newValue)
         {
-            if (key == null || key.Equals(ViewModelMetadata.BroadcastAllMessages))
+            if (key.Equals(ViewModelMetadata.BroadcastAllMessages))
+                BroadcastAllMessages = ViewModelMetadata.BroadcastAllMessages.GetValue(metadataContext, newValue);
+            else if (key.Equals(ViewModelMetadata.BusyMessageHandlerType))
+                BusyMessageHandlerType = ViewModelMetadata.BusyMessageHandlerType.GetValue(metadataContext, newValue);
+        }
+
+        void IObservableMetadataContextListener.OnChanged(IObservableMetadataContext metadataContext, IMetadataContextKey key, object? oldValue, object? newValue)
+        {
+            if (key.Equals(ViewModelMetadata.BroadcastAllMessages))
+                BroadcastAllMessages = ViewModelMetadata.BroadcastAllMessages.GetValue(metadataContext, newValue);
+            else if (key.Equals(ViewModelMetadata.BusyMessageHandlerType))
+                BusyMessageHandlerType = ViewModelMetadata.BusyMessageHandlerType.GetValue(metadataContext, newValue);
+        }
+
+        void IObservableMetadataContextListener.OnRemoved(IObservableMetadataContext metadataContext, IMetadataContextKey key, object? oldValue)
+        {
+            if (key.Equals(ViewModelMetadata.BroadcastAllMessages))
                 BroadcastAllMessages = metadataContext.Get(ViewModelMetadata.BroadcastAllMessages);
-            if (key == null || key.Equals(ViewModelMetadata.BusyMessageHandlerType))
-                BusyMessageHandlerType = metadataContext.Get(ViewModelMetadata.BusyMessageHandlerType, BusyMessageHandlerType.Handle);
+            else if (key.Equals(ViewModelMetadata.BusyMessageHandlerType))
+                BusyMessageHandlerType = metadataContext.Get(ViewModelMetadata.BusyMessageHandlerType);
         }
 
         #endregion

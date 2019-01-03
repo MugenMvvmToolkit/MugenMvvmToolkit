@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using MugenMvvm.Attributes;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Wrapping;
@@ -24,6 +25,7 @@ namespace MugenMvvm.Infrastructure.Wrapping
             TrueCondition = (type, context) => true;
         }
 
+        [Preserve(Conditional = true)]
         public WrapperManager(IServiceProvider serviceProvider)
         {
             Should.NotBeNull(serviceProvider, nameof(serviceProvider));

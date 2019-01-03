@@ -79,17 +79,17 @@ namespace MugenMvvm.Models
     {
         #region Fields
 
-        public static readonly ViewModelLifecycleState Created = new ViewModelLifecycleState(1);
-        public static readonly ViewModelLifecycleState Disposed = new ViewModelLifecycleState(2);
-        public static readonly ViewModelLifecycleState Finalized = new ViewModelLifecycleState(3);
-        public static readonly ViewModelLifecycleState Restoring = new ViewModelLifecycleState(4);
-        public static readonly ViewModelLifecycleState Restored = new ViewModelLifecycleState(5);
+        public static readonly ViewModelLifecycleState Created = new ViewModelLifecycleState(1, nameof(Created));
+        public static readonly ViewModelLifecycleState Disposed = new ViewModelLifecycleState(2, nameof(Disposed));
+        public static readonly ViewModelLifecycleState Finalized = new ViewModelLifecycleState(3, nameof(Finalized));
+        public static readonly ViewModelLifecycleState Restoring = new ViewModelLifecycleState(4, nameof(Restoring));
+        public static readonly ViewModelLifecycleState Restored = new ViewModelLifecycleState(5, nameof(Restored));
 
         #endregion
 
         #region Constructors
 
-        public ViewModelLifecycleState(int value) : base(value)
+        public ViewModelLifecycleState(int value, string displayName) : base(value, displayName)
         {
         }
 
@@ -142,7 +142,7 @@ namespace MugenMvvm.Models
 
         public PlatformType ToXamForms()
         {
-            return new PlatformType(Value) {IsXamForms = true};
+            return new PlatformType(Value) { IsXamForms = true };
         }
 
         #endregion

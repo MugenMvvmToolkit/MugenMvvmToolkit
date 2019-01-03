@@ -7,13 +7,12 @@ using System.Xml.Serialization;
 using MugenMvvm.Attributes;
 using MugenMvvm.Infrastructure.Messaging;
 using MugenMvvm.Infrastructure.Serialization;
-using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.ViewModels;
+using MugenMvvm.Interfaces.ViewModels.Infrastructure;
 using MugenMvvm.Models;
 
 namespace MugenMvvm.ViewModels
@@ -73,7 +72,7 @@ namespace MugenMvvm.ViewModels
 
         #region Events
 
-        public event Action<IDisposableObject, EventArgs> Disposed;
+        public event Action<IViewModel, EventArgs> Disposed;
 
         #endregion
 

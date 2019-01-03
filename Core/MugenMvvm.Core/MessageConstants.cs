@@ -20,6 +20,7 @@
         public const string WrapperTypeNotSupportedFormat1 = "There are no wrapper type for type '{0}'.";
         public const string ViewCreatedFormat2 = "The view {0} for the view-model {1} was created.";
         public const string DuplicateInterfaceFormat3 = "The '{0}' can implement an interface '{1}' only once. The '{0}' with type '{2}', implement it more that once.";
+        public const string TraceViewModelLifecycleFormat3 = "{0} ({1}) - {2};";
 
         #endregion
     }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using MugenMvvm.Attributes;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.Metadata;
@@ -32,6 +33,7 @@ namespace MugenMvvm.Infrastructure.Views
             ViewModelToViewInterface = new Dictionary<Type, PropertyInfo>(MemberInfoComparer.Instance);
         }
 
+        [Preserve(Conditional = true)]
         public ViewManager(IServiceProvider serviceProvider, IThreadDispatcher threadDispatcher, IWrapperManager wrapperManager, ITracer tracer, IViewDataContextProvider dataContextProvider)
         {
             Should.NotBeNull(serviceProvider, nameof(serviceProvider));
