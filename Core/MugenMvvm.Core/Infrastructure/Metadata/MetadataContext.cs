@@ -113,7 +113,7 @@ namespace MugenMvvm.Infrastructure.Metadata
             }
         }
 
-        public T AddOrUpdate<T, TState1, TState2>(IMetadataContextKey<T> contextKey, T addValue, UpdateValueDelegate<IMetadataContext, T, T, TState1, TState2> updateValueFactory, TState1 state1, TState2 state2)
+        public T AddOrUpdate<T, TState1, TState2>(IMetadataContextKey<T> contextKey, T addValue, TState1 state1, TState2 state2, UpdateValueDelegate<IMetadataContext, T, T, TState1, TState2> updateValueFactory)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
@@ -143,7 +143,7 @@ namespace MugenMvvm.Infrastructure.Metadata
             return result;
         }
 
-        public T AddOrUpdate<T, TState1, TState2>(IMetadataContextKey<T> contextKey, Func<IMetadataContext, TState1, TState2, T> valueFactory, UpdateValueDelegate<IMetadataContext, Func<IMetadataContext, TState1, TState2, T>, T, TState1, TState2> updateValueFactory, TState1 state1, TState2 state2)
+        public T AddOrUpdate<T, TState1, TState2>(IMetadataContextKey<T> contextKey, TState1 state1, TState2 state2, Func<IMetadataContext, TState1, TState2, T> valueFactory, UpdateValueDelegate<IMetadataContext, Func<IMetadataContext, TState1, TState2, T>, T, TState1, TState2> updateValueFactory)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
@@ -198,7 +198,7 @@ namespace MugenMvvm.Infrastructure.Metadata
             return value;
         }
 
-        public T GetOrAdd<T, TState1, TState2>(IMetadataContextKey<T> contextKey, Func<IMetadataContext, TState1, TState2, T> valueFactory, TState1 state1, TState2 state2)
+        public T GetOrAdd<T, TState1, TState2>(IMetadataContextKey<T> contextKey, TState1 state1, TState2 state2, Func<IMetadataContext, TState1, TState2, T> valueFactory)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             Should.NotBeNull(valueFactory, nameof(valueFactory));
@@ -447,11 +447,12 @@ namespace MugenMvvm.Infrastructure.Metadata
                 Values = new List<object?>();
                 foreach (var keyPair in currentValues)
                 {
-                    if (!keyPair.Key.CanSerialize(keyPair.Value, serializationContext))
+                    var serializableValue = keyPair.Key.ToSerializableValue(keyPair.Value, serializationContext);
+                    if (!keyPair.Key.CanSerializeValue(serializableValue, serializationContext))
                         continue;
 
                     Keys.Add(keyPair.Key);
-                    Values.Add(Default.SerializableNullValue.To(keyPair.Value));
+                    Values.Add(Default.SerializableNullValue.To(serializableValue));
                 }
             }
 

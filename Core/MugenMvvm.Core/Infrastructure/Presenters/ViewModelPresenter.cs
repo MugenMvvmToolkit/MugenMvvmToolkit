@@ -6,8 +6,9 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
+using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Infrastructure.Metadata;
-using MugenMvvm.Infrastructure.Serialization;
+using MugenMvvm.Infrastructure.Presenters.Results;
 using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -15,6 +16,7 @@ using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Presenters.Results;
 using MugenMvvm.Interfaces.Serialization;
+using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Models;
 
 namespace MugenMvvm.Infrastructure.Presenters
@@ -23,6 +25,7 @@ namespace MugenMvvm.Infrastructure.Presenters
     {
         #region Fields
 
+        private readonly HashSet<NavigationCallback> _pendingOpenCallbacks;
         private readonly PresentersCollection _presenters;
 
         #endregion
@@ -39,12 +42,11 @@ namespace MugenMvvm.Infrastructure.Presenters
             Application = application;
             _presenters = new PresentersCollection(this);
             navigationDispatcher.AddListener(_presenters);
+            _pendingOpenCallbacks = new HashSet<NavigationCallback>(ReferenceEqualityComparer.Instance);
 
-            OpenCallbacksKey = GetBuilder<IList<NavigationCallback>?>(nameof(OpenCallbacksKey))
-                .NotNull()
-                .Build();
+            OpenCallbacksKey = GetBuilder<IList<NavigationCallback>?>(nameof(OpenCallbacksKey)).Build();
             CloseCallbacksKey = GetBuilder<IList<NavigationCallback?>?>(nameof(CloseCallbacksKey))
-                .NotNull()
+                .SerializableConverter(SerializableConverter)
                 .Serializable(CanSerializeCloseCallbacks)
                 .Build();
         }
@@ -74,49 +76,142 @@ namespace MugenMvvm.Infrastructure.Presenters
             Should.NotBeNull(metadata, nameof(metadata));
             using (_presenters.SuspendNavigation())
             {
-                var result = ShowInternalAsync(metadata);
+                var result = ShowInternal(metadata);
                 if (result == null)
                     throw ExceptionManager.PresenterCannotShowRequest(metadata.Dump());
-
-                var viewModel = metadata.Get(NavigationMetadata.ViewModel, result.Metadata.Get(NavigationMetadata.ViewModel));
-                if (viewModel != null)
-                {
-                    var openCallback = CreateNavigationCallback(result.NavigationType, false);
-                    var closeCallback = CreateNavigationCallback(result.NavigationType, Application.IsSerializableCallbacksSupported() && result.IsRestorable);
-                }
-
-                return null;
+                return OnShownInternal(metadata, result);
             }
         }
 
         public IClosingViewModelPresenterResult TryClose(IReadOnlyMetadataContext metadata)
         {
-            throw new NotImplementedException();
+            Should.NotBeNull(metadata, nameof(metadata));
+            return TryCloseInternal(metadata) ?? ClosingViewModelPresenterResult.FalseResult;
         }
 
         public IRestorationViewModelPresenterResult TryRestore(IReadOnlyMetadataContext metadata)
         {
-            throw new NotImplementedException();
+            Should.NotBeNull(metadata, nameof(metadata));
+            return TryRestoreInternal(metadata) ?? RestorationViewModelPresenterResult.Unrestored;
+        }
+
+        public Task WaitOpenNavigationAsync(NavigationType? type, IReadOnlyMetadataContext metadata)
+        {
+            Should.NotBeNull(metadata, nameof(metadata));
+            return WaitOpenNavigationInternalAsync(type, metadata);
         }
 
         #endregion
 
         #region Methods
 
-        protected virtual IChildViewModelPresenterResult? ShowInternalAsync(IReadOnlyMetadataContext metadata)
+        protected virtual IChildViewModelPresenterResult? ShowInternal(IReadOnlyMetadataContext metadata)
         {
             var presenters = Presenters.ToArray();
             for (var i = 0; i < presenters.Length; i++)
             {
-                var operation = presenters[i].TryShowAsync(metadata, this);
+                var operation = presenters[i].TryShow(metadata, this);
                 if (operation != null)
                 {
-                    Trace("show", metadata, presenters[i]);
+                    Trace("show", metadata, presenters[i], operation);
                     return operation;
                 }
             }
 
             return null;
+        }
+
+        protected virtual IViewModelPresenterResult OnShownInternal(IReadOnlyMetadataContext metadata, IChildViewModelPresenterResult result)
+        {
+            var viewModel = metadata.Get(NavigationMetadata.ViewModel, result.Metadata.Get(NavigationMetadata.ViewModel));
+            if (viewModel == null)
+                throw ExceptionManager.PresenterInvalidRequest(metadata.Dump() + result.Metadata.Dump());
+
+            var openCallback = CreateNavigationCallback(result.NavigationType, false);
+            var closeCallback = CreateNavigationCallback(result.NavigationType, Application.IsSerializableCallbacksSupported() && result.IsRestorable);
+            AddCallback(viewModel, openCallback, OpenCallbacksKey);
+            AddCallback(viewModel, closeCallback, CloseCallbacksKey);
+
+            lock (_pendingOpenCallbacks)
+            {
+                _pendingOpenCallbacks.Add(openCallback);
+            }
+
+            return new ViewModelPresenterResult(result.Metadata, result.NavigationType, openCallback.TaskCompletionSource.Task, closeCallback.TaskCompletionSource.Task);
+        }
+
+        protected virtual IClosingViewModelPresenterResult? TryCloseInternal(IReadOnlyMetadataContext metadata)
+        {
+            var presenters = Presenters.ToArray();
+            for (var i = 0; i < presenters.Length; i++)
+            {
+                var operation = presenters[i].TryClose(metadata, this);
+                if (operation != null)
+                {
+                    Trace("close", metadata, presenters[i], operation);
+                    return operation;
+                }
+            }
+
+            var viewModel = metadata.Get(NavigationMetadata.ViewModel);
+
+            if (viewModel != null)
+            {
+                var closeHandler = viewModel.Metadata.Get(ViewModelMetadata.CloseHandler);
+                if (closeHandler != null)
+                    return new ClosingViewModelPresenterResult(metadata, closeHandler(NavigationDispatcher, viewModel, metadata));
+
+                //todo fix wrapperviewmodel
+                //                var wrapperViewModel = viewModel.Settings.Metadata.GetData(ViewModelConstants.WrapperViewModel);
+                //                if (wrapperViewModel != null)
+                //                {
+                //                    var ctx = new MetadataContext(metadata);
+                //                    ctx.Set(NavigationMetadata.ViewModel, wrapperViewModel);
+                //                    return TryCloseInternal(metadata);
+                //                }
+            }
+
+            return null;
+        }
+
+        protected virtual IRestorationViewModelPresenterResult? TryRestoreInternal(IReadOnlyMetadataContext metadata)
+        {
+            var presenters = Presenters.ToArray();
+            for (var i = 0; i < presenters.Length; i++)
+            {
+                if (presenters[i] is IRestorableChildViewModelPresenter presenter)
+                {
+                    var result = presenter.TryRestore(metadata, this);
+                    if (result != null)
+                    {
+                        Trace("restore", metadata, presenter, result);
+                        return result;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        protected virtual Task WaitOpenNavigationInternalAsync(NavigationType? type, IReadOnlyMetadataContext metadata)
+        {
+            List<Task> tasks = null;
+            lock (_pendingOpenCallbacks)
+            {
+                foreach (var pendingOpenCallback in _pendingOpenCallbacks)
+                {
+                    if (type == null || pendingOpenCallback.NavigationType == type)
+                    {
+                        if (tasks == null)
+                            tasks = new List<Task>();
+                        tasks.Add(pendingOpenCallback.TaskCompletionSource.Task);
+                    }
+                }
+            }
+
+            if (tasks == null)
+                return Default.CompletedTask;
+            return Task.WhenAll(tasks);
         }
 
         protected virtual void OnChildPresenterAdded(IChildViewModelPresenter presenter)
@@ -131,10 +226,11 @@ namespace MugenMvvm.Infrastructure.Presenters
         {
             if (context.NavigationMode.IsClose() && context.ViewModelFrom != null)
             {
+                InvokeCallbacks(context.ViewModelFrom, OpenCallbacksKey, context.NavigationType, null, false);
+                InvokeCallbacks(context.ViewModelFrom, CloseCallbacksKey, context.NavigationType, null, false);
             }
             else if (context.ViewModelTo != null)
-            {
-            }
+                InvokeCallbacks(context.ViewModelTo, OpenCallbacksKey, context.NavigationType, null, false);
         }
 
         protected virtual void OnNavigationFailed(INavigationContext context, Exception exception)
@@ -158,10 +254,10 @@ namespace MugenMvvm.Infrastructure.Presenters
             return new NavigationCallback(new TaskCompletionSource<object>(), type, serializable);
         }
 
-        private void Trace(string requestName, IReadOnlyMetadataContext metadata, IChildViewModelPresenter presenter)
+        private void Trace(string requestName, IReadOnlyMetadataContext metadata, IChildViewModelPresenter presenter, IHasMetadata<IReadOnlyMetadataContext> hasMetadata)
         {
             if (Tracer.CanTrace(TraceLevel.Information))
-                Tracer.Info(MessageConstants.TraceViewModelPresenterFormat3, requestName, metadata.Dump(), presenter.GetType().FullName);
+                Tracer.Info(MessageConstants.TraceViewModelPresenterFormat3, requestName, metadata.Dump() + hasMetadata.Metadata.Dump(), presenter.GetType().FullName);
         }
 
         private static MetadataContextKey.Builder<T> GetBuilder<T>(string name) where T : class
@@ -169,10 +265,69 @@ namespace MugenMvvm.Infrastructure.Presenters
             return MetadataContextKey.Create<T>(typeof(ViewModelPresenter), name).NotNull();
         }
 
+        private static object SerializableConverter(IMetadataContextKey<IList<NavigationCallback?>?> arg1, object? value, ISerializationContext arg3)
+        {
+            var callbacks = (IList<NavigationCallback>)value;
+            if (callbacks == null)
+                return null;
+            lock (callbacks)
+            {
+                return callbacks.Where(callback => callback.Serializable && !callback.TaskCompletionSource.Task.IsCompleted).ToList();
+            }
+        }
+
         private static bool CanSerializeCloseCallbacks(IMetadataContextKey<IList<NavigationCallback>> key, object? value, ISerializationContext context)
         {
             var callbacks = (IList<NavigationCallback>)value;
             return callbacks != null && callbacks.Any(callback => callback != null && callback.Serializable);
+        }
+
+        private static void AddCallback(IViewModel viewModel, NavigationCallback callback, IMetadataContextKey<IList<NavigationCallback>?> key)
+        {
+            var callbacks = viewModel.Metadata.GetOrAdd(key, (object)null, (object)null, (context, o, arg3) => new List<NavigationCallback>());
+            lock (callback)
+            {
+                callbacks.Add(callback);
+            }
+        }
+
+        private void InvokeCallbacks(IViewModel viewModel, IMetadataContextKey<IList<NavigationCallback>?> key, NavigationType navigationType, Exception exception, bool canceled)
+        {
+            var callbacks = viewModel.Metadata.Get(key);
+            if (callbacks == null)
+                return;
+            List<NavigationCallback> toInvoke = null;
+            lock (callbacks)
+            {
+                for (var i = 0; i < callbacks.Count; i++)
+                {
+                    var callback = callbacks[i];
+                    if (callback == null || callback.NavigationType == navigationType)
+                    {
+                        if (callback != null)
+                        {
+                            if (toInvoke == null)
+                                toInvoke = new List<NavigationCallback>();
+                            toInvoke.Add(callback);
+                        }
+
+                        callbacks.RemoveAt(i);
+                        --i;
+                    }
+                }
+            }
+
+            if (toInvoke == null)
+                return;
+            for (var i = 0; i < toInvoke.Count; i++)
+            {
+                var callback = toInvoke[i];
+                callback.SetResult(exception, canceled);
+                lock (_pendingOpenCallbacks)
+                {
+                    _pendingOpenCallbacks.Remove(callback);
+                }
+            }
         }
 
         #endregion
@@ -182,7 +337,7 @@ namespace MugenMvvm.Infrastructure.Presenters
         [Serializable]
         [DataContract(Namespace = BuildConstants.DataContractNamespace)]
         [Preserve(Conditional = true, AllMembers = true)]
-        public sealed class NavigationCallback : IHasMemento, IMemento
+        public sealed class NavigationCallback
         {
             #region Fields
 
@@ -212,29 +367,16 @@ namespace MugenMvvm.Infrastructure.Presenters
 
             #endregion
 
-            #region Properties
+            #region Methods
 
-            [IgnoreDataMember]
-            public Type TargetType => typeof(NavigationCallback);
-
-            #endregion
-
-            #region Implementation of interfaces
-
-            public IMemento? GetMemento()
+            public void SetResult(Exception exception, bool canceled)
             {
-                if (Serializable)
-                    return this;
-                return null;
-            }
-
-            void IMemento.Preserve(ISerializationContext serializationContext)
-            {
-            }
-
-            IMementoResult IMemento.Restore(ISerializationContext serializationContext)
-            {
-                return new MementoResult(this, serializationContext);
+                if (exception != null)
+                    TaskCompletionSource.TrySetExceptionEx(exception);
+                else if (canceled)
+                    TaskCompletionSource.TrySetCanceled();
+                else
+                    TaskCompletionSource.TrySetResult(null);
             }
 
             #endregion
@@ -359,6 +501,7 @@ namespace MugenMvvm.Infrastructure.Presenters
                         return;
                     }
                 }
+
                 _presenter.OnNavigated(context);
             }
 
@@ -372,6 +515,7 @@ namespace MugenMvvm.Infrastructure.Presenters
                         return;
                     }
                 }
+
                 _presenter.OnNavigationFailed(context, exception);
             }
 
@@ -385,6 +529,7 @@ namespace MugenMvvm.Infrastructure.Presenters
                         return;
                     }
                 }
+
                 _presenter.OnNavigationCanceled(context);
             }
 

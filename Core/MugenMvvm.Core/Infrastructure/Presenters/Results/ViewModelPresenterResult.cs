@@ -7,6 +7,18 @@ namespace MugenMvvm.Infrastructure.Presenters.Results
 {
     public class ViewModelPresenterResult : IViewModelPresenterResult
     {
+        #region Constructors
+
+        public ViewModelPresenterResult(IReadOnlyMetadataContext metadata, NavigationType navigationType, Task openNavigationTask, Task closeNavigationTask)
+        {
+            Metadata = metadata;
+            NavigationType = navigationType;
+            OpenNavigationTask = openNavigationTask;
+            CloseNavigationTask = closeNavigationTask;
+        }
+
+        #endregion
+
         #region Properties
 
         public IReadOnlyMetadataContext Metadata { get; }

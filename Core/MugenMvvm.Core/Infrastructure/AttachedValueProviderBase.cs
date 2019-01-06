@@ -12,7 +12,7 @@ namespace MugenMvvm.Infrastructure
     {
         #region Implementation of interfaces
 
-        public virtual TValue AddOrUpdate<TItem, TValue, TState1, TState2>(TItem item, string path, TValue addValue, UpdateValueDelegate<TItem, TValue, TValue, TState1, TState2> updateValueFactory, TState1 state1, TState2 state2)
+        public virtual TValue AddOrUpdate<TItem, TValue, TState1, TState2>(TItem item, string path, TValue addValue, TState1 state1, TState2 state2, UpdateValueDelegate<TItem, TValue, TValue, TState1, TState2> updateValueFactory)
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
@@ -32,7 +32,7 @@ namespace MugenMvvm.Infrastructure
             }
         }
 
-        public virtual TValue AddOrUpdate<TItem, TValue, TState1, TState2>(TItem item, string path, Func<TItem, TState1, TState2, TValue> addValueFactory, UpdateValueDelegate<TItem, Func<TItem, TState1, TState2, TValue>, TValue, TState1, TState2> updateValueFactory, TState1 state1, TState2 state2)
+        public virtual TValue AddOrUpdate<TItem, TValue, TState1, TState2>(TItem item, string path, TState1 state1, TState2 state2, Func<TItem, TState1, TState2, TValue> addValueFactory, UpdateValueDelegate<TItem, Func<TItem, TState1, TState2, TValue>, TValue, TState1, TState2> updateValueFactory)
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
@@ -54,7 +54,21 @@ namespace MugenMvvm.Infrastructure
             }
         }
 
-        public virtual TValue GetOrAdd<TItem, TValue, TState1, TState2>(TItem item, string path, Func<TItem, TState1, TState2, TValue> valueFactory, TState1 state1, TState2 state2)
+        public virtual TValue GetOrAdd<TValue>(object item, string path, TValue value)
+        {
+            Should.NotBeNull(item, nameof(item));
+            Should.NotBeNull(path, nameof(path));
+            var dictionary = GetOrAddAttachedDictionary(item, true);
+            lock (dictionary)
+            {
+                if (dictionary.TryGetValue(path, out var oldValue))
+                    return (TValue)oldValue;
+                dictionary.Add(path, value);
+                return value;
+            }
+        }
+
+        public virtual TValue GetOrAdd<TItem, TValue, TState1, TState2>(TItem item, string path, TState1 state1, TState2 state2, Func<TItem, TState1, TState2, TValue> valueFactory)
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
@@ -67,20 +81,6 @@ namespace MugenMvvm.Infrastructure
                 oldValue = valueFactory(item, state1, state2);
                 dictionary.Add(path, oldValue);
                 return (TValue)oldValue;
-            }
-        }
-
-        public virtual TValue GetOrAdd<TValue>(object item, string path, TValue value)
-        {
-            Should.NotBeNull(item, nameof(item));
-            Should.NotBeNull(path, nameof(path));
-            var dictionary = GetOrAddAttachedDictionary(item, true);
-            lock (dictionary)
-            {
-                if (dictionary.TryGetValue(path, out var oldValue))
-                    return (TValue)oldValue;
-                dictionary.Add(path, value);
-                return value;
             }
         }
 

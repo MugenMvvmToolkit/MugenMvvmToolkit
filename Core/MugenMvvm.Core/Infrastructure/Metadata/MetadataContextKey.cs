@@ -1,12 +1,7 @@
 ﻿using System;
-using System.Reflection;
-using System.Runtime.Serialization;
-using MugenMvvm.Attributes;
 using MugenMvvm.Infrastructure.Internal;
-using MugenMvvm.Infrastructure.Serialization;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Serialization;
-using MugenMvvm.Models;
 
 namespace MugenMvvm.Infrastructure.Metadata
 {
@@ -39,7 +34,9 @@ namespace MugenMvvm.Infrastructure.Metadata
 
         #region Implementation of interfaces
 
-        public abstract bool CanSerialize(object? item, ISerializationContext context);
+        public abstract object? ToSerializableValue(object? item, ISerializationContext context);
+
+        public abstract bool CanSerializeValue(object? item, ISerializationContext context);
 
         public virtual IMemento? GetMemento()
         {
@@ -107,6 +104,7 @@ namespace MugenMvvm.Infrastructure.Metadata
             private Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, object?, T>? _getValueFunc;
             private Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, object?, T, object?>? _setValueFunc;
             private Func<IMetadataContextKey<T>, object?, ISerializationContext, bool>? _canSerializeFunc;
+            private Func<IMetadataContextKey<T>, object?, ISerializationContext, object?> _serializableConverter;
 
             #endregion
 
@@ -122,6 +120,7 @@ namespace MugenMvvm.Infrastructure.Metadata
                 _getValueFunc = null;
                 _setValueFunc = null;
                 _canSerializeFunc = null;
+                _serializableConverter = null;
             }
 
             #endregion
@@ -145,6 +144,14 @@ namespace MugenMvvm.Infrastructure.Metadata
                 Should.NotBeNull(canSerialize, nameof(canSerialize));
                 Should.BeValid(nameof(canSerialize), _canSerializeFunc == null);
                 _canSerializeFunc = canSerialize;
+                return this;
+            }
+
+            public Builder<T> SerializableConverter(Func<IMetadataContextKey<T>, object?, ISerializationContext, object?> serializableConverter)
+            {
+                Should.NotBeNull(serializableConverter, nameof(serializableConverter));
+                Should.BeValid(nameof(serializableConverter), _serializableConverter == null);
+                _serializableConverter = serializableConverter;
                 return this;
             }
 
@@ -185,7 +192,8 @@ namespace MugenMvvm.Infrastructure.Metadata
                     ValidateAction = _validateAction,
                     GetValueFunc = _getValueFunc,
                     GetDefaultValueFunc = _getDefaultValueFunc,
-                    CanSerializeFunc = _canSerializeFunc
+                    CanSerializeFunc = _canSerializeFunc,
+                    SerializableConverterFunc = _serializableConverter
                 };
             }
 
@@ -197,6 +205,8 @@ namespace MugenMvvm.Infrastructure.Metadata
             #region Fields
 
             public Func<IMetadataContextKey<T>, object?, ISerializationContext, bool>? CanSerializeFunc;
+
+            public Func<IMetadataContextKey<T>, object?, ISerializationContext, object?>? SerializableConverterFunc;
 
             public Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, T, T>? GetDefaultValueFunc;
 
@@ -234,11 +244,18 @@ namespace MugenMvvm.Infrastructure.Metadata
                 return GetDefaultValueFunc(metadataContext, this, defaultValue);
             }
 
-            public override bool CanSerialize(object? item, ISerializationContext context)
+            public override bool CanSerializeValue(object? item, ISerializationContext context)
             {
                 if (CanSerializeFunc == null)
                     return false;
                 return CanSerializeFunc(this, item, context);
+            }
+
+            public override object? ToSerializableValue(object? item, ISerializationContext context)
+            {
+                if (SerializableConverterFunc == null)
+                    return item;
+                return SerializableConverterFunc(this, item, context);
             }
 
             public T GetValue(IReadOnlyMetadataContext metadataContext, object? value)

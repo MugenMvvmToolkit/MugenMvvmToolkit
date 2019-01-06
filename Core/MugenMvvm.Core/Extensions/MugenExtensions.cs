@@ -183,6 +183,20 @@ namespace MugenMvvm
 
         #region Metadata
 
+        public static void AddHandler<T>(this IMetadataContext metadata, IMetadataContextKey<T> key, T handler)
+            where T : Delegate
+        {
+            Should.NotBeNull(metadata, nameof(metadata));
+            metadata.AddOrUpdate(key, handler, (object)null, (object)null, (item, value, currentValue, state1, state2) => (T)Delegate.Combine(currentValue, value));
+        }
+
+        public static void RemoveHandler<T>(this IMetadataContext metadata, IMetadataContextKey<T> key, T handler)
+            where T : Delegate
+        {
+            Should.NotBeNull(metadata, nameof(metadata));
+            metadata.AddOrUpdate(key, handler, (object)null, (object)null, (item, value, currentValue, state1, state2) => (T)Delegate.Remove(currentValue, value));
+        }
+
         public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IMetadataContextKey<T> key, T defaultValue = default)
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));

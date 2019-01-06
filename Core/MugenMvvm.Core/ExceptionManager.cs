@@ -61,6 +61,11 @@ namespace MugenMvvm
             return new ArgumentException(MessageConstants.PresenterCannotShowRequestFormat1.Format(request));
         }
 
+        internal static Exception PresenterInvalidRequest(string request)
+        {
+            return new ArgumentException(MessageConstants.PresenterCannotHandleRequestFormat1.Format(request));
+        }
+
         #endregion
     }
 }

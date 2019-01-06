@@ -7,8 +7,8 @@ namespace MugenMvvm.Interfaces.Presenters
     {
         int Priority { get; }
 
-        IChildViewModelPresenterResult? TryShowAsync(IReadOnlyMetadataContext metadata, IViewModelPresenter parentPresenter);
+        IChildViewModelPresenterResult? TryShow(IReadOnlyMetadataContext metadata, IViewModelPresenter parentPresenter);
 
-        IClosingViewModelPresenterResult? TryCloseAsync(IReadOnlyMetadataContext metadata, IViewModelPresenter parentPresenter);
+        IClosingViewModelPresenterResult? TryClose(IReadOnlyMetadataContext metadata, IViewModelPresenter parentPresenter);
     }
 }
