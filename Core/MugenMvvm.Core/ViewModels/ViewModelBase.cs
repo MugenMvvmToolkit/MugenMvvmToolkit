@@ -271,13 +271,13 @@ namespace MugenMvvm.ViewModels
             private IViewModel? _viewModel;
 
             [DataMember(Name = "B")]
-            internal IList<IBusyIndicatorProviderListener>? BusyListeners;
+            internal IList<IBusyIndicatorProviderListener?> BusyListeners;
 
             [DataMember(Name = "C")]
             protected internal IObservableMetadataContext Metadata;
 
             [DataMember(Name = "S")]
-            internal IList<MessengerSubscriberInfo>? Subscribers;
+            internal IList<MessengerSubscriberInfo> Subscribers;
 
             [DataMember(Name = "T")]
             internal Type? ViewModelType;
@@ -353,19 +353,19 @@ namespace MugenMvvm.ViewModels
                 Should.NotBeNull(Metadata, nameof(Metadata));
                 Should.NotBeNull(ViewModelType, nameof(ViewModelType));
                 if (_viewModel != null)
-                    return new MementoResult(_viewModel, serializationContext.Metadata);
+                    return new MementoResult(_viewModel, serializationContext);
 
                 var dispatcher = Singleton<IViewModelDispatcher>.Instance;
                 lock (RestorationLocker)
                 {
                     if (_viewModel != null)
-                        return new MementoResult(_viewModel, serializationContext.Metadata);
+                        return new MementoResult(_viewModel, serializationContext);
 
                     if (!serializationContext.Metadata.Get(SerializationMetadata.NoCache) && Metadata.TryGet(ViewModelMetadata.Id, out var id))
                     {
                         _viewModel = dispatcher.GetViewModelById(id, serializationContext.Metadata);
                         if (_viewModel != null)
-                            return new MementoResult(_viewModel, serializationContext.Metadata);
+                            return new MementoResult(_viewModel, serializationContext);
                     }
 
                     _viewModel = RestoreInternal(serializationContext);
@@ -373,7 +373,7 @@ namespace MugenMvvm.ViewModels
                     RestoreInternal(_viewModel);
                     OnRestoringInternal(_viewModel, serializationContext);
                     dispatcher.OnLifecycleChanged(_viewModel, ViewModelLifecycleState.Restored, serializationContext.Metadata);
-                    return new MementoResult(_viewModel, serializationContext.Metadata);
+                    return new MementoResult(_viewModel, serializationContext);
                 }
             }
 

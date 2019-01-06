@@ -1,14 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
+using MugenMvvm.Attributes;
 
 namespace MugenMvvm.Collections
 {
+    [Serializable]
+    [DataContract(Namespace = BuildConstants.DataContractNamespace)]
+    [Preserve(Conditional = true, AllMembers = true)]
     public class LightArrayList<T>
     {
         #region Fields
 
+        [DataMember(Name = "I")]
         private T[] _items;
+
+        [DataMember(Name = "S")]
         private int _size;
+
         private const int DefaultCapacity = 4;
 
         #endregion
@@ -53,9 +62,10 @@ namespace MugenMvvm.Collections
 
         #region Properties
 
+        [IgnoreDataMember]
         private uint Capacity
         {
-            get => (uint) _items.Length;
+            get => (uint)_items.Length;
             set
             {
                 if (value < _size)
@@ -125,7 +135,7 @@ namespace MugenMvvm.Collections
         public void Add(T item)
         {
             if (_size == _items.Length)
-                EnsureCapacity((uint) _size + 1);
+                EnsureCapacity((uint)_size + 1);
             _items[_size++] = item;
         }
 
@@ -206,7 +216,7 @@ namespace MugenMvvm.Collections
         {
             if (_items.Length >= min)
                 return;
-            var num = (uint) (_items.Length == 0 ? DefaultCapacity : _items.Length * 2);
+            var num = (uint)(_items.Length == 0 ? DefaultCapacity : _items.Length * 2);
             if (num < min)
                 num = min;
             Capacity = num;

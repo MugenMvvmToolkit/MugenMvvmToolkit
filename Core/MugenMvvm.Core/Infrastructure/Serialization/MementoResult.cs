@@ -1,4 +1,5 @@
 ﻿using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Serialization;
 
 namespace MugenMvvm.Infrastructure.Serialization
@@ -21,6 +22,11 @@ namespace MugenMvvm.Infrastructure.Serialization
         private MementoResult()
         {
             Metadata = Default.MetadataContext;
+        }
+
+        public MementoResult(object target, IHasMetadata<IReadOnlyMetadataContext>? hasMetadata = null)
+            : this(target, hasMetadata?.Metadata)
+        {
         }
 
         public MementoResult(object target, IReadOnlyMetadataContext? metadata = null)

@@ -24,7 +24,7 @@ namespace MugenMvvm
         public static void NotBeNullOrEmpty([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] string? argumentValue, [InvokerParameterName] string paramName)
         {
             if (string.IsNullOrEmpty(argumentValue))
-                throw new ArgumentException(MessageConstants.ArgumentCannotBeNull.Format(paramName));
+                throw new ArgumentException(MessageConstants.ArgumentCannotBeNull.Format(paramName), paramName);
         }
 
         public static void BeSupported([AssertionCondition(AssertionConditionType.IS_TRUE)]
@@ -63,6 +63,12 @@ namespace MugenMvvm
             NotBeNull(requiredType, nameof(requiredType));
             if (!requiredType.IsAssignableFromUnified(type))
                 throw new ArgumentException(MessageConstants.ArgumentShouldBeOfType.Format(type.Name, requiredType.Name), paramName);
+        }
+
+        [DebuggerStepThrough, AssertionMethod]
+        public static void MethodBeSupported([AssertionCondition(AssertionConditionType.IS_TRUE)]bool isSupported, string methodName)
+        {
+            BeSupported(isSupported, MessageConstants.ShouldMethodBeSupportedFormat1.Format(methodName));
         }
 
         #endregion

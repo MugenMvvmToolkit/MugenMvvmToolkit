@@ -6,12 +6,14 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
+using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Infrastructure.Serialization;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Serialization;
+using MugenMvvm.Models;
 using MugenMvvm.ViewModels;
 
 namespace MugenMvvm
@@ -56,7 +58,7 @@ namespace MugenMvvm
             MetadataContext = new EmptyContext();
             SerializableNullValue = new NullValue();
             WeakReference = new WeakReference(null, false);
-            Disposable = (IDisposable) MetadataContext;
+            Disposable = (IDisposable)MetadataContext;
             TrueTask = Task.FromResult(true);
             FalseTask = Task.FromResult(false);
             CompletedTask = FalseTask;
@@ -170,7 +172,7 @@ namespace MugenMvvm
             public IMemento? GetMemento()
             {
                 if (_emptyMemento == null)
-                    _emptyMemento = new EmptyContextMemento();
+                    _emptyMemento = StaticMemberMemento.Create(this, typeof(Default), nameof(MetadataContext));
                 return _emptyMemento;
             }
 
@@ -183,32 +185,6 @@ namespace MugenMvvm
             public bool Contains(IMetadataContextKey contextKey)
             {
                 return false;
-            }
-
-            #endregion
-        }
-
-        [Serializable]
-        [DataContract(Namespace = BuildConstants.DataContractNamespace)]
-        [Preserve(Conditional = true, AllMembers = true)]
-        private sealed class EmptyContextMemento : IMemento
-        {
-            #region Properties
-
-            [IgnoreDataMember]
-            public Type TargetType => typeof(EmptyContext);
-
-            #endregion
-
-            #region Implementation of interfaces
-
-            public void Preserve(ISerializationContext serializationContext)
-            {
-            }
-
-            public IMementoResult Restore(ISerializationContext serializationContext)
-            {
-                return new MementoResult(MetadataContext, serializationContext.Metadata);
             }
 
             #endregion

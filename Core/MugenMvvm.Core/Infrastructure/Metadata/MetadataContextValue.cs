@@ -33,8 +33,7 @@ namespace MugenMvvm.Infrastructure.Metadata
         public static MetadataContextValue Create<T>(IMetadataContextKey<T> contextKey, T value)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
-            contextKey.Validate(value);
-            return new MetadataContextValue(contextKey, value);
+            return new MetadataContextValue(contextKey, contextKey.SetValue(Default.MetadataContext, null, value));
         }
 
         #endregion

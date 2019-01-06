@@ -56,15 +56,15 @@ namespace MugenMvvm.Infrastructure
             return GetMethodDelegateInternal(delegateType, method);
         }
 
+        #endregion
+
+        #region Methods
+
         public Func<object, TType> GetMemberGetter<TType>(MemberInfo member)
         {
             Should.NotBeNull(member, nameof(member));
             return GetMemberGetterInternal<TType>(member);
         }
-
-        #endregion
-
-        #region Methods
 
         protected virtual Func<object?, TType> GetMemberGetterInternal<TType>(MemberInfo member)
         {
@@ -89,7 +89,7 @@ namespace MugenMvvm.Infrastructure
                     MemberGetterCache[key] = value;
                 }
 
-                return (Func<object?, TType>)value;
+                return (Func<object?, TType>) value;
             }
         }
 
@@ -257,7 +257,7 @@ namespace MugenMvvm.Infrastructure
 
             #endregion
 
-            #region Implementation of IEqualityComparer<in MemberInfoDelegateCacheKey>
+            #region Implementation of interfaces
 
             bool IEqualityComparer<MemberInfoDelegateCacheKey>.Equals(MemberInfoDelegateCacheKey x, MemberInfoDelegateCacheKey y)
             {
@@ -271,10 +271,6 @@ namespace MugenMvvm.Infrastructure
                     return obj.DelegateType.GetHashCode() * 397 ^ obj.Member.GetHashCode();
                 }
             }
-
-            #endregion
-
-            #region Implementation of IEqualityComparer<in MethodDelegateCacheKey>
 
             bool IEqualityComparer<MethodDelegateCacheKey>.Equals(MethodDelegateCacheKey x, MethodDelegateCacheKey y)
             {

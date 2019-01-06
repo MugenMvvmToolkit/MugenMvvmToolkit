@@ -133,7 +133,8 @@ namespace MugenMvvm.Infrastructure.Messaging
                 return vm.Subscriber;
             }
 
-            return Singleton<IAttachedValueProvider>.Instance.GetOrAdd(viewModel, AttachedMemberConstants.ViewModelMessengerSubscriberKey, (model, o) => new ViewModelMessengerSubscriber(model), null);
+            return Singleton<IAttachedValueProvider>.Instance.GetOrAdd(viewModel, AttachedMemberConstants.ViewModelMessengerSubscriberKey,
+                (model, s1, s2) => new ViewModelMessengerSubscriber(model), (object) null, (object) null);
         }
 
         public override bool Equals(object obj)
@@ -197,7 +198,7 @@ namespace MugenMvvm.Infrastructure.Messaging
             public IMementoResult Restore(ISerializationContext serializationContext)
             {
                 Should.NotBeNull(ViewModel, nameof(ViewModel));
-                return new MementoResult(GetSubscriber(ViewModel), serializationContext.Metadata);
+                return new MementoResult(GetSubscriber(ViewModel), serializationContext);
             }
 
             #endregion

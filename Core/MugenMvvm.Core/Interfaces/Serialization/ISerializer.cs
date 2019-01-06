@@ -7,10 +7,11 @@ namespace MugenMvvm.Interfaces.Serialization
 {
     public interface ISerializer
     {
+        [Pure]
         ISerializationContext GetContext(IServiceProvider? serviceProvider, IMetadataContext? metadata);
 
         [Pure]
-        bool CanSerialize(Type type);
+        bool CanSerialize(Type type, IReadOnlyMetadataContext metadata);
 
         Stream Serialize(object item, ISerializationContext? context);
 

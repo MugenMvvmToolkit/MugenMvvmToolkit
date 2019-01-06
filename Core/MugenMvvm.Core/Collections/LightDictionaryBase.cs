@@ -17,19 +17,27 @@ namespace MugenMvvm.Collections
     {
         #region Fields
 
-        [IgnoreDataMember] [NonSerialized] [XmlIgnore]
+        [IgnoreDataMember]
+        [NonSerialized]
+        [XmlIgnore]
         private int[] _buckets;
 
-        [IgnoreDataMember] [XmlIgnore] 
+        [IgnoreDataMember]
+        [XmlIgnore]
         private int _count;
 
-        [IgnoreDataMember] [XmlIgnore] 
+        [IgnoreDataMember]
+        [XmlIgnore]
         private Entry[] _entries;
 
-        [IgnoreDataMember] [NonSerialized] [XmlIgnore]
+        [IgnoreDataMember]
+        [NonSerialized]
+        [XmlIgnore]
         private int _freeCount;
 
-        [IgnoreDataMember] [NonSerialized] [XmlIgnore]
+        [IgnoreDataMember]
+        [NonSerialized]
+        [XmlIgnore]
         private int _freeList;
 
         #endregion
@@ -385,11 +393,15 @@ namespace MugenMvvm.Collections
 
             #endregion
 
-            #region Implementation of IEnumerator<KeyValuePair<TKey, TValue>>
+            #region Properties
 
             public KeyValuePair<TKey, TValue> Current { get; private set; }
 
             object IEnumerator.Current => Current;
+
+            #endregion
+
+            #region Implementation of interfaces
 
             public bool MoveNext()
             {

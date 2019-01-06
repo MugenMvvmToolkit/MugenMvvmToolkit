@@ -12,8 +12,7 @@ namespace MugenMvvm.Infrastructure
     {
         #region Implementation of interfaces
 
-        public virtual TValue AddOrUpdate<TItem, TValue>(TItem item, string path, TValue addValue,
-            UpdateValueDelegate<TItem, TValue, TValue, object?> updateValueFactory, object? state = null)
+        public virtual TValue AddOrUpdate<TItem, TValue, TState1, TState2>(TItem item, string path, TValue addValue, UpdateValueDelegate<TItem, TValue, TValue, TState1, TState2> updateValueFactory, TState1 state1, TState2 state2)
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
@@ -23,9 +22,9 @@ namespace MugenMvvm.Infrastructure
             {
                 if (dictionary.TryGetValue(path, out var value))
                 {
-                    value = updateValueFactory(item, addValue, (TValue) value, state);
+                    value = updateValueFactory(item, addValue, (TValue)value, state1, state2);
                     dictionary[path] = value;
-                    return (TValue) value;
+                    return (TValue)value;
                 }
 
                 dictionary.Add(path, addValue);
@@ -33,10 +32,7 @@ namespace MugenMvvm.Infrastructure
             }
         }
 
-        public virtual TValue AddOrUpdate<TItem, TValue>(TItem item, string path,
-            Func<TItem, object, TValue> addValueFactory,
-            UpdateValueDelegate<TItem, Func<TItem, object?, TValue>, TValue, object> updateValueFactory,
-            object? state = null)
+        public virtual TValue AddOrUpdate<TItem, TValue, TState1, TState2>(TItem item, string path, Func<TItem, TState1, TState2, TValue> addValueFactory, UpdateValueDelegate<TItem, Func<TItem, TState1, TState2, TValue>, TValue, TState1, TState2> updateValueFactory, TState1 state1, TState2 state2)
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
@@ -47,18 +43,18 @@ namespace MugenMvvm.Infrastructure
             {
                 if (dictionary.TryGetValue(path, out var value))
                 {
-                    value = updateValueFactory(item, addValueFactory, (TValue) value, state);
+                    value = updateValueFactory(item, addValueFactory, (TValue)value, state1, state2);
                     dictionary[path] = value;
-                    return (TValue) value;
+                    return (TValue)value;
                 }
 
-                value = addValueFactory(item, state);
+                value = addValueFactory(item, state1, state2);
                 dictionary.Add(path, value);
-                return (TValue) value;
+                return (TValue)value;
             }
         }
 
-        public virtual TValue GetOrAdd<TItem, TValue>(TItem item, string path, Func<TItem, object?, TValue> valueFactory, object? state = null)
+        public virtual TValue GetOrAdd<TItem, TValue, TState1, TState2>(TItem item, string path, Func<TItem, TState1, TState2, TValue> valueFactory, TState1 state1, TState2 state2)
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
@@ -67,10 +63,10 @@ namespace MugenMvvm.Infrastructure
             lock (dictionary)
             {
                 if (dictionary.TryGetValue(path, out var oldValue))
-                    return (TValue) oldValue;
-                oldValue = valueFactory(item, state);
+                    return (TValue)oldValue;
+                oldValue = valueFactory(item, state1, state2);
                 dictionary.Add(path, oldValue);
-                return (TValue) oldValue;
+                return (TValue)oldValue;
             }
         }
 
@@ -82,7 +78,7 @@ namespace MugenMvvm.Infrastructure
             lock (dictionary)
             {
                 if (dictionary.TryGetValue(path, out var oldValue))
-                    return (TValue) oldValue;
+                    return (TValue)oldValue;
                 dictionary.Add(path, value);
                 return value;
             }
@@ -103,7 +99,7 @@ namespace MugenMvvm.Infrastructure
             {
                 if (dictionary.TryGetValue(path, out var result))
                 {
-                    value = (TValue) result;
+                    value = (TValue)result;
                     return true;
                 }
 

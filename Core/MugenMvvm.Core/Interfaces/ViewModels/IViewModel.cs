@@ -6,11 +6,9 @@ using MugenMvvm.Models;
 
 namespace MugenMvvm.Interfaces.ViewModels
 {
-    public interface IViewModel : INotifyPropertyChangedEx, IDisposableObject<IViewModel>, IHasMemento
+    public interface IViewModel : INotifyPropertyChangedEx, IDisposableObject<IViewModel>, IHasMemento, IHasMetadata<IObservableMetadataContext>
     {
         IBusyIndicatorProvider BusyIndicatorProvider { get; }
-
-        IObservableMetadataContext Metadata { get; }
 
 
         void Publish(object message, IMessengerContext? messengerContext = null);

@@ -1,14 +1,13 @@
 ﻿using System;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Serialization
 {
-    public interface ISerializationContext
+    public interface ISerializationContext : IHasMetadata<IMetadataContext>
     {
         IServiceProvider ServiceProvider { get; }
 
         ISerializer Serializer { get; }
-
-        IMetadataContext Metadata { get; }
     }
 }

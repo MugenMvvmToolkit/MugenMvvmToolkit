@@ -308,7 +308,7 @@ namespace MugenMvvm.Infrastructure.Views
                 }
                 catch (Exception e)
                 {
-                    TrySetException(e);
+                    this.TrySetExceptionEx(e);
                 }
             }
 

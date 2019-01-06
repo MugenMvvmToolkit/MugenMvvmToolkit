@@ -1,18 +1,17 @@
 ﻿using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Models;
 
 namespace MugenMvvm.Interfaces.Navigation
 {
-    public interface INavigationContext
+    public interface INavigationContext : IHasMetadata<IMetadataContext>
     {
-        IMetadataContext Metadata { get; }
-
         NavigationMode NavigationMode { get; }
 
         NavigationType NavigationType { get; }
 
-        object? Provider { get; }
+        object? NavigationProvider { get; }
 
         IViewModel? ViewModelFrom { get; }
 

@@ -2,11 +2,9 @@
 {
     public interface IMetadataContextKey<T> : IMetadataContextKey
     {
-        void Validate(T item);
+        T GetValue(IReadOnlyMetadataContext metadataContext, object? value);
 
-         T GetValue(IReadOnlyMetadataContext metadataContext, object? value);
-
-        object? SetValue(IReadOnlyMetadataContext metadataContext, T value);
+        object? SetValue(IReadOnlyMetadataContext metadataContext, object? oldValue, T newValue);
 
         T GetDefaultValue(IReadOnlyMetadataContext metadataContext, T defaultValue);
     }

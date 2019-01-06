@@ -20,7 +20,13 @@
         public const string WrapperTypeNotSupportedFormat1 = "There are no wrapper type for type '{0}'.";
         public const string ViewCreatedFormat2 = "The view {0} for the view-model {1} was created.";
         public const string DuplicateInterfaceFormat3 = "The '{0}' can implement an interface '{1}' only once. The '{0}' with type '{2}', implement it more that once.";
-        public const string TraceViewModelLifecycleFormat3 = "{0} ({1}) - {2};";
+        public const string TraceViewModelLifecycleFormat3 = "{0} ({1}) - {2}";
+        public const string TraceNavigationFormat5 = "{0}({1}) from '{2}' to '{3}', type '{4}";
+        public const string IntOutOfRangeCollection = "Index must be within the bounds of the collection.";
+        public const string ShouldMethodBeSupportedFormat1 = "The method {0} has not been implemented by this class.";
+        public const string PresenterCannotShowRequestFormat1 = "Presenter cannot display the request '{0}'";
+        public const string TraceViewModelPresenterFormat3 = "The {0} request {1} is handled by {2}";
+        public const string FieldOrPropertyNotFoundFormat2 = "Cannot get field/property by name '{0}' on type '{1}'";
 
         #endregion
     }

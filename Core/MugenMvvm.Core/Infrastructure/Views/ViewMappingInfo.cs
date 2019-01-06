@@ -1,6 +1,5 @@
 ﻿using System;
 using MugenMvvm.Interfaces.ViewModels;
-using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Infrastructure;
 
 namespace MugenMvvm.Infrastructure.Views
@@ -22,16 +21,7 @@ namespace MugenMvvm.Infrastructure.Views
 
         #endregion
 
-        #region Methods
-
-        public override string ToString()
-        {
-            return $"View: {ViewType}, ViewModelType: {ViewModelType}, Name: {Name}, Uri: {Uri}";
-        }
-
-        #endregion
-
-        #region Implementation of IViewPageMappingItem
+        #region Properties
 
         public string? Name { get; }
 
@@ -42,6 +32,15 @@ namespace MugenMvvm.Infrastructure.Views
         public string? Uri { get; }
 
         public UriKind UriKind { get; }
+
+        #endregion
+
+        #region Methods
+
+        public override string ToString()
+        {
+            return $"View: {ViewType}, ViewModelType: {ViewModelType}, Name: {Name}, Uri: {Uri}";
+        }
 
         #endregion
     }

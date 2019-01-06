@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using MugenMvvm.Attributes;
+using MugenMvvm.Delegates;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Infrastructure.Serialization;
 using MugenMvvm.Interfaces.Metadata;
@@ -111,54 +113,135 @@ namespace MugenMvvm.Infrastructure.Metadata
             }
         }
 
-        public T GetOrAdd<T>(IMetadataContextKey<T> contextKey, Func<IMetadataContext, object?, object?, T> valueFactory, object? state1, object? state2)
+        public T AddOrUpdate<T, TState1, TState2>(IMetadataContextKey<T> contextKey, T addValue, UpdateValueDelegate<IMetadataContext, T, T, TState1, TState2> updateValueFactory, TState1 state1, TState2 state2)
+        {
+            Should.NotBeNull(contextKey, nameof(contextKey));
+            Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
+            T result;
+            object? newValue, oldValue;
+            bool added;
+            lock (_values)
+            {
+                if (_values.TryGetValue(contextKey, out oldValue))
+                {
+                    result = updateValueFactory(this, addValue, contextKey.GetValue(this, oldValue), state1, state2);
+                    added = false;
+                }
+                else
+                {
+                    result = addValue;
+                    added = true;
+                }
+                newValue = contextKey.SetValue(this, oldValue, result);
+                _values[contextKey] = newValue;
+            }
+
+            if (added)
+                OnAdded(contextKey, newValue);
+            else
+                OnChanged(contextKey, oldValue, newValue);
+            return result;
+        }
+
+        public T AddOrUpdate<T, TState1, TState2>(IMetadataContextKey<T> contextKey, Func<IMetadataContext, TState1, TState2, T> valueFactory, UpdateValueDelegate<IMetadataContext, Func<IMetadataContext, TState1, TState2, T>, T, TState1, TState2> updateValueFactory, TState1 state1, TState2 state2)
+        {
+            Should.NotBeNull(contextKey, nameof(contextKey));
+            Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
+            T result;
+            object? newValue, oldValue;
+            bool added;
+            lock (_values)
+            {
+                if (_values.TryGetValue(contextKey, out oldValue))
+                {
+                    result = updateValueFactory(this, valueFactory, contextKey.GetValue(this, oldValue), state1, state2);
+                    added = false;
+                }
+                else
+                {
+                    result = valueFactory(this, state1, state2);
+                    added = true;
+                }
+                newValue = contextKey.SetValue(this, oldValue, result);
+                _values[contextKey] = newValue;
+            }
+
+            if (added)
+                OnAdded(contextKey, newValue);
+            else
+                OnChanged(contextKey, oldValue, newValue);
+            return result;
+        }
+
+        public T GetOrAdd<T>(IMetadataContextKey<T> contextKey, T value)
+        {
+            Should.NotBeNull(contextKey, nameof(contextKey));
+            object? valueObj;
+            bool added;
+            lock (_values)
+            {
+                if (_values.TryGetValue(contextKey, out valueObj))
+                {
+                    value = contextKey.GetValue(this, valueObj);
+                    added = false;
+                }
+                else
+                {
+                    valueObj = contextKey.SetValue(this, null, value);
+                    _values[contextKey] = valueObj;
+                    added = true;
+                }
+            }
+
+            if (added)
+                OnAdded(contextKey, valueObj);
+            return value;
+        }
+
+        public T GetOrAdd<T, TState1, TState2>(IMetadataContextKey<T> contextKey, Func<IMetadataContext, TState1, TState2, T> valueFactory, TState1 state1, TState2 state2)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             Should.NotBeNull(valueFactory, nameof(valueFactory));
             object? value;
-            bool added = false;
+            bool added;
+            T newValue;
             lock (_values)
             {
-                if (!_values.TryGetValue(contextKey, out value))
+                if (_values.TryGetValue(contextKey, out value))
                 {
-                    added = true;
-                    value = contextKey.SetValue(this, valueFactory(this, state1, state2));
+                    newValue = contextKey.GetValue(this, value);
+                    added = false;
+                }
+                else
+                {
+                    newValue = valueFactory(this, state1, state2);
+                    value = contextKey.SetValue(this, null, newValue);
                     _values[contextKey] = value;
+                    added = true;
                 }
             }
 
             if (added)
                 OnAdded(contextKey, value);
-            return contextKey.GetValue(this, value);
+            return newValue;
         }
 
         public void Set<T>(IMetadataContextKey<T> contextKey, T value)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
-            contextKey.Validate(value);
-            object? obj = contextKey.SetValue(this, value);
-            if (HasListeners)
+            object? oldValue, newValue;
+            bool hasOldValue;
+            lock (_values)
             {
-                object? oldValue;
-                bool hasOldValue;
-                lock (_values)
-                {
-                    hasOldValue = _values.TryGetValue(contextKey, out oldValue);
-                    _values[contextKey] = obj;
-                }
+                hasOldValue = _values.TryGetValue(contextKey, out oldValue);
+                newValue = contextKey.SetValue(this, oldValue, value);
+                _values[contextKey] = newValue;
+            }
 
-                if (hasOldValue)
-                    OnChanged(contextKey, oldValue, obj);
-                else
-                    OnAdded(contextKey, obj);
-            }
+            if (hasOldValue)
+                OnChanged(contextKey, oldValue, newValue);
             else
-            {
-                lock (_values)
-                {
-                    _values[contextKey] = obj;
-                }
-            }
+                OnAdded(contextKey, newValue);
         }
 
         public void Merge(IEnumerable<MetadataContextValue> items)
@@ -261,6 +344,8 @@ namespace MugenMvvm.Infrastructure.Metadata
 
         private void OnAdded(IMetadataContextKey key, object? newValue)
         {
+            if (!HasListeners)
+                return;
             var items = GetListenersInternal();
             if (items != null)
             {
@@ -273,6 +358,8 @@ namespace MugenMvvm.Infrastructure.Metadata
 
         private void OnChanged(IMetadataContextKey key, object? oldValue, object? newValue)
         {
+            if (!HasListeners)
+                return;
             var items = GetListenersInternal();
             if (items != null)
             {
@@ -285,6 +372,8 @@ namespace MugenMvvm.Infrastructure.Metadata
 
         private void OnRemoved(IMetadataContextKey key, object? oldValue)
         {
+            if (!HasListeners)
+                return;
             var items = GetListenersInternal();
             if (items != null)
             {
@@ -311,7 +400,7 @@ namespace MugenMvvm.Infrastructure.Metadata
             private MetadataContext? _metadataContext;
 
             [DataMember(Name = "K")]
-            internal IList<IMetadataContextKey>? Keys;
+            internal IList<IMetadataContextKey?>? Keys;
 
             [DataMember(Name = "L")]
             internal IList<IObservableMetadataContextListener?>? Listeners;
@@ -371,18 +460,18 @@ namespace MugenMvvm.Infrastructure.Metadata
                 Should.NotBeNull(Keys, nameof(Keys));
                 Should.NotBeNull(Values, nameof(Values));
                 if (_metadataContext != null)
-                    return new MementoResult(_metadataContext, serializationContext.Metadata);
+                    return new MementoResult(_metadataContext, serializationContext);
 
                 lock (this)
                 {
                     if (_metadataContext != null)
-                        return new MementoResult(_metadataContext, serializationContext.Metadata);
+                        return new MementoResult(_metadataContext, serializationContext);
 
                     var dictionary = new Dictionary<IMetadataContextKey, object?>();
-                    for (var i = 0; i < Keys!.Count; i++)
+                    for (var i = 0; i < Keys.Count; i++)
                     {
-                        var key = Keys![i];
-                        var value = Values![i];
+                        var key = Keys[i];
+                        var value = Values[i];
                         if (key != null && value != null)
                             dictionary[key] = Default.SerializableNullValue.From(value);
                     }
@@ -398,7 +487,7 @@ namespace MugenMvvm.Infrastructure.Metadata
                         }
                     }
 
-                    return new MementoResult(_metadataContext, serializationContext.Metadata);
+                    return new MementoResult(_metadataContext, serializationContext);
                 }
             }
 

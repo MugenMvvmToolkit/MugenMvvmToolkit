@@ -4,10 +4,10 @@ using MugenMvvm.Models;
 
 namespace MugenMvvm.Interfaces
 {
-    public interface IMvvmApplication
-    {        
+    public interface IMvvmApplication : IHasMetadata<IObservableMetadataContext>
+    {
         ApplicationState State { get; }
-        
+
         IDeviceInfo DeviceInfo { get; }
 
         void OnStateChanged(ApplicationState value, IReadOnlyMetadataContext metadata);

@@ -27,7 +27,16 @@ namespace MugenMvvm
     {
         #region Fields
 
-        private static Action<object>? _notNullValidateAction;
+        private static Action<IReadOnlyMetadataContext, object, object>? _notNullValidateAction;
+
+        #endregion
+
+        #region Application
+
+        public static bool IsSerializableCallbacksSupported(this IMvvmApplication application)
+        {
+            return true;//todo fix
+        }
 
         #endregion
 
@@ -39,7 +48,7 @@ namespace MugenMvvm
                 return Default.EmptyArray<TValue>();
             if (collection is IReadOnlyCollection<TValue> readOnlyCollection)
                 return readOnlyCollection;
-            return collection.ToList();
+            return collection.ToArray();
         }
 
         #endregion
@@ -145,7 +154,7 @@ namespace MugenMvvm
         }
 
         [StringFormatMethod("format")]
-        public static void Trace(this ITracer tracer, TraceLevel level, string format, params object[] args)
+        public static void Trace(this ITracer tracer, TraceLevel level, string format, params object?[] args)
         {
             Should.NotBeNull(tracer, nameof(tracer));
             if (tracer.CanTrace(level))
@@ -153,19 +162,19 @@ namespace MugenMvvm
         }
 
         [StringFormatMethod("format")]
-        public static void Info(this ITracer tracer, string format, params object[] args)
+        public static void Info(this ITracer tracer, string format, params object?[] args)
         {
             tracer.Trace(TraceLevel.Information, format, args);
         }
 
         [StringFormatMethod("format")]
-        public static void Warn(this ITracer tracer, string format, params object[] args)
+        public static void Warn(this ITracer tracer, string format, params object?[] args)
         {
             tracer.Trace(TraceLevel.Warning, format, args);
         }
 
         [StringFormatMethod("format")]
-        public static void Error(this ITracer tracer, string format, params object[] args)
+        public static void Error(this ITracer tracer, string format, params object?[] args)
         {
             tracer.Trace(TraceLevel.Error, format, args);
         }
@@ -184,13 +193,25 @@ namespace MugenMvvm
         public static MetadataContextKey.Builder<T> NotNull<T>(this MetadataContextKey.Builder<T> builder) where T : class
         {
             if (_notNullValidateAction == null)
-                _notNullValidateAction = value => Should.NotBeNull(value, nameof(value));
+                _notNullValidateAction = (ctx, k, value) => Should.NotBeNull(value, nameof(value));
             return builder.WithValidation(_notNullValidateAction);
         }
 
         #endregion
 
         #region Common
+
+        public static string Dump(this IReadOnlyMetadataContext? metadata)
+        {
+            if (metadata == null)
+                return string.Empty;
+            var builder = new StringBuilder("(");
+            var values = metadata.ToArray();
+            foreach (var item in values)
+                builder.Append(item.ContextKey.Key).Append("=").Append(item.Value).Append(";");
+            builder.Append(")");
+            return builder.ToString();
+        }
 
         public static void AddWrapper<TWrapper>(this IConfigurableWrapperManager wrapperManager, Type implementation,
             Func<Type, IReadOnlyMetadataContext, bool>? condition = null, Func<object, IReadOnlyMetadataContext, TWrapper>? wrapperFactory = null)
@@ -254,19 +275,6 @@ namespace MugenMvvm
             return array;
         }
 
-        public static T[] ToArray<T>(this IReadOnlyCollection<T> collection)
-        {
-            Should.NotBeNull(collection, nameof(collection));
-            var count = collection.Count;
-            if (count == 0)
-                return Default.EmptyArray<T>();
-            var array = new T[count];
-            count = 0;
-            foreach (var item in collection)
-                array[count++] = item;
-            return array;
-        }
-
         //note for better performance use this method for creating delegate instead of handler.Execute because it will use ldftn opcode instead of ldvirtftn       
         public static void ExecuteDelegate(this IThreadDispatcherHandler handler, object? state)
         {
@@ -277,6 +285,18 @@ namespace MugenMvvm
         public static void ExecuteNullState(this IThreadDispatcherHandler handler)
         {
             handler.Execute(null);
+        }
+
+        [Pure]
+        public static bool IsClose(this NavigationMode mode)
+        {
+            return mode == NavigationMode.Back || mode == NavigationMode.Remove;
+        }
+
+        [Pure]
+        public static bool IsCloseOrBackground(this NavigationMode mode)
+        {
+            return mode.IsClose() || mode == NavigationMode.Background;
         }
 
         #endregion
@@ -370,7 +390,15 @@ namespace MugenMvvm
 
         #region Internal
 
-        internal static IList<T>? ToSerializable<T>(this IReadOnlyList<T>? items, ISerializer serializer, int? size = null)
+        internal static void TrySetExceptionEx<T>(this TaskCompletionSource<T> tcs, Exception e)
+        {
+            if (e is AggregateException aggregateException)
+                tcs.TrySetException(aggregateException.InnerExceptions);
+            else
+                tcs.SetException(e);
+        }
+
+        internal static List<T>? ToSerializable<T>(this IReadOnlyList<T>? items, ISerializer serializer, int? size = null)
         {
             if (items == null)
                 return null;
@@ -378,7 +406,7 @@ namespace MugenMvvm
             for (var i = 0; i < size.GetValueOrDefault(items.Count); i++)
             {
                 var listener = items[i];
-                if (serializer.CanSerialize(listener.GetType()))
+                if (serializer.CanSerialize(listener.GetType(), Default.MetadataContext))
                 {
                     if (result == null)
                         result = new List<T>();

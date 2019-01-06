@@ -51,6 +51,16 @@ namespace MugenMvvm
             return new InvalidOperationException(MessageConstants.DuplicateInterfaceFormat3.Format(itemName, interfaceName, type));
         }
 
+        internal static Exception IntOutOfRangeCollection(string paramName)
+        {
+            return new ArgumentOutOfRangeException(paramName, MessageConstants.IntOutOfRangeCollection);
+        }
+
+        internal static Exception PresenterCannotShowRequest(string request)
+        {
+            return new ArgumentException(MessageConstants.PresenterCannotShowRequestFormat1.Format(request));
+        }
+
         #endregion
     }
 }
