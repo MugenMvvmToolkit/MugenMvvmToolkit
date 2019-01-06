@@ -25,6 +25,10 @@ namespace MugenMvvm.Infrastructure.Presenters
     {
         #region Fields
 
+        public const int NavigationPresenterPriority = -1;
+        public const int MultiViewModelPresenterPriority = 0;
+        public const int WindowPresenterPriority = 1;
+
         private readonly HashSet<NavigationCallback> _pendingOpenCallbacks;
         private readonly PresentersCollection _presenters;
 
@@ -226,60 +230,48 @@ namespace MugenMvvm.Infrastructure.Presenters
         {
             if (context.NavigationMode.IsClose() && context.ViewModelFrom != null)
             {
-                InvokeCallbacks(context.ViewModelFrom, OpenCallbacksKey, context.NavigationType, null, false);
-                InvokeCallbacks(context.ViewModelFrom, CloseCallbacksKey, context.NavigationType, null, false);
+                InvokeCallbacks(context.ViewModelFrom, OpenCallbacksKey, context.NavigationType, true, null, false);
+                InvokeCallbacks(context.ViewModelFrom, CloseCallbacksKey, context.NavigationType, true, null, false);
             }
             else if (context.ViewModelTo != null)
-                InvokeCallbacks(context.ViewModelTo, OpenCallbacksKey, context.NavigationType, null, false);
+                InvokeCallbacks(context.ViewModelTo, OpenCallbacksKey, context.NavigationType, true, null, false);
         }
 
         protected virtual void OnNavigationFailed(INavigationContext context, Exception exception)
         {
-            var viewModel = context.NavigationMode.IsCloseOrBackground() ? context.ViewModelFrom : context.ViewModelTo;
-            if (viewModel != null)
-            {
-            }
+            OnNavigationFailed(context, exception, false);
         }
 
         protected virtual void OnNavigationCanceled(INavigationContext context)
         {
-            var viewModel = context.NavigationMode.IsCloseOrBackground() ? context.ViewModelFrom : context.ViewModelTo;
-            if (viewModel != null)
-            {
-            }
+            OnNavigationFailed(context, null, true);
+        }
+
+        protected virtual void OnNavigatingCanceled(INavigationContext context)
+        {
+
         }
 
         protected NavigationCallback CreateNavigationCallback(NavigationType type, bool serializable)
         {
-            return new NavigationCallback(new TaskCompletionSource<object>(), type, serializable);
+            return new NavigationCallback(type, serializable);
         }
 
-        private void Trace(string requestName, IReadOnlyMetadataContext metadata, IChildViewModelPresenter presenter, IHasMetadata<IReadOnlyMetadataContext> hasMetadata)
+        private void OnNavigationFailed(INavigationContext context, Exception e, bool canceled)
         {
-            if (Tracer.CanTrace(TraceLevel.Information))
-                Tracer.Info(MessageConstants.TraceViewModelPresenterFormat3, requestName, metadata.Dump() + hasMetadata.Metadata.Dump(), presenter.GetType().FullName);
-        }
-
-        private static MetadataContextKey.Builder<T> GetBuilder<T>(string name) where T : class
-        {
-            return MetadataContextKey.Create<T>(typeof(ViewModelPresenter), name).NotNull();
-        }
-
-        private static object SerializableConverter(IMetadataContextKey<IList<NavigationCallback?>?> arg1, object? value, ISerializationContext arg3)
-        {
-            var callbacks = (IList<NavigationCallback>)value;
-            if (callbacks == null)
-                return null;
-            lock (callbacks)
+            if (context.NavigationMode.IsClose())
             {
-                return callbacks.Where(callback => callback.Serializable && !callback.TaskCompletionSource.Task.IsCompleted).ToList();
+                if (context.ViewModelFrom != null)
+                {
+                    InvokeCallbacks(context.ViewModelFrom, OpenCallbacksKey, context.NavigationType, false, e, canceled);
+                    InvokeCallbacks(context.ViewModelFrom, CloseCallbacksKey, context.NavigationType, false, e, canceled);
+                }
             }
-        }
-
-        private static bool CanSerializeCloseCallbacks(IMetadataContextKey<IList<NavigationCallback>> key, object? value, ISerializationContext context)
-        {
-            var callbacks = (IList<NavigationCallback>)value;
-            return callbacks != null && callbacks.Any(callback => callback != null && callback.Serializable);
+            else if (context.ViewModelTo != null)
+            {
+                InvokeCallbacks(context.ViewModelTo, OpenCallbacksKey, context.NavigationType, false, e, canceled);
+                InvokeCallbacks(context.ViewModelTo, CloseCallbacksKey, context.NavigationType, false, e, canceled);
+            }
         }
 
         private static void AddCallback(IViewModel viewModel, NavigationCallback callback, IMetadataContextKey<IList<NavigationCallback>?> key)
@@ -291,7 +283,7 @@ namespace MugenMvvm.Infrastructure.Presenters
             }
         }
 
-        private void InvokeCallbacks(IViewModel viewModel, IMetadataContextKey<IList<NavigationCallback>?> key, NavigationType navigationType, Exception exception, bool canceled)
+        private void InvokeCallbacks(IViewModel viewModel, IMetadataContextKey<IList<NavigationCallback>?> key, NavigationType navigationType, bool result, Exception exception, bool canceled)
         {
             var callbacks = viewModel.Metadata.Get(key);
             if (callbacks == null)
@@ -322,12 +314,40 @@ namespace MugenMvvm.Infrastructure.Presenters
             for (var i = 0; i < toInvoke.Count; i++)
             {
                 var callback = toInvoke[i];
-                callback.SetResult(exception, canceled);
+                callback.SetResult(result, exception, canceled);
                 lock (_pendingOpenCallbacks)
                 {
                     _pendingOpenCallbacks.Remove(callback);
                 }
             }
+        }
+
+        private static MetadataContextKey.Builder<T> GetBuilder<T>(string name) where T : class
+        {
+            return MetadataContextKey.Create<T>(typeof(ViewModelPresenter), name).NotNull();
+        }
+
+        private static object SerializableConverter(IMetadataContextKey<IList<NavigationCallback?>?> arg1, object? value, ISerializationContext arg3)
+        {
+            var callbacks = (IList<NavigationCallback>)value;
+            if (callbacks == null)
+                return null;
+            lock (callbacks)
+            {
+                return callbacks.Where(callback => callback.Serializable && !callback.TaskCompletionSource.Task.IsCompleted).ToList();
+            }
+        }
+
+        private static bool CanSerializeCloseCallbacks(IMetadataContextKey<IList<NavigationCallback>> key, object? value, ISerializationContext context)
+        {
+            var callbacks = (IList<NavigationCallback>)value;
+            return callbacks != null && callbacks.Any(callback => callback != null && callback.Serializable);
+        }
+
+        private void Trace(string requestName, IReadOnlyMetadataContext metadata, IChildViewModelPresenter presenter, IHasMetadata<IReadOnlyMetadataContext> hasMetadata)
+        {
+            if (Tracer.CanTrace(TraceLevel.Information))
+                Tracer.Info(MessageConstants.TraceViewModelPresenterFormat3, requestName, metadata.Dump() + hasMetadata.Metadata.Dump(), presenter.GetType().FullName);
         }
 
         #endregion
@@ -348,15 +368,15 @@ namespace MugenMvvm.Infrastructure.Presenters
             public readonly bool Serializable;
 
             [DataMember(Name = "T")]
-            public readonly TaskCompletionSource<object> TaskCompletionSource;
+            public readonly TaskCompletionSource<bool> TaskCompletionSource;
 
             #endregion
 
             #region Constructors
 
-            internal NavigationCallback(TaskCompletionSource<object> taskCompletionSource, NavigationType navigationType, bool serializable)
+            internal NavigationCallback(NavigationType navigationType, bool serializable)
             {
-                TaskCompletionSource = taskCompletionSource;
+                TaskCompletionSource = new TaskCompletionSource<bool>();
                 NavigationType = navigationType;
                 Serializable = serializable;
             }
@@ -369,14 +389,14 @@ namespace MugenMvvm.Infrastructure.Presenters
 
             #region Methods
 
-            public void SetResult(Exception exception, bool canceled)
+            public void SetResult(bool result, Exception exception, bool canceled)
             {
                 if (exception != null)
                     TaskCompletionSource.TrySetExceptionEx(exception);
                 else if (canceled)
                     TaskCompletionSource.TrySetCanceled();
                 else
-                    TaskCompletionSource.TrySetResult(null);
+                    TaskCompletionSource.TrySetResult(result);
             }
 
             #endregion
@@ -531,6 +551,11 @@ namespace MugenMvvm.Infrastructure.Presenters
                 }
 
                 _presenter.OnNavigationCanceled(context);
+            }
+
+            public void OnNavigatingCanceled(INavigationContext context)
+            {
+                _presenter.OnNavigatingCanceled(context);
             }
 
             #endregion

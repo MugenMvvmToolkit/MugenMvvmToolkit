@@ -50,7 +50,9 @@ namespace MugenMvvm.Infrastructure.Navigation
         {
             Should.NotBeNull(context, nameof(context));
             Trace(nameof(OnNavigatingAsync), context);
-            return OnNavigatingInternalAsync(context);
+            var task = OnNavigatingInternalAsync(context);
+            task.ContinueWith(OnNavigatingCallback, context, TaskContinuationOptions.ExecuteSynchronously | TaskContinuationOptions.OnlyOnRanToCompletion);
+            return task;
         }
 
         public void OnNavigated(INavigationContext context)
@@ -79,37 +81,6 @@ namespace MugenMvvm.Infrastructure.Navigation
         #endregion
 
         #region Methods
-
-        protected virtual IReadOnlyList<INavigationEntry> GetNavigationEntriesInternal(NavigationType? type, IReadOnlyMetadataContext metadata)
-        {
-            lock (OpenedViewModels)
-            {
-                List<INavigationEntry>? result = null;
-                if (type == null)
-                {
-                    var array = OpenedViewModels.Keys.ToArray();
-                    for (var i = 0; i < array.Length; i++)
-                        GetOpenedViewModelsInternal(array[i], ref result);
-                }
-                else
-                    GetOpenedViewModelsInternal(type, ref result);
-
-                if (result == null)
-                    return Default.EmptyArray<INavigationEntry>();
-                return result;
-            }
-        }
-
-        protected virtual Task<bool> OnNavigatingInternalAsync(INavigationContext context)
-        {
-            var listeners = GetListeners()?.Where(listener => listener != null).ToArray();
-            if (listeners == null || listeners.Length == 0)
-                return Default.TrueTask;
-            if (listeners.Length == 1)
-                return listeners[0].OnNavigatingAsync(context);
-            var invoker = new NavigatingInvoker(listeners, context);
-            return invoker.Task;
-        }
 
         protected virtual void HandleOpenedViewModels(INavigationContext context)
         {
@@ -155,6 +126,37 @@ namespace MugenMvvm.Infrastructure.Navigation
             }
         }
 
+        protected virtual IReadOnlyList<INavigationEntry> GetNavigationEntriesInternal(NavigationType? type, IReadOnlyMetadataContext metadata)
+        {
+            lock (OpenedViewModels)
+            {
+                List<INavigationEntry>? result = null;
+                if (type == null)
+                {
+                    var array = OpenedViewModels.Keys.ToArray();
+                    for (var i = 0; i < array.Length; i++)
+                        GetOpenedViewModelsInternal(array[i], ref result);
+                }
+                else
+                    GetOpenedViewModelsInternal(type, ref result);
+
+                if (result == null)
+                    return Default.EmptyArray<INavigationEntry>();
+                return result;
+            }
+        }
+
+        protected virtual Task<bool> OnNavigatingInternalAsync(INavigationContext context)
+        {
+            var listeners = GetListeners()?.Where(listener => listener != null).ToArray();
+            if (listeners == null || listeners.Length == 0)
+                return Default.TrueTask;
+            if (listeners.Length == 1)
+                return listeners[0].OnNavigatingAsync(context);
+            var invoker = new NavigatingInvoker(listeners, context);
+            return invoker.Task;
+        }
+
         protected virtual void OnNavigatedInternal(INavigationContext context)
         {
             var listeners = GetListeners();
@@ -182,6 +184,15 @@ namespace MugenMvvm.Infrastructure.Navigation
                 listeners[i]?.OnNavigationCanceled(context);
         }
 
+        protected virtual void OnNavigatingCanceledInternal(INavigationContext context)
+        {
+            var listeners = GetListeners();
+            if (listeners == null)
+                return;
+            for (var i = 0; i < listeners.Count; i++)
+                listeners[i]?.OnNavigatingCanceled(context);
+        }
+
         private void GetOpenedViewModelsInternal(NavigationType type, ref List<INavigationEntry>? result)
         {
             if (!OpenedViewModels.TryGetValue(type, out var list))
@@ -206,6 +217,12 @@ namespace MugenMvvm.Infrastructure.Navigation
 
             if (!hasValue)
                 OpenedViewModels.Remove(type);
+        }
+
+        private void OnNavigatingCallback(Task<bool> task, object state)
+        {
+            if (!task.Result)
+                OnNavigatingCanceledInternal((INavigationContext)state);
         }
 
         private void Trace(string navigationName, INavigationContext context)

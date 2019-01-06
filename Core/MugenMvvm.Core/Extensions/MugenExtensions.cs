@@ -40,6 +40,17 @@ namespace MugenMvvm
 
         #endregion
 
+        #region View models
+
+        public static string? GetViewName(this IViewModel viewModel, IReadOnlyMetadataContext metadata)
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            Should.NotBeNull(metadata, nameof(metadata));
+            return metadata.Get(NavigationMetadata.ViewName) ?? viewModel.Metadata.Get(NavigationMetadata.ViewName);
+        }
+
+        #endregion
+
         #region Collections
 
         public static IReadOnlyCollection<TValue> ToReadOnlyCollection<TKey, TValue>(this Dictionary<TKey, TValue>.ValueCollection? collection)
