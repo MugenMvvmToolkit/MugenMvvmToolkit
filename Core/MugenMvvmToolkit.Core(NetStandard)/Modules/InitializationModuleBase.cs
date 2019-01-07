@@ -20,12 +20,14 @@ using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Infrastructure.Callbacks;
 using MugenMvvmToolkit.Infrastructure.Navigation;
 using MugenMvvmToolkit.Infrastructure.Presenters;
+using MugenMvvmToolkit.Infrastructure.Requests;
 using MugenMvvmToolkit.Infrastructure.Validation;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
 using MugenMvvmToolkit.Interfaces.Navigation;
 using MugenMvvmToolkit.Interfaces.Presenters;
+using MugenMvvmToolkit.Interfaces.Requests;
 using MugenMvvmToolkit.Interfaces.Validation;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.IoC;
@@ -73,7 +75,15 @@ namespace MugenMvvmToolkit.Modules
             container.BindToConstant(mappingProvider);
         }
 
-        protected virtual void BindViewManager(IModuleContext context, IIocContainer container)
+	    protected virtual void BindRequestHandlerProvider(IModuleContext context, IIocContainer container)
+	    {
+		    IRequestHandlerProvider requestHandlerProvider = new RequestHandlerProvider(container, context.Assemblies);
+		    ToolkitServiceProvider.RequestHandlerProvider = requestHandlerProvider;
+		    container.BindToConstant(requestHandlerProvider);
+		}
+
+
+		protected virtual void BindViewManager(IModuleContext context, IIocContainer container)
         {
             container.Bind<IViewManager, ViewManager>(DependencyLifecycle.SingleInstance);
         }
@@ -177,7 +187,8 @@ namespace MugenMvvmToolkit.Modules
             BindOperationCallbackFactory(context, context.IocContainer);
             BindOperationCallbackStateManager(context, context.IocContainer);
             BindViewMappingProvider(context, context.IocContainer);
-            BindViewManager(context, context.IocContainer);
+	        BindRequestHandlerProvider(context, context.IocContainer);
+			BindViewManager(context, context.IocContainer);
             BindDisplayNameProvider(context, context.IocContainer);
             BindViewModelProvider(context, context.IocContainer);
             BindMessagePresenter(context, context.IocContainer);

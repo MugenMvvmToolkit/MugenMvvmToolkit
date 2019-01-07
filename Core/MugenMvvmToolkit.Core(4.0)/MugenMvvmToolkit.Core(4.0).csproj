@@ -200,6 +200,21 @@
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\ReferenceEqualityComparer.cs">
       <Link>Infrastructure\ReferenceEqualityComparer.cs</Link>
     </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Infrastructure\Requests\RequestHandlerBase.cs">
+      <Link>Infrastructure\Requests\RequestHandlerBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Infrastructure\Requests\RequestHandlerProvider.cs">
+      <Link>Infrastructure\Requests\RequestHandlerProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Infrastructure\Requests\ResponseBase.cs">
+      <Link>Infrastructure\Requests\ResponseBase.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Infrastructure\Requests\ResponseError.cs">
+      <Link>Infrastructure\Requests\ResponseError.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Infrastructure\Requests\ResponseStatus.cs">
+      <Link>Infrastructure\Requests\ResponseStatus.cs</Link>
+    </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\infrastructure\Serializer.cs">
       <Link>Infrastructure\Serializer.cs</Link>
     </Compile>
@@ -421,6 +436,12 @@
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\presenters\IViewModelPresenter.cs">
       <Link>Interfaces\Presenters\IViewModelPresenter.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\Requests\IRequest.cs">
+      <Link>Interfaces\Requests\IRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\MugenMvvmToolkit.Core%28NetStandard%29\Interfaces\Requests\IRequestHandlerProvider.cs">
+      <Link>Interfaces\Requests\IRequestHandlerProvider.cs</Link>
     </Compile>
     <Compile Include="..\mugenmvvmtoolkit.core%28NetStandard%29\interfaces\validation\INotifyDataErrorInfo.cs">
       <Link>Interfaces\Validation\INotifyDataErrorInfo.cs</Link>

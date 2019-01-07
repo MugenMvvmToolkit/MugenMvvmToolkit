@@ -27,6 +27,7 @@ using MugenMvvmToolkit.Infrastructure;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Callbacks;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Requests;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 
@@ -45,8 +46,9 @@ namespace MugenMvvmToolkit
         private static IReflectionManager _reflectionManager;
         private static IValidatorProvider _validatorProvider;
         private static IEventAggregator _eventAggregator;
+	    private static IRequestHandlerProvider _requestHandlerProvider;
 
-        private static Func<object, IEventAggregator> _instanceEventAggregatorFactory;
+		private static Func<object, IEventAggregator> _instanceEventAggregatorFactory;
         private static Func<object, WeakReference> _weakReferenceFactory;
         private static IViewModelProvider _viewModelProvider;
         private static Func<IViewModel, IViewModelSettings> _viewModelSettingsFactory;
@@ -203,7 +205,14 @@ namespace MugenMvvmToolkit
             set { _eventAggregator = value; }
         }
 
-        public static event EventHandler Initialized;
+	    [NotNull]
+	    public static IRequestHandlerProvider RequestHandlerProvider
+	    {
+		    get { return _requestHandlerProvider; }
+		    set { _requestHandlerProvider = value; }
+		}
+
+		public static event EventHandler Initialized;
 
         #endregion
 
@@ -224,7 +233,8 @@ namespace MugenMvvmToolkit
             TryInitialize(iocContainer, ref _validatorProvider);
             TryInitialize(iocContainer, ref _viewModelProvider);
             TryInitialize(iocContainer, ref _eventAggregator);
-            TryInitialize(iocContainer, ref _viewManager);
+	        TryInitialize(iocContainer, ref _requestHandlerProvider);
+			TryInitialize(iocContainer, ref _viewManager);
 
             if (OperationCallbackStateManager == null)
             {

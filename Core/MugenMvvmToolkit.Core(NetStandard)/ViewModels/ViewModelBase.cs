@@ -20,12 +20,15 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvmToolkit.Annotations;
 using MugenMvvmToolkit.DataConstants;
 using MugenMvvmToolkit.Infrastructure;
+using MugenMvvmToolkit.Infrastructure.Requests;
 using MugenMvvmToolkit.Interfaces;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Requests;
 using MugenMvvmToolkit.Interfaces.ViewModels;
 using MugenMvvmToolkit.Models;
 using MugenMvvmToolkit.Models.Messages;
@@ -272,8 +275,9 @@ namespace MugenMvvmToolkit.ViewModels
         private const int DefaultState = 0;
 
         private IViewModelSettings _settings;
+	    private IRequestHandlerProvider _requestHandlerProvider;
 
-        private BusyToken _busyTail;
+		private BusyToken _busyTail;
         private CancellationTokenSource _disposeCancellationToken;
         private IIocContainer _iocContainer;
         private IEventAggregator _localEventAggregator;
@@ -313,7 +317,7 @@ namespace MugenMvvmToolkit.ViewModels
 
         protected virtual IViewModelProvider ViewModelProvider => ToolkitServiceProvider.ViewModelProvider;
 
-        #endregion
+		#endregion
 
         #region Implementation of IViewModel
 
@@ -458,7 +462,23 @@ namespace MugenMvvmToolkit.ViewModels
             return UnsubscribeInternal(subscriber);
         }
 
-        public void Dispose()
+	    public IRequestHandlerProvider RequestHandler
+	    {
+		    get
+		    {
+			    if (_requestHandlerProvider != null)
+				    return _requestHandlerProvider;
+			    _requestHandlerProvider = ToolkitServiceProvider.RequestHandlerProvider;
+			    return _requestHandlerProvider;
+			}
+	    }
+
+	    public Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request) where TResponse : ResponseBase, new()
+	    {
+			return RequestHandler.SendAsync(request);
+		}
+		
+		public void Dispose()
         {
             if (Interlocked.CompareExchange(ref _state, DisposingState, InitializedState) != InitializedState &&
                 Interlocked.CompareExchange(ref _state, DisposingState, DefaultState) != DefaultState &&

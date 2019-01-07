@@ -88,9 +88,11 @@ namespace MugenMvvmToolkit
 
         public static bool GridViewModelEnableSelectableInterface { get; set; }
 
-        public static bool ViewMappingProviderDisableAutoRegistration { get; set; }
+	    public static bool ViewMappingProviderDisableAutoRegistration { get; set; }
 
-        public static bool SerializerDisableAutoRegistration { get; set; }
+	    public static bool RequestHandlerProviderDisableAutoRegistration { get; set; }
+		
+		public static bool SerializerDisableAutoRegistration { get; set; }
 
         public static bool ViewManagerAlwaysCreateNewView { get; set; }
 

@@ -46,7 +46,14 @@
     <Compile Include="Infrastructure\BootstrapCodeBuilder.cs" />
     <Compile Include="Infrastructure\Callbacks\CallbackDictionary.cs" />
     <Compile Include="Infrastructure\CompositeEqualityComparer.cs" />
+    <Compile Include="Infrastructure\Requests\RequestHandlerBase.cs" />
+    <Compile Include="Infrastructure\Requests\RequestHandlerProvider.cs" />
+    <Compile Include="Infrastructure\Requests\ResponseBase.cs" />
+    <Compile Include="Infrastructure\Requests\ResponseError.cs" />
+    <Compile Include="Infrastructure\Requests\ResponseStatus.cs" />
     <Compile Include="Interfaces\Navigation\IOpenedViewModelInfo.cs" />
+    <Compile Include="Interfaces\Requests\IRequest.cs" />
+    <Compile Include="Interfaces\Requests\IRequestHandlerProvider.cs" />
     <Compile Include="Interfaces\Views\ICleanableView.cs" />
     <Compile Include="Interfaces\Views\IHasFallbackMappingView.cs" />
     <Compile Include="Interfaces\Views\IInitializableView.cs" />

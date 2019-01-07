@@ -84,7 +84,17 @@ namespace MugenMvvmToolkit
             return new InvalidOperationException($@"Unable to find a suitable view model for the '{viewType}'.");
         }
 
-        internal static Exception ViewModelCannotBeRestored()
+	    internal static Exception RequestHandlerNotFound(Type requestType)
+	    {
+		    return new InvalidOperationException($@"Unable to find a suitable request handler for the '{requestType}'.");
+		}
+
+	    internal static Exception RequestHandlerNotRegistered(Type requestHandlerType)
+	    {
+		    return new InvalidOperationException($@"Request handler '{requestHandlerType}' not registered in IOC container.");
+		}
+
+		internal static Exception ViewModelCannotBeRestored()
         {
             return new InvalidOperationException("Unable to restore a view model.");
         }

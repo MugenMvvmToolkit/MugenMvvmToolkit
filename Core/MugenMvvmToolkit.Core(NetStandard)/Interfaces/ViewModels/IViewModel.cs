@@ -19,8 +19,11 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
+using MugenMvvmToolkit.Infrastructure.Requests;
 using MugenMvvmToolkit.Interfaces.Models;
+using MugenMvvmToolkit.Interfaces.Requests;
 using MugenMvvmToolkit.Models;
 
 namespace MugenMvvmToolkit.Interfaces.ViewModels
@@ -52,6 +55,10 @@ namespace MugenMvvmToolkit.Interfaces.ViewModels
         [NotNull]
         IList<IBusyToken> GetBusyTokens();
 
-        event EventHandler<IViewModel, EventArgs> Initialized;
+	    IRequestHandlerProvider RequestHandler { get; }
+
+	    Task<TResponse> SendAsync<TResponse>(IRequest<TResponse> request) where TResponse : ResponseBase, new();
+
+		event EventHandler<IViewModel, EventArgs> Initialized;
     }
 }
