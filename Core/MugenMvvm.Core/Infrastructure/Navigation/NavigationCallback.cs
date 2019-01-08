@@ -52,7 +52,7 @@ namespace MugenMvvm.Infrastructure.Navigation
         NavigationType INavigationCallback.NavigationType => NavigationType;
 
         [IgnoreDataMember, XmlIgnore]
-        bool INavigationCallbackInternal.IsSerializable => IsSerializable;
+        bool INavigationCallbackInternal.IsSerializable => IsSerializable && !TaskCompletionSource.Task.IsCompleted;
 
         #endregion
 
