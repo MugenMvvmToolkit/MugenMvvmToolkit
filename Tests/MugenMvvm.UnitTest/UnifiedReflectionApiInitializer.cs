@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using MugenMvvm.Enums;
-using MugenMvvm.Models;
 
 namespace MugenMvvm.UnitTest
 {

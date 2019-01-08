@@ -3,7 +3,6 @@ using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Models;
 
 namespace MugenMvvm.Interfaces.ViewModels
 {

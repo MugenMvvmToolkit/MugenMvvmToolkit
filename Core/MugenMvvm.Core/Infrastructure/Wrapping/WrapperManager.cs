@@ -7,7 +7,6 @@ using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Wrapping;
-using MugenMvvm.Models;
 
 namespace MugenMvvm.Infrastructure.Wrapping
 {

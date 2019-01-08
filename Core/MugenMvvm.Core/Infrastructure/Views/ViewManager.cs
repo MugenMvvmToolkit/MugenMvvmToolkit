@@ -13,7 +13,6 @@ using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Infrastructure;
 using MugenMvvm.Interfaces.Wrapping;
-using MugenMvvm.Models;
 
 namespace MugenMvvm.Infrastructure.Views
 {

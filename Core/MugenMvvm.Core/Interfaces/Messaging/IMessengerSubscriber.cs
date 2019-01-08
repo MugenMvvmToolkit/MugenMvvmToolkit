@@ -1,6 +1,5 @@
 ﻿using System;
 using MugenMvvm.Enums;
-using MugenMvvm.Models;
 
 namespace MugenMvvm.Interfaces.Messaging
 {

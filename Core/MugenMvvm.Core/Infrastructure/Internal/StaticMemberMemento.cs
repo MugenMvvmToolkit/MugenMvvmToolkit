@@ -6,7 +6,6 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Serialization;
 using MugenMvvm.Interfaces.Serialization;
-using MugenMvvm.Models;
 
 namespace MugenMvvm.Infrastructure.Internal
 {

@@ -20,7 +20,6 @@ using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Wrapping;
-using MugenMvvm.Models;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm

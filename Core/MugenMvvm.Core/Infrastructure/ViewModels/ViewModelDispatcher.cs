@@ -13,7 +13,6 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.ViewModels.Infrastructure;
-using MugenMvvm.Models;
 
 namespace MugenMvvm.Infrastructure.ViewModels
 {

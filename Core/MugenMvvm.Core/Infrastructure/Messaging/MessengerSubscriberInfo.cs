@@ -3,7 +3,6 @@ using System.Runtime.Serialization;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Messaging;
-using MugenMvvm.Models;
 
 namespace MugenMvvm.Infrastructure.Messaging
 {

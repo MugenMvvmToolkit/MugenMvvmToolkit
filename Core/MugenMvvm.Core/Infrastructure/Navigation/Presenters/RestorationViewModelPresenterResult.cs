@@ -1,7 +1,6 @@
 ﻿using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation.Presenters;
-using MugenMvvm.Models;
 
 namespace MugenMvvm.Infrastructure.Navigation.Presenters
 {

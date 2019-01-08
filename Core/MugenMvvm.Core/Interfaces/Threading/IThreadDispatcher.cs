@@ -1,7 +1,6 @@
 ﻿using System;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Models;
 
 namespace MugenMvvm.Interfaces.Threading
 {

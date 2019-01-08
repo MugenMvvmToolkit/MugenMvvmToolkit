@@ -4,7 +4,6 @@ using System.Diagnostics;
 using JetBrains.Annotations;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces;
-using MugenMvvm.Models;
 
 namespace MugenMvvm.Infrastructure
 {

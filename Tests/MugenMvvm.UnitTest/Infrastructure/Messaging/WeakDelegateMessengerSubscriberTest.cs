@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Messaging;
 using MugenMvvm.Interfaces.Messaging;
-using MugenMvvm.Models;
 using Should;
 using Xunit;
 

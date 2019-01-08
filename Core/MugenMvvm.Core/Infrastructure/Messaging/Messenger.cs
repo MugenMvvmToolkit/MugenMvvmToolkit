@@ -8,7 +8,6 @@ using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading;
-using MugenMvvm.Models;
 
 namespace MugenMvvm.Infrastructure.Messaging
 {

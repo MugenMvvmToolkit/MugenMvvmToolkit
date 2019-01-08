@@ -1,7 +1,6 @@
 ﻿using System;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces;
-using MugenMvvm.Models;
 
 namespace MugenMvvm.UnitTest.TestInfrastructure
 {

@@ -7,7 +7,6 @@ using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.Messaging;
-using MugenMvvm.Models;
 
 namespace MugenMvvm.Infrastructure.Messaging
 {
