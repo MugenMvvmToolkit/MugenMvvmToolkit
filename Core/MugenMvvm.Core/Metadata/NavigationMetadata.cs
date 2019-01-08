@@ -1,6 +1,5 @@
 ﻿using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.ViewModels;
 
 // ReSharper disable once CheckNamespace
@@ -11,12 +10,10 @@ namespace MugenMvvm
         #region Fields
 
         private static IMetadataContextKey<IViewModel?> _viewModel;
+        private static IMetadataContextKey<string?> _viewName;
         private static IMetadataContextKey<bool> _suppressTabNavigation;
         private static IMetadataContextKey<bool> _suppressWindowNavigation;
         private static IMetadataContextKey<bool> _suppressPageNavigation;
-        private static IMetadataContextKey<string?> _viewName;
-        private static IMetadataContextKey<INavigationWindowMediator?> _navigationWindowMediator;
-        private static IMetadataContextKey<object?> _restoredWindowView;
 
         #endregion
 
@@ -31,6 +28,17 @@ namespace MugenMvvm
                 return _viewModel;
             }
             set => _viewModel = value;
+        }
+
+        public static IMetadataContextKey<string?> ViewName
+        {
+            get
+            {
+                if (_viewName == null)
+                    _viewName = GetBuilder<string?>(nameof(ViewName)).Serializable().Build();
+                return _viewName;
+            }
+            set => _viewName = value;
         }
 
         public static IMetadataContextKey<bool> SuppressTabNavigation
@@ -64,39 +72,6 @@ namespace MugenMvvm
                 return _suppressPageNavigation;
             }
             set => _suppressPageNavigation = value;
-        }
-
-        public static IMetadataContextKey<string?> ViewName
-        {
-            get
-            {
-                if (_viewName == null)
-                    _viewName = GetBuilder<string?>(nameof(ViewName)).Serializable().Build();
-                return _viewName;
-            }
-            set => _viewName = value;
-        }
-
-        public static IMetadataContextKey<INavigationWindowMediator?> NavigationWindowMediator
-        {
-            get
-            {
-                if (_navigationWindowMediator == null)
-                    _navigationWindowMediator = GetBuilder<INavigationWindowMediator?>(nameof(NavigationWindowMediator)).Build();
-                return _navigationWindowMediator;
-            }
-            set => _navigationWindowMediator = value;
-        }
-
-        public static IMetadataContextKey<object?> RestoredWindowView
-        {
-            get
-            {
-                if (_restoredWindowView == null)
-                    _restoredWindowView = GetBuilder<object?>(nameof(RestoredWindowView)).NotNull().Build();
-                return _restoredWindowView;
-            }
-            set => _restoredWindowView = value;
         }
 
         #endregion

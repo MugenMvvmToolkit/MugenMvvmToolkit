@@ -28,6 +28,7 @@
         public const string PresenterCannotHandleRequestFormat1 = "Presenter cannot handle request '{0}', cannot obtain viewmodel using NavigationMetadata.ViewModel key please provide viewmodel";
         public const string TraceViewModelPresenterFormat3 = "The {0} request {1} is handled by {2}";
         public const string FieldOrPropertyNotFoundFormat2 = "Cannot get field/property by name '{0}' on type '{1}'";
+        public const string NavigatingResultHasCallback = "The NavigatingResult already has completion callback";
 
         #endregion
     }

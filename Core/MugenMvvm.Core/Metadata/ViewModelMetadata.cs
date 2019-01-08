@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
+using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
+using MugenMvvm.Interfaces.Navigation.Presenters;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Models;
 
@@ -21,7 +23,7 @@ namespace MugenMvvm
         private static IMetadataContextKey<IViewModel> _parentViewModel;
         private static IMetadataContextKey<bool> _noState;
         private static IMetadataContextKey<object> _view;
-        private static IMetadataContextKey<Func<INavigationDispatcher, IViewModel, IReadOnlyMetadataContext, Task<bool>>?> _closeHandler;
+        private static IMetadataContextKey<Func<INavigationDispatcher, IViewModel, IReadOnlyMetadataContext, IChildViewModelPresenterResult>?> _closeHandler;
 
         #endregion
 
@@ -112,14 +114,16 @@ namespace MugenMvvm
             set => _view = value;
         }
 
-        public static IMetadataContextKey<Func<INavigationDispatcher, IViewModel, IReadOnlyMetadataContext, Task<bool>>?> CloseHandler
+        public static IMetadataContextKey<Func<INavigationDispatcher, IViewModel, IReadOnlyMetadataContext, IChildViewModelPresenterResult>?> CloseHandler
         {
             get
             {
                 if (_closeHandler == null)
-                    _closeHandler = GetBuilder<Func<INavigationDispatcher, IViewModel, IReadOnlyMetadataContext, Task<bool>>?>(nameof(CloseHandler))
-                        .NotNull()
-                        .Build();
+                {
+                    _closeHandler = GetBuilder<Func<INavigationDispatcher, IViewModel, IReadOnlyMetadataContext, IChildViewModelPresenterResult>?>(nameof(CloseHandler))
+                           .NotNull()
+                           .Build();
+                }
                 return _closeHandler;
             }
             set => _closeHandler = value;

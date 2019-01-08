@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Messaging;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces;
@@ -13,6 +14,7 @@ using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
@@ -220,6 +222,35 @@ namespace MugenMvvm
             if (_notNullValidateAction == null)
                 _notNullValidateAction = (ctx, k, value) => Should.NotBeNull(value, nameof(value));
             return builder.WithValidation(_notNullValidateAction);
+        }
+
+        #endregion
+
+        #region Navigation
+
+        public static Task WaitNavigationAsync(this INavigationDispatcher navigationDispatcher, NavigationType navigationType, NavigationCallbackType callbackType, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            Should.NotBeNull(navigationType, nameof(navigationType));
+            Should.NotBeNull(callbackType, nameof(callbackType));
+            if (metadata == null)
+                metadata = Default.MetadataContext;
+            var entries = navigationDispatcher.GetNavigationEntries(navigationType, metadata);
+            List<Task> tasks = null;
+            for (int i = 0; i < entries.Count; i++)
+            {
+                var callbacks = entries[i].GetCallbacks(callbackType, metadata);
+                for (int j = 0; j < callbacks.Count; j++)
+                {
+                    if (tasks == null)
+                        tasks = new List<Task>();
+                    tasks.Add(callbacks[i].WaitAsync());
+                }
+            }
+
+            if (tasks == null)
+                return Default.CompletedTask;
+            return Task.WhenAll(tasks);
         }
 
         #endregion

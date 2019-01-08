@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Models;
+﻿using MugenMvvm.Enums;
+using MugenMvvm.Models;
 
 namespace MugenMvvm.Interfaces.Models
 {

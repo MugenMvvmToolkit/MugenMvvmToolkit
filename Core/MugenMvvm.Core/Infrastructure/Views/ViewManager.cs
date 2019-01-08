@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
+using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.Metadata;

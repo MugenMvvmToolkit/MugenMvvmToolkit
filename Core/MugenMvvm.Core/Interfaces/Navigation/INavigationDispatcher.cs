@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Models;
 
 namespace MugenMvvm.Interfaces.Navigation
 {
@@ -11,12 +10,12 @@ namespace MugenMvvm.Interfaces.Navigation
     {
         IReadOnlyList<INavigationEntry> GetNavigationEntries(NavigationType? type, IReadOnlyMetadataContext metadata);
 
-        Task<bool> OnNavigatingAsync(INavigationContext context);
+        INavigatingResult OnNavigating(INavigationContext context);
 
         void OnNavigated(INavigationContext context);
 
         void OnNavigationFailed(INavigationContext context, Exception exception);
 
-        void OnNavigationCanceled(INavigationContext context);                
+        void OnNavigationCanceled(INavigationContext context);
     }
 }

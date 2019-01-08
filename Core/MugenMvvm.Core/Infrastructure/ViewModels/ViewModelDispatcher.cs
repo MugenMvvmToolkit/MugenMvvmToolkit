@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Attributes;
+using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.BusyIndicator;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Infrastructure.Messaging;

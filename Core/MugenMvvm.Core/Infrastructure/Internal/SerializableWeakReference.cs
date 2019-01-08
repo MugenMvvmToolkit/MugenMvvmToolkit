@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using System.Xml.Serialization;
 using MugenMvvm.Attributes;
 
 namespace MugenMvvm.Infrastructure.Internal
@@ -11,7 +12,7 @@ namespace MugenMvvm.Infrastructure.Internal
     {
         #region Fields
 
-        [IgnoreDataMember]
+        [IgnoreDataMember, XmlIgnore, NonSerialized]
         private WeakReference _weakReference;
 
         #endregion
@@ -40,7 +41,7 @@ namespace MugenMvvm.Infrastructure.Internal
             set => _weakReference = MugenExtensions.GetWeakReference(value);
         }
 
-        [IgnoreDataMember]
+        [IgnoreDataMember, XmlIgnore]
         [field: DataMember(Name = "T")]
         public Type TargetType { get; }
 
@@ -49,9 +50,9 @@ namespace MugenMvvm.Infrastructure.Internal
         #region Methods
 
         public T GetTarget<T>()
-            where T : class ?
+            where T : class?
         {
-            return (T) _weakReference.Target;
+            return (T)_weakReference.Target;
         }
 
         #endregion

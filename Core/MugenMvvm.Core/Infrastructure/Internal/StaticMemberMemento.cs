@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Xml.Serialization;
 using MugenMvvm.Attributes;
+using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Serialization;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Models;
@@ -41,7 +43,7 @@ namespace MugenMvvm.Infrastructure.Internal
 
         #region Properties
 
-        [IgnoreDataMember]
+        [IgnoreDataMember, XmlIgnore]
         public Type TargetType => TargetTypeField;
 
         #endregion

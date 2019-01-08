@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Threading;

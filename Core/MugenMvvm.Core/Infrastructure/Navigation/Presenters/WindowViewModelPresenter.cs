@@ -1,19 +1,13 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
 using MugenMvvm.Collections;
-using MugenMvvm.Infrastructure.Navigation;
-using MugenMvvm.Infrastructure.Presenters.Results;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
-using MugenMvvm.Interfaces.Presenters;
-using MugenMvvm.Interfaces.Presenters.Results;
+using MugenMvvm.Interfaces.Navigation.Presenters;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views.Infrastructure;
 using MugenMvvm.Interfaces.Wrapping;
-using MugenMvvm.Models;
 
-namespace MugenMvvm.Infrastructure.Presenters
+namespace MugenMvvm.Infrastructure.Navigation.Presenters
 {
     public class WindowViewModelPresenter : IRestorableChildViewModelPresenter
     {
@@ -25,14 +19,14 @@ namespace MugenMvvm.Infrastructure.Presenters
 
         #region Constructors
 
-        public WindowViewModelPresenter(IWrapperManager wrapperManager, IServiceProvider serviceProvider, IViewMappingProvider viewMappingProvider)
+        public WindowViewModelPresenter(IServiceProvider serviceProvider, IViewMappingProvider viewMappingProvider, IWrapperManager wrapperManager)
         {
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
             Should.NotBeNull(serviceProvider, nameof(serviceProvider));
             Should.NotBeNull(viewMappingProvider, nameof(viewMappingProvider));
-            WrapperManager = wrapperManager;
             ServiceProvider = serviceProvider;
             ViewMappingProvider = viewMappingProvider;
+            WrapperManager = wrapperManager;
             _mediatorRegistrations = new OrderedListInternal<MediatorRegistration>();
         }
 
@@ -56,26 +50,17 @@ namespace MugenMvvm.Infrastructure.Presenters
         {
             Should.NotBeNull(metadata, nameof(metadata));
             Should.NotBeNull(parentPresenter, nameof(parentPresenter));
-            var viewModel = metadata.Get(NavigationMetadata.ViewModel);
-            if (viewModel == null)
-                return null;
-            var mediator = TryCreateMediator(viewModel, metadata);
-            if (mediator == null)
-                return null;
-            parentPresenter
-                .WaitOpenNavigationAsync(NavigationType.Window, metadata)
-                .ContinueWith(task => mediator.Show(metadata), CancellationToken.None, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
-            return new ChildViewModelPresenterResult(metadata, NavigationType.Window, true);
+            return TryShowInternal(metadata, parentPresenter);
         }
 
-        public IClosingViewModelPresenterResult? TryClose(IReadOnlyMetadataContext metadata, IViewModelPresenter parentPresenter)
+        public IChildViewModelPresenterResult? TryClose(IReadOnlyMetadataContext metadata, IViewModelPresenter parentPresenter)
         {
             Should.NotBeNull(metadata, nameof(metadata));
             Should.NotBeNull(parentPresenter, nameof(parentPresenter));
             return TryCloseInternal(metadata, parentPresenter);
         }
 
-        public IRestorationViewModelPresenterResult? TryRestore(IReadOnlyMetadataContext metadata, IViewModelPresenter parentPresenter)
+        public IChildViewModelPresenterResult? TryRestore(IReadOnlyMetadataContext metadata, IViewModelPresenter parentPresenter)
         {
             Should.NotBeNull(metadata, nameof(metadata));
             Should.NotBeNull(parentPresenter, nameof(parentPresenter));
@@ -95,12 +80,13 @@ namespace MugenMvvm.Infrastructure.Presenters
 
         public void RegisterMediatorFactory(Type mediatorType, Type viewType, bool viewExactlyEqual, int priority = 0)
         {
+            Should.NotBeNull(viewType, nameof(viewType));
             if (viewExactlyEqual)
             {
                 RegisterMediatorFactory((vm, type, arg3) =>
                 {
                     if (type == viewType)
-                        return (INavigationWindowMediator)ServiceProvider.GetService(mediatorType);
+                        return (INavigationWindowMediator) ServiceProvider.GetService(mediatorType);
                     return null;
                 }, priority);
             }
@@ -109,7 +95,7 @@ namespace MugenMvvm.Infrastructure.Presenters
                 RegisterMediatorFactory((vm, type, arg3) =>
                 {
                     if (viewType.IsAssignableFromUnified(type) || WrapperManager.CanWrap(type, viewType, arg3))
-                        return (INavigationWindowMediator)ServiceProvider.GetService(mediatorType);
+                        return (INavigationWindowMediator) ServiceProvider.GetService(mediatorType);
                     return null;
                 }, priority);
             }
@@ -124,23 +110,29 @@ namespace MugenMvvm.Infrastructure.Presenters
             }
         }
 
-        protected virtual INavigationWindowMediator? CreateWindowViewMediator(IViewModel viewModel, Type viewType, IReadOnlyMetadataContext metadata)
-        {
-            return TryCreateMediatorFromFactory(viewModel, viewType, metadata);
-        }
-
-        protected virtual IClosingViewModelPresenterResult? TryCloseInternal(IReadOnlyMetadataContext metadata, IViewModelPresenter parentPresenter)
+        protected virtual IChildViewModelPresenterResult? TryShowInternal(IReadOnlyMetadataContext metadata, IViewModelPresenter parentPresenter)
         {
             var viewModel = metadata.Get(NavigationMetadata.ViewModel);
-            var mediator = viewModel?.Metadata.Get(NavigationMetadata.NavigationWindowMediator);
+            if (viewModel == null)
+                return null;
+            var mediator = TryCreateMediator(viewModel, metadata);
             if (mediator == null)
                 return null;
-            return new ClosingViewModelPresenterResult(metadata, mediator.CloseAsync(metadata));
+            return ChildViewModelPresenterResult.CreateShowResult(mediator.NavigationType, mediator.Show(metadata), true);
         }
 
-        protected virtual IRestorationViewModelPresenterResult? TryRestoreInternal(IReadOnlyMetadataContext metadata, IViewModelPresenter parentPresenter)
+        protected virtual IChildViewModelPresenterResult? TryCloseInternal(IReadOnlyMetadataContext metadata, IViewModelPresenter parentPresenter)
         {
-            var view = metadata.Get(NavigationMetadata.RestoredWindowView);
+            var viewModel = metadata.Get(NavigationMetadata.ViewModel);
+            var mediator = viewModel?.Metadata.Get(NavigationInternalMetadata.NavigationWindowMediator);
+            if (mediator == null)
+                return null;
+            return new ChildViewModelPresenterResult(mediator.Close(metadata), mediator.NavigationType);
+        }
+
+        protected virtual IChildViewModelPresenterResult? TryRestoreInternal(IReadOnlyMetadataContext metadata, IViewModelPresenter parentPresenter)
+        {
+            var view = metadata.Get(NavigationInternalMetadata.RestoredWindowView);
             var viewModel = metadata.Get(NavigationMetadata.ViewModel);
             if (view == null || viewModel == null)
                 return null;
@@ -150,10 +142,15 @@ namespace MugenMvvm.Infrastructure.Presenters
                 return null;
 
             mediator.UpdateView(view, true, metadata);
-            return new RestorationViewModelPresenterResult(metadata, true);
+            return new ChildViewModelPresenterResult(metadata, mediator.NavigationType);
         }
 
-        protected INavigationWindowMediator TryCreateMediatorFromFactory(IViewModel viewModel, Type viewType, IReadOnlyMetadataContext metadata)
+        protected virtual INavigationWindowMediator? CreateWindowViewMediator(IViewModel viewModel, Type viewType, IReadOnlyMetadataContext metadata)
+        {
+            return TryCreateMediatorFromFactory(viewModel, viewType, metadata);
+        }
+
+        protected INavigationWindowMediator? TryCreateMediatorFromFactory(IViewModel viewModel, Type viewType, IReadOnlyMetadataContext metadata)
         {
             lock (_mediatorRegistrations)
             {
@@ -168,7 +165,7 @@ namespace MugenMvvm.Infrastructure.Presenters
             return null;
         }
 
-        private INavigationWindowMediator TryCreateMediator(IViewModel viewModel, IReadOnlyMetadataContext metadata)
+        private INavigationWindowMediator? TryCreateMediator(IViewModel viewModel, IReadOnlyMetadataContext metadata)
         {
             if (metadata.Get(NavigationMetadata.SuppressWindowNavigation))
                 return null;
@@ -176,7 +173,7 @@ namespace MugenMvvm.Infrastructure.Presenters
             if (!ViewMappingProvider.TryGetMappingByViewModel(viewModel.GetType(), viewModel.GetViewName(metadata), out var mappingInfo))
                 return null;
 
-            return viewModel.Metadata.GetOrAdd(NavigationMetadata.NavigationWindowMediator, mappingInfo, this, (context, info, @this) =>
+            return viewModel.Metadata.GetOrAdd(NavigationInternalMetadata.NavigationWindowMediator, mappingInfo, this, (context, info, @this) =>
             {
                 var viewMediator = @this.CreateWindowViewMediator(viewModel, info.ViewType, metadata);
                 viewMediator?.Initialize(viewModel, metadata);

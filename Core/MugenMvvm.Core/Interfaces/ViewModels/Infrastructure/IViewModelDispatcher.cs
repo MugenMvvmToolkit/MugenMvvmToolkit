@@ -1,5 +1,6 @@
 ﻿using System;
 using JetBrains.Annotations;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;

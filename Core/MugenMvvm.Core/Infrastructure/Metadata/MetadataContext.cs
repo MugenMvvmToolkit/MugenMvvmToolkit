@@ -395,8 +395,7 @@ namespace MugenMvvm.Infrastructure.Metadata
         {
             #region Fields
 
-            [IgnoreDataMember]
-            [XmlIgnore]
+            [IgnoreDataMember, XmlIgnore, NonSerialized]
             private MetadataContext? _metadataContext;
 
             [DataMember(Name = "K")]
@@ -425,7 +424,7 @@ namespace MugenMvvm.Infrastructure.Metadata
 
             #region Properties
 
-            [IgnoreDataMember]
+            [IgnoreDataMember, XmlIgnore]
             public Type TargetType => typeof(MetadataContext);
 
             #endregion

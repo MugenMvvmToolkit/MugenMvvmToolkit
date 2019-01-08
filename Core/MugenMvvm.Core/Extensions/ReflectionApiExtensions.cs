@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure;
 using MugenMvvm.Interfaces;
 using MugenMvvm.Models;

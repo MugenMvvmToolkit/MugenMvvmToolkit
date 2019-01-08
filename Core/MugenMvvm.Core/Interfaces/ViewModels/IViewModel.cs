@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Interfaces.BusyIndicator;
+﻿using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;

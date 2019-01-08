@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using MugenMvvm.Attributes;
+using MugenMvvm.Enums;
 
 namespace MugenMvvm.Models
 {

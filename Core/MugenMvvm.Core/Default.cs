@@ -22,6 +22,8 @@ namespace MugenMvvm
     {
         #region Fields
 
+        public static readonly object TrueObject;
+        public static readonly object FalseObject;
         internal static readonly PropertyChangedEventArgs EmptyPropertyChangedArgs;
         internal static readonly PropertyChangedEventArgs IsNotificationsSuspendedChangedArgs;
         internal static readonly PropertyChangedEventArgs IsBusyChangedArgs;
@@ -46,6 +48,8 @@ namespace MugenMvvm
 
         static Default()
         {
+            TrueObject = true;
+            FalseObject = false;
             EmptyPropertyChangedArgs = new PropertyChangedEventArgs(string.Empty);
             IsNotificationsSuspendedChangedArgs = new PropertyChangedEventArgs(nameof(ISuspendNotifications.IsNotificationsSuspended));
             IsBusyChangedArgs = new PropertyChangedEventArgs(nameof(ViewModelBase.IsBusy));
@@ -96,6 +100,13 @@ namespace MugenMvvm
         public static Task<T> CanceledTask<T>()
         {
             return Value<T>.CanceledTaskField;
+        }
+
+        public static object BoolToObject(bool value)
+        {
+            if (value)
+                return TrueObject;
+            return FalseObject;
         }
 
         internal static PropertyChangedEventArgs GetOrCreatePropertyChangedArgs(string propertyName)

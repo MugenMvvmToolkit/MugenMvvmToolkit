@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.Threading;
 using System.Xml.Serialization;
 using MugenMvvm.Attributes;
+using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Messaging;
 using MugenMvvm.Infrastructure.Serialization;
 using MugenMvvm.Interfaces.BusyIndicator;
@@ -266,8 +267,7 @@ namespace MugenMvvm.ViewModels
         {
             #region Fields
 
-            [IgnoreDataMember]
-            [XmlIgnore]
+            [IgnoreDataMember, XmlIgnore, NonSerialized]
             private IViewModel? _viewModel;
 
             [DataMember(Name = "B")]
@@ -311,7 +311,7 @@ namespace MugenMvvm.ViewModels
 
             #region Properties
 
-            [IgnoreDataMember]
+            [IgnoreDataMember, XmlIgnore]
             public Type TargetType => ViewModelType!;
 
             #endregion

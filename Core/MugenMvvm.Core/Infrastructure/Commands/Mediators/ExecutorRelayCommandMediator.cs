@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Models;
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Models;

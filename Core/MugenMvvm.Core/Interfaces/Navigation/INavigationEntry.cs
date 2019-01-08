@@ -1,14 +1,18 @@
-﻿using MugenMvvm.Interfaces.ViewModels;
-using MugenMvvm.Models;
+﻿using System.Collections.Generic;
+using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Interfaces.Navigation
 {
     public interface INavigationEntry
     {
-        NavigationType Type { get; }
+        NavigationType NavigationType { get; }
 
         IViewModel ViewModel { get; }
 
         object? Provider { get; }
+
+        IReadOnlyList<INavigationCallback> GetCallbacks(NavigationCallbackType? callbackType, IReadOnlyMetadataContext metadata);
     }
 }

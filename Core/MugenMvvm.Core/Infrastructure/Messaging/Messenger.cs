@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
+using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.Messaging;

@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using JetBrains.Annotations;
 using MugenMvvm.Collections;
+using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;

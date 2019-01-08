@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
+using System.Xml.Serialization;
 using MugenMvvm.Attributes;
 
 namespace MugenMvvm.Collections
@@ -62,7 +63,7 @@ namespace MugenMvvm.Collections
 
         #region Properties
 
-        [IgnoreDataMember]
+        [IgnoreDataMember, XmlIgnore]
         private uint Capacity
         {
             get => (uint)_items.Length;

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;
+using System.Xml.Serialization;
 using MugenMvvm.Attributes;
+using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Serialization;
 using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.BusyIndicator;
@@ -184,7 +186,7 @@ namespace MugenMvvm.Infrastructure.Messaging
 
             #region Properties
 
-            [IgnoreDataMember]
+            [IgnoreDataMember, XmlIgnore]
             public Type TargetType => typeof(ViewModelMessengerSubscriber);
 
             #endregion

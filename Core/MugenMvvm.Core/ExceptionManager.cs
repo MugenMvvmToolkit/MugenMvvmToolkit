@@ -66,6 +66,11 @@ namespace MugenMvvm
             return new ArgumentException(MessageConstants.PresenterCannotHandleRequestFormat1.Format(request));
         }
 
+        internal static Exception NavigatingResultHasCallback()
+        {
+            return new InvalidOperationException(MessageConstants.NavigatingResultHasCallback);
+        }
+
         #endregion
     }
 }

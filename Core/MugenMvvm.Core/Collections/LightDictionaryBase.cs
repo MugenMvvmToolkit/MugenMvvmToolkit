@@ -17,27 +17,19 @@ namespace MugenMvvm.Collections
     {
         #region Fields
 
-        [IgnoreDataMember]
-        [NonSerialized]
-        [XmlIgnore]
+        [IgnoreDataMember, XmlIgnore, NonSerialized]
         private int[] _buckets;
 
-        [IgnoreDataMember]
-        [XmlIgnore]
+        [IgnoreDataMember, XmlIgnore, NonSerialized]
         private int _count;
 
-        [IgnoreDataMember]
-        [XmlIgnore]
+        [IgnoreDataMember, XmlIgnore, NonSerialized]
         private Entry[] _entries;
 
-        [IgnoreDataMember]
-        [NonSerialized]
-        [XmlIgnore]
+        [IgnoreDataMember, XmlIgnore, NonSerialized]
         private int _freeCount;
 
-        [IgnoreDataMember]
-        [NonSerialized]
-        [XmlIgnore]
+        [IgnoreDataMember, XmlIgnore, NonSerialized]
         private int _freeList;
 
         #endregion
