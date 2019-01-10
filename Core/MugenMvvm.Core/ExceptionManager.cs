@@ -71,6 +71,18 @@ namespace MugenMvvm
             return new InvalidOperationException(MessageConstants.NavigatingResultHasCallback);
         }
 
+        internal static Exception ObjectInitialized(string objectName, object obj, string? hint = null)
+        {
+            string typeName = obj == null ? string.Empty : obj.GetType().FullName;
+            return new InvalidOperationException(MessageConstants.ObjectInitializedFormat3.Format(objectName, typeName, hint));
+        }
+
+        internal static Exception ViewNotFound(Type viewModelType, Type? viewType = null)
+        {
+            string viewName = viewType == null ? "view" : viewType.FullName;
+            return new InvalidOperationException(MessageConstants.ViewNotFoundFormat2.Format(viewName, viewModelType));
+        }
+
         #endregion
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading;
@@ -29,12 +30,12 @@ namespace MugenMvvm.UnitTest.TestInfrastructure
 
         #region Implementation of interfaces
 
-        void IThreadDispatcher.Execute(IThreadDispatcherHandler handler, ThreadExecutionMode executionMode, object? state, IReadOnlyMetadataContext? metadata)
+        void IThreadDispatcher.Execute(IThreadDispatcherHandler handler, ThreadExecutionMode executionMode, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             ExecuteHandler(handler, executionMode, state, metadata);
         }
 
-        void IThreadDispatcher.Execute(Action<object?> action, ThreadExecutionMode executionMode, object? state, IReadOnlyMetadataContext? metadata)
+        void IThreadDispatcher.Execute(Action<object?> action, ThreadExecutionMode executionMode, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             ExecuteAction(action, executionMode, state, metadata);
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Views.Infrastructure
 {
@@ -7,10 +8,10 @@ namespace MugenMvvm.Interfaces.Views.Infrastructure
     {
         IEnumerable<IViewMappingInfo> Mappings { get; }
 
-        bool TryGetMappingsByView(Type viewType, out IReadOnlyCollection<IViewMappingInfo>? mappings);
+        IReadOnlyCollection<IViewMappingInfo>? TryGetMappingsByView(Type viewType, IReadOnlyMetadataContext metadata);
 
-        bool TryGetMappingsByViewModel(Type viewModelType, out IReadOnlyCollection<IViewMappingInfo>? mappings);
+        IReadOnlyCollection<IViewMappingInfo>? TryGetMappingsByViewModel(Type viewModelType, IReadOnlyMetadataContext metadata);
 
-        bool TryGetMappingByViewModel(Type viewModelType, string? viewName, out IViewMappingInfo? mapping);
+        IViewMappingInfo? TryGetMappingByViewModel(Type viewModelType, IReadOnlyMetadataContext metadata);
     }
 }

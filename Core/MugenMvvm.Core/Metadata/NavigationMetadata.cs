@@ -14,6 +14,7 @@ namespace MugenMvvm
         private static IMetadataContextKey<bool> _suppressTabNavigation;
         private static IMetadataContextKey<bool> _suppressWindowNavigation;
         private static IMetadataContextKey<bool> _suppressPageNavigation;
+        private static IMetadataContextKey<bool> _isDialog;
 
         #endregion
 
@@ -72,6 +73,17 @@ namespace MugenMvvm
                 return _suppressPageNavigation;
             }
             set => _suppressPageNavigation = value;
+        }
+
+        public static IMetadataContextKey<bool> IsDialog
+        {
+            get
+            {
+                if (_isDialog == null)
+                    _isDialog = GetBuilder<bool>(nameof(IsDialog)).Serializable().Build();
+                return _isDialog;
+            }
+            set => _isDialog = value;
         }
 
         #endregion

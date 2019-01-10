@@ -301,8 +301,11 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             else
             {
                 InvokeCallbacks(context.ViewModelTo, NavigationInternalMetadata.ShowingCallbacks, context, Default.FalseObject, e, canceled);
-                InvokeCallbacks(context.ViewModelTo, NavigationInternalMetadata.ClosingCallbacks, context, Default.FalseObject, e, canceled);
-                InvokeCallbacks(context.ViewModelTo, NavigationInternalMetadata.CloseCallbacks, context, Default.FalseObject, e, canceled);
+                if (context.NavigationMode == NavigationMode.New || !canceled)
+                {
+                    InvokeCallbacks(context.ViewModelTo, NavigationInternalMetadata.ClosingCallbacks, context, Default.FalseObject, e, canceled);
+                    InvokeCallbacks(context.ViewModelTo, NavigationInternalMetadata.CloseCallbacks, context, Default.FalseObject, e, canceled);
+                }
             }
         }
 

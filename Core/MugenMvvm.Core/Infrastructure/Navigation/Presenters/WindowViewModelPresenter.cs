@@ -86,7 +86,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 RegisterMediatorFactory((vm, type, arg3) =>
                 {
                     if (type == viewType)
-                        return (INavigationWindowMediator) ServiceProvider.GetService(mediatorType);
+                        return (INavigationWindowMediator)ServiceProvider.GetService(mediatorType);
                     return null;
                 }, priority);
             }
@@ -95,7 +95,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 RegisterMediatorFactory((vm, type, arg3) =>
                 {
                     if (viewType.IsAssignableFromUnified(type) || WrapperManager.CanWrap(type, viewType, arg3))
-                        return (INavigationWindowMediator) ServiceProvider.GetService(mediatorType);
+                        return (INavigationWindowMediator)ServiceProvider.GetService(mediatorType);
                     return null;
                 }, priority);
             }
@@ -140,9 +140,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             var mediator = TryCreateMediator(viewModel, metadata);
             if (mediator == null)
                 return null;
-
-            mediator.UpdateView(view, true, metadata);
-            return new ChildViewModelPresenterResult(metadata, mediator.NavigationType);
+            return new ChildViewModelPresenterResult(mediator.Restore(view, metadata), mediator.NavigationType);
         }
 
         protected virtual INavigationWindowMediator? CreateWindowViewMediator(IViewModel viewModel, Type viewType, IReadOnlyMetadataContext metadata)
@@ -170,7 +168,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             if (metadata.Get(NavigationMetadata.SuppressWindowNavigation))
                 return null;
 
-            if (!ViewMappingProvider.TryGetMappingByViewModel(viewModel.GetType(), viewModel.GetViewName(metadata), out var mappingInfo))
+            var mappingInfo = ViewMappingProvider.TryGetMappingByViewModel(viewModel.GetType(), metadata);
+            if (mappingInfo == null)
                 return null;
 
             return viewModel.Metadata.GetOrAdd(NavigationInternalMetadata.NavigationWindowMediator, mappingInfo, this, (context, info, @this) =>

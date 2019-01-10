@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
@@ -18,6 +19,8 @@ namespace MugenMvvm
         private static IMetadataContextKey<IList<INavigationCallbackInternal>?> _showingCallbacks;
         private static IMetadataContextKey<IList<INavigationCallbackInternal>?> _closingCallbacks;
         private static IMetadataContextKey<IList<INavigationCallbackInternal?>?> _closeCallbacks;
+        private static IMetadataContextKey<NavigationType?> _viewModelFromNavigationType;
+        private static IMetadataContextKey<NavigationType?> _viewModelToNavigationType;
 
         #endregion
 
@@ -93,6 +96,28 @@ namespace MugenMvvm
                 return _closeCallbacks;
             }
             set => _closeCallbacks = value;
+        }
+
+        public static IMetadataContextKey<NavigationType?> ViewModelFromNavigationType
+        {
+            get
+            {
+                if (_viewModelFromNavigationType == null)
+                    _viewModelFromNavigationType = GetBuilder<NavigationType?>(nameof(ViewModelFromNavigationType)).Build();
+                return _viewModelFromNavigationType;
+            }
+            set => _viewModelFromNavigationType = value;
+        }
+
+        public static IMetadataContextKey<NavigationType?> ViewModelToNavigationType
+        {
+            get
+            {
+                if (_viewModelToNavigationType == null)
+                    _viewModelToNavigationType = GetBuilder<NavigationType?>(nameof(ViewModelToNavigationType)).Build();
+                return _viewModelToNavigationType;
+            }
+            set => _viewModelToNavigationType = value;
         }
 
         #endregion

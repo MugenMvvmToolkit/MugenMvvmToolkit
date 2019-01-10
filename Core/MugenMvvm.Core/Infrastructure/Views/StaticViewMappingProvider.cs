@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Infrastructure.Internal;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Views.Infrastructure;
 
 namespace MugenMvvm.Infrastructure.Views
@@ -42,72 +43,28 @@ namespace MugenMvvm.Infrastructure.Views
 
         #region Implementation of interfaces
 
-        public bool TryGetMappingsByView(Type viewType, out IReadOnlyCollection<IViewMappingInfo>? mappings)
+        public IReadOnlyCollection<IViewMappingInfo>? TryGetMappingsByView(Type viewType, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(viewType, nameof(viewType));
+            Should.NotBeNull(metadata, nameof(metadata));
             EnsureInitialized();
-            if (!_viewTypeToMapping.TryGetValue(viewType, out var item))
-            {
-                mappings = null;
-                return false;
-            }
-
-            mappings = item;
-            return true;
+            return TryGetMappingsByViewInternal(viewType, metadata);
         }
 
-        public bool TryGetMappingsByViewModel(Type viewModelType, out IReadOnlyCollection<IViewMappingInfo>? mappings)
+        public IReadOnlyCollection<IViewMappingInfo>? TryGetMappingsByViewModel(Type viewModelType, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(viewModelType, nameof(viewModelType));
+            Should.NotBeNull(metadata, nameof(metadata));
             EnsureInitialized();
-            if (!_viewModelToMapping.TryGetValue(viewModelType, out var value))
-            {
-                if (viewModelType.IsGenericTypeUnified())
-                {
-                    viewModelType = viewModelType.GetGenericTypeDefinition();
-                    if (viewModelType != null)
-                        _viewModelToMapping.TryGetValue(viewModelType, out value);
-                }
-            }
-
-            if (value == null)
-            {
-                mappings = null;
-                return false;
-            }
-
-            mappings = value.Values.ToReadOnlyCollection();
-            return true;
+            return TryGetMappingsByViewModelInternal(viewModelType, metadata);
         }
 
-        public bool TryGetMappingByViewModel(Type viewModelType, string? viewName, out IViewMappingInfo? mapping)
+        public IViewMappingInfo? TryGetMappingByViewModel(Type viewModelType, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(viewModelType, nameof(viewModelType));
+            Should.NotBeNull(metadata, nameof(metadata));
             EnsureInitialized();
-            if (!_viewModelToMapping.TryGetValue(viewModelType, out var value))
-            {
-                if (viewModelType.IsGenericTypeUnified())
-                {
-                    viewModelType = viewModelType.GetGenericTypeDefinition();
-                    if (viewModelType != null)
-                        _viewModelToMapping.TryGetValue(viewModelType, out value);
-                }
-            }
-
-            if (value == null)
-            {
-                mapping = null;
-                return false;
-            }
-
-            viewName = viewName ?? string.Empty;
-            if (!value.TryGetValue(viewName, out mapping))
-            {
-                if (viewName != string.Empty)
-                    value.TryGetValue(string.Empty, out mapping);
-            }
-
-            return mapping != null;
+            return TryGetMappingByViewModelInternal(viewModelType, metadata);
         }
 
         #endregion
@@ -140,6 +97,54 @@ namespace MugenMvvm.Infrastructure.Views
             }
 
             value[name] = mappingInfo;
+        }
+
+        protected virtual IReadOnlyCollection<IViewMappingInfo>? TryGetMappingsByViewInternal(Type viewType, IReadOnlyMetadataContext metadata)
+        {
+            _viewTypeToMapping.TryGetValue(viewType, out var item);
+            return item;
+        }
+
+        protected virtual IReadOnlyCollection<IViewMappingInfo>? TryGetMappingsByViewModelInternal(Type viewModelType, IReadOnlyMetadataContext metadata)
+        {
+            if (!_viewModelToMapping.TryGetValue(viewModelType, out var value))
+            {
+                if (viewModelType.IsGenericTypeUnified())
+                {
+                    viewModelType = viewModelType.GetGenericTypeDefinition();
+                    if (viewModelType != null)
+                        _viewModelToMapping.TryGetValue(viewModelType, out value);
+                }
+            }
+
+            if (value == null)
+                return null;
+            return value.Values.ToReadOnlyCollection();
+        }
+
+        protected virtual IViewMappingInfo? TryGetMappingByViewModelInternal(Type viewModelType, IReadOnlyMetadataContext metadata)
+        {
+            if (!_viewModelToMapping.TryGetValue(viewModelType, out var value))
+            {
+                if (viewModelType.IsGenericTypeUnified())
+                {
+                    viewModelType = viewModelType.GetGenericTypeDefinition();
+                    if (viewModelType != null)
+                        _viewModelToMapping.TryGetValue(viewModelType, out value);
+                }
+            }
+
+            if (value == null)
+                return null;
+
+            var viewName = metadata.Get(NavigationMetadata.ViewName) ?? metadata.Get(NavigationMetadata.ViewModel)?.Metadata.Get(NavigationMetadata.ViewName) ?? string.Empty;
+            if (!value.TryGetValue(viewName, out var mapping))
+            {
+                if (viewName != string.Empty)
+                    value.TryGetValue(string.Empty, out mapping);
+            }
+
+            return mapping;
         }
 
         protected virtual void EnsureInitialized()

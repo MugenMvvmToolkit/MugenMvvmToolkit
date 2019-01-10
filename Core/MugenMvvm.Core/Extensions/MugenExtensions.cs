@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Messaging;
 using MugenMvvm.Infrastructure.Metadata;
+using MugenMvvm.Infrastructure.Navigation;
 using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.Messaging;
@@ -19,6 +20,7 @@ using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
+using MugenMvvm.Interfaces.Views.Infrastructure;
 using MugenMvvm.Interfaces.Wrapping;
 
 // ReSharper disable once CheckNamespace
@@ -37,17 +39,6 @@ namespace MugenMvvm
         public static bool IsSerializableCallbacksSupported(this IMvvmApplication application)
         {
             return true;//todo fix
-        }
-
-        #endregion
-
-        #region View models
-
-        public static string? GetViewName(this IViewModel viewModel, IReadOnlyMetadataContext metadata)
-        {
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            Should.NotBeNull(metadata, nameof(metadata));
-            return metadata.Get(NavigationMetadata.ViewName) ?? viewModel.Metadata.Get(NavigationMetadata.ViewName);
         }
 
         #endregion
@@ -227,29 +218,74 @@ namespace MugenMvvm
 
         #region Navigation
 
-        public static Task WaitNavigationAsync(this INavigationDispatcher navigationDispatcher, NavigationType navigationType, NavigationCallbackType callbackType, IReadOnlyMetadataContext? metadata = null)
+        public static Task WaitNavigationAsync(this INavigationDispatcher navigationDispatcher, Func<INavigationCallback, bool> filter, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
-            Should.NotBeNull(navigationType, nameof(navigationType));
-            Should.NotBeNull(callbackType, nameof(callbackType));
+            Should.NotBeNull(filter, nameof(filter));
             if (metadata == null)
                 metadata = Default.MetadataContext;
-            var entries = navigationDispatcher.GetNavigationEntries(navigationType, metadata);
-            List<Task> tasks = null;
+            var entries = navigationDispatcher.GetNavigationEntries(null, metadata);
+            List<Task>? tasks = null;
             for (int i = 0; i < entries.Count; i++)
             {
-                var callbacks = entries[i].GetCallbacks(callbackType, metadata);
+                var callbacks = entries[i].GetCallbacks(null, metadata);
                 for (int j = 0; j < callbacks.Count; j++)
                 {
                     if (tasks == null)
                         tasks = new List<Task>();
-                    tasks.Add(callbacks[i].WaitAsync());
+                    var callback = callbacks[i];
+                    if (filter(callback))
+                        tasks.Add(callback.WaitAsync());
                 }
             }
 
             if (tasks == null)
                 return Default.CompletedTask;
             return Task.WhenAll(tasks);
+        }
+
+        public static INavigationContext CreateNavigateToContext(this INavigationDispatcher navigationDispatcher, object navigationProvider, NavigationType navigationType, IViewModel viewModelTo, NavigationMode mode = NavigationMode.New, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            Should.NotBeNull(navigationType, nameof(navigationType));
+            Should.NotBeNull(viewModelTo, nameof(viewModelTo));
+            var entry = navigationDispatcher.GetLastNavigationEntry(navigationType, metadata: metadata);
+            var context = new NavigationContext(navigationProvider, navigationType, mode, entry?.ViewModel, viewModelTo, metadata);
+            if (entry != null && entry.NavigationType != navigationType)
+                context.Metadata.Set(NavigationInternalMetadata.ViewModelFromNavigationType, entry.NavigationType);
+            return context;
+        }
+
+        public static INavigationContext CreateNavigateFromContext(this INavigationDispatcher navigationDispatcher, object navigationProvider, NavigationType navigationType, IViewModel viewModelFrom, NavigationMode mode = NavigationMode.Back, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            Should.NotBeNull(navigationType, nameof(navigationType));
+            Should.NotBeNull(viewModelFrom, nameof(viewModelFrom));
+            var entry = navigationDispatcher.GetLastNavigationEntry(navigationType, metadata: metadata);
+            var context = new NavigationContext(navigationProvider, navigationType, mode, viewModelFrom, entry?.ViewModel, metadata);
+            if (entry != null && entry.NavigationType != navigationType)
+                context.Metadata.Set(NavigationInternalMetadata.ViewModelToNavigationType, entry.NavigationType);
+            return context;
+        }
+
+        public static INavigatingResult OnNavigatingTo(this INavigationDispatcher navigationDispatcher, object navigationProvider, NavigationType navigationType, IViewModel viewModelTo, NavigationMode mode = NavigationMode.New, IReadOnlyMetadataContext? metadata = null)
+        {
+            return navigationDispatcher.OnNavigating(navigationDispatcher.CreateNavigateToContext(navigationProvider, navigationType, viewModelTo, mode, metadata));
+        }
+
+        public static INavigatingResult OnNavigatingFrom(this INavigationDispatcher navigationDispatcher, object navigationProvider, NavigationType navigationType, IViewModel viewModelFrom, NavigationMode mode = NavigationMode.Back, IReadOnlyMetadataContext? metadata = null)
+        {
+            return navigationDispatcher.OnNavigating(navigationDispatcher.CreateNavigateFromContext(navigationProvider, navigationType, viewModelFrom, mode, metadata));
+        }
+
+        internal static INavigationEntry? GetLastNavigationEntry(this INavigationDispatcher navigationDispatcher, NavigationType navigationType, Func<INavigationEntry, bool>? filter = null, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            Should.NotBeNull(navigationType, nameof(navigationType));
+            if (filter == null)
+                filter = entry => entry.NavigationType != NavigationType.Tab;
+            var entries = navigationDispatcher.GetNavigationEntries(null, metadata ?? Default.MetadataContext);
+            return entries.Where(filter).OrderByDescending(entry => entry.NavigationDate).FirstOrDefault();
         }
 
         #endregion
@@ -412,6 +448,24 @@ namespace MugenMvvm
         #endregion
 
         #region Views
+
+        public static Task<object> GetViewAsync(this IViewManager viewManager, IViewModel viewModel, IReadOnlyMetadataContext metadata)
+        {
+            Should.NotBeNull(viewManager, nameof(viewManager));
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            Should.NotBeNull(metadata, nameof(metadata));
+            if (metadata.Get(NavigationMetadata.ViewModel) != viewModel)
+            {
+                var m = new MetadataContext(metadata);
+                m.Set(NavigationMetadata.ViewModel, viewModel);
+                metadata = m;
+            }
+
+            var mappingInfo = Singleton<IViewMappingProvider>.Instance.TryGetMappingByViewModel(viewModel.GetType(), metadata);
+            if (mappingInfo == null)
+                throw ExceptionManager.ViewNotFound(viewModel.GetType());
+            return viewManager.GetViewAsync(mappingInfo, metadata);
+        }
 
         public static TView GetCurrentView<TView>(this IViewModel viewModel, bool underlyingView = true)
             where TView : class ?

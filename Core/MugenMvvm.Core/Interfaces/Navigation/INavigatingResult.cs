@@ -7,6 +7,7 @@ namespace MugenMvvm.Interfaces.Navigation
     {
         Task<bool> GetResultAsync();
 
-        void CompleteNavigation(Func<INavigationDispatcher, INavigationContext, bool> completeNavigationCallback);
+        void CompleteNavigation(Func<INavigationDispatcher, INavigationContext, bool> completeNavigationCallback,
+            Action<INavigationDispatcher, INavigationContext, Exception?>? canceledCallback = null);
     }
 }

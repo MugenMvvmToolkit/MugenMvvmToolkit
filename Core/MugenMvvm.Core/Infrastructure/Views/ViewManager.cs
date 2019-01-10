@@ -100,7 +100,7 @@ namespace MugenMvvm.Infrastructure.Views
             if (view == null)
                 return Default.CompletedTask;
             var handler = new ViewHandler(this, view, viewModel, metadata, true);
-            ThreadDispatcher.Execute(handler, ThreadExecutionMode.Main, null, Default.AlwaysAsyncThreadDispatcherContext);
+            ThreadDispatcher.Execute(handler, ThreadExecutionMode.Main, null, metadata: Default.AlwaysAsyncThreadDispatcherContext);
             return handler.Task;
         }
 

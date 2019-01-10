@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm
 {
@@ -69,6 +70,14 @@ namespace MugenMvvm
         public static void MethodBeSupported([AssertionCondition(AssertionConditionType.IS_TRUE)]bool isSupported, string methodName)
         {
             BeSupported(isSupported, MessageConstants.ShouldMethodBeSupportedFormat1.Format(methodName));
+        }
+
+        [DebuggerStepThrough]
+        public static void NotBeDisposed<T>(this IDisposableObject<T> disposableObject) where T : class
+        {
+            NotBeNull(disposableObject, nameof(disposableObject));//todo fix
+//            if (disposableObject.IsDisposed)
+//                throw ExceptionManager.ObjectDisposed(disposableObject.GetType());
         }
 
         #endregion

@@ -16,10 +16,10 @@ namespace MugenMvvm.Interfaces.Navigation
 
         void Initialize(IViewModel viewModel, IReadOnlyMetadataContext metadata);
 
-        void UpdateView(object? view, bool isOpened, IReadOnlyMetadataContext metadata);
-
         IReadOnlyMetadataContext Show(IReadOnlyMetadataContext metadata);
 
         IReadOnlyMetadataContext Close(IReadOnlyMetadataContext metadata);
+
+        IReadOnlyMetadataContext Restore(object view, IReadOnlyMetadataContext metadata);
     }
 }

@@ -83,8 +83,13 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         protected virtual void HandleOpenedViewModels(INavigationContext context)
         {
-            var viewModelFrom = context.ViewModelFrom; //todo check all presenters
-            var viewModelTo = context.ViewModelTo;
+            var viewModelFrom = context.Metadata.Get(NavigationInternalMetadata.ViewModelFromNavigationType, context.NavigationType) == context.NavigationType
+                ? context.ViewModelFrom
+                : null;
+            var viewModelTo = context.Metadata.Get(NavigationInternalMetadata.ViewModelToNavigationType, context.NavigationType) == context.NavigationType
+                ? context.ViewModelTo
+                : null;
+
             lock (OpenedViewModels)
             {
                 if (!OpenedViewModels.TryGetValue(context.NavigationType, out var list))
@@ -276,6 +281,7 @@ namespace MugenMvvm.Infrastructure.Navigation
             private readonly NavigationDispatcher _dispatcher;
             private readonly INavigationDispatcherListener[] _listeners;
             private Func<INavigationDispatcher, INavigationContext, bool> _completeNavigationCallback;
+            private Action<INavigationDispatcher, INavigationContext, Exception?>? _canceledCallback;
             private int _index;
 
             #endregion
@@ -299,12 +305,13 @@ namespace MugenMvvm.Infrastructure.Navigation
                 return Task;
             }
 
-            public void CompleteNavigation(Func<INavigationDispatcher, INavigationContext, bool> completeNavigationCallback)
+            public void CompleteNavigation(Func<INavigationDispatcher, INavigationContext, bool> completeNavigationCallback,
+                Action<INavigationDispatcher, INavigationContext, Exception?>? canceledCallback = null)
             {
                 Should.NotBeNull(completeNavigationCallback, nameof(completeNavigationCallback));
                 if (Interlocked.Exchange(ref _completeNavigationCallback, completeNavigationCallback) != null)
                     throw ExceptionManager.NavigatingResultHasCallback();
-
+                _canceledCallback = canceledCallback;
                 Task.ContinueWith(InvokeCompletedCallback, this, TaskContinuationOptions.ExecuteSynchronously);
             }
 
@@ -364,25 +371,37 @@ namespace MugenMvvm.Infrastructure.Navigation
                 {
                     if (task.IsCanceled)
                     {
+                        _canceledCallback?.Invoke(_dispatcher, _context, null);
                         _dispatcher.OnNavigationCanceled(_context);
                         return;
                     }
 
                     if (task.IsFaulted)
                     {
+                        _canceledCallback?.Invoke(_dispatcher, _context, task.Exception);
                         _dispatcher.OnNavigationFailed(_context, task.Exception);
                         return;
                     }
 
-                    if (task.Result && _completeNavigationCallback(_dispatcher, _context))
-                        _dispatcher.OnNavigated(_context);
+                    if (task.Result)
+                    {
+                        if (_completeNavigationCallback(_dispatcher, _context))
+                            _dispatcher.OnNavigated(_context);
+                    }
+                    else
+                    {
+                        _canceledCallback?.Invoke(_dispatcher, _context, null);
+                        _dispatcher.OnNavigationCanceled(_context);
+                    }
                 }
                 catch (Exception e)
                 {
+                    _canceledCallback?.Invoke(_dispatcher, _context, e);
                     _dispatcher.OnNavigationFailed(_context, e);
                 }
                 finally
                 {
+                    _canceledCallback = null;
                     _completeNavigationCallback = (dispatcher, context) => false;
                 }
             }
@@ -406,16 +425,18 @@ namespace MugenMvvm.Infrastructure.Navigation
 
             private readonly WeakReference _providerReference;
             private readonly WeakReference _viewModelReference;
+            private readonly DateTime _date;
 
             #endregion
 
             #region Constructors
 
-            public WeakNavigationEntry(IViewModel viewModel, object? provider, NavigationType navigationType)
+            public WeakNavigationEntry(IViewModel viewModel, object provider, NavigationType navigationType)
             {
                 NavigationType = navigationType;
                 _viewModelReference = MugenExtensions.GetWeakReference(viewModel);
                 _providerReference = MugenExtensions.GetWeakReference(provider);
+                _date = DateTime.UtcNow;
             }
 
             #endregion
@@ -424,7 +445,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
             public IViewModel? ViewModel => (IViewModel)_viewModelReference.Target;
 
-            public object? NavigationProvider => _providerReference.Target;
+            public object NavigationProvider => _providerReference.Target;
 
             public NavigationType NavigationType { get; }
 
@@ -438,7 +459,7 @@ namespace MugenMvvm.Infrastructure.Navigation
                 var provider = NavigationProvider;
                 if (viewModel == null)
                     return null;
-                return new NavigationEntry(dispatcher, NavigationType, viewModel, provider);
+                return new NavigationEntry(dispatcher, NavigationType, viewModel, _date, provider);
             }
 
             #endregion
@@ -454,25 +475,29 @@ namespace MugenMvvm.Infrastructure.Navigation
 
             #region Constructors
 
-            public NavigationEntry(NavigationDispatcher navigationDispatcher, NavigationType type, IViewModel viewModel, object? provider)
+            public NavigationEntry(NavigationDispatcher navigationDispatcher, NavigationType type, IViewModel viewModel, DateTime date, object provider)
             {
                 Should.NotBeNull(type, nameof(type));
                 Should.NotBeNull(viewModel, nameof(viewModel));
+                Should.NotBeNull(provider, nameof(provider));
                 _navigationDispatcher = navigationDispatcher;
+                NavigationDate = date;
                 NavigationType = type;
+                NavigationProvider = provider;
                 ViewModel = viewModel;
-                Provider = provider;
             }
 
             #endregion
 
             #region Properties
 
+            public DateTime NavigationDate { get; }
+
             public NavigationType NavigationType { get; }
 
-            public IViewModel ViewModel { get; }
+            public object NavigationProvider { get; }
 
-            public object? Provider { get; }
+            public IViewModel? ViewModel { get; }
 
             #endregion
 
