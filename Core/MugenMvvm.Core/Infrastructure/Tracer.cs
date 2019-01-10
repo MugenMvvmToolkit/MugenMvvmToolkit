@@ -1,5 +1,4 @@
-﻿#define DEBUG
-
+﻿using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
 using MugenMvvm.Enums;
@@ -7,16 +6,27 @@ using MugenMvvm.Interfaces;
 
 namespace MugenMvvm.Infrastructure
 {
-    public class Tracer : ITracer
+    public sealed class Tracer : ITracer
     {
+        #region Fields
+
+        private readonly Action<string> _traceDelegate;
+
+        #endregion
+
         #region Constructors
 
         static Tracer()
         {
-            Singleton<ITracer>.Initialize(new Tracer());
             var isAttached = Debugger.IsAttached;
             TraceWarning = isAttached;
             TraceError = isAttached;
+        }
+
+        public Tracer(Action<string> traceDelegate)
+        {
+            Should.NotBeNull(traceDelegate, nameof(traceDelegate));
+            _traceDelegate = traceDelegate;
         }
 
         #endregion
@@ -29,7 +39,7 @@ namespace MugenMvvm.Infrastructure
 
         public static bool TraceError { get; set; }
 
-        private static ITracer TracerInternal => Singleton<ITracer>.Instance;
+        private static ITracer TracerInternal => Service<ITracer>.Instance;
 
         #endregion
 
@@ -38,7 +48,7 @@ namespace MugenMvvm.Infrastructure
         public void Trace(TraceLevel level, string message)
         {
             if (CanTrace(level))
-                TraceInternal(level, message);
+                _traceDelegate(level + ": " + message);
         }
 
         public bool CanTrace(TraceLevel level)
@@ -91,11 +101,6 @@ namespace MugenMvvm.Infrastructure
         public static void Error(string format, params object[] args)
         {
             TracerInternal.Trace(TraceLevel.Error, format, args);
-        }
-
-        protected virtual void TraceInternal(TraceLevel level, string message)
-        {
-            Debug.WriteLine(level + ": " + message);
         }
 
         #endregion

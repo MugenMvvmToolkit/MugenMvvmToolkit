@@ -134,7 +134,7 @@ namespace MugenMvvm.Infrastructure.Messaging
                 return vm.Subscriber;
             }
 
-            return Singleton<IAttachedValueProvider>.Instance.GetOrAdd(viewModel, AttachedMemberConstants.ViewModelMessengerSubscriberKey, (object)null, (object)null,
+            return Service<IAttachedValueProvider>.Instance.GetOrAdd(viewModel, AttachedMemberConstants.ViewModelMessengerSubscriberKey, (object)null, (object)null,
                 (model, s1, s2) => new ViewModelMessengerSubscriber(model));
         }
 

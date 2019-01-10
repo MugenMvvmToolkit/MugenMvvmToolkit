@@ -12,6 +12,7 @@ using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Infrastructure.Navigation;
 using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.BusyIndicator;
+using MugenMvvm.Interfaces.IoC;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -344,13 +345,40 @@ namespace MugenMvvm
             return (T)serviceProvider.GetService(typeof(T));
         }
 
+        [Pure]
+        public static bool TryGetService<T>(this IServiceProvider serviceProvider, out T service)
+        {
+            Should.NotBeNull(serviceProvider, nameof(serviceProvider));
+            try
+            {
+                if (serviceProvider is IServiceProviderEx serviceProviderEx)
+                {
+                    if (serviceProviderEx.TryGetService(typeof(T), out var o))
+                    {
+                        service = (T)o;
+                        return true;
+                    }
+                    service = default;
+                    return false;
+                }
+
+                service = (T)serviceProvider.GetService(typeof(T));
+                return true;
+            }
+            catch
+            {
+                service = default;
+                return false;
+            }
+        }
+
         public static WeakReference GetWeakReference(object? item, bool ignoreHasWeakReference = false)
         {
             if (item == null)
                 return Default.WeakReference;
             if (!ignoreHasWeakReference && item is IHasWeakReference hasWeakReference)
                 return hasWeakReference.WeakReference;
-            return Singleton<IWeakReferenceFactory>.Instance.CreateWeakReference(item!);
+            return Service<IWeakReferenceFactory>.Instance.CreateWeakReference(item!);
         }
 
         public static TResult[] ToArray<T, TResult>(this IReadOnlyCollection<T> collection, Func<T, TResult> selector)
@@ -461,7 +489,7 @@ namespace MugenMvvm
                 metadata = m;
             }
 
-            var mappingInfo = Singleton<IViewMappingProvider>.Instance.TryGetMappingByViewModel(viewModel.GetType(), metadata);
+            var mappingInfo = Service<IViewMappingProvider>.Instance.TryGetMappingByViewModel(viewModel.GetType(), metadata);
             if (mappingInfo == null)
                 throw ExceptionManager.ViewNotFound(viewModel.GetType());
             return viewManager.GetViewAsync(mappingInfo, metadata);

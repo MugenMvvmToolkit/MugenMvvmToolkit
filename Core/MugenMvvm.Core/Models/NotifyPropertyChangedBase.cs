@@ -45,7 +45,7 @@ namespace MugenMvvm.Models
             get
             {
                 if (_threadDispatcher == null)
-                    _threadDispatcher = Singleton<IThreadDispatcher>.Instance;
+                    _threadDispatcher = Service<IThreadDispatcher>.Instance;
                 return _threadDispatcher;
             }
         }

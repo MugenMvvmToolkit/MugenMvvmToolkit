@@ -49,14 +49,14 @@ namespace MugenMvvm.Infrastructure.Internal
 
         #region Methods
 
-        protected T[] GetListenersInternal()
+        protected T?[]? GetListenersInternal()
         {
             if (_listeners == null)
                 return null;
             return _listeners.GetItems(out _);
         }
 
-        protected T[] GetListenersWithLockInternal(out int size)
+        protected T?[]? GetListenersWithLockInternal(out int size)
         {
             if (_listeners == null)
             {

@@ -15,9 +15,9 @@ namespace MugenMvvm.UnitTest
         public UnitTestBase()
         {
             UnifiedReflectionApiInitializer.Initialize();
-            Singleton<IWeakReferenceFactory>.Initialize(new TestWeakReferenceFactory());
-            Singleton<IThreadDispatcher>.Initialize(new TestThreadDispatcher());
-            Singleton<IReflectionManager>.Initialize(new ExpressionReflectionManager());
+            ServiceConfiguration<IWeakReferenceFactory>.Initialize(new TestWeakReferenceFactory());
+            ServiceConfiguration<IThreadDispatcher>.Initialize(new TestThreadDispatcher());
+            ServiceConfiguration<IReflectionManager>.Initialize(new ExpressionReflectionManager());
         }
 
         #endregion

@@ -36,7 +36,7 @@ namespace MugenMvvm.ViewModels
 
         protected ViewModelBase(IObservableMetadataContext? metadata)
         {
-            var dispatcher = Singleton<IViewModelDispatcher>.Instance;
+            var dispatcher = Service<IViewModelDispatcher>.Instance;
             Metadata = metadata ?? dispatcher.GetMetadataContext(this, Default.MetadataContext);
             dispatcher.OnLifecycleChanged(this, ViewModelLifecycleState.Created, Default.MetadataContext);
         }
@@ -94,7 +94,7 @@ namespace MugenMvvm.ViewModels
             _busyIndicatorProvider?.RemoveAllListeners();
             GetInternalMessenger(false)?.UnsubscribeAll();
             //todo cleanup
-            Singleton<IViewModelDispatcher>.Instance.OnLifecycleChanged(this, ViewModelLifecycleState.Disposed, Default.MetadataContext);
+            Service<IViewModelDispatcher>.Instance.OnLifecycleChanged(this, ViewModelLifecycleState.Disposed, Default.MetadataContext);
             CleanupWeakReference();
         }
 
@@ -144,12 +144,12 @@ namespace MugenMvvm.ViewModels
             _state = DisposedState;
             OnDisposeInternal(false);
             OnDispose(false);
-            Singleton<IViewModelDispatcher>.Instance.OnLifecycleChanged(this, ViewModelLifecycleState.Finalized, Default.MetadataContext);
+            Service<IViewModelDispatcher>.Instance.OnLifecycleChanged(this, ViewModelLifecycleState.Finalized, Default.MetadataContext);
         }
 
         protected virtual IBusyIndicatorProvider GetBusyIndicatorProvider()
         {
-            return Singleton<IViewModelDispatcher>.Instance.GetBusyIndicatorProvider(this, Default.MetadataContext);
+            return Service<IViewModelDispatcher>.Instance.GetBusyIndicatorProvider(this, Default.MetadataContext);
         }
 
         protected virtual IMessenger? GetInternalMessenger(bool initializeIfNeed)
@@ -157,7 +157,7 @@ namespace MugenMvvm.ViewModels
             if (!initializeIfNeed)
                 return _internalMessenger;
             if (_internalMessenger == null)
-                MugenExtensions.LazyInitializeLock(ref _internalMessenger, this, vm => Singleton<IViewModelDispatcher>.Instance.GetMessenger(vm, Default.MetadataContext), this);
+                MugenExtensions.LazyInitializeLock(ref _internalMessenger, this, vm => Service<IViewModelDispatcher>.Instance.GetMessenger(vm, Default.MetadataContext), this);
             return _internalMessenger!;
         }
 
@@ -355,7 +355,7 @@ namespace MugenMvvm.ViewModels
                 if (_viewModel != null)
                     return new MementoResult(_viewModel, serializationContext);
 
-                var dispatcher = Singleton<IViewModelDispatcher>.Instance;
+                var dispatcher = serializationContext.ServiceProvider.GetService<IViewModelDispatcher>();
                 lock (RestorationLocker)
                 {
                     if (_viewModel != null)

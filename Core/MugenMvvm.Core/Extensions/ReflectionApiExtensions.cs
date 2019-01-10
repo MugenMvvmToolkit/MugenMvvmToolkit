@@ -255,7 +255,7 @@ namespace MugenMvvm
 
         public static T GetValueEx<T>(this MemberInfo member, object? target)
         {
-            return Singleton<IReflectionManager>.Instance.GetMemberGetter<T>(member).Invoke(target);
+            return Service<IReflectionManager>.Instance.GetMemberGetter<T>(member).Invoke(target);
         }
 
         public static object InvokeEx(this ConstructorInfo constructor)
