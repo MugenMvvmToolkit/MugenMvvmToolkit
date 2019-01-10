@@ -13,7 +13,7 @@ using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Infrastructure.Navigation
 {
-    public class NavigationDispatcher : HasListenersBase<INavigationDispatcherListener>, INavigationDispatcher
+    public class NavigationDispatcher : HasListenersBase<INavigationDispatcherListener>, INavigationDispatcher, IApplicationStateDispatcherListener
     {
         #region Fields
 
@@ -40,6 +40,11 @@ namespace MugenMvvm.Infrastructure.Navigation
         #endregion
 
         #region Implementation of interfaces
+
+        void IApplicationStateDispatcherListener.OnStateChanged(IApplicationStateDispatcher dispatcher, ApplicationState oldState, ApplicationState newState, IReadOnlyMetadataContext metadata)
+        {
+            OnApplicationStateChanged(dispatcher, oldState, newState, metadata);
+        }
 
         public IReadOnlyList<INavigationEntry> GetNavigationEntries(NavigationType? type, IReadOnlyMetadataContext metadata)
         {
@@ -115,7 +120,7 @@ namespace MugenMvvm.Infrastructure.Navigation
                     }
 
                     if (viewModelRef == null)
-                        viewModelRef = new WeakNavigationEntry(viewModelTo, context.NavigationProvider, context.NavigationType);
+                        viewModelRef = new WeakNavigationEntry(this, viewModelTo, context.NavigationProvider, context.NavigationType);
                     list.Add(viewModelRef);
                 }
 
@@ -197,7 +202,8 @@ namespace MugenMvvm.Infrastructure.Navigation
                 listeners[i]?.OnNavigatingCanceled(context);
         }
 
-        protected virtual IReadOnlyList<INavigationCallback> GetCallbacksInternal(INavigationEntry navigationEntry, NavigationCallbackType? callbackType, IReadOnlyMetadataContext metadata)
+        protected virtual IReadOnlyList<INavigationCallback> GetCallbacksInternal(INavigationEntry navigationEntry, NavigationCallbackType? callbackType,
+            IReadOnlyMetadataContext metadata)
         {
             List<INavigationCallback>? callbacks = null;
             if (callbackType == null)
@@ -224,6 +230,45 @@ namespace MugenMvvm.Infrastructure.Navigation
             return callbacks;
         }
 
+        protected virtual void OnApplicationStateChanged(IApplicationStateDispatcher dispatcher, ApplicationState oldState, ApplicationState newState, IReadOnlyMetadataContext metadata)
+        {
+            List<INavigationEntry> entries = null;
+            lock (OpenedViewModels)
+            {
+                foreach (var pair in OpenedViewModels)
+                {
+                    var navigationEntry = Enumerable.Reverse(pair.Value).Select(entry => entry.ToNavigationEntry()).FirstOrDefault(entry => entry != null);
+                    if (navigationEntry == null)
+                        continue;
+                    if (entries == null)
+                        entries = new List<INavigationEntry>();
+                    entries.Add(navigationEntry);
+                }
+            }
+            if (entries == null)
+                return;
+            for (int i = 0; i < entries.Count; i++)
+            {
+                var entry = entries[i];
+                if (!(entry.NavigationProvider is IApplicationStateSupportedNavigationProvider navigationProvider))
+                    continue;
+                if (!navigationProvider.IsSupported(entry.ViewModel, metadata))
+                    continue;
+
+                var ctx = navigationProvider.TryCreateApplicationStateContext(entry.ViewModel, metadata);
+                if (ctx == null)
+                {
+                    if (newState == ApplicationState.Active)
+                        ctx = new NavigationContext(navigationProvider, entry.NavigationType, NavigationMode.Foreground, null, entry.ViewModel, metadata);
+                    else if (newState == ApplicationState.Background)
+                        ctx = new NavigationContext(navigationProvider, entry.NavigationType, NavigationMode.Background, entry.ViewModel, null, metadata);
+                }
+
+                if (ctx != null)
+                    OnNavigated(ctx);
+            }
+        }
+
         private void GetOpenedViewModelsInternal(NavigationType type, ref List<INavigationEntry>? result)
         {
             if (!OpenedViewModels.TryGetValue(type, out var list))
@@ -233,7 +278,7 @@ namespace MugenMvvm.Infrastructure.Navigation
             var hasValue = false;
             for (var i = 0; i < list.Count; i++)
             {
-                var target = list[i].ToNavigationEntry(this);
+                var target = list[i].ToNavigationEntry();
                 if (target == null)
                 {
                     list.RemoveAt(i);
@@ -280,8 +325,8 @@ namespace MugenMvvm.Infrastructure.Navigation
             private readonly INavigationContext _context;
             private readonly NavigationDispatcher _dispatcher;
             private readonly INavigationDispatcherListener[] _listeners;
-            private Func<INavigationDispatcher, INavigationContext, bool> _completeNavigationCallback;
             private Action<INavigationDispatcher, INavigationContext, Exception?>? _canceledCallback;
+            private Func<INavigationDispatcher, INavigationContext, bool> _completeNavigationCallback;
             private int _index;
 
             #endregion
@@ -423,19 +468,20 @@ namespace MugenMvvm.Infrastructure.Navigation
         {
             #region Fields
 
-            private readonly WeakReference _providerReference;
-            private readonly WeakReference _viewModelReference;
+            private readonly NavigationDispatcher _dispatcher;
             private readonly DateTime _date;
+            private readonly WeakReference _viewModelReference;
 
             #endregion
 
             #region Constructors
 
-            public WeakNavigationEntry(IViewModel viewModel, object provider, NavigationType navigationType)
+            public WeakNavigationEntry(NavigationDispatcher dispatcher, IViewModel viewModel, object provider, NavigationType navigationType)
             {
+                _dispatcher = dispatcher;
                 NavigationType = navigationType;
+                NavigationProvider = provider;
                 _viewModelReference = MugenExtensions.GetWeakReference(viewModel);
-                _providerReference = MugenExtensions.GetWeakReference(provider);
                 _date = DateTime.UtcNow;
             }
 
@@ -445,7 +491,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
             public IViewModel? ViewModel => (IViewModel)_viewModelReference.Target;
 
-            public object NavigationProvider => _providerReference.Target;
+            public object NavigationProvider { get; }
 
             public NavigationType NavigationType { get; }
 
@@ -453,13 +499,13 @@ namespace MugenMvvm.Infrastructure.Navigation
 
             #region Methods
 
-            public INavigationEntry? ToNavigationEntry(NavigationDispatcher dispatcher)
+            public INavigationEntry? ToNavigationEntry()
             {
                 var viewModel = ViewModel;
                 var provider = NavigationProvider;
                 if (viewModel == null)
                     return null;
-                return new NavigationEntry(dispatcher, NavigationType, viewModel, _date, provider);
+                return new NavigationEntry(_dispatcher, NavigationType, viewModel, _date, provider);
             }
 
             #endregion
@@ -497,7 +543,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
             public object NavigationProvider { get; }
 
-            public IViewModel? ViewModel { get; }
+            public IViewModel ViewModel { get; }
 
             #endregion
 

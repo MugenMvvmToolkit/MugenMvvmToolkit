@@ -11,14 +11,14 @@ using MugenMvvm.Interfaces.Wrapping;
 
 namespace MugenMvvm.Infrastructure.Navigation
 {
-    public abstract class NavigationWindowMediatorBase<TView> : INavigationWindowMediator
+    public abstract class NavigationWindowMediatorBase<TView> : INavigationWindowMediator, IApplicationStateSupportedNavigationProvider
         where TView : class ?
     {
         #region Fields
 
-        private INavigationContext? _showingContext;
-        private INavigationContext? _closingContext;
         private CancelEventArgs _cancelArgs;
+        private INavigationContext? _closingContext;
+        private INavigationContext? _showingContext;
         private bool _shouldClose;
 
         #endregion
@@ -65,6 +65,16 @@ namespace MugenMvvm.Infrastructure.Navigation
         #endregion
 
         #region Implementation of interfaces
+
+        bool IApplicationStateSupportedNavigationProvider.IsSupported(IViewModel viewModel, IReadOnlyMetadataContext metadata)
+        {
+            return ReferenceEquals(viewModel, ViewModel) && IsOpen && !viewModel.IsDisposed;
+        }
+
+        INavigationContext? IApplicationStateSupportedNavigationProvider.TryCreateApplicationStateContext(IViewModel viewModel, IReadOnlyMetadataContext metadata)
+        {
+            return null;
+        }
 
         public void Initialize(IViewModel viewModel, IReadOnlyMetadataContext metadata)
         {
@@ -120,8 +130,8 @@ namespace MugenMvvm.Infrastructure.Navigation
             if (shouldWaitNavigation)
             {
                 NavigationDispatcher
-                   .WaitNavigationAsync(ShouldWaitNavigationBeforeShow, metadata)
-                   .ContinueWith(ShowAfterWaitNavigation, metadata, TaskContinuationOptions.ExecuteSynchronously);
+                    .WaitNavigationAsync(ShouldWaitNavigationBeforeShow, metadata)
+                    .ContinueWith(ShowAfterWaitNavigation, metadata, TaskContinuationOptions.ExecuteSynchronously);
                 return metadata;
             }
 
@@ -129,7 +139,7 @@ namespace MugenMvvm.Infrastructure.Navigation
             {
                 ThreadDispatcher.Execute(o =>
                 {
-                    var ctx = NavigationDispatcher.CreateNavigateToContext(this, NavigationType, ViewModel, NavigationMode.Refresh, (IReadOnlyMetadataContext)o);
+                    var ctx = NavigationDispatcher.CreateNavigateToContext(this, NavigationType, ViewModel, NavigationMode.Refresh, (IReadOnlyMetadataContext) o);
                     try
                     {
                         _showingContext = ctx;
@@ -209,7 +219,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         protected void OnViewOpened(object? sender = null, EventArgs? e = null)
         {
-            INavigationContext? navigationContext = _showingContext;
+            var navigationContext = _showingContext;
             _showingContext = null;
             if (navigationContext == null)
                 navigationContext = NavigationDispatcher.CreateNavigateToContext(this, NavigationType, ViewModel);
@@ -218,7 +228,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         protected void OnViewActivated(object? sender = null, EventArgs? e = null)
         {
-            INavigationContext? navigationContext = _showingContext;
+            var navigationContext = _showingContext;
             _showingContext = null;
             if (navigationContext == null)
                 navigationContext = NavigationDispatcher.CreateNavigateToContext(this, NavigationType, ViewModel, NavigationMode.Refresh);
@@ -236,6 +246,7 @@ namespace MugenMvvm.Infrastructure.Navigation
                     CompleteClose(_closingContext);
                     return;
                 }
+
                 e.Cancel = true;
                 CloseInternal(false, Default.MetadataContext);
             }
@@ -260,18 +271,19 @@ namespace MugenMvvm.Infrastructure.Navigation
                 if (ReferenceEquals(oldView, view))
                     return;
             }
+
             IsOpen = isOpen;
             if (oldView != null)
                 CleanupView(oldView, metadata);
-            View = (TView)view;
+            View = (TView) view;
             if (View != null)
                 InitializeView(metadata);
         }
 
         private void OnViewCreated(Task<object> task, object state)
         {
-            var context = (INavigationContext)state;
-            View = (TView)WrapperManager.Wrap(task.Result, typeof(TView), context.Metadata);
+            var context = (INavigationContext) state;
+            View = (TView) WrapperManager.Wrap(task.Result, typeof(TView), context.Metadata);
             ViewManager.InitializeViewAsync(task.Result, ViewModel, context.Metadata);
             InitializeView(context.Metadata);
 
@@ -279,13 +291,13 @@ namespace MugenMvvm.Infrastructure.Navigation
             {
                 try
                 {
-                    _showingContext = (INavigationContext)o;
+                    _showingContext = (INavigationContext) o;
                     ShowView(_showingContext.Metadata);
                 }
                 catch (Exception e)
                 {
                     _showingContext = null;
-                    NavigationDispatcher.OnNavigationFailed((INavigationContext)o, e);
+                    NavigationDispatcher.OnNavigationFailed((INavigationContext) o, e);
                     throw;
                 }
             }, ThreadExecutionMode.Main, context);
@@ -294,18 +306,18 @@ namespace MugenMvvm.Infrastructure.Navigation
         private void ShowAfterWaitNavigation(Task task, object state)
         {
             ViewModel.NotBeDisposed();
-            ShowInternal(false, (IReadOnlyMetadataContext)state);
+            ShowInternal(false, (IReadOnlyMetadataContext) state);
         }
 
         private void CloseAfterWaitNavigation(Task task, object state)
         {
             ViewModel.NotBeDisposed();
-            CloseInternal(false, (IReadOnlyMetadataContext)state);
+            CloseInternal(false, (IReadOnlyMetadataContext) state);
         }
 
         private void CloseViewInternal(object state)
         {
-            var navigationContext = (INavigationContext)state;
+            var navigationContext = (INavigationContext) state;
             try
             {
                 if (_cancelArgs != null)
@@ -334,7 +346,7 @@ namespace MugenMvvm.Infrastructure.Navigation
             _closingContext = null;
             _shouldClose = false;
             IsOpen = false;
-            TView view = View;
+            var view = View;
             if (view != null)
             {
                 CleanupView(view, context.Metadata);
