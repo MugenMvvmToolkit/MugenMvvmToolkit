@@ -10,8 +10,8 @@ namespace MugenMvvm.Enums
     {
         #region Fields
 
-        public static readonly IoCParameterType Active = new IoCParameterType(1);
-        public static readonly IoCParameterType Background = new IoCParameterType(2);
+        public static readonly IoCParameterType Constructor = new IoCParameterType(1);
+        public static readonly IoCParameterType Property = new IoCParameterType(2);
 
         #endregion
 
