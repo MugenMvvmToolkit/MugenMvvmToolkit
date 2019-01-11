@@ -66,12 +66,12 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         #region Implementation of interfaces
 
-        bool IApplicationStateSupportedNavigationProvider.IsSupported(IViewModel viewModel, IReadOnlyMetadataContext metadata)
+        bool IApplicationStateSupportedNavigationProvider.IsSupported(IViewModel viewModel, ApplicationState oldState, ApplicationState newState, IReadOnlyMetadataContext metadata)
         {
             return ReferenceEquals(viewModel, ViewModel) && IsOpen && !viewModel.IsDisposed;
         }
 
-        INavigationContext? IApplicationStateSupportedNavigationProvider.TryCreateApplicationStateContext(IViewModel viewModel, IReadOnlyMetadataContext metadata)
+        INavigationContext? IApplicationStateSupportedNavigationProvider.TryCreateApplicationStateContext(IViewModel viewModel, ApplicationState oldState, ApplicationState newState, IReadOnlyMetadataContext metadata)
         {
             return null;
         }

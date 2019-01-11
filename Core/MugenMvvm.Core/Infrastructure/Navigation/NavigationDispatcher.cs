@@ -24,11 +24,13 @@ namespace MugenMvvm.Infrastructure.Navigation
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public NavigationDispatcher(ITracer tracer)
+        public NavigationDispatcher(IApplicationStateDispatcher applicationStateDispatcher, ITracer tracer)
         {
             Should.NotBeNull(tracer, nameof(tracer));
+            Should.NotBeNull(applicationStateDispatcher, nameof(applicationStateDispatcher));
             Tracer = tracer;
             OpenedViewModels = new Dictionary<NavigationType, List<WeakNavigationEntry>>();
+            applicationStateDispatcher.AddListener(this);
         }
 
         #endregion
@@ -232,41 +234,17 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         protected virtual void OnApplicationStateChanged(IApplicationStateDispatcher dispatcher, ApplicationState oldState, ApplicationState newState, IReadOnlyMetadataContext metadata)
         {
-            List<INavigationEntry> entries = null;
+            var entries = new List<WeakNavigationEntry>();
             lock (OpenedViewModels)
             {
                 foreach (var pair in OpenedViewModels)
                 {
-                    var navigationEntry = Enumerable.Reverse(pair.Value).Select(entry => entry.ToNavigationEntry()).FirstOrDefault(entry => entry != null);
-                    if (navigationEntry == null)
-                        continue;
-                    if (entries == null)
-                        entries = new List<INavigationEntry>();
-                    entries.Add(navigationEntry);
+                    entries.AddRange(pair.Value);
                 }
             }
-            if (entries == null)
-                return;
+
             for (int i = 0; i < entries.Count; i++)
-            {
-                var entry = entries[i];
-                if (!(entry.NavigationProvider is IApplicationStateSupportedNavigationProvider navigationProvider))
-                    continue;
-                if (!navigationProvider.IsSupported(entry.ViewModel, metadata))
-                    continue;
-
-                var ctx = navigationProvider.TryCreateApplicationStateContext(entry.ViewModel, metadata);
-                if (ctx == null)
-                {
-                    if (newState == ApplicationState.Active)
-                        ctx = new NavigationContext(navigationProvider, entry.NavigationType, NavigationMode.Foreground, null, entry.ViewModel, metadata);
-                    else if (newState == ApplicationState.Background)
-                        ctx = new NavigationContext(navigationProvider, entry.NavigationType, NavigationMode.Background, entry.ViewModel, null, metadata);
-                }
-
-                if (ctx != null)
-                    OnNavigated(ctx);
-            }
+                entries[i].OnApplicationStateChanged(dispatcher, oldState, newState, metadata);
         }
 
         private void GetOpenedViewModelsInternal(NavigationType type, ref List<INavigationEntry>? result)
@@ -498,6 +476,29 @@ namespace MugenMvvm.Infrastructure.Navigation
             #endregion
 
             #region Methods
+
+            public void OnApplicationStateChanged(IApplicationStateDispatcher dispatcher, ApplicationState oldState, ApplicationState newState, IReadOnlyMetadataContext metadata)
+            {
+                if (!(NavigationProvider is IApplicationStateSupportedNavigationProvider navigationProvider))
+                    return;
+                var viewModel = ViewModel;
+                if (viewModel == null)
+                    return;
+                if (!navigationProvider.IsSupported(viewModel, oldState, newState, metadata))
+                    return;
+
+                var ctx = navigationProvider.TryCreateApplicationStateContext(viewModel, oldState, newState, metadata);
+                if (ctx == null)
+                {
+                    if (newState == ApplicationState.Active)
+                        ctx = new NavigationContext(navigationProvider, NavigationType, NavigationMode.Foreground, null, viewModel, metadata);
+                    else if (newState == ApplicationState.Background)
+                        ctx = new NavigationContext(navigationProvider, NavigationType, NavigationMode.Background, viewModel, null, metadata);
+                }
+
+                if (ctx != null)
+                    _dispatcher.OnNavigated(ctx);
+            }
 
             public INavigationEntry? ToNavigationEntry()
             {

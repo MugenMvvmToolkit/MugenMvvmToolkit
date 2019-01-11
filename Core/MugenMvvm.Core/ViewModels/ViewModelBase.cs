@@ -93,8 +93,10 @@ namespace MugenMvvm.ViewModels
             _busyIndicatorProvider?.ClearBusy();
             _busyIndicatorProvider?.RemoveAllListeners();
             GetInternalMessenger(false)?.UnsubscribeAll();
-            //todo cleanup
+            Subscriber = null;
+            //todo cleanup, all listeners
             Service<IViewModelDispatcher>.Instance.OnLifecycleChanged(this, ViewModelLifecycleState.Disposed, Default.MetadataContext);
+            Metadata.RemoveAllListeners();
             CleanupWeakReference();
         }
 
