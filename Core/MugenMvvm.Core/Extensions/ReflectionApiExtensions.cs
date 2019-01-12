@@ -14,17 +14,21 @@ namespace MugenMvvm
     {
         #region Properties
 
-        public static Func<Type, string, MemberFlags, FieldInfo> GetField { get; set; }
+        public static Func<Type, string, MemberFlags, FieldInfo?> GetField { get; set; }
 
         public static Func<Type, MemberFlags, IEnumerable<FieldInfo>> GetFields { get; set; }
 
-        public static Func<Type, string, MemberFlags, PropertyInfo> GetProperty { get; set; }
+        public static Func<Type, string, MemberFlags, PropertyInfo?> GetProperty { get; set; }
 
         public static Func<Type, MemberFlags, IEnumerable<PropertyInfo>> GetProperties { get; set; }
 
-        public static Func<Type, string, MemberFlags, MethodInfo> GetMethod { get; set; }
+        public static Func<Type, string, MemberFlags, MethodInfo?> GetMethod { get; set; }
+
+        public static Func<Type, string, MemberFlags, Type[], MethodInfo?> GetMethodWithTypes { get; set; }
 
         public static Func<Type, MemberFlags, IEnumerable<MethodInfo>> GetMethods { get; set; }
+
+        public static Func<Type, MemberFlags, Type[], ConstructorInfo?> GetConstructor { get; set; }
 
         public static Func<Type, MemberFlags, IEnumerable<ConstructorInfo>> GetConstructors { get; set; }
 
@@ -42,6 +46,8 @@ namespace MugenMvvm
 
         public static Func<Type, Type> GetBaseType { get; set; }
 
+        public static Func<Type, IReadOnlyList<Type>> GetGenericArguments { get; set; }
+
         public static Func<Type, bool> IsClass { get; set; }
 
         public static Func<Type, bool> IsValueType { get; set; }
@@ -54,9 +60,11 @@ namespace MugenMvvm
 
         public static Func<Type, bool> IsGenericTypeDefinition { get; set; }
 
-        public static Func<PropertyInfo, bool, MethodInfo> GetGetMethod { get; set; }
+        public static Func<Type, bool> ContainsGenericParameters { get; set; }
 
-        public static Func<PropertyInfo, bool, MethodInfo> GetSetMethod { get; set; }
+        public static Func<PropertyInfo, bool, MethodInfo?> GetGetMethod { get; set; }
+
+        public static Func<PropertyInfo, bool, MethodInfo?> GetSetMethod { get; set; }
 
         public static Func<Assembly, IList<Type>> GetTypes { get; set; }
 
@@ -66,22 +74,28 @@ namespace MugenMvvm
 
         #region Methods
 
-        public static FieldInfo GetFieldUnified(this Type type, string name, MemberFlags flags)
+        public static FieldInfo? GetFieldUnified(this Type type, string name, MemberFlags flags)
         {
             Should.NotBeNull(type, nameof(type));
             return GetField(type, name, flags);
         }
 
-        public static PropertyInfo GetPropertyUnified(this Type type, string name, MemberFlags flags)
+        public static PropertyInfo? GetPropertyUnified(this Type type, string name, MemberFlags flags)
         {
             Should.NotBeNull(type, nameof(type));
             return GetProperty(type, name, flags);
         }
 
-        public static MethodInfo GetMethodUnified(this Type type, string name, MemberFlags flags)
+        public static MethodInfo? GetMethodUnified(this Type type, string name, MemberFlags flags)
         {
             Should.NotBeNull(type, nameof(type));
             return GetMethod(type, name, flags);
+        }
+
+        public static MethodInfo? GetMethodUnified(this Type type, string name, MemberFlags flags, params Type[] types)
+        {
+            Should.NotBeNull(type, nameof(type));
+            return GetMethodWithTypes(type, name, flags, types);
         }
 
         public static IEnumerable<FieldInfo> GetFieldsUnified(this Type type, MemberFlags flags)
@@ -100,6 +114,12 @@ namespace MugenMvvm
         {
             Should.NotBeNull(type, nameof(type));
             return GetMethods(type, flags);
+        }
+
+        public static ConstructorInfo? GetConstructorUnified(this Type type, MemberFlags flags, Type[] types)
+        {
+            Should.NotBeNull(type, nameof(type));
+            return GetConstructor(type, flags, types);
         }
 
         public static IEnumerable<ConstructorInfo> GetConstructorsUnified(this Type type, MemberFlags flags)
@@ -124,6 +144,12 @@ namespace MugenMvvm
         {
             Should.NotBeNull(type, nameof(type));
             return GetInterfaces(type);
+        }
+
+        public static IReadOnlyList<Type> GetGenericArgumentsUnified(this Type type)
+        {
+            Should.NotBeNull(type, nameof(type));
+            return GetGenericArguments(type);
         }
 
         public static Assembly GetAssemblyUnified(this Type type)
@@ -188,13 +214,19 @@ namespace MugenMvvm
             return IsGenericTypeDefinition(type);
         }
 
-        public static MethodInfo GetGetMethodUnified(this PropertyInfo propertyInfo, bool nonPublic)
+        public static bool ContainsGenericParametersUnified(this Type type)
+        {
+            Should.NotBeNull(type, nameof(type));
+            return ContainsGenericParameters(type);
+        }
+
+        public static MethodInfo? GetGetMethodUnified(this PropertyInfo propertyInfo, bool nonPublic)
         {
             Should.NotBeNull(propertyInfo, nameof(propertyInfo));
             return GetGetMethod(propertyInfo, nonPublic);
         }
 
-        public static MethodInfo GetSetMethodUnified(this PropertyInfo propertyInfo, bool nonPublic)
+        public static MethodInfo? GetSetMethodUnified(this PropertyInfo propertyInfo, bool nonPublic)
         {
             Should.NotBeNull(propertyInfo, nameof(propertyInfo));
             return GetSetMethod(propertyInfo, nonPublic);
@@ -204,7 +236,7 @@ namespace MugenMvvm
         {
             if (member is PropertyInfo propertyInfo)
             {
-                MethodInfo method = propertyInfo.CanRead
+                var method = propertyInfo.CanRead
                     ? propertyInfo.GetGetMethodUnified(true)
                     : propertyInfo.GetSetMethodUnified(true);
                 return method != null && method.IsStatic;
@@ -213,12 +245,6 @@ namespace MugenMvvm
             if (member is MethodInfo methodInfo)
                 return methodInfo.IsStatic;
             return member is FieldInfo fieldInfo && fieldInfo.IsStatic;
-        }
-
-        public static TDelegate GetMethodDelegate<TDelegate>(this IReflectionManager reflectionManager, MethodInfo method) where TDelegate : Delegate
-        {
-            Should.NotBeNull(method, nameof(method));
-            return (TDelegate)reflectionManager.GetMethodDelegate(typeof(TDelegate), method);
         }
 
         public static bool IsAnonymousClass(this Type type)
@@ -238,6 +264,7 @@ namespace MugenMvvm
                 if (Tracer.TraceError)
                     Tracer.Error(e.Flatten(true));
             }
+
             return Default.EmptyArray<Type>();
         }
 
@@ -253,9 +280,20 @@ namespace MugenMvvm
             return (es & value) == value;
         }
 
+        public static TDelegate GetMethodDelegate<TDelegate>(this IReflectionManager reflectionManager, MethodInfo method) where TDelegate : Delegate
+        {
+            Should.NotBeNull(method, nameof(method));
+            return (TDelegate)reflectionManager.GetMethodDelegate(typeof(TDelegate), method);
+        }
+
         public static T GetValueEx<T>(this MemberInfo member, object? target)
         {
             return Service<IReflectionManager>.Instance.GetMemberGetter<T>(member).Invoke(target);
+        }
+
+        public static void SetValueEx<T>(this MemberInfo member, object target, T value)
+        {
+            Service<IReflectionManager>.Instance.GetMemberSetter<T>(member).Invoke(target, value);
         }
 
         public static object InvokeEx(this ConstructorInfo constructor)
@@ -265,7 +303,17 @@ namespace MugenMvvm
 
         public static object InvokeEx(this ConstructorInfo constructor, params object[] parameters)
         {
-            throw new NotImplementedException();//todo fix
+            return Service<IReflectionManager>.Instance.GetActivatorDelegate(constructor).Invoke(parameters);
+        }
+
+        public static object? InvokeEx(this MethodInfo method, object? target)
+        {
+            return method.InvokeEx(target, Default.EmptyArray<object>());
+        }
+
+        public static object? InvokeEx(this MethodInfo method, object? target, params object[] parameters)
+        {
+            return Service<IReflectionManager>.Instance.GetMethodDelegate(method).Invoke(target, parameters);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -278,6 +326,16 @@ namespace MugenMvvm
         internal static bool EqualsEx(this MemberInfo x, MemberInfo y)
         {
             return ReferenceEquals(x, y) || x.Equals(y);
+        }
+
+        internal static void SetValue<TValue>(this PropertyInfo property, object target, TValue value)
+        {
+            property.SetValue(target, value, Default.EmptyArray<object>());
+        }
+
+        internal static void SetValue<TValue>(this FieldInfo field, object target, TValue value)
+        {
+            field.SetValue(target, value);
         }
 
         #endregion

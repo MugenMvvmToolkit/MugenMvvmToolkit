@@ -163,9 +163,11 @@ namespace MugenMvvm.Infrastructure.Wrapping
         {
             #region Fields
 
+            // ReSharper disable FieldCanBeMadeReadOnly.Local
             public Func<Type, IReadOnlyMetadataContext, bool> Condition;
             public Func<object, IReadOnlyMetadataContext, object>? WrapperFactory;
             public Type Type;
+            // ReSharper restore FieldCanBeMadeReadOnly.Local
 
             #endregion
 

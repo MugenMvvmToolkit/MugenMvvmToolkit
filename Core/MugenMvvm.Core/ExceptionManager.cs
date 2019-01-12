@@ -83,6 +83,26 @@ namespace MugenMvvm
             return new InvalidOperationException(MessageConstants.ViewNotFoundFormat2.Format(viewName, viewModelType));
         }
 
+        internal static Exception IoCCannotFindBinding(Type service)
+        {
+            return new InvalidOperationException(MessageConstants.IoCCannotFindBindingFormat1.Format(service));
+        }
+
+        internal static Exception IoCCyclicalDependency(Type service)
+        {
+            return new InvalidOperationException(MessageConstants.IoCCyclicalDependencyFormat1.Format(service));
+        }
+
+        internal static Exception IoCCannotFindConstructor(Type service)
+        {
+            return new InvalidOperationException(MessageConstants.IoCCannotFindConstructorFormat1.Format(service));
+        }
+
+        internal static Exception IoCMoreThatOneBinding(Type service)
+        {
+            return new InvalidOperationException(MessageConstants.IoCMoreThatOneBindingFormat1.Format(service));
+        }
+
         #endregion
     }
 }

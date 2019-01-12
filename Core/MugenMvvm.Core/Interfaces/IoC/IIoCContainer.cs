@@ -25,7 +25,7 @@ namespace MugenMvvm.Interfaces.IoC
 
         void BindToConstant(Type service, object instance, string? name = null);
 
-        void BindToMethod(Type service, Func<IIoCContainer, IList<IIoCParameter>, object> methodBindingDelegate, IoCDependencyLifecycle lifecycle,
+        void BindToMethod(Type service, Func<IIoCContainer, IReadOnlyCollection<IIoCParameter>, object> methodBindingDelegate, IoCDependencyLifecycle lifecycle,
             string? name = null, IReadOnlyCollection<IIoCParameter>? parameters = null);
 
         void Unbind(Type service);

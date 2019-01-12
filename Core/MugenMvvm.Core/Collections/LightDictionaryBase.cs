@@ -369,7 +369,8 @@ namespace MugenMvvm.Collections
         {
             #region Fields
 
-            private readonly LightDictionaryBase<TKey, TValue> _dictionary;
+            // ReSharper disable once FieldCanBeMadeReadOnly.Local
+            private LightDictionaryBase<TKey, TValue> _dictionary;
             private int _index;
 
             #endregion

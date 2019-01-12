@@ -95,9 +95,11 @@ namespace MugenMvvm.Infrastructure.Metadata
         {
             #region Fields
 
-            private readonly string? _fieldOrPropertyName;
-            private readonly string _key;
-            private readonly Type? _type;
+            // ReSharper disable FieldCanBeMadeReadOnly.Local
+            private string? _fieldOrPropertyName;
+            private string _key;
+            private Type? _type;
+            // ReSharper restore FieldCanBeMadeReadOnly.Local
 
             private Action<IReadOnlyMetadataContext, IMetadataContextKey<T>, T>? _validateAction;
             private Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, T, T>? _getDefaultValueFunc;

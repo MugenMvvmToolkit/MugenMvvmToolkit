@@ -15,11 +15,13 @@ namespace MugenMvvm.Infrastructure
     {
         #region Fields
 
+        private static readonly Dictionary<ConstructorInfo, Func<object[], object>> ActivatorCache;
         private static readonly Dictionary<MethodInfo, Func<object?, object?[], object?>> InvokeMethodCache;
         private static readonly Dictionary<MethodDelegateCacheKey, Delegate> InvokeMethodCacheDelegate;
         private static readonly Dictionary<MemberInfoDelegateCacheKey, Delegate> MemberGetterCache;
         private static readonly ParameterExpression EmptyParameterExpression;
         private static readonly ConstantExpression NullConstantExpression;
+        private static readonly Dictionary<MemberInfoDelegateCacheKey, Delegate> MemberSetterCache;
 
         #endregion
 
@@ -27,9 +29,11 @@ namespace MugenMvvm.Infrastructure
 
         static ExpressionReflectionManager()
         {
+            ActivatorCache = new Dictionary<ConstructorInfo, Func<object[], object>>(MemberInfoComparer.Instance);
             InvokeMethodCache = new Dictionary<MethodInfo, Func<object?, object?[], object?>>(MemberInfoComparer.Instance);
             InvokeMethodCacheDelegate = new Dictionary<MethodDelegateCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
             MemberGetterCache = new Dictionary<MemberInfoDelegateCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
+            MemberSetterCache = new Dictionary<MemberInfoDelegateCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
             EmptyParameterExpression = Expression.Parameter(typeof(object));
             NullConstantExpression = Expression.Constant(null, typeof(object));
         }
@@ -42,6 +46,12 @@ namespace MugenMvvm.Infrastructure
         #endregion
 
         #region Implementation of interfaces
+
+        public Func<object[], object> GetActivatorDelegate(ConstructorInfo constructor)
+        {
+            Should.NotBeNull(constructor, nameof(constructor));
+            return GetActivatorDelegateInternal(constructor);
+        }
 
         public Func<object?, object?[], object?> GetMethodDelegate(MethodInfo method)
         {
@@ -56,14 +66,35 @@ namespace MugenMvvm.Infrastructure
             return GetMethodDelegateInternal(delegateType, method);
         }
 
+        public Func<object?, TType> GetMemberGetter<TType>(MemberInfo member)
+        {
+            Should.NotBeNull(member, nameof(member));
+            return GetMemberGetterInternal<TType>(member);
+        }
+
+        public Action<object?, TType> GetMemberSetter<TType>(MemberInfo member)
+        {
+            Should.NotBeNull(member, nameof(member));
+            return GetMemberSetterInternal<TType>(member);
+        }
+
         #endregion
 
         #region Methods
 
-        public Func<object, TType> GetMemberGetter<TType>(MemberInfo member)
+        protected virtual Func<object[], object> GetActivatorDelegateInternal(ConstructorInfo constructor)
         {
-            Should.NotBeNull(member, nameof(member));
-            return GetMemberGetterInternal<TType>(member);
+            lock (ActivatorCache)
+            {
+                if (!ActivatorCache.TryGetValue(constructor, out var value))
+                {
+                    Expression[] expressions = GetParametersExpression(constructor, out var parameterExpression);
+                    Expression newExpression = ConvertIfNeed(Expression.New(constructor, expressions), typeof(object), false);
+                    value = Expression.Lambda<Func<object[], object>>(newExpression, parameterExpression).Compile();
+                }
+                ActivatorCache[constructor] = value;
+                return value;
+            }
         }
 
         protected virtual Func<object?, TType> GetMemberGetterInternal<TType>(MemberInfo member)
@@ -89,7 +120,58 @@ namespace MugenMvvm.Infrastructure
                     MemberGetterCache[key] = value;
                 }
 
-                return (Func<object?, TType>) value;
+                return (Func<object?, TType>)value;
+            }
+        }
+
+        protected virtual Action<object, TType> GetMemberSetterInternal<TType>(MemberInfo member)
+        {
+            var key = new MemberInfoDelegateCacheKey(member, typeof(TType));
+            lock (MemberSetterCache)
+            {
+                if (!MemberSetterCache.TryGetValue(key, out var action))
+                {
+                    var declaringType = member.DeclaringType;
+                    var fieldInfo = member as FieldInfo;
+                    if (declaringType.IsValueTypeUnified())
+                    {
+                        Action<object, TType> result;
+                        if (fieldInfo == null)
+                        {
+                            var propertyInfo = (PropertyInfo)member;
+                            result = propertyInfo.SetValue<TType>;
+                        }
+                        else
+                            result = fieldInfo.SetValue<TType>;
+                        MemberSetterCache[key] = result;
+                        return result;
+                    }
+
+                    Expression expression;
+                    var targetParameter = Expression.Parameter(typeof(object), "instance");
+                    var valueParameter = Expression.Parameter(typeof(TType), "value");
+                    var target = ConvertIfNeed(targetParameter, declaringType, false);
+                    if (fieldInfo == null)
+                    {
+                        var propertyInfo = member as PropertyInfo;
+                        MethodInfo setMethod = null;
+                        if (propertyInfo != null)
+                            setMethod = propertyInfo.GetSetMethodUnified(true);
+                        Should.MethodBeSupported(propertyInfo != null && setMethod != null, MessageConstants.ShouldSupportOnlyFieldsReadonlyFields);
+                        var valueExpression = ConvertIfNeed(valueParameter, propertyInfo.PropertyType, false);
+                        expression = Expression.Call(setMethod.IsStatic ? null : ConvertIfNeed(target, declaringType, false), setMethod, valueExpression);
+                    }
+                    else
+                    {
+                        expression = Expression.Field(fieldInfo.IsStatic ? null : ConvertIfNeed(target, declaringType, false), fieldInfo);
+                        expression = Expression.Assign(expression, ConvertIfNeed(valueParameter, fieldInfo.FieldType, false));
+                    }
+                    action = Expression
+                        .Lambda<Action<object, TType>>(expression, targetParameter, valueParameter)
+                        .Compile();
+                    MemberSetterCache[key] = action;
+                }
+                return (Action<object, TType>)action;
             }
         }
 
