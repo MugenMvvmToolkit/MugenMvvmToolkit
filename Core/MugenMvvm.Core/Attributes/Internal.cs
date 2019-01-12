@@ -17,6 +17,14 @@ namespace System
 }
 #endif
 
+namespace System.Runtime.CompilerServices
+{
+    [AttributeUsage(AttributeTargets.Parameter)]
+    internal class EnsuresNotNullAttribute : Attribute
+    {
+    }
+}
+
 namespace MugenMvvm.Attributes
 {
     [AttributeUsage(

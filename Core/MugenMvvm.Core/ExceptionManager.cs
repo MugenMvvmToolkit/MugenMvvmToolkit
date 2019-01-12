@@ -103,6 +103,11 @@ namespace MugenMvvm
             return new InvalidOperationException(MessageConstants.IoCMoreThatOneBindingFormat1.Format(service));
         }
 
+        internal static Exception ObjectDisposed(Type type)
+        {
+            return new ObjectDisposedException(type.FullName, MessageConstants.ObjectDisposedFormat1.Format(type));
+        }
+
         #endregion
     }
 }

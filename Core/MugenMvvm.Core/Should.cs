@@ -13,7 +13,7 @@ namespace MugenMvvm
         [DebuggerStepThrough]
         [AssertionMethod]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void NotBeNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] object? argumentValue, [InvokerParameterName] string paramName)
+        public static void NotBeNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL), EnsuresNotNull] object? argumentValue, [InvokerParameterName] string paramName)
         {
             if (argumentValue == null)
                 throw new ArgumentNullException(paramName);
@@ -22,7 +22,7 @@ namespace MugenMvvm
         [DebuggerStepThrough]
         [AssertionMethod]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void NotBeNullOrEmpty([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] string? argumentValue, [InvokerParameterName] string paramName)
+        public static void NotBeNullOrEmpty([AssertionCondition(AssertionConditionType.IS_NOT_NULL), EnsuresNotNull] string? argumentValue, [InvokerParameterName] string paramName)
         {
             if (string.IsNullOrEmpty(argumentValue))
                 throw new ArgumentException(MessageConstants.ArgumentCannotBeNull.Format(paramName), paramName);
@@ -75,9 +75,9 @@ namespace MugenMvvm
         [DebuggerStepThrough]
         public static void NotBeDisposed<T>(this IDisposableObject<T> disposableObject) where T : class
         {
-            NotBeNull(disposableObject, nameof(disposableObject));//todo fix
-//            if (disposableObject.IsDisposed)
-//                throw ExceptionManager.ObjectDisposed(disposableObject.GetType());
+            NotBeNull(disposableObject, nameof(disposableObject));
+            if (disposableObject.IsDisposed)
+                throw ExceptionManager.ObjectDisposed(disposableObject.GetType());
         }
 
         #endregion

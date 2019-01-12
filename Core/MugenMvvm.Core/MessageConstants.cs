@@ -37,6 +37,7 @@
         public const string IoCCyclicalDependencyFormat1 = "A cyclical dependency was detected for type {0}";
         public const string IoCCannotFindConstructorFormat1 = "Cannot find constructor for type {0}";
         public const string IoCMoreThatOneBindingFormat1 = "Cannot activate type {0} found more that one binding";
+        public const string ObjectDisposedFormat1 = "Cannot perform the operation, because the current '{0}' is disposed.";
 
         #endregion
     }
