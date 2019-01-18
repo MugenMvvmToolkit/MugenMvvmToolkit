@@ -9,8 +9,7 @@ namespace MugenMvvm.Interfaces.ViewModels
     public interface IViewModel : INotifyPropertyChangedEx, IDisposableObject<IViewModel>, IHasMemento, IHasMetadata<IObservableMetadataContext>
     {
         IBusyIndicatorProvider BusyIndicatorProvider { get; }
-
-
+        
         void Publish(object message, IMessengerContext? messengerContext = null);
 
         void Publish(object sender, object message, IMessengerContext? messengerContext = null);

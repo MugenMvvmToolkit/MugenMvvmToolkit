@@ -108,6 +108,11 @@ namespace MugenMvvm
             return new ObjectDisposedException(type.FullName, MessageConstants.ObjectDisposedFormat1.Format(type));
         }
 
+        internal static Exception ObjectNotInitialized(object obj, string hint = null)
+        {
+            return new InvalidOperationException(MessageConstants.ObjectNotInitializedFormat2.Format(obj.GetType().Name, hint));
+        }
+
         #endregion
     }
 }

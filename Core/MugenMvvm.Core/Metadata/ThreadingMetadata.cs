@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Metadata;
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm
 {
-    public static class ThreadDispatcherMetadata
+    public static class ThreadingMetadata
     {
         #region Fields
 
@@ -14,7 +14,7 @@ namespace MugenMvvm
 
         #region Properties
 
-        public static IMetadataContextKey<bool> AlwaysAsync
+        public static IMetadataContextKey<bool> AlwaysAsync //todo fix name
         {
             get
             {
@@ -31,7 +31,7 @@ namespace MugenMvvm
 
         private static MetadataContextKey.Builder<T> GetBuilder<T>(string name)
         {
-            return MetadataContextKey.Create<T>(typeof(ThreadDispatcherMetadata), name);
+            return MetadataContextKey.Create<T>(typeof(ThreadingMetadata), name);
         }
 
         #endregion

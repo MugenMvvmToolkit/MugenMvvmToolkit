@@ -139,7 +139,7 @@ namespace MugenMvvm.Infrastructure.Commands
             IReadOnlyMetadataContext metadata)
         {
             if (metadata.Get(RelayCommandMetadata.AllowMultipleExecution, AllowMultipleExecution))
-                mediator = new DisableMultipleExecutionRelayCommandWrapper(mediator);
+                mediator = new DisableMultipleExecutionRelayCommandMediator(mediator);
             var displayName = metadata.Get(RelayCommandMetadata.DisplayName);
             if (displayName != null || canExecute != null)
                 mediator = new BindableRelayCommandMediator(mediator, ThreadDispatcher, metadata.Get(RelayCommandMetadata.EventThreadMode, EventThreadMode), displayName);

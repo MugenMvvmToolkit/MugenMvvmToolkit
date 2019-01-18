@@ -163,44 +163,44 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         protected virtual INavigatingResult OnNavigatingInternal(INavigationContext context)
         {
-            var listeners = GetListeners()?.Where(listener => listener != null).ToArray() ?? Default.EmptyArray<INavigationDispatcherListener>();
+            var listeners = GetListenersInternal()?.Where(listener => listener != null).ToArray() ?? Default.EmptyArray<INavigationDispatcherListener>();
             var invoker = new NavigatingResult(this, listeners, context);
             return invoker;
         }
 
         protected virtual void OnNavigatedInternal(INavigationContext context)
         {
-            var listeners = GetListeners();
+            var listeners = GetListenersInternal();
             if (listeners == null)
                 return;
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i]?.OnNavigated(context);
         }
 
         protected virtual void OnNavigationFailedInternal(INavigationContext context, Exception exception)
         {
-            var listeners = GetListeners();
+            var listeners = GetListenersInternal();
             if (listeners == null)
                 return;
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i]?.OnNavigationFailed(context, exception);
         }
 
         protected virtual void OnNavigationCanceledInternal(INavigationContext context)
         {
-            var listeners = GetListeners();
+            var listeners = GetListenersInternal();
             if (listeners == null)
                 return;
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i]?.OnNavigationCanceled(context);
         }
 
         protected virtual void OnNavigatingCanceledInternal(INavigationContext context)
         {
-            var listeners = GetListeners();
+            var listeners = GetListenersInternal();
             if (listeners == null)
                 return;
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i]?.OnNavigatingCanceled(context);
         }
 

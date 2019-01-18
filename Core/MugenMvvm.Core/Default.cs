@@ -69,7 +69,7 @@ namespace MugenMvvm
 
         #region Properties
 
-        public static IReadOnlyMetadataContext AlwaysAsyncThreadDispatcherContext
+        public static IReadOnlyMetadataContext AlwaysAsyncThreadingContext
         {
             get
             {
@@ -77,7 +77,7 @@ namespace MugenMvvm
                 {
                     _alwaysAsyncThreadDispatcherContext = new MetadataContext
                     {
-                        {ThreadDispatcherMetadata.AlwaysAsync, true}
+                        {ThreadingMetadata.AlwaysAsync, true}
                     };
                 }
 

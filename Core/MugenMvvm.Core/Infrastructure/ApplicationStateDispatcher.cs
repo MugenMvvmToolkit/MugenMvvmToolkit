@@ -45,8 +45,8 @@ namespace MugenMvvm.Infrastructure
             var oldState = Interlocked.Exchange(ref _state, state);
             if (oldState == state)
                 return;
-            var listeners = GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            var listeners = GetListenersInternal();
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i]?.OnStateChanged(this, oldState, state, metadata);
         }
 

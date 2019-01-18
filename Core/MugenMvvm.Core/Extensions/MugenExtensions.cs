@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -293,6 +294,13 @@ namespace MugenMvvm
 
         #region Common
 
+        public static Task<T> TaskFromException<T>(Exception exception)
+        {
+            var tcs = new TaskCompletionSource<T>();
+            tcs.TrySetExceptionEx(exception);
+            return tcs.Task;
+        }
+
         public static string Dump(this IReadOnlyMetadataContext? metadata)
         {
             if (metadata == null)
@@ -525,6 +533,16 @@ namespace MugenMvvm
 
         #endregion
 
+        #region View models
+
+        public static void InvalidateCommands(this IViewModel viewModel)
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            viewModel.Publish(Default.EmptyPropertyChangedArgs);
+        }
+
+        #endregion
+
         #region Internal
 
         internal static void TrySetExceptionEx<T>(this TaskCompletionSource<T> tcs, Exception e)
@@ -564,6 +582,17 @@ namespace MugenMvvm
             return Interlocked.CompareExchange(ref item, value, null) == null;
         }
 
+        internal static bool LazyInitializeDisposable<T>(ref T item, T value) where T : class ?, IDisposable
+        {
+            if (!LazyInitialize(ref item, value))
+            {
+                value.Dispose();
+                return false;
+            }
+
+            return true;
+        }
+
         internal static bool LazyInitializeLock<TTarget, TValue>(ref TValue item, TTarget target, Func<TTarget, TValue> getValue, object locker)
             where TTarget : class
             where TValue : class ?
@@ -580,5 +609,87 @@ namespace MugenMvvm
         }
 
         #endregion
+
+        private static readonly Action<object, PropertyChangedEventHandler> UnsubscribePropertyChangedDelegate;
+        private static readonly Func<IWeakEventHandler<PropertyChangedEventArgs>, PropertyChangedEventHandler> CreatePropertyChangedHandlerDelegate;
+
+        public static IWeakEventHandler<TArg> CreateWeakEventHandler<TTarget, TArg>(TTarget target, Action<TTarget, object, TArg> invokeAction, Action<object, IWeakEventHandler<TArg>> unsubscribeAction = null)
+            where TTarget : class
+        {
+            return new WeakEventHandler<TTarget, TArg, object>(target, invokeAction, unsubscribeAction);
+        }
+
+        public static TResult CreateWeakDelegate<TTarget, TArg, TResult>(TTarget target, Action<TTarget, object, TArg> invokeAction, Action<object, TResult>? unsubscribeAction, Func<IWeakEventHandler<TArg>, TResult> createHandler)
+            where TTarget : class
+            where TResult : class
+        {
+            Should.NotBeNull(createHandler, nameof(createHandler));
+            var weakEventHandler = new WeakEventHandler<TTarget, TArg, TResult>(target, invokeAction, unsubscribeAction);
+            var handler = createHandler(weakEventHandler);
+            if (unsubscribeAction == null)
+                return handler;
+            weakEventHandler.HandlerDelegate = handler;
+            return handler;
+        }
+
+        public static PropertyChangedEventHandler MakeWeakPropertyChangedHandler<TTarget>(TTarget target, Action<TTarget, object, PropertyChangedEventArgs> invokeAction)
+            where TTarget : class
+        {
+            return CreateWeakDelegate(target, invokeAction, UnsubscribePropertyChangedDelegate, CreatePropertyChangedHandlerDelegate);
+        }
+
+        public interface IWeakEventHandler<in TArg>
+        {
+            void Handle(object sender, TArg arg);
+        }
+
+        private sealed class WeakEventHandler<TTarget, TArg, TDelegate> : IWeakEventHandler<TArg>
+            where TTarget : class
+            where TDelegate : class
+        {
+            #region Fields
+
+            public TDelegate HandlerDelegate;
+            private readonly WeakReference _targetReference;
+            private readonly Action<TTarget, object, TArg> _invokeAction;
+            private readonly Delegate? _unsubscribeAction;
+
+            #endregion
+
+            #region Constructors
+
+            public WeakEventHandler(TTarget target, Action<TTarget, object, TArg> invokeAction, Delegate? unsubscribeAction)
+            {
+                Should.NotBeNull(target, nameof(target));
+                Should.NotBeNull(invokeAction, nameof(invokeAction));
+                _invokeAction = invokeAction;
+                _unsubscribeAction = unsubscribeAction;
+                _targetReference = GetWeakReference(target);
+            }
+
+            #endregion
+
+            #region Methods
+
+            public void Handle(object sender, TArg arg)
+            {
+                var target = (TTarget)_targetReference.Target;
+                if (target == null)
+                {
+                    if (_unsubscribeAction != null)
+                    {
+                        var action = _unsubscribeAction as Action<object, TDelegate>;
+                        if (action == null)
+                            ((Action<object, IWeakEventHandler<TArg>>)_unsubscribeAction).Invoke(sender, this);
+                        else
+                            action.Invoke(sender, HandlerDelegate);
+                    }
+                }
+                else
+                    _invokeAction(target, sender, arg);
+            }
+
+            #endregion
+        }
     }
 }

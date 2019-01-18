@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Commands;
 
 namespace MugenMvvm.Infrastructure.Commands.Mediators
 {
-    internal sealed class DisableMultipleExecutionRelayCommandWrapper : RelayCommandMediatorWrapperBase
+    internal sealed class DisableMultipleExecutionRelayCommandMediator : RelayCommandMediatorWrapperBase
     {
         #region Fields
 
@@ -14,7 +14,7 @@ namespace MugenMvvm.Infrastructure.Commands.Mediators
 
         #region Constructors
 
-        public DisableMultipleExecutionRelayCommandWrapper(IRelayCommandMediator mediator)
+        public DisableMultipleExecutionRelayCommandMediator(IRelayCommandMediator mediator)
             : base(mediator)
         {
         }
@@ -44,7 +44,7 @@ namespace MugenMvvm.Infrastructure.Commands.Mediators
                 RaiseCanExecuteChanged();
                 return task.ContinueWith((t, o) =>
                 {
-                    var wrapper = (DisableMultipleExecutionRelayCommandWrapper) o;
+                    var wrapper = (DisableMultipleExecutionRelayCommandMediator) o;
                     Interlocked.Exchange(ref wrapper._state, 0);
                     wrapper.RaiseCanExecuteChanged();
                 }, this, TaskContinuationOptions.ExecuteSynchronously);
