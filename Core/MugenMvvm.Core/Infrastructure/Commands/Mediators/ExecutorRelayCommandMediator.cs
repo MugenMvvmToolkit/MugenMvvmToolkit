@@ -1,74 +1,244 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Commands;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Infrastructure.Commands.Mediators
 {
-    internal sealed class ExecutorRelayCommandMediator<T> : IRelayCommandMediator
+    public class ExecutorRelayCommandMediator<T> : IExecutorRelayCommandMediator
     {
         #region Fields
 
-        private readonly CommandExecutionMode _executionMode;
-        private Delegate? _executeAction;
+        private bool? _hasCanExecuteImpl;
+        private IReadOnlyList<IRelayCommandMediator> _mediators;
+        private int _state;
 
         #endregion
 
         #region Constructors
 
-        public ExecutorRelayCommandMediator(Delegate executeAction, CommandExecutionMode executionMode)
+        public ExecutorRelayCommandMediator(Delegate executeDelegate, Delegate? canExecuteDelegate, CommandExecutionMode executionMode,
+            bool allowMultipleExecution, IReadOnlyList<IRelayCommandMediator> mediators)
         {
-            _executeAction = executeAction;
-            _executionMode = executionMode;
+            Should.NotBeNull(executeDelegate, nameof(executeDelegate));
+            Should.NotBeNull(mediators, nameof(mediators));
+            _mediators = mediators;
+            ExecuteDelegate = executeDelegate;
+            CanExecuteDelegate = canExecuteDelegate;
+            ExecutionMode = executionMode;
+            AllowMultipleExecution = allowMultipleExecution;
         }
 
         #endregion
 
         #region Properties
 
-        public bool IsNotificationsSuspended => false;
+        protected CommandExecutionMode ExecutionMode { get; }
 
-        public bool HasCanExecute => false;
+        protected bool AllowMultipleExecution { get; }
+
+        protected Delegate ExecuteDelegate { get; private set; }
+
+        protected Delegate? CanExecuteDelegate { get; private set; }
+
+        public IReadOnlyList<IRelayCommandMediator> Mediators => _mediators;
+
+        public virtual bool IsNotificationsSuspended
+        {
+            get
+            {
+                var mediators = Mediators;
+                for (var i = 0; i < mediators.Count; i++)
+                {
+                    if (mediators[i] is ISuspendNotifications suspendNotifications && suspendNotifications.IsNotificationsSuspended)
+                        return true;
+                }
+
+                return false;
+            }
+        }
 
         #endregion
 
         #region Implementation of interfaces
 
-        public IDisposable SuspendNotifications()
-        {
-            return Default.Disposable;
-        }
-
         public void Dispose()
         {
-            _executeAction = null;
+            var emptyArray = Default.EmptyArray<IRelayCommandMediator>();
+            if (ReferenceEquals(_mediators, emptyArray))
+                return;
+
+            var mediators = Interlocked.Exchange(ref _mediators, Default.EmptyArray<IRelayCommandMediator>());
+            if (!ReferenceEquals(mediators, emptyArray))
+                OnDispose(mediators);
         }
 
-        public TMediator GetMediator<TMediator>() where TMediator : class?
+        public virtual Task ExecuteAsync(object? parameter)
         {
-            return this as TMediator;
+            if (AllowMultipleExecution)
+                return ExecuteInternalAsync(parameter);
+
+            if (Interlocked.CompareExchange(ref _state, int.MaxValue, 0) != 0)
+                return Default.CompletedTask;
+
+            try
+            {
+                var executionTask = ExecuteInternalAsync(parameter);
+                if (executionTask.IsCompleted)
+                {
+                    Interlocked.Exchange(ref _state, 0);
+                    return Default.CompletedTask;
+                }
+
+                RaiseCanExecuteChanged();
+                return executionTask.ContinueWith((t, o) =>
+                {
+                    var wrapper = (ExecutorRelayCommandMediator<T>)o;
+                    Interlocked.Exchange(ref wrapper._state, 0);
+                    wrapper.RaiseCanExecuteChanged();
+                }, this, TaskContinuationOptions.ExecuteSynchronously);
+            }
+            catch
+            {
+                _state = 0;
+                throw;
+            }
         }
 
-        public void AddCanExecuteChanged(EventHandler handler)
+        public virtual bool HasCanExecute()
         {
+            if (!AllowMultipleExecution || CanExecuteDelegate != null)
+                return true;
+
+            if (_hasCanExecuteImpl.HasValue)
+                return _hasCanExecuteImpl.Value;
+
+            var mediators = Mediators;
+            for (var i = 0; i < mediators.Count; i++)
+            {
+                if (mediators[i] is IConditionRelayCommandMediator m && m.HasCanExecute())
+                {
+                    _hasCanExecuteImpl = true;
+                    return true;
+                }
+            }
+
+            _hasCanExecuteImpl = false;
+            return false;
         }
 
-        public void RemoveCanExecuteChanged(EventHandler handler)
+        public virtual bool CanExecute(object? parameter)
         {
-        }
+            if (!HasCanExecute())
+                return true;
 
-        public bool CanExecute(object parameter)
-        {
+            if (!CanExecuteInternal(parameter))
+                return false;
+
+            var mediators = Mediators;
+            for (var i = 0; i < mediators.Count; i++)
+            {
+                if (mediators[i] is IConditionRelayCommandMediator m && !m.CanExecute(parameter))
+                    return false;
+            }
+
             return true;
         }
 
-        public Task ExecuteAsync(object parameter)
+        public virtual void AddCanExecuteChanged(EventHandler handler)
         {
-            var executeAction = _executeAction;
-            if (executeAction == null)
-                return Default.CompletedTask;
+            if (!HasCanExecute())
+                return;
 
-            switch (_executionMode)
+            var mediators = Mediators;
+            for (var i = 0; i < mediators.Count; i++)
+            {
+                if (mediators[i] is IConditionEventRelayCommandMediator m)
+                    m.AddCanExecuteChanged(handler);
+            }
+        }
+
+        public virtual void RemoveCanExecuteChanged(EventHandler handler)
+        {
+            if (!HasCanExecute())
+                return;
+
+            var mediators = Mediators;
+            for (var i = 0; i < mediators.Count; i++)
+            {
+                if (mediators[i] is IConditionEventRelayCommandMediator m)
+                    m.RemoveCanExecuteChanged(handler);
+            }
+        }
+
+        public virtual void RaiseCanExecuteChanged()
+        {
+            if (!HasCanExecute())
+                return;
+
+            var mediators = Mediators;
+            for (var i = 0; i < mediators.Count; i++)
+            {
+                if (mediators[i] is IConditionEventRelayCommandMediator m)
+                    m.RaiseCanExecuteChanged();
+            }
+        }
+
+        public virtual IDisposable SuspendNotifications()
+        {
+            var mediators = Mediators;
+            List<IDisposable>? tokens = null;
+            for (var i = 0; i < mediators.Count; i++)
+            {
+                if (mediators[i] is ISuspendNotifications suspendNotifications)
+                {
+                    if (tokens == null)
+                        tokens = new List<IDisposable>(2);
+                    tokens.Add(suspendNotifications.SuspendNotifications());
+                }
+            }
+
+            if (tokens == null)
+                return Default.Disposable;
+            return WeakActionToken.Create(tokens, t =>
+            {
+                for (var i = 0; i < t.Count; i++)
+                    t[i].Dispose();
+            });
+        }
+
+        #endregion
+
+        #region Methods
+
+        protected virtual void OnDispose(IReadOnlyList<IRelayCommandMediator> mediators)
+        {
+            for (var i = 0; i < mediators.Count; i++)
+                mediators[i].Dispose();
+            ExecuteDelegate = Default.NoDoAction;
+            CanExecuteDelegate = null;
+        }
+
+        protected virtual bool CanExecuteInternal(object? parameter)
+        {
+            if (_state != 0)
+                return false;
+
+            var canExecuteDelegate = CanExecuteDelegate;
+            if (canExecuteDelegate == null)
+                return false;
+            if (canExecuteDelegate is Func<bool> func)
+                return func();
+            return ((Func<T, bool>)canExecuteDelegate).Invoke((T)parameter);
+        }
+
+        protected virtual Task ExecuteInternalAsync(object? parameter)
+        {
+            var executeAction = ExecuteDelegate;
+            switch (ExecutionMode)
             {
                 case CommandExecutionMode.CanExecuteBeforeExecute:
                     if (!CanExecute(parameter))
@@ -100,10 +270,6 @@ namespace MugenMvvm.Infrastructure.Commands.Mediators
             if (executeAction is Func<Task> executeTask)
                 return executeTask();
             return ((Func<T, Task>)executeAction).Invoke((T)parameter);
-        }
-
-        public void RaiseCanExecuteChanged()
-        {
         }
 
         #endregion

@@ -6,7 +6,14 @@ namespace MugenMvvm.Interfaces.Commands
 {
     public interface IRelayCommandDispatcher
     {
-        IRelayCommandMediator GetMediator(Delegate execute, Delegate? canExecute, IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext metadata);
+        IExecutorRelayCommandMediator GetMediator<TParameter>(IRelayCommand relayCommand, Delegate execute, Delegate? canExecute,
+            IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext metadata);
+
+        void AddMediatorFactory(Func<IRelayCommand, Delegate, Delegate, IReadOnlyCollection<object>?, IReadOnlyMetadataContext, IRelayCommandMediator?> mediatorFactory);
+
+        void RemoveMediatorFactory(Func<IRelayCommand, Delegate, Delegate, IReadOnlyCollection<object>?, IReadOnlyMetadataContext, IRelayCommandMediator?> mediatorFactory);
+
+        void ClearMediatorFactories();
 
         void CleanupCommands(object target, IReadOnlyMetadataContext metadata);
     }

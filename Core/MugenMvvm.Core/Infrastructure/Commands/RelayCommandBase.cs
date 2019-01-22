@@ -39,14 +39,16 @@ namespace MugenMvvm.Infrastructure.Commands
 
         protected RelayCommandBase(Delegate execute, Delegate? canExecute, IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext? metadataBase)
         {
-            Mediator = Service<IRelayCommandDispatcher>.Instance.GetMediator(execute, canExecute, notifiers, metadataBase ?? Default.MetadataContext);
+            Mediator = Service<IRelayCommandDispatcher>.Instance.GetMediator<T>(this, execute, canExecute, notifiers, metadataBase ?? Default.MetadataContext);
         }
 
         #endregion
 
         #region Properties
 
-        public IRelayCommandMediator Mediator { get; }
+        public bool HasCanExecute => Mediator.HasCanExecute();
+
+        public IExecutorRelayCommandMediator Mediator { get; }
 
         WeakReference IHasWeakReference.WeakReference
         {
@@ -57,6 +59,8 @@ namespace MugenMvvm.Infrastructure.Commands
                 return _ref!;
             }
         }
+
+        public bool IsNotificationsSuspended => Mediator.IsNotificationsSuspended;
 
         #endregion
 
@@ -72,6 +76,11 @@ namespace MugenMvvm.Infrastructure.Commands
 
         #region Implementation of interfaces
 
+        public void RaiseCanExecuteChanged()
+        {
+            Mediator.RaiseCanExecuteChanged();
+        }
+
         public bool CanExecute(object parameter)
         {
             return Mediator.CanExecute(parameter);
@@ -85,6 +94,11 @@ namespace MugenMvvm.Infrastructure.Commands
         public void Dispose()
         {
             Mediator.Dispose();
+        }
+
+        public IDisposable SuspendNotifications()
+        {
+            return Mediator.SuspendNotifications();
         }
 
         #endregion

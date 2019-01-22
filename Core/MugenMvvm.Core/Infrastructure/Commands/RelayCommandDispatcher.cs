@@ -16,8 +16,6 @@ namespace MugenMvvm.Infrastructure.Commands
     {
         #region Fields
 
-        private readonly IReflectionManager _reflectionManager;
-
         private static readonly Dictionary<Type, Func<object, ICommand>[]> TypesToCommandsProperties;
 
         #endregion
@@ -32,17 +30,19 @@ namespace MugenMvvm.Infrastructure.Commands
         [Preserve(Conditional = true)]
         public RelayCommandDispatcher(IThreadDispatcher threadDispatcher, IReflectionManager reflectionManager)
         {
-            _reflectionManager = reflectionManager;
+            ReflectionManager = reflectionManager;
             ThreadDispatcher = threadDispatcher;
             CommandExecutionMode = CommandExecutionMode.CanExecuteBeforeExecute;
             EventThreadMode = ThreadExecutionMode.Main;
+            MediatorFactories = new List<Func<IRelayCommand, Delegate, Delegate, IReadOnlyCollection<object>?, IReadOnlyMetadataContext, IRelayCommandMediator?>>
+            {
+                DefaultConditionEventFactory
+            };
         }
 
         #endregion
 
         #region Properties
-
-        protected IThreadDispatcher ThreadDispatcher { get; }
 
         public bool AllowMultipleExecution { get; set; }
 
@@ -50,15 +50,40 @@ namespace MugenMvvm.Infrastructure.Commands
 
         public ThreadExecutionMode EventThreadMode { get; set; }
 
+        protected IReflectionManager ReflectionManager { get; }
+
+        protected IThreadDispatcher ThreadDispatcher { get; }
+
+        protected List<Func<IRelayCommand, Delegate, Delegate, IReadOnlyCollection<object>?, IReadOnlyMetadataContext, IRelayCommandMediator?>> MediatorFactories { get; }
+
         #endregion
 
         #region Implementation of interfaces
 
-        public IRelayCommandMediator GetMediator(Delegate execute, Delegate? canExecute, IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext metadata)
+        public IExecutorRelayCommandMediator GetMediator<TParameter>(IRelayCommand relayCommand, Delegate execute, Delegate? canExecute, IReadOnlyCollection<object>? notifiers,
+            IReadOnlyMetadataContext metadata)
         {
+            Should.NotBeNull(relayCommand, nameof(relayCommand));
             Should.NotBeNull(execute, nameof(execute));
             Should.NotBeNull(metadata, nameof(metadata));
-            return GetMediatorInternal<object>(execute, canExecute, notifiers, metadata);
+            return GetExecutorMediatorInternal<TParameter>(relayCommand, execute, canExecute, notifiers, metadata);
+        }
+
+        public void AddMediatorFactory(Func<IRelayCommand, Delegate, Delegate, IReadOnlyCollection<object>?, IReadOnlyMetadataContext, IRelayCommandMediator?> mediatorFactory)
+        {
+            Should.NotBeNull(mediatorFactory, nameof(mediatorFactory));
+            AddMediatorFactoryInternal(mediatorFactory);
+        }
+
+        public void RemoveMediatorFactory(Func<IRelayCommand, Delegate, Delegate, IReadOnlyCollection<object>?, IReadOnlyMetadataContext, IRelayCommandMediator?> mediatorFactory)
+        {
+            Should.NotBeNull(mediatorFactory, nameof(mediatorFactory));
+            RemoveMediatorFactoryInternal(mediatorFactory);
+        }
+
+        public void ClearMediatorFactories()
+        {
+            ClearMediatorFactoriesInternal();
         }
 
         public void CleanupCommands(object target, IReadOnlyMetadataContext metadata)
@@ -71,6 +96,53 @@ namespace MugenMvvm.Infrastructure.Commands
         #endregion
 
         #region Methods
+
+        protected virtual IExecutorRelayCommandMediator GetExecutorMediatorInternal<TParameter>(IRelayCommand relayCommand, Delegate execute, Delegate? canExecute,
+            IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext metadata)
+        {
+            var mediators = GetMediatorsInternal<TParameter>(relayCommand, execute, canExecute, notifiers, metadata);
+            return new ExecutorRelayCommandMediator<TParameter>(execute, canExecute, metadata.Get(RelayCommandMetadata.ExecutionMode, CommandExecutionMode),
+                metadata.Get(RelayCommandMetadata.AllowMultipleExecution, AllowMultipleExecution), mediators);
+        }
+
+        protected virtual IReadOnlyList<IRelayCommandMediator> GetMediatorsInternal<TParameter>(IRelayCommand relayCommand, Delegate execute, Delegate? canExecute,
+            IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext metadata)
+        {
+            List<IRelayCommandMediator>? result = null;
+            lock (MediatorFactories)
+            {
+                for (var i = 0; i < MediatorFactories.Count; i++)
+                {
+                    var mediator = MediatorFactories[i].Invoke(relayCommand, execute, canExecute, notifiers, metadata);
+                    if (mediator == null)
+                        continue;
+                    if (result == null)
+                        result = new List<IRelayCommandMediator>();
+                    result.Add(mediator);
+                }
+            }
+
+            if (result == null)
+                return Default.EmptyArray<IRelayCommandMediator>();
+            return result;
+        }
+
+        protected virtual void AddMediatorFactoryInternal(
+            Func<IRelayCommand, Delegate, Delegate, IReadOnlyCollection<object>?, IReadOnlyMetadataContext, IRelayCommandMediator?> mediatorFactory)
+        {
+            MediatorFactories.Add(mediatorFactory);
+        }
+
+        protected virtual void RemoveMediatorFactoryInternal(
+            Func<IRelayCommand, Delegate, Delegate, IReadOnlyCollection<object>?, IReadOnlyMetadataContext, IRelayCommandMediator?> mediatorFactory)
+        {
+            MediatorFactories.Remove(mediatorFactory);
+        }
+
+        protected virtual void ClearMediatorFactoriesInternal()
+        {
+            MediatorFactories.Clear();
+        }
 
         protected virtual void CleanupCommandsInternal(object target, IReadOnlyMetadataContext metadata)
         {
@@ -85,7 +157,7 @@ namespace MugenMvvm.Infrastructure.Commands
                     {
                         if (typeof(ICommand).IsAssignableFromUnified(p.PropertyType) && p.CanRead && p.GetIndexParameters().Length == 0)
                         {
-                            var func = _reflectionManager.GetMemberGetter<ICommand>(p);
+                            var func = ReflectionManager.GetMemberGetter<ICommand>(p);
                             if (items == null)
                                 items = new List<Func<object, ICommand>>();
                             items.Add(func);
@@ -112,38 +184,13 @@ namespace MugenMvvm.Infrastructure.Commands
             }
         }
 
-        protected virtual IRelayCommandMediator GetMediatorInternal<T>(Delegate execute, Delegate? canExecute, IReadOnlyCollection<object>? notifiers,
-            IReadOnlyMetadataContext metadata)
+        private IRelayCommandMediator DefaultConditionEventFactory(IRelayCommand relayCommand, Delegate execute, Delegate? canExecute,
+            IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext metadata)
         {
-            var mediator = CreateExecutorMediator<T>(execute, canExecute, notifiers, metadata);
-            mediator = WrapCanExecuteMediator<T>(mediator, canExecute, notifiers, metadata);
-            return WrapMediator<T>(mediator, execute, canExecute, notifiers, metadata);
-        }
-
-        protected virtual IRelayCommandMediator CreateExecutorMediator<T>(Delegate execute, Delegate? canExecute, IReadOnlyCollection<object>? notifiers,
-            IReadOnlyMetadataContext metadata)
-        {
-            return new ExecutorRelayCommandMediator<T>(execute, metadata.Get(RelayCommandMetadata.ExecutionMode, CommandExecutionMode));
-        }
-
-        protected virtual IRelayCommandMediator WrapCanExecuteMediator<T>(IRelayCommandMediator mediator, Delegate? canExecute, IReadOnlyCollection<object>? notifiers,
-            IReadOnlyMetadataContext metadata)
-        {
-            if (canExecute == null)
-                return mediator;
-            return new CanExecuteRelayCommandMediator<T>(mediator, ThreadDispatcher, metadata.Get(RelayCommandMetadata.EventThreadMode, EventThreadMode), canExecute,
-                notifiers ?? Default.EmptyArray<object>(), metadata.Get(RelayCommandMetadata.IgnoreProperties));
-        }
-
-        protected virtual IRelayCommandMediator WrapMediator<T>(IRelayCommandMediator mediator, Delegate execute, Delegate? canExecute, IReadOnlyCollection<object>? notifiers,
-            IReadOnlyMetadataContext metadata)
-        {
-            if (metadata.Get(RelayCommandMetadata.AllowMultipleExecution, AllowMultipleExecution))
-                mediator = new DisableMultipleExecutionRelayCommandMediator(mediator);
-            var displayName = metadata.Get(RelayCommandMetadata.DisplayName);
-            if (displayName != null || canExecute != null)
-                mediator = new BindableRelayCommandMediator(mediator, ThreadDispatcher, metadata.Get(RelayCommandMetadata.EventThreadMode, EventThreadMode), displayName);
-            return mediator;
+            if (notifiers == null || notifiers.Count == 0)
+                return null;
+            return new ConditionEventRelayCommandMediator(ThreadDispatcher, notifiers, metadata.Get(RelayCommandMetadata.IgnoreProperties),
+                metadata.Get(RelayCommandMetadata.EventThreadMode, EventThreadMode), relayCommand);
         }
 
         #endregion

@@ -1,10 +1,15 @@
 ﻿using System;
 using System.Windows.Input;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Commands
 {
-    public interface IRelayCommand : ICommand, IDisposable
+    public interface IRelayCommand : ICommand, IDisposable, ISuspendNotifications
     {
-        IRelayCommandMediator Mediator { get; }
+        IExecutorRelayCommandMediator Mediator { get; }
+
+        bool HasCanExecute { get; }
+
+        void RaiseCanExecuteChanged();
     }
 }
