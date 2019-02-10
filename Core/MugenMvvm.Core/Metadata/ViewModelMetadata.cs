@@ -19,9 +19,9 @@ namespace MugenMvvm
         private static IMetadataContextKey<ViewModelLifecycleState> _lifecycleState;
         private static IMetadataContextKey<bool> _broadcastAllMessages;
         private static IMetadataContextKey<BusyMessageHandlerType> _busyMessageHandlerType;
-        private static IMetadataContextKey<IViewModel> _parentViewModel;
+        private static IMetadataContextKey<IViewModelBase> _parentViewModel;
         private static IMetadataContextKey<bool> _noState;
-        private static IMetadataContextKey<Func<INavigationDispatcher, IViewModel, IReadOnlyMetadataContext, IChildViewModelPresenterResult>?> _closeHandler;
+        private static IMetadataContextKey<Func<INavigationDispatcher, IViewModelBase, IReadOnlyMetadataContext, IChildViewModelPresenterResult>?> _closeHandler;
 
         #endregion
 
@@ -77,16 +77,16 @@ namespace MugenMvvm
             set => _busyMessageHandlerType = value;
         }
 
-        public static IMetadataContextKey<IViewModel?> ParentViewModel
+        public static IMetadataContextKey<IViewModelBase?> ParentViewModel
         {
             get
             {
                 if (_parentViewModel == null)
                 {
-                    _parentViewModel = GetBuilder<IViewModel?>(nameof(ParentViewModel))
+                    _parentViewModel = GetBuilder<IViewModelBase?>(nameof(ParentViewModel))
                         .NotNull()
                         .Serializable()
-                        .Getter((context, k, o) => ((SerializableWeakReference)o).GetTarget<IViewModel>())
+                        .Getter((context, k, o) => ((SerializableWeakReference)o).GetTarget<IViewModelBase>())
                         .Setter((context, k, oldValue, newValue) => new SerializableWeakReference(newValue))
                         .Build();
                 }
@@ -107,13 +107,13 @@ namespace MugenMvvm
             set => _noState = value;
         }
 
-        public static IMetadataContextKey<Func<INavigationDispatcher, IViewModel, IReadOnlyMetadataContext, IChildViewModelPresenterResult>?> CloseHandler
+        public static IMetadataContextKey<Func<INavigationDispatcher, IViewModelBase, IReadOnlyMetadataContext, IChildViewModelPresenterResult>?> CloseHandler
         {
             get
             {
                 if (_closeHandler == null)
                 {
-                    _closeHandler = GetBuilder<Func<INavigationDispatcher, IViewModel, IReadOnlyMetadataContext, IChildViewModelPresenterResult>?>(nameof(CloseHandler))
+                    _closeHandler = GetBuilder<Func<INavigationDispatcher, IViewModelBase, IReadOnlyMetadataContext, IChildViewModelPresenterResult>?>(nameof(CloseHandler))
                            .NotNull()
                            .Build();
                 }

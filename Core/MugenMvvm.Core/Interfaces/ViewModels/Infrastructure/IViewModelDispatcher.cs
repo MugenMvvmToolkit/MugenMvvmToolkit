@@ -1,30 +1,29 @@
 ﻿using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using MugenMvvm.Enums;
-using MugenMvvm.Interfaces.BusyIndicator;
-using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.ViewModels.Infrastructure
 {
-    public interface IViewModelDispatcher : IHasListeners<IViewModelDispatcherListener>//todo resolve service, add resolver for service, move all code to mediators
+    public interface IViewModelDispatcher : IHasListeners<IViewModelDispatcherListener>
     {
         [Pure]
-        IBusyIndicatorProvider GetBusyIndicatorProvider(IViewModel viewModel, IReadOnlyMetadataContext metadata);
+        object GetService(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext metadata);
 
-        [Pure]
-        IMessenger GetMessenger(IViewModel viewModel, IReadOnlyMetadataContext metadata);
+        void AddServiceResolver(IViewModelDispatcherServiceResolver resolver);
 
-        [Pure]
-        IObservableMetadataContext GetMetadataContext(IViewModel viewModel, IReadOnlyMetadataContext metadata);
+        void RemoveServiceResolver(IViewModelDispatcherServiceResolver resolver);
 
-        void Subscribe(IViewModel viewModel, object observer, ThreadExecutionMode executionMode, IReadOnlyMetadataContext metadata);
+        IReadOnlyList<IViewModelDispatcherServiceResolver> GetServiceResolvers();
 
-        void Unsubscribe(IViewModel viewModel, object observer, IReadOnlyMetadataContext metadata);
+        void Subscribe(IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode, IReadOnlyMetadataContext metadata);
 
-        void OnLifecycleChanged(IViewModel viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadata);
+        void Unsubscribe(IViewModelBase viewModel, object observer, IReadOnlyMetadataContext metadata);
 
-        IViewModel? TryGetViewModel(Guid id, IReadOnlyMetadataContext metadata);
+        void OnLifecycleChanged(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadata);
+
+        IViewModelBase? TryGetViewModel(Guid id, IReadOnlyMetadataContext metadata);
     }
 }

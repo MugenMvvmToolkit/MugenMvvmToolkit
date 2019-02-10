@@ -8,10 +8,10 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Infrastructure.Metadata;
+using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Serialization;
-using MugenMvvm.ViewModels;
 
 namespace MugenMvvm
 {
@@ -53,8 +53,8 @@ namespace MugenMvvm
             EmptyPropertyChangedArgs = new PropertyChangedEventArgs(string.Empty);
             CountPropertyChangedArgs = new PropertyChangedEventArgs(nameof(IList.Count));
             IsNotificationsSuspendedChangedArgs = new PropertyChangedEventArgs(nameof(ISuspendNotifications.IsNotificationsSuspended));
-            IsBusyChangedArgs = new PropertyChangedEventArgs(nameof(ViewModelBase.IsBusy));
-            BusyInfoChangedArgs = new PropertyChangedEventArgs(nameof(ViewModelBase.BusyInfo));
+            IsBusyChangedArgs = new PropertyChangedEventArgs("IsBusy");
+            BusyInfoChangedArgs = new PropertyChangedEventArgs(nameof(IBusyIndicatorProvider.BusyInfo));
             DisplayNameChangedArgs = new PropertyChangedEventArgs(nameof(IHasDisplayName.DisplayName));
             IndexerPropertyChangedArgs = new PropertyChangedEventArgs(IndexerName);
             NoDoAction = NoDo;

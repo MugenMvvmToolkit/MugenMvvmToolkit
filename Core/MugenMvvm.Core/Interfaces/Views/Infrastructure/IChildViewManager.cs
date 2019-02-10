@@ -8,12 +8,12 @@ namespace MugenMvvm.Interfaces.Views.Infrastructure
     {
         int Priority { get; }
 
-        IReadOnlyList<IViewInfo> GetViews(IParentViewManager parentViewManager, IViewModel viewModel, IReadOnlyMetadataContext metadata);
+        IReadOnlyList<IViewInfo> GetViews(IParentViewManager parentViewManager, IViewModelBase viewModel, IReadOnlyMetadataContext metadata);
 
         IReadOnlyList<IViewModelViewInitializer> GetInitializersByView(IParentViewManager parentViewManager, object view, IReadOnlyMetadataContext metadata);
 
-        IReadOnlyList<IViewInitializer> GetInitializersByViewModel(IParentViewManager parentViewManager, IViewModel viewModel, IReadOnlyMetadataContext metadata);
+        IReadOnlyList<IViewInitializer> GetInitializersByViewModel(IParentViewManager parentViewManager, IViewModelBase viewModel, IReadOnlyMetadataContext metadata);
 
-        IViewManagerResult<IViewInfo>? TryInitialize(IParentViewManager parentViewManager, IViewModel viewModel, object view, IReadOnlyMetadataContext metadata);
+        IViewManagerResult<IViewInfo>? TryInitialize(IParentViewManager parentViewManager, IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata);
     }
 }

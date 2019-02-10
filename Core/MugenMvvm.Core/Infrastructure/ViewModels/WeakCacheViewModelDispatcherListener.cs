@@ -53,7 +53,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
                 RemoveFromCache(ViewModelMetadata.Id.GetValue(metadataContext, oldValue));
         }
 
-        public IViewModel? TryGetViewModel(IViewModelDispatcher viewModelDispatcher, Guid id, IReadOnlyMetadataContext metadata)
+        public IViewModelBase? TryGetViewModel(IViewModelDispatcher viewModelDispatcher, Guid id, IReadOnlyMetadataContext metadata)
         {
             WeakReference value;
             lock (_viewModelsCache)
@@ -62,22 +62,22 @@ namespace MugenMvvm.Infrastructure.ViewModels
                     return null;
             }
 
-            var vm = (IViewModel)value.Target;
+            var vm = (IViewModelBase)value.Target;
             if (vm == null)
                 RemoveFromCache(id);
             return vm;
         }
 
-        public void OnSubscribe(IViewModelDispatcher viewModelDispatcher, IViewModel viewModel, object observer, ThreadExecutionMode executionMode,
+        public void OnSubscribe(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode,
             IReadOnlyMetadataContext metadata)
         {
         }
 
-        public void OnUnsubscribe(IViewModelDispatcher viewModelDispatcher, IViewModel viewModel, object observer, IReadOnlyMetadataContext metadata)
+        public void OnUnsubscribe(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, object observer, IReadOnlyMetadataContext metadata)
         {
         }
 
-        public void OnLifecycleChanged(IViewModelDispatcher viewModelDispatcher, IViewModel viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadata)
+        public void OnLifecycleChanged(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadata)
         {
             if (lifecycleState == ViewModelLifecycleState.Created)
             {
@@ -95,7 +95,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
 
         #region Methods
 
-        private void AddToCache(Guid id, IViewModel viewModel)
+        private void AddToCache(Guid id, IViewModelBase viewModel)
         {
             lock (_viewModelsCache)
             {

@@ -36,7 +36,7 @@ namespace MugenMvvm.Infrastructure.Views
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<IViewInfo> GetViews(IViewModel viewModel, IReadOnlyMetadataContext metadata)
+        public IReadOnlyList<IViewInfo> GetViews(IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(metadata, nameof(metadata));
@@ -50,14 +50,14 @@ namespace MugenMvvm.Infrastructure.Views
             return GetInitializersByViewInternal(view, metadata);
         }
 
-        public IReadOnlyList<IViewInitializer> GetInitializersByViewModel(IViewModel viewModel, IReadOnlyMetadataContext metadata)
+        public IReadOnlyList<IViewInitializer> GetInitializersByViewModel(IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(metadata, nameof(metadata));
             return GetInitializersByViewModelInternal(viewModel, metadata);
         }
 
-        void IParentViewManager.OnViewInitialized(IViewModel viewModel, object view, IReadOnlyMetadataContext metadata)
+        void IParentViewManager.OnViewInitialized(IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(view, nameof(view));
@@ -65,7 +65,7 @@ namespace MugenMvvm.Infrastructure.Views
             OnViewInitialized(viewModel, view, metadata);
         }
 
-        void IParentViewManager.OnViewCleared(IViewModel viewModel, object view, IReadOnlyMetadataContext metadata)
+        void IParentViewManager.OnViewCleared(IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(view, nameof(view));
@@ -77,7 +77,7 @@ namespace MugenMvvm.Infrastructure.Views
 
         #region Methods
 
-        protected virtual IReadOnlyList<IViewInfo> GetViewsInternal(IViewModel viewModel, IReadOnlyMetadataContext metadata)
+        protected virtual IReadOnlyList<IViewInfo> GetViewsInternal(IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
         {
             if (_viewManagers.Count == 0)
                 return Default.EmptyArray<IViewInfo>();
@@ -105,7 +105,7 @@ namespace MugenMvvm.Infrastructure.Views
             return result;
         }
 
-        protected virtual IReadOnlyList<IViewInitializer> GetInitializersByViewModelInternal(IViewModel viewModel, IReadOnlyMetadataContext metadata)
+        protected virtual IReadOnlyList<IViewInitializer> GetInitializersByViewModelInternal(IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
         {
             if (_viewManagers.Count == 0)
                 return Default.EmptyArray<IViewInitializer>();
@@ -119,7 +119,7 @@ namespace MugenMvvm.Infrastructure.Views
             return result;
         }
 
-        protected virtual void OnViewInitialized(IViewModel viewModel, object view, IReadOnlyMetadataContext metadata)
+        protected virtual void OnViewInitialized(IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata)
         {
             var listeners = GetListenersInternal();
             if (listeners == null)
@@ -128,7 +128,7 @@ namespace MugenMvvm.Infrastructure.Views
                 listeners[i]?.OnViewInitialized(this, viewModel, view, metadata);
         }
 
-        protected virtual void OnViewCleared(IViewModel viewModel, object view, IReadOnlyMetadataContext metadata)
+        protected virtual void OnViewCleared(IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata)
         {
             var listeners = GetListenersInternal();
             if (listeners == null)

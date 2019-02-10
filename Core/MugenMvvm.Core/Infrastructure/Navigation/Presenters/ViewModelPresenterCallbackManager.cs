@@ -31,7 +31,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         #region Implementation of interfaces
 
-        public INavigationCallback AddCallback(IViewModelPresenter presenter, IViewModel viewModel, NavigationCallbackType callbackType,
+        public INavigationCallback AddCallback(IViewModelPresenter presenter, IViewModelBase viewModel, NavigationCallbackType callbackType,
             IChildViewModelPresenterResult presenterResult)
         {
             Should.NotBeNull(presenterResult, nameof(presenterResult));
@@ -86,7 +86,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         #region Methods
 
-        protected virtual INavigationCallback AddCallbackInternal(IViewModelPresenter presenter, IViewModel viewModel, NavigationCallbackType callbackType,
+        protected virtual INavigationCallback AddCallbackInternal(IViewModelPresenter presenter, IViewModelBase viewModel, NavigationCallbackType callbackType,
             IChildViewModelPresenterResult presenterResult)
         {
             var serializable = IsSerializable && callbackType == NavigationCallbackType.Close && presenterResult.Metadata.Get(NavigationInternalMetadata.IsRestorableCallback);
@@ -165,7 +165,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             return null;
         }
 
-        protected virtual void OnCallbackAdded(IViewModel viewModel, INavigationCallback callback, IChildViewModelPresenterResult presenterResult)
+        protected virtual void OnCallbackAdded(IViewModelBase viewModel, INavigationCallback callback, IChildViewModelPresenterResult presenterResult)
         {
             var listeners = GetListenersInternal();
             if (listeners == null)
@@ -174,7 +174,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 listeners[i]?.OnCallbackAdded(this, viewModel, callback, presenterResult);
         }
 
-        protected virtual void OnCallbackExecuted(IViewModel viewModel, INavigationCallback callback, INavigationContext? navigationContext)
+        protected virtual void OnCallbackExecuted(IViewModelBase viewModel, INavigationCallback callback, INavigationContext? navigationContext)
         {
             var listeners = GetListenersInternal();
             if (listeners == null)
@@ -183,7 +183,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 listeners[i]?.OnCallbackExecuted(this, viewModel, callback, navigationContext);
         }
 
-        protected void InvokeCallbacks(IViewModel? viewModel, IMetadataContextKey<IList<INavigationCallbackInternal?>?> key, INavigationContext navigationContext, object result,
+        protected void InvokeCallbacks(IViewModelBase? viewModel, IMetadataContextKey<IList<INavigationCallbackInternal?>?> key, INavigationContext navigationContext, object result,
             Exception exception, bool canceled)
         {
             if (viewModel == null) //todo trace

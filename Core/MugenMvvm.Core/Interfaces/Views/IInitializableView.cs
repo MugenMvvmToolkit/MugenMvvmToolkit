@@ -5,6 +5,6 @@ namespace MugenMvvm.Interfaces.Views
 {
     public interface IInitializableView : IView
     {
-        void Initialize(IViewModel viewModel, IReadOnlyMetadataContext metadata);
+        void Initialize(IViewModelBase viewModel, IReadOnlyMetadataContext metadata);
     }
 }

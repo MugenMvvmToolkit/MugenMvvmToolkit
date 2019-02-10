@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Interfaces.ViewModels
 {
-    public interface IViewAwareViewModel<TView> : IViewModel where TView : class
+    public interface IViewAwareViewModel<TView> : IViewModelBase where TView : class
     {
         [Preserve(Conditional = true)]
         TView View { get; set; }

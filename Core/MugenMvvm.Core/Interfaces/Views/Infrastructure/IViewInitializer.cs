@@ -8,6 +8,6 @@ namespace MugenMvvm.Interfaces.Views.Infrastructure
     {
         Type ViewType { get; }
 
-        IViewManagerResult<IViewInfo> Initialize(IViewModel viewModel, IReadOnlyMetadataContext metadata);
+        IViewManagerResult<IViewInfo> Initialize(IViewModelBase viewModel, IReadOnlyMetadataContext metadata);
     }
 }

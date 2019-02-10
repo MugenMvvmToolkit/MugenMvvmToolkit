@@ -412,7 +412,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
             #region Constructors
 
-            public WeakNavigationEntry(NavigationDispatcher dispatcher, IViewModel viewModel, INavigationProvider provider, NavigationType navigationType)
+            public WeakNavigationEntry(NavigationDispatcher dispatcher, IViewModelBase viewModel, INavigationProvider provider, NavigationType navigationType)
             {
                 _dispatcher = dispatcher;
                 NavigationType = navigationType;
@@ -425,7 +425,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
             #region Properties
 
-            public IViewModel? ViewModel => (IViewModel)_viewModelReference.Target;
+            public IViewModelBase? ViewModel => (IViewModelBase)_viewModelReference.Target;
 
             public INavigationProvider NavigationProvider { get; }
 
@@ -457,7 +457,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
             #region Constructors
 
-            public NavigationEntry(NavigationDispatcher navigationDispatcher, NavigationType type, IViewModel viewModel, DateTime date, INavigationProvider provider)
+            public NavigationEntry(NavigationDispatcher navigationDispatcher, NavigationType type, IViewModelBase viewModel, DateTime date, INavigationProvider provider)
             {
                 Should.NotBeNull(type, nameof(type));
                 Should.NotBeNull(viewModel, nameof(viewModel));
@@ -479,7 +479,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
             public INavigationProvider NavigationProvider { get; }
 
-            public IViewModel ViewModel { get; }
+            public IViewModelBase ViewModel { get; }
 
             #endregion
 

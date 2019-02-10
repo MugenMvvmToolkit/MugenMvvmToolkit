@@ -14,7 +14,7 @@ namespace MugenMvvm.Interfaces.Navigation
 
         INavigationProvider NavigationProvider { get; }
 
-        IViewModel ViewModel { get; }
+        IViewModelBase ViewModel { get; }
 
         IReadOnlyList<INavigationCallback> GetCallbacks(NavigationCallbackType? callbackType, IReadOnlyMetadataContext metadata);
     }

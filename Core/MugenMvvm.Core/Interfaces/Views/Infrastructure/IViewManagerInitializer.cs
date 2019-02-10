@@ -6,6 +6,6 @@ namespace MugenMvvm.Interfaces.Views.Infrastructure
 {
     public interface IViewManagerInitializer : IHasMetadata<IReadOnlyMetadataContext>
     {
-        IViewManagerResult<IViewInfo> Initialize(IViewModel viewModel, object view, IReadOnlyMetadataContext metadata);
+        IViewManagerResult<IViewInfo> Initialize(IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata);
     }
 }

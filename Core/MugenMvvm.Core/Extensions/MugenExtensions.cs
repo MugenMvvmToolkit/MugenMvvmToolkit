@@ -28,7 +28,7 @@ using MugenMvvm.Interfaces.Wrapping;
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm
 {
-    public static class MugenExtensions
+    public static class MugenExtensions//todo split
     {
         #region Fields
 
@@ -51,11 +51,11 @@ namespace MugenMvvm
 
         #region BusyIndicatorProvider
 
-        public static TTask WithBusyIndicator<TTask>(this TTask task, IViewModel viewModel, object? message = null, int millisecondsDelay = 0)
+        public static TTask WithBusyIndicator<TTask>(this TTask task, IHasService<IBusyIndicatorProvider> busyIndicatorProvider, object? message = null, int millisecondsDelay = 0)
             where TTask : Task
         {
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            return task.WithBusyIndicator(viewModel.BusyIndicatorProvider, message, millisecondsDelay);
+            Should.NotBeNull(busyIndicatorProvider, nameof(busyIndicatorProvider));
+            return task.WithBusyIndicator(busyIndicatorProvider.Service, message, millisecondsDelay);
         }
 
         public static TTask WithBusyIndicator<TTask>(this TTask task, IBusyIndicatorProvider busyIndicatorProvider, object? message = null, int millisecondsDelay = 0)
@@ -237,7 +237,7 @@ namespace MugenMvvm
             return Task.WhenAll(tasks);
         }
 
-        public static INavigationContext CreateNavigateToContext(this INavigationDispatcher navigationDispatcher, INavigationProvider navigationProvider, NavigationType navigationType, IViewModel viewModelTo, NavigationMode mode, IReadOnlyMetadataContext? metadata = null)
+        public static INavigationContext CreateNavigateToContext(this INavigationDispatcher navigationDispatcher, INavigationProvider navigationProvider, NavigationType navigationType, IViewModelBase viewModelTo, NavigationMode mode, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(navigationType, nameof(navigationType));
@@ -249,7 +249,7 @@ namespace MugenMvvm
             return context;
         }
 
-        public static INavigationContext CreateNavigateFromContext(this INavigationDispatcher navigationDispatcher, INavigationProvider navigationProvider, NavigationType navigationType, IViewModel viewModelFrom, NavigationMode mode, IReadOnlyMetadataContext? metadata = null)
+        public static INavigationContext CreateNavigateFromContext(this INavigationDispatcher navigationDispatcher, INavigationProvider navigationProvider, NavigationType navigationType, IViewModelBase viewModelFrom, NavigationMode mode, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(navigationType, nameof(navigationType));
@@ -261,12 +261,12 @@ namespace MugenMvvm
             return context;
         }
 
-        public static INavigatingResult OnNavigatingTo(this INavigationDispatcher navigationDispatcher, INavigationProvider navigationProvider, NavigationType navigationType, IViewModel viewModelTo, NavigationMode mode, IReadOnlyMetadataContext? metadata = null)
+        public static INavigatingResult OnNavigatingTo(this INavigationDispatcher navigationDispatcher, INavigationProvider navigationProvider, NavigationType navigationType, IViewModelBase viewModelTo, NavigationMode mode, IReadOnlyMetadataContext? metadata = null)
         {
             return navigationDispatcher.OnNavigating(navigationDispatcher.CreateNavigateToContext(navigationProvider, navigationType, viewModelTo, mode, metadata));
         }
 
-        public static INavigatingResult OnNavigatingFrom(this INavigationDispatcher navigationDispatcher, INavigationProvider navigationProvider, NavigationType navigationType, IViewModel viewModelFrom, NavigationMode mode, IReadOnlyMetadataContext? metadata = null)
+        public static INavigatingResult OnNavigatingFrom(this INavigationDispatcher navigationDispatcher, INavigationProvider navigationProvider, NavigationType navigationType, IViewModelBase viewModelFrom, NavigationMode mode, IReadOnlyMetadataContext? metadata = null)
         {
             return navigationDispatcher.OnNavigating(navigationDispatcher.CreateNavigateFromContext(navigationProvider, navigationType, viewModelFrom, mode, metadata));
         }
@@ -486,13 +486,13 @@ namespace MugenMvvm
 
         #region View models
 
-        public static void InvalidateCommands(this IViewModel viewModel)
+        public static void InvalidateCommands<TViewModel>(this TViewModel viewModel) where TViewModel : class, IViewModelBase, IHasService<IMessenger>
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            viewModel.Publish(viewModel, Default.EmptyPropertyChangedArgs);
+            viewModel.Service.Publish(viewModel, Default.EmptyPropertyChangedArgs);
         }
 
-        public static bool IsDisposed(this IViewModel viewModel)
+        public static bool IsDisposed(this IViewModelBase viewModel)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             return viewModel.Metadata.Get(ViewModelMetadata.LifecycleState).IsDispose;

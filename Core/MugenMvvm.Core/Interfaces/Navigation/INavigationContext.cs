@@ -14,8 +14,8 @@ namespace MugenMvvm.Interfaces.Navigation
 
         INavigationProvider NavigationProvider { get; }
 
-        IViewModel? ViewModelFrom { get; }
+        IViewModelBase? ViewModelFrom { get; }
 
-        IViewModel? ViewModelTo { get; }
+        IViewModelBase? ViewModelTo { get; }
     }
 }

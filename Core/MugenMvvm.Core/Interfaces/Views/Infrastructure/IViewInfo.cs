@@ -8,6 +8,6 @@ namespace MugenMvvm.Interfaces.Views.Infrastructure
     {
         object View { get; }
 
-        IViewManagerCleanupResult Cleanup(IViewModel viewModel, IReadOnlyMetadataContext metadata);
+        IViewManagerCleanupResult Cleanup(IViewModelBase viewModel, IReadOnlyMetadataContext metadata);
     }
 }

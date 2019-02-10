@@ -9,10 +9,10 @@ namespace MugenMvvm.Interfaces.Views.Infrastructure
     {
         ICollection<IChildViewManager> ViewManagers { get; }
 
-        IReadOnlyList<IViewInfo> GetViews(IViewModel viewModel, IReadOnlyMetadataContext metadata);
+        IReadOnlyList<IViewInfo> GetViews(IViewModelBase viewModel, IReadOnlyMetadataContext metadata);
 
         IReadOnlyList<IViewModelViewInitializer> GetInitializersByView(object view, IReadOnlyMetadataContext metadata);
 
-        IReadOnlyList<IViewInitializer> GetInitializersByViewModel(IViewModel viewModel, IReadOnlyMetadataContext metadata);        
+        IReadOnlyList<IViewInitializer> GetInitializersByViewModel(IViewModelBase viewModel, IReadOnlyMetadataContext metadata);        
     }
 }

@@ -13,9 +13,9 @@ namespace MugenMvvm.Interfaces.Navigation
 
         object? View { get; }
 
-        IViewModel ViewModel { get; }
+        IViewModelBase ViewModel { get; }
 
-        void Initialize(IViewModel viewModel, IViewInitializer viewInitializer, IReadOnlyMetadataContext metadata);
+        void Initialize(IViewModelBase viewModel, IViewInitializer viewInitializer, IReadOnlyMetadataContext metadata);
 
         IReadOnlyMetadataContext Show(IReadOnlyMetadataContext metadata);
 

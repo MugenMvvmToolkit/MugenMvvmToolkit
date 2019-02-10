@@ -11,7 +11,7 @@ namespace MugenMvvm.Attributes
         public ViewModelAttribute(Type viewModelType, string? name = null)
         {
             Should.NotBeNull(viewModelType, nameof(viewModelType));
-            Should.BeOfType<IViewModel>(viewModelType, "viewModelType");
+            Should.BeOfType<IViewModelBase>(viewModelType, "viewModelType");
             ViewModelType = viewModelType;
             Name = name;
         }

@@ -9,7 +9,7 @@ namespace MugenMvvm
     {
         #region Fields
 
-        private static IMetadataContextKey<IViewModel?> _viewModel;
+        private static IMetadataContextKey<IViewModelBase?> _viewModel;
         private static IMetadataContextKey<string?> _viewName;
         private static IMetadataContextKey<bool> _suppressTabNavigation;
         private static IMetadataContextKey<bool> _suppressWindowNavigation;
@@ -20,12 +20,12 @@ namespace MugenMvvm
 
         #region Properties
 
-        public static IMetadataContextKey<IViewModel?> ViewModel
+        public static IMetadataContextKey<IViewModelBase?> ViewModel
         {
             get
             {
                 if (_viewModel == null)
-                    _viewModel = GetBuilder<IViewModel?>(nameof(ViewModel)).NotNull().Serializable().Build();
+                    _viewModel = GetBuilder<IViewModelBase?>(nameof(ViewModel)).NotNull().Serializable().Build();
                 return _viewModel;
             }
             set => _viewModel = value;

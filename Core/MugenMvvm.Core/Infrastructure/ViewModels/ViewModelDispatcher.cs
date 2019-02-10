@@ -1,38 +1,33 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
-using MugenMvvm.Infrastructure.BusyIndicator;
 using MugenMvvm.Infrastructure.Internal;
-using MugenMvvm.Infrastructure.Messaging;
-using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces;
-using MugenMvvm.Interfaces.BusyIndicator;
-using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.ViewModels.Infrastructure;
 
 namespace MugenMvvm.Infrastructure.ViewModels
 {
-    public class ViewModelDispatcher : HasListenersBase<IViewModelDispatcherListener>, IViewModelDispatcher
+    public class ViewModelDispatcher : HasListenersBase<IViewModelDispatcherListener>, IViewModelDispatcher //todo remove tracer
     {
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelDispatcher(IThreadDispatcher threadDispatcher, ITracer tracer)
+        public ViewModelDispatcher(ITracer tracer)
         {
-            Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
             Should.NotBeNull(tracer, nameof(tracer));
-            ThreadDispatcher = threadDispatcher;
             Tracer = tracer;
+            ServiceResolvers = new Dictionary<Type, IViewModelDispatcherServiceResolver>(MemberInfoComparer.Instance);
         }
 
         #endregion
 
         #region Properties
 
-        protected IThreadDispatcher ThreadDispatcher { get; }
+        protected Dictionary<Type, IViewModelDispatcherServiceResolver> ServiceResolvers { get; }
 
         protected ITracer Tracer { get; }
 
@@ -40,28 +35,32 @@ namespace MugenMvvm.Infrastructure.ViewModels
 
         #region Implementation of interfaces
 
-        public IBusyIndicatorProvider GetBusyIndicatorProvider(IViewModel viewModel, IReadOnlyMetadataContext metadata)
+        public object GetService(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
+            Should.NotBeNull(service, nameof(service));
             Should.NotBeNull(metadata, nameof(metadata));
-            return GetBusyIndicatorProviderInternal(viewModel, metadata);
+            return GetServiceInternal(viewModel, service, metadata);
         }
 
-        public IMessenger GetMessenger(IViewModel viewModel, IReadOnlyMetadataContext metadata)
+        public void AddServiceResolver(IViewModelDispatcherServiceResolver resolver)
         {
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            Should.NotBeNull(metadata, nameof(metadata));
-            return GetMessengerInternal(viewModel, metadata);
+            Should.NotBeNull(resolver, nameof(resolver));
+            AddServiceResolverInternal(resolver);
         }
 
-        public IObservableMetadataContext GetMetadataContext(IViewModel viewModel, IReadOnlyMetadataContext metadata)
+        public void RemoveServiceResolver(IViewModelDispatcherServiceResolver resolver)
         {
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            Should.NotBeNull(metadata, nameof(metadata));
-            return GetMetadataContextInternal(viewModel, metadata);
+            Should.NotBeNull(resolver, nameof(resolver));
+            RemoveServiceResolverInternal(resolver);
         }
 
-        public void Subscribe(IViewModel viewModel, object observer, ThreadExecutionMode executionMode, IReadOnlyMetadataContext metadata)
+        public IReadOnlyList<IViewModelDispatcherServiceResolver> GetServiceResolvers()
+        {
+            return GetServiceResolversInternal();
+        }
+
+        public void Subscribe(IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(observer, nameof(observer));
@@ -69,7 +68,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
             SubscribeInternal(viewModel, observer, executionMode, metadata);
         }
 
-        public void Unsubscribe(IViewModel viewModel, object observer, IReadOnlyMetadataContext metadata)
+        public void Unsubscribe(IViewModelBase viewModel, object observer, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(observer, nameof(observer));
@@ -77,7 +76,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
             UnsubscribeInternal(viewModel, observer, metadata);
         }
 
-        public void OnLifecycleChanged(IViewModel viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadata)
+        public void OnLifecycleChanged(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(lifecycleState, nameof(lifecycleState));
@@ -85,7 +84,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
             OnLifecycleChangedInternal(viewModel, lifecycleState, metadata);
         }
 
-        public IViewModel? TryGetViewModel(Guid id, IReadOnlyMetadataContext metadata)
+        public IViewModelBase? TryGetViewModel(Guid id, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(metadata, nameof(metadata));
             return TryGetViewModelInternal(id, metadata);
@@ -95,22 +94,44 @@ namespace MugenMvvm.Infrastructure.ViewModels
 
         #region Methods
 
-        protected virtual IBusyIndicatorProvider GetBusyIndicatorProviderInternal(IViewModel viewModel, IReadOnlyMetadataContext metadata)
+        protected virtual object GetServiceInternal(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext metadata)
         {
-            return new BusyIndicatorProvider();
+            IViewModelDispatcherServiceResolver resolver;
+            lock (ServiceResolvers)
+            {
+                ServiceResolvers.TryGetValue(service, out resolver);
+            }
+
+            if (resolver == null)
+                throw ExceptionManager.IoCCannotFindBinding(service);
+            return resolver.Resolve(viewModel, metadata);
         }
 
-        protected virtual IMessenger GetMessengerInternal(IViewModel viewModel, IReadOnlyMetadataContext metadata)
+        protected virtual void AddServiceResolverInternal(IViewModelDispatcherServiceResolver resolver)
         {
-            return new Messenger(ThreadDispatcher, Tracer);
+            lock (ServiceResolvers)
+            {
+                ServiceResolvers[resolver.Service] = resolver;
+            }
         }
 
-        protected virtual IObservableMetadataContext GetMetadataContextInternal(IViewModel viewModel, IReadOnlyMetadataContext metadata)
+        protected virtual void RemoveServiceResolverInternal(IViewModelDispatcherServiceResolver resolver)
         {
-            return new MetadataContext();
+            lock (ServiceResolvers)
+            {
+                ServiceResolvers.Remove(resolver.Service);
+            }
         }
 
-        protected virtual void OnLifecycleChangedInternal(IViewModel viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadata)
+        protected virtual IReadOnlyList<IViewModelDispatcherServiceResolver> GetServiceResolversInternal()
+        {
+            lock (ServiceResolvers)
+            {
+                return ServiceResolvers.Values.ToArray();
+            }
+        }
+
+        protected virtual void OnLifecycleChangedInternal(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadata)
         {
             if (lifecycleState != ViewModelLifecycleState.Finalized)
                 viewModel.Metadata.Set(ViewModelMetadata.LifecycleState, lifecycleState);
@@ -127,7 +148,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
                 Tracer.Trace(traceLevel, MessageConstants.TraceViewModelLifecycleFormat3.Format(viewModel.GetType(), viewModel.GetHashCode(), lifecycleState));
         }
 
-        protected virtual void SubscribeInternal(IViewModel viewModel, object observer, ThreadExecutionMode executionMode, IReadOnlyMetadataContext metadata)
+        protected virtual void SubscribeInternal(IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode, IReadOnlyMetadataContext metadata)
         {
             var listeners = GetListenersInternal();
             if (listeners != null)
@@ -137,7 +158,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
             }
         }
 
-        protected void UnsubscribeInternal(IViewModel viewModel, object observer, IReadOnlyMetadataContext metadata)
+        protected virtual void UnsubscribeInternal(IViewModelBase viewModel, object observer, IReadOnlyMetadataContext metadata)
         {
             var listeners = GetListenersInternal();
             if (listeners != null)
@@ -147,7 +168,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
             }
         }
 
-        protected virtual IViewModel? TryGetViewModelInternal(Guid id, IReadOnlyMetadataContext metadata)
+        protected virtual IViewModelBase? TryGetViewModelInternal(Guid id, IReadOnlyMetadataContext metadata)
         {
             var listeners = GetListenersInternal();
             if (listeners != null)

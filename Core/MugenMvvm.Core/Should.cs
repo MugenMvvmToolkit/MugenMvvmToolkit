@@ -74,7 +74,7 @@ namespace MugenMvvm
         }
 
         [DebuggerStepThrough]
-        public static void NotBeDisposed(this IViewModel viewModel)
+        public static void NotBeDisposed(this IViewModelBase viewModel)
         {
             if (viewModel.IsDisposed())
                 throw ExceptionManager.ObjectDisposed(viewModel.GetType());

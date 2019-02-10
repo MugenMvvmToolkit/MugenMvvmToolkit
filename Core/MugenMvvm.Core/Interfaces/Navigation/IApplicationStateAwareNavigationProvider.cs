@@ -6,8 +6,8 @@ namespace MugenMvvm.Interfaces.Navigation
 {
     public interface IApplicationStateAwareNavigationProvider : INavigationProvider
     {
-        bool IsSupported(IViewModel viewModel, ApplicationState oldState, ApplicationState newState, IReadOnlyMetadataContext metadata);
+        bool IsSupported(IViewModelBase viewModel, ApplicationState oldState, ApplicationState newState, IReadOnlyMetadataContext metadata);
 
-        INavigationContext? TryCreateApplicationStateContext(IViewModel viewModel, ApplicationState oldState, ApplicationState newState, IReadOnlyMetadataContext metadata);
+        INavigationContext? TryCreateApplicationStateContext(IViewModelBase viewModel, ApplicationState oldState, ApplicationState newState, IReadOnlyMetadataContext metadata);
     }
 }
