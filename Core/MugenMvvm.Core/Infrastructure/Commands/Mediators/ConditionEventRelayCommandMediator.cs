@@ -41,9 +41,15 @@ namespace MugenMvvm.Infrastructure.Commands.Mediators
             _subscriber = new Subscriber(this);
             foreach (var notifier in notifiers)
             {
-                if (notifier is IViewModel vm) //todo change subscribe to new type
+                if (notifier is IViewModel vm)
                 {
-                    vm.Subscribe(_subscriber, eventExecutionMode);
+                    vm.InternalMessenger.Subscribe(_subscriber, eventExecutionMode);
+                    continue;
+                }
+
+                if (notifier is IMessenger messenger)
+                {
+                    messenger.Subscribe(_subscriber, eventExecutionMode);
                     continue;
                 }
 

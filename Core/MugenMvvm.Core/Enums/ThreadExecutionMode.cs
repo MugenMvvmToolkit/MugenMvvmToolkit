@@ -14,6 +14,7 @@ namespace MugenMvvm.Enums
         public static readonly ThreadExecutionMode Main = new ThreadExecutionMode(1);
         public static readonly ThreadExecutionMode Background = new ThreadExecutionMode(2);
         public static readonly ThreadExecutionMode Current = new ThreadExecutionMode(3);
+        public static readonly ThreadExecutionMode MainAsync = new ThreadExecutionMode(4);
 
         #endregion
 
@@ -24,7 +25,7 @@ namespace MugenMvvm.Enums
         }
 
         [Preserve(Conditional = true)]
-        internal ThreadExecutionMode()
+        protected ThreadExecutionMode()
         {
         }
 

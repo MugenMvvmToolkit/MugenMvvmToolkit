@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.IoC;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Infrastructure.IoC
 {
@@ -45,19 +46,13 @@ namespace MugenMvvm.Infrastructure.IoC
 
         public MemberFlags PropertyMemberFlags { get; set; }
 
-        public bool IsDisposed { get; private set; }
+        private bool _isDisposed;
 
         public int Id { get; }
 
         public IIoCContainer? Parent => _parent;
 
         public object Container => this;
-
-        #endregion
-
-        #region Events
-
-        public event Action<IIoCContainer, EventArgs> Disposed;
 
         #endregion
 
@@ -96,7 +91,7 @@ namespace MugenMvvm.Infrastructure.IoC
 
             if (registration != null)
                 return registration.Resolve(parameters);
-            if (_parent != null && _parent.HasRegistration(ref key))
+            if (_parent != null && _parent.HasRegistration(key))
                 return _parent.Get(service, name, parameters);
             return Resolve(service, parameters);
         }
@@ -178,9 +173,9 @@ namespace MugenMvvm.Infrastructure.IoC
 
         public void Dispose()
         {
-            if (IsDisposed)
+            if (_isDisposed)
                 return;
-            IsDisposed = true;
+            _isDisposed = true;
             lock (_bindingRegistrations)
             {
                 _bindingRegistrations.Clear();
@@ -190,8 +185,6 @@ namespace MugenMvvm.Infrastructure.IoC
             {
                 _selfActivatedRegistrations.Clear();
             }
-
-            Disposed?.Invoke(this, EventArgs.Empty);
         }
 
         object IServiceProvider.GetService(Type serviceType)
@@ -239,11 +232,11 @@ namespace MugenMvvm.Infrastructure.IoC
                 return result;
             }
 
-            if (_parent != null && _parent.HasRegistration(ref key))
+            if (_parent != null && _parent.HasRegistration(key))
                 return _parent.GetAll(service, name, parameters);
 
             if (TryResolve(service, parameters, out var value))
-                return new[] {value};
+                return new[] { value };
             return Default.EmptyArray<object>();
         }
 
@@ -351,7 +344,7 @@ namespace MugenMvvm.Infrastructure.IoC
             return true;
         }
 
-        private bool HasRegistration(ref BindingKey key)
+        private bool HasRegistration(in BindingKey key)
         {
             bool result;
             lock (_bindingRegistrations)
@@ -361,7 +354,7 @@ namespace MugenMvvm.Infrastructure.IoC
 
             if (result || _parent == null)
                 return result;
-            return _parent.HasRegistration(ref key);
+            return _parent.HasRegistration(key);
         }
 
         private static bool IsSelfBindableType(Type service)
@@ -371,6 +364,12 @@ namespace MugenMvvm.Infrastructure.IoC
                    && service != typeof(string)
                    && !service.IsAbstractUnified()
                    && !service.ContainsGenericParametersUnified();
+        }
+
+        private void NotBeDisposed()
+        {
+            if (_isDisposed)
+                throw ExceptionManager.ObjectDisposed(GetType());
         }
 
         #endregion
@@ -464,6 +463,7 @@ namespace MugenMvvm.Infrastructure.IoC
 
                         var result = constructor.InvokeEx(GetParameters(constructor, parameters));
                         SetProperties(result, parameters);
+                        (result as IInitializable)?.Initialize();
                         if (_lifecycle == IoCDependencyLifecycle.Singleton)
                         {
                             _value = result;
@@ -573,8 +573,8 @@ namespace MugenMvvm.Infrastructure.IoC
                     return null;
                 var objects = obj as Array;
                 if (objects == null)
-                    objects = new[] {obj};
-                var array = (Array) Activator.CreateInstance(arrayType, objects.Length);
+                    objects = new[] { obj };
+                var array = (Array)Activator.CreateInstance(arrayType, objects.Length);
                 for (var i = 0; i < objects.Length; i++)
                     array.SetValue(objects.GetValue(i), i);
                 return array;

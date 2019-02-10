@@ -1,4 +1,4 @@
-﻿using MugenMvvm.Enums;
+﻿using System;
 using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
@@ -6,16 +6,20 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.ViewModels
 {
-    public interface IViewModel : INotifyPropertyChangedEx, IDisposableObject<IViewModel>, IHasMemento, IHasMetadata<IObservableMetadataContext>
+    public interface IViewModelBase : INotifyPropertyChangedEx, IHasMetadata<IObservableMetadataContext>
     {
+
+    }
+
+    public interface IHasService<out TService> where TService : class
+    {
+        TService Service { get; }
+    }
+
+    public interface IViewModel : INotifyPropertyChangedEx, IDisposable, IHasMemento, IHasMetadata<IObservableMetadataContext>, IEventPublisher
+    {
+        IMessenger InternalMessenger { get; }
+
         IBusyIndicatorProvider BusyIndicatorProvider { get; }
-        
-        void Publish(object message, IMessengerContext? messengerContext = null);
-
-        void Publish(object sender, object message, IMessengerContext? messengerContext = null);
-
-        void Subscribe(object item, ThreadExecutionMode? executionMode = null);
-
-        void Unsubscribe(object item);
     }
 }

@@ -15,7 +15,7 @@ namespace MugenMvvm.Enums
         #region Constructors
 
         [Preserve(Conditional = true)]
-        internal IoCDependencyLifecycle()
+        protected IoCDependencyLifecycle()
         {
         }
 

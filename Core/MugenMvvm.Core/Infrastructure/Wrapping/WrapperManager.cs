@@ -107,9 +107,9 @@ namespace MugenMvvm.Infrastructure.Wrapping
             list.Add(new WrapperRegistration(implementation, condition ?? TrueCondition, wrapperFactory));
         }
 
-        public void Clear<TWrapper>()
+        public void RemoveWrapper(Type wrapperType)
         {
-            Registrations.Remove(typeof(TWrapper));
+            Registrations.Remove(wrapperType);
         }
 
         #endregion
@@ -124,21 +124,21 @@ namespace MugenMvvm.Infrastructure.Wrapping
             if (wrapperType.IsGenericTypeDefinitionUnified())
                 wrapperType = wrapperType.MakeGenericType(item.GetType());
 
-//            var viewModel = item as IViewModel;//todo check wrapper view model
-//            if (viewModel != null && typeof(IWrapperViewModel).IsAssignableFrom(wrapperType))
-//            {
-//                metadata = metadata.ToNonReadOnly();
-//                if (!metadata.Contains(InitializationConstants.ParentViewModel))
-//                {
-//                    var parentViewModel = viewModel.GetParentViewModel();
-//                    if (parentViewModel != null)
-//                        metadata.AddOrUpdate(InitializationConstants.ParentViewModel, parentViewModel);
-//                }
-//                var vm = (IWrapperViewModel)_viewModelProvider.GetViewModel(wrapperType, metadata);
-//                vm.Wrap(viewModel, metadata);
-//                viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.WrapperViewModel, vm);
-//                return vm;
-//            }
+            //            var viewModel = item as IViewModel;//todo check wrapper view model
+            //            if (viewModel != null && typeof(IWrapperViewModel).IsAssignableFrom(wrapperType))
+            //            {
+            //                metadata = metadata.ToNonReadOnly();
+            //                if (!metadata.Contains(InitializationConstants.ParentViewModel))
+            //                {
+            //                    var parentViewModel = viewModel.GetParentViewModel();
+            //                    if (parentViewModel != null)
+            //                        metadata.AddOrUpdate(InitializationConstants.ParentViewModel, parentViewModel);
+            //                }
+            //                var vm = (IWrapperViewModel)_viewModelProvider.GetViewModel(wrapperType, metadata);
+            //                vm.Wrap(viewModel, metadata);
+            //                viewModel.Settings.Metadata.AddOrUpdate(ViewModelConstants.WrapperViewModel, vm);
+            //                return vm;
+            //            }
 
             var constructor = wrapperType.GetConstructorsUnified(MemberFlags.InstanceOnly).FirstOrDefault();
             return constructor?.InvokeEx(item);

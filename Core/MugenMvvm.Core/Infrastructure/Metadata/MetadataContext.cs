@@ -18,28 +18,27 @@ namespace MugenMvvm.Infrastructure.Metadata
         #region Fields
 
         private readonly Dictionary<IMetadataContextKey, object?> _values;
-        private readonly IObservableMetadataContextListener? _internalListener;
+        internal IObservableMetadataContextListener? InternalListener;
 
         #endregion
 
         #region Constructors
 
-        public MetadataContext(IObservableMetadataContextListener? internalListener = null)
-        {
-            _values = new Dictionary<IMetadataContextKey, object?>();
-            _internalListener = internalListener;
-        }
-
-        public MetadataContext(IReadOnlyMetadataContext metadataContext, IObservableMetadataContextListener? internalListener = null)
-            : this(internalListener)
-        {
-            Should.NotBeNull(metadataContext, nameof(metadataContext));
-            Merge(metadataContext);
-        }
-
         private MetadataContext(Dictionary<IMetadataContextKey, object?> values)
         {
             _values = values;
+        }
+
+        public MetadataContext()
+            : this(new Dictionary<IMetadataContextKey, object?>())
+        {
+        }
+
+        public MetadataContext(IReadOnlyMetadataContext metadataContext)
+            : this()
+        {
+            Should.NotBeNull(metadataContext, nameof(metadataContext));
+            Merge(metadataContext);
         }
 
         #endregion
@@ -57,7 +56,7 @@ namespace MugenMvvm.Infrastructure.Metadata
             }
         }
 
-        private bool HasListeners => _internalListener != null || Listeners != null;
+        private new bool HasListeners => InternalListener != null || Listeners != null;
 
         #endregion
 
@@ -353,7 +352,7 @@ namespace MugenMvvm.Infrastructure.Metadata
                     items[i]?.OnAdded(this, key, newValue);
             }
 
-            _internalListener?.OnAdded(this, key, newValue);
+            InternalListener?.OnAdded(this, key, newValue);
         }
 
         private void OnChanged(IMetadataContextKey key, object? oldValue, object? newValue)
@@ -367,7 +366,7 @@ namespace MugenMvvm.Infrastructure.Metadata
                     items[i]?.OnChanged(this, key, oldValue, newValue);
             }
 
-            _internalListener?.OnChanged(this, key, oldValue, newValue);
+            InternalListener?.OnChanged(this, key, oldValue, newValue);
         }
 
         private void OnRemoved(IMetadataContextKey key, object? oldValue)
@@ -381,7 +380,7 @@ namespace MugenMvvm.Infrastructure.Metadata
                     items[i]?.OnRemoved(this, key, oldValue);
             }
 
-            _internalListener?.OnRemoved(this, key, oldValue);
+            InternalListener?.OnRemoved(this, key, oldValue);
         }
 
         #endregion

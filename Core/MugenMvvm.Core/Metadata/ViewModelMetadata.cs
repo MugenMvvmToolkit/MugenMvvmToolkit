@@ -5,6 +5,7 @@ using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Presenters;
+using MugenMvvm.Interfaces.Navigation.Presenters.Results;
 using MugenMvvm.Interfaces.ViewModels;
 
 // ReSharper disable once CheckNamespace
@@ -20,7 +21,6 @@ namespace MugenMvvm
         private static IMetadataContextKey<BusyMessageHandlerType> _busyMessageHandlerType;
         private static IMetadataContextKey<IViewModel> _parentViewModel;
         private static IMetadataContextKey<bool> _noState;
-        private static IMetadataContextKey<object> _view;
         private static IMetadataContextKey<Func<INavigationDispatcher, IViewModel, IReadOnlyMetadataContext, IChildViewModelPresenterResult>?> _closeHandler;
 
         #endregion
@@ -43,7 +43,13 @@ namespace MugenMvvm
             get
             {
                 if (_lifecycleState == null)
-                    _lifecycleState = GetBuilder<ViewModelLifecycleState>(nameof(LifecycleState)).NotNull().Serializable().Build();
+                {
+                    _lifecycleState = GetBuilder<ViewModelLifecycleState>(nameof(LifecycleState))
+                           .NotNull()
+                           .Serializable()
+                           .DefaultValue(ViewModelLifecycleState.Disposed)
+                           .Build();
+                }
                 return _lifecycleState;
             }
             set => _lifecycleState = value;
@@ -99,17 +105,6 @@ namespace MugenMvvm
                 return _noState;
             }
             set => _noState = value;
-        }
-
-        public static IMetadataContextKey<object> View
-        {
-            get
-            {
-                if (_view == null)
-                    _view = GetBuilder<object>(nameof(View)).NotNull().Build();
-                return _view;
-            }
-            set => _view = value;
         }
 
         public static IMetadataContextKey<Func<INavigationDispatcher, IViewModel, IReadOnlyMetadataContext, IChildViewModelPresenterResult>?> CloseHandler

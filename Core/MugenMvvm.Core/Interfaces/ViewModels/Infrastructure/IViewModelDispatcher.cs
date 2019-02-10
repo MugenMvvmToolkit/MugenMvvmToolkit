@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.ViewModels.Infrastructure
 {
-    public interface IViewModelDispatcher : IHasListeners<IViewModelDispatcherListener>
+    public interface IViewModelDispatcher : IHasListeners<IViewModelDispatcherListener>//todo resolve service, add resolver for service, move all code to mediators
     {
         [Pure]
         IBusyIndicatorProvider GetBusyIndicatorProvider(IViewModel viewModel, IReadOnlyMetadataContext metadata);
@@ -19,10 +19,12 @@ namespace MugenMvvm.Interfaces.ViewModels.Infrastructure
         [Pure]
         IObservableMetadataContext GetMetadataContext(IViewModel viewModel, IReadOnlyMetadataContext metadata);
 
+        void Subscribe(IViewModel viewModel, object observer, ThreadExecutionMode executionMode, IReadOnlyMetadataContext metadata);
+
+        void Unsubscribe(IViewModel viewModel, object observer, IReadOnlyMetadataContext metadata);
 
         void OnLifecycleChanged(IViewModel viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadata);
 
-        [Pure]
-        IViewModel? GetViewModelById(Guid id, IReadOnlyMetadataContext metadata);
+        IViewModel? TryGetViewModel(Guid id, IReadOnlyMetadataContext metadata);
     }
 }

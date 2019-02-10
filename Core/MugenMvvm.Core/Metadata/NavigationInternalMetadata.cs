@@ -13,7 +13,6 @@ namespace MugenMvvm
     {
         #region Fields
 
-        private static IMetadataContextKey<INavigationWindowMediator?> _navigationWindowMediator;
         private static IMetadataContextKey<object?> _restoredWindowView;
         private static IMetadataContextKey<bool> _isRestorableCallback;
         private static IMetadataContextKey<IList<INavigationCallbackInternal>?> _showingCallbacks;
@@ -25,17 +24,6 @@ namespace MugenMvvm
         #endregion
 
         #region Properties
-
-        public static IMetadataContextKey<INavigationWindowMediator?> NavigationWindowMediator
-        {
-            get
-            {
-                if (_navigationWindowMediator == null)
-                    _navigationWindowMediator = GetBuilder<INavigationWindowMediator?>(nameof(NavigationWindowMediator)).Build();
-                return _navigationWindowMediator;
-            }
-            set => _navigationWindowMediator = value;
-        }
 
         public static IMetadataContextKey<object?> RestoredWindowView
         {
@@ -126,7 +114,7 @@ namespace MugenMvvm
 
         private static object? CloseCallbacksSerializableConverter(IMetadataContextKey<IList<INavigationCallbackInternal?>?> key, object? value, ISerializationContext arg3)
         {
-            var callbacks = (IList<INavigationCallbackInternal>) value;
+            var callbacks = (IList<INavigationCallbackInternal>)value;
             if (callbacks == null)
                 return null;
             lock (callbacks)
@@ -137,7 +125,7 @@ namespace MugenMvvm
 
         private static bool CanSerializeCloseCallbacks(IMetadataContextKey<IList<INavigationCallbackInternal?>?> key, object? value, ISerializationContext context)
         {
-            var callbacks = (IList<INavigationCallbackInternal>) value;
+            var callbacks = (IList<INavigationCallbackInternal>)value;
             return callbacks != null && callbacks.Any(callback => callback != null && callback.IsSerializable);
         }
 

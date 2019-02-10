@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Interfaces.Navigation
 {
-    public interface IApplicationStateSupportedNavigationProvider
+    public interface IApplicationStateAwareNavigationProvider : INavigationProvider
     {
         bool IsSupported(IViewModel viewModel, ApplicationState oldState, ApplicationState newState, IReadOnlyMetadataContext metadata);
 

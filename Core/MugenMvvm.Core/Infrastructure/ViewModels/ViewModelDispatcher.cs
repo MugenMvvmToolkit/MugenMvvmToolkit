@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.BusyIndicator;
@@ -16,14 +15,8 @@ using MugenMvvm.Interfaces.ViewModels.Infrastructure;
 
 namespace MugenMvvm.Infrastructure.ViewModels
 {
-    public class ViewModelDispatcher : HasListenersBase<IViewModelDispatcherListener>, IViewModelDispatcher, IObservableMetadataContextListener
+    public class ViewModelDispatcher : HasListenersBase<IViewModelDispatcherListener>, IViewModelDispatcher
     {
-        #region Fields
-
-        protected readonly Dictionary<Guid, WeakReference> ViewModelsCache;
-
-        #endregion
-
         #region Constructors
 
         [Preserve(Conditional = true)]
@@ -31,7 +24,6 @@ namespace MugenMvvm.Infrastructure.ViewModels
         {
             Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
             Should.NotBeNull(tracer, nameof(tracer));
-            ViewModelsCache = new Dictionary<Guid, WeakReference>();
             ThreadDispatcher = threadDispatcher;
             Tracer = tracer;
         }
@@ -47,32 +39,6 @@ namespace MugenMvvm.Infrastructure.ViewModels
         #endregion
 
         #region Implementation of interfaces
-
-        void IObservableMetadataContextListener.OnAdded(IObservableMetadataContext metadataContext, IMetadataContextKey key, object? newValue)
-        {
-        }
-
-        void IObservableMetadataContextListener.OnChanged(IObservableMetadataContext metadataContext, IMetadataContextKey key, object? oldValue, object? newValue)
-        {
-            if (ViewModelMetadata.Id.Equals(key))
-            {
-                lock (ViewModelsCache)
-                {
-                    var oldId = ViewModelMetadata.Id.GetValue(metadataContext, oldValue);
-                    if (ViewModelsCache.TryGetValue(oldId, out var value))
-                    {
-                        ViewModelsCache.Remove(oldId);
-                        ViewModelsCache[ViewModelMetadata.Id.GetValue(metadataContext, newValue)] = value;
-                    }
-                }
-            }
-        }
-
-        void IObservableMetadataContextListener.OnRemoved(IObservableMetadataContext metadataContext, IMetadataContextKey key, object? oldValue)
-        {
-            if (ViewModelMetadata.Id.Equals(key))
-                RemoveFromCache(ViewModelMetadata.Id.GetValue(metadataContext, oldValue));
-        }
 
         public IBusyIndicatorProvider GetBusyIndicatorProvider(IViewModel viewModel, IReadOnlyMetadataContext metadata)
         {
@@ -95,6 +61,22 @@ namespace MugenMvvm.Infrastructure.ViewModels
             return GetMetadataContextInternal(viewModel, metadata);
         }
 
+        public void Subscribe(IViewModel viewModel, object observer, ThreadExecutionMode executionMode, IReadOnlyMetadataContext metadata)
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            Should.NotBeNull(observer, nameof(observer));
+            Should.NotBeNull(metadata, nameof(metadata));
+            SubscribeInternal(viewModel, observer, executionMode, metadata);
+        }
+
+        public void Unsubscribe(IViewModel viewModel, object observer, IReadOnlyMetadataContext metadata)
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            Should.NotBeNull(observer, nameof(observer));
+            Should.NotBeNull(metadata, nameof(metadata));
+            UnsubscribeInternal(viewModel, observer, metadata);
+        }
+
         public void OnLifecycleChanged(IViewModel viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
@@ -103,30 +85,15 @@ namespace MugenMvvm.Infrastructure.ViewModels
             OnLifecycleChangedInternal(viewModel, lifecycleState, metadata);
         }
 
-        public IViewModel? GetViewModelById(Guid id, IReadOnlyMetadataContext metadata)
+        public IViewModel? TryGetViewModel(Guid id, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(metadata, nameof(metadata));
-            return GetViewModelByIdInternal(id, metadata);
+            return TryGetViewModelInternal(id, metadata);
         }
 
         #endregion
 
         #region Methods
-
-        protected virtual IViewModel? GetViewModelByIdInternal(Guid id, IReadOnlyMetadataContext metadata)
-        {
-            WeakReference value;
-            lock (ViewModelsCache)
-            {
-                if (!ViewModelsCache.TryGetValue(id, out value))
-                    return null;
-            }
-
-            var vm = (IViewModel)value.Target;
-            if (vm == null)
-                RemoveFromCache(id);
-            return vm;
-        }
 
         protected virtual IBusyIndicatorProvider GetBusyIndicatorProviderInternal(IViewModel viewModel, IReadOnlyMetadataContext metadata)
         {
@@ -140,43 +107,60 @@ namespace MugenMvvm.Infrastructure.ViewModels
 
         protected virtual IObservableMetadataContext GetMetadataContextInternal(IViewModel viewModel, IReadOnlyMetadataContext metadata)
         {
-            return new MetadataContext(this);
+            return new MetadataContext();
         }
 
         protected virtual void OnLifecycleChangedInternal(IViewModel viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadata)
         {
             if (lifecycleState != ViewModelLifecycleState.Finalized)
                 viewModel.Metadata.Set(ViewModelMetadata.LifecycleState, lifecycleState);
-            if (lifecycleState == ViewModelLifecycleState.Created)
-                AddToCache(viewModel.Metadata.Get(ViewModelMetadata.Id), viewModel);
-            else if (lifecycleState == ViewModelLifecycleState.Disposed || lifecycleState == ViewModelLifecycleState.Finalized)
-                RemoveFromCache(viewModel.Metadata.Get(ViewModelMetadata.Id));
+
+            var listeners = GetListenersInternal();
+            if (listeners != null)
+            {
+                for (var i = 0; i < listeners.Length; i++)
+                    listeners[i]?.OnLifecycleChanged(this, viewModel, lifecycleState, metadata);
+            }
 
             var traceLevel = lifecycleState == ViewModelLifecycleState.Finalized ? TraceLevel.Error : TraceLevel.Information;
             if (Tracer.CanTrace(traceLevel))
                 Tracer.Trace(traceLevel, MessageConstants.TraceViewModelLifecycleFormat3.Format(viewModel.GetType(), viewModel.GetHashCode(), lifecycleState));
+        }
+
+        protected virtual void SubscribeInternal(IViewModel viewModel, object observer, ThreadExecutionMode executionMode, IReadOnlyMetadataContext metadata)
+        {
             var listeners = GetListenersInternal();
             if (listeners != null)
             {
-                for (int i = 0; i < listeners.Length; i++)
-                    listeners[i]?.OnLifecycleChanged(viewModel, lifecycleState, metadata);
+                for (var i = 0; i < listeners.Length; i++)
+                    listeners[i]?.OnSubscribe(this, viewModel, observer, executionMode, metadata);
             }
         }
 
-        private void AddToCache(Guid id, IViewModel viewModel)
+        protected void UnsubscribeInternal(IViewModel viewModel, object observer, IReadOnlyMetadataContext metadata)
         {
-            lock (ViewModelsCache)
+            var listeners = GetListenersInternal();
+            if (listeners != null)
             {
-                ViewModelsCache[id] = MugenExtensions.GetWeakReference(viewModel);
+                for (var i = 0; i < listeners.Length; i++)
+                    listeners[i]?.OnUnsubscribe(this, viewModel, observer, metadata);
             }
         }
 
-        private void RemoveFromCache(Guid id)
+        protected virtual IViewModel? TryGetViewModelInternal(Guid id, IReadOnlyMetadataContext metadata)
         {
-            lock (ViewModelsCache)
+            var listeners = GetListenersInternal();
+            if (listeners != null)
             {
-                ViewModelsCache.Remove(id);
+                for (var i = 0; i < listeners.Length; i++)
+                {
+                    var viewModel = listeners[i]?.TryGetViewModel(this, id, metadata);
+                    if (viewModel != null)
+                        return viewModel;
+                }
             }
+
+            return null;
         }
 
         #endregion

@@ -16,6 +16,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
         private BusyToken? _busyTail;
         private int _suspendCount;
         private readonly object _locker;
+        internal IBusyIndicatorProviderListener? InternalListener;
 
         #endregion
 
@@ -105,6 +106,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
 
         private void OnBeginBusy(IBusyInfo busyInfo)
         {
+            InternalListener?.OnBeginBusy(this, busyInfo);
             var items = GetListenersInternal();
             if (items != null)
             {
@@ -117,6 +119,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
         {
             if (!ignoreSuspend && IsNotificationsSuspended)
                 return;
+            InternalListener?.OnBusyInfoChanged(this);
             var items = GetListenersInternal();
             if (items != null)
             {

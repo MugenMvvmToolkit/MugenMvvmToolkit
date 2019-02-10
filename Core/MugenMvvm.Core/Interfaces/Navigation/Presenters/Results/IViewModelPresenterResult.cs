@@ -1,7 +1,7 @@
 ﻿using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm.Interfaces.Navigation.Presenters
+namespace MugenMvvm.Interfaces.Navigation.Presenters.Results
 {
     public interface IViewModelPresenterResult : IHasMetadata<IReadOnlyMetadataContext>
     {

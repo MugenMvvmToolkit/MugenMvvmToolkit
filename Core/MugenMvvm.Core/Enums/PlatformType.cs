@@ -38,6 +38,7 @@ namespace MugenMvvm.Enums
 
         #region Properties
 
+        [DataMember(Name = "x")]
         public bool IsXamForms { get; private set; }
 
         #endregion

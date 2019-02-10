@@ -7,26 +7,26 @@ namespace MugenMvvm.Enums
 {
     [Serializable]
     [DataContract(Namespace = BuildConstants.DataContractNamespace)]
-    public class NavigationType : EnumBase<NavigationType, int>
+    public class NavigationType : EnumBase<NavigationType, string>
     {
         #region Fields
 
-        public static readonly NavigationType Undefined = new NavigationType(0, nameof(Undefined));
-        public static readonly NavigationType Tab = new NavigationType(1, nameof(Tab));
-        public static readonly NavigationType Window = new NavigationType(2, nameof(Window));
-        public static readonly NavigationType Page = new NavigationType(3, nameof(Page));
+        public static readonly NavigationType Undefined = new NavigationType(nameof(Undefined));
+        public static readonly NavigationType Tab = new NavigationType(nameof(Tab));
+        public static readonly NavigationType Window = new NavigationType(nameof(Window));
+        public static readonly NavigationType Page = new NavigationType(nameof(Page));
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        internal NavigationType()
+        protected NavigationType()
         {
         }
 
 
-        public NavigationType(int value, string displayName) : base(value, displayName)
+        public NavigationType(string value) : base(value)
         {
         }
 

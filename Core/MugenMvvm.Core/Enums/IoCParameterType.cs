@@ -18,7 +18,7 @@ namespace MugenMvvm.Enums
         #region Constructors
 
         [Preserve(Conditional = true)]
-        internal IoCParameterType()
+        protected IoCParameterType()
         {
         }
 

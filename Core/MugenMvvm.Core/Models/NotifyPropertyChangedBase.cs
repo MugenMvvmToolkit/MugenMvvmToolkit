@@ -19,7 +19,6 @@ namespace MugenMvvm.Models
         private DispatcherHandler? _handler;
         private WeakReference? _ref;
         private int _suspendCount;
-        private IThreadDispatcher? _threadDispatcher;
         internal LightDictionaryBase<string, object?>? AttachedValues;
 
         #endregion
@@ -39,16 +38,6 @@ namespace MugenMvvm.Models
         }
 
         protected bool IsNotificationsDirty { get; set; }
-
-        protected IThreadDispatcher ThreadDispatcher
-        {
-            get
-            {
-                if (_threadDispatcher == null)
-                    _threadDispatcher = Service<IThreadDispatcher>.Instance;
-                return _threadDispatcher;
-            }
-        }
 
         protected virtual ThreadExecutionMode PropertyChangedExecutionMode => ThreadExecutionMode.Main;
 
@@ -79,21 +68,20 @@ namespace MugenMvvm.Models
         #region Methods
 
         [NotifyPropertyChangedInvocator]
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = "")
+        protected void OnPropertyChanged([CallerMemberName] string propertyName = "")
         {
             if (PropertyChanged != null)
                 OnPropertyChanged(Default.GetOrCreatePropertyChangedArgs(propertyName));
         }
 
         [NotifyPropertyChangedInvocator]
-        protected internal void SetProperty<T>(ref T field, T newValue, [CallerMemberName] string propertyName = "")
+        protected void SetProperty<T>(ref T field, T newValue, [CallerMemberName] string propertyName = "")
         {
             if (PropertyChanged != null)
                 SetProperty(ref field, newValue, Default.GetOrCreatePropertyChangedArgs(propertyName));
         }
 
-        [NotifyPropertyChangedInvocator]
-        protected internal void SetProperty<T>(ref T field, T newValue, PropertyChangedEventArgs args)
+        protected void SetProperty<T>(ref T field, T newValue, PropertyChangedEventArgs args)
         {
             if (!EqualityComparer<T>.Default.Equals(field, newValue))
             {
@@ -111,10 +99,10 @@ namespace MugenMvvm.Models
                     IsNotificationsDirty = true;
                 if (PropertyChangedExecutionMode == ThreadExecutionMode.Current)
                     RaisePropertyChangedEvent(args);
-                else if (PropertyChangedExecutionMode == ThreadExecutionMode.Main && ThreadDispatcher.IsOnMainThread)
+                else if (PropertyChangedExecutionMode == ThreadExecutionMode.Main && Service<IThreadDispatcher>.Instance.IsOnMainThread)
                     RaisePropertyChangedEvent(args);
                 else
-                    ThreadDispatcher.Execute(GetDispatcherHandler(), PropertyChangedExecutionMode, args);
+                    Service<IThreadDispatcher>.Instance.Execute(GetDispatcherHandler(), PropertyChangedExecutionMode, args);
             }
         }
 

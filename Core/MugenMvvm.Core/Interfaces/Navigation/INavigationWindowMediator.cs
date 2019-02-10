@@ -1,10 +1,11 @@
 ﻿using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
+using MugenMvvm.Interfaces.Views.Infrastructure;
 
 namespace MugenMvvm.Interfaces.Navigation
 {
-    public interface INavigationWindowMediator
+    public interface INavigationWindowMediator//todo check view, clear after close
     {
         NavigationType NavigationType { get; }
 
@@ -14,7 +15,7 @@ namespace MugenMvvm.Interfaces.Navigation
 
         IViewModel ViewModel { get; }
 
-        void Initialize(IViewModel viewModel, IReadOnlyMetadataContext metadata);
+        void Initialize(IViewModel viewModel, IViewInitializer viewInitializer, IReadOnlyMetadataContext metadata);
 
         IReadOnlyMetadataContext Show(IReadOnlyMetadataContext metadata);
 

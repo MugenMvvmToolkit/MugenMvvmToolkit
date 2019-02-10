@@ -36,15 +36,6 @@ namespace MugenMvvm
 
         #endregion
 
-        #region Application
-
-        public static bool IsSerializableCallbacksSupported(this IMvvmApplication application)
-        {
-            return true;//todo fix
-        }
-
-        #endregion
-
         #region Collections
 
         public static IReadOnlyCollection<TValue> ToReadOnlyCollection<TKey, TValue>(this Dictionary<TKey, TValue>.ValueCollection? collection)
@@ -246,7 +237,7 @@ namespace MugenMvvm
             return Task.WhenAll(tasks);
         }
 
-        public static INavigationContext CreateNavigateToContext(this INavigationDispatcher navigationDispatcher, object navigationProvider, NavigationType navigationType, IViewModel viewModelTo, NavigationMode mode = NavigationMode.New, IReadOnlyMetadataContext? metadata = null)
+        public static INavigationContext CreateNavigateToContext(this INavigationDispatcher navigationDispatcher, INavigationProvider navigationProvider, NavigationType navigationType, IViewModel viewModelTo, NavigationMode mode, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(navigationType, nameof(navigationType));
@@ -258,7 +249,7 @@ namespace MugenMvvm
             return context;
         }
 
-        public static INavigationContext CreateNavigateFromContext(this INavigationDispatcher navigationDispatcher, object navigationProvider, NavigationType navigationType, IViewModel viewModelFrom, NavigationMode mode = NavigationMode.Back, IReadOnlyMetadataContext? metadata = null)
+        public static INavigationContext CreateNavigateFromContext(this INavigationDispatcher navigationDispatcher, INavigationProvider navigationProvider, NavigationType navigationType, IViewModel viewModelFrom, NavigationMode mode, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(navigationType, nameof(navigationType));
@@ -270,18 +261,18 @@ namespace MugenMvvm
             return context;
         }
 
-        public static INavigatingResult OnNavigatingTo(this INavigationDispatcher navigationDispatcher, object navigationProvider, NavigationType navigationType, IViewModel viewModelTo, NavigationMode mode = NavigationMode.New, IReadOnlyMetadataContext? metadata = null)
+        public static INavigatingResult OnNavigatingTo(this INavigationDispatcher navigationDispatcher, INavigationProvider navigationProvider, NavigationType navigationType, IViewModel viewModelTo, NavigationMode mode, IReadOnlyMetadataContext? metadata = null)
         {
             return navigationDispatcher.OnNavigating(navigationDispatcher.CreateNavigateToContext(navigationProvider, navigationType, viewModelTo, mode, metadata));
         }
 
-        public static INavigatingResult OnNavigatingFrom(this INavigationDispatcher navigationDispatcher, object navigationProvider, NavigationType navigationType, IViewModel viewModelFrom, NavigationMode mode = NavigationMode.Back, IReadOnlyMetadataContext? metadata = null)
+        public static INavigatingResult OnNavigatingFrom(this INavigationDispatcher navigationDispatcher, INavigationProvider navigationProvider, NavigationType navigationType, IViewModel viewModelFrom, NavigationMode mode, IReadOnlyMetadataContext? metadata = null)
         {
             return navigationDispatcher.OnNavigating(navigationDispatcher.CreateNavigateFromContext(navigationProvider, navigationType, viewModelFrom, mode, metadata));
         }
 
-        internal static INavigationEntry? GetLastNavigationEntry(this INavigationDispatcher navigationDispatcher, NavigationType navigationType, Func<INavigationEntry, bool>? filter = null, IReadOnlyMetadataContext? metadata = null)
-        {
+        public static INavigationEntry? GetLastNavigationEntry(this INavigationDispatcher navigationDispatcher, NavigationType navigationType, Func<INavigationEntry, bool>? filter = null, IReadOnlyMetadataContext? metadata = null)
+        {//todo rewrite bug navigationType!
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(navigationType, nameof(navigationType));
             if (filter == null)
@@ -414,18 +405,6 @@ namespace MugenMvvm
             handler.Execute(null);
         }
 
-        [Pure]
-        public static bool IsClose(this NavigationMode mode)
-        {
-            return mode == NavigationMode.Back || mode == NavigationMode.Remove;
-        }
-
-        [Pure]
-        public static bool IsCloseOrBackground(this NavigationMode mode)
-        {
-            return mode.IsClose() || mode == NavigationMode.Background;
-        }
-
         #endregion
 
         #region Exceptions
@@ -485,34 +464,6 @@ namespace MugenMvvm
 
         #region Views
 
-        public static Task<object> GetViewAsync(this IViewManager viewManager, IViewModel viewModel, IReadOnlyMetadataContext metadata)
-        {
-            Should.NotBeNull(viewManager, nameof(viewManager));
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            Should.NotBeNull(metadata, nameof(metadata));
-            if (metadata.Get(NavigationMetadata.ViewModel) != viewModel)
-            {
-                var m = new MetadataContext(metadata);
-                m.Set(NavigationMetadata.ViewModel, viewModel);
-                metadata = m;
-            }
-
-            var mappingInfo = Service<IViewMappingProvider>.Instance.TryGetMappingByViewModel(viewModel.GetType(), metadata);
-            if (mappingInfo == null)
-                throw ExceptionManager.ViewNotFound(viewModel.GetType());
-            return viewManager.GetViewAsync(mappingInfo, metadata);
-        }
-
-        public static TView GetCurrentView<TView>(this IViewModel viewModel, bool underlyingView = true)
-            where TView : class ?
-        {
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            var view = viewModel.Metadata.Get(ViewModelMetadata.View);
-            if (view == null || !underlyingView)
-                return (TView)view;
-            return GetUnderlyingView<TView>(view);
-        }
-
         public static TView GetUnderlyingView<TView>(this IView? view)
             where TView : class ?
         {
@@ -538,7 +489,13 @@ namespace MugenMvvm
         public static void InvalidateCommands(this IViewModel viewModel)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            viewModel.Publish(Default.EmptyPropertyChangedArgs);
+            viewModel.Publish(viewModel, Default.EmptyPropertyChangedArgs);
+        }
+
+        public static bool IsDisposed(this IViewModel viewModel)
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            return viewModel.Metadata.Get(ViewModelMetadata.LifecycleState).IsDispose;
         }
 
         #endregion

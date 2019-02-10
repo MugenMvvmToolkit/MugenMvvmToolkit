@@ -3,18 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
 
 namespace MugenMvvm.Models
 {
-    [Serializable]
-    [DataContract(Namespace = BuildConstants.DataContractNamespace)]
+    [Serializable, DataContract(Namespace = BuildConstants.DataContractNamespace)]
     public class EnumBase<TEnumeration, TValue> : IComparable<TEnumeration?>, IEquatable<TEnumeration?>
         where TEnumeration : EnumBase<TEnumeration, TValue>
         where TValue : IComparable
     {
         #region Fields
+
+        private string? _displayName;
+        private TValue _value;
 
         private static Dictionary<TValue, TEnumeration> _enumerations;
 
@@ -23,19 +24,18 @@ namespace MugenMvvm.Models
         #region Constructors
 
         //note serialization only
-        [Preserve(Conditional = true)]
         protected EnumBase()
         {
         }
 
-        protected EnumBase(TValue value, string displayName)
+        protected EnumBase(TValue value, string? displayName)
         {
-            Value = value;
-            DisplayName = displayName;
+            _value = value;
+            _displayName = displayName;
         }
 
         protected EnumBase(TValue value)
-            : this(value, value.ToString())
+            : this(value, null)
         {
         }
 
@@ -43,20 +43,23 @@ namespace MugenMvvm.Models
 
         #region Properties
 
-        [DataMember(Name = "D")]
-        public string DisplayName { get; }
-
-        [DataMember(Name = "V")]
-        public TValue Value { get; }
-
-        private static Dictionary<TValue, TEnumeration> Enumerations
+        [DataMember(Name = "_d")]
+        public string DisplayName
         {
             get
             {
-                if (_enumerations == null)
-                    _enumerations = GetEnumerations();
-                return _enumerations;
+                if (_displayName == null)
+                    _displayName = Value?.ToString() ?? string.Empty;
+                return _displayName;
             }
+            internal set => _displayName = value;
+        }
+
+        [DataMember(Name = "_v")]
+        public TValue Value
+        {
+            get => _value;
+            internal set => _value = value;
         }
 
         #endregion
@@ -79,6 +82,47 @@ namespace MugenMvvm.Models
 
         #region Methods
 
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as TEnumeration);
+        }
+
+        public override int GetHashCode()
+        {
+            return Value.GetHashCode();
+        }
+
+        public sealed override string ToString()
+        {
+            return DisplayName;
+        }
+
+        public static bool operator ==(EnumBase<TEnumeration, TValue>? left, EnumBase<TEnumeration, TValue>? right)
+        {
+            return Equals(left, right);
+        }
+
+        public static bool operator !=(EnumBase<TEnumeration, TValue>? left, EnumBase<TEnumeration, TValue>? right)
+        {
+            return !Equals(left, right);
+        }
+
+        public static ICollection<TEnumeration> GetAll()
+        {
+            return GetEnumerations().Values;
+        }
+
+        public static bool TryParse(TValue value, out TEnumeration result)
+        {
+            if (value == null)
+            {
+                result = default!;
+                return false;
+            }
+
+            return GetEnumerations().TryGetValue(value, out result);
+        }
+
         public static TEnumeration FromValue(TValue value)
         {
             if (!TryParse(value, out var result))
@@ -93,56 +137,25 @@ namespace MugenMvvm.Models
             return result;
         }
 
-        public static ICollection<TEnumeration> GetAll()
+        public static void SetAllEnumerations(Dictionary<TValue, TEnumeration> enumerations)
         {
-            return Enumerations.Values;
-        }
-
-        public static bool operator ==(EnumBase<TEnumeration, TValue>? left, EnumBase<TEnumeration, TValue>? right)
-        {
-            return Equals(left, right);
-        }
-
-        public static bool operator !=(EnumBase<TEnumeration, TValue>? left, EnumBase<TEnumeration, TValue>? right)
-        {
-            return !Equals(left, right);
-        }
-
-        public static bool TryParse(TValue value, out TEnumeration result)
-        {
-            if (value == null)
-            {
-                result = default!;
-                return false;
-            }
-
-            return Enumerations.TryGetValue(value, out result);
+            Should.NotBeNull(enumerations, nameof(enumerations));
+            _enumerations = enumerations;
         }
 
         private static Dictionary<TValue, TEnumeration> GetEnumerations()
         {
-            var enumerationType = typeof(TEnumeration);
-            return enumerationType
-                .GetFieldsUnified(MemberFlags.StaticPublic)
-                .Where(info => enumerationType.GetTypeInfo().IsAssignableFrom(info.FieldType.GetTypeInfo()))
-                .Select(info => info.GetValue(null))
-                .Cast<TEnumeration>()
-                .ToDictionary(enumeration => enumeration.Value);
-        }
+            if (_enumerations == null)
+            {
+                _enumerations = typeof(TEnumeration)
+                    .GetFieldsUnified(MemberFlags.StaticPublic)
+                    .Where(info => typeof(TEnumeration).IsAssignableFromUnified(info.FieldType))
+                    .Select(info => info.GetValue(null))
+                    .Cast<TEnumeration>()
+                    .ToDictionary(enumeration => enumeration.Value);
+            }
 
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as TEnumeration);
-        }
-
-        public override int GetHashCode()
-        {
-            return Value.GetHashCode();
-        }
-
-        public sealed override string ToString()
-        {
-            return DisplayName;
+            return _enumerations;
         }
 
         #endregion

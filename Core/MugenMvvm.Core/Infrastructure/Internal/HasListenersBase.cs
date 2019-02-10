@@ -16,6 +16,8 @@ namespace MugenMvvm.Infrastructure.Internal
 
         protected LightArrayList<T>? Listeners => _listeners;
 
+        protected bool HasListeners => _listeners != null;
+
         #endregion
 
         #region Implementation of interfaces

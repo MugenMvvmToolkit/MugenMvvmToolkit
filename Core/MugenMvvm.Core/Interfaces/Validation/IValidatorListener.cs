@@ -4,8 +4,8 @@ namespace MugenMvvm.Interfaces.Validation
 {
     public interface IValidatorListener
     {
-        void OnErrorsChanged(string memberName);
+        void OnErrorsChanged(IValidator validator, string memberName);
 
-        void OnAsyncValidation(string memberName, Task validationTask);
+        void OnAsyncValidation(IValidator validator, string memberName, Task validationTask);
     }
 }

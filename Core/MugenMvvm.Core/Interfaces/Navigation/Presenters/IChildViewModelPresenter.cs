@@ -1,4 +1,5 @@
 ﻿using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Navigation.Presenters.Results;
 
 namespace MugenMvvm.Interfaces.Navigation.Presenters
 {
@@ -6,8 +7,8 @@ namespace MugenMvvm.Interfaces.Navigation.Presenters
     {
         int Priority { get; }
 
-        IChildViewModelPresenterResult? TryShow(IReadOnlyMetadataContext metadata, IViewModelPresenter parentPresenter);
+        IChildViewModelPresenterResult? TryShow(IViewModelPresenter parentPresenter, IReadOnlyMetadataContext metadata);
 
-        IChildViewModelPresenterResult? TryClose(IReadOnlyMetadataContext metadata, IViewModelPresenter parentPresenter);
+        IChildViewModelPresenterResult? TryClose(IViewModelPresenter parentPresenter, IReadOnlyMetadataContext metadata);
     }
 }

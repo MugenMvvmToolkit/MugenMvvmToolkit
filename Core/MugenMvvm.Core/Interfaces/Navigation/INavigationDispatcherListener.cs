@@ -5,14 +5,14 @@ namespace MugenMvvm.Interfaces.Navigation
 {
     public interface INavigationDispatcherListener
     {
-        Task<bool> OnNavigatingAsync(INavigationContext context);
+        Task<bool> OnNavigatingAsync(INavigationDispatcher navigationDispatcher, INavigationContext context);
 
-        void OnNavigated(INavigationContext context);
+        void OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext context);
 
-        void OnNavigationFailed(INavigationContext context, Exception exception);
+        void OnNavigationFailed(INavigationDispatcher navigationDispatcher, INavigationContext context, Exception exception);
 
-        void OnNavigationCanceled(INavigationContext context);
+        void OnNavigationCanceled(INavigationDispatcher navigationDispatcher, INavigationContext context);
 
-        void OnNavigatingCanceled(INavigationContext context);
+        void OnNavigatingCanceled(INavigationDispatcher navigationDispatcher, INavigationContext context);
     }
 }

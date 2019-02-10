@@ -11,20 +11,20 @@ namespace MugenMvvm.Enums
     {
         #region Fields
 
-        public static readonly NavigationCallbackType Showing = new NavigationCallbackType(0, nameof(Showing));
-        public static readonly NavigationCallbackType Closing = new NavigationCallbackType(1, nameof(Closing));
-        public static readonly NavigationCallbackType Close = new NavigationCallbackType(2, nameof(Close));
+        public static readonly NavigationCallbackType Showing = new NavigationCallbackType(0);
+        public static readonly NavigationCallbackType Closing = new NavigationCallbackType(1);
+        public static readonly NavigationCallbackType Close = new NavigationCallbackType(2);
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        internal NavigationCallbackType()
+        protected NavigationCallbackType()
         {
         }
 
-        public NavigationCallbackType(int value, string displayName) : base(value, displayName)
+        public NavigationCallbackType(int value) : base(value)
         {
         }
 

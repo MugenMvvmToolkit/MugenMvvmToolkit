@@ -1,9 +1,9 @@
 ﻿using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
-using MugenMvvm.Interfaces.Navigation.Presenters;
+using MugenMvvm.Interfaces.Navigation.Presenters.Results;
 
-namespace MugenMvvm.Infrastructure.Navigation.Presenters
+namespace MugenMvvm.Infrastructure.Navigation.Presenters.Results
 {
     public class ClosingViewModelPresenterResult : IClosingViewModelPresenterResult
     {
@@ -17,8 +17,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         static ClosingViewModelPresenterResult()
         {
-            var callback = new NavigationCallback(NavigationCallbackType.Closing, NavigationType.Undefined, false);
-            ((INavigationCallbackInternal) callback).SetResult(false, null);
+            var callback = new NavigationCallback(NavigationCallbackType.Closing, NavigationType.Undefined, false, string.Empty);
+            ((INavigationCallbackInternal)callback).SetResult(false, null);
             FalseResult = new ClosingViewModelPresenterResult(Default.MetadataContext, callback);
         }
 

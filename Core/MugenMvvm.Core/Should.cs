@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm
 {
@@ -73,11 +74,10 @@ namespace MugenMvvm
         }
 
         [DebuggerStepThrough]
-        public static void NotBeDisposed<T>(this IDisposableObject<T> disposableObject) where T : class
+        public static void NotBeDisposed(this IViewModel viewModel)
         {
-            NotBeNull(disposableObject, nameof(disposableObject));
-            if (disposableObject.IsDisposed)
-                throw ExceptionManager.ObjectDisposed(disposableObject.GetType());
+            if (viewModel.IsDisposed())
+                throw ExceptionManager.ObjectDisposed(viewModel.GetType());
         }
 
         #endregion

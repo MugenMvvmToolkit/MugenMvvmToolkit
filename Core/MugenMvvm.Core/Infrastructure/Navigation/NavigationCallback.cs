@@ -22,6 +22,9 @@ namespace MugenMvvm.Infrastructure.Navigation
         [DataMember(Name = "N")]
         internal NavigationType NavigationType;
 
+        [DataMember(Name = "I")]
+        internal string NavigationProviderId;
+
         [DataMember(Name = "T")]
         internal TaskCompletionSource<bool> TaskCompletionSource;
 
@@ -29,11 +32,12 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         #region Constructors
 
-        public NavigationCallback(NavigationCallbackType callbackType, NavigationType navigationType, bool isSerializable)
+        public NavigationCallback(NavigationCallbackType callbackType, NavigationType navigationType, bool isSerializable, string navigationProviderId)
         {
             CallbackType = callbackType;
             NavigationType = navigationType;
             IsSerializable = isSerializable;
+            NavigationProviderId = navigationProviderId;
             TaskCompletionSource = new TaskCompletionSource<bool>();
         }
 
@@ -44,6 +48,8 @@ namespace MugenMvvm.Infrastructure.Navigation
         #endregion
 
         #region Properties
+
+        string INavigationCallback.NavigationProviderId => NavigationProviderId;
 
         [IgnoreDataMember, XmlIgnore]
         NavigationCallbackType INavigationCallback.CallbackType => CallbackType;
@@ -70,7 +76,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         void INavigationCallbackInternal.SetResult(object result, INavigationContext? navigationContext)
         {
-            TaskCompletionSource.TrySetResult((bool?) result ?? false);
+            TaskCompletionSource.TrySetResult((bool?)result ?? false);
         }
 
         void INavigationCallbackInternal.SetException(Exception exception, INavigationContext? navigationContext)

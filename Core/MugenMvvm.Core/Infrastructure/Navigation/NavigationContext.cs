@@ -16,7 +16,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         #region Constructors
 
-        public NavigationContext(object navigationProvider, NavigationType navigationType, NavigationMode navigationMode,
+        public NavigationContext(INavigationProvider navigationProvider, NavigationType navigationType, NavigationMode navigationMode,
             IViewModel? viewModelFrom, IViewModel? viewModelTo, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(navigationProvider, nameof(navigationProvider));
@@ -53,7 +53,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         public NavigationType NavigationType { get; }
 
-        public object NavigationProvider { get; }
+        public INavigationProvider NavigationProvider { get; }
 
         public IViewModel? ViewModelFrom { get; }
 

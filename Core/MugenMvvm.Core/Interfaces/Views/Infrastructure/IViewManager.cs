@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
@@ -7,10 +7,12 @@ namespace MugenMvvm.Interfaces.Views.Infrastructure
 {
     public interface IViewManager : IHasListeners<IViewManagerListener>
     {
-        Task<object> GetViewAsync(IViewMappingInfo viewMappingInfo, IReadOnlyMetadataContext metadata);
+        ICollection<IChildViewManager> ViewManagers { get; }
 
-        Task InitializeViewAsync(object view, IViewModel viewModel, IReadOnlyMetadataContext metadata);
+        IReadOnlyList<IViewInfo> GetViews(IViewModel viewModel, IReadOnlyMetadataContext metadata);
 
-        Task CleanupViewAsync(IViewModel viewModel, IReadOnlyMetadataContext metadata);
+        IReadOnlyList<IViewModelViewInitializer> GetInitializersByView(object view, IReadOnlyMetadataContext metadata);
+
+        IReadOnlyList<IViewInitializer> GetInitializersByViewModel(IViewModel viewModel, IReadOnlyMetadataContext metadata);        
     }
 }

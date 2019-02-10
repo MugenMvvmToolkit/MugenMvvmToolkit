@@ -23,7 +23,7 @@ namespace MugenMvvm.Enums
         }
 
         [Preserve(Conditional = true)]
-        internal ApplicationState()
+        protected ApplicationState()
         {
         }
 

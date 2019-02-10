@@ -27,7 +27,7 @@ namespace MugenMvvm.Enums
         }
 
         [Preserve(Conditional = true)]
-        internal PlatformIdiom()
+        protected PlatformIdiom()
         {
         }
 

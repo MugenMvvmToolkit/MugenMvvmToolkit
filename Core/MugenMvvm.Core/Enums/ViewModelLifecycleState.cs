@@ -5,23 +5,24 @@ using MugenMvvm.Models;
 
 namespace MugenMvvm.Enums
 {
-    [Serializable]
-    [DataContract(Namespace = BuildConstants.DataContractNamespace)]
-    public class ViewModelLifecycleState : EnumBase<ViewModelLifecycleState, int>
+    [Serializable, DataContract(Namespace = BuildConstants.DataContractNamespace)]
+    public class ViewModelLifecycleState : EnumBase<ViewModelLifecycleState, string>
     {
         #region Fields
 
-        public static readonly ViewModelLifecycleState Created = new ViewModelLifecycleState(1, nameof(Created));
-        public static readonly ViewModelLifecycleState Disposed = new ViewModelLifecycleState(2, nameof(Disposed));
-        public static readonly ViewModelLifecycleState Finalized = new ViewModelLifecycleState(3, nameof(Finalized));
-        public static readonly ViewModelLifecycleState Restoring = new ViewModelLifecycleState(4, nameof(Restoring));
-        public static readonly ViewModelLifecycleState Restored = new ViewModelLifecycleState(5, nameof(Restored));
+        public static readonly ViewModelLifecycleState Created = new ViewModelLifecycleState(nameof(Created));
+        public static readonly ViewModelLifecycleState Disposing = new ViewModelLifecycleState(nameof(Disposing)) { IsDispose = true };
+        public static readonly ViewModelLifecycleState Disposed = new ViewModelLifecycleState(nameof(Disposed)) { IsDispose = true };
+        public static readonly ViewModelLifecycleState Finalized = new ViewModelLifecycleState(nameof(Finalized)) { IsDispose = true };
+        public static readonly ViewModelLifecycleState Restoring = new ViewModelLifecycleState(nameof(Restoring)) { IsRestore = true };
+        public static readonly ViewModelLifecycleState Restored = new ViewModelLifecycleState(nameof(Restored)) { IsRestore = true };
 
         #endregion
 
         #region Constructors
 
-        public ViewModelLifecycleState(int value, string displayName) : base(value, displayName)
+        public ViewModelLifecycleState(string value)
+            : base(value)
         {
         }
 
@@ -29,6 +30,16 @@ namespace MugenMvvm.Enums
         internal ViewModelLifecycleState()
         {
         }
+
+        #endregion
+
+        #region Properties
+
+        [DataMember(Name = "d")]
+        public bool IsDispose { get; set; }
+
+        [DataMember(Name = "r")]
+        public bool IsRestore { get; set; }
 
         #endregion
     }

@@ -244,7 +244,7 @@ namespace MugenMvvm.Infrastructure.Validation
             if (listeners == null)
                 return;
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i]?.OnErrorsChanged(memberName);
+                listeners[i]?.OnErrorsChanged(this, memberName);
         }
 
         protected virtual void OnAsyncValidation(string memberName, Task validationTask)
@@ -253,7 +253,7 @@ namespace MugenMvvm.Infrastructure.Validation
             if (listeners == null)
                 return;
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i]?.OnAsyncValidation(memberName, validationTask);
+                listeners[i]?.OnAsyncValidation(this, memberName, validationTask);
         }
 
         protected virtual void OnDispose()

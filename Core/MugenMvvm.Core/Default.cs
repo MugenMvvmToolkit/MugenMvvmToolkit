@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Infrastructure.Metadata;
-using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Serialization;
@@ -19,15 +19,19 @@ namespace MugenMvvm
     {
         #region Fields
 
+        internal const string IndexerName = "Item[]";
+
         public static readonly object TrueObject;
         public static readonly object FalseObject;
         internal static readonly PropertyChangedEventArgs EmptyPropertyChangedArgs;
+        internal static readonly PropertyChangedEventArgs CountPropertyChangedArgs;
         internal static readonly PropertyChangedEventArgs IsNotificationsSuspendedChangedArgs;
         internal static readonly PropertyChangedEventArgs IsBusyChangedArgs;
         internal static readonly PropertyChangedEventArgs BusyInfoChangedArgs;
         internal static readonly PropertyChangedEventArgs DisplayNameChangedArgs;
-        internal static readonly PropertyChangedEventArgs IsCanExecuteNullChangedArgs;
-        internal static readonly PropertyChangedEventArgs IsCanExecuteLastChangedArgs;
+        internal static readonly PropertyChangedEventArgs IndexerPropertyChangedArgs;
+        internal static readonly NotifyCollectionChangedEventArgs ResetCollectionEventArgs;
+        internal static Action NoDoAction;
 
         public static readonly NullValue SerializableNullValue;
         public static readonly IReadOnlyMetadataContext MetadataContext;
@@ -37,8 +41,6 @@ namespace MugenMvvm
         public static readonly Task<bool> TrueTask;
         public static readonly Task<bool> FalseTask;
 
-        private static IReadOnlyMetadataContext _alwaysAsyncThreadDispatcherContext;
-
         #endregion
 
         #region Constructors
@@ -47,14 +49,15 @@ namespace MugenMvvm
         {
             TrueObject = true;
             FalseObject = false;
+            ResetCollectionEventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
             EmptyPropertyChangedArgs = new PropertyChangedEventArgs(string.Empty);
+            CountPropertyChangedArgs = new PropertyChangedEventArgs(nameof(IList.Count));
             IsNotificationsSuspendedChangedArgs = new PropertyChangedEventArgs(nameof(ISuspendNotifications.IsNotificationsSuspended));
             IsBusyChangedArgs = new PropertyChangedEventArgs(nameof(ViewModelBase.IsBusy));
             BusyInfoChangedArgs = new PropertyChangedEventArgs(nameof(ViewModelBase.BusyInfo));
             DisplayNameChangedArgs = new PropertyChangedEventArgs(nameof(IHasDisplayName.DisplayName));
-            IsCanExecuteNullChangedArgs = new PropertyChangedEventArgs(nameof(IBindableRelayCommandMediator.IsCanExecuteNullParameter));
-            IsCanExecuteLastChangedArgs = new PropertyChangedEventArgs(nameof(IBindableRelayCommandMediator.IsCanExecuteLastParameter));
-
+            IndexerPropertyChangedArgs = new PropertyChangedEventArgs(IndexerName);
+            NoDoAction = NoDo;
 
             MetadataContext = new EmptyContext();
             SerializableNullValue = new NullValue();
@@ -63,26 +66,6 @@ namespace MugenMvvm
             TrueTask = Task.FromResult(true);
             FalseTask = Task.FromResult(false);
             CompletedTask = FalseTask;
-        }
-
-        #endregion
-
-        #region Properties
-
-        public static IReadOnlyMetadataContext AlwaysAsyncThreadingContext
-        {
-            get
-            {
-                if (_alwaysAsyncThreadDispatcherContext == null)
-                {
-                    _alwaysAsyncThreadDispatcherContext = new MetadataContext
-                    {
-                        {ThreadingMetadata.AlwaysAsync, true}
-                    };
-                }
-
-                return _alwaysAsyncThreadDispatcherContext;
-            }
         }
 
         #endregion
@@ -111,6 +94,10 @@ namespace MugenMvvm
             if (string.IsNullOrEmpty(propertyName))
                 return EmptyPropertyChangedArgs;
             return new PropertyChangedEventArgs(propertyName);
+        }
+
+        private static void NoDo()
+        {
         }
 
         #endregion

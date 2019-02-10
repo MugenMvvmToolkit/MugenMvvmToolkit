@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Navigation.Presenters.Results;
 
 namespace MugenMvvm.Interfaces.Navigation.Presenters
 {

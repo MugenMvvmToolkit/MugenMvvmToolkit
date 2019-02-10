@@ -25,6 +25,8 @@ namespace MugenMvvm
             set => _noCache = value;
         }
 
+//        public static IMetadataContextKey<bool> Supp
+
         #endregion
 
         #region Methods

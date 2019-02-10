@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Enums;
-using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.IoC
 {
-    public interface IIoCContainer : IDisposableObject<IIoCContainer>, IServiceProviderEx
+    public interface IIoCContainer : IDisposable, IServiceProviderEx
     {
         int Id { get; }
 

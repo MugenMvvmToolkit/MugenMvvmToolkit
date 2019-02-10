@@ -5,13 +5,11 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Messaging
 {
-    public interface IMessenger
+    public interface IMessenger : IEventPublisher
     {
         IReadOnlyList<MessengerSubscriberInfo> GetSubscribers();
 
         IMessengerContext GetContext(IMetadataContext? metadata);
-
-        void Publish(object sender, object message, IMessengerContext? messengerContext = null);
 
         void Subscribe(IMessengerSubscriber subscriber, ThreadExecutionMode? executionMode = null);
 

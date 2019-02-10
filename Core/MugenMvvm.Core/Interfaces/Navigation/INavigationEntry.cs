@@ -12,7 +12,7 @@ namespace MugenMvvm.Interfaces.Navigation
 
         NavigationType NavigationType { get; }
 
-        object NavigationProvider { get; }
+        INavigationProvider NavigationProvider { get; }
 
         IViewModel ViewModel { get; }
 
