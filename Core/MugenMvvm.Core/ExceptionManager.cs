@@ -21,7 +21,7 @@ namespace MugenMvvm
             return new ArgumentOutOfRangeException(paramName, MessageConstants.IndexMustBeWithinBounds);
         }
 
-        internal static Exception EnumOutOfRange(string paramName, Enum @enum)
+        internal static Exception EnumOutOfRange(string paramName, object @enum)
         {
             return new ArgumentOutOfRangeException(paramName, MessageConstants.UnhandledEnumFormat1.Format(@enum));
         }

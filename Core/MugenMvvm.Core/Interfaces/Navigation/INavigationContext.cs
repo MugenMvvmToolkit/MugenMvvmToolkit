@@ -6,7 +6,7 @@ using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Interfaces.Navigation
 {
-    public interface INavigationContext : IHasMetadata<IMetadataContext>//todo navigation id?
+    public interface INavigationContext : IHasMetadata<IMetadataContext>
     {
         NavigationMode NavigationMode { get; }
 

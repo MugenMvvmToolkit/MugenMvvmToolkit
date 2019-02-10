@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
+using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Infrastructure.Navigation.Presenters.Results;
 using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.Metadata;
@@ -13,11 +14,10 @@ using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Presenters;
 using MugenMvvm.Interfaces.Navigation.Presenters.Results;
-using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Infrastructure.Navigation.Presenters
 {
-    public class ViewModelPresenter : IViewModelPresenter//todo listeners, move callbacks??
+    public class ViewModelPresenter : HasListenersBase<IViewModelPresenterListener>, IViewModelPresenter
     {
         #region Fields
 
@@ -32,11 +32,13 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelPresenter(INavigationDispatcher navigationDispatcher, ITracer tracer)
+        public ViewModelPresenter(INavigationDispatcher navigationDispatcher, IViewModelPresenterCallbackManager callbackManager, ITracer tracer)
         {
-            Should.NotBeNull(tracer, nameof(tracer));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            Should.NotBeNull(callbackManager, nameof(callbackManager));
+            Should.NotBeNull(tracer, nameof(tracer));
             NavigationDispatcher = navigationDispatcher;
+            CallbackManager = callbackManager;
             Tracer = tracer;
             _presenters = new PresentersCollection(this);
             navigationDispatcher.AddListener(_presenters);
@@ -49,6 +51,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         protected INavigationDispatcher NavigationDispatcher { get; }
 
         protected ITracer Tracer { get; }
+
+        public IViewModelPresenterCallbackManager CallbackManager { get; }
 
         public ICollection<IChildViewModelPresenter> Presenters => _presenters;
 
@@ -116,11 +120,18 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             if (viewModel == null)
                 throw ExceptionManager.PresenterInvalidRequest(metadata.Dump() + result.Metadata.Dump());
 
-            var showingCallback = CreateNavigationCallback(result, NavigationCallbackType.Showing);
-            var closeCallback = CreateNavigationCallback(result, NavigationCallbackType.Close);
-            AddCallback(viewModel, NavigationInternalMetadata.ShowingCallbacks, showingCallback);
-            AddCallback(viewModel, NavigationInternalMetadata.CloseCallbacks, closeCallback);
-            return new ViewModelPresenterResult(result.Metadata, showingCallback, closeCallback);
+            var showingCallback = CallbackManager.AddCallback(this, viewModel, NavigationCallbackType.Showing, result);
+            var closeCallback = CallbackManager.AddCallback(this, viewModel, NavigationCallbackType.Close, result);
+
+            var r = new ViewModelPresenterResult(result.Metadata, showingCallback, closeCallback);
+            var listeners = GetListenersInternal();
+            if (listeners != null)
+            {
+                for (var i = 0; i < listeners.Length; i++)
+                    listeners[i]?.OnShown(this, metadata, r);
+            }
+
+            return r;
         }
 
         protected virtual IChildViewModelPresenterResult? TryCloseInternal(IReadOnlyMetadataContext metadata)
@@ -163,10 +174,16 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             if (viewModel == null)
                 throw ExceptionManager.PresenterInvalidRequest(metadata.Dump() + result.Metadata.Dump());
 
-            var callback = CreateNavigationCallback(result, NavigationCallbackType.Closing);
-            Should.BeOfType<INavigationCallback<bool>>(callback, nameof(callback));
-            AddCallback(viewModel, NavigationInternalMetadata.ClosingCallbacks, callback);
-            return new ClosingViewModelPresenterResult(result.Metadata, (INavigationCallback<bool>)callback);
+            var callback = CallbackManager.AddCallback(this, viewModel, NavigationCallbackType.Closing, result);
+            var r = new ClosingViewModelPresenterResult(result.Metadata, (INavigationCallback<bool>)callback);
+            var listeners = GetListenersInternal();
+            if (listeners != null)
+            {
+                for (var i = 0; i < listeners.Length; i++)
+                    listeners[i]?.OnClosed(this, metadata, r);
+            }
+
+            return r;
         }
 
         protected virtual IChildViewModelPresenterResult? TryRestoreInternal(IReadOnlyMetadataContext metadata)
@@ -190,7 +207,15 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         protected virtual IRestorationViewModelPresenterResult OnRestoredInternal(IReadOnlyMetadataContext metadata, IChildViewModelPresenterResult result)
         {
-            return new RestorationViewModelPresenterResult(result.Metadata, result.NavigationType, true);
+            var r = new RestorationViewModelPresenterResult(result.Metadata, result.NavigationType, true);
+            var listeners = GetListenersInternal();
+            if (listeners != null)
+            {
+                for (var i = 0; i < listeners.Length; i++)
+                    listeners[i]?.OnRestored(this, metadata, r);
+            }
+
+            return r;
         }
 
         protected virtual void OnChildPresenterAdded(IChildViewModelPresenter presenter)
@@ -201,155 +226,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         {
         }
 
-        protected virtual void OnNavigated(INavigationContext context)
-        {
-            if (context.NavigationMode.IsClose)
-            {
-                InvokeCallbacks(context.ViewModelFrom, NavigationInternalMetadata.ShowingCallbacks, context, Default.TrueObject, null, false);
-                InvokeCallbacks(context.ViewModelFrom, NavigationInternalMetadata.ClosingCallbacks, context, Default.TrueObject, null, false);
-                InvokeCallbacks(context.ViewModelFrom, NavigationInternalMetadata.CloseCallbacks, context, Default.TrueObject, null, false);
-            }
-            else
-                InvokeCallbacks(context.ViewModelTo, NavigationInternalMetadata.ShowingCallbacks, context, Default.TrueObject, null, false);
-        }
-
-        protected virtual void OnNavigationFailed(INavigationContext context, Exception exception)
-        {
-            OnNavigationFailed(context, exception, false);
-        }
-
-        protected virtual void OnNavigationCanceled(INavigationContext context)
-        {
-            OnNavigationFailed(context, null, true);
-        }
-
-        protected virtual void OnNavigatingCanceled(INavigationContext context)
-        {
-            if (context.NavigationMode.IsClose)
-                InvokeCallbacks(context.ViewModelFrom, NavigationInternalMetadata.ClosingCallbacks, context, Default.FalseObject, null, false);
-        }
-
-        protected virtual IReadOnlyList<INavigationCallback> GetCallbacks(INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry,
-            NavigationCallbackType? callbackType, IReadOnlyMetadataContext metadata)
-        {
-            List<INavigationCallback>? callbacks = null;
-            if (callbackType == null)
-            {
-                AddEntryCallbacks(navigationEntry, NavigationInternalMetadata.ShowingCallbacks, ref callbacks);
-                AddEntryCallbacks(navigationEntry, NavigationInternalMetadata.ClosingCallbacks, ref callbacks);
-                AddEntryCallbacks(navigationEntry, NavigationInternalMetadata.CloseCallbacks, ref callbacks);
-            }
-            else
-            {
-                IMetadataContextKey<IList<INavigationCallbackInternal?>?> key = null;
-                if (callbackType == NavigationCallbackType.Showing)
-                    key = NavigationInternalMetadata.ShowingCallbacks;
-                else if (callbackType == NavigationCallbackType.Closing)
-                    key = NavigationInternalMetadata.ClosingCallbacks;
-                else if (callbackType == NavigationCallbackType.Close)
-                    key = NavigationInternalMetadata.CloseCallbacks;
-                if (key != null)
-                    AddEntryCallbacks(navigationEntry, key, ref callbacks);
-            }
-
-            if (callbacks == null)
-                return Default.EmptyArray<INavigationCallback>();
-            return callbacks;
-        }
-
-        protected virtual INavigationCallbackInternal CreateNavigationCallback(IChildViewModelPresenterResult presenterResult, NavigationCallbackType callbackType)
-        {
-            var serializable = callbackType == NavigationCallbackType.Close && presenterResult.Metadata.Get(NavigationInternalMetadata.IsRestorableCallback);
-            return new NavigationCallback(callbackType, presenterResult.NavigationType, serializable, presenterResult.NavigationProvider.Id);
-        }
-
-        protected static void AddCallback(IViewModel viewModel, IMetadataContextKey<IList<INavigationCallbackInternal?>?> key, INavigationCallbackInternal callback)
-        {
-            var callbacks = viewModel.Metadata.GetOrAdd(key, (object)null, (object)null, (context, o, arg3) => new List<INavigationCallbackInternal>());
-            lock (callback)
-            {
-                callbacks.Add(callback);
-            }
-        }
-
-        protected void InvokeCallbacks(IViewModel? viewModel, IMetadataContextKey<IList<INavigationCallbackInternal?>?> key, INavigationContext navigationContext, object result, Exception exception, bool canceled)
-        {
-            if (viewModel == null)//todo trace
-                return;
-            var callbacks = viewModel.Metadata.Get(key);
-            if (callbacks == null)
-                return;
-            List<INavigationCallbackInternal> toInvoke = null;
-            lock (callbacks)
-            {
-                for (var i = 0; i < callbacks.Count; i++)
-                {
-                    var callback = callbacks[i];
-                    if (callback == null || callback.NavigationType == navigationContext.NavigationType && callback.NavigationProviderId == navigationContext.NavigationProvider.Id)
-                    {
-                        if (callback != null)
-                        {
-                            if (toInvoke == null)
-                                toInvoke = new List<INavigationCallbackInternal>();
-                            toInvoke.Add(callback);
-                        }
-
-                        callbacks.RemoveAt(i);
-                        --i;
-                    }
-                }
-            }
-
-            if (toInvoke == null)
-                return;
-            for (var i = 0; i < toInvoke.Count; i++)
-            {
-                var callback = toInvoke[i];
-                if (exception != null)
-                    callback.SetException(exception, navigationContext);
-                else if (canceled)
-                    callback.SetCanceled(navigationContext);
-                else
-                    callback.SetResult(result, navigationContext);
-            }
-        }
-
-        private void OnNavigationFailed(INavigationContext context, Exception e, bool canceled)
-        {
-            if (context.NavigationMode.IsClose)
-            {
-                InvokeCallbacks(context.ViewModelFrom, NavigationInternalMetadata.ClosingCallbacks, context, Default.FalseObject, e, canceled);
-                if (!canceled)
-                {
-                    InvokeCallbacks(context.ViewModelFrom, NavigationInternalMetadata.ShowingCallbacks, context, Default.FalseObject, e, false);
-                    InvokeCallbacks(context.ViewModelFrom, NavigationInternalMetadata.CloseCallbacks, context, Default.FalseObject, e, false);
-                }
-            }
-            else
-            {
-                InvokeCallbacks(context.ViewModelTo, NavigationInternalMetadata.ShowingCallbacks, context, Default.FalseObject, e, canceled);
-                if (context.NavigationMode.IsNew || !canceled)
-                {
-                    InvokeCallbacks(context.ViewModelTo, NavigationInternalMetadata.ClosingCallbacks, context, Default.FalseObject, e, canceled);
-                    InvokeCallbacks(context.ViewModelTo, NavigationInternalMetadata.CloseCallbacks, context, Default.FalseObject, e, canceled);
-                }
-            }
-        }
-
-        private static void AddEntryCallbacks(INavigationEntry navigationEntry, IMetadataContextKey<IList<INavigationCallbackInternal?>?> key, ref List<INavigationCallback>? callbacks)
-        {
-            var list = navigationEntry.ViewModel.Metadata.Get(key);
-            if (list == null)
-                return;
-            if (callbacks == null)
-                callbacks = new List<INavigationCallback>();
-            lock (list)
-            {
-                callbacks.AddRange(list.Where(c => c != null));
-            }
-        }
-
-        private void Trace(string requestName, IReadOnlyMetadataContext metadata, IChildViewModelPresenter presenter, IHasMetadata<IReadOnlyMetadataContext> hasMetadata)//todo remove all traces
+        private void Trace(string requestName, IReadOnlyMetadataContext metadata, IChildViewModelPresenter presenter,
+            IHasMetadata<IReadOnlyMetadataContext> hasMetadata) //todo remove all traces
         {
             if (Tracer.CanTrace(TraceLevel.Information))
                 Tracer.Info(MessageConstants.TraceViewModelPresenterFormat3, requestName, metadata.Dump() + hasMetadata.Metadata.Dump(), presenter.GetType().FullName);
@@ -390,6 +268,73 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             #endregion
 
             #region Implementation of interfaces
+
+            public Task<bool> OnNavigatingAsync(INavigationDispatcher navigationDispatcher, INavigationContext context)
+            {
+                return Default.TrueTask;
+            }
+
+            public void OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext context)
+            {
+                lock (_suspendedEvents)
+                {
+                    if (_suspendCount != 0)
+                    {
+                        _suspendedEvents.Add(new KeyValuePair<INavigationContext, object>(context, null));
+                        return;
+                    }
+                }
+
+                _presenter.CallbackManager.OnNavigated(_presenter, context);
+            }
+
+            public void OnNavigationFailed(INavigationDispatcher navigationDispatcher, INavigationContext context, Exception exception)
+            {
+                lock (_suspendedEvents)
+                {
+                    if (_suspendCount != 0)
+                    {
+                        _suspendedEvents.Add(new KeyValuePair<INavigationContext, object>(context, exception));
+                        return;
+                    }
+                }
+
+                _presenter.CallbackManager.OnNavigationFailed(_presenter, context, exception);
+            }
+
+            public void OnNavigationCanceled(INavigationDispatcher navigationDispatcher, INavigationContext context)
+            {
+                lock (_suspendedEvents)
+                {
+                    if (_suspendCount != 0)
+                    {
+                        _suspendedEvents.Add(new KeyValuePair<INavigationContext, object>(context, context));
+                        return;
+                    }
+                }
+
+                _presenter.CallbackManager.OnNavigationCanceled(_presenter, context);
+            }
+
+            public void OnNavigatingCanceled(INavigationDispatcher navigationDispatcher, INavigationContext context)
+            {
+                lock (_suspendedEvents)
+                {
+                    if (_suspendCount != 0)
+                    {
+                        _suspendedEvents.Add(new KeyValuePair<INavigationContext, object>(context, _suspendedEvents));
+                        return;
+                    }
+                }
+
+                _presenter.CallbackManager.OnNavigatingCanceled(_presenter, context);
+            }
+
+            public IReadOnlyList<INavigationCallback> GetCallbacks(INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry,
+                NavigationCallbackType? callbackType, IReadOnlyMetadataContext metadata)
+            {
+                return _presenter.CallbackManager.GetCallbacks(_presenter, navigationEntry, callbackType, metadata);
+            }
 
             public IEnumerator<IChildViewModelPresenter> GetEnumerator()
             {
@@ -463,72 +408,6 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                     else
                         OnNavigatingCanceled(null, pair.Key);
                 }
-            }
-
-            public Task<bool> OnNavigatingAsync(INavigationDispatcher navigationDispatcher, INavigationContext context)
-            {
-                return Default.TrueTask;
-            }
-
-            public void OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext context)
-            {
-                lock (_suspendedEvents)
-                {
-                    if (_suspendCount != 0)
-                    {
-                        _suspendedEvents.Add(new KeyValuePair<INavigationContext, object>(context, null));
-                        return;
-                    }
-                }
-
-                _presenter.OnNavigated(context);
-            }
-
-            public void OnNavigationFailed(INavigationDispatcher navigationDispatcher, INavigationContext context, Exception exception)
-            {
-                lock (_suspendedEvents)
-                {
-                    if (_suspendCount != 0)
-                    {
-                        _suspendedEvents.Add(new KeyValuePair<INavigationContext, object>(context, exception));
-                        return;
-                    }
-                }
-
-                _presenter.OnNavigationFailed(context, exception);
-            }
-
-            public void OnNavigationCanceled(INavigationDispatcher navigationDispatcher, INavigationContext context)
-            {
-                lock (_suspendedEvents)
-                {
-                    if (_suspendCount != 0)
-                    {
-                        _suspendedEvents.Add(new KeyValuePair<INavigationContext, object>(context, context));
-                        return;
-                    }
-                }
-
-                _presenter.OnNavigationCanceled(context);
-            }
-
-            public void OnNavigatingCanceled(INavigationDispatcher navigationDispatcher, INavigationContext context)
-            {
-                lock (_suspendedEvents)
-                {
-                    if (_suspendCount != 0)
-                    {
-                        _suspendedEvents.Add(new KeyValuePair<INavigationContext, object>(context, _suspendedEvents));
-                        return;
-                    }
-                }
-
-                _presenter.OnNavigatingCanceled(context);
-            }
-
-            public IReadOnlyList<INavigationCallback> GetCallbacks(INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry, NavigationCallbackType? callbackType, IReadOnlyMetadataContext metadata)
-            {
-                return _presenter.GetCallbacks(navigationDispatcher, navigationEntry, callbackType, metadata);
             }
 
             #endregion
