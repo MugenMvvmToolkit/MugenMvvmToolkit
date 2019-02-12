@@ -21,6 +21,7 @@ using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
+using MugenMvvm.Interfaces.ViewModels.Infrastructure;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Infrastructure;
 using MugenMvvm.Interfaces.Wrapping;
@@ -485,6 +486,27 @@ namespace MugenMvvm
         #endregion
 
         #region View models
+
+        public static bool TrySubscribe(this IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode = null, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            Should.NotBeNull(observer, nameof(observer));
+            return Service<IViewModelDispatcher>.Instance.Subscribe(viewModel, observer, executionMode, metadata ?? Default.MetadataContext);
+        }
+
+        public static TService TryGetService<TService>(this IViewModelBase viewModel) where TService : class
+        {
+            if (viewModel is IHasService<TService> hasService)
+                return hasService.Service;
+            return null;
+        }
+
+        public static TService TryGetServiceOptional<TService>(this IViewModelBase viewModel) where TService : class
+        {
+            if (viewModel is IHasServiceOptional<TService> hasServiceOptional)
+                return hasServiceOptional.ServiceOptional;
+            return viewModel.TryGetService<TService>();
+        }
 
         public static void InvalidateCommands<TViewModel>(this TViewModel viewModel) where TViewModel : class, IViewModelBase, IHasService<IMessenger>
         {

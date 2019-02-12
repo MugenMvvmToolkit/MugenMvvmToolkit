@@ -107,12 +107,12 @@ namespace MugenMvvm.Infrastructure.Messaging
             }
         }
 
-        public void Unsubscribe(IMessengerSubscriber subscriber)
+        public bool Unsubscribe(IMessengerSubscriber subscriber)
         {
             Should.NotBeNull(subscriber, nameof(subscriber));
             lock (_subscribers)
             {
-                _subscribers.Remove(new KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>(ThreadExecutionMode.Current, subscriber));
+                return _subscribers.Remove(new KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>(ThreadExecutionMode.Current, subscriber));
             }
         }
 

@@ -1,26 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Enums;
-using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.ViewModels.Infrastructure;
 
 namespace MugenMvvm.Infrastructure.ViewModels
 {
-    public sealed class WeakCacheViewModelDispatcherListener : IViewModelDispatcherListener, IObservableMetadataContextListener
+    public sealed class CacheViewModelDispatcherListener : IViewModelDispatcherListener, IObservableMetadataContextListener
     {
         #region Fields
 
-        private readonly Dictionary<Guid, WeakReference> _viewModelsCache;
+        private readonly Dictionary<Guid, object> _viewModelsCache;
+        private readonly bool _isWeakCache;
 
         #endregion
 
         #region Constructors
 
-        public WeakCacheViewModelDispatcherListener()
+        public CacheViewModelDispatcherListener(bool isIsWeakCache = true)
         {
-            _viewModelsCache = new Dictionary<Guid, WeakReference>();
+            _isWeakCache = isIsWeakCache;
+            _viewModelsCache = new Dictionary<Guid, object>();
         }
 
         #endregion
@@ -55,37 +56,40 @@ namespace MugenMvvm.Infrastructure.ViewModels
 
         public IViewModelBase? TryGetViewModel(IViewModelDispatcher viewModelDispatcher, Guid id, IReadOnlyMetadataContext metadata)
         {
-            WeakReference value;
+            object value;
             lock (_viewModelsCache)
             {
                 if (!_viewModelsCache.TryGetValue(id, out value))
                     return null;
             }
 
-            var vm = (IViewModelBase)value.Target;
+            if (!_isWeakCache)
+                return (IViewModelBase)value;
+
+            var vm = (IViewModelBase)((WeakReference)value).Target;
             if (vm == null)
                 RemoveFromCache(id);
             return vm;
         }
 
-        public void OnSubscribe(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode,
+        public bool OnSubscribe(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode,
             IReadOnlyMetadataContext metadata)
         {
+            return false;
         }
 
-        public void OnUnsubscribe(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, object observer, IReadOnlyMetadataContext metadata)
+        public bool OnUnsubscribe(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, object observer, IReadOnlyMetadataContext metadata)
         {
+            return false;
         }
 
-        public void OnLifecycleChanged(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadata)
+        public void OnLifecycleChanged(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState,
+            IReadOnlyMetadataContext metadata)
         {
             if (lifecycleState == ViewModelLifecycleState.Created)
             {
                 AddToCache(viewModel.Metadata.Get(ViewModelMetadata.Id), viewModel);
-                if (viewModel.Metadata is MetadataContext ctx)
-                    ctx.InternalListener = this;
-                else
-                    viewModel.Metadata.AddListener(this);
+                viewModel.Metadata.AddListener(this);
             }
             else if (lifecycleState.IsDispose)
                 RemoveFromCache(viewModel.Metadata.Get(ViewModelMetadata.Id));
@@ -99,7 +103,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
         {
             lock (_viewModelsCache)
             {
-                _viewModelsCache[id] = MugenExtensions.GetWeakReference(viewModel);
+                _viewModelsCache[id] = _isWeakCache ? (object)MugenExtensions.GetWeakReference(viewModel) : viewModel;
             }
         }
 

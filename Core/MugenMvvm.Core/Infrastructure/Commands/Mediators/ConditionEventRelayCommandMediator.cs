@@ -41,9 +41,12 @@ namespace MugenMvvm.Infrastructure.Commands.Mediators
             _subscriber = new Subscriber(this);
             foreach (var notifier in notifiers)
             {
+                if (notifier is IViewModelBase vm && vm.TrySubscribe(_subscriber, eventExecutionMode))
+                    continue;
+
                 if (notifier is IHasService<IMessenger> hasMessenger)
                 {
-                    hasMessenger.Service.Subscribe(_subscriber, eventExecutionMode);
+                    hasMessenger.Service.Subscribe(_subscriber, eventExecutionMode);//todo fix
                     continue;
                 }
 

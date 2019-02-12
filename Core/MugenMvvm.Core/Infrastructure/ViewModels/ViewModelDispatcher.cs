@@ -60,20 +60,20 @@ namespace MugenMvvm.Infrastructure.ViewModels
             return GetServiceResolversInternal();
         }
 
-        public void Subscribe(IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode, IReadOnlyMetadataContext metadata)
+        public bool Subscribe(IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(observer, nameof(observer));
             Should.NotBeNull(metadata, nameof(metadata));
-            SubscribeInternal(viewModel, observer, executionMode, metadata);
+            return SubscribeInternal(viewModel, observer, executionMode, metadata);
         }
 
-        public void Unsubscribe(IViewModelBase viewModel, object observer, IReadOnlyMetadataContext metadata)
+        public bool Unsubscribe(IViewModelBase viewModel, object observer, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(observer, nameof(observer));
             Should.NotBeNull(metadata, nameof(metadata));
-            UnsubscribeInternal(viewModel, observer, metadata);
+            return UnsubscribeInternal(viewModel, observer, metadata);
         }
 
         public void OnLifecycleChanged(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadata)
@@ -104,14 +104,16 @@ namespace MugenMvvm.Infrastructure.ViewModels
 
             if (resolver == null)
                 throw ExceptionManager.IoCCannotFindBinding(service);
-            return resolver.Resolve(viewModel, metadata);
+            return resolver.Resolve(viewModel, service, metadata);
         }
 
         protected virtual void AddServiceResolverInternal(IViewModelDispatcherServiceResolver resolver)
         {
+            var services = resolver.Services;
             lock (ServiceResolvers)
             {
-                ServiceResolvers[resolver.Service] = resolver;
+                for (int i = 0; i < services.Count; i++)
+                    ServiceResolvers[services[i]] = resolver;
             }
         }
 
@@ -119,7 +121,13 @@ namespace MugenMvvm.Infrastructure.ViewModels
         {
             lock (ServiceResolvers)
             {
-                ServiceResolvers.Remove(resolver.Service);
+                var services = resolver.Services;
+                for (int i = 0; i < services.Count; i++)
+                {
+                    var type = services[i];
+                    if (ServiceResolvers.TryGetValue(type, out var r) && ReferenceEquals(r, resolver))
+                        ServiceResolvers.Remove(type);
+                }
             }
         }
 
@@ -148,24 +156,38 @@ namespace MugenMvvm.Infrastructure.ViewModels
                 Tracer.Trace(traceLevel, MessageConstants.TraceViewModelLifecycleFormat3.Format(viewModel.GetType(), viewModel.GetHashCode(), lifecycleState));
         }
 
-        protected virtual void SubscribeInternal(IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode, IReadOnlyMetadataContext metadata)
+        protected virtual bool SubscribeInternal(IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode, IReadOnlyMetadataContext metadata)
         {
+            bool subscribed = false;
             var listeners = GetListenersInternal();
             if (listeners != null)
             {
                 for (var i = 0; i < listeners.Length; i++)
-                    listeners[i]?.OnSubscribe(this, viewModel, observer, executionMode, metadata);
+                {
+                    var result = listeners[i]?.OnSubscribe(this, viewModel, observer, executionMode, metadata);
+                    if (result.GetValueOrDefault())
+                        subscribed = true;
+                }
             }
+
+            return subscribed;
         }
 
-        protected virtual void UnsubscribeInternal(IViewModelBase viewModel, object observer, IReadOnlyMetadataContext metadata)
+        protected virtual bool UnsubscribeInternal(IViewModelBase viewModel, object observer, IReadOnlyMetadataContext metadata)
         {
+            bool unsubscribed = false;
             var listeners = GetListenersInternal();
             if (listeners != null)
             {
                 for (var i = 0; i < listeners.Length; i++)
-                    listeners[i]?.OnUnsubscribe(this, viewModel, observer, metadata);
+                {
+                    var result = listeners[i]?.OnUnsubscribe(this, viewModel, observer, metadata);
+                    if (result.GetValueOrDefault())
+                        unsubscribed = true;
+                }
             }
+
+            return unsubscribed;
         }
 
         protected virtual IViewModelBase? TryGetViewModelInternal(Guid id, IReadOnlyMetadataContext metadata)

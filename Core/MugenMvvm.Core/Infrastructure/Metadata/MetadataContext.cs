@@ -18,7 +18,6 @@ namespace MugenMvvm.Infrastructure.Metadata
         #region Fields
 
         private readonly Dictionary<IMetadataContextKey, object?> _values;
-        internal IObservableMetadataContextListener? InternalListener;
 
         #endregion
 
@@ -56,7 +55,7 @@ namespace MugenMvvm.Infrastructure.Metadata
             }
         }
 
-        private new bool HasListeners => InternalListener != null || Listeners != null;
+        private new bool HasListeners => Listeners != null;
 
         #endregion
 
@@ -351,8 +350,6 @@ namespace MugenMvvm.Infrastructure.Metadata
                 for (var i = 0; i < items.Length; i++)
                     items[i]?.OnAdded(this, key, newValue);
             }
-
-            InternalListener?.OnAdded(this, key, newValue);
         }
 
         private void OnChanged(IMetadataContextKey key, object? oldValue, object? newValue)
@@ -365,8 +362,6 @@ namespace MugenMvvm.Infrastructure.Metadata
                 for (var i = 0; i < items.Length; i++)
                     items[i]?.OnChanged(this, key, oldValue, newValue);
             }
-
-            InternalListener?.OnChanged(this, key, oldValue, newValue);
         }
 
         private void OnRemoved(IMetadataContextKey key, object? oldValue)
@@ -379,8 +374,6 @@ namespace MugenMvvm.Infrastructure.Metadata
                 for (var i = 0; i < items.Length; i++)
                     items[i]?.OnRemoved(this, key, oldValue);
             }
-
-            InternalListener?.OnRemoved(this, key, oldValue);
         }
 
         #endregion

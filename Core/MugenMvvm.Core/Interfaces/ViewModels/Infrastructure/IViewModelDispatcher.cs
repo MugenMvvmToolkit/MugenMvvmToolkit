@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.ViewModels.Infrastructure
 {
-    public interface IViewModelDispatcher : IHasListeners<IViewModelDispatcherListener>
+    public interface IViewModelDispatcher : IHasListeners<IViewModelDispatcherListener> //todo continue, resolver, subscriber, internal listeners check opt!
     {
         [Pure]
         object GetService(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext metadata);
@@ -18,9 +18,9 @@ namespace MugenMvvm.Interfaces.ViewModels.Infrastructure
 
         IReadOnlyList<IViewModelDispatcherServiceResolver> GetServiceResolvers();
 
-        void Subscribe(IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode, IReadOnlyMetadataContext metadata);
+        bool Subscribe(IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode, IReadOnlyMetadataContext metadata);
 
-        void Unsubscribe(IViewModelBase viewModel, object observer, IReadOnlyMetadataContext metadata);
+        bool Unsubscribe(IViewModelBase viewModel, object observer, IReadOnlyMetadataContext metadata);
 
         void OnLifecycleChanged(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadata);
 

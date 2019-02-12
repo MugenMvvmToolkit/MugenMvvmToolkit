@@ -13,6 +13,6 @@ namespace MugenMvvm.Interfaces.Messaging
 
         void Subscribe(IMessengerSubscriber subscriber, ThreadExecutionMode? executionMode = null);
 
-        void Unsubscribe(IMessengerSubscriber subscriber);
+        bool Unsubscribe(IMessengerSubscriber subscriber);
     }
 }

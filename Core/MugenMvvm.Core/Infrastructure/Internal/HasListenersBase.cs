@@ -26,7 +26,7 @@ namespace MugenMvvm.Infrastructure.Internal
         {
             Should.NotBeNull(listener, nameof(listener));
             if (_listeners == null)
-                MugenExtensions.LazyInitialize(ref _listeners, new LightArrayList<T>());
+                MugenExtensions.LazyInitialize(ref _listeners, new LightArrayList<T>(2));
             _listeners!.AddWithLock(listener);
         }
 
