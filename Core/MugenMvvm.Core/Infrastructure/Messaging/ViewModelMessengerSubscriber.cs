@@ -73,16 +73,16 @@ namespace MugenMvvm.Infrastructure.Messaging
             return other is ViewModelMessengerSubscriber handler && ReferenceEquals(Target, handler.Target);
         }
 
-        public SubscriberResult Handle(object sender, object message, IMessengerContext messengerContext)
+        public MessengerSubscriberResult Handle(object sender, object message, IMessengerContext messengerContext)
         {
             var viewModel = Target;
             if (viewModel == null)
-                return SubscriberResult.Invalid;
+                return MessengerSubscriberResult.Invalid;
 
             if (ReferenceEquals(sender, viewModel))
-                return SubscriberResult.Ignored;
+                return MessengerSubscriberResult.Ignored;
 
-            var messenger = viewModel.TryGetServiceOptional<IMessenger>();
+            var messenger = viewModel.TryGetServiceOptional<IEventPublisher>();
             if (message is IBusyToken busyToken)
             {
                 var messageMode = BusyMessageHandlerType;
@@ -94,7 +94,7 @@ namespace MugenMvvm.Infrastructure.Messaging
             else if (BroadcastAllMessages || message is IBroadcastMessage || message is PropertyChangedEventArgs)
                 messenger?.Publish(sender, message, messengerContext);
 
-            return SubscriberResult.Handled;
+            return MessengerSubscriberResult.Handled;
         }
 
         void IObservableMetadataContextListener.OnAdded(IObservableMetadataContext metadataContext, IMetadataContextKey key, object? newValue)

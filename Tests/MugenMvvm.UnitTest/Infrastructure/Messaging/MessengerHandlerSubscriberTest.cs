@@ -37,8 +37,8 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
             var msg2 = "test";
 
             var subscriber = new MessengerHandlerSubscriber(new StringHandler());
-            subscriber.Handle(sender, msg1, null!).ShouldEqual(SubscriberResult.Ignored);
-            subscriber.Handle(sender, msg2, null!).ShouldEqual(SubscriberResult.Handled);
+            subscriber.Handle(sender, msg1, null!).ShouldEqual(MessengerSubscriberResult.Ignored);
+            subscriber.Handle(sender, msg2, null!).ShouldEqual(MessengerSubscriberResult.Handled);
         }
 
         [Fact]
@@ -62,7 +62,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
             };
 
             var subscriber = new MessengerHandlerSubscriber(handler);
-            subscriber.Handle(sender, objMsg, null!).ShouldEqual(SubscriberResult.Handled);
+            subscriber.Handle(sender, objMsg, null!).ShouldEqual(MessengerSubscriberResult.Handled);
             invokeCount.ShouldEqual(1);
 
             handler.ObjectHandle = (o, i, arg3) => throw new NotSupportedException();
@@ -73,7 +73,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
                 i.ShouldEqual(intMsg);
                 ++invokeCount;
             };
-            subscriber.Handle(sender, intMsg, null!).ShouldEqual(SubscriberResult.Handled);
+            subscriber.Handle(sender, intMsg, null!).ShouldEqual(MessengerSubscriberResult.Handled);
             invokeCount.ShouldEqual(2);
 
             handler.ObjectHandle = (o, i, arg3) => throw new NotSupportedException();
@@ -84,13 +84,13 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
                 i.ShouldEqual(stringMsg);
                 ++invokeCount;
             };
-            subscriber.Handle(sender, stringMsg, null!).ShouldEqual(SubscriberResult.Handled);
+            subscriber.Handle(sender, stringMsg, null!).ShouldEqual(MessengerSubscriberResult.Handled);
             invokeCount.ShouldEqual(3);
 
             handler.ObjectHandle = (o, i, arg3) => throw new NotSupportedException();
             handler.IntHandle = (o, i, arg3) => throw new NotSupportedException();
             handler.StringHandle = (o, i, arg3) => throw new NotSupportedException();
-            subscriber.Handle(sender, decimalMsg, null!).ShouldEqual(SubscriberResult.Ignored);
+            subscriber.Handle(sender, decimalMsg, null!).ShouldEqual(MessengerSubscriberResult.Ignored);
         }
 
 #if !DEBUG

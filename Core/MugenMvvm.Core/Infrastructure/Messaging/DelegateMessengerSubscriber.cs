@@ -29,15 +29,15 @@ namespace MugenMvvm.Infrastructure.Messaging
             return ReferenceEquals(other, this);
         }
 
-        public SubscriberResult Handle(object sender, object message, IMessengerContext messengerContext)
+        public MessengerSubscriberResult Handle(object sender, object message, IMessengerContext messengerContext)
         {
             if (message is TMessage m)
             {
                 _action(sender, m, messengerContext);
-                return SubscriberResult.Handled;
+                return MessengerSubscriberResult.Handled;
             }
 
-            return SubscriberResult.Ignored;
+            return MessengerSubscriberResult.Ignored;
         }
 
         #endregion

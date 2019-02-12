@@ -57,8 +57,8 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
             var msg2 = "test";
 
             var subscriber = new DelegateMessengerSubscriber<string>((o, s, arg3) => { });
-            subscriber.Handle(sender, msg1, null!).ShouldEqual(SubscriberResult.Ignored);
-            subscriber.Handle(sender, msg2, null!).ShouldEqual(SubscriberResult.Handled);
+            subscriber.Handle(sender, msg1, null!).ShouldEqual(MessengerSubscriberResult.Ignored);
+            subscriber.Handle(sender, msg2, null!).ShouldEqual(MessengerSubscriberResult.Handled);
         }
 
         #endregion

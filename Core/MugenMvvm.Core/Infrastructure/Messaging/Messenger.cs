@@ -1,43 +1,36 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
+using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Infrastructure.Metadata;
-using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading;
 
 namespace MugenMvvm.Infrastructure.Messaging
 {
-    public class Messenger : IMessenger, IEqualityComparer<KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>>
+    public class Messenger : HasListenersBase<IMessengerListener>, IMessenger, IEqualityComparer<KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>> //todo tracer
     {
         #region Fields
 
         private readonly HashSet<KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>> _subscribers;
         private readonly IThreadDispatcher _threadDispatcher;
-        private readonly ITracer _tracer;
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public Messenger(IThreadDispatcher threadDispatcher, ITracer tracer)
+        public Messenger(IThreadDispatcher threadDispatcher)
         {
             Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
-            Should.NotBeNull(tracer, nameof(tracer));
             _threadDispatcher = threadDispatcher;
-            _tracer = tracer;
             _subscribers = new HashSet<KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>>(this);
         }
-
-        #endregion
-
-        #region Properties
-
-        public Func<object, object, IMessengerContext, bool>? IsTraceableMessage { get; set; }
 
         #endregion
 
@@ -66,54 +59,132 @@ namespace MugenMvvm.Infrastructure.Messaging
             }
         }
 
-        public IMessengerContext GetContext(IMetadataContext? metadata)
+        IMessengerContext IMessenger.GetContext(IMetadataContext? metadata)
         {
-            return new MessengerContext(metadata);
+            return GetContext(metadata);
         }
 
         public void Publish(object sender, object message, IMessengerContext? messengerContext = null)
         {
-            Should.NotBeNull(sender, nameof(sender));
-            Should.NotBeNull(message, nameof(message));
-            if (messengerContext == null)
-                messengerContext = new MessengerContext(null);
-            var dictionary = new Dictionary<ThreadExecutionMode, ThreadDispatcherExecutor>();
-            lock (_subscribers)
-            {
-                foreach (var subscriber in _subscribers)
-                {
-                    if (!messengerContext.MarkAsHandled(subscriber.Value))
-                        continue;
-
-                    if (!dictionary.TryGetValue(subscriber.Key, out var value))
-                    {
-                        value = new ThreadDispatcherExecutor(this, sender, message, messengerContext);
-                        dictionary[subscriber.Key] = value;
-                    }
-                    value.Add(subscriber.Value);
-                }
-            }
-
-            foreach (var dispatcherExecutor in dictionary)
-                _threadDispatcher.Execute(dispatcherExecutor.Value, dispatcherExecutor.Key, null);
+            PublishInternalAsync(sender, message, messengerContext, false);
         }
 
-        public void Subscribe(IMessengerSubscriber subscriber, ThreadExecutionMode? executionMode = null)
+        public Task PublishAsync(object sender, object message, IMessengerContext? messengerContext = null)
+        {
+            return PublishInternalAsync(sender, message, messengerContext, true);
+        }
+
+        public void Subscribe(IMessengerSubscriber subscriber, ThreadExecutionMode executionMode)
         {
             Should.NotBeNull(subscriber, nameof(subscriber));
+            Should.NotBeNull(executionMode, nameof(executionMode));
+            bool added;
             lock (_subscribers)
             {
-                _subscribers.Add(new KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>(executionMode ?? ThreadExecutionMode.Current, subscriber));
+                added = _subscribers.Add(new KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>(executionMode, subscriber));
+            }
+
+            if (added)
+            {
+                var listeners = GetListenersInternal();
+                if (listeners == null)
+                    return;
+                for (var i = 0; i < listeners.Length; i++)
+                    (listeners[i] as IMessengerListener)?.OnSubscribed(this, subscriber, executionMode);
             }
         }
 
         public bool Unsubscribe(IMessengerSubscriber subscriber)
         {
             Should.NotBeNull(subscriber, nameof(subscriber));
+            bool removed;
             lock (_subscribers)
             {
-                return _subscribers.Remove(new KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>(ThreadExecutionMode.Current, subscriber));
+                removed = _subscribers.Remove(new KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>(ThreadExecutionMode.Current, subscriber));
             }
+
+            if (removed)
+            {
+                var listeners = GetListenersInternal();
+                if (listeners == null)
+                    return true;
+
+                for (var i = 0; i < listeners.Length; i++)
+                    (listeners[i] as IMessengerListener)?.OnUnsubscribed(this, subscriber);
+            }
+
+            return removed;
+        }
+
+        #endregion
+
+        #region Methods
+
+        private MessengerContext GetContext(IMetadataContext? metadata)
+        {
+            var ctx = new MessengerContext(this, metadata);
+            var listeners = GetListenersInternal();
+            if (listeners != null)
+            {
+                for (var i = 0; i < listeners.Length; i++)
+                    (listeners[i] as IMessengerListener)?.OnContextCreated(this, ctx);
+            }
+
+            return ctx;
+        }
+
+        private Task PublishInternalAsync(object sender, object message, IMessengerContext? messengerContext, bool isAsync)
+        {
+            Should.NotBeNull(sender, nameof(sender));
+            Should.NotBeNull(message, nameof(message));
+            MessengerContext? rawContext = null;
+            if (messengerContext == null)
+            {
+                rawContext = GetContext(null);
+                messengerContext = rawContext;
+            }
+
+            var dictionary = new Dictionary<ThreadExecutionMode, ThreadDispatcherExecutor>();
+            lock (_subscribers)
+            {
+                foreach (var subscriber in _subscribers)
+                {
+                    if (rawContext == null)
+                    {
+                        if (!messengerContext.MarkAsHandled(subscriber.Value))
+                            continue;
+                    }
+                    else
+                    {
+                        if (!rawContext.MarkAsHandledNoLock(subscriber.Value))
+                            continue;
+                    }
+
+                    if (!dictionary.TryGetValue(subscriber.Key, out var value))
+                    {
+                        value = new ThreadDispatcherExecutor(this, sender, message, messengerContext);
+                        dictionary[subscriber.Key] = value;
+                    }
+
+                    value.Add(subscriber.Value);
+                }
+            }
+
+            if (isAsync)
+            {
+                var tasks = new Task[dictionary.Count];
+                int index = 0;
+                foreach (var dispatcherExecutor in dictionary)
+                {
+                    tasks[index] = _threadDispatcher.ExecuteAsync(dispatcherExecutor.Value, dispatcherExecutor.Key, null);
+                    ++index;
+                }
+                return Task.WhenAll(tasks);
+            }
+
+            foreach (var dispatcherExecutor in dictionary)
+                _threadDispatcher.Execute(dispatcherExecutor.Value, dispatcherExecutor.Key, null);
+            return Default.CompletedTask;
         }
 
         #endregion
@@ -147,22 +218,54 @@ namespace MugenMvvm.Infrastructure.Messaging
 
             public void Execute(object? state)
             {
-                var trace = _message is ITraceableMessage || _messenger.IsTraceableMessage != null && _messenger.IsTraceableMessage(_sender, _message, _context);
                 var subscribers = GetItems(out var size);
-                for (var i = 0; i < size; i++)
+                if (_messenger.HasListeners)
                 {
-                    var result = subscribers[i]?.Handle(_sender, _message, _context);
-                    if (result == SubscriberResult.Handled)
+                    for (var i = 0; i < size; i++)
+                        PublishAndNotify(subscribers[i]);
+                }
+                else
+                {
+                    for (var i = 0; i < size; i++)
                     {
-                        if (trace)
-                            _messenger._tracer.Warn(MessageConstants.MessageSentFromToFormat3.Format(_message, _sender, subscribers[i]));
+                        if (subscribers[i].Handle(_sender, _message, _context) == MessengerSubscriberResult.Invalid)
+                            _messenger.Unsubscribe(subscribers[i]);
                     }
-                    else if (result == SubscriberResult.Invalid)
-                        _messenger.Unsubscribe(subscribers[i]);
                 }
             }
 
-            #endregion            
+            #endregion
+
+            #region Methods
+
+            private void PublishAndNotify(IMessengerSubscriber subscriber)
+            {
+                var listeners = _messenger.GetListenersInternal();
+                if (listeners == null)
+                {
+                    if (subscriber.Handle(_sender, _message, _context) == MessengerSubscriberResult.Invalid)
+                        _messenger.Unsubscribe(subscriber);
+                    return;
+                }
+
+                MessengerSubscriberResult? subscriberResult = null;
+                for (var i = 0; i < listeners.Length; i++)
+                {
+                    subscriberResult = listeners[i]?.OnPublishing(_messenger, subscriber, _sender, _message, _context);
+                    if (subscriberResult != null)
+                        break;
+                }
+
+                var result = subscriberResult ?? subscriber.Handle(_sender, _message, _context);
+
+                for (var i = 0; i < listeners.Length; i++)
+                    listeners[i]?.OnPublished(_messenger, subscriber, _sender, _message, _context, result);
+
+                if (result == MessengerSubscriberResult.Invalid)
+                    _messenger.Unsubscribe(subscriber);
+            }
+
+            #endregion
         }
 
         private sealed class MessengerContext : HashSet<object>, IMessengerContext
@@ -175,8 +278,9 @@ namespace MugenMvvm.Infrastructure.Messaging
 
             #region Constructors
 
-            public MessengerContext(IMetadataContext? metadata)
+            public MessengerContext(IMessenger messenger, IMetadataContext? metadata)
             {
+                Messenger = messenger;
                 _metadata = metadata;
             }
 
@@ -194,6 +298,8 @@ namespace MugenMvvm.Infrastructure.Messaging
                 }
             }
 
+            public IMessenger Messenger { get; }
+
             #endregion
 
             #region Implementation of interfaces
@@ -204,6 +310,15 @@ namespace MugenMvvm.Infrastructure.Messaging
                 {
                     return Add(handler);
                 }
+            }
+
+            #endregion
+
+            #region Methods
+
+            public bool MarkAsHandledNoLock(object handler)
+            {
+                return Add(handler);
             }
 
             #endregion

@@ -11,7 +11,7 @@ namespace MugenMvvm.Interfaces.Messaging
 
         IMessengerContext GetContext(IMetadataContext? metadata);
 
-        void Subscribe(IMessengerSubscriber subscriber, ThreadExecutionMode? executionMode = null);
+        void Subscribe(IMessengerSubscriber subscriber, ThreadExecutionMode executionMode);
 
         bool Unsubscribe(IMessengerSubscriber subscriber);
     }

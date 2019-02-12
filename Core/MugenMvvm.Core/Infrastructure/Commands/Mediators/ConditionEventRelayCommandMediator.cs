@@ -161,13 +161,13 @@ namespace MugenMvvm.Infrastructure.Commands.Mediators
                 return ReferenceEquals(other, this);
             }
 
-            public SubscriberResult Handle(object sender, object message, IMessengerContext messengerContext)
+            public MessengerSubscriberResult Handle(object sender, object message, IMessengerContext messengerContext)
             {
                 var mediator = (ConditionEventRelayCommandMediator)_reference.Target;
                 if (mediator == null)
-                    return SubscriberResult.Invalid;
+                    return MessengerSubscriberResult.Invalid;
                 mediator.Handle(message);
-                return SubscriberResult.Handled;
+                return MessengerSubscriberResult.Handled;
             }
 
             #endregion

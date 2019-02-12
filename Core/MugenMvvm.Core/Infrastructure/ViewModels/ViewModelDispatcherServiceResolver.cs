@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using MugenMvvm.Infrastructure.BusyIndicator;
 using MugenMvvm.Infrastructure.Messaging;
 using MugenMvvm.Infrastructure.Metadata;
-using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
@@ -19,7 +18,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
 
         public ViewModelDispatcherServiceResolver()
         {
-            Services = new[] { typeof(IObservableMetadataContext), typeof(IMessenger), typeof(IBusyIndicatorProvider) };
+            Services = new[] {typeof(IObservableMetadataContext), typeof(IMessenger), typeof(IBusyIndicatorProvider)};
         }
 
         #endregion
@@ -37,7 +36,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
             if (service == typeof(IObservableMetadataContext))
                 return new MetadataContext();
             if (service == typeof(IMessenger))
-                return new Messenger(Service<IThreadDispatcher>.Instance, Service<ITracer>.Instance);
+                return new Messenger(Service<IThreadDispatcher>.Instance);
             if (service == typeof(IBusyIndicatorProvider))
                 return new BusyIndicatorProvider();
             throw new NotSupportedException();

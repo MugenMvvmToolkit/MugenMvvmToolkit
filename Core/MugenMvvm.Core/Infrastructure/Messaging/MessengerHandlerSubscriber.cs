@@ -59,11 +59,11 @@ namespace MugenMvvm.Infrastructure.Messaging
             return other is MessengerHandlerSubscriber handler && ReferenceEquals(Target, handler.Target);
         }
 
-        public SubscriberResult Handle(object sender, object message, IMessengerContext messengerContext)
+        public MessengerSubscriberResult Handle(object sender, object message, IMessengerContext messengerContext)
         {
             var target = _reference.Target;
             if (target == null)
-                return SubscriberResult.Invalid;
+                return MessengerSubscriberResult.Invalid;
 
             Func<object?, object?[], object?> func;
             lock (MessageTypeToDelegate)
@@ -77,8 +77,8 @@ namespace MugenMvvm.Infrastructure.Messaging
             }
 
             if (func.Invoke(null, new[] { target, sender, message, messengerContext }) == null)
-                return SubscriberResult.Ignored;
-            return SubscriberResult.Handled;
+                return MessengerSubscriberResult.Ignored;
+            return MessengerSubscriberResult.Handled;
         }
 
         #endregion

@@ -5,6 +5,8 @@ namespace MugenMvvm.Interfaces.Messaging
 {
     public interface IMessengerContext : IHasMetadata<IMetadataContext>
     {
+        IMessenger Messenger { get; }
+
         bool MarkAsHandled(object handler);
     }
 }

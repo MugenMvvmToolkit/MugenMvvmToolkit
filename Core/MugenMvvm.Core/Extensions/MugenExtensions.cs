@@ -85,8 +85,7 @@ namespace MugenMvvm
 
         #region Messenger
 
-        public static IMessengerSubscriber SubscribeWeak<TTarget, TMessage>(this IMessenger messenger, TTarget target, Action<TTarget, object, TMessage, IMessengerContext> action,
-            ThreadExecutionMode? executionMode = null)
+        public static IMessengerSubscriber SubscribeWeak<TTarget, TMessage>(this IMessenger messenger, TTarget target, Action<TTarget, object, TMessage, IMessengerContext> action, ThreadExecutionMode executionMode)
             where TTarget : class
         {
             Should.NotBeNull(messenger, nameof(messenger));
@@ -95,8 +94,7 @@ namespace MugenMvvm
             return subscriber;
         }
 
-        public static IMessengerSubscriber SubscribeWeak<TMessage>(this IMessenger messenger, Action<object, TMessage, IMessengerContext> action,
-            ThreadExecutionMode? executionMode = null)
+        public static IMessengerSubscriber SubscribeWeak<TMessage>(this IMessenger messenger, Action<object, TMessage, IMessengerContext> action, ThreadExecutionMode executionMode)
         {
             Should.NotBeNull(messenger, nameof(messenger));
             var subscriber = new WeakDelegateMessengerSubscriber<object, TMessage>(action);
@@ -104,8 +102,7 @@ namespace MugenMvvm
             return subscriber;
         }
 
-        public static IMessengerSubscriber Subscribe<TMessage>(this IMessenger messenger, Action<object, TMessage, IMessengerContext> action,
-            ThreadExecutionMode? executionMode = null)
+        public static IMessengerSubscriber Subscribe<TMessage>(this IMessenger messenger, Action<object, TMessage, IMessengerContext> action, ThreadExecutionMode executionMode)
         {
             Should.NotBeNull(messenger, nameof(messenger));
             var subscriber = new DelegateMessengerSubscriber<TMessage>(action);
@@ -113,7 +110,7 @@ namespace MugenMvvm
             return subscriber;
         }
 
-        public static IMessengerSubscriber Subscribe(this IMessenger messenger, IMessengerHandler handler, ThreadExecutionMode? executionMode = null)
+        public static IMessengerSubscriber Subscribe(this IMessenger messenger, IMessengerHandler handler, ThreadExecutionMode executionMode)
         {
             Should.NotBeNull(messenger, nameof(messenger));
             var subscriber = new MessengerHandlerSubscriber(handler);
@@ -508,7 +505,7 @@ namespace MugenMvvm
             return viewModel.TryGetService<TService>();
         }
 
-        public static void InvalidateCommands<TViewModel>(this TViewModel viewModel) where TViewModel : class, IViewModelBase, IHasService<IMessenger>
+        public static void InvalidateCommands<TViewModel>(this TViewModel viewModel) where TViewModel : class, IViewModelBase, IHasService<IEventPublisher>
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             viewModel.Service.Publish(viewModel, Default.EmptyPropertyChangedArgs);

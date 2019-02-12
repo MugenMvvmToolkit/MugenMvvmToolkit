@@ -21,8 +21,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
         [Fact]
         public void MessengerShouldValidateArgsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new Messenger(null!, new TestTracer()));
-            Assert.Throws<ArgumentNullException>(() => new Messenger(new TestThreadDispatcher(), null!));
+            Assert.Throws<ArgumentNullException>(() => new Messenger(null!));            
         }
 
         [Theory]
@@ -42,8 +41,8 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
         {
             var subscriber = new TestSubscriber();
             var messenger = CreateMessenger();
-            messenger.Subscribe(subscriber);
-            messenger.Subscribe(subscriber);
+            messenger.Subscribe(subscriber, ThreadExecutionMode.Current);
+            messenger.Subscribe(subscriber, ThreadExecutionMode.Current);
             messenger.GetSubscribers().Single().Subscriber.ShouldEqual(subscriber);
         }
 
@@ -52,7 +51,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
         {
             var subscriber = new TestSubscriber();
             var messenger = CreateMessenger();
-            messenger.Subscribe(subscriber);
+            messenger.Subscribe(subscriber, ThreadExecutionMode.Current);
             messenger.GetSubscribers().Single().Subscriber.ShouldEqual(subscriber);
 
             messenger.Unsubscribe(subscriber);
@@ -68,7 +67,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
                 subscribers.Add(new TestSubscriber());
 
             for (var i = 0; i < subscribers.Count; i++)
-                messenger.Subscribe(subscribers[i]);
+                messenger.Subscribe(subscribers[i], ThreadExecutionMode.Current);
 
             for (var i = 0; i < subscribers.Count / 2; i++)
             {
@@ -94,7 +93,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
             for (var i = 0; i < subscribers.Count; i++)
             {
                 var index = i;
-                tasks.Add(Task.Run(() => messenger.Subscribe(subscribers[index])));
+                tasks.Add(Task.Run(() => messenger.Subscribe(subscribers[index], ThreadExecutionMode.Current)));
             }
 
             Task.WaitAll(tasks.ToArray());
@@ -117,8 +116,8 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
             var subscriber1 = new TestSubscriber();
             var subscriber2 = new TestSubscriber();
             var messenger = CreateMessenger();
-            messenger.Subscribe(subscriber1);
-            messenger.Subscribe(subscriber2);
+            messenger.Subscribe(subscriber1, ThreadExecutionMode.Current);
+            messenger.Subscribe(subscriber2, ThreadExecutionMode.Current);
             messenger.GetSubscribers().Select(info => info.Subscriber).ShouldContain(subscriber1, subscriber2);
 
             messenger.UnsubscribeAll();
@@ -189,7 +188,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
                     sender = o;
                     message = o1;
                     context = arg3;
-                    return SubscriberResult.Handled;
+                    return MessengerSubscriberResult.Handled;
                 }
             };
             ThreadExecutionMode executedMode = null;
@@ -219,32 +218,16 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
 
         [Theory]
         [MemberData(nameof(GetPublishShouldUnsubscribeAfterInvalidResultArgs))]
-        public void PublishShouldUnsubscribeInvalidResult(SubscriberResult subscriberResult, int result)
+        public void PublishShouldUnsubscribeInvalidResult(MessengerSubscriberResult subscriberResult, int result)
         {
             var listener = new TestSubscriber
             {
                 HandleDelegate = (o, o1, arg3) => subscriberResult
             };
             var messenger = CreateMessenger();
-            messenger.Subscribe(listener);
+            messenger.Subscribe(listener, ThreadExecutionMode.Current);
             messenger.Publish(this, messenger);
             messenger.GetSubscribers().Count.ShouldEqual(result);
-        }
-
-        [Theory]
-        [MemberData(nameof(GetPublishShouldTraceTraceableMessageArgs))]
-        public void PublishShouldTraceTraceableMessage(SubscriberResult subscriberResult, bool result)
-        {
-            var listener = new TestSubscriber
-            {
-                HandleDelegate = (o, o1, arg3) => subscriberResult
-            };
-            var traced = false;
-            var tracer = new TestTracer { Trace = (level, s) => traced = true };
-            var messenger = CreateMessenger(tracer: tracer);
-            messenger.Subscribe(listener);
-            messenger.Publish(this, listener);
-            traced.ShouldEqual(result);
         }
 
         [Fact]
@@ -252,8 +235,8 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
         {
             var messenger1 = CreateMessenger();
             var messenger2 = CreateMessenger();
-            messenger1.Subscribe(new MessengerRepublisherSubscriber(messenger2));
-            messenger2.Subscribe(new MessengerRepublisherSubscriber(messenger1));
+            messenger1.Subscribe(new MessengerRepublisherSubscriber(messenger2), ThreadExecutionMode.Current);
+            messenger2.Subscribe(new MessengerRepublisherSubscriber(messenger1), ThreadExecutionMode.Current);
             messenger1.Publish(messenger1, new object());
         }
 
@@ -264,27 +247,27 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
             var m2 = CreateMessenger();
             var m3 = CreateMessenger();
 
-            m1.Subscribe(new MessengerRepublisherSubscriber(m2));
-            m1.Subscribe(new MessengerRepublisherSubscriber(m3));
-            m2.Subscribe(new MessengerRepublisherSubscriber(m1));
-            m2.Subscribe(new MessengerRepublisherSubscriber(m3));
-            m3.Subscribe(new MessengerRepublisherSubscriber(m2));
-            m3.Subscribe(new MessengerRepublisherSubscriber(m3));
+            m1.Subscribe(new MessengerRepublisherSubscriber(m2), ThreadExecutionMode.Current);
+            m1.Subscribe(new MessengerRepublisherSubscriber(m3), ThreadExecutionMode.Current);
+            m2.Subscribe(new MessengerRepublisherSubscriber(m1), ThreadExecutionMode.Current);
+            m2.Subscribe(new MessengerRepublisherSubscriber(m3), ThreadExecutionMode.Current);
+            m3.Subscribe(new MessengerRepublisherSubscriber(m2), ThreadExecutionMode.Current);
+            m3.Subscribe(new MessengerRepublisherSubscriber(m3), ThreadExecutionMode.Current);
 
             var subscribers = new List<TestSubscriber>();
             for (var i = 0; i < 1000; i++)
             {
-                var subscriber = new TestSubscriber { HandleDelegate = (o, o1, arg3) => SubscriberResult.Handled };
+                var subscriber = new TestSubscriber { HandleDelegate = (o, o1, arg3) => MessengerSubscriberResult.Handled };
                 subscribers.Add(subscriber);
-                m1.Subscribe(subscriber);
+                m1.Subscribe(subscriber, ThreadExecutionMode.Current);
 
-                subscriber = new TestSubscriber { HandleDelegate = (o, o1, arg3) => SubscriberResult.Handled };
+                subscriber = new TestSubscriber { HandleDelegate = (o, o1, arg3) => MessengerSubscriberResult.Handled };
                 subscribers.Add(subscriber);
-                m2.Subscribe(subscriber);
+                m2.Subscribe(subscriber, ThreadExecutionMode.Current);
 
-                subscriber = new TestSubscriber { HandleDelegate = (o, o1, arg3) => SubscriberResult.Handled };
+                subscriber = new TestSubscriber { HandleDelegate = (o, o1, arg3) => MessengerSubscriberResult.Handled };
                 subscribers.Add(subscriber);
-                m3.Subscribe(subscriber);
+                m3.Subscribe(subscriber, ThreadExecutionMode.Current);
             }
 
             const int count = 1000;
@@ -308,22 +291,20 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
 //            }
         }
 
-        protected virtual IMessenger CreateMessenger(IThreadDispatcher? threadDispatcher = null, ITracer? tracer = null)
+        protected virtual IMessenger CreateMessenger(IThreadDispatcher? threadDispatcher = null)
         {
             if (threadDispatcher == null)
-                threadDispatcher = new TestThreadDispatcher();
-            if (tracer == null)
-                tracer = new TestTracer();
-            return new Messenger(threadDispatcher, tracer);
+                threadDispatcher = new TestThreadDispatcher();            
+            return new Messenger(threadDispatcher);
         }
 
         public static IEnumerable<object[]> GetPublishShouldUnsubscribeAfterInvalidResultArgs()
         {
             return new[]
             {
-                new object[] {SubscriberResult.Handled, 1},
-                new object[] {SubscriberResult.Invalid, 0},
-                new object[] {SubscriberResult.Ignored, 1}
+                new object[] {MessengerSubscriberResult.Handled, 1},
+                new object[] {MessengerSubscriberResult.Invalid, 0},
+                new object[] {MessengerSubscriberResult.Ignored, 1}
             };
         }
 
@@ -331,9 +312,9 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
         {
             return new[]
             {
-                new object[] {SubscriberResult.Handled, true},
-                new object[] {SubscriberResult.Invalid, false},
-                new object[] {SubscriberResult.Ignored, false}
+                new object[] {MessengerSubscriberResult.Handled, true},
+                new object[] {MessengerSubscriberResult.Invalid, false},
+                new object[] {MessengerSubscriberResult.Ignored, false}
             };
         }
 
@@ -376,10 +357,10 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
                 return ReferenceEquals(other, this);
             }
 
-            public SubscriberResult Handle(object sender, object message, IMessengerContext messengerContext)
+            public MessengerSubscriberResult Handle(object sender, object message, IMessengerContext messengerContext)
             {
                 _messenger.Publish(sender, message, messengerContext);
-                return SubscriberResult.Handled;
+                return MessengerSubscriberResult.Handled;
             }
 
             #endregion
@@ -395,7 +376,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
 
             public Func<IMessengerSubscriber, int>? GetHashCodeDelegate { get; set; }
 
-            public Func<object, object, IMessengerContext, SubscriberResult> HandleDelegate { get; set; }
+            public Func<object, object, IMessengerContext, MessengerSubscriberResult> HandleDelegate { get; set; }
 
             public List<object> Messages { get; } = new List<object>();
 
@@ -408,7 +389,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
                 return EqualsDelegate?.Invoke(this, other) ?? ReferenceEquals(this, other);
             }
 
-            public SubscriberResult Handle(object sender, object message, IMessengerContext messengerContext)
+            public MessengerSubscriberResult Handle(object sender, object message, IMessengerContext messengerContext)
             {
                 lock (Messages)
                 {
