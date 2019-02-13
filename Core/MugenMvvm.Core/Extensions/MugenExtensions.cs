@@ -463,13 +463,13 @@ namespace MugenMvvm
         #region Views
 
         public static TView GetUnderlyingView<TView>(this IView? view)
-            where TView : class ?
+            where TView : class?
         {
             return GetUnderlyingView<TView>(viewObj: view);
         }
 
         public static TView GetUnderlyingView<TView>(object? viewObj)
-            where TView : class ?
+            where TView : class?
         {
             while (true)
             {

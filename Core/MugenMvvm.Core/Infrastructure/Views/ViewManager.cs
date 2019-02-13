@@ -57,20 +57,36 @@ namespace MugenMvvm.Infrastructure.Views
             return GetInitializersByViewModelInternal(viewModel, metadata);
         }
 
-        void IParentViewManager.OnViewInitialized(IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata)
+        void IParentViewManager.OnViewModelCreated(IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(view, nameof(view));
             Should.NotBeNull(metadata, nameof(metadata));
-            OnViewInitialized(viewModel, view, metadata);
+            OnViewModelCreated(viewModel, view, metadata);
         }
 
-        void IParentViewManager.OnViewCleared(IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata)
+        void IParentViewManager.OnViewCreated(IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(view, nameof(view));
             Should.NotBeNull(metadata, nameof(metadata));
-            OnViewCleared(viewModel, view, metadata);
+            OnViewCreated(viewModel, view, metadata);
+        }
+
+        void IParentViewManager.OnViewInitialized(IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            Should.NotBeNull(viewInfo, nameof(viewInfo));
+            Should.NotBeNull(metadata, nameof(metadata));
+            OnViewInitialized(viewModel, viewInfo, metadata);
+        }
+
+        void IParentViewManager.OnViewCleared(IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            Should.NotBeNull(viewInfo, nameof(viewInfo));
+            Should.NotBeNull(metadata, nameof(metadata));
+            OnViewCleared(viewModel, viewInfo, metadata);
         }
 
         #endregion
@@ -119,22 +135,40 @@ namespace MugenMvvm.Infrastructure.Views
             return result;
         }
 
-        protected virtual void OnViewInitialized(IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata)
+        protected virtual void OnViewModelCreated(IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata)
         {
             var listeners = GetListenersInternal();
             if (listeners == null)
                 return;
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i]?.OnViewInitialized(this, viewModel, view, metadata);
+                listeners[i]?.OnViewModelCreated(this, viewModel, view, metadata);
         }
 
-        protected virtual void OnViewCleared(IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata)
+        protected virtual void OnViewCreated(IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata)
         {
             var listeners = GetListenersInternal();
             if (listeners == null)
                 return;
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i]?.OnViewCleared(this, viewModel, view, metadata);
+                listeners[i]?.OnViewCreated(this, viewModel, view, metadata);
+        }
+
+        protected virtual void OnViewInitialized(IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
+        {
+            var listeners = GetListenersInternal();
+            if (listeners == null)
+                return;
+            for (var i = 0; i < listeners.Length; i++)
+                listeners[i]?.OnViewInitialized(this, viewModel, viewInfo, metadata);
+        }
+
+        protected virtual void OnViewCleared(IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
+        {
+            var listeners = GetListenersInternal();
+            if (listeners == null)
+                return;
+            for (var i = 0; i < listeners.Length; i++)
+                listeners[i]?.OnViewCleared(this, viewModel, viewInfo, metadata);
         }
 
         protected virtual void OnChildViewManagerAdded(IChildViewManager childViewManager)

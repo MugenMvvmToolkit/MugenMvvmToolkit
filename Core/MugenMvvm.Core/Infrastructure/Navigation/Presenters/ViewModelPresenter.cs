@@ -17,7 +17,7 @@ using MugenMvvm.Interfaces.Navigation.Presenters.Results;
 
 namespace MugenMvvm.Infrastructure.Navigation.Presenters
 {
-    public class ViewModelPresenter : HasListenersBase<IViewModelPresenterListener>, IViewModelPresenter
+    public class ViewModelPresenter : HasListenersBase<IViewModelPresenterListener>, IViewModelPresenter//todo multi close/restore?, tracer remove to listeners even for no close result, return empty metadata.
     {
         #region Fields
 

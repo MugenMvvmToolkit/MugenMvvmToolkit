@@ -31,11 +31,6 @@ namespace MugenMvvm
             return new InvalidOperationException(MessageConstants.CommandCannotBeExecutedString);
         }
 
-        internal static Exception DuplicateViewMapping(Type viewType, Type viewModelType, string? name)
-        {
-            return new InvalidOperationException(MessageConstants.DuplicateViewMappingFormat3.Format(viewType, viewModelType, name));
-        }
-
         internal static Exception WrapperTypeShouldBeNonAbstract(Type wrapperType)
         {
             return new ArgumentException(MessageConstants.WrapperTypeShouldBeNonAbstractFormat1.Format(wrapperType), nameof(wrapperType));
@@ -44,11 +39,6 @@ namespace MugenMvvm
         internal static Exception WrapperTypeNotSupported(Type wrapperType)
         {
             return new ArgumentException(MessageConstants.WrapperTypeNotSupportedFormat1.Format(wrapperType), nameof(wrapperType));
-        }
-
-        internal static Exception DuplicateInterface(string itemName, string interfaceName, Type type)
-        {
-            return new InvalidOperationException(MessageConstants.DuplicateInterfaceFormat3.Format(itemName, interfaceName, type));
         }
 
         internal static Exception IntOutOfRangeCollection(string paramName)

@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Interfaces.Metadata;
+﻿using System.Threading.Tasks;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 
@@ -8,6 +9,6 @@ namespace MugenMvvm.Interfaces.Views.Infrastructure
     {
         object View { get; }
 
-        IViewManagerCleanupResult Cleanup(IViewModelBase viewModel, IReadOnlyMetadataContext metadata);
+        Task<ICleanupViewManagerResult> CleanupAsync(IViewModelBase viewModel, IReadOnlyMetadataContext metadata);
     }
 }

@@ -48,7 +48,7 @@ namespace MugenMvvm
         [DebuggerStepThrough]
         public static void BeOfType(object instance, string paramName, Type requiredType)
         {
-            NotBeNull(instance, nameof(instance));
+            NotBeNull(instance, paramName);
             BeOfType(instance.GetType(), paramName, requiredType);
         }
 

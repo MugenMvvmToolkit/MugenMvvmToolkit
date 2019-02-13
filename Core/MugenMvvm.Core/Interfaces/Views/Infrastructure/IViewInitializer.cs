@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
 
@@ -8,6 +9,6 @@ namespace MugenMvvm.Interfaces.Views.Infrastructure
     {
         Type ViewType { get; }
 
-        IViewManagerResult<IViewInfo> Initialize(IViewModelBase viewModel, IReadOnlyMetadataContext metadata);
+        Task<IViewManagerResult> InitializeAsync(IViewModelBase viewModel, IReadOnlyMetadataContext metadata);
     }
 }

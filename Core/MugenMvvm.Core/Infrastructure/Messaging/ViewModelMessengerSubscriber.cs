@@ -29,7 +29,7 @@ namespace MugenMvvm.Infrastructure.Messaging
 
         static ViewModelMessengerSubscriber()
         {
-            MetadataKey = MetadataContextKey.FromKey<ViewModelMessengerSubscriber>(typeof(ViewModelMessengerSubscriber).FullName + nameof(MetadataKey));
+            MetadataKey = MetadataContextKey.FromMember<ViewModelMessengerSubscriber>(typeof(ViewModelMessengerSubscriber), nameof(MetadataKey));
         }
 
         private ViewModelMessengerSubscriber(IViewModelBase viewModel)

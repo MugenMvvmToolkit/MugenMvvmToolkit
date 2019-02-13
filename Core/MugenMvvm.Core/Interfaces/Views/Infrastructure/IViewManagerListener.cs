@@ -5,8 +5,12 @@ namespace MugenMvvm.Interfaces.Views.Infrastructure
 {
     public interface IViewManagerListener
     {
-        void OnViewInitialized(IViewManager viewManager, IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata);
+        void OnViewModelCreated(IViewManager viewManager, IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata);
 
-        void OnViewCleared(IViewManager viewManager, IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata);
+        void OnViewCreated(IViewManager viewManager, IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata);
+
+        void OnViewInitialized(IViewManager viewManager, IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata);
+
+        void OnViewCleared(IViewManager viewManager, IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata);
     }
 }

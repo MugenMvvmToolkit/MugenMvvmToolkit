@@ -60,6 +60,12 @@ namespace MugenMvvm.Infrastructure.Metadata
             return new MetadataContextKeyInternal<T>(key, null, null);
         }
 
+        public static IMetadataContextKey<T> FromMember<T>(Type declaredType, string fieldOrPropertyName)
+        {
+            var key = declaredType.Name + declaredType.FullName.Length + fieldOrPropertyName;
+            return new MetadataContextKeyInternal<T>(key, declaredType, fieldOrPropertyName);
+        }
+
         public static Builder<T> Create<T>(string key, Type? declaredType = null, string? fieldOrPropertyName = null)
         {
             Should.NotBeNullOrEmpty(key, nameof(key));

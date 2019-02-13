@@ -12,8 +12,6 @@ namespace MugenMvvm.Interfaces.Views.Infrastructure
 
         IReadOnlyList<IViewModelViewInitializer> GetInitializersByView(IParentViewManager parentViewManager, object view, IReadOnlyMetadataContext metadata);
 
-        IReadOnlyList<IViewInitializer> GetInitializersByViewModel(IParentViewManager parentViewManager, IViewModelBase viewModel, IReadOnlyMetadataContext metadata);
-
-        IViewManagerResult<IViewInfo>? TryInitialize(IParentViewManager parentViewManager, IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata);
+        IReadOnlyList<IViewInitializer> GetInitializersByViewModel(IParentViewManager parentViewManager, IViewModelBase viewModel, IReadOnlyMetadataContext metadata);        
     }
 }
