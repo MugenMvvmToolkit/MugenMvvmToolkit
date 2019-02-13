@@ -4,8 +4,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Metadata;
 
-// ReSharper disable once CheckNamespace
-namespace MugenMvvm
+namespace MugenMvvm.Metadata
 {
     public static class RelayCommandMetadata
     {

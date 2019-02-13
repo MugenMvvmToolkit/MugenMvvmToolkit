@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Views.Infrastructure;
 
 namespace MugenMvvm.Interfaces.Navigation
 {
-    public interface INavigationWindowMediator//todo check view, clear after close
+    public interface INavigationMediator : INavigationProvider//todo check view, clear after close
     {
         NavigationType NavigationType { get; }
 

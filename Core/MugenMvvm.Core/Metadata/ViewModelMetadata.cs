@@ -4,12 +4,10 @@ using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
-using MugenMvvm.Interfaces.Navigation.Presenters;
 using MugenMvvm.Interfaces.Navigation.Presenters.Results;
 using MugenMvvm.Interfaces.ViewModels;
 
-// ReSharper disable once CheckNamespace
-namespace MugenMvvm
+namespace MugenMvvm.Metadata
 {
     public static class ViewModelMetadata
     {

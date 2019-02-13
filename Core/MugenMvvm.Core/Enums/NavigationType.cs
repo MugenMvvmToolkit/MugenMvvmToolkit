@@ -13,7 +13,7 @@ namespace MugenMvvm.Enums
 
         public static readonly NavigationType Undefined = new NavigationType(nameof(Undefined));
         public static readonly NavigationType Tab = new NavigationType(nameof(Tab));
-        public static readonly NavigationType Window = new NavigationType(nameof(Window));
+        public static readonly NavigationType Generic = new NavigationType(nameof(Generic));
         public static readonly NavigationType Page = new NavigationType(nameof(Page));
 
         #endregion

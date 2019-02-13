@@ -14,6 +14,7 @@ using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Presenters;
 using MugenMvvm.Interfaces.Navigation.Presenters.Results;
+using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.Navigation.Presenters
 {
@@ -24,8 +25,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         private readonly PresentersCollection _presenters;
 
         public const int NavigationPresenterPriority = -1;
-        public const int MultiViewModelPresenterPriority = 0;
-        public const int WindowPresenterPriority = 1;
+        public const int MultiViewModelPresenterPriority = 0;//todo check
+        public const int GenericNavigationPresenterPriority = 1;
 
         #endregion
 
@@ -244,7 +245,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         #region Nested types
 
-        private sealed class PresentersCollection : ICollection<IChildViewModelPresenter>, IComparer<IChildViewModelPresenter>, ICallbackProviderNavigationDispatcherListener, IDisposable
+        private sealed class PresentersCollection : ICollection<IChildViewModelPresenter>, IComparer<IChildViewModelPresenter>, INavigationDispatcherCallbackProvider, IDisposable
         {
             #region Fields
 

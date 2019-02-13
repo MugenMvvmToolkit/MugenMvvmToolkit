@@ -2,8 +2,7 @@
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
 
-// ReSharper disable once CheckNamespace
-namespace MugenMvvm
+namespace MugenMvvm.Metadata
 {
     public static class NavigationMetadata
     {
@@ -12,7 +11,7 @@ namespace MugenMvvm
         private static IMetadataContextKey<IViewModelBase?> _viewModel;
         private static IMetadataContextKey<string?> _viewName;
         private static IMetadataContextKey<bool> _suppressTabNavigation;
-        private static IMetadataContextKey<bool> _suppressWindowNavigation;
+        private static IMetadataContextKey<bool> _suppressGenericNavigation;
         private static IMetadataContextKey<bool> _suppressPageNavigation;
         private static IMetadataContextKey<bool> _isDialog;
 
@@ -53,15 +52,15 @@ namespace MugenMvvm
             set => _suppressTabNavigation = value;
         }
 
-        public static IMetadataContextKey<bool> SuppressWindowNavigation
+        public static IMetadataContextKey<bool> SuppressGenericNavigation
         {
             get
             {
-                if (_suppressWindowNavigation == null)
-                    _suppressWindowNavigation = GetBuilder<bool>(nameof(SuppressWindowNavigation)).Serializable().Build();
-                return _suppressWindowNavigation;
+                if (_suppressGenericNavigation == null)
+                    _suppressGenericNavigation = GetBuilder<bool>(nameof(SuppressGenericNavigation)).Serializable().Build();
+                return _suppressGenericNavigation;
             }
-            set => _suppressWindowNavigation = value;
+            set => _suppressGenericNavigation = value;
         }
 
         public static IMetadataContextKey<bool> SuppressPageNavigation

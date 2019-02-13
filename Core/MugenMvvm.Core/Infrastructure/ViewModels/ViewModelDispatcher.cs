@@ -8,6 +8,7 @@ using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.ViewModels.Infrastructure;
+using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.ViewModels
 {

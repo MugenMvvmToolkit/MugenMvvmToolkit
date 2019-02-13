@@ -6,14 +6,13 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Serialization;
 
-// ReSharper disable once CheckNamespace
-namespace MugenMvvm
+namespace MugenMvvm.Metadata
 {
     public static class NavigationInternalMetadata
     {
         #region Fields
 
-        private static IMetadataContextKey<object?> _restoredWindowView;
+        private static IMetadataContextKey<object?> _restoredView;
         private static IMetadataContextKey<bool> _isRestorableCallback;
         private static IMetadataContextKey<IList<INavigationCallbackInternal>?> _showingCallbacks;
         private static IMetadataContextKey<IList<INavigationCallbackInternal>?> _closingCallbacks;
@@ -25,15 +24,15 @@ namespace MugenMvvm
 
         #region Properties
 
-        public static IMetadataContextKey<object?> RestoredWindowView
+        public static IMetadataContextKey<object?> RestoredView
         {
             get
             {
-                if (_restoredWindowView == null)
-                    _restoredWindowView = GetBuilder<object?>(nameof(RestoredWindowView)).NotNull().Build();
-                return _restoredWindowView;
+                if (_restoredView == null)
+                    _restoredView = GetBuilder<object?>(nameof(RestoredView)).NotNull().Build();
+                return _restoredView;
             }
-            set => _restoredWindowView = value;
+            set => _restoredView = value;
         }
 
         public static IMetadataContextKey<bool> IsRestorableCallback

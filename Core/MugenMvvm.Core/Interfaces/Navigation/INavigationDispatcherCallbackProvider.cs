@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Navigation
 {
-    public interface ICallbackProviderNavigationDispatcherListener : INavigationDispatcherListener
+    public interface INavigationDispatcherCallbackProvider : INavigationDispatcherListener
     {
         IReadOnlyList<INavigationCallback> GetCallbacks(INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry, NavigationCallbackType? callbackType, IReadOnlyMetadataContext metadata);
     }

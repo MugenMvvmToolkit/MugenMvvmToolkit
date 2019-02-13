@@ -12,6 +12,7 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.ViewModels;
+using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.Messaging
 {

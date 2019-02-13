@@ -9,6 +9,7 @@ using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading;
+using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.Commands
 {

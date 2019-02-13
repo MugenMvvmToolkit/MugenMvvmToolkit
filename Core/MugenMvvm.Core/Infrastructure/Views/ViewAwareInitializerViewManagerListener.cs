@@ -14,7 +14,7 @@ using MugenMvvm.Interfaces.Views.Infrastructure;
 
 namespace MugenMvvm.Infrastructure.Views
 {
-    public class ViewAwareInitializerViewManagerListener : IViewManagerListener
+    public sealed class ViewAwareInitializerViewManagerListener : IViewManagerListener
     {
         #region Fields
 
@@ -62,14 +62,12 @@ namespace MugenMvvm.Infrastructure.Views
 
         public void OnViewInitialized(IViewManager viewManager, IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
         {
-            var view = MugenExtensions.GetUnderlyingView<object>(viewInfo.View);
-            GetUpdateViewMethod(viewModel, view)?.Invoke(null, new[] { viewModel, view, Default.FalseObject });
+            GetUpdateViewMethod(viewModel, viewInfo.View)?.Invoke(null, new[] {viewModel, viewInfo, metadata, Default.FalseObject});
         }
 
         public void OnViewCleared(IViewManager viewManager, IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
         {
-            var view = MugenExtensions.GetUnderlyingView<object>(viewInfo.View);
-            GetUpdateViewMethod(viewModel, view)?.Invoke(null, new[] { viewModel, view, Default.TrueObject });
+            GetUpdateViewMethod(viewModel, viewInfo.View)?.Invoke(null, new[] {viewModel, viewInfo, metadata, Default.TrueObject});
         }
 
         #endregion
@@ -117,6 +115,7 @@ namespace MugenMvvm.Infrastructure.Views
                         else
                             viewModelFunc += methodDelegate;
                     }
+
                     TypeToInitializeDelegate[viewModelType] = viewModelFunc;
                 }
             }
@@ -129,19 +128,34 @@ namespace MugenMvvm.Infrastructure.Views
         }
 
         [Preserve(Conditional = true)]
-        internal static void UpdateView<TView>(IViewModelBase viewModel, TView view, bool clear)
+        internal static void UpdateView<TView>(IViewModelBase viewModel, IViewInfo view, IReadOnlyMetadataContext metadata, bool clear)
             where TView : class
         {
             if (viewModel is IViewAwareViewModel<TView> awareViewModel)
-                awareViewModel.View = clear ? null : view;
+            {
+                if (clear)
+                {
+                    awareViewModel.View = null;
+                    return;
+                }
+
+                var wrappedView = view.TryWrap<TView>(metadata);
+                if (wrappedView != null)
+                    awareViewModel.View = wrappedView;
+            }
         }
 
         [Preserve(Conditional = true)]
-        internal static void UpdateViewModel<TViewModel>(TViewModel viewModel, object view, bool clear)
+        internal static void UpdateViewModel<TViewModel>(object viewModel, IViewInfo view, IReadOnlyMetadataContext metadata, bool clear)
             where TViewModel : class, IViewModelBase
         {
-            if (view is IViewModelAwareView<TViewModel> awareView)
-                awareView.ViewModel = clear ? null : viewModel;
+            if (view.View is IViewModelAwareView<TViewModel> awareView)
+            {
+                if (clear)
+                    awareView.ViewModel = null;
+                else if (viewModel is TViewModel vm)
+                    awareView.ViewModel = vm;
+            }
         }
 
         #endregion

@@ -10,6 +10,7 @@ using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.ViewModels;
+using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.Navigation
 {
@@ -205,7 +206,7 @@ namespace MugenMvvm.Infrastructure.Navigation
             List<INavigationCallback>? callbacks = null;
             for (var i = 0; i < listeners.Length; i++)
             {
-                var list = (listeners[i] as ICallbackProviderNavigationDispatcherListener)?.GetCallbacks(this, navigationEntry, callbackType, metadata);
+                var list = (listeners[i] as INavigationDispatcherCallbackProvider)?.GetCallbacks(this, navigationEntry, callbackType, metadata);
                 if (list == null)
                     continue;
                 if (callbacks == null)

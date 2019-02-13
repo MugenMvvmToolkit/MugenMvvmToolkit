@@ -12,6 +12,7 @@ using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.ViewModels.Infrastructure;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Infrastructure;
+using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.Views
 {

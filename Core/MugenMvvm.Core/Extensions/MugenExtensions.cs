@@ -25,6 +25,7 @@ using MugenMvvm.Interfaces.ViewModels.Infrastructure;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Infrastructure;
 using MugenMvvm.Interfaces.Wrapping;
+using MugenMvvm.Metadata;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm
@@ -462,22 +463,79 @@ namespace MugenMvvm
 
         #region Views
 
-        public static TView GetUnderlyingView<TView>(this IView? view)
-            where TView : class?
+        private class ViewWrappersCollection : List<object>, IObservableMetadataContextListener
         {
-            return GetUnderlyingView<TView>(viewObj: view);
+            public ViewWrappersCollection(IObservableMetadataContext metadata)
+            {
+                metadata.AddListener(this);
+            }
+
+            public void OnAdded(IObservableMetadataContext metadataContext, IMetadataContextKey key, object? newValue)
+            {
+
+            }
+
+            public void OnChanged(IObservableMetadataContext metadataContext, IMetadataContextKey key, object? oldValue, object? newValue)
+            {
+                if (ViewMetadata.Wrappers.Equals(key) && !ReferenceEquals(newValue, this))
+                    TryDispose();
+            }
+
+            public void OnRemoved(IObservableMetadataContext metadataContext, IMetadataContextKey key, object? oldValue)
+            {
+                if (ViewMetadata.Wrappers.Equals(key))
+                    TryDispose();
+            }
+
+            private void TryDispose()
+            {
+                foreach (var item in this.OfType<IDisposable>())
+                    item.Dispose();
+            }
         }
 
-        public static TView GetUnderlyingView<TView>(object? viewObj)
-            where TView : class?
+        public static TView TryWrap<TView>(this IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
+            where TView : class
         {
-            while (true)
+            return (TView)viewInfo.TryWrap(typeof(TView), metadata);
+        }
+
+        public static object? TryWrap(this IViewInfo viewInfo, Type wrapperType, IReadOnlyMetadataContext metadata)
+        {
+            Should.NotBeNull(viewInfo, nameof(viewInfo));
+            Should.NotBeNull(wrapperType, nameof(wrapperType));
+            if (wrapperType.IsInstanceOfTypeUnified(viewInfo.View))
+                return viewInfo.View;
+
+            var collection = viewInfo.Metadata.GetOrAdd(ViewMetadata.Wrappers, viewInfo, viewInfo, (context, _, __) => new ViewWrappersCollection((IObservableMetadataContext)context));
+            lock (collection)
             {
-                var wrapper = viewObj as IWrapperView;
-                if (wrapper?.View == null || wrapper.View == viewObj)
-                    return (TView)viewObj;
-                viewObj = wrapper.View;
+                var item = collection.FirstOrDefault(wrapperType.IsInstanceOfTypeUnified);
+                if (item == null)
+                {
+                    //todo rewrite
+                    var wrapperManager = Service<IWrapperManager>.Instance;
+                    if (!wrapperManager.CanWrap(viewInfo.View.GetType(), wrapperType, metadata))
+                        return null;
+
+                    item = wrapperManager.Wrap(viewInfo.View, wrapperType, metadata);
+                    collection.Add(item);
+                }
+
+                return item;
             }
+        }
+
+        public static bool CanWrap<TView>(this IViewInfo viewInfo, IReadOnlyMetadataContext metadata) where TView : class
+        {
+            return viewInfo.CanWrap(typeof(TView), metadata);
+        }
+
+        public static bool CanWrap(this IViewInfo viewInfo, Type wrapperType, IReadOnlyMetadataContext metadata)
+        {
+            Should.NotBeNull(viewInfo, nameof(viewInfo));
+            Should.NotBeNull(wrapperType, nameof(wrapperType));
+            return wrapperType.IsInstanceOfTypeUnified(viewInfo.View) || Service<IWrapperManager>.Instance.CanWrap(viewInfo.View.GetType(), wrapperType, metadata);
         }
 
         #endregion
