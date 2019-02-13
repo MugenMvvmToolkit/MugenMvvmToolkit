@@ -32,12 +32,13 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         #region Implementation of interfaces
 
         public INavigationCallback AddCallback(IViewModelPresenter presenter, IViewModelBase viewModel, NavigationCallbackType callbackType,
-            IChildViewModelPresenterResult presenterResult)
+            IChildViewModelPresenterResult presenterResult, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(presenterResult, nameof(presenterResult));
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(callbackType, nameof(callbackType));
             Should.NotBeNull(presenterResult, nameof(presenterResult));
+            Should.NotBeNull(metadata, nameof(metadata));
             var callback = AddCallbackInternal(presenter, viewModel, callbackType, presenterResult);
             OnCallbackAdded(viewModel, callback, presenterResult);
             return callback;

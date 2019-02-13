@@ -8,11 +8,11 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters.Results
     {
         #region Constructors
 
-        public ViewModelPresenterResult(IReadOnlyMetadataContext metadata, INavigationCallback showingCallback, INavigationCallback closeCallback)
+        public ViewModelPresenterResult(INavigationCallback showingCallback, INavigationCallback closeCallback, IReadOnlyMetadataContext metadata)
         {
-            Should.NotBeNull(metadata, nameof(metadata));
             Should.NotBeNull(showingCallback, nameof(showingCallback));
             Should.NotBeNull(closeCallback, nameof(closeCallback));
+            Should.NotBeNull(metadata, nameof(metadata));
             Metadata = metadata;
             ShowingCallback = showingCallback;
             CloseCallback = closeCallback;

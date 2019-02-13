@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Interfaces.Metadata;
+﻿using System.Collections.Generic;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation.Presenters.Results;
 
 namespace MugenMvvm.Interfaces.Navigation.Presenters
@@ -7,7 +8,7 @@ namespace MugenMvvm.Interfaces.Navigation.Presenters
     {
         void OnShown(IViewModelPresenter presenter, IReadOnlyMetadataContext metadata, IViewModelPresenterResult result);
 
-        void OnClosed(IViewModelPresenter presenter, IReadOnlyMetadataContext metadata, IClosingViewModelPresenterResult result);
+        void OnClosed(IViewModelPresenter presenter, IReadOnlyMetadataContext metadata, IReadOnlyList<IClosingViewModelPresenterResult> results);
 
         void OnRestored(IViewModelPresenter presenter, IReadOnlyMetadataContext metadata, IRestorationViewModelPresenterResult result);
     }

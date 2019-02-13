@@ -13,6 +13,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters.Results
 
         public ChildViewModelPresenterResult(INavigationProvider navigationProvider, NavigationType navigationType, IReadOnlyMetadataContext metadata)
         {
+            Should.NotBeNull(navigationProvider, nameof(navigationProvider));
             Should.NotBeNull(navigationType, nameof(navigationType));
             Should.NotBeNull(metadata, nameof(metadata));
             NavigationProvider = navigationProvider;

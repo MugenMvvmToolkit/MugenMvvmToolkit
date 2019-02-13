@@ -14,7 +14,7 @@ namespace MugenMvvm.Interfaces.Navigation.Presenters
 
         IViewModelPresenterResult Show(IReadOnlyMetadataContext metadata);
 
-        IClosingViewModelPresenterResult TryClose(IReadOnlyMetadataContext metadata);
+        IReadOnlyList<IClosingViewModelPresenterResult> TryClose(IReadOnlyMetadataContext metadata);
 
         IRestorationViewModelPresenterResult TryRestore(IReadOnlyMetadataContext metadata);
     }

@@ -19,13 +19,13 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters.Results
         {
             var callback = new NavigationCallback(NavigationCallbackType.Closing, NavigationType.Undefined, false, string.Empty);
             ((INavigationCallbackInternal)callback).SetResult(false, null);
-            FalseResult = new ClosingViewModelPresenterResult(Default.MetadataContext, callback);
+            FalseResult = new ClosingViewModelPresenterResult(callback, Default.MetadataContext);
         }
 
-        public ClosingViewModelPresenterResult(IReadOnlyMetadataContext metadata, INavigationCallback<bool> closingCallback)
+        public ClosingViewModelPresenterResult(INavigationCallback<bool> closingCallback, IReadOnlyMetadataContext metadata)
         {
-            Should.NotBeNull(metadata, nameof(metadata));
             Should.NotBeNull(closingCallback, nameof(closingCallback));
+            Should.NotBeNull(metadata, nameof(metadata));
             Metadata = metadata;
             ClosingCallback = closingCallback;
         }

@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Interfaces.Metadata;
+﻿using System.Collections.Generic;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation.Presenters.Results;
 
 namespace MugenMvvm.Interfaces.Navigation.Presenters
@@ -9,6 +10,6 @@ namespace MugenMvvm.Interfaces.Navigation.Presenters
 
         IChildViewModelPresenterResult? TryShow(IViewModelPresenter parentPresenter, IReadOnlyMetadataContext metadata);
 
-        IChildViewModelPresenterResult? TryClose(IViewModelPresenter parentPresenter, IReadOnlyMetadataContext metadata);
+        IReadOnlyList<IChildViewModelPresenterResult> TryClose(IViewModelPresenter parentPresenter, IReadOnlyMetadataContext metadata);
     }
 }

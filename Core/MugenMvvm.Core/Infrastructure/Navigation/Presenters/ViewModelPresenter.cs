@@ -17,7 +17,7 @@ using MugenMvvm.Interfaces.Navigation.Presenters.Results;
 
 namespace MugenMvvm.Infrastructure.Navigation.Presenters
 {
-    public class ViewModelPresenter : HasListenersBase<IViewModelPresenterListener>, IViewModelPresenter//todo multi close/restore?, tracer remove to listeners even for no close result, return empty metadata.
+    public class ViewModelPresenter : HasListenersBase<IViewModelPresenterListener>, IViewModelPresenter//todo tracer remove to listeners, return empty metadata.
     {
         #region Fields
 
@@ -72,15 +72,12 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             }
         }
 
-        public IClosingViewModelPresenterResult TryClose(IReadOnlyMetadataContext metadata)
+        public IReadOnlyList<IClosingViewModelPresenterResult> TryClose(IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(metadata, nameof(metadata));
             using (_presenters.SuspendNavigation())
             {
                 var result = TryCloseInternal(metadata);
-                if (result == null)
-                    return ClosingViewModelPresenterResult.FalseResult;
-
                 return OnClosedInternal(metadata, result);
             }
         }
@@ -88,10 +85,11 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         public IRestorationViewModelPresenterResult TryRestore(IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(metadata, nameof(metadata));
-            var result = TryRestoreInternal(metadata);
-            if (result == null)
-                return RestorationViewModelPresenterResult.Unrestored;
-            return OnRestoredInternal(metadata, result);
+            using (_presenters.SuspendNavigation())
+            {
+                var result = TryRestoreInternal(metadata);
+                return OnRestoredInternal(metadata, result);
+            }
         }
 
         #endregion
@@ -120,10 +118,10 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             if (viewModel == null)
                 throw ExceptionManager.PresenterInvalidRequest(metadata.Dump() + result.Metadata.Dump());
 
-            var showingCallback = CallbackManager.AddCallback(this, viewModel, NavigationCallbackType.Showing, result);
-            var closeCallback = CallbackManager.AddCallback(this, viewModel, NavigationCallbackType.Close, result);
+            var showingCallback = CallbackManager.AddCallback(this, viewModel, NavigationCallbackType.Showing, result, metadata);
+            var closeCallback = CallbackManager.AddCallback(this, viewModel, NavigationCallbackType.Close, result, metadata);
 
-            var r = new ViewModelPresenterResult(result.Metadata, showingCallback, closeCallback);
+            var r = new ViewModelPresenterResult(showingCallback, closeCallback, result.Metadata);
             var listeners = GetListenersInternal();
             if (listeners != null)
             {
@@ -134,17 +132,14 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             return r;
         }
 
-        protected virtual IChildViewModelPresenterResult? TryCloseInternal(IReadOnlyMetadataContext metadata)
+        protected virtual IReadOnlyList<IChildViewModelPresenterResult> TryCloseInternal(IReadOnlyMetadataContext metadata)
         {
+            var results = new List<IChildViewModelPresenterResult>();
             var presenters = Presenters.ToArray();
             for (var i = 0; i < presenters.Length; i++)
             {
                 var operation = presenters[i].TryClose(this, metadata);
-                if (operation != null)
-                {
-                    Trace("close", metadata, presenters[i], operation);
-                    return operation;
-                }
+                results.AddRange(operation);
             }
 
             var viewModel = metadata.Get(NavigationMetadata.ViewModel);
@@ -153,7 +148,11 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             {
                 var closeHandler = viewModel.Metadata.Get(ViewModelMetadata.CloseHandler);
                 if (closeHandler != null)
-                    return closeHandler(NavigationDispatcher, viewModel, metadata);
+                {
+                    var r = closeHandler(NavigationDispatcher, viewModel, metadata);
+                    if (r != null)
+                        results.Add(r);
+                }
 
                 //todo fix wrapperviewmodel
                 //                var wrapperViewModel = viewModel.Settings.Metadata.GetData(ViewModelConstants.WrapperViewModel);
@@ -165,17 +164,25 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 //                }
             }
 
-            return null;
+            return results;
         }
 
-        protected virtual IClosingViewModelPresenterResult OnClosedInternal(IReadOnlyMetadataContext metadata, IChildViewModelPresenterResult result)
+        protected virtual IReadOnlyList<IClosingViewModelPresenterResult> OnClosedInternal(IReadOnlyMetadataContext metadata, IReadOnlyList<IChildViewModelPresenterResult> results)
         {
-            var viewModel = metadata.Get(NavigationMetadata.ViewModel, result.Metadata.Get(NavigationMetadata.ViewModel));
-            if (viewModel == null)
-                throw ExceptionManager.PresenterInvalidRequest(metadata.Dump() + result.Metadata.Dump());
+            var r = new List<IClosingViewModelPresenterResult>();
+            for (int i = 0; i < results.Count; i++)
+            {
+                var result = results[i];
 
-            var callback = CallbackManager.AddCallback(this, viewModel, NavigationCallbackType.Closing, result);
-            var r = new ClosingViewModelPresenterResult(result.Metadata, (INavigationCallback<bool>)callback);
+                var viewModel = metadata.Get(NavigationMetadata.ViewModel, result.Metadata.Get(NavigationMetadata.ViewModel));
+                if (viewModel == null)
+                    throw ExceptionManager.PresenterInvalidRequest(metadata.Dump() + result.Metadata.Dump());
+
+                var callback = CallbackManager.AddCallback(this, viewModel, NavigationCallbackType.Closing, result, metadata);
+                r.Add(new ClosingViewModelPresenterResult((INavigationCallback<bool>)callback, result.Metadata));
+            }
+
+
             var listeners = GetListenersInternal();
             if (listeners != null)
             {
@@ -205,9 +212,9 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             return null;
         }
 
-        protected virtual IRestorationViewModelPresenterResult OnRestoredInternal(IReadOnlyMetadataContext metadata, IChildViewModelPresenterResult result)
+        protected virtual IRestorationViewModelPresenterResult OnRestoredInternal(IReadOnlyMetadataContext metadata, IChildViewModelPresenterResult? result)
         {
-            var r = new RestorationViewModelPresenterResult(result.Metadata, result.NavigationType, true);
+            var r = result == null ? RestorationViewModelPresenterResult.Unrestored : new RestorationViewModelPresenterResult(result.NavigationType, true, result.Metadata);
             var listeners = GetListenersInternal();
             if (listeners != null)
             {

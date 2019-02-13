@@ -10,7 +10,8 @@ namespace MugenMvvm.Interfaces.Navigation.Presenters
 {
     public interface IViewModelPresenterCallbackManager : IHasListeners<IViewModelPresenterCallbackManagerListener>
     {
-        INavigationCallback AddCallback(IViewModelPresenter presenter, IViewModelBase viewModel, NavigationCallbackType callbackType, IChildViewModelPresenterResult presenterResult);
+        INavigationCallback AddCallback(IViewModelPresenter presenter, IViewModelBase viewModel, NavigationCallbackType callbackType,
+            IChildViewModelPresenterResult presenterResult, IReadOnlyMetadataContext metadata);
 
         void OnNavigated(IViewModelPresenter presenter, INavigationContext context);
 

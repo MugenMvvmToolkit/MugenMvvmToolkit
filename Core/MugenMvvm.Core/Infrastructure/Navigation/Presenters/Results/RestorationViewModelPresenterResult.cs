@@ -16,13 +16,13 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters.Results
 
         static RestorationViewModelPresenterResult()
         {
-            Unrestored = new RestorationViewModelPresenterResult(Default.MetadataContext, NavigationType.Undefined, false);
+            Unrestored = new RestorationViewModelPresenterResult(NavigationType.Undefined, false, Default.MetadataContext);
         }
 
-        public RestorationViewModelPresenterResult(IReadOnlyMetadataContext metadata, NavigationType navigationType, bool isRestored)
+        public RestorationViewModelPresenterResult(NavigationType navigationType, bool isRestored, IReadOnlyMetadataContext metadata)
         {
-            Should.NotBeNull(metadata, nameof(metadata));
             Should.NotBeNull(navigationType, nameof(navigationType));
+            Should.NotBeNull(metadata, nameof(metadata));
             Metadata = metadata;
             NavigationType = navigationType;
             IsRestored = isRestored;
