@@ -1,5 +1,6 @@
 ﻿using System;
 using MugenMvvm.Interfaces.IoC;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm
 {
@@ -11,7 +12,7 @@ namespace MugenMvvm
         // ReSharper disable once StaticMemberInGenericType
         private static bool _hasOptionalValue;
         private static TService? _service;
-        private static IServiceConfiguration<TService>? _serviceConfiguration;
+        private static IHasService<TService>? _serviceConfiguration;
 
         #endregion
 
@@ -22,7 +23,7 @@ namespace MugenMvvm
             get
             {
                 if (_serviceConfiguration != null)
-                    return _serviceConfiguration.Instance;
+                    return _serviceConfiguration.Service;
                 if (_service == null)
                     _service = Service<IServiceProvider>.Instance.GetService<TService>();
                 return _service!;
@@ -34,7 +35,11 @@ namespace MugenMvvm
             get
             {
                 if (_serviceConfiguration != null)
-                    return _serviceConfiguration.InstanceOptional;
+                {
+                    if (_serviceConfiguration is IHasServiceOptional<TService> optional)
+                        return optional.ServiceOptional;
+                    return _serviceConfiguration.Service;
+                }
 
                 if (_service == null || !_hasOptionalValue)
                 {
@@ -50,7 +55,7 @@ namespace MugenMvvm
 
         #region Methods
 
-        public static void Initialize(IServiceConfiguration<TService>? serviceConfiguration)
+        public static void Initialize(IHasService<TService>? serviceConfiguration)
         {
             Initialize(service: null);
             _serviceConfiguration = serviceConfiguration;

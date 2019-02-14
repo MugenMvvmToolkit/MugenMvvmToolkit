@@ -11,6 +11,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Messaging;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Infrastructure.Navigation;
+using MugenMvvm.Infrastructure.Wrapping;
 using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.IoC;
@@ -303,22 +304,49 @@ namespace MugenMvvm
             return builder.ToString();
         }
 
-        public static void AddWrapper<TWrapper>(this IConfigurableWrapperManager wrapperManager, Type implementation,
-            Func<Type, IReadOnlyMetadataContext, bool>? condition = null, Func<object, IReadOnlyMetadataContext, TWrapper>? wrapperFactory = null)
-            where TWrapper : class
+        public static IWrapperManagerFactory AddWrapper(this IWrapperManager wrapperManager, Func<IWrapperManager, Type, Type, IReadOnlyMetadataContext, bool> condition,
+            Func<IWrapperManager, object, Type, IReadOnlyMetadataContext, object?> wrapperFactory)
         {
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
-            wrapperManager.AddWrapper(typeof(TWrapper), implementation, condition, wrapperFactory);
+            var factory = new DelegateWrapperManagerFactory(condition, wrapperFactory);
+            wrapperManager.AddWrapperFactory(factory);
+            return factory;
         }
 
-        public static void AddWrapper<TWrapper, TImplementation>(this IConfigurableWrapperManager wrapperManager, Func<Type, IReadOnlyMetadataContext, bool>? condition = null,
-            Func<object, IReadOnlyMetadataContext, TWrapper>? wrapperFactory = null)
+        public static IWrapperManagerFactory AddWrapper(this IWrapperManager wrapperManager, Type wrapperType, Type implementation,
+            Func<IWrapperManager, object, Type, IReadOnlyMetadataContext, object>? wrapperFactory = null)            
+        {
+            Should.NotBeNull(wrapperManager, nameof(wrapperManager));
+            Should.NotBeNull(wrapperType, nameof(wrapperType));
+            Should.BeOfType(implementation, nameof(implementation), wrapperType);
+            if (implementation.IsInterfaceUnified() || implementation.IsAbstractUnified())
+                throw ExceptionManager.WrapperTypeShouldBeNonAbstract(implementation);
+
+            if (wrapperFactory == null)
+            {
+                var constructor = implementation
+                    .GetConstructorsUnified(MemberFlags.InstanceOnly)
+                    .FirstOrDefault();
+                if (constructor == null)
+                    throw ExceptionManager.CannotFindConstructor(implementation);
+                wrapperFactory = (manager, o, arg3, arg4) => constructor.InvokeEx(o);
+            }
+            return wrapperManager.AddWrapper((manager, type, arg3, arg4) => wrapperType.EqualsEx(arg3), wrapperFactory);
+        }
+
+        public static IWrapperManagerFactory AddWrapper<TWrapper>(this IWrapperManager wrapperManager, Type implementation,
+            Func<IWrapperManager, object, Type, IReadOnlyMetadataContext, TWrapper>? wrapperFactory = null)
+            where TWrapper : class
+        {
+            return wrapperManager.AddWrapper(typeof(TWrapper), implementation, wrapperFactory);
+        }
+
+        public static IWrapperManagerFactory AddWrapper<TWrapper, TImplementation>(this IWrapperManager wrapperManager,
+            Func<IWrapperManager, object, Type, IReadOnlyMetadataContext, TWrapper>? wrapperFactory = null)
             where TWrapper : class
             where TImplementation : class, TWrapper
         {
-
-            Should.NotBeNull(wrapperManager, nameof(wrapperManager));
-            wrapperManager.AddWrapper(typeof(TImplementation), condition, wrapperFactory);
+            return wrapperManager.AddWrapper(typeof(TWrapper), typeof(TImplementation), wrapperFactory);
         }
 
         [StringFormatMethod("format")]

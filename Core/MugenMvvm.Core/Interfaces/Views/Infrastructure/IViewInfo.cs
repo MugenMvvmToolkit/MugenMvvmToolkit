@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Interfaces.Views.Infrastructure
 {
-    public interface IViewInfo : IHasMetadata<IObservableMetadataContext>//todo wrap
+    public interface IViewInfo : IHasMetadata<IObservableMetadataContext>
     {
         object View { get; }
 

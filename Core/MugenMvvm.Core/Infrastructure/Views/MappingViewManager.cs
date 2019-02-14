@@ -16,7 +16,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.Views
 {
-    public class MappingViewManager : IChildViewManager
+    public class MappingViewManager : IChildViewManager//todo add interface mapping?
     {
         #region Fields
 
@@ -200,7 +200,7 @@ namespace MugenMvvm.Infrastructure.Views
 
             ViewModelDispatcher.Subscribe(viewModel, view, ThreadExecutionMode.Main, metadata);
             DataContextProvider.SetDataContext(view, viewModel, metadata);
-            (view as IInitializableView)?.Initialize(viewModel, metadata);
+            (view as IInitializableView)?.Initialize(viewModel, viewInfo, metadata);
             parentViewManager.OnViewInitialized(viewModel, viewInfo, metadata);
 
             return new ViewManagerResult(viewModel, viewInfo, Default.MetadataContext);

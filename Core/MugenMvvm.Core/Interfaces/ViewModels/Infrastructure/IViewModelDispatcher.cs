@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.ViewModels.Infrastructure
 {
-    public interface IViewModelDispatcher : IHasListeners<IViewModelDispatcherListener> //todo continue, resolver, subscriber, internal listeners check opt!
+    public interface IViewModelDispatcher : IHasListeners<IViewModelDispatcherListener>
     {
         [Pure]
         object GetService(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext metadata);

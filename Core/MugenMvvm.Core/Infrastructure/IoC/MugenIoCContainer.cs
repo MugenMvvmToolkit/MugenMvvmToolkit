@@ -459,7 +459,7 @@ namespace MugenMvvm.Infrastructure.IoC
                     {
                         var constructor = FindConstructor(_type, parameters);
                         if (constructor == null)
-                            throw ExceptionManager.IoCCannotFindConstructor(_type);
+                            throw ExceptionManager.CannotFindConstructor(_type);
 
                         var result = constructor.InvokeEx(GetParameters(constructor, parameters));
                         SetProperties(result, parameters);

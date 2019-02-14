@@ -153,7 +153,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
             }
 
             var traceLevel = lifecycleState == ViewModelLifecycleState.Finalized ? TraceLevel.Error : TraceLevel.Information;
-            if (Tracer.CanTrace(traceLevel))
+            if (Tracer.CanTrace(traceLevel))//todo remove tracer
                 Tracer.Trace(traceLevel, MessageConstants.TraceViewModelLifecycleFormat3.Format(viewModel.GetType(), viewModel.GetHashCode(), lifecycleState));
         }
 

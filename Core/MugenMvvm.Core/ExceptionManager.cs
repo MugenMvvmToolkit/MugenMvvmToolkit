@@ -73,6 +73,11 @@ namespace MugenMvvm
             return new InvalidOperationException(MessageConstants.ViewNotFoundFormat2.Format(viewName, viewModelType));
         }
 
+        internal static Exception CannotFindConstructor(Type service)
+        {
+            return new InvalidOperationException(MessageConstants.CannotFindConstructorFormat1.Format(service));
+        }
+
         internal static Exception IoCCannotFindBinding(Type service)
         {
             return new InvalidOperationException(MessageConstants.IoCCannotFindBindingFormat1.Format(service));
@@ -81,11 +86,6 @@ namespace MugenMvvm
         internal static Exception IoCCyclicalDependency(Type service)
         {
             return new InvalidOperationException(MessageConstants.IoCCyclicalDependencyFormat1.Format(service));
-        }
-
-        internal static Exception IoCCannotFindConstructor(Type service)
-        {
-            return new InvalidOperationException(MessageConstants.IoCCannotFindConstructorFormat1.Format(service));
         }
 
         internal static Exception IoCMoreThatOneBinding(Type service)
