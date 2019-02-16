@@ -22,10 +22,6 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         private readonly PresentersCollection _presenters;
 
-        public const int NavigationPresenterPriority = -1;
-        public const int MultiViewModelPresenterPriority = 0;//todo check move to global constants
-        public const int GenericNavigationPresenterPriority = 1;
-
         #endregion
 
         #region Constructors
