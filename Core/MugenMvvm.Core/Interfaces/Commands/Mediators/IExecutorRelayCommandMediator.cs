@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm.Interfaces.Commands
+namespace MugenMvvm.Interfaces.Commands.Mediators
 {
     public interface IExecutorRelayCommandMediator : IConditionRelayCommandMediator, IConditionEventRelayCommandMediator, ISuspendNotifications
     {

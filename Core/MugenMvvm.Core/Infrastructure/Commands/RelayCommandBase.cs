@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Commands;
+using MugenMvvm.Interfaces.Commands.Mediators;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 

@@ -1,4 +1,4 @@
-﻿namespace MugenMvvm.Interfaces.Commands
+﻿namespace MugenMvvm.Interfaces.Commands.Mediators
 {
     public interface IConditionRelayCommandMediator : IRelayCommandMediator
     {

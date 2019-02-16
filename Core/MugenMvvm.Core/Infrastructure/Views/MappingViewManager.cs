@@ -16,7 +16,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.Views
 {
-    public class MappingViewManager : IChildViewManager//todo add interface mapping?
+    public class MappingViewManager : IChildViewManager
     {
         #region Fields
 

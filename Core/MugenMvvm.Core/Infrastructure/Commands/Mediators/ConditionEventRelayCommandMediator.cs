@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Threading;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Commands;
+using MugenMvvm.Interfaces.Commands.Mediators;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
@@ -46,7 +47,7 @@ namespace MugenMvvm.Infrastructure.Commands.Mediators
 
                 if (notifier is IHasService<IMessenger> hasMessenger)
                 {
-                    hasMessenger.Service.Subscribe(_subscriber, eventExecutionMode);//todo fix
+                    hasMessenger.Service.Subscribe(_subscriber, eventExecutionMode);
                     continue;
                 }
 

@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Commands;
+using MugenMvvm.Interfaces.Commands.Mediators;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Infrastructure.Commands.Mediators

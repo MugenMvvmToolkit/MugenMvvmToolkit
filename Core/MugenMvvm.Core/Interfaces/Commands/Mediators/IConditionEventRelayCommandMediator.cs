@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MugenMvvm.Interfaces.Commands
+namespace MugenMvvm.Interfaces.Commands.Mediators
 {
     public interface IConditionEventRelayCommandMediator : IRelayCommandMediator
     {
