@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.IoC;
 

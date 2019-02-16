@@ -1,8 +1,7 @@
 ﻿using System;
-using MugenMvvm.Interfaces.IoC;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm
+namespace MugenMvvm.Infrastructure
 {
     public class ServiceConfiguration<TService>
         where TService : class

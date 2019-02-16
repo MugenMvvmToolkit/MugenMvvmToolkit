@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm.Constants;
 
 namespace MugenMvvm
 {

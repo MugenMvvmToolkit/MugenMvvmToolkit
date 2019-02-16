@@ -1,4 +1,4 @@
-﻿namespace MugenMvvm
+﻿namespace MugenMvvm.Constants
 {
     internal static class MessageConstants
     {

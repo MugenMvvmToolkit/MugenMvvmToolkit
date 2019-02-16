@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 using MugenMvvm.Attributes;
+using MugenMvvm.Constants;
 using MugenMvvm.Models;
 
 namespace MugenMvvm.Enums

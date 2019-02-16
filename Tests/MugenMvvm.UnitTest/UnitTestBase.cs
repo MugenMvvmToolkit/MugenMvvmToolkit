@@ -1,4 +1,5 @@
 ﻿using MugenMvvm.Infrastructure;
+using MugenMvvm.Infrastructure.IoC;
 using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.UnitTest.TestInfrastructure;

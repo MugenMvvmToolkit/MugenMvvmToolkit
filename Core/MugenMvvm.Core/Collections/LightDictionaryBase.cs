@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using MugenMvvm.Attributes;
+using MugenMvvm.Constants;
 using MugenMvvm.Infrastructure;
 
 namespace MugenMvvm.Collections

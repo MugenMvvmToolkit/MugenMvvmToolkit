@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.Serialization;
 using MugenMvvm.Attributes;
+using MugenMvvm.Constants;
 
 namespace MugenMvvm.Collections
 {

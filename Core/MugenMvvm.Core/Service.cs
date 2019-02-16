@@ -1,4 +1,6 @@
-﻿namespace MugenMvvm
+﻿using MugenMvvm.Infrastructure;
+
+namespace MugenMvvm
 {
     public static class Service<TService>
         where TService : class

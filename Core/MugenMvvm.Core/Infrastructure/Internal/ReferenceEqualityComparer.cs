@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using MugenMvvm.Constants;
 
 namespace MugenMvvm.Infrastructure.Internal
 {
