@@ -4,14 +4,13 @@ using System.ComponentModel;
 using System.Threading;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Commands;
-using MugenMvvm.Interfaces.Commands.Mediators;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Models;
 
-namespace MugenMvvm.Infrastructure.Commands.Mediators
+namespace MugenMvvm.Infrastructure.Commands
 {
     public sealed class ConditionEventRelayCommandMediator : IConditionEventRelayCommandMediator, IThreadDispatcherHandler, ISuspendNotifications
     {

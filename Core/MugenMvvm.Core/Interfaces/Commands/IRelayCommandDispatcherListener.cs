@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using MugenMvvm.Interfaces.Commands.Mediators;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Commands

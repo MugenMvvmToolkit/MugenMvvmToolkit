@@ -7,13 +7,11 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Internal;
-using MugenMvvm.Infrastructure.Navigation.Presenters.Results;
 using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Presenters;
-using MugenMvvm.Interfaces.Navigation.Presenters.Results;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.Navigation.Presenters

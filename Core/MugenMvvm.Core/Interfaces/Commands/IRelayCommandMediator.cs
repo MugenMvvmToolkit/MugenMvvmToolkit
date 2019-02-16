@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MugenMvvm.Interfaces.Commands.Mediators
+namespace MugenMvvm.Interfaces.Commands
 {
     public interface IRelayCommandMediator : IDisposable
     {

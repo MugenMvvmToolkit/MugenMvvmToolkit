@@ -7,7 +7,6 @@ using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Presenters;
-using MugenMvvm.Interfaces.Navigation.Presenters.Results;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Metadata;
 

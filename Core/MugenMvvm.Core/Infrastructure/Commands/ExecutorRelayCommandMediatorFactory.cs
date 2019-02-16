@@ -2,15 +2,12 @@
 using System.Collections.Generic;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
-using MugenMvvm.Infrastructure.Commands.Mediators;
 using MugenMvvm.Interfaces.Commands;
-using MugenMvvm.Interfaces.Commands.Factories;
-using MugenMvvm.Interfaces.Commands.Mediators;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Metadata;
 
-namespace MugenMvvm.Infrastructure.Commands.Factories
+namespace MugenMvvm.Infrastructure.Commands
 {
     public class ExecutorRelayCommandMediatorFactory : IExecutorRelayCommandMediatorFactory, IRelayCommandMediatorFactory
     {

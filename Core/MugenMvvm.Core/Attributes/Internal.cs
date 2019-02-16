@@ -1,7 +1,7 @@
 ﻿using System;
+// ReSharper disable CheckNamespace
 
 #if !NET40
-// ReSharper disable once CheckNamespace
 namespace System
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Enum | AttributeTargets.Delegate,

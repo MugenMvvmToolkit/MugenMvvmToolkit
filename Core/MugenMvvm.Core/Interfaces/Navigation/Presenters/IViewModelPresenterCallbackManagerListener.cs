@@ -1,5 +1,4 @@
-﻿using MugenMvvm.Interfaces.Navigation.Presenters.Results;
-using MugenMvvm.Interfaces.ViewModels;
+﻿using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Interfaces.Navigation.Presenters
 {

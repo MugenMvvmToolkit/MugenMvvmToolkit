@@ -3,10 +3,9 @@ using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Presenters;
-using MugenMvvm.Interfaces.Navigation.Presenters.Results;
 using MugenMvvm.Metadata;
 
-namespace MugenMvvm.Infrastructure.Navigation.Presenters.Results
+namespace MugenMvvm.Infrastructure.Navigation.Presenters
 {
     public class ChildViewModelPresenterResult : IChildViewModelPresenterResult
     {

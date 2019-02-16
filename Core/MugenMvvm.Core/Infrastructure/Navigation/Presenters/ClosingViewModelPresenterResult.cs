@@ -1,9 +1,9 @@
 ﻿using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
-using MugenMvvm.Interfaces.Navigation.Presenters.Results;
+using MugenMvvm.Interfaces.Navigation.Presenters;
 
-namespace MugenMvvm.Infrastructure.Navigation.Presenters.Results
+namespace MugenMvvm.Infrastructure.Navigation.Presenters
 {
     public class ClosingViewModelPresenterResult : IClosingViewModelPresenterResult
     {

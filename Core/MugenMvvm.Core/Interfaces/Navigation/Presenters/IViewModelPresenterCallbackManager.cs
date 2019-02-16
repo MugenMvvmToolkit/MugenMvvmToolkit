@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Interfaces.Navigation.Presenters.Results;
 using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Interfaces.Navigation.Presenters
