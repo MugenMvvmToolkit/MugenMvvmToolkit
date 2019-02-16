@@ -25,7 +25,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         private readonly PresentersCollection _presenters;
 
         public const int NavigationPresenterPriority = -1;
-        public const int MultiViewModelPresenterPriority = 0;//todo check
+        public const int MultiViewModelPresenterPriority = 0;//todo check move to global constants
         public const int GenericNavigationPresenterPriority = 1;
 
         #endregion
@@ -122,7 +122,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             var showingCallback = CallbackManager.AddCallback(this, viewModel, NavigationCallbackType.Showing, result, metadata);
             var closeCallback = CallbackManager.AddCallback(this, viewModel, NavigationCallbackType.Close, result, metadata);
 
-            var r = new ViewModelPresenterResult(showingCallback, closeCallback, result.Metadata);
+            var r = new ViewModelPresenterResult(viewModel, showingCallback, closeCallback, result.Metadata);
             var listeners = GetListenersInternal();
             if (listeners != null)
             {
@@ -142,29 +142,6 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 var operation = presenters[i].TryClose(this, metadata);
                 results.AddRange(operation);
             }
-
-            var viewModel = metadata.Get(NavigationMetadata.ViewModel);
-
-            if (viewModel != null)
-            {
-                var closeHandler = viewModel.Metadata.Get(ViewModelMetadata.CloseHandler);
-                if (closeHandler != null)
-                {
-                    var r = closeHandler(NavigationDispatcher, viewModel, metadata);
-                    if (r != null)
-                        results.Add(r);
-                }
-
-                //todo fix wrapperviewmodel
-                //                var wrapperViewModel = viewModel.Settings.Metadata.GetData(ViewModelConstants.WrapperViewModel);
-                //                if (wrapperViewModel != null)
-                //                {
-                //                    var ctx = new MetadataContext(metadata);
-                //                    ctx.Set(NavigationMetadata.ViewModel, wrapperViewModel);
-                //                    return TryCloseInternal(metadata);
-                //                }
-            }
-
             return results;
         }
 

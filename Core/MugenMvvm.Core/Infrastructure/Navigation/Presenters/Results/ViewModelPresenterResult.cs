@@ -1,6 +1,7 @@
 ﻿using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Presenters.Results;
+using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Infrastructure.Navigation.Presenters.Results
 {
@@ -8,11 +9,13 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters.Results
     {
         #region Constructors
 
-        public ViewModelPresenterResult(INavigationCallback showingCallback, INavigationCallback closeCallback, IReadOnlyMetadataContext metadata)
+        public ViewModelPresenterResult(IViewModelBase viewModel, INavigationCallback showingCallback, INavigationCallback closeCallback, IReadOnlyMetadataContext metadata)
         {
+            Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(showingCallback, nameof(showingCallback));
             Should.NotBeNull(closeCallback, nameof(closeCallback));
             Should.NotBeNull(metadata, nameof(metadata));
+            ViewModel = viewModel;
             Metadata = metadata;
             ShowingCallback = showingCallback;
             CloseCallback = closeCallback;
@@ -21,6 +24,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters.Results
         #endregion
 
         #region Properties
+
+        public IViewModelBase ViewModel { get; }
 
         public IReadOnlyMetadataContext Metadata { get; }
 
