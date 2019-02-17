@@ -5,36 +5,26 @@ using MugenMvvm.Interfaces.Navigation.Presenters;
 
 namespace MugenMvvm.Infrastructure.Navigation.Presenters
 {
-    public class ClosingViewModelPresenterResult : IClosingViewModelPresenterResult
+    public class ClosingViewModelPresenterResult : ChildViewModelPresenterResult, IClosingViewModelPresenterResult
     {
-        #region Fields
-
-        public static readonly IClosingViewModelPresenterResult FalseResult;
-
-        #endregion
-
         #region Constructors
 
-        static ClosingViewModelPresenterResult()
-        {
-            var callback = new NavigationCallback(NavigationCallbackType.Closing, NavigationType.Undefined, false, string.Empty);
-            ((INavigationCallbackInternal)callback).SetResult(false, null);
-            FalseResult = new ClosingViewModelPresenterResult(callback, Default.MetadataContext);
-        }
-
-        public ClosingViewModelPresenterResult(INavigationCallback<bool> closingCallback, IReadOnlyMetadataContext metadata)
+        public ClosingViewModelPresenterResult(INavigationCallback<bool> closingCallback, INavigationProvider navigationProvider, NavigationType navigationType,
+            IReadOnlyMetadataContext metadata, IChildViewModelPresenter? presenter)
+            : base(navigationProvider, navigationType, metadata, presenter)
         {
             Should.NotBeNull(closingCallback, nameof(closingCallback));
-            Should.NotBeNull(metadata, nameof(metadata));
-            Metadata = metadata;
             ClosingCallback = closingCallback;
+        }
+
+        public ClosingViewModelPresenterResult(INavigationCallback<bool> closingCallback, IChildViewModelPresenterResult childResult)
+            : this(closingCallback, childResult.NavigationProvider, childResult.NavigationType, childResult.Metadata, childResult.Presenter)
+        {
         }
 
         #endregion
 
         #region Properties
-
-        public IReadOnlyMetadataContext Metadata { get; }
 
         public INavigationCallback<bool> ClosingCallback { get; }
 

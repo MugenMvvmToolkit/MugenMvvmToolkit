@@ -17,7 +17,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.Navigation.Presenters
 {
-    public class ViewModelPresenter : HasListenersBase<IViewModelPresenterListener>, IViewModelPresenter//todo tracer remove to listeners, return empty metadata.
+    public class ViewModelPresenter : HasListenersBase<IViewModelPresenterListener>, IViewModelPresenter//todo tracer remove to listeners, return empty metadata
     {
         #region Fields
 
@@ -97,7 +97,11 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             var presenters = Presenters.ToArray();
             for (var i = 0; i < presenters.Length; i++)
             {
-                var operation = presenters[i].TryShow(this, metadata);
+                var presenter = presenters[i];
+                if (!CanShow(presenter, metadata))
+                    continue;
+
+                var operation = presenter.TryShow(this, metadata);
                 if (operation != null)
                 {
                     Trace("show", metadata, presenters[i], operation);
@@ -110,14 +114,19 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         protected virtual IViewModelPresenterResult OnShownInternal(IReadOnlyMetadataContext metadata, IChildViewModelPresenterResult result)
         {
-            var viewModel = metadata.Get(NavigationMetadata.ViewModel, result.Metadata.Get(NavigationMetadata.ViewModel));
-            if (viewModel == null)
-                throw ExceptionManager.PresenterInvalidRequest(metadata.Dump() + result.Metadata.Dump());
+            var r = result as IViewModelPresenterResult;
+            if (r == null)
+            {
+                var viewModel = metadata.Get(NavigationMetadata.ViewModel, result.Metadata.Get(NavigationMetadata.ViewModel));
+                if (viewModel == null)
+                    throw ExceptionManager.PresenterInvalidRequest(metadata.Dump() + result.Metadata.Dump());
 
-            var showingCallback = CallbackManager.AddCallback(this, viewModel, NavigationCallbackType.Showing, result, metadata);
-            var closeCallback = CallbackManager.AddCallback(this, viewModel, NavigationCallbackType.Close, result, metadata);
+                var showingCallback = CallbackManager.AddCallback(this, viewModel, NavigationCallbackType.Showing, result, metadata);
+                var closeCallback = CallbackManager.AddCallback(this, viewModel, NavigationCallbackType.Close, result, metadata);
 
-            var r = new ViewModelPresenterResult(viewModel, showingCallback, closeCallback, result.Metadata);
+                r = new ViewModelPresenterResult(viewModel, showingCallback, closeCallback, result);
+            }
+
             var listeners = GetListenersInternal();
             if (listeners != null)
             {
@@ -134,8 +143,13 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             var presenters = Presenters.ToArray();
             for (var i = 0; i < presenters.Length; i++)
             {
-                var operation = presenters[i].TryClose(this, metadata);
-                results.AddRange(operation);
+                var presenter = presenters[i];
+                if (!CanClose(presenter, metadata))
+                    continue;
+
+                var operations = presenter.TryClose(this, metadata);
+                if (operations != null)
+                    results.AddRange(operations);
             }
             return results;
         }
@@ -147,12 +161,17 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             {
                 var result = results[i];
 
-                var viewModel = metadata.Get(NavigationMetadata.ViewModel, result.Metadata.Get(NavigationMetadata.ViewModel));
-                if (viewModel == null)
-                    throw ExceptionManager.PresenterInvalidRequest(metadata.Dump() + result.Metadata.Dump());
+                if (result is IClosingViewModelPresenterResult closingViewModelPresenterResult)
+                    r.Add(closingViewModelPresenterResult);
+                else
+                {
+                    var viewModel = metadata.Get(NavigationMetadata.ViewModel, result.Metadata.Get(NavigationMetadata.ViewModel));
+                    if (viewModel == null)
+                        throw ExceptionManager.PresenterInvalidRequest(metadata.Dump() + result.Metadata.Dump());
 
-                var callback = CallbackManager.AddCallback(this, viewModel, NavigationCallbackType.Closing, result, metadata);
-                r.Add(new ClosingViewModelPresenterResult((INavigationCallback<bool>)callback, result.Metadata));
+                    var callback = CallbackManager.AddCallback(this, viewModel, NavigationCallbackType.Closing, result, metadata);
+                    r.Add(new ClosingViewModelPresenterResult((INavigationCallback<bool>)callback, result));
+                }
             }
 
 
@@ -171,7 +190,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             var presenters = Presenters.ToArray();
             for (var i = 0; i < presenters.Length; i++)
             {
-                if (presenters[i] is IRestorableChildViewModelPresenter presenter)
+                if (presenters[i] is IRestorableChildViewModelPresenter presenter && CanRestore(presenter, metadata))
                 {
                     var result = presenter.TryRestore(this, metadata);
                     if (result != null)
@@ -187,7 +206,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         protected virtual IRestorationViewModelPresenterResult OnRestoredInternal(IReadOnlyMetadataContext metadata, IChildViewModelPresenterResult? result)
         {
-            var r = result == null ? RestorationViewModelPresenterResult.Unrestored : new RestorationViewModelPresenterResult(result.NavigationType, true, result.Metadata);
+            var r = result == null ? RestorationViewModelPresenterResult.Unrestored
+                : (result as IRestorationViewModelPresenterResult ?? new RestorationViewModelPresenterResult(true, result));
             var listeners = GetListenersInternal();
             if (listeners != null)
             {
@@ -204,6 +224,54 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         protected virtual void OnChildPresenterRemoved(IChildViewModelPresenter presenter)
         {
+        }
+
+        protected virtual bool CanShow(IChildViewModelPresenter childPresenter, IReadOnlyMetadataContext metadata)
+        {
+            var listeners = GetListenersInternal();
+            if (listeners != null)
+            {
+                for (int i = 0; i < listeners.Length; i++)
+                {
+                    var canShow = (listeners[i] as IConditionViewModelPresenterListener)?.CanShow(this, childPresenter, metadata) ?? true;
+                    if (!canShow)
+                        return false;
+                }
+            }
+
+            return true;
+        }
+
+        protected virtual bool CanClose(IChildViewModelPresenter childPresenter, IReadOnlyMetadataContext metadata)
+        {
+            var listeners = GetListenersInternal();
+            if (listeners != null)
+            {
+                for (int i = 0; i < listeners.Length; i++)
+                {
+                    var canClose = (listeners[i] as IConditionViewModelPresenterListener)?.CanClose(this, childPresenter, metadata) ?? true;
+                    if (!canClose)
+                        return false;
+                }
+            }
+
+            return true;
+        }
+
+        protected virtual bool CanRestore(IRestorableChildViewModelPresenter childPresenter, IReadOnlyMetadataContext metadata)
+        {
+            var listeners = GetListenersInternal();
+            if (listeners != null)
+            {
+                for (int i = 0; i < listeners.Length; i++)
+                {
+                    var canRestore = (listeners[i] as IConditionViewModelPresenterListener)?.CanRestore(this, childPresenter, metadata) ?? true;
+                    if (!canRestore)
+                        return false;
+                }
+            }
+
+            return true;
         }
 
         private void Trace(string requestName, IReadOnlyMetadataContext metadata, IChildViewModelPresenter presenter,

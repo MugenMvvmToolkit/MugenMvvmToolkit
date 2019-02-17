@@ -5,12 +5,14 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Serialization;
 
 namespace MugenMvvm
@@ -32,6 +34,7 @@ namespace MugenMvvm
         internal static readonly PropertyChangedEventArgs IndexerPropertyChangedArgs;
         internal static readonly NotifyCollectionChangedEventArgs ResetCollectionEventArgs;
         internal static Action NoDoAction;
+        private static int _counter;
 
         public static readonly NullValue SerializableNullValue;
         public static readonly IReadOnlyMetadataContext MetadataContext;
@@ -40,6 +43,7 @@ namespace MugenMvvm
         public static readonly Task CompletedTask;
         public static readonly Task<bool> TrueTask;
         public static readonly Task<bool> FalseTask;
+        public static readonly INavigationProvider NavigationProvider;
 
         #endregion
 
@@ -59,13 +63,15 @@ namespace MugenMvvm
             IndexerPropertyChangedArgs = new PropertyChangedEventArgs(IndexerName);
             NoDoAction = NoDo;
 
-            MetadataContext = new EmptyContext();
+            var emptyContext = new EmptyContext();
+            MetadataContext = emptyContext;
             SerializableNullValue = new NullValue();
             WeakReference = new WeakReference(null, false);
-            Disposable = (IDisposable)MetadataContext;
+            Disposable = (IDisposable) MetadataContext;
             TrueTask = Task.FromResult(true);
             FalseTask = Task.FromResult(false);
             CompletedTask = FalseTask;
+            NavigationProvider = emptyContext;
         }
 
         #endregion
@@ -94,6 +100,11 @@ namespace MugenMvvm
             if (string.IsNullOrEmpty(propertyName))
                 return EmptyPropertyChangedArgs;
             return new PropertyChangedEventArgs(propertyName);
+        }
+
+        internal static int NextCounter()
+        {
+            return Interlocked.Increment(ref _counter);
         }
 
         private static void NoDo()
@@ -134,7 +145,7 @@ namespace MugenMvvm
             #endregion
         }
 
-        private sealed class EmptyContext : IReadOnlyMetadataContext, IDisposable
+        private sealed class EmptyContext : IReadOnlyMetadataContext, IDisposable, INavigationProvider
         {
             #region Fields
 
@@ -145,6 +156,8 @@ namespace MugenMvvm
             #region Properties
 
             public int Count => 0;
+
+            public string Id => string.Empty;
 
             #endregion
 

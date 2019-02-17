@@ -11,12 +11,13 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
     {
         #region Constructors
 
-        public ChildViewModelPresenterResult(INavigationProvider navigationProvider, NavigationType navigationType, IReadOnlyMetadataContext metadata)
+        public ChildViewModelPresenterResult(INavigationProvider navigationProvider, NavigationType navigationType, IReadOnlyMetadataContext metadata, IChildViewModelPresenter? presenter)
         {
             Should.NotBeNull(navigationProvider, nameof(navigationProvider));
             Should.NotBeNull(navigationType, nameof(navigationType));
             Should.NotBeNull(metadata, nameof(metadata));
             NavigationProvider = navigationProvider;
+            Presenter = presenter;
             Metadata = metadata;
             NavigationType = navigationType;
         }
@@ -25,7 +26,9 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         #region Properties
 
-        public INavigationProvider NavigationProvider { get; }
+        public INavigationProvider NavigationProvider { get;  }
+
+        public IChildViewModelPresenter? Presenter { get; }
 
         public IReadOnlyMetadataContext Metadata { get; }
 
@@ -36,17 +39,12 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         #region Methods
 
         public static IChildViewModelPresenterResult CreateShowResult(INavigationProvider navigationProvider, NavigationType navigationType, IReadOnlyMetadataContext metadata,
-            IChildViewModelPresenter presenter)
+            IChildViewModelPresenter presenter, bool? isRestorableCallback = null)
         {
             Should.NotBeNull(presenter, nameof(presenter));
-            return CreateShowResult(navigationProvider, navigationType, metadata, presenter is IRestorableChildViewModelPresenter);
-        }
-
-        public static IChildViewModelPresenterResult CreateShowResult(INavigationProvider navigationProvider, NavigationType navigationType, IReadOnlyMetadataContext metadata, bool isRestorableCallback)
-        {
             var resultMetadata = new MetadataContext(metadata);
-            resultMetadata.Set(NavigationInternalMetadata.IsRestorableCallback, isRestorableCallback);
-            return new ChildViewModelPresenterResult(navigationProvider, navigationType, resultMetadata);
+            resultMetadata.Set(NavigationInternalMetadata.IsRestorableCallback, isRestorableCallback.GetValueOrDefault(presenter is IRestorableChildViewModelPresenter));
+            return new ChildViewModelPresenterResult(navigationProvider, navigationType, resultMetadata, presenter);
         }
 
         #endregion

@@ -1,13 +1,7 @@
-﻿using MugenMvvm.Enums;
-using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
-
-namespace MugenMvvm.Interfaces.Navigation.Presenters
+﻿namespace MugenMvvm.Interfaces.Navigation.Presenters
 {
-    public interface IRestorationViewModelPresenterResult : IHasMetadata<IReadOnlyMetadataContext>
+    public interface IRestorationViewModelPresenterResult : IChildViewModelPresenterResult
     {
-        NavigationType NavigationType { get; }
-
         bool IsRestored { get; }
     }
 }

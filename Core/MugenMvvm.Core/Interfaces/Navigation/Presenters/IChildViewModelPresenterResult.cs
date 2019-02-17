@@ -9,5 +9,7 @@ namespace MugenMvvm.Interfaces.Navigation.Presenters
         NavigationType NavigationType { get; }
 
         INavigationProvider NavigationProvider { get; }
+
+        IChildViewModelPresenter? Presenter { get; }
     }
 }

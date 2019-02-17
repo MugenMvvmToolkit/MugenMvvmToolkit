@@ -1,9 +1,6 @@
-﻿using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
-
-namespace MugenMvvm.Interfaces.Navigation.Presenters
+﻿namespace MugenMvvm.Interfaces.Navigation.Presenters
 {
-    public interface IClosingViewModelPresenterResult : IHasMetadata<IReadOnlyMetadataContext>
+    public interface IClosingViewModelPresenterResult : IChildViewModelPresenterResult
     {
         INavigationCallback<bool> ClosingCallback { get; }
     }

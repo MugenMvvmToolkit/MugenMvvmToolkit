@@ -1,10 +1,11 @@
 ﻿using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Presenters;
 
 namespace MugenMvvm.Infrastructure.Navigation.Presenters
 {
-    public class RestorationViewModelPresenterResult : IRestorationViewModelPresenterResult
+    public class RestorationViewModelPresenterResult : ChildViewModelPresenterResult, IRestorationViewModelPresenterResult
     {
         #region Fields
 
@@ -16,25 +17,24 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         static RestorationViewModelPresenterResult()
         {
-            Unrestored = new RestorationViewModelPresenterResult(NavigationType.Undefined, false, Default.MetadataContext);
+            Unrestored = new RestorationViewModelPresenterResult(false, Default.NavigationProvider, NavigationType.Undefined, Default.MetadataContext, null);
         }
 
-        public RestorationViewModelPresenterResult(NavigationType navigationType, bool isRestored, IReadOnlyMetadataContext metadata)
+        public RestorationViewModelPresenterResult(bool isRestored, INavigationProvider navigationProvider, NavigationType navigationType,
+            IReadOnlyMetadataContext metadata, IChildViewModelPresenter? presenter)
+            : base(navigationProvider, navigationType, metadata, presenter)
         {
-            Should.NotBeNull(navigationType, nameof(navigationType));
-            Should.NotBeNull(metadata, nameof(metadata));
-            Metadata = metadata;
-            NavigationType = navigationType;
             IsRestored = isRestored;
+        }
+
+        public RestorationViewModelPresenterResult(bool isRestored, IChildViewModelPresenterResult childResult)
+            : this(isRestored, childResult.NavigationProvider, childResult.NavigationType, childResult.Metadata, childResult.Presenter)
+        {
         }
 
         #endregion
 
         #region Properties
-
-        public IReadOnlyMetadataContext Metadata { get; }
-
-        public NavigationType NavigationType { get; }
 
         public bool IsRestored { get; }
 
