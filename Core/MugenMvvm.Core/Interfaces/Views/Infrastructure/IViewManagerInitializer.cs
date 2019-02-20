@@ -7,6 +7,8 @@ namespace MugenMvvm.Interfaces.Views.Infrastructure
 {
     public interface IViewManagerInitializer : IHasMetadata<IReadOnlyMetadataContext>
     {
+        string Id { get; }
+
         Task<IViewManagerResult> InitializeAsync(IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata);
     }
 }

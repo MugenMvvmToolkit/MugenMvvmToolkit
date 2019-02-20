@@ -11,6 +11,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Messaging;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Infrastructure.Navigation;
+using MugenMvvm.Infrastructure.Views;
 using MugenMvvm.Infrastructure.Wrapping;
 using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.BusyIndicator;
@@ -314,7 +315,7 @@ namespace MugenMvvm
         }
 
         public static IWrapperManagerFactory AddWrapper(this IWrapperManager wrapperManager, Type wrapperType, Type implementation,
-            Func<IWrapperManager, object, Type, IReadOnlyMetadataContext, object>? wrapperFactory = null)            
+            Func<IWrapperManager, object, Type, IReadOnlyMetadataContext, object>? wrapperFactory = null)
         {
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
             Should.NotBeNull(wrapperType, nameof(wrapperType));
@@ -530,28 +531,18 @@ namespace MugenMvvm
 
         public static object? TryWrap(this IViewInfo viewInfo, Type wrapperType, IReadOnlyMetadataContext metadata)
         {
-            Should.NotBeNull(viewInfo, nameof(viewInfo));
-            Should.NotBeNull(wrapperType, nameof(wrapperType));
-            if (wrapperType.IsInstanceOfTypeUnified(viewInfo.View))
-                return viewInfo.View;
+            return WrapInternal(viewInfo, wrapperType, metadata, true);
+        }
 
-            var collection = viewInfo.Metadata.GetOrAdd(ViewMetadata.Wrappers, viewInfo, viewInfo, (context, _, __) => new ViewWrappersCollection((IObservableMetadataContext)context));
-            lock (collection)
-            {
-                var item = collection.FirstOrDefault(wrapperType.IsInstanceOfTypeUnified);
-                if (item == null)
-                {
-                    //todo rewrite
-                    var wrapperManager = Service<IWrapperManager>.Instance;
-                    if (!wrapperManager.CanWrap(viewInfo.View.GetType(), wrapperType, metadata))
-                        return null;
+        public static TView Wrap<TView>(this IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
+            where TView : class
+        {
+            return (TView)viewInfo.TryWrap(typeof(TView), metadata);
+        }
 
-                    item = wrapperManager.Wrap(viewInfo.View, wrapperType, metadata);
-                    collection.Add(item);
-                }
-
-                return item;
-            }
+        public static object Wrap(this IViewInfo viewInfo, Type wrapperType, IReadOnlyMetadataContext metadata)
+        {
+            return WrapInternal(viewInfo, wrapperType, metadata, false);
         }
 
         public static bool CanWrap<TView>(this IViewInfo viewInfo, IReadOnlyMetadataContext metadata) where TView : class
@@ -564,6 +555,31 @@ namespace MugenMvvm
             Should.NotBeNull(viewInfo, nameof(viewInfo));
             Should.NotBeNull(wrapperType, nameof(wrapperType));
             return wrapperType.IsInstanceOfTypeUnified(viewInfo.View) || Service<IWrapperManager>.Instance.CanWrap(viewInfo.View.GetType(), wrapperType, metadata);
+        }
+
+        private static object? WrapInternal(this IViewInfo viewInfo, Type wrapperType, IReadOnlyMetadataContext metadata, bool checkCanWrap)
+        {
+            Should.NotBeNull(viewInfo, nameof(viewInfo));
+            Should.NotBeNull(wrapperType, nameof(wrapperType));
+            if (wrapperType.IsInstanceOfTypeUnified(viewInfo.View))
+                return viewInfo.View;
+
+            var collection = viewInfo.Metadata.GetOrAdd(ViewMetadata.Wrappers, viewInfo, viewInfo, (context, _, __) => new ViewWrappersCollection((IObservableMetadataContext)context));
+            lock (collection)
+            {
+                var item = collection.FirstOrDefault(wrapperType.IsInstanceOfTypeUnified);
+                if (item == null)
+                {
+                    var wrapperManager = Service<IWrapperManager>.Instance;
+                    if (checkCanWrap && !wrapperManager.CanWrap(viewInfo.View.GetType(), wrapperType, metadata))
+                        return null;
+
+                    item = wrapperManager.Wrap(viewInfo.View, wrapperType, metadata);
+                    collection.Add(item);
+                }
+
+                return item;
+            }
         }
 
         #endregion

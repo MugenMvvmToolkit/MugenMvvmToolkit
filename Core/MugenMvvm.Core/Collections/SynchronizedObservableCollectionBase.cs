@@ -11,7 +11,7 @@ namespace MugenMvvm.Collections
     [Serializable]
     public abstract class SynchronizedObservableCollectionBase<T, TItems> : HasListenersBase<IObservableCollectionChangedListener>,
         IList, IReadOnlyList<T>, IObservableCollection<T>
-        where TItems : class, IList<T>
+        where TItems : class, IList<T>//todo add decorators
     {
         #region Fields
 

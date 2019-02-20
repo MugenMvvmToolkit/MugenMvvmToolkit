@@ -5,6 +5,7 @@ using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Serialization;
+using MugenMvvm.Interfaces.Views.Infrastructure;
 
 namespace MugenMvvm.Metadata
 {
@@ -12,24 +13,26 @@ namespace MugenMvvm.Metadata
     {
         #region Fields
 
-        private static IMetadataContextKey<object?> _restoredView;
+        private static IMetadataContextKey<IViewInfo?> _restoredView;
         private static IMetadataContextKey<bool> _isRestorableCallback;
         private static IMetadataContextKey<IList<INavigationCallbackInternal>?> _showingCallbacks;
         private static IMetadataContextKey<IList<INavigationCallbackInternal>?> _closingCallbacks;
         private static IMetadataContextKey<IList<INavigationCallbackInternal?>?> _closeCallbacks;
         private static IMetadataContextKey<NavigationType?> _viewModelFromNavigationType;
         private static IMetadataContextKey<NavigationType?> _viewModelToNavigationType;
+        private static IMetadataContextKey<IList<INavigationMediator>?> _navigationMediators;
+        private static IMetadataContextKey<bool> _closeAll;
 
         #endregion
 
         #region Properties
 
-        public static IMetadataContextKey<object?> RestoredView
+        public static IMetadataContextKey<IViewInfo?> RestoredView
         {
             get
             {
                 if (_restoredView == null)
-                    _restoredView = GetBuilder<object?>(nameof(RestoredView)).NotNull().Build();
+                    _restoredView = GetBuilder<IViewInfo?>(nameof(RestoredView)).NotNull().Build();
                 return _restoredView;
             }
             set => _restoredView = value;
@@ -105,6 +108,28 @@ namespace MugenMvvm.Metadata
                 return _viewModelToNavigationType;
             }
             set => _viewModelToNavigationType = value;
+        }
+
+        public static IMetadataContextKey<IList<INavigationMediator>?> NavigationMediators
+        {
+            get
+            {
+                if (_navigationMediators == null)
+                    _navigationMediators = GetBuilder<IList<INavigationMediator>?>(nameof(NavigationMediators)).Build();
+                return _navigationMediators;
+            }
+            set => _navigationMediators = value;
+        }
+
+        public static IMetadataContextKey<bool> CloseAll
+        {
+            get
+            {
+                if (_closeAll == null)
+                    _closeAll = GetBuilder<bool>(nameof(CloseAll)).Build();
+                return _closeAll;
+            }
+            set => _closeAll = value;
         }
 
         #endregion

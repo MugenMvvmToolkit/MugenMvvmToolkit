@@ -8,6 +8,6 @@ namespace MugenMvvm.Interfaces.Views.Infrastructure
     {
         IViewModelBase ViewModel { get; }
 
-        IViewInfo View { get; }
+        IViewInfo ViewInfo { get; }
     }
 }

@@ -9,6 +9,8 @@ namespace MugenMvvm.Interfaces.Views.Infrastructure
     {
         object View { get; }
 
+        T GetInitializer<T>() where T : class, IViewManagerInitializer;
+
         Task<ICleanupViewManagerResult> CleanupAsync(IViewModelBase viewModel, IReadOnlyMetadataContext metadata);
     }
 }

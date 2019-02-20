@@ -8,13 +8,13 @@ namespace MugenMvvm.Infrastructure.Views
     {
         #region Constructors
 
-        public ViewManagerResult(IViewModelBase viewModel, IViewInfo view, IReadOnlyMetadataContext metadata)
+        public ViewManagerResult(IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            Should.NotBeNull(view, nameof(view));
+            Should.NotBeNull(viewInfo, nameof(viewInfo));
             Should.NotBeNull(metadata, nameof(metadata));
             ViewModel = viewModel;
-            View = view;
+            ViewInfo = viewInfo;
             Metadata = metadata;
         }
 
@@ -26,7 +26,7 @@ namespace MugenMvvm.Infrastructure.Views
 
         public IViewModelBase ViewModel { get; }
 
-        public IViewInfo View { get; }
+        public IViewInfo ViewInfo { get; }
 
         #endregion
     }

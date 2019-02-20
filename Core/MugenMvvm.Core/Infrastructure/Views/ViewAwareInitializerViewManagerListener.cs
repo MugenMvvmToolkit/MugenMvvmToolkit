@@ -128,7 +128,7 @@ namespace MugenMvvm.Infrastructure.Views
         }
 
         [Preserve(Conditional = true)]
-        internal static void UpdateView<TView>(IViewModelBase viewModel, IViewInfo view, IReadOnlyMetadataContext metadata, bool clear)
+        internal static void UpdateView<TView>(IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata, bool clear)
             where TView : class
         {
             if (viewModel is IViewAwareViewModel<TView> awareViewModel)
@@ -139,17 +139,17 @@ namespace MugenMvvm.Infrastructure.Views
                     return;
                 }
 
-                var wrappedView = view.TryWrap<TView>(metadata);
+                var wrappedView = viewInfo.TryWrap<TView>(metadata);
                 if (wrappedView != null)
                     awareViewModel.View = wrappedView;
             }
         }
 
         [Preserve(Conditional = true)]
-        internal static void UpdateViewModel<TViewModel>(object viewModel, IViewInfo view, IReadOnlyMetadataContext metadata, bool clear)
+        internal static void UpdateViewModel<TViewModel>(object viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata, bool clear)
             where TViewModel : class, IViewModelBase
         {
-            if (view.View is IViewModelAwareView<TViewModel> awareView)
+            if (viewInfo.View is IViewModelAwareView<TViewModel> awareView)
             {
                 if (clear)
                     awareView.ViewModel = null;

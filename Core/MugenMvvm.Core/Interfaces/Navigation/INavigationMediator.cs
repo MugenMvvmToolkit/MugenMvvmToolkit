@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Enums;
+﻿using System;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views.Infrastructure;
@@ -11,9 +12,11 @@ namespace MugenMvvm.Interfaces.Navigation
 
         bool IsOpen { get; }
 
-        object? View { get; }
+        IViewInfo? ViewInfo { get; }
 
         IViewModelBase ViewModel { get; }
+
+        IViewInitializer ViewInitializer { get; }
 
         void Initialize(IViewModelBase viewModel, IViewInitializer viewInitializer, IReadOnlyMetadataContext metadata);
 
@@ -21,6 +24,6 @@ namespace MugenMvvm.Interfaces.Navigation
 
         IReadOnlyMetadataContext Close(IReadOnlyMetadataContext metadata);
 
-        IReadOnlyMetadataContext Restore(object view, IReadOnlyMetadataContext metadata);
+        IReadOnlyMetadataContext Restore(IViewInfo viewInfo, IReadOnlyMetadataContext metadata);
     }
 }
