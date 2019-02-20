@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure;
+using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
 

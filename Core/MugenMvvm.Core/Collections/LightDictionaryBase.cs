@@ -8,6 +8,7 @@ using System.Xml.Serialization;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Infrastructure;
+using MugenMvvm.Infrastructure.Internal;
 
 namespace MugenMvvm.Collections
 {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MugenMvvm.Infrastructure
+namespace MugenMvvm.Infrastructure.Internal
 {
     internal static class PrimeNumberHelper
     {

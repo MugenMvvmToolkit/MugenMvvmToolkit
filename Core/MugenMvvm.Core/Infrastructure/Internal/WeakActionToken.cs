@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 
-namespace MugenMvvm.Infrastructure
+namespace MugenMvvm.Infrastructure.Internal
 {
     public static class WeakActionToken
     {
