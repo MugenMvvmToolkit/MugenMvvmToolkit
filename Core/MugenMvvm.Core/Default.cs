@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Infrastructure.Metadata;
+using MugenMvvm.Infrastructure.Serialization;
 using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;

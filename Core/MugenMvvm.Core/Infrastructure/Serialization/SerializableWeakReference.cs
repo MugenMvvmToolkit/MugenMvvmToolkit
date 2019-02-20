@@ -4,7 +4,7 @@ using System.Xml.Serialization;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 
-namespace MugenMvvm.Infrastructure.Internal
+namespace MugenMvvm.Infrastructure.Serialization
 {
     [Serializable]
     [DataContract(Namespace = BuildConstants.DataContractNamespace)]

@@ -1,5 +1,6 @@
 ﻿using System;
 using MugenMvvm.Infrastructure.Internal;
+using MugenMvvm.Infrastructure.Serialization;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Serialization;
 
