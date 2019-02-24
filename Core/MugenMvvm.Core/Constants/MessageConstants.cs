@@ -37,6 +37,7 @@
         public const string IoCMoreThatOneBindingFormat1 = "Cannot activate type {0} found more that one binding";
         public const string ObjectDisposedFormat1 = "Cannot perform the operation, because the current '{0}' is disposed.";
         public const string ObjectNotInitializedFormat2 = "The '{0}' is not initialized {1}";
+        public const string CannotGetViewModelFormat1 = "Cannot get view model {0}";
 
         #endregion
     }

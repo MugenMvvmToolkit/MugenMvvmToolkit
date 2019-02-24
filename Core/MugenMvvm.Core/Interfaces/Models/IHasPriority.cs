@@ -1,6 +1,6 @@
 ﻿namespace MugenMvvm.Interfaces.Models
 {
-    public interface IHasPriority //todo add, all listeners with priority????
+    public interface IHasPriority
     {
         int Priority { get; }
     }

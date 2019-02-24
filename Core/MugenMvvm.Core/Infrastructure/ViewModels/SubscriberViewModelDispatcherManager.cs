@@ -1,4 +1,4 @@
-﻿using System;
+﻿using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Messaging;
 using MugenMvvm.Interfaces.BusyIndicator;
@@ -10,8 +10,17 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.ViewModels
 {
-    public class SubscriberViewModelDispatcherListener : IViewModelDispatcherListener
+    public class SubscriberViewModelDispatcherManager : ISubscriberViewModelDispatcherManager
     {
+        #region Constructors
+
+        [Preserve(Conditional = true)]
+        public SubscriberViewModelDispatcherManager()
+        {
+        }
+
+        #endregion
+
         #region Properties
 
         public int Priority { get; set; }
@@ -20,12 +29,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
 
         #region Implementation of interfaces
 
-        public IViewModelBase? TryGetViewModel(IViewModelDispatcher viewModelDispatcher, Guid id, IReadOnlyMetadataContext metadata)
-        {
-            return null;
-        }
-
-        public bool OnSubscribe(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode,
+        public bool TrySubscribe(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode,
             IReadOnlyMetadataContext metadata)
         {
             var messenger = viewModel.TryGetService<IMessenger>();
@@ -59,7 +63,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
             return result;
         }
 
-        public bool OnUnsubscribe(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, object observer, IReadOnlyMetadataContext metadata)
+        public bool TryUnsubscribe(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, object observer, IReadOnlyMetadataContext metadata)
         {
             var messenger = viewModel.TryGetServiceOptional<IMessenger>();
             if (messenger == null)
@@ -92,16 +96,11 @@ namespace MugenMvvm.Infrastructure.ViewModels
         {
         }
 
-        public int GetPriority(object source)
-        {
-            return Priority;
-        }
-
         #endregion
 
         #region Methods
 
-        private void SubscribeBusyTokens(IViewModelBase viewModel, IViewModelBase targetVm)
+        private static void SubscribeBusyTokens(IViewModelBase viewModel, IViewModelBase targetVm)
         {
             if (!targetVm.Metadata.Get(ViewModelMetadata.BusyMessageHandlerType).HasFlagEx(BusyMessageHandlerType.Handle))
                 return;

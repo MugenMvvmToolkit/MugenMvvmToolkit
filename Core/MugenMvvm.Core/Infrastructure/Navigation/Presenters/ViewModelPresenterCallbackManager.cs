@@ -183,7 +183,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         protected void InvokeCallbacks(IViewModelBase? viewModel, IMetadataContextKey<IList<INavigationCallbackInternal?>?> key, INavigationContext navigationContext, object result,
             Exception exception, bool canceled)
         {
-            if (viewModel == null) //todo trace
+            if (viewModel == null)
                 return;
             var callbacks = viewModel.Metadata.Get(key);
             if (callbacks == null)

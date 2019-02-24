@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
@@ -8,7 +9,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.ViewModels
 {
-    public sealed class CacheViewModelDispatcherListener : IViewModelDispatcherListener, IObservableMetadataContextListener
+    public sealed class CacheViewModelDispatcherManager : IViewModelProviderViewModelDispatcherManager, IObservableMetadataContextListener
     {
         #region Fields
 
@@ -20,9 +21,10 @@ namespace MugenMvvm.Infrastructure.ViewModels
 
         #region Constructors
 
-        public CacheViewModelDispatcherListener(bool isIsWeakCache = true)
+        [Preserve(Conditional = true)]
+        public CacheViewModelDispatcherManager(bool isWeakCache = true)
         {
-            _isWeakCache = isIsWeakCache;
+            _isWeakCache = isWeakCache;
             _viewModelsCache = new Dictionary<Guid, object>();
         }
 
@@ -35,6 +37,11 @@ namespace MugenMvvm.Infrastructure.ViewModels
         #endregion
 
         #region Implementation of interfaces
+
+        public int GetPriority(object source)
+        {
+            return 0;
+        }
 
         void IObservableMetadataContextListener.OnAdded(IObservableMetadataContext metadataContext, IMetadataContextKey key, object? newValue)
         {
@@ -62,6 +69,23 @@ namespace MugenMvvm.Infrastructure.ViewModels
                 RemoveFromCache(ViewModelMetadata.Id.GetValue(metadataContext, oldValue));
         }
 
+        public void OnLifecycleChanged(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState,
+            IReadOnlyMetadataContext metadata)
+        {
+            if (lifecycleState == ViewModelLifecycleState.Created)
+            {
+                AddToCache(viewModel.Metadata.Get(ViewModelMetadata.Id), viewModel);
+                viewModel.Metadata.AddListener(this);
+            }
+            else if (lifecycleState.IsDispose)
+                RemoveFromCache(viewModel.Metadata.Get(ViewModelMetadata.Id));
+        }
+
+        public IViewModelBase? TryGetViewModel(IViewModelDispatcher viewModelDispatcher, Type vmType, IReadOnlyMetadataContext metadata)
+        {
+            return null;
+        }
+
         public IViewModelBase? TryGetViewModel(IViewModelDispatcher viewModelDispatcher, Guid id, IReadOnlyMetadataContext metadata)
         {
             object value;
@@ -78,34 +102,6 @@ namespace MugenMvvm.Infrastructure.ViewModels
             if (vm == null)
                 RemoveFromCache(id);
             return vm;
-        }
-
-        public bool OnSubscribe(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode,
-            IReadOnlyMetadataContext metadata)
-        {
-            return false;
-        }
-
-        public bool OnUnsubscribe(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, object observer, IReadOnlyMetadataContext metadata)
-        {
-            return false;
-        }
-
-        public void OnLifecycleChanged(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState,
-            IReadOnlyMetadataContext metadata)
-        {
-            if (lifecycleState == ViewModelLifecycleState.Created)
-            {
-                AddToCache(viewModel.Metadata.Get(ViewModelMetadata.Id), viewModel);
-                viewModel.Metadata.AddListener(this);
-            }
-            else if (lifecycleState.IsDispose)
-                RemoveFromCache(viewModel.Metadata.Get(ViewModelMetadata.Id));
-        }
-
-        public int GetPriority(object source)
-        {
-            return Priority;
         }
 
         #endregion

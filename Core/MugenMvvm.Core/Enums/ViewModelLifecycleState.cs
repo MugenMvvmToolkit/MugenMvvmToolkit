@@ -12,6 +12,7 @@ namespace MugenMvvm.Enums
         #region Fields
 
         public static readonly ViewModelLifecycleState Created = new ViewModelLifecycleState(nameof(Created));
+        public static readonly ViewModelLifecycleState Initialized = new ViewModelLifecycleState(nameof(Initialized));
         public static readonly ViewModelLifecycleState Disposing = new ViewModelLifecycleState(nameof(Disposing)) { IsDispose = true };
         public static readonly ViewModelLifecycleState Disposed = new ViewModelLifecycleState(nameof(Disposed)) { IsDispose = true };
         public static readonly ViewModelLifecycleState Finalized = new ViewModelLifecycleState(nameof(Finalized)) { IsDispose = true };

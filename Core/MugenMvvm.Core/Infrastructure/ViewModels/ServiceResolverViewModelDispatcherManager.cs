@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
+using MugenMvvm.Attributes;
+using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.BusyIndicator;
 using MugenMvvm.Infrastructure.Messaging;
 using MugenMvvm.Infrastructure.Metadata;
@@ -12,26 +13,31 @@ using MugenMvvm.Interfaces.ViewModels.Infrastructure;
 
 namespace MugenMvvm.Infrastructure.ViewModels
 {
-    public class ViewModelDispatcherServiceResolver : IViewModelDispatcherServiceResolver
+    public class ServiceResolverViewModelDispatcherManager : IServiceResolverViewModelDispatcherManager
     {
         #region Constructors
 
-        public ViewModelDispatcherServiceResolver()
+        [Preserve(Conditional = true)]
+        public ServiceResolverViewModelDispatcherManager()
         {
-            Services = new[] {typeof(IObservableMetadataContext), typeof(IMessenger), typeof(IBusyIndicatorProvider)};
         }
 
         #endregion
 
         #region Properties
 
-        public IReadOnlyList<Type> Services { get; }
+        public int Priority { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        public object Resolve(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext metadata)
+        public void OnLifecycleChanged(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState,
+            IReadOnlyMetadataContext metadata)
+        {
+        }
+
+        public object? TryGetService(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, Type service, IReadOnlyMetadataContext metadata)
         {
             if (service == typeof(IObservableMetadataContext))
                 return new MetadataContext();
@@ -39,7 +45,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
                 return new Messenger(Service<IThreadDispatcher>.Instance);
             if (service == typeof(IBusyIndicatorProvider))
                 return new BusyIndicatorProvider();
-            throw new NotSupportedException();
+            return null;
         }
 
         #endregion
