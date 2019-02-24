@@ -14,7 +14,11 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 {
     public class ViewModelPresenter : HasListenersBase<IViewModelPresenterListener>, IViewModelPresenter
     {
+        #region Fields
+
         private readonly NavigationDispatcherListener _navigationListener;
+
+        #endregion
 
         #region Constructors
 
@@ -106,7 +110,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 return;
 
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i]?.OnChildPresenterAdded(this, presenter);
+                listeners[i]?.OnChildViewModelPresenterAdded(this, presenter);
         }
 
         protected virtual void RemovePresenterInternal(IChildViewModelPresenter presenter)
@@ -118,7 +122,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 return;
 
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i]?.OnChildPresenterRemoved(this, presenter);
+                listeners[i]?.OnChildViewModelPresenterRemoved(this, presenter);
         }
 
         protected virtual IReadOnlyList<IChildViewModelPresenter> GetPresentersInternal()
@@ -182,13 +186,14 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 if (operations != null)
                     results.AddRange(operations);
             }
+
             return results;
         }
 
         protected virtual IReadOnlyList<IClosingViewModelPresenterResult> OnClosedInternal(IReadOnlyMetadataContext metadata, IReadOnlyList<IChildViewModelPresenterResult> results)
         {
             var r = new List<IClosingViewModelPresenterResult>();
-            for (int i = 0; i < results.Count; i++)
+            for (var i = 0; i < results.Count; i++)
             {
                 var result = results[i];
 
@@ -201,7 +206,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                         throw ExceptionManager.PresenterInvalidRequest(metadata.Dump() + result.Metadata.Dump());
 
                     var callback = CallbackManager.AddCallback(this, viewModel, NavigationCallbackType.Closing, result, metadata);
-                    r.Add(new ClosingViewModelPresenterResult((INavigationCallback<bool>)callback, result));
+                    r.Add(new ClosingViewModelPresenterResult((INavigationCallback<bool>) callback, result));
                 }
             }
 
@@ -234,8 +239,9 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         protected virtual IRestorationViewModelPresenterResult OnRestoredInternal(IReadOnlyMetadataContext metadata, IChildViewModelPresenterResult? result)
         {
-            var r = result == null ? RestorationViewModelPresenterResult.Unrestored
-                : (result as IRestorationViewModelPresenterResult ?? new RestorationViewModelPresenterResult(true, result));
+            var r = result == null
+                ? RestorationViewModelPresenterResult.Unrestored
+                : result as IRestorationViewModelPresenterResult ?? new RestorationViewModelPresenterResult(true, result);
             var listeners = GetListenersInternal();
             if (listeners != null)
             {
@@ -251,7 +257,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             var listeners = GetListenersInternal();
             if (listeners != null)
             {
-                for (int i = 0; i < listeners.Length; i++)
+                for (var i = 0; i < listeners.Length; i++)
                 {
                     var canShow = (listeners[i] as IConditionViewModelPresenterListener)?.CanShow(this, childPresenter, metadata) ?? true;
                     if (!canShow)
@@ -267,7 +273,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             var listeners = GetListenersInternal();
             if (listeners != null)
             {
-                for (int i = 0; i < listeners.Length; i++)
+                for (var i = 0; i < listeners.Length; i++)
                 {
                     var canClose = (listeners[i] as IConditionViewModelPresenterListener)?.CanClose(this, childPresenter, currentResults, metadata) ?? true;
                     if (!canClose)
@@ -283,7 +289,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             var listeners = GetListenersInternal();
             if (listeners != null)
             {
-                for (int i = 0; i < listeners.Length; i++)
+                for (var i = 0; i < listeners.Length; i++)
                 {
                     var canRestore = (listeners[i] as IConditionViewModelPresenterListener)?.CanRestore(this, childPresenter, metadata) ?? true;
                     if (!canRestore)
@@ -294,7 +300,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             return true;
         }
 
-        #endregion        
+        #endregion
 
         #region Nested types
 
@@ -319,6 +325,31 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             #endregion
 
             #region Implementation of interfaces
+
+            public void Dispose()
+            {
+                KeyValuePair<INavigationContext, object>[] events;
+                lock (_suspendedEvents)
+                {
+                    if (--_suspendCount != 0)
+                        return;
+                    events = _suspendedEvents.ToArray();
+                    _suspendedEvents.Clear();
+                }
+
+                for (var i = 0; i < events.Length; i++)
+                {
+                    var pair = events[i];
+                    if (pair.Value == null)
+                        OnNavigated(null, pair.Key);
+                    else if (pair.Value is Exception e)
+                        OnNavigationFailed(null, pair.Key, e);
+                    else if (ReferenceEquals(pair.Key, pair.Value))
+                        OnNavigationCanceled(null, pair.Key);
+                    else
+                        OnNavigatingCanceled(null, pair.Key);
+                }
+            }
 
             public Task<bool> OnNavigatingAsync(INavigationDispatcher navigationDispatcher, INavigationContext context)
             {
@@ -385,31 +416,6 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 NavigationCallbackType? callbackType, IReadOnlyMetadataContext metadata)
             {
                 return _presenter.CallbackManager.GetCallbacks(_presenter, navigationEntry, callbackType, metadata);
-            }
-
-            public void Dispose()
-            {
-                KeyValuePair<INavigationContext, object>[] events;
-                lock (_suspendedEvents)
-                {
-                    if (--_suspendCount != 0)
-                        return;
-                    events = _suspendedEvents.ToArray();
-                    _suspendedEvents.Clear();
-                }
-
-                for (var i = 0; i < events.Length; i++)
-                {
-                    var pair = events[i];
-                    if (pair.Value == null)
-                        OnNavigated(null, pair.Key);
-                    else if (pair.Value is Exception e)
-                        OnNavigationFailed(null, pair.Key, e);
-                    else if (ReferenceEquals(pair.Key, pair.Value))
-                        OnNavigationCanceled(null, pair.Key);
-                    else
-                        OnNavigatingCanceled(null, pair.Key);
-                }
             }
 
             #endregion
