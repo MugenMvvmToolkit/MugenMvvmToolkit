@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.ViewModels.Infrastructure
 {
-    public interface IViewModelDispatcher : IHasListeners<IViewModelDispatcherListener>//todo cleanup listener, clear commands, listeners etc
+    public interface IViewModelDispatcher : IHasListeners<IViewModelDispatcherListener>//todo cleanup listener, clear commands, listeners etc, rename listener to manager
     {
         [Pure]
         object GetService(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext metadata);

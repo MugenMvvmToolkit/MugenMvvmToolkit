@@ -40,11 +40,7 @@ namespace MugenMvvm.Infrastructure.Internal
         {
             if (_listeners == null)
                 return Default.EmptyArray<T>();
-            var items = _listeners.GetItemsWithLock(out var size);
-            var listeners = new T[size];
-            for (var i = 0; i < size; i++)
-                listeners[i] = items[i];
-            return listeners;
+            return Listeners.ToArrayWithLock();
         }
 
         #endregion
@@ -55,7 +51,7 @@ namespace MugenMvvm.Infrastructure.Internal
         {
             if (_listeners == null)
                 return Default.EmptyArray<T?>();
-            return _listeners.GetItems(out _);
+            return _listeners.GetRawItems(out _);
         }
 
         #endregion

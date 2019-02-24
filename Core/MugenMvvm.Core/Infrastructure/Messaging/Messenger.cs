@@ -207,7 +207,7 @@ namespace MugenMvvm.Infrastructure.Messaging
 
             public void Execute(object? state)
             {
-                var subscribers = GetItems(out var size);
+                var subscribers = GetRawItems(out var size);
                 if (_messenger.HasListeners)
                 {
                     for (var i = 0; i < size; i++)

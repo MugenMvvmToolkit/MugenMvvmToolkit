@@ -127,11 +127,11 @@ namespace MugenMvvm.Infrastructure.Views
 
         protected virtual IReadOnlyList<IViewInfo> GetViewsInternal(IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
         {
-            var managers = Managers.GetItemsWithLock(out var size);
+            var managers = Managers.GetRawItems(out var size);
             if (size == 0)
                 return Default.EmptyArray<IViewInfo>();
             if (size == 1)
-                return managers[0].GetViews(this, viewModel, metadata);
+                return managers[0]?.GetViews(this, viewModel, metadata) ?? Default.EmptyArray<IViewInfo>();
 
             managers = Managers.ToArrayWithLock();
             var result = new List<IViewInfo>();
@@ -142,11 +142,11 @@ namespace MugenMvvm.Infrastructure.Views
 
         protected virtual IReadOnlyList<IViewModelViewInitializer> GetInitializersByViewInternal(object view, IReadOnlyMetadataContext metadata)
         {
-            var managers = Managers.GetItemsWithLock(out var size);
+            var managers = Managers.GetRawItems(out var size);
             if (size == 0)
                 return Default.EmptyArray<IViewModelViewInitializer>();
             if (size == 1)
-                return managers[0].GetInitializersByView(this, view, metadata);
+                return managers[0]?.GetInitializersByView(this, view, metadata) ?? Default.EmptyArray<IViewModelViewInitializer>();
 
             managers = Managers.ToArrayWithLock();
             var result = new List<IViewModelViewInitializer>();
@@ -157,11 +157,11 @@ namespace MugenMvvm.Infrastructure.Views
 
         protected virtual IReadOnlyList<IViewInitializer> GetInitializersByViewModelInternal(IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
         {
-            var managers = Managers.GetItemsWithLock(out var size);
+            var managers = Managers.GetRawItems(out var size);
             if (size == 0)
                 return Default.EmptyArray<IViewInitializer>();
             if (size == 1)
-                return managers[0].GetInitializersByViewModel(this, viewModel, metadata);
+                return managers[0]?.GetInitializersByViewModel(this, viewModel, metadata) ?? Default.EmptyArray<IViewInitializer>();
 
             managers = Managers.ToArrayWithLock();
             var result = new List<IViewInitializer>();

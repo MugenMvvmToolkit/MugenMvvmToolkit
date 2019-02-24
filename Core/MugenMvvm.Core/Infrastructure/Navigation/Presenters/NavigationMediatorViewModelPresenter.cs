@@ -130,10 +130,10 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 m = mediators.ToArray();
             }
 
-            var managers = Managers.GetItemsWithLock(out var size);
+            var managers = Managers.GetRawItems(out _);
             for (int i = 0; i < managers.Length; i++)
             {
-                var result = managers[i].TryCloseInternal(this, viewModel, m, metadata);
+                var result = managers[i]?.TryCloseInternal(this, viewModel, m, metadata);
                 if (result != null)
                     return result;
             }
@@ -169,16 +169,16 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             var mediators = viewModel.Metadata.GetOrAdd(NavigationInternalMetadata.NavigationMediators, (object?)null, (object?)null,
                 (context, o, arg3) => new List<INavigationMediator>());
 
-            var managers = Managers.GetItemsWithLock(out var size);
+            var managers = Managers.GetRawItems(out _);
             lock (mediators)
             {
                 var mediator = mediators.FirstOrDefault(m => m.ViewInitializer.Id == viewInitializer.Id);
                 if (mediator == null)
                 {
 
-                    for (int i = 0; i < size; i++)
+                    for (int i = 0; i < managers.Length; i++)
                     {
-                        mediator = managers[i].TryGetMediator(this, viewModel, viewInitializer, metadata);
+                        mediator = managers[i]?.TryGetMediator(this, viewModel, viewInitializer, metadata);
                         if (mediator != null)
                         {
                             mediators.Add(mediator);

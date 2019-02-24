@@ -90,15 +90,7 @@ namespace MugenMvvm.Collections
 
         #region Methods
 
-        public T[] GetItemsWithLock(out int size)//todo unsafe!!!!
-        {
-            lock (this)
-            {
-                return GetItems(out size);
-            }
-        }
-
-        public T[] GetItems(out int size)
+        public T[] GetRawItems(out int size)
         {
             size = Size;
             return Items;
@@ -119,8 +111,10 @@ namespace MugenMvvm.Collections
 
         public bool ContainsWithLock(T item)
         {
-            var items = GetItemsWithLock(out var size);
-            return IndexOfInternal(items, item, size) >= 0;
+            lock (this)
+            {
+                return Contains(item);
+            }
         }
 
         public bool Contains(T item)
@@ -160,13 +154,15 @@ namespace MugenMvvm.Collections
 
         public T[] ToArrayWithLock()
         {
-            var items = GetItemsWithLock(out var size);
-            return ToArrayInternal(items, size);
+            lock (this)
+            {
+                return ToArray();
+            }
         }
 
         public T[] ToArray()
         {
-            return ToArrayInternal(Items, Size);
+            return ToArrayInternal();
         }
 
         protected virtual void AddInternal(T item)
@@ -200,14 +196,14 @@ namespace MugenMvvm.Collections
             }
         }
 
-        protected virtual T[] ToArrayInternal(T[] items, int size)
+        protected virtual T[] ToArrayInternal()
         {
-            if (size == 0)
+            if (Size == 0)
                 return Default.EmptyArray<T>();
 
-            var result = new T[size];
+            var result = new T[Size];
             for (var i = 0; i < result.Length; i++)
-                result[i] = items[i];
+                result[i] = Items[i];
 
             return result;
         }

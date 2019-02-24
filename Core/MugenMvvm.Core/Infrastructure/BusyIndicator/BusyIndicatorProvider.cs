@@ -430,7 +430,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                 if (changed)
                 {
                     int size = 0;
-                    var items = _listeners?.GetItems(out size);
+                    var items = _listeners?.GetRawItems(out size);
                     if (items != null)
                     {
                         for (int i = 0; i < size; i++)
