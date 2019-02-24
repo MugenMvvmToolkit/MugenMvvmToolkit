@@ -52,6 +52,14 @@ namespace MugenMvvm.Infrastructure.Views
 
         #region Implementation of interfaces
 
+        public void OnChildViewManagerAdded(IViewManager viewManager, IChildViewManager childViewManager)
+        {
+        }
+
+        public void OnChildViewManagerRemoved(IViewManager viewManager, IChildViewManager childViewManager)
+        {
+        }
+
         public void OnViewModelCreated(IViewManager viewManager, IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata)
         {
         }
@@ -62,12 +70,12 @@ namespace MugenMvvm.Infrastructure.Views
 
         public void OnViewInitialized(IViewManager viewManager, IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
         {
-            GetUpdateViewMethod(viewModel, viewInfo.View)?.Invoke(null, new[] {viewModel, viewInfo, metadata, Default.FalseObject});
+            GetUpdateViewMethod(viewModel, viewInfo.View)?.Invoke(null, new[] { viewModel, viewInfo, metadata, Default.FalseObject });
         }
 
         public void OnViewCleared(IViewManager viewManager, IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
         {
-            GetUpdateViewMethod(viewModel, viewInfo.View)?.Invoke(null, new[] {viewModel, viewInfo, metadata, Default.TrueObject});
+            GetUpdateViewMethod(viewModel, viewInfo.View)?.Invoke(null, new[] { viewModel, viewInfo, metadata, Default.TrueObject });
         }
 
         #endregion

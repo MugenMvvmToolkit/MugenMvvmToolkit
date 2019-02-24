@@ -6,6 +6,10 @@ namespace MugenMvvm.Interfaces.Views.Infrastructure
 {
     public interface IViewManagerListener : IListener
     {
+        void OnChildViewManagerAdded(IViewManager viewManager, IChildViewManager childViewManager);
+
+        void OnChildViewManagerRemoved(IViewManager viewManager, IChildViewManager childViewManager);
+
         void OnViewModelCreated(IViewManager viewManager, IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata);
 
         void OnViewCreated(IViewManager viewManager, IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata);

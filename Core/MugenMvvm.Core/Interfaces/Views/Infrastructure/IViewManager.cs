@@ -7,7 +7,11 @@ namespace MugenMvvm.Interfaces.Views.Infrastructure
 {
     public interface IViewManager : IHasListeners<IViewManagerListener>
     {
-        ICollection<IChildViewManager> ViewManagers { get; }
+        void AddManager(IChildViewManager manager);
+
+        void RemoveManager(IChildViewManager manager);
+
+        IReadOnlyList<IChildViewManager> GetManagers();
 
         IReadOnlyList<IViewInfo> GetViews(IViewModelBase viewModel, IReadOnlyMetadataContext metadata);
 

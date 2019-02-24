@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
 using MugenMvvm.Infrastructure.Internal;
@@ -12,29 +10,40 @@ namespace MugenMvvm.Infrastructure.Views
 {
     public class ViewManager : HasListenersBase<IViewManagerListener>, IParentViewManager
     {
-        #region Fields
-
-        private readonly ChildManagersCollection _viewManagers;
-
-        #endregion
-
         #region Constructors
 
         [Preserve(Conditional = true)]
         public ViewManager()
         {
-            _viewManagers = new ChildManagersCollection(this);
+            Managers = new OrderedLightArrayList<IChildViewManager>(HasPriorityComparer.Instance);
         }
 
         #endregion
 
         #region Properties
 
-        public ICollection<IChildViewManager> ViewManagers => _viewManagers;
+        public LightArrayList<IChildViewManager> Managers { get; }
 
         #endregion
 
         #region Implementation of interfaces
+
+        public void AddManager(IChildViewManager manager)
+        {
+            Should.NotBeNull(manager, nameof(manager));
+            AddManagerInternal(manager);
+        }
+
+        public void RemoveManager(IChildViewManager manager)
+        {
+            Should.NotBeNull(manager, nameof(manager));
+            RemoveManagerInternal(manager);
+        }
+
+        public IReadOnlyList<IChildViewManager> GetManagers()
+        {
+            return GetManagersInternal();
+        }
 
         public IReadOnlyList<IViewInfo> GetViews(IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
         {
@@ -93,14 +102,44 @@ namespace MugenMvvm.Infrastructure.Views
 
         #region Methods
 
+        protected virtual void AddManagerInternal(IChildViewManager manager)
+        {
+            Managers.AddWithLock(manager);
+
+            var listeners = GetListenersInternal();
+            if (listeners == null)
+                return;
+
+            for (var i = 0; i < listeners.Length; i++)
+                listeners[i]?.OnChildViewManagerAdded(this, manager);
+        }
+
+        protected virtual void RemoveManagerInternal(IChildViewManager manager)
+        {
+            Managers.RemoveWithLock(manager);
+
+            var listeners = GetListenersInternal();
+            if (listeners == null)
+                return;
+
+            for (var i = 0; i < listeners.Length; i++)
+                listeners[i]?.OnChildViewManagerRemoved(this, manager);
+        }
+
+        protected virtual IReadOnlyList<IChildViewManager> GetManagersInternal()
+        {
+            return Managers.ToArrayWithLock();
+        }
+
         protected virtual IReadOnlyList<IViewInfo> GetViewsInternal(IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
         {
-            if (_viewManagers.Count == 0)
+            var managers = Managers.GetItemsWithLock(out var size);
+            if (size == 0)
                 return Default.EmptyArray<IViewInfo>();
-            if (_viewManagers.Count == 1)
-                return _viewManagers.GetAt(0).GetViews(this, viewModel, metadata);
+            if (size == 1)
+                return managers[0].GetViews(this, viewModel, metadata);
 
-            var managers = _viewManagers.ToArray();
+            managers = Managers.ToArrayWithLock();
             var result = new List<IViewInfo>();
             for (var i = 0; i < managers.Length; i++)
                 result.AddRange(managers[i].GetViews(this, viewModel, metadata));
@@ -109,12 +148,13 @@ namespace MugenMvvm.Infrastructure.Views
 
         protected virtual IReadOnlyList<IViewModelViewInitializer> GetInitializersByViewInternal(object view, IReadOnlyMetadataContext metadata)
         {
-            if (_viewManagers.Count == 0)
+            var managers = Managers.GetItemsWithLock(out var size);
+            if (size == 0)
                 return Default.EmptyArray<IViewModelViewInitializer>();
-            if (_viewManagers.Count == 1)
-                return _viewManagers.GetAt(0).GetInitializersByView(this, view, metadata);
+            if (size == 1)
+                return managers[0].GetInitializersByView(this, view, metadata);
 
-            var managers = _viewManagers.ToArray();
+            managers = Managers.ToArrayWithLock();
             var result = new List<IViewModelViewInitializer>();
             for (var i = 0; i < managers.Length; i++)
                 result.AddRange(managers[i].GetInitializersByView(this, view, metadata));
@@ -123,12 +163,13 @@ namespace MugenMvvm.Infrastructure.Views
 
         protected virtual IReadOnlyList<IViewInitializer> GetInitializersByViewModelInternal(IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
         {
-            if (_viewManagers.Count == 0)
+            var managers = Managers.GetItemsWithLock(out var size);
+            if (size == 0)
                 return Default.EmptyArray<IViewInitializer>();
-            if (_viewManagers.Count == 1)
-                return _viewManagers.GetAt(0).GetInitializersByViewModel(this, viewModel, metadata);
+            if (size == 1)
+                return managers[0].GetInitializersByViewModel(this, viewModel, metadata);
 
-            var managers = _viewManagers.ToArray();
+            managers = Managers.ToArrayWithLock();
             var result = new List<IViewInitializer>();
             for (var i = 0; i < managers.Length; i++)
                 result.AddRange(managers[i].GetInitializersByViewModel(this, viewModel, metadata));
@@ -169,108 +210,6 @@ namespace MugenMvvm.Infrastructure.Views
                 return;
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i]?.OnViewCleared(this, viewModel, viewInfo, metadata);
-        }
-
-        protected virtual void OnChildViewManagerAdded(IChildViewManager childViewManager)
-        {
-        }
-
-        protected virtual void OnChildViewManagerRemoved(IChildViewManager childViewManager)
-        {
-        }
-
-        #endregion
-
-        #region Nested types
-
-        private sealed class ChildManagersCollection : ICollection<IChildViewManager>, IComparer<IChildViewManager>
-        {
-            #region Fields
-
-            private readonly OrderedListInternal<IChildViewManager> _list;
-            private readonly ViewManager _manager;
-
-            #endregion
-
-            #region Constructors
-
-            public ChildManagersCollection(ViewManager manager)
-            {
-                _manager = manager;
-                _list = new OrderedListInternal<IChildViewManager>(comparer: this);
-            }
-
-            #endregion
-
-            #region Properties
-
-            public int Count => _list.Count;
-
-            public bool IsReadOnly => false;
-
-            #endregion
-
-            #region Implementation of interfaces
-
-            public IEnumerator<IChildViewManager> GetEnumerator()
-            {
-                return _list.GetEnumerator();
-            }
-
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
-
-            public void Add(IChildViewManager item)
-            {
-                Should.NotBeNull(item, nameof(item));
-                _list.Add(item);
-                _manager.OnChildViewManagerAdded(item);
-            }
-
-            public void Clear()
-            {
-                var values = _list.ToArray();
-                _list.Clear();
-                for (var index = 0; index < values.Length; index++)
-                    _manager.OnChildViewManagerRemoved(values[index]);
-            }
-
-            public bool Contains(IChildViewManager item)
-            {
-                return _list.Contains(item);
-            }
-
-            public void CopyTo(IChildViewManager[] array, int arrayIndex)
-            {
-                _list.CopyTo(array, arrayIndex);
-            }
-
-            public bool Remove(IChildViewManager item)
-            {
-                Should.NotBeNull(item, nameof(item));
-                var remove = _list.Remove(item);
-                if (remove)
-                    _manager.OnChildViewManagerRemoved(item);
-                return remove;
-            }
-
-            public int Compare(IChildViewManager x1, IChildViewManager x2)
-            {
-                return x2.Priority.CompareTo(x1.Priority);
-            }
-
-            #endregion
-
-            #region Methods
-
-            public IChildViewManager GetAt(int index)
-            {
-                return _list[index];
-            }
-
-            #endregion
         }
 
         #endregion
