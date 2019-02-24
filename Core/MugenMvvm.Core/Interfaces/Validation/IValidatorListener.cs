@@ -1,8 +1,9 @@
 ﻿using System.Threading.Tasks;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Validation
 {
-    public interface IValidatorListener
+    public interface IValidatorListener : IListener
     {
         void OnErrorsChanged(IValidator validator, string memberName);
 

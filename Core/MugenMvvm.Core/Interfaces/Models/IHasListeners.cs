@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Interfaces.Models
 {
-    public interface IHasListeners<T> where T : class
+    public interface IHasListeners<T> where T : class, IListener
     {
         void AddListener(T listener);
 

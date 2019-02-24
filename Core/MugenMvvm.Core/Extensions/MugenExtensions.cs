@@ -358,7 +358,7 @@ namespace MugenMvvm
             return string.Format(format, args);
         }
 
-        public static void RemoveAllListeners<T>(this IHasListeners<T> hasListeners) where T : class
+        public static void RemoveAllListeners<T>(this IHasListeners<T> hasListeners) where T : class, IListener
         {
             Should.NotBeNull(hasListeners, nameof(hasListeners));
             foreach (var listener in hasListeners.GetListeners())

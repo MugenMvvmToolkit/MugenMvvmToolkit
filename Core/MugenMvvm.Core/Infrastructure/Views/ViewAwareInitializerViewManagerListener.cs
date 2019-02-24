@@ -38,7 +38,7 @@ namespace MugenMvvm.Infrastructure.Views
                 .FirstOrDefault(info => nameof(UpdateViewModel).Equals(info.Name));
             Should.BeSupported(UpdateViewMethodInfo != null, nameof(UpdateViewMethodInfo));
             Should.BeSupported(UpdateViewModelMethodInfo != null, nameof(UpdateViewModelMethodInfo));
-            TypeToInitializeDelegate = new Dictionary<Type, Func<object?, object?[], object?>>(MemberInfoComparer.Instance);
+            TypeToInitializeDelegate = new Dictionary<Type, Func<object?, object?[], object?>>(MemberInfoEqualityComparer.Instance);
         }
 
         [Preserve(Conditional = true)]

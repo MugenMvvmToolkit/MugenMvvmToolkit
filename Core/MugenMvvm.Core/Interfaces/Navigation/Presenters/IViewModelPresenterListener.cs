@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Navigation.Presenters
 {
-    public interface IViewModelPresenterListener
+    public interface IViewModelPresenterListener : IListener
     {
         void OnShown(IViewModelPresenter presenter, IReadOnlyMetadataContext metadata, IViewModelPresenterResult result);
 

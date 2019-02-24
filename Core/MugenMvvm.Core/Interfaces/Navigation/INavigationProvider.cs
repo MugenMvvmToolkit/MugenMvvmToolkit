@@ -1,7 +1,8 @@
-﻿namespace MugenMvvm.Interfaces.Navigation
+﻿using MugenMvvm.Interfaces.Models;
+
+namespace MugenMvvm.Interfaces.Navigation
 {
-    public interface INavigationProvider
+    public interface INavigationProvider : IHasStringId
     {
-        string Id { get; }
     }
 }

@@ -5,10 +5,8 @@ using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Interfaces.Views.Infrastructure
 {
-    public interface IViewManagerInitializer : IHasMetadata<IReadOnlyMetadataContext>
+    public interface IViewManagerInitializer : IHasMetadata<IReadOnlyMetadataContext>, IHasStringId
     {
-        string Id { get; }
-
         Task<IViewManagerResult> InitializeAsync(IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata);
     }
 }

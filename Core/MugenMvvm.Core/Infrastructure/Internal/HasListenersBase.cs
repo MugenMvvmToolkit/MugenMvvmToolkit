@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Infrastructure.Internal
 {
-    public abstract class HasListenersBase<T> : IHasListeners<T> where T : class
+    public abstract class HasListenersBase<T> : IHasListeners<T> where T : class, IListener
     {
         #region Fields
 

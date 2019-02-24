@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Views.Infrastructure;
 
 namespace MugenMvvm.Metadata
 {
-    public static class NavigationInternalMetadata
+    public static class NavigationInternalMetadata//todo check unused metadata
     {
         #region Fields
 

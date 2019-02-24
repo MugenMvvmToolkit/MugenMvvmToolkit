@@ -60,13 +60,13 @@ namespace MugenMvvm.Infrastructure.Commands
             return GetMediatorFactoriesInternal();
         }
 
-        public IExecutorRelayCommandMediator GetMediator<TParameter>(IRelayCommand relayCommand, Delegate execute, Delegate? canExecute, IReadOnlyCollection<object>? notifiers,
+        public IExecutorRelayCommandMediator GetExecutorMediator<TParameter>(IRelayCommand relayCommand, Delegate execute, Delegate? canExecute, IReadOnlyCollection<object>? notifiers,
             IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(relayCommand, nameof(relayCommand));
             Should.NotBeNull(execute, nameof(execute));
             Should.NotBeNull(metadata, nameof(metadata));
-            return GetMediatorInternal<TParameter>(relayCommand, execute, canExecute, notifiers, metadata);
+            return GetExecutorMediatorInternal<TParameter>(relayCommand, execute, canExecute, notifiers, metadata);
         }
 
         #endregion
@@ -107,7 +107,7 @@ namespace MugenMvvm.Infrastructure.Commands
             }
         }
 
-        protected virtual IExecutorRelayCommandMediator GetMediatorInternal<TParameter>(IRelayCommand relayCommand, Delegate execute, Delegate? canExecute,
+        protected virtual IExecutorRelayCommandMediator GetExecutorMediatorInternal<TParameter>(IRelayCommand relayCommand, Delegate execute, Delegate? canExecute,
             IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext metadata)
         {
             var mediatorFactory = ExecutorMediatorFactory;
@@ -134,7 +134,7 @@ namespace MugenMvvm.Infrastructure.Commands
             {
                 for (var i = 0; i < MediatorFactories.Count; i++)
                 {
-                    var mediator = MediatorFactories[i].GetMediator<TParameter>(this, relayCommand, execute, canExecute, notifiers, metadata);
+                    var mediator = MediatorFactories[i].TryGetMediator<TParameter>(this, relayCommand, execute, canExecute, notifiers, metadata);
                     if (mediator == null)
                         continue;
                     if (result == null)

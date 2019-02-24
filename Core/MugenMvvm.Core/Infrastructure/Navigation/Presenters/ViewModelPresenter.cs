@@ -144,7 +144,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             for (var i = 0; i < presenters.Length; i++)
             {
                 var presenter = presenters[i];
-                if (!CanClose(presenter, metadata))
+                if (!CanClose(presenter, results, metadata))
                     continue;
 
                 var operations = presenter.TryClose(this, metadata);
@@ -242,14 +242,14 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             return true;
         }
 
-        protected virtual bool CanClose(IChildViewModelPresenter childPresenter, IReadOnlyMetadataContext metadata)
+        protected virtual bool CanClose(IChildViewModelPresenter childPresenter, IReadOnlyList<IChildViewModelPresenterResult> currentResults, IReadOnlyMetadataContext metadata)
         {
             var listeners = GetListenersInternal();
             if (listeners != null)
             {
                 for (int i = 0; i < listeners.Length; i++)
                 {
-                    var canClose = (listeners[i] as IConditionViewModelPresenterListener)?.CanClose(this, childPresenter, metadata) ?? true;
+                    var canClose = (listeners[i] as IConditionViewModelPresenterListener)?.CanClose(this, childPresenter, currentResults, metadata) ?? true;
                     if (!canClose)
                         return false;
                 }

@@ -30,7 +30,7 @@ namespace MugenMvvm.Infrastructure.Messaging
                 .FirstOrDefault(info => nameof(Invoke).Equals(info.Name));
             Should.BeSupported(InvokeMethodInfo != null, nameof(InvokeMethodInfo));
 
-            MessageTypeToDelegate = new Dictionary<Type, Func<object?, object?[], object?>>(MemberInfoComparer.Instance);
+            MessageTypeToDelegate = new Dictionary<Type, Func<object?, object?[], object?>>(MemberInfoEqualityComparer.Instance);
         }
 
         public MessengerHandlerSubscriber(IMessengerHandler handler)

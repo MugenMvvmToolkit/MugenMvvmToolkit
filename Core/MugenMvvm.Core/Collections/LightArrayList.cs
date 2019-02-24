@@ -14,12 +14,6 @@ namespace MugenMvvm.Collections
     {
         #region Fields
 
-        [DataMember(Name = "I")]
-        private T[] _items;
-
-        [DataMember(Name = "S")]
-        private int _size;
-
         private const int DefaultCapacity = 4;
 
         #endregion
@@ -28,12 +22,12 @@ namespace MugenMvvm.Collections
 
         public LightArrayList()
         {
-            _items = Default.EmptyArray<T>();
+            Items = Default.EmptyArray<T>();
         }
 
         public LightArrayList(uint capacity)
         {
-            _items = capacity == 0 ? Default.EmptyArray<T>() : new T[capacity];
+            Items = capacity == 0 ? Default.EmptyArray<T>() : new T[capacity];
         }
 
         public LightArrayList(IEnumerable<T> collection)
@@ -43,19 +37,19 @@ namespace MugenMvvm.Collections
             {
                 var count = items.Count;
                 if (count == 0)
-                    _items = Default.EmptyArray<T>();
+                    Items = Default.EmptyArray<T>();
                 else
                 {
-                    _items = new T[count];
-                    items.CopyTo(_items, 0);
-                    _size = count;
+                    Items = new T[count];
+                    items.CopyTo(Items, 0);
+                    Size = count;
                 }
             }
             else
             {
-                _size = 0;
-                _items = Default.EmptyArray<T>();
-                foreach (var obj in collection!)
+                Size = 0;
+                Items = Default.EmptyArray<T>();
+                foreach (var obj in collection)
                     Add(obj);
             }
         }
@@ -64,25 +58,31 @@ namespace MugenMvvm.Collections
 
         #region Properties
 
+        [field: DataMember(Name = "S")]
+        protected int Size { get; set; }
+
+        [field: DataMember(Name = "I")]
+        protected T[] Items { get; private set; }
+
         [IgnoreDataMember, XmlIgnore]
-        private uint Capacity
+        protected uint Capacity
         {
-            get => (uint)_items.Length;
+            get => (uint)Items.Length;
             set
             {
-                if (value < _size)
+                if (value < Size)
                     throw ExceptionManager.CapacityLessThanCollection(nameof(Capacity));
-                if (value == _items.Length)
+                if (value == Items.Length)
                     return;
                 if (value > 0)
                 {
                     var objArray = new T[value];
-                    if (_size > 0)
-                        Array.Copy(_items, 0, objArray, 0, _size);
-                    _items = objArray;
+                    if (Size > 0)
+                        Array.Copy(Items, 0, objArray, 0, Size);
+                    Items = objArray;
                 }
                 else
-                    _items = Default.EmptyArray<T>();
+                    Items = Default.EmptyArray<T>();
             }
         }
 
@@ -98,6 +98,12 @@ namespace MugenMvvm.Collections
             }
         }
 
+        public T[] GetItems(out int size)
+        {
+            size = Size;
+            return Items;
+        }
+
         public void AddWithLock(T item)
         {
             lock (this)
@@ -106,10 +112,20 @@ namespace MugenMvvm.Collections
             }
         }
 
+        public void Add(T item)
+        {
+            AddInternal(item);
+        }
+
         public bool ContainsWithLock(T item)
         {
             var items = GetItemsWithLock(out var size);
-            return ContainsInternal(items, size, item);
+            return IndexOfInternal(items, item, size) >= 0;
+        }
+
+        public bool Contains(T item)
+        {
+            return IndexOfInternal(Items, item, Size) >= 0;
         }
 
         public bool RemoveWithLock(T item)
@@ -120,6 +136,15 @@ namespace MugenMvvm.Collections
             }
         }
 
+        public bool Remove(T item)
+        {
+            var index = IndexOfInternal(Items, item, Size);
+            if (index < 0)
+                return false;
+            RemoveAtInternal(index);
+            return true;
+        }
+
         public void ClearWithLock()
         {
             lock (this)
@@ -128,97 +153,70 @@ namespace MugenMvvm.Collections
             }
         }
 
-        public T[] GetItems(out int size)
-        {
-            size = _size;
-            return _items;
-        }
-
-        public void Add(T item)
-        {
-            if (_size == _items.Length)
-                EnsureCapacity((uint)_size + 1);
-            _items[_size++] = item;
-        }
-
-        public bool Contains(T item)
-        {
-            var items = GetItems(out var size);
-            return ContainsInternal(items, size, item);
-        }
-
-        public bool Remove(T item)
-        {
-            var index = IndexOfInternal(item);
-            if (index < 0)
-                return false;
-            RemoveAtInternal(index);
-            return true;
-        }
-
         public void Clear()
         {
-            if (_size > 0)
-            {
-                Array.Clear(_items, 0, _size);
-                _size = 0;
-            }
+            ClearInternal();
+        }
+
+        public T[] ToArrayWithLock()
+        {
+            var items = GetItemsWithLock(out var size);
+            return ToArrayInternal(items, size);
         }
 
         public T[] ToArray()
         {
-            if (_size == 0)
+            return ToArrayInternal(Items, Size);
+        }
+
+        protected virtual void AddInternal(T item)
+        {
+            if (Size == Items.Length)
+                EnsureCapacity((uint)Size + 1);
+            Items[Size++] = item;
+        }
+
+        protected virtual void RemoveAtInternal(int index)
+        {
+            if (index > Size)
+                throw ExceptionManager.IndexOutOfRangeCollection("index");
+            --Size;
+            if (index < Size)
+                Array.Copy(Items, index + 1, Items, index, Size - index);
+            Items[Size] = default!;
+        }
+
+        protected virtual int IndexOfInternal(T[] items, T item, int size)
+        {
+            return Array.IndexOf(items, item, 0, size);
+        }
+
+        protected virtual void ClearInternal()
+        {
+            if (Size > 0)
+            {
+                Array.Clear(Items, 0, Size);
+                Size = 0;
+            }
+        }
+
+        protected virtual T[] ToArrayInternal(T[] items, int size)
+        {
+            if (size == 0)
                 return Default.EmptyArray<T>();
-            var result = new T[_size];
+
+            var result = new T[size];
             for (var i = 0; i < result.Length; i++)
-                result[i] = _items[i];
+                result[i] = items[i];
 
             return result;
         }
 
-        private static bool ContainsInternal(T[] items, int size, T item)
+        protected void EnsureCapacity(uint min)
         {
-            if (item == null)
-            {
-                for (var index = 0; index < size; ++index)
-                {
-                    if (items[index] == null)
-                        return true;
-                }
-
-                return false;
-            }
-
-            var equalityComparer = EqualityComparer<T>.Default;
-            for (var index = 0; index < size; ++index)
-            {
-                if (equalityComparer.Equals(items[index], item))
-                    return true;
-            }
-
-            return false;
-        }
-
-        private void RemoveAtInternal(int index)
-        {
-            if (index > _size)
-                throw ExceptionManager.IndexOutOfRangeCollection("index");
-            --_size;
-            if (index < _size)
-                Array.Copy(_items, index + 1, _items, index, _size - index);
-            _items[_size] = default!;
-        }
-
-        private int IndexOfInternal(T item)
-        {
-            return Array.IndexOf(_items, item, 0, _size);
-        }
-
-        private void EnsureCapacity(uint min)
-        {
-            if (_items.Length >= min)
+            if (Items.Length >= min)
                 return;
-            var num = (uint)(_items.Length == 0 ? DefaultCapacity : _items.Length * 2);
+            var num = (uint)(Items.Length == 0 ? DefaultCapacity : Items.Length * 2);
             if (num < min)
                 num = min;
             Capacity = num;

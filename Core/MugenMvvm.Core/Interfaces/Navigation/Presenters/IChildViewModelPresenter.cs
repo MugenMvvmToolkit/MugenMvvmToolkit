@@ -1,12 +1,11 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Navigation.Presenters
 {
-    public interface IChildViewModelPresenter
+    public interface IChildViewModelPresenter : IHasPriority
     {
-        int Priority { get; }
-
         IChildViewModelPresenterResult? TryShow(IViewModelPresenter parentPresenter, IReadOnlyMetadataContext metadata);
 
         IReadOnlyList<IChildViewModelPresenterResult> TryClose(IViewModelPresenter parentPresenter, IReadOnlyMetadataContext metadata);

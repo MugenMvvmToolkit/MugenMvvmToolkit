@@ -15,7 +15,7 @@ namespace MugenMvvm.Interfaces.Commands
 
         IReadOnlyList<IRelayCommandMediatorFactory> GetMediatorFactories();
 
-        IExecutorRelayCommandMediator GetMediator<TParameter>(IRelayCommand relayCommand, Delegate execute, Delegate? canExecute,
+        IExecutorRelayCommandMediator GetExecutorMediator<TParameter>(IRelayCommand relayCommand, Delegate execute, Delegate? canExecute,
             IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext metadata);
     }
 }

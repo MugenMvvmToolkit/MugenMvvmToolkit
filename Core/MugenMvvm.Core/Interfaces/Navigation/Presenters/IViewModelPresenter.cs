@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Navigation.Presenters
 {
-    public interface IViewModelPresenter : IHasListeners<IViewModelPresenterListener>
+    public interface IViewModelPresenter : IHasListeners<IViewModelPresenterListener>//todo update listener add mediator, remove collection from presenter/manager
     {
         ICollection<IChildViewModelPresenter> Presenters { get; }
 
@@ -16,5 +16,5 @@ namespace MugenMvvm.Interfaces.Navigation.Presenters
         IReadOnlyList<IClosingViewModelPresenterResult> TryClose(IReadOnlyMetadataContext metadata);
 
         IRestorationViewModelPresenterResult TryRestore(IReadOnlyMetadataContext metadata);
-    }
+    }  
 }

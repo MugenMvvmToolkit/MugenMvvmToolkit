@@ -8,7 +8,7 @@ using Xunit;
 namespace MugenMvvm.UnitTest
 {
     public abstract class HasEventListenerUnitTestBase<T> : UnitTestBase
-        where T : class
+        where T : class, IListener
     {
         #region Methods
 

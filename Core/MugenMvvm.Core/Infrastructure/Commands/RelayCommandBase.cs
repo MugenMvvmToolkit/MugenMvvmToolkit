@@ -39,7 +39,7 @@ namespace MugenMvvm.Infrastructure.Commands
 
         protected RelayCommandBase(Delegate execute, Delegate? canExecute, IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext? metadataBase)
         {
-            Mediator = Service<IRelayCommandDispatcher>.Instance.GetMediator<T>(this, execute, canExecute, notifiers, metadataBase ?? Default.MetadataContext);
+            Mediator = Service<IRelayCommandDispatcher>.Instance.GetExecutorMediator<T>(this, execute, canExecute, notifiers, metadataBase ?? Default.MetadataContext);
         }
 
         #endregion

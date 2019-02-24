@@ -1,25 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.Serialization;
+using MugenMvvm.Constants;
 
 namespace MugenMvvm.Infrastructure.Internal
 {
-    public sealed class MemberInfoComparer : IEqualityComparer<MemberInfo>, IEqualityComparer<Type>
+    [DataContract(Namespace = BuildConstants.DataContractNamespace)]
+    [Serializable]
+    public sealed class MemberInfoEqualityComparer : IEqualityComparer<MemberInfo>, IEqualityComparer<Type>
     {
         #region Fields
 
-        public static readonly MemberInfoComparer Instance;
+        public static readonly MemberInfoEqualityComparer Instance;
 
         #endregion
 
         #region Constructors
 
-        static MemberInfoComparer()
+        static MemberInfoEqualityComparer()
         {
-            Instance = new MemberInfoComparer();
+            Instance = new MemberInfoEqualityComparer();
         }
 
-        private MemberInfoComparer()
+        private MemberInfoEqualityComparer()
         {
         }
 

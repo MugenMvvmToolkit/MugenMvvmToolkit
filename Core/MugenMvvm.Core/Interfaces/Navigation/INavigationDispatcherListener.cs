@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Navigation
 {
-    public interface INavigationDispatcherListener
+    public interface INavigationDispatcherListener : IListener
     {
         Task<bool> OnNavigatingAsync(INavigationDispatcher navigationDispatcher, INavigationContext context);
 

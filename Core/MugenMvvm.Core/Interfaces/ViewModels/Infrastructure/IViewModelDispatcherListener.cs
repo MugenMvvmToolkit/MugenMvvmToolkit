@@ -1,10 +1,11 @@
 ﻿using System;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.ViewModels.Infrastructure
 {
-    public interface IViewModelDispatcherListener
+    public interface IViewModelDispatcherListener : IListener
     {
         IViewModelBase? TryGetViewModel(IViewModelDispatcher viewModelDispatcher, Guid id, IReadOnlyMetadataContext metadata);
 

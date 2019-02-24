@@ -46,7 +46,7 @@ namespace MugenMvvm.Infrastructure.Commands
                 metadata.Get(RelayCommandMetadata.AllowMultipleExecution, AllowMultipleExecution), mediators);
         }
 
-        public IRelayCommandMediator? GetMediator<TParameter>(IRelayCommandDispatcher dispatcher, IRelayCommand relayCommand, Delegate execute, Delegate? canExecute,
+        public IRelayCommandMediator? TryGetMediator<TParameter>(IRelayCommandDispatcher dispatcher, IRelayCommand relayCommand, Delegate execute, Delegate? canExecute,
             IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext metadata)
         {
             if (notifiers == null || notifiers.Count == 0)

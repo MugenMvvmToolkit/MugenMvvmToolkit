@@ -1,15 +1,15 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
 using MugenMvvm.Constants;
+using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Presenters;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views.Infrastructure;
-using MugenMvvm.Interfaces.Wrapping;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.Navigation.Presenters
@@ -17,31 +17,23 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
     //todo fix view check, fix Window -> Popup, Dialog?, multi close check,
     //todo review interface INavigationMediatorFactory, remove IWrapperManager, IServiceProvider
     //todo IHasPriority merge
-    public class NavigationMediatorViewModelPresenter : IRestorableChildViewModelPresenter, IComparer<NavigationMediatorViewModelPresenter.INavigationMediatorFactory>
+    public class NavigationMediatorViewModelPresenter : INavigationMediatorViewModelPresenter
     {
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public NavigationMediatorViewModelPresenter(IServiceProvider serviceProvider, IViewManager viewManager, IWrapperManager wrapperManager)
+        public NavigationMediatorViewModelPresenter(IViewManager viewManager)
         {
-            Should.NotBeNull(wrapperManager, nameof(wrapperManager));
-            Should.NotBeNull(serviceProvider, nameof(serviceProvider));
             Should.NotBeNull(viewManager, nameof(viewManager));
-            ServiceProvider = serviceProvider;
             ViewManager = viewManager;
-            WrapperManager = wrapperManager;
-            MediatorRegistrations = new OrderedListInternal<INavigationMediatorFactory>(this);
+            Managers = new OrderedLightArrayList<INavigationMediatorViewModelPresenterManager>(HasPriorityComparer.Instance);
         }
 
         #endregion
 
         #region Properties
 
-        protected ICollection<INavigationMediatorFactory> MediatorRegistrations { get; }
-
-        protected IWrapperManager WrapperManager { get; }
-
-        protected IServiceProvider ServiceProvider { get; }
+        protected LightArrayList<INavigationMediatorViewModelPresenterManager> Managers { get; }
 
         protected IViewManager ViewManager { get; }
 
@@ -50,11 +42,6 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         #endregion
 
         #region Implementation of interfaces
-
-        int IComparer<INavigationMediatorFactory>.Compare(INavigationMediatorFactory x, INavigationMediatorFactory y)
-        {
-            return y.Priority.CompareTo(x.Priority);
-        }
 
         public IChildViewModelPresenterResult? TryShow(IViewModelPresenter parentPresenter, IReadOnlyMetadataContext metadata)
         {
@@ -77,47 +64,40 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             return TryRestoreInternal(parentPresenter, metadata);
         }
 
+        public void AddManager(INavigationMediatorViewModelPresenterManager manager)
+        {
+            Should.NotBeNull(manager, nameof(manager));
+            AddManagerInternal(manager);
+        }
+
+        public void RemoveManager(INavigationMediatorViewModelPresenterManager manager)
+        {
+            Should.NotBeNull(manager, nameof(manager));
+            RemoveManagerInternal(manager);
+        }
+
+        public IReadOnlyList<INavigationMediatorViewModelPresenterManager> GetManagers()
+        {
+            return GetManagersInternal();
+        }
+
         #endregion
 
         #region Methods
 
-        public void RegisterMediatorFactory<TMediator, TView>(bool disableWrap = false, int priority = 0)
-            where TMediator : NavigationMediatorBase<TView>
-            where TView : class
+        protected virtual void AddManagerInternal(INavigationMediatorViewModelPresenterManager manager)
         {
-            RegisterMediatorFactory(typeof(TMediator), typeof(TView), disableWrap, priority);
+            Managers.AddWithLock(manager);
         }
 
-        public void RegisterMediatorFactory(Type mediatorType, Type viewType, bool disableWrap, int priority = 0)
+        protected virtual void RemoveManagerInternal(INavigationMediatorViewModelPresenterManager manager)
         {
-            Should.NotBeNull(viewType, nameof(viewType));
-            if (disableWrap)
-            {
-                RegisterMediatorFactory(new DelegateMediatorRegistration((vm, initializer, arg3) =>
-                {
-                    if (initializer.ViewType.EqualsEx(viewType))
-                        return (INavigationMediator)ServiceProvider.GetService(mediatorType);
-                    return null;
-                }, priority));
-            }
-            else
-            {
-                RegisterMediatorFactory(new DelegateMediatorRegistration((vm, initializer, arg3) =>
-                {
-                    if (viewType.IsAssignableFromUnified(initializer.ViewType) || WrapperManager.CanWrap(initializer.ViewType, viewType, arg3))
-                        return (INavigationMediator)ServiceProvider.GetService(mediatorType);
-                    return null;
-                }, priority));
-            }
+            Managers.RemoveWithLock(manager);
         }
 
-        public void RegisterMediatorFactory(INavigationMediatorFactory mediatorFactory)
+        protected virtual IReadOnlyList<INavigationMediatorViewModelPresenterManager> GetManagersInternal()
         {
-            Should.NotBeNull(mediatorFactory, nameof(mediatorFactory));
-            lock (MediatorRegistrations)
-            {
-                MediatorRegistrations.Add(mediatorFactory);
-            }
+            return Managers.ToArrayWithLock();
         }
 
         protected virtual IChildViewModelPresenterResult? TryShowInternal(IViewModelPresenter parentPresenter, IReadOnlyMetadataContext metadata)
@@ -144,42 +124,29 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             if (mediators == null || mediators.Count == 0)
                 return Default.EmptyArray<IChildViewModelPresenterResult>();
 
-            if (mediators.Count == 1)
+            INavigationMediator[] m;
+            lock (mediators)
             {
-                var mediator = mediators[0];
-                return new IChildViewModelPresenterResult[] {new ChildViewModelPresenterResult(mediator, mediator.NavigationType, mediator.Close(metadata), this)};
+                m = mediators.ToArray();
             }
 
-            if (metadata.Get(NavigationInternalMetadata.CloseAll))
+            var managers = Managers.GetItemsWithLock(out var size);
+            for (int i = 0; i < managers.Length; i++)
             {
-                var results = new IChildViewModelPresenterResult[mediators.Count];
-                for (int i = 0; i < results.Length; i++)
-                {
-                    var mediator = mediators[i];
-                    results[i] = new ChildViewModelPresenterResult(mediator, mediator.NavigationType, mediator.Close(metadata), this);
-                }
-
-                return results;
+                var result = managers[i].TryCloseInternal(this, viewModel, m, metadata);
+                if (result != null)
+                    return result;
             }
 
-            var initializers = ViewManager.GetInitializersByViewModel(viewModel, metadata);
-            if (initializers.Count == 0)
-                return Default.EmptyArray<IChildViewModelPresenterResult>();
-
-            var r = new List<IChildViewModelPresenterResult>();
-            foreach (var initializer in initializers)
+            var results = new IChildViewModelPresenterResult[mediators.Count];
+            for (var i = 0; i < results.Length; i++)
             {
-                foreach (var mediator in mediators)
-                {
-                    if (r.Any(result => result.NavigationProvider.Id == mediator.Id))
-                        continue;
-
-                    if (initializer.Id == mediator.ViewInitializer.Id)
-                        r.Add(new ChildViewModelPresenterResult(mediator, mediator.NavigationType, mediator.Close(metadata), this));
-                }
+                var mediator = m[i];
+                results[i] = new ChildViewModelPresenterResult(mediator, mediator.NavigationType, mediator.Close(metadata), this);
             }
 
-            return r;
+            return results;
+
         }
 
         protected virtual IChildViewModelPresenterResult? TryRestoreInternal(IViewModelPresenter parentPresenter, IReadOnlyMetadataContext metadata)
@@ -201,70 +168,28 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         {
             var mediators = viewModel.Metadata.GetOrAdd(NavigationInternalMetadata.NavigationMediators, (object?)null, (object?)null,
                 (context, o, arg3) => new List<INavigationMediator>());
+
+            var managers = Managers.GetItemsWithLock(out var size);
             lock (mediators)
             {
                 var mediator = mediators.FirstOrDefault(m => m.ViewInitializer.Id == viewInitializer.Id);
                 if (mediator == null)
                 {
-                    lock (MediatorRegistrations)
+
+                    for (int i = 0; i < size; i++)
                     {
-                        foreach (var factory in MediatorRegistrations)
+                        mediator = managers[i].TryGetMediator(this, viewModel, viewInitializer, metadata);
+                        if (mediator != null)
                         {
-                            mediator = factory.GetMediator(viewModel, viewInitializer, metadata);
-                            if (mediator != null)
-                                break;
+                            mediators.Add(mediator);
+                            break;
                         }
                     }
+
                 }
+
+                return mediator;
             }
-
-
-            return null;
-        }
-
-        #endregion
-
-        #region Nested types
-
-        public interface INavigationMediatorFactory
-        {
-            int Priority { get; }
-
-            INavigationMediator GetMediator(IViewModelBase viewModel, IViewInitializer viewInitializer, IReadOnlyMetadataContext metadata);
-        }
-
-        private sealed class DelegateMediatorRegistration : INavigationMediatorFactory
-        {
-            #region Fields
-
-            private readonly Func<IViewModelBase, IViewInitializer, IReadOnlyMetadataContext, INavigationMediator> _factory;
-
-            #endregion
-
-            #region Constructors
-
-            public DelegateMediatorRegistration(Func<IViewModelBase, IViewInitializer, IReadOnlyMetadataContext, INavigationMediator> factory, int priority)
-            {
-                _factory = factory;
-                Priority = priority;
-            }
-
-            #endregion
-
-            #region Properties
-
-            public int Priority { get; }
-
-            #endregion
-
-            #region Implementation of interfaces
-
-            public INavigationMediator GetMediator(IViewModelBase viewModel, IViewInitializer viewInitializer, IReadOnlyMetadataContext metadata)
-            {
-                return _factory(viewModel, viewInitializer, metadata);
-            }
-
-            #endregion
         }
 
         #endregion

@@ -22,7 +22,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
         {
             Should.NotBeNull(tracer, nameof(tracer));
             Tracer = tracer;
-            ServiceResolvers = new Dictionary<Type, IViewModelDispatcherServiceResolver>(MemberInfoComparer.Instance);
+            ServiceResolvers = new Dictionary<Type, IViewModelDispatcherServiceResolver>(MemberInfoEqualityComparer.Instance);
         }
 
         #endregion

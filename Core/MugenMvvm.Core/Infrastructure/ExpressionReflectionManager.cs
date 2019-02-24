@@ -30,8 +30,8 @@ namespace MugenMvvm.Infrastructure
 
         static ExpressionReflectionManager()
         {
-            ActivatorCache = new Dictionary<ConstructorInfo, Func<object[], object>>(MemberInfoComparer.Instance);
-            InvokeMethodCache = new Dictionary<MethodInfo, Func<object?, object?[], object?>>(MemberInfoComparer.Instance);
+            ActivatorCache = new Dictionary<ConstructorInfo, Func<object[], object>>(MemberInfoEqualityComparer.Instance);
+            InvokeMethodCache = new Dictionary<MethodInfo, Func<object?, object?[], object?>>(MemberInfoEqualityComparer.Instance);
             InvokeMethodCacheDelegate = new Dictionary<MethodDelegateCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
             MemberGetterCache = new Dictionary<MemberInfoDelegateCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
             MemberSetterCache = new Dictionary<MemberInfoDelegateCacheKey, Delegate>(MemberCacheKeyComparer.Instance);

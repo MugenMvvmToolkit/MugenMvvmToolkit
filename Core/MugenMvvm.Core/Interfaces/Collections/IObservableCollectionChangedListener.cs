@@ -1,8 +1,9 @@
 ﻿using System.Collections;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Collections
 {
-    public interface IObservableCollectionChangedListener
+    public interface IObservableCollectionChangedListener : IListener
     {
         void OnBeginBatchUpdate(IEnumerable collection);
 

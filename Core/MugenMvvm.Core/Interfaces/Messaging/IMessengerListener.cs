@@ -1,8 +1,9 @@
 ﻿using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Messaging
 {
-    public interface IMessengerListener
+    public interface IMessengerListener : IListener
     {
         void OnContextCreated(IMessenger messenger, IMessengerContext messengerContext);
 

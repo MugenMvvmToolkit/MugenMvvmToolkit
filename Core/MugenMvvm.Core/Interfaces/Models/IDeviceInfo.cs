@@ -1,8 +1,9 @@
 ﻿using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Models
 {
-    public interface IDeviceInfo
+    public interface IDeviceInfo : IHasMetadata<IObservableMetadataContext>
     {
         PlatformType Platform { get; }
 

@@ -1,6 +1,8 @@
-﻿namespace MugenMvvm.Interfaces.Metadata
+﻿using MugenMvvm.Interfaces.Models;
+
+namespace MugenMvvm.Interfaces.Metadata
 {
-    public interface IObservableMetadataContextListener
+    public interface IObservableMetadataContextListener : IListener
     {
         void OnAdded(IObservableMetadataContext metadataContext, IMetadataContextKey key, object? newValue);
 
