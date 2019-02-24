@@ -1,43 +1,33 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
-using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Internal;
-using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Presenters;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.Navigation.Presenters
 {
-    public class ViewModelPresenter : HasListenersBase<IViewModelPresenterListener>, IViewModelPresenter//todo tracer remove to listeners, return empty metadata
+    public class ViewModelPresenter : HasListenersBase<IViewModelPresenterListener>, IViewModelPresenter
     {
-        #region Fields
-
-        private readonly PresentersCollection _presenters;
-
-        #endregion
+        private readonly NavigationDispatcherListener _navigationListener;
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelPresenter(INavigationDispatcher navigationDispatcher, IViewModelPresenterCallbackManager callbackManager, ITracer tracer)
+        public ViewModelPresenter(INavigationDispatcher navigationDispatcher, IViewModelPresenterCallbackManager callbackManager)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(callbackManager, nameof(callbackManager));
-            Should.NotBeNull(tracer, nameof(tracer));
             NavigationDispatcher = navigationDispatcher;
             CallbackManager = callbackManager;
-            Tracer = tracer;
-            _presenters = new PresentersCollection(this);
-            navigationDispatcher.AddListener(_presenters);
+            Presenters = new OrderedLightArrayList<IChildViewModelPresenter>(HasPriorityComparer.Instance);
+            _navigationListener = new NavigationDispatcherListener(this);
+            navigationDispatcher.AddListener(_navigationListener);
         }
 
         #endregion
@@ -46,20 +36,35 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         protected INavigationDispatcher NavigationDispatcher { get; }
 
-        protected ITracer Tracer { get; }
+        protected LightArrayList<IChildViewModelPresenter> Presenters { get; }
 
         public IViewModelPresenterCallbackManager CallbackManager { get; }
-
-        public ICollection<IChildViewModelPresenter> Presenters => _presenters;
 
         #endregion
 
         #region Implementation of interfaces
 
+        public void AddPresenter(IChildViewModelPresenter presenter)
+        {
+            Should.NotBeNull(presenter, nameof(presenter));
+            AddPresenterInternal(presenter);
+        }
+
+        public void RemovePresenter(IChildViewModelPresenter presenter)
+        {
+            Should.NotBeNull(presenter, nameof(presenter));
+            RemovePresenterInternal(presenter);
+        }
+
+        public IReadOnlyList<IChildViewModelPresenter> GetPresenters()
+        {
+            return GetPresentersInternal();
+        }
+
         public IViewModelPresenterResult Show(IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(metadata, nameof(metadata));
-            using (_presenters.SuspendNavigation())
+            using (_navigationListener.SuspendNavigation())
             {
                 var result = ShowInternal(metadata);
                 if (result == null)
@@ -71,7 +76,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         public IReadOnlyList<IClosingViewModelPresenterResult> TryClose(IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(metadata, nameof(metadata));
-            using (_presenters.SuspendNavigation())
+            using (_navigationListener.SuspendNavigation())
             {
                 var result = TryCloseInternal(metadata);
                 return OnClosedInternal(metadata, result);
@@ -81,7 +86,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         public IRestorationViewModelPresenterResult TryRestore(IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(metadata, nameof(metadata));
-            using (_presenters.SuspendNavigation())
+            using (_navigationListener.SuspendNavigation())
             {
                 var result = TryRestoreInternal(metadata);
                 return OnRestoredInternal(metadata, result);
@@ -92,9 +97,38 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         #region Methods
 
+        protected virtual void AddPresenterInternal(IChildViewModelPresenter presenter)
+        {
+            Presenters.AddWithLock(presenter);
+
+            var listeners = GetListenersInternal();
+            if (listeners == null)
+                return;
+
+            for (var i = 0; i < listeners.Length; i++)
+                listeners[i]?.OnChildPresenterAdded(this, presenter);
+        }
+
+        protected virtual void RemovePresenterInternal(IChildViewModelPresenter presenter)
+        {
+            Presenters.RemoveWithLock(presenter);
+
+            var listeners = GetListenersInternal();
+            if (listeners == null)
+                return;
+
+            for (var i = 0; i < listeners.Length; i++)
+                listeners[i]?.OnChildPresenterRemoved(this, presenter);
+        }
+
+        protected virtual IReadOnlyList<IChildViewModelPresenter> GetPresentersInternal()
+        {
+            return Presenters.ToArrayWithLock();
+        }
+
         protected virtual IChildViewModelPresenterResult? ShowInternal(IReadOnlyMetadataContext metadata)
         {
-            var presenters = Presenters.ToArray();
+            var presenters = Presenters.ToArrayWithLock();
             for (var i = 0; i < presenters.Length; i++)
             {
                 var presenter = presenters[i];
@@ -103,10 +137,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
                 var operation = presenter.TryShow(this, metadata);
                 if (operation != null)
-                {
-                    Trace("show", metadata, presenters[i], operation);
                     return operation;
-                }
             }
 
             return null;
@@ -140,7 +171,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         protected virtual IReadOnlyList<IChildViewModelPresenterResult> TryCloseInternal(IReadOnlyMetadataContext metadata)
         {
             var results = new List<IChildViewModelPresenterResult>();
-            var presenters = Presenters.ToArray();
+            var presenters = Presenters.ToArrayWithLock();
             for (var i = 0; i < presenters.Length; i++)
             {
                 var presenter = presenters[i];
@@ -187,17 +218,14 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         protected virtual IChildViewModelPresenterResult? TryRestoreInternal(IReadOnlyMetadataContext metadata)
         {
-            var presenters = Presenters.ToArray();
+            var presenters = Presenters.ToArrayWithLock();
             for (var i = 0; i < presenters.Length; i++)
             {
                 if (presenters[i] is IRestorableChildViewModelPresenter presenter && CanRestore(presenter, metadata))
                 {
                     var result = presenter.TryRestore(this, metadata);
                     if (result != null)
-                    {
-                        Trace("restore", metadata, presenter, result);
                         return result;
-                    }
                 }
             }
 
@@ -216,14 +244,6 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             }
 
             return r;
-        }
-
-        protected virtual void OnChildPresenterAdded(IChildViewModelPresenter presenter)
-        {
-        }
-
-        protected virtual void OnChildPresenterRemoved(IChildViewModelPresenter presenter)
-        {
         }
 
         protected virtual bool CanShow(IChildViewModelPresenter childPresenter, IReadOnlyMetadataContext metadata)
@@ -274,22 +294,14 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             return true;
         }
 
-        private void Trace(string requestName, IReadOnlyMetadataContext metadata, IChildViewModelPresenter presenter,
-            IHasMetadata<IReadOnlyMetadataContext> hasMetadata) //todo remove all traces
-        {
-            if (Tracer.CanTrace(TraceLevel.Information))
-                Tracer.Info(MessageConstants.TraceViewModelPresenterFormat3, requestName, metadata.Dump() + hasMetadata.Metadata.Dump(), presenter.GetType().FullName);
-        }
-
-        #endregion
+        #endregion        
 
         #region Nested types
 
-        private sealed class PresentersCollection : ICollection<IChildViewModelPresenter>, IComparer<IChildViewModelPresenter>, INavigationDispatcherCallbackProvider, IDisposable
+        private sealed class NavigationDispatcherListener : INavigationDispatcherCallbackProvider, IDisposable
         {
             #region Fields
 
-            private readonly OrderedListInternal<IChildViewModelPresenter> _list;
             private readonly ViewModelPresenter _presenter;
             private readonly List<KeyValuePair<INavigationContext, object>> _suspendedEvents;
             private int _suspendCount;
@@ -298,20 +310,11 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
             #region Constructors
 
-            public PresentersCollection(ViewModelPresenter presenter)
+            public NavigationDispatcherListener(ViewModelPresenter presenter)
             {
                 _presenter = presenter;
-                _list = new OrderedListInternal<IChildViewModelPresenter>(comparer: this);
                 _suspendedEvents = new List<KeyValuePair<INavigationContext, object>>();
             }
-
-            #endregion
-
-            #region Properties
-
-            public int Count => _list.Count;
-
-            public bool IsReadOnly => false;
 
             #endregion
 
@@ -382,55 +385,6 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 NavigationCallbackType? callbackType, IReadOnlyMetadataContext metadata)
             {
                 return _presenter.CallbackManager.GetCallbacks(_presenter, navigationEntry, callbackType, metadata);
-            }
-
-            public IEnumerator<IChildViewModelPresenter> GetEnumerator()
-            {
-                return _list.GetEnumerator();
-            }
-
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
-
-            public void Add(IChildViewModelPresenter item)
-            {
-                Should.NotBeNull(item, nameof(item));
-                _list.Add(item);
-                _presenter.OnChildPresenterAdded(item);
-            }
-
-            public void Clear()
-            {
-                var values = _list.ToArray();
-                _list.Clear();
-                for (var index = 0; index < values.Length; index++)
-                    _presenter.OnChildPresenterRemoved(values[index]);
-            }
-
-            public bool Contains(IChildViewModelPresenter item)
-            {
-                return _list.Contains(item);
-            }
-
-            public void CopyTo(IChildViewModelPresenter[] array, int arrayIndex)
-            {
-                _list.CopyTo(array, arrayIndex);
-            }
-
-            public bool Remove(IChildViewModelPresenter item)
-            {
-                Should.NotBeNull(item, nameof(item));
-                var remove = _list.Remove(item);
-                if (remove)
-                    _presenter.OnChildPresenterRemoved(item);
-                return remove;
-            }
-
-            int IComparer<IChildViewModelPresenter>.Compare(IChildViewModelPresenter x1, IChildViewModelPresenter x2)
-            {
-                return x2.Priority.CompareTo(x1.Priority);
             }
 
             public void Dispose()
