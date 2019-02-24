@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Infrastructure.Internal
 {
-    public abstract class HasListenersBase<T> : IHasListeners<T> where T : class, IListener
+    public abstract class HasListenersBase<T> : IHasListeners<T>, IComparer<T> where T : class, IListener
     {
         #region Fields
 
@@ -22,11 +22,16 @@ namespace MugenMvvm.Infrastructure.Internal
 
         #region Implementation of interfaces
 
+        int IComparer<T>.Compare(T x, T y)
+        {
+            return y.GetPriority(this).CompareTo(x.GetPriority(this));
+        }
+
         public void AddListener(T listener)
         {
             Should.NotBeNull(listener, nameof(listener));
             if (_listeners == null)
-                MugenExtensions.LazyInitialize(ref _listeners, new LightArrayList<T>(2));
+                MugenExtensions.LazyInitialize(ref _listeners, new OrderedLightArrayList<T>(this, 2));
             _listeners!.AddWithLock(listener);
         }
 

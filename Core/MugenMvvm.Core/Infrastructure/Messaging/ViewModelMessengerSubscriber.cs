@@ -21,9 +21,10 @@ namespace MugenMvvm.Infrastructure.Messaging
     {
         #region Fields
 
-        private static readonly IMetadataContextKey<ViewModelMessengerSubscriber> MetadataKey;
         private readonly int _hashCode;
         private readonly WeakReference _reference;
+
+        private static readonly IMetadataContextKey<ViewModelMessengerSubscriber> MetadataKey;
 
         #endregion
 
@@ -48,7 +49,7 @@ namespace MugenMvvm.Infrastructure.Messaging
 
         #region Properties
 
-        private IViewModelBase? Target => (IViewModelBase)_reference.Target;
+        private IViewModelBase? Target => (IViewModelBase) _reference.Target;
 
         private bool BroadcastAllMessages { get; set; }
 
@@ -123,6 +124,11 @@ namespace MugenMvvm.Infrastructure.Messaging
                 BusyMessageHandlerType = metadataContext.Get(ViewModelMetadata.BusyMessageHandlerType);
         }
 
+        public int GetPriority(object source)
+        {
+            return 0;
+        }
+
         #endregion
 
         #region Methods
@@ -135,7 +141,6 @@ namespace MugenMvvm.Infrastructure.Messaging
             if (createIfNeed)
                 return viewModel.Metadata.GetOrAdd(MetadataKey, viewModel, viewModel, (ctx, vm, _) => new ViewModelMessengerSubscriber(vm));
             return viewModel.Metadata.Get(MetadataKey);
-
         }
 
         public override bool Equals(object obj)
@@ -184,7 +189,8 @@ namespace MugenMvvm.Infrastructure.Messaging
 
             #region Properties
 
-            [IgnoreDataMember, XmlIgnore]
+            [IgnoreDataMember]
+            [XmlIgnore]
             public Type TargetType => typeof(ViewModelMessengerSubscriber);
 
             #endregion

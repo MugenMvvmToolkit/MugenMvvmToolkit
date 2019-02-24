@@ -24,6 +24,12 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         #endregion
 
+        #region Properties
+
+        public int Priority { get; set; }
+
+        #endregion
+
         #region Implementation of interfaces
 
         public void OnStateChanged(IApplicationStateDispatcher dispatcher, ApplicationState oldState, ApplicationState newState, IReadOnlyMetadataContext metadata)
@@ -31,6 +37,11 @@ namespace MugenMvvm.Infrastructure.Navigation
             var entries = _navigationDispatcher.GetNavigationEntries(null, metadata);
             for (var i = 0; i < entries.Count; i++)
                 OnApplicationStateChanged(entries[i], dispatcher, oldState, newState, metadata);
+        }
+
+        public int GetPriority(object source)
+        {
+            return Priority;
         }
 
         #endregion

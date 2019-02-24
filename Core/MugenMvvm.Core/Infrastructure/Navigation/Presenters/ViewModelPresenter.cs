@@ -44,6 +44,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         public IViewModelPresenterCallbackManager CallbackManager { get; }
 
+        public int NavigationDispatcherListenerPriority { get; set; }
+
         #endregion
 
         #region Implementation of interfaces
@@ -197,7 +199,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                         throw ExceptionManager.PresenterInvalidRequest(metadata.Dump() + result.Metadata.Dump());
 
                     var callback = CallbackManager.AddCallback(this, viewModel, NavigationCallbackType.Closing, result, metadata);
-                    r.Add(new ClosingViewModelPresenterResult((INavigationCallback<bool>)callback, result));
+                    r.Add(new ClosingViewModelPresenterResult((INavigationCallback<bool>) callback, result));
                 }
             }
 
@@ -392,6 +394,11 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 NavigationCallbackType? callbackType, IReadOnlyMetadataContext metadata)
             {
                 return _presenter.CallbackManager.GetCallbacks(_presenter, navigationEntry, callbackType, metadata);
+            }
+
+            public int GetPriority(object source)
+            {
+                return _presenter.NavigationDispatcherListenerPriority;
             }
 
             #endregion

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -112,6 +113,11 @@ namespace MugenMvvm.Collections
             AddEvent(ref e);
         }
 
+        public int GetPriority(object source)
+        {
+            return GetPriorityInternal(source);
+        }
+
         #endregion
 
         #region Methods
@@ -122,6 +128,11 @@ namespace MugenMvvm.Collections
                 hasListeners.RemoveListener(this);
             else if (WrappedCollection is INotifyCollectionChanged notifyCollectionChanged)
                 notifyCollectionChanged.CollectionChanged -= OnCollectionChanged;
+        }
+
+        protected virtual int GetPriorityInternal(object source)
+        {
+            return 0;
         }
 
         protected virtual void AddEventInternal(ref CollectionChangedEvent collectionChangedEvent)

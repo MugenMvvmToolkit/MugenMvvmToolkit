@@ -12,8 +12,9 @@ namespace MugenMvvm.Infrastructure.ViewModels
     {
         #region Fields
 
-        private readonly Dictionary<Guid, object> _viewModelsCache;
         private readonly bool _isWeakCache;
+
+        private readonly Dictionary<Guid, object> _viewModelsCache;
 
         #endregion
 
@@ -24,6 +25,12 @@ namespace MugenMvvm.Infrastructure.ViewModels
             _isWeakCache = isIsWeakCache;
             _viewModelsCache = new Dictionary<Guid, object>();
         }
+
+        #endregion
+
+        #region Properties
+
+        public int Priority { get; set; }
 
         #endregion
 
@@ -65,9 +72,9 @@ namespace MugenMvvm.Infrastructure.ViewModels
             }
 
             if (!_isWeakCache)
-                return (IViewModelBase)value;
+                return (IViewModelBase) value;
 
-            var vm = (IViewModelBase)((WeakReference)value).Target;
+            var vm = (IViewModelBase) ((WeakReference) value).Target;
             if (vm == null)
                 RemoveFromCache(id);
             return vm;
@@ -96,6 +103,11 @@ namespace MugenMvvm.Infrastructure.ViewModels
                 RemoveFromCache(viewModel.Metadata.Get(ViewModelMetadata.Id));
         }
 
+        public int GetPriority(object source)
+        {
+            return Priority;
+        }
+
         #endregion
 
         #region Methods
@@ -104,7 +116,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
         {
             lock (_viewModelsCache)
             {
-                _viewModelsCache[id] = _isWeakCache ? (object)MugenExtensions.GetWeakReference(viewModel) : viewModel;
+                _viewModelsCache[id] = _isWeakCache ? (object) MugenExtensions.GetWeakReference(viewModel) : viewModel;
             }
         }
 

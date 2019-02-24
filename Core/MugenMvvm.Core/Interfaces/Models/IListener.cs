@@ -2,5 +2,6 @@
 {
     public interface IListener
     {
+        int GetPriority(object source);
     }
 }

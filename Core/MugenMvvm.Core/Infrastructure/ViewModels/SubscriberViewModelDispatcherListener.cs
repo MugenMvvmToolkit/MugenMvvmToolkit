@@ -12,6 +12,12 @@ namespace MugenMvvm.Infrastructure.ViewModels
 {
     public class SubscriberViewModelDispatcherListener : IViewModelDispatcherListener
     {
+        #region Properties
+
+        public int Priority { get; set; }
+
+        #endregion
+
         #region Implementation of interfaces
 
         public IViewModelBase? TryGetViewModel(IViewModelDispatcher viewModelDispatcher, Guid id, IReadOnlyMetadataContext metadata)
@@ -26,7 +32,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
             if (messenger == null)
                 return false;
 
-            bool result = false;
+            var result = false;
 
             if (observer is IViewModelBase targetVm)
             {
@@ -59,7 +65,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
             if (messenger == null)
                 return false;
 
-            bool result = false;
+            var result = false;
             if (observer is IViewModelBase targetVm)
             {
                 var messengerSubscriber = ViewModelMessengerSubscriber.TryGetSubscriber(targetVm, false);
@@ -84,6 +90,11 @@ namespace MugenMvvm.Infrastructure.ViewModels
         public void OnLifecycleChanged(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState,
             IReadOnlyMetadataContext metadata)
         {
+        }
+
+        public int GetPriority(object source)
+        {
+            return Priority;
         }
 
         #endregion

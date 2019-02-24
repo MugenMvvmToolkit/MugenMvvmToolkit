@@ -50,6 +50,12 @@ namespace MugenMvvm.Infrastructure.Views
 
         #endregion
 
+        #region Properties
+
+        public int Priority { get; set; }
+
+        #endregion
+
         #region Implementation of interfaces
 
         public void OnChildViewManagerAdded(IViewManager viewManager, IChildViewManager childViewManager)
@@ -76,6 +82,11 @@ namespace MugenMvvm.Infrastructure.Views
         public void OnViewCleared(IViewManager viewManager, IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
         {
             GetUpdateViewMethod(viewModel, viewInfo.View)?.Invoke(null, new[] { viewModel, viewInfo, metadata, Default.TrueObject });
+        }
+
+        public int GetPriority(object source)
+        {
+            return Priority;
         }
 
         #endregion

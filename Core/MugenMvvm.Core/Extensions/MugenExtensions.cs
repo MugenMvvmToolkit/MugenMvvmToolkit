@@ -521,6 +521,11 @@ namespace MugenMvvm
                 foreach (var item in this.OfType<IDisposable>())
                     item.Dispose();
             }
+
+            public int GetPriority(object source)
+            {
+                return 0;
+            }
         }
 
         public static TView TryWrap<TView>(this IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
