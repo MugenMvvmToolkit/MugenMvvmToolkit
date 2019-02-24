@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Attributes;
-using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Internal;
-using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.ViewModels.Infrastructure;
@@ -13,15 +11,13 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.ViewModels
 {
-    public class ViewModelDispatcher : HasListenersBase<IViewModelDispatcherListener>, IViewModelDispatcher //todo remove tracer
+    public class ViewModelDispatcher : HasListenersBase<IViewModelDispatcherListener>, IViewModelDispatcher
     {
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelDispatcher(ITracer tracer)
+        public ViewModelDispatcher()
         {
-            Should.NotBeNull(tracer, nameof(tracer));
-            Tracer = tracer;
             ServiceResolvers = new Dictionary<Type, IViewModelDispatcherServiceResolver>(MemberInfoEqualityComparer.Instance);
         }
 
@@ -30,8 +26,6 @@ namespace MugenMvvm.Infrastructure.ViewModels
         #region Properties
 
         protected Dictionary<Type, IViewModelDispatcherServiceResolver> ServiceResolvers { get; }
-
-        protected ITracer Tracer { get; }
 
         #endregion
 
@@ -151,11 +145,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
             {
                 for (var i = 0; i < listeners.Length; i++)
                     listeners[i]?.OnLifecycleChanged(this, viewModel, lifecycleState, metadata);
-            }
-
-            var traceLevel = lifecycleState == ViewModelLifecycleState.Finalized ? TraceLevel.Error : TraceLevel.Information;
-            if (Tracer.CanTrace(traceLevel))//todo remove tracer
-                Tracer.Trace(traceLevel, MessageConstants.TraceViewModelLifecycleFormat3.Format(viewModel.GetType(), viewModel.GetHashCode(), lifecycleState));
+            }                        
         }
 
         protected virtual bool SubscribeInternal(IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode, IReadOnlyMetadataContext metadata)

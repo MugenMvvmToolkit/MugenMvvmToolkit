@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
@@ -13,7 +11,7 @@ using MugenMvvm.Interfaces.Threading;
 
 namespace MugenMvvm.Infrastructure.Messaging
 {
-    public class Messenger : HasListenersBase<IMessengerListener>, IMessenger, IEqualityComparer<KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>> //todo tracer
+    public class Messenger : HasListenersBase<IMessengerListener>, IMessenger, IEqualityComparer<KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>>
     {
         #region Fields
 

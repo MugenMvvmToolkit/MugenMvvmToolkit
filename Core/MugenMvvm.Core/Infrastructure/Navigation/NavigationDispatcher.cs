@@ -4,10 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
-using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Internal;
-using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.ViewModels;
@@ -26,18 +24,10 @@ namespace MugenMvvm.Infrastructure.Navigation
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public NavigationDispatcher(ITracer tracer)
+        public NavigationDispatcher()
         {
-            Should.NotBeNull(tracer, nameof(tracer));
-            Tracer = tracer;
             NavigationEntries = new Dictionary<NavigationType, List<WeakNavigationEntry>>();
         }
-
-        #endregion
-
-        #region Properties
-
-        protected ITracer Tracer { get; }
 
         #endregion
 
@@ -52,7 +42,6 @@ namespace MugenMvvm.Infrastructure.Navigation
         public INavigatingResult OnNavigating(INavigationContext context)
         {
             Should.NotBeNull(context, nameof(context));
-            Trace(nameof(OnNavigating), context);
             return OnNavigatingInternal(context);
         }
 
@@ -60,23 +49,20 @@ namespace MugenMvvm.Infrastructure.Navigation
         {
             Should.NotBeNull(context, nameof(context));
             UpdateNavigationEntries(context);
-            OnNavigatedInternal(context);
-            Trace(nameof(OnNavigated), context);
+            OnNavigatedInternal(context);            
         }
 
         public void OnNavigationFailed(INavigationContext context, Exception exception)
         {
             Should.NotBeNull(context, nameof(context));
             Should.NotBeNull(exception, nameof(exception));
-            OnNavigationFailedInternal(context, exception);
-            Trace(nameof(OnNavigationFailed), context);
+            OnNavigationFailedInternal(context, exception);            
         }
 
         public void OnNavigationCanceled(INavigationContext context)
         {
             Should.NotBeNull(context, nameof(context));
-            OnNavigationCanceledInternal(context);
-            Trace(nameof(OnNavigationCanceled), context);
+            OnNavigationCanceledInternal(context);            
         }
 
         #endregion
@@ -244,12 +230,6 @@ namespace MugenMvvm.Infrastructure.Navigation
 
             if (!hasValue)
                 NavigationEntries.Remove(type);
-        }
-
-        private void Trace(string navigationName, INavigationContext context)//todo move trace to another class common tracer
-        {
-            if (Tracer.CanTrace(TraceLevel.Information))
-                Tracer.Info(MessageConstants.TraceNavigationFormat5, navigationName, context.NavigationMode, context.ViewModelFrom, context.ViewModelTo, context.NavigationType);
         }
 
         #endregion

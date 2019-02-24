@@ -4,8 +4,8 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Navigation.Presenters
 {
-    public interface IViewModelPresenter : IHasListeners<IViewModelPresenterListener>//todo update listener add mediator, remove collection from presenter/manager,
-                                                                                     //todo tracer remove to listeners, return empty metadata
+    public interface IViewModelPresenter : IHasListeners<IViewModelPresenterListener>//todo update listener add mediator
+                                                                                     //todo return empty metadata
     {
         IViewModelPresenterCallbackManager CallbackManager { get; }
 

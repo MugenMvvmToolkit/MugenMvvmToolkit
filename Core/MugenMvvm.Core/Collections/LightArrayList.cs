@@ -90,7 +90,7 @@ namespace MugenMvvm.Collections
 
         #region Methods
 
-        public T[] GetItemsWithLock(out int size)
+        public T[] GetItemsWithLock(out int size)//todo unsafe!!!!
         {
             lock (this)
             {
