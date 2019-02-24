@@ -54,19 +54,8 @@ namespace MugenMvvm.Infrastructure.Internal
         protected T?[] GetListenersInternal()
         {
             if (_listeners == null)
-                return null;
+                return Default.EmptyArray<T?>();
             return _listeners.GetItems(out _);
-        }
-
-        protected T?[] GetListenersWithLockInternal(out int size)
-        {
-            if (_listeners == null)
-            {
-                size = 0;
-                return null;
-            }
-
-            return _listeners.GetItemsWithLock(out size);
         }
 
         #endregion

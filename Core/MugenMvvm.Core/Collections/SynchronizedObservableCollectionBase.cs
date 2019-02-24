@@ -243,21 +243,15 @@ namespace MugenMvvm.Collections
         protected virtual void OnBeginBatchUpdate()
         {
             var listeners = GetListenersInternal();
-            if (listeners != null)
-            {
-                for (var i = 0; i < listeners.Length; i++)
-                    (listeners[i] as IObservableCollectionChangedListener)?.OnBeginBatchUpdate(this);
-            }
+            for (var i = 0; i < listeners.Length; i++)
+                (listeners[i] as IObservableCollectionChangedListener)?.OnBeginBatchUpdate(this);
         }
 
         protected virtual void OnEndBatchUpdate()
         {
             var listeners = GetListenersInternal();
-            if (listeners != null)
-            {
-                for (var i = 0; i < listeners.Length; i++)
-                    (listeners[i] as IObservableCollectionChangedListener)?.OnEndBatchUpdate(this);
-            }
+            for (var i = 0; i < listeners.Length; i++)
+                (listeners[i] as IObservableCollectionChangedListener)?.OnEndBatchUpdate(this);
         }
 
         protected virtual void CopyToInternal(Array array, int index)
@@ -355,9 +349,7 @@ namespace MugenMvvm.Collections
 
         protected bool OnAdding(object item, int index)
         {
-            var listeners = GetListenersInternal();
-            if (listeners == null)
-                return true;
+            var listeners = GetListenersInternal();            
             for (var i = 0; i < listeners.Length; i++)
             {
                 if (listeners[i] is IObservableCollectionChangingListener listener && !listener.OnAdding(this, item, index))
@@ -370,22 +362,17 @@ namespace MugenMvvm.Collections
         protected bool OnReplacing(object oldItem, object newItem, int index)
         {
             var listeners = GetListenersInternal();
-            if (listeners == null)
-                return true;
             for (var i = 0; i < listeners.Length; i++)
             {
                 if (listeners[i] is IObservableCollectionChangingListener listener && !listener.OnReplacing(this, oldItem, newItem, index))
                     return false;
             }
-
             return true;
         }
 
         protected bool OnMoving(object item, int oldIndex, int newIndex)
         {
             var listeners = GetListenersInternal();
-            if (listeners == null)
-                return true;
             for (var i = 0; i < listeners.Length; i++)
             {
                 if (listeners[i] is IObservableCollectionChangingListener listener && !listener.OnMoving(this, item, oldIndex, newIndex))
@@ -398,8 +385,6 @@ namespace MugenMvvm.Collections
         protected bool OnRemoving(object item, int index)
         {
             var listeners = GetListenersInternal();
-            if (listeners == null)
-                return true;
             for (var i = 0; i < listeners.Length; i++)
             {
                 if (listeners[i] is IObservableCollectionChangingListener listener && !listener.OnRemoving(this, item, index))
@@ -412,8 +397,6 @@ namespace MugenMvvm.Collections
         protected bool OnClearing()
         {
             var listeners = GetListenersInternal();
-            if (listeners == null)
-                return true;
             for (var i = 0; i < listeners.Length; i++)
             {
                 if (listeners[i] is IObservableCollectionChangingListener listener && !listener.OnClearing(this))
@@ -426,51 +409,36 @@ namespace MugenMvvm.Collections
         protected void OnAdded(object item, int index)
         {
             var listeners = GetListenersInternal();
-            if (listeners != null)
-            {
-                for (var i = 0; i < listeners.Length; i++)
-                    (listeners[i] as IObservableCollectionChangedListener)?.OnAdded(this, item, index);
-            }
+            for (var i = 0; i < listeners.Length; i++)
+                (listeners[i] as IObservableCollectionChangedListener)?.OnAdded(this, item, index);
         }
 
         protected void OnReplaced(object oldItem, object newItem, int index)
         {
             var listeners = GetListenersInternal();
-            if (listeners != null)
-            {
-                for (var i = 0; i < listeners.Length; i++)
-                    (listeners[i] as IObservableCollectionChangedListener)?.OnReplaced(this, oldItem, newItem, index);
-            }
+            for (var i = 0; i < listeners.Length; i++)
+                (listeners[i] as IObservableCollectionChangedListener)?.OnReplaced(this, oldItem, newItem, index);
         }
 
         protected void OnMoved(object item, int oldIndex, int newIndex)
         {
             var listeners = GetListenersInternal();
-            if (listeners != null)
-            {
-                for (var i = 0; i < listeners.Length; i++)
-                    (listeners[i] as IObservableCollectionChangedListener)?.OnMoved(this, item, oldIndex, newIndex);
-            }
+            for (var i = 0; i < listeners.Length; i++)
+                (listeners[i] as IObservableCollectionChangedListener)?.OnMoved(this, item, oldIndex, newIndex);
         }
 
         protected void OnRemoved(object item, int index)
         {
             var listeners = GetListenersInternal();
-            if (listeners != null)
-            {
-                for (var i = 0; i < listeners.Length; i++)
-                    (listeners[i] as IObservableCollectionChangedListener)?.OnRemoved(this, item, index);
-            }
+            for (var i = 0; i < listeners.Length; i++)
+                (listeners[i] as IObservableCollectionChangedListener)?.OnRemoved(this, item, index);
         }
 
         protected void OnCleared()
         {
             var listeners = GetListenersInternal();
-            if (listeners != null)
-            {
-                for (var i = 0; i < listeners.Length; i++)
-                    (listeners[i] as IObservableCollectionChangedListener)?.OnCleared(this);
-            }
+            for (var i = 0; i < listeners.Length; i++)
+                (listeners[i] as IObservableCollectionChangedListener)?.OnCleared(this);
         }
 
         private void EndBatchUpdate()

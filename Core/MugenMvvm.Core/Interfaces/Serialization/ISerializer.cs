@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Serialization
 {
-    public interface ISerializer
+    public interface ISerializer//todo review, can serialize instance??
     {
         [Pure]
         ISerializationContext GetContext(IServiceProvider? serviceProvider, IMetadataContext? metadata);

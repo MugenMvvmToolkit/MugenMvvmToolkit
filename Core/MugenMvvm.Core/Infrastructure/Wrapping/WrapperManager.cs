@@ -119,11 +119,8 @@ namespace MugenMvvm.Infrastructure.Wrapping
                 throw ExceptionManager.WrapperTypeNotSupported(wrapperType);
 
             var listeners = GetListenersInternal();
-            if (listeners != null)
-            {
-                for (int i = 0; i < listeners.Length; i++)
-                    listeners[i]?.OnWrapped(this, item, wrapperType, wrapper, metadata);
-            }
+            for (int i = 0; i < listeners.Length; i++)
+                listeners[i]?.OnWrapped(this, item, wrapperType, wrapper, metadata);
 
             return wrapper;
         }

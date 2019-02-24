@@ -49,20 +49,20 @@ namespace MugenMvvm.Infrastructure.Navigation
         {
             Should.NotBeNull(context, nameof(context));
             UpdateNavigationEntries(context);
-            OnNavigatedInternal(context);            
+            OnNavigatedInternal(context);
         }
 
         public void OnNavigationFailed(INavigationContext context, Exception exception)
         {
             Should.NotBeNull(context, nameof(context));
             Should.NotBeNull(exception, nameof(exception));
-            OnNavigationFailedInternal(context, exception);            
+            OnNavigationFailedInternal(context, exception);
         }
 
         public void OnNavigationCanceled(INavigationContext context)
         {
             Should.NotBeNull(context, nameof(context));
-            OnNavigationCanceledInternal(context);            
+            OnNavigationCanceledInternal(context);
         }
 
         #endregion
@@ -143,16 +143,14 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         protected virtual INavigatingResult OnNavigatingInternal(INavigationContext context)
         {
-            var listeners = GetListenersInternal()?.Where(listener => listener != null).ToArray() ?? Default.EmptyArray<INavigationDispatcherListener>();
-            var invoker = new NavigatingResult(this, listeners, context);
+            var l = GetListenersInternal();
+            var invoker = new NavigatingResult(this, l.Length == 0 ? l : l.Where(listener => listener != null).ToArray(), context);
             return invoker;
         }
 
         protected virtual void OnNavigatedInternal(INavigationContext context)
         {
             var listeners = GetListenersInternal();
-            if (listeners == null)
-                return;
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i]?.OnNavigated(this, context);
         }
@@ -160,8 +158,6 @@ namespace MugenMvvm.Infrastructure.Navigation
         protected virtual void OnNavigationFailedInternal(INavigationContext context, Exception exception)
         {
             var listeners = GetListenersInternal();
-            if (listeners == null)
-                return;
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i]?.OnNavigationFailed(this, context, exception);
         }
@@ -169,8 +165,6 @@ namespace MugenMvvm.Infrastructure.Navigation
         protected virtual void OnNavigationCanceledInternal(INavigationContext context)
         {
             var listeners = GetListenersInternal();
-            if (listeners == null)
-                return;
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i]?.OnNavigationCanceled(this, context);
         }
@@ -178,8 +172,6 @@ namespace MugenMvvm.Infrastructure.Navigation
         protected virtual void OnNavigatingCanceledInternal(INavigationContext context)
         {
             var listeners = GetListenersInternal();
-            if (listeners == null)
-                return;
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i]?.OnNavigatingCanceled(this, context);
         }
@@ -187,7 +179,7 @@ namespace MugenMvvm.Infrastructure.Navigation
         protected virtual IReadOnlyList<INavigationCallback> GetCallbacksInternal(INavigationEntry navigationEntry, NavigationCallbackType? callbackType, IReadOnlyMetadataContext metadata)
         {
             var listeners = GetListenersInternal();
-            if (listeners == null)
+            if (listeners.Length == 0)
                 return Default.EmptyArray<INavigationCallback>();
 
             List<INavigationCallback>? callbacks = null;

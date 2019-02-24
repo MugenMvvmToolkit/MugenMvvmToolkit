@@ -106,11 +106,8 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
         private void OnBeginBusy(IBusyInfo busyInfo)
         {
             var items = GetListenersInternal();
-            if (items != null)
-            {
-                for (var i = 0; i < items.Length; i++)
-                    items[i]?.OnBeginBusy(this, busyInfo);
-            }
+            for (var i = 0; i < items.Length; i++)
+                items[i]?.OnBeginBusy(this, busyInfo);
         }
 
         private void OnBusyInfoChanged(bool ignoreSuspend = false)
@@ -118,11 +115,8 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
             if (!ignoreSuspend && IsNotificationsSuspended)
                 return;
             var items = GetListenersInternal();
-            if (items != null)
-            {
-                for (var i = 0; i < items.Length; i++)
-                    items[i]?.OnBusyInfoChanged(this);
-            }
+            for (var i = 0; i < items.Length; i++)
+                items[i]?.OnBusyInfoChanged(this);
         }
 
         #endregion
@@ -440,7 +434,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                     if (items != null)
                     {
                         for (int i = 0; i < size; i++)
-                            items[i].OnSuspendChanged(suspended);
+                            items[i]?.OnSuspendChanged(suspended);
                     }
                 }
                 return changed;

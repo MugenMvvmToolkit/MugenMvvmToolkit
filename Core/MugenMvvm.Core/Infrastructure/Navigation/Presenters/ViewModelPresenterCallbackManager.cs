@@ -169,8 +169,6 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         protected virtual void OnCallbackAdded(IViewModelBase viewModel, INavigationCallback callback, IChildViewModelPresenterResult presenterResult)
         {
             var listeners = GetListenersInternal();
-            if (listeners == null)
-                return;
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i]?.OnCallbackAdded(this, viewModel, callback, presenterResult);
         }
@@ -178,8 +176,6 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         protected virtual void OnCallbackExecuted(IViewModelBase viewModel, INavigationCallback callback, INavigationContext? navigationContext)
         {
             var listeners = GetListenersInternal();
-            if (listeners == null)
-                return;
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i]?.OnCallbackExecuted(this, viewModel, callback, navigationContext);
         }

@@ -106,9 +106,6 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             Presenters.AddWithLock(presenter);
 
             var listeners = GetListenersInternal();
-            if (listeners == null)
-                return;
-
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i]?.OnChildViewModelPresenterAdded(this, presenter);
         }
@@ -118,9 +115,6 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             Presenters.RemoveWithLock(presenter);
 
             var listeners = GetListenersInternal();
-            if (listeners == null)
-                return;
-
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i]?.OnChildViewModelPresenterRemoved(this, presenter);
         }
@@ -163,11 +157,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             }
 
             var listeners = GetListenersInternal();
-            if (listeners != null)
-            {
-                for (var i = 0; i < listeners.Length; i++)
-                    listeners[i]?.OnShown(this, metadata, r);
-            }
+            for (var i = 0; i < listeners.Length; i++)
+                listeners[i]?.OnShown(this, metadata, r);
 
             return r;
         }
@@ -206,17 +197,14 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                         throw ExceptionManager.PresenterInvalidRequest(metadata.Dump() + result.Metadata.Dump());
 
                     var callback = CallbackManager.AddCallback(this, viewModel, NavigationCallbackType.Closing, result, metadata);
-                    r.Add(new ClosingViewModelPresenterResult((INavigationCallback<bool>) callback, result));
+                    r.Add(new ClosingViewModelPresenterResult((INavigationCallback<bool>)callback, result));
                 }
             }
 
 
             var listeners = GetListenersInternal();
-            if (listeners != null)
-            {
-                for (var i = 0; i < listeners.Length; i++)
-                    listeners[i]?.OnClosed(this, metadata, r);
-            }
+            for (var i = 0; i < listeners.Length; i++)
+                listeners[i]?.OnClosed(this, metadata, r);
 
             return r;
         }
@@ -243,11 +231,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 ? RestorationViewModelPresenterResult.Unrestored
                 : result as IRestorationViewModelPresenterResult ?? new RestorationViewModelPresenterResult(true, result);
             var listeners = GetListenersInternal();
-            if (listeners != null)
-            {
-                for (var i = 0; i < listeners.Length; i++)
-                    listeners[i]?.OnRestored(this, metadata, r);
-            }
+            for (var i = 0; i < listeners.Length; i++)
+                listeners[i]?.OnRestored(this, metadata, r);
 
             return r;
         }
@@ -255,14 +240,11 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         protected virtual bool CanShow(IChildViewModelPresenter childPresenter, IReadOnlyMetadataContext metadata)
         {
             var listeners = GetListenersInternal();
-            if (listeners != null)
+            for (var i = 0; i < listeners.Length; i++)
             {
-                for (var i = 0; i < listeners.Length; i++)
-                {
-                    var canShow = (listeners[i] as IConditionViewModelPresenterListener)?.CanShow(this, childPresenter, metadata) ?? true;
-                    if (!canShow)
-                        return false;
-                }
+                var canShow = (listeners[i] as IConditionViewModelPresenterListener)?.CanShow(this, childPresenter, metadata) ?? true;
+                if (!canShow)
+                    return false;
             }
 
             return true;
@@ -271,14 +253,11 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         protected virtual bool CanClose(IChildViewModelPresenter childPresenter, IReadOnlyList<IChildViewModelPresenterResult> currentResults, IReadOnlyMetadataContext metadata)
         {
             var listeners = GetListenersInternal();
-            if (listeners != null)
+            for (var i = 0; i < listeners.Length; i++)
             {
-                for (var i = 0; i < listeners.Length; i++)
-                {
-                    var canClose = (listeners[i] as IConditionViewModelPresenterListener)?.CanClose(this, childPresenter, currentResults, metadata) ?? true;
-                    if (!canClose)
-                        return false;
-                }
+                var canClose = (listeners[i] as IConditionViewModelPresenterListener)?.CanClose(this, childPresenter, currentResults, metadata) ?? true;
+                if (!canClose)
+                    return false;
             }
 
             return true;
@@ -287,14 +266,11 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         protected virtual bool CanRestore(IRestorableChildViewModelPresenter childPresenter, IReadOnlyMetadataContext metadata)
         {
             var listeners = GetListenersInternal();
-            if (listeners != null)
+            for (var i = 0; i < listeners.Length; i++)
             {
-                for (var i = 0; i < listeners.Length; i++)
-                {
-                    var canRestore = (listeners[i] as IConditionViewModelPresenterListener)?.CanRestore(this, childPresenter, metadata) ?? true;
-                    if (!canRestore)
-                        return false;
-                }
+                var canRestore = (listeners[i] as IConditionViewModelPresenterListener)?.CanRestore(this, childPresenter, metadata) ?? true;
+                if (!canRestore)
+                    return false;
             }
 
             return true;

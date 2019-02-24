@@ -107,9 +107,6 @@ namespace MugenMvvm.Infrastructure.Views
             Managers.AddWithLock(manager);
 
             var listeners = GetListenersInternal();
-            if (listeners == null)
-                return;
-
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i]?.OnChildViewManagerAdded(this, manager);
         }
@@ -119,9 +116,6 @@ namespace MugenMvvm.Infrastructure.Views
             Managers.RemoveWithLock(manager);
 
             var listeners = GetListenersInternal();
-            if (listeners == null)
-                return;
-
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i]?.OnChildViewManagerRemoved(this, manager);
         }
@@ -179,8 +173,6 @@ namespace MugenMvvm.Infrastructure.Views
         protected virtual void OnViewModelCreated(IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata)
         {
             var listeners = GetListenersInternal();
-            if (listeners == null)
-                return;
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i]?.OnViewModelCreated(this, viewModel, view, metadata);
         }
@@ -188,8 +180,6 @@ namespace MugenMvvm.Infrastructure.Views
         protected virtual void OnViewCreated(IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata)
         {
             var listeners = GetListenersInternal();
-            if (listeners == null)
-                return;
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i]?.OnViewCreated(this, viewModel, view, metadata);
         }
@@ -197,8 +187,6 @@ namespace MugenMvvm.Infrastructure.Views
         protected virtual void OnViewInitialized(IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
         {
             var listeners = GetListenersInternal();
-            if (listeners == null)
-                return;
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i]?.OnViewInitialized(this, viewModel, viewInfo, metadata);
         }
@@ -206,8 +194,6 @@ namespace MugenMvvm.Infrastructure.Views
         protected virtual void OnViewCleared(IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
         {
             var listeners = GetListenersInternal();
-            if (listeners == null)
-                return;
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i]?.OnViewCleared(this, viewModel, viewInfo, metadata);
         }

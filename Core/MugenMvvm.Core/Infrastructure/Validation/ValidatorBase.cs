@@ -241,8 +241,6 @@ namespace MugenMvvm.Infrastructure.Validation
         protected virtual void OnErrorsChanged(string memberName)
         {
             var listeners = GetListenersInternal();
-            if (listeners == null)
-                return;
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i]?.OnErrorsChanged(this, memberName);
         }
@@ -250,8 +248,6 @@ namespace MugenMvvm.Infrastructure.Validation
         protected virtual void OnAsyncValidation(string memberName, Task validationTask)
         {
             var listeners = GetListenersInternal();
-            if (listeners == null)
-                return;
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i]?.OnAsyncValidation(this, memberName, validationTask);
         }

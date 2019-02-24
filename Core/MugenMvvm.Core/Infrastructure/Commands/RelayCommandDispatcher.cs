@@ -116,13 +116,8 @@ namespace MugenMvvm.Infrastructure.Commands
             var mediator = mediatorFactory.GetExecutorMediator<TParameter>(this, relayCommand, mediators, execute, canExecute, notifiers, metadata);
 
             var listeners = GetListenersInternal();
-
-            if (listeners != null)
-            {
-                for (int i = 0; i < listeners.Length; i++) 
-                    listeners[i]?.OnMediatorCreated(this, relayCommand, execute, canExecute, notifiers, metadata, mediator);
-            }
-            
+            for (int i = 0; i < listeners.Length; i++) 
+                listeners[i]?.OnMediatorCreated(this, relayCommand, execute, canExecute, notifiers, metadata, mediator);
             return mediator;
         }
 

@@ -346,11 +346,8 @@ namespace MugenMvvm.Infrastructure.Metadata
             if (!HasListeners)
                 return;
             var items = GetListenersInternal();
-            if (items != null)
-            {
-                for (var i = 0; i < items.Length; i++)
-                    items[i]?.OnAdded(this, key, newValue);
-            }
+            for (var i = 0; i < items.Length; i++)
+                items[i]?.OnAdded(this, key, newValue);
         }
 
         private void OnChanged(IMetadataContextKey key, object? oldValue, object? newValue)
@@ -358,11 +355,8 @@ namespace MugenMvvm.Infrastructure.Metadata
             if (!HasListeners)
                 return;
             var items = GetListenersInternal();
-            if (items != null)
-            {
-                for (var i = 0; i < items.Length; i++)
-                    items[i]?.OnChanged(this, key, oldValue, newValue);
-            }
+            for (var i = 0; i < items.Length; i++)
+                items[i]?.OnChanged(this, key, oldValue, newValue);
         }
 
         private void OnRemoved(IMetadataContextKey key, object? oldValue)
@@ -370,11 +364,8 @@ namespace MugenMvvm.Infrastructure.Metadata
             if (!HasListeners)
                 return;
             var items = GetListenersInternal();
-            if (items != null)
-            {
-                for (var i = 0; i < items.Length; i++)
-                    items[i]?.OnRemoved(this, key, oldValue);
-            }
+            for (var i = 0; i < items.Length; i++)
+                items[i]?.OnRemoved(this, key, oldValue);
         }
 
         #endregion
@@ -434,7 +425,7 @@ namespace MugenMvvm.Infrastructure.Metadata
                     currentValues = _metadataContext._values.ToArray();
                 }
 
-                Listeners = _metadataContext.GetListenersWithLockInternal(out int size).ToSerializable(serializationContext.Serializer, size);
+                Listeners = _metadataContext.GetListenersInternal().ToSerializable(serializationContext.Serializer);
                 Keys = new List<IMetadataContextKey>();
                 Values = new List<object?>();
                 foreach (var keyPair in currentValues)

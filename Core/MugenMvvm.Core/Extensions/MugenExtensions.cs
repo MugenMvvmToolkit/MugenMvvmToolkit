@@ -639,7 +639,7 @@ namespace MugenMvvm
             for (var i = 0; i < size.GetValueOrDefault(items.Count); i++)
             {
                 var listener = items[i];
-                if (serializer.CanSerialize(listener.GetType(), Default.MetadataContext))
+                if (listener != null && serializer.CanSerialize(listener.GetType(), Default.MetadataContext))
                 {
                     if (result == null)
                         result = new List<T>();

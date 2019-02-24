@@ -141,25 +141,19 @@ namespace MugenMvvm.Infrastructure.ViewModels
                 viewModel.Metadata.Set(ViewModelMetadata.LifecycleState, lifecycleState);
 
             var listeners = GetListenersInternal();
-            if (listeners != null)
-            {
-                for (var i = 0; i < listeners.Length; i++)
-                    listeners[i]?.OnLifecycleChanged(this, viewModel, lifecycleState, metadata);
-            }                        
+            for (var i = 0; i < listeners.Length; i++)
+                listeners[i]?.OnLifecycleChanged(this, viewModel, lifecycleState, metadata);
         }
 
         protected virtual bool SubscribeInternal(IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode, IReadOnlyMetadataContext metadata)
         {
             bool subscribed = false;
             var listeners = GetListenersInternal();
-            if (listeners != null)
+            for (var i = 0; i < listeners.Length; i++)
             {
-                for (var i = 0; i < listeners.Length; i++)
-                {
-                    var result = listeners[i]?.OnSubscribe(this, viewModel, observer, executionMode, metadata);
-                    if (result.GetValueOrDefault())
-                        subscribed = true;
-                }
+                var result = listeners[i]?.OnSubscribe(this, viewModel, observer, executionMode, metadata);
+                if (result.GetValueOrDefault())
+                    subscribed = true;
             }
 
             return subscribed;
@@ -169,14 +163,11 @@ namespace MugenMvvm.Infrastructure.ViewModels
         {
             bool unsubscribed = false;
             var listeners = GetListenersInternal();
-            if (listeners != null)
+            for (var i = 0; i < listeners.Length; i++)
             {
-                for (var i = 0; i < listeners.Length; i++)
-                {
-                    var result = listeners[i]?.OnUnsubscribe(this, viewModel, observer, metadata);
-                    if (result.GetValueOrDefault())
-                        unsubscribed = true;
-                }
+                var result = listeners[i]?.OnUnsubscribe(this, viewModel, observer, metadata);
+                if (result.GetValueOrDefault())
+                    unsubscribed = true;
             }
 
             return unsubscribed;
@@ -185,14 +176,11 @@ namespace MugenMvvm.Infrastructure.ViewModels
         protected virtual IViewModelBase? TryGetViewModelInternal(Guid id, IReadOnlyMetadataContext metadata)
         {
             var listeners = GetListenersInternal();
-            if (listeners != null)
+            for (var i = 0; i < listeners.Length; i++)
             {
-                for (var i = 0; i < listeners.Length; i++)
-                {
-                    var viewModel = listeners[i]?.TryGetViewModel(this, id, metadata);
-                    if (viewModel != null)
-                        return viewModel;
-                }
+                var viewModel = listeners[i]?.TryGetViewModel(this, id, metadata);
+                if (viewModel != null)
+                    return viewModel;
             }
 
             return null;

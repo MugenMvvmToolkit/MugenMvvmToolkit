@@ -85,8 +85,6 @@ namespace MugenMvvm.Infrastructure.Messaging
             if (added)
             {
                 var listeners = GetListenersInternal();
-                if (listeners == null)
-                    return;
                 for (var i = 0; i < listeners.Length; i++)
                     (listeners[i] as IMessengerListener)?.OnSubscribed(this, subscriber, executionMode);
             }
@@ -104,9 +102,6 @@ namespace MugenMvvm.Infrastructure.Messaging
             if (removed)
             {
                 var listeners = GetListenersInternal();
-                if (listeners == null)
-                    return true;
-
                 for (var i = 0; i < listeners.Length; i++)
                     (listeners[i] as IMessengerListener)?.OnUnsubscribed(this, subscriber);
             }
@@ -122,12 +117,8 @@ namespace MugenMvvm.Infrastructure.Messaging
         {
             var ctx = new MessengerContext(this, metadata);
             var listeners = GetListenersInternal();
-            if (listeners != null)
-            {
-                for (var i = 0; i < listeners.Length; i++)
-                    (listeners[i] as IMessengerListener)?.OnContextCreated(this, ctx);
-            }
-
+            for (var i = 0; i < listeners.Length; i++)
+                (listeners[i] as IMessengerListener)?.OnContextCreated(this, ctx);
             return ctx;
         }
 
@@ -239,13 +230,6 @@ namespace MugenMvvm.Infrastructure.Messaging
             private void PublishAndNotify(IMessengerSubscriber subscriber)
             {
                 var listeners = _messenger.GetListenersInternal();
-                if (listeners == null)
-                {
-                    if (subscriber.Handle(_sender, _message, _context) == MessengerSubscriberResult.Invalid)
-                        _messenger.Unsubscribe(subscriber);
-                    return;
-                }
-
                 MessengerSubscriberResult? subscriberResult = null;
                 for (var i = 0; i < listeners.Length; i++)
                 {
