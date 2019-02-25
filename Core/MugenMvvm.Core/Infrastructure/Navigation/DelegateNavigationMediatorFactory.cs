@@ -6,7 +6,7 @@ using MugenMvvm.Interfaces.Navigation.Presenters;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views.Infrastructure;
 
-namespace MugenMvvm.Infrastructure.Navigation.Presenters
+namespace MugenMvvm.Infrastructure.Navigation
 {
     public class DelegateNavigationMediatorFactory : INavigationMediatorViewModelPresenterManager
     {
