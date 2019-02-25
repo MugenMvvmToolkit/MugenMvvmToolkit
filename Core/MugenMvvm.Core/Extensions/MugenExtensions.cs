@@ -11,6 +11,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Messaging;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Infrastructure.Navigation;
+using MugenMvvm.Infrastructure.Navigation.Presenters;
 using MugenMvvm.Infrastructure.Views;
 using MugenMvvm.Infrastructure.Wrapping;
 using MugenMvvm.Interfaces;
@@ -20,6 +21,7 @@ using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
+using MugenMvvm.Interfaces.Navigation.Presenters;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
@@ -211,6 +213,38 @@ namespace MugenMvvm
         #endregion
 
         #region Navigation
+
+        public static void RegisterMediatorFactory<TMediator, TView>(this INavigationMediatorViewModelPresenter viewModelPresenter, bool disableWrap = false, int priority = 0)
+            where TMediator : NavigationMediatorBase<TView>
+            where TView : class
+        {
+            RegisterMediatorFactory(viewModelPresenter, typeof(TMediator), typeof(TView), disableWrap, priority);
+        }
+
+        public static void RegisterMediatorFactory(this INavigationMediatorViewModelPresenter viewModelPresenter, Type mediatorType, Type viewType, bool disableWrap, int priority = 0)
+        {
+            Should.NotBeNull(viewModelPresenter, nameof(viewModelPresenter));
+            Should.NotBeNull(mediatorType, nameof(mediatorType));
+            Should.NotBeNull(viewType, nameof(viewType));
+            if (disableWrap)
+            {
+                viewModelPresenter.AddManager(new DelegateNavigationMediatorFactory((vm, initializer, arg3) =>
+                {
+                    if (initializer.ViewType.EqualsEx(viewType))
+                        return (INavigationMediator)Service<IServiceProvider>.Instance.GetService(mediatorType);
+                    return null;
+                }, priority));
+            }
+            else
+            {
+                viewModelPresenter.AddManager(new DelegateNavigationMediatorFactory((vm, initializer, arg3) =>
+                {
+                    if (viewType.IsAssignableFromUnified(initializer.ViewType) || Service<IWrapperManager>.Instance.CanWrap(initializer.ViewType, viewType, arg3))
+                        return (INavigationMediator)Service<IServiceProvider>.Instance.GetService(mediatorType);
+                    return null;
+                }, priority));
+            }
+        }
 
         public static Task WaitNavigationAsync(this INavigationDispatcher navigationDispatcher, Func<INavigationCallback, bool> filter, IReadOnlyMetadataContext? metadata = null)
         {

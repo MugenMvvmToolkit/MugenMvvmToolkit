@@ -1,11 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
 using MugenMvvm.Constants;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Presenters;
 using MugenMvvm.Interfaces.ViewModels;
@@ -14,19 +16,18 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.Navigation.Presenters
 {
-    //todo fix view check, fix Window -> Popup, Dialog?, multi close check,
-    //todo review interface INavigationMediatorFactory, remove IWrapperManager, IServiceProvider
-    //todo IHasPriority merge
-    public class NavigationMediatorViewModelPresenter : INavigationMediatorViewModelPresenter
+    public class NavigationMediatorViewModelPresenter : INavigationMediatorViewModelPresenter, INavigationDispatcherListener
     {
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public NavigationMediatorViewModelPresenter(IViewManager viewManager)
+        public NavigationMediatorViewModelPresenter(IViewManager viewManager, INavigationDispatcher navigationDispatcher)
         {
             Should.NotBeNull(viewManager, nameof(viewManager));
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             ViewManager = viewManager;
             Managers = new OrderedLightArrayList<INavigationMediatorViewModelPresenterManager>(HasPriorityComparer.Instance);
+            navigationDispatcher.AddListener(this);
         }
 
         #endregion
@@ -37,11 +38,49 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         protected IViewManager ViewManager { get; }
 
-        public virtual int Priority => PresenterConstants.GenericNavigationPriority;
+        public int Priority { get; set; } = PresenterConstants.GenericNavigationPriority;
+
+        public int NavigationDispatcherListenerPriority { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
+
+        int IListener.GetPriority(object source)
+        {
+            return NavigationDispatcherListenerPriority;
+        }
+
+        Task<bool> INavigationDispatcherListener.OnNavigatingAsync(INavigationDispatcher navigationDispatcher, INavigationContext context)
+        {
+            return Default.TrueTask;
+        }
+
+        void INavigationDispatcherListener.OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext context)
+        {
+            if (context.NavigationMode.IsClose && context.NavigationProvider is INavigationMediator mediator)
+            {
+                var mediators = mediator.ViewModel.Metadata.Get(NavigationInternalMetadata.NavigationMediators);
+                if (mediators == null)
+                    return;
+                lock (mediators)
+                {
+                    mediators.Remove(mediator);
+                }
+            }
+        }
+
+        void INavigationDispatcherListener.OnNavigationFailed(INavigationDispatcher navigationDispatcher, INavigationContext context, Exception exception)
+        {
+        }
+
+        void INavigationDispatcherListener.OnNavigationCanceled(INavigationDispatcher navigationDispatcher, INavigationContext context)
+        {
+        }
+
+        void INavigationDispatcherListener.OnNavigatingCanceled(INavigationDispatcher navigationDispatcher, INavigationContext context)
+        {
+        }
 
         public IChildViewModelPresenterResult? TryShow(IViewModelPresenter parentPresenter, IReadOnlyMetadataContext metadata)
         {
@@ -131,7 +170,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             }
 
             var managers = Managers.GetRawItems(out _);
-            for (int i = 0; i < managers.Length; i++)
+            for (var i = 0; i < managers.Length; i++)
             {
                 var result = managers[i]?.TryCloseInternal(this, viewModel, m, metadata);
                 if (result != null)
@@ -146,7 +185,6 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             }
 
             return results;
-
         }
 
         protected virtual IChildViewModelPresenterResult? TryRestoreInternal(IViewModelPresenter parentPresenter, IReadOnlyMetadataContext metadata)
@@ -175,8 +213,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 var mediator = mediators.FirstOrDefault(m => m.ViewInitializer.Id == viewInitializer.Id);
                 if (mediator == null)
                 {
-
-                    for (int i = 0; i < managers.Length; i++)
+                    for (var i = 0; i < managers.Length; i++)
                     {
                         mediator = managers[i]?.TryGetMediator(this, viewModel, viewInitializer, metadata);
                         if (mediator != null)
@@ -185,7 +222,6 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                             break;
                         }
                     }
-
                 }
 
                 return mediator;
