@@ -140,6 +140,7 @@ namespace MugenMvvm.Infrastructure.Commands
 
             if (result == null)
                 return Default.EmptyArray<IRelayCommandMediator>();
+            result.Sort(HasPriorityComparer.Instance);
             return result;
         }
 

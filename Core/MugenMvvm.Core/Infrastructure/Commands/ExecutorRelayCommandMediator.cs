@@ -63,6 +63,8 @@ namespace MugenMvvm.Infrastructure.Commands
             }
         }
 
+        int IHasPriority.Priority => 0;
+
         #endregion
 
         #region Implementation of interfaces
