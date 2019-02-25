@@ -1,12 +1,11 @@
-﻿using System;
-using MugenMvvm.Enums;
+﻿using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views.Infrastructure;
 
 namespace MugenMvvm.Interfaces.Navigation
 {
-    public interface INavigationMediator : INavigationProvider//todo check view, clear after close
+    public interface INavigationMediator : INavigationProvider
     {
         NavigationType NavigationType { get; }
 

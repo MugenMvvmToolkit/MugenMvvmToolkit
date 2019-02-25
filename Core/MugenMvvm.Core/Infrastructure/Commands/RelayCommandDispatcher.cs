@@ -129,12 +129,12 @@ namespace MugenMvvm.Infrastructure.Commands
             {
                 for (var i = 0; i < MediatorFactories.Count; i++)
                 {
-                    var mediator = MediatorFactories[i].TryGetMediator<TParameter>(this, relayCommand, execute, canExecute, notifiers, metadata);
-                    if (mediator == null)
+                    var mediators = MediatorFactories[i].GetMediators<TParameter>(this, relayCommand, execute, canExecute, notifiers, metadata);
+                    if (mediators == null || mediators.Count == 0)
                         continue;
                     if (result == null)
                         result = new List<IRelayCommandMediator>();
-                    result.Add(mediator);
+                    result.AddRange(mediators);
                 }
             }
 
