@@ -23,12 +23,10 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelPresenter(INavigationDispatcher navigationDispatcher, IViewModelPresenterCallbackManager callbackManager)
+        public ViewModelPresenter(INavigationDispatcher navigationDispatcher)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
-            Should.NotBeNull(callbackManager, nameof(callbackManager));
             NavigationDispatcher = navigationDispatcher;
-            CallbackManager = callbackManager;
             Presenters = new OrderedLightArrayList<IChildViewModelPresenter>(HasPriorityComparer.Instance);
             _navigationListener = new NavigationDispatcherListener(this);
             navigationDispatcher.AddListener(_navigationListener);
@@ -42,7 +40,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         protected LightArrayList<IChildViewModelPresenter> Presenters { get; }
 
-        public IViewModelPresenterCallbackManager CallbackManager { get; }
+        public IViewModelPresenterCallbackManager CallbackManager { get; set; }
 
         public int NavigationDispatcherListenerPriority { get; set; }
 
@@ -199,7 +197,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                         throw ExceptionManager.PresenterInvalidRequest(metadata.Dump() + result.Metadata.Dump());
 
                     var callback = CallbackManager.AddCallback(this, viewModel, NavigationCallbackType.Closing, result, metadata);
-                    r.Add(new ClosingViewModelPresenterResult((INavigationCallback<bool>) callback, result));
+                    r.Add(new ClosingViewModelPresenterResult((INavigationCallback<bool>)callback, result));
                 }
             }
 

@@ -7,7 +7,7 @@ namespace MugenMvvm.Interfaces.Navigation.Presenters
     public interface IViewModelPresenter : IHasListeners<IViewModelPresenterListener>//todo update listener add mediator
                                                                                      //todo return empty metadata
     {
-        IViewModelPresenterCallbackManager CallbackManager { get; }
+        IViewModelPresenterCallbackManager CallbackManager { get; set; }
 
         void AddPresenter(IChildViewModelPresenter presenter);
 
