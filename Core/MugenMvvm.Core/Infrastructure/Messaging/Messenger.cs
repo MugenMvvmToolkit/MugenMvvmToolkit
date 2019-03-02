@@ -45,18 +45,6 @@ namespace MugenMvvm.Infrastructure.Messaging
             return obj.Value.GetHashCode();
         }
 
-        public IReadOnlyList<MessengerSubscriberInfo> GetSubscribers()
-        {
-            var index = 0;
-            lock (_subscribers)
-            {
-                var subscribers = new MessengerSubscriberInfo[_subscribers.Count];
-                foreach (var subscriber in _subscribers)
-                    subscribers[index++] = new MessengerSubscriberInfo(subscriber.Value, subscriber.Key);
-                return subscribers;
-            }
-        }
-
         IMessengerContext IMessenger.GetContext(IMetadataContext? metadata)
         {
             return GetContext(metadata);
@@ -107,6 +95,18 @@ namespace MugenMvvm.Infrastructure.Messaging
             }
 
             return removed;
+        }
+
+        public IReadOnlyList<MessengerSubscriberInfo> GetSubscribers()
+        {
+            var index = 0;
+            lock (_subscribers)
+            {
+                var subscribers = new MessengerSubscriberInfo[_subscribers.Count];
+                foreach (var subscriber in _subscribers)
+                    subscribers[index++] = new MessengerSubscriberInfo(subscriber.Value, subscriber.Key);
+                return subscribers;
+            }
         }
 
         #endregion
