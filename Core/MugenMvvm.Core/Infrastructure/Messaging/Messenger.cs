@@ -3,31 +3,47 @@ using System.Threading.Tasks;
 using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
-using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Infrastructure.Metadata;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading;
 
 namespace MugenMvvm.Infrastructure.Messaging
 {
-    public class Messenger : HasListenersBase<IMessengerListener>, IMessenger, IEqualityComparer<KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>>
+    public class Messenger : IMessenger, IEqualityComparer<KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>>
     {
         #region Fields
 
         private readonly HashSet<KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>> _subscribers;
         private readonly IThreadDispatcher _threadDispatcher;
+        private IComponentCollection<IMessengerListener>? _listeners;
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public Messenger(IThreadDispatcher threadDispatcher)
+        public Messenger(IThreadDispatcher threadDispatcher, IComponentCollection<IMessengerListener>? listeners = null)
         {
             Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
             _threadDispatcher = threadDispatcher;
+            _listeners = listeners;
             _subscribers = new HashSet<KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>>(this);
+        }
+
+        #endregion
+
+        #region Properties
+
+        public IComponentCollection<IMessengerListener> Listeners
+        {
+            get
+            {
+                if (_listeners == null)
+                    _listeners = Service<IComponentCollectionFactory>.Instance.GetComponentCollection<IMessengerListener>(this, Default.MetadataContext);
+                return _listeners;
+            }
         }
 
         #endregion
@@ -72,8 +88,8 @@ namespace MugenMvvm.Infrastructure.Messaging
 
             if (added)
             {
-                var listeners = GetListenersInternal();
-                for (var i = 0; i < listeners.Length; i++)
+                var listeners = Listeners.GetItems();
+                for (var i = 0; i < listeners.Count; i++)
                     (listeners[i] as IMessengerListener)?.OnSubscribed(this, subscriber, executionMode);
             }
         }
@@ -89,9 +105,9 @@ namespace MugenMvvm.Infrastructure.Messaging
 
             if (removed)
             {
-                var listeners = GetListenersInternal();
-                for (var i = 0; i < listeners.Length; i++)
-                    (listeners[i] as IMessengerListener)?.OnUnsubscribed(this, subscriber);
+                var listeners = Listeners.GetItems();
+                for (var i = 0; i < listeners.Count; i++)
+                    listeners[i].OnUnsubscribed(this, subscriber);
             }
 
             return removed;
@@ -116,9 +132,9 @@ namespace MugenMvvm.Infrastructure.Messaging
         private MessengerContext GetContext(IMetadataContext? metadata)
         {
             var ctx = new MessengerContext(this, metadata);
-            var listeners = GetListenersInternal();
-            for (var i = 0; i < listeners.Length; i++)
-                (listeners[i] as IMessengerListener)?.OnContextCreated(this, ctx);
+            var listeners = Listeners.GetItems();
+            for (var i = 0; i < listeners.Count; i++)
+                listeners[i].OnContextCreated(this, ctx);
             return ctx;
         }
 
@@ -162,12 +178,13 @@ namespace MugenMvvm.Infrastructure.Messaging
             if (isAsync)
             {
                 var tasks = new Task[dictionary.Count];
-                int index = 0;
+                var index = 0;
                 foreach (var dispatcherExecutor in dictionary)
                 {
                     tasks[index] = _threadDispatcher.ExecuteAsync(dispatcherExecutor.Value, dispatcherExecutor.Key, null);
                     ++index;
                 }
+
                 return Task.WhenAll(tasks);
             }
 
@@ -184,21 +201,22 @@ namespace MugenMvvm.Infrastructure.Messaging
         {
             #region Fields
 
-            private readonly IMessengerContext _context;
             private readonly object _message;
             private readonly Messenger _messenger;
+
+            private readonly IMessengerContext _messengerContext;
             private readonly object _sender;
 
             #endregion
 
             #region Constructors
 
-            public ThreadDispatcherExecutor(Messenger messenger, object sender, object message, IMessengerContext context)
+            public ThreadDispatcherExecutor(Messenger messenger, object sender, object message, IMessengerContext messengerContext)
             {
                 _messenger = messenger;
                 _sender = sender;
                 _message = message;
-                _context = context;
+                _messengerContext = messengerContext;
             }
 
             #endregion
@@ -208,7 +226,7 @@ namespace MugenMvvm.Infrastructure.Messaging
             public void Execute(object? state)
             {
                 var subscribers = GetRawItems(out var size);
-                if (_messenger.HasListeners)
+                if (_messenger.Listeners.HasItems)
                 {
                     for (var i = 0; i < size; i++)
                         PublishAndNotify(subscribers[i]);
@@ -217,7 +235,7 @@ namespace MugenMvvm.Infrastructure.Messaging
                 {
                     for (var i = 0; i < size; i++)
                     {
-                        if (subscribers[i].Handle(_sender, _message, _context) == MessengerSubscriberResult.Invalid)
+                        if (subscribers[i].Handle(_sender, _message, _messengerContext) == MessengerSubscriberResult.Invalid)
                             _messenger.Unsubscribe(subscribers[i]);
                     }
                 }
@@ -229,19 +247,19 @@ namespace MugenMvvm.Infrastructure.Messaging
 
             private void PublishAndNotify(IMessengerSubscriber subscriber)
             {
-                var listeners = _messenger.GetListenersInternal();
+                var listeners = _messenger.Listeners.GetItems();
                 MessengerSubscriberResult? subscriberResult = null;
-                for (var i = 0; i < listeners.Length; i++)
+                for (var i = 0; i < listeners.Count; i++)
                 {
-                    subscriberResult = listeners[i]?.OnPublishing(_messenger, subscriber, _sender, _message, _context);
+                    subscriberResult = listeners[i].OnPublishing(_messenger, subscriber, _sender, _message, _messengerContext);
                     if (subscriberResult != null)
                         break;
                 }
 
-                var result = subscriberResult ?? subscriber.Handle(_sender, _message, _context);
+                var result = subscriberResult ?? subscriber.Handle(_sender, _message, _messengerContext);
 
-                for (var i = 0; i < listeners.Length; i++)
-                    listeners[i]?.OnPublished(_messenger, subscriber, _sender, _message, _context, result);
+                for (var i = 0; i < listeners.Count; i++)
+                    listeners[i].OnPublished(_messenger, subscriber, _sender, _message, _messengerContext, result);
 
                 if (result == MessengerSubscriberResult.Invalid)
                     _messenger.Unsubscribe(subscriber);

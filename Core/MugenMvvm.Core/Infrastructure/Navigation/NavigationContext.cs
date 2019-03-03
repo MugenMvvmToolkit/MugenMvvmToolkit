@@ -31,7 +31,11 @@ namespace MugenMvvm.Infrastructure.Navigation
                 if (metadata is IMetadataContext m)
                     _metadata = m;
                 else
-                    _metadata = new MetadataContext(metadata);
+                {
+                    var metadataContext = new MetadataContext();
+                    metadataContext.Merge(metadata);
+                    _metadata = metadataContext;
+                }
             }
         }
 

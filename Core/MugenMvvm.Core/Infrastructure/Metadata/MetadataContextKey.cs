@@ -35,9 +35,9 @@ namespace MugenMvvm.Infrastructure.Metadata
 
         #region Implementation of interfaces
 
-        public abstract object? ToSerializableValue(object? item, ISerializationContext context);
+        public abstract object? ToSerializableValue(object? item, ISerializationContext serializationContext);
 
-        public abstract bool CanSerializeValue(object? item, ISerializationContext context);
+        public abstract bool CanSerializeValue(object? item, ISerializationContext serializationContext);
 
         public virtual IMemento? GetMemento()
         {
@@ -253,18 +253,18 @@ namespace MugenMvvm.Infrastructure.Metadata
                 return GetDefaultValueFunc(metadataContext, this, defaultValue);
             }
 
-            public override bool CanSerializeValue(object? item, ISerializationContext context)
+            public override bool CanSerializeValue(object? item, ISerializationContext serializationContext)
             {
                 if (CanSerializeFunc == null)
                     return false;
-                return CanSerializeFunc(this, item, context);
+                return CanSerializeFunc(this, item, serializationContext);
             }
 
-            public override object? ToSerializableValue(object? item, ISerializationContext context)
+            public override object? ToSerializableValue(object? item, ISerializationContext serializationContext)
             {
                 if (SerializableConverterFunc == null)
                     return item;
-                return SerializableConverterFunc(this, item, context);
+                return SerializableConverterFunc(this, item, serializationContext);
             }
 
             public T GetValue(IReadOnlyMetadataContext metadataContext, object? value)

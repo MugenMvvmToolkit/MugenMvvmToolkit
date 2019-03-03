@@ -1,19 +1,18 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Navigation.Presenters
 {
-    public interface IViewModelPresenter : IHasListeners<IViewModelPresenterListener>//todo update listener add mediator
-                                                                                     //todo return empty metadata
+    //todo update listener add mediator
+    //todo return empty metadata
+    //todo change setter, move all to handler container
+    public interface IViewModelPresenter : IHasListeners<IViewModelPresenterListener>
     {
-        IViewModelPresenterCallbackManager CallbackManager { get; set; }
+        IViewModelPresenterCallbackManager CallbackManager { get; }
 
-        void AddPresenter(IChildViewModelPresenter presenter);
-
-        void RemovePresenter(IChildViewModelPresenter presenter);
-
-        IReadOnlyList<IChildViewModelPresenter> GetPresenters();
+        IComponentCollection<IChildViewModelPresenter> Presenters { get; }
 
         IViewModelPresenterResult Show(IReadOnlyMetadataContext metadata);
 

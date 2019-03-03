@@ -1,9 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
-using MugenMvvm.Infrastructure.Internal;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Presenters;
@@ -12,18 +12,35 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.Navigation.Presenters
 {
-    public class ViewModelPresenterCallbackManager : HasListenersBase<IViewModelPresenterCallbackManagerListener>, IViewModelPresenterCallbackManager
+    public class ViewModelPresenterCallbackManager : IViewModelPresenterCallbackManager
     {
+        #region Fields
+
+        private IComponentCollection<IViewModelPresenterCallbackManagerListener>? _listeners;
+
+        #endregion
+
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelPresenterCallbackManager()
+        public ViewModelPresenterCallbackManager(IComponentCollection<IViewModelPresenterCallbackManagerListener>? listeners = null)
         {
+            _listeners = listeners;
         }
 
         #endregion
 
         #region Properties
+
+        public IComponentCollection<IViewModelPresenterCallbackManagerListener> Listeners
+        {
+            get
+            {
+                if (_listeners == null)
+                    _listeners = Service<IComponentCollectionFactory>.Instance.GetComponentCollection<IViewModelPresenterCallbackManagerListener>(this, Default.MetadataContext);
+                return _listeners;
+            }
+        }
 
         public bool IsSerializable { get; set; }
 
@@ -44,33 +61,33 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             return callback;
         }
 
-        public void OnNavigated(IViewModelPresenter presenter, INavigationContext context)
+        public void OnNavigated(IViewModelPresenter presenter, INavigationContext navigationContext)
         {
             Should.NotBeNull(presenter, nameof(presenter));
-            Should.NotBeNull(context, nameof(context));
-            OnNavigatedInternal(presenter, context);
+            Should.NotBeNull(navigationContext, nameof(navigationContext));
+            OnNavigatedInternal(presenter, navigationContext);
         }
 
-        public void OnNavigationFailed(IViewModelPresenter presenter, INavigationContext context, Exception exception)
+        public void OnNavigationFailed(IViewModelPresenter presenter, INavigationContext navigationContext, Exception exception)
         {
             Should.NotBeNull(presenter, nameof(presenter));
-            Should.NotBeNull(context, nameof(context));
+            Should.NotBeNull(navigationContext, nameof(navigationContext));
             Should.NotBeNull(exception, nameof(exception));
-            OnNavigationFailedInternal(presenter, context, exception);
+            OnNavigationFailedInternal(presenter, navigationContext, exception);
         }
 
-        public void OnNavigationCanceled(IViewModelPresenter presenter, INavigationContext context)
+        public void OnNavigationCanceled(IViewModelPresenter presenter, INavigationContext navigationContext)
         {
             Should.NotBeNull(presenter, nameof(presenter));
-            Should.NotBeNull(context, nameof(context));
-            OnNavigationCanceledInternal(presenter, context);
+            Should.NotBeNull(navigationContext, nameof(navigationContext));
+            OnNavigationCanceledInternal(presenter, navigationContext);
         }
 
-        public void OnNavigatingCanceled(IViewModelPresenter presenter, INavigationContext context)
+        public void OnNavigatingCanceled(IViewModelPresenter presenter, INavigationContext navigationContext)
         {
             Should.NotBeNull(presenter, nameof(presenter));
-            Should.NotBeNull(context, nameof(context));
-            OnNavigatingCanceledInternal(presenter, context);
+            Should.NotBeNull(navigationContext, nameof(navigationContext));
+            OnNavigatingCanceledInternal(presenter, navigationContext);
         }
 
         public IReadOnlyList<INavigationCallback> GetCallbacks(IViewModelPresenter presenter, INavigationEntry navigationEntry, NavigationCallbackType? callbackType,
@@ -96,7 +113,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             var key = GetKeyByCallback(callbackType);
             if (key == null)
                 throw ExceptionManager.EnumOutOfRange(nameof(callbackType), callbackType);
-            var callbacks = viewModel.Metadata.GetOrAdd(key, (object)null, (object)null, (context, o, arg3) => new List<INavigationCallbackInternal>());
+            var callbacks = viewModel.Metadata.GetOrAdd(key, (object) null, (object) null, (context, o, arg3) => new List<INavigationCallbackInternal>());
             lock (callback)
             {
                 callbacks.Add(callback);
@@ -105,32 +122,32 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             return callback;
         }
 
-        protected virtual void OnNavigatedInternal(IViewModelPresenter presenter, INavigationContext context)
+        protected virtual void OnNavigatedInternal(IViewModelPresenter presenter, INavigationContext navigationContext)
         {
-            if (context.NavigationMode.IsClose)
+            if (navigationContext.NavigationMode.IsClose)
             {
-                InvokeCallbacks(context.ViewModelFrom, NavigationInternalMetadata.ShowingCallbacks, context, Default.TrueObject, null, false);
-                InvokeCallbacks(context.ViewModelFrom, NavigationInternalMetadata.ClosingCallbacks, context, Default.TrueObject, null, false);
-                InvokeCallbacks(context.ViewModelFrom, NavigationInternalMetadata.CloseCallbacks, context, Default.TrueObject, null, false);
+                InvokeCallbacks(navigationContext.ViewModelFrom, NavigationInternalMetadata.ShowingCallbacks, navigationContext, Default.TrueObject, null, false);
+                InvokeCallbacks(navigationContext.ViewModelFrom, NavigationInternalMetadata.ClosingCallbacks, navigationContext, Default.TrueObject, null, false);
+                InvokeCallbacks(navigationContext.ViewModelFrom, NavigationInternalMetadata.CloseCallbacks, navigationContext, Default.TrueObject, null, false);
             }
             else
-                InvokeCallbacks(context.ViewModelTo, NavigationInternalMetadata.ShowingCallbacks, context, Default.TrueObject, null, false);
+                InvokeCallbacks(navigationContext.ViewModelTo, NavigationInternalMetadata.ShowingCallbacks, navigationContext, Default.TrueObject, null, false);
         }
 
-        protected virtual void OnNavigationFailedInternal(IViewModelPresenter presenter, INavigationContext context, Exception exception)
+        protected virtual void OnNavigationFailedInternal(IViewModelPresenter presenter, INavigationContext navigationContext, Exception exception)
         {
-            OnNavigationFailed(context, exception, false);
+            OnNavigationFailed(navigationContext, exception, false);
         }
 
-        protected virtual void OnNavigationCanceledInternal(IViewModelPresenter presenter, INavigationContext context)
+        protected virtual void OnNavigationCanceledInternal(IViewModelPresenter presenter, INavigationContext navigationContext)
         {
-            OnNavigationFailed(context, null, true);
+            OnNavigationFailed(navigationContext, null, true);
         }
 
-        protected virtual void OnNavigatingCanceledInternal(IViewModelPresenter presenter, INavigationContext context)
+        protected virtual void OnNavigatingCanceledInternal(IViewModelPresenter presenter, INavigationContext navigationContext)
         {
-            if (context.NavigationMode.IsClose)
-                InvokeCallbacks(context.ViewModelFrom, NavigationInternalMetadata.ClosingCallbacks, context, Default.FalseObject, null, false);
+            if (navigationContext.NavigationMode.IsClose)
+                InvokeCallbacks(navigationContext.ViewModelFrom, NavigationInternalMetadata.ClosingCallbacks, navigationContext, Default.FalseObject, null, false);
         }
 
         protected virtual IReadOnlyList<INavigationCallback> GetCallbacksInternal(IViewModelPresenter presenter, INavigationEntry navigationEntry,
@@ -168,19 +185,20 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         protected virtual void OnCallbackAdded(IViewModelBase viewModel, INavigationCallback callback, IChildViewModelPresenterResult presenterResult)
         {
-            var listeners = GetListenersInternal();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i]?.OnCallbackAdded(this, viewModel, callback, presenterResult);
+            var listeners = Listeners.GetItems();
+            for (var i = 0; i < listeners.Count; i++)
+                listeners[i].OnCallbackAdded(this, viewModel, callback, presenterResult);
         }
 
         protected virtual void OnCallbackExecuted(IViewModelBase viewModel, INavigationCallback callback, INavigationContext? navigationContext)
         {
-            var listeners = GetListenersInternal();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i]?.OnCallbackExecuted(this, viewModel, callback, navigationContext);
+            var listeners = Listeners.GetItems();
+            for (var i = 0; i < listeners.Count; i++)
+                listeners[i].OnCallbackExecuted(this, viewModel, callback, navigationContext);
         }
 
-        protected void InvokeCallbacks(IViewModelBase? viewModel, IMetadataContextKey<IList<INavigationCallbackInternal?>?> key, INavigationContext navigationContext, object result,
+        protected void InvokeCallbacks(IViewModelBase? viewModel, IMetadataContextKey<IList<INavigationCallbackInternal?>?> key, INavigationContext navigationContext,
+            object result,
             Exception exception, bool canceled)
         {
             if (viewModel == null)
@@ -224,24 +242,24 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             }
         }
 
-        private void OnNavigationFailed(INavigationContext context, Exception? e, bool canceled)
+        private void OnNavigationFailed(INavigationContext navigationContext, Exception? e, bool canceled)
         {
-            if (context.NavigationMode.IsClose)
+            if (navigationContext.NavigationMode.IsClose)
             {
-                InvokeCallbacks(context.ViewModelFrom, NavigationInternalMetadata.ClosingCallbacks, context, Default.FalseObject, e, canceled);
+                InvokeCallbacks(navigationContext.ViewModelFrom, NavigationInternalMetadata.ClosingCallbacks, navigationContext, Default.FalseObject, e, canceled);
                 if (!canceled)
                 {
-                    InvokeCallbacks(context.ViewModelFrom, NavigationInternalMetadata.ShowingCallbacks, context, Default.FalseObject, e, false);
-                    InvokeCallbacks(context.ViewModelFrom, NavigationInternalMetadata.CloseCallbacks, context, Default.FalseObject, e, false);
+                    InvokeCallbacks(navigationContext.ViewModelFrom, NavigationInternalMetadata.ShowingCallbacks, navigationContext, Default.FalseObject, e, false);
+                    InvokeCallbacks(navigationContext.ViewModelFrom, NavigationInternalMetadata.CloseCallbacks, navigationContext, Default.FalseObject, e, false);
                 }
             }
             else
             {
-                InvokeCallbacks(context.ViewModelTo, NavigationInternalMetadata.ShowingCallbacks, context, Default.FalseObject, e, canceled);
-                if (context.NavigationMode.IsNew || !canceled)
+                InvokeCallbacks(navigationContext.ViewModelTo, NavigationInternalMetadata.ShowingCallbacks, navigationContext, Default.FalseObject, e, canceled);
+                if (navigationContext.NavigationMode.IsNew || !canceled)
                 {
-                    InvokeCallbacks(context.ViewModelTo, NavigationInternalMetadata.ClosingCallbacks, context, Default.FalseObject, e, canceled);
-                    InvokeCallbacks(context.ViewModelTo, NavigationInternalMetadata.CloseCallbacks, context, Default.FalseObject, e, canceled);
+                    InvokeCallbacks(navigationContext.ViewModelTo, NavigationInternalMetadata.ClosingCallbacks, navigationContext, Default.FalseObject, e, canceled);
+                    InvokeCallbacks(navigationContext.ViewModelTo, NavigationInternalMetadata.CloseCallbacks, navigationContext, Default.FalseObject, e, canceled);
                 }
             }
         }

@@ -9,16 +9,18 @@ using MugenMvvm.Constants;
 using MugenMvvm.Delegates;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Infrastructure.Serialization;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Serialization;
 
 namespace MugenMvvm.Infrastructure.Metadata
 {
-    public class MetadataContext : HasListenersBase<IObservableMetadataContextListener>, IObservableMetadataContext
+    public class MetadataContext : IObservableMetadataContext
     {
         #region Fields
 
         private readonly Dictionary<IMetadataContextKey, object?> _values;
+        private IComponentCollection<IObservableMetadataContextListener>? _listeners;
 
         #endregion
 
@@ -32,13 +34,6 @@ namespace MugenMvvm.Infrastructure.Metadata
         public MetadataContext()
             : this(new Dictionary<IMetadataContextKey, object?>())
         {
-        }
-
-        public MetadataContext(IReadOnlyMetadataContext metadataContext)
-            : this()
-        {
-            Should.NotBeNull(metadataContext, nameof(metadataContext));
-            Merge(metadataContext);
         }
 
         #endregion
@@ -56,7 +51,17 @@ namespace MugenMvvm.Infrastructure.Metadata
             }
         }
 
-        private new bool HasListeners => Listeners != null;
+        public IComponentCollection<IObservableMetadataContextListener> Listeners
+        {
+            get
+            {
+                if (_listeners == null)
+                    _listeners = Service<IComponentCollectionFactory>.Instance.GetComponentCollection<IObservableMetadataContextListener>(this, Default.MetadataContext);
+                return _listeners;
+            }
+        }
+
+        private bool HasListeners => _listeners != null && Listeners.HasItems;
 
         #endregion
 
@@ -345,27 +350,27 @@ namespace MugenMvvm.Infrastructure.Metadata
         {
             if (!HasListeners)
                 return;
-            var items = GetListenersInternal();
-            for (var i = 0; i < items.Length; i++)
-                items[i]?.OnAdded(this, key, newValue);
+            var items = Listeners.GetItems();
+            for (var i = 0; i < items.Count; i++)
+                items[i].OnAdded(this, key, newValue);
         }
 
         private void OnChanged(IMetadataContextKey key, object? oldValue, object? newValue)
         {
             if (!HasListeners)
                 return;
-            var items = GetListenersInternal();
-            for (var i = 0; i < items.Length; i++)
-                items[i]?.OnChanged(this, key, oldValue, newValue);
+            var items = Listeners.GetItems();
+            for (var i = 0; i < items.Count; i++)
+                items[i].OnChanged(this, key, oldValue, newValue);
         }
 
         private void OnRemoved(IMetadataContextKey key, object? oldValue)
         {
             if (!HasListeners)
                 return;
-            var items = GetListenersInternal();
-            for (var i = 0; i < items.Length; i++)
-                items[i]?.OnRemoved(this, key, oldValue);
+            var items = Listeners.GetItems();
+            for (var i = 0; i < items.Count; i++)
+                items[i].OnRemoved(this, key, oldValue);
         }
 
         #endregion
@@ -425,7 +430,7 @@ namespace MugenMvvm.Infrastructure.Metadata
                     currentValues = _metadataContext._values.ToArray();
                 }
 
-                Listeners = _metadataContext.GetListenersInternal().ToSerializable(serializationContext.Serializer);
+                Listeners = _metadataContext._listeners?.GetItems().ToSerializable(serializationContext.Serializer);
                 Keys = new List<IMetadataContextKey>();
                 Values = new List<object?>();
                 foreach (var keyPair in currentValues)
@@ -467,7 +472,7 @@ namespace MugenMvvm.Infrastructure.Metadata
                         foreach (var listener in Listeners)
                         {
                             if (listener != null)
-                                _metadataContext.AddListener(listener);
+                                _metadataContext.Listeners.Add(listener);
                         }
                     }
 
@@ -478,6 +483,6 @@ namespace MugenMvvm.Infrastructure.Metadata
             #endregion
         }
 
-        #endregion
+        #endregion        
     }
 }

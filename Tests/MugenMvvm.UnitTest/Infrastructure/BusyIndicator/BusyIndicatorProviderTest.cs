@@ -643,7 +643,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
 
         protected virtual IBusyIndicatorProvider GetBusyIndicator(object? defaultMessage = null)
         {
-            return new BusyIndicatorProvider(defaultMessage);
+            return new BusyIndicatorProvider(defaultBusyMessage:defaultMessage);
         }
 
         protected override IBusyIndicatorProviderListener CreateListener()

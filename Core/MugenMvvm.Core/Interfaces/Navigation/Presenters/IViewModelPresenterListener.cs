@@ -6,10 +6,6 @@ namespace MugenMvvm.Interfaces.Navigation.Presenters
 {
     public interface IViewModelPresenterListener : IListener
     {
-        void OnChildViewModelPresenterAdded(IViewModelPresenter presenter, IChildViewModelPresenter childPresenter);
-
-        void OnChildViewModelPresenterRemoved(IViewModelPresenter presenter, IChildViewModelPresenter childPresenter);
-
         void OnShown(IViewModelPresenter presenter, IReadOnlyMetadataContext metadata, IViewModelPresenterResult result);
 
         void OnClosed(IViewModelPresenter presenter, IReadOnlyMetadataContext metadata, IReadOnlyList<IClosingViewModelPresenterResult> results);

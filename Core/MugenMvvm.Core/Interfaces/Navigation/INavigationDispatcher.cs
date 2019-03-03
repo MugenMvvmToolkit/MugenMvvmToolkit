@@ -1,21 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using MugenMvvm.Enums;
-using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Navigation
 {
+    //todo add create context!!!
     public interface INavigationDispatcher : IHasListeners<INavigationDispatcherListener>
     {
-        IReadOnlyList<INavigationEntry> GetNavigationEntries(NavigationType? type, IReadOnlyMetadataContext metadata);
+        INavigationDispatcherJournal NavigationJournal { get; }
 
-        INavigatingResult OnNavigating(INavigationContext context);
+        INavigatingResult OnNavigating(INavigationContext navigationContext);
 
-        void OnNavigated(INavigationContext context);
+        void OnNavigated(INavigationContext navigationContext);
 
-        void OnNavigationFailed(INavigationContext context, Exception exception);
+        void OnNavigationFailed(INavigationContext navigationContext, Exception exception);
 
-        void OnNavigationCanceled(INavigationContext context);
+        void OnNavigationCanceled(INavigationContext navigationContext);
     }
 }

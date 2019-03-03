@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
@@ -7,11 +7,7 @@ namespace MugenMvvm.Interfaces.Wrapping
 {
     public interface IWrapperManager : IHasListeners<IWrapperManagerListener>
     {
-        void AddWrapperFactory(IWrapperManagerFactory factory);
-
-        void RemoveWrapperFactory(IWrapperManagerFactory factory);
-
-        IReadOnlyList<IWrapperManagerFactory> GetWrapperFactories();
+        IComponentCollection<IWrapperManagerFactory> WrapperFactories { get; }
 
         bool CanWrap(Type type, Type wrapperType, IReadOnlyMetadataContext metadata);
 

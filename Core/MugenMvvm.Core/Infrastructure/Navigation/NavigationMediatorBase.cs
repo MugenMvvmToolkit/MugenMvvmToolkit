@@ -263,8 +263,8 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         private void OnViewInitialized(Task<IViewManagerResult> task, object state)
         {
-            var context = (INavigationContext)state;
-            UpdateView(task.Result.ViewInfo, true, context.Metadata);
+            var navigationContext = (INavigationContext)state;
+            UpdateView(task.Result.ViewInfo, true, navigationContext.Metadata);
 
             ThreadDispatcher.Execute(o =>
             {
@@ -279,7 +279,7 @@ namespace MugenMvvm.Infrastructure.Navigation
                     NavigationDispatcher.OnNavigationFailed((INavigationContext)o, e);
                     throw;
                 }
-            }, ThreadExecutionMode.Main, context);
+            }, ThreadExecutionMode.Main, navigationContext);
         }
 
         private void ShowAfterWaitNavigation(Task task, object state)
@@ -294,19 +294,19 @@ namespace MugenMvvm.Infrastructure.Navigation
             CloseInternal(false, (IReadOnlyMetadataContext)state);
         }
 
-        private void CompleteClose(INavigationContext? context)
+        private void CompleteClose(INavigationContext? navigationContext)
         {
-            if (context == null)
-                context = NavigationDispatcher.CreateNavigateFromContext(this, NavigationType, ViewModel, NavigationMode.Back);
-            NavigationDispatcher.OnNavigated(context);
+            if (navigationContext == null)
+                navigationContext = NavigationDispatcher.CreateNavigateFromContext(this, NavigationType, ViewModel, NavigationMode.Back);
+            NavigationDispatcher.OnNavigated(navigationContext);
             _closingContext = null;
             _shouldClose = false;
             IsOpen = false;
             var view = View;
             if (view != null)
             {
-                CleanupView(view, context.Metadata);
-                ViewInfo?.CleanupAsync(ViewModel, context.Metadata);
+                CleanupView(view, navigationContext.Metadata);
+                ViewInfo?.CleanupAsync(ViewModel, navigationContext.Metadata);
                 ViewInfo = null;
                 View = null;
             }            

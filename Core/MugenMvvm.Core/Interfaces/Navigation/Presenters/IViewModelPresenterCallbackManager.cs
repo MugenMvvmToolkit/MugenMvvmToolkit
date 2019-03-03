@@ -12,13 +12,13 @@ namespace MugenMvvm.Interfaces.Navigation.Presenters
         INavigationCallback AddCallback(IViewModelPresenter presenter, IViewModelBase viewModel, NavigationCallbackType callbackType,
             IChildViewModelPresenterResult presenterResult, IReadOnlyMetadataContext metadata);
 
-        void OnNavigated(IViewModelPresenter presenter, INavigationContext context);
+        void OnNavigated(IViewModelPresenter presenter, INavigationContext navigationContext);
 
-        void OnNavigationFailed(IViewModelPresenter presenter, INavigationContext context, Exception exception);
+        void OnNavigationFailed(IViewModelPresenter presenter, INavigationContext navigationContext, Exception exception);
 
-        void OnNavigationCanceled(IViewModelPresenter presenter, INavigationContext context);
+        void OnNavigationCanceled(IViewModelPresenter presenter, INavigationContext navigationContext);
 
-        void OnNavigatingCanceled(IViewModelPresenter presenter, INavigationContext context);
+        void OnNavigatingCanceled(IViewModelPresenter presenter, INavigationContext navigationContext);
 
         IReadOnlyList<INavigationCallback> GetCallbacks(IViewModelPresenter presenter, INavigationEntry navigationEntry, NavigationCallbackType? callbackType, IReadOnlyMetadataContext metadata);
     }

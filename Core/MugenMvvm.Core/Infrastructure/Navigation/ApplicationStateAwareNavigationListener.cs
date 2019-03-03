@@ -15,11 +15,10 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         #region Constructors
 
-        public ApplicationStateAwareNavigationListener(IApplicationStateDispatcher applicationStateDispatcher, INavigationDispatcher navigationDispatcher)
+        public ApplicationStateAwareNavigationListener(INavigationDispatcher navigationDispatcher)
         {
-            Should.NotBeNull(applicationStateDispatcher, nameof(applicationStateDispatcher));
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             _navigationDispatcher = navigationDispatcher;
-            applicationStateDispatcher.AddListener(this);
         }
 
         #endregion
@@ -34,7 +33,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         public void OnStateChanged(IApplicationStateDispatcher dispatcher, ApplicationState oldState, ApplicationState newState, IReadOnlyMetadataContext metadata)
         {
-            var entries = _navigationDispatcher.GetNavigationEntries(null, metadata);
+            var entries = _navigationDispatcher.NavigationJournal.GetNavigationEntries(null, metadata);
             for (var i = 0; i < entries.Count; i++)
                 OnApplicationStateChanged(entries[i], dispatcher, oldState, newState, metadata);
         }

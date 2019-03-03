@@ -3,7 +3,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.BusyIndicator
 {
-    public interface IBusyIndicatorProvider : ISuspendNotifications, IHasListeners<IBusyIndicatorProviderListener>
+    public interface IBusyIndicatorProvider : IHasListeners<IBusyIndicatorProviderListener>, ISuspendNotifications
     {
         IBusyInfo? BusyInfo { get; }
 

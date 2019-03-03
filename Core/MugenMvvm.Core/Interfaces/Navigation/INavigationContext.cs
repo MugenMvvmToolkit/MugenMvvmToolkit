@@ -10,8 +10,8 @@ namespace MugenMvvm.Interfaces.Navigation
     {
         NavigationMode NavigationMode { get; }
 
-        NavigationType NavigationType { get; }
-
+        NavigationType NavigationType { get; }//todo 2 type
+        
         INavigationProvider NavigationProvider { get; }
 
         IViewModelBase? ViewModelFrom { get; }

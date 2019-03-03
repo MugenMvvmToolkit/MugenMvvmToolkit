@@ -26,7 +26,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         #region Properties
 
-        public INavigationProvider NavigationProvider { get;  }
+        public INavigationProvider NavigationProvider { get; }
 
         public IChildViewModelPresenter? Presenter { get; }
 
@@ -42,7 +42,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             IChildViewModelPresenter presenter, bool? isRestorableCallback = null)
         {
             Should.NotBeNull(presenter, nameof(presenter));
-            var resultMetadata = new MetadataContext(metadata);
+            var resultMetadata = new MetadataContext();
+            resultMetadata.Merge(metadata);
             resultMetadata.Set(NavigationInternalMetadata.IsRestorableCallback, isRestorableCallback.GetValueOrDefault(presenter is IRestorableChildViewModelPresenter));
             return new ChildViewModelPresenterResult(navigationProvider, navigationType, resultMetadata, presenter);
         }

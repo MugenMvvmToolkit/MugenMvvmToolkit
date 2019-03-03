@@ -13,8 +13,8 @@ namespace MugenMvvm.Interfaces.Serialization
         [Pure]
         bool CanSerialize(Type type, IReadOnlyMetadataContext metadata);
 
-        Stream Serialize(object item, ISerializationContext? context);
+        Stream Serialize(object item, ISerializationContext? serializationContext);
 
-        object Deserialize(Stream stream, ISerializationContext? context);
+        object Deserialize(Stream stream, ISerializationContext? serializationContext);
     }
 }

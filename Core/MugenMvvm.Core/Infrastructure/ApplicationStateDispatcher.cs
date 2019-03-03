@@ -1,16 +1,17 @@
 ﻿using System.Threading;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
-using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Infrastructure
 {
-    public class ApplicationStateDispatcher : HasListenersBase<IApplicationStateDispatcherListener>, IApplicationStateDispatcher
+    public class ApplicationStateDispatcher : IApplicationStateDispatcher
     {
         #region Fields
 
+        private IComponentCollection<IApplicationStateDispatcherListener>? _listeners;
         private ApplicationState _state;
 
         #endregion
@@ -18,13 +19,15 @@ namespace MugenMvvm.Infrastructure
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ApplicationStateDispatcher()
-            : this(ApplicationState.Active)
+        public ApplicationStateDispatcher(IComponentCollection<IApplicationStateDispatcherListener>? listeners = null)
+            : this(ApplicationState.Active, listeners)
         {
         }
 
-        public ApplicationStateDispatcher(ApplicationState state)
+        public ApplicationStateDispatcher(ApplicationState state, IComponentCollection<IApplicationStateDispatcherListener>? listeners = null)
         {
+            Should.NotBeNull(state, nameof(state));
+            _listeners = listeners;
             _state = state;
         }
 
@@ -32,11 +35,21 @@ namespace MugenMvvm.Infrastructure
 
         #region Properties
 
+        public IComponentCollection<IApplicationStateDispatcherListener> Listeners
+        {
+            get
+            {
+                if (_listeners == null)
+                    _listeners = Service<IComponentCollectionFactory>.Instance.GetComponentCollection<IApplicationStateDispatcherListener>(this, Default.MetadataContext);
+                return _listeners;
+            }
+        }
+
         public ApplicationState State => _state;
 
         #endregion
 
-        #region Implementation of interfaces
+        #region Methods
 
         public void SetApplicationState(ApplicationState state, IReadOnlyMetadataContext metadata)
         {
@@ -45,9 +58,9 @@ namespace MugenMvvm.Infrastructure
             var oldState = Interlocked.Exchange(ref _state, state);
             if (oldState == state)
                 return;
-            var listeners = GetListenersInternal();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i]?.OnStateChanged(this, oldState, state, metadata);
+            var listeners = Listeners.GetItems();
+            for (var i = 0; i < listeners.Count; i++)
+                listeners[i].OnStateChanged(this, oldState, state, metadata);
         }
 
         #endregion

@@ -5,10 +5,11 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces.BusyIndicator;
+using MugenMvvm.Interfaces.Collections;
 
 namespace MugenMvvm.Infrastructure.BusyIndicator
 {
-    public class BusyIndicatorProvider : HasListenersBase<IBusyIndicatorProviderListener>, IBusyIndicatorProvider
+    public class BusyIndicatorProvider : IBusyIndicatorProvider
     {
         #region Fields
 
@@ -16,14 +17,16 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
         private BusyToken? _busyTail;
         private int _suspendCount;
         private readonly object _locker;
-        
+        private IComponentCollection<IBusyIndicatorProviderListener>? _listeners;
+
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public BusyIndicatorProvider(object? defaultBusyMessage = null)
+        public BusyIndicatorProvider(IComponentCollection<IBusyIndicatorProviderListener>? listeners = null, object? defaultBusyMessage = null)
         {
+            _listeners = listeners;
             _defaultBusyMessage = defaultBusyMessage;
             _locker = this;
         }
@@ -33,6 +36,16 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
         #region Properties
 
         public bool IsNotificationsSuspended => _suspendCount != 0;
+
+        public IComponentCollection<IBusyIndicatorProviderListener> Listeners
+        {
+            get
+            {
+                if (_listeners == null)
+                    _listeners = Service<IComponentCollectionFactory>.Instance.GetComponentCollection<IBusyIndicatorProviderListener>(this, Default.MetadataContext);
+                return _listeners;
+            }
+        }
 
         public IBusyInfo? BusyInfo => _busyTail?.GetBusyInfo();
 
@@ -105,18 +118,18 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
 
         private void OnBeginBusy(IBusyInfo busyInfo)
         {
-            var items = GetListenersInternal();
-            for (var i = 0; i < items.Length; i++)
-                items[i]?.OnBeginBusy(this, busyInfo);
+            var items = Listeners.GetItems();
+            for (var i = 0; i < items.Count; i++)
+                items[i].OnBeginBusy(this, busyInfo);
         }
 
         private void OnBusyInfoChanged(bool ignoreSuspend = false)
         {
             if (!ignoreSuspend && IsNotificationsSuspended)
                 return;
-            var items = GetListenersInternal();
-            for (var i = 0; i < items.Length; i++)
-                items[i]?.OnBusyInfoChanged(this);
+            var items = Listeners.GetItems();
+            for (var i = 0; i < items.Count; i++)
+                items[i].OnBusyInfoChanged(this);
         }
 
         #endregion

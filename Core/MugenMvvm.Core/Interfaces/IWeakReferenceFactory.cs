@@ -4,6 +4,6 @@ namespace MugenMvvm.Interfaces
 {
     public interface IWeakReferenceFactory
     {
-        WeakReference CreateWeakReference(object item);//todo add light WeakReferenceDescriptor?
+        WeakReference GetWeakReference(object item);//todo add light WeakReferenceDescriptor?
     }
 }

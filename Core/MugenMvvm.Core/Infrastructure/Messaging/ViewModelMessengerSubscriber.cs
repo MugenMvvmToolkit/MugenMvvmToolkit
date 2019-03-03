@@ -40,7 +40,7 @@ namespace MugenMvvm.Infrastructure.Messaging
             Should.NotBeNull(viewModel, nameof(viewModel));
             _reference = MugenExtensions.GetWeakReference(viewModel);
             _hashCode = viewModel.GetHashCode();
-            viewModel.Metadata.AddListener(this);
+            viewModel.Metadata.Listeners.Add(this);
             BroadcastAllMessages = viewModel.Metadata.Get(ViewModelMetadata.BroadcastAllMessages);
             BusyMessageHandlerType = viewModel.Metadata.Get(ViewModelMetadata.BusyMessageHandlerType);
         }

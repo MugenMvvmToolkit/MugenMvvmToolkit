@@ -1,18 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using JetBrains.Annotations;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.ViewModels.Infrastructure
 {
     public interface IViewModelDispatcher //todo cleanup manager, clear commands, initialize manager, provider manager
     {
-        void AddManager(IViewModelDispatcherManager manager);
-
-        void RemoveManager(IViewModelDispatcherManager manager);
-
-        IReadOnlyList<IViewModelDispatcherManager> GetManagers();
+        IComponentCollection<IViewModelDispatcherManager> Managers { get; }
 
         void OnLifecycleChanged(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadata);
 
@@ -26,6 +22,7 @@ namespace MugenMvvm.Interfaces.ViewModels.Infrastructure
         [Pure]
         IViewModelBase GetViewModel(Type vmType, IReadOnlyMetadataContext metadata);
 
+        [Pure]
         IViewModelBase? TryGetViewModel(Guid id, IReadOnlyMetadataContext metadata);
     }
 }

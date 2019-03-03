@@ -8,8 +8,8 @@ namespace MugenMvvm.Interfaces.Metadata
     {
         string Key { get; }
 
-        object? ToSerializableValue(object? item, ISerializationContext context);
+        object? ToSerializableValue(object? item, ISerializationContext serializationContext);
 
-        bool CanSerializeValue(object? item, ISerializationContext context);
+        bool CanSerializeValue(object? item, ISerializationContext serializationContext);
     }
 }

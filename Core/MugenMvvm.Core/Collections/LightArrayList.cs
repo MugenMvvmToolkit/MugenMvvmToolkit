@@ -10,7 +10,7 @@ namespace MugenMvvm.Collections
     [Serializable]
     [DataContract(Namespace = BuildConstants.DataContractNamespace)]
     [Preserve(Conditional = true, AllMembers = true)]
-    public class LightArrayList<T>
+    public class LightArrayList<T>//todo remove
     {
         #region Fields
 

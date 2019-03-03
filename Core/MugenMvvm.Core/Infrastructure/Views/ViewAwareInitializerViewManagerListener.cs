@@ -58,14 +58,6 @@ namespace MugenMvvm.Infrastructure.Views
 
         #region Implementation of interfaces
 
-        public void OnChildViewManagerAdded(IViewManager viewManager, IChildViewManager childViewManager)
-        {
-        }
-
-        public void OnChildViewManagerRemoved(IViewManager viewManager, IChildViewManager childViewManager)
-        {
-        }
-
         public void OnViewModelCreated(IViewManager viewManager, IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata)
         {
         }

@@ -7,7 +7,7 @@ namespace MugenMvvm.UnitTest.TestInfrastructure
     {
         #region Implementation of interfaces
 
-        public WeakReference CreateWeakReference(object item)
+        public WeakReference GetWeakReference(object item)
         {
             return new WeakReference(item, false);
         }

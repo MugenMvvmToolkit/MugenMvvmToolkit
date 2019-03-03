@@ -4,15 +4,15 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Infrastructure.Metadata;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.Validation
 {
-    public abstract class ValidatorBase<TTarget> : HasListenersBase<IValidatorListener>, IValidator
+    public abstract class ValidatorBase<TTarget> : IValidator
         where TTarget : class
     {
         #region Fields
@@ -22,6 +22,7 @@ namespace MugenMvvm.Infrastructure.Validation
         private CancellationTokenSource? _disposeCancellationTokenSource;
         private int _state;
 
+        private IComponentCollection<IValidatorListener>? _listeners;
         private TTarget _target;
         private Dictionary<string, CancellationTokenSource>? _validatingTasks;
         private PropertyChangedEventHandler? _weakPropertyHandler;
@@ -32,8 +33,9 @@ namespace MugenMvvm.Infrastructure.Validation
 
         #region Constructors
 
-        protected ValidatorBase(IObservableMetadataContext? metadata, bool hasAsyncValidation)
+        protected ValidatorBase(IComponentCollection<IValidatorListener>? listeners, IObservableMetadataContext? metadata, bool hasAsyncValidation)
         {
+            _listeners = listeners;
             Metadata = metadata ?? new MetadataContext();
             ValidateOnPropertyChanged = true;
             HasAsyncValidation = hasAsyncValidation;
@@ -43,13 +45,23 @@ namespace MugenMvvm.Infrastructure.Validation
         }
 
         protected ValidatorBase()
-            : this(null, true)
+            : this(null, null, true)
         {
         }
 
         #endregion
 
         #region Properties
+
+        public IComponentCollection<IValidatorListener> Listeners
+        {
+            get
+            {
+                if (_listeners == null)
+                    _listeners = Service<IComponentCollectionFactory>.Instance.GetComponentCollection<IValidatorListener>(this, Default.MetadataContext);
+                return _listeners;
+            }
+        }
 
         public bool HasErrors => !IsDisposed && HasErrorsInternal();
 
@@ -240,16 +252,16 @@ namespace MugenMvvm.Infrastructure.Validation
 
         protected virtual void OnErrorsChanged(string memberName)
         {
-            var listeners = GetListenersInternal();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i]?.OnErrorsChanged(this, memberName);
+            var listeners = Listeners.GetItems();
+            for (var i = 0; i < listeners.Count; i++)
+                listeners[i].OnErrorsChanged(this, memberName);
         }
 
         protected virtual void OnAsyncValidation(string memberName, Task validationTask)
         {
-            var listeners = GetListenersInternal();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i]?.OnAsyncValidation(this, memberName, validationTask);
+            var listeners = Listeners.GetItems();
+            for (var i = 0; i < listeners.Count; i++)
+                listeners[i].OnAsyncValidation(this, memberName, validationTask);
         }
 
         protected virtual void OnDispose()

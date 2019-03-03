@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using MugenMvvm.Attributes;
-using MugenMvvm.Collections;
 using MugenMvvm.Enums;
-using MugenMvvm.Infrastructure.Internal;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.ViewModels.Infrastructure;
@@ -13,40 +11,37 @@ namespace MugenMvvm.Infrastructure.ViewModels
 {
     public class ViewModelDispatcher : IViewModelDispatcher
     {
+        #region Fields
+
+        private IComponentCollection<IViewModelDispatcherManager>? _managers;
+
+        #endregion
+
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelDispatcher()
+        public ViewModelDispatcher(IComponentCollection<IViewModelDispatcherManager>? managers = null)
         {
-            Managers = new OrderedLightArrayList<IViewModelDispatcherManager>(HasPriorityComparer.Instance);
+            _managers = managers;
         }
 
         #endregion
 
         #region Properties
 
-        protected LightArrayList<IViewModelDispatcherManager> Managers { get; }
+        public IComponentCollection<IViewModelDispatcherManager> Managers
+        {
+            get
+            {
+                if (_managers == null)
+                    _managers = Service<IComponentCollectionFactory>.Instance.GetComponentCollection<IViewModelDispatcherManager>(this, Default.MetadataContext);
+                return _managers;
+            }
+        }
 
         #endregion
 
         #region Implementation of interfaces
-
-        public void AddManager(IViewModelDispatcherManager manager)
-        {
-            Should.NotBeNull(manager, nameof(manager));
-            AddManagerInternal(manager);
-        }
-
-        public void RemoveManager(IViewModelDispatcherManager manager)
-        {
-            Should.NotBeNull(manager, nameof(manager));
-            RemoveManagerInternal(manager);
-        }
-
-        public IReadOnlyList<IViewModelDispatcherManager> GetManagers()
-        {
-            return GetManagersInternal();
-        }
 
         public void OnLifecycleChanged(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadata)
         {
@@ -103,35 +98,20 @@ namespace MugenMvvm.Infrastructure.ViewModels
 
         #region Methods
 
-        protected virtual void AddManagerInternal(IViewModelDispatcherManager manager)
-        {
-            Managers.AddWithLock(manager);
-        }
-
-        protected virtual void RemoveManagerInternal(IViewModelDispatcherManager manager)
-        {
-            Managers.RemoveWithLock(manager);
-        }
-
-        protected virtual IReadOnlyList<IViewModelDispatcherManager> GetManagersInternal()
-        {
-            return Managers.ToArrayWithLock();
-        }
-
         protected virtual void OnLifecycleChangedInternal(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadata)
         {
             if (lifecycleState != ViewModelLifecycleState.Finalized)
                 viewModel.Metadata.Set(ViewModelMetadata.LifecycleState, lifecycleState);
 
-            var managers = Managers.GetRawItems(out _);
-            for (var i = 0; i < managers.Length; i++)
-                managers[i]?.OnLifecycleChanged(this, viewModel, lifecycleState, metadata);
+            var managers = Managers.GetItems();
+            for (var i = 0; i < managers.Count; i++)
+                managers[i].OnLifecycleChanged(this, viewModel, lifecycleState, metadata);
         }
 
         protected virtual object? GetServiceInternal(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext metadata)
         {
-            var managers = Managers.GetRawItems(out _);
-            for (var i = 0; i < managers.Length; i++)
+            var managers = Managers.GetItems();
+            for (var i = 0; i < managers.Count; i++)
             {
                 var result = (managers[i] as IServiceResolverViewModelDispatcherManager)?.TryGetService(this, viewModel, service, metadata);
                 if (result != null)
@@ -144,8 +124,8 @@ namespace MugenMvvm.Infrastructure.ViewModels
         protected virtual bool SubscribeInternal(IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode, IReadOnlyMetadataContext metadata)
         {
             var subscribed = false;
-            var managers = Managers.GetRawItems(out _);
-            for (var i = 0; i < managers.Length; i++)
+            var managers = Managers.GetItems();
+            for (var i = 0; i < managers.Count; i++)
             {
                 var result = (managers[i] as ISubscriberViewModelDispatcherManager)?.TrySubscribe(this, viewModel, observer, executionMode, metadata);
                 if (result.GetValueOrDefault())
@@ -158,8 +138,8 @@ namespace MugenMvvm.Infrastructure.ViewModels
         protected virtual bool UnsubscribeInternal(IViewModelBase viewModel, object observer, IReadOnlyMetadataContext metadata)
         {
             var unsubscribed = false;
-            var managers = Managers.GetRawItems(out _);
-            for (var i = 0; i < managers.Length; i++)
+            var managers = Managers.GetItems();
+            for (var i = 0; i < managers.Count; i++)
             {
                 var result = (managers[i] as ISubscriberViewModelDispatcherManager)?.TryUnsubscribe(this, viewModel, observer, metadata);
                 if (result.GetValueOrDefault())
@@ -171,8 +151,8 @@ namespace MugenMvvm.Infrastructure.ViewModels
 
         protected virtual IViewModelBase? GetViewModelInternal(Type vmType, IReadOnlyMetadataContext metadata)
         {
-            var managers = Managers.GetRawItems(out _);
-            for (var i = 0; i < managers.Length; i++)
+            var managers = Managers.GetItems();
+            for (var i = 0; i < managers.Count; i++)
             {
                 var viewModel = (managers[i] as IViewModelProviderViewModelDispatcherManager)?.TryGetViewModel(this, vmType, metadata);
                 if (viewModel != null)
@@ -184,8 +164,8 @@ namespace MugenMvvm.Infrastructure.ViewModels
 
         protected virtual IViewModelBase? TryGetViewModelInternal(Guid id, IReadOnlyMetadataContext metadata)
         {
-            var managers = Managers.GetRawItems(out _);
-            for (var i = 0; i < managers.Length; i++)
+            var managers = Managers.GetItems();
+            for (var i = 0; i < managers.Count; i++)
             {
                 var viewModel = (managers[i] as IViewModelProviderViewModelDispatcherManager)?.TryGetViewModel(this, id, metadata);
                 if (viewModel != null)

@@ -228,7 +228,7 @@ namespace MugenMvvm
             Should.NotBeNull(viewType, nameof(viewType));
             if (disableWrap)
             {
-                viewModelPresenter.AddManager(new DelegateNavigationMediatorFactory((vm, initializer, arg3) =>
+                viewModelPresenter.Managers.Add(new DelegateNavigationMediatorFactory((vm, initializer, arg3) =>
                 {
                     if (initializer.ViewType.EqualsEx(viewType))
                         return (INavigationMediator)Service<IServiceProvider>.Instance.GetService(mediatorType);
@@ -237,7 +237,7 @@ namespace MugenMvvm
             }
             else
             {
-                viewModelPresenter.AddManager(new DelegateNavigationMediatorFactory((vm, initializer, arg3) =>
+                viewModelPresenter.Managers.Add(new DelegateNavigationMediatorFactory((vm, initializer, arg3) =>
                 {
                     if (viewType.IsAssignableFromUnified(initializer.ViewType) || Service<IWrapperManager>.Instance.CanWrap(initializer.ViewType, viewType, arg3))
                         return (INavigationMediator)Service<IServiceProvider>.Instance.GetService(mediatorType);
@@ -246,13 +246,19 @@ namespace MugenMvvm
             }
         }
 
-        public static Task WaitNavigationAsync(this INavigationDispatcher navigationDispatcher, Func<INavigationCallback, bool> filter, IReadOnlyMetadataContext? metadata = null)
+        public static Task WaitNavigationAsync(this INavigationDispatcher navigationDispatcher, Func<INavigationCallback, bool> filter,
+            IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            return navigationDispatcher?.NavigationJournal.WaitNavigationAsync(filter, metadata);
+        }
+
+        public static Task WaitNavigationAsync(this INavigationDispatcherJournal navigationDispatcherJournal, Func<INavigationCallback, bool> filter, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(navigationDispatcherJournal, nameof(navigationDispatcherJournal));
             Should.NotBeNull(filter, nameof(filter));
             if (metadata == null)
                 metadata = Default.MetadataContext;
-            var entries = navigationDispatcher.GetNavigationEntries(null, metadata);
+            var entries = navigationDispatcherJournal.GetNavigationEntries(null, metadata);
             List<Task>? tasks = null;
             for (int i = 0; i < entries.Count; i++)
             {
@@ -277,7 +283,7 @@ namespace MugenMvvm
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(navigationType, nameof(navigationType));
             Should.NotBeNull(viewModelTo, nameof(viewModelTo));
-            var entry = navigationDispatcher.GetLastNavigationEntry(navigationType, metadata: metadata);
+            var entry = navigationDispatcher.NavigationJournal.GetLastNavigationEntry(navigationType, metadata: metadata);
             var context = new NavigationContext(navigationProvider, navigationType, mode, entry?.ViewModel, viewModelTo, metadata);
             if (entry != null && entry.NavigationType != navigationType)
                 context.Metadata.Set(NavigationInternalMetadata.ViewModelFromNavigationType, entry.NavigationType);
@@ -289,7 +295,7 @@ namespace MugenMvvm
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(navigationType, nameof(navigationType));
             Should.NotBeNull(viewModelFrom, nameof(viewModelFrom));
-            var entry = navigationDispatcher.GetLastNavigationEntry(navigationType, metadata: metadata);
+            var entry = navigationDispatcher.NavigationJournal.GetLastNavigationEntry(navigationType, metadata: metadata);
             var context = new NavigationContext(navigationProvider, navigationType, mode, viewModelFrom, entry?.ViewModel, metadata);
             if (entry != null && entry.NavigationType != navigationType)
                 context.Metadata.Set(NavigationInternalMetadata.ViewModelToNavigationType, entry.NavigationType);
@@ -306,13 +312,13 @@ namespace MugenMvvm
             return navigationDispatcher.OnNavigating(navigationDispatcher.CreateNavigateFromContext(navigationProvider, navigationType, viewModelFrom, mode, metadata));
         }
 
-        public static INavigationEntry? GetLastNavigationEntry(this INavigationDispatcher navigationDispatcher, NavigationType navigationType, Func<INavigationEntry, bool>? filter = null, IReadOnlyMetadataContext? metadata = null)
+        public static INavigationEntry? GetLastNavigationEntry(this INavigationDispatcherJournal navigationDispatcherJournal, NavigationType navigationType, Func<INavigationEntry, bool>? filter = null, IReadOnlyMetadataContext? metadata = null)
         {//todo rewrite bug navigationType!
-            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            Should.NotBeNull(navigationDispatcherJournal, nameof(navigationDispatcherJournal));
             Should.NotBeNull(navigationType, nameof(navigationType));
             if (filter == null)
                 filter = entry => entry.NavigationType != NavigationType.Tab;
-            var entries = navigationDispatcher.GetNavigationEntries(null, metadata ?? Default.MetadataContext);
+            var entries = navigationDispatcherJournal.GetNavigationEntries(null, metadata ?? Default.MetadataContext);
             return entries.Where(filter).OrderByDescending(entry => entry.NavigationDate).FirstOrDefault();
         }
 
@@ -344,7 +350,7 @@ namespace MugenMvvm
         {
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
             var factory = new DelegateWrapperManagerFactory(condition, wrapperFactory);
-            wrapperManager.AddWrapperFactory(factory);
+            wrapperManager.WrapperFactories.Add(factory);
             return factory;
         }
 
@@ -395,8 +401,8 @@ namespace MugenMvvm
         public static void RemoveAllListeners<T>(this IHasListeners<T> hasListeners) where T : class, IListener
         {
             Should.NotBeNull(hasListeners, nameof(hasListeners));
-            foreach (var listener in hasListeners.GetListeners())
-                hasListeners.RemoveListener(listener);
+            foreach (var listener in hasListeners.Listeners.GetItems())
+                hasListeners.Listeners.Remove(listener);
         }
 
         [Pure]
@@ -439,7 +445,7 @@ namespace MugenMvvm
                 return Default.WeakReference;
             if (!ignoreHasWeakReference && item is IHasWeakReference hasWeakReference)
                 return hasWeakReference.WeakReference;
-            return Service<IWeakReferenceFactory>.Instance.CreateWeakReference(item!);
+            return Service<IWeakReferenceFactory>.Instance.GetWeakReference(item!);
         }
 
         public static TResult[] ToArray<T, TResult>(this IReadOnlyCollection<T> collection, Func<T, TResult> selector)
@@ -530,7 +536,7 @@ namespace MugenMvvm
         {
             public ViewWrappersCollection(IObservableMetadataContext metadata)
             {
-                metadata.AddListener(this);
+                metadata.Listeners.Add(this);
             }
 
             public void OnAdded(IObservableMetadataContext metadataContext, IMetadataContextKey key, object? newValue)

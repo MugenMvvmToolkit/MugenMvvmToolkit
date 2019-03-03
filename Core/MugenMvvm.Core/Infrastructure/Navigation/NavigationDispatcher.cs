@@ -1,227 +1,114 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
-using MugenMvvm.Enums;
-using MugenMvvm.Infrastructure.Internal;
-using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Navigation;
-using MugenMvvm.Interfaces.ViewModels;
-using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.Navigation
 {
-    public class NavigationDispatcher : HasListenersBase<INavigationDispatcherListener>, INavigationDispatcher
+    public class NavigationDispatcher : INavigationDispatcher
     {
         #region Fields
 
-        protected readonly Dictionary<NavigationType, List<WeakNavigationEntry>> NavigationEntries;
+        private IComponentCollection<INavigationDispatcherListener>? _listeners;
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public NavigationDispatcher()
+        public NavigationDispatcher(INavigationDispatcherJournal navigationJournal, IComponentCollection<INavigationDispatcherListener>? listeners = null)
         {
-            NavigationEntries = new Dictionary<NavigationType, List<WeakNavigationEntry>>();
+            Should.NotBeNull(navigationJournal, nameof(navigationJournal));
+            NavigationJournal = navigationJournal;
+            _listeners = listeners;
+        }
+
+        #endregion
+
+        #region Properties
+
+        public INavigationDispatcherJournal NavigationJournal { get; }
+
+        public IComponentCollection<INavigationDispatcherListener> Listeners
+        {
+            get
+            {
+                if (_listeners == null)
+                    _listeners = Service<IComponentCollectionFactory>.Instance.GetComponentCollection<INavigationDispatcherListener>(this, Default.MetadataContext);
+                return _listeners;
+            }
         }
 
         #endregion
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<INavigationEntry> GetNavigationEntries(NavigationType? type, IReadOnlyMetadataContext metadata)
+        public INavigatingResult OnNavigating(INavigationContext navigationContext)
         {
-            Should.NotBeNull(metadata, nameof(metadata));
-            return GetNavigationEntriesInternal(type, metadata);
+            Should.NotBeNull(navigationContext, nameof(navigationContext));
+            return OnNavigatingInternal(navigationContext);
         }
 
-        public INavigatingResult OnNavigating(INavigationContext context)
+        public void OnNavigated(INavigationContext navigationContext)
         {
-            Should.NotBeNull(context, nameof(context));
-            return OnNavigatingInternal(context);
+            Should.NotBeNull(navigationContext, nameof(navigationContext));
+            NavigationJournal.OnNavigated(navigationContext);
+            OnNavigatedInternal(navigationContext);
         }
 
-        public void OnNavigated(INavigationContext context)
+        public void OnNavigationFailed(INavigationContext navigationContext, Exception exception)
         {
-            Should.NotBeNull(context, nameof(context));
-            UpdateNavigationEntries(context);
-            OnNavigatedInternal(context);
-        }
-
-        public void OnNavigationFailed(INavigationContext context, Exception exception)
-        {
-            Should.NotBeNull(context, nameof(context));
+            Should.NotBeNull(navigationContext, nameof(navigationContext));
             Should.NotBeNull(exception, nameof(exception));
-            OnNavigationFailedInternal(context, exception);
+            OnNavigationFailedInternal(navigationContext, exception);
         }
 
-        public void OnNavigationCanceled(INavigationContext context)
+        public void OnNavigationCanceled(INavigationContext navigationContext)
         {
-            Should.NotBeNull(context, nameof(context));
-            OnNavigationCanceledInternal(context);
+            Should.NotBeNull(navigationContext, nameof(navigationContext));
+            OnNavigationCanceledInternal(navigationContext);
         }
 
         #endregion
 
         #region Methods
 
-        protected virtual void UpdateNavigationEntries(INavigationContext context)
+        protected virtual INavigatingResult OnNavigatingInternal(INavigationContext navigationContext)
         {
-            var viewModelFrom = context.Metadata.Get(NavigationInternalMetadata.ViewModelFromNavigationType, context.NavigationType) == context.NavigationType
-                ? context.ViewModelFrom
-                : null;
-            var viewModelTo = context.Metadata.Get(NavigationInternalMetadata.ViewModelToNavigationType, context.NavigationType) == context.NavigationType
-                ? context.ViewModelTo
-                : null;
-
-            lock (NavigationEntries)
-            {
-                if (!NavigationEntries.TryGetValue(context.NavigationType, out var list))
-                {
-                    list = new List<WeakNavigationEntry>();
-                    NavigationEntries[context.NavigationType] = list;
-                }
-
-                if (viewModelTo != null && (context.NavigationMode.IsRefresh || context.NavigationMode.IsBack || context.NavigationMode.IsNew))
-                {
-                    WeakNavigationEntry? viewModelRef = null;
-                    for (var i = 0; i < list.Count; i++)
-                    {
-                        var target = list[i].ViewModel;
-                        if (target == null || ReferenceEquals(target, viewModelTo))
-                        {
-                            if (target != null)
-                                viewModelRef = list[i];
-                            list.RemoveAt(i);
-                            --i;
-                        }
-                    }
-
-                    if (viewModelRef == null)
-                        viewModelRef = new WeakNavigationEntry(this, viewModelTo, context.NavigationProvider, context.NavigationType);
-                    list.Add(viewModelRef);
-                }
-
-                if (viewModelFrom != null && context.NavigationMode.IsClose)
-                {
-                    for (var i = 0; i < list.Count; i++)
-                    {
-                        var target = list[i].ViewModel;
-                        if (target == null || ReferenceEquals(target, viewModelFrom))
-                        {
-                            list.RemoveAt(i);
-                            --i;
-                        }
-                    }
-                }
-            }
-        }
-
-        protected virtual IReadOnlyList<INavigationEntry> GetNavigationEntriesInternal(NavigationType? type, IReadOnlyMetadataContext metadata)
-        {
-            lock (NavigationEntries)
-            {
-                List<INavigationEntry>? result = null;
-                if (type == null)
-                {
-                    var array = NavigationEntries.Keys.ToArray();
-                    for (var i = 0; i < array.Length; i++)
-                        AddNavigationEntries(array[i], ref result);
-                }
-                else
-                    AddNavigationEntries(type, ref result);
-
-                if (result == null)
-                    return Default.EmptyArray<INavigationEntry>();
-                return result;
-            }
-        }
-
-        protected virtual INavigatingResult OnNavigatingInternal(INavigationContext context)
-        {
-            var l = GetListenersInternal();
-            var invoker = new NavigatingResult(this, l.Length == 0 ? l : l.Where(listener => listener != null).ToArray(), context);
+            var l = Listeners.GetItems();
+            var invoker = new NavigatingResult(this, l, navigationContext);
             return invoker;
         }
 
-        protected virtual void OnNavigatedInternal(INavigationContext context)
+        protected virtual void OnNavigatedInternal(INavigationContext navigationContext)
         {
-            var listeners = GetListenersInternal();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i]?.OnNavigated(this, context);
+            var listeners = Listeners.GetItems();
+            for (var i = 0; i < listeners.Count; i++)
+                listeners[i].OnNavigated(this, navigationContext);
         }
 
-        protected virtual void OnNavigationFailedInternal(INavigationContext context, Exception exception)
+        protected virtual void OnNavigationFailedInternal(INavigationContext navigationContext, Exception exception)
         {
-            var listeners = GetListenersInternal();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i]?.OnNavigationFailed(this, context, exception);
+            var listeners = Listeners.GetItems();
+            for (var i = 0; i < listeners.Count; i++)
+                listeners[i].OnNavigationFailed(this, navigationContext, exception);
         }
 
-        protected virtual void OnNavigationCanceledInternal(INavigationContext context)
+        protected virtual void OnNavigationCanceledInternal(INavigationContext navigationContext)
         {
-            var listeners = GetListenersInternal();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i]?.OnNavigationCanceled(this, context);
+            var listeners = Listeners.GetItems();
+            for (var i = 0; i < listeners.Count; i++)
+                listeners[i].OnNavigationCanceled(this, navigationContext);
         }
 
-        protected virtual void OnNavigatingCanceledInternal(INavigationContext context)
+        protected virtual void OnNavigatingCanceledInternal(INavigationContext navigationContext)
         {
-            var listeners = GetListenersInternal();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i]?.OnNavigatingCanceled(this, context);
-        }
-
-        protected virtual IReadOnlyList<INavigationCallback> GetCallbacksInternal(INavigationEntry navigationEntry, NavigationCallbackType? callbackType, IReadOnlyMetadataContext metadata)
-        {
-            var listeners = GetListenersInternal();
-            if (listeners.Length == 0)
-                return Default.EmptyArray<INavigationCallback>();
-
-            List<INavigationCallback>? callbacks = null;
-            for (var i = 0; i < listeners.Length; i++)
-            {
-                var list = (listeners[i] as INavigationDispatcherCallbackProvider)?.GetCallbacks(this, navigationEntry, callbackType, metadata);
-                if (list == null)
-                    continue;
-                if (callbacks == null)
-                    callbacks = new List<INavigationCallback>();
-                callbacks.AddRange(list);
-            }
-
-            if (callbacks == null)
-                return Default.EmptyArray<INavigationCallback>();
-            return callbacks;
-        }
-
-        private void AddNavigationEntries(NavigationType type, ref List<INavigationEntry>? result)
-        {
-            if (!NavigationEntries.TryGetValue(type, out var list))
-                return;
-            if (result == null)
-                result = new List<INavigationEntry>();
-            var hasValue = false;
-            for (var i = 0; i < list.Count; i++)
-            {
-                var target = list[i].ToNavigationEntry();
-                if (target == null)
-                {
-                    list.RemoveAt(i);
-                    --i;
-                }
-                else
-                {
-                    result.Add(target);
-                    hasValue = true;
-                }
-            }
-
-            if (!hasValue)
-                NavigationEntries.Remove(type);
+            var listeners = Listeners.GetItems();
+            for (var i = 0; i < listeners.Count; i++)
+                listeners[i].OnNavigatingCanceled(this, navigationContext);
         }
 
         #endregion
@@ -232,9 +119,10 @@ namespace MugenMvvm.Infrastructure.Navigation
         {
             #region Fields
 
-            private readonly INavigationContext _context;
             private readonly NavigationDispatcher _dispatcher;
-            private readonly INavigationDispatcherListener[] _listeners;
+            private readonly IReadOnlyList<INavigationDispatcherListener> _listeners;
+
+            private readonly INavigationContext _navigationContext;
             private Action<INavigationDispatcher, INavigationContext, Exception?>? _canceledCallback;
             private Func<INavigationDispatcher, INavigationContext, bool> _completeNavigationCallback;
             private int _index;
@@ -243,11 +131,11 @@ namespace MugenMvvm.Infrastructure.Navigation
 
             #region Constructors
 
-            public NavigatingResult(NavigationDispatcher dispatcher, INavigationDispatcherListener[] listeners, INavigationContext context)
+            public NavigatingResult(NavigationDispatcher dispatcher, IReadOnlyList<INavigationDispatcherListener> listeners, INavigationContext navigationContext)
             {
                 _dispatcher = dispatcher;
                 _listeners = listeners;
-                _context = context;
+                _navigationContext = navigationContext;
                 OnExecuted(Default.TrueTask);
             }
 
@@ -290,13 +178,13 @@ namespace MugenMvvm.Infrastructure.Navigation
                         return;
                     }
 
-                    if (_index >= _listeners.Length)
+                    if (_index >= _listeners.Count)
                     {
                         SetResult(true, null, false);
                         return;
                     }
 
-                    var resultTask = _listeners[_index].OnNavigatingAsync(_dispatcher, _context);
+                    var resultTask = _listeners[_index].OnNavigatingAsync(_dispatcher, _navigationContext);
                     ++_index;
                     resultTask.ContinueWith(OnExecuted, this, TaskContinuationOptions.ExecuteSynchronously);
                 }
@@ -316,7 +204,7 @@ namespace MugenMvvm.Infrastructure.Navigation
                 {
                     TrySetResult(result);
                     if (!result)
-                        _dispatcher.OnNavigatingCanceledInternal(_context);
+                        _dispatcher.OnNavigatingCanceledInternal(_navigationContext);
                 }
             }
 
@@ -326,33 +214,33 @@ namespace MugenMvvm.Infrastructure.Navigation
                 {
                     if (task.IsCanceled)
                     {
-                        _canceledCallback?.Invoke(_dispatcher, _context, null);
-                        _dispatcher.OnNavigationCanceled(_context);
+                        _canceledCallback?.Invoke(_dispatcher, _navigationContext, null);
+                        _dispatcher.OnNavigationCanceled(_navigationContext);
                         return;
                     }
 
                     if (task.IsFaulted)
                     {
-                        _canceledCallback?.Invoke(_dispatcher, _context, task.Exception);
-                        _dispatcher.OnNavigationFailed(_context, task.Exception);
+                        _canceledCallback?.Invoke(_dispatcher, _navigationContext, task.Exception);
+                        _dispatcher.OnNavigationFailed(_navigationContext, task.Exception);
                         return;
                     }
 
                     if (task.Result)
                     {
-                        if (_completeNavigationCallback(_dispatcher, _context))
-                            _dispatcher.OnNavigated(_context);
+                        if (_completeNavigationCallback(_dispatcher, _navigationContext))
+                            _dispatcher.OnNavigated(_navigationContext);
                     }
                     else
                     {
-                        _canceledCallback?.Invoke(_dispatcher, _context, null);
-                        _dispatcher.OnNavigationCanceled(_context);
+                        _canceledCallback?.Invoke(_dispatcher, _navigationContext, null);
+                        _dispatcher.OnNavigationCanceled(_navigationContext);
                     }
                 }
                 catch (Exception e)
                 {
-                    _canceledCallback?.Invoke(_dispatcher, _context, e);
-                    _dispatcher.OnNavigationFailed(_context, e);
+                    _canceledCallback?.Invoke(_dispatcher, _navigationContext, e);
+                    _dispatcher.OnNavigationFailed(_navigationContext, e);
                 }
                 finally
                 {
@@ -363,107 +251,12 @@ namespace MugenMvvm.Infrastructure.Navigation
 
             private static void InvokeCompletedCallback(Task<bool> task, object state)
             {
-                ((NavigatingResult)state).InvokeCompletedCallback(task);
+                ((NavigatingResult) state).InvokeCompletedCallback(task);
             }
 
             private static void OnExecuted(Task<bool> task, object state)
             {
-                ((NavigatingResult)state).OnExecuted(task);
-            }
-
-            #endregion
-        }
-
-        protected sealed class WeakNavigationEntry
-        {
-            #region Fields
-
-            private readonly NavigationDispatcher _dispatcher;
-            private readonly DateTime _date;
-            private readonly WeakReference _viewModelReference;
-
-            #endregion
-
-            #region Constructors
-
-            public WeakNavigationEntry(NavigationDispatcher dispatcher, IViewModelBase viewModel, INavigationProvider provider, NavigationType navigationType)
-            {
-                _dispatcher = dispatcher;
-                NavigationType = navigationType;
-                NavigationProvider = provider;
-                _viewModelReference = MugenExtensions.GetWeakReference(viewModel);
-                _date = DateTime.UtcNow;
-            }
-
-            #endregion
-
-            #region Properties
-
-            public IViewModelBase? ViewModel => (IViewModelBase)_viewModelReference.Target;
-
-            public INavigationProvider NavigationProvider { get; }
-
-            public NavigationType NavigationType { get; }
-
-            #endregion
-
-            #region Methods
-
-            public INavigationEntry? ToNavigationEntry()
-            {
-                var viewModel = ViewModel;
-                var provider = NavigationProvider;
-                if (viewModel == null)
-                    return null;
-                return new NavigationEntry(_dispatcher, NavigationType, viewModel, _date, provider);
-            }
-
-            #endregion
-        }
-
-        protected sealed class NavigationEntry : INavigationEntry
-        {
-            #region Fields
-
-            private readonly NavigationDispatcher _navigationDispatcher;
-
-            #endregion
-
-            #region Constructors
-
-            public NavigationEntry(NavigationDispatcher navigationDispatcher, NavigationType type, IViewModelBase viewModel, DateTime date, INavigationProvider provider)
-            {
-                Should.NotBeNull(type, nameof(type));
-                Should.NotBeNull(viewModel, nameof(viewModel));
-                Should.NotBeNull(provider, nameof(provider));
-                _navigationDispatcher = navigationDispatcher;
-                NavigationDate = date;
-                NavigationType = type;
-                NavigationProvider = provider;
-                ViewModel = viewModel;
-            }
-
-            #endregion
-
-            #region Properties
-
-            public DateTime NavigationDate { get; }
-
-            public NavigationType NavigationType { get; }
-
-            public INavigationProvider NavigationProvider { get; }
-
-            public IViewModelBase ViewModel { get; }
-
-            #endregion
-
-            #region Implementation of interfaces
-
-            public IReadOnlyList<INavigationCallback> GetCallbacks(NavigationCallbackType? callbackType, IReadOnlyMetadataContext metadata)
-            {
-                Should.NotBeNull(callbackType, nameof(callbackType));
-                Should.NotBeNull(metadata, nameof(metadata));
-                return _navigationDispatcher.GetCallbacksInternal(this, callbackType, metadata);
+                ((NavigatingResult) state).OnExecuted(task);
             }
 
             #endregion

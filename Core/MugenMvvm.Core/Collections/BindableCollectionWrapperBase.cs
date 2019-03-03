@@ -32,7 +32,7 @@ namespace MugenMvvm.Collections
             ThreadDispatcher = threadDispatcher;
             Events = new List<CollectionChangedEvent>();
             if (wrappedCollection is IHasListeners<IObservableCollectionChangedListener> hasListeners)
-                hasListeners.AddListener(this);
+                hasListeners.Listeners.Add(this);
             else if (wrappedCollection is INotifyCollectionChanged notifyCollectionChanged)
                 notifyCollectionChanged.CollectionChanged += OnCollectionChanged;
             foreach (var item in wrappedCollection)
@@ -125,7 +125,7 @@ namespace MugenMvvm.Collections
         public void Unbind()
         {
             if (WrappedCollection is IHasListeners<IObservableCollectionChangedListener> hasListeners)
-                hasListeners.RemoveListener(this);
+                hasListeners.Listeners.Remove(this);
             else if (WrappedCollection is INotifyCollectionChanged notifyCollectionChanged)
                 notifyCollectionChanged.CollectionChanged -= OnCollectionChanged;
         }
