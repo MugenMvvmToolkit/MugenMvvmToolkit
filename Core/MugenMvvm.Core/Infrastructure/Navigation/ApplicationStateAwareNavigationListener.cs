@@ -62,9 +62,11 @@ namespace MugenMvvm.Infrastructure.Navigation
             if (ctx == null)
             {
                 if (newState == ApplicationState.Active)
-                    ctx = new NavigationContext(navigationProvider, entry.NavigationType, NavigationMode.Foreground, null, viewModel, metadata);
+                    ctx = _navigationDispatcher.ContextFactory.GetNavigationContext(navigationProvider, NavigationMode.Foreground, entry.NavigationType, entry.ViewModel,
+                        NavigationType.System, null, metadata);
                 else if (newState == ApplicationState.Background)
-                    ctx = new NavigationContext(navigationProvider, entry.NavigationType, NavigationMode.Background, viewModel, null, metadata);
+                    ctx = _navigationDispatcher.ContextFactory.GetNavigationContext(navigationProvider, NavigationMode.Background, NavigationType.System, null,
+                        entry.NavigationType, entry.ViewModel, metadata);
             }
 
             if (ctx != null)

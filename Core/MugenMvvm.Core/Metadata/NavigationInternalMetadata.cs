@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
@@ -9,7 +8,7 @@ using MugenMvvm.Interfaces.Views.Infrastructure;
 
 namespace MugenMvvm.Metadata
 {
-    public static class NavigationInternalMetadata//todo check unused metadata
+    public static class NavigationInternalMetadata //todo check unused metadata
     {
         #region Fields
 
@@ -18,8 +17,6 @@ namespace MugenMvvm.Metadata
         private static IMetadataContextKey<IList<INavigationCallbackInternal>?> _showingCallbacks;
         private static IMetadataContextKey<IList<INavigationCallbackInternal>?> _closingCallbacks;
         private static IMetadataContextKey<IList<INavigationCallbackInternal?>?> _closeCallbacks;
-        private static IMetadataContextKey<NavigationType?> _viewModelFromNavigationType;
-        private static IMetadataContextKey<NavigationType?> _viewModelToNavigationType;
         private static IMetadataContextKey<IList<INavigationMediator>?> _navigationMediators;
         private static IMetadataContextKey<bool> _closeAll;
 
@@ -88,28 +85,6 @@ namespace MugenMvvm.Metadata
             set => _closeCallbacks = value;
         }
 
-        public static IMetadataContextKey<NavigationType?> ViewModelFromNavigationType
-        {
-            get
-            {
-                if (_viewModelFromNavigationType == null)
-                    _viewModelFromNavigationType = GetBuilder<NavigationType?>(nameof(ViewModelFromNavigationType)).Build();
-                return _viewModelFromNavigationType;
-            }
-            set => _viewModelFromNavigationType = value;
-        }
-
-        public static IMetadataContextKey<NavigationType?> ViewModelToNavigationType
-        {
-            get
-            {
-                if (_viewModelToNavigationType == null)
-                    _viewModelToNavigationType = GetBuilder<NavigationType?>(nameof(ViewModelToNavigationType)).Build();
-                return _viewModelToNavigationType;
-            }
-            set => _viewModelToNavigationType = value;
-        }
-
         public static IMetadataContextKey<IList<INavigationMediator>?> NavigationMediators
         {
             get
@@ -138,7 +113,7 @@ namespace MugenMvvm.Metadata
 
         private static object? CloseCallbacksSerializableConverter(IMetadataContextKey<IList<INavigationCallbackInternal?>?> key, object? value, ISerializationContext arg3)
         {
-            var callbacks = (IList<INavigationCallbackInternal>)value;
+            var callbacks = (IList<INavigationCallbackInternal>) value;
             if (callbacks == null)
                 return null;
             lock (callbacks)
@@ -149,7 +124,7 @@ namespace MugenMvvm.Metadata
 
         private static bool CanSerializeCloseCallbacks(IMetadataContextKey<IList<INavigationCallbackInternal?>?> key, object? value, ISerializationContext context)
         {
-            var callbacks = (IList<INavigationCallbackInternal>)value;
+            var callbacks = (IList<INavigationCallbackInternal>) value;
             return callbacks != null && callbacks.Any(callback => callback != null && callback.IsSerializable);
         }
 

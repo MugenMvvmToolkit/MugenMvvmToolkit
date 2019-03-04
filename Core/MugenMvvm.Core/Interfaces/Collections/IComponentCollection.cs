@@ -10,6 +10,8 @@ namespace MugenMvvm.Interfaces.Collections
 
         void Remove(T item);
 
+        void Clear();
+
         IReadOnlyList<T> GetItems();
     }
 }

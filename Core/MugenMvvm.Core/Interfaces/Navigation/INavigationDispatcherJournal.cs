@@ -7,6 +7,8 @@ namespace MugenMvvm.Interfaces.Navigation
 {
     public interface INavigationDispatcherJournal : IHasListeners<INavigationDispatcherJournalListener>
     {
+        void Initialize(INavigationDispatcher navigationDispatcher);
+
         void OnNavigated(INavigationContext navigationContext);
 
         IReadOnlyList<INavigationEntry> GetNavigationEntries(NavigationType? type, IReadOnlyMetadataContext metadata);

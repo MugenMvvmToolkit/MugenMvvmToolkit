@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Interfaces.BusyIndicator
 {
-    public interface IBusyToken : IDisposable//todo review types
+    public interface IBusyToken : IDisposable//todo review types, callbacks
     {
         bool IsCompleted { get; }
 

@@ -246,6 +246,21 @@ namespace MugenMvvm
             }
         }
 
+        public static INavigatingResult OnNavigatingTo(this INavigationDispatcher navigationDispatcher, INavigationProvider navigationProvider, NavigationMode mode,
+             NavigationType navigationType, IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            return navigationDispatcher.OnNavigating(navigationDispatcher.ContextFactory.GetNavigationContextTo(navigationProvider, mode, navigationType, viewModel, metadata ?? Default.MetadataContext));
+        }
+
+        public static INavigatingResult OnNavigatingFrom(this INavigationDispatcher navigationDispatcher, INavigationProvider navigationProvider, NavigationMode mode,
+            NavigationType navigationType, IViewModelBase viewModelFrom, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            return navigationDispatcher.OnNavigating(navigationDispatcher.ContextFactory.GetNavigationContextFrom(navigationProvider, mode, navigationType, viewModelFrom,
+                metadata ?? Default.MetadataContext));
+        }
+
         public static Task WaitNavigationAsync(this INavigationDispatcher navigationDispatcher, Func<INavigationCallback, bool> filter,
             IReadOnlyMetadataContext? metadata = null)
         {
@@ -276,50 +291,6 @@ namespace MugenMvvm
             if (tasks == null)
                 return Default.CompletedTask;
             return Task.WhenAll(tasks);
-        }
-
-        public static INavigationContext CreateNavigateToContext(this INavigationDispatcher navigationDispatcher, INavigationProvider navigationProvider, NavigationType navigationType, IViewModelBase viewModelTo, NavigationMode mode, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
-            Should.NotBeNull(navigationType, nameof(navigationType));
-            Should.NotBeNull(viewModelTo, nameof(viewModelTo));
-            var entry = navigationDispatcher.NavigationJournal.GetLastNavigationEntry(navigationType, metadata: metadata);
-            var context = new NavigationContext(navigationProvider, navigationType, mode, entry?.ViewModel, viewModelTo, metadata);
-            if (entry != null && entry.NavigationType != navigationType)
-                context.Metadata.Set(NavigationInternalMetadata.ViewModelFromNavigationType, entry.NavigationType);
-            return context;
-        }
-
-        public static INavigationContext CreateNavigateFromContext(this INavigationDispatcher navigationDispatcher, INavigationProvider navigationProvider, NavigationType navigationType, IViewModelBase viewModelFrom, NavigationMode mode, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
-            Should.NotBeNull(navigationType, nameof(navigationType));
-            Should.NotBeNull(viewModelFrom, nameof(viewModelFrom));
-            var entry = navigationDispatcher.NavigationJournal.GetLastNavigationEntry(navigationType, metadata: metadata);
-            var context = new NavigationContext(navigationProvider, navigationType, mode, viewModelFrom, entry?.ViewModel, metadata);
-            if (entry != null && entry.NavigationType != navigationType)
-                context.Metadata.Set(NavigationInternalMetadata.ViewModelToNavigationType, entry.NavigationType);
-            return context;
-        }
-
-        public static INavigatingResult OnNavigatingTo(this INavigationDispatcher navigationDispatcher, INavigationProvider navigationProvider, NavigationType navigationType, IViewModelBase viewModelTo, NavigationMode mode, IReadOnlyMetadataContext? metadata = null)
-        {
-            return navigationDispatcher.OnNavigating(navigationDispatcher.CreateNavigateToContext(navigationProvider, navigationType, viewModelTo, mode, metadata));
-        }
-
-        public static INavigatingResult OnNavigatingFrom(this INavigationDispatcher navigationDispatcher, INavigationProvider navigationProvider, NavigationType navigationType, IViewModelBase viewModelFrom, NavigationMode mode, IReadOnlyMetadataContext? metadata = null)
-        {
-            return navigationDispatcher.OnNavigating(navigationDispatcher.CreateNavigateFromContext(navigationProvider, navigationType, viewModelFrom, mode, metadata));
-        }
-
-        public static INavigationEntry? GetLastNavigationEntry(this INavigationDispatcherJournal navigationDispatcherJournal, NavigationType navigationType, Func<INavigationEntry, bool>? filter = null, IReadOnlyMetadataContext? metadata = null)
-        {//todo rewrite bug navigationType!
-            Should.NotBeNull(navigationDispatcherJournal, nameof(navigationDispatcherJournal));
-            Should.NotBeNull(navigationType, nameof(navigationType));
-            if (filter == null)
-                filter = entry => entry.NavigationType != NavigationType.Tab;
-            var entries = navigationDispatcherJournal.GetNavigationEntries(null, metadata ?? Default.MetadataContext);
-            return entries.Where(filter).OrderByDescending(entry => entry.NavigationDate).FirstOrDefault();
         }
 
         #endregion
@@ -398,11 +369,22 @@ namespace MugenMvvm
             return string.Format(format, args);
         }
 
+        public static void AddListener<T>(this IHasListeners<T> hasListeners, T listener) where T : class, IListener
+        {
+            Should.NotBeNull(hasListeners, nameof(hasListeners));
+            hasListeners.Listeners.Add(listener);
+        }
+
+        public static void RemoveListener<T>(this IHasListeners<T> hasListeners, T listener) where T : class, IListener
+        {
+            Should.NotBeNull(hasListeners, nameof(hasListeners));
+            hasListeners.Listeners.Remove(listener);
+        }
+
         public static void RemoveAllListeners<T>(this IHasListeners<T> hasListeners) where T : class, IListener
         {
             Should.NotBeNull(hasListeners, nameof(hasListeners));
-            foreach (var listener in hasListeners.Listeners.GetItems())
-                hasListeners.Listeners.Remove(listener);
+            hasListeners.Listeners.Clear();
         }
 
         [Pure]

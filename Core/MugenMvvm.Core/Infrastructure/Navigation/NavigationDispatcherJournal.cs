@@ -6,11 +6,10 @@ using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.ViewModels;
-using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.Navigation
 {
-    public class NavigationDispatcherJournal : INavigationDispatcherJournal //todo update can add/remove entry, add navigationfromtype
+    public class NavigationDispatcherJournal : INavigationDispatcherJournal
     {
         #region Fields
 
@@ -46,6 +45,12 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         #region Implementation of interfaces
 
+        public void Initialize(INavigationDispatcher navigationDispatcher)
+        {
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            OnInitialize(navigationDispatcher);
+        }
+
         public void OnNavigated(INavigationContext navigationContext)
         {
             Should.NotBeNull(navigationContext, nameof(navigationContext));
@@ -62,32 +67,27 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         #region Methods
 
+        protected virtual void OnInitialize(INavigationDispatcher navigationDispatcher)
+        {
+        }
+
         protected virtual void OnNavigatedInternal(INavigationContext navigationContext)
         {
-            var viewModelFrom = navigationContext.Metadata.Get(NavigationInternalMetadata.ViewModelFromNavigationType, navigationContext.NavigationType) ==
-                                navigationContext.NavigationType
-                ? navigationContext.ViewModelFrom
-                : null;
-            var viewModelTo = navigationContext.Metadata.Get(NavigationInternalMetadata.ViewModelToNavigationType, navigationContext.NavigationType) ==
-                              navigationContext.NavigationType
-                ? navigationContext.ViewModelTo
-                : null;
-
             lock (NavigationEntries)
             {
-                if (!NavigationEntries.TryGetValue(navigationContext.NavigationType, out var list))
+                if (navigationContext.ViewModelTo != null && CanAddNavigationEntry(navigationContext))
                 {
-                    list = new List<WeakNavigationEntry>();
-                    NavigationEntries[navigationContext.NavigationType] = list;
-                }
+                    if (!NavigationEntries.TryGetValue(navigationContext.NavigationTypeTo, out var list))
+                    {
+                        list = new List<WeakNavigationEntry>();
+                        NavigationEntries[navigationContext.NavigationTypeTo] = list;
+                    }
 
-                if (viewModelTo != null && (navigationContext.NavigationMode.IsRefresh || navigationContext.NavigationMode.IsBack || navigationContext.NavigationMode.IsNew))
-                {
                     WeakNavigationEntry? viewModelRef = null;
                     for (var i = 0; i < list.Count; i++)
                     {
                         var target = list[i].ViewModel;
-                        if (target == null || ReferenceEquals(target, viewModelTo))
+                        if (target == null || ReferenceEquals(target, navigationContext.ViewModelTo))
                         {
                             if (target != null)
                                 viewModelRef = list[i];
@@ -97,16 +97,22 @@ namespace MugenMvvm.Infrastructure.Navigation
                     }
 
                     if (viewModelRef == null)
-                        viewModelRef = new WeakNavigationEntry(this, viewModelTo, navigationContext.NavigationProvider, navigationContext.NavigationType);
+                        viewModelRef = new WeakNavigationEntry(this, navigationContext.ViewModelTo, navigationContext.NavigationProvider, navigationContext.NavigationTypeTo);
                     list.Add(viewModelRef);
                 }
 
-                if (viewModelFrom != null && navigationContext.NavigationMode.IsClose)
+                if (navigationContext.ViewModelFrom != null && CanRemoveNavigationEntry(navigationContext))
                 {
+                    if (!NavigationEntries.TryGetValue(navigationContext.NavigationTypeFrom, out var list))
+                    {
+                        list = new List<WeakNavigationEntry>();
+                        NavigationEntries[navigationContext.NavigationTypeFrom] = list;
+                    }
+
                     for (var i = 0; i < list.Count; i++)
                     {
                         var target = list[i].ViewModel;
-                        if (target == null || ReferenceEquals(target, viewModelFrom))
+                        if (target == null || ReferenceEquals(target, navigationContext.ViewModelFrom))
                         {
                             list.RemoveAt(i);
                             --i;
@@ -125,8 +131,7 @@ namespace MugenMvvm.Infrastructure.Navigation
                     return true;
             }
 
-
-            return false;
+            return navigationContext.NavigationMode.IsRefresh || navigationContext.NavigationMode.IsBack || navigationContext.NavigationMode.IsNew;
         }
 
         protected bool CanRemoveNavigationEntry(INavigationContext navigationContext)
@@ -139,7 +144,7 @@ namespace MugenMvvm.Infrastructure.Navigation
             }
 
 
-            return false;
+            return navigationContext.NavigationMode.IsClose;
         }
 
         protected virtual IReadOnlyList<INavigationEntry> GetNavigationEntriesInternal(NavigationType? type, IReadOnlyMetadataContext metadata)
@@ -241,7 +246,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
             #region Properties
 
-            public IViewModelBase? ViewModel => (IViewModelBase) _viewModelReference.Target;
+            public IViewModelBase? ViewModel => (IViewModelBase)_viewModelReference.Target;
 
             public INavigationProvider NavigationProvider { get; }
 

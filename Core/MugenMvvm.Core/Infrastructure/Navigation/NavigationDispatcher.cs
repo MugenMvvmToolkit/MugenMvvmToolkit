@@ -19,16 +19,22 @@ namespace MugenMvvm.Infrastructure.Navigation
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public NavigationDispatcher(INavigationDispatcherJournal navigationJournal, IComponentCollection<INavigationDispatcherListener>? listeners = null)
+        public NavigationDispatcher(INavigationContextFactory contextFactory, INavigationDispatcherJournal navigationJournal, IComponentCollection<INavigationDispatcherListener>? listeners = null)
         {
+            Should.NotBeNull(contextFactory, nameof(contextFactory));
             Should.NotBeNull(navigationJournal, nameof(navigationJournal));
+            ContextFactory = contextFactory;
             NavigationJournal = navigationJournal;
             _listeners = listeners;
+            contextFactory.Initialize(this);
+            navigationJournal.Initialize(this);
         }
 
         #endregion
 
         #region Properties
+
+        public INavigationContextFactory ContextFactory { get; }
 
         public INavigationDispatcherJournal NavigationJournal { get; }
 
@@ -251,12 +257,12 @@ namespace MugenMvvm.Infrastructure.Navigation
 
             private static void InvokeCompletedCallback(Task<bool> task, object state)
             {
-                ((NavigatingResult) state).InvokeCompletedCallback(task);
+                ((NavigatingResult)state).InvokeCompletedCallback(task);
             }
 
             private static void OnExecuted(Task<bool> task, object state)
             {
-                ((NavigatingResult) state).OnExecuted(task);
+                ((NavigatingResult)state).OnExecuted(task);
             }
 
             #endregion
