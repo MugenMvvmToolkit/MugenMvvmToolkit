@@ -78,7 +78,10 @@ namespace MugenMvvm.Infrastructure.ViewModels
                 viewModel.Metadata.Listeners.Add(this);
             }
             else if (lifecycleState.IsDispose)
+            {
                 RemoveFromCache(viewModel.Metadata.Get(ViewModelMetadata.Id));
+                viewModel.Metadata.Listeners.Remove(this);
+            }
         }
 
         public IViewModelBase? TryGetViewModel(IViewModelDispatcher viewModelDispatcher, Type vmType, IReadOnlyMetadataContext metadata)

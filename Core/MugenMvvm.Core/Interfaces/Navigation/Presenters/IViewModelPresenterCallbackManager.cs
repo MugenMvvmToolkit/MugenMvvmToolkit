@@ -9,17 +9,19 @@ namespace MugenMvvm.Interfaces.Navigation.Presenters
 {
     public interface IViewModelPresenterCallbackManager : IHasListeners<IViewModelPresenterCallbackManagerListener>
     {
-        INavigationCallback AddCallback(IViewModelPresenter presenter, IViewModelBase viewModel, NavigationCallbackType callbackType,
-            IChildViewModelPresenterResult presenterResult, IReadOnlyMetadataContext metadata);
+        void Initialize(IViewModelPresenter presenter);
 
-        void OnNavigated(IViewModelPresenter presenter, INavigationContext navigationContext);
+        INavigationCallback AddCallback(IViewModelBase viewModel, NavigationCallbackType callbackType, IChildViewModelPresenterResult presenterResult,
+            IReadOnlyMetadataContext metadata);
 
-        void OnNavigationFailed(IViewModelPresenter presenter, INavigationContext navigationContext, Exception exception);
+        void OnNavigated(INavigationContext navigationContext);
 
-        void OnNavigationCanceled(IViewModelPresenter presenter, INavigationContext navigationContext);
+        void OnNavigationFailed(INavigationContext navigationContext, Exception exception);
 
-        void OnNavigatingCanceled(IViewModelPresenter presenter, INavigationContext navigationContext);
+        void OnNavigationCanceled(INavigationContext navigationContext);
 
-        IReadOnlyList<INavigationCallback> GetCallbacks(IViewModelPresenter presenter, INavigationEntry navigationEntry, NavigationCallbackType? callbackType, IReadOnlyMetadataContext metadata);
+        void OnNavigatingCanceled(INavigationContext navigationContext);
+
+        IReadOnlyList<INavigationCallback> GetCallbacks(INavigationEntry navigationEntry, NavigationCallbackType? callbackType, IReadOnlyMetadataContext metadata);
     }
 }

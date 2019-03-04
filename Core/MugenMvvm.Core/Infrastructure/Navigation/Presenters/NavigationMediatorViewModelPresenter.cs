@@ -33,7 +33,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             ViewManager = viewManager;
             _managers = managers;
-            navigationDispatcher.Listeners.Add(this);
+            navigationDispatcher.Listeners.Add(this);//todo check!!!
         }
 
         #endregion

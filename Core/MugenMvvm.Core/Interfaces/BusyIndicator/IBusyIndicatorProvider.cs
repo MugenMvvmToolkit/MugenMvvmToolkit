@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.BusyIndicator
 {
-    public interface IBusyIndicatorProvider : IHasListeners<IBusyIndicatorProviderListener>, ISuspendNotifications
+    public interface IBusyIndicatorProvider : IHasListeners<IBusyIndicatorProviderListener>, ISuspendNotifications, IDisposable
     {
         IBusyInfo? BusyInfo { get; }
 

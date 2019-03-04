@@ -89,6 +89,14 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
             return tail.GetTokens();
         }
 
+        public void Dispose()
+        {
+            var busyTokens = GetTokens();
+            for (var index = 0; index < busyTokens.Count; index++)
+                busyTokens[index].Dispose();
+            _listeners?.Clear();
+        }
+
         #endregion
 
         #region Methods

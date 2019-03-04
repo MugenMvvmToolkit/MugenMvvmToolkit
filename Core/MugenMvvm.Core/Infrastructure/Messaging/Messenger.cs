@@ -61,9 +61,9 @@ namespace MugenMvvm.Infrastructure.Messaging
             return obj.Value.GetHashCode();
         }
 
-        IMessengerContext IMessenger.GetContext(IMetadataContext? metadata)
+        IMessengerContext IMessenger.GetMessengerContext(IMetadataContext? metadata)
         {
-            return GetContext(metadata);
+            return GetMessengerContext(metadata);
         }
 
         public void Publish(object sender, object message, IMessengerContext? messengerContext = null)
@@ -80,6 +80,11 @@ namespace MugenMvvm.Infrastructure.Messaging
         {
             Should.NotBeNull(subscriber, nameof(subscriber));
             Should.NotBeNull(executionMode, nameof(executionMode));
+
+            var listeners = Listeners.GetItems();
+            for (var i = 0; i < listeners.Count; i++)
+                subscriber = listeners[i].OnSubscribing(this, subscriber, executionMode);
+
             bool added;
             lock (_subscribers)
             {
@@ -88,9 +93,9 @@ namespace MugenMvvm.Infrastructure.Messaging
 
             if (added)
             {
-                var listeners = Listeners.GetItems();
+                listeners = Listeners.GetItems();
                 for (var i = 0; i < listeners.Count; i++)
-                    (listeners[i] as IMessengerListener)?.OnSubscribed(this, subscriber, executionMode);
+                    listeners[i].OnSubscribed(this, subscriber, executionMode);
             }
         }
 
@@ -125,11 +130,17 @@ namespace MugenMvvm.Infrastructure.Messaging
             }
         }
 
+        public void Dispose()
+        {
+            this.UnsubscribeAll();
+            _listeners?.Clear();
+        }
+
         #endregion
 
         #region Methods
 
-        private MessengerContext GetContext(IMetadataContext? metadata)
+        private MessengerContext GetMessengerContext(IMetadataContext? metadata)
         {
             var ctx = new MessengerContext(this, metadata);
             var listeners = Listeners.GetItems();
@@ -145,7 +156,7 @@ namespace MugenMvvm.Infrastructure.Messaging
             MessengerContext? rawContext = null;
             if (messengerContext == null)
             {
-                rawContext = GetContext(null);
+                rawContext = GetMessengerContext(null);
                 messengerContext = rawContext;
             }
 

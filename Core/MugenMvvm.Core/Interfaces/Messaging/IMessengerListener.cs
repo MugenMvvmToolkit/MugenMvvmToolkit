@@ -7,6 +7,8 @@ namespace MugenMvvm.Interfaces.Messaging
     {
         void OnContextCreated(IMessenger messenger, IMessengerContext messengerContext);
 
+        IMessengerSubscriber OnSubscribing(IMessenger messenger, IMessengerSubscriber subscriber, ThreadExecutionMode executionMode);
+
         void OnSubscribed(IMessenger messenger, IMessengerSubscriber subscriber, ThreadExecutionMode executionMode);
 
         void OnUnsubscribed(IMessenger messenger, IMessengerSubscriber subscriber);

@@ -27,6 +27,7 @@ namespace MugenMvvm.Infrastructure.Commands
             ExecutorMediatorFactory = executorMediatorFactory;
             _mediatorFactories = mediatorFactories;
             _listeners = listeners;
+            executorMediatorFactory.Initialize(this);
         }
 
         #endregion
@@ -79,7 +80,7 @@ namespace MugenMvvm.Infrastructure.Commands
             var mediatorFactory = ExecutorMediatorFactory;
             Should.NotBeNull(mediatorFactory, nameof(ExecutorMediatorFactory));
             var mediators = GetMediatorsInternal<TParameter>(relayCommand, execute, canExecute, notifiers, metadata);
-            var mediator = mediatorFactory.GetExecutorMediator<TParameter>(this, relayCommand, mediators, execute, canExecute, notifiers, metadata);
+            var mediator = mediatorFactory.GetExecutorMediator<TParameter>(relayCommand, mediators, execute, canExecute, notifiers, metadata);
 
             var listeners = Listeners.GetItems();
             for (var i = 0; i < listeners.Count; i++)

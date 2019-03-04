@@ -34,7 +34,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             _presenters = presenters;
             _listeners = listeners;
             _navigationListener = new NavigationDispatcherListener(this);
-            navigationDispatcher.Listeners.Add(_navigationListener);
+            navigationDispatcher.Listeners.Add(_navigationListener);//todo check!!
+            CallbackManager.Initialize(this);
         }
 
         #endregion
@@ -133,8 +134,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 if (viewModel == null)
                     throw ExceptionManager.PresenterInvalidRequest(metadata.Dump() + result.Metadata.Dump());
 
-                var showingCallback = CallbackManager.AddCallback(this, viewModel, NavigationCallbackType.Showing, result, metadata);
-                var closeCallback = CallbackManager.AddCallback(this, viewModel, NavigationCallbackType.Close, result, metadata);
+                var showingCallback = CallbackManager.AddCallback(viewModel, NavigationCallbackType.Showing, result, metadata);
+                var closeCallback = CallbackManager.AddCallback(viewModel, NavigationCallbackType.Close, result, metadata);
 
                 r = new ViewModelPresenterResult(viewModel, showingCallback, closeCallback, result);
             }
@@ -179,7 +180,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                     if (viewModel == null)
                         throw ExceptionManager.PresenterInvalidRequest(metadata.Dump() + result.Metadata.Dump());
 
-                    var callback = CallbackManager.AddCallback(this, viewModel, NavigationCallbackType.Closing, result, metadata);
+                    var callback = CallbackManager.AddCallback(viewModel, NavigationCallbackType.Closing, result, metadata);
                     r.Add(new ClosingViewModelPresenterResult((INavigationCallback<bool>)callback, result));
                 }
             }
@@ -324,7 +325,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 NavigationCallbackType? callbackType,
                 IReadOnlyMetadataContext metadata)
             {
-                return _presenter.CallbackManager.GetCallbacks(_presenter, navigationEntry, callbackType, metadata);
+                return _presenter.CallbackManager.GetCallbacks(navigationEntry, callbackType, metadata);
             }
 
             public Task<bool> OnNavigatingAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
@@ -343,7 +344,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                     }
                 }
 
-                _presenter.CallbackManager.OnNavigated(_presenter, navigationContext);
+                _presenter.CallbackManager.OnNavigated(navigationContext);
             }
 
             public void OnNavigationFailed(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, Exception exception)
@@ -357,7 +358,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                     }
                 }
 
-                _presenter.CallbackManager.OnNavigationFailed(_presenter, navigationContext, exception);
+                _presenter.CallbackManager.OnNavigationFailed(navigationContext, exception);
             }
 
             public void OnNavigationCanceled(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
@@ -371,7 +372,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                     }
                 }
 
-                _presenter.CallbackManager.OnNavigationCanceled(_presenter, navigationContext);
+                _presenter.CallbackManager.OnNavigationCanceled(navigationContext);
             }
 
             public void OnNavigatingCanceled(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
@@ -385,7 +386,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                     }
                 }
 
-                _presenter.CallbackManager.OnNavigatingCanceled(_presenter, navigationContext);
+                _presenter.CallbackManager.OnNavigatingCanceled(navigationContext);
             }
 
             public int GetPriority(object source)
