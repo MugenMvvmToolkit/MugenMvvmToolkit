@@ -13,7 +13,7 @@ using MugenMvvm.Interfaces.Threading;
 
 namespace MugenMvvm.Collections
 {
-    public abstract class BindableCollectionWrapperBase<T> : Collection<T>, IObservableCollectionChangedListener, INotifyCollectionChanged, INotifyPropertyChanged
+    public abstract class BindableCollectionWrapperBase<T> : Collection<T>, IObservableCollectionChangedListener, INotifyCollectionChanged, INotifyPropertyChanged, IDisposable
     {
         #region Fields
 
@@ -118,17 +118,17 @@ namespace MugenMvvm.Collections
             return GetPriorityInternal(source);
         }
 
-        #endregion
-
-        #region Methods
-
-        public void Unbind()
+        public void Dispose()
         {
             if (WrappedCollection is IHasListeners<IObservableCollectionChangedListener> hasListeners)
                 hasListeners.Listeners.Remove(this);
             else if (WrappedCollection is INotifyCollectionChanged notifyCollectionChanged)
                 notifyCollectionChanged.CollectionChanged -= OnCollectionChanged;
         }
+
+        #endregion
+
+        #region Methods
 
         protected virtual int GetPriorityInternal(object source)
         {

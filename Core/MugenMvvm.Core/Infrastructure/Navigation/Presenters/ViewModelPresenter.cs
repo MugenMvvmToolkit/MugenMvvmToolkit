@@ -34,7 +34,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             _presenters = presenters;
             _listeners = listeners;
             _navigationListener = new NavigationDispatcherListener(this);
-            navigationDispatcher.Listeners.Add(_navigationListener);//todo check!!
+            navigationDispatcher.Listeners.Add(_navigationListener);
             CallbackManager.Initialize(this);
         }
 
@@ -260,6 +260,11 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             return true;
         }
 
+        protected void UnsubscribeNavigationListener()
+        {
+            NavigationDispatcher.Listeners.Remove(_navigationListener);
+        }
+
         #endregion
 
         #region Nested types
@@ -411,6 +416,6 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             #endregion
         }
 
-        #endregion        
+        #endregion
     }
 }

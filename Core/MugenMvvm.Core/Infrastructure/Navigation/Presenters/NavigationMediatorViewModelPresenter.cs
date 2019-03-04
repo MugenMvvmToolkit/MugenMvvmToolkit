@@ -15,11 +15,12 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.Navigation.Presenters
 {
-    public class NavigationMediatorViewModelPresenter : INavigationMediatorViewModelPresenter, INavigationDispatcherListener
+    public class NavigationMediatorViewModelPresenter : INavigationMediatorViewModelPresenter, INavigationDispatcherListener, IDisposable
     {
         #region Fields
 
         private IComponentCollection<INavigationMediatorViewModelPresenterManager>? _managers;
+        private bool _subscribed;
 
         #endregion
 
@@ -32,8 +33,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             Should.NotBeNull(viewManager, nameof(viewManager));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             ViewManager = viewManager;
+            NavigationDispatcher = navigationDispatcher;
             _managers = managers;
-            navigationDispatcher.Listeners.Add(this);//todo check!!!
         }
 
         #endregion
@@ -41,6 +42,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         #region Properties
 
         protected IViewManager ViewManager { get; }
+
+        protected INavigationDispatcher NavigationDispatcher { get; }
 
         public IComponentCollection<INavigationMediatorViewModelPresenterManager> Managers
         {
@@ -59,6 +62,19 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         #endregion
 
         #region Implementation of interfaces
+
+        public void Dispose()
+        {
+            _managers?.Clear();
+            if (!_subscribed)
+            {
+                lock (this)
+                {
+                    _subscribed = true;
+                }
+            }
+            NavigationDispatcher.Listeners.Remove(this);
+        }
 
         int IListener.GetPriority(object source)
         {
@@ -100,6 +116,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         {
             Should.NotBeNull(parentPresenter, nameof(parentPresenter));
             Should.NotBeNull(metadata, nameof(metadata));
+            SubscribeIfNeed();
             return TryShowInternal(parentPresenter, metadata);
         }
 
@@ -107,6 +124,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         {
             Should.NotBeNull(parentPresenter, nameof(parentPresenter));
             Should.NotBeNull(metadata, nameof(metadata));
+            SubscribeIfNeed();
             return TryCloseInternal(parentPresenter, metadata);
         }
 
@@ -114,6 +132,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         {
             Should.NotBeNull(parentPresenter, nameof(parentPresenter));
             Should.NotBeNull(metadata, nameof(metadata));
+            SubscribeIfNeed();
             return TryRestoreInternal(parentPresenter, metadata);
         }
 
@@ -207,6 +226,20 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 }
 
                 return mediator;
+            }
+        }
+
+        private void SubscribeIfNeed()
+        {
+            if (_subscribed)
+                return;
+            lock (this)
+            {
+                if (!_subscribed)
+                {
+                    NavigationDispatcher.Listeners.Add(this);
+                    _subscribed = true;
+                }
             }
         }
 
