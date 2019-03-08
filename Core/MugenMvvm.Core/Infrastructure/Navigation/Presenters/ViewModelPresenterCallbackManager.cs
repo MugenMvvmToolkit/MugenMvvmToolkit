@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Collections;
@@ -16,21 +18,31 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
     {
         #region Fields
 
+        private readonly NavigationDispatcherListener _dispatcherListener;
+
         private IComponentCollection<IViewModelPresenterCallbackManagerListener>? _listeners;
+        private const int DisposedState = 2;
+        private const int InitializedState = 1;
+        private const int DefaultState = 0;
+        private int _state;
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelPresenterCallbackManager(IComponentCollection<IViewModelPresenterCallbackManagerListener>? listeners = null)
+        public ViewModelPresenterCallbackManager(INavigationDispatcher navigationDispatcher, IComponentCollection<IViewModelPresenterCallbackManagerListener>? listeners = null)
         {
+            NavigationDispatcher = navigationDispatcher;
             _listeners = listeners;
+            _dispatcherListener = new NavigationDispatcherListener(this);
         }
 
         #endregion
 
         #region Properties
+
+        protected INavigationDispatcher NavigationDispatcher { get; }
 
         public IComponentCollection<IViewModelPresenterCallbackManagerListener> Listeners
         {
@@ -46,6 +58,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         protected IViewModelPresenter ViewModelPresenter { get; private set; }
 
+        public int NavigationDispatcherListenerPriority { get; set; }
+
         #endregion
 
         #region Implementation of interfaces
@@ -53,8 +67,18 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         public void Initialize(IViewModelPresenter presenter)
         {
             Should.NotBeNull(presenter, nameof(presenter));
+            if (Interlocked.CompareExchange(ref _state, InitializedState, DefaultState) != DefaultState)
+                throw ExceptionManager.ObjectInitialized(GetType().Name, this);
+
             ViewModelPresenter = presenter;
+            NavigationDispatcher.AddListener(_dispatcherListener);
+            NavigationDispatcher.NavigationJournal.AddListener(_dispatcherListener);
             OnInitialize(presenter);
+        }
+
+        public IDisposable BeginPresenterOperation(IReadOnlyMetadataContext metadata)
+        {
+            return _dispatcherListener.SuspendNavigation();
         }
 
         public INavigationCallback AddCallback(IViewModelBase viewModel, NavigationCallbackType callbackType,
@@ -70,37 +94,14 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             return callback;
         }
 
-        public void OnNavigated(INavigationContext navigationContext)
+        public void Dispose()
         {
-            Should.NotBeNull(navigationContext, nameof(navigationContext));
-            OnNavigatedInternal(navigationContext);
-        }
+            if (Interlocked.Exchange(ref _state, DisposedState) == DisposedState)
+                return;
 
-        public void OnNavigationFailed(INavigationContext navigationContext, Exception exception)
-        {
-            Should.NotBeNull(navigationContext, nameof(navigationContext));
-            Should.NotBeNull(exception, nameof(exception));
-            OnNavigationFailedInternal(navigationContext, exception);
-        }
-
-        public void OnNavigationCanceled(INavigationContext navigationContext)
-        {
-            Should.NotBeNull(navigationContext, nameof(navigationContext));
-            OnNavigationCanceledInternal(navigationContext);
-        }
-
-        public void OnNavigatingCanceled(INavigationContext navigationContext)
-        {
-            Should.NotBeNull(navigationContext, nameof(navigationContext));
-            OnNavigatingCanceledInternal(navigationContext);
-        }
-
-        public IReadOnlyList<INavigationCallback> GetCallbacks(INavigationEntry navigationEntry, NavigationCallbackType? callbackType, IReadOnlyMetadataContext metadata)
-        {
-            Should.NotBeNull(navigationEntry, nameof(navigationEntry));
-            Should.NotBeNull(callbackType, nameof(callbackType));
-            Should.NotBeNull(metadata, nameof(metadata));
-            return GetCallbacksInternal(navigationEntry, callbackType, metadata);
+            NavigationDispatcher.RemoveListener(_dispatcherListener);
+            NavigationDispatcher.NavigationJournal.RemoveListener(_dispatcherListener);
+            OnDispose();
         }
 
         #endregion
@@ -108,6 +109,10 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         #region Methods
 
         protected virtual void OnInitialize(IViewModelPresenter presenter)
+        {
+        }
+
+        protected virtual void OnDispose()
         {
         }
 
@@ -157,8 +162,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 InvokeCallbacks(navigationContext, true, NavigationInternalMetadata.ClosingCallbacks, Default.FalseObject, null, false);
         }
 
-        protected virtual IReadOnlyList<INavigationCallback> GetCallbacksInternal(INavigationEntry navigationEntry,
-            NavigationCallbackType? callbackType, IReadOnlyMetadataContext metadata)
+        protected virtual IReadOnlyList<INavigationCallback> GetCallbacksInternal(INavigationEntry navigationEntry, NavigationCallbackType? callbackType,
+            IReadOnlyMetadataContext metadata)
         {
             List<INavigationCallback>? callbacks = null;
             if (callbackType == null)
@@ -204,7 +209,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 listeners[i].OnCallbackExecuted(this, viewModel, callback, navigationContext);
         }
 
-        protected void InvokeCallbacks(INavigationContext navigationContext, bool isFromNavigation, IMetadataContextKey<IList<INavigationCallbackInternal?>?> key, object result, Exception exception, bool canceled)
+        protected void InvokeCallbacks(INavigationContext navigationContext, bool isFromNavigation, IMetadataContextKey<IList<INavigationCallbackInternal?>?> key, object result,
+            Exception exception, bool canceled)
         {
             IViewModelBase? viewModel;
             NavigationType navigationType;
@@ -294,6 +300,157 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             {
                 callbacks.AddRange(list.Where(c => c != null));
             }
+        }
+
+        #endregion
+
+        #region Nested types
+
+        private sealed class NavigationDispatcherListener : INavigationDispatcherListener, INavigationDispatcherJournalListener, IDisposable
+        {
+            #region Fields
+
+            private readonly ViewModelPresenterCallbackManager _callbackManager;
+            private readonly List<KeyValuePair<INavigationContext, object>> _suspendedEvents;
+            private int _suspendCount;
+
+            #endregion
+
+            #region Constructors
+
+            public NavigationDispatcherListener(ViewModelPresenterCallbackManager callbackManager)
+            {
+                _callbackManager = callbackManager;
+                _suspendedEvents = new List<KeyValuePair<INavigationContext, object>>();
+            }
+
+            #endregion
+
+            #region Implementation of interfaces
+
+            public void Dispose()
+            {
+                KeyValuePair<INavigationContext, object>[] events;
+                lock (_suspendedEvents)
+                {
+                    if (--_suspendCount != 0)
+                        return;
+                    events = _suspendedEvents.ToArray();
+                    _suspendedEvents.Clear();
+                }
+
+                for (var i = 0; i < events.Length; i++)
+                {
+                    var pair = events[i];
+                    if (pair.Value == null)
+                        OnNavigated(null, pair.Key);
+                    else if (pair.Value is Exception e)
+                        OnNavigationFailed(null, pair.Key, e);
+                    else if (ReferenceEquals(pair.Key, pair.Value))
+                        OnNavigationCanceled(null, pair.Key);
+                    else
+                        OnNavigatingCanceled(null, pair.Key);
+                }
+            }
+
+            public bool? CanAddNavigationEntry(INavigationDispatcherJournal navigationDispatcherJournal, INavigationContext navigationContext)
+            {
+                return null;
+            }
+
+            public bool? CanRemoveNavigationEntry(INavigationDispatcherJournal navigationDispatcherJournal, INavigationContext navigationContext)
+            {
+                return null;
+            }
+
+            public IReadOnlyList<INavigationCallback> GetCallbacks(INavigationDispatcherJournal navigationDispatcherJournal, INavigationEntry navigationEntry,
+                NavigationCallbackType? callbackType,
+                IReadOnlyMetadataContext metadata)
+            {
+                return _callbackManager.GetCallbacksInternal(navigationEntry, callbackType, metadata);
+            }
+
+            public Task<bool>? OnNavigatingAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
+            {
+                return null;
+            }
+
+            public void OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
+            {
+                lock (_suspendedEvents)
+                {
+                    if (_suspendCount != 0)
+                    {
+                        _suspendedEvents.Add(new KeyValuePair<INavigationContext, object>(navigationContext, null));
+                        return;
+                    }
+                }
+
+                _callbackManager.OnNavigatedInternal(navigationContext);
+            }
+
+            public void OnNavigationFailed(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, Exception exception)
+            {
+                lock (_suspendedEvents)
+                {
+                    if (_suspendCount != 0)
+                    {
+                        _suspendedEvents.Add(new KeyValuePair<INavigationContext, object>(navigationContext, exception));
+                        return;
+                    }
+                }
+
+                _callbackManager.OnNavigationFailedInternal(navigationContext, exception);
+            }
+
+            public void OnNavigationCanceled(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
+            {
+                lock (_suspendedEvents)
+                {
+                    if (_suspendCount != 0)
+                    {
+                        _suspendedEvents.Add(new KeyValuePair<INavigationContext, object>(navigationContext, navigationContext));
+                        return;
+                    }
+                }
+
+                _callbackManager.OnNavigationCanceledInternal(navigationContext);
+            }
+
+            public void OnNavigatingCanceled(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
+            {
+                lock (_suspendedEvents)
+                {
+                    if (_suspendCount != 0)
+                    {
+                        _suspendedEvents.Add(new KeyValuePair<INavigationContext, object>(navigationContext, _suspendedEvents));
+                        return;
+                    }
+                }
+
+                _callbackManager.OnNavigatingCanceledInternal(navigationContext);
+            }
+
+            public int GetPriority(object source)
+            {
+                return _callbackManager.NavigationDispatcherListenerPriority;
+            }
+
+            #endregion
+
+            #region Methods
+
+            public NavigationDispatcherListener SuspendNavigation()
+            {
+                lock (_suspendedEvents)
+                {
+                    ++_suspendCount;
+                }
+
+                return this;
+            }
+
+            #endregion
         }
 
         #endregion

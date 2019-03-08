@@ -6,7 +6,7 @@ namespace MugenMvvm.Interfaces.Navigation
 {
     public interface INavigationDispatcherListener : IListener
     {
-        Task<bool> OnNavigatingAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext);
+        Task<bool>? OnNavigatingAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext);
 
         void OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext);
 

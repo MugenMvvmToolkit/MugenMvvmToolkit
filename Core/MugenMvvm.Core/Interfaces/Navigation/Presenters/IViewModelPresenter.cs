@@ -5,13 +5,9 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Navigation.Presenters
 {
-    //todo update listener add mediator
-    //todo return empty metadata
-    //todo change setter, move all to handler container
-    //todo add dispose?
     public interface IViewModelPresenter : IHasListeners<IViewModelPresenterListener>
     {
-        IViewModelPresenterCallbackManager CallbackManager { get; }//todo replace with initialize
+        IViewModelPresenterCallbackManager CallbackManager { get; }
 
         IComponentCollection<IChildViewModelPresenter> Presenters { get; }
 

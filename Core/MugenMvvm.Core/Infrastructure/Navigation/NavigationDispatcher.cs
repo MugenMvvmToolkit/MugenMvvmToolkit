@@ -190,7 +190,7 @@ namespace MugenMvvm.Infrastructure.Navigation
                         return;
                     }
 
-                    var resultTask = _listeners[_index].OnNavigatingAsync(_dispatcher, _navigationContext);
+                    var resultTask = _listeners[_index].OnNavigatingAsync(_dispatcher, _navigationContext) ?? Default.TrueTask;
                     ++_index;
                     resultTask.ContinueWith(OnExecuted, this, TaskContinuationOptions.ExecuteSynchronously);
                 }

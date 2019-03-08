@@ -81,9 +81,9 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             return NavigationDispatcherListenerPriority;
         }
 
-        Task<bool> INavigationDispatcherListener.OnNavigatingAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
+        Task<bool>? INavigationDispatcherListener.OnNavigatingAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
         {
-            return Default.TrueTask;
+            return null;
         }
 
         void INavigationDispatcherListener.OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
