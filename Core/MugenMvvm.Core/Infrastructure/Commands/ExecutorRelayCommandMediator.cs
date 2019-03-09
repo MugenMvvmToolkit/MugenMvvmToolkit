@@ -48,14 +48,14 @@ namespace MugenMvvm.Infrastructure.Commands
 
         public IReadOnlyList<IRelayCommandMediator> Mediators => _mediators;
 
-        public virtual bool IsNotificationsSuspended
+        public virtual bool IsSuspended
         {
             get
             {
                 var mediators = Mediators;
                 for (var i = 0; i < mediators.Count; i++)
                 {
-                    if (mediators[i] is ISuspendNotifications suspendNotifications && suspendNotifications.IsNotificationsSuspended)
+                    if (mediators[i] is ISuspendable suspendNotifications && suspendNotifications.IsSuspended)
                         return true;
                 }
 
@@ -191,17 +191,17 @@ namespace MugenMvvm.Infrastructure.Commands
             }
         }
 
-        public virtual IDisposable SuspendNotifications()
+        public virtual IDisposable Suspend()
         {
             var mediators = Mediators;
             List<IDisposable>? tokens = null;
             for (var i = 0; i < mediators.Count; i++)
             {
-                if (mediators[i] is ISuspendNotifications suspendNotifications)
+                if (mediators[i] is ISuspendable suspendNotifications)
                 {
                     if (tokens == null)
                         tokens = new List<IDisposable>(2);
-                    tokens.Add(suspendNotifications.SuspendNotifications());
+                    tokens.Add(suspendNotifications.Suspend());
                 }
             }
 

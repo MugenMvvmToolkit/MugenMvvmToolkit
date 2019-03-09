@@ -5,10 +5,10 @@ namespace MugenMvvm.Interfaces.BusyIndicator
 {
     public interface IBusyInfo
     {
-        object? Message { get; }
+        IBusyToken Token { get; }
 
-        bool TryGetMessage<TType>(out TType message, Func<TType, bool>? filter = null);
+        IBusyToken? TryGetToken(Func<IBusyToken, bool> filter);
 
-        IReadOnlyList<object?> GetMessages();
+        IReadOnlyList<IBusyToken> GetTokens();
     }
 }

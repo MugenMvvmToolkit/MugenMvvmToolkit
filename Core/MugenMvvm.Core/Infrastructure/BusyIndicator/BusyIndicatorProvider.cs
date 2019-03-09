@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
@@ -35,7 +36,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
 
         #region Properties
 
-        public bool IsNotificationsSuspended => _suspendCount != 0;
+        public bool IsSuspended => _suspendCount != 0;
 
         public IComponentCollection<IBusyIndicatorProviderListener> Listeners
         {
@@ -68,7 +69,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
             return busyToken;
         }
 
-        public IDisposable SuspendNotifications()
+        public IDisposable Suspend()
         {
             bool? notify = null;
             lock (_locker)
@@ -83,15 +84,14 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
 
         public IReadOnlyList<IBusyToken> GetTokens()
         {
-            var tail = _busyTail;
-            if (tail == null)
-                return Default.EmptyArray<IBusyToken>();
-            return tail.GetTokens();
+            return _busyTail?.GetTokens() ?? Default.EmptyArray<IBusyToken>();
         }
 
         public void Dispose()
         {
-            var busyTokens = GetTokens();
+            var busyTokens = _busyTail?.GetTokens();
+            if (busyTokens == null)
+                return;
             for (var index = 0; index < busyTokens.Count; index++)
                 busyTokens[index].Dispose();
             _listeners?.Clear();
@@ -133,7 +133,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
 
         private void OnBusyInfoChanged(bool ignoreSuspend = false)
         {
-            if (!ignoreSuspend && IsNotificationsSuspended)
+            if (!ignoreSuspend && IsSuspended)
                 return;
             var items = Listeners.GetItems();
             for (var i = 0; i < items.Count; i++)
@@ -155,6 +155,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
             private BusyToken? _prev;
             private bool _suspended;
             private bool _suspendedExternal;
+            private int _suspendExternalCount;
 
             private static readonly LightArrayList<IBusyTokenCallback> CompletedList;
 
@@ -188,7 +189,9 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
 
             public object? Message { get; }
 
-            private bool IsSuspended => _suspended || _suspendedExternal;
+            public bool IsSuspended => _suspended || _suspendedExternal;
+
+            public IBusyToken Token => this;
 
             private object Locker => _provider._locker;
 
@@ -196,62 +199,39 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
 
             #region Implementation of interfaces
 
-            public bool TryGetMessage<TType>(out TType message, Func<TType, bool>? filter = null)
+            public IBusyToken? TryGetToken(Func<IBusyToken, bool> filter)
             {
+                Should.NotBeNull(filter, nameof(filter));
                 lock (Locker)
                 {
-                    //prev
-                    var token = _prev;
+                    var token = _provider._busyTail;
                     while (token != null)
                     {
-                        if (TryGetMessage(token, filter, out message))
-                            return true;
+                        if (filter(token))
+                            return token;
                         token = token._prev;
-                    }
-
-                    //current
-                    if (TryGetMessage(this, filter, out message))
-                        return true;
-
-                    //next
-                    token = _next;
-                    while (token != null)
-                    {
-                        if (TryGetMessage(token, filter, out message))
-                            return true;
-                        token = token._next;
                     }
                 }
 
-                return false;
+                return null;
             }
 
-            public IReadOnlyList<object?> GetMessages()
+            public IReadOnlyList<IBusyToken> GetTokens()
             {
-                var list = new List<object?>();
+                List<IBusyToken>? tokens = null;
                 lock (Locker)
                 {
-                    //prev
-                    var token = _prev;
+                    var token = _provider._busyTail;
                     while (token != null)
                     {
-                        list.Insert(0, token.Message);
+                        if (tokens == null)
+                            tokens = new List<IBusyToken>();
+                        tokens.Insert(0, token);
                         token = token._prev;
-                    }
-
-                    //current
-                    list.Add(Message);
-
-                    //next
-                    token = _next;
-                    while (token != null)
-                    {
-                        list.Add(token.Message);
-                        token = token._next;
                     }
                 }
 
-                return list;
+                return tokens ?? (IReadOnlyList<IBusyToken>)Default.EmptyArray<IBusyToken>();
             }
 
             public void Register(IBusyTokenCallback callback)
@@ -276,6 +256,11 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                 }
 
                 callback.OnCompleted(this);
+            }
+
+            public IDisposable Suspend()
+            {
+                return SuspendExternal(true)!;
             }
 
             public void Dispose()
@@ -315,19 +300,10 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
 
             public void OnSuspendChanged(bool suspended)
             {
-                if (_provider == null)
-                {
-                    SetSuspendedExternal(suspended);
-                    return;
-                }
-
-                bool notify;
-                lock (Locker)
-                {
-                    notify = SetSuspendedExternal(suspended);
-                }
-                if (notify)
-                    _provider.OnBusyInfoChanged();
+                if (suspended)
+                    SuspendExternal(false);
+                else
+                    OnEndSuspendExternal();
             }
 
             #endregion
@@ -336,6 +312,10 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
 
             public IBusyInfo? GetBusyInfo()
             {
+                //current
+                if (!IsSuspended)
+                    return this;
+
                 //prev
                 var token = _prev;
                 while (token != null)
@@ -343,19 +323,6 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                     if (!token.IsSuspended)
                         return token;
                     token = token._prev;
-                }
-
-                //current
-                if (!IsSuspended)
-                    return this;
-
-                //next
-                token = _next;
-                while (token != null)
-                {
-                    if (!token.IsSuspended)
-                        return token;
-                    token = token._next;
                 }
 
                 return null;
@@ -363,7 +330,9 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
 
             public bool SetSuspended(bool suspended)
             {
-                bool result = false;
+                //current
+                bool result = SetSuspendedInternal(suspended);
+
                 //prev
                 var token = _prev;
                 while (token != null)
@@ -371,19 +340,6 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                     if (token.SetSuspendedInternal(suspended))
                         result = true;
                     token = token._prev;
-                }
-
-                //current
-                if (SetSuspendedInternal(suspended))
-                    result = true;
-
-                //next
-                token = _next;
-                while (token != null)
-                {
-                    if (token.SetSuspendedInternal(suspended))
-                        result = true;
-                    token = token._next;
                 }
 
                 return result;
@@ -404,29 +360,27 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                     }
 
                     _provider._busyTail = this;
-                    SetSuspendedInternal(_provider.IsNotificationsSuspended);
+                    SetSuspendedInternal(_provider.IsSuspended);
                 }
 
                 _provider.OnBusyInfoChanged();
                 return true;
             }
 
-            public IReadOnlyList<IBusyToken> GetTokens()
+            private IDisposable? SuspendExternal(bool withToken)
             {
-                List<IBusyToken>? tokens = null;
-                lock (Locker)
-                {
-                    var token = _provider._busyTail;
-                    while (token != null)
-                    {
-                        if (tokens == null)
-                            tokens = new List<IBusyToken>();
-                        tokens.Insert(0, token);
-                        token = token._prev;
-                    }
-                }
+                if (Interlocked.Increment(ref _suspendExternalCount) == 1)
+                    SetSuspendedExternal(true);
 
-                return tokens ?? (IReadOnlyList<IBusyToken>)Default.EmptyArray<IBusyToken>();
+                if (withToken)
+                    return WeakActionToken.Create(this, t => t.OnEndSuspendExternal());
+                return null;
+            }
+
+            private void OnEndSuspendExternal()
+            {
+                if (Interlocked.Decrement(ref _suspendExternalCount) == 0)
+                    SetSuspendedExternal(false);
             }
 
             private bool SetSuspendedInternal(bool suspended)
@@ -434,9 +388,20 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                 return SetSuspended(ref _suspended, suspended);
             }
 
-            private bool SetSuspendedExternal(bool suspended)
+            private void SetSuspendedExternal(bool suspended)
             {
-                return SetSuspended(ref _suspendedExternal, suspended);
+                if (_provider == null)
+                    SetSuspended(ref _suspendedExternal, suspended);
+                else
+                {
+                    bool notify;
+                    lock (Locker)
+                    {
+                        notify = SetSuspended(ref _suspendedExternal, suspended);
+                    }
+                    if (notify)
+                        _provider.OnBusyInfoChanged();
+                }
             }
 
             private bool SetSuspended(ref bool field, bool suspended)
@@ -459,19 +424,6 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                     }
                 }
                 return changed;
-            }
-
-            private static bool TryGetMessage<TType>(BusyToken token, Func<TType, bool>? filter, out TType result)
-            {
-                if (token.Message is TType msg)
-                {
-                    result = msg;
-                    if (filter == null || filter(result))
-                        return true;
-                }
-
-                result = default!;
-                return false;
             }
 
             #endregion

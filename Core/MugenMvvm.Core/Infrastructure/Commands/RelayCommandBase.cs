@@ -60,7 +60,7 @@ namespace MugenMvvm.Infrastructure.Commands
             }
         }
 
-        public bool IsNotificationsSuspended => Mediator.IsNotificationsSuspended;
+        public bool IsSuspended => Mediator.IsSuspended;
 
         #endregion
 
@@ -96,9 +96,9 @@ namespace MugenMvvm.Infrastructure.Commands
             Mediator.Dispose();
         }
 
-        public IDisposable SuspendNotifications()
+        public IDisposable Suspend()
         {
-            return Mediator.SuspendNotifications();
+            return Mediator.Suspend();
         }
 
         #endregion

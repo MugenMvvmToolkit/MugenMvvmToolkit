@@ -13,7 +13,7 @@ using MugenMvvm.Models;
 
 namespace MugenMvvm.Infrastructure.Commands
 {
-    public sealed class ConditionEventRelayCommandMediator : IConditionEventRelayCommandMediator, IThreadDispatcherHandler, ISuspendNotifications
+    public sealed class ConditionEventRelayCommandMediator : IConditionEventRelayCommandMediator, IThreadDispatcherHandler, ISuspendable
     {
         #region Fields
 
@@ -66,7 +66,7 @@ namespace MugenMvvm.Infrastructure.Commands
 
         #region Properties
 
-        public bool IsNotificationsSuspended => _suspendCount != 0;
+        public bool IsSuspended => _suspendCount != 0;
 
         public int Priority { get; set; }
 
@@ -98,7 +98,7 @@ namespace MugenMvvm.Infrastructure.Commands
             if (_canExecuteChanged == null)
                 return;
 
-            if (IsNotificationsSuspended)
+            if (IsSuspended)
             {
                 _isNotificationsDirty = true;
                 return;
@@ -107,7 +107,7 @@ namespace MugenMvvm.Infrastructure.Commands
             _threadDispatcher.Execute(this, _eventExecutionMode, null);
         }
 
-        public IDisposable SuspendNotifications()
+        public IDisposable Suspend()
         {
             Interlocked.Increment(ref _suspendCount);
             return WeakActionToken.Create(this, @this => @this.EndSuspendNotifications());

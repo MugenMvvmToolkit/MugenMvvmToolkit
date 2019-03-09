@@ -25,7 +25,7 @@ namespace MugenMvvm.Models
 
         #region Properties
 
-        public bool IsNotificationsSuspended => _suspendCount != 0;
+        public bool IsSuspended => _suspendCount != 0;
 
         WeakReference IHasWeakReference.WeakReference
         {
@@ -51,7 +51,7 @@ namespace MugenMvvm.Models
 
         #region Implementation of interfaces
 
-        public IDisposable SuspendNotifications()
+        public IDisposable Suspend()
         {
             if (Interlocked.Increment(ref _suspendCount) == 1)
                 OnBeginSuspendNotifications();
@@ -95,7 +95,7 @@ namespace MugenMvvm.Models
             Should.NotBeNull(args, nameof(args));
             if (PropertyChanged != null)
             {
-                if (IsNotificationsSuspended)
+                if (IsSuspended)
                     IsNotificationsDirty = true;
                 if (PropertyChangedExecutionMode == ThreadExecutionMode.Current)
                     RaisePropertyChangedEvent(args);
@@ -141,7 +141,7 @@ namespace MugenMvvm.Models
                 InvalidateProperties();
             }
 
-            OnPropertyChanged(Default.IsNotificationsSuspendedChangedArgs);
+            OnPropertyChanged(Default.IsSuspendedChangedArgs);
         }
 
         private protected DispatcherHandler GetDispatcherHandler()

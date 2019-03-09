@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Commands
 {
-    public interface IExecutorRelayCommandMediator : IConditionRelayCommandMediator, IConditionEventRelayCommandMediator, ISuspendNotifications
+    public interface IExecutorRelayCommandMediator : IConditionRelayCommandMediator, IConditionEventRelayCommandMediator, ISuspendable
     {
         IReadOnlyList<IRelayCommandMediator> Mediators { get; }
 

@@ -7,10 +7,8 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
-using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Infrastructure.Serialization;
-using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
@@ -24,19 +22,17 @@ namespace MugenMvvm
 
         internal const string IndexerName = "Item[]";
 
-        public static readonly object TrueObject;
-        public static readonly object FalseObject;
+        private static int _counter;
+
+        internal static readonly PropertyChangedEventArgs IsSuspendedChangedArgs;
         internal static readonly PropertyChangedEventArgs EmptyPropertyChangedArgs;
         internal static readonly PropertyChangedEventArgs CountPropertyChangedArgs;
-        internal static readonly PropertyChangedEventArgs IsNotificationsSuspendedChangedArgs;
-        internal static readonly PropertyChangedEventArgs IsBusyChangedArgs;
-        internal static readonly PropertyChangedEventArgs BusyInfoChangedArgs;
-        internal static readonly PropertyChangedEventArgs DisplayNameChangedArgs;
         internal static readonly PropertyChangedEventArgs IndexerPropertyChangedArgs;
         internal static readonly NotifyCollectionChangedEventArgs ResetCollectionEventArgs;
         internal static Action NoDoAction;
-        private static int _counter;
 
+        public static readonly object TrueObject;
+        public static readonly object FalseObject;
         public static readonly NullValue SerializableNullValue;
         public static readonly IReadOnlyMetadataContext MetadataContext;
         public static readonly IDisposable Disposable;
@@ -54,21 +50,18 @@ namespace MugenMvvm
         {
             TrueObject = true;
             FalseObject = false;
-            ResetCollectionEventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
+            IsSuspendedChangedArgs = new PropertyChangedEventArgs(nameof(ISuspendable.IsSuspended));
             EmptyPropertyChangedArgs = new PropertyChangedEventArgs(string.Empty);
             CountPropertyChangedArgs = new PropertyChangedEventArgs(nameof(IList.Count));
-            IsNotificationsSuspendedChangedArgs = new PropertyChangedEventArgs(nameof(ISuspendNotifications.IsNotificationsSuspended));
-            IsBusyChangedArgs = new PropertyChangedEventArgs("IsBusy");
-            BusyInfoChangedArgs = new PropertyChangedEventArgs(nameof(IBusyIndicatorProvider.BusyInfo));
-            DisplayNameChangedArgs = new PropertyChangedEventArgs(nameof(IHasDisplayName.DisplayName));
             IndexerPropertyChangedArgs = new PropertyChangedEventArgs(IndexerName);
+            ResetCollectionEventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
             NoDoAction = NoDo;
 
             var emptyContext = new EmptyContext();
             MetadataContext = emptyContext;
             SerializableNullValue = new NullValue();
             WeakReference = new WeakReference(null, false);
-            Disposable = (IDisposable) MetadataContext;
+            Disposable = (IDisposable)MetadataContext;
             TrueTask = Task.FromResult(true);
             FalseTask = Task.FromResult(false);
             CompletedTask = FalseTask;

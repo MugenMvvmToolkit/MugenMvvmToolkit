@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Interfaces.Models
 {
-    public interface INotifyPropertyChangedEx : INotifyPropertyChanged, ISuspendNotifications
+    public interface INotifyPropertyChangedEx : INotifyPropertyChanged, ISuspendable
     {
         void InvalidateProperties();
     }

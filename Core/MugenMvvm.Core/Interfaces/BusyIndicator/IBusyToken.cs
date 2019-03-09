@@ -1,8 +1,9 @@
 ﻿using System;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.BusyIndicator
 {
-    public interface IBusyToken : IDisposable//todo review types, callbacks
+    public interface IBusyToken : IDisposable, ISuspendable
     {
         bool IsCompleted { get; }
 
