@@ -23,7 +23,7 @@ namespace MugenMvvm.Infrastructure.Internal
 
         protected virtual IComponentCollection<T> GetComponentCollectionInternal<T>(object target, IReadOnlyMetadataContext metadata) where T : class
         {
-            if (typeof(T).IsAssignableFromUnified(typeof(IHasPriority)) || typeof(T).IsAssignableFromUnified(typeof(IListener)))
+            if (typeof(IHasPriority).IsAssignableFromUnified(typeof(T)) || typeof(IListener).IsAssignableFromUnified(typeof(T)))
                 return new ListenersArrayComponentCollection<T>(target);
             return new ArrayComponentCollection<T>();
         }
@@ -67,24 +67,25 @@ namespace MugenMvvm.Infrastructure.Internal
                     var oldItem = Items[i];
                     var compareTo = priority.CompareTo(GetPriority(oldItem));
                     if (compareTo > 0)
-                        array[i] = oldItem;
-                    else
                     {
                         array[i] = item;
                         added = true;
                         --i;
                     }
+                    else
+                        array[i] = oldItem;
                 }
 
                 if (!added)
                     array[array.Length - 1] = item;
+                Items = array;
             }
 
             private int GetPriority(T item)
             {
                 if (item is IListener listener)
                     return listener.GetPriority(Target);
-                return ((IHasPriority) item).Priority;
+                return ((IHasPriority)item).Priority;
             }
 
             #endregion
@@ -152,11 +153,12 @@ namespace MugenMvvm.Infrastructure.Internal
                 var array = new T[Items.Length + 1];
                 Array.Copy(Items, array, Items.Length);
                 array[array.Length - 1] = item;
+                Items = array;
             }
 
             protected virtual void RemoveInternal(T item)
             {
-                T[] ? array = null;
+                T[]? array = null;
                 for (var i = 0; i < Items.Length; i++)
                 {
                     if (array == null && EqualityComparer<T>.Default.Equals(item, Items[i]))
