@@ -255,7 +255,8 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                         if (_listeners == null)
                             _listeners = new LightArrayList<IBusyTokenCallback>(2);
                         _listeners.Add(callback);
-                        callback.OnSuspendChanged(IsSuspended);
+                        if (IsSuspended)
+                            callback.OnSuspendChanged(true);
                         return;
                     }
                 }
