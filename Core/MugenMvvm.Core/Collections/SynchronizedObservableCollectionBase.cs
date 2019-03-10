@@ -253,14 +253,14 @@ namespace MugenMvvm.Collections
 
         protected virtual void OnBeginBatchUpdate()
         {
-            var listeners = Listeners.GetItems();
+            var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
                 listeners[i].OnBeginBatchUpdate(this);
         }
 
         protected virtual void OnEndBatchUpdate()
         {
-            var listeners = Listeners.GetItems();
+            var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
                 listeners[i].OnEndBatchUpdate(this);
         }
@@ -360,7 +360,7 @@ namespace MugenMvvm.Collections
 
         protected bool OnAdding(object item, int index)
         {
-            var listeners = Listeners.GetItems();
+            var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
             {
                 if (listeners[i] is IObservableCollectionChangingListener listener && !listener.OnAdding(this, item, index))
@@ -372,7 +372,7 @@ namespace MugenMvvm.Collections
 
         protected bool OnReplacing(object oldItem, object newItem, int index)
         {
-            var listeners = Listeners.GetItems();
+            var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
             {
                 if (listeners[i] is IObservableCollectionChangingListener listener && !listener.OnReplacing(this, oldItem, newItem, index))
@@ -384,7 +384,7 @@ namespace MugenMvvm.Collections
 
         protected bool OnMoving(object item, int oldIndex, int newIndex)
         {
-            var listeners = Listeners.GetItems();
+            var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
             {
                 if (listeners[i] is IObservableCollectionChangingListener listener && !listener.OnMoving(this, item, oldIndex, newIndex))
@@ -396,7 +396,7 @@ namespace MugenMvvm.Collections
 
         protected bool OnRemoving(object item, int index)
         {
-            var listeners = Listeners.GetItems();
+            var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
             {
                 if (listeners[i] is IObservableCollectionChangingListener listener && !listener.OnRemoving(this, item, index))
@@ -408,7 +408,7 @@ namespace MugenMvvm.Collections
 
         protected bool OnClearing()
         {
-            var listeners = Listeners.GetItems();
+            var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
             {
                 if (listeners[i] is IObservableCollectionChangingListener listener && !listener.OnClearing(this))
@@ -420,37 +420,42 @@ namespace MugenMvvm.Collections
 
         protected void OnAdded(object item, int index)
         {
-            var listeners = Listeners.GetItems();
+            var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
                 listeners[i].OnAdded(this, item, index);
         }
 
         protected void OnReplaced(object oldItem, object newItem, int index)
         {
-            var listeners = Listeners.GetItems();
+            var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
                 listeners[i].OnReplaced(this, oldItem, newItem, index);
         }
 
         protected void OnMoved(object item, int oldIndex, int newIndex)
         {
-            var listeners = Listeners.GetItems();
+            var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
                 listeners[i].OnMoved(this, item, oldIndex, newIndex);
         }
 
         protected void OnRemoved(object item, int index)
         {
-            var listeners = Listeners.GetItems();
+            var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
                 listeners[i].OnRemoved(this, item, index);
         }
 
         protected void OnCleared()
         {
-            var listeners = Listeners.GetItems();
+            var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
                 listeners[i].OnCleared(this);
+        }
+
+        protected IReadOnlyList<IObservableCollectionChangedListener> GetListeners()
+        {
+            return _listeners?.GetItems() ?? Default.EmptyArray<IObservableCollectionChangedListener>();
         }
 
         private void EndBatchUpdate()

@@ -24,7 +24,11 @@ namespace MugenMvvm.Infrastructure
                 if (_serviceConfiguration != null)
                     return _serviceConfiguration.Service;
                 if (_service == null)
+                {
+                    if (typeof(TService) == typeof(IServiceProvider))
+                        throw ExceptionManager.IoCCannotFindBinding(typeof(IServiceProvider));
                     _service = Service<IServiceProvider>.Instance.GetService<TService>();
+                }
                 return _service!;
             }
         }

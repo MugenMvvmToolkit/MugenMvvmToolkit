@@ -154,30 +154,35 @@ namespace MugenMvvm.Infrastructure.Views
 
         protected virtual void OnViewModelCreated(IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata)
         {
-            var listeners = Listeners.GetItems();
+            var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
                 listeners[i].OnViewModelCreated(this, viewModel, view, metadata);
         }
 
         protected virtual void OnViewCreated(IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata)
         {
-            var listeners = Listeners.GetItems();
+            var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
                 listeners[i].OnViewCreated(this, viewModel, view, metadata);
         }
 
         protected virtual void OnViewInitialized(IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
         {
-            var listeners = Listeners.GetItems();
+            var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
                 listeners[i].OnViewInitialized(this, viewModel, viewInfo, metadata);
         }
 
         protected virtual void OnViewCleared(IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
         {
-            var listeners = Listeners.GetItems();
+            var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
                 listeners[i].OnViewCleared(this, viewModel, viewInfo, metadata);
+        }
+
+        protected IReadOnlyList<IViewManagerListener> GetListeners()
+        {
+            return _listeners?.GetItems() ?? Default.EmptyArray<IViewManagerListener>();
         }
 
         #endregion

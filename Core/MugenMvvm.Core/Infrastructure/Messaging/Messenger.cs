@@ -11,7 +11,7 @@ using MugenMvvm.Interfaces.Threading;
 
 namespace MugenMvvm.Infrastructure.Messaging
 {
-    public class Messenger : IMessenger, IEqualityComparer<KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>>
+    public sealed class Messenger : IMessenger, IEqualityComparer<KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>>
     {
         #region Fields
 
@@ -81,7 +81,7 @@ namespace MugenMvvm.Infrastructure.Messaging
             Should.NotBeNull(subscriber, nameof(subscriber));
             Should.NotBeNull(executionMode, nameof(executionMode));
 
-            var listeners = Listeners.GetItems();
+            var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
                 subscriber = listeners[i].OnSubscribing(this, subscriber, executionMode);
 
@@ -93,7 +93,7 @@ namespace MugenMvvm.Infrastructure.Messaging
 
             if (added)
             {
-                listeners = Listeners.GetItems();
+                listeners = GetListeners();
                 for (var i = 0; i < listeners.Count; i++)
                     listeners[i].OnSubscribed(this, subscriber, executionMode);
             }
@@ -110,7 +110,7 @@ namespace MugenMvvm.Infrastructure.Messaging
 
             if (removed)
             {
-                var listeners = Listeners.GetItems();
+                var listeners = GetListeners();
                 for (var i = 0; i < listeners.Count; i++)
                     listeners[i].OnUnsubscribed(this, subscriber);
             }
@@ -143,7 +143,7 @@ namespace MugenMvvm.Infrastructure.Messaging
         private MessengerContext GetMessengerContext(IMetadataContext? metadata)
         {
             var ctx = new MessengerContext(this, metadata);
-            var listeners = Listeners.GetItems();
+            var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
                 listeners[i].OnContextCreated(this, ctx);
             return ctx;
@@ -204,6 +204,11 @@ namespace MugenMvvm.Infrastructure.Messaging
             return Default.CompletedTask;
         }
 
+        private IReadOnlyList<IMessengerListener> GetListeners()
+        {
+            return _listeners?.GetItems() ?? Default.EmptyArray<IMessengerListener>();
+        }
+
         #endregion
 
         #region Nested types
@@ -258,7 +263,7 @@ namespace MugenMvvm.Infrastructure.Messaging
 
             private void PublishAndNotify(IMessengerSubscriber subscriber)
             {
-                var listeners = _messenger.Listeners.GetItems();
+                var listeners = _messenger.GetListeners();
                 MessengerSubscriberResult? subscriberResult = null;
                 for (var i = 0; i < listeners.Count; i++)
                 {

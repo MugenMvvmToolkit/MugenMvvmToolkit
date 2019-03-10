@@ -124,7 +124,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         protected bool CanAddNavigationEntry(INavigationContext navigationContext)
         {
-            var listeners = Listeners.GetItems();
+            var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
             {
                 if (listeners[i].CanAddNavigationEntry(this, navigationContext).GetValueOrDefault())
@@ -136,7 +136,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         protected bool CanRemoveNavigationEntry(INavigationContext navigationContext)
         {
-            var listeners = Listeners.GetItems();
+            var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
             {
                 if (listeners[i].CanRemoveNavigationEntry(this, navigationContext).GetValueOrDefault())
@@ -169,7 +169,7 @@ namespace MugenMvvm.Infrastructure.Navigation
         protected virtual IReadOnlyList<INavigationCallback> GetCallbacksInternal(INavigationEntry navigationEntry, NavigationCallbackType? callbackType,
             IReadOnlyMetadataContext metadata)
         {
-            var listeners = Listeners.GetItems();
+            var listeners = GetListeners();
             if (listeners.Count == 0)
                 return Default.EmptyArray<INavigationCallback>();
 
@@ -213,6 +213,11 @@ namespace MugenMvvm.Infrastructure.Navigation
 
             if (!hasValue)
                 NavigationEntries.Remove(type);
+        }
+
+        protected IReadOnlyList<INavigationDispatcherJournalListener> GetListeners()
+        {
+            return _listeners?.GetItems() ?? Default.EmptyArray<INavigationDispatcherJournalListener>();
         }
 
         #endregion

@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces;
@@ -7,7 +8,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Infrastructure
 {
-    public class ApplicationStateDispatcher : IApplicationStateDispatcher
+    public sealed class ApplicationStateDispatcher : IApplicationStateDispatcher
     {
         #region Fields
 
@@ -58,9 +59,14 @@ namespace MugenMvvm.Infrastructure
             var oldState = Interlocked.Exchange(ref _state, state);
             if (oldState == state)
                 return;
-            var listeners = Listeners.GetItems();
+            var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
                 listeners[i].OnStateChanged(this, oldState, state, metadata);
+        }
+
+        private IReadOnlyList<IApplicationStateDispatcherListener> GetListeners()
+        {
+            return _listeners?.GetItems() ?? Default.EmptyArray<IApplicationStateDispatcherListener>();
         }
 
         #endregion

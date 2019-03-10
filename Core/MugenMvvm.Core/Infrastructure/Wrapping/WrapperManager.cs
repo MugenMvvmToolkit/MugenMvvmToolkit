@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Wrapping;
@@ -99,11 +100,16 @@ namespace MugenMvvm.Infrastructure.Wrapping
             if (wrapper == null)
                 throw ExceptionManager.WrapperTypeNotSupported(wrapperType);
 
-            var listeners = Listeners.GetItems();
+            var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
                 listeners[i].OnWrapped(this, item, wrapperType, wrapper, metadata);
 
             return wrapper;
+        }
+
+        protected IReadOnlyList<IWrapperManagerListener> GetListeners()
+        {
+            return _listeners?.GetItems() ?? Default.EmptyArray<IWrapperManagerListener>();
         }
 
         #endregion

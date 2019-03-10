@@ -15,7 +15,7 @@ using MugenMvvm.Interfaces.Serialization;
 
 namespace MugenMvvm.Infrastructure.Metadata
 {
-    public class MetadataContext : IObservableMetadataContext
+    public sealed class MetadataContext : IObservableMetadataContext
     {
         #region Fields
 
@@ -350,7 +350,7 @@ namespace MugenMvvm.Infrastructure.Metadata
         {
             if (!HasListeners)
                 return;
-            var items = Listeners.GetItems();
+            var items = GetListeners();
             for (var i = 0; i < items.Count; i++)
                 items[i].OnAdded(this, key, newValue);
         }
@@ -359,7 +359,7 @@ namespace MugenMvvm.Infrastructure.Metadata
         {
             if (!HasListeners)
                 return;
-            var items = Listeners.GetItems();
+            var items = GetListeners();
             for (var i = 0; i < items.Count; i++)
                 items[i].OnChanged(this, key, oldValue, newValue);
         }
@@ -368,9 +368,14 @@ namespace MugenMvvm.Infrastructure.Metadata
         {
             if (!HasListeners)
                 return;
-            var items = Listeners.GetItems();
+            var items = GetListeners();
             for (var i = 0; i < items.Count; i++)
                 items[i].OnRemoved(this, key, oldValue);
+        }
+
+        private IReadOnlyList<IObservableMetadataContextListener> GetListeners()
+        {
+            return _listeners?.GetItems() ?? Default.EmptyArray<IObservableMetadataContextListener>();
         }
 
         #endregion

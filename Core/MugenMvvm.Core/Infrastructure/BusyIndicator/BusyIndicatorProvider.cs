@@ -10,7 +10,7 @@ using MugenMvvm.Interfaces.Collections;
 
 namespace MugenMvvm.Infrastructure.BusyIndicator
 {
-    public class BusyIndicatorProvider : IBusyIndicatorProvider
+    public sealed class BusyIndicatorProvider : IBusyIndicatorProvider
     {
         #region Fields
 
@@ -126,7 +126,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
 
         private void OnBeginBusy(IBusyInfo busyInfo)
         {
-            var items = Listeners.GetItems();
+            var items = GetListeners();
             for (var i = 0; i < items.Count; i++)
                 items[i].OnBeginBusy(this, busyInfo);
         }
@@ -135,9 +135,14 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
         {
             if (!ignoreSuspend && IsSuspended)
                 return;
-            var items = Listeners.GetItems();
+            var items = GetListeners();
             for (var i = 0; i < items.Count; i++)
                 items[i].OnBusyInfoChanged(this);
+        }
+
+        private IReadOnlyList<IBusyIndicatorProviderListener> GetListeners()
+        {
+            return _listeners?.GetItems() ?? Default.EmptyArray<IBusyIndicatorProviderListener>();
         }
 
         #endregion

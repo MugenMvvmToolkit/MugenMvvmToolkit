@@ -82,9 +82,10 @@ namespace MugenMvvm.Infrastructure.Commands
             var mediators = GetMediatorsInternal<TParameter>(relayCommand, execute, canExecute, notifiers, metadata);
             var mediator = mediatorFactory.GetExecutorMediator<TParameter>(relayCommand, mediators, execute, canExecute, notifiers, metadata);
 
-            var listeners = Listeners.GetItems();
+            var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
                 listeners[i].OnMediatorCreated(this, relayCommand, execute, canExecute, notifiers, metadata, mediator);
+
             return mediator;
         }
 
@@ -107,6 +108,11 @@ namespace MugenMvvm.Infrastructure.Commands
                 return Default.EmptyArray<IRelayCommandMediator>();
             result.Sort(HasPriorityComparer.Instance);
             return result;
+        }
+
+        protected IReadOnlyList<IRelayCommandDispatcherListener> GetListeners()
+        {
+            return _listeners?.GetItems() ?? Default.EmptyArray<IRelayCommandDispatcherListener>();
         }
 
         #endregion

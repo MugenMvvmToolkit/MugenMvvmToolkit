@@ -1,6 +1,7 @@
 ﻿using MugenMvvm.Infrastructure;
-using MugenMvvm.Infrastructure.IoC;
+using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.UnitTest.TestInfrastructure;
 using Xunit;
@@ -19,6 +20,7 @@ namespace MugenMvvm.UnitTest
             ServiceConfiguration<IWeakReferenceFactory>.Initialize(new TestWeakReferenceFactory());
             ServiceConfiguration<IThreadDispatcher>.Initialize(new TestThreadDispatcher());
             ServiceConfiguration<IReflectionManager>.Initialize(new ExpressionReflectionManager());
+            ServiceConfiguration<IComponentCollectionFactory>.Initialize(new ComponentCollectionFactory());
         }
 
         #endregion

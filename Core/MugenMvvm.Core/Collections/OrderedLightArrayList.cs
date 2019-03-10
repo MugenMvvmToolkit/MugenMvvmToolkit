@@ -62,7 +62,8 @@ namespace MugenMvvm.Collections
         {
             if (Size == Items.Length)
                 EnsureCapacity((uint)Size + 1);
-            if (index < Size) Array.Copy(Items, index, Items, index + 1, Size - index);
+            if (index < Size) 
+                Array.Copy(Items, index, Items, index + 1, Size - index);
             Items[index] = item;
             ++Size;
             return index;

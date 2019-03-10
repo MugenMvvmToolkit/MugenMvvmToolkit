@@ -84,37 +84,40 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         protected virtual INavigatingResult OnNavigatingInternal(INavigationContext navigationContext)
         {
-            var l = Listeners.GetItems();
-            var invoker = new NavigatingResult(this, l, navigationContext);
-            return invoker;
+            return new NavigatingResult(this, GetListeners(), navigationContext);
         }
 
         protected virtual void OnNavigatedInternal(INavigationContext navigationContext)
         {
-            var listeners = Listeners.GetItems();
+            var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
                 listeners[i].OnNavigated(this, navigationContext);
         }
 
         protected virtual void OnNavigationFailedInternal(INavigationContext navigationContext, Exception exception)
         {
-            var listeners = Listeners.GetItems();
+            var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
                 listeners[i].OnNavigationFailed(this, navigationContext, exception);
         }
 
         protected virtual void OnNavigationCanceledInternal(INavigationContext navigationContext)
         {
-            var listeners = Listeners.GetItems();
+            var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
                 listeners[i].OnNavigationCanceled(this, navigationContext);
         }
 
         protected virtual void OnNavigatingCanceledInternal(INavigationContext navigationContext)
         {
-            var listeners = Listeners.GetItems();
+            var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
                 listeners[i].OnNavigatingCanceled(this, navigationContext);
+        }
+
+        protected IReadOnlyList<INavigationDispatcherListener> GetListeners()
+        {
+            return _listeners?.GetItems() ?? Default.EmptyArray<INavigationDispatcherListener>();
         }
 
         #endregion
