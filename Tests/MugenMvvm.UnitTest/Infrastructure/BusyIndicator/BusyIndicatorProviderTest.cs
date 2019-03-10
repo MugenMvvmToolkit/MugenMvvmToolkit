@@ -469,18 +469,62 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
         }
 
         [Fact]
-        public void BusyInfoShouldBeNullSuspend()
+        public void BusyInfoShouldBeNullSuspend1()
         {
             var busyIndicator = GetBusyIndicator();
-            busyIndicator.Begin("");
+            var token = busyIndicator.Begin("");
 
             var busyInfo = busyIndicator.BusyInfo;
             busyInfo.ShouldNotBeNull();
+
             var suspendNotifications = busyIndicator.Suspend();
             busyIndicator.BusyInfo.ShouldBeNull();
+            token.IsSuspended.ShouldBeTrue();
 
             suspendNotifications.Dispose();
             busyIndicator.BusyInfo.ShouldEqual(busyInfo);
+            token.IsSuspended.ShouldBeFalse();
+        }
+
+        [Fact]
+        public void BusyInfoShouldBeNullSuspend2()
+        {
+            var busyIndicator = GetBusyIndicator();
+            var token = busyIndicator.Begin("");
+
+            var busyInfo = busyIndicator.BusyInfo;
+            busyInfo.ShouldNotBeNull();
+
+            var suspendNotifications = token.Suspend();
+            busyIndicator.BusyInfo.ShouldBeNull();
+            token.IsSuspended.ShouldBeTrue();
+
+            suspendNotifications.Dispose();
+            busyIndicator.BusyInfo.ShouldEqual(busyInfo);
+            token.IsSuspended.ShouldBeFalse();
+        }
+
+        [Fact]
+        public void BusyInfoShouldBeNullSuspend3()
+        {
+            var busyIndicator = GetBusyIndicator();
+            var token = busyIndicator.Begin("");
+
+            var busyInfo = busyIndicator.BusyInfo;
+            busyInfo.ShouldNotBeNull();
+
+            var suspendNotifications1 = token.Suspend();
+            var suspendNotifications2 = busyIndicator.Suspend();
+            busyIndicator.BusyInfo.ShouldBeNull();
+            token.IsSuspended.ShouldBeTrue();
+
+            suspendNotifications1.Dispose();
+            busyIndicator.BusyInfo.ShouldBeNull();
+            token.IsSuspended.ShouldBeTrue();
+
+            suspendNotifications2.Dispose();
+            busyIndicator.BusyInfo.ShouldEqual(busyInfo);
+            token.IsSuspended.ShouldBeFalse();
         }
 
         [Fact]
@@ -530,10 +574,12 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
 
             busyIndicator.BusyInfo.ShouldNotBeNull();
             var suspendNotifications = rootIndicator.Suspend();
+            token.IsSuspended.ShouldBeTrue();
 
             busyIndicator.BusyInfo.ShouldBeNull();
             suspendNotifications.Dispose();
             busyIndicator.BusyInfo.ShouldNotBeNull();
+            busyIndicator.BusyInfo.Token.IsSuspended.ShouldBeFalse();
         }
 
         [Fact]
@@ -566,7 +612,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
         }
 
         [Fact]
-        public void BeginWithTokenShouldSuspendTokenParallel()
+        public void BeginWithTokenShouldSuspendTokenParallel1()
         {
             const int count = 1000;
             var providers = new List<IBusyIndicatorProvider>();
@@ -621,6 +667,48 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
             busyIndicator.BusyInfo.ShouldNotBeNull();
 
             var list = busyIndicator.BusyInfo.GetTokens().Select(token => token.Message);
+            messages.ShouldContain(list);
+        }
+
+        [Fact]
+        public void BeginWithTokenShouldSuspendTokenParallel2()
+        {
+            const int count = 1000;
+            var tokens = new List<IBusyToken>();
+            var messages = new List<object>();
+
+            var rootIndicator = GetBusyIndicator();
+            for (var i = 0; i < count; i++)
+            {
+                object obj = i;
+                var busyToken = rootIndicator.Begin(obj);
+                tokens.Add(busyToken);
+                messages.Add(obj);
+            }
+
+            var tasks = new List<Task<IDisposable>>();
+            foreach (var token in tokens)
+                tasks.Add(Task.Run(() => token.Suspend()));
+
+            Task.WaitAll(tasks.ToArray());
+
+            rootIndicator.BusyInfo.ShouldBeNull();
+
+            var disposables = tasks.Select(task => task.Result).ToList();
+            tasks.Clear();
+            foreach (var disposable in disposables)
+            {
+                var d = disposable;
+                tasks.Add(Task.Run(() =>
+                {
+                    d.Dispose();
+                    return d;
+                }));
+            }
+
+            Task.WaitAll(tasks.ToArray());
+
+            var list = rootIndicator.BusyInfo.GetTokens().Select(token => token.Message);
             messages.ShouldContain(list);
         }
 
