@@ -1,4 +1,4 @@
-﻿using MugenMvvm.Interfaces.Collections;
+﻿using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Navigation.Presenters
 {

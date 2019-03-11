@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using MugenMvvm.Interfaces.Collections;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 

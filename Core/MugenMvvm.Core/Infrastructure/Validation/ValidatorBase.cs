@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Infrastructure.Metadata;
-using MugenMvvm.Interfaces.Collections;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Metadata;
@@ -58,7 +58,7 @@ namespace MugenMvvm.Infrastructure.Validation
             get
             {
                 if (_listeners == null)
-                    _listeners = Service<IComponentCollectionFactory>.Instance.GetComponentCollection<IValidatorListener>(this, Default.MetadataContext);
+                    MugenExtensions.LazyInitialize(ref _listeners, this);
                 return _listeners;
             }
         }

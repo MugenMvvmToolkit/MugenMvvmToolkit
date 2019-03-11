@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using MugenMvvm.Interfaces.Collections;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Wrapping;
 
@@ -32,7 +32,7 @@ namespace MugenMvvm.Infrastructure.Wrapping
             get
             {
                 if (_listeners == null)
-                    _listeners = Service<IComponentCollectionFactory>.Instance.GetComponentCollection<IWrapperManagerListener>(this, Default.MetadataContext);
+                    MugenExtensions.LazyInitialize(ref _listeners, this);
                 return _listeners;
             }
         }
@@ -42,7 +42,7 @@ namespace MugenMvvm.Infrastructure.Wrapping
             get
             {
                 if (_wrapperFactories == null)
-                    _wrapperFactories = Service<IComponentCollectionFactory>.Instance.GetComponentCollection<IWrapperManagerFactory>(this, Default.MetadataContext);
+                    MugenExtensions.LazyInitialize(ref _wrapperFactories, this);
                 return _wrapperFactories;
             }
         }

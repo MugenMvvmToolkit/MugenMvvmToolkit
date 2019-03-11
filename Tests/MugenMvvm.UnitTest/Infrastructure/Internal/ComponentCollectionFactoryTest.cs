@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces.Collections;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Models;
 using Should;
 using Xunit;

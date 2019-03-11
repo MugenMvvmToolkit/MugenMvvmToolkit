@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Attributes;
-using MugenMvvm.Interfaces.Collections;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views.Infrastructure;
@@ -34,7 +34,7 @@ namespace MugenMvvm.Infrastructure.Views
             get
             {
                 if (_listeners == null)
-                    _listeners = Service<IComponentCollectionFactory>.Instance.GetComponentCollection<IViewManagerListener>(this, Default.MetadataContext);
+                    MugenExtensions.LazyInitialize(ref _listeners, this);
                 return _listeners;
             }
         }
@@ -44,7 +44,7 @@ namespace MugenMvvm.Infrastructure.Views
             get
             {
                 if (_managers == null)
-                    _managers = Service<IComponentCollectionFactory>.Instance.GetComponentCollection<IChildViewManager>(this, Default.MetadataContext);
+                    MugenExtensions.LazyInitialize(ref _managers, this);
                 return _managers;
             }
         }

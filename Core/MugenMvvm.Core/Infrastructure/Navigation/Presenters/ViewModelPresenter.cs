@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
-using MugenMvvm.Interfaces.Collections;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Presenters;
@@ -28,7 +28,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             CallbackManager = callbackManager;
             _presenters = presenters;
             _listeners = listeners;
-            CallbackManager.Initialize(this);
+            CallbackManager.OnAttached(this);
         }
 
         #endregion
@@ -42,7 +42,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             get
             {
                 if (_presenters == null)
-                    _presenters = Service<IComponentCollectionFactory>.Instance.GetComponentCollection<IChildViewModelPresenter>(this, Default.MetadataContext);
+                    MugenExtensions.LazyInitialize(ref _presenters, this);
                 return _presenters;
             }
         }
@@ -52,7 +52,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             get
             {
                 if (_listeners == null)
-                    _listeners = Service<IComponentCollectionFactory>.Instance.GetComponentCollection<IViewModelPresenterListener>(this, Default.MetadataContext);
+                    MugenExtensions.LazyInitialize(ref _listeners, this);
                 return _listeners;
             }
         }

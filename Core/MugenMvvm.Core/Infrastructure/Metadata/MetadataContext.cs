@@ -7,9 +7,8 @@ using System.Xml.Serialization;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Delegates;
-using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Infrastructure.Serialization;
-using MugenMvvm.Interfaces.Collections;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Serialization;
 
@@ -56,7 +55,7 @@ namespace MugenMvvm.Infrastructure.Metadata
             get
             {
                 if (_listeners == null)
-                    _listeners = Service<IComponentCollectionFactory>.Instance.GetComponentCollection<IObservableMetadataContextListener>(this, Default.MetadataContext);
+                    MugenExtensions.LazyInitialize(ref _listeners, this);
                 return _listeners;
             }
         }

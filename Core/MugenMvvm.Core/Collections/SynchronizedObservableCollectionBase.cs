@@ -4,23 +4,23 @@ using System.Collections.Generic;
 using System.Threading;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces.Collections;
+using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Collections
 {
-    [Serializable]
-    public abstract class SynchronizedObservableCollectionBase<T, TItems> : IList, IReadOnlyList<T>, IObservableCollection<T>
-        where TItems : class, IList<T> //todo add decorators
+    public abstract class SynchronizedObservableCollectionBase<T, TItemCollection> : IList, IReadOnlyList<T>, IObservableCollection<T>
+        where TItemCollection : class, IList<T>
     {
         #region Fields
 
-        [NonSerialized] private int _batchCount;
-        private IComponentCollection<IObservableCollectionChangedListener>? _listeners;
+        private int _batchCount;
+        private IComponentCollection<IObservableCollectionChangedListener<T>>? _listeners;
 
         #endregion
 
         #region Constructors
 
-        protected SynchronizedObservableCollectionBase(TItems list, IComponentCollection<IObservableCollectionChangedListener>? listeners = null)
+        protected SynchronizedObservableCollectionBase(TItemCollection list, IComponentCollection<IObservableCollectionChangedListener<T>>? listeners = null)
         {
             Should.NotBeNull(list, nameof(list));
             Items = list;
@@ -32,9 +32,8 @@ namespace MugenMvvm.Collections
 
         #region Properties
 
-        protected TItems Items { get; }
+        protected TItemCollection Items { get; }
 
-        [field: NonSerialized]
         protected object Locker { get; }
 
         public int Count
@@ -84,17 +83,19 @@ namespace MugenMvvm.Collections
 
         bool IList.IsFixedSize => false;
 
-        public IComponentCollection<IObservableCollectionChangedListener> Listeners
+        public IComponentCollection<IObservableCollectionChangedListener<T>> Listeners
         {
             get
             {
                 if (_listeners == null)
-                    _listeners = Service<IComponentCollectionFactory>.Instance.GetComponentCollection<IObservableCollectionChangedListener>(this, Default.MetadataContext);
+                    MugenExtensions.LazyInitialize(ref _listeners, this);
                 return _listeners;
             }
         }
 
-        protected bool HasListeners => _listeners != null && Listeners.HasItems;
+        public IComponentCollection<IObservableCollectionDecorator<T>> Decorators { get; }
+
+        public IComponentCollection<IObservableCollectionChangedListener<T>> DecoratorListeners { get; }
 
         #endregion
 
@@ -222,6 +223,11 @@ namespace MugenMvvm.Collections
             }
         }
 
+        public IEnumerable<T> DecorateItems()
+        {
+            throw new NotImplementedException();
+        }
+
         public IDisposable BeginBatchUpdate()
         {
             if (Interlocked.Increment(ref _batchCount) == 1)
@@ -249,20 +255,6 @@ namespace MugenMvvm.Collections
         public Enumerator GetEnumerator()
         {
             return new Enumerator(this);
-        }
-
-        protected virtual void OnBeginBatchUpdate()
-        {
-            var listeners = GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
-                listeners[i].OnBeginBatchUpdate(this);
-        }
-
-        protected virtual void OnEndBatchUpdate()
-        {
-            var listeners = GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
-                listeners[i].OnEndBatchUpdate(this);
         }
 
         protected virtual void CopyToInternal(Array array, int index)
@@ -307,12 +299,11 @@ namespace MugenMvvm.Collections
         protected virtual void MoveInternal(int oldIndex, int newIndex)
         {
             var obj = Items[oldIndex];
-            if (HasListeners && !OnMoving(obj, oldIndex, newIndex))
+            if (!OnMoving(obj, oldIndex, newIndex))
                 return;
             Items.RemoveAt(oldIndex);
             Items.Insert(newIndex, obj);
-            if (HasListeners)
-                OnMoved(obj, oldIndex, newIndex);
+            OnMoved(obj, oldIndex, newIndex);
         }
 
         protected virtual void ClearInternal()
@@ -325,22 +316,20 @@ namespace MugenMvvm.Collections
 
         protected virtual int InsertInternal(int index, T item, bool isAdd)
         {
-            if (HasListeners && !OnAdding(item, index))
+            if (!OnAdding(item, index))
                 return -1;
             Items.Insert(index, item);
-            if (HasListeners)
-                OnAdded(item, index);
+            OnAdded(item, index);
             return index;
         }
 
         protected virtual void RemoveInternal(int index)
         {
             var oldItem = Items[index];
-            if (HasListeners && !OnRemoving(oldItem, index))
+            if (!OnRemoving(oldItem, index))
                 return;
             Items.RemoveAt(index);
-            if (HasListeners)
-                OnRemoved(oldItem, index);
+            OnRemoved(oldItem, index);
         }
 
         protected virtual T GetInternal(int index)
@@ -351,55 +340,80 @@ namespace MugenMvvm.Collections
         protected virtual void SetInternal(int index, T item)
         {
             var oldItem = Items[index];
-            if (HasListeners && !OnReplacing(oldItem, item, index))
+            if (!OnReplacing(oldItem, item, index))
                 return;
             Items[index] = item;
-            if (HasListeners)
-                OnReplaced(oldItem, item, index);
+            OnReplaced(oldItem, item, index);
         }
 
-        protected bool OnAdding(object item, int index)
+        protected virtual void OnBeginBatchUpdate()
+        {
+            var listeners = GetListeners();
+            for (var i = 0; i < listeners.Count; i++)
+                listeners[i].OnBeginBatchUpdate(this);
+        }
+
+        protected virtual void OnEndBatchUpdate()
+        {
+            var listeners = GetListeners();
+            for (var i = 0; i < listeners.Count; i++)
+                listeners[i].OnEndBatchUpdate(this);
+        }
+
+        protected bool OnAdding(T item, int index)
         {
             var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
             {
-                if (listeners[i] is IObservableCollectionChangingListener listener && !listener.OnAdding(this, item, index))
+                if (listeners[i] is IObservableCollectionChangingListener<T> listener && !listener.OnAdding(this, item, index))
                     return false;
             }
 
             return true;
         }
 
-        protected bool OnReplacing(object oldItem, object newItem, int index)
+        protected bool OnReplacing(T oldItem, T newItem, int index)
         {
             var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
             {
-                if (listeners[i] is IObservableCollectionChangingListener listener && !listener.OnReplacing(this, oldItem, newItem, index))
+                if (listeners[i] is IObservableCollectionChangingListener<T> listener && !listener.OnReplacing(this, oldItem, newItem, index))
                     return false;
             }
 
             return true;
         }
 
-        protected bool OnMoving(object item, int oldIndex, int newIndex)
+        protected bool OnMoving(T item, int oldIndex, int newIndex)
         {
             var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
             {
-                if (listeners[i] is IObservableCollectionChangingListener listener && !listener.OnMoving(this, item, oldIndex, newIndex))
+                if (listeners[i] is IObservableCollectionChangingListener<T> listener && !listener.OnMoving(this, item, oldIndex, newIndex))
                     return false;
             }
 
             return true;
         }
 
-        protected bool OnRemoving(object item, int index)
+        protected bool OnRemoving(T item, int index)
         {
             var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
             {
-                if (listeners[i] is IObservableCollectionChangingListener listener && !listener.OnRemoving(this, item, index))
+                if (listeners[i] is IObservableCollectionChangingListener<T> listener && !listener.OnRemoving(this, item, index))
+                    return false;
+            }
+
+            return true;
+        }
+
+        protected bool OnResetting()
+        {
+            var listeners = GetListeners();
+            for (var i = 0; i < listeners.Count; i++)
+            {
+                if (listeners[i] is IObservableCollectionChangingListener<T> listener && !listener.OnResetting(this))
                     return false;
             }
 
@@ -411,39 +425,46 @@ namespace MugenMvvm.Collections
             var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
             {
-                if (listeners[i] is IObservableCollectionChangingListener listener && !listener.OnClearing(this))
+                if (listeners[i] is IObservableCollectionChangingListener<T> listener && !listener.OnClearing(this))
                     return false;
             }
 
             return true;
         }
 
-        protected void OnAdded(object item, int index)
+        protected void OnAdded(T item, int index)
         {
             var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
                 listeners[i].OnAdded(this, item, index);
         }
 
-        protected void OnReplaced(object oldItem, object newItem, int index)
+        protected void OnReplaced(T oldItem, T newItem, int index)
         {
             var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
                 listeners[i].OnReplaced(this, oldItem, newItem, index);
         }
 
-        protected void OnMoved(object item, int oldIndex, int newIndex)
+        protected void OnMoved(T item, int oldIndex, int newIndex)
         {
             var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
                 listeners[i].OnMoved(this, item, oldIndex, newIndex);
         }
 
-        protected void OnRemoved(object item, int index)
+        protected void OnRemoved(T item, int index)
         {
             var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
                 listeners[i].OnRemoved(this, item, index);
+        }
+
+        protected void OnReset()
+        {
+            var listeners = GetListeners();
+            for (var i = 0; i < listeners.Count; i++)
+                listeners[i].OnReset(this);
         }
 
         protected void OnCleared()
@@ -453,9 +474,9 @@ namespace MugenMvvm.Collections
                 listeners[i].OnCleared(this);
         }
 
-        protected IReadOnlyList<IObservableCollectionChangedListener> GetListeners()
+        protected IReadOnlyList<IObservableCollectionChangedListener<T>> GetListeners()
         {
-            return _listeners?.GetItems() ?? Default.EmptyArray<IObservableCollectionChangedListener>();
+            return _listeners?.GetItems() ?? Default.EmptyArray<IObservableCollectionChangedListener<T>>();
         }
 
         private void EndBatchUpdate()
@@ -481,14 +502,14 @@ namespace MugenMvvm.Collections
         {
             #region Fields
 
-            private readonly SynchronizedObservableCollectionBase<T, TItems> _collection;
+            private readonly SynchronizedObservableCollectionBase<T, TItemCollection> _collection;
             private int _index;
 
             #endregion
 
             #region Constructors
 
-            public Enumerator(SynchronizedObservableCollectionBase<T, TItems> collection)
+            public Enumerator(SynchronizedObservableCollectionBase<T, TItemCollection> collection)
             {
                 _collection = collection;
                 _index = 0;
@@ -511,14 +532,17 @@ namespace MugenMvvm.Collections
             {
                 if (_collection == null)
                     return false;
+
                 lock (_collection.Locker)
                 {
                     if (_index >= _collection.GetCountInternal())
                         return false;
+
                     Current = _collection.GetInternal(_index);
                     ++_index;
-                    return true;
                 }
+
+                return true;
             }
 
             public void Reset()

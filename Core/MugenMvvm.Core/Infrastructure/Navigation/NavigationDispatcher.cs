@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
-using MugenMvvm.Interfaces.Collections;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Navigation;
 
 namespace MugenMvvm.Infrastructure.Navigation
@@ -26,8 +26,8 @@ namespace MugenMvvm.Infrastructure.Navigation
             ContextFactory = contextFactory;
             NavigationJournal = navigationJournal;
             _listeners = listeners;
-            contextFactory.Initialize(this);
-            navigationJournal.Initialize(this);
+            contextFactory.OnAttached(this);
+            navigationJournal.OnAttached(this);
         }
 
         #endregion
@@ -43,7 +43,7 @@ namespace MugenMvvm.Infrastructure.Navigation
             get
             {
                 if (_listeners == null)
-                    _listeners = Service<IComponentCollectionFactory>.Instance.GetComponentCollection<INavigationDispatcherListener>(this, Default.MetadataContext);
+                    MugenExtensions.LazyInitialize(ref _listeners, this);
                 return _listeners;
             }
         }

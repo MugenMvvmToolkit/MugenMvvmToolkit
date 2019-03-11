@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -13,7 +12,7 @@ using MugenMvvm.Interfaces.Threading;
 
 namespace MugenMvvm.Collections
 {
-    public abstract class BindableCollectionWrapperBase<T> : Collection<T>, IObservableCollectionChangedListener, INotifyCollectionChanged, INotifyPropertyChanged, IDisposable
+    public abstract class BindableCollectionWrapperBase<T> : Collection<T>, IObservableCollectionChangedListener<T>, INotifyCollectionChanged, INotifyPropertyChanged, IDisposable//todo enumerable<object>
     {
         #region Fields
 
@@ -31,11 +30,11 @@ namespace MugenMvvm.Collections
             WrappedCollection = wrappedCollection;
             ThreadDispatcher = threadDispatcher;
             Events = new List<CollectionChangedEvent>();
-            if (wrappedCollection is IHasListeners<IObservableCollectionChangedListener> hasListeners)
+            if (wrappedCollection is IHasListeners<IObservableCollectionChangedListener<T>> hasListeners)
                 hasListeners.Listeners.Add(this);
             else if (wrappedCollection is INotifyCollectionChanged notifyCollectionChanged)
                 notifyCollectionChanged.CollectionChanged += OnCollectionChanged;
-            foreach (var item in wrappedCollection)
+            foreach (var item in GetCollectionItems())
                 Items.Add(item);
         }
 
@@ -67,50 +66,52 @@ namespace MugenMvvm.Collections
 
         #region Implementation of interfaces
 
-        public void OnBeginBatchUpdate(IEnumerable collection)
+        public void Dispose()
         {
-            if (ThreadDispatcher.IsOnMainThread)
-                OnBeginBatchUpdateImpl();
-            else
-                ThreadDispatcher.Execute(o => ((BindableCollectionWrapperBase<T>)o).OnBeginBatchUpdateImpl(), ThreadExecutionMode.Main, this);
+            if (WrappedCollection is IHasListeners<IObservableCollectionChangedListener<T>> hasListeners)
+                hasListeners.Listeners.Remove(this);
+            else if (WrappedCollection is INotifyCollectionChanged notifyCollectionChanged)
+                notifyCollectionChanged.CollectionChanged -= OnCollectionChanged;
         }
 
-        public void OnEndBatchUpdate(IEnumerable collection)
+        void IObservableCollectionChangedListener<T>.OnBeginBatchUpdate(IObservableCollection<T> collection)
         {
-            if (ThreadDispatcher.IsOnMainThread)
-                OnEndBatchUpdateImpl();
-            else
-                ThreadDispatcher.Execute(o => ((BindableCollectionWrapperBase<T>)o).OnEndBatchUpdateImpl(), ThreadExecutionMode.Main, this);
+            OnBeginBatchUpdate();
         }
 
-        void IObservableCollectionChangedListener.OnAdded(IEnumerable collection, object item, int index)
+        void IObservableCollectionChangedListener<T>.OnEndBatchUpdate(IObservableCollection<T> collection)
         {
-            var e = new CollectionChangedEvent(NotifyCollectionChangedAction.Add, item, item, index, index);
-            AddEvent(ref e);
+            OnEndBatchUpdate();
         }
 
-        void IObservableCollectionChangedListener.OnReplaced(IEnumerable collection, object oldItem, object newItem, int index)
+        void IObservableCollectionChangedListener<T>.OnAdded(IObservableCollection<T> collection, T item, int index)
         {
-            var e = new CollectionChangedEvent(NotifyCollectionChangedAction.Replace, oldItem, newItem, index, index);
-            AddEvent(ref e);
+            OnAdded(item, index);
         }
 
-        void IObservableCollectionChangedListener.OnMoved(IEnumerable collection, object item, int oldIndex, int newIndex)
+        void IObservableCollectionChangedListener<T>.OnReplaced(IObservableCollection<T> collection, T oldItem, T newItem, int index)
         {
-            var e = new CollectionChangedEvent(NotifyCollectionChangedAction.Move, item, item, oldIndex, newIndex);
-            AddEvent(ref e);
+            OnReplaced(oldItem, newItem, index);
         }
 
-        void IObservableCollectionChangedListener.OnRemoved(IEnumerable collection, object item, int index)
+        void IObservableCollectionChangedListener<T>.OnMoved(IObservableCollection<T> collection, T item, int oldIndex, int newIndex)
         {
-            var e = new CollectionChangedEvent(NotifyCollectionChangedAction.Remove, item, item, index, index);
-            AddEvent(ref e);
+            OnMoved(item, oldIndex, newIndex);
         }
 
-        void IObservableCollectionChangedListener.OnCleared(IEnumerable collection)
+        void IObservableCollectionChangedListener<T>.OnRemoved(IObservableCollection<T> collection, T item, int index)
         {
-            var e = new CollectionChangedEvent(NotifyCollectionChangedAction.Reset, null, null, -1, -1);
-            AddEvent(ref e);
+            OnRemoved(item, index);
+        }
+
+        void IObservableCollectionChangedListener<T>.OnReset(IObservableCollection<T> collection)
+        {
+            OnReset();
+        }
+
+        void IObservableCollectionChangedListener<T>.OnCleared(IObservableCollection<T> collection)
+        {
+            OnCleared();
         }
 
         public int GetPriority(object source)
@@ -118,21 +119,78 @@ namespace MugenMvvm.Collections
             return GetPriorityInternal(source);
         }
 
-        public void Dispose()
-        {
-            if (WrappedCollection is IHasListeners<IObservableCollectionChangedListener> hasListeners)
-                hasListeners.Listeners.Remove(this);
-            else if (WrappedCollection is INotifyCollectionChanged notifyCollectionChanged)
-                notifyCollectionChanged.CollectionChanged -= OnCollectionChanged;
-        }
-
         #endregion
 
         #region Methods
 
+        protected void OnBeginBatchUpdate()
+        {
+            if (ThreadDispatcher.IsOnMainThread)
+                OnBeginBatchUpdateImpl();
+            else
+                ThreadDispatcher.Execute(o => ((BindableCollectionWrapperBase<T>)o).OnBeginBatchUpdateImpl(), ThreadExecutionMode.Main, this);
+        }
+
+        protected void OnEndBatchUpdate()
+        {
+            if (ThreadDispatcher.IsOnMainThread)
+                OnEndBatchUpdateImpl();
+            else
+                ThreadDispatcher.Execute(o => ((BindableCollectionWrapperBase<T>)o).OnEndBatchUpdateImpl(), ThreadExecutionMode.Main, this);
+        }
+
+        protected void OnAdded(T item, int index)
+        {
+            var e = new CollectionChangedEvent(NotifyCollectionChangedAction.Add, item, item, index, index, null);
+            AddEvent(ref e);
+        }
+
+        protected void OnReplaced(T oldItem, T newItem, int index)
+        {
+            var e = new CollectionChangedEvent(NotifyCollectionChangedAction.Replace, oldItem, newItem, index, index, null);
+            AddEvent(ref e);
+        }
+
+        protected void OnMoved(T item, int oldIndex, int newIndex)
+        {
+            var e = new CollectionChangedEvent(NotifyCollectionChangedAction.Move, item, item, oldIndex, newIndex, null);
+            AddEvent(ref e);
+        }
+
+        protected void OnRemoved(T item, int index)
+        {
+            var e = new CollectionChangedEvent(NotifyCollectionChangedAction.Remove, item, item, index, index, null);
+            AddEvent(ref e);
+        }
+
+        protected void OnReset()
+        {
+            var collectionItems = GetCollectionItems();
+            var e = new CollectionChangedEvent(NotifyCollectionChangedAction.Reset, default, default, -1, -1,
+                ThreadDispatcher.IsOnMainThread ? collectionItems : collectionItems.ToArray());
+            AddEvent(ref e);
+        }
+
+        protected void OnCleared()
+        {
+            var e = new CollectionChangedEvent(NotifyCollectionChangedAction.Reset, default, default, -1, -1, null);
+            AddEvent(ref e);
+        }
+
         protected virtual int GetPriorityInternal(object source)
         {
             return 0;
+        }
+
+        protected virtual void OnBeginBatchUpdateInternal()
+        {
+        }
+
+        protected virtual void OnEndBatchUpdateInternal()
+        {
+            for (var index = 0; index < Events.Count; index++)
+                Events[index].Raise(this, true);
+            Events.Clear();
         }
 
         protected virtual void AddEventInternal(ref CollectionChangedEvent collectionChangedEvent)
@@ -147,39 +205,49 @@ namespace MugenMvvm.Collections
                 collectionChangedEvent.Raise(this, false);
         }
 
-        protected virtual void OnAddedInternal(object item, int index, bool batch)
+        protected virtual void OnAddedInternal(T item, int index, bool batch)
         {
-            Insert(index, (T)item);
+            Insert(index, item);
             RaisePropertyChanged(Default.CountPropertyChangedArgs);
             RaisePropertyChanged(Default.IndexerPropertyChangedArgs);
             if (HasCollectionChangedListeners)
                 RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
         }
 
-        protected virtual void OnReplacedInternal(object oldItem, object newItem, int index, bool batch)
+        protected virtual void OnReplacedInternal(T oldItem, T newItem, int index, bool batch)
         {
-            this[index] = (T)newItem;
+            this[index] = newItem;
             RaisePropertyChanged(Default.IndexerPropertyChangedArgs);
             if (HasCollectionChangedListeners)
                 RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, oldItem, newItem, index));
         }
 
-        protected virtual void OnMovedInternal(object item, int oldIndex, int newIndex, bool batch)
+        protected virtual void OnMovedInternal(T item, int oldIndex, int newIndex, bool batch)
         {
             RemoveAt(oldIndex);
-            Insert(newIndex, (T)item);
+            Insert(newIndex, item);
             RaisePropertyChanged(Default.IndexerPropertyChangedArgs);
             if (HasCollectionChangedListeners)
                 RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, item, newIndex, oldIndex));
         }
 
-        protected virtual void OnRemovedInternal(object item, int index, bool batch)
+        protected virtual void OnRemovedInternal(T item, int index, bool batch)
         {
             RemoveAt(index);
             RaisePropertyChanged(Default.CountPropertyChangedArgs);
             RaisePropertyChanged(Default.IndexerPropertyChangedArgs);
             if (HasCollectionChangedListeners)
                 RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, index));
+        }
+
+        protected virtual void OnResetInternal(IEnumerable<T> items, bool batch)
+        {
+            Clear();
+            foreach (var item in items)
+                Add(item);
+            RaisePropertyChanged(Default.CountPropertyChangedArgs);
+            RaisePropertyChanged(Default.IndexerPropertyChangedArgs);
+            RaiseCollectionChanged(Default.ResetCollectionEventArgs);
         }
 
         protected virtual void OnClearedInternal(bool batch)
@@ -190,17 +258,6 @@ namespace MugenMvvm.Collections
             RaiseCollectionChanged(Default.ResetCollectionEventArgs);
         }
 
-        protected virtual void OnBeginBatchUpdateInternal()
-        {
-        }
-
-        protected virtual void OnEndBatchUpdateInternal()
-        {
-            for (var index = 0; index < Events.Count; index++)
-                Events[index].Raise(this, true);
-            Events.Clear();
-        }
-
         protected virtual void RaiseCollectionChanged(NotifyCollectionChangedEventArgs args)
         {
             CollectionChanged?.Invoke(this, args);
@@ -209,6 +266,11 @@ namespace MugenMvvm.Collections
         protected virtual void RaisePropertyChanged(PropertyChangedEventArgs args)
         {
             PropertyChanged?.Invoke(this, args);
+        }
+
+        protected IEnumerable<T> GetCollectionItems()
+        {
+            return (WrappedCollection as IObservableCollection<T>)?.DecorateItems() ?? WrappedCollection;
         }
 
         private void AddEvent(ref CollectionChangedEvent collectionChangedEvent)
@@ -233,79 +295,41 @@ namespace MugenMvvm.Collections
 
         private void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            var collection = (IEnumerable)sender;
-            var isResetEvent = IsResetEvent(collection, e);
-            if (ThreadDispatcher.IsOnMainThread || !isResetEvent)
-                OnCollectionChangedImpl(collection, e, isResetEvent);
-            else
-                ThreadDispatcher.Execute(GenerateReset, ThreadExecutionMode.Main, collection.OfType<object>().ToArray());
-        }
-
-        private void OnCollectionChangedImpl(IEnumerable collection, NotifyCollectionChangedEventArgs e, bool isReset)
-        {
-            if (isReset)
+            if (IsResetEvent(e))
             {
-                GenerateReset(collection);
+                OnReset();
                 return;
             }
 
-            IObservableCollectionChangedListener listener = this;
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
                     if (e.NewItems.Count == 1)
-                        listener.OnAdded(collection, e.NewItems[0], e.NewStartingIndex);
+                        OnAdded((T)e.NewItems[0], e.NewStartingIndex);
                     else
                     {
-                        OnBeginBatchUpdate(collection);
-                        try
-                        {
-                            for (var i = 0; i < e.NewItems.Count; i++)
-                                listener.OnAdded(collection, e.NewItems[i], e.NewStartingIndex + i);
-                        }
-                        finally
-                        {
-                            OnEndBatchUpdate(collection);
-                        }
+                        for (var i = 0; i < e.NewItems.Count; i++)
+                            OnAdded((T)e.NewItems[i], e.NewStartingIndex + i);
                     }
-
                     break;
                 case NotifyCollectionChangedAction.Move:
-                    listener.OnMoved(collection, e.OldItems[0], e.OldStartingIndex, e.NewStartingIndex);
+                    OnMoved((T)e.OldItems[0], e.OldStartingIndex, e.NewStartingIndex);
                     break;
                 case NotifyCollectionChangedAction.Remove:
-                    listener.OnRemoved(collection, e.OldItems[0], e.OldStartingIndex);
+                    OnRemoved((T)e.OldItems[0], e.OldStartingIndex);
                     break;
                 case NotifyCollectionChangedAction.Replace:
-                    listener.OnReplaced(collection, e.OldItems[0], e.NewItems[0], e.NewStartingIndex);
+                    OnReplaced((T)e.OldItems[0], (T)e.NewItems[0], e.NewStartingIndex);
                     break;
                 case NotifyCollectionChangedAction.Reset:
-                    listener.OnCleared(collection);
+                    OnCleared();
                     break;
                 default:
                     throw ExceptionManager.EnumOutOfRange(nameof(e.Action), e.Action);
             }
         }
 
-        private void GenerateReset(object state)
-        {
-            var items = (IEnumerable)state;
-            IObservableCollectionChangedListener listener = this;
-            listener.OnBeginBatchUpdate(items);
-            try
-            {
-                listener.OnCleared(items);
-                var index = 0;
-                foreach (var item in items)
-                    listener.OnAdded(items, item, index++);
-            }
-            finally
-            {
-                listener.OnEndBatchUpdate(items);
-            }
-        }
-
-        private static bool IsResetEvent(IEnumerable items, NotifyCollectionChangedEventArgs e)
+        private bool IsResetEvent(NotifyCollectionChangedEventArgs e)
         {
             switch (e.Action)
             {
@@ -316,7 +340,7 @@ namespace MugenMvvm.Collections
                 case NotifyCollectionChangedAction.Replace:
                     return e.OldItems.Count != 1;
                 case NotifyCollectionChangedAction.Reset:
-                    return items.OfType<object>().Any();
+                    return WrappedCollection.Count != 0;
                 default:
                     throw ExceptionManager.EnumOutOfRange(nameof(e.Action), e.Action);
             }
@@ -330,27 +354,25 @@ namespace MugenMvvm.Collections
         {
             #region Fields
 
-            public readonly NotifyCollectionChangedAction Action;
-
-            public readonly int NewIndex;
-
-            public readonly object? NewItem;
-
-            public readonly int OldIndex;
-
-            public readonly object? OldItem;
+            public NotifyCollectionChangedAction Action;
+            public int NewIndex;
+            public T NewItem;
+            public int OldIndex;
+            public T OldItem;
+            public IEnumerable<T> ResetItems;
 
             #endregion
 
             #region Constructors
 
-            public CollectionChangedEvent(NotifyCollectionChangedAction action, object? oldItem, object? newItem, int oldIndex, int newIndex)
+            public CollectionChangedEvent(NotifyCollectionChangedAction action, T oldItem, T newItem, int oldIndex, int newIndex, IEnumerable<T> resetItems)
             {
                 Action = action;
                 OldItem = oldItem;
                 NewItem = newItem;
                 OldIndex = oldIndex;
                 NewIndex = newIndex;
+                ResetItems = resetItems;
             }
 
             #endregion
@@ -379,7 +401,10 @@ namespace MugenMvvm.Collections
                         listener.OnReplacedInternal(OldItem, NewItem, OldIndex, batch);
                         break;
                     case NotifyCollectionChangedAction.Reset:
-                        listener.OnClearedInternal(batch);
+                        if (ResetItems == null)
+                            listener.OnClearedInternal(batch);
+                        else
+                            listener.OnResetInternal(ResetItems, batch);
                         break;
                     default:
                         throw ExceptionManager.EnumOutOfRange(nameof(Action), Action);

@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using MugenMvvm.Constants;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm

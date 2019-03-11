@@ -1,17 +1,17 @@
-﻿using System.Collections;
-
-namespace MugenMvvm.Interfaces.Collections
+﻿namespace MugenMvvm.Interfaces.Collections
 {
-    public interface IObservableCollectionChangingListener : IObservableCollectionChangedListener
+    public interface IObservableCollectionChangingListener<T> : IObservableCollectionChangedListener<T>
     {
-        bool OnAdding(IEnumerable collection, object item, int index);
+        bool OnAdding(IObservableCollection<T> collection, T item, int index);
 
-        bool OnReplacing(IEnumerable collection, object oldItem, object newItem, int index);
+        bool OnReplacing(IObservableCollection<T> collection, T oldItem, T newItem, int index);
 
-        bool OnMoving(IEnumerable collection, object item, int oldIndex, int newIndex);
+        bool OnMoving(IObservableCollection<T> collection, T item, int oldIndex, int newIndex);
 
-        bool OnRemoving(IEnumerable collection, object item, int index);
+        bool OnRemoving(IObservableCollection<T> collection, T item, int index);
 
-        bool OnClearing(IEnumerable collection);
+        bool OnResetting(IObservableCollection<T> collection);
+
+        bool OnClearing(IObservableCollection<T> collection);
     }
 }

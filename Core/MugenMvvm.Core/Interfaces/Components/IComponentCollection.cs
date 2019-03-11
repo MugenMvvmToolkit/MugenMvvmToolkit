@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace MugenMvvm.Interfaces.Collections
+namespace MugenMvvm.Interfaces.Components
 {
-    public interface IComponentCollection<T> where T : class
+    public interface IComponentCollection<T> where T : class//todo add/remove event wrapper
     {
         bool HasItems { get; }
 

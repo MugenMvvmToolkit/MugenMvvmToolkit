@@ -4,7 +4,7 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Metadata;
-using MugenMvvm.Interfaces.Collections;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading;
@@ -41,7 +41,7 @@ namespace MugenMvvm.Infrastructure.Messaging
             get
             {
                 if (_listeners == null)
-                    _listeners = Service<IComponentCollectionFactory>.Instance.GetComponentCollection<IMessengerListener>(this, Default.MetadataContext);
+                    MugenExtensions.LazyInitialize(ref _listeners, this);
                 return _listeners;
             }
         }

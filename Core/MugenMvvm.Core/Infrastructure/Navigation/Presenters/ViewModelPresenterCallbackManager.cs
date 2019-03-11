@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
-using MugenMvvm.Interfaces.Collections;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Presenters;
@@ -14,7 +14,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.Navigation.Presenters
 {
-    public class ViewModelPresenterCallbackManager : IViewModelPresenterCallbackManager
+    public class ViewModelPresenterCallbackManager : IViewModelPresenterCallbackManager, IDetachableComponent<IViewModelPresenter>
     {
         #region Fields
 
@@ -49,7 +49,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             get
             {
                 if (_listeners == null)
-                    _listeners = Service<IComponentCollectionFactory>.Instance.GetComponentCollection<IViewModelPresenterCallbackManagerListener>(this, Default.MetadataContext);
+                    MugenExtensions.LazyInitialize(ref _listeners, this);
                 return _listeners;
             }
         }
@@ -64,7 +64,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         #region Implementation of interfaces
 
-        public void Initialize(IViewModelPresenter presenter)
+        public void OnAttached(IViewModelPresenter presenter)
         {
             Should.NotBeNull(presenter, nameof(presenter));
             if (Interlocked.CompareExchange(ref _state, InitializedState, DefaultState) != DefaultState)
@@ -73,7 +73,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             ViewModelPresenter = presenter;
             NavigationDispatcher.AddListener(_dispatcherListener);
             NavigationDispatcher.NavigationJournal.AddListener(_dispatcherListener);
-            OnInitialize(presenter);
+            OnAttachedInternal(presenter);
         }
 
         public IDisposable BeginPresenterOperation(IReadOnlyMetadataContext metadata)
@@ -94,25 +94,25 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             return callback;
         }
 
-        public void Dispose()
+        public void OnDetached(IViewModelPresenter presenter)
         {
             if (Interlocked.Exchange(ref _state, DisposedState) == DisposedState)
                 return;
 
             NavigationDispatcher.RemoveListener(_dispatcherListener);
             NavigationDispatcher.NavigationJournal.RemoveListener(_dispatcherListener);
-            OnDispose();
+            OnDetachedInternal(presenter);
         }
 
         #endregion
 
         #region Methods
 
-        protected virtual void OnInitialize(IViewModelPresenter presenter)
+        protected virtual void OnAttachedInternal(IViewModelPresenter presenter)
         {
         }
 
-        protected virtual void OnDispose()
+        protected virtual void OnDetachedInternal(IViewModelPresenter presenter)
         {
         }
 

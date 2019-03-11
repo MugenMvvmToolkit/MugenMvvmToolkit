@@ -156,7 +156,7 @@ namespace MugenMvvm.Collections
         {
             lock (this)
             {
-                return ToArray();
+                return ToArrayInternal();
             }
         }
 

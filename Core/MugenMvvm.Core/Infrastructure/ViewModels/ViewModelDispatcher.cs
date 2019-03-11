@@ -1,7 +1,7 @@
 ﻿using System;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
-using MugenMvvm.Interfaces.Collections;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.ViewModels.Infrastructure;
@@ -34,7 +34,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
             get
             {
                 if (_managers == null)
-                    _managers = Service<IComponentCollectionFactory>.Instance.GetComponentCollection<IViewModelDispatcherManager>(this, Default.MetadataContext);
+                    MugenExtensions.LazyInitialize(ref _managers, this);
                 return _managers;
             }
         }

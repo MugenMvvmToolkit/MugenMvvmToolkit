@@ -1,111 +1,260 @@
-﻿using System;
-using System.Collections.Generic;
-using MugenMvvm.Delegates;
-
-namespace MugenMvvm.Collections
-{
+﻿//using System;
+//using System.Collections;
+//using System.Collections.Generic;
+//using MugenMvvm.Interfaces.Collections;
+//using MugenMvvm.Interfaces.Metadata;
+//using MugenMvvm.Interfaces.Models;
+//
+//namespace MugenMvvm.Collections
+//{
+//
 //    [Serializable]
-//    public class SynchronizedObservableCollection<T> : SynchronizedObservableCollectionBase<T, List<T>>
+//    public class FilterObservableCollectionDecorator<TItem> : IObservableCollectionDecorator<TItem>
 //    {
 //        #region Fields
 //
-//        [NonSerialized]
-//        private FilterDelegate<T>? _filter;
-//        private List<KeyValuePair<int, T>>? _filterItems;
+//        private int[] _keys;
+//        private int _size;
+//        private TItem[] _values;
+//
+//        public const int DefaultPriority = 1;
 //
 //        #endregion
 //
 //        #region Constructors
 //
-//        public SynchronizedObservableCollection(IEnumerable<T> items)
-//            : base(new List<T>(items))
+//        public FilterObservableCollectionDecorator(int priority = DefaultPriority)
 //        {
-//        }dfgfd
-//
-//        public SynchronizedObservableCollection()
-//            : base(new List<T>())
-//        { 
+//            Priority = priority;
+//            _keys = Default.EmptyArray<int>();
+//            _values = Default.EmptyArray<TItem>();
+//            _size = 0;
 //        }
 //
 //        #endregion
 //
 //        #region Properties
 //
-//        public FilterDelegate<T>? Filter
+//        public int Priority { get; }
+//
+//        private int Capacity
 //        {
-//            get => _filter;
+//            get => _keys.Length;
 //            set
 //            {
-//                lock (Locker)
+//                if (value == _keys.Length)
+//                    return;
+//                if (value < _size)
+//                    throw ExceptionManager.CapacityLessThanCollection("Capacity");
+//                if (value > 0)
 //                {
-//                    if (Equals(Filter, value))
-//                        return;
-//                    _filter = value;
-//                    UpdateFilterInternal(value);
+//                    var keyArray = new int[value];
+//                    var objArray = new TItem[value];
+//                    if (_size > 0)
+//                    {
+//                        Array.Copy(_keys, 0, keyArray, 0, _size);
+//                        Array.Copy(_values, 0, objArray, 0, _size);
+//                    }
+//
+//                    _keys = keyArray;
+//                    _values = objArray;
+//                }
+//                else
+//                {
+//                    _keys = Default.EmptyArray<int>();
+//                    _values = Default.EmptyArray<TItem>();
 //                }
 //            }
+//        }
+//
+//        #endregion
+//
+//        #region Implementation of interfaces
+//
+//        public bool OnAdded(IDecorableObservableCollection<TItem> collection, ref TItem item, ref int index)
+//        {
+//            UpdateFilterItems(index, 1);
+//            if (!Filter(item))
+//                return false;
+//
+//            index = Add(index, item);
+//            return true;
+//        }
+//
+//        public bool OnReplaced(IDecorableObservableCollection<TItem> collection, ref TItem oldItem, ref TItem newItem, ref int index)
+//        {
+//            var filterIndex = IndexOfKey(index);
+//            if (filterIndex == -1)
+//                return false;
+//
+//            if (Filter(newItem))
+//            {
+//                oldItem = GetValue(filterIndex);
+//                index = filterIndex;
+//                return true;
+//            }
+//
+//            var oldValue = GetValue(filterIndex);
+//            RemoveAt(filterIndex);
+//            collection.RaiseRemoved(this, oldValue, filterIndex);
+//            return false;
+//        }
+//
+//        public bool OnMoved(IDecorableObservableCollection<TItem> collection, ref TItem item, ref int oldIndex, ref int newIndex)
+//        {
+//            throw new NotImplementedException();
+//        }
+//
+//        public bool OnRemoved(IDecorableObservableCollection<TItem> collection, ref TItem item, ref int index)
+//        {
+//            var filterIndex = IndexOfKey(index);
+//            UpdateFilterItems(index, -1);
+//            if (filterIndex == -1)
+//                return false;
+//
+//            RemoveAt(filterIndex);
+//            index = filterIndex;
+//            return true;
+//        }
+//
+//        public bool OnCleared(IDecorableObservableCollection<TItem> collection)
+//        {
+//            Clear();
+//            return true;
 //        }
 //
 //        #endregion
 //
 //        #region Methods
 //
-//        protected virtual void UpdateFilterInternal(FilterDelegate<T> filter)
+//        private bool Filter(TItem value)
 //        {
-//            using (BeginBatchUpdate())
+//            return false;
+//        }
+//
+//        private void UpdateFilterItems(int index, int value)
+//        {
+//            if (_size == 0)
+//                return;
+//
+//            int start = IndexOfKey(index);
+//            if (start == -1)
 //            {
-//                if (filter == null)
+//                if (_keys[_size - 1] < index)
+//                    return;
+//                for (int i = 0; i < _size; i++)
 //                {
-//
+//                    int key = _keys[i];
+//                    if (key < index)
+//                        continue;
+//                    _keys[i] = key + value;
 //                }
+//                return;
 //            }
+//            for (int i = start; i < _size; i++)
+//                _keys[i] += value;
 //        }
 //
-//        protected override void ClearInternal()
+//        private int Add(int key, TItem value)
 //        {
-//            base.ClearInternal();
+//            var num = Array.BinarySearch(_keys, 0, _size, key);
+//            if (num >= 0)
+//                throw new InvalidOperationException();
+//            return Insert(~num, key, value);
 //        }
 //
-//        protected override void CopyToInternal(Array array, int index)
+//        private void Clear()
 //        {
-//            base.CopyToInternal(array, index);
+//            Array.Clear(_keys, 0, _size);
+//            Array.Clear(_values, 0, _size);
+//            _size = 0;
 //        }
 //
-//        protected override int GetCountInternal()
+//        private int IndexOfKey(int key)
 //        {
-//            return base.GetCountInternal();
+//            var num = Array.BinarySearch(_keys, 0, _size, key);
+//            if (num < 0)
+//                return -1;
+//            return num;
 //        }
 //
-//        protected override T GetInternal(int index)
+//        private int IndexOfValue(TItem value)
 //        {
-//            return base.GetInternal(index);
+//            return Array.IndexOf(_values, value, 0, _size);
 //        }
 //
-//        protected override int InsertInternal(int index, T item, bool isAdd)
+//        private int GetKey(int index)
 //        {
-//            return base.InsertInternal(index, item, isAdd);
+//            if (index >= _size)
+//                throw ExceptionManager.IntOutOfRangeCollection("index");
+//            return _keys[index];
 //        }
 //
-//        protected override void MoveInternal(int oldIndex, int newIndex)
+//        private TItem GetValue(int index)
 //        {
-//            base.MoveInternal(oldIndex, newIndex);
+//            if (index >= _size)
+//                throw ExceptionManager.IntOutOfRangeCollection("index");
+//            return _values[index];
 //        }
 //
-//        protected override void RemoveInternal(int index)
+//        private void RemoveAt(int index)
 //        {
-//            base.RemoveInternal(index);
+//            if (index < 0 || index >= _size)
+//                throw ExceptionManager.IntOutOfRangeCollection("index");
+//            --_size;
+//            if (index < _size)
+//            {
+//                Array.Copy(_keys, index + 1, _keys, index, _size - index);
+//                Array.Copy(_values, index + 1, _values, index, _size - index);
+//            }
+//
+//            _keys[_size] = default;
+//            _values[_size] = default;
 //        }
 //
-//        protected override void SetInternal(int index, T item)
+//        private void EnsureCapacity(int min)
 //        {
-//            base.SetInternal(index, item);
+//            var num = _keys.Length == 0 ? 4 : _keys.Length * 2;
+//            if (num < min)
+//                num = min;
+//            Capacity = num;
 //        }
 //
-//        private bool IsSatisfy(T item)
+//        private int Insert(int index, int key, TItem value)
 //        {
-//            return _filter?.Invoke(item) ?? true;
+//            if (_size == _keys.Length)
+//                EnsureCapacity(_size + 1);
+//            if (index < _size)
+//            {
+//                Array.Copy(_keys, index, _keys, index + 1, _size - index);
+//                Array.Copy(_values, index, _values, index + 1, _size - index);
+//            }
+//
+//            _keys[index] = key;
+//            _values[index] = value;
+//            ++_size;
+//            return index;
 //        }
 //
 //        #endregion
 //    }
-}
+//
+//
+//    [Serializable]
+//    public class SynchronizedObservableCollection<T> : SynchronizedObservableCollectionBase<T, List<T>>
+//    {
+//        #region Constructors
+//
+//        public SynchronizedObservableCollection(IComponentCollection<IObservableCollectionChangedListener<T>>? listeners = null)
+//            : base(new List<T>(), listeners)
+//        {
+//        }
+//
+//        public SynchronizedObservableCollection(IEnumerable<T> items, IComponentCollection<IObservableCollectionChangedListener<T>>? listeners = null)
+//            : base(new List<T>(items), listeners)
+//        {
+//        }
+//
+//        #endregion
+//    }
+//}

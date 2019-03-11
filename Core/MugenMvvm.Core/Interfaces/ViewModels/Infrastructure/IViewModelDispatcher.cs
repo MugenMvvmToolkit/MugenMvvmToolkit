@@ -1,7 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
 using MugenMvvm.Enums;
-using MugenMvvm.Interfaces.Collections;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.ViewModels.Infrastructure

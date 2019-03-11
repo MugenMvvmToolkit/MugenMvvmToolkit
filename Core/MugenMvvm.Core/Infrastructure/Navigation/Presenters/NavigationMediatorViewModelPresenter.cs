@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
-using MugenMvvm.Interfaces.Collections;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
@@ -50,7 +50,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             get
             {
                 if (_managers == null)
-                    _managers = Service<IComponentCollectionFactory>.Instance.GetComponentCollection<INavigationMediatorViewModelPresenterManager>(this, Default.MetadataContext);
+                    MugenExtensions.LazyInitialize(ref _managers, this);
                 return _managers;
             }
         }

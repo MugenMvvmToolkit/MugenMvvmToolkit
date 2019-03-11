@@ -1,7 +1,9 @@
 ﻿using MugenMvvm.Infrastructure;
+using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.Collections;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.UnitTest.TestInfrastructure;
 using Xunit;

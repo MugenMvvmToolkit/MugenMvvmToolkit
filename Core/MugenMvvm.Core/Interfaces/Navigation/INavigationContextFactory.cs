@@ -1,13 +1,12 @@
 ﻿using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Interfaces.Navigation
 {
-    public interface INavigationContextFactory
+    public interface INavigationContextFactory : IAttachableComponent<INavigationDispatcher>
     {
-        void Initialize(INavigationDispatcher navigationDispatcher);
-
         INavigationContext GetNavigationContext(INavigationProvider navigationProvider, NavigationMode navigationMode, NavigationType navigationTypeFrom, IViewModelBase? viewModelFrom,
             NavigationType navigationTypeTo, IViewModelBase? viewModelTo, IReadOnlyMetadataContext metadata);
 

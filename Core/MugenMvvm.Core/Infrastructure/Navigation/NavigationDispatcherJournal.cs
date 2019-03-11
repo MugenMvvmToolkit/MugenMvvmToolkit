@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
-using MugenMvvm.Interfaces.Collections;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.ViewModels;
@@ -36,7 +36,7 @@ namespace MugenMvvm.Infrastructure.Navigation
             get
             {
                 if (_listeners == null)
-                    _listeners = Service<IComponentCollectionFactory>.Instance.GetComponentCollection<INavigationDispatcherJournalListener>(this, Default.MetadataContext);
+                    MugenExtensions.LazyInitialize(ref _listeners, this);
                 return _listeners;
             }
         }
@@ -45,10 +45,10 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         #region Implementation of interfaces
 
-        public void Initialize(INavigationDispatcher navigationDispatcher)
+        public void OnAttached(INavigationDispatcher navigationDispatcher)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
-            OnInitialize(navigationDispatcher);
+            OnAttachedInternal(navigationDispatcher);
         }
 
         public void OnNavigated(INavigationContext navigationContext)
@@ -67,7 +67,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         #region Methods
 
-        protected virtual void OnInitialize(INavigationDispatcher navigationDispatcher)
+        protected virtual void OnAttachedInternal(INavigationDispatcher navigationDispatcher)
         {
         }
 

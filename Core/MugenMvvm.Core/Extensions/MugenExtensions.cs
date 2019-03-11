@@ -11,11 +11,10 @@ using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Messaging;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Infrastructure.Navigation;
-using MugenMvvm.Infrastructure.Navigation.Presenters;
-using MugenMvvm.Infrastructure.Views;
 using MugenMvvm.Infrastructure.Wrapping;
 using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.BusyIndicator;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.IoC;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
@@ -26,7 +25,6 @@ using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.ViewModels.Infrastructure;
-using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Infrastructure;
 using MugenMvvm.Interfaces.Wrapping;
 using MugenMvvm.Metadata;
@@ -680,6 +678,11 @@ namespace MugenMvvm
         internal static bool HasFlagEx(this BusyMessageHandlerType handlerMode, BusyMessageHandlerType value)
         {
             return (handlerMode & value) == value;
+        }
+
+        internal static bool LazyInitialize<T>(ref IComponentCollection<T>? item, object target, IReadOnlyMetadataContext? metadata = null) where T : class
+        {
+            return item == null && LazyInitialize(ref item, Service<IComponentCollectionFactory>.Instance.GetComponentCollection<T>(target, metadata ?? Default.MetadataContext));
         }
 
         internal static bool LazyInitialize<T>(ref T item, T value) where T : class ?

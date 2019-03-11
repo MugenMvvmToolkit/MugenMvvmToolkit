@@ -6,7 +6,7 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces.BusyIndicator;
-using MugenMvvm.Interfaces.Collections;
+using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Infrastructure.BusyIndicator
 {
@@ -43,7 +43,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
             get
             {
                 if (_listeners == null)
-                    _listeners = Service<IComponentCollectionFactory>.Instance.GetComponentCollection<IBusyIndicatorProviderListener>(this, Default.MetadataContext);
+                    MugenExtensions.LazyInitialize(ref _listeners, this);
                 return _listeners;
             }
         }

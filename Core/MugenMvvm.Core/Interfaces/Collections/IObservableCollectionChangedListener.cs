@@ -1,22 +1,23 @@
-﻿using System.Collections;
-using MugenMvvm.Interfaces.Models;
+﻿using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Collections
 {
-    public interface IObservableCollectionChangedListener : IListener
+    public interface IObservableCollectionChangedListener<T> : IListener
     {
-        void OnBeginBatchUpdate(IEnumerable collection);
+        void OnBeginBatchUpdate(IObservableCollection<T> collection);
 
-        void OnEndBatchUpdate(IEnumerable collection);
+        void OnEndBatchUpdate(IObservableCollection<T> collection);
 
-        void OnAdded(IEnumerable collection, object item, int index);
+        void OnAdded(IObservableCollection<T> collection, T item, int index);
 
-        void OnReplaced(IEnumerable collection, object oldItem, object newItem, int index);
+        void OnReplaced(IObservableCollection<T> collection, T oldItem, T newItem, int index);
 
-        void OnMoved(IEnumerable collection, object item, int oldIndex, int newIndex);
+        void OnMoved(IObservableCollection<T> collection, T item, int oldIndex, int newIndex);
 
-        void OnRemoved(IEnumerable collection, object item, int index);
+        void OnRemoved(IObservableCollection<T> collection, T item, int index);
 
-        void OnCleared(IEnumerable collection);
+        void OnReset(IObservableCollection<T> collection);
+
+        void OnCleared(IObservableCollection<T> collection);
     }
 }

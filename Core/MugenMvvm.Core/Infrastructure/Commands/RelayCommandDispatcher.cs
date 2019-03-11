@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using MugenMvvm.Attributes;
 using MugenMvvm.Infrastructure.Internal;
-using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Commands;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Infrastructure.Commands
@@ -27,7 +27,6 @@ namespace MugenMvvm.Infrastructure.Commands
             ExecutorMediatorFactory = executorMediatorFactory;
             _mediatorFactories = mediatorFactories;
             _listeners = listeners;
-            executorMediatorFactory.Initialize(this);
         }
 
         #endregion
@@ -41,7 +40,7 @@ namespace MugenMvvm.Infrastructure.Commands
             get
             {
                 if (_mediatorFactories == null)
-                    _mediatorFactories = Service<IComponentCollectionFactory>.Instance.GetComponentCollection<IRelayCommandMediatorFactory>(this, Default.MetadataContext);
+                    MugenExtensions.LazyInitialize(ref _mediatorFactories, this);
                 return _mediatorFactories;
             }
         }
@@ -51,7 +50,7 @@ namespace MugenMvvm.Infrastructure.Commands
             get
             {
                 if (_listeners == null)
-                    _listeners = Service<IComponentCollectionFactory>.Instance.GetComponentCollection<IRelayCommandDispatcherListener>(this, Default.MetadataContext);
+                    MugenExtensions.LazyInitialize(ref _listeners, this);
                 return _listeners;
             }
         }
@@ -80,7 +79,7 @@ namespace MugenMvvm.Infrastructure.Commands
             var mediatorFactory = ExecutorMediatorFactory;
             Should.NotBeNull(mediatorFactory, nameof(ExecutorMediatorFactory));
             var mediators = GetMediatorsInternal<TParameter>(relayCommand, execute, canExecute, notifiers, metadata);
-            var mediator = mediatorFactory.GetExecutorMediator<TParameter>(relayCommand, mediators, execute, canExecute, notifiers, metadata);
+            var mediator = mediatorFactory.GetExecutorMediator<TParameter>(this, relayCommand, mediators, execute, canExecute, notifiers, metadata);
 
             var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
