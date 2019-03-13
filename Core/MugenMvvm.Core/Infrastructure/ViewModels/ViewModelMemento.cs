@@ -21,7 +21,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
     [Serializable]
     [DataContract(Namespace = BuildConstants.DataContractNamespace)]
     [Preserve(Conditional = true, AllMembers = true)]
-    public class ViewModelMemento : IMemento
+    public class ViewModelMemento : IMemento//todo saving/restoring state/ cancel restore
     {
         #region Fields
 
@@ -80,6 +80,9 @@ namespace MugenMvvm.Infrastructure.ViewModels
         {
             if (_viewModel == null)
                 return;
+            var dispatcher = serializationContext.ServiceProvider.GetService<IViewModelDispatcher>();
+            dispatcher.OnLifecycleChanged(_viewModel, ViewModelLifecycleState.Preserving, serializationContext.Metadata);
+
             if (_viewModel.Metadata.Get(ViewModelMetadata.NoState))
             {
                 NoState = true;
@@ -97,7 +100,8 @@ namespace MugenMvvm.Infrastructure.ViewModels
                     BusyListeners = hasBusyIndicatorProvider.Service.Listeners.GetItems().ToSerializable(serializationContext.Serializer);
             }
 
-            OnPreserveInternal(_viewModel!, serializationContext);
+            OnPreserveInternal(_viewModel!, NoState, serializationContext);
+            dispatcher.OnLifecycleChanged(_viewModel, ViewModelLifecycleState.Preserved, serializationContext.Metadata);
         }
 
         public IMementoResult Restore(ISerializationContext serializationContext)
@@ -136,7 +140,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
 
         #region Methods
 
-        protected virtual void OnPreserveInternal(IViewModelBase viewModel, ISerializationContext serializationContext)
+        protected virtual void OnPreserveInternal(IViewModelBase viewModel, bool noState, ISerializationContext serializationContext)
         {
         }
 

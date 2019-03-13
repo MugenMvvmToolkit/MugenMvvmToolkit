@@ -10,22 +10,22 @@ namespace MugenMvvm.Infrastructure.Components
     {
         #region Implementation of interfaces
 
-        public IComponentCollection<T> GetComponentCollection<T>(object target, IReadOnlyMetadataContext metadata) where T : class
+        public IComponentCollection<T> GetComponentCollection<T>(object owner, IReadOnlyMetadataContext metadata) where T : class
         {
-            Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(owner, nameof(owner));
             Should.NotBeNull(metadata, nameof(metadata));
-            return GetComponentCollectionInternal<T>(target, metadata);
+            return GetComponentCollectionInternal<T>(owner, metadata);
         }
 
         #endregion
 
         #region Methods
 
-        protected virtual IComponentCollection<T> GetComponentCollectionInternal<T>(object target, IReadOnlyMetadataContext metadata) where T : class
+        protected virtual IComponentCollection<T> GetComponentCollectionInternal<T>(object owner, IReadOnlyMetadataContext metadata) where T : class
         {
             if (typeof(IHasPriority).IsAssignableFromUnified(typeof(T)) || typeof(IListener).IsAssignableFromUnified(typeof(T)))
-                return new ListenersArrayComponentCollection<T>(target);
-            return new ArrayComponentCollection<T>();
+                return new ListenersArrayComponentCollection<T>(owner);
+            return new ArrayComponentCollection<T>(owner);
         }
 
         #endregion
@@ -36,16 +36,9 @@ namespace MugenMvvm.Infrastructure.Components
         {
             #region Constructors
 
-            public ListenersArrayComponentCollection(object target)
+            public ListenersArrayComponentCollection(object owner) : base(owner)
             {
-                Target = target;
             }
-
-            #endregion
-
-            #region Properties
-
-            private object Target { get; }
 
             #endregion
 
@@ -84,7 +77,7 @@ namespace MugenMvvm.Infrastructure.Components
             private int GetPriority(T item)
             {
                 if (item is IListener listener)
-                    return listener.GetPriority(Target);
+                    return listener.GetPriority(Owner);
                 return ((IHasPriority)item).Priority;
             }
 
@@ -96,13 +89,15 @@ namespace MugenMvvm.Infrastructure.Components
             #region Fields
 
             protected T[] Items;
+            protected readonly object Owner;
 
             #endregion
 
             #region Constructors
 
-            public ArrayComponentCollection()
+            public ArrayComponentCollection(object owner)
             {
+                Owner = owner;
                 Items = Default.EmptyArray<T>();
             }
 

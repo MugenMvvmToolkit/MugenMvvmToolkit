@@ -1,19 +1,26 @@
-﻿namespace MugenMvvm.Interfaces.Collections
+﻿using System;
+using System.Collections.Generic;
+
+namespace MugenMvvm.Interfaces.Collections
 {
     public interface IObservableCollectionDecoratorManager<T>
     {
         IObservableCollection<T> Collection { get; }
 
-        void RaiseAdded(IObservableCollectionDecorator<T> decorator, T item, int index);
+        IDisposable Lock();
 
-        void RaiseReplaced(IObservableCollectionDecorator<T> decorator, T oldItem, T newItem, int index);
+        IEnumerable<T> DecorateItems(IObservableCollectionDecorator<T> decorator);
 
-        void RaiseMoved(IObservableCollectionDecorator<T> decorator, T item, int oldIndex, int newIndex);
+        void OnAdded(IObservableCollectionDecorator<T> decorator, T item, int index);
 
-        void RaiseRemoved(IObservableCollectionDecorator<T> decorator, T item, int index);
+        void OnReplaced(IObservableCollectionDecorator<T> decorator, T oldItem, T newItem, int index);
 
-        void RaiseReset(IObservableCollectionDecorator<T> decorator);
+        void OnMoved(IObservableCollectionDecorator<T> decorator, T item, int oldIndex, int newIndex);
 
-        void RaiseCleared(IObservableCollectionDecorator<T> decorator);
+        void OnRemoved(IObservableCollectionDecorator<T> decorator, T item, int index);
+
+        void OnReset(IObservableCollectionDecorator<T> decorator, IEnumerable<T> items);
+
+        void OnCleared(IObservableCollectionDecorator<T> decorator);
     }
 }

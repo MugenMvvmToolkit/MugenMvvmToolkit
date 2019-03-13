@@ -45,10 +45,10 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         #region Implementation of interfaces
 
-        public void OnAttached(INavigationDispatcher navigationDispatcher)
+        public void OnAttached(INavigationDispatcher owner)
         {
-            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
-            OnAttachedInternal(navigationDispatcher);
+            Should.NotBeNull(owner, nameof(owner));
+            OnAttachedInternal(owner);
         }
 
         public void OnNavigated(INavigationContext navigationContext)

@@ -1,4 +1,6 @@
-﻿namespace MugenMvvm.Interfaces.Collections
+﻿using System.Collections.Generic;
+
+namespace MugenMvvm.Interfaces.Collections
 {
     public interface IObservableCollectionChangingListener<T> : IObservableCollectionChangedListener<T>
     {
@@ -10,7 +12,7 @@
 
         bool OnRemoving(IObservableCollection<T> collection, T item, int index);
 
-        bool OnResetting(IObservableCollection<T> collection);
+        bool OnResetting(IObservableCollection<T> collection, IEnumerable<T> items);
 
         bool OnClearing(IObservableCollection<T> collection);
     }

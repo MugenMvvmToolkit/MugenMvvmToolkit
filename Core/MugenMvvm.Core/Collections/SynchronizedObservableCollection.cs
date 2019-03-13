@@ -1,260 +1,431 @@
-﻿//using System;
-//using System.Collections;
-//using System.Collections.Generic;
-//using MugenMvvm.Interfaces.Collections;
-//using MugenMvvm.Interfaces.Metadata;
-//using MugenMvvm.Interfaces.Models;
-//
-//namespace MugenMvvm.Collections
-//{
-//
-//    [Serializable]
-//    public class FilterObservableCollectionDecorator<TItem> : IObservableCollectionDecorator<TItem>
-//    {
-//        #region Fields
-//
-//        private int[] _keys;
-//        private int _size;
-//        private TItem[] _values;
-//
-//        public const int DefaultPriority = 1;
-//
-//        #endregion
-//
-//        #region Constructors
-//
-//        public FilterObservableCollectionDecorator(int priority = DefaultPriority)
-//        {
-//            Priority = priority;
-//            _keys = Default.EmptyArray<int>();
-//            _values = Default.EmptyArray<TItem>();
-//            _size = 0;
-//        }
-//
-//        #endregion
-//
-//        #region Properties
-//
-//        public int Priority { get; }
-//
-//        private int Capacity
-//        {
-//            get => _keys.Length;
-//            set
-//            {
-//                if (value == _keys.Length)
-//                    return;
-//                if (value < _size)
-//                    throw ExceptionManager.CapacityLessThanCollection("Capacity");
-//                if (value > 0)
-//                {
-//                    var keyArray = new int[value];
-//                    var objArray = new TItem[value];
-//                    if (_size > 0)
-//                    {
-//                        Array.Copy(_keys, 0, keyArray, 0, _size);
-//                        Array.Copy(_values, 0, objArray, 0, _size);
-//                    }
-//
-//                    _keys = keyArray;
-//                    _values = objArray;
-//                }
-//                else
-//                {
-//                    _keys = Default.EmptyArray<int>();
-//                    _values = Default.EmptyArray<TItem>();
-//                }
-//            }
-//        }
-//
-//        #endregion
-//
-//        #region Implementation of interfaces
-//
-//        public bool OnAdded(IDecorableObservableCollection<TItem> collection, ref TItem item, ref int index)
-//        {
-//            UpdateFilterItems(index, 1);
-//            if (!Filter(item))
-//                return false;
-//
-//            index = Add(index, item);
-//            return true;
-//        }
-//
-//        public bool OnReplaced(IDecorableObservableCollection<TItem> collection, ref TItem oldItem, ref TItem newItem, ref int index)
-//        {
-//            var filterIndex = IndexOfKey(index);
-//            if (filterIndex == -1)
-//                return false;
-//
-//            if (Filter(newItem))
-//            {
-//                oldItem = GetValue(filterIndex);
-//                index = filterIndex;
-//                return true;
-//            }
-//
-//            var oldValue = GetValue(filterIndex);
-//            RemoveAt(filterIndex);
-//            collection.RaiseRemoved(this, oldValue, filterIndex);
-//            return false;
-//        }
-//
-//        public bool OnMoved(IDecorableObservableCollection<TItem> collection, ref TItem item, ref int oldIndex, ref int newIndex)
-//        {
-//            throw new NotImplementedException();
-//        }
-//
-//        public bool OnRemoved(IDecorableObservableCollection<TItem> collection, ref TItem item, ref int index)
-//        {
-//            var filterIndex = IndexOfKey(index);
-//            UpdateFilterItems(index, -1);
-//            if (filterIndex == -1)
-//                return false;
-//
-//            RemoveAt(filterIndex);
-//            index = filterIndex;
-//            return true;
-//        }
-//
-//        public bool OnCleared(IDecorableObservableCollection<TItem> collection)
-//        {
-//            Clear();
-//            return true;
-//        }
-//
-//        #endregion
-//
-//        #region Methods
-//
-//        private bool Filter(TItem value)
-//        {
-//            return false;
-//        }
-//
-//        private void UpdateFilterItems(int index, int value)
-//        {
-//            if (_size == 0)
-//                return;
-//
-//            int start = IndexOfKey(index);
-//            if (start == -1)
-//            {
-//                if (_keys[_size - 1] < index)
-//                    return;
-//                for (int i = 0; i < _size; i++)
-//                {
-//                    int key = _keys[i];
-//                    if (key < index)
-//                        continue;
-//                    _keys[i] = key + value;
-//                }
-//                return;
-//            }
-//            for (int i = start; i < _size; i++)
-//                _keys[i] += value;
-//        }
-//
-//        private int Add(int key, TItem value)
-//        {
-//            var num = Array.BinarySearch(_keys, 0, _size, key);
-//            if (num >= 0)
-//                throw new InvalidOperationException();
-//            return Insert(~num, key, value);
-//        }
-//
-//        private void Clear()
-//        {
-//            Array.Clear(_keys, 0, _size);
-//            Array.Clear(_values, 0, _size);
-//            _size = 0;
-//        }
-//
-//        private int IndexOfKey(int key)
-//        {
-//            var num = Array.BinarySearch(_keys, 0, _size, key);
-//            if (num < 0)
-//                return -1;
-//            return num;
-//        }
-//
-//        private int IndexOfValue(TItem value)
-//        {
-//            return Array.IndexOf(_values, value, 0, _size);
-//        }
-//
-//        private int GetKey(int index)
-//        {
-//            if (index >= _size)
-//                throw ExceptionManager.IntOutOfRangeCollection("index");
-//            return _keys[index];
-//        }
-//
-//        private TItem GetValue(int index)
-//        {
-//            if (index >= _size)
-//                throw ExceptionManager.IntOutOfRangeCollection("index");
-//            return _values[index];
-//        }
-//
-//        private void RemoveAt(int index)
-//        {
-//            if (index < 0 || index >= _size)
-//                throw ExceptionManager.IntOutOfRangeCollection("index");
-//            --_size;
-//            if (index < _size)
-//            {
-//                Array.Copy(_keys, index + 1, _keys, index, _size - index);
-//                Array.Copy(_values, index + 1, _values, index, _size - index);
-//            }
-//
-//            _keys[_size] = default;
-//            _values[_size] = default;
-//        }
-//
-//        private void EnsureCapacity(int min)
-//        {
-//            var num = _keys.Length == 0 ? 4 : _keys.Length * 2;
-//            if (num < min)
-//                num = min;
-//            Capacity = num;
-//        }
-//
-//        private int Insert(int index, int key, TItem value)
-//        {
-//            if (_size == _keys.Length)
-//                EnsureCapacity(_size + 1);
-//            if (index < _size)
-//            {
-//                Array.Copy(_keys, index, _keys, index + 1, _size - index);
-//                Array.Copy(_values, index, _values, index + 1, _size - index);
-//            }
-//
-//            _keys[index] = key;
-//            _values[index] = value;
-//            ++_size;
-//            return index;
-//        }
-//
-//        #endregion
-//    }
-//
-//
-//    [Serializable]
-//    public class SynchronizedObservableCollection<T> : SynchronizedObservableCollectionBase<T, List<T>>
-//    {
-//        #region Constructors
-//
-//        public SynchronizedObservableCollection(IComponentCollection<IObservableCollectionChangedListener<T>>? listeners = null)
-//            : base(new List<T>(), listeners)
-//        {
-//        }
-//
-//        public SynchronizedObservableCollection(IEnumerable<T> items, IComponentCollection<IObservableCollectionChangedListener<T>>? listeners = null)
-//            : base(new List<T>(items), listeners)
-//        {
-//        }
-//
-//        #endregion
-//    }
-//}
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Threading;
+using MugenMvvm.Interfaces.Collections;
+using MugenMvvm.Interfaces.Components;
+
+namespace MugenMvvm.Collections
+{
+    public class SynchronizedObservableCollection<T> : ObservableCollectionBase<T>, IList
+    {
+        #region Constructors
+
+        protected SynchronizedObservableCollection(IList<T> list, IComponentCollection<IObservableCollectionChangedListener<T>>? listeners = null,
+            IComponentCollection<IObservableCollectionDecorator<T>>? decorators = null, IComponentCollection<IObservableCollectionChangedListener<T>>? decoratorListeners = null)
+            : base(listeners, decorators, decoratorListeners)
+        {
+            Should.NotBeNull(list, nameof(list));
+            Items = list;
+            Locker = new LockerImpl();
+        }
+
+        public SynchronizedObservableCollection(IEnumerable<T> items, IComponentCollection<IObservableCollectionChangedListener<T>>? listeners = null,
+            IComponentCollection<IObservableCollectionDecorator<T>>? decorators = null, IComponentCollection<IObservableCollectionChangedListener<T>>? decoratorListeners = null)
+            : this(new List<T>(items), listeners, decorators, decoratorListeners)
+        {
+        }
+
+        public SynchronizedObservableCollection(IComponentCollection<IObservableCollectionChangedListener<T>>? listeners = null,
+            IComponentCollection<IObservableCollectionDecorator<T>>? decorators = null, IComponentCollection<IObservableCollectionChangedListener<T>>? decoratorListeners = null)
+            : this(new List<T>(), listeners, decorators, decoratorListeners)
+        {
+        }
+
+        #endregion
+
+        #region Properties
+
+        protected IList<T> Items { get; }
+
+        public sealed override int Count
+        {
+            get
+            {
+                lock (Locker)
+                {
+                    return GetCountInternal();
+                }
+            }
+        }
+
+        protected LockerImpl Locker { get; }
+
+        bool ICollection.IsSynchronized => true;
+
+        object ICollection.SyncRoot => Locker;
+
+        public sealed override bool IsReadOnly => false;
+
+        object IList.this[int index]
+        {
+            get => this[index];
+            set => this[index] = (T)value;
+        }
+
+        public sealed override T this[int index]
+        {
+            get
+            {
+                lock (Locker)
+                {
+                    return GetInternal(index);
+                }
+            }
+            set
+            {
+                lock (Locker)
+                {
+                    if (index < 0 || index >= GetCountInternal())
+                        throw ExceptionManager.IndexOutOfRangeCollection(nameof(index));
+                    SetInternal(index, value);
+                }
+            }
+        }
+
+        bool IList.IsFixedSize => false;
+
+        #endregion
+
+        #region Implementation of interfaces
+
+        void ICollection.CopyTo(Array array, int index)
+        {
+            Should.NotBeNull(array, nameof(array));
+            lock (Locker)
+            {
+                CopyToInternal(array, index);
+            }
+        }
+
+        int IList.Add(object value)
+        {
+            lock (Locker)
+            {
+                InsertInternal(GetCountInternal(), (T)value, true);
+                return GetCountInternal() - 1;
+            }
+        }
+
+        bool IList.Contains(object value)
+        {
+            if (IsCompatibleObject(value))
+                return Contains((T)value);
+            return false;
+        }
+
+        int IList.IndexOf(object value)
+        {
+            if (IsCompatibleObject(value))
+                return IndexOf((T)value);
+            return -1;
+        }
+
+        void IList.Insert(int index, object value)
+        {
+            Insert(index, (T)value);
+        }
+
+        void IList.Remove(object value)
+        {
+            if (IsCompatibleObject(value))
+                Remove((T)value);
+        }
+
+        public sealed override void RemoveAt(int index)
+        {
+            lock (Locker)
+            {
+                if (index < 0 || index >= GetCountInternal())
+                    throw ExceptionManager.IndexOutOfRangeCollection(nameof(index));
+                RemoveInternal(index);
+            }
+        }
+
+        public sealed override void Clear()
+        {
+            lock (Locker)
+            {
+                ClearInternal();
+            }
+        }
+
+        #endregion
+
+        #region Methods
+
+        public Enumerator GetEnumerator()
+        {
+            return new Enumerator(this);
+        }
+
+        public sealed override bool Remove(T item)
+        {
+            lock (Locker)
+            {
+                var index = IndexOfInternal(item);
+                if (index < 0)
+                    return false;
+                RemoveInternal(index);
+                return true;
+            }
+        }
+
+        public sealed override int IndexOf(T item)
+        {
+            lock (Locker)
+            {
+                return IndexOfInternal(item);
+            }
+        }
+
+        public sealed override void Insert(int index, T item)
+        {
+            lock (Locker)
+            {
+                if (index < 0 || index > GetCountInternal())
+                    throw ExceptionManager.IndexOutOfRangeCollection(nameof(index));
+                InsertInternal(index, item, false);
+            }
+        }
+
+        public sealed override void Move(int oldIndex, int newIndex)
+        {
+            lock (Locker)
+            {
+                MoveInternal(oldIndex, newIndex);
+            }
+        }
+
+        public override void Reset(IEnumerable<T> items)
+        {
+            Should.NotBeNull(items, nameof(items));
+            lock (Locker)
+            {
+                ResetInternal(items);
+            }
+        }
+
+        public override IDisposable Lock()
+        {
+            return Locker.Lock();
+        }
+
+        public sealed override bool Contains(T item)
+        {
+            lock (Locker)
+            {
+                return ContainsInternal(item);
+            }
+        }
+
+        public sealed override void CopyTo(T[] array, int arrayIndex)
+        {
+            Should.NotBeNull(array, nameof(array));
+            lock (Locker)
+            {
+                CopyToInternal(array, arrayIndex);
+            }
+        }
+
+        public sealed override void Add(T item)
+        {
+            lock (Locker)
+            {
+                InsertInternal(GetCountInternal(), item, true);
+            }
+        }
+
+        protected sealed override IEnumerator<T> GetEnumeratorInternal()
+        {
+            return GetEnumerator();
+        }
+
+        protected virtual void CopyToInternal(Array array, int index)
+        {
+            var genericArray = array as T[];
+            var count = GetCountInternal();
+            if (genericArray == null)
+            {
+                for (var i = index; i < count; i++)
+                {
+                    if (i >= array.Length)
+                        break;
+                    array.SetValue(GetInternal(i), i);
+                }
+            }
+            else
+            {
+                for (var i = index; i < count; i++)
+                {
+                    if (i >= genericArray.Length)
+                        break;
+                    genericArray[i] = GetInternal(i);
+                }
+            }
+        }
+
+        protected virtual int GetCountInternal()
+        {
+            return Items.Count;
+        }
+
+        protected int IndexOfInternal(T item)
+        {
+            return Items.IndexOf(item);
+        }
+
+        protected bool ContainsInternal(T item)
+        {
+            return Items.Contains(item);
+        }
+
+        protected virtual void MoveInternal(int oldIndex, int newIndex)
+        {
+            var obj = Items[oldIndex];
+            if (!OnMoving(obj, oldIndex, newIndex))
+                return;
+            Items.RemoveAt(oldIndex);
+            Items.Insert(newIndex, obj);
+            OnMoved(obj, oldIndex, newIndex);
+        }
+
+        protected virtual void ClearInternal()
+        {
+            if (!OnClearing())
+                return;
+            Items.Clear();
+            OnCleared();
+        }
+
+        protected virtual void ResetInternal(IEnumerable<T> items)
+        {
+            if (!OnResetting(items))
+                return;
+
+            Items.Clear();
+            foreach (var item in items)
+                Items.Add(item);
+            OnReset(this);
+        }
+
+        protected virtual void InsertInternal(int index, T item, bool isAdd)
+        {
+            if (!OnAdding(item, index))
+                return;
+
+            Items.Insert(index, item);
+            OnAdded(item, index);
+        }
+
+        protected virtual void RemoveInternal(int index)
+        {
+            var oldItem = Items[index];
+            if (!OnRemoving(oldItem, index))
+                return;
+            Items.RemoveAt(index);
+            OnRemoved(oldItem, index);
+        }
+
+        protected virtual T GetInternal(int index)
+        {
+            return Items[index];
+        }
+
+        protected virtual void SetInternal(int index, T item)
+        {
+            var oldItem = Items[index];
+            if (!OnReplacing(oldItem, item, index))
+                return;
+            Items[index] = item;
+            OnReplaced(oldItem, item, index);
+        }
+
+        #endregion
+
+        #region Nested types
+
+        protected sealed class LockerImpl : IDisposable
+        {
+            #region Implementation of interfaces
+
+            public void Dispose()
+            {
+                Monitor.Exit(this);
+            }
+
+            #endregion
+
+            #region Methods
+
+            public IDisposable Lock()
+            {
+                Monitor.Enter(this);
+                return this;
+            }
+
+            #endregion
+        }
+
+        public struct Enumerator : IEnumerator<T>
+        {
+            #region Fields
+
+            private readonly SynchronizedObservableCollection<T> _collection;
+            private int _index;
+
+            #endregion
+
+            #region Constructors
+
+            public Enumerator(SynchronizedObservableCollection<T> collection)
+            {
+                _collection = collection;
+                _index = 0;
+                Current = default;
+            }
+
+            #endregion
+
+            #region Properties
+
+            public T Current { get; private set; }
+
+            object IEnumerator.Current => Current;
+
+            #endregion
+
+            #region Implementation of interfaces
+
+            public bool MoveNext()
+            {
+                if (_collection == null)
+                    return false;
+
+                lock (_collection.Locker)
+                {
+                    if (_index >= _collection.GetCountInternal())
+                        return false;
+
+                    Current = _collection.GetInternal(_index);
+                    ++_index;
+                }
+
+                return true;
+            }
+
+            public void Reset()
+            {
+                _index = 0;
+            }
+
+            public void Dispose()
+            {
+            }
+
+            #endregion
+        }
+
+        #endregion
+    }
+}

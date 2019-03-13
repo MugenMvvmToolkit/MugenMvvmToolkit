@@ -16,5 +16,7 @@ namespace MugenMvvm.Interfaces.Collections
         IDisposable BeginBatchUpdate();
 
         void Move(int oldIndex, int newIndex);
+
+        void Reset(IEnumerable<T> items);
     }
 }

@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Interfaces.Models;
+﻿using System.Collections.Generic;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Collections
 {
@@ -16,7 +17,7 @@ namespace MugenMvvm.Interfaces.Collections
 
         void OnRemoved(IObservableCollection<T> collection, T item, int index);
 
-        void OnReset(IObservableCollection<T> collection);
+        void OnReset(IObservableCollection<T> collection, IEnumerable<T> items);
 
         void OnCleared(IObservableCollection<T> collection);
     }

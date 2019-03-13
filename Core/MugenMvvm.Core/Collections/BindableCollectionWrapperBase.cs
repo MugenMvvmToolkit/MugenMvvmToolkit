@@ -12,7 +12,7 @@ using MugenMvvm.Interfaces.Threading;
 
 namespace MugenMvvm.Collections
 {
-    public abstract class BindableCollectionWrapperBase<T> : Collection<T>, IObservableCollectionChangedListener<T>, INotifyCollectionChanged, INotifyPropertyChanged, IDisposable//todo enumerable<object>
+    public abstract class BindableCollectionWrapperBase<T> : Collection<T>, IObservableCollectionChangedListener<T>, INotifyCollectionChanged, INotifyPropertyChanged, IDisposable
     {
         #region Fields
 
@@ -104,9 +104,9 @@ namespace MugenMvvm.Collections
             OnRemoved(item, index);
         }
 
-        void IObservableCollectionChangedListener<T>.OnReset(IObservableCollection<T> collection)
+        void IObservableCollectionChangedListener<T>.OnReset(IObservableCollection<T> collection, IEnumerable<T> items)
         {
-            OnReset();
+            OnReset(items);
         }
 
         void IObservableCollectionChangedListener<T>.OnCleared(IObservableCollection<T> collection)
@@ -163,11 +163,9 @@ namespace MugenMvvm.Collections
             AddEvent(ref e);
         }
 
-        protected void OnReset()
+        protected void OnReset(IEnumerable<T> items)
         {
-            var collectionItems = GetCollectionItems();
-            var e = new CollectionChangedEvent(NotifyCollectionChangedAction.Reset, default, default, -1, -1,
-                ThreadDispatcher.IsOnMainThread ? collectionItems : collectionItems.ToArray());
+            var e = new CollectionChangedEvent(NotifyCollectionChangedAction.Reset, default, default, -1, -1, ThreadDispatcher.IsOnMainThread ? items : items.ToArray());
             AddEvent(ref e);
         }
 
@@ -297,7 +295,7 @@ namespace MugenMvvm.Collections
         {
             if (IsResetEvent(e))
             {
-                OnReset();
+                OnReset((IEnumerable<T>)sender);
                 return;
             }
 

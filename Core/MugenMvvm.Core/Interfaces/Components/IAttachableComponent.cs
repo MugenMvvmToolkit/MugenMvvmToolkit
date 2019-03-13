@@ -1,7 +1,10 @@
-﻿namespace MugenMvvm.Interfaces.Components
+﻿using MugenMvvm.Attributes;
+
+namespace MugenMvvm.Interfaces.Components
 {
-    public interface IAttachableComponent<in TContainer> where TContainer : class
+    public interface IAttachableComponent<in T> where T : class
     {
-        void OnAttached(TContainer container);
+        [Preserve(Conditional = true)]
+        void OnAttached(T owner);
     }
 }

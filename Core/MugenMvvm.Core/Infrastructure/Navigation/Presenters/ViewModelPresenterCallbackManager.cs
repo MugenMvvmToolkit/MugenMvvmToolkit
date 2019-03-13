@@ -64,16 +64,16 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         #region Implementation of interfaces
 
-        public void OnAttached(IViewModelPresenter presenter)
+        public void OnAttached(IViewModelPresenter owner)
         {
-            Should.NotBeNull(presenter, nameof(presenter));
+            Should.NotBeNull(owner, nameof(owner));
             if (Interlocked.CompareExchange(ref _state, InitializedState, DefaultState) != DefaultState)
                 throw ExceptionManager.ObjectInitialized(GetType().Name, this);
 
-            ViewModelPresenter = presenter;
+            ViewModelPresenter = owner;
             NavigationDispatcher.AddListener(_dispatcherListener);
             NavigationDispatcher.NavigationJournal.AddListener(_dispatcherListener);
-            OnAttachedInternal(presenter);
+            OnAttachedInternal(owner);
         }
 
         public IDisposable BeginPresenterOperation(IReadOnlyMetadataContext metadata)
@@ -94,14 +94,14 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             return callback;
         }
 
-        public void OnDetached(IViewModelPresenter presenter)
+        public void OnDetached(IViewModelPresenter owner)
         {
             if (Interlocked.Exchange(ref _state, DisposedState) == DisposedState)
                 return;
 
             NavigationDispatcher.RemoveListener(_dispatcherListener);
             NavigationDispatcher.NavigationJournal.RemoveListener(_dispatcherListener);
-            OnDetachedInternal(presenter);
+            OnDetachedInternal(owner);
         }
 
         #endregion
