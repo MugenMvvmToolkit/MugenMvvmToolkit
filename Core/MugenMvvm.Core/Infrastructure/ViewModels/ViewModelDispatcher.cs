@@ -58,7 +58,8 @@ namespace MugenMvvm.Infrastructure.ViewModels
             Should.NotBeNull(metadata, nameof(metadata));
             var result = GetServiceInternal(viewModel, service, metadata);
             if (result == null)
-                throw ExceptionManager.IoCCannotFindBinding(service);
+                ExceptionManager.ThrowIoCCannotFindBinding(service);
+
             return result;
         }
 
@@ -84,7 +85,8 @@ namespace MugenMvvm.Infrastructure.ViewModels
             Should.NotBeNull(metadata, nameof(metadata));
             var vm = GetViewModelInternal(vmType, metadata);
             if (vm == null)
-                throw ExceptionManager.CannotGetViewModel(vmType);
+                ExceptionManager.ThrowCannotGetViewModel(vmType);
+
             return vm;
         }
 

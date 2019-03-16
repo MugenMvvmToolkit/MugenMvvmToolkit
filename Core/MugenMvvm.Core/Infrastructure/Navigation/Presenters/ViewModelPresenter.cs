@@ -68,7 +68,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             {
                 var result = ShowInternal(metadata);
                 if (result == null)
-                    throw ExceptionManager.PresenterCannotShowRequest(metadata.Dump());
+                    ExceptionManager.ThrowPresenterCannotShowRequest(metadata.Dump());
+
                 return OnShownInternal(metadata, result);
             }
         }
@@ -121,7 +122,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             {
                 var viewModel = metadata.Get(NavigationMetadata.ViewModel, result.Metadata.Get(NavigationMetadata.ViewModel));
                 if (viewModel == null)
-                    throw ExceptionManager.PresenterInvalidRequest(metadata.Dump() + result.Metadata.Dump());
+                    ExceptionManager.ThrowPresenterInvalidRequest(metadata.Dump() + result.Metadata.Dump());
 
                 var showingCallback = CallbackManager.AddCallback(viewModel, NavigationCallbackType.Showing, result, metadata);
                 var closeCallback = CallbackManager.AddCallback(viewModel, NavigationCallbackType.Close, result, metadata);
@@ -167,7 +168,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 {
                     var viewModel = metadata.Get(NavigationMetadata.ViewModel, result.Metadata.Get(NavigationMetadata.ViewModel));
                     if (viewModel == null)
-                        throw ExceptionManager.PresenterInvalidRequest(metadata.Dump() + result.Metadata.Dump());
+                        ExceptionManager.ThrowPresenterInvalidRequest(metadata.Dump() + result.Metadata.Dump());
 
                     var callback = CallbackManager.AddCallback(viewModel, NavigationCallbackType.Closing, result, metadata);
                     r.Add(new ClosingViewModelPresenterResult((INavigationCallback<bool>)callback, result));

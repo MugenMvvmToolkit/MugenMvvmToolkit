@@ -255,7 +255,7 @@ namespace MugenMvvm.Infrastructure.Commands
                     break;
                 case CommandExecutionMode.CanExecuteBeforeExecuteWithException:
                     if (!CanExecute(parameter))
-                        throw ExceptionManager.CommandCannotBeExecuted();
+                        ExceptionManager.ThrowCommandCannotBeExecuted();
                     break;
             }
 

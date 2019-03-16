@@ -57,7 +57,8 @@ namespace MugenMvvm.Collections.Decorators
                 if (value == _keys.Length)
                     return;
                 if (value < _size)
-                    throw ExceptionManager.CapacityLessThanCollection("Capacity");
+                    ExceptionManager.ThrowCapacityLessThanCollection("Capacity");
+
                 if (value > 0)
                 {
                     var keyArray = new int[value];
@@ -273,14 +274,16 @@ namespace MugenMvvm.Collections.Decorators
         private T GetValue(int index)
         {
             if (index >= _size)
-                throw ExceptionManager.IntOutOfRangeCollection("index");
+                ExceptionManager.ThrowIntOutOfRangeCollection("index");
+
             return _values[index];
         }
 
         private void RemoveAt(int index)
         {
             if (index < 0 || index >= _size)
-                throw ExceptionManager.IntOutOfRangeCollection("index");
+                ExceptionManager.ThrowIntOutOfRangeCollection("index");
+
             --_size;
             if (index < _size)
             {

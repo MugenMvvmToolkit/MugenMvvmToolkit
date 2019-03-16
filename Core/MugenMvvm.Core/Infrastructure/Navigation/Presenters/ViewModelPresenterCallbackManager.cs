@@ -68,7 +68,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         {
             Should.NotBeNull(owner, nameof(owner));
             if (Interlocked.CompareExchange(ref _state, InitializedState, DefaultState) != DefaultState)
-                throw ExceptionManager.ObjectInitialized(GetType().Name, this);
+                ExceptionManager.ThrowObjectInitialized(GetType().Name, this);
 
             ViewModelPresenter = owner;
             NavigationDispatcher.AddListener(_dispatcherListener);
@@ -124,7 +124,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
             var key = GetKeyByCallback(callbackType);
             if (key == null)
-                throw ExceptionManager.EnumOutOfRange(nameof(callbackType), callbackType);
+                ExceptionManager.ThrowEnumOutOfRange(nameof(callbackType), callbackType);
+
             var callbacks = viewModel.Metadata.GetOrAdd(key, (object)null, (object)null, (context, o, arg3) => new List<INavigationCallbackInternal>());
             lock (callback)
             {

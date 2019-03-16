@@ -126,7 +126,8 @@ namespace MugenMvvm.Models
         public static TEnumeration FromValue(TValue value)
         {
             if (!TryParse(value, out var result))
-                throw ExceptionManager.EnumIsNotValid(typeof(TEnumeration), value);
+                ExceptionManager.ThrowEnumIsNotValid(typeof(TEnumeration), value);
+
             return result;
         }
 

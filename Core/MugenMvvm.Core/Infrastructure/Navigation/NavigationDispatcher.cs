@@ -162,7 +162,8 @@ namespace MugenMvvm.Infrastructure.Navigation
             {
                 Should.NotBeNull(completeNavigationCallback, nameof(completeNavigationCallback));
                 if (Interlocked.Exchange(ref _completeNavigationCallback, completeNavigationCallback) != null)
-                    throw ExceptionManager.NavigatingResultHasCallback();
+                    ExceptionManager.ThrowNavigatingResultHasCallback();
+
                 _canceledCallback = canceledCallback;
                 Task.ContinueWith(InvokeCompletedCallback, this, TaskContinuationOptions.ExecuteSynchronously);
             }

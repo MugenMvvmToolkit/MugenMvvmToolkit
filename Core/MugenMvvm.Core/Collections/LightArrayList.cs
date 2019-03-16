@@ -71,7 +71,8 @@ namespace MugenMvvm.Collections
             set
             {
                 if (value < Size)
-                    throw ExceptionManager.CapacityLessThanCollection(nameof(Capacity));
+                    ExceptionManager.ThrowCapacityLessThanCollection(nameof(Capacity));
+
                 if (value == Items.Length)
                     return;
                 if (value > 0)
@@ -175,7 +176,8 @@ namespace MugenMvvm.Collections
         protected virtual void RemoveAtInternal(int index)
         {
             if (index > Size)
-                throw ExceptionManager.IndexOutOfRangeCollection("index");
+                ExceptionManager.ThrowIndexOutOfRangeCollection("index");
+
             --Size;
             if (index < Size)
                 Array.Copy(Items, index + 1, Items, index, Size - index);

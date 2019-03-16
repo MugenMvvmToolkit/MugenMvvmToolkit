@@ -330,7 +330,7 @@ namespace MugenMvvm
             Should.NotBeNull(wrapperType, nameof(wrapperType));
             Should.BeOfType(implementation, nameof(implementation), wrapperType);
             if (implementation.IsInterfaceUnified() || implementation.IsAbstractUnified())
-                throw ExceptionManager.WrapperTypeShouldBeNonAbstract(implementation);
+                ExceptionManager.ThrowWrapperTypeShouldBeNonAbstract(implementation);
 
             if (wrapperFactory == null)
             {
@@ -338,7 +338,8 @@ namespace MugenMvvm
                     .GetConstructorsUnified(MemberFlags.InstanceOnly)
                     .FirstOrDefault();
                 if (constructor == null)
-                    throw ExceptionManager.CannotFindConstructor(implementation);
+                    ExceptionManager.ThrowCannotFindConstructor(implementation);
+
                 wrapperFactory = (manager, o, arg3, arg4) => constructor.InvokeEx(o);
             }
             return wrapperManager.AddWrapper((manager, type, arg3, arg4) => wrapperType.EqualsEx(arg3), wrapperFactory);
@@ -362,8 +363,6 @@ namespace MugenMvvm
         [StringFormatMethod("format")]
         public static string Format(this string format, params object?[] args)
         {
-            Should.NotBeNull(format, nameof(format));
-            Should.NotBeNull(args, nameof(args));
             return string.Format(format, args);
         }
 

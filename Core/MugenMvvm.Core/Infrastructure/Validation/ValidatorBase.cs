@@ -158,7 +158,8 @@ namespace MugenMvvm.Infrastructure.Validation
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(metadata, nameof(metadata));
             if (!MugenExtensions.LazyInitialize(ref _target, target))
-                throw ExceptionManager.ObjectInitialized(GetType().Name, this);
+                ExceptionManager.ThrowObjectInitialized(GetType().Name, this);
+
             Metadata.Merge(metadata);
             if (ValidateOnPropertyChanged && target is INotifyPropertyChanged notifyPropertyChanged)
             {
@@ -319,7 +320,7 @@ namespace MugenMvvm.Infrastructure.Validation
         private void EnsureInitialized()
         {
             if (Target == null)
-                throw ExceptionManager.ObjectNotInitialized(this);
+                ExceptionManager.ThrowObjectNotInitialized(this);
         }
 
         private Task ValidateAsyncImplAsync(string member, CancellationToken cancellationToken)

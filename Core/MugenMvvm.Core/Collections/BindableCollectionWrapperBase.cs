@@ -323,7 +323,8 @@ namespace MugenMvvm.Collections
                     OnCleared();
                     break;
                 default:
-                    throw ExceptionManager.EnumOutOfRange(nameof(e.Action), e.Action);
+                    ExceptionManager.ThrowEnumOutOfRange(nameof(e.Action), e.Action);
+                    break;
             }
         }
 
@@ -340,7 +341,8 @@ namespace MugenMvvm.Collections
                 case NotifyCollectionChangedAction.Reset:
                     return WrappedCollection.Count != 0;
                 default:
-                    throw ExceptionManager.EnumOutOfRange(nameof(e.Action), e.Action);
+                    ExceptionManager.ThrowEnumOutOfRange(nameof(e.Action), e.Action);
+                    return false;
             }
         }
 
@@ -405,7 +407,8 @@ namespace MugenMvvm.Collections
                             listener.OnResetInternal(ResetItems, batch);
                         break;
                     default:
-                        throw ExceptionManager.EnumOutOfRange(nameof(Action), Action);
+                        ExceptionManager.ThrowEnumOutOfRange(nameof(Action), Action);
+                        break;
                 }
             }
 

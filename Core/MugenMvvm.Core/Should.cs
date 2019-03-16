@@ -77,7 +77,7 @@ namespace MugenMvvm
         public static void NotBeDisposed(this IViewModelBase viewModel)
         {
             if (viewModel.IsDisposed())
-                throw ExceptionManager.ObjectDisposed(viewModel.GetType());
+                ExceptionManager.ThrowObjectDisposed(viewModel.GetType());
         }
 
         #endregion

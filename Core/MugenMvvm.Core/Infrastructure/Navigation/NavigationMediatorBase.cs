@@ -81,7 +81,8 @@ namespace MugenMvvm.Infrastructure.Navigation
             if (ReferenceEquals(ViewModel, viewModel))
                 return;
             if (ViewModel != null)
-                throw ExceptionManager.ObjectInitialized(GetType().Name, this);
+                ExceptionManager.ThrowObjectInitialized(GetType().Name, this);
+
             ViewModel = viewModel;
             ViewInitializer = viewInitializer;
             OnInitialized(metadata);
@@ -314,7 +315,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         private void RefreshCallback(object state)
         {
-            var ctx = NavigationDispatcher.ContextFactory.GetNavigationContextTo(this, NavigationMode.Refresh, NavigationType, ViewModel, (IReadOnlyMetadataContext) state);
+            var ctx = NavigationDispatcher.ContextFactory.GetNavigationContextTo(this, NavigationMode.Refresh, NavigationType, ViewModel, (IReadOnlyMetadataContext)state);
             try
             {
                 _showingContext = ctx;

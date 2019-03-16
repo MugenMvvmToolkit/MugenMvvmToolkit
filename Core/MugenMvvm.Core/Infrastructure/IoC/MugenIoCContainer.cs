@@ -17,6 +17,8 @@ namespace MugenMvvm.Infrastructure.IoC
         private readonly MugenIoCContainer? _parent;
         private readonly Dictionary<Type, BindingRegistration> _selfActivatedRegistrations;
 
+        private bool _isDisposed;
+
         private static int _idCounter;
 
         #endregion
@@ -46,8 +48,6 @@ namespace MugenMvvm.Infrastructure.IoC
 
         public MemberFlags PropertyMemberFlags { get; set; }
 
-        private bool _isDisposed;
-
         public int Id { get; }
 
         public IIoCContainer? Parent => _parent;
@@ -60,13 +60,13 @@ namespace MugenMvvm.Infrastructure.IoC
 
         public IIoCContainer CreateChild()
         {
-            this.NotBeDisposed();
+            NotBeDisposed();
             return new MugenIoCContainer(this);
         }
 
         public bool CanResolve(Type service, string? name = null)
         {
-            this.NotBeDisposed();
+            NotBeDisposed();
             Should.NotBeNull(service, nameof(service));
             var key = new BindingKey(service, name);
             return CanResolve(service, ref key);
@@ -74,7 +74,7 @@ namespace MugenMvvm.Infrastructure.IoC
 
         public object Get(Type service, string? name = null, IReadOnlyCollection<IIoCParameter>? parameters = null)
         {
-            this.NotBeDisposed();
+            NotBeDisposed();
             Should.NotBeNull(service, nameof(service));
             var key = new BindingKey(service, name);
             BindingRegistration? registration = null;
@@ -83,7 +83,7 @@ namespace MugenMvvm.Infrastructure.IoC
                 if (_bindingRegistrations.TryGetValue(key, out var list))
                 {
                     if (list.Count > 1)
-                        throw ExceptionManager.IoCMoreThatOneBinding(service);
+                        ExceptionManager.ThrowIoCMoreThatOneBinding(service);
                     if (list.Count == 1)
                         registration = list[0];
                 }
@@ -91,21 +91,21 @@ namespace MugenMvvm.Infrastructure.IoC
 
             if (registration != null)
                 return registration.Resolve(parameters);
-            if (_parent != null && _parent.HasRegistration(key))
+            if (_parent != null && _parent.HasRegistration(ref key))
                 return _parent.Get(service, name, parameters);
             return Resolve(service, parameters);
         }
 
         IEnumerable<object> IIoCContainer.GetAll(Type service, string? name = null, IReadOnlyCollection<IIoCParameter>? parameters = null)
         {
-            this.NotBeDisposed();
+            NotBeDisposed();
             Should.NotBeNull(service, nameof(service));
             return GetAll(service, name, parameters);
         }
 
         public void BindToType(Type service, Type typeTo, IoCDependencyLifecycle lifecycle, string? name = null, IReadOnlyCollection<IIoCParameter>? parameters = null)
         {
-            this.NotBeDisposed();
+            NotBeDisposed();
             Should.NotBeNull(service, nameof(service));
             Should.NotBeNull(typeTo, nameof(typeTo));
             Should.NotBeNull(lifecycle, nameof(lifecycle));
@@ -124,7 +124,7 @@ namespace MugenMvvm.Infrastructure.IoC
 
         public void BindToConstant(Type service, object instance, string? name = null)
         {
-            this.NotBeDisposed();
+            NotBeDisposed();
             Should.NotBeNull(service, nameof(service));
             var key = new BindingKey(service, name);
             lock (_bindingRegistrations)
@@ -142,7 +142,7 @@ namespace MugenMvvm.Infrastructure.IoC
         public void BindToMethod(Type service, Func<IIoCContainer, IReadOnlyCollection<IIoCParameter>, object> methodBindingDelegate, IoCDependencyLifecycle lifecycle,
             string? name = null, IReadOnlyCollection<IIoCParameter>? parameters = null)
         {
-            this.NotBeDisposed();
+            NotBeDisposed();
             Should.NotBeNull(service, nameof(service));
             Should.NotBeNull(methodBindingDelegate, nameof(methodBindingDelegate));
             Should.NotBeNull(lifecycle, nameof(lifecycle));
@@ -161,7 +161,7 @@ namespace MugenMvvm.Infrastructure.IoC
 
         public void Unbind(Type service)
         {
-            this.NotBeDisposed();
+            NotBeDisposed();
             Should.NotBeNull(service, nameof(service));
             lock (_bindingRegistrations)
             {
@@ -232,11 +232,11 @@ namespace MugenMvvm.Infrastructure.IoC
                 return result;
             }
 
-            if (_parent != null && _parent.HasRegistration(key))
+            if (_parent != null && _parent.HasRegistration(ref key))
                 return _parent.GetAll(service, name, parameters);
 
             if (TryResolve(service, parameters, out var value))
-                return new[] { value };
+                return new[] {value};
             return Default.EmptyArray<object>();
         }
 
@@ -246,7 +246,9 @@ namespace MugenMvvm.Infrastructure.IoC
                 return value;
             if (service == typeof(IServiceProvider))
                 return this;
-            throw ExceptionManager.IoCCannotFindBinding(service);
+
+            ExceptionManager.ThrowIoCCannotFindBinding(service);
+            return null;
         }
 
         private bool TryResolve(Type service, IReadOnlyCollection<IIoCParameter>? parameters, out object? value)
@@ -344,7 +346,7 @@ namespace MugenMvvm.Infrastructure.IoC
             return true;
         }
 
-        private bool HasRegistration(in BindingKey key)
+        private bool HasRegistration(ref BindingKey key)
         {
             bool result;
             lock (_bindingRegistrations)
@@ -354,7 +356,7 @@ namespace MugenMvvm.Infrastructure.IoC
 
             if (result || _parent == null)
                 return result;
-            return _parent.HasRegistration(key);
+            return _parent.HasRegistration(ref key);
         }
 
         private static bool IsSelfBindableType(Type service)
@@ -369,7 +371,7 @@ namespace MugenMvvm.Infrastructure.IoC
         private void NotBeDisposed()
         {
             if (_isDisposed)
-                throw ExceptionManager.ObjectDisposed(GetType());
+                ExceptionManager.ThrowObjectDisposed(GetType());
         }
 
         #endregion
@@ -437,7 +439,8 @@ namespace MugenMvvm.Infrastructure.IoC
                         return _value;
 
                     if (_isActivating)
-                        throw ExceptionManager.IoCCyclicalDependency(_type);
+                        ExceptionManager.ThrowIoCCyclicalDependency(_type);
+
                     _isActivating = true;
 
                     parameters = MergeParameters(parameters);
@@ -459,7 +462,7 @@ namespace MugenMvvm.Infrastructure.IoC
                     {
                         var constructor = FindConstructor(_type, parameters);
                         if (constructor == null)
-                            throw ExceptionManager.CannotFindConstructor(_type);
+                            ExceptionManager.ThrowCannotFindConstructor(_type);
 
                         var result = constructor.InvokeEx(GetParameters(constructor, parameters));
                         SetProperties(result, parameters);
@@ -573,8 +576,8 @@ namespace MugenMvvm.Infrastructure.IoC
                     return null;
                 var objects = obj as Array;
                 if (objects == null)
-                    objects = new[] { obj };
-                var array = (Array)Activator.CreateInstance(arrayType, objects.Length);
+                    objects = new[] {obj};
+                var array = (Array) Activator.CreateInstance(arrayType, objects.Length);
                 for (var i = 0; i < objects.Length; i++)
                     array.SetValue(objects.GetValue(i), i);
                 return array;

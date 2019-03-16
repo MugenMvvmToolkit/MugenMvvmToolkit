@@ -77,7 +77,7 @@ namespace MugenMvvm.Collections
                 lock (Locker)
                 {
                     if (index < 0 || index >= GetCountInternal())
-                        throw ExceptionManager.IndexOutOfRangeCollection(nameof(index));
+                        ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
                     SetInternal(index, value);
                 }
             }
@@ -137,7 +137,8 @@ namespace MugenMvvm.Collections
             lock (Locker)
             {
                 if (index < 0 || index >= GetCountInternal())
-                    throw ExceptionManager.IndexOutOfRangeCollection(nameof(index));
+                    ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
+
                 RemoveInternal(index);
             }
         }
@@ -184,7 +185,8 @@ namespace MugenMvvm.Collections
             lock (Locker)
             {
                 if (index < 0 || index > GetCountInternal())
-                    throw ExceptionManager.IndexOutOfRangeCollection(nameof(index));
+                    ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
+
                 InsertInternal(index, item, false);
             }
         }

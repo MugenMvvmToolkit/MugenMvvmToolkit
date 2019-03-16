@@ -98,7 +98,7 @@ namespace MugenMvvm.Infrastructure.Wrapping
             }
 
             if (wrapper == null)
-                throw ExceptionManager.WrapperTypeNotSupported(wrapperType);
+                ExceptionManager.ThrowWrapperTypeNotSupported(wrapperType);
 
             var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
