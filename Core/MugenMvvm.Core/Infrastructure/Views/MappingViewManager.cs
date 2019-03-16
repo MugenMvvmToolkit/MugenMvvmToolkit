@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
@@ -249,6 +250,7 @@ namespace MugenMvvm.Infrastructure.Views
 
         #region Nested types
 
+        [StructLayout(LayoutKind.Auto)]
         private struct MappingInfo
         {
             #region Fields

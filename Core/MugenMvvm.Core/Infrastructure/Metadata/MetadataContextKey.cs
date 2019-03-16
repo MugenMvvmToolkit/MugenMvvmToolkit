@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using MugenMvvm.Infrastructure.Serialization;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Serialization;
@@ -97,6 +98,7 @@ namespace MugenMvvm.Infrastructure.Metadata
 
         #region Nested types
 
+        [StructLayout(LayoutKind.Auto)]
         public struct Builder<T>
         {
             #region Fields

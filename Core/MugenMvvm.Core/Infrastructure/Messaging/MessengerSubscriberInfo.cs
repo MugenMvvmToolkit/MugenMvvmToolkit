@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
@@ -10,7 +11,8 @@ namespace MugenMvvm.Infrastructure.Messaging
     [Serializable]
     [DataContract(Namespace = BuildConstants.DataContractNamespace)]
     [Preserve(Conditional = true, AllMembers = true)]
-    public struct MessengerSubscriberInfo
+    [StructLayout(LayoutKind.Auto)]
+    public readonly struct MessengerSubscriberInfo
     {
         #region Fields
 

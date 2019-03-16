@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Collections;
@@ -350,6 +351,7 @@ namespace MugenMvvm.Collections
 
         #region Nested types
 
+        [StructLayout(LayoutKind.Auto)]
         protected struct CollectionChangedEvent : IThreadDispatcherHandler
         {
             #region Fields

@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Infrastructure.Metadata
 {
-    public struct MetadataContextValue
+    [StructLayout(LayoutKind.Auto)]
+    public readonly struct MetadataContextValue
     {
         #region Constructors
 

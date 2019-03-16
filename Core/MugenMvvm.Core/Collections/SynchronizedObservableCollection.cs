@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Threading;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Components;
@@ -369,6 +370,7 @@ namespace MugenMvvm.Collections
             #endregion
         }
 
+        [StructLayout(LayoutKind.Auto)]
         public struct Enumerator : IEnumerator<T>
         {
             #region Fields

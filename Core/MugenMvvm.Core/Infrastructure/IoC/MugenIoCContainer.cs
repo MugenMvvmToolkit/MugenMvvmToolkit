@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.IoC;
@@ -647,6 +648,7 @@ namespace MugenMvvm.Infrastructure.IoC
             #endregion
         }
 
+        [StructLayout(LayoutKind.Auto)]
         private struct BindingKey
         {
             #region Fields
