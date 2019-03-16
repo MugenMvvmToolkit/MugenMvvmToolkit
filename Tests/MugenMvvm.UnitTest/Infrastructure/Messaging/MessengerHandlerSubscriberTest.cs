@@ -102,14 +102,14 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
 
             var handler = new StringHandler();
             var subscriber = new MessengerHandlerSubscriber(handler);
-            subscriber.Handle(sender, msg, null!).ShouldEqual(SubscriberResult.Handled);
+            subscriber.Handle(sender, msg, null!).ShouldEqual(MessengerSubscriberResult.Handled);
 
             handler = null;
             GC.Collect();
             GC.WaitForPendingFinalizers();
             GC.Collect();
 
-            subscriber.Handle(sender, msg, null!).ShouldEqual(SubscriberResult.Invalid);
+            subscriber.Handle(sender, msg, null!).ShouldEqual(MessengerSubscriberResult.Invalid);
         }
 #endif
 

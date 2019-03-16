@@ -146,14 +146,14 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
                 }
             };
             var subscriber = new WeakDelegateMessengerSubscriber<HandlerImpl, string>(handler.Handle);
-            subscriber.Handle(sender, msg, null!).ShouldEqual(SubscriberResult.Handled);
+            subscriber.Handle(sender, msg, null!).ShouldEqual(MessengerSubscriberResult.Handled);
 
             handler = null;
             GC.Collect();
             GC.WaitForPendingFinalizers();
             GC.Collect();
 
-            subscriber.Handle(sender, msg, null!).ShouldEqual(SubscriberResult.Invalid);
+            subscriber.Handle(sender, msg, null!).ShouldEqual(MessengerSubscriberResult.Invalid);
         }
 
         [Fact]
@@ -170,14 +170,14 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
                 }
             };
             var subscriber = new WeakDelegateMessengerSubscriber<HandlerImpl, string>(handler, (impl, o, arg3, arg4) => impl.Handle(o, arg3, arg4));
-            subscriber.Handle(sender, msg, null!).ShouldEqual(SubscriberResult.Handled);
+            subscriber.Handle(sender, msg, null!).ShouldEqual(MessengerSubscriberResult.Handled);
 
             handler = null;
             GC.Collect();
             GC.WaitForPendingFinalizers();
             GC.Collect();
 
-            subscriber.Handle(sender, msg, null!).ShouldEqual(SubscriberResult.Invalid);
+            subscriber.Handle(sender, msg, null!).ShouldEqual(MessengerSubscriberResult.Invalid);
         }
 #endif
 
