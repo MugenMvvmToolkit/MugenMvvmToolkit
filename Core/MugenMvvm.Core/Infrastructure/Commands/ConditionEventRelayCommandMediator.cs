@@ -9,7 +9,6 @@ using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
-using MugenMvvm.Models;
 
 namespace MugenMvvm.Infrastructure.Commands
 {
@@ -57,7 +56,7 @@ namespace MugenMvvm.Infrastructure.Commands
                     continue;
                 }
 
-                if (notifier is NotifyPropertyChangedBase propertyChanged)
+                if (notifier is INotifyPropertyChanged propertyChanged)
                     propertyChanged.PropertyChanged += _subscriber.GetPropertyChangedEventHandler();
             }
         }
@@ -166,7 +165,7 @@ namespace MugenMvvm.Infrastructure.Commands
 
             public MessengerSubscriberResult Handle(object sender, object message, IMessengerContext messengerContext)
             {
-                var mediator = (ConditionEventRelayCommandMediator) _reference.Target;
+                var mediator = (ConditionEventRelayCommandMediator)_reference.Target;
                 if (mediator == null)
                     return MessengerSubscriberResult.Invalid;
                 mediator.Handle(message);
@@ -191,7 +190,7 @@ namespace MugenMvvm.Infrastructure.Commands
 
             private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
             {
-                var mediator = (ConditionEventRelayCommandMediator) _reference.Target;
+                var mediator = (ConditionEventRelayCommandMediator)_reference.Target;
                 if (mediator == null)
                 {
                     if (sender is INotifyPropertyChanged propertyChanged)
