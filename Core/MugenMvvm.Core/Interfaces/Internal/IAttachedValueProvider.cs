@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Delegates;
+using MugenMvvm.Interfaces.Components;
 
-namespace MugenMvvm.Interfaces
+namespace MugenMvvm.Interfaces.Internal
 {
     public interface IAttachedValueProvider
     {
+        IComponentCollection<IChildAttachedValueProvider> Providers { get; }
+
         TValue AddOrUpdate<TItem, TValue, TState1, TState2>(TItem item, string path, TValue addValue, TState1 state1, TState2 state2,
             UpdateValueDelegate<TItem, TValue, TValue, TState1, TState2> updateValueFactory);
 

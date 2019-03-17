@@ -1,18 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Threading;
 using MugenMvvm.Collections;
 using MugenMvvm.Delegates;
-using MugenMvvm.Interfaces;
-using MugenMvvm.Models;
+using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Internal;
 
-namespace MugenMvvm.Infrastructure
+namespace MugenMvvm.Infrastructure.Internal
 {
-    public abstract class AttachedValueProviderBase : IAttachedValueProvider
+    public class AttachedValueProvider : IAttachedValueProvider
     {
+        #region Fields
+
+        private IComponentCollection<IChildAttachedValueProvider>? _providers;
+
+        #endregion
+
+        #region Constructors
+
+        public AttachedValueProvider(IComponentCollection<IChildAttachedValueProvider>? providers = null)
+        {
+            _providers = providers;
+        }
+
+        #endregion
+
+        #region Properties
+
+        public IComponentCollection<IChildAttachedValueProvider> Providers
+        {
+            get
+            {
+                if (_providers == null)
+                    MugenExtensions.LazyInitialize(ref _providers, this);
+
+                return _providers;
+            }
+        }
+
+        #endregion
+
         #region Implementation of interfaces
 
-        public virtual TValue AddOrUpdate<TItem, TValue, TState1, TState2>(TItem item, string path, TValue addValue, TState1 state1, TState2 state2, UpdateValueDelegate<TItem, TValue, TValue, TState1, TState2> updateValueFactory)
+        public virtual TValue AddOrUpdate<TItem, TValue, TState1, TState2>(TItem item, string path, TValue addValue, TState1 state1, TState2 state2,
+            UpdateValueDelegate<TItem, TValue, TValue, TState1, TState2> updateValueFactory)
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
@@ -22,9 +52,9 @@ namespace MugenMvvm.Infrastructure
             {
                 if (dictionary.TryGetValue(path, out var value))
                 {
-                    value = updateValueFactory(item, addValue, (TValue)value, state1, state2);
+                    value = updateValueFactory(item, addValue, (TValue) value, state1, state2);
                     dictionary[path] = value;
-                    return (TValue)value;
+                    return (TValue) value;
                 }
 
                 dictionary.Add(path, addValue);
@@ -32,7 +62,8 @@ namespace MugenMvvm.Infrastructure
             }
         }
 
-        public virtual TValue AddOrUpdate<TItem, TValue, TState1, TState2>(TItem item, string path, TState1 state1, TState2 state2, Func<TItem, TState1, TState2, TValue> addValueFactory, UpdateValueDelegate<TItem, Func<TItem, TState1, TState2, TValue>, TValue, TState1, TState2> updateValueFactory)
+        public virtual TValue AddOrUpdate<TItem, TValue, TState1, TState2>(TItem item, string path, TState1 state1, TState2 state2,
+            Func<TItem, TState1, TState2, TValue> addValueFactory, UpdateValueDelegate<TItem, Func<TItem, TState1, TState2, TValue>, TValue, TState1, TState2> updateValueFactory)
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
@@ -43,14 +74,14 @@ namespace MugenMvvm.Infrastructure
             {
                 if (dictionary.TryGetValue(path, out var value))
                 {
-                    value = updateValueFactory(item, addValueFactory, (TValue)value, state1, state2);
+                    value = updateValueFactory(item, addValueFactory, (TValue) value, state1, state2);
                     dictionary[path] = value;
-                    return (TValue)value;
+                    return (TValue) value;
                 }
 
                 value = addValueFactory(item, state1, state2);
                 dictionary.Add(path, value);
-                return (TValue)value;
+                return (TValue) value;
             }
         }
 
@@ -62,7 +93,7 @@ namespace MugenMvvm.Infrastructure
             lock (dictionary)
             {
                 if (dictionary.TryGetValue(path, out var oldValue))
-                    return (TValue)oldValue;
+                    return (TValue) oldValue;
                 dictionary.Add(path, value);
                 return value;
             }
@@ -77,10 +108,10 @@ namespace MugenMvvm.Infrastructure
             lock (dictionary)
             {
                 if (dictionary.TryGetValue(path, out var oldValue))
-                    return (TValue)oldValue;
+                    return (TValue) oldValue;
                 oldValue = valueFactory(item, state1, state2);
                 dictionary.Add(path, oldValue);
-                return (TValue)oldValue;
+                return (TValue) oldValue;
             }
         }
 
@@ -99,7 +130,7 @@ namespace MugenMvvm.Infrastructure
             {
                 if (dictionary.TryGetValue(path, out var result))
                 {
-                    value = (TValue)result;
+                    value = (TValue) result;
                     return true;
                 }
 
@@ -180,21 +211,36 @@ namespace MugenMvvm.Infrastructure
 
         #region Methods
 
-        protected static LightDictionaryBase<string, object?> GetOrAddAttachedValues(NotifyPropertyChangedBase model, bool addNew)
+        protected virtual bool ClearInternal(object item)
         {
-            if (addNew && model.AttachedValues == null)
-                Interlocked.CompareExchange(ref model.AttachedValues, new AttachedValueDictionary(), null);
-            return model.AttachedValues;
+            var items = GetProviders();
+            for (var i = 0; i < items.Count; i++)
+            {
+                if (items[i].TryClear(this, item, out var result))
+                    return result;
+            }
+
+            return false;
         }
 
-        protected static void ClearAttachedValues(NotifyPropertyChangedBase model)
+        protected virtual LightDictionaryBase<string, object?>? GetOrAddAttachedDictionary(object item, bool required)
         {
-            model.AttachedValues?.Clear();
+            var items = GetProviders();
+            for (var i = 0; i < items.Count; i++)
+            {
+                if (items[i].TryGetOrAddAttachedDictionary(this, item, required, out var dict))
+                    return dict;
+            }
+
+            if (required)
+                ExceptionManager.ThrowObjectNotInitialized(this);
+            return null;
         }
 
-        protected abstract bool ClearInternal(object item);
-
-        protected abstract LightDictionaryBase<string, object?> GetOrAddAttachedDictionary(object item, bool addNew);
+        private IReadOnlyList<IChildAttachedValueProvider> GetProviders()
+        {
+            return _providers?.GetItems() ?? Default.EmptyArray<IChildAttachedValueProvider>();
+        }
 
         #endregion
 
