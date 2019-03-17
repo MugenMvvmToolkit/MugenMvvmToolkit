@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Messaging;
 using MugenMvvm.Infrastructure.Metadata;
-using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.UnitTest.TestInfrastructure;
@@ -14,19 +13,19 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Infrastructure.Messaging
 {
-    public class MessengerTest : UnitTestBase
+    public class MessengerTest : UnitTestBase//todo add listeners test
     {
         #region Methods
 
         [Fact]
         public void MessengerShouldValidateArgsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new Messenger(null!));            
+            Assert.Throws<ArgumentNullException>(() => new Messenger(null!));
         }
 
         [Theory]
         [MemberData(nameof(GetExecutionModes))]
-        public void SubscribeShouldAddListener(ThreadExecutionMode executionMode)
+        public void SubscribeShouldAddSubscriber(ThreadExecutionMode executionMode)
         {
             var subscriber = new TestSubscriber();
             var messenger = CreateMessenger();
@@ -37,7 +36,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
         }
 
         [Fact]
-        public void SubscribeShouldAddListenerOnce()
+        public void SubscribeShouldAddSubscriberOnce()
         {
             var subscriber = new TestSubscriber();
             var messenger = CreateMessenger();
@@ -47,7 +46,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
         }
 
         [Fact]
-        public void UnsubscribeShouldRemoveListener()
+        public void UnsubscribeShouldRemoveSubscriber()
         {
             var subscriber = new TestSubscriber();
             var messenger = CreateMessenger();
@@ -284,17 +283,17 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
 
             Task.WaitAll(tasks.ToArray());
 
-//            foreach (var testSubscriber in subscribers)
-//            {
-//                testSubscriber.Messages.Count.ShouldEqual(messages.Count);
-//                messages.IsSupersetOf(testSubscriber.Messages).ShouldBeTrue();
-//            }
+            foreach (var testSubscriber in subscribers)
+            {
+                testSubscriber.Messages.Count.ShouldEqual(messages.Count);
+                messages.IsSupersetOf(testSubscriber.Messages).ShouldBeTrue();
+            }
         }
 
         protected virtual IMessenger CreateMessenger(IThreadDispatcher? threadDispatcher = null)
         {
             if (threadDispatcher == null)
-                threadDispatcher = new TestThreadDispatcher();            
+                threadDispatcher = new TestThreadDispatcher();
             return new Messenger(threadDispatcher);
         }
 
@@ -305,16 +304,6 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
                 new object[] {MessengerSubscriberResult.Handled, 1},
                 new object[] {MessengerSubscriberResult.Invalid, 0},
                 new object[] {MessengerSubscriberResult.Ignored, 1}
-            };
-        }
-
-        public static IEnumerable<object[]> GetPublishShouldTraceTraceableMessageArgs()
-        {
-            return new[]
-            {
-                new object[] {MessengerSubscriberResult.Handled, true},
-                new object[] {MessengerSubscriberResult.Invalid, false},
-                new object[] {MessengerSubscriberResult.Ignored, false}
             };
         }
 

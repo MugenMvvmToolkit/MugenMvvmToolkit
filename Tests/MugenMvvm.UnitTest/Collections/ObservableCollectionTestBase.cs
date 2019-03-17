@@ -29,7 +29,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Fact]
         public void CreateWithItemsTest()
         {
-            var items = new[] {new CollectionItem(), new CollectionItem()};
+            var items = new[] { new CollectionItem(), new CollectionItem() };
             var collection = CreateCollection(items);
             collection.Count.ShouldEqual(2);
             collection.Any(item => item == items[0]).ShouldBeTrue();
@@ -98,7 +98,7 @@ namespace MugenMvvm.UnitTest.Collections
             var item2 = new CollectionItem();
             var collection = CreateCollection(new CollectionItem());
 
-            collection.Reset(new[] {item1, item2});
+            collection.Reset(new[] { item1, item2 });
             collection[0].ShouldEqual(item1);
             collection[1].ShouldEqual(item2);
             collection.Count.ShouldEqual(2);
@@ -178,7 +178,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Fact]
         public void ClearItemsTest()
         {
-            var items = new[] {new CollectionItem(), new CollectionItem()};
+            var items = new[] { new CollectionItem(), new CollectionItem() };
             var collection = CreateCollection(items);
             collection.Count.ShouldEqual(2);
             collection.Any(item => item == items[0]).ShouldBeTrue();
@@ -189,8 +189,10 @@ namespace MugenMvvm.UnitTest.Collections
                 collection.Count.ShouldEqual(0);
         }
 
-        [Fact]
-        public void BeginEndBatchUpdateShouldCallListener()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void BeginEndBatchUpdateShouldCallListener(bool decorators)
         {
             var begin = 0;
             var end = 0;
@@ -202,7 +204,10 @@ namespace MugenMvvm.UnitTest.Collections
                 OnBeginBatchUpdate = items => begin++,
                 OnEndBatchUpdate = items => end++
             };
-            collection.AddListener(collectionListener);
+            if (decorators)
+                collection.DecoratorListeners.Add(collectionListener);
+            else
+                collection.AddListener(collectionListener);
 
             var beginBatchUpdate1 = collection.BeginBatchUpdate();
             begin.ShouldEqual(1);
@@ -357,7 +362,7 @@ namespace MugenMvvm.UnitTest.Collections
             var replacing = 0;
             var replaced = 0;
 
-            var collection = CreateCollection<CollectionItem>(item1, item2);
+            var collection = CreateCollection(item1, item2);
             var collectionListener = new CollectionListener<CollectionItem>(collection)
             {
                 ThrowErrorNullDelegate = true,
@@ -422,7 +427,7 @@ namespace MugenMvvm.UnitTest.Collections
             var moving = 0;
             var moved = 0;
 
-            var collection = CreateCollection<CollectionItem>(item1, item2);
+            var collection = CreateCollection(item1, item2);
             var collectionListener = new CollectionListener<CollectionItem>(collection)
             {
                 ThrowErrorNullDelegate = true,
@@ -602,7 +607,7 @@ namespace MugenMvvm.UnitTest.Collections
             var item1 = new CollectionItem();
             var item2 = new CollectionItem();
 
-            var resetItems = new[] {item1, item2};
+            var resetItems = new[] { item1, item2 };
 
             var expectedItem = resetItems;
             var canReset = false;
@@ -686,6 +691,575 @@ namespace MugenMvvm.UnitTest.Collections
             if (!decorators)
                 clearing.ShouldEqual(2);
             cleared.ShouldEqual(1);
+        }
+
+
+        [Fact]
+        public void AddNotificationDecoratorsTest()
+        {
+            var item1 = new CollectionItem();
+            var item2 = new CollectionItem();
+
+            var expectedIndex = 0;
+            var expectedItem = item1;
+
+            var decoratedIndex = 0;
+            var decoratedItem = item1;
+
+            var canAdd = false;
+            var adding = 0;
+            var added = 0;
+
+            var collection = CreateCollection<CollectionItem>();
+            var decorator = new TestObservableCollectionDecorator<CollectionItem>
+            {
+                ThrowErrorNullDelegate = true,
+                OnAdded = (ref CollectionItem item, ref int index) =>
+                {
+                    adding++;
+                    item.ShouldEqual(expectedItem);
+                    expectedIndex.ShouldEqual(index);
+
+                    item = decoratedItem;
+                    index = decoratedIndex;
+
+                    return canAdd;
+                }
+            };
+            collection.Decorators.Add(decorator);
+
+            var collectionListener = new CollectionListener<CollectionItem>(collection)
+            {
+                ThrowErrorNullDelegate = true,
+                OnAdded = (items, item, index) =>
+                {
+                    added++;
+                    item.ShouldEqual(decoratedItem);
+                    decoratedIndex.ShouldEqual(index);
+                }
+            };
+
+            collection.DecoratorListeners.Add(collectionListener);
+
+            collection.Add(item1);
+            collection.Count.ShouldEqual(1);
+            adding.ShouldEqual(1);
+            added.ShouldEqual(0);
+
+            canAdd = true;
+            expectedIndex = 1;
+            collection.Add(item1);
+            collection.Count.ShouldEqual(2);
+
+            adding.ShouldEqual(2);
+            added.ShouldEqual(1);
+
+            expectedIndex = 2;
+            expectedItem = item2;
+
+            decoratedIndex = 0;
+            decoratedItem = item1;
+            collection.Add(item2);
+            collection.Count.ShouldEqual(3);
+            adding.ShouldEqual(3);
+            added.ShouldEqual(2);
+        }
+
+
+        [Fact]
+        public void InsertNotificationDecoratorsTest()
+        {
+            var item1 = new CollectionItem();
+            var item2 = new CollectionItem();
+
+            var expectedIndex = 0;
+            var expectedItem = item1;
+
+            var decoratedIndex = 0;
+            var decoratedItem = item1;
+
+            var canAdd = false;
+            var adding = 0;
+            var added = 0;
+
+            var collection = CreateCollection<CollectionItem>();
+            var decorator = new TestObservableCollectionDecorator<CollectionItem>
+            {
+                ThrowErrorNullDelegate = true,
+                OnAdded = (ref CollectionItem item, ref int index) =>
+                {
+                    adding++;
+                    item.ShouldEqual(expectedItem);
+                    expectedIndex.ShouldEqual(index);
+
+                    item = decoratedItem;
+                    index = decoratedIndex;
+
+                    return canAdd;
+                }
+            };
+            collection.Decorators.Add(decorator);
+
+            var collectionListener = new CollectionListener<CollectionItem>(collection)
+            {
+                ThrowErrorNullDelegate = true,
+                OnAdded = (items, item, index) =>
+                {
+                    added++;
+                    item.ShouldEqual(decoratedItem);
+                    decoratedIndex.ShouldEqual(index);
+                }
+            };
+
+            collection.DecoratorListeners.Add(collectionListener);
+
+            collection.Insert(0, item1);
+            collection.Count.ShouldEqual(1);
+            adding.ShouldEqual(1);
+            added.ShouldEqual(0);
+
+            canAdd = true;
+            expectedIndex = 1;
+            collection.Insert(1, item1);
+            collection.Count.ShouldEqual(2);
+
+            adding.ShouldEqual(2);
+            added.ShouldEqual(1);
+
+            expectedIndex = 2;
+            expectedItem = item2;
+
+            decoratedIndex = 0;
+            decoratedItem = item1;
+            collection.Insert(2, item2);
+            collection.Count.ShouldEqual(3);
+            adding.ShouldEqual(3);
+            added.ShouldEqual(2);
+        }
+
+        [Fact]
+        public void ReplaceNotificationDecoratorsTest()
+        {
+            var item1 = new CollectionItem();
+            var item2 = new CollectionItem();
+
+            var expectedIndex = 0;
+            var expectedOldItem = item1;
+            var expectedNewItem = item2;
+
+
+            var decoratedIndex = 0;
+            var decoratedOldItem = item1;
+            var decoratedNewItem = item2;
+            var canReplace = false;
+            var replacing = 0;
+            var replaced = 0;
+
+            var collection = CreateCollection(item1, item2);
+
+            var decorator = new TestObservableCollectionDecorator<CollectionItem>
+            {
+                OnReplaced = (ref CollectionItem oldItem, ref CollectionItem newItem, ref int index) =>
+                {
+                    replacing++;
+                    expectedOldItem.ShouldEqual(oldItem);
+                    expectedNewItem.ShouldEqual(newItem);
+                    expectedIndex.ShouldEqual(index);
+
+                    oldItem = decoratedOldItem;
+                    newItem = decoratedNewItem;
+                    index = decoratedIndex;
+
+                    return canReplace;
+                }
+            };
+            collection.Decorators.Add(decorator);
+
+            var collectionListener = new CollectionListener<CollectionItem>(collection)
+            {
+                OnReplaced = (items, oldItem, newItem, index) =>
+                {
+                    replaced++;
+                    decoratedOldItem.ShouldEqual(oldItem);
+                    decoratedNewItem.ShouldEqual(newItem);
+                    decoratedIndex.ShouldEqual(index);
+                }
+            };
+            collection.DecoratorListeners.Add(collectionListener);
+
+            collection[0] = item2;
+            replacing.ShouldEqual(1);
+            replaced.ShouldEqual(0);
+
+            canReplace = true;
+            decoratedOldItem = item2;
+            decoratedNewItem = item1;
+            expectedOldItem = item2;
+            expectedNewItem = item1;
+
+            collection[0] = item1;
+            replacing.ShouldEqual(2);
+            replaced.ShouldEqual(1);
+
+            expectedOldItem = item2;
+            expectedNewItem = item1;
+            expectedIndex = 1;
+
+            decoratedOldItem = item1;
+            decoratedNewItem = item1;
+            decoratedIndex = int.MinValue;
+
+            collection[1] = item1;
+            collection[1].ShouldEqual(item1);
+            replacing.ShouldEqual(3);
+            replaced.ShouldEqual(2);
+        }
+
+
+        [Fact]
+        public void MoveNotificationDecoratorsTest()
+        {
+            var item1 = new CollectionItem();
+            var item2 = new CollectionItem();
+
+            var expectedItem = item1;
+            var expectedOldIndex = 0;
+            var expectedNewIndex = 1;
+
+            var decoratedOldIndex = 0;
+            var decoratedNewIndex = 1;
+            var decoratedItem = item1;
+            var canMove = false;
+            var moving = 0;
+            var moved = 0;
+
+            var collection = CreateCollection(item1, item2);
+            var decorator = new TestObservableCollectionDecorator<CollectionItem>
+            {
+                OnMoved = (ref CollectionItem item, ref int oldIndex, ref int newIndex) =>
+                {
+                    moving++;
+                    expectedItem.ShouldEqual(item);
+                    expectedOldIndex.ShouldEqual(oldIndex);
+                    expectedNewIndex.ShouldEqual(newIndex);
+
+                    item = decoratedItem;
+                    oldIndex = decoratedOldIndex;
+                    newIndex = decoratedNewIndex;
+
+                    return canMove;
+                }
+            };
+            collection.Decorators.Add(decorator);
+
+            var collectionListener = new CollectionListener<CollectionItem>(collection)
+            {
+                ThrowErrorNullDelegate = true,
+                OnMoved = (items, item, oldIndex, newIndex) =>
+                {
+                    moved++;
+                    decoratedItem.ShouldEqual(item);
+                    decoratedOldIndex.ShouldEqual(oldIndex);
+                    decoratedNewIndex.ShouldEqual(newIndex);
+                }
+            };
+
+            collection.DecoratorListeners.Add(collectionListener);
+
+            collection.Move(0, 1);
+            moving.ShouldEqual(1);
+            moved.ShouldEqual(0);
+
+            canMove = true;
+            expectedItem = item2;
+            decoratedItem = item2;
+            collection.Move(0, 1);
+            collection[1].ShouldEqual(item2);
+            moving.ShouldEqual(2);
+            moved.ShouldEqual(1);
+
+            expectedOldIndex = 1;
+            expectedNewIndex = 0;
+            decoratedNewIndex = 0;
+            decoratedOldIndex = 1;
+
+            collection.Move(1, 0);
+            collection[1].ShouldEqual(item1);
+            moving.ShouldEqual(3);
+            moved.ShouldEqual(2);
+        }
+
+        [Fact]
+        public void RemoveNotificationDecoratorsTest()
+        {
+            var item1 = new CollectionItem();
+            var item2 = new CollectionItem();
+
+            var expectedIndex = 1;
+            var expectedItem = item2;
+
+            var decoratedIndex = 0;
+            var decoratedItem = item1;
+            var canRemove = false;
+            var removing = 0;
+            var removed = 0;
+
+            var collection = CreateCollection(item1, item2);
+
+            var decorator = new TestObservableCollectionDecorator<CollectionItem>
+            {
+                OnRemoved = (ref CollectionItem item, ref int index) =>
+                {
+                    removing++;
+                    item.ShouldEqual(expectedItem);
+                    expectedIndex.ShouldEqual(index);
+
+                    index = decoratedIndex;
+                    item = decoratedItem;
+
+                    return canRemove;
+                }
+            };
+            collection.Decorators.Add(decorator);
+
+            var collectionListener = new CollectionListener<CollectionItem>(collection)
+            {
+                ThrowErrorNullDelegate = true,
+                OnRemoved = (items, item, index) =>
+                {
+                    removed++;
+                    item.ShouldEqual(decoratedItem);
+                    index.ShouldEqual(decoratedIndex);
+                }
+            };
+            collection.DecoratorListeners.Add(collectionListener);
+
+            collection.Remove(item2);
+            collection.Count.ShouldEqual(1);
+            removing.ShouldEqual(1);
+            removed.ShouldEqual(0);
+
+            canRemove = true;
+            expectedItem = item1;
+            expectedIndex = 0;
+
+            decoratedIndex = int.MinValue;
+
+            collection.Remove(item1);
+            collection.Count.ShouldEqual(0);
+            removing.ShouldEqual(2);
+            removed.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void RemoveAtNotificationDecoratorsTest()
+        {
+            var item1 = new CollectionItem();
+            var item2 = new CollectionItem();
+
+            var expectedIndex = 1;
+            var expectedItem = item2;
+
+            var decoratedIndex = 0;
+            var decoratedItem = item1;
+            var canRemove = false;
+            var removing = 0;
+            var removed = 0;
+
+            var collection = CreateCollection(item1, item2);
+
+            var decorator = new TestObservableCollectionDecorator<CollectionItem>
+            {
+                OnRemoved = (ref CollectionItem item, ref int index) =>
+                {
+                    removing++;
+                    item.ShouldEqual(expectedItem);
+                    expectedIndex.ShouldEqual(index);
+
+                    index = decoratedIndex;
+                    item = decoratedItem;
+
+                    return canRemove;
+                }
+            };
+            collection.Decorators.Add(decorator);
+
+            var collectionListener = new CollectionListener<CollectionItem>(collection)
+            {
+                ThrowErrorNullDelegate = true,
+                OnRemoved = (items, item, index) =>
+                {
+                    removed++;
+                    item.ShouldEqual(decoratedItem);
+                    index.ShouldEqual(decoratedIndex);
+                }
+            };
+            collection.DecoratorListeners.Add(collectionListener);
+
+            collection.RemoveAt(1);
+            collection.Count.ShouldEqual(1);
+            removing.ShouldEqual(1);
+            removed.ShouldEqual(0);
+
+            canRemove = true;
+            expectedItem = item1;
+            expectedIndex = 0;
+
+            decoratedIndex = int.MinValue;
+
+            collection.RemoveAt(0);
+            collection.Count.ShouldEqual(0);
+            removing.ShouldEqual(2);
+            removed.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void ResetNotificationDecoratorsTest()
+        {
+            var item1 = new CollectionItem();
+            var item2 = new CollectionItem();
+
+            var resetItems = new[] { item1, item2 };
+
+            var expectedItem = resetItems;
+            var decoratedItem = resetItems;
+
+            var canReset = false;
+            var resetting = 0;
+            var reset = 0;
+
+            var collection = CreateCollection(new CollectionItem());
+
+            var decorator = new TestObservableCollectionDecorator<CollectionItem>
+            {
+                OnReset = (ref IEnumerable<CollectionItem> items) =>
+                {
+                    resetting++;
+                    items.ShouldEqual(expectedItem);
+
+                    items = decoratedItem;
+                    return canReset;
+                }
+            };
+            collection.Decorators.Add(decorator);
+
+            var collectionListener = new CollectionListener<CollectionItem>(collection)
+            {
+                ThrowErrorNullDelegate = true,
+                OnReset = (_, items) =>
+                {
+                    reset++;
+                    items.ShouldEqual(decoratedItem);
+                }
+            };
+
+            collection.DecoratorListeners.Add(collectionListener);
+
+            collection.Reset(resetItems);
+            collection.SequenceEqual(resetItems).ShouldBeTrue();
+            resetting.ShouldEqual(1);
+            reset.ShouldEqual(0);
+
+            canReset = true;
+            decoratedItem = new CollectionItem[0];
+
+            collection.Reset(resetItems);
+            collection.SequenceEqual(resetItems).ShouldBeTrue();
+            resetting.ShouldEqual(2);
+            reset.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void ClearNotificationDecoratorsTest()
+        {
+            var item1 = new CollectionItem();
+            var item2 = new CollectionItem();
+
+            var canClear = false;
+            var clearing = 0;
+            var cleared = 0;
+
+            var collection = CreateCollection(item1, item2);
+            var decorator = new TestObservableCollectionDecorator<CollectionItem>
+            {
+                OnCleared = () =>
+                {
+                    clearing++;
+                    return canClear;
+                }
+            };
+            collection.Decorators.Add(decorator);
+
+            var collectionListener = new CollectionListener<CollectionItem>(collection)
+            {
+                ThrowErrorNullDelegate = true,
+                OnCleared = _ => { cleared++; }
+            };
+            collection.DecoratorListeners.Add(collectionListener);
+
+            collection.Clear();
+            collection.Count.ShouldEqual(0);
+            clearing.ShouldEqual(1);
+            cleared.ShouldEqual(0);
+
+            canClear = true;
+            collection.Clear();
+            collection.Count.ShouldEqual(0);
+            clearing.ShouldEqual(2);
+            cleared.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void DecoratorShouldDecorateItems()
+        {
+            var item1 = new CollectionItem();
+            var item2 = new CollectionItem();
+
+            var decoratedItems = new[] { item1 };
+            var collection = CreateCollection(item1, item2);
+            var decorator = new TestObservableCollectionDecorator<CollectionItem>
+            {
+                DecorateItems = items =>
+                {
+                    items.SequenceEqual(new[] { item1, item2 }).ShouldBeTrue();
+                    return decoratedItems;
+                }
+            };
+            collection.Decorators.Add(decorator);
+            collection.DecorateItems().SequenceEqual(decoratedItems).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void DecoratorShouldDecorateItemsMulti()
+        {
+            var item1 = new CollectionItem();
+            var item2 = new CollectionItem();
+
+            var original = new[] { item1, item2 };
+            var decoratedItems1 = new[] { item2 };
+            var decoratedItems2 = new[] { item1 };
+            var collection = CreateCollection(item1, item2);
+            var decorator1 = new TestObservableCollectionDecorator<CollectionItem>
+            {
+                DecorateItems = items =>
+                {
+                    items.SequenceEqual(original).ShouldBeTrue();
+                    return decoratedItems1;
+                }
+            };
+            collection.Decorators.Add(decorator1);
+
+            var decorator2 = new TestObservableCollectionDecorator<CollectionItem>
+            {
+                DecorateItems = items =>
+                {
+                    items.SequenceEqual(decoratedItems1).ShouldBeTrue();
+                    return items.Concat(decoratedItems2);
+                }
+            };
+            collection.Decorators.Add(decorator2);
+
+            collection.DecorateItems().SequenceEqual(decoratedItems1.Concat(decoratedItems2)).ShouldBeTrue();
         }
 
         protected abstract IObservableCollection<T> CreateCollection<T>(params T[] items) where T : class;

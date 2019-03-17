@@ -55,6 +55,8 @@ namespace MugenMvvm.Collections
 
         protected bool HasPropertyChangedListeners => PropertyChanged != null;
 
+        protected virtual ThreadExecutionMode ExecutionMode => ThreadExecutionMode.Main;
+
         #endregion
 
         #region Events
@@ -129,7 +131,7 @@ namespace MugenMvvm.Collections
             if (ThreadDispatcher.IsOnMainThread)
                 OnBeginBatchUpdateImpl();
             else
-                ThreadDispatcher.Execute(o => ((BindableCollectionWrapperBase<T>)o).OnBeginBatchUpdateImpl(), ThreadExecutionMode.Main, this);
+                ThreadDispatcher.Execute(o => ((BindableCollectionWrapperBase<T>)o).OnBeginBatchUpdateImpl(), ExecutionMode, this);
         }
 
         protected void OnEndBatchUpdate()
@@ -137,7 +139,7 @@ namespace MugenMvvm.Collections
             if (ThreadDispatcher.IsOnMainThread)
                 OnEndBatchUpdateImpl();
             else
-                ThreadDispatcher.Execute(o => ((BindableCollectionWrapperBase<T>)o).OnEndBatchUpdateImpl(), ThreadExecutionMode.Main, this);
+                ThreadDispatcher.Execute(o => ((BindableCollectionWrapperBase<T>)o).OnEndBatchUpdateImpl(), ExecutionMode, this);
         }
 
         protected void OnAdded(T item, int index)
@@ -277,7 +279,7 @@ namespace MugenMvvm.Collections
             if (ThreadDispatcher.IsOnMainThread)
                 AddEventInternal(ref collectionChangedEvent);
             else
-                ThreadDispatcher.Execute(collectionChangedEvent, ThreadExecutionMode.Main, this);
+                ThreadDispatcher.Execute(collectionChangedEvent, ExecutionMode, this);
         }
 
         private void OnBeginBatchUpdateImpl()

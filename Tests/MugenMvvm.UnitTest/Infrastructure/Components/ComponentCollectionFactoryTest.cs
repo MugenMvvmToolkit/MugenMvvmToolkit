@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Infrastructure.Internal;
-using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Models;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTest.Infrastructure.Internal
+namespace MugenMvvm.UnitTest.Infrastructure.Components
 {
     public class ComponentCollectionFactoryTest : UnitTestBase
     {
