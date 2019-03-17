@@ -3,7 +3,7 @@ using MugenMvvm.Interfaces.Collections;
 
 namespace MugenMvvm.UnitTest.Collections
 {
-    public class SynchronizedObservableCollection : ObservableCollectionTestBase
+    public class SynchronizedObservableCollectionTest : ObservableCollectionTestBase
     {
         #region Methods
 

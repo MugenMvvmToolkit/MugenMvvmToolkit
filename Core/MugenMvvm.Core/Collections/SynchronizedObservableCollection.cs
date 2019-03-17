@@ -285,6 +285,9 @@ namespace MugenMvvm.Collections
 
         protected virtual void MoveInternal(int oldIndex, int newIndex)
         {
+            if (oldIndex == newIndex)
+                return;
+
             var obj = Items[oldIndex];
             if (!OnMoving(obj, oldIndex, newIndex))
                 return;
@@ -295,6 +298,9 @@ namespace MugenMvvm.Collections
 
         protected virtual void ClearInternal()
         {
+            if (GetCountInternal() == 0)
+                return;
+
             if (!OnClearing())
                 return;
             Items.Clear();

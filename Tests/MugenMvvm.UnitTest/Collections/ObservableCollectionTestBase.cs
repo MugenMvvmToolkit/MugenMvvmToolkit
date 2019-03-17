@@ -1169,13 +1169,14 @@ namespace MugenMvvm.UnitTest.Collections
             reset.ShouldEqual(1);
         }
 
-        [Fact]
-        public void ClearNotificationDecoratorsTest()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ClearNotificationDecoratorsTest(bool canClear)
         {
             var item1 = new CollectionItem();
             var item2 = new CollectionItem();
 
-            var canClear = false;
             var clearing = 0;
             var cleared = 0;
 
@@ -1200,13 +1201,7 @@ namespace MugenMvvm.UnitTest.Collections
             collection.Clear();
             collection.Count.ShouldEqual(0);
             clearing.ShouldEqual(1);
-            cleared.ShouldEqual(0);
-
-            canClear = true;
-            collection.Clear();
-            collection.Count.ShouldEqual(0);
-            clearing.ShouldEqual(2);
-            cleared.ShouldEqual(1);
+            cleared.ShouldEqual(canClear ? 1 : 0);            
         }
 
         [Fact]

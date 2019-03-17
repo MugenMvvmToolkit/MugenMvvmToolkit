@@ -11,7 +11,7 @@ namespace MugenMvvm.Collections.Decorators
     {
         #region Fields
 
-        private IObservableCollectionDecoratorManager<T> _decoratorManager;
+        private IObservableCollectionDecoratorManager<T>? _decoratorManager;
         private Func<T, bool>? _filter;
 
         private int[] _keys;
@@ -80,7 +80,7 @@ namespace MugenMvvm.Collections.Decorators
             }
         }
 
-        private bool HasFilter => Filter != null;
+        private bool HasFilter => Filter != null && _decoratorManager != null;
 
         #endregion
 
@@ -126,11 +126,17 @@ namespace MugenMvvm.Collections.Decorators
 
             var filterIndex = IndexOfKey(index);
             if (filterIndex == -1)
+            {
+                if (FilterInternal(newItem))
+                    _decoratorManager.OnAdded(this, newItem, Add(index, newItem));
+
                 return false;
+            }
 
             if (FilterInternal(newItem))
             {
                 oldItem = GetValue(filterIndex);
+                SetValue(filterIndex, newItem);
                 index = filterIndex;
                 return true;
             }
@@ -146,7 +152,17 @@ namespace MugenMvvm.Collections.Decorators
             if (!HasFilter)
                 return true;
 
-            throw new NotImplementedException();
+            var filterIndex = IndexOfKey(oldIndex);
+            UpdateFilterItems(oldIndex, -1);
+            UpdateFilterItems(newIndex, 1);
+
+            if (filterIndex == -1)
+                return false;
+
+            RemoveAt(filterIndex);
+            oldIndex = filterIndex;
+            newIndex = Add(newIndex, item);
+            return true;
         }
 
         bool IObservableCollectionDecorator<T>.OnRemoved(ref T item, ref int index)
@@ -199,6 +215,9 @@ namespace MugenMvvm.Collections.Decorators
 
         private void UpdateFilterInternal(Func<T, bool>? filter)
         {
+            if (_decoratorManager == null)
+                return;
+
             using (_decoratorManager.Lock())
             {
                 Clear();
@@ -214,7 +233,8 @@ namespace MugenMvvm.Collections.Decorators
             foreach (var item in items)
             {
                 if (filter(item))
-                    Add(index++, item);
+                    Add(index, item);
+                ++index;
             }
         }
 
@@ -277,6 +297,14 @@ namespace MugenMvvm.Collections.Decorators
                 ExceptionManager.ThrowIntOutOfRangeCollection("index");
 
             return _values[index];
+        }
+
+        protected void SetValue(int index, T value)
+        {
+            if (index >= _size)
+                ExceptionManager.ThrowIntOutOfRangeCollection("index");
+
+            _values[index] = value;
         }
 
         private void RemoveAt(int index)
