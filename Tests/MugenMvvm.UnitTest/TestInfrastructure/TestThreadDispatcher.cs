@@ -21,7 +21,7 @@ namespace MugenMvvm.UnitTest.TestInfrastructure
 
         #region Properties
 
-        public bool IsOnMainThread { get; set; }
+        public Func<ThreadExecutionMode, bool> CanExecute { get; set; }
 
         public Action<IThreadDispatcherHandler, ThreadExecutionMode, object?, IReadOnlyMetadataContext?> ExecuteHandler { get; set; }
 
@@ -30,6 +30,11 @@ namespace MugenMvvm.UnitTest.TestInfrastructure
         #endregion
 
         #region Implementation of interfaces
+
+        bool IThreadDispatcher.CanExecute(ThreadExecutionMode executionMode)
+        {
+            return CanExecute?.Invoke(executionMode) ?? true;
+        }
 
         void IThreadDispatcher.Execute(IThreadDispatcherHandler handler, ThreadExecutionMode executionMode, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {

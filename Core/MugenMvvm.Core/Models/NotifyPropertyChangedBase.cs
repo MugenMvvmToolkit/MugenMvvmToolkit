@@ -96,13 +96,17 @@ namespace MugenMvvm.Models
             if (PropertyChanged != null)
             {
                 if (IsSuspended)
+                {
                     IsNotificationsDirty = true;
-                if (PropertyChangedExecutionMode == ThreadExecutionMode.Current)
-                    RaisePropertyChangedEvent(args);
-                else if (PropertyChangedExecutionMode == ThreadExecutionMode.Main && Service<IThreadDispatcher>.Instance.IsOnMainThread)
+                    return;
+                }
+
+                var executionMode = PropertyChangedExecutionMode;
+                var threadDispatcher = Service<IThreadDispatcher>.Instance;
+                if (threadDispatcher.CanExecute(executionMode))
                     RaisePropertyChangedEvent(args);
                 else
-                    Service<IThreadDispatcher>.Instance.Execute(GetDispatcherHandler(), PropertyChangedExecutionMode, args);
+                    threadDispatcher.Execute(GetDispatcherHandler(), executionMode, args);
             }
         }
 
