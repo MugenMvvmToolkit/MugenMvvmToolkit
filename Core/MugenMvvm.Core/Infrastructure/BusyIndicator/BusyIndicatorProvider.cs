@@ -155,23 +155,16 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
 
             private readonly BusyIndicatorProvider _provider;
 
-            private LightArrayList<IBusyTokenCallback>? _listeners;
+            private IBusyTokenCallback[]? _listeners;
             private BusyToken? _next;
             private BusyToken? _prev;
             private bool _suspended;
             private bool _suspendedExternal;
             private int _suspendExternalCount;
 
-            private static readonly LightArrayList<IBusyTokenCallback> CompletedList;
-
             #endregion
 
             #region Constructors
-
-            static BusyToken()
-            {
-                CompletedList = new LightArrayList<IBusyTokenCallback>(1);
-            }
 
             public BusyToken(BusyIndicatorProvider provider, object? message)
             {
@@ -190,7 +183,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
 
             #region Properties
 
-            public bool IsCompleted => ReferenceEquals(CompletedList, _listeners);
+            public bool IsCompleted => ReferenceEquals(Default.EmptyArray<IBusyTokenCallback>(), _listeners);
 
             public object? Message { get; }
 
@@ -253,8 +246,14 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                     if (!IsCompleted)
                     {
                         if (_listeners == null)
-                            _listeners = new LightArrayList<IBusyTokenCallback>(2);
-                        _listeners.Add(callback);
+                            _listeners = new[] { callback };
+                        else
+                        {
+                            var listeners = new IBusyTokenCallback[_listeners.Length + 1];
+                            Array.Copy(_listeners, listeners, _listeners.Length);
+                            listeners[listeners.Length - 1] = callback;
+                            _listeners = listeners;
+                        }
                         if (IsSuspended)
                             callback.OnSuspendChanged(true);
                         return;
@@ -273,21 +272,21 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
             {
                 if (_provider == null)
                 {
-                    _listeners = CompletedList;
+                    _listeners = Default.EmptyArray<IBusyTokenCallback>();
                     return;
                 }
 
                 IBusyTokenCallback[]? listeners = null;
                 lock (Locker)
                 {
-                    listeners = _listeners?.ToArray();
+                    listeners = _listeners;
                     if (_prev != null)
                         _prev._next = _next;
                     if (_next == null)
                         _provider._busyTail = _prev;
                     else
                         _next._prev = _prev;
-                    _listeners = CompletedList;
+                    _listeners = Default.EmptyArray<IBusyTokenCallback>();
                 }
 
                 if (listeners != null)
@@ -421,11 +420,10 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                 var changed = oldValue != IsSuspended;
                 if (changed)
                 {
-                    int size = 0;
-                    var items = _listeners?.GetRawItems(out size);
+                    var items = _listeners;
                     if (items != null)
                     {
-                        for (int i = 0; i < size; i++)
+                        for (int i = 0; i < _listeners.Length; i++)
                             items[i]?.OnSuspendChanged(suspended);
                     }
                 }

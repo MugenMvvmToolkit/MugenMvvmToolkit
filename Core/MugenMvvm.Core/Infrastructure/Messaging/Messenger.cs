@@ -213,7 +213,7 @@ namespace MugenMvvm.Infrastructure.Messaging
 
         #region Nested types
 
-        private sealed class ThreadDispatcherExecutor : LightArrayList<IMessengerSubscriber>, IThreadDispatcherHandler
+        private sealed class ThreadDispatcherExecutor : List<IMessengerSubscriber>, IThreadDispatcherHandler
         {
             #region Fields
 
@@ -241,18 +241,17 @@ namespace MugenMvvm.Infrastructure.Messaging
 
             public void Execute(object? state)
             {
-                var subscribers = GetRawItems(out var size);
                 if (_messenger.Listeners.HasItems)
                 {
-                    for (var i = 0; i < size; i++)
-                        PublishAndNotify(subscribers[i]);
+                    for (var i = 0; i < Count; i++)
+                        PublishAndNotify(this[i]);
                 }
                 else
                 {
-                    for (var i = 0; i < size; i++)
+                    for (var i = 0; i < Count; i++)
                     {
-                        if (subscribers[i].Handle(_sender, _message, _messengerContext) == MessengerSubscriberResult.Invalid)
-                            _messenger.Unsubscribe(subscribers[i]);
+                        if (this[i].Handle(_sender, _message, _messengerContext) == MessengerSubscriberResult.Invalid)
+                            _messenger.Unsubscribe(this[i]);
                     }
                 }
             }
