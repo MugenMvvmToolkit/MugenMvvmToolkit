@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using MugenMvvm.Collections.Decorators;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.UnitTest.TestInfrastructure;
 using MugenMvvm.UnitTest.TestModels;
@@ -1201,7 +1203,7 @@ namespace MugenMvvm.UnitTest.Collections
             collection.Clear();
             collection.Count.ShouldEqual(0);
             clearing.ShouldEqual(1);
-            cleared.ShouldEqual(canClear ? 1 : 0);            
+            cleared.ShouldEqual(canClear ? 1 : 0);
         }
 
         [Fact]
@@ -1257,7 +1259,89 @@ namespace MugenMvvm.UnitTest.Collections
             collection.DecorateItems().SequenceEqual(decoratedItems1.Concat(decoratedItems2)).ShouldBeTrue();
         }
 
-        protected abstract IObservableCollection<T> CreateCollection<T>(params T[] items) where T : class;
+        [Theory]
+        [InlineData(true, true)]
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        public void DecoratorShouldTrackItemsMulti(bool defaultComparer, bool filterFirst)
+        {
+            var comparer = defaultComparer ? Comparer<int>.Default : Comparer<int>.Create((i, i1) => i1.CompareTo(i));
+            var observableCollection = CreateCollection<int>();
+            var decorator1 = new OrderedObservableCollectionDecorator<int>(comparer);
+            var decorator2 = new FilterObservableCollectionDecorator<int> { Filter = i => i % 2 == 0 };
+
+            if (filterFirst)
+            {
+                observableCollection.Decorators.Add(decorator2);
+                observableCollection.Decorators.Add(decorator1);
+            }
+            else
+            {
+                observableCollection.Decorators.Add(decorator1);
+                observableCollection.Decorators.Add(decorator2);
+            }
+
+            ((IObservableCollectionDecorator<int>)decorator1).OnAttached((IObservableCollectionDecoratorManager<int>)observableCollection); //todo remove
+            ((IObservableCollectionDecorator<int>)decorator2).OnAttached((IObservableCollectionDecoratorManager<int>)observableCollection);//todo remove
+
+            var tracker = new ObservableCollectionTracker<int>();
+            observableCollection.DecoratorListeners.Add(tracker);
+            var items = observableCollection.OrderBy(i => i, comparer).Where(decorator2.Filter);
+
+            observableCollection.Add(1);
+            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+
+            observableCollection.Insert(1, 2);
+            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+
+            observableCollection.Remove(2);
+            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+
+            observableCollection.RemoveAt(0);
+            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+
+            observableCollection.Reset(new[] { 1, 2, 3, 4, 5 });
+            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+
+            observableCollection[0] = 200;
+            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+
+            observableCollection.Move(1, 2);
+            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+
+            observableCollection.Clear();
+            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+
+            for (int i = 0; i < 100; i++)
+            {
+                observableCollection.Add(Guid.NewGuid().GetHashCode());
+                tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            }
+
+            for (int i = 0; i < 10; i++)
+            {
+                observableCollection.Move(i, i + 1);
+                tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            }
+
+            for (int i = 0; i < 10; i++)
+            {
+                observableCollection[i] = i + Guid.NewGuid().GetHashCode();
+                tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            }
+
+            for (int i = 0; i < 100; i++)
+            {
+                observableCollection.RemoveAt(0);
+                tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            }
+
+            observableCollection.Clear();
+            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+        }
+
+        protected abstract IObservableCollection<T> CreateCollection<T>(params T[] items);
 
         #endregion
     }

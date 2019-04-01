@@ -13,7 +13,7 @@ namespace MugenMvvm.Interfaces.Collections
 
         IEnumerable<T> DecorateItems();
 
-        IDisposable BeginBatchUpdate();
+        IDisposable BeginBatchUpdate();//todo enum decorators, listeners?
 
         void Move(int oldIndex, int newIndex);
 

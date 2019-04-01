@@ -18,6 +18,7 @@ namespace MugenMvvm.UnitTest.Collections.Decorators
             var observableCollection = new SynchronizedObservableCollection<int>();
             var decorator = new FilterObservableCollectionDecorator<int>();
             observableCollection.Decorators.Add(decorator);
+            ((IObservableCollectionDecorator<int>)decorator).OnAttached(observableCollection);//todo remove
 
             var tracker = new ObservableCollectionTracker<int>();
             observableCollection.DecoratorListeners.Add(tracker);

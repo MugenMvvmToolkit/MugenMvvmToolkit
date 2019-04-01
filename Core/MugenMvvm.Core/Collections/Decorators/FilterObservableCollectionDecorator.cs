@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Collections.Decorators
 {
-    public class FilterObservableCollectionDecorator<T> : IObservableCollectionDecorator<T>, IEnumerable<T>
+    public sealed class FilterObservableCollectionDecorator<T> : IObservableCollectionDecorator<T>, IEnumerable<T>
     {
         #region Fields
 
@@ -93,7 +93,7 @@ namespace MugenMvvm.Collections.Decorators
             if (!HasFilter)
                 return true;
 
-            UpdateFilterItems(index, 1);
+            UpdateIndexes(index, 1);
             if (!FilterInternal(item))
                 return false;
 
@@ -135,8 +135,8 @@ namespace MugenMvvm.Collections.Decorators
                 return true;
 
             var filterIndex = IndexOfKey(oldIndex);
-            UpdateFilterItems(oldIndex, -1);
-            UpdateFilterItems(newIndex, 1);
+            UpdateIndexes(oldIndex + 1, -1);
+            UpdateIndexes(newIndex, 1);
 
             if (filterIndex == -1)
                 return false;
@@ -153,7 +153,7 @@ namespace MugenMvvm.Collections.Decorators
                 return true;
 
             var filterIndex = IndexOfKey(index);
-            UpdateFilterItems(index, -1);
+            UpdateIndexes(index, -1);
             if (filterIndex == -1)
                 return false;
 
@@ -225,7 +225,7 @@ namespace MugenMvvm.Collections.Decorators
             return Filter?.Invoke(value) ?? true;
         }
 
-        private void UpdateFilterItems(int index, int value)
+        private void UpdateIndexes(int index, int value)
         {
             if (_size == 0)
                 return;
