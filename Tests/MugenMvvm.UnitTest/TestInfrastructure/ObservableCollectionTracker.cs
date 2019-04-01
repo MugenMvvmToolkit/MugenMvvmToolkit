@@ -48,6 +48,10 @@ namespace MugenMvvm.UnitTest.TestInfrastructure
         {
         }
 
+        public void OnItemChanged(IObservableCollection<T> collection, T item, int index, object? args)
+        {            
+        }
+
         public void OnAdded(IObservableCollection<T> collection, T item, int index)
         {
             OnAddEvent(ChangedItems, new[] {item}, index);

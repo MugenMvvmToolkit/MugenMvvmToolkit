@@ -49,6 +49,8 @@ namespace MugenMvvm.UnitTest.TestInfrastructure
 
         public Action<IObservableCollection<T>, T, int> OnRemoved { get; set; }
 
+        public Action<IObservableCollection<T>, T, int, object?> OnItemChanged { get; set; }
+
         public Action<IObservableCollection<T>, IEnumerable<T>> OnReset { get; set; }
 
         public Action<IObservableCollection<T>> OnCleared { get; set; }
@@ -78,6 +80,11 @@ namespace MugenMvvm.UnitTest.TestInfrastructure
             if (OnEndBatchUpdate == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
             OnEndBatchUpdate?.Invoke(collection);
+        }
+
+        void IObservableCollectionChangedListener<T>.OnItemChanged(IObservableCollection<T> collection, T item, int index, object? args)
+        {
+            OnItemChanged?.Invoke(collection, item, index, args);
         }
 
         void IObservableCollectionChangedListener<T>.OnAdded(IObservableCollection<T> collection, T item, int index)

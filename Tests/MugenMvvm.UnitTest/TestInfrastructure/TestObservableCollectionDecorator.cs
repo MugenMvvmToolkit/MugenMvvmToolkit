@@ -9,19 +9,21 @@ namespace MugenMvvm.UnitTest.TestInfrastructure
     {
         #region Properties
 
-        public Func<IEnumerable<T>, IEnumerable<T>> DecorateItems { get; set; }
+        public Func<IEnumerable<T>, IEnumerable<T>>? DecorateItems { get; set; }
 
-        public FuncRef<T, int, bool> OnAdded { get; set; }
+        public FuncRef<T, int, bool>? OnAdded { get; set; }
 
-        public FuncRef<T, T, int, bool> OnReplaced { get; set; }
+        public FuncRef<T, T, int, bool>? OnReplaced { get; set; }
 
-        public FuncRef<T, int, int, bool> OnMoved { get; set; }
+        public FuncRef<T, int, int, bool>? OnMoved { get; set; }
 
-        public FuncRef<T, int, bool> OnRemoved { get; set; }
+        public FuncRef<T, int, bool>? OnRemoved { get; set; }
 
-        public FuncRef<IEnumerable<T>, bool> OnReset { get; set; }
+        public FuncRef<IEnumerable<T>, bool>? OnReset { get; set; }
 
-        public Func<bool> OnCleared { get; set; }
+        public FuncRef<T, int, object?, bool>? OnItemChanged { get; set; }
+
+        public Func<bool>? OnCleared { get; set; }
 
         public bool ThrowErrorNullDelegate { get; set; }
 
@@ -38,6 +40,13 @@ namespace MugenMvvm.UnitTest.TestInfrastructure
             if (DecorateItems == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
             return DecorateItems?.Invoke(items) ?? items;
+        }
+
+        bool IObservableCollectionDecorator<T>.OnItemChanged(ref T item, ref int index, ref object? args)
+        {
+            if (OnItemChanged == null && ThrowErrorNullDelegate)
+                throw new NotSupportedException();
+            return OnItemChanged?.Invoke(ref item, ref index, ref args) ?? true;
         }
 
         bool IObservableCollectionDecorator<T>.OnAdded(ref T item, ref int index)
