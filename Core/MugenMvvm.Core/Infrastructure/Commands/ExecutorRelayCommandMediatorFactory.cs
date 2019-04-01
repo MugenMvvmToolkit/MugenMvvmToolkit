@@ -55,7 +55,7 @@ namespace MugenMvvm.Infrastructure.Commands
             return new IRelayCommandMediator[]
             {
                 new ConditionEventRelayCommandMediator(ThreadDispatcher, notifiers, metadata.Get(RelayCommandMetadata.IgnoreProperties),
-                    metadata.Get(RelayCommandMetadata.EventThreadMode, EventThreadMode), relayCommand)
+                    metadata.Get(RelayCommandMetadata.EventThreadMode, EventThreadMode)!, relayCommand)
             };
         }
 

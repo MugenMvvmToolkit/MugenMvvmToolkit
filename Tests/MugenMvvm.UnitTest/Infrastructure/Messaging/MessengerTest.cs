@@ -177,9 +177,9 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
         [MemberData(nameof(GetExecutionModes))]
         public void PublishShouldNotifySubscriberWithThreadExecutionMode(ThreadExecutionMode mode)
         {
-            object sender = null;
-            object message = null;
-            IMessengerContext context = null;
+            object? sender = null;
+            object? message = null;
+            IMessengerContext? context = null;
             var listener = new TestSubscriber
             {
                 HandleDelegate = (o, o1, arg3) =>
@@ -190,7 +190,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
                     return MessengerSubscriberResult.Handled;
                 }
             };
-            ThreadExecutionMode executedMode = null;
+            ThreadExecutionMode? executedMode = null;
             var dispatcher = new TestThreadDispatcher
             {
                 ExecuteAction = (action, executionMode, arg3, ctx) =>
@@ -365,7 +365,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
 
             public Func<IMessengerSubscriber, int>? GetHashCodeDelegate { get; set; }
 
-            public Func<object, object, IMessengerContext, MessengerSubscriberResult> HandleDelegate { get; set; }
+            public Func<object, object, IMessengerContext, MessengerSubscriberResult>? HandleDelegate { get; set; }
 
             public List<object> Messages { get; } = new List<object>();
 
@@ -385,7 +385,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
                     Messages.Add(message);
                 }
 
-                return HandleDelegate(sender, message, messengerContext);
+                return HandleDelegate!(sender, message, messengerContext);
             }
 
             #endregion

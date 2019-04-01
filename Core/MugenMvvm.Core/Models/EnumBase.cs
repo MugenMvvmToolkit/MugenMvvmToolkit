@@ -7,7 +7,8 @@ using MugenMvvm.Enums;
 
 namespace MugenMvvm.Models
 {
-    [Serializable, DataContract(Namespace = BuildConstants.DataContractNamespace)]
+    [Serializable]
+    [DataContract(Namespace = BuildConstants.DataContractNamespace)]
     public class EnumBase<TEnumeration, TValue> : IComparable<TEnumeration?>, IEquatable<TEnumeration?>
         where TEnumeration : EnumBase<TEnumeration, TValue>
         where TValue : IComparable

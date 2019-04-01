@@ -26,7 +26,7 @@ namespace MugenMvvm.Infrastructure.Serialization
             TargetType = GetTarget<object>()?.GetType() ?? typeof(object);
         }
 
-        public SerializableWeakReference(object target)
+        public SerializableWeakReference(object? target)
             : this(MugenExtensions.GetWeakReference(target))
         {
         }

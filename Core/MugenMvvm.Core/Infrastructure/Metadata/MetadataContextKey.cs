@@ -114,7 +114,7 @@ namespace MugenMvvm.Infrastructure.Metadata
             private Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, object?, T>? _getValueFunc;
             private Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, object?, T, object?>? _setValueFunc;
             private Func<IMetadataContextKey<T>, object?, ISerializationContext, bool>? _canSerializeFunc;
-            private Func<IMetadataContextKey<T>, object?, ISerializationContext, object?> _serializableConverter;
+            private Func<IMetadataContextKey<T>, object?, ISerializationContext, object?>? _serializableConverter;
 
             #endregion
 
@@ -271,7 +271,7 @@ namespace MugenMvvm.Infrastructure.Metadata
             public T GetValue(IReadOnlyMetadataContext metadataContext, object? value)
             {
                 if (GetValueFunc == null)
-                    return (T)value;
+                    return (T)value!;
                 return GetValueFunc(metadataContext, this, value);
             }
 

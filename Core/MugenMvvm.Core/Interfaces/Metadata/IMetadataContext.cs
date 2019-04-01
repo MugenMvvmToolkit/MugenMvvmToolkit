@@ -5,7 +5,7 @@ using MugenMvvm.Infrastructure.Metadata;
 
 namespace MugenMvvm.Interfaces.Metadata
 {
-    public interface IMetadataContext : IReadOnlyMetadataContext
+    public interface IMetadataContext : IReadOnlyMetadataContext//todo add extensions
     {
         T AddOrUpdate<T, TState1, TState2>(IMetadataContextKey<T> contextKey, T addValue, TState1 state1, TState2 state2,
             UpdateValueDelegate<IMetadataContext, T, T, TState1, TState2> updateValueFactory);

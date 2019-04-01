@@ -46,20 +46,20 @@ namespace MugenMvvm
         }
 
         [DebuggerStepThrough]
-        public static void BeOfType(object instance, string paramName, Type requiredType)
+        public static void BeOfType([EnsuresNotNull]object instance, string paramName, Type requiredType)
         {
             NotBeNull(instance, paramName);
             BeOfType(instance.GetType(), paramName, requiredType);
         }
 
         [DebuggerStepThrough]
-        public static void BeOfType<T>(object instance, string paramName)
+        public static void BeOfType<T>([EnsuresNotNull]object instance, string paramName)
         {
             BeOfType(instance, paramName, typeof(T));
         }
 
         [DebuggerStepThrough]
-        public static void BeOfType(Type type, string paramName, Type requiredType)
+        public static void BeOfType([EnsuresNotNull]Type type, string paramName,[EnsuresNotNull] Type requiredType)
         {
             NotBeNull(type, nameof(type));
             NotBeNull(requiredType, nameof(requiredType));
@@ -68,7 +68,7 @@ namespace MugenMvvm
         }
 
         [DebuggerStepThrough, AssertionMethod]
-        public static void MethodBeSupported([AssertionCondition(AssertionConditionType.IS_TRUE)]bool isSupported, string methodName)
+        public static void MethodBeSupported([AssertionCondition(AssertionConditionType.IS_TRUE), AssertsTrue]bool isSupported, string methodName)
         {
             BeSupported(isSupported, MessageConstants.ShouldMethodBeSupportedFormat1.Format(methodName));
         }

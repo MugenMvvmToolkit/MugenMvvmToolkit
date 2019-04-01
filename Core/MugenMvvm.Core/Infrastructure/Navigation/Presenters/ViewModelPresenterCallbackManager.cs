@@ -126,7 +126,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             if (key == null)
                 ExceptionManager.ThrowEnumOutOfRange(nameof(callbackType), callbackType);
 
-            var callbacks = viewModel.Metadata.GetOrAdd(key, (object)null, (object)null, (context, o, arg3) => new List<INavigationCallbackInternal>());
+            var callbacks = viewModel.Metadata.GetOrAdd(key!, (object?)null, (object?)null, (context, o, arg3) => new List<INavigationCallbackInternal?>())!;
             lock (callback)
             {
                 callbacks.Add(callback);
@@ -139,12 +139,12 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         {
             if (navigationContext.NavigationMode.IsClose)
             {
-                InvokeCallbacks(navigationContext, true, NavigationInternalMetadata.ShowingCallbacks, Default.TrueObject, null, false);
-                InvokeCallbacks(navigationContext, true, NavigationInternalMetadata.ClosingCallbacks, Default.TrueObject, null, false);
+                InvokeCallbacks(navigationContext, true, NavigationInternalMetadata.ShowingCallbacks!, Default.TrueObject, null, false);
+                InvokeCallbacks(navigationContext, true, NavigationInternalMetadata.ClosingCallbacks!, Default.TrueObject, null, false);
                 InvokeCallbacks(navigationContext, true, NavigationInternalMetadata.CloseCallbacks, Default.TrueObject, null, false);
             }
             else
-                InvokeCallbacks(navigationContext, false, NavigationInternalMetadata.ShowingCallbacks, Default.TrueObject, null, false);
+                InvokeCallbacks(navigationContext, false, NavigationInternalMetadata.ShowingCallbacks!, Default.TrueObject, null, false);
         }
 
         protected virtual void OnNavigationFailedInternal(INavigationContext navigationContext, Exception exception)
@@ -160,7 +160,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         protected virtual void OnNavigatingCanceledInternal(INavigationContext navigationContext)
         {
             if (navigationContext.NavigationMode.IsClose)
-                InvokeCallbacks(navigationContext, true, NavigationInternalMetadata.ClosingCallbacks, Default.FalseObject, null, false);
+                InvokeCallbacks(navigationContext, true, NavigationInternalMetadata.ClosingCallbacks!, Default.FalseObject, null, false);
         }
 
         protected virtual IReadOnlyList<INavigationCallback> GetCallbacksInternal(INavigationEntry navigationEntry, NavigationCallbackType? callbackType,
@@ -169,8 +169,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             List<INavigationCallback>? callbacks = null;
             if (callbackType == null)
             {
-                AddEntryCallbacks(navigationEntry, NavigationInternalMetadata.ShowingCallbacks, ref callbacks);
-                AddEntryCallbacks(navigationEntry, NavigationInternalMetadata.ClosingCallbacks, ref callbacks);
+                AddEntryCallbacks(navigationEntry, NavigationInternalMetadata.ShowingCallbacks!, ref callbacks);
+                AddEntryCallbacks(navigationEntry, NavigationInternalMetadata.ClosingCallbacks!, ref callbacks);
                 AddEntryCallbacks(navigationEntry, NavigationInternalMetadata.CloseCallbacks, ref callbacks);
             }
             else
@@ -188,9 +188,9 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         protected virtual IMetadataContextKey<IList<INavigationCallbackInternal?>?>? GetKeyByCallback(NavigationCallbackType callbackType)
         {
             if (callbackType == NavigationCallbackType.Showing)
-                return NavigationInternalMetadata.ShowingCallbacks;
+                return NavigationInternalMetadata.ShowingCallbacks!;
             if (callbackType == NavigationCallbackType.Closing)
-                return NavigationInternalMetadata.ClosingCallbacks;
+                return NavigationInternalMetadata.ClosingCallbacks!;
             if (callbackType == NavigationCallbackType.Close)
                 return NavigationInternalMetadata.CloseCallbacks;
             return null;
@@ -210,8 +210,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 listeners[i].OnCallbackExecuted(this, viewModel, callback, navigationContext);
         }
 
-        protected void InvokeCallbacks(INavigationContext navigationContext, bool isFromNavigation, IMetadataContextKey<IList<INavigationCallbackInternal?>?> key, object result,
-            Exception exception, bool canceled)
+        protected void InvokeCallbacks(INavigationContext navigationContext, bool isFromNavigation, IMetadataContextKey<IList<INavigationCallbackInternal?>?> key, object? result, Exception? exception, bool canceled)
         {
             IViewModelBase? viewModel;
             NavigationType navigationType;
@@ -226,12 +225,11 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 navigationType = navigationContext.NavigationTypeTo;
             }
 
-            if (viewModel == null)
-                return;
-            var callbacks = viewModel.Metadata.Get(key);
+            var callbacks = viewModel?.Metadata.Get(key);
             if (callbacks == null)
                 return;
-            List<INavigationCallbackInternal> toInvoke = null;
+
+            List<INavigationCallbackInternal>? toInvoke = null;
             lock (callbacks)
             {
                 for (var i = 0; i < callbacks.Count; i++)
@@ -263,7 +261,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                     callback.SetCanceled(navigationContext);
                 else
                     callback.SetResult(result, navigationContext);
-                OnCallbackExecuted(viewModel, callback, navigationContext);
+                OnCallbackExecuted(viewModel!, callback, navigationContext);
             }
         }
 
@@ -276,26 +274,25 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         {
             if (navigationContext.NavigationMode.IsClose)
             {
-                InvokeCallbacks(navigationContext, true, NavigationInternalMetadata.ClosingCallbacks, Default.FalseObject, e, canceled);
+                InvokeCallbacks(navigationContext, true, NavigationInternalMetadata.ClosingCallbacks!, Default.FalseObject, e, canceled);
                 if (!canceled)
                 {
-                    InvokeCallbacks(navigationContext, true, NavigationInternalMetadata.ShowingCallbacks, Default.FalseObject, e, false);
+                    InvokeCallbacks(navigationContext, true, NavigationInternalMetadata.ShowingCallbacks!, Default.FalseObject, e, false);
                     InvokeCallbacks(navigationContext, true, NavigationInternalMetadata.CloseCallbacks, Default.FalseObject, e, false);
                 }
             }
             else
             {
-                InvokeCallbacks(navigationContext, false, NavigationInternalMetadata.ShowingCallbacks, Default.FalseObject, e, canceled);
+                InvokeCallbacks(navigationContext, false, NavigationInternalMetadata.ShowingCallbacks!, Default.FalseObject, e, canceled);
                 if (navigationContext.NavigationMode.IsNew || !canceled)
                 {
-                    InvokeCallbacks(navigationContext, false, NavigationInternalMetadata.ClosingCallbacks, Default.FalseObject, e, canceled);
+                    InvokeCallbacks(navigationContext, false, NavigationInternalMetadata.ClosingCallbacks!, Default.FalseObject, e, canceled);
                     InvokeCallbacks(navigationContext, false, NavigationInternalMetadata.CloseCallbacks, Default.FalseObject, e, canceled);
                 }
             }
         }
 
-        private static void AddEntryCallbacks(INavigationEntry navigationEntry, IMetadataContextKey<IList<INavigationCallbackInternal?>?> key,
-            ref List<INavigationCallback>? callbacks)
+        private static void AddEntryCallbacks(INavigationEntry navigationEntry, IMetadataContextKey<IList<INavigationCallbackInternal?>?> key, ref List<INavigationCallback>? callbacks)
         {
             var list = navigationEntry.ViewModel.Metadata.Get(key);
             if (list == null)
@@ -304,7 +301,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 callbacks = new List<INavigationCallback>();
             lock (list)
             {
-                callbacks.AddRange(list.Where(c => c != null));
+                callbacks.AddRange(list.Where(c => c != null)!);
             }
         }
 
@@ -317,7 +314,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             #region Fields
 
             private readonly ViewModelPresenterCallbackManager _callbackManager;
-            private readonly List<KeyValuePair<INavigationContext, object>> _suspendedEvents;
+            private readonly List<KeyValuePair<INavigationContext, object?>> _suspendedEvents;
             private int _suspendCount;
 
             #endregion
@@ -327,7 +324,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             public NavigationDispatcherListener(ViewModelPresenterCallbackManager callbackManager)
             {
                 _callbackManager = callbackManager;
-                _suspendedEvents = new List<KeyValuePair<INavigationContext, object>>();
+                _suspendedEvents = new List<KeyValuePair<INavigationContext, object?>>();
             }
 
             #endregion
@@ -336,7 +333,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
             public void Dispose()
             {
-                KeyValuePair<INavigationContext, object>[] events;
+                KeyValuePair<INavigationContext, object?>[] events;
                 lock (_suspendedEvents)
                 {
                     if (--_suspendCount != 0)
@@ -349,13 +346,13 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 {
                     var pair = events[i];
                     if (pair.Value == null)
-                        OnNavigated(null, pair.Key);
+                        OnNavigated(null!, pair.Key);
                     else if (pair.Value is Exception e)
-                        OnNavigationFailed(null, pair.Key, e);
+                        OnNavigationFailed(null!, pair.Key, e);
                     else if (ReferenceEquals(pair.Key, pair.Value))
-                        OnNavigationCanceled(null, pair.Key);
+                        OnNavigationCanceled(null!, pair.Key);
                     else
-                        OnNavigatingCanceled(null, pair.Key);
+                        OnNavigatingCanceled(null!, pair.Key);
                 }
             }
 
@@ -387,7 +384,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 {
                     if (_suspendCount != 0)
                     {
-                        _suspendedEvents.Add(new KeyValuePair<INavigationContext, object>(navigationContext, null));
+                        _suspendedEvents.Add(new KeyValuePair<INavigationContext, object?>(navigationContext, null));
                         return;
                     }
                 }
@@ -401,7 +398,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 {
                     if (_suspendCount != 0)
                     {
-                        _suspendedEvents.Add(new KeyValuePair<INavigationContext, object>(navigationContext, exception));
+                        _suspendedEvents.Add(new KeyValuePair<INavigationContext, object?>(navigationContext, exception));
                         return;
                     }
                 }
@@ -415,7 +412,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 {
                     if (_suspendCount != 0)
                     {
-                        _suspendedEvents.Add(new KeyValuePair<INavigationContext, object>(navigationContext, navigationContext));
+                        _suspendedEvents.Add(new KeyValuePair<INavigationContext, object?>(navigationContext, navigationContext));
                         return;
                     }
                 }
@@ -429,7 +426,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 {
                     if (_suspendCount != 0)
                     {
-                        _suspendedEvents.Add(new KeyValuePair<INavigationContext, object>(navigationContext, _suspendedEvents));
+                        _suspendedEvents.Add(new KeyValuePair<INavigationContext, object?>(navigationContext, _suspendedEvents));
                         return;
                     }
                 }

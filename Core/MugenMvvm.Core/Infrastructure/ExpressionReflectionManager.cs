@@ -16,7 +16,7 @@ namespace MugenMvvm.Infrastructure
     {
         #region Fields
 
-        private static readonly Dictionary<ConstructorInfo, Func<object[], object>> ActivatorCache;
+        private static readonly Dictionary<ConstructorInfo, Func<object?[], object>> ActivatorCache;
         private static readonly Dictionary<MethodInfo, Func<object?, object?[], object?>> InvokeMethodCache;
         private static readonly Dictionary<MethodDelegateCacheKey, Delegate> InvokeMethodCacheDelegate;
         private static readonly Dictionary<MemberInfoDelegateCacheKey, Delegate> MemberGetterCache;
@@ -30,7 +30,7 @@ namespace MugenMvvm.Infrastructure
 
         static ExpressionReflectionManager()
         {
-            ActivatorCache = new Dictionary<ConstructorInfo, Func<object[], object>>(MemberInfoEqualityComparer.Instance);
+            ActivatorCache = new Dictionary<ConstructorInfo, Func<object?[], object>>(MemberInfoEqualityComparer.Instance);
             InvokeMethodCache = new Dictionary<MethodInfo, Func<object?, object?[], object?>>(MemberInfoEqualityComparer.Instance);
             InvokeMethodCacheDelegate = new Dictionary<MethodDelegateCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
             MemberGetterCache = new Dictionary<MemberInfoDelegateCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
@@ -48,7 +48,7 @@ namespace MugenMvvm.Infrastructure
 
         #region Implementation of interfaces
 
-        public Func<object[], object> GetActivatorDelegate(ConstructorInfo constructor)
+        public Func<object?[], object> GetActivatorDelegate(ConstructorInfo constructor)
         {
             Should.NotBeNull(constructor, nameof(constructor));
             return GetActivatorDelegateInternal(constructor);
@@ -83,7 +83,7 @@ namespace MugenMvvm.Infrastructure
 
         #region Methods
 
-        protected virtual Func<object[], object> GetActivatorDelegateInternal(ConstructorInfo constructor)
+        protected virtual Func<object?[], object> GetActivatorDelegateInternal(ConstructorInfo constructor)
         {
             lock (ActivatorCache)
             {
@@ -91,7 +91,7 @@ namespace MugenMvvm.Infrastructure
                 {
                     Expression[] expressions = GetParametersExpression(constructor, out var parameterExpression);
                     Expression newExpression = ConvertIfNeed(Expression.New(constructor, expressions), typeof(object), false);
-                    value = Expression.Lambda<Func<object[], object>>(newExpression, parameterExpression).Compile();
+                    value = Expression.Lambda<Func<object?[], object>>(newExpression, parameterExpression).Compile();
                 }
                 ActivatorCache[constructor] = value;
                 return value;
@@ -125,7 +125,7 @@ namespace MugenMvvm.Infrastructure
             }
         }
 
-        protected virtual Action<object, TType> GetMemberSetterInternal<TType>(MemberInfo member)
+        protected virtual Action<object?, TType> GetMemberSetterInternal<TType>(MemberInfo member)
         {
             var key = new MemberInfoDelegateCacheKey(member, typeof(TType));
             lock (MemberSetterCache)
@@ -136,14 +136,14 @@ namespace MugenMvvm.Infrastructure
                     var fieldInfo = member as FieldInfo;
                     if (declaringType.IsValueTypeUnified())
                     {
-                        Action<object, TType> result;
+                        Action<object?, TType> result;
                         if (fieldInfo == null)
                         {
                             var propertyInfo = (PropertyInfo)member;
-                            result = propertyInfo.SetValue<TType>;
+                            result = new Action<object?, TType>(propertyInfo.SetValue<TType>);
                         }
                         else
-                            result = fieldInfo.SetValue<TType>;
+                            result = new Action<object?, TType>(fieldInfo.SetValue<TType>);
                         MemberSetterCache[key] = result;
                         return result;
                     }
@@ -155,7 +155,7 @@ namespace MugenMvvm.Infrastructure
                     if (fieldInfo == null)
                     {
                         var propertyInfo = member as PropertyInfo;
-                        MethodInfo setMethod = null;
+                        MethodInfo? setMethod = null;
                         if (propertyInfo != null)
                             setMethod = propertyInfo.GetSetMethodUnified(true);
                         Should.MethodBeSupported(propertyInfo != null && setMethod != null, MessageConstants.ShouldSupportOnlyFieldsReadonlyFields);
@@ -172,7 +172,7 @@ namespace MugenMvvm.Infrastructure
                         .Compile();
                     MemberSetterCache[key] = action;
                 }
-                return (Action<object, TType>)action;
+                return (Action<object?, TType>)action;
             }
         }
 
@@ -304,10 +304,10 @@ namespace MugenMvvm.Infrastructure
             return argsExp;
         }
 
-        internal static Expression ConvertIfNeed(Expression expression, Type type, bool exactly)
+        internal static Expression ConvertIfNeed(Expression? expression, Type type, bool exactly)
         {
             if (expression == null)
-                return null;
+                return null!;
             if (type.EqualsEx(typeof(void)) || type.EqualsEx(expression.Type))
                 return expression;
             if (!exactly && !expression.Type.IsValueTypeUnified() && !type.IsValueTypeUnified() && type.IsAssignableFromUnified(expression.Type))

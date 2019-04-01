@@ -197,7 +197,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
         {
             #region Properties
 
-            public Action<object, string, IMessengerContext> HandleFunc { get; set; }
+            public Action<object, string, IMessengerContext>? HandleFunc { get; set; }
 
             #endregion
 
@@ -205,7 +205,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
 
             public void Handle(object arg1, string arg2, IMessengerContext arg3)
             {
-                HandleFunc(arg1, arg2, arg3);
+                HandleFunc!(arg1, arg2, arg3);
             }
 
             #endregion

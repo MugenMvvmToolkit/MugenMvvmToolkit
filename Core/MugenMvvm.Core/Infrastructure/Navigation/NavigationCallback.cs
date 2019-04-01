@@ -10,7 +10,7 @@ using MugenMvvm.Interfaces.Navigation;
 namespace MugenMvvm.Infrastructure.Navigation
 {
     [Serializable, DataContract(Namespace = BuildConstants.DataContractNamespace), Preserve(Conditional = true, AllMembers = true)]
-    public sealed class NavigationCallback : INavigationCallback<bool>, INavigationCallbackInternal
+    public sealed class NavigationCallback : INavigationCallback<bool>, INavigationCallbackInternal//todo generic?
     {
         #region Fields
 
@@ -75,7 +75,7 @@ namespace MugenMvvm.Infrastructure.Navigation
             return TaskCompletionSource.Task;
         }
 
-        void INavigationCallbackInternal.SetResult(object result, INavigationContext? navigationContext)
+        void INavigationCallbackInternal.SetResult(object? result, INavigationContext? navigationContext)
         {
             TaskCompletionSource.TrySetResult((bool?)result ?? false);
         }

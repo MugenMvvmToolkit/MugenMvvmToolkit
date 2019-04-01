@@ -84,7 +84,7 @@ namespace MugenMvvm.Collections.Decorators
                 return true;
 
             RemoveAt(filterIndex);
-            _decoratorManager.OnRemoved(this, item, filterIndex);
+            _decoratorManager!.OnRemoved(this, item, filterIndex);
             return false;
         }
 
@@ -110,7 +110,7 @@ namespace MugenMvvm.Collections.Decorators
             if (filterIndex == -1)
             {
                 if (FilterInternal(newItem))
-                    _decoratorManager.OnAdded(this, newItem, Add(index, newItem));
+                    _decoratorManager!.OnAdded(this, newItem, Add(index, newItem));
 
                 return false;
             }
@@ -125,7 +125,7 @@ namespace MugenMvvm.Collections.Decorators
 
             var oldValue = GetValue(filterIndex);
             RemoveAt(filterIndex);
-            _decoratorManager.OnRemoved(this, oldValue, filterIndex);
+            _decoratorManager!.OnRemoved(this, oldValue, filterIndex);
             return false;
         }
 
@@ -302,7 +302,7 @@ namespace MugenMvvm.Collections.Decorators
             }
 
             _keys[_size] = default;
-            _values[_size] = default;
+            _values[_size] = default!;
         }
 
         private void EnsureCapacity(int min)

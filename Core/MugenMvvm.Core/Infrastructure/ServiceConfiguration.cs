@@ -61,11 +61,17 @@ namespace MugenMvvm.Infrastructure
 
         public static void Initialize(IHasService<TService>? serviceConfiguration)
         {
-            Initialize(service: null);
+            InitializeInternal(null);
             _serviceConfiguration = serviceConfiguration;
         }
 
         public static void Initialize(TService service)
+        {
+            Should.NotBeNull(service, nameof(service));
+            InitializeInternal(service);
+        }
+
+        private static void InitializeInternal(TService? service)
         {
             _serviceConfiguration = null;
             _service = service;

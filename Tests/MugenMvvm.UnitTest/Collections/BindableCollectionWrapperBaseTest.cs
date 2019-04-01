@@ -61,7 +61,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Fact]
         public void ShouldTrackChangesThreadDispatcher()
         {
-            Action action = null;
+            Action? action = null;
             var dispatcher = (TestThreadDispatcher)Service<IThreadDispatcher>.Instance;
             dispatcher.CanExecute = mode => false;
             dispatcher.ExecuteHandler = (handler, mode, arg3, arg4) => { action += () => handler.Execute(arg3); };
@@ -84,7 +84,8 @@ namespace MugenMvvm.UnitTest.Collections
             tracker.ChangedItems.Count.ShouldEqual(0);
             bindableCollectionWrapper.Count.ShouldEqual(0);
 
-            action();
+            action.ShouldNotBeNull();
+            action!();
             tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
             bindableCollectionWrapper.SequenceEqual(observableCollection).ShouldBeTrue();
         }

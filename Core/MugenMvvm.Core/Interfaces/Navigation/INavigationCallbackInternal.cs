@@ -6,7 +6,7 @@ namespace MugenMvvm.Interfaces.Navigation
     {
         bool IsSerializable { get; }
 
-        void SetResult(object result, INavigationContext? navigationContext);
+        void SetResult(object? result, INavigationContext? navigationContext);
 
         void SetException(Exception exception, INavigationContext? navigationContext);
 

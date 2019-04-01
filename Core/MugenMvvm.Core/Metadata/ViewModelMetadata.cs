@@ -16,7 +16,7 @@ namespace MugenMvvm.Metadata
         private static IMetadataContextKey<ViewModelLifecycleState> _lifecycleState;
         private static IMetadataContextKey<bool> _broadcastAllMessages;
         private static IMetadataContextKey<BusyMessageHandlerType> _busyMessageHandlerType;
-        private static IMetadataContextKey<IViewModelBase> _parentViewModel;
+        private static IMetadataContextKey<IViewModelBase?> _parentViewModel;
         private static IMetadataContextKey<bool> _noState;
         private static IMetadataContextKey<Func<IViewModelBase, IReadOnlyMetadataContext, IChildViewModelPresenterResult>?> _closeHandler;
 
@@ -83,8 +83,8 @@ namespace MugenMvvm.Metadata
                     _parentViewModel = GetBuilder<IViewModelBase?>(nameof(ParentViewModel))
                         .NotNull()
                         .Serializable()
-                        .Getter((context, k, o) => ((SerializableWeakReference)o).GetTarget<IViewModelBase>())
-                        .Setter((context, k, oldValue, newValue) => new SerializableWeakReference(newValue))
+                        .Getter((context, k, o) => (o as SerializableWeakReference)?.GetTarget<IViewModelBase>())
+                        .Setter((context, k, oldValue, newValue) => newValue == null ? null : new SerializableWeakReference(newValue))
                         .Build();
                 }
 

@@ -236,7 +236,7 @@ namespace MugenMvvm.Infrastructure.Commands
                 return false;
             if (canExecuteDelegate is Func<bool> func)
                 return func();
-            return ((Func<T, bool>)canExecuteDelegate).Invoke((T)parameter);
+            return ((Func<T, bool>)canExecuteDelegate).Invoke((T)parameter!);
         }
 
         protected virtual Task ExecuteInternalAsync(object? parameter)
@@ -267,13 +267,13 @@ namespace MugenMvvm.Infrastructure.Commands
 
             if (executeAction is Action<T> genericExecute)
             {
-                genericExecute((T)parameter);
+                genericExecute((T)parameter!);
                 return Default.CompletedTask;
             }
 
             if (executeAction is Func<Task> executeTask)
                 return executeTask();
-            return ((Func<T, Task>)executeAction).Invoke((T)parameter);
+            return ((Func<T, Task>)executeAction).Invoke((T)parameter!);
         }
 
         #endregion

@@ -12,11 +12,11 @@ using MugenMvvm.Interfaces.Views.Infrastructure;
 namespace MugenMvvm.Infrastructure.Navigation
 {
     public abstract class NavigationMediatorBase<TView> : INavigationMediator, IApplicationStateAwareNavigationProvider
-        where TView : class ?
+        where TView : class
     {
         #region Fields
 
-        private CancelEventArgs _cancelArgs;
+        private CancelEventArgs? _cancelArgs;
         private INavigationContext? _closingContext;
         private bool _shouldClose;
         private INavigationContext? _showingContext;
@@ -54,7 +54,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         protected IThreadDispatcher ThreadDispatcher { get; }
 
-        protected TView View { get; private set; }
+        protected TView? View { get; private set; }
 
         protected bool IsClosing => _closingContext != null;
 
@@ -271,13 +271,13 @@ namespace MugenMvvm.Infrastructure.Navigation
             {
                 try
                 {
-                    _showingContext = (INavigationContext)o;
+                    _showingContext = (INavigationContext)o!;
                     ShowView(_showingContext.Metadata);
                 }
                 catch (Exception e)
                 {
                     _showingContext = null;
-                    NavigationDispatcher.OnNavigationFailed((INavigationContext)o, e);
+                    NavigationDispatcher.OnNavigationFailed((INavigationContext)o!, e);
                     throw;
                 }
             }, ThreadExecutionMode.Main, navigationContext);
@@ -313,9 +313,9 @@ namespace MugenMvvm.Infrastructure.Navigation
             }
         }
 
-        private void RefreshCallback(object state)
+        private void RefreshCallback(object? state)
         {
-            var ctx = NavigationDispatcher.ContextFactory.GetNavigationContextTo(this, NavigationMode.Refresh, NavigationType, ViewModel, (IReadOnlyMetadataContext)state);
+            var ctx = NavigationDispatcher.ContextFactory.GetNavigationContextTo(this, NavigationMode.Refresh, NavigationType, ViewModel, (IReadOnlyMetadataContext)state!);
             try
             {
                 _showingContext = ctx;
@@ -333,9 +333,9 @@ namespace MugenMvvm.Infrastructure.Navigation
             }
         }
 
-        private void CloseViewCallback(object state)
+        private void CloseViewCallback(object? state)
         {
-            var navigationContext = (INavigationContext)state;
+            var navigationContext = (INavigationContext)state!;
             try
             {
                 if (_cancelArgs != null)

@@ -36,7 +36,7 @@ namespace MugenMvvm.Collections
 
         #region Properties
 
-        public ICollection<T> WrappedCollection { get; private set; }
+        public ICollection<T>? WrappedCollection { get; private set; }
 
         protected List<CollectionChangedEvent> Events { get; }
 
@@ -137,7 +137,7 @@ namespace MugenMvvm.Collections
             if (ThreadDispatcher.CanExecute(ExecutionMode))
                 OnBeginBatchUpdateImpl();
             else
-                ThreadDispatcher.Execute(o => ((BindableCollectionWrapperBase<T>)o).OnBeginBatchUpdateImpl(), ExecutionMode, this);
+                ThreadDispatcher.Execute(o => ((BindableCollectionWrapperBase<T>)o!).OnBeginBatchUpdateImpl(), ExecutionMode, this);
         }
 
         protected void OnEndBatchUpdate()
@@ -145,7 +145,7 @@ namespace MugenMvvm.Collections
             if (ThreadDispatcher.CanExecute(ExecutionMode))
                 OnEndBatchUpdateImpl();
             else
-                ThreadDispatcher.Execute(o => ((BindableCollectionWrapperBase<T>)o).OnEndBatchUpdateImpl(), ExecutionMode, this);
+                ThreadDispatcher.Execute(o => ((BindableCollectionWrapperBase<T>)o!).OnEndBatchUpdateImpl(), ExecutionMode, this);
         }
 
         protected void OnItemChanged(T item, int index, object? args)
@@ -180,14 +180,14 @@ namespace MugenMvvm.Collections
 
         protected void OnReset(IEnumerable<T> items)
         {
-            var e = new CollectionChangedEvent(CollectionChangedAction.Reset, default, default, -1, -1,
+            var e = new CollectionChangedEvent(CollectionChangedAction.Reset, default!, default!, -1, -1,
                 ThreadDispatcher.CanExecute(ExecutionMode) && !IsSuspended ? items : items.ToArray());
             AddEvent(ref e);
         }
 
         protected void OnCleared()
         {
-            var e = new CollectionChangedEvent(CollectionChangedAction.Clear, default, default, -1, -1, null);
+            var e = new CollectionChangedEvent(CollectionChangedAction.Clear, default!, default!, -1, -1, null);
             AddEvent(ref e);
         }
 
@@ -334,7 +334,7 @@ namespace MugenMvvm.Collections
 
         protected IEnumerable<T> GetCollectionItems()
         {
-            return (WrappedCollection as IObservableCollection<T>)?.DecorateItems() ?? WrappedCollection;
+            return (WrappedCollection as IObservableCollection<T>)?.DecorateItems() ?? WrappedCollection ?? Default.EmptyArray<T>();
         }
 
         private void AddEventRaw(ref CollectionChangedEvent collectionChangedEvent)
@@ -413,7 +413,7 @@ namespace MugenMvvm.Collections
                 case NotifyCollectionChangedAction.Replace:
                     return e.OldItems.Count != 1;
                 case NotifyCollectionChangedAction.Reset:
-                    return WrappedCollection.Count != 0;
+                    return WrappedCollection != null && WrappedCollection.Count != 0;
                 default:
                     ExceptionManager.ThrowEnumOutOfRange(nameof(e.Action), e.Action);
                     return false;
@@ -456,7 +456,7 @@ namespace MugenMvvm.Collections
 
             public void Execute(object? state)
             {
-                ((BindableCollectionWrapperBase<T>)state).AddEventInternal(ref this);
+                ((BindableCollectionWrapperBase<T>)state!).AddEventInternal(ref this);
             }
 
             public void Raise(BindableCollectionWrapperBase<T> listener, bool batch)
@@ -479,7 +479,7 @@ namespace MugenMvvm.Collections
                         listener.OnClearedInternal(batch);
                         break;
                     case CollectionChangedAction.Reset:
-                        listener.OnResetInternal((IEnumerable<T>)State, batch);
+                        listener.OnResetInternal((IEnumerable<T>)State!, batch);
                         break;
                     case CollectionChangedAction.Changed:
                         listener.OnItemChangedInternal(OldItem, OldIndex, State, batch);

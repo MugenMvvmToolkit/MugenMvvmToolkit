@@ -166,8 +166,8 @@ namespace MugenMvvm.Collections
                         _entries[index2].Next = _entries[index3].Next;
                     _entries[index3].HashCode = -1;
                     _entries[index3].Next = _freeList;
-                    _entries[index3].Key = default;
-                    _entries[index3].Value = default;
+                    _entries[index3].Key = default!;
+                    _entries[index3].Value = default!;
                     _freeList = index3;
                     ++_freeCount;
 
@@ -191,7 +191,7 @@ namespace MugenMvvm.Collections
                 return true;
             }
 
-            value = default;
+            value = default!;
             return false;
         }
 

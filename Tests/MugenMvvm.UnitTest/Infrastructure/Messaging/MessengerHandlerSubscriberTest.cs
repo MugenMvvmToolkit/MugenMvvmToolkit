@@ -132,11 +132,11 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
         {
             #region Properties
 
-            public Action<object, int, IMessengerContext> IntHandle { get; set; }
+            public Action<object, int, IMessengerContext>? IntHandle { get; set; }
 
-            public Action<object, object, IMessengerContext> ObjectHandle { get; set; }
+            public Action<object, object, IMessengerContext>? ObjectHandle { get; set; }
 
-            public Action<object, string, IMessengerContext> StringHandle { get; set; }
+            public Action<object, string, IMessengerContext>? StringHandle { get; set; }
 
             #endregion
 
@@ -144,17 +144,17 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
 
             void IMessengerHandler<int>.Handle(object sender, int message, IMessengerContext messengerContext)
             {
-                IntHandle(sender, message, messengerContext);
+                IntHandle!(sender, message, messengerContext);
             }
 
             void IMessengerHandler<object>.Handle(object sender, object message, IMessengerContext messengerContext)
             {
-                ObjectHandle(sender, message, messengerContext);
+                ObjectHandle!(sender, message, messengerContext);
             }
 
             void IMessengerHandler<string>.Handle(object sender, string message, IMessengerContext messengerContext)
             {
-                StringHandle(sender, message, messengerContext);
+                StringHandle!(sender, message, messengerContext);
             }
 
             #endregion

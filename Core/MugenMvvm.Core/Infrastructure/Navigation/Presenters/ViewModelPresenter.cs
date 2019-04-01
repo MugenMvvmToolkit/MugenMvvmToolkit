@@ -70,7 +70,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 if (result == null)
                     ExceptionManager.ThrowPresenterCannotShowRequest(metadata.Dump());
 
-                return OnShownInternal(metadata, result);
+                return OnShownInternal(metadata, result!);
             }
         }
 
@@ -124,10 +124,10 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 if (viewModel == null)
                     ExceptionManager.ThrowPresenterInvalidRequest(metadata.Dump() + result.Metadata.Dump());
 
-                var showingCallback = CallbackManager.AddCallback(viewModel, NavigationCallbackType.Showing, result, metadata);
-                var closeCallback = CallbackManager.AddCallback(viewModel, NavigationCallbackType.Close, result, metadata);
+                var showingCallback = CallbackManager.AddCallback(viewModel!, NavigationCallbackType.Showing, result, metadata);
+                var closeCallback = CallbackManager.AddCallback(viewModel!, NavigationCallbackType.Close, result, metadata);
 
-                r = new ViewModelPresenterResult(viewModel, showingCallback, closeCallback, result);
+                r = new ViewModelPresenterResult(viewModel!, showingCallback, closeCallback, result);
             }
 
             var listeners = GetListeners();
@@ -170,7 +170,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                     if (viewModel == null)
                         ExceptionManager.ThrowPresenterInvalidRequest(metadata.Dump() + result.Metadata.Dump());
 
-                    var callback = CallbackManager.AddCallback(viewModel, NavigationCallbackType.Closing, result, metadata);
+                    var callback = CallbackManager.AddCallback(viewModel!, NavigationCallbackType.Closing, result, metadata);
                     r.Add(new ClosingViewModelPresenterResult((INavigationCallback<bool>)callback, result));
                 }
             }

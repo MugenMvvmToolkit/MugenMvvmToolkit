@@ -6,7 +6,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Commands
 {
-    public interface IRelayCommandDispatcher : IHasListeners<IRelayCommandDispatcherListener>
+    public interface IRelayCommandDispatcher : IHasListeners<IRelayCommandDispatcherListener>//todo review
     {
         IExecutorRelayCommandMediatorFactory ExecutorMediatorFactory { get; }
 

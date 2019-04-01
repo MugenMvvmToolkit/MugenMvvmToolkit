@@ -97,7 +97,7 @@ namespace MugenMvvm.Infrastructure.IoC
             return Resolve(service, parameters);
         }
 
-        IEnumerable<object> IIoCContainer.GetAll(Type service, string? name = null, IReadOnlyCollection<IIoCParameter>? parameters = null)
+        IEnumerable<object> IIoCContainer.GetAll(Type service, string? name, IReadOnlyCollection<IIoCParameter>? parameters)
         {
             NotBeDisposed();
             Should.NotBeNull(service, nameof(service));
@@ -237,19 +237,19 @@ namespace MugenMvvm.Infrastructure.IoC
                 return _parent.GetAll(service, name, parameters);
 
             if (TryResolve(service, parameters, out var value))
-                return new[] {value};
+                return new[] { value! };
             return Default.EmptyArray<object>();
         }
 
         private object Resolve(Type service, IReadOnlyCollection<IIoCParameter>? parameters)
         {
             if (TryResolve(service, parameters, out var value))
-                return value;
-            if (service == typeof(IServiceProvider))
+                return value!;
+            if (service == typeof(IServiceProvider) || service == typeof(IServiceProviderEx))
                 return this;
 
             ExceptionManager.ThrowIoCCannotFindBinding(service);
-            return null;
+            return null!;
         }
 
         private bool TryResolve(Type service, IReadOnlyCollection<IIoCParameter>? parameters, out object? value)
@@ -430,17 +430,17 @@ namespace MugenMvvm.Infrastructure.IoC
             public object Resolve(IReadOnlyCollection<IIoCParameter>? parameters)
             {
                 if (_hasValue)
-                    return _value;
+                    return _value!;
 
                 var lockTaken = false;
                 try
                 {
                     Monitor.Enter(this, ref lockTaken);
                     if (_hasValue)
-                        return _value;
+                        return _value!;
 
                     if (_isActivating)
-                        ExceptionManager.ThrowIoCCyclicalDependency(_type);
+                        ExceptionManager.ThrowIoCCyclicalDependency(_type!);
 
                     _isActivating = true;
 
@@ -465,7 +465,7 @@ namespace MugenMvvm.Infrastructure.IoC
                         if (constructor == null)
                             ExceptionManager.ThrowCannotFindConstructor(_type);
 
-                        var result = constructor.InvokeEx(GetParameters(constructor, parameters));
+                        var result = constructor!.InvokeEx(GetParameters(constructor!, parameters));
                         SetProperties(result, parameters);
                         (result as IInitializable)?.Initialize();
                         if (_lifecycle == IoCDependencyLifecycle.Singleton)
@@ -480,7 +480,7 @@ namespace MugenMvvm.Infrastructure.IoC
                         return result;
                     }
 
-                    return _value;
+                    return _value!;
                 }
                 finally
                 {
@@ -500,9 +500,9 @@ namespace MugenMvvm.Infrastructure.IoC
                     if (iocParameter.ParameterType != IoCParameterType.Property)
                         continue;
                     var propertyInfo = type.GetPropertyUnified(iocParameter.Name, _container.PropertyMemberFlags);
-                    var methodInfo = propertyInfo.GetSetMethodUnified(false);
+                    var methodInfo = propertyInfo?.GetSetMethodUnified(false);
                     if (methodInfo != null && !methodInfo.IsStatic && methodInfo.IsPublic)
-                        propertyInfo.SetValueEx(item, iocParameter.Value);
+                        propertyInfo!.SetValueEx(item, iocParameter.Value);
                 }
             }
 
@@ -577,8 +577,8 @@ namespace MugenMvvm.Infrastructure.IoC
                     return null;
                 var objects = obj as Array;
                 if (objects == null)
-                    objects = new[] {obj};
-                var array = (Array) Activator.CreateInstance(arrayType, objects.Length);
+                    objects = new[] { obj };
+                var array = (Array)Activator.CreateInstance(arrayType, objects.Length);
                 for (var i = 0; i < objects.Length; i++)
                     array.SetValue(objects.GetValue(i), i);
                 return array;

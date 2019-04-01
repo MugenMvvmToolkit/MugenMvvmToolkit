@@ -423,7 +423,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                     var items = _listeners;
                     if (items != null)
                     {
-                        for (int i = 0; i < _listeners.Length; i++)
+                        for (int i = 0; i < items.Length; i++)
                             items[i]?.OnSuspendChanged(suspended);
                     }
                 }

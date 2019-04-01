@@ -60,7 +60,7 @@ namespace MugenMvvm.Collections
 
         object IList.this[int index]
         {
-            get => this[index];
+            get => this[index]!;
             set => this[index] = (T) value;
         }
 
@@ -402,7 +402,7 @@ namespace MugenMvvm.Collections
             {
                 _collection = collection;
                 _index = 0;
-                Current = default;
+                Current = default!;
             }
 
             #endregion
@@ -411,7 +411,7 @@ namespace MugenMvvm.Collections
 
             public T Current { get; private set; }
 
-            object IEnumerator.Current => Current;
+            object IEnumerator.Current => Current!;
 
             #endregion
 

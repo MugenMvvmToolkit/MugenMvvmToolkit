@@ -300,7 +300,7 @@ namespace MugenMvvm.Infrastructure.Views
                     if (view.GetType() == _viewType)
                         return _viewModelType;
                 }
-                else if (_viewType.IsInstanceOfTypeUnified(view))
+                else if (_viewType!.IsInstanceOfTypeUnified(view))
                     return _viewModelType;
 
                 return null;
@@ -319,7 +319,7 @@ namespace MugenMvvm.Infrastructure.Views
                     if (viewModel.GetType() == _viewModelType)
                         return _viewType;
                 }
-                else if (_viewModelType.IsInstanceOfTypeUnified(viewModel))
+                else if (_viewModelType!.IsInstanceOfTypeUnified(viewModel))
                     return _viewType;
 
                 return null;
@@ -340,7 +340,7 @@ namespace MugenMvvm.Infrastructure.Views
             public readonly MappingInfo Mapping;
             public readonly IParentViewManager ParentViewManager;
             public readonly MappingViewManager ViewManager;
-            private string _id;
+            private string? _id;
 
             #endregion
 
@@ -440,15 +440,15 @@ namespace MugenMvvm.Infrastructure.Views
                     if (_isView)
                     {
                         if (_view == null)
-                            _view = _initializer.ViewManager.GetViewForViewModel(_initializer.ParentViewManager, _initializer, _viewModel, _metadata);
+                            _view = _initializer.ViewManager.GetViewForViewModel(_initializer.ParentViewManager, _initializer, _viewModel!, _metadata);
                     }
                     else
                     {
                         if (_viewModel == null)
-                            _viewModel = _initializer.ViewManager.GetViewModelForView(_initializer.ParentViewManager, _initializer, _view, _metadata);
+                            _viewModel = _initializer.ViewManager.GetViewModelForView(_initializer.ParentViewManager, _initializer, _view!, _metadata);
                     }
 
-                    var result = _initializer.ViewManager.Initialize(_initializer.ParentViewManager, _initializer, _initializer.Mapping.Id, _viewModel, _view, _metadata);
+                    var result = _initializer.ViewManager.Initialize(_initializer.ParentViewManager, _initializer, _initializer.Mapping.Id, _viewModel!, _view!, _metadata);
                     TrySetResult(result);
                 }
                 catch (Exception e)

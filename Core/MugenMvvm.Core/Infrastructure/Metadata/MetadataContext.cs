@@ -435,7 +435,7 @@ namespace MugenMvvm.Infrastructure.Metadata
                 }
 
                 Listeners = _metadataContext._listeners?.GetItems().ToSerializable(serializationContext.Serializer);
-                Keys = new List<IMetadataContextKey>();
+                Keys = new List<IMetadataContextKey?>();
                 Values = new List<object?>();
                 foreach (var keyPair in currentValues)
                 {

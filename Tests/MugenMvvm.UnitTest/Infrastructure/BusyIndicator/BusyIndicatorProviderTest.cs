@@ -27,7 +27,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
             var busyIndicator = GetBusyIndicator();
             var token = busyIndicator.Begin(message: null);
             busyIndicator.BusyInfo.ShouldNotBeNull();
-            busyIndicator.BusyInfo.Token.ShouldNotBeNull();
+            busyIndicator.BusyInfo!.Token.ShouldNotBeNull();
             token.IsCompleted.ShouldBeFalse();
             token.IsSuspended.ShouldBeFalse();
 
@@ -43,7 +43,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
             var busyIndicator = GetBusyIndicator(defaultMsg);
             var token = busyIndicator.Begin(message: null);
             busyIndicator.BusyInfo.ShouldNotBeNull();
-            busyIndicator.BusyInfo.Token.Message.ShouldEqual(defaultMsg);
+            busyIndicator.BusyInfo!.Token.Message.ShouldEqual(defaultMsg);
             token.IsCompleted.ShouldBeFalse();
 
             token.Dispose();
@@ -57,7 +57,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
             var busyIndicator = GetBusyIndicator();
             var token = busyIndicator.Begin(message: busyIndicator);
             busyIndicator.BusyInfo.ShouldNotBeNull();
-            busyIndicator.BusyInfo.Token.Message.ShouldEqual(busyIndicator);
+            busyIndicator.BusyInfo!.Token.Message.ShouldEqual(busyIndicator);
             token.IsCompleted.ShouldBeFalse();
 
             token.Dispose();
@@ -75,7 +75,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
             Task.Delay(1100).Wait();
 
             busyIndicator.BusyInfo.ShouldNotBeNull();
-            busyIndicator.BusyInfo.Token.Message.ShouldBeNull();
+            busyIndicator.BusyInfo!.Token.Message.ShouldBeNull();
             token.IsCompleted.ShouldBeFalse();
 
             token.Dispose();
@@ -93,7 +93,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
             var token = busyIndicator.Begin(busyToken);
 
             busyIndicator.BusyInfo.ShouldNotBeNull();
-            busyIndicator.BusyInfo.Token.Message.ShouldBeNull();
+            busyIndicator.BusyInfo!.Token.Message.ShouldBeNull();
             token.IsCompleted.ShouldBeFalse();
 
             token.Dispose();
@@ -111,7 +111,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
             var token = busyIndicator.Begin(busyToken);
 
             busyIndicator.BusyInfo.ShouldNotBeNull();
-            busyIndicator.BusyInfo.Token.Message.ShouldEqual(rootIndicator);
+            busyIndicator.BusyInfo!.Token.Message.ShouldEqual(rootIndicator);
             token.IsCompleted.ShouldBeFalse();
 
             token.Dispose();
@@ -132,7 +132,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
             Task.Delay(1100).Wait();
 
             busyIndicator.BusyInfo.ShouldNotBeNull();
-            busyIndicator.BusyInfo.Token.Message.ShouldBeNull();
+            busyIndicator.BusyInfo!.Token.Message.ShouldBeNull();
             token.IsCompleted.ShouldBeFalse();
 
             token.Dispose();
@@ -267,8 +267,8 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
             busyIndicator.Begin(message2);
             busyIndicator.Begin(message3);
 
-            busyIndicator.BusyInfo.TryGetToken(token => token.Message is TestBusyIndicatorProviderListener).Message.ShouldEqual(message2);
-            busyIndicator.BusyInfo.TryGetToken(token => token.Message is List<object>).ShouldBeNull();
+            busyIndicator.BusyInfo!.TryGetToken(token => token.Message is TestBusyIndicatorProviderListener)!.Message.ShouldEqual(message2);
+            busyIndicator.BusyInfo!.TryGetToken(token => token.Message is List<object>).ShouldBeNull();
         }
 
         [Fact]
@@ -283,8 +283,8 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
             busyIndicator.Begin(message2);
             busyIndicator.Begin(message3);
 
-            busyIndicator.BusyInfo.TryGetToken(token => token.Message == message1).Message.ShouldEqual(message1);
-            busyIndicator.BusyInfo.TryGetToken(token => token.Message == string.Empty).ShouldBeNull();
+            busyIndicator.BusyInfo!.TryGetToken(token => token.Message!.Equals(message1))!.Message.ShouldEqual(message1);
+            busyIndicator.BusyInfo!.TryGetToken(token => token.Message!.Equals(string.Empty)).ShouldBeNull();
         }
 
         [Fact]
@@ -296,17 +296,17 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
 
             var busyIndicator = GetBusyIndicator();
             var t1 = busyIndicator.Begin(message1);
-            busyIndicator.BusyInfo.GetTokens().Select(t => t.Message).ShouldContain(message1);
+            busyIndicator.BusyInfo!.GetTokens().Select(t => t.Message).ShouldContain(message1);
             var t2 = busyIndicator.Begin(message2);
-            busyIndicator.BusyInfo.GetTokens().Select(t => t.Message).ShouldContain(message1, message2);
+            busyIndicator.BusyInfo!.GetTokens().Select(t => t.Message).ShouldContain(message1, message2);
             var t3 = busyIndicator.Begin(message3);
-            busyIndicator.BusyInfo.GetTokens().Select(t => t.Message).ShouldContain(message1, message2, message3);
+            busyIndicator.BusyInfo!.GetTokens().Select(t => t.Message).ShouldContain(message1, message2, message3);
 
             t1.Dispose();
-            busyIndicator.BusyInfo.GetTokens().Select(t => t.Message).ShouldContain(message2, message3);
+            busyIndicator.BusyInfo!.GetTokens().Select(t => t.Message).ShouldContain(message2, message3);
 
             t2.Dispose();
-            busyIndicator.BusyInfo.GetTokens().Select(t => t.Message).ShouldContain(message3);
+            busyIndicator.BusyInfo!.GetTokens().Select(t => t.Message).ShouldContain(message3);
 
             t3.Dispose();
             busyIndicator.BusyInfo.ShouldBeNull();
@@ -326,7 +326,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
         [Fact]
         public void BusyTokenShouldNotifyListener()
         {
-            IBusyToken completedToken = null;
+            IBusyToken? completedToken = null;
             var listener = new TestBusyIndicatorProviderListener { OnCompleted = token => completedToken = token };
             var busyIndicator = GetBusyIndicator();
 
@@ -339,9 +339,9 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
         [Fact]
         public void BusyTokenShouldNotifyListeners()
         {
-            IBusyToken completedToken1 = null;
-            IBusyToken completedToken2 = null;
-            IBusyToken completedToken3 = null;
+            IBusyToken? completedToken1 = null;
+            IBusyToken? completedToken2 = null;
+            IBusyToken? completedToken3 = null;
             var listener1 = new TestBusyIndicatorProviderListener { OnCompleted = token => completedToken1 = token };
             var listener2 = new TestBusyIndicatorProviderListener { OnCompleted = token => completedToken2 = token };
             var listener3 = new TestBusyIndicatorProviderListener { OnCompleted = token => completedToken3 = token };
@@ -579,7 +579,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
             busyIndicator.BusyInfo.ShouldBeNull();
             suspendNotifications.Dispose();
             busyIndicator.BusyInfo.ShouldNotBeNull();
-            busyIndicator.BusyInfo.Token.IsSuspended.ShouldBeFalse();
+            busyIndicator.BusyInfo!.Token.IsSuspended.ShouldBeFalse();
         }
 
         [Fact]
@@ -666,7 +666,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
 
             busyIndicator.BusyInfo.ShouldNotBeNull();
 
-            var list = busyIndicator.BusyInfo.GetTokens().Select(token => token.Message);
+            var list = busyIndicator.BusyInfo!.GetTokens().Select(token => token.Message);
             messages.ShouldContain(list);
         }
 
@@ -708,7 +708,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
 
             Task.WaitAll(tasks.ToArray());
 
-            var list = rootIndicator.BusyInfo.GetTokens().Select(token => token.Message);
+            var list = rootIndicator.BusyInfo!.GetTokens().Select(token => token.Message);
             messages.ShouldContain(list);
         }
 

@@ -23,7 +23,7 @@ namespace MugenMvvm.Infrastructure.Validation
         private int _state;
 
         private IComponentCollection<IValidatorListener>? _listeners;
-        private TTarget _target;
+        private TTarget? _target;
         private Dictionary<string, CancellationTokenSource>? _validatingTasks;
         private PropertyChangedEventHandler? _weakPropertyHandler;
 
@@ -75,7 +75,7 @@ namespace MugenMvvm.Infrastructure.Validation
 
         public bool HasAsyncValidation { get; set; }
 
-        protected TTarget Target => _target;
+        protected TTarget Target => _target!;
 
         protected bool IsValidating => _validatingTasks != null && _validatingTasks.Count != 0;
 
@@ -275,10 +275,11 @@ namespace MugenMvvm.Infrastructure.Validation
             var hasErrors = errors != null && errors.Count != 0;
             if (hasErrors && ShouldIgnoreMember(memberName))
                 return;
+
             lock (Errors)
             {
                 if (hasErrors)
-                    Errors[memberName] = errors;
+                    Errors[memberName] = errors!;
                 else
                     Errors.Remove(memberName);
             }
@@ -369,7 +370,7 @@ namespace MugenMvvm.Infrastructure.Validation
             bool notify;
             lock (_validatingTasks)
             {
-                notify = _validatingTasks.TryGetValue(member, out var value) && ReferenceEquals(cts, value) && _validatingTasks.Remove(member);
+                notify = _validatingTasks!.TryGetValue(member, out var value) && ReferenceEquals(cts, value) && _validatingTasks!.Remove(member);
             }
 
             if (notify)

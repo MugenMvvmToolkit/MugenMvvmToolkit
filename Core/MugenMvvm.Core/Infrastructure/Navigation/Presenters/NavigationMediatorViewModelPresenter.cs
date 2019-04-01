@@ -173,7 +173,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             var managers = Managers.GetItems();
             for (var i = 0; i < managers.Count; i++)
             {
-                var result = managers[i].TryCloseInternal(this, viewModel, m, metadata);
+                var result = managers[i].TryCloseInternal(this, viewModel!, m, metadata);
                 if (result != null)
                     return result;
             }
@@ -206,12 +206,12 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         protected virtual INavigationMediator? TryGetMediator(IViewModelBase viewModel, IViewInitializer viewInitializer, IReadOnlyMetadataContext metadata)
         {
             var mediators = viewModel.Metadata.GetOrAdd(NavigationInternalMetadata.NavigationMediators, (object?)null, (object?)null,
-                (context, o, arg3) => new List<INavigationMediator>());
+                (context, o, arg3) => new List<INavigationMediator>())!;
 
             var managers = Managers.GetItems();
             lock (mediators)
             {
-                var mediator = mediators.FirstOrDefault(m => m.ViewInitializer.Id == viewInitializer.Id);
+                INavigationMediator? mediator = mediators.FirstOrDefault(m => m.ViewInitializer.Id == viewInitializer.Id);
                 if (mediator == null)
                 {
                     for (var i = 0; i < managers.Count; i++)

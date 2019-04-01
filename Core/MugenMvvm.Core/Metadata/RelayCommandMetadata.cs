@@ -11,10 +11,9 @@ namespace MugenMvvm.Metadata
         #region Fields
 
         private static IMetadataContextKey<bool> _allowMultipleExecution;
-        private static IMetadataContextKey<IReadOnlyCollection<string>> _ignoreProperties;
+        private static IMetadataContextKey<IReadOnlyCollection<string>?> _ignoreProperties;
         private static IMetadataContextKey<CommandExecutionMode> _executionMode;
-        private static IMetadataContextKey<ThreadExecutionMode> _eventThreadMode;
-        private static IMetadataContextKey<Func<string>> _displayName;
+        private static IMetadataContextKey<ThreadExecutionMode?> _eventThreadMode;
 
         #endregion
 
@@ -62,17 +61,6 @@ namespace MugenMvvm.Metadata
                 return _eventThreadMode;
             }
             set => _eventThreadMode = value;
-        }
-
-        public static IMetadataContextKey<Func<string>?> DisplayName
-        {
-            get
-            {
-                if (_displayName == null)
-                    _displayName = GetBuilder<Func<string>?>(nameof(DisplayName)).NotNull().Build();
-                return _displayName;
-            }
-            set => _displayName = value;
         }
 
         #endregion

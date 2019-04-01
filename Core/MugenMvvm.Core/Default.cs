@@ -143,7 +143,7 @@ namespace MugenMvvm
         {
             #region Fields
 
-            private static IMemento _emptyMemento;
+            private static IMemento? _emptyMemento;
 
             #endregion
 

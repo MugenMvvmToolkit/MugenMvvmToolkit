@@ -25,35 +25,35 @@ namespace MugenMvvm.UnitTest.TestInfrastructure
 
         #region Properties
 
-        public Func<IObservableCollection<T>, T, int, bool> OnAdding { get; set; }
+        public Func<IObservableCollection<T>, T, int, bool>? OnAdding { get; set; }
 
-        public Func<IObservableCollection<T>, T, T, int, bool> OnReplacing { get; set; }
+        public Func<IObservableCollection<T>, T, T, int, bool>? OnReplacing { get; set; }
 
-        public Func<IObservableCollection<T>, T, int, int, bool> OnMoving { get; set; }
+        public Func<IObservableCollection<T>, T, int, int, bool>? OnMoving { get; set; }
 
-        public Func<IObservableCollection<T>, T, int, bool> OnRemoving { get; set; }
+        public Func<IObservableCollection<T>, T, int, bool>? OnRemoving { get; set; }
 
-        public Func<IObservableCollection<T>, IEnumerable<T>, bool> OnResetting { get; set; }
+        public Func<IObservableCollection<T>, IEnumerable<T>, bool>? OnResetting { get; set; }
 
-        public Func<IObservableCollection<T>, bool> OnClearing { get; set; }
+        public Func<IObservableCollection<T>, bool>? OnClearing { get; set; }
 
-        public Action<IObservableCollection<T>> OnBeginBatchUpdate { get; set; }
+        public Action<IObservableCollection<T>>? OnBeginBatchUpdate { get; set; }
 
-        public Action<IObservableCollection<T>> OnEndBatchUpdate { get; set; }
+        public Action<IObservableCollection<T>>? OnEndBatchUpdate { get; set; }
 
-        public Action<IObservableCollection<T>, T, int> OnAdded { get; set; }
+        public Action<IObservableCollection<T>, T, int>? OnAdded { get; set; }
 
-        public Action<IObservableCollection<T>, T, T, int> OnReplaced { get; set; }
+        public Action<IObservableCollection<T>, T, T, int>? OnReplaced { get; set; }
 
-        public Action<IObservableCollection<T>, T, int, int> OnMoved { get; set; }
+        public Action<IObservableCollection<T>, T, int, int>? OnMoved { get; set; }
 
-        public Action<IObservableCollection<T>, T, int> OnRemoved { get; set; }
+        public Action<IObservableCollection<T>, T, int>? OnRemoved { get; set; }
 
-        public Action<IObservableCollection<T>, T, int, object?> OnItemChanged { get; set; }
+        public Action<IObservableCollection<T>, T, int, object?>? OnItemChanged { get; set; }
 
-        public Action<IObservableCollection<T>, IEnumerable<T>> OnReset { get; set; }
+        public Action<IObservableCollection<T>, IEnumerable<T>>? OnReset { get; set; }
 
-        public Action<IObservableCollection<T>> OnCleared { get; set; }
+        public Action<IObservableCollection<T>>? OnCleared { get; set; }
 
         public bool ThrowErrorNullDelegate { get; set; }
 

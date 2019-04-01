@@ -55,6 +55,9 @@ namespace MugenMvvm.Infrastructure.Serialization
 
         public IMementoResult Restore(ISerializationContext serializationContext)
         {
+            if (Member == null)
+                return MementoResult.Unrestored;
+
             object target;
             if (Member is PropertyInfo propertyInfo)
                 target = propertyInfo.GetValue(null);
@@ -71,7 +74,7 @@ namespace MugenMvvm.Infrastructure.Serialization
 
         public static StaticMemberMemento? Create(object target, Type type, string fieldOrPropertyName)
         {
-            MemberInfo member = type.GetFieldUnified(fieldOrPropertyName, MemberFlags.StaticOnly);
+            MemberInfo? member = type.GetFieldUnified(fieldOrPropertyName, MemberFlags.StaticOnly);
             if (member == null)
                 member = type.GetPropertyUnified(fieldOrPropertyName, MemberFlags.StaticOnly);
             if (member == null)

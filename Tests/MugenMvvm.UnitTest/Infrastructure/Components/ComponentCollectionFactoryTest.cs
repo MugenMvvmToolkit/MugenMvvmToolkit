@@ -116,7 +116,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Components
                 componentCollection.Add(o);
             }
 
-            objects.Sort((listener, listener1) => listener1.GetPriority(this).CompareTo(listener.GetPriority(this)));
+            objects.Sort((listener, listener1) => listener1.GetPriority!(this).CompareTo(listener.GetPriority!(this)));
 
             componentCollection.HasItems.ShouldBeTrue();
             componentCollection.GetItems().SequenceEqual(objects).ShouldBeTrue();
@@ -131,7 +131,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Components
                 }
             }
 
-            objects.Sort((listener, listener1) => listener1.GetPriority(this).CompareTo(listener.GetPriority(this)));
+            objects.Sort((listener, listener1) => listener1.GetPriority!(this).CompareTo(listener.GetPriority!(this)));
 
             componentCollection.HasItems.ShouldBeTrue();
             componentCollection.GetItems().SequenceEqual(objects).ShouldBeTrue();
@@ -154,7 +154,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Components
         {
             #region Properties
 
-            public Func<object, int> GetPriority { get; set; }
+            public Func<object, int>? GetPriority { get; set; }
 
             #endregion
 
@@ -162,7 +162,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Components
 
             int IListener.GetPriority(object source)
             {
-                return GetPriority(source);
+                return GetPriority!(source);
             }
 
             #endregion

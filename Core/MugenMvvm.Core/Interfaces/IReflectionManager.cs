@@ -5,7 +5,7 @@ namespace MugenMvvm.Interfaces
 {
     public interface IReflectionManager
     {
-        Func<object[], object> GetActivatorDelegate(ConstructorInfo constructor);
+        Func<object?[], object> GetActivatorDelegate(ConstructorInfo constructor);
 
         Func<object?, object?[], object?> GetMethodDelegate(MethodInfo method);
 

@@ -43,18 +43,19 @@ namespace MugenMvvm.Infrastructure.Internal
 
         public virtual TValue AddOrUpdate<TItem, TValue, TState1, TState2>(TItem item, string path, TValue addValue, TState1 state1, TState2 state2,
             UpdateValueDelegate<TItem, TValue, TValue, TState1, TState2> updateValueFactory)
+            where TItem : class
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
             Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
-            var dictionary = GetOrAddAttachedDictionary(item, true);
+            var dictionary = GetOrAddAttachedDictionary(item, true)!;
             lock (dictionary)
             {
                 if (dictionary.TryGetValue(path, out var value))
                 {
-                    value = updateValueFactory(item, addValue, (TValue) value, state1, state2);
+                    value = updateValueFactory(item, addValue, (TValue)value!, state1, state2);
                     dictionary[path] = value;
-                    return (TValue) value;
+                    return (TValue)value!;
                 }
 
                 dictionary.Add(path, addValue);
@@ -64,24 +65,25 @@ namespace MugenMvvm.Infrastructure.Internal
 
         public virtual TValue AddOrUpdate<TItem, TValue, TState1, TState2>(TItem item, string path, TState1 state1, TState2 state2,
             Func<TItem, TState1, TState2, TValue> addValueFactory, UpdateValueDelegate<TItem, Func<TItem, TState1, TState2, TValue>, TValue, TState1, TState2> updateValueFactory)
+            where TItem : class
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
             Should.NotBeNull(addValueFactory, nameof(addValueFactory));
             Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
-            var dictionary = GetOrAddAttachedDictionary(item, true);
+            var dictionary = GetOrAddAttachedDictionary(item, true)!;
             lock (dictionary)
             {
                 if (dictionary.TryGetValue(path, out var value))
                 {
-                    value = updateValueFactory(item, addValueFactory, (TValue) value, state1, state2);
+                    value = updateValueFactory(item, addValueFactory, (TValue)value!, state1, state2);
                     dictionary[path] = value;
-                    return (TValue) value;
+                    return (TValue)value!;
                 }
 
                 value = addValueFactory(item, state1, state2);
                 dictionary.Add(path, value);
-                return (TValue) value;
+                return (TValue)value!;
             }
         }
 
@@ -89,29 +91,30 @@ namespace MugenMvvm.Infrastructure.Internal
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
-            var dictionary = GetOrAddAttachedDictionary(item, true);
+            var dictionary = GetOrAddAttachedDictionary(item, true)!;
             lock (dictionary)
             {
                 if (dictionary.TryGetValue(path, out var oldValue))
-                    return (TValue) oldValue;
+                    return (TValue)oldValue!;
                 dictionary.Add(path, value);
                 return value;
             }
         }
 
         public virtual TValue GetOrAdd<TItem, TValue, TState1, TState2>(TItem item, string path, TState1 state1, TState2 state2, Func<TItem, TState1, TState2, TValue> valueFactory)
+            where TItem : class
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
             Should.NotBeNull(valueFactory, nameof(valueFactory));
-            var dictionary = GetOrAddAttachedDictionary(item, true);
+            var dictionary = GetOrAddAttachedDictionary(item, true)!;
             lock (dictionary)
             {
                 if (dictionary.TryGetValue(path, out var oldValue))
-                    return (TValue) oldValue;
+                    return (TValue)oldValue!;
                 oldValue = valueFactory(item, state1, state2);
                 dictionary.Add(path, oldValue);
-                return (TValue) oldValue;
+                return (TValue)oldValue!;
             }
         }
 
@@ -122,7 +125,7 @@ namespace MugenMvvm.Infrastructure.Internal
             var dictionary = GetOrAddAttachedDictionary(item, false);
             if (dictionary == null)
             {
-                value = default;
+                value = default!;
                 return false;
             }
 
@@ -130,11 +133,11 @@ namespace MugenMvvm.Infrastructure.Internal
             {
                 if (dictionary.TryGetValue(path, out var result))
                 {
-                    value = (TValue) result;
+                    value = (TValue)result!;
                     return true;
                 }
 
-                value = default;
+                value = default!;
                 return false;
             }
         }
@@ -143,7 +146,7 @@ namespace MugenMvvm.Infrastructure.Internal
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
-            var dictionary = GetOrAddAttachedDictionary(item, true);
+            var dictionary = GetOrAddAttachedDictionary(item, true)!;
             lock (dictionary)
             {
                 dictionary[path] = value;

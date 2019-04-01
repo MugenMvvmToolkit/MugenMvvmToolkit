@@ -301,7 +301,7 @@ namespace MugenMvvm
             return constructor.InvokeEx(Default.EmptyArray<object>());
         }
 
-        public static object InvokeEx(this ConstructorInfo constructor, params object[] parameters)
+        public static object InvokeEx(this ConstructorInfo constructor, params object?[] parameters)
         {
             return Service<IReflectionManager>.Instance.GetActivatorDelegate(constructor).Invoke(parameters);
         }

@@ -113,7 +113,7 @@ namespace MugenMvvm.Metadata
 
         private static object? CloseCallbacksSerializableConverter(IMetadataContextKey<IList<INavigationCallbackInternal?>?> key, object? value, ISerializationContext arg3)
         {
-            var callbacks = (IList<INavigationCallbackInternal>) value;
+            var callbacks = (IList<INavigationCallbackInternal>?) value;
             if (callbacks == null)
                 return null;
             lock (callbacks)
@@ -124,7 +124,7 @@ namespace MugenMvvm.Metadata
 
         private static bool CanSerializeCloseCallbacks(IMetadataContextKey<IList<INavigationCallbackInternal?>?> key, object? value, ISerializationContext context)
         {
-            var callbacks = (IList<INavigationCallbackInternal>) value;
+            var callbacks = (IList<INavigationCallbackInternal>?) value;
             return callbacks != null && callbacks.Any(callback => callback != null && callback.IsSerializable);
         }
 

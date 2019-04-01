@@ -60,7 +60,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
             if (result == null)
                 ExceptionManager.ThrowIoCCannotFindBinding(service);
 
-            return result;
+            return result!;
         }
 
         public bool Subscribe(IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode, IReadOnlyMetadataContext metadata)
@@ -87,7 +87,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
             if (vm == null)
                 ExceptionManager.ThrowCannotGetViewModel(vmType);
 
-            return vm;
+            return vm!;
         }
 
         public IViewModelBase? TryGetViewModel(Guid id, IReadOnlyMetadataContext metadata)

@@ -94,10 +94,8 @@ namespace MugenMvvm.Infrastructure.ViewModels
             {
                 NoState = false;
                 Metadata = _viewModel.Metadata;
-                if (_viewModel is IHasService<IMessenger> hasMessenger)
-                    Subscribers = hasMessenger.Service.GetSubscribers().ToSerializable(serializationContext.Serializer);
-                if (_viewModel is IHasService<IBusyIndicatorProvider> hasBusyIndicatorProvider)
-                    BusyListeners = hasBusyIndicatorProvider.Service.Listeners.GetItems().ToSerializable(serializationContext.Serializer);
+                Subscribers = _viewModel.TryGetServiceOptional<IMessenger>()?.GetSubscribers().ToSerializable(serializationContext.Serializer);
+                BusyListeners = _viewModel.TryGetServiceOptional<IBusyIndicatorProvider>()?.Listeners.GetItems().ToSerializable(serializationContext.Serializer);
             }
 
             OnPreserveInternal(_viewModel!, NoState, serializationContext);
@@ -155,7 +153,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
 
         private void RestoreInternal(IViewModelBase viewModel)
         {
-            var listeners = Metadata.Listeners.GetItems();
+            var listeners = Metadata!.Listeners.GetItems();
             foreach (var listener in listeners)
                 viewModel.Metadata.Listeners.Add(listener);
             viewModel.Metadata.Merge(Metadata);

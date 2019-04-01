@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTest.TestModels
 
         public bool Hidden { get; set; }
 
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         public int Id { get; set; }
 

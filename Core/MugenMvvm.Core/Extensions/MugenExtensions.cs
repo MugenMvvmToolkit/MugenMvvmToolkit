@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using MugenMvvm.Delegates;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Messaging;
 using MugenMvvm.Infrastructure.Metadata;
@@ -184,14 +186,14 @@ namespace MugenMvvm
             where T : Delegate
         {
             Should.NotBeNull(metadata, nameof(metadata));
-            metadata.AddOrUpdate(key, handler, (object)null, (object)null, (item, value, currentValue, state1, state2) => (T)Delegate.Combine(currentValue, value));
+            metadata.AddOrUpdate(key, handler, (object?)null, (object?)null, (item, value, currentValue, state1, state2) => (T)Delegate.Combine(currentValue, value));
         }
 
         public static void RemoveHandler<T>(this IMetadataContext metadata, IMetadataContextKey<T> key, T handler)
             where T : Delegate
         {
             Should.NotBeNull(metadata, nameof(metadata));
-            metadata.AddOrUpdate(key, handler, (object)null, (object)null, (item, value, currentValue, state1, state2) => (T)Delegate.Remove(currentValue, value));
+            metadata.AddOrUpdate(key, handler, (object?)null, (object?)null, (item, value, currentValue, state1, state2) => (T)Delegate.Remove(currentValue, value));
         }
 
         public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IMetadataContextKey<T> key, T defaultValue = default)
@@ -201,11 +203,11 @@ namespace MugenMvvm
             return value;
         }
 
-        public static MetadataContextKey.Builder<T> NotNull<T>(this MetadataContextKey.Builder<T> builder) where T : class
+        public static MetadataContextKey.Builder<T> NotNull<T>(this MetadataContextKey.Builder<T> builder) where T : class?
         {
             if (_notNullValidateAction == null)
                 _notNullValidateAction = (ctx, k, value) => Should.NotBeNull(value, nameof(value));
-            return builder.WithValidation(_notNullValidateAction);
+            return builder.WithValidation(_notNullValidateAction!);
         }
 
         #endregion
@@ -392,7 +394,7 @@ namespace MugenMvvm
         }
 
         [Pure]
-        public static bool TryGetService<T>(this IServiceProvider serviceProvider, out T service)
+        public static bool TryGetService<T>(this IServiceProvider serviceProvider, [NotNullWhenTrue] out T service) where T : class
         {
             Should.NotBeNull(serviceProvider, nameof(serviceProvider));
             try
@@ -401,10 +403,10 @@ namespace MugenMvvm
                 {
                     if (serviceProviderEx.TryGetService(typeof(T), out var o))
                     {
-                        service = (T)o;
+                        service = (T)o!;
                         return true;
                     }
-                    service = default;
+                    service = default!;
                     return false;
                 }
 
@@ -413,7 +415,7 @@ namespace MugenMvvm
             }
             catch
             {
-                service = default;
+                service = default!;
                 return false;
             }
         }
@@ -547,10 +549,10 @@ namespace MugenMvvm
             }
         }
 
-        public static TView TryWrap<TView>(this IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
+        public static TView? TryWrap<TView>(this IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
             where TView : class
         {
-            return (TView)viewInfo.TryWrap(typeof(TView), metadata);
+            return (TView?)viewInfo.TryWrap(typeof(TView), metadata);
         }
 
         public static object? TryWrap(this IViewInfo viewInfo, Type wrapperType, IReadOnlyMetadataContext metadata)
@@ -561,12 +563,12 @@ namespace MugenMvvm
         public static TView Wrap<TView>(this IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
             where TView : class
         {
-            return (TView)viewInfo.TryWrap(typeof(TView), metadata);
+            return (TView)viewInfo.Wrap(typeof(TView), metadata);
         }
 
         public static object Wrap(this IViewInfo viewInfo, Type wrapperType, IReadOnlyMetadataContext metadata)
         {
-            return WrapInternal(viewInfo, wrapperType, metadata, false);
+            return WrapInternal(viewInfo, wrapperType, metadata, false)!;
         }
 
         public static bool CanWrap<TView>(this IViewInfo viewInfo, IReadOnlyMetadataContext metadata) where TView : class
@@ -591,7 +593,7 @@ namespace MugenMvvm
             var collection = viewInfo.Metadata.GetOrAdd(ViewMetadata.Wrappers, viewInfo, viewInfo, (context, _, __) => new ViewWrappersCollection((IObservableMetadataContext)context));
             lock (collection)
             {
-                var item = collection.FirstOrDefault(wrapperType.IsInstanceOfTypeUnified);
+                var item = collection.FirstOrDefault(new Func<object, bool>(wrapperType.IsInstanceOfTypeUnified));
                 if (item == null)
                 {
                     var wrapperManager = Service<IWrapperManager>.Instance;
@@ -610,21 +612,21 @@ namespace MugenMvvm
 
         #region View models
 
-        public static bool TrySubscribe(this IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode = null, IReadOnlyMetadataContext? metadata = null)
+        public static bool TrySubscribe(this IViewModelBase viewModel, object observer, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(observer, nameof(observer));
-            return Service<IViewModelDispatcher>.Instance.Subscribe(viewModel, observer, executionMode, metadata ?? Default.MetadataContext);
+            return Service<IViewModelDispatcher>.Instance.Subscribe(viewModel, observer, executionMode ?? ThreadExecutionMode.Current, metadata ?? Default.MetadataContext);
         }
 
-        public static TService TryGetService<TService>(this IViewModelBase viewModel) where TService : class
+        public static TService? TryGetService<TService>(this IViewModelBase viewModel) where TService : class
         {
             if (viewModel is IHasService<TService> hasService)
                 return hasService.Service;
             return null;
         }
 
-        public static TService TryGetServiceOptional<TService>(this IViewModelBase viewModel) where TService : class
+        public static TService? TryGetServiceOptional<TService>(this IViewModelBase viewModel) where TService : class
         {
             if (viewModel is IHasServiceOptional<TService> hasServiceOptional)
                 return hasServiceOptional.ServiceOptional;
@@ -659,7 +661,7 @@ namespace MugenMvvm
         {
             if (items == null)
                 return null;
-            List<T> result = null;
+            List<T>? result = null;
             for (var i = 0; i < size.GetValueOrDefault(items.Count); i++)
             {
                 var listener = items[i];
@@ -679,17 +681,17 @@ namespace MugenMvvm
             return (handlerMode & value) == value;
         }
 
-        internal static bool LazyInitialize<T>(ref IComponentCollection<T>? item, object target, IReadOnlyMetadataContext? metadata = null) where T : class
+        internal static bool LazyInitialize<T>([EnsuresNotNull]ref IComponentCollection<T>? item, object target, IReadOnlyMetadataContext? metadata = null) where T : class
         {
             return item == null && LazyInitialize(ref item, Service<IComponentCollectionFactory>.Instance.GetComponentCollection<T>(target, metadata ?? Default.MetadataContext));
         }
 
-        internal static bool LazyInitialize<T>(ref T item, T value) where T : class ?
+        internal static bool LazyInitialize<T>([EnsuresNotNull]ref T? item, T value) where T : class
         {
             return Interlocked.CompareExchange(ref item, value, null) == null;
         }
 
-        internal static bool LazyInitializeDisposable<T>(ref T item, T value) where T : class ?, IDisposable
+        internal static bool LazyInitializeDisposable<T>([EnsuresNotNull]ref T? item, T value) where T : class, IDisposable
         {
             if (!LazyInitialize(ref item, value))
             {
@@ -700,9 +702,9 @@ namespace MugenMvvm
             return true;
         }
 
-        internal static bool LazyInitializeLock<TTarget, TValue>(ref TValue item, TTarget target, Func<TTarget, TValue> getValue, object locker)
+        internal static bool LazyInitializeLock<TTarget, TValue>([EnsuresNotNull]ref TValue? item, TTarget target, Func<TTarget, TValue> getValue, object locker)
+            where TValue : class
             where TTarget : class
-            where TValue : class ?
         {
             if (item != null)
                 return false;
@@ -720,7 +722,7 @@ namespace MugenMvvm
         private static readonly Action<object, PropertyChangedEventHandler> UnsubscribePropertyChangedDelegate;
         private static readonly Func<IWeakEventHandler<PropertyChangedEventArgs>, PropertyChangedEventHandler> CreatePropertyChangedHandlerDelegate;
 
-        public static IWeakEventHandler<TArg> CreateWeakEventHandler<TTarget, TArg>(TTarget target, Action<TTarget, object, TArg> invokeAction, Action<object, IWeakEventHandler<TArg>> unsubscribeAction = null)
+        public static IWeakEventHandler<TArg> CreateWeakEventHandler<TTarget, TArg>(TTarget target, Action<TTarget, object, TArg> invokeAction, Action<object, IWeakEventHandler<TArg>>? unsubscribeAction = null)
             where TTarget : class
         {
             return new WeakEventHandler<TTarget, TArg, object>(target, invokeAction, unsubscribeAction);
@@ -756,7 +758,7 @@ namespace MugenMvvm
         {
             #region Fields
 
-            public TDelegate HandlerDelegate;
+            public TDelegate? HandlerDelegate;
             private readonly WeakReference _targetReference;
             private readonly Action<TTarget, object, TArg> _invokeAction;
             private readonly Delegate? _unsubscribeAction;
@@ -789,7 +791,7 @@ namespace MugenMvvm
                         if (action == null)
                             ((Action<object, IWeakEventHandler<TArg>>)_unsubscribeAction).Invoke(sender, this);
                         else
-                            action.Invoke(sender, HandlerDelegate);
+                            action.Invoke(sender, HandlerDelegate!);
                     }
                 }
                 else

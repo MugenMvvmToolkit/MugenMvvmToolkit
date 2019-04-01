@@ -19,9 +19,30 @@ namespace System
 
 namespace System.Runtime.CompilerServices
 {
-    [AttributeUsage(AttributeTargets.Parameter)]
+    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
+    internal class AssertsTrueAttribute : Attribute
+    {
+        public AssertsTrueAttribute () { }
+    }
+    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
+    internal class AssertsFalseAttribute : Attribute
+    {
+        public AssertsFalseAttribute () { }
+    }
+    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
     internal class EnsuresNotNullAttribute : Attribute
     {
+        public EnsuresNotNullAttribute() { }
+    }
+    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
+    internal class NotNullWhenFalseAttribute : Attribute
+    {
+        public NotNullWhenFalseAttribute() { }
+    }
+    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
+    internal class NotNullWhenTrueAttribute : Attribute
+    {
+        public NotNullWhenTrueAttribute() { }
     }
 }
 

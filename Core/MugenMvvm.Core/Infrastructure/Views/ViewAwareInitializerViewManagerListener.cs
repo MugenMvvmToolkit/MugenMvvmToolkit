@@ -120,6 +120,9 @@ namespace MugenMvvm.Infrastructure.Views
                             continue;
 
                         var propertyInfo = @interface.GetPropertyUnified(nameof(IViewAwareViewModel<object>.View), MemberFlags.InstancePublic);
+                        if (propertyInfo == null)
+                            continue;
+
                         var methodDelegate = _reflectionManager.GetMethodDelegate(UpdateViewMethodInfo.MakeGenericMethod(propertyInfo.PropertyType));
                         if (viewModelFunc == null)
                             viewModelFunc = methodDelegate;

@@ -21,7 +21,7 @@ namespace MugenMvvm.UnitTest.TestInfrastructure
 
         #region Properties
 
-        public Func<ThreadExecutionMode, bool> CanExecute { get; set; }
+        public Func<ThreadExecutionMode, bool>? CanExecute { get; set; }
 
         public Action<IThreadDispatcherHandler, ThreadExecutionMode, object?, IReadOnlyMetadataContext?> ExecuteHandler { get; set; }
 
