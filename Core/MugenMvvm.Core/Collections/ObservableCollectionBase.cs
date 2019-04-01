@@ -107,6 +107,8 @@ namespace MugenMvvm.Collections
 
         public abstract void Reset(IEnumerable<T> items);
 
+        public abstract void RaiseItemChanged(T item, object? args);
+
         public abstract IDisposable Lock();
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
@@ -123,6 +125,11 @@ namespace MugenMvvm.Collections
         {
             Should.NotBeNull(decorator, nameof(decorator));
             return DecorateItems(decorator);
+        }
+
+        void IObservableCollectionDecoratorManager<T>.OnItemChanged(IObservableCollectionDecorator<T> decorator, T item, int index, object? args)
+        {
+            OnItemChanged(decorator, item, index, args);
         }
 
         void IObservableCollectionDecoratorManager<T>.OnAdded(IObservableCollectionDecorator<T> decorator, T item, int index)
@@ -328,6 +335,27 @@ namespace MugenMvvm.Collections
                 listeners[i].OnCleared(this);
 
             OnCleared(null);
+        }
+
+        protected virtual void OnItemChanged(IObservableCollectionDecorator<T>? decorator, T item, int index, object? args)
+        {
+            var listeners = GetListeners();
+            for (var i = 0; i < listeners.Count; i++)
+                listeners[i].OnItemChanged(this, item, index, args);
+
+            var decorators = GetDecorators(decorator, out var indexOf);
+            if (decorators.Count != 0)
+            {
+                for (int i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Count; i++)
+                {
+                    if (!decorators[i].OnItemChanged(ref item, ref index, ref args))
+                        return;
+                }
+            }
+
+            listeners = GetDecoratorListeners();
+            for (var i = 0; i < listeners.Count; i++)
+                listeners[i].OnItemChanged(this, item, index, args);
         }
 
         protected virtual void OnAdded(IObservableCollectionDecorator<T>? decorator, T item, int index)

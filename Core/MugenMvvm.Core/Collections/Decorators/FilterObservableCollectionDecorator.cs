@@ -18,15 +18,12 @@ namespace MugenMvvm.Collections.Decorators
         private int _size;
         private T[] _values;
 
-        public const int DefaultPriority = 1;
-
         #endregion
 
         #region Constructors
 
-        public FilterObservableCollectionDecorator(int priority = DefaultPriority)
+        public FilterObservableCollectionDecorator()
         {
-            Priority = priority;
             _keys = Default.EmptyArray<int>();
             _values = Default.EmptyArray<T>();
             _size = 0;
@@ -35,8 +32,6 @@ namespace MugenMvvm.Collections.Decorators
         #endregion
 
         #region Properties
-
-        public int Priority { get; }
 
         public Func<T, bool>? Filter
         {
@@ -47,36 +42,6 @@ namespace MugenMvvm.Collections.Decorators
                     return;
                 _filter = value;
                 UpdateFilterInternal(value);
-            }
-        }
-
-        private int Capacity
-        {
-            set
-            {
-                if (value == _keys.Length)
-                    return;
-                if (value < _size)
-                    ExceptionManager.ThrowCapacityLessThanCollection("Capacity");
-
-                if (value > 0)
-                {
-                    var keyArray = new int[value];
-                    var objArray = new T[value];
-                    if (_size > 0)
-                    {
-                        Array.Copy(_keys, 0, keyArray, 0, _size);
-                        Array.Copy(_values, 0, objArray, 0, _size);
-                    }
-
-                    _keys = keyArray;
-                    _values = objArray;
-                }
-                else
-                {
-                    _keys = Default.EmptyArray<int>();
-                    _values = Default.EmptyArray<T>();
-                }
             }
         }
 
@@ -104,6 +69,23 @@ namespace MugenMvvm.Collections.Decorators
                 return items;
 
             return items.Where(filter);
+        }
+
+        bool IObservableCollectionDecorator<T>.OnItemChanged(ref T item, ref int index, ref object? args)
+        {
+            if (!HasFilter)
+                return true;
+
+            var filterIndex = IndexOfKey(index);
+            if (filterIndex == -1)
+                return false;
+
+            if (FilterInternal(item))
+                return true;
+
+            RemoveAt(filterIndex);
+            _decoratorManager.OnRemoved(this, item, filterIndex);
+            return false;
         }
 
         bool IObservableCollectionDecorator<T>.OnAdded(ref T item, ref int index)
@@ -328,7 +310,7 @@ namespace MugenMvvm.Collections.Decorators
             var num = _keys.Length == 0 ? 4 : _keys.Length * 2;
             if (num < min)
                 num = min;
-            Capacity = num;
+            SetCapacity(num);
         }
 
         private int Insert(int index, int key, T value)
@@ -345,6 +327,33 @@ namespace MugenMvvm.Collections.Decorators
             _values[index] = value;
             ++_size;
             return index;
+        }
+
+        private void SetCapacity(int value)
+        {
+            if (value == _keys.Length)
+                return;
+            if (value < _size)
+                ExceptionManager.ThrowCapacityLessThanCollection("Capacity");
+
+            if (value > 0)
+            {
+                var keyArray = new int[value];
+                var objArray = new T[value];
+                if (_size > 0)
+                {
+                    Array.Copy(_keys, 0, keyArray, 0, _size);
+                    Array.Copy(_values, 0, objArray, 0, _size);
+                }
+
+                _keys = keyArray;
+                _values = objArray;
+            }
+            else
+            {
+                _keys = Default.EmptyArray<int>();
+                _values = Default.EmptyArray<T>();
+            }
         }
 
         #endregion

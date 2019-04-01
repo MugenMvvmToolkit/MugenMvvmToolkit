@@ -7,6 +7,8 @@ namespace MugenMvvm.Interfaces.Collections
     {
         IEnumerable<T> DecorateItems(IEnumerable<T> items);
 
+        bool OnItemChanged(ref T item, ref int index, ref object? args);
+
         bool OnAdded(ref T item, ref int index);
 
         bool OnReplaced(ref T oldItem, ref T newItem, ref int index);
@@ -17,6 +19,6 @@ namespace MugenMvvm.Interfaces.Collections
 
         bool OnReset(ref IEnumerable<T> items);
 
-        bool OnCleared();
+        bool OnCleared();        
     }
 }

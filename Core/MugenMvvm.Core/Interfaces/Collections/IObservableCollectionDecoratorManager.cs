@@ -11,6 +11,8 @@ namespace MugenMvvm.Interfaces.Collections
 
         IEnumerable<T> DecorateItems(IObservableCollectionDecorator<T> decorator);
 
+        void OnItemChanged(IObservableCollectionDecorator<T> decorator, T item, int index, object? args);
+
         void OnAdded(IObservableCollectionDecorator<T> decorator, T item, int index);
 
         void OnReplaced(IObservableCollectionDecorator<T> decorator, T oldItem, T newItem, int index);

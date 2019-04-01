@@ -9,6 +9,8 @@ namespace MugenMvvm.Interfaces.Collections
 
         void OnEndBatchUpdate(IObservableCollection<T> collection);
 
+        void OnItemChanged(IObservableCollection<T> collection, T item, int index, object? args);
+
         void OnAdded(IObservableCollection<T> collection, T item, int index);
 
         void OnReplaced(IObservableCollection<T> collection, T oldItem, T newItem, int index);

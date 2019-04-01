@@ -13,9 +13,9 @@ namespace MugenMvvm.Enums
         #region Fields
 
         public static readonly ThreadExecutionMode Main = new ThreadExecutionMode(1);
-        public static readonly ThreadExecutionMode Background = new ThreadExecutionMode(2);
-        public static readonly ThreadExecutionMode Current = new ThreadExecutionMode(3);
-        public static readonly ThreadExecutionMode MainAsync = new ThreadExecutionMode(4);
+        public static readonly ThreadExecutionMode MainAsync = new ThreadExecutionMode(2);
+        public static readonly ThreadExecutionMode Background = new ThreadExecutionMode(3);
+        public static readonly ThreadExecutionMode Current = new ThreadExecutionMode(4);
 
         #endregion
 
