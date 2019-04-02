@@ -81,7 +81,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             return _dispatcherListener.SuspendNavigation();
         }
 
-        public INavigationCallback AddCallback(IViewModelBase viewModel, NavigationCallbackType callbackType,
+        public INavigationCallback<T> AddCallback<T>(IViewModelBase viewModel, NavigationCallbackType callbackType,
             IChildViewModelPresenterResult presenterResult, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(presenterResult, nameof(presenterResult));
@@ -89,7 +89,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             Should.NotBeNull(callbackType, nameof(callbackType));
             Should.NotBeNull(presenterResult, nameof(presenterResult));
             Should.NotBeNull(metadata, nameof(metadata));
-            var callback = AddCallbackInternal(viewModel, callbackType, presenterResult);
+            var callback = AddCallbackInternal<T>(viewModel, callbackType, presenterResult);
             OnCallbackAdded(viewModel, callback, presenterResult);
             return callback;
         }
@@ -116,11 +116,10 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         {
         }
 
-        protected virtual INavigationCallback AddCallbackInternal(IViewModelBase viewModel, NavigationCallbackType callbackType,
-            IChildViewModelPresenterResult presenterResult)
+        protected virtual INavigationCallback<T> AddCallbackInternal<T>(IViewModelBase viewModel, NavigationCallbackType callbackType, IChildViewModelPresenterResult presenterResult)
         {
             var serializable = IsSerializable && callbackType == NavigationCallbackType.Close && presenterResult.Metadata.Get(NavigationInternalMetadata.IsRestorableCallback);
-            var callback = new NavigationCallback(callbackType, presenterResult.NavigationType, serializable, presenterResult.NavigationProvider.Id);
+            var callback = new NavigationCallback<T>(callbackType, presenterResult.NavigationType, serializable, presenterResult.NavigationProvider.Id);
 
             var key = GetKeyByCallback(callbackType);
             if (key == null)

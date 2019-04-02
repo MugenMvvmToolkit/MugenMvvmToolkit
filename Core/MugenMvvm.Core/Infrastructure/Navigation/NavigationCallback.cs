@@ -9,8 +9,10 @@ using MugenMvvm.Interfaces.Navigation;
 
 namespace MugenMvvm.Infrastructure.Navigation
 {
-    [Serializable, DataContract(Namespace = BuildConstants.DataContractNamespace), Preserve(Conditional = true, AllMembers = true)]
-    public sealed class NavigationCallback : INavigationCallback<bool>, INavigationCallbackInternal//todo generic?
+    [Serializable]
+    [DataContract(Namespace = BuildConstants.DataContractNamespace)]
+    [Preserve(Conditional = true, AllMembers = true)]
+    public sealed class NavigationCallback<T> : INavigationCallback<T>, INavigationCallbackInternal
     {
         #region Fields
 
@@ -20,14 +22,14 @@ namespace MugenMvvm.Infrastructure.Navigation
         [DataMember(Name = "S")]
         internal bool IsSerializable;
 
-        [DataMember(Name = "N")]
-        internal NavigationType NavigationType;
-
         [DataMember(Name = "I")]
         internal string NavigationProviderId;
 
+        [DataMember(Name = "N")]
+        internal NavigationType NavigationType;
+
         [DataMember(Name = "T")]
-        internal TaskCompletionSource<bool> TaskCompletionSource;
+        internal TaskCompletionSource<T> TaskCompletionSource;
 
         #endregion
 
@@ -39,7 +41,7 @@ namespace MugenMvvm.Infrastructure.Navigation
             NavigationType = navigationType;
             IsSerializable = isSerializable;
             NavigationProviderId = navigationProviderId;
-            TaskCompletionSource = new TaskCompletionSource<bool>();
+            TaskCompletionSource = new TaskCompletionSource<T>();
         }
 
         internal NavigationCallback()
@@ -52,20 +54,23 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         string INavigationCallback.NavigationProviderId => NavigationProviderId;
 
-        [IgnoreDataMember, XmlIgnore]
+        [IgnoreDataMember]
+        [XmlIgnore]
         NavigationCallbackType INavigationCallback.CallbackType => CallbackType;
 
-        [IgnoreDataMember, XmlIgnore]
+        [IgnoreDataMember]
+        [XmlIgnore]
         NavigationType INavigationCallback.NavigationType => NavigationType;
 
-        [IgnoreDataMember, XmlIgnore]
+        [IgnoreDataMember]
+        [XmlIgnore]
         bool INavigationCallbackInternal.IsSerializable => IsSerializable && !TaskCompletionSource.Task.IsCompleted;
 
         #endregion
 
         #region Implementation of interfaces
 
-        Task<bool> INavigationCallback<bool>.WaitAsync()
+        Task<T> INavigationCallback<T>.WaitAsync()
         {
             return TaskCompletionSource.Task;
         }
@@ -77,7 +82,10 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         void INavigationCallbackInternal.SetResult(object? result, INavigationContext? navigationContext)
         {
-            TaskCompletionSource.TrySetResult((bool?)result ?? false);
+            if (result == null)
+                TaskCompletionSource.SetResult(default);
+            else
+                TaskCompletionSource.TrySetResult((T) result);
         }
 
         void INavigationCallbackInternal.SetException(Exception exception, INavigationContext? navigationContext)

@@ -11,6 +11,6 @@ namespace MugenMvvm.Interfaces.Navigation.Presenters
     {
         IDisposable BeginPresenterOperation(IReadOnlyMetadataContext metadata);
 
-        INavigationCallback AddCallback(IViewModelBase viewModel, NavigationCallbackType callbackType, IChildViewModelPresenterResult presenterResult, IReadOnlyMetadataContext metadata);
+        INavigationCallback<T> AddCallback<T>(IViewModelBase viewModel, NavigationCallbackType callbackType, IChildViewModelPresenterResult presenterResult, IReadOnlyMetadataContext metadata);
     }
 }

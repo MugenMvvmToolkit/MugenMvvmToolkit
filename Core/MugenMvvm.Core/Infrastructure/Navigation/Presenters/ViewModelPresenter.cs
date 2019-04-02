@@ -124,8 +124,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 if (viewModel == null)
                     ExceptionManager.ThrowPresenterInvalidRequest(metadata.Dump() + result.Metadata.Dump());
 
-                var showingCallback = CallbackManager.AddCallback(viewModel!, NavigationCallbackType.Showing, result, metadata);
-                var closeCallback = CallbackManager.AddCallback(viewModel!, NavigationCallbackType.Close, result, metadata);
+                var showingCallback = CallbackManager.AddCallback<bool>(viewModel!, NavigationCallbackType.Showing, result, metadata);
+                var closeCallback = CallbackManager.AddCallback<bool>(viewModel!, NavigationCallbackType.Close, result, metadata);
 
                 r = new ViewModelPresenterResult(viewModel!, showingCallback, closeCallback, result);
             }
@@ -170,8 +170,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                     if (viewModel == null)
                         ExceptionManager.ThrowPresenterInvalidRequest(metadata.Dump() + result.Metadata.Dump());
 
-                    var callback = CallbackManager.AddCallback(viewModel!, NavigationCallbackType.Closing, result, metadata);
-                    r.Add(new ClosingViewModelPresenterResult((INavigationCallback<bool>)callback, result));
+                    var callback = CallbackManager.AddCallback<bool>(viewModel!, NavigationCallbackType.Closing, result, metadata);
+                    r.Add(new ClosingViewModelPresenterResult(callback, result));
                 }
             }
 
