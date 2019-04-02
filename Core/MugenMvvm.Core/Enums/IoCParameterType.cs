@@ -6,7 +6,8 @@ using MugenMvvm.Models;
 
 namespace MugenMvvm.Enums
 {
-    [Serializable, DataContract(Namespace = BuildConstants.DataContractNamespace)]
+    [Serializable]
+    [DataContract(Namespace = BuildConstants.DataContractNamespace)]
     public class IoCParameterType : EnumBase<IoCParameterType, int>
     {
         #region Fields

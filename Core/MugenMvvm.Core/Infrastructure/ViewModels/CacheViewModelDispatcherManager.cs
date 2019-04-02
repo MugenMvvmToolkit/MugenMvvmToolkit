@@ -99,9 +99,9 @@ namespace MugenMvvm.Infrastructure.ViewModels
             }
 
             if (!_isWeakCache)
-                return (IViewModelBase)value;
+                return (IViewModelBase) value;
 
-            var vm = (IViewModelBase)((WeakReference)value).Target;
+            var vm = (IViewModelBase) ((WeakReference) value).Target;
             if (vm == null)
                 RemoveFromCache(id);
             return vm;
@@ -115,7 +115,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
         {
             lock (_viewModelsCache)
             {
-                _viewModelsCache[id] = _isWeakCache ? (object)MugenExtensions.GetWeakReference(viewModel) : viewModel;
+                _viewModelsCache[id] = _isWeakCache ? (object) MugenExtensions.GetWeakReference(viewModel) : viewModel;
             }
         }
 

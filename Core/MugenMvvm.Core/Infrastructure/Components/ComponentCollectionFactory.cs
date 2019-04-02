@@ -28,6 +28,14 @@ namespace MugenMvvm.Infrastructure.Components
             return new ArrayComponentCollection<T>(owner);
         }
 
+        protected static void Attach(object owner, IAttachableComponent component)
+        {
+        }
+
+        protected static void Detach(object owner, IDetachableComponent component)
+        {
+        }
+
         #endregion
 
         #region Nested types
@@ -78,7 +86,7 @@ namespace MugenMvvm.Infrastructure.Components
             {
                 if (item is IListener listener)
                     return listener.GetPriority(Owner);
-                return ((IHasPriority)item).Priority;
+                return ((IHasPriority) item).Priority;
             }
 
             #endregion
@@ -88,8 +96,9 @@ namespace MugenMvvm.Infrastructure.Components
         {
             #region Fields
 
-            protected T[] Items;
             protected readonly object Owner;
+
+            protected T[] Items;
 
             #endregion
 
@@ -118,6 +127,9 @@ namespace MugenMvvm.Infrastructure.Components
                 {
                     AddInternal(item);
                 }
+
+                if (item is IAttachableComponent attachable)
+                    Attach(Owner, attachable);
             }
 
             public void Remove(T item)
@@ -127,6 +139,9 @@ namespace MugenMvvm.Infrastructure.Components
                 {
                     RemoveInternal(item);
                 }
+
+                if (item is IDetachableComponent detachable)
+                    Detach(Owner, detachable);
             }
 
             public void Clear()

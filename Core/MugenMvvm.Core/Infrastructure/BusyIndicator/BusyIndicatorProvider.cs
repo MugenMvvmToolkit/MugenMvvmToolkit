@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
-using MugenMvvm.Collections;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.Components;
@@ -15,10 +14,10 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
         #region Fields
 
         private readonly object? _defaultBusyMessage;
-        private BusyToken? _busyTail;
-        private int _suspendCount;
         private readonly object _locker;
+        private BusyToken? _busyTail;
         private IComponentCollection<IBusyIndicatorProviderListener>? _listeners;
+        private int _suspendCount;
 
         #endregion
 
@@ -77,6 +76,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                 if (++_suspendCount == 1)
                     notify = _busyTail?.SetSuspended(true);
             }
+
             if (notify.GetValueOrDefault())
                 OnBusyInfoChanged(true);
             return WeakActionToken.Create(this, @base => @base.EndSuspendNotifications());
@@ -108,6 +108,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                 Task.Delay(millisecondsDelay).ContinueWith(task => BeginBusyInternal(busyToken, 0));
                 return;
             }
+
             if (busyToken.Combine())
                 OnBeginBusy(busyToken);
         }
@@ -120,6 +121,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                 if (--_suspendCount == 0)
                     notify = _busyTail?.SetSuspended(false);
             }
+
             if (notify.GetValueOrDefault())
                 OnBusyInfoChanged();
         }
@@ -229,7 +231,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                     }
                 }
 
-                return tokens ?? (IReadOnlyList<IBusyToken>)Default.EmptyArray<IBusyToken>();
+                return tokens ?? (IReadOnlyList<IBusyToken>) Default.EmptyArray<IBusyToken>();
             }
 
             public void Register(IBusyTokenCallback callback)
@@ -246,7 +248,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                     if (!IsCompleted)
                     {
                         if (_listeners == null)
-                            _listeners = new[] { callback };
+                            _listeners = new[] {callback};
                         else
                         {
                             var listeners = new IBusyTokenCallback[_listeners.Length + 1];
@@ -254,6 +256,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                             listeners[listeners.Length - 1] = callback;
                             _listeners = listeners;
                         }
+
                         if (IsSuspended)
                             callback.OnSuspendChanged(true);
                         return;
@@ -276,7 +279,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                     return;
                 }
 
-                IBusyTokenCallback[]? listeners = null;
+                IBusyTokenCallback[]? listeners;
                 lock (Locker)
                 {
                     listeners = _listeners;
@@ -336,7 +339,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
             public bool SetSuspended(bool suspended)
             {
                 //current
-                bool result = SetSuspendedInternal(suspended);
+                var result = SetSuspendedInternal(suspended);
 
                 //prev
                 var token = _prev;
@@ -404,6 +407,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                     {
                         notify = SetSuspended(ref _suspendedExternal, suspended);
                     }
+
                     if (notify)
                         _provider.OnBusyInfoChanged();
                 }
@@ -423,10 +427,11 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                     var items = _listeners;
                     if (items != null)
                     {
-                        for (int i = 0; i < items.Length; i++)
+                        for (var i = 0; i < items.Length; i++)
                             items[i]?.OnSuspendChanged(suspended);
                     }
                 }
+
                 return changed;
             }
 

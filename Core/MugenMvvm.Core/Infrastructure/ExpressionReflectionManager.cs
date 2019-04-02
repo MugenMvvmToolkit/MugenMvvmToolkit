@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -89,10 +89,11 @@ namespace MugenMvvm.Infrastructure
             {
                 if (!ActivatorCache.TryGetValue(constructor, out var value))
                 {
-                    Expression[] expressions = GetParametersExpression(constructor, out var parameterExpression);
-                    Expression newExpression = ConvertIfNeed(Expression.New(constructor, expressions), typeof(object), false);
+                    var expressions = GetParametersExpression(constructor, out var parameterExpression);
+                    var newExpression = ConvertIfNeed(Expression.New(constructor, expressions), typeof(object), false);
                     value = Expression.Lambda<Func<object?[], object>>(newExpression, parameterExpression).Compile();
                 }
+
                 ActivatorCache[constructor] = value;
                 return value;
             }
@@ -121,7 +122,7 @@ namespace MugenMvvm.Infrastructure
                     MemberGetterCache[key] = value;
                 }
 
-                return (Func<object?, TType>)value;
+                return (Func<object?, TType>) value;
             }
         }
 
@@ -139,11 +140,12 @@ namespace MugenMvvm.Infrastructure
                         Action<object?, TType> result;
                         if (fieldInfo == null)
                         {
-                            var propertyInfo = (PropertyInfo)member;
-                            result = new Action<object?, TType>(propertyInfo.SetValue<TType>);
+                            var propertyInfo = (PropertyInfo) member;
+                            result = propertyInfo.SetValue<TType>;
                         }
                         else
-                            result = new Action<object?, TType>(fieldInfo.SetValue<TType>);
+                            result = fieldInfo.SetValue<TType>;
+
                         MemberSetterCache[key] = result;
                         return result;
                     }
@@ -167,12 +169,14 @@ namespace MugenMvvm.Infrastructure
                         expression = Expression.Field(fieldInfo.IsStatic ? null : ConvertIfNeed(target, declaringType, false), fieldInfo);
                         expression = Expression.Assign(expression, ConvertIfNeed(valueParameter, fieldInfo.FieldType, false));
                     }
+
                     action = Expression
                         .Lambda<Action<object, TType>>(expression, targetParameter, valueParameter)
                         .Compile();
                     MemberSetterCache[key] = action;
                 }
-                return (Action<object?, TType>)action;
+
+                return (Action<object?, TType>) action;
             }
         }
 

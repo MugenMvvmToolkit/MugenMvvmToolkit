@@ -19,6 +19,6 @@ namespace MugenMvvm.Interfaces.Collections
 
         bool OnReset(ref IEnumerable<T> items);
 
-        bool OnCleared();        
+        bool OnCleared();
     }
 }

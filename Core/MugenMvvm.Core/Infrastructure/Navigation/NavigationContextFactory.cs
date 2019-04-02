@@ -83,7 +83,8 @@ namespace MugenMvvm.Infrastructure.Navigation
             IViewModelBase? viewModel, IReadOnlyMetadataContext metadata)
         {
             var entry = GetLastNavigationEntry(navigationType, metadata);
-            return GetNavigationContextInternal(navigationProvider, navigationMode, entry?.NavigationType ?? NavigationType.System, entry?.ViewModel, navigationType, viewModel, metadata);
+            return GetNavigationContextInternal(navigationProvider, navigationMode, entry?.NavigationType ?? NavigationType.System, entry?.ViewModel, navigationType, viewModel,
+                metadata);
         }
 
         protected INavigationEntry? GetLastNavigationEntry(NavigationType navigationType, IReadOnlyMetadataContext metadata)

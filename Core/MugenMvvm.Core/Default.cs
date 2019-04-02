@@ -61,7 +61,7 @@ namespace MugenMvvm
             MetadataContext = emptyContext;
             SerializableNullValue = new NullValue();
             WeakReference = new WeakReference(null, false);
-            Disposable = (IDisposable)MetadataContext;
+            Disposable = (IDisposable) MetadataContext;
             TrueTask = Task.FromResult(true);
             FalseTask = Task.FromResult(false);
             CompletedTask = FalseTask;

@@ -11,7 +11,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
     {
         #region Constructors
 
-        public ChildViewModelPresenterResult(INavigationProvider navigationProvider, NavigationType navigationType, IReadOnlyMetadataContext metadata, IChildViewModelPresenter? presenter)
+        public ChildViewModelPresenterResult(INavigationProvider navigationProvider, NavigationType navigationType, IReadOnlyMetadataContext metadata,
+            IChildViewModelPresenter? presenter)
         {
             Should.NotBeNull(navigationProvider, nameof(navigationProvider));
             Should.NotBeNull(navigationType, nameof(navigationType));

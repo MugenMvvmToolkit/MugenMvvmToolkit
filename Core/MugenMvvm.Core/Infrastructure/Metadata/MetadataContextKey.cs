@@ -106,6 +106,7 @@ namespace MugenMvvm.Infrastructure.Metadata
             // ReSharper disable FieldCanBeMadeReadOnly.Local
             private string? _fieldOrPropertyName;
             private string _key;
+
             private Type? _type;
             // ReSharper restore FieldCanBeMadeReadOnly.Local
 
@@ -216,11 +217,11 @@ namespace MugenMvvm.Infrastructure.Metadata
 
             public Func<IMetadataContextKey<T>, object?, ISerializationContext, bool>? CanSerializeFunc;
 
-            public Func<IMetadataContextKey<T>, object?, ISerializationContext, object?>? SerializableConverterFunc;
-
             public Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, T, T>? GetDefaultValueFunc;
 
             public Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, object?, T>? GetValueFunc;
+
+            public Func<IMetadataContextKey<T>, object?, ISerializationContext, object?>? SerializableConverterFunc;
 
             public Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, object?, T, object?>? SetValueFunc;
 
@@ -271,7 +272,7 @@ namespace MugenMvvm.Infrastructure.Metadata
             public T GetValue(IReadOnlyMetadataContext metadataContext, object? value)
             {
                 if (GetValueFunc == null)
-                    return (T)value!;
+                    return (T) value!;
                 return GetValueFunc(metadataContext, this, value);
             }
 

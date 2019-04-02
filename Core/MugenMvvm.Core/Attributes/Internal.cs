@@ -1,4 +1,5 @@
 ﻿using System;
+
 // ReSharper disable CheckNamespace
 
 #if !NET40
@@ -19,30 +20,29 @@ namespace System
 
 namespace System.Runtime.CompilerServices
 {
-    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Parameter)]
     internal class AssertsTrueAttribute : Attribute
     {
-        public AssertsTrueAttribute () { }
     }
-    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
+
+    [AttributeUsage(AttributeTargets.Parameter)]
     internal class AssertsFalseAttribute : Attribute
     {
-        public AssertsFalseAttribute () { }
     }
-    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
+
+    [AttributeUsage(AttributeTargets.Parameter)]
     internal class EnsuresNotNullAttribute : Attribute
     {
-        public EnsuresNotNullAttribute() { }
     }
-    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
+
+    [AttributeUsage(AttributeTargets.Parameter)]
     internal class NotNullWhenFalseAttribute : Attribute
     {
-        public NotNullWhenFalseAttribute() { }
     }
-    [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
+
+    [AttributeUsage(AttributeTargets.Parameter)]
     internal class NotNullWhenTrueAttribute : Attribute
     {
-        public NotNullWhenTrueAttribute() { }
     }
 }
 

@@ -2,7 +2,9 @@
 
 namespace MugenMvvm.Interfaces.Messaging
 {
-    public interface IMessengerHandler { }
+    public interface IMessengerHandler
+    {
+    }
 
     public interface IMessengerHandler<in TMessage> : IMessengerHandler
     {

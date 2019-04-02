@@ -283,7 +283,7 @@ namespace MugenMvvm
         public static TDelegate GetMethodDelegate<TDelegate>(this IReflectionManager reflectionManager, MethodInfo method) where TDelegate : Delegate
         {
             Should.NotBeNull(method, nameof(method));
-            return (TDelegate)reflectionManager.GetMethodDelegate(typeof(TDelegate), method);
+            return (TDelegate) reflectionManager.GetMethodDelegate(typeof(TDelegate), method);
         }
 
         public static T GetValueEx<T>(this MemberInfo member, object? target)
@@ -317,7 +317,7 @@ namespace MugenMvvm
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static bool EqualsEx(this Type x, Type y)//note idk why but default implementation doesn't use ReferenceEquals before equals check
+        internal static bool EqualsEx(this Type x, Type y) //note idk why but default implementation doesn't use ReferenceEquals before equals check
         {
             return ReferenceEquals(x, y) || x.Equals(y);
         }

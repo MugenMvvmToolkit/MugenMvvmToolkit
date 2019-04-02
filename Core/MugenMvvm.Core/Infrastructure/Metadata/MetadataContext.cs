@@ -116,7 +116,8 @@ namespace MugenMvvm.Infrastructure.Metadata
             }
         }
 
-        public T AddOrUpdate<T, TState1, TState2>(IMetadataContextKey<T> contextKey, T addValue, TState1 state1, TState2 state2, UpdateValueDelegate<IMetadataContext, T, T, TState1, TState2> updateValueFactory)
+        public T AddOrUpdate<T, TState1, TState2>(IMetadataContextKey<T> contextKey, T addValue, TState1 state1, TState2 state2,
+            UpdateValueDelegate<IMetadataContext, T, T, TState1, TState2> updateValueFactory)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
@@ -135,6 +136,7 @@ namespace MugenMvvm.Infrastructure.Metadata
                     result = addValue;
                     added = true;
                 }
+
                 newValue = contextKey.SetValue(this, oldValue, result);
                 _values[contextKey] = newValue;
             }
@@ -146,7 +148,8 @@ namespace MugenMvvm.Infrastructure.Metadata
             return result;
         }
 
-        public T AddOrUpdate<T, TState1, TState2>(IMetadataContextKey<T> contextKey, TState1 state1, TState2 state2, Func<IMetadataContext, TState1, TState2, T> valueFactory, UpdateValueDelegate<IMetadataContext, Func<IMetadataContext, TState1, TState2, T>, T, TState1, TState2> updateValueFactory)
+        public T AddOrUpdate<T, TState1, TState2>(IMetadataContextKey<T> contextKey, TState1 state1, TState2 state2, Func<IMetadataContext, TState1, TState2, T> valueFactory,
+            UpdateValueDelegate<IMetadataContext, Func<IMetadataContext, TState1, TState2, T>, T, TState1, TState2> updateValueFactory)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
@@ -165,6 +168,7 @@ namespace MugenMvvm.Infrastructure.Metadata
                     result = valueFactory(this, state1, state2);
                     added = true;
                 }
+
                 newValue = contextKey.SetValue(this, oldValue, result);
                 _values[contextKey] = newValue;
             }
@@ -279,10 +283,7 @@ namespace MugenMvvm.Infrastructure.Metadata
             {
                 lock (_values)
                 {
-                    foreach (var item in items)
-                    {
-                        _values[item.ContextKey] = item.Value;
-                    }
+                    foreach (var item in items) _values[item.ContextKey] = item.Value;
                 }
             }
         }
@@ -321,7 +322,7 @@ namespace MugenMvvm.Infrastructure.Metadata
                     _values.Clear();
                 }
 
-                for (int i = 0; i < oldValues.Length; i++)
+                for (var i = 0; i < oldValues.Length; i++)
                 {
                     var pair = oldValues[i];
                     OnRemoved(pair.Key, pair.Value);
@@ -388,7 +389,9 @@ namespace MugenMvvm.Infrastructure.Metadata
         {
             #region Fields
 
-            [IgnoreDataMember, XmlIgnore, NonSerialized]
+            [IgnoreDataMember]
+            [XmlIgnore]
+            [NonSerialized]
             private MetadataContext? _metadataContext;
 
             [DataMember(Name = "K")]
@@ -417,7 +420,8 @@ namespace MugenMvvm.Infrastructure.Metadata
 
             #region Properties
 
-            [IgnoreDataMember, XmlIgnore]
+            [IgnoreDataMember]
+            [XmlIgnore]
             public Type TargetType => typeof(MetadataContext);
 
             #endregion
@@ -487,6 +491,6 @@ namespace MugenMvvm.Infrastructure.Metadata
             #endregion
         }
 
-        #endregion        
+        #endregion
     }
 }

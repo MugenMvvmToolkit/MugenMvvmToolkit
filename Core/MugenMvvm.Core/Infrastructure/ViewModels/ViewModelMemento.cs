@@ -21,13 +21,13 @@ namespace MugenMvvm.Infrastructure.ViewModels
     [Serializable]
     [DataContract(Namespace = BuildConstants.DataContractNamespace)]
     [Preserve(Conditional = true, AllMembers = true)]
-    public class ViewModelMemento : IMemento//todo saving/restoring state/ cancel restore
+    public class ViewModelMemento : IMemento //todo saving/restoring state/ cancel restore
     {
         #region Fields
 
-        protected static readonly object RestorationLocker;
-
-        [IgnoreDataMember, XmlIgnore, NonSerialized]
+        [IgnoreDataMember]
+        [XmlIgnore]
+        [NonSerialized]
         private IViewModelBase? _viewModel;
 
         [DataMember(Name = "B")]
@@ -36,14 +36,16 @@ namespace MugenMvvm.Infrastructure.ViewModels
         [DataMember(Name = "C")]
         protected internal IObservableMetadataContext? Metadata;
 
+        [DataMember(Name = "N")]
+        protected internal bool NoState;
+
         [DataMember(Name = "S")]
         protected internal IList<MessengerSubscriberInfo>? Subscribers;
 
         [DataMember(Name = "T")]
         protected internal Type? ViewModelType;
 
-        [DataMember(Name = "N")]
-        protected internal bool NoState;
+        protected static readonly object RestorationLocker;
 
         #endregion
 
@@ -69,7 +71,8 @@ namespace MugenMvvm.Infrastructure.ViewModels
 
         #region Properties
 
-        [IgnoreDataMember, XmlIgnore]
+        [IgnoreDataMember]
+        [XmlIgnore]
         public Type TargetType => ViewModelType!;
 
         #endregion
@@ -144,7 +147,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
 
         protected virtual IViewModelBase RestoreInternal(ISerializationContext serializationContext)
         {
-            return (IViewModelBase)serializationContext.ServiceProvider.GetService(ViewModelType);
+            return (IViewModelBase) serializationContext.ServiceProvider.GetService(ViewModelType);
         }
 
         protected virtual void OnRestoringInternal(IViewModelBase viewModel, ISerializationContext serializationContext)

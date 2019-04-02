@@ -76,7 +76,7 @@ namespace MugenMvvm.Infrastructure.Messaging
                 }
             }
 
-            if (func.Invoke(null, new[] { target, sender, message, messengerContext }) == null)
+            if (func.Invoke(null, new[] {target, sender, message, messengerContext}) == null)
                 return MessengerSubscriberResult.Ignored;
             return MessengerSubscriberResult.Handled;
         }

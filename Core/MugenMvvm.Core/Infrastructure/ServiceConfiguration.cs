@@ -30,6 +30,7 @@ namespace MugenMvvm.Infrastructure
 
                     _service = Service<IServiceProvider>.Instance.GetService<TService>();
                 }
+
                 return _service!;
             }
         }

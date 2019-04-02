@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Components;
 
@@ -86,6 +86,7 @@ namespace MugenMvvm.Collections.Decorators
                 }
                 else
                     index = filterIndex;
+
                 return true;
             }
 
@@ -94,6 +95,7 @@ namespace MugenMvvm.Collections.Decorators
                 RemoveAt(filterIndex);
                 _decoratorManager!.OnRemoved(this, item, filterIndex);
             }
+
             return false;
         }
 

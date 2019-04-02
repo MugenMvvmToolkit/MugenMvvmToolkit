@@ -14,7 +14,8 @@ namespace MugenMvvm
         [DebuggerStepThrough]
         [AssertionMethod]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void NotBeNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL), EnsuresNotNull] object? argumentValue, [InvokerParameterName] string paramName)
+        public static void NotBeNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [EnsuresNotNull]
+            object? argumentValue, [InvokerParameterName] string paramName)
         {
             if (argumentValue == null)
                 throw new ArgumentNullException(paramName);
@@ -23,7 +24,8 @@ namespace MugenMvvm
         [DebuggerStepThrough]
         [AssertionMethod]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void NotBeNullOrEmpty([AssertionCondition(AssertionConditionType.IS_NOT_NULL), EnsuresNotNull] string? argumentValue, [InvokerParameterName] string paramName)
+        public static void NotBeNullOrEmpty([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [EnsuresNotNull]
+            string? argumentValue, [InvokerParameterName] string paramName)
         {
             if (string.IsNullOrEmpty(argumentValue))
                 throw new ArgumentException(MessageConstants.ArgumentCannotBeNull.Format(paramName), paramName);
@@ -46,20 +48,20 @@ namespace MugenMvvm
         }
 
         [DebuggerStepThrough]
-        public static void BeOfType([EnsuresNotNull]object instance, string paramName, Type requiredType)
+        public static void BeOfType([EnsuresNotNull] object instance, string paramName, Type requiredType)
         {
             NotBeNull(instance, paramName);
             BeOfType(instance.GetType(), paramName, requiredType);
         }
 
         [DebuggerStepThrough]
-        public static void BeOfType<T>([EnsuresNotNull]object instance, string paramName)
+        public static void BeOfType<T>([EnsuresNotNull] object instance, string paramName)
         {
             BeOfType(instance, paramName, typeof(T));
         }
 
         [DebuggerStepThrough]
-        public static void BeOfType([EnsuresNotNull]Type type, string paramName,[EnsuresNotNull] Type requiredType)
+        public static void BeOfType([EnsuresNotNull] Type type, string paramName, [EnsuresNotNull] Type requiredType)
         {
             NotBeNull(type, nameof(type));
             NotBeNull(requiredType, nameof(requiredType));
@@ -67,8 +69,10 @@ namespace MugenMvvm
                 throw new ArgumentException(MessageConstants.ArgumentShouldBeOfType.Format(type.Name, requiredType.Name), paramName);
         }
 
-        [DebuggerStepThrough, AssertionMethod]
-        public static void MethodBeSupported([AssertionCondition(AssertionConditionType.IS_TRUE), AssertsTrue]bool isSupported, string methodName)
+        [DebuggerStepThrough]
+        [AssertionMethod]
+        public static void MethodBeSupported([AssertionCondition(AssertionConditionType.IS_TRUE)] [AssertsTrue]
+            bool isSupported, string methodName)
         {
             BeSupported(isSupported, MessageConstants.ShouldMethodBeSupportedFormat1.Format(methodName));
         }

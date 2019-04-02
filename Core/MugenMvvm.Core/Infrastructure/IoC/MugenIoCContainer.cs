@@ -237,7 +237,7 @@ namespace MugenMvvm.Infrastructure.IoC
                 return _parent.GetAll(service, name, parameters);
 
             if (TryResolve(service, parameters, out var value))
-                return new[] { value! };
+                return new[] {value!};
             return Default.EmptyArray<object>();
         }
 
@@ -577,8 +577,8 @@ namespace MugenMvvm.Infrastructure.IoC
                     return null;
                 var objects = obj as Array;
                 if (objects == null)
-                    objects = new[] { obj };
-                var array = (Array)Activator.CreateInstance(arrayType, objects.Length);
+                    objects = new[] {obj};
+                var array = (Array) Activator.CreateInstance(arrayType, objects.Length);
                 for (var i = 0; i < objects.Length; i++)
                     array.SetValue(objects.GetValue(i), i);
                 return array;

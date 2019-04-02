@@ -13,7 +13,9 @@ namespace MugenMvvm.Infrastructure.Serialization
     {
         #region Fields
 
-        [IgnoreDataMember, XmlIgnore, NonSerialized]
+        [IgnoreDataMember]
+        [XmlIgnore]
+        [NonSerialized]
         private WeakReference _weakReference;
 
         #endregion
@@ -42,7 +44,8 @@ namespace MugenMvvm.Infrastructure.Serialization
             set => _weakReference = MugenExtensions.GetWeakReference(value);
         }
 
-        [IgnoreDataMember, XmlIgnore]
+        [IgnoreDataMember]
+        [XmlIgnore]
         [field: DataMember(Name = "T")]
         public Type TargetType { get; }
 
@@ -53,7 +56,7 @@ namespace MugenMvvm.Infrastructure.Serialization
         public T GetTarget<T>()
             where T : class?
         {
-            return (T)_weakReference.Target;
+            return (T) _weakReference.Target;
         }
 
         #endregion

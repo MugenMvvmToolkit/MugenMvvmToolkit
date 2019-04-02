@@ -170,7 +170,8 @@ namespace MugenMvvm.Infrastructure.Messaging
         {
             #region Fields
 
-            [DataMember(Name = "V")] public readonly IViewModelBase ViewModel;
+            [DataMember(Name = "V")]
+            public readonly IViewModelBase ViewModel;
 
             #endregion
 

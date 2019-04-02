@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
@@ -21,10 +21,10 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         private readonly NavigationDispatcherListener _dispatcherListener;
 
         private IComponentCollection<IViewModelPresenterCallbackManagerListener>? _listeners;
+        private int _state;
         private const int DisposedState = 2;
         private const int InitializedState = 1;
         private const int DefaultState = 0;
-        private int _state;
 
         #endregion
 
@@ -64,6 +64,16 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         #region Implementation of interfaces
 
+        public void OnDetached(IViewModelPresenter owner)
+        {
+            if (Interlocked.Exchange(ref _state, DisposedState) == DisposedState)
+                return;
+
+            NavigationDispatcher.RemoveListener(_dispatcherListener);
+            NavigationDispatcher.NavigationJournal.RemoveListener(_dispatcherListener);
+            OnDetachedInternal(owner);
+        }
+
         public void OnAttached(IViewModelPresenter owner)
         {
             Should.NotBeNull(owner, nameof(owner));
@@ -94,16 +104,6 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             return callback;
         }
 
-        public void OnDetached(IViewModelPresenter owner)
-        {
-            if (Interlocked.Exchange(ref _state, DisposedState) == DisposedState)
-                return;
-
-            NavigationDispatcher.RemoveListener(_dispatcherListener);
-            NavigationDispatcher.NavigationJournal.RemoveListener(_dispatcherListener);
-            OnDetachedInternal(owner);
-        }
-
         #endregion
 
         #region Methods
@@ -116,7 +116,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         {
         }
 
-        protected virtual INavigationCallback<T> AddCallbackInternal<T>(IViewModelBase viewModel, NavigationCallbackType callbackType, IChildViewModelPresenterResult presenterResult)
+        protected virtual INavigationCallback<T> AddCallbackInternal<T>(IViewModelBase viewModel, NavigationCallbackType callbackType,
+            IChildViewModelPresenterResult presenterResult)
         {
             var serializable = IsSerializable && callbackType == NavigationCallbackType.Close && presenterResult.Metadata.Get(NavigationInternalMetadata.IsRestorableCallback);
             var callback = new NavigationCallback<T>(callbackType, presenterResult.NavigationType, serializable, presenterResult.NavigationProvider.Id);
@@ -125,7 +126,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             if (key == null)
                 ExceptionManager.ThrowEnumOutOfRange(nameof(callbackType), callbackType);
 
-            var callbacks = viewModel.Metadata.GetOrAdd(key!, (object?)null, (object?)null, (context, o, arg3) => new List<INavigationCallbackInternal?>())!;
+            var callbacks = viewModel.Metadata.GetOrAdd(key!, (object?) null, (object?) null, (context, o, arg3) => new List<INavigationCallbackInternal?>())!;
             lock (callback)
             {
                 callbacks.Add(callback);
@@ -209,7 +210,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 listeners[i].OnCallbackExecuted(this, viewModel, callback, navigationContext);
         }
 
-        protected void InvokeCallbacks(INavigationContext navigationContext, bool isFromNavigation, IMetadataContextKey<IList<INavigationCallbackInternal?>?> key, object? result, Exception? exception, bool canceled)
+        protected void InvokeCallbacks(INavigationContext navigationContext, bool isFromNavigation, IMetadataContextKey<IList<INavigationCallbackInternal?>?> key, object? result,
+            Exception? exception, bool canceled)
         {
             IViewModelBase? viewModel;
             NavigationType navigationType;
@@ -291,7 +293,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             }
         }
 
-        private static void AddEntryCallbacks(INavigationEntry navigationEntry, IMetadataContextKey<IList<INavigationCallbackInternal?>?> key, ref List<INavigationCallback>? callbacks)
+        private static void AddEntryCallbacks(INavigationEntry navigationEntry, IMetadataContextKey<IList<INavigationCallbackInternal?>?> key,
+            ref List<INavigationCallback>? callbacks)
         {
             var list = navigationEntry.ViewModel.Metadata.Get(key);
             if (list == null)

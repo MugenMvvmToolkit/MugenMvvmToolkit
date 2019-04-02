@@ -42,7 +42,8 @@ namespace MugenMvvm.Infrastructure.Serialization
 
         #region Properties
 
-        [IgnoreDataMember, XmlIgnore]
+        [IgnoreDataMember]
+        [XmlIgnore]
         public Type TargetType => TargetTypeField;
 
         #endregion
@@ -62,7 +63,7 @@ namespace MugenMvvm.Infrastructure.Serialization
             if (Member is PropertyInfo propertyInfo)
                 target = propertyInfo.GetValue(null);
             else
-                target = ((FieldInfo)Member).GetValue(null);
+                target = ((FieldInfo) Member).GetValue(null);
             if (target == null)
                 return MementoResult.Unrestored;
             return new MementoResult(target, serializationContext);
@@ -82,6 +83,7 @@ namespace MugenMvvm.Infrastructure.Serialization
                 Tracer.Error(MessageConstants.FieldOrPropertyNotFoundFormat2, fieldOrPropertyName, type);
                 return null;
             }
+
             return new StaticMemberMemento(target, member);
         }
 

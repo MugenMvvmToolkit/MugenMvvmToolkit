@@ -53,9 +53,9 @@ namespace MugenMvvm.Infrastructure.Internal
             {
                 if (dictionary.TryGetValue(path, out var value))
                 {
-                    value = updateValueFactory(item, addValue, (TValue)value!, state1, state2);
+                    value = updateValueFactory(item, addValue, (TValue) value!, state1, state2);
                     dictionary[path] = value;
-                    return (TValue)value!;
+                    return (TValue) value!;
                 }
 
                 dictionary.Add(path, addValue);
@@ -76,14 +76,14 @@ namespace MugenMvvm.Infrastructure.Internal
             {
                 if (dictionary.TryGetValue(path, out var value))
                 {
-                    value = updateValueFactory(item, addValueFactory, (TValue)value!, state1, state2);
+                    value = updateValueFactory(item, addValueFactory, (TValue) value!, state1, state2);
                     dictionary[path] = value;
-                    return (TValue)value!;
+                    return (TValue) value!;
                 }
 
                 value = addValueFactory(item, state1, state2);
                 dictionary.Add(path, value);
-                return (TValue)value!;
+                return (TValue) value!;
             }
         }
 
@@ -95,7 +95,7 @@ namespace MugenMvvm.Infrastructure.Internal
             lock (dictionary)
             {
                 if (dictionary.TryGetValue(path, out var oldValue))
-                    return (TValue)oldValue!;
+                    return (TValue) oldValue!;
                 dictionary.Add(path, value);
                 return value;
             }
@@ -111,10 +111,10 @@ namespace MugenMvvm.Infrastructure.Internal
             lock (dictionary)
             {
                 if (dictionary.TryGetValue(path, out var oldValue))
-                    return (TValue)oldValue!;
+                    return (TValue) oldValue!;
                 oldValue = valueFactory(item, state1, state2);
                 dictionary.Add(path, oldValue);
-                return (TValue)oldValue!;
+                return (TValue) oldValue!;
             }
         }
 
@@ -133,7 +133,7 @@ namespace MugenMvvm.Infrastructure.Internal
             {
                 if (dictionary.TryGetValue(path, out var result))
                 {
-                    value = (TValue)result!;
+                    value = (TValue) result!;
                     return true;
                 }
 

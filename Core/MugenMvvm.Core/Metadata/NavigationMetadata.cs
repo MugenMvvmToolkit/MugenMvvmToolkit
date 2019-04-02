@@ -9,7 +9,7 @@ namespace MugenMvvm.Metadata
         #region Fields
 
         private static IMetadataContextKey<IViewModelBase?> _viewModel;
-        private static IMetadataContextKey<string?> _viewName;        
+        private static IMetadataContextKey<string?> _viewName;
         private static IMetadataContextKey<bool> _isDialog;
 
         #endregion

@@ -22,7 +22,8 @@ namespace MugenMvvm.Collections
 
         #region Constructors
 
-        protected BindableCollectionWrapperBase(IThreadDispatcher threadDispatcher, IList<T>? sourceCollection = null, ThreadExecutionMode? executionMode = null, bool ignoreItemChangedEvent = true)
+        protected BindableCollectionWrapperBase(IThreadDispatcher threadDispatcher, IList<T>? sourceCollection = null, ThreadExecutionMode? executionMode = null,
+            bool ignoreItemChangedEvent = true)
             : base(sourceCollection ?? new List<T>())
         {
             Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
@@ -137,7 +138,7 @@ namespace MugenMvvm.Collections
             if (ThreadDispatcher.CanExecute(ExecutionMode))
                 OnBeginBatchUpdateImpl();
             else
-                ThreadDispatcher.Execute(o => ((BindableCollectionWrapperBase<T>)o!).OnBeginBatchUpdateImpl(), ExecutionMode, this);
+                ThreadDispatcher.Execute(o => ((BindableCollectionWrapperBase<T>) o!).OnBeginBatchUpdateImpl(), ExecutionMode, this);
         }
 
         protected void OnEndBatchUpdate()
@@ -145,7 +146,7 @@ namespace MugenMvvm.Collections
             if (ThreadDispatcher.CanExecute(ExecutionMode))
                 OnEndBatchUpdateImpl();
             else
-                ThreadDispatcher.Execute(o => ((BindableCollectionWrapperBase<T>)o!).OnEndBatchUpdateImpl(), ExecutionMode, this);
+                ThreadDispatcher.Execute(o => ((BindableCollectionWrapperBase<T>) o!).OnEndBatchUpdateImpl(), ExecutionMode, this);
         }
 
         protected void OnItemChanged(T item, int index, object? args)
@@ -368,7 +369,7 @@ namespace MugenMvvm.Collections
         {
             if (IsResetEvent(e))
             {
-                OnReset((IEnumerable<T>)sender);
+                OnReset((IEnumerable<T>) sender);
                 return;
             }
 
@@ -376,22 +377,22 @@ namespace MugenMvvm.Collections
             {
                 case NotifyCollectionChangedAction.Add:
                     if (e.NewItems.Count == 1)
-                        OnAdded((T)e.NewItems[0], e.NewStartingIndex);
+                        OnAdded((T) e.NewItems[0], e.NewStartingIndex);
                     else
                     {
                         for (var i = 0; i < e.NewItems.Count; i++)
-                            OnAdded((T)e.NewItems[i], e.NewStartingIndex + i);
+                            OnAdded((T) e.NewItems[i], e.NewStartingIndex + i);
                     }
 
                     break;
                 case NotifyCollectionChangedAction.Move:
-                    OnMoved((T)e.OldItems[0], e.OldStartingIndex, e.NewStartingIndex);
+                    OnMoved((T) e.OldItems[0], e.OldStartingIndex, e.NewStartingIndex);
                     break;
                 case NotifyCollectionChangedAction.Remove:
-                    OnRemoved((T)e.OldItems[0], e.OldStartingIndex);
+                    OnRemoved((T) e.OldItems[0], e.OldStartingIndex);
                     break;
                 case NotifyCollectionChangedAction.Replace:
-                    OnReplaced((T)e.OldItems[0], (T)e.NewItems[0], e.NewStartingIndex);
+                    OnReplaced((T) e.OldItems[0], (T) e.NewItems[0], e.NewStartingIndex);
                     break;
                 case NotifyCollectionChangedAction.Reset:
                     OnCleared();
@@ -456,7 +457,7 @@ namespace MugenMvvm.Collections
 
             public void Execute(object? state)
             {
-                ((BindableCollectionWrapperBase<T>)state!).AddEventInternal(ref this);
+                ((BindableCollectionWrapperBase<T>) state!).AddEventInternal(ref this);
             }
 
             public void Raise(BindableCollectionWrapperBase<T> listener, bool batch)
@@ -479,7 +480,7 @@ namespace MugenMvvm.Collections
                         listener.OnClearedInternal(batch);
                         break;
                     case CollectionChangedAction.Reset:
-                        listener.OnResetInternal((IEnumerable<T>)State!, batch);
+                        listener.OnResetInternal((IEnumerable<T>) State!, batch);
                         break;
                     case CollectionChangedAction.Changed:
                         listener.OnItemChangedInternal(OldItem, OldIndex, State, batch);

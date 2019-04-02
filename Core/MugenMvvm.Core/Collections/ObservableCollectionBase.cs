@@ -41,6 +41,7 @@ namespace MugenMvvm.Collections
             {
                 if (_listeners == null)
                     MugenExtensions.LazyInitialize(ref _listeners, this);
+
                 return _listeners;
             }
         }
@@ -57,6 +58,7 @@ namespace MugenMvvm.Collections
             {
                 if (_decorators == null)
                     MugenExtensions.LazyInitialize(ref _decorators, this);
+
                 return _decorators;
             }
         }
@@ -67,6 +69,7 @@ namespace MugenMvvm.Collections
             {
                 if (_decoratorListeners == null)
                     MugenExtensions.LazyInitialize(ref _decoratorListeners, this);
+
                 return _decoratorListeners;
             }
         }
@@ -88,13 +91,15 @@ namespace MugenMvvm.Collections
             var hasDecorators = mode.HasFlagEx(BatchUpdateCollectionMode.Decorators);
             if (hasListeners && Interlocked.Increment(ref _batchCount) == 1)
                 OnBeginBatchUpdate(false);
+
             if (hasDecorators && Interlocked.Increment(ref _batchCountDecorators) == 1)
                 OnBeginBatchUpdate(true);
+
             if (!hasListeners && !hasDecorators)
                 return Default.Disposable;
 
             return WeakActionToken.Create(this, Default.BoolToObject(hasListeners), Default.BoolToObject(hasDecorators),
-                (@base, b1, b2) => @base.EndBatchUpdate((bool)b1, (bool)b2));
+                (@base, b1, b2) => @base.EndBatchUpdate((bool) b1, (bool) b2));
         }
 
         public abstract void Add(T item);
@@ -119,8 +124,6 @@ namespace MugenMvvm.Collections
 
         public abstract void RaiseItemChanged(T item, object? args);
 
-        public abstract IDisposable Lock();
-
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
             return GetEnumeratorInternal();
@@ -130,6 +133,8 @@ namespace MugenMvvm.Collections
         {
             return GetEnumeratorInternal();
         }
+
+        public abstract IDisposable Lock();
 
         IEnumerable<T> IObservableCollectionDecoratorManager<T>.DecorateItems(IObservableCollectionDecorator<T> decorator)
         {
@@ -204,10 +209,8 @@ namespace MugenMvvm.Collections
             var decorators = GetDecorators(decorator, out var indexOf);
             if (decorators.Count != 0)
             {
-                for (int i = 0; i < indexOf.GetValueOrDefault(decorators.Count); i++)
-                {
+                for (var i = 0; i < indexOf.GetValueOrDefault(decorators.Count); i++)
                     items = decorators[i].DecorateItems(items);
-                }
             }
 
             return items;
@@ -348,7 +351,7 @@ namespace MugenMvvm.Collections
             var decorators = GetDecorators(decorator, out var indexOf);
             if (decorators.Count != 0)
             {
-                for (int i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Count; i++)
+                for (var i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Count; i++)
                 {
                     if (!decorators[i].OnItemChanged(ref item, ref index, ref args))
                         return;
@@ -365,7 +368,7 @@ namespace MugenMvvm.Collections
             var decorators = GetDecorators(decorator, out var indexOf);
             if (decorators.Count != 0)
             {
-                for (int i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Count; i++)
+                for (var i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Count; i++)
                 {
                     if (!decorators[i].OnAdded(ref item, ref index))
                         return;
@@ -382,7 +385,7 @@ namespace MugenMvvm.Collections
             var decorators = GetDecorators(decorator, out var indexOf);
             if (decorators.Count != 0)
             {
-                for (int i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Count; i++)
+                for (var i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Count; i++)
                 {
                     if (!decorators[i].OnReplaced(ref oldItem, ref newItem, ref index))
                         return;
@@ -399,7 +402,7 @@ namespace MugenMvvm.Collections
             var decorators = GetDecorators(decorator, out var indexOf);
             if (decorators.Count != 0)
             {
-                for (int i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Count; i++)
+                for (var i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Count; i++)
                 {
                     if (!decorators[i].OnMoved(ref item, ref oldIndex, ref newIndex))
                         return;
@@ -416,7 +419,7 @@ namespace MugenMvvm.Collections
             var decorators = GetDecorators(decorator, out var indexOf);
             if (decorators.Count != 0)
             {
-                for (int i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Count; i++)
+                for (var i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Count; i++)
                 {
                     if (!decorators[i].OnRemoved(ref item, ref index))
                         return;
@@ -433,7 +436,7 @@ namespace MugenMvvm.Collections
             var decorators = GetDecorators(decorator, out var indexOf);
             if (decorators.Count != 0)
             {
-                for (int i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Count; i++)
+                for (var i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Count; i++)
                 {
                     if (!decorators[i].OnReset(ref items))
                         return;
@@ -450,7 +453,7 @@ namespace MugenMvvm.Collections
             var decorators = GetDecorators(decorator, out var indexOf);
             if (decorators.Count != 0)
             {
-                for (int i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Count; i++)
+                for (var i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Count; i++)
                 {
                     if (!decorators[i].OnCleared())
                         return;
@@ -466,8 +469,10 @@ namespace MugenMvvm.Collections
         {
             if (value is T)
                 return true;
+
             if (value == null)
                 return default(T) == null;
+
             return false;
         }
 
@@ -488,7 +493,7 @@ namespace MugenMvvm.Collections
             if (decorator == null || decorators == null)
                 return decorators ?? Default.EmptyArray<IObservableCollectionDecorator<T>>();
 
-            for (int i = 0; i < decorators.Count; i++)
+            for (var i = 0; i < decorators.Count; i++)
             {
                 if (ReferenceEquals(decorators[i], decorator))
                 {

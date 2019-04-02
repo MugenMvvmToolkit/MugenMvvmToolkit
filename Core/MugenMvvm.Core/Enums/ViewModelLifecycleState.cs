@@ -6,20 +6,21 @@ using MugenMvvm.Models;
 
 namespace MugenMvvm.Enums
 {
-    [Serializable, DataContract(Namespace = BuildConstants.DataContractNamespace)]
+    [Serializable]
+    [DataContract(Namespace = BuildConstants.DataContractNamespace)]
     public class ViewModelLifecycleState : EnumBase<ViewModelLifecycleState, string>
     {
         #region Fields
 
         public static readonly ViewModelLifecycleState Created = new ViewModelLifecycleState(nameof(Created));
         public static readonly ViewModelLifecycleState Initialized = new ViewModelLifecycleState(nameof(Initialized));
-        public static readonly ViewModelLifecycleState Disposing = new ViewModelLifecycleState(nameof(Disposing)) { IsDispose = true };
-        public static readonly ViewModelLifecycleState Disposed = new ViewModelLifecycleState(nameof(Disposed)) { IsDispose = true };
-        public static readonly ViewModelLifecycleState Finalized = new ViewModelLifecycleState(nameof(Finalized)) { IsDispose = true };
+        public static readonly ViewModelLifecycleState Disposing = new ViewModelLifecycleState(nameof(Disposing)) {IsDispose = true};
+        public static readonly ViewModelLifecycleState Disposed = new ViewModelLifecycleState(nameof(Disposed)) {IsDispose = true};
+        public static readonly ViewModelLifecycleState Finalized = new ViewModelLifecycleState(nameof(Finalized)) {IsDispose = true};
         public static readonly ViewModelLifecycleState Preserving = new ViewModelLifecycleState(nameof(Preserving));
         public static readonly ViewModelLifecycleState Preserved = new ViewModelLifecycleState(nameof(Preserved));
-        public static readonly ViewModelLifecycleState Restoring = new ViewModelLifecycleState(nameof(Restoring)) { IsRestore = true };
-        public static readonly ViewModelLifecycleState Restored = new ViewModelLifecycleState(nameof(Restored)) { IsRestore = true };
+        public static readonly ViewModelLifecycleState Restoring = new ViewModelLifecycleState(nameof(Restoring)) {IsRestore = true};
+        public static readonly ViewModelLifecycleState Restored = new ViewModelLifecycleState(nameof(Restored)) {IsRestore = true};
 
         #endregion
 

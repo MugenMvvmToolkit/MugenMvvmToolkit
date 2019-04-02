@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Interfaces.ViewModels
 {
-    public interface IWrapperViewModel : IViewModelBase//todo check usages, use as extension, todo add presenter
+    public interface IWrapperViewModel : IViewModelBase //todo check usages, use as extension, todo add presenter
     {
         IViewModelBase ViewModel { get; }
 

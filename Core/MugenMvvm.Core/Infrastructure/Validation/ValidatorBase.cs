@@ -20,9 +20,9 @@ namespace MugenMvvm.Infrastructure.Validation
         private readonly HashSet<string> _validatingMembers;
         protected readonly Dictionary<string, IReadOnlyList<object>> Errors;
         private CancellationTokenSource? _disposeCancellationTokenSource;
-        private int _state;
 
         private IComponentCollection<IValidatorListener>? _listeners;
+        private int _state;
         private TTarget? _target;
         private Dictionary<string, CancellationTokenSource>? _validatingTasks;
         private PropertyChangedEventHandler? _weakPropertyHandler;

@@ -181,7 +181,7 @@ namespace MugenMvvm.Infrastructure.Views
         protected virtual IViewManagerResult Initialize(IParentViewManager parentViewManager, IViewManagerInitializer initializer, int mappingId, IViewModelBase viewModel,
             object view, IReadOnlyMetadataContext metadata)
         {
-            var views = viewModel.Metadata.GetOrAdd(ViewsMetadataKey, (object?)null, (object?)null, (context, vm, _) => new Dictionary<int, IViewInfo>());
+            var views = viewModel.Metadata.GetOrAdd(ViewsMetadataKey, (object?) null, (object?) null, (context, vm, _) => new Dictionary<int, IViewInfo>());
             ViewInfo viewInfo;
             lock (views)
             {
@@ -225,7 +225,7 @@ namespace MugenMvvm.Infrastructure.Views
         protected virtual IViewModelBase GetViewModelForView(IParentViewManager parentViewManager, IViewModelViewInitializer initializer, object view,
             IReadOnlyMetadataContext metadata)
         {
-            var vm = (IViewModelBase)ServiceProvider.GetService(initializer.ViewModelType);
+            var vm = (IViewModelBase) ServiceProvider.GetService(initializer.ViewModelType);
             parentViewManager.OnViewModelCreated(vm, view, metadata);
             return vm;
         }
@@ -233,7 +233,7 @@ namespace MugenMvvm.Infrastructure.Views
         protected virtual object GetViewForViewModel(IParentViewManager parentViewManager, IViewInitializer initializer, IViewModelBase viewModel,
             IReadOnlyMetadataContext metadata)
         {
-            var view = (IViewModelBase)ServiceProvider.GetService(initializer.ViewType);
+            var view = (IViewModelBase) ServiceProvider.GetService(initializer.ViewType);
             parentViewManager.OnViewCreated(viewModel, view, metadata);
             return view;
         }
@@ -255,12 +255,12 @@ namespace MugenMvvm.Infrastructure.Views
         {
             #region Fields
 
-            private bool _exactlyEqual;
-            private Func<object, IReadOnlyMetadataContext, Type?>? _getViewModelType;
-            private Func<IViewModelBase, IReadOnlyMetadataContext, Type?>? _getViewType;
-            private string? _name;
-            private Type? _viewModelType;
-            private Type? _viewType;
+            private readonly bool _exactlyEqual;
+            private readonly Func<object, IReadOnlyMetadataContext, Type?>? _getViewModelType;
+            private readonly Func<IViewModelBase, IReadOnlyMetadataContext, Type?>? _getViewType;
+            private readonly string? _name;
+            private readonly Type? _viewModelType;
+            private readonly Type? _viewType;
 
             public readonly IReadOnlyMetadataContext Metadata;
             public readonly int Id;
@@ -365,10 +365,6 @@ namespace MugenMvvm.Infrastructure.Views
 
             public Type ViewModelType { get; }
 
-            #endregion
-
-            #region Implementation of interfaces
-
             public string Id
             {
                 get
@@ -378,6 +374,10 @@ namespace MugenMvvm.Infrastructure.Views
                     return _id;
                 }
             }
+
+            #endregion
+
+            #region Implementation of interfaces
 
             public Task<IViewManagerResult> InitializeAsync(IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata)
             {
@@ -464,8 +464,9 @@ namespace MugenMvvm.Infrastructure.Views
         {
             #region Fields
 
-            private readonly int _mappingId;
             private readonly IViewManagerInitializer _initializer;
+
+            private readonly int _mappingId;
             private readonly IParentViewManager _parentViewManager;
             private readonly MappingViewManager _viewManager;
 
@@ -476,7 +477,8 @@ namespace MugenMvvm.Infrastructure.Views
 
             #region Constructors
 
-            public ViewInfo(MappingViewManager viewManager, IParentViewManager parentViewManager, int mappingId, IViewManagerInitializer initializer, object view, IObservableMetadataContext? metadata)
+            public ViewInfo(MappingViewManager viewManager, IParentViewManager parentViewManager, int mappingId, IViewManagerInitializer initializer, object view,
+                IObservableMetadataContext? metadata)
             {
                 _viewManager = viewManager;
                 _mappingId = mappingId;
@@ -508,7 +510,7 @@ namespace MugenMvvm.Infrastructure.Views
 
             public T GetInitializer<T>() where T : class, IViewManagerInitializer
             {
-                return (T)_initializer;
+                return (T) _initializer;
             }
 
             public Task<ICleanupViewManagerResult> CleanupAsync(IViewModelBase viewModel, IReadOnlyMetadataContext metadata)

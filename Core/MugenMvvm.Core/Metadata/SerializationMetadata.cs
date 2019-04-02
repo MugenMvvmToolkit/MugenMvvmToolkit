@@ -24,8 +24,6 @@ namespace MugenMvvm.Metadata
             set => _noCache = value;
         }
 
-//        public static IMetadataContextKey<bool> Supp
-
         #endregion
 
         #region Methods
@@ -36,5 +34,7 @@ namespace MugenMvvm.Metadata
         }
 
         #endregion
+
+//        public static IMetadataContextKey<bool> Supp
     }
 }

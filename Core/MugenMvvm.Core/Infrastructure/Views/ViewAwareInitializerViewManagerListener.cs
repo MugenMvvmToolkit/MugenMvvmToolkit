@@ -68,12 +68,12 @@ namespace MugenMvvm.Infrastructure.Views
 
         public void OnViewInitialized(IViewManager viewManager, IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
         {
-            GetUpdateViewMethod(viewModel, viewInfo.View)?.Invoke(null, new[] { viewModel, viewInfo, metadata, Default.FalseObject });
+            GetUpdateViewMethod(viewModel, viewInfo.View)?.Invoke(null, new[] {viewModel, viewInfo, metadata, Default.FalseObject});
         }
 
         public void OnViewCleared(IViewManager viewManager, IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
         {
-            GetUpdateViewMethod(viewModel, viewInfo.View)?.Invoke(null, new[] { viewModel, viewInfo, metadata, Default.TrueObject });
+            GetUpdateViewMethod(viewModel, viewInfo.View)?.Invoke(null, new[] {viewModel, viewInfo, metadata, Default.TrueObject});
         }
 
         public int GetPriority(object source)

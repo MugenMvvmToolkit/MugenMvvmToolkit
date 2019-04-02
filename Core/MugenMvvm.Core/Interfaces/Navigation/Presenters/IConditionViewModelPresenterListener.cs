@@ -7,7 +7,8 @@ namespace MugenMvvm.Interfaces.Navigation.Presenters
     {
         bool CanShow(IViewModelPresenter presenter, IChildViewModelPresenter childPresenter, IReadOnlyMetadataContext metadata);
 
-        bool CanClose(IViewModelPresenter presenter, IChildViewModelPresenter childPresenter, IReadOnlyList<IChildViewModelPresenterResult> currentResults, IReadOnlyMetadataContext metadata);
+        bool CanClose(IViewModelPresenter presenter, IChildViewModelPresenter childPresenter, IReadOnlyList<IChildViewModelPresenterResult> currentResults,
+            IReadOnlyMetadataContext metadata);
 
         bool CanRestore(IViewModelPresenter presenter, IRestorableChildViewModelPresenter childPresenter, IReadOnlyMetadataContext metadata);
     }

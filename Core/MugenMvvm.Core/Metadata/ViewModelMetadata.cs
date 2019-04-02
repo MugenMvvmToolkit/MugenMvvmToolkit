@@ -42,11 +42,12 @@ namespace MugenMvvm.Metadata
                 if (_lifecycleState == null)
                 {
                     _lifecycleState = GetBuilder<ViewModelLifecycleState>(nameof(LifecycleState))
-                           .NotNull()
-                           .Serializable()
-                           .DefaultValue(ViewModelLifecycleState.Disposed)
-                           .Build();
+                        .NotNull()
+                        .Serializable()
+                        .DefaultValue(ViewModelLifecycleState.Disposed)
+                        .Build();
                 }
+
                 return _lifecycleState;
             }
             set => _lifecycleState = value;
@@ -111,9 +112,10 @@ namespace MugenMvvm.Metadata
                 if (_closeHandler == null)
                 {
                     _closeHandler = GetBuilder<Func<IViewModelBase, IReadOnlyMetadataContext, IChildViewModelPresenterResult>?>(nameof(CloseHandler))
-                           .NotNull()
-                           .Build();
+                        .NotNull()
+                        .Build();
                 }
+
                 return _closeHandler;
             }
             set => _closeHandler = value;

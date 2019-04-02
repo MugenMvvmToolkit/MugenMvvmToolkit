@@ -251,7 +251,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
             #region Properties
 
-            public IViewModelBase? ViewModel => (IViewModelBase)_viewModelReference.Target;
+            public IViewModelBase? ViewModel => (IViewModelBase) _viewModelReference.Target;
 
             public INavigationProvider NavigationProvider { get; }
 

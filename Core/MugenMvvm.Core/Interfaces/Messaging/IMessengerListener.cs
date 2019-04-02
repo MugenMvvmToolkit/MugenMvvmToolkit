@@ -15,6 +15,7 @@ namespace MugenMvvm.Interfaces.Messaging
 
         MessengerSubscriberResult? OnPublishing(IMessenger messenger, IMessengerSubscriber subscriber, object sender, object message, IMessengerContext messengerContext);
 
-        void OnPublished(IMessenger messenger, IMessengerSubscriber subscriber, object sender, object message, IMessengerContext messengerContext, MessengerSubscriberResult result);
+        void OnPublished(IMessenger messenger, IMessengerSubscriber subscriber, object sender, object message, IMessengerContext messengerContext,
+            MessengerSubscriberResult result);
     }
 }

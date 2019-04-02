@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
@@ -73,6 +73,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                     _subscribed = true;
                 }
             }
+
             NavigationDispatcher.Listeners.Remove(this);
         }
 
@@ -205,13 +206,13 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         protected virtual INavigationMediator? TryGetMediator(IViewModelBase viewModel, IViewInitializer viewInitializer, IReadOnlyMetadataContext metadata)
         {
-            var mediators = viewModel.Metadata.GetOrAdd(NavigationInternalMetadata.NavigationMediators, (object?)null, (object?)null,
+            var mediators = viewModel.Metadata.GetOrAdd(NavigationInternalMetadata.NavigationMediators, (object?) null, (object?) null,
                 (context, o, arg3) => new List<INavigationMediator>())!;
 
             var managers = Managers.GetItems();
             lock (mediators)
             {
-                INavigationMediator? mediator = mediators.FirstOrDefault(m => m.ViewInitializer.Id == viewInitializer.Id);
+                var mediator = mediators.FirstOrDefault(m => m.ViewInitializer.Id == viewInitializer.Id);
                 if (mediator == null)
                 {
                     for (var i = 0; i < managers.Count; i++)
