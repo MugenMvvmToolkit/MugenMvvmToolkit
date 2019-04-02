@@ -93,7 +93,7 @@ namespace MugenMvvm.Infrastructure.Commands
         {
             List<IRelayCommandMediator>? result = null;
             var mediatorFactories = MediatorFactories.GetItems();
-            for (var i = 0; i < mediatorFactories.Count; i++)
+            for (var i = 0; i < mediatorFactories.Length; i++)
             {
                 var mediators = mediatorFactories[i].GetMediators<TParameter>(this, relayCommand, execute, canExecute, notifiers, metadata);
                 if (mediators == null || mediators.Count == 0)

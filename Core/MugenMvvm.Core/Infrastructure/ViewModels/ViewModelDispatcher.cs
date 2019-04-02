@@ -106,14 +106,14 @@ namespace MugenMvvm.Infrastructure.ViewModels
                 viewModel.Metadata.Set(ViewModelMetadata.LifecycleState, lifecycleState);
 
             var managers = Managers.GetItems();
-            for (var i = 0; i < managers.Count; i++)
+            for (var i = 0; i < managers.Length; i++)
                 managers[i].OnLifecycleChanged(this, viewModel, lifecycleState, metadata);
         }
 
         protected virtual object? GetServiceInternal(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext metadata)
         {
             var managers = Managers.GetItems();
-            for (var i = 0; i < managers.Count; i++)
+            for (var i = 0; i < managers.Length; i++)
             {
                 var result = (managers[i] as IServiceResolverViewModelDispatcherManager)?.TryGetService(this, viewModel, service, metadata);
                 if (result != null)
@@ -127,7 +127,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
         {
             var subscribed = false;
             var managers = Managers.GetItems();
-            for (var i = 0; i < managers.Count; i++)
+            for (var i = 0; i < managers.Length; i++)
             {
                 var result = (managers[i] as ISubscriberViewModelDispatcherManager)?.TrySubscribe(this, viewModel, observer, executionMode, metadata);
                 if (result.GetValueOrDefault())
@@ -141,7 +141,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
         {
             var unsubscribed = false;
             var managers = Managers.GetItems();
-            for (var i = 0; i < managers.Count; i++)
+            for (var i = 0; i < managers.Length; i++)
             {
                 var result = (managers[i] as ISubscriberViewModelDispatcherManager)?.TryUnsubscribe(this, viewModel, observer, metadata);
                 if (result.GetValueOrDefault())
@@ -154,7 +154,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
         protected virtual IViewModelBase? GetViewModelInternal(Type vmType, IReadOnlyMetadataContext metadata)
         {
             var managers = Managers.GetItems();
-            for (var i = 0; i < managers.Count; i++)
+            for (var i = 0; i < managers.Length; i++)
             {
                 var viewModel = (managers[i] as IViewModelProviderViewModelDispatcherManager)?.TryGetViewModel(this, vmType, metadata);
                 if (viewModel != null)
@@ -167,7 +167,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
         protected virtual IViewModelBase? TryGetViewModelInternal(Guid id, IReadOnlyMetadataContext metadata)
         {
             var managers = Managers.GetItems();
-            for (var i = 0; i < managers.Count; i++)
+            for (var i = 0; i < managers.Length; i++)
             {
                 var viewModel = (managers[i] as IViewModelProviderViewModelDispatcherManager)?.TryGetViewModel(this, id, metadata);
                 if (viewModel != null)

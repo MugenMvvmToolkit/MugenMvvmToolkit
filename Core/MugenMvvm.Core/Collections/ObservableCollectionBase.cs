@@ -493,7 +493,7 @@ namespace MugenMvvm.Collections
             if (decorator == null || decorators == null)
                 return decorators ?? Default.EmptyArray<IObservableCollectionDecorator<T>>();
 
-            for (var i = 0; i < decorators.Count; i++)
+            for (var i = 0; i < decorators.Length; i++)
             {
                 if (ReferenceEquals(decorators[i], decorator))
                 {

@@ -172,7 +172,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             }
 
             var managers = Managers.GetItems();
-            for (var i = 0; i < managers.Count; i++)
+            for (var i = 0; i < managers.Length; i++)
             {
                 var result = managers[i].TryCloseInternal(this, viewModel!, m, metadata);
                 if (result != null)
@@ -215,7 +215,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 var mediator = mediators.FirstOrDefault(m => m.ViewInitializer.Id == viewInitializer.Id);
                 if (mediator == null)
                 {
-                    for (var i = 0; i < managers.Count; i++)
+                    for (var i = 0; i < managers.Length; i++)
                     {
                         mediator = managers[i].TryGetMediator(this, viewModel, viewInitializer, metadata);
                         if (mediator != null)

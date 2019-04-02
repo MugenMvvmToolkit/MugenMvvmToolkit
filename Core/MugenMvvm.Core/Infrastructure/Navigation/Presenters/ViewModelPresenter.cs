@@ -100,7 +100,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         protected virtual IChildViewModelPresenterResult? ShowInternal(IReadOnlyMetadataContext metadata)
         {
             var presenters = Presenters.GetItems();
-            for (var i = 0; i < presenters.Count; i++)
+            for (var i = 0; i < presenters.Length; i++)
             {
                 var presenter = presenters[i];
                 if (!CanShow(presenter, metadata))
@@ -140,7 +140,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         {
             var results = new List<IChildViewModelPresenterResult>();
             var presenters = Presenters.GetItems();
-            for (var i = 0; i < presenters.Count; i++)
+            for (var i = 0; i < presenters.Length; i++)
             {
                 var presenter = presenters[i];
                 if (!CanClose(presenter, results, metadata))
@@ -185,7 +185,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         protected virtual IChildViewModelPresenterResult? TryRestoreInternal(IReadOnlyMetadataContext metadata)
         {
             var presenters = Presenters.GetItems();
-            for (var i = 0; i < presenters.Count; i++)
+            for (var i = 0; i < presenters.Length; i++)
             {
                 if (presenters[i] is IRestorableChildViewModelPresenter presenter && CanRestore(presenter, metadata))
                 {

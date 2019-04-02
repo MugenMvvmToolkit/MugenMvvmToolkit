@@ -77,7 +77,7 @@ namespace MugenMvvm.Infrastructure.Wrapping
                 return true;
 
             var factories = WrapperFactories.GetItems();
-            for (var i = 0; i < factories.Count; i++)
+            for (var i = 0; i < factories.Length; i++)
             {
                 if (factories[i].CanWrap(this, type, wrapperType, metadata))
                     return true;
@@ -90,7 +90,7 @@ namespace MugenMvvm.Infrastructure.Wrapping
         {
             object? wrapper = null;
             var factories = WrapperFactories.GetItems();
-            for (var i = 0; i < factories.Count; i++)
+            for (var i = 0; i < factories.Length; i++)
             {
                 wrapper = factories[i].TryWrap(this, item.GetType(), wrapperType, metadata);
                 if (wrapper != null)

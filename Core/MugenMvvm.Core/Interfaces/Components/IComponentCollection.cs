@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace MugenMvvm.Interfaces.Components
+﻿namespace MugenMvvm.Interfaces.Components
 {
     public interface IComponentCollection<T> where T : class //todo add/remove event wrapper, target is optional????
     {
@@ -12,6 +10,6 @@ namespace MugenMvvm.Interfaces.Components
 
         void Clear();
 
-        IReadOnlyList<T> GetItems(); //todo check array vs list usages perf
+        T[] GetItems();
     }
 }

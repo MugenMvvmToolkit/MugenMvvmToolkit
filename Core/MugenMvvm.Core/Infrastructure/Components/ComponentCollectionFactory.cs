@@ -86,7 +86,7 @@ namespace MugenMvvm.Infrastructure.Components
             {
                 if (item is IListener listener)
                     return listener.GetPriority(Owner);
-                return ((IHasPriority) item).Priority;
+                return ((IHasPriority)item).Priority;
             }
 
             #endregion
@@ -149,7 +149,7 @@ namespace MugenMvvm.Infrastructure.Components
                 Items = Default.EmptyArray<T>();
             }
 
-            public IReadOnlyList<T> GetItems()
+            public T[] GetItems()
             {
                 return Items;
             }

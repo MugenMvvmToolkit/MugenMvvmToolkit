@@ -113,13 +113,13 @@ namespace MugenMvvm.Infrastructure.Views
         protected virtual IReadOnlyList<IViewInfo> GetViewsInternal(IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
         {
             var managers = Managers.GetItems();
-            if (managers.Count == 0)
+            if (managers.Length == 0)
                 return Default.EmptyArray<IViewInfo>();
-            if (managers.Count == 1)
+            if (managers.Length == 1)
                 return managers[0].GetViews(this, viewModel, metadata);
 
             var result = new List<IViewInfo>();
-            for (var i = 0; i < managers.Count; i++)
+            for (var i = 0; i < managers.Length; i++)
                 result.AddRange(managers[i].GetViews(this, viewModel, metadata));
             return result;
         }
@@ -127,13 +127,13 @@ namespace MugenMvvm.Infrastructure.Views
         protected virtual IReadOnlyList<IViewModelViewInitializer> GetInitializersByViewInternal(object view, IReadOnlyMetadataContext metadata)
         {
             var managers = Managers.GetItems();
-            if (managers.Count == 0)
+            if (managers.Length == 0)
                 return Default.EmptyArray<IViewModelViewInitializer>();
-            if (managers.Count == 1)
+            if (managers.Length == 1)
                 return managers[0].GetInitializersByView(this, view, metadata);
 
             var result = new List<IViewModelViewInitializer>();
-            for (var i = 0; i < managers.Count; i++)
+            for (var i = 0; i < managers.Length; i++)
                 result.AddRange(managers[i].GetInitializersByView(this, view, metadata));
             return result;
         }
@@ -141,13 +141,13 @@ namespace MugenMvvm.Infrastructure.Views
         protected virtual IReadOnlyList<IViewInitializer> GetInitializersByViewModelInternal(IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
         {
             var managers = Managers.GetItems();
-            if (managers.Count == 0)
+            if (managers.Length == 0)
                 return Default.EmptyArray<IViewInitializer>();
-            if (managers.Count == 1)
+            if (managers.Length == 1)
                 return managers[0]?.GetInitializersByViewModel(this, viewModel, metadata) ?? Default.EmptyArray<IViewInitializer>();
 
             var result = new List<IViewInitializer>();
-            for (var i = 0; i < managers.Count; i++)
+            for (var i = 0; i < managers.Length; i++)
                 result.AddRange(managers[i].GetInitializersByViewModel(this, viewModel, metadata));
             return result;
         }
