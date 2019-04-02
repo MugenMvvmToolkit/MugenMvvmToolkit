@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Models;
 
@@ -13,7 +14,7 @@ namespace MugenMvvm.Interfaces.Collections
 
         IEnumerable<T> DecorateItems();
 
-        IDisposable BeginBatchUpdate();//todo enum decorators, listeners?
+        IDisposable BeginBatchUpdate(BatchUpdateCollectionMode mode = BatchUpdateCollectionMode.Both);
 
         void Move(int oldIndex, int newIndex);
 

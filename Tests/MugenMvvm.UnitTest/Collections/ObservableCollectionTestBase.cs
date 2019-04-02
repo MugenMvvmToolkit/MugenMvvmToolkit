@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Collections.Decorators;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.UnitTest.TestInfrastructure;
 using MugenMvvm.UnitTest.TestModels;
@@ -192,9 +193,11 @@ namespace MugenMvvm.UnitTest.Collections
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void BeginEndBatchUpdateShouldCallListener(bool decorators)
+        [InlineData(BatchUpdateCollectionMode.Decorators, 1)]
+        [InlineData(BatchUpdateCollectionMode.Listeners, 1)]
+        [InlineData(BatchUpdateCollectionMode.Both, 2)]
+        [InlineData((BatchUpdateCollectionMode)0, 0)]
+        public void BeginEndBatchUpdateShouldCallListener(BatchUpdateCollectionMode mode, int result)
         {
             var begin = 0;
             var end = 0;
@@ -206,26 +209,25 @@ namespace MugenMvvm.UnitTest.Collections
                 OnBeginBatchUpdate = items => begin++,
                 OnEndBatchUpdate = items => end++
             };
-            if (decorators)
-                collection.DecoratorListeners.Add(collectionListener);
-            else
-                collection.AddListener(collectionListener);
 
-            var beginBatchUpdate1 = collection.BeginBatchUpdate();
-            begin.ShouldEqual(1);
+            collection.DecoratorListeners.Add(collectionListener);
+            collection.AddListener(collectionListener);
+
+            var beginBatchUpdate1 = collection.BeginBatchUpdate(mode);
+            begin.ShouldEqual(result);
             end.ShouldEqual(0);
 
-            var beginBatchUpdate2 = collection.BeginBatchUpdate();
-            begin.ShouldEqual(1);
+            var beginBatchUpdate2 = collection.BeginBatchUpdate(mode);
+            begin.ShouldEqual(result);
             end.ShouldEqual(0);
 
             beginBatchUpdate1.Dispose();
-            begin.ShouldEqual(1);
+            begin.ShouldEqual(result);
             end.ShouldEqual(0);
 
             beginBatchUpdate2.Dispose();
-            begin.ShouldEqual(1);
-            end.ShouldEqual(1);
+            begin.ShouldEqual(result);
+            end.ShouldEqual(result);
         }
 
         [Theory]

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
+using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Components;
@@ -13,6 +14,7 @@ namespace MugenMvvm.Collections
         #region Fields
 
         private int _batchCount;
+        private int _batchCountDecorators;
         private IComponentCollection<IObservableCollectionChangedListener<T>>? _decoratorListeners;
         private IComponentCollection<IObservableCollectionDecorator<T>>? _decorators;
         private IComponentCollection<IObservableCollectionChangedListener<T>>? _listeners;
@@ -80,11 +82,19 @@ namespace MugenMvvm.Collections
             return DecorateItems(null);
         }
 
-        public IDisposable BeginBatchUpdate()
+        public IDisposable BeginBatchUpdate(BatchUpdateCollectionMode mode = BatchUpdateCollectionMode.Both)
         {
-            if (Interlocked.Increment(ref _batchCount) == 1)
-                OnBeginBatchUpdate();
-            return WeakActionToken.Create(this, @base => @base.EndBatchUpdate());
+            var hasListeners = mode.HasFlagEx(BatchUpdateCollectionMode.Listeners);
+            var hasDecorators = mode.HasFlagEx(BatchUpdateCollectionMode.Decorators);
+            if (hasListeners && Interlocked.Increment(ref _batchCount) == 1)
+                OnBeginBatchUpdate(false);
+            if (hasDecorators && Interlocked.Increment(ref _batchCountDecorators) == 1)
+                OnBeginBatchUpdate(true);
+            if (!hasListeners && !hasDecorators)
+                return Default.Disposable;
+
+            return WeakActionToken.Create(this, Default.BoolToObject(hasListeners), Default.BoolToObject(hasDecorators),
+                (@base, b1, b2) => @base.EndBatchUpdate((bool)b1, (bool)b2));
         }
 
         public abstract void Add(T item);
@@ -174,24 +184,16 @@ namespace MugenMvvm.Collections
 
         protected abstract IEnumerator<T> GetEnumeratorInternal();
 
-        protected virtual void OnBeginBatchUpdate()
+        protected virtual void OnBeginBatchUpdate(bool decorators)
         {
-            var listeners = GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
-                listeners[i].OnBeginBatchUpdate(this);
-
-            listeners = GetDecoratorListeners();
+            var listeners = decorators ? GetDecoratorListeners() : GetListeners();
             for (var i = 0; i < listeners.Count; i++)
                 listeners[i].OnBeginBatchUpdate(this);
         }
 
-        protected virtual void OnEndBatchUpdate()
+        protected virtual void OnEndBatchUpdate(bool decorators)
         {
-            var listeners = GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
-                listeners[i].OnEndBatchUpdate(this);
-
-            listeners = GetDecoratorListeners();
+            var listeners = decorators ? GetDecoratorListeners() : GetListeners();
             for (var i = 0; i < listeners.Count; i++)
                 listeners[i].OnEndBatchUpdate(this);
         }
@@ -498,10 +500,13 @@ namespace MugenMvvm.Collections
             return decorators;
         }
 
-        private void EndBatchUpdate()
+        private void EndBatchUpdate(bool hasListeners, bool hasDecorators)
         {
-            if (Interlocked.Decrement(ref _batchCount) == 0)
-                OnEndBatchUpdate();
+            if (hasListeners && Interlocked.Decrement(ref _batchCount) == 0)
+                OnEndBatchUpdate(false);
+
+            if (hasDecorators && Interlocked.Decrement(ref _batchCountDecorators) == 0)
+                OnEndBatchUpdate(true);
         }
 
         #endregion

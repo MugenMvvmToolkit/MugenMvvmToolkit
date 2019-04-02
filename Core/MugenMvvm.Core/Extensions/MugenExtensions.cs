@@ -203,7 +203,7 @@ namespace MugenMvvm
             return value;
         }
 
-        public static MetadataContextKey.Builder<T> NotNull<T>(this MetadataContextKey.Builder<T> builder) where T : class?
+        public static MetadataContextKey.Builder<T> NotNull<T>(this MetadataContextKey.Builder<T> builder) where T : class ?
         {
             if (_notNullValidateAction == null)
                 _notNullValidateAction = (ctx, k, value) => Should.NotBeNull(value, nameof(value));
@@ -674,6 +674,11 @@ namespace MugenMvvm
             }
 
             return result;
+        }
+
+        internal static bool HasFlagEx(this BatchUpdateCollectionMode mode, BatchUpdateCollectionMode value)
+        {
+            return (mode & value) == value;
         }
 
         internal static bool HasFlagEx(this BusyMessageHandlerType handlerMode, BusyMessageHandlerType value)
