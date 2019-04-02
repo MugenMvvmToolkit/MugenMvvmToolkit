@@ -1,6 +1,6 @@
 ﻿namespace MugenMvvm.Interfaces.Components
 {
-    public interface IComponentCollection<T> where T : class //todo add/remove event wrapper, target is optional????
+    public interface IComponentCollection<T> where T : class
     {
         bool HasItems { get; }
 

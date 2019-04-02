@@ -22,7 +22,7 @@ namespace MugenMvvm.Infrastructure.Views
         private static readonly MethodInfo UpdateViewMethodInfo;
         private static readonly MethodInfo UpdateViewModelMethodInfo;
 
-        private static readonly Dictionary<Type, Func<object?, object?[], object?>> TypeToInitializeDelegate;
+        private static readonly Dictionary<Type, Func<object?, object?[], object?>?> TypeToInitializeDelegate;
 
         #endregion
 
@@ -87,49 +87,21 @@ namespace MugenMvvm.Infrastructure.Views
 
         private Func<object?, object?[], object?>? GetUpdateViewMethod(IViewModelBase viewModel, object view)
         {
-            Func<object?, object?[], object?> viewFunc;
-            Func<object?, object?[], object?> viewModelFunc;
+            Func<object?, object?[], object?>? viewFunc;
+            Func<object?, object?[], object?>? viewModelFunc;
             lock (TypeToInitializeDelegate)
             {
                 var viewType = view.GetType();
                 if (!TypeToInitializeDelegate.TryGetValue(viewType, out viewFunc))
                 {
-                    foreach (var @interface in viewType.GetInterfacesUnified().Where(type => type.IsGenericTypeUnified()))
-                    {
-                        if (@interface.GetGenericTypeDefinition() != typeof(IViewModelAwareView<>))
-                            continue;
-                        var propertyInfo = @interface.GetPropertyUnified(nameof(IViewModelAwareView<IViewModelBase>.ViewModel), MemberFlags.InstancePublic);
-                        if (propertyInfo == null)
-                            continue;
-                        var methodDelegate = _reflectionManager.GetMethodDelegate(UpdateViewModelMethodInfo.MakeGenericMethod(propertyInfo.PropertyType));
-                        if (viewFunc == null)
-                            viewFunc = methodDelegate;
-                        else
-                            viewFunc += methodDelegate;
-                    }
-
+                    viewFunc = GetDelegate(viewType, typeof(IViewModelAwareView<>), nameof(IViewModelAwareView<IViewModelBase>.ViewModel), UpdateViewModelMethodInfo);
                     TypeToInitializeDelegate[viewType] = viewFunc;
                 }
 
                 var viewModelType = viewModel.GetType();
                 if (!TypeToInitializeDelegate.TryGetValue(viewModelType, out viewModelFunc))
                 {
-                    foreach (var @interface in viewModelType.GetInterfacesUnified().Where(type => type.IsGenericTypeUnified()))
-                    {
-                        if (@interface.GetGenericTypeDefinition() != typeof(IViewAwareViewModel<>))
-                            continue;
-
-                        var propertyInfo = @interface.GetPropertyUnified(nameof(IViewAwareViewModel<object>.View), MemberFlags.InstancePublic);
-                        if (propertyInfo == null)
-                            continue;
-
-                        var methodDelegate = _reflectionManager.GetMethodDelegate(UpdateViewMethodInfo.MakeGenericMethod(propertyInfo.PropertyType));
-                        if (viewModelFunc == null)
-                            viewModelFunc = methodDelegate;
-                        else
-                            viewModelFunc += methodDelegate;
-                    }
-
+                    viewModelFunc = GetDelegate(viewType, typeof(IViewAwareViewModel<>), nameof(IViewAwareViewModel<object>.View), UpdateViewMethodInfo);
                     TypeToInitializeDelegate[viewModelType] = viewModelFunc;
                 }
             }
@@ -170,6 +142,26 @@ namespace MugenMvvm.Infrastructure.Views
                 else if (viewModel is TViewModel vm)
                     awareView.ViewModel = vm;
             }
+        }
+
+        private Func<object?, object?[], object?>? GetDelegate(Type targetType, Type interfaceType, string propertyName, MethodInfo method)
+        {
+            Func<object?, object?[], object?>? result = null;
+            foreach (var @interface in targetType.GetInterfacesUnified().Where(type => type.IsGenericTypeUnified()))
+            {
+                if (@interface.GetGenericTypeDefinition() != interfaceType)
+                    continue;
+                var propertyInfo = @interface.GetPropertyUnified(propertyName, MemberFlags.InstancePublic);
+                if (propertyInfo == null)
+                    continue;
+                var methodDelegate = _reflectionManager.GetMethodDelegate(method.MakeGenericMethod(propertyInfo.PropertyType));
+                if (result == null)
+                    result = methodDelegate;
+                else
+                    result += methodDelegate;
+            }
+
+            return result;
         }
 
         #endregion

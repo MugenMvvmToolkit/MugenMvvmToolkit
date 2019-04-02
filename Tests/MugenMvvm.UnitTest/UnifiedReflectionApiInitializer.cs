@@ -18,6 +18,9 @@ namespace MugenMvvm.UnitTest
             ReflectionApiExtensions.IsDefined = (type, type1, arg3) => type.IsDefined(type1, arg3);
             ReflectionApiExtensions.IsClass = type => type.IsClass;
             ReflectionApiExtensions.IsValueType = type => type.IsValueType;
+            ReflectionApiExtensions.GetGenericArguments = type => type.GenericTypeArguments;
+            ReflectionApiExtensions.GetInterfaces = type => type.GetInterfaces();
+            ReflectionApiExtensions.IsGenericType = type => type.IsGenericType;
         }
 
         private static BindingFlags ToBindingFlags(this MemberFlags flags, bool flatten)

@@ -4,6 +4,7 @@ using System.Linq;
 using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using Should;
 using Xunit;
@@ -141,6 +142,89 @@ namespace MugenMvvm.UnitTest.Infrastructure.Components
             componentCollection.GetItems().ShouldBeEmpty();
         }
 
+        [Fact]
+        public void ComponentCollectionFactoryShouldAttachDetachComponent1()
+        {
+            var attached = 0;
+            var detached = 0;
+            var item = new AttachableDetachable<object>();
+            var componentCollectionFactory = CreateFactory();
+            var componentCollection = componentCollectionFactory.GetComponentCollection<object>(this, Default.MetadataContext);
+            item.OnAttached = (o, context) =>
+            {
+                o.ShouldEqual(this);
+                context.ShouldNotBeNull();
+                attached++;
+            };
+
+            item.OnDetached = (o, context) =>
+            {
+                o.ShouldEqual(this);
+                context.ShouldNotBeNull();
+                detached++;
+            };
+
+            componentCollection.Add(item);
+            attached.ShouldEqual(1);
+            detached.ShouldEqual(0);
+
+            componentCollection.Remove(item);
+            attached.ShouldEqual(1);
+            detached.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void ComponentCollectionFactoryShouldAttachDetachComponent2()
+        {
+            var attached = 0;
+            var detached = 0;
+            var item = new AttachableDetachable<ComponentCollectionFactoryTest>();
+            var componentCollectionFactory = CreateFactory();
+            var componentCollection = componentCollectionFactory.GetComponentCollection<object>(this, Default.MetadataContext);
+            item.OnAttached = (o, context) =>
+            {
+                o.ShouldEqual(this);
+                context.ShouldNotBeNull();
+                attached++;
+            };
+
+            item.OnDetached = (o, context) =>
+            {
+                o.ShouldEqual(this);
+                context.ShouldNotBeNull();
+                detached++;
+            };
+
+            componentCollection.Add(item);
+            attached.ShouldEqual(1);
+            detached.ShouldEqual(0);
+
+            componentCollection.Remove(item);
+            attached.ShouldEqual(1);
+            detached.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void ComponentCollectionFactoryShouldAttachDetachComponent3()
+        {
+            var attached = 0;
+            var detached = 0;
+            var item = new AttachableDetachable<ComponentCollectionFactory>();
+            var componentCollectionFactory = CreateFactory();
+            var componentCollection = componentCollectionFactory.GetComponentCollection<object>(this, Default.MetadataContext);
+            item.OnAttached = (o, context) => { attached++; };
+
+            item.OnDetached = (o, context) => { detached++; };
+
+            componentCollection.Add(item);
+            attached.ShouldEqual(0);
+            detached.ShouldEqual(0);
+
+            componentCollection.Remove(item);
+            attached.ShouldEqual(0);
+            detached.ShouldEqual(0);
+        }
+
         protected IComponentCollectionFactory CreateFactory()
         {
             return new ComponentCollectionFactory();
@@ -149,6 +233,31 @@ namespace MugenMvvm.UnitTest.Infrastructure.Components
         #endregion
 
         #region Nested types
+
+        private class AttachableDetachable<T> : IAttachableComponent<T>, IDetachableComponent<T> where T : class
+        {
+            #region Properties
+
+            public Action<T, IReadOnlyMetadataContext>? OnAttached { get; set; }
+
+            public Action<T, IReadOnlyMetadataContext>? OnDetached { get; set; }
+
+            #endregion
+
+            #region Implementation of interfaces
+
+            void IAttachableComponent<T>.OnAttached(T owner, IReadOnlyMetadataContext metadata)
+            {
+                OnAttached?.Invoke(owner, metadata);
+            }
+
+            void IDetachableComponent<T>.OnDetached(T owner, IReadOnlyMetadataContext metadata)
+            {
+                OnDetached?.Invoke(owner, metadata);
+            }
+
+            #endregion
+        }
 
         private class Listener : IListener
         {

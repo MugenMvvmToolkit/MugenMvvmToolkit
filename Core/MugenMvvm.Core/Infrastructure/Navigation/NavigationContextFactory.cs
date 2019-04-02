@@ -17,11 +17,12 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         #region Implementation of interfaces
 
-        public void OnAttached(INavigationDispatcher owner)
+        public void OnAttached(INavigationDispatcher owner, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(owner, nameof(owner));
+            Should.NotBeNull(metadata, nameof(metadata));
             NavigationDispatcher = owner;
-            OnAttachedInternal(owner);
+            OnAttachedInternal(owner, metadata);
         }
 
         public INavigationContext GetNavigationContext(INavigationProvider navigationProvider, NavigationMode navigationMode, NavigationType navigationTypeFrom,
@@ -61,7 +62,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         #region Methods
 
-        protected virtual void OnAttachedInternal(INavigationDispatcher navigationDispatcher)
+        protected virtual void OnAttachedInternal(INavigationDispatcher navigationDispatcher, IReadOnlyMetadataContext metadata)
         {
         }
 

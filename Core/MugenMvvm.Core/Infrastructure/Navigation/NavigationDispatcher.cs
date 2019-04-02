@@ -27,8 +27,8 @@ namespace MugenMvvm.Infrastructure.Navigation
             ContextFactory = contextFactory;
             NavigationJournal = navigationJournal;
             _listeners = listeners;
-            contextFactory.OnAttached(this);
-            navigationJournal.OnAttached(this);
+            contextFactory.OnAttached(this, Default.MetadataContext);
+            navigationJournal.OnAttached(this, Default.MetadataContext);
         }
 
         #endregion

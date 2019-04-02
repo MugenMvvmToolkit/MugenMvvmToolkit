@@ -27,7 +27,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             CallbackManager = callbackManager;
             _presenters = presenters;
             _listeners = listeners;
-            CallbackManager.OnAttached(this);
+            CallbackManager.OnAttached(this, Default.MetadataContext);
         }
 
         #endregion

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.UnitTest.TestInfrastructure
 {
@@ -31,7 +32,7 @@ namespace MugenMvvm.UnitTest.TestInfrastructure
 
         #region Implementation of interfaces
 
-        void IAttachableComponent<IObservableCollectionDecoratorManager<T>>.OnAttached(IObservableCollectionDecoratorManager<T> owner)
+        void IAttachableComponent<IObservableCollectionDecoratorManager<T>>.OnAttached(IObservableCollectionDecoratorManager<T> owner, IReadOnlyMetadataContext metadata)
         {
         }
 

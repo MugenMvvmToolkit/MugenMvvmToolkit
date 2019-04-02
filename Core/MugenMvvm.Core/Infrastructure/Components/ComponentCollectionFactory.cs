@@ -1,5 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using MugenMvvm.Enums;
+using MugenMvvm.Infrastructure.Internal;
+using MugenMvvm.Interfaces;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -8,6 +13,26 @@ namespace MugenMvvm.Infrastructure.Components
 {
     public class ComponentCollectionFactory : IComponentCollectionFactory
     {
+        #region Fields
+
+        private static readonly Dictionary<Type, Func<object?, object?[], object?>?> AttachDelegates;
+        private static readonly Dictionary<Type, Func<object?, object?[], object?>?> DetachDelegates;
+        private static readonly MethodInfo AttachDetachMethodInfo;
+
+        #endregion
+
+        #region Constructors
+
+        static ComponentCollectionFactory()
+        {
+            AttachDelegates = new Dictionary<Type, Func<object?, object?[], object?>?>(MemberInfoEqualityComparer.Instance);
+            DetachDelegates = new Dictionary<Type, Func<object?, object?[], object?>?>(MemberInfoEqualityComparer.Instance);
+            AttachDetachMethodInfo = typeof(ComponentCollectionFactory).GetMethodUnified(nameof(AttachDetachIml), MemberFlags.StaticOnly);
+            Should.BeSupported(AttachDetachMethodInfo != null, nameof(AttachDetachMethodInfo));
+        }
+
+        #endregion
+
         #region Implementation of interfaces
 
         public IComponentCollection<T> GetComponentCollection<T>(object owner, IReadOnlyMetadataContext metadata) where T : class
@@ -28,12 +53,18 @@ namespace MugenMvvm.Infrastructure.Components
             return new ArrayComponentCollection<T>(owner);
         }
 
-        protected static void Attach(object owner, IAttachableComponent component)
+        private static void AttachDetachIml<T>(object owner, object target, bool attach, IReadOnlyMetadataContext metadata) where T : class
         {
-        }
-
-        protected static void Detach(object owner, IDetachableComponent component)
-        {
+            if (attach)
+            {
+                if (target is IAttachableComponent<T> component && owner is T value)
+                    component.OnAttached(value, metadata);
+            }
+            else
+            {
+                if (target is IDetachableComponent<T> component && owner is T value)
+                    component.OnDetached(value, metadata);
+            }
         }
 
         #endregion
@@ -86,7 +117,7 @@ namespace MugenMvvm.Infrastructure.Components
             {
                 if (item is IListener listener)
                     return listener.GetPriority(Owner);
-                return ((IHasPriority)item).Priority;
+                return ((IHasPriority) item).Priority;
             }
 
             #endregion
@@ -129,7 +160,7 @@ namespace MugenMvvm.Infrastructure.Components
                 }
 
                 if (item is IAttachableComponent attachable)
-                    Attach(Owner, attachable);
+                    Attach(attachable);
             }
 
             public void Remove(T item)
@@ -141,7 +172,7 @@ namespace MugenMvvm.Infrastructure.Components
                 }
 
                 if (item is IDetachableComponent detachable)
-                    Detach(Owner, detachable);
+                    Detach(detachable);
             }
 
             public void Clear()
@@ -184,6 +215,66 @@ namespace MugenMvvm.Infrastructure.Components
 
                 if (array != null)
                     Items = array;
+            }
+
+            protected virtual void Attach(IAttachableComponent component)
+            {
+                var type = component.GetType();
+                Func<object?, object?[], object?>? func;
+                lock (AttachDelegates)
+                {
+                    if (!AttachDelegates.TryGetValue(type, out func))
+                    {
+                        func = GetAttachFunc(type, typeof(IAttachableComponent<>));
+                        AttachDelegates[type] = func;
+                    }
+                }
+
+                func?.Invoke(null, new[] {Owner, component, Default.TrueObject, GetAttachMetadata()});
+            }
+
+            protected virtual void Detach(IDetachableComponent component)
+            {
+                var type = component.GetType();
+                Func<object?, object?[], object?>? func;
+                lock (DetachDelegates)
+                {
+                    if (!DetachDelegates.TryGetValue(type, out func))
+                    {
+                        func = GetAttachFunc(type, typeof(IDetachableComponent<>));
+                        DetachDelegates[type] = func;
+                    }
+                }
+
+                func?.Invoke(null, new[] {Owner, component, Default.FalseObject, GetDetachMetadata()});
+            }
+
+            protected virtual IReadOnlyMetadataContext GetAttachMetadata()
+            {
+                return Default.MetadataContext;
+            }
+
+            protected virtual IReadOnlyMetadataContext GetDetachMetadata()
+            {
+                return Default.MetadataContext;
+            }
+
+            private static Func<object?, object?[], object?>? GetAttachFunc(Type targetType, Type interfaceType)
+            {
+                Func<object?, object?[], object?>? result = null;
+                foreach (var i in targetType.GetInterfacesUnified().Where(type => type.IsGenericTypeUnified()))
+                {
+                    if (i.GetGenericTypeDefinition() != interfaceType)
+                        continue;
+
+                    var methodDelegate = Service<IReflectionManager>.Instance.GetMethodDelegate(AttachDetachMethodInfo.MakeGenericMethod(i.GetGenericArgumentsUnified()[0]));
+                    if (result == null)
+                        result = methodDelegate;
+                    else
+                        result += methodDelegate;
+                }
+
+                return result;
             }
 
             #endregion

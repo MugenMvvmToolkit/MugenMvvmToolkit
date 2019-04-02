@@ -55,7 +55,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
         public void BeginWithMessageShouldUpdateBusyInfoNotNullMessage()
         {
             var busyIndicator = GetBusyIndicator();
-            var token = busyIndicator.Begin(message: busyIndicator);
+            var token = busyIndicator.Begin(busyIndicator);
             busyIndicator.BusyInfo.ShouldNotBeNull();
             busyIndicator.BusyInfo!.Token.Message.ShouldEqual(busyIndicator);
             token.IsCompleted.ShouldBeFalse();
@@ -224,7 +224,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
             list.Count.ShouldEqual(count);
             list.ShouldContain(busyTokens.ToArray());
 
-            var array = list.Select(token => (int)token.Message).ToList();
+            var array = list.Select(token => (int) token.Message).ToList();
             for (var i = 0; i < count; i++)
                 array.ShouldContain(i);
         }
@@ -250,7 +250,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
             list.Count.ShouldEqual(count / 2);
             list.ShouldContain(busyTokens.Skip(count / 2).ToArray());
 
-            var array = list.Select(token => (int)token.Message).ToList();
+            var array = list.Select(token => (int) token.Message).ToList();
             for (var i = count / 2; i < count; i++)
                 array.ShouldContain(i);
         }
@@ -327,7 +327,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
         public void BusyTokenShouldNotifyListener()
         {
             IBusyToken? completedToken = null;
-            var listener = new TestBusyIndicatorProviderListener { OnCompleted = token => completedToken = token };
+            var listener = new TestBusyIndicatorProviderListener {OnCompleted = token => completedToken = token};
             var busyIndicator = GetBusyIndicator();
 
             var t1 = busyIndicator.Begin(message: null);
@@ -342,9 +342,9 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
             IBusyToken? completedToken1 = null;
             IBusyToken? completedToken2 = null;
             IBusyToken? completedToken3 = null;
-            var listener1 = new TestBusyIndicatorProviderListener { OnCompleted = token => completedToken1 = token };
-            var listener2 = new TestBusyIndicatorProviderListener { OnCompleted = token => completedToken2 = token };
-            var listener3 = new TestBusyIndicatorProviderListener { OnCompleted = token => completedToken3 = token };
+            var listener1 = new TestBusyIndicatorProviderListener {OnCompleted = token => completedToken1 = token};
+            var listener2 = new TestBusyIndicatorProviderListener {OnCompleted = token => completedToken2 = token};
+            var listener3 = new TestBusyIndicatorProviderListener {OnCompleted = token => completedToken3 = token};
             var busyIndicator = GetBusyIndicator();
 
             var t1 = busyIndicator.Begin(message: null);
@@ -411,7 +411,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
         public void ProviderShouldNotifyListenersOnBusyChanged()
         {
             var notificationCount = 0;
-            var listener = new TestBusyIndicatorProviderListener { OnBusyChanged = () => Interlocked.Increment(ref notificationCount) };
+            var listener = new TestBusyIndicatorProviderListener {OnBusyChanged = () => Interlocked.Increment(ref notificationCount)};
 
             var busyIndicator = GetBusyIndicator();
             busyIndicator.AddListener(listener);
@@ -434,7 +434,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
         {
             const int count = 1000;
             var notificationCount = 0;
-            var listener = new TestBusyIndicatorProviderListener { OnBusyChanged = () => Interlocked.Increment(ref notificationCount) };
+            var listener = new TestBusyIndicatorProviderListener {OnBusyChanged = () => Interlocked.Increment(ref notificationCount)};
 
             var busyIndicator = GetBusyIndicator();
             busyIndicator.AddListener(listener);
@@ -586,7 +586,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
         public void BeginWithTokenShouldNotNotifyOnBusyChangedSuspend()
         {
             var notificationCount = 0;
-            var listener = new TestBusyIndicatorProviderListener { OnBusyChanged = () => Interlocked.Increment(ref notificationCount) };
+            var listener = new TestBusyIndicatorProviderListener {OnBusyChanged = () => Interlocked.Increment(ref notificationCount)};
 
             var rootIndicator = GetBusyIndicator();
             var busyToken = rootIndicator.Begin(message: null);
@@ -635,7 +635,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.BusyIndicator
 
 
             var notificationCount = 0;
-            var listener = new TestBusyIndicatorProviderListener { OnBusyChanged = () => Interlocked.Increment(ref notificationCount) };
+            var listener = new TestBusyIndicatorProviderListener {OnBusyChanged = () => Interlocked.Increment(ref notificationCount)};
             busyIndicator.AddListener(listener);
 
             var tasks = new List<Task<IDisposable>>();

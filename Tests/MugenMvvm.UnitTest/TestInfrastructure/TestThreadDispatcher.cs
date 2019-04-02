@@ -36,12 +36,14 @@ namespace MugenMvvm.UnitTest.TestInfrastructure
             return CanExecute?.Invoke(executionMode) ?? true;
         }
 
-        void IThreadDispatcher.Execute(IThreadDispatcherHandler handler, ThreadExecutionMode executionMode, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        void IThreadDispatcher.Execute(IThreadDispatcherHandler handler, ThreadExecutionMode executionMode, object? state, CancellationToken cancellationToken,
+            IReadOnlyMetadataContext? metadata)
         {
             ExecuteAsync(handler, executionMode, state, cancellationToken, metadata);
         }
 
-        void IThreadDispatcher.Execute(Action<object?> action, ThreadExecutionMode executionMode, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        void IThreadDispatcher.Execute(Action<object?> action, ThreadExecutionMode executionMode, object? state, CancellationToken cancellationToken,
+            IReadOnlyMetadataContext? metadata)
         {
             ExecuteAsync(action, executionMode, state, cancellationToken, metadata);
         }
@@ -53,7 +55,8 @@ namespace MugenMvvm.UnitTest.TestInfrastructure
             return Default.CompletedTask;
         }
 
-        public Task ExecuteAsync(Action<object?> action, ThreadExecutionMode executionMode, object? state, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
+        public Task ExecuteAsync(Action<object?> action, ThreadExecutionMode executionMode, object? state, CancellationToken cancellationToken = default,
+            IReadOnlyMetadataContext? metadata = null)
         {
             ExecuteAction(action, executionMode, state, metadata);
             return Default.CompletedTask;

@@ -50,7 +50,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
             var intMsg = 1;
             var decimalMsg = 1M;
 
-            int invokeCount = 0;
+            var invokeCount = 0;
             var handler = new TestMessageHandler();
             handler.IntHandle = (o, i, arg3) => throw new NotSupportedException();
             handler.StringHandle = (o, i, arg3) => throw new NotSupportedException();

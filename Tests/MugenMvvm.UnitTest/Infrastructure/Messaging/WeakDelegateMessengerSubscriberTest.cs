@@ -101,10 +101,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
             var msg2 = "test";
             var handler = new HandlerImpl
             {
-                HandleFunc = (o, s, arg3) =>
-                {
-
-                }
+                HandleFunc = (o, s, arg3) => { }
             };
 
             var subscriber = new WeakDelegateMessengerSubscriber<HandlerImpl, string>(handler.Handle);
@@ -120,10 +117,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
             var msg2 = "test";
             var handler = new HandlerImpl
             {
-                HandleFunc = (o, s, arg3) =>
-                {
-
-                }
+                HandleFunc = (o, s, arg3) => { }
             };
 
             var subscriber = new WeakDelegateMessengerSubscriber<HandlerImpl, string>(handler, (impl, o, arg3, arg4) => impl.Handle(o, arg3, arg4));

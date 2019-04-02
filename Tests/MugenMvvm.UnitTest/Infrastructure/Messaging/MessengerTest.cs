@@ -13,7 +13,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Infrastructure.Messaging
 {
-    public class MessengerTest : UnitTestBase//todo add listeners test
+    public class MessengerTest : UnitTestBase //todo add listeners test
     {
         #region Methods
 
@@ -256,15 +256,15 @@ namespace MugenMvvm.UnitTest.Infrastructure.Messaging
             var subscribers = new List<TestSubscriber>();
             for (var i = 0; i < 1000; i++)
             {
-                var subscriber = new TestSubscriber { HandleDelegate = (o, o1, arg3) => MessengerSubscriberResult.Handled };
+                var subscriber = new TestSubscriber {HandleDelegate = (o, o1, arg3) => MessengerSubscriberResult.Handled};
                 subscribers.Add(subscriber);
                 m1.Subscribe(subscriber, ThreadExecutionMode.Current);
 
-                subscriber = new TestSubscriber { HandleDelegate = (o, o1, arg3) => MessengerSubscriberResult.Handled };
+                subscriber = new TestSubscriber {HandleDelegate = (o, o1, arg3) => MessengerSubscriberResult.Handled};
                 subscribers.Add(subscriber);
                 m2.Subscribe(subscriber, ThreadExecutionMode.Current);
 
-                subscriber = new TestSubscriber { HandleDelegate = (o, o1, arg3) => MessengerSubscriberResult.Handled };
+                subscriber = new TestSubscriber {HandleDelegate = (o, o1, arg3) => MessengerSubscriberResult.Handled};
                 subscribers.Add(subscriber);
                 m3.Subscribe(subscriber, ThreadExecutionMode.Current);
             }

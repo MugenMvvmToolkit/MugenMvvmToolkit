@@ -32,7 +32,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Fact]
         public void CreateWithItemsTest()
         {
-            var items = new[] { new CollectionItem(), new CollectionItem() };
+            var items = new[] {new CollectionItem(), new CollectionItem()};
             var collection = CreateCollection(items);
             collection.Count.ShouldEqual(2);
             collection.Any(item => item == items[0]).ShouldBeTrue();
@@ -101,7 +101,7 @@ namespace MugenMvvm.UnitTest.Collections
             var item2 = new CollectionItem();
             var collection = CreateCollection(new CollectionItem());
 
-            collection.Reset(new[] { item1, item2 });
+            collection.Reset(new[] {item1, item2});
             collection[0].ShouldEqual(item1);
             collection[1].ShouldEqual(item2);
             collection.Count.ShouldEqual(2);
@@ -181,7 +181,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Fact]
         public void ClearItemsTest()
         {
-            var items = new[] { new CollectionItem(), new CollectionItem() };
+            var items = new[] {new CollectionItem(), new CollectionItem()};
             var collection = CreateCollection(items);
             collection.Count.ShouldEqual(2);
             collection.Any(item => item == items[0]).ShouldBeTrue();
@@ -196,7 +196,7 @@ namespace MugenMvvm.UnitTest.Collections
         [InlineData(BatchUpdateCollectionMode.Decorators, 1)]
         [InlineData(BatchUpdateCollectionMode.Listeners, 1)]
         [InlineData(BatchUpdateCollectionMode.Both, 2)]
-        [InlineData((BatchUpdateCollectionMode)0, 0)]
+        [InlineData((BatchUpdateCollectionMode) 0, 0)]
         public void BeginEndBatchUpdateShouldCallListener(BatchUpdateCollectionMode mode, int result)
         {
             var begin = 0;
@@ -611,7 +611,7 @@ namespace MugenMvvm.UnitTest.Collections
             var item1 = new CollectionItem();
             var item2 = new CollectionItem();
 
-            var resetItems = new[] { item1, item2 };
+            var resetItems = new[] {item1, item2};
 
             var expectedItem = resetItems;
             var canReset = false;
@@ -1123,7 +1123,7 @@ namespace MugenMvvm.UnitTest.Collections
             var item1 = new CollectionItem();
             var item2 = new CollectionItem();
 
-            var resetItems = new[] { item1, item2 };
+            var resetItems = new[] {item1, item2};
 
             var expectedItem = resetItems;
             var decoratedItem = resetItems;
@@ -1214,13 +1214,13 @@ namespace MugenMvvm.UnitTest.Collections
             var item1 = new CollectionItem();
             var item2 = new CollectionItem();
 
-            var decoratedItems = new[] { item1 };
+            var decoratedItems = new[] {item1};
             var collection = CreateCollection(item1, item2);
             var decorator = new TestObservableCollectionDecorator<CollectionItem>
             {
                 DecorateItems = items =>
                 {
-                    items.SequenceEqual(new[] { item1, item2 }).ShouldBeTrue();
+                    items.SequenceEqual(new[] {item1, item2}).ShouldBeTrue();
                     return decoratedItems;
                 }
             };
@@ -1234,9 +1234,9 @@ namespace MugenMvvm.UnitTest.Collections
             var item1 = new CollectionItem();
             var item2 = new CollectionItem();
 
-            var original = new[] { item1, item2 };
-            var decoratedItems1 = new[] { item2 };
-            var decoratedItems2 = new[] { item1 };
+            var original = new[] {item1, item2};
+            var decoratedItems1 = new[] {item2};
+            var decoratedItems2 = new[] {item1};
             var collection = CreateCollection(item1, item2);
             var decorator1 = new TestObservableCollectionDecorator<CollectionItem>
             {
@@ -1271,7 +1271,7 @@ namespace MugenMvvm.UnitTest.Collections
             var comparer = defaultComparer ? Comparer<int>.Default : Comparer<int>.Create((i, i1) => i1.CompareTo(i));
             var observableCollection = CreateCollection<int>();
             var decorator1 = new OrderedObservableCollectionDecorator<int>(comparer);
-            var decorator2 = new FilterObservableCollectionDecorator<int> { Filter = i => i % 2 == 0 };
+            var decorator2 = new FilterObservableCollectionDecorator<int> {Filter = i => i % 2 == 0};
 
             if (filterFirst)
             {
@@ -1283,9 +1283,6 @@ namespace MugenMvvm.UnitTest.Collections
                 observableCollection.Decorators.Add(decorator1);
                 observableCollection.Decorators.Add(decorator2);
             }
-
-            ((IObservableCollectionDecorator<int>)decorator1).OnAttached((IObservableCollectionDecoratorManager<int>)observableCollection); //todo remove
-            ((IObservableCollectionDecorator<int>)decorator2).OnAttached((IObservableCollectionDecoratorManager<int>)observableCollection);//todo remove
 
             var tracker = new ObservableCollectionTracker<int>();
             observableCollection.DecoratorListeners.Add(tracker);
@@ -1303,7 +1300,7 @@ namespace MugenMvvm.UnitTest.Collections
             observableCollection.RemoveAt(0);
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
 
-            observableCollection.Reset(new[] { 1, 2, 3, 4, 5 });
+            observableCollection.Reset(new[] {1, 2, 3, 4, 5});
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
 
             observableCollection[0] = 200;
@@ -1315,25 +1312,25 @@ namespace MugenMvvm.UnitTest.Collections
             observableCollection.Clear();
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
 
-            for (int i = 0; i < 100; i++)
+            for (var i = 0; i < 100; i++)
             {
                 observableCollection.Add(Guid.NewGuid().GetHashCode());
                 tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
             }
 
-            for (int i = 0; i < 10; i++)
+            for (var i = 0; i < 10; i++)
             {
                 observableCollection.Move(i, i + 1);
                 tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
             }
 
-            for (int i = 0; i < 10; i++)
+            for (var i = 0; i < 10; i++)
             {
                 observableCollection[i] = i + Guid.NewGuid().GetHashCode();
                 tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
             }
 
-            for (int i = 0; i < 100; i++)
+            for (var i = 0; i < 100; i++)
             {
                 observableCollection.RemoveAt(0);
                 tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
@@ -1358,7 +1355,7 @@ namespace MugenMvvm.UnitTest.Collections
             });
             var observableCollection = CreateCollection<CollectionItem>();
             var decorator1 = new OrderedObservableCollectionDecorator<CollectionItem>(comparer);
-            var decorator2 = new FilterObservableCollectionDecorator<CollectionItem> { Filter = i => i.Id % 2 == 0 };
+            var decorator2 = new FilterObservableCollectionDecorator<CollectionItem> {Filter = i => i.Id % 2 == 0};
 
             if (filterFirst)
             {
@@ -1371,17 +1368,14 @@ namespace MugenMvvm.UnitTest.Collections
                 observableCollection.Decorators.Add(decorator2);
             }
 
-            ((IObservableCollectionDecorator<CollectionItem>)decorator1).OnAttached((IObservableCollectionDecoratorManager<CollectionItem>)observableCollection); //todo remove
-            ((IObservableCollectionDecorator<CollectionItem>)decorator2).OnAttached((IObservableCollectionDecoratorManager<CollectionItem>)observableCollection);//todo remove
-
             var tracker = new ObservableCollectionTracker<CollectionItem>();
             observableCollection.DecoratorListeners.Add(tracker);
             var items = observableCollection.OrderBy(i => i, comparer).Where(decorator2.Filter);
 
-            observableCollection.Add(new CollectionItem { Id = 1 });
+            observableCollection.Add(new CollectionItem {Id = 1});
             tracker.ChangedItems.SequenceEqual(items, CollectionItem.IdComparer).ShouldBeTrue();
 
-            var item2 = new CollectionItem { Id = 2 };
+            var item2 = new CollectionItem {Id = 2};
             observableCollection.Insert(1, item2);
             tracker.ChangedItems.SequenceEqual(items, CollectionItem.IdComparer).ShouldBeTrue();
 
@@ -1398,7 +1392,7 @@ namespace MugenMvvm.UnitTest.Collections
             });
             tracker.ChangedItems.SequenceEqual(items, CollectionItem.IdComparer).ShouldBeTrue();
 
-            observableCollection[0] = new CollectionItem { Id = 200 };
+            observableCollection[0] = new CollectionItem {Id = 200};
             tracker.ChangedItems.SequenceEqual(items, CollectionItem.IdComparer).ShouldBeTrue();
 
             observableCollection.Move(1, 2);
@@ -1407,32 +1401,32 @@ namespace MugenMvvm.UnitTest.Collections
             observableCollection.Clear();
             tracker.ChangedItems.SequenceEqual(items, CollectionItem.IdComparer).ShouldBeTrue();
 
-            for (int i = 0; i < 100; i++)
+            for (var i = 0; i < 100; i++)
             {
-                observableCollection.Add(new CollectionItem { Id = Guid.NewGuid().GetHashCode() });
+                observableCollection.Add(new CollectionItem {Id = Guid.NewGuid().GetHashCode()});
                 tracker.ChangedItems.SequenceEqual(items, CollectionItem.IdComparer).ShouldBeTrue();
             }
 
-            for (int i = 0; i < 10; i++)
+            for (var i = 0; i < 10; i++)
             {
                 observableCollection.Move(i, i + 1);
                 tracker.ChangedItems.SequenceEqual(items, CollectionItem.IdComparer).ShouldBeTrue();
             }
 
-            for (int i = 0; i < 10; i++)
+            for (var i = 0; i < 10; i++)
             {
-                observableCollection[i] = new CollectionItem { Id = i + Guid.NewGuid().GetHashCode() };
+                observableCollection[i] = new CollectionItem {Id = i + Guid.NewGuid().GetHashCode()};
                 tracker.ChangedItems.SequenceEqual(items, CollectionItem.IdComparer).ShouldBeTrue();
             }
 
-            for (int i = 0; i < 100; i++)
+            for (var i = 0; i < 100; i++)
             {
                 observableCollection[i].Id = Guid.NewGuid().GetHashCode();
                 observableCollection.RaiseItemChanged(observableCollection[i], null);
                 tracker.ChangedItems.SequenceEqual(items, CollectionItem.IdComparer).ShouldBeTrue();
             }
 
-            for (int i = 0; i < 100; i++)
+            for (var i = 0; i < 100; i++)
             {
                 observableCollection.RemoveAt(0);
                 tracker.ChangedItems.SequenceEqual(items, CollectionItem.IdComparer).ShouldBeTrue();

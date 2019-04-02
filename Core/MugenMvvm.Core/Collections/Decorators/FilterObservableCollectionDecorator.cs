@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Collections.Decorators
 {
@@ -191,7 +192,7 @@ namespace MugenMvvm.Collections.Decorators
             return true;
         }
 
-        void IAttachableComponent<IObservableCollectionDecoratorManager<T>>.OnAttached(IObservableCollectionDecoratorManager<T> owner)
+        void IAttachableComponent<IObservableCollectionDecoratorManager<T>>.OnAttached(IObservableCollectionDecoratorManager<T> owner, IReadOnlyMetadataContext metadata)
         {
             _decoratorManager = owner;
             UpdateFilter();

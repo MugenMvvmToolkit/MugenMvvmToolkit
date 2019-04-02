@@ -64,26 +64,29 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         #region Implementation of interfaces
 
-        public void OnDetached(IViewModelPresenter owner)
+        public void OnDetached(IViewModelPresenter owner, IReadOnlyMetadataContext metadata)
         {
+            Should.NotBeNull(owner, nameof(owner));
+            Should.NotBeNull(metadata, nameof(metadata));
             if (Interlocked.Exchange(ref _state, DisposedState) == DisposedState)
                 return;
 
             NavigationDispatcher.RemoveListener(_dispatcherListener);
             NavigationDispatcher.NavigationJournal.RemoveListener(_dispatcherListener);
-            OnDetachedInternal(owner);
+            OnDetachedInternal(owner, metadata);
         }
 
-        public void OnAttached(IViewModelPresenter owner)
+        public void OnAttached(IViewModelPresenter owner, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(owner, nameof(owner));
+            Should.NotBeNull(metadata, nameof(metadata));
             if (Interlocked.CompareExchange(ref _state, InitializedState, DefaultState) != DefaultState)
                 ExceptionManager.ThrowObjectInitialized(GetType().Name, this);
 
             ViewModelPresenter = owner;
             NavigationDispatcher.AddListener(_dispatcherListener);
             NavigationDispatcher.NavigationJournal.AddListener(_dispatcherListener);
-            OnAttachedInternal(owner);
+            OnAttachedInternal(owner, metadata);
         }
 
         public IDisposable BeginPresenterOperation(IReadOnlyMetadataContext metadata)
@@ -108,11 +111,11 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         #region Methods
 
-        protected virtual void OnAttachedInternal(IViewModelPresenter presenter)
+        protected virtual void OnAttachedInternal(IViewModelPresenter presenter, IReadOnlyMetadataContext metadata)
         {
         }
 
-        protected virtual void OnDetachedInternal(IViewModelPresenter presenter)
+        protected virtual void OnDetachedInternal(IViewModelPresenter presenter, IReadOnlyMetadataContext metadata)
         {
         }
 

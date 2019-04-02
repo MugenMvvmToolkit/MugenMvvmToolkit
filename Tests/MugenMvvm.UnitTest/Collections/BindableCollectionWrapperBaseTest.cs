@@ -16,7 +16,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Fact]
         public void ShouldTrackChanges()
         {
-            ((TestThreadDispatcher)Service<IThreadDispatcher>.Instance).CanExecute = mode => true;
+            ((TestThreadDispatcher) Service<IThreadDispatcher>.Instance).CanExecute = mode => true;
 
             var observableCollection = new SynchronizedObservableCollection<int>();
             var bindableCollectionWrapper = GetCollection<int>();
@@ -41,7 +41,7 @@ namespace MugenMvvm.UnitTest.Collections
             tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
             bindableCollectionWrapper.SequenceEqual(observableCollection).ShouldBeTrue();
 
-            observableCollection.Reset(new[] { 1, 2, 3, 4, 5 });
+            observableCollection.Reset(new[] {1, 2, 3, 4, 5});
             tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
             bindableCollectionWrapper.SequenceEqual(observableCollection).ShouldBeTrue();
 
@@ -62,7 +62,7 @@ namespace MugenMvvm.UnitTest.Collections
         public void ShouldTrackChangesThreadDispatcher()
         {
             Action? action = null;
-            var dispatcher = (TestThreadDispatcher)Service<IThreadDispatcher>.Instance;
+            var dispatcher = (TestThreadDispatcher) Service<IThreadDispatcher>.Instance;
             dispatcher.CanExecute = mode => false;
             dispatcher.ExecuteHandler = (handler, mode, arg3, arg4) => { action += () => handler.Execute(arg3); };
             dispatcher.ExecuteAction = (handler, mode, arg3, arg4) => { action += () => handler(arg3); };
@@ -78,7 +78,7 @@ namespace MugenMvvm.UnitTest.Collections
             observableCollection.Insert(1, 2);
             observableCollection.Remove(2);
             observableCollection.RemoveAt(0);
-            observableCollection.Reset(new[] { 1, 2, 3, 4, 5 });
+            observableCollection.Reset(new[] {1, 2, 3, 4, 5});
             observableCollection[0] = 200;
             observableCollection.Move(1, 2);
             tracker.ChangedItems.Count.ShouldEqual(0);
@@ -93,7 +93,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Fact]
         public void ShouldTrackChangesBatchUpdate1()
         {
-            var dispatcher = (TestThreadDispatcher)Service<IThreadDispatcher>.Instance;
+            var dispatcher = (TestThreadDispatcher) Service<IThreadDispatcher>.Instance;
             dispatcher.CanExecute = mode => true;
 
             var observableCollection = new SynchronizedObservableCollection<int>();
@@ -109,7 +109,7 @@ namespace MugenMvvm.UnitTest.Collections
                 observableCollection.Insert(1, 2);
                 observableCollection.Remove(2);
                 observableCollection.RemoveAt(0);
-                observableCollection.Reset(new[] { 1, 2, 3, 4, 5 });
+                observableCollection.Reset(new[] {1, 2, 3, 4, 5});
                 observableCollection[0] = 200;
                 observableCollection.Move(1, 2);
                 tracker.ChangedItems.Count.ShouldEqual(0);
@@ -123,7 +123,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Fact]
         public void ShouldTrackChangesBatchUpdate2()
         {
-            var dispatcher = (TestThreadDispatcher)Service<IThreadDispatcher>.Instance;
+            var dispatcher = (TestThreadDispatcher) Service<IThreadDispatcher>.Instance;
             dispatcher.CanExecute = mode => true;
 
             var observableCollection = new SynchronizedObservableCollection<int>();
