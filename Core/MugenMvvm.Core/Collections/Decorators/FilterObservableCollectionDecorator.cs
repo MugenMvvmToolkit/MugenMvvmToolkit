@@ -77,14 +77,23 @@ namespace MugenMvvm.Collections.Decorators
                 return true;
 
             var filterIndex = IndexOfKey(index);
-            if (filterIndex == -1)
-                return false;
-
             if (FilterInternal(item))
+            {
+                if (filterIndex == -1)
+                {
+                    index = Add(index, item);
+                    _decoratorManager!.OnAdded(this, item, index);
+                }
+                else
+                    index = filterIndex;
                 return true;
+            }
 
-            RemoveAt(filterIndex);
-            _decoratorManager!.OnRemoved(this, item, filterIndex);
+            if (filterIndex != -1)
+            {
+                RemoveAt(filterIndex);
+                _decoratorManager!.OnRemoved(this, item, filterIndex);
+            }
             return false;
         }
 

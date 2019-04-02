@@ -5,6 +5,7 @@ using MugenMvvm.Collections;
 using MugenMvvm.Collections.Decorators;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.UnitTest.TestInfrastructure;
+using MugenMvvm.UnitTest.TestModels;
 using Should;
 using Xunit;
 
@@ -315,6 +316,36 @@ namespace MugenMvvm.UnitTest.Collections.Decorators
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
         }
 
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ShouldTrackChangesItemChanged(bool defaultComparer)
+        {
+            var comparer = Comparer<CollectionItem>.Create((item, collectionItem) =>
+            {
+                if (defaultComparer)
+                    return item.Id.CompareTo(collectionItem.Id);
+                return collectionItem.Id.CompareTo(item.Id);
+            });
+            var observableCollection = new SynchronizedObservableCollection<CollectionItem>();
+            var decorator = new OrderedObservableCollectionDecorator<CollectionItem>(comparer);
+            observableCollection.Decorators.Add(decorator);
+            ((IObservableCollectionDecorator<CollectionItem>)decorator).OnAttached(observableCollection);//todo remove
+
+            var tracker = new ObservableCollectionTracker<CollectionItem>();
+            observableCollection.DecoratorListeners.Add(tracker);
+            var items = observableCollection.OrderBy(item => item, comparer);
+
+            for (int i = 0; i < 100; i++)
+                observableCollection.Add(new CollectionItem { Id = i });
+
+            for (int i = 0; i < 100; i++)
+            {
+                observableCollection[i].Id = i == 0 ? 0 : Guid.NewGuid().GetHashCode();
+                observableCollection.RaiseItemChanged(observableCollection[i], null);
+                tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            }
+        }
 
         [Theory]
         [InlineData(true)]

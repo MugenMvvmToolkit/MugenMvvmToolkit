@@ -1,8 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using MugenMvvm.Collections;
 using MugenMvvm.Collections.Decorators;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.UnitTest.TestInfrastructure;
+using MugenMvvm.UnitTest.TestModels;
 using Should;
 using Xunit;
 
@@ -258,6 +260,29 @@ namespace MugenMvvm.UnitTest.Collections.Decorators
         }
 
         [Fact]
+        public void ShouldTrackChangesItemChanged()
+        {
+            var observableCollection = new SynchronizedObservableCollection<CollectionItem>();
+            var decorator = new FilterObservableCollectionDecorator<CollectionItem> { Filter = i => i.Id % 2 == 0 };
+            observableCollection.Decorators.Add(decorator);
+            ((IObservableCollectionDecorator<CollectionItem>)decorator).OnAttached(observableCollection);//todo remove
+
+            var tracker = new ObservableCollectionTracker<CollectionItem>();
+            observableCollection.DecoratorListeners.Add(tracker);
+            var items = observableCollection.Where(decorator.Filter);
+
+            for (int i = 0; i < 100; i++)
+                observableCollection.Add(new CollectionItem { Id = i });
+
+            for (int i = 0; i < 100; i++)
+            {
+                observableCollection[i].Id = i == 0 ? 0 : Guid.NewGuid().GetHashCode();
+                observableCollection.RaiseItemChanged(observableCollection[i], null);
+                tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+            }
+        }
+
+        [Fact]
         public void ShouldTrackChanges()
         {
             var observableCollection = new SynchronizedObservableCollection<int>();
@@ -275,6 +300,9 @@ namespace MugenMvvm.UnitTest.Collections.Decorators
             observableCollection.Insert(1, 2);
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
 
+            observableCollection.Move(0, 1);
+            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+
             observableCollection.Remove(2);
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
 
@@ -285,9 +313,6 @@ namespace MugenMvvm.UnitTest.Collections.Decorators
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
 
             observableCollection[0] = 200;
-            tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
-
-            observableCollection.Move(1, 2);
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
 
             observableCollection.Clear();

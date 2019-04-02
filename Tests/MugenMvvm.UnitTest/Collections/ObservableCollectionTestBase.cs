@@ -1266,7 +1266,7 @@ namespace MugenMvvm.UnitTest.Collections
         [InlineData(false, false)]
         [InlineData(false, true)]
         [InlineData(true, false)]
-        public void DecoratorShouldTrackItemsMulti(bool defaultComparer, bool filterFirst)
+        public void DecoratorShouldTrackItemsMulti1(bool defaultComparer, bool filterFirst)
         {
             var comparer = defaultComparer ? Comparer<int>.Default : Comparer<int>.Create((i, i1) => i1.CompareTo(i));
             var observableCollection = CreateCollection<int>();
@@ -1341,6 +1341,105 @@ namespace MugenMvvm.UnitTest.Collections
 
             observableCollection.Clear();
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
+        }
+
+        [Theory]
+        [InlineData(true, true)]
+        [InlineData(false, false)]
+        [InlineData(false, true)]
+        [InlineData(true, false)]
+        public void DecoratorShouldTrackItemsMulti2(bool defaultComparer, bool filterFirst)
+        {
+            var comparer = Comparer<CollectionItem>.Create((item, collectionItem) =>
+            {
+                if (defaultComparer)
+                    return item.Id.CompareTo(collectionItem.Id);
+                return collectionItem.Id.CompareTo(item.Id);
+            });
+            var observableCollection = CreateCollection<CollectionItem>();
+            var decorator1 = new OrderedObservableCollectionDecorator<CollectionItem>(comparer);
+            var decorator2 = new FilterObservableCollectionDecorator<CollectionItem> { Filter = i => i.Id % 2 == 0 };
+
+            if (filterFirst)
+            {
+                observableCollection.Decorators.Add(decorator2);
+                observableCollection.Decorators.Add(decorator1);
+            }
+            else
+            {
+                observableCollection.Decorators.Add(decorator1);
+                observableCollection.Decorators.Add(decorator2);
+            }
+
+            ((IObservableCollectionDecorator<CollectionItem>)decorator1).OnAttached((IObservableCollectionDecoratorManager<CollectionItem>)observableCollection); //todo remove
+            ((IObservableCollectionDecorator<CollectionItem>)decorator2).OnAttached((IObservableCollectionDecoratorManager<CollectionItem>)observableCollection);//todo remove
+
+            var tracker = new ObservableCollectionTracker<CollectionItem>();
+            observableCollection.DecoratorListeners.Add(tracker);
+            var items = observableCollection.OrderBy(i => i, comparer).Where(decorator2.Filter);
+
+            observableCollection.Add(new CollectionItem { Id = 1 });
+            tracker.ChangedItems.SequenceEqual(items, CollectionItem.IdComparer).ShouldBeTrue();
+
+            var item2 = new CollectionItem { Id = 2 };
+            observableCollection.Insert(1, item2);
+            tracker.ChangedItems.SequenceEqual(items, CollectionItem.IdComparer).ShouldBeTrue();
+
+            observableCollection.Remove(item2);
+            tracker.ChangedItems.SequenceEqual(items, CollectionItem.IdComparer).ShouldBeTrue();
+
+            observableCollection.RemoveAt(0);
+            tracker.ChangedItems.SequenceEqual(items, CollectionItem.IdComparer).ShouldBeTrue();
+
+            observableCollection.Reset(new[]
+            {
+                new CollectionItem {Id = 1}, new CollectionItem {Id = 2}, new CollectionItem {Id = 3},
+                new CollectionItem {Id = 4}, new CollectionItem {Id = 5}
+            });
+            tracker.ChangedItems.SequenceEqual(items, CollectionItem.IdComparer).ShouldBeTrue();
+
+            observableCollection[0] = new CollectionItem { Id = 200 };
+            tracker.ChangedItems.SequenceEqual(items, CollectionItem.IdComparer).ShouldBeTrue();
+
+            observableCollection.Move(1, 2);
+            tracker.ChangedItems.SequenceEqual(items, CollectionItem.IdComparer).ShouldBeTrue();
+
+            observableCollection.Clear();
+            tracker.ChangedItems.SequenceEqual(items, CollectionItem.IdComparer).ShouldBeTrue();
+
+            for (int i = 0; i < 100; i++)
+            {
+                observableCollection.Add(new CollectionItem { Id = Guid.NewGuid().GetHashCode() });
+                tracker.ChangedItems.SequenceEqual(items, CollectionItem.IdComparer).ShouldBeTrue();
+            }
+
+            for (int i = 0; i < 10; i++)
+            {
+                observableCollection.Move(i, i + 1);
+                tracker.ChangedItems.SequenceEqual(items, CollectionItem.IdComparer).ShouldBeTrue();
+            }
+
+            for (int i = 0; i < 10; i++)
+            {
+                observableCollection[i] = new CollectionItem { Id = i + Guid.NewGuid().GetHashCode() };
+                tracker.ChangedItems.SequenceEqual(items, CollectionItem.IdComparer).ShouldBeTrue();
+            }
+
+            for (int i = 0; i < 100; i++)
+            {
+                observableCollection[i].Id = Guid.NewGuid().GetHashCode();
+                observableCollection.RaiseItemChanged(observableCollection[i], null);
+                tracker.ChangedItems.SequenceEqual(items, CollectionItem.IdComparer).ShouldBeTrue();
+            }
+
+            for (int i = 0; i < 100; i++)
+            {
+                observableCollection.RemoveAt(0);
+                tracker.ChangedItems.SequenceEqual(items, CollectionItem.IdComparer).ShouldBeTrue();
+            }
+
+            observableCollection.Clear();
+            tracker.ChangedItems.SequenceEqual(items, CollectionItem.IdComparer).ShouldBeTrue();
         }
 
         protected abstract IObservableCollection<T> CreateCollection<T>(params T[] items);
