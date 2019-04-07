@@ -20,11 +20,8 @@ namespace MugenMvvm.Infrastructure.Commands
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public RelayCommandDispatcher(IExecutorRelayCommandMediatorFactory executorMediatorFactory, IComponentCollection<IRelayCommandMediatorFactory>? mediatorFactories = null,
-            IComponentCollection<IRelayCommandDispatcherListener>? listeners = null)
+        public RelayCommandDispatcher(IComponentCollection<IRelayCommandMediatorFactory>? mediatorFactories = null, IComponentCollection<IRelayCommandDispatcherListener>? listeners = null)
         {
-            Should.NotBeNull(executorMediatorFactory, nameof(executorMediatorFactory));
-            ExecutorMediatorFactory = executorMediatorFactory;
             _mediatorFactories = mediatorFactories;
             _listeners = listeners;
         }
@@ -32,8 +29,6 @@ namespace MugenMvvm.Infrastructure.Commands
         #endregion
 
         #region Properties
-
-        public IExecutorRelayCommandMediatorFactory ExecutorMediatorFactory { get; }
 
         public IComponentCollection<IRelayCommandMediatorFactory> MediatorFactories
         {
@@ -76,16 +71,27 @@ namespace MugenMvvm.Infrastructure.Commands
         protected virtual IExecutorRelayCommandMediator GetExecutorMediatorInternal<TParameter>(IRelayCommand relayCommand, Delegate execute, Delegate? canExecute,
             IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext metadata)
         {
-            var mediatorFactory = ExecutorMediatorFactory;
-            Should.NotBeNull(mediatorFactory, nameof(ExecutorMediatorFactory));
             var mediators = GetMediatorsInternal<TParameter>(relayCommand, execute, canExecute, notifiers, metadata);
-            var mediator = mediatorFactory.GetExecutorMediator<TParameter>(this, relayCommand, mediators, execute, canExecute, notifiers, metadata);
+            IExecutorRelayCommandMediator? result = null;
+            var mediatorFactories = MediatorFactories.GetItems();
+            for (int i = 0; i < mediatorFactories.Length; i++)
+            {
+                if (mediatorFactories[i] is IExecutorRelayCommandMediatorFactory executorFactory)
+                {
+                    result = executorFactory.TryGetExecutorMediator<TParameter>(this, relayCommand, mediators, execute, canExecute, notifiers, metadata);
+                    if (result != null)
+                        break;
+                }
+            }
+
+            if (result == null)
+                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IExecutorRelayCommandMediatorFactory).Name);
 
             var listeners = GetListeners();
             for (var i = 0; i < listeners.Count; i++)
-                listeners[i].OnMediatorCreated(this, relayCommand, execute, canExecute, notifiers, metadata, mediator);
+                listeners[i].OnMediatorCreated(this, relayCommand, execute, canExecute, notifiers, metadata, result);
 
-            return mediator;
+            return result;
         }
 
         protected virtual IReadOnlyList<IRelayCommandMediator> GetMediatorsInternal<TParameter>(IRelayCommand relayCommand, Delegate execute, Delegate? canExecute,

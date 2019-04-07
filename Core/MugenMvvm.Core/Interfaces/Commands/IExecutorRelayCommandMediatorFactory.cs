@@ -4,9 +4,9 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Commands
 {
-    public interface IExecutorRelayCommandMediatorFactory
+    public interface IExecutorRelayCommandMediatorFactory : IRelayCommandMediatorFactory
     {
-        IExecutorRelayCommandMediator GetExecutorMediator<TParameter>(IRelayCommandDispatcher dispatcher, IRelayCommand relayCommand,
+        IExecutorRelayCommandMediator? TryGetExecutorMediator<TParameter>(IRelayCommandDispatcher dispatcher, IRelayCommand relayCommand,
             IReadOnlyList<IRelayCommandMediator> mediators, Delegate execute,
             Delegate? canExecute, IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext metadata);
     }

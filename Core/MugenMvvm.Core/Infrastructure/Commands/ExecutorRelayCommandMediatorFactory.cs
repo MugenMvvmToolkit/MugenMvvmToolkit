@@ -38,7 +38,7 @@ namespace MugenMvvm.Infrastructure.Commands
 
         #region Implementation of interfaces
 
-        public IExecutorRelayCommandMediator GetExecutorMediator<TParameter>(IRelayCommandDispatcher dispatcher, IRelayCommand relayCommand,
+        public IExecutorRelayCommandMediator? TryGetExecutorMediator<TParameter>(IRelayCommandDispatcher dispatcher, IRelayCommand relayCommand,
             IReadOnlyList<IRelayCommandMediator> mediators, Delegate execute,
             Delegate? canExecute, IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext metadata)
         {
