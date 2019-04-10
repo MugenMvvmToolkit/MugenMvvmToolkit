@@ -49,7 +49,7 @@ namespace MugenMvvm.Infrastructure.Components
         protected virtual IComponentCollection<T> GetComponentCollectionInternal<T>(object owner, IReadOnlyMetadataContext metadata) where T : class
         {
             if (typeof(IHasPriority).IsAssignableFromUnified(typeof(T)) || typeof(IListener).IsAssignableFromUnified(typeof(T)))
-                return new ListenersArrayComponentCollection<T>(owner);
+                return new OrderedArrayComponentCollection<T>(owner);
             return new ArrayComponentCollection<T>(owner);
         }
 
@@ -71,11 +71,11 @@ namespace MugenMvvm.Infrastructure.Components
 
         #region Nested types
 
-        public class ListenersArrayComponentCollection<T> : ArrayComponentCollection<T> where T : class
+        public class OrderedArrayComponentCollection<T> : ArrayComponentCollection<T> where T : class
         {
             #region Constructors
 
-            public ListenersArrayComponentCollection(object owner) : base(owner)
+            public OrderedArrayComponentCollection(object owner) : base(owner)
             {
             }
 
@@ -117,7 +117,7 @@ namespace MugenMvvm.Infrastructure.Components
             {
                 if (item is IListener listener)
                     return listener.GetPriority(Owner);
-                return ((IHasPriority) item).Priority;
+                return ((IHasPriority)item).Priority;
             }
 
             #endregion
@@ -230,7 +230,7 @@ namespace MugenMvvm.Infrastructure.Components
                     }
                 }
 
-                func?.Invoke(null, new[] {Owner, component, Default.TrueObject, GetAttachMetadata()});
+                func?.Invoke(null, new[] { Owner, component, Default.TrueObject, GetAttachMetadata() });
             }
 
             protected virtual void Detach(IDetachableComponent component)
@@ -246,7 +246,7 @@ namespace MugenMvvm.Infrastructure.Components
                     }
                 }
 
-                func?.Invoke(null, new[] {Owner, component, Default.FalseObject, GetDetachMetadata()});
+                func?.Invoke(null, new[] { Owner, component, Default.FalseObject, GetDetachMetadata() });
             }
 
             protected virtual IReadOnlyMetadataContext GetAttachMetadata()

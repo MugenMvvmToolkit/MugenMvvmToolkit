@@ -9,7 +9,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.Commands
 {
-    public class ExecutorRelayCommandMediatorFactory : IExecutorRelayCommandMediatorFactory, IRelayCommandMediatorFactory
+    public class ExecutorRelayCommandMediatorFactory : IExecutorRelayCommandMediatorFactory
     {
         #region Constructors
 
@@ -33,6 +33,8 @@ namespace MugenMvvm.Infrastructure.Commands
         public CommandExecutionMode CommandExecutionMode { get; set; }
 
         public ThreadExecutionMode EventThreadMode { get; set; }
+
+        public int Priority { get; set; }
 
         #endregion
 
