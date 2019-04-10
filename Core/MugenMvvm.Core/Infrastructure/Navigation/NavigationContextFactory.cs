@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using MugenMvvm.Enums;
+using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
@@ -7,23 +8,9 @@ using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Infrastructure.Navigation
 {
-    public class NavigationContextFactory : INavigationContextFactory
+    public class NavigationContextFactory : AttachableComponentBase<INavigationDispatcher>, INavigationContextFactory
     {
-        #region Properties
-
-        protected INavigationDispatcher NavigationDispatcher { get; private set; }
-
-        #endregion
-
         #region Implementation of interfaces
-
-        public void OnAttached(INavigationDispatcher owner, IReadOnlyMetadataContext metadata)
-        {
-            Should.NotBeNull(owner, nameof(owner));
-            Should.NotBeNull(metadata, nameof(metadata));
-            NavigationDispatcher = owner;
-            OnAttachedInternal(owner, metadata);
-        }
 
         public INavigationContext GetNavigationContext(INavigationProvider navigationProvider, NavigationMode navigationMode, NavigationType navigationTypeFrom,
             IViewModelBase? viewModelFrom, NavigationType navigationTypeTo, IViewModelBase? viewModelTo, IReadOnlyMetadataContext metadata)
@@ -62,10 +49,6 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         #region Methods
 
-        protected virtual void OnAttachedInternal(INavigationDispatcher navigationDispatcher, IReadOnlyMetadataContext metadata)
-        {
-        }
-
         protected virtual INavigationContext GetNavigationContextInternal(INavigationProvider navigationProvider, NavigationMode navigationMode, NavigationType navigationTypeFrom,
             IViewModelBase? viewModelFrom, NavigationType navigationTypeTo, IViewModelBase? viewModelTo, IReadOnlyMetadataContext metadata)
         {
@@ -90,11 +73,11 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         protected INavigationEntry? GetLastNavigationEntry(NavigationType navigationType, IReadOnlyMetadataContext metadata)
         {
-            var list = NavigationDispatcher.NavigationJournal.GetNavigationEntries(navigationType, metadata);
+            var list = Owner.NavigationJournal.GetNavigationEntries(navigationType, metadata);
             if (list.Count != 0)
                 return list.OrderByDescending(entry => entry.NavigationDate).First();
 
-            list = NavigationDispatcher.NavigationJournal.GetNavigationEntries(navigationType, metadata);
+            list = Owner.NavigationJournal.GetNavigationEntries(navigationType, metadata);
             return list.Where(entry => entry.NavigationType != NavigationType.Tab).OrderByDescending(entry => entry.NavigationDate).FirstOrDefault();
         }
 

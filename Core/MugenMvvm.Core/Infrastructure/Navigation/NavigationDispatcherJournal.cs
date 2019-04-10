@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
+using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
@@ -9,7 +10,7 @@ using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Infrastructure.Navigation
 {
-    public class NavigationDispatcherJournal : INavigationDispatcherJournal
+    public class NavigationDispatcherJournal : AttachableComponentBase<INavigationDispatcher>, INavigationDispatcherJournal
     {
         #region Fields
 
@@ -45,13 +46,6 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         #region Implementation of interfaces
 
-        public void OnAttached(INavigationDispatcher owner, IReadOnlyMetadataContext metadata)
-        {
-            Should.NotBeNull(owner, nameof(owner));
-            Should.NotBeNull(metadata, nameof(metadata));
-            OnAttachedInternal(owner, metadata);
-        }
-
         public void OnNavigated(INavigationContext navigationContext)
         {
             Should.NotBeNull(navigationContext, nameof(navigationContext));
@@ -67,10 +61,6 @@ namespace MugenMvvm.Infrastructure.Navigation
         #endregion
 
         #region Methods
-
-        protected virtual void OnAttachedInternal(INavigationDispatcher navigationDispatcher, IReadOnlyMetadataContext metadata)
-        {
-        }
 
         protected virtual void OnNavigatedInternal(INavigationContext navigationContext)
         {

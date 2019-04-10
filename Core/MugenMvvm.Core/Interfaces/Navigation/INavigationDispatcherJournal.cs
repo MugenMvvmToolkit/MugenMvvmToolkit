@@ -6,7 +6,8 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Navigation
 {
-    public interface INavigationDispatcherJournal : IHasListeners<INavigationDispatcherJournalListener>, IAttachableComponent<INavigationDispatcher>
+    public interface INavigationDispatcherJournal : IHasListeners<INavigationDispatcherJournalListener>, IAttachableComponent<INavigationDispatcher>,
+        IDetachableComponent<INavigationDispatcher>
     {
         void OnNavigated(INavigationContext navigationContext);
 

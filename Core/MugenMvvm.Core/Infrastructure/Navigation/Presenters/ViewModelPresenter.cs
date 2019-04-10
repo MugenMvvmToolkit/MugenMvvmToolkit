@@ -12,6 +12,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
     {
         #region Fields
 
+        private IViewModelPresenterCallbackManager _callbackManager;
+
         private IComponentCollection<IViewModelPresenterListener>? _listeners;
         private IComponentCollection<IChildViewModelPresenter>? _presenters;
 
@@ -24,17 +26,26 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             IComponentCollection<IChildViewModelPresenter>? presenters = null, IComponentCollection<IViewModelPresenterListener>? listeners = null)
         {
             Should.NotBeNull(callbackManager, nameof(callbackManager));
-            CallbackManager = callbackManager;
             _presenters = presenters;
             _listeners = listeners;
-            CallbackManager.OnAttached(this, Default.MetadataContext);
+            CallbackManager = callbackManager;
         }
 
         #endregion
 
         #region Properties
 
-        public IViewModelPresenterCallbackManager CallbackManager { get; }
+        public IViewModelPresenterCallbackManager CallbackManager
+        {
+            get => _callbackManager;
+            set
+            {
+                Should.NotBeNull(value, nameof(CallbackManager));
+                _callbackManager?.OnDetached(this, Default.MetadataContext);
+                _callbackManager = value;
+                _callbackManager.OnAttached(this, Default.MetadataContext);
+            }
+        }
 
         public IComponentCollection<IChildViewModelPresenter> Presenters
         {

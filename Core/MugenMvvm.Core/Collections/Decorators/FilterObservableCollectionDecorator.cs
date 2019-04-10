@@ -2,17 +2,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Interfaces.Collections;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Collections.Decorators
 {
-    public sealed class FilterObservableCollectionDecorator<T> : IObservableCollectionDecorator<T>, IEnumerable<T>
+    public sealed class FilterObservableCollectionDecorator<T> : AttachableComponentBase<IObservableCollectionDecoratorManager<T>>, IObservableCollectionDecorator<T>, IEnumerable<T>
     {
         #region Fields
 
-        private IObservableCollectionDecoratorManager<T>? _decoratorManager;
         private Func<T, bool>? _filter;
 
         private int[] _keys;
@@ -46,7 +45,7 @@ namespace MugenMvvm.Collections.Decorators
             }
         }
 
-        private bool HasFilter => Filter != null && _decoratorManager != null;
+        private bool HasFilter => Filter != null && IsAttached;
 
         #endregion
 
@@ -83,7 +82,7 @@ namespace MugenMvvm.Collections.Decorators
                 if (filterIndex == -1)
                 {
                     index = Add(index, item);
-                    _decoratorManager!.OnAdded(this, item, index);
+                    Owner.OnAdded(this, item, index);
                 }
                 else
                     index = filterIndex;
@@ -94,7 +93,7 @@ namespace MugenMvvm.Collections.Decorators
             if (filterIndex != -1)
             {
                 RemoveAt(filterIndex);
-                _decoratorManager!.OnRemoved(this, item, filterIndex);
+                Owner.OnRemoved(this, item, filterIndex);
             }
 
             return false;
@@ -122,7 +121,7 @@ namespace MugenMvvm.Collections.Decorators
             if (filterIndex == -1)
             {
                 if (FilterInternal(newItem))
-                    _decoratorManager!.OnAdded(this, newItem, Add(index, newItem));
+                    Owner.OnAdded(this, newItem, Add(index, newItem));
 
                 return false;
             }
@@ -137,7 +136,7 @@ namespace MugenMvvm.Collections.Decorators
 
             var oldValue = GetValue(filterIndex);
             RemoveAt(filterIndex);
-            _decoratorManager!.OnRemoved(this, oldValue, filterIndex);
+            Owner.OnRemoved(this, oldValue, filterIndex);
             return false;
         }
 
@@ -192,15 +191,19 @@ namespace MugenMvvm.Collections.Decorators
             return true;
         }
 
-        void IAttachableComponent<IObservableCollectionDecoratorManager<T>>.OnAttached(IObservableCollectionDecoratorManager<T> owner, IReadOnlyMetadataContext metadata)
-        {
-            _decoratorManager = owner;
-            UpdateFilter();
-        }
-
         #endregion
 
         #region Methods
+
+        protected override void OnAttachedInternal(IObservableCollectionDecoratorManager<T> owner, IReadOnlyMetadataContext metadata)
+        {
+            UpdateFilter();
+        }
+
+        protected override void OnDetachedInternal(IObservableCollectionDecoratorManager<T> owner, IReadOnlyMetadataContext metadata)
+        {
+            Clear();
+        }
 
         public void UpdateFilter()
         {
@@ -209,15 +212,15 @@ namespace MugenMvvm.Collections.Decorators
 
         private void UpdateFilterInternal(Func<T, bool>? filter)
         {
-            if (_decoratorManager == null)
+            if (!IsAttached)
                 return;
 
-            using (_decoratorManager.Lock())
+            using (Owner.Lock())
             {
                 Clear();
                 if (filter != null)
-                    UpdateItems(_decoratorManager.DecorateItems(this), filter);
-                _decoratorManager.OnReset(this, this);
+                    UpdateItems(Owner.DecorateItems(this), filter);
+                Owner.OnReset(this, this);
             }
         }
 
@@ -293,7 +296,7 @@ namespace MugenMvvm.Collections.Decorators
             return _values[index];
         }
 
-        protected void SetValue(int index, T value)
+        private void SetValue(int index, T value)
         {
             if (index >= _size)
                 ExceptionManager.ThrowIntOutOfRangeCollection("index");

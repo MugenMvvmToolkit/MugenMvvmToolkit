@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
+using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
@@ -14,17 +14,12 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.Navigation.Presenters
 {
-    public class ViewModelPresenterCallbackManager : IViewModelPresenterCallbackManager, IDetachableComponent<IViewModelPresenter>
+    public class ViewModelPresenterCallbackManager : AttachableComponentBase<IViewModelPresenter>, IViewModelPresenterCallbackManager
     {
         #region Fields
 
         private readonly NavigationDispatcherListener _dispatcherListener;
-
         private IComponentCollection<IViewModelPresenterCallbackManagerListener>? _listeners;
-        private int _state;
-        private const int DisposedState = 2;
-        private const int InitializedState = 1;
-        private const int DefaultState = 0;
 
         #endregion
 
@@ -56,38 +51,11 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         public bool IsSerializable { get; set; }
 
-        protected IViewModelPresenter ViewModelPresenter { get; private set; }
-
         public int NavigationDispatcherListenerPriority { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
-
-        public void OnDetached(IViewModelPresenter owner, IReadOnlyMetadataContext metadata)
-        {
-            Should.NotBeNull(owner, nameof(owner));
-            Should.NotBeNull(metadata, nameof(metadata));
-            if (Interlocked.Exchange(ref _state, DisposedState) == DisposedState)
-                return;
-
-            NavigationDispatcher.RemoveListener(_dispatcherListener);
-            NavigationDispatcher.NavigationJournal.RemoveListener(_dispatcherListener);
-            OnDetachedInternal(owner, metadata);
-        }
-
-        public void OnAttached(IViewModelPresenter owner, IReadOnlyMetadataContext metadata)
-        {
-            Should.NotBeNull(owner, nameof(owner));
-            Should.NotBeNull(metadata, nameof(metadata));
-            if (Interlocked.CompareExchange(ref _state, InitializedState, DefaultState) != DefaultState)
-                ExceptionManager.ThrowObjectInitialized(GetType().Name, this);
-
-            ViewModelPresenter = owner;
-            NavigationDispatcher.AddListener(_dispatcherListener);
-            NavigationDispatcher.NavigationJournal.AddListener(_dispatcherListener);
-            OnAttachedInternal(owner, metadata);
-        }
 
         public IDisposable BeginPresenterOperation(IReadOnlyMetadataContext metadata)
         {
@@ -111,12 +79,16 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         #region Methods
 
-        protected virtual void OnAttachedInternal(IViewModelPresenter presenter, IReadOnlyMetadataContext metadata)
+        protected override void OnAttachedInternal(IViewModelPresenter owner, IReadOnlyMetadataContext metadata)
         {
+            NavigationDispatcher.AddListener(_dispatcherListener);
+            NavigationDispatcher.NavigationJournal.AddListener(_dispatcherListener);
         }
 
-        protected virtual void OnDetachedInternal(IViewModelPresenter presenter, IReadOnlyMetadataContext metadata)
+        protected override void OnDetachedInternal(IViewModelPresenter owner, IReadOnlyMetadataContext metadata)
         {
+            NavigationDispatcher.RemoveListener(_dispatcherListener);
+            NavigationDispatcher.NavigationJournal.RemoveListener(_dispatcherListener);
         }
 
         protected virtual INavigationCallback<T> AddCallbackInternal<T>(IViewModelBase viewModel, NavigationCallbackType callbackType,

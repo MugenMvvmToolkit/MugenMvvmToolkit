@@ -12,7 +12,10 @@ namespace MugenMvvm.Infrastructure.Navigation
     {
         #region Fields
 
+        private INavigationContextFactory _contextFactory;
+
         private IComponentCollection<INavigationDispatcherListener>? _listeners;
+        private INavigationDispatcherJournal _navigationJournal;
 
         #endregion
 
@@ -24,20 +27,38 @@ namespace MugenMvvm.Infrastructure.Navigation
         {
             Should.NotBeNull(contextFactory, nameof(contextFactory));
             Should.NotBeNull(navigationJournal, nameof(navigationJournal));
+            _listeners = listeners;
             ContextFactory = contextFactory;
             NavigationJournal = navigationJournal;
-            _listeners = listeners;
-            contextFactory.OnAttached(this, Default.MetadataContext);
-            navigationJournal.OnAttached(this, Default.MetadataContext);
         }
 
         #endregion
 
         #region Properties
 
-        public INavigationContextFactory ContextFactory { get; }
+        public INavigationContextFactory ContextFactory
+        {
+            get => _contextFactory;
+            set
+            {
+                Should.NotBeNull(value, nameof(ContextFactory));
+                _contextFactory?.OnDetached(this, Default.MetadataContext);
+                _contextFactory = value;
+                _contextFactory.OnAttached(this, Default.MetadataContext);
+            }
+        }
 
-        public INavigationDispatcherJournal NavigationJournal { get; }
+        public INavigationDispatcherJournal NavigationJournal
+        {
+            get => _navigationJournal;
+            set
+            {
+                Should.NotBeNull(value, nameof(NavigationJournal));
+                _navigationJournal?.OnDetached(this, Default.MetadataContext);
+                _navigationJournal = value;
+                _navigationJournal.OnAttached(this, Default.MetadataContext);
+            }
+        }
 
         public IComponentCollection<INavigationDispatcherListener> Listeners
         {
@@ -262,12 +283,12 @@ namespace MugenMvvm.Infrastructure.Navigation
 
             private static void InvokeCompletedCallback(Task<bool> task, object state)
             {
-                ((NavigatingResult) state).InvokeCompletedCallback(task);
+                ((NavigatingResult)state).InvokeCompletedCallback(task);
             }
 
             private static void OnExecuted(Task<bool> task, object state)
             {
-                ((NavigatingResult) state).OnExecuted(task);
+                ((NavigatingResult)state).OnExecuted(task);
             }
 
             #endregion

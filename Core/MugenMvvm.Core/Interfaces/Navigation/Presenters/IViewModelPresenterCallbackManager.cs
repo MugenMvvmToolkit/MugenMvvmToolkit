@@ -7,7 +7,8 @@ using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Interfaces.Navigation.Presenters
 {
-    public interface IViewModelPresenterCallbackManager : IHasListeners<IViewModelPresenterCallbackManagerListener>, IAttachableComponent<IViewModelPresenter>
+    public interface IViewModelPresenterCallbackManager : IHasListeners<IViewModelPresenterCallbackManagerListener>, IAttachableComponent<IViewModelPresenter>,
+        IDetachableComponent<IViewModelPresenter>
     {
         IDisposable BeginPresenterOperation(IReadOnlyMetadataContext metadata);
 

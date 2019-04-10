@@ -7,7 +7,7 @@ namespace MugenMvvm.Interfaces.Navigation.Presenters
 {
     public interface IViewModelPresenter : IHasListeners<IViewModelPresenterListener>
     {
-        IViewModelPresenterCallbackManager CallbackManager { get; }
+        IViewModelPresenterCallbackManager CallbackManager { get; set; }
 
         IComponentCollection<IChildViewModelPresenter> Presenters { get; }
 

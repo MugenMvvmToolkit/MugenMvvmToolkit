@@ -1,19 +1,17 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Interfaces.Collections;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Collections.Decorators
 {
-    public sealed class OrderedObservableCollectionDecorator<T> : IObservableCollectionDecorator<T>
+    public sealed class OrderedObservableCollectionDecorator<T> : AttachableComponentBase<IObservableCollectionDecoratorManager<T>>, IObservableCollectionDecorator<T>
     {
         #region Fields
 
         private readonly OrderedItemComparer _comparer;
-
         private readonly List<OrderedItem> _items;
-        private IObservableCollectionDecoratorManager<T>? _decoratorManager;
 
         #endregion
 
@@ -38,15 +36,6 @@ namespace MugenMvvm.Collections.Decorators
 
         #region Implementation of interfaces
 
-        void IAttachableComponent<IObservableCollectionDecoratorManager<T>>.OnAttached(IObservableCollectionDecoratorManager<T> owner, IReadOnlyMetadataContext metadata)
-        {
-            _decoratorManager = owner;
-            using (owner.Lock())
-            {
-                Reset(owner.DecorateItems(this));
-            }
-        }
-
         IEnumerable<T> IObservableCollectionDecorator<T>.DecorateItems(IEnumerable<T> items)
         {
             return items.OrderBy(arg => arg, Comparer);
@@ -54,7 +43,7 @@ namespace MugenMvvm.Collections.Decorators
 
         bool IObservableCollectionDecorator<T>.OnItemChanged(ref T item, ref int index, ref object? args)
         {
-            if (_decoratorManager == null)
+            if (!IsAttached)
                 return false;
 
             var oldIndex = GetIndexByOriginalIndex(index);
@@ -68,7 +57,7 @@ namespace MugenMvvm.Collections.Decorators
                 index = oldIndex;
             else
             {
-                _decoratorManager.OnMoved(this, item, oldIndex, newIndex);
+                Owner.OnMoved(this, item, oldIndex, newIndex);
                 index = newIndex;
             }
 
@@ -86,7 +75,7 @@ namespace MugenMvvm.Collections.Decorators
 
         bool IObservableCollectionDecorator<T>.OnReplaced(ref T oldItem, ref T newItem, ref int index)
         {
-            if (_decoratorManager == null)
+            if (!IsAttached)
                 return false;
 
             var oldIndex = GetIndexByOriginalIndex(index);
@@ -94,11 +83,11 @@ namespace MugenMvvm.Collections.Decorators
                 return false;
 
             _items.RemoveAt(oldIndex);
-            _decoratorManager.OnRemoved(this, oldItem, oldIndex);
+            Owner.OnRemoved(this, oldItem, oldIndex);
 
             var newIndex = GetInsertIndex(newItem);
             _items.Insert(newIndex, new OrderedItem(index, newItem));
-            _decoratorManager.OnAdded(this, newItem, newIndex);
+            Owner.OnAdded(this, newItem, newIndex);
             return false;
         }
 
@@ -147,15 +136,25 @@ namespace MugenMvvm.Collections.Decorators
 
         #region Methods
 
+        protected override void OnAttachedInternal(IObservableCollectionDecoratorManager<T> owner, IReadOnlyMetadataContext metadata)
+        {
+            Reorder();
+        }
+
+        protected override void OnDetachedInternal(IObservableCollectionDecoratorManager<T> owner, IReadOnlyMetadataContext metadata)
+        {
+            _items.Clear();
+        }
+
         public void Reorder()
         {
-            if (_decoratorManager == null)
+            if (!IsAttached)
                 return;
 
-            using (_decoratorManager.Lock())
+            using (Owner.Lock())
             {
-                Reset(_decoratorManager.DecorateItems(this));
-                _decoratorManager.OnReset(this, Items);
+                Reset(Owner.DecorateItems(this));
+                Owner.OnReset(this, Items);
             }
         }
 

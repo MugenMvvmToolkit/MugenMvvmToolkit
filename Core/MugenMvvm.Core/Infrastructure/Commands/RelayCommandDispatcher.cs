@@ -20,7 +20,8 @@ namespace MugenMvvm.Infrastructure.Commands
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public RelayCommandDispatcher(IComponentCollection<IRelayCommandMediatorFactory>? mediatorFactories = null, IComponentCollection<IRelayCommandDispatcherListener>? listeners = null)
+        public RelayCommandDispatcher(IComponentCollection<IRelayCommandMediatorFactory>? mediatorFactories = null,
+            IComponentCollection<IRelayCommandDispatcherListener>? listeners = null)
         {
             _mediatorFactories = mediatorFactories;
             _listeners = listeners;
@@ -74,7 +75,7 @@ namespace MugenMvvm.Infrastructure.Commands
             var mediators = GetMediatorsInternal<TParameter>(relayCommand, execute, canExecute, notifiers, metadata);
             IExecutorRelayCommandMediator? result = null;
             var mediatorFactories = MediatorFactories.GetItems();
-            for (int i = 0; i < mediatorFactories.Length; i++)
+            for (var i = 0; i < mediatorFactories.Length; i++)
             {
                 if (mediatorFactories[i] is IExecutorRelayCommandMediatorFactory executorFactory)
                 {

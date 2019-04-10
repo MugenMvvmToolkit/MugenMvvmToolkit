@@ -117,7 +117,7 @@ namespace MugenMvvm.Infrastructure.Components
             {
                 if (item is IListener listener)
                     return listener.GetPriority(Owner);
-                return ((IHasPriority)item).Priority;
+                return ((IHasPriority) item).Priority;
             }
 
             #endregion
@@ -230,7 +230,7 @@ namespace MugenMvvm.Infrastructure.Components
                     }
                 }
 
-                func?.Invoke(null, new[] { Owner, component, Default.TrueObject, GetAttachMetadata() });
+                func?.Invoke(null, new[] {Owner, component, Default.TrueObject, GetAttachMetadata()});
             }
 
             protected virtual void Detach(IDetachableComponent component)
@@ -246,7 +246,7 @@ namespace MugenMvvm.Infrastructure.Components
                     }
                 }
 
-                func?.Invoke(null, new[] { Owner, component, Default.FalseObject, GetDetachMetadata() });
+                func?.Invoke(null, new[] {Owner, component, Default.FalseObject, GetDetachMetadata()});
             }
 
             protected virtual IReadOnlyMetadataContext GetAttachMetadata()
