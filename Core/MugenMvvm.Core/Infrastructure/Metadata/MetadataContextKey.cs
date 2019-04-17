@@ -99,7 +99,7 @@ namespace MugenMvvm.Infrastructure.Metadata
         #region Nested types
 
         [StructLayout(LayoutKind.Auto)]
-        public struct Builder<T>
+        public ref struct Builder<T>
         {
             #region Fields
 
