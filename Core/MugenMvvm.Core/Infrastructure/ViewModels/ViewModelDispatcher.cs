@@ -79,13 +79,13 @@ namespace MugenMvvm.Infrastructure.ViewModels
             return UnsubscribeInternal(viewModel, observer, metadata);
         }
 
-        public IViewModelBase GetViewModel(Type vmType, IReadOnlyMetadataContext metadata)
+        public IViewModelBase GetViewModel(Type viewModelType, IReadOnlyMetadataContext metadata)
         {
-            Should.NotBeNull(vmType, nameof(vmType));
+            Should.NotBeNull(viewModelType, nameof(viewModelType));
             Should.NotBeNull(metadata, nameof(metadata));
-            var vm = GetViewModelInternal(vmType, metadata);
+            var vm = GetViewModelInternal(viewModelType, metadata);
             if (vm == null)
-                ExceptionManager.ThrowCannotGetViewModel(vmType);
+                ExceptionManager.ThrowCannotGetViewModel(viewModelType);
 
             return vm!;
         }
@@ -151,12 +151,12 @@ namespace MugenMvvm.Infrastructure.ViewModels
             return unsubscribed;
         }
 
-        protected virtual IViewModelBase? GetViewModelInternal(Type vmType, IReadOnlyMetadataContext metadata)
+        protected virtual IViewModelBase? GetViewModelInternal(Type viewModelType, IReadOnlyMetadataContext metadata)
         {
             var managers = Managers.GetItems();
             for (var i = 0; i < managers.Length; i++)
             {
-                var viewModel = (managers[i] as IViewModelProviderViewModelDispatcherManager)?.TryGetViewModel(this, vmType, metadata);
+                var viewModel = (managers[i] as IViewModelProviderViewModelDispatcherManager)?.TryGetViewModel(this, viewModelType, metadata);
                 if (viewModel != null)
                     return viewModel;
             }

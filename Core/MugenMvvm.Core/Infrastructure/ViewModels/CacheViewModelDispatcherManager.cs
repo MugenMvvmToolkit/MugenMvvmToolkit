@@ -84,7 +84,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
             }
         }
 
-        public IViewModelBase? TryGetViewModel(IViewModelDispatcher viewModelDispatcher, Type vmType, IReadOnlyMetadataContext metadata)
+        public IViewModelBase? TryGetViewModel(IViewModelDispatcher viewModelDispatcher, Type viewModelType, IReadOnlyMetadataContext metadata)
         {
             return null;
         }

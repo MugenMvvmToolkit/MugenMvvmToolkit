@@ -10,8 +10,7 @@ namespace MugenMvvm.Interfaces.ViewModels.Infrastructure
     {
         IComponentCollection<IViewModelDispatcherManager> Managers { get; }
 
-        void OnLifecycleChanged(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState,
-            IReadOnlyMetadataContext metadata); //todo return value use in serialization/deserialization
+        void OnLifecycleChanged(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadata); //todo return value use in serialization/deserialization
 
         [Pure]
         object GetService(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext metadata);
@@ -21,7 +20,7 @@ namespace MugenMvvm.Interfaces.ViewModels.Infrastructure
         bool Unsubscribe(IViewModelBase viewModel, object observer, IReadOnlyMetadataContext metadata);
 
         [Pure]
-        IViewModelBase GetViewModel(Type vmType, IReadOnlyMetadataContext metadata);
+        IViewModelBase GetViewModel(Type viewModelType, IReadOnlyMetadataContext metadata);
 
         [Pure]
         IViewModelBase? TryGetViewModel(Guid id, IReadOnlyMetadataContext metadata);

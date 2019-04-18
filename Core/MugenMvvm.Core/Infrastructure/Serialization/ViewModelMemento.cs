@@ -6,7 +6,6 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Messaging;
-using MugenMvvm.Infrastructure.Serialization;
 using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
@@ -16,7 +15,7 @@ using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.ViewModels.Infrastructure;
 using MugenMvvm.Metadata;
 
-namespace MugenMvvm.Infrastructure.ViewModels
+namespace MugenMvvm.Infrastructure.Serialization
 {
     [Serializable]
     [DataContract(Namespace = BuildConstants.DataContractNamespace)]
