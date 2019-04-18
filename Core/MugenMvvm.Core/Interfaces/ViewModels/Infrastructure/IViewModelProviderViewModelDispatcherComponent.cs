@@ -3,7 +3,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.ViewModels.Infrastructure
 {
-    public interface IViewModelProviderViewModelDispatcherManager : IViewModelDispatcherManager
+    public interface IViewModelProviderViewModelDispatcherComponent : IViewModelDispatcherComponent
     {
         IViewModelBase? TryGetViewModel(IViewModelDispatcher viewModelDispatcher, Type viewModelType, IReadOnlyMetadataContext metadata);
 

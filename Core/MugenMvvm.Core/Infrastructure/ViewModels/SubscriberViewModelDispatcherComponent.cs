@@ -10,12 +10,12 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.ViewModels
 {
-    public class SubscriberViewModelDispatcherManager : ISubscriberViewModelDispatcherManager
+    public class SubscriberViewModelDispatcherComponent : ISubscriberViewModelDispatcherComponent
     {
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public SubscriberViewModelDispatcherManager()
+        public SubscriberViewModelDispatcherComponent()
         {
         }
 

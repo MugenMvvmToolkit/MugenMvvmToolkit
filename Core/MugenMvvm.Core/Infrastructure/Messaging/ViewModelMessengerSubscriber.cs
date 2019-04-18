@@ -32,7 +32,7 @@ namespace MugenMvvm.Infrastructure.Messaging
 
         static ViewModelMessengerSubscriber()
         {
-            MetadataKey = MetadataContextKey.FromMember<ViewModelMessengerSubscriber>(typeof(ViewModelMessengerSubscriber), nameof(MetadataKey));
+            MetadataKey = MetadataContextKey.FromMember<ViewModelMessengerSubscriber>(typeof(ViewModelMessengerSubscriber), nameof(MetadataKey), true);
         }
 
         private ViewModelMessengerSubscriber(IViewModelBase viewModel)
@@ -49,7 +49,7 @@ namespace MugenMvvm.Infrastructure.Messaging
 
         #region Properties
 
-        private IViewModelBase? Target => (IViewModelBase) _reference.Target;
+        private IViewModelBase? Target => (IViewModelBase)_reference.Target;
 
         private bool BroadcastAllMessages { get; set; }
 

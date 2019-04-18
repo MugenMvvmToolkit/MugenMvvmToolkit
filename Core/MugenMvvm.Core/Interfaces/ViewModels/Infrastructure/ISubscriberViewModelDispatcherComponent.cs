@@ -3,7 +3,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.ViewModels.Infrastructure
 {
-    public interface ISubscriberViewModelDispatcherManager : IViewModelDispatcherManager
+    public interface ISubscriberViewModelDispatcherComponent : IViewModelDispatcherComponent
     {
         bool TrySubscribe(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode,
             IReadOnlyMetadataContext metadata);

@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.ViewModels.Infrastructure
 {
-    public interface IViewModelDispatcherManager : IHasPriority
+    public interface IViewModelDispatcherComponent : IHasPriority
     {
         void OnLifecycleChanged(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadata);
     }

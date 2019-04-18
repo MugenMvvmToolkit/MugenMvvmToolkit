@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.ViewModels.Infrastructure
 {
-    public interface IServiceResolverViewModelDispatcherManager : IViewModelDispatcherManager
+    public interface IServiceResolverViewModelDispatcherComponent : IViewModelDispatcherComponent
     {
         [Pure]
         object? TryGetService(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, Type service, IReadOnlyMetadataContext metadata);

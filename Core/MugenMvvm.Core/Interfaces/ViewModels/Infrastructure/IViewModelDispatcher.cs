@@ -8,7 +8,7 @@ namespace MugenMvvm.Interfaces.ViewModels.Infrastructure
 {
     public interface IViewModelDispatcher //todo cleanup manager, clear commands, initialize manager, provider manager
     {
-        IComponentCollection<IViewModelDispatcherManager> Managers { get; }
+        IComponentCollection<IViewModelDispatcherComponent> Components { get; }
 
         void OnLifecycleChanged(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadata); //todo return value use in serialization/deserialization
 

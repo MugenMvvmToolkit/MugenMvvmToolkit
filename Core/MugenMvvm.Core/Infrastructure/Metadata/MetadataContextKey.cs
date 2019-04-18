@@ -44,7 +44,12 @@ namespace MugenMvvm.Infrastructure.Metadata
         {
             var key = declaredType.Name + declaredType.FullName.Length + fieldOrPropertyName;
             if (serializable)
-                return new SerializableMetadataContextKey<T>(key, declaredType, fieldOrPropertyName);
+            {
+                return new SerializableMetadataContextKey<T>(key, declaredType, fieldOrPropertyName)
+                {
+                    CanSerializeFunc = (_, __, ___) => true
+                };
+            }
             return new MetadataContextKeyInternal<T>(key);
         }
 
@@ -250,7 +255,7 @@ namespace MugenMvvm.Infrastructure.Metadata
             public T GetValue(IReadOnlyMetadataContext metadataContext, object? value)
             {
                 if (GetValueFunc == null)
-                    return (T) value!;
+                    return (T)value!;
                 return GetValueFunc(metadataContext, this, value);
             }
 

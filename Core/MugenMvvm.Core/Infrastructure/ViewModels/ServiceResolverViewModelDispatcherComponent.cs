@@ -13,12 +13,12 @@ using MugenMvvm.Interfaces.ViewModels.Infrastructure;
 
 namespace MugenMvvm.Infrastructure.ViewModels
 {
-    public class ServiceResolverViewModelDispatcherManager : IServiceResolverViewModelDispatcherManager
+    public class ServiceResolverViewModelDispatcherComponent : IServiceResolverViewModelDispatcherComponent
     {
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ServiceResolverViewModelDispatcherManager()
+        public ServiceResolverViewModelDispatcherComponent()
         {
         }
 

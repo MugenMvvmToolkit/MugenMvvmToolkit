@@ -9,7 +9,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.ViewModels
 {
-    public sealed class CacheViewModelDispatcherManager : IViewModelProviderViewModelDispatcherManager, IObservableMetadataContextListener
+    public sealed class CacheViewModelDispatcherComponent : IViewModelProviderViewModelDispatcherComponent, IObservableMetadataContextListener
     {
         #region Fields
 
@@ -22,7 +22,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public CacheViewModelDispatcherManager(bool isWeakCache = true)
+        public CacheViewModelDispatcherComponent(bool isWeakCache = true)
         {
             _isWeakCache = isWeakCache;
             _viewModelsCache = new Dictionary<Guid, object>();
