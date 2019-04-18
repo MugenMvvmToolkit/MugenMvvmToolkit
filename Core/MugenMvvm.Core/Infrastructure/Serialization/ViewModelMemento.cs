@@ -20,7 +20,7 @@ namespace MugenMvvm.Infrastructure.Serialization
     [Serializable]
     [DataContract(Namespace = BuildConstants.DataContractNamespace)]
     [Preserve(Conditional = true, AllMembers = true)]
-    public class ViewModelMemento : IMemento //todo saving/restoring state/ cancel restore
+    public class ViewModelMemento : IMemento //todo saving/restoring state/ cancel restore/ split methods to control default behavior
     {
         #region Fields
 
