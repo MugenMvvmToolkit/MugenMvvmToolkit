@@ -75,8 +75,8 @@ namespace MugenMvvm.Metadata
                 if (_closeCallbacks == null)
                 {
                     _closeCallbacks = GetBuilder<IList<INavigationCallbackInternal?>?>(nameof(CloseCallbacks))
-                        .SerializableConverter(CloseCallbacksSerializableConverter)
                         .Serializable(CanSerializeCloseCallbacks)
+                        .SerializableConverter(SerializeCloseCallbacks, DeserializeCloseCallbacks)
                         .Build();
                 }
 
@@ -111,9 +111,15 @@ namespace MugenMvvm.Metadata
 
         #region Methods
 
-        private static object? CloseCallbacksSerializableConverter(IMetadataContextKey<IList<INavigationCallbackInternal?>?> key, object? value, ISerializationContext arg3)
+        private static bool CanSerializeCloseCallbacks(IMetadataContextKey<IList<INavigationCallbackInternal?>?> key, object? value, ISerializationContext context)
         {
-            var callbacks = (IList<INavigationCallbackInternal>?) value;
+            var callbacks = (IList<INavigationCallbackInternal>?)value;
+            return callbacks != null && callbacks.Any(callback => callback != null && callback.IsSerializable);
+        }
+
+        private static object? SerializeCloseCallbacks(IMetadataContextKey<IList<INavigationCallbackInternal?>?> key, object? value, ISerializationContext context)
+        {
+            var callbacks = (IList<INavigationCallbackInternal>?)value;
             if (callbacks == null)
                 return null;
             lock (callbacks)
@@ -122,10 +128,9 @@ namespace MugenMvvm.Metadata
             }
         }
 
-        private static bool CanSerializeCloseCallbacks(IMetadataContextKey<IList<INavigationCallbackInternal?>?> key, object? value, ISerializationContext context)
+        private static object? DeserializeCloseCallbacks(IMetadataContextKey<IList<INavigationCallbackInternal?>?> key, object? value, ISerializationContext context)
         {
-            var callbacks = (IList<INavigationCallbackInternal>?) value;
-            return callbacks != null && callbacks.Any(callback => callback != null && callback.IsSerializable);
+            return value;
         }
 
         private static MetadataContextKey.Builder<T> GetBuilder<T>(string name)

@@ -2,15 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Serialization;
-using System.Xml.Serialization;
-using MugenMvvm.Attributes;
-using MugenMvvm.Constants;
 using MugenMvvm.Delegates;
-using MugenMvvm.Infrastructure.Serialization;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Serialization;
 
 namespace MugenMvvm.Infrastructure.Metadata
 {
@@ -80,11 +74,6 @@ namespace MugenMvvm.Infrastructure.Metadata
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
-        }
-
-        public IMemento? GetMemento()
-        {
-            return new ContextMemento(this);
         }
 
         public bool TryGet<T>(IMetadataContextKey<T> contextKey, out T value, T defaultValue = default)
@@ -376,119 +365,6 @@ namespace MugenMvvm.Infrastructure.Metadata
         private IReadOnlyList<IObservableMetadataContextListener> GetListeners()
         {
             return _listeners?.GetItems() ?? Default.EmptyArray<IObservableMetadataContextListener>();
-        }
-
-        #endregion
-
-        #region Nested types
-
-        [Serializable]
-        [DataContract(Namespace = BuildConstants.DataContractNamespace)]
-        [Preserve(Conditional = true, AllMembers = true)]
-        public sealed class ContextMemento : IMemento
-        {
-            #region Fields
-
-            [IgnoreDataMember]
-            [XmlIgnore]
-            [NonSerialized]
-            private MetadataContext? _metadataContext;
-
-            [DataMember(Name = "K")]
-            internal IList<IMetadataContextKey?>? Keys;
-
-            [DataMember(Name = "L")]
-            internal IList<IObservableMetadataContextListener?>? Listeners;
-
-            [DataMember(Name = "V")]
-            internal IList<object?>? Values;
-
-            #endregion
-
-            #region Constructors
-
-            internal ContextMemento()
-            {
-            }
-
-            internal ContextMemento(MetadataContext metadataContext)
-            {
-                _metadataContext = metadataContext;
-            }
-
-            #endregion
-
-            #region Properties
-
-            [IgnoreDataMember]
-            [XmlIgnore]
-            public Type TargetType => typeof(MetadataContext);
-
-            #endregion
-
-            #region Implementation of interfaces
-
-            public void Preserve(ISerializationContext serializationContext)
-            {
-                if (_metadataContext == null)
-                    return;
-                KeyValuePair<IMetadataContextKey, object?>[] currentValues;
-                lock (_metadataContext._values)
-                {
-                    currentValues = _metadataContext._values.ToArray();
-                }
-
-                Listeners = _metadataContext._listeners?.GetItems().ToSerializable(serializationContext.Serializer);
-                Keys = new List<IMetadataContextKey?>();
-                Values = new List<object?>();
-                foreach (var keyPair in currentValues)
-                {
-                    var serializableValue = keyPair.Key.ToSerializableValue(keyPair.Value, serializationContext);
-                    if (!keyPair.Key.CanSerializeValue(serializableValue, serializationContext))
-                        continue;
-
-                    Keys.Add(keyPair.Key);
-                    Values.Add(Default.SerializableNullValue.To(serializableValue));
-                }
-            }
-
-            public IMementoResult Restore(ISerializationContext serializationContext)
-            {
-                Should.NotBeNull(Keys, nameof(Keys));
-                Should.NotBeNull(Values, nameof(Values));
-                if (_metadataContext != null)
-                    return new MementoResult(_metadataContext, serializationContext);
-
-                lock (this)
-                {
-                    if (_metadataContext != null)
-                        return new MementoResult(_metadataContext, serializationContext);
-
-                    var dictionary = new Dictionary<IMetadataContextKey, object?>();
-                    for (var i = 0; i < Keys.Count; i++)
-                    {
-                        var key = Keys[i];
-                        var value = Values[i];
-                        if (key != null && value != null)
-                            dictionary[key] = Default.SerializableNullValue.From(value);
-                    }
-
-                    _metadataContext = new MetadataContext(dictionary);
-
-                    if (Listeners != null)
-                    {
-                        foreach (var listener in Listeners)
-                        {
-                            if (listener != null)
-                                _metadataContext.Listeners.Add(listener);
-                        }
-                    }
-
-                    return new MementoResult(_metadataContext, serializationContext);
-                }
-            }
-
-            #endregion
         }
 
         #endregion

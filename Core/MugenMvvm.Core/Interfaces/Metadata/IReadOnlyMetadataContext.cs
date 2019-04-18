@@ -1,10 +1,9 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Infrastructure.Metadata;
-using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Metadata
 {
-    public interface IReadOnlyMetadataContext : IReadOnlyCollection<MetadataContextValue>, IHasMemento
+    public interface IReadOnlyMetadataContext : IReadOnlyCollection<MetadataContextValue>
     {
         bool TryGet<T>(IMetadataContextKey<T> contextKey, out T value, T defaultValue = default);
 

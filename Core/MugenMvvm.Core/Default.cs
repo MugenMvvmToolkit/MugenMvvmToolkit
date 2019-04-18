@@ -8,11 +8,9 @@ using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Infrastructure.Metadata;
-using MugenMvvm.Infrastructure.Serialization;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
-using MugenMvvm.Interfaces.Serialization;
 
 namespace MugenMvvm
 {
@@ -61,7 +59,7 @@ namespace MugenMvvm
             MetadataContext = emptyContext;
             SerializableNullValue = new NullValue();
             WeakReference = new WeakReference(null, false);
-            Disposable = (IDisposable) MetadataContext;
+            Disposable = (IDisposable)MetadataContext;
             TrueTask = Task.FromResult(true);
             FalseTask = Task.FromResult(false);
             CompletedTask = FalseTask;
@@ -141,12 +139,6 @@ namespace MugenMvvm
 
         private sealed class EmptyContext : IReadOnlyMetadataContext, IDisposable, INavigationProvider
         {
-            #region Fields
-
-            private static IMemento? _emptyMemento;
-
-            #endregion
-
             #region Properties
 
             public int Count => 0;
@@ -169,13 +161,6 @@ namespace MugenMvvm
             IEnumerator IEnumerable.GetEnumerator()
             {
                 return GetEnumerator();
-            }
-
-            public IMemento? GetMemento()
-            {
-                if (_emptyMemento == null)
-                    _emptyMemento = StaticMemberMemento.Create(this, typeof(Default), nameof(MetadataContext));
-                return _emptyMemento;
             }
 
             public bool TryGet<T>(IMetadataContextKey<T> contextKey, out T value, T defaultValue = default)

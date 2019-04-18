@@ -8,20 +8,10 @@ namespace MugenMvvm.Infrastructure.Metadata
 {
     public abstract class MetadataContextKey : IMetadataContextKey
     {
-        #region Fields
-
-        private readonly string? _fieldOrPropertyName;
-        private readonly Type? _type;
-        private IMemento? _memento;
-
-        #endregion
-
         #region Constructors
 
-        protected MetadataContextKey(string key, Type? type, string? fieldOrPropertyName)
+        protected MetadataContextKey(string key)
         {
-            _type = type;
-            _fieldOrPropertyName = fieldOrPropertyName;
             Key = key;
         }
 
@@ -35,20 +25,9 @@ namespace MugenMvvm.Infrastructure.Metadata
 
         #region Implementation of interfaces
 
-        public abstract object? ToSerializableValue(object? item, ISerializationContext serializationContext);
-
-        public abstract bool CanSerializeValue(object? item, ISerializationContext serializationContext);
-
-        public virtual IMemento? GetMemento()
+        public bool Equals(IMetadataContextKey other)
         {
-            if (_memento == null && _type != null && !string.IsNullOrEmpty(_fieldOrPropertyName))
-                _memento = StaticMemberMemento.Create(this, _type, _fieldOrPropertyName);
-            return _memento;
-        }
-
-        public virtual bool Equals(IMetadataContextKey other)
-        {
-            return string.Equals(Key, other.Key);
+            return EqualsInternal(other);
         }
 
         #endregion
@@ -58,13 +37,15 @@ namespace MugenMvvm.Infrastructure.Metadata
         public static IMetadataContextKey<T> FromKey<T>(string key)
         {
             Should.NotBeNullOrEmpty(key, nameof(key));
-            return new MetadataContextKeyInternal<T>(key, null, null);
+            return new MetadataContextKeyInternal<T>(key);
         }
 
-        public static IMetadataContextKey<T> FromMember<T>(Type declaredType, string fieldOrPropertyName)
+        public static IMetadataContextKey<T> FromMember<T>(Type declaredType, string fieldOrPropertyName, bool serializable = false)
         {
             var key = declaredType.Name + declaredType.FullName.Length + fieldOrPropertyName;
-            return new MetadataContextKeyInternal<T>(key, declaredType, fieldOrPropertyName);
+            if (serializable)
+                return new SerializableMetadataContextKey<T>(key, declaredType, fieldOrPropertyName);
+            return new MetadataContextKeyInternal<T>(key);
         }
 
         public static Builder<T> Create<T>(string key, Type? declaredType = null, string? fieldOrPropertyName = null)
@@ -82,16 +63,26 @@ namespace MugenMvvm.Infrastructure.Metadata
             return new Builder<T>(key, declaredType, fieldOrPropertyName);
         }
 
-        public override bool Equals(object obj)
+        public sealed override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj is IMetadataContextKey other && Equals(other);
+            return obj is IMetadataContextKey other && EqualsInternal(other);
         }
 
         public override int GetHashCode()
         {
             return Key.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return Key;
+        }
+
+        protected virtual bool EqualsInternal(IMetadataContextKey other)
+        {
+            return other is MetadataContextKey metadataKey && string.Equals(Key, metadataKey.Key);
         }
 
         #endregion
@@ -115,7 +106,8 @@ namespace MugenMvvm.Infrastructure.Metadata
             private Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, object?, T>? _getValueFunc;
             private Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, object?, T, object?>? _setValueFunc;
             private Func<IMetadataContextKey<T>, object?, ISerializationContext, bool>? _canSerializeFunc;
-            private Func<IMetadataContextKey<T>, object?, ISerializationContext, object?>? _serializableConverter;
+            private Func<IMetadataContextKey<T>, object?, ISerializationContext, object?>? _serializeFunc;
+            private Func<IMetadataContextKey<T>, object?, ISerializationContext, object?>? _deserializeFunc;
 
             #endregion
 
@@ -131,7 +123,8 @@ namespace MugenMvvm.Infrastructure.Metadata
                 _getValueFunc = null;
                 _setValueFunc = null;
                 _canSerializeFunc = null;
-                _serializableConverter = null;
+                _serializeFunc = null;
+                _deserializeFunc = null;
             }
 
             #endregion
@@ -142,27 +135,6 @@ namespace MugenMvvm.Infrastructure.Metadata
             {
                 Should.BeValid(nameof(validateAction), _validateAction == null);
                 _validateAction = validateAction;
-                return this;
-            }
-
-            public Builder<T> Serializable()
-            {
-                return Serializable((k, o, context) => context.Serializer.CanSerialize(o?.GetType() ?? typeof(T), Default.MetadataContext));
-            }
-
-            public Builder<T> Serializable(Func<IMetadataContextKey<T>, object?, ISerializationContext, bool> canSerialize)
-            {
-                Should.NotBeNull(canSerialize, nameof(canSerialize));
-                Should.BeValid(nameof(canSerialize), _canSerializeFunc == null);
-                _canSerializeFunc = canSerialize;
-                return this;
-            }
-
-            public Builder<T> SerializableConverter(Func<IMetadataContextKey<T>, object?, ISerializationContext, object?> serializableConverter)
-            {
-                Should.NotBeNull(serializableConverter, nameof(serializableConverter));
-                Should.BeValid(nameof(serializableConverter), _serializableConverter == null);
-                _serializableConverter = serializableConverter;
                 return this;
             }
 
@@ -195,16 +167,55 @@ namespace MugenMvvm.Infrastructure.Metadata
                 return this;
             }
 
+            public Builder<T> Serializable()
+            {
+                return Serializable((k, o, context) => context.Serializer.CanSerialize(o?.GetType() ?? typeof(T), Default.MetadataContext));
+            }
+
+            public Builder<T> Serializable(Func<IMetadataContextKey<T>, object?, ISerializationContext, bool> canSerialize)
+            {
+                Should.NotBeNull(canSerialize, nameof(canSerialize));
+                Should.BeValid(nameof(canSerialize), _canSerializeFunc == null);
+                _canSerializeFunc = canSerialize;
+                return this;
+            }
+
+            public Builder<T> SerializableConverter(Func<IMetadataContextKey<T>, object?, ISerializationContext, object?> serialize,
+                Func<IMetadataContextKey<T>, object?, ISerializationContext, object?> deserialize)
+            {
+                Should.NotBeNull(serialize, nameof(serialize));
+                Should.NotBeNull(deserialize, nameof(deserialize));
+                Should.BeValid(nameof(serialize), _serializeFunc == null);
+                Should.BeValid(nameof(deserialize), _deserializeFunc == null);
+                _serializeFunc = serialize;
+                _deserializeFunc = deserialize;
+                return this;
+            }
+
             public IMetadataContextKey<T> Build()
             {
-                return new MetadataContextKeyInternal<T>(_key, _type, _fieldOrPropertyName)
+                if (_serializeFunc == null && _deserializeFunc == null && _canSerializeFunc == null)
+                {
+                    return new MetadataContextKeyInternal<T>(_key)
+                    {
+                        SetValueFunc = _setValueFunc,
+                        ValidateAction = _validateAction,
+                        GetValueFunc = _getValueFunc,
+                        GetDefaultValueFunc = _getDefaultValueFunc
+                    };
+                }
+
+                if (_canSerializeFunc == null)
+                    Serializable();
+                return new SerializableMetadataContextKey<T>(_key, _type, _fieldOrPropertyName)
                 {
                     SetValueFunc = _setValueFunc,
                     ValidateAction = _validateAction,
                     GetValueFunc = _getValueFunc,
                     GetDefaultValueFunc = _getDefaultValueFunc,
                     CanSerializeFunc = _canSerializeFunc,
-                    SerializableConverterFunc = _serializableConverter
+                    DeserializeFunc = _deserializeFunc,
+                    SerializeFunc = _serializeFunc
                 };
             }
 
@@ -215,13 +226,9 @@ namespace MugenMvvm.Infrastructure.Metadata
         {
             #region Fields
 
-            public Func<IMetadataContextKey<T>, object?, ISerializationContext, bool>? CanSerializeFunc;
-
             public Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, T, T>? GetDefaultValueFunc;
 
             public Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, object?, T>? GetValueFunc;
-
-            public Func<IMetadataContextKey<T>, object?, ISerializationContext, object?>? SerializableConverterFunc;
 
             public Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, object?, T, object?>? SetValueFunc;
 
@@ -231,14 +238,21 @@ namespace MugenMvvm.Infrastructure.Metadata
 
             #region Constructors
 
-            protected internal MetadataContextKeyInternal(string key, Type? type, string? fieldOrPropertyName)
-                : base(key, type, fieldOrPropertyName)
+            public MetadataContextKeyInternal(string key)
+                : base(key)
             {
             }
 
             #endregion
 
             #region Implementation of interfaces
+
+            public T GetValue(IReadOnlyMetadataContext metadataContext, object? value)
+            {
+                if (GetValueFunc == null)
+                    return (T) value!;
+                return GetValueFunc(metadataContext, this, value);
+            }
 
             public object? SetValue(IReadOnlyMetadataContext metadataContext, object? oldValue, T newValue)
             {
@@ -255,25 +269,62 @@ namespace MugenMvvm.Infrastructure.Metadata
                 return GetDefaultValueFunc(metadataContext, this, defaultValue);
             }
 
-            public override bool CanSerializeValue(object? item, ISerializationContext serializationContext)
+            #endregion
+        }
+
+        private sealed class SerializableMetadataContextKey<T> : MetadataContextKeyInternal<T>, ISerializableMetadataContextKey
+        {
+            #region Fields
+
+            private readonly string? _fieldOrPropertyName;
+            private readonly Type? _type;
+            private IMemento? _memento;
+
+            public Func<IMetadataContextKey<T>, object?, ISerializationContext, bool>? CanSerializeFunc;
+            public Func<IMetadataContextKey<T>, object?, ISerializationContext, object?>? DeserializeFunc;
+            public Func<IMetadataContextKey<T>, object?, ISerializationContext, object?>? SerializeFunc;
+
+            #endregion
+
+            #region Constructors
+
+            public SerializableMetadataContextKey(string key, Type? type, string? fieldOrPropertyName)
+                : base(key)
+            {
+                _type = type;
+                _fieldOrPropertyName = fieldOrPropertyName;
+            }
+
+            #endregion
+
+            #region Implementation of interfaces
+
+            public IMemento GetMemento()
+            {
+                if (_memento == null && _type != null && !string.IsNullOrEmpty(_fieldOrPropertyName))
+                    _memento = StaticMemberMemento.Create(this, _type, _fieldOrPropertyName);
+                return _memento;
+            }
+
+            public bool CanSerialize(object? item, ISerializationContext serializationContext)
             {
                 if (CanSerializeFunc == null)
                     return false;
                 return CanSerializeFunc(this, item, serializationContext);
             }
 
-            public override object? ToSerializableValue(object? item, ISerializationContext serializationContext)
+            public object Serialize(object? item, ISerializationContext serializationContext)
             {
-                if (SerializableConverterFunc == null)
+                if (SerializeFunc == null)
                     return item;
-                return SerializableConverterFunc(this, item, serializationContext);
+                return SerializeFunc(this, item, serializationContext);
             }
 
-            public T GetValue(IReadOnlyMetadataContext metadataContext, object? value)
+            public object Deserialize(object? item, ISerializationContext serializationContext)
             {
-                if (GetValueFunc == null)
-                    return (T) value!;
-                return GetValueFunc(metadataContext, this, value);
+                if (DeserializeFunc == null)
+                    return item;
+                return DeserializeFunc(this, item, serializationContext);
             }
 
             #endregion

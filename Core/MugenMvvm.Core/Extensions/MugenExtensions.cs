@@ -407,7 +407,7 @@ namespace MugenMvvm
             var builder = new StringBuilder("(");
             var values = metadata.ToArray();
             foreach (var item in values)
-                builder.Append(item.ContextKey.Key).Append("=").Append(item.Value).Append(";");
+                builder.Append(item.ContextKey).Append("=").Append(item.Value).Append(";");
             builder.Append(")");
             return builder.ToString();
         }
