@@ -4,9 +4,9 @@
     {
         bool HasItems { get; }
 
-        void Add(T item);
+        void Add(T component);
 
-        void Remove(T item);
+        bool Remove(T component);
 
         void Clear();
 

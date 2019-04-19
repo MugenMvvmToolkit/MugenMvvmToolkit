@@ -83,11 +83,11 @@ namespace MugenMvvm.Infrastructure.Components
 
             #region Methods
 
-            protected override void AddInternal(T item)
+            protected override void AddInternal(T component)
             {
                 var array = new T[Items.Length + 1];
                 var added = false;
-                var priority = GetPriority(item);
+                var priority = GetPriority(component);
                 for (var i = 0; i < Items.Length; i++)
                 {
                     if (added)
@@ -100,7 +100,7 @@ namespace MugenMvvm.Infrastructure.Components
                     var compareTo = priority.CompareTo(GetPriority(oldItem));
                     if (compareTo > 0)
                     {
-                        array[i] = item;
+                        array[i] = component;
                         added = true;
                         --i;
                     }
@@ -109,15 +109,15 @@ namespace MugenMvvm.Infrastructure.Components
                 }
 
                 if (!added)
-                    array[array.Length - 1] = item;
+                    array[array.Length - 1] = component;
                 Items = array;
             }
 
-            private int GetPriority(T item)
+            private int GetPriority(T component)
             {
-                if (item is IListener listener)
+                if (component is IListener listener)
                     return listener.GetPriority(Owner);
-                return ((IHasPriority) item).Priority;
+                return ((IHasPriority) component).Priority;
             }
 
             #endregion
@@ -151,33 +151,67 @@ namespace MugenMvvm.Infrastructure.Components
 
             #region Implementation of interfaces
 
-            public void Add(T item)
+            public void Add(T component)
             {
-                Should.NotBeNull(item, nameof(item));
+                Should.NotBeNull(component, nameof(component));
                 lock (this)
                 {
-                    AddInternal(item);
+                    AddInternal(component);
                 }
 
-                if (item is IAttachableComponent attachable)
-                    Attach(attachable);
+                IReadOnlyMetadataContext? metadata = null;
+
+                if (component is IAttachableComponent attachable)
+                {
+                    metadata = GetAttachMetadata(component);
+                    Attach(attachable, metadata);
+                }
+
+                if (Owner is IComponentOwner<T> owner)
+                    owner.OnComponentAdded(component, metadata ?? GetAttachMetadata(component));
             }
 
-            public void Remove(T item)
+            public bool Remove(T component)
             {
-                Should.NotBeNull(item, nameof(item));
+                Should.NotBeNull(component, nameof(component));
+                bool removed;
                 lock (this)
                 {
-                    RemoveInternal(item);
+                    removed = RemoveInternal(component);
                 }
 
-                if (item is IDetachableComponent detachable)
-                    Detach(detachable);
+                IReadOnlyMetadataContext? metadata = null;
+
+                if (removed && component is IDetachableComponent detachable)
+                {
+                    metadata = GetDetachMetadata(component);
+                    Detach(detachable, metadata);
+                }
+
+                if (removed && Owner is IComponentOwner<T> owner)
+                    owner.OnComponentRemoved(component, metadata ?? GetDetachMetadata(component));
+
+                return removed;
             }
 
             public void Clear()
             {
-                Items = Default.EmptyArray<T>();
+                var oldItems = Items;
+                ClearInternal();
+                var owner = Owner as IComponentOwner<T>;
+                for (var i = 0; i < oldItems.Length; i++)
+                {
+                    IReadOnlyMetadataContext? metadata = null;
+
+                    var component = oldItems[i];
+                    if (component is IDetachableComponent detachable)
+                    {
+                        metadata = GetDetachMetadata(component);
+                        Detach(detachable, metadata);
+                    }
+
+                    owner?.OnComponentRemoved(component, metadata ?? GetDetachMetadata(component));
+                }
             }
 
             public T[] GetItems()
@@ -189,20 +223,20 @@ namespace MugenMvvm.Infrastructure.Components
 
             #region Methods
 
-            protected virtual void AddInternal(T item)
+            protected virtual void AddInternal(T component)
             {
                 var array = new T[Items.Length + 1];
                 Array.Copy(Items, array, Items.Length);
-                array[array.Length - 1] = item;
+                array[array.Length - 1] = component;
                 Items = array;
             }
 
-            protected virtual void RemoveInternal(T item)
+            protected virtual bool RemoveInternal(T component)
             {
                 T[]? array = null;
                 for (var i = 0; i < Items.Length; i++)
                 {
-                    if (array == null && EqualityComparer<T>.Default.Equals(item, Items[i]))
+                    if (array == null && EqualityComparer<T>.Default.Equals(component, Items[i]))
                     {
                         array = new T[Items.Length - 1];
                         Array.Copy(Items, 0, array, 0, i);
@@ -215,9 +249,15 @@ namespace MugenMvvm.Infrastructure.Components
 
                 if (array != null)
                     Items = array;
+                return array != null;
             }
 
-            protected virtual void Attach(IAttachableComponent component)
+            protected virtual void ClearInternal()
+            {
+                Items = Default.EmptyArray<T>();
+            }
+
+            protected virtual void Attach(IAttachableComponent component, IReadOnlyMetadataContext metadata)
             {
                 var type = component.GetType();
                 Func<object?, object?[], object?>? func;
@@ -230,10 +270,10 @@ namespace MugenMvvm.Infrastructure.Components
                     }
                 }
 
-                func?.Invoke(null, new[] {Owner, component, Default.TrueObject, GetAttachMetadata()});
+                func?.Invoke(null, new[] {Owner, component, Default.TrueObject, metadata});
             }
 
-            protected virtual void Detach(IDetachableComponent component)
+            protected virtual void Detach(IDetachableComponent component, IReadOnlyMetadataContext metadata)
             {
                 var type = component.GetType();
                 Func<object?, object?[], object?>? func;
@@ -246,15 +286,15 @@ namespace MugenMvvm.Infrastructure.Components
                     }
                 }
 
-                func?.Invoke(null, new[] {Owner, component, Default.FalseObject, GetDetachMetadata()});
+                func?.Invoke(null, new[] {Owner, component, Default.FalseObject, metadata});
             }
 
-            protected virtual IReadOnlyMetadataContext GetAttachMetadata()
+            protected virtual IReadOnlyMetadataContext GetAttachMetadata(T component)
             {
                 return Default.MetadataContext;
             }
 
-            protected virtual IReadOnlyMetadataContext GetDetachMetadata()
+            protected virtual IReadOnlyMetadataContext GetDetachMetadata(T component)
             {
                 return Default.MetadataContext;
             }

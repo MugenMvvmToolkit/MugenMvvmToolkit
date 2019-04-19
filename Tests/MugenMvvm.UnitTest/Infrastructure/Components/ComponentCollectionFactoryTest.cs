@@ -40,7 +40,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Components
                 if (i % 2 == 0)
                 {
                     objects.Remove(array[i]);
-                    componentCollection.Remove(array[i]);
+                    componentCollection.Remove(array[i]).ShouldBeTrue();
                 }
             }
 
@@ -79,7 +79,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Components
                 if (i % 2 == 0)
                 {
                     objects.Remove(array[i]);
-                    componentCollection.Remove(array[i]);
+                    componentCollection.Remove(array[i]).ShouldBeTrue();
                 }
             }
 
@@ -128,7 +128,7 @@ namespace MugenMvvm.UnitTest.Infrastructure.Components
                 if (i % 2 == 0)
                 {
                     objects.Remove(array[i]);
-                    componentCollection.Remove(array[i]);
+                    componentCollection.Remove(array[i]).ShouldBeTrue();
                 }
             }
 
@@ -213,7 +213,6 @@ namespace MugenMvvm.UnitTest.Infrastructure.Components
             var componentCollectionFactory = CreateFactory();
             var componentCollection = componentCollectionFactory.GetComponentCollection<object>(this, Default.MetadataContext);
             item.OnAttached = (o, context) => { attached++; };
-
             item.OnDetached = (o, context) => { detached++; };
 
             componentCollection.Add(item);
@@ -225,6 +224,145 @@ namespace MugenMvvm.UnitTest.Infrastructure.Components
             detached.ShouldEqual(0);
         }
 
+        [Fact]
+        public void ComponentCollectionFactoryShouldAttachDetachComponent4()
+        {
+            var attached = 0;
+            var detached = 0;
+            var item = new AttachableDetachable<object>();
+            var componentCollectionFactory = CreateFactory();
+            var componentCollection = componentCollectionFactory.GetComponentCollection<object>(this, Default.MetadataContext);
+            item.OnAttached = (o, context) => { attached++; };
+            item.OnDetached = (o, context) => { detached++; };
+
+            componentCollection.Remove(item);
+            attached.ShouldEqual(0);
+            detached.ShouldEqual(0);
+        }
+
+        [Fact]
+        public void ComponentCollectionFactoryShouldAttachDetachComponent5()
+        {
+            var attached = 0;
+            var detached = 0;
+            var item = new AttachableDetachable<ComponentCollectionFactoryTest>();
+            var componentCollectionFactory = CreateFactory();
+            var componentCollection = componentCollectionFactory.GetComponentCollection<object>(this, Default.MetadataContext);
+            item.OnAttached = (o, context) =>
+            {
+                o.ShouldEqual(this);
+                context.ShouldNotBeNull();
+                attached++;
+            };
+
+            item.OnDetached = (o, context) =>
+            {
+                o.ShouldEqual(this);
+                context.ShouldNotBeNull();
+                detached++;
+            };
+
+            componentCollection.Add(item);
+            attached.ShouldEqual(1);
+            detached.ShouldEqual(0);
+
+            componentCollection.Clear();
+            attached.ShouldEqual(1);
+            detached.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void ComponentCollectionFactoryShouldAttachDetachComponent6()
+        {
+            var added = 0;
+            var removed = 0;
+            var owner = new ComponentOwner<object>();
+            var item = new AttachableDetachable<ComponentCollectionFactoryTest>();
+            var componentCollectionFactory = CreateFactory();
+            var componentCollection = componentCollectionFactory.GetComponentCollection<object>(owner, Default.MetadataContext);
+            owner.OnComponentAdded = (o, context) =>
+            {
+                o.ShouldEqual(item);
+                context.ShouldNotBeNull();
+                added++;
+            };
+
+            owner.OnComponentRemoved = (o, context) =>
+            {
+                o.ShouldEqual(item);
+                context.ShouldNotBeNull();
+                removed++;
+            };
+
+            componentCollection.Add(item);
+            added.ShouldEqual(1);
+            removed.ShouldEqual(0);
+
+            componentCollection.Remove(item);
+            added.ShouldEqual(1);
+            removed.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void ComponentCollectionFactoryShouldAttachDetachComponent7()
+        {
+            var added = 0;
+            var removed = 0;
+            var owner = new ComponentOwner<object>();
+            var item = new AttachableDetachable<ComponentCollectionFactoryTest>();
+            var componentCollectionFactory = CreateFactory();
+            var componentCollection = componentCollectionFactory.GetComponentCollection<object>(owner, Default.MetadataContext);
+            owner.OnComponentAdded = (o, context) =>
+            {
+                o.ShouldEqual(item);
+                context.ShouldNotBeNull();
+                added++;
+            };
+
+            owner.OnComponentRemoved = (o, context) =>
+            {
+                o.ShouldEqual(item);
+                context.ShouldNotBeNull();
+                removed++;
+            };
+
+            componentCollection.Add(item);
+            added.ShouldEqual(1);
+            removed.ShouldEqual(0);
+
+            componentCollection.Clear();
+            added.ShouldEqual(1);
+            removed.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void ComponentCollectionFactoryShouldAttachDetachComponent8()
+        {
+            var added = 0;
+            var removed = 0;
+            var owner = new ComponentOwner<object>();
+            var item = new AttachableDetachable<ComponentCollectionFactoryTest>();
+            var componentCollectionFactory = CreateFactory();
+            var componentCollection = componentCollectionFactory.GetComponentCollection<object>(owner, Default.MetadataContext);
+            owner.OnComponentAdded = (o, context) =>
+            {
+                o.ShouldEqual(item);
+                context.ShouldNotBeNull();
+                added++;
+            };
+
+            owner.OnComponentRemoved = (o, context) =>
+            {
+                o.ShouldEqual(item);
+                context.ShouldNotBeNull();
+                removed++;
+            };
+
+            componentCollection.Remove(item);
+            added.ShouldEqual(0);
+            removed.ShouldEqual(0);
+        }
+
         protected IComponentCollectionFactory CreateFactory()
         {
             return new ComponentCollectionFactory();
@@ -233,6 +371,31 @@ namespace MugenMvvm.UnitTest.Infrastructure.Components
         #endregion
 
         #region Nested types
+
+        private class ComponentOwner<T> : IComponentOwner<T> where T : class
+        {
+            #region Properties
+
+            public Action<T, IReadOnlyMetadataContext>? OnComponentAdded { get; set; }
+
+            public Action<T, IReadOnlyMetadataContext>? OnComponentRemoved { get; set; }
+
+            #endregion
+
+            #region Implementation of interfaces
+
+            void IComponentOwner<T>.OnComponentAdded(T component, IReadOnlyMetadataContext metadata)
+            {
+                OnComponentAdded(component, metadata);
+            }
+
+            void IComponentOwner<T>.OnComponentRemoved(T component, IReadOnlyMetadataContext metadata)
+            {
+                OnComponentRemoved(component, metadata);
+            }
+
+            #endregion
+        }
 
         private class AttachableDetachable<T> : IAttachableComponent<T>, IDetachableComponent<T> where T : class
         {
