@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces;
@@ -60,11 +59,11 @@ namespace MugenMvvm.Infrastructure
             if (oldState == state)
                 return;
             var listeners = GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnStateChanged(this, oldState, state, metadata);
         }
 
-        private IReadOnlyList<IApplicationStateDispatcherListener> GetListeners()
+        private IApplicationStateDispatcherListener[] GetListeners()
         {
             return _listeners?.GetItems() ?? Default.EmptyArray<IApplicationStateDispatcherListener>();
         }

@@ -174,14 +174,14 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         protected virtual void OnCallbackAdded(IViewModelBase viewModel, INavigationCallback callback, IChildViewModelPresenterResult presenterResult)
         {
             var listeners = GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnCallbackAdded(this, viewModel, callback, presenterResult);
         }
 
         protected virtual void OnCallbackExecuted(IViewModelBase viewModel, INavigationCallback callback, INavigationContext navigationContext)
         {
             var listeners = GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnCallbackExecuted(this, viewModel, callback, navigationContext);
         }
 
@@ -241,7 +241,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             }
         }
 
-        protected IReadOnlyList<IViewModelPresenterCallbackManagerListener> GetListeners()
+        protected IViewModelPresenterCallbackManagerListener[] GetListeners()
         {
             return _listeners?.GetItems() ?? Default.EmptyArray<IViewModelPresenterCallbackManagerListener>();
         }

@@ -116,7 +116,7 @@ namespace MugenMvvm.Infrastructure.Navigation
         protected bool CanAddNavigationEntry(INavigationContext navigationContext)
         {
             var listeners = GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
             {
                 if (listeners[i].CanAddNavigationEntry(this, navigationContext).GetValueOrDefault())
                     return true;
@@ -128,7 +128,7 @@ namespace MugenMvvm.Infrastructure.Navigation
         protected bool CanRemoveNavigationEntry(INavigationContext navigationContext)
         {
             var listeners = GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
             {
                 if (listeners[i].CanRemoveNavigationEntry(this, navigationContext).GetValueOrDefault())
                     return true;
@@ -161,11 +161,11 @@ namespace MugenMvvm.Infrastructure.Navigation
             IReadOnlyMetadataContext metadata)
         {
             var listeners = GetListeners();
-            if (listeners.Count == 0)
+            if (listeners.Length == 0)
                 return Default.EmptyArray<INavigationCallback>();
 
             List<INavigationCallback>? callbacks = null;
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
             {
                 var list = listeners[i].GetCallbacks(this, navigationEntry, callbackType, metadata);
                 if (list == null)
@@ -206,7 +206,7 @@ namespace MugenMvvm.Infrastructure.Navigation
                 NavigationEntries.Remove(type);
         }
 
-        protected IReadOnlyList<INavigationDispatcherJournalListener> GetListeners()
+        protected INavigationDispatcherJournalListener[] GetListeners()
         {
             return _listeners?.GetItems() ?? Default.EmptyArray<INavigationDispatcherJournalListener>();
         }

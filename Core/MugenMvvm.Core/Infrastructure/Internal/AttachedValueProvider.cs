@@ -53,9 +53,9 @@ namespace MugenMvvm.Infrastructure.Internal
             {
                 if (dictionary.TryGetValue(path, out var value))
                 {
-                    value = updateValueFactory(item, addValue, (TValue) value!, state1, state2);
+                    value = updateValueFactory(item, addValue, (TValue)value!, state1, state2);
                     dictionary[path] = value;
-                    return (TValue) value!;
+                    return (TValue)value!;
                 }
 
                 dictionary.Add(path, addValue);
@@ -76,14 +76,14 @@ namespace MugenMvvm.Infrastructure.Internal
             {
                 if (dictionary.TryGetValue(path, out var value))
                 {
-                    value = updateValueFactory(item, addValueFactory, (TValue) value!, state1, state2);
+                    value = updateValueFactory(item, addValueFactory, (TValue)value!, state1, state2);
                     dictionary[path] = value;
-                    return (TValue) value!;
+                    return (TValue)value!;
                 }
 
                 value = addValueFactory(item, state1, state2);
                 dictionary.Add(path, value);
-                return (TValue) value!;
+                return (TValue)value!;
             }
         }
 
@@ -95,7 +95,7 @@ namespace MugenMvvm.Infrastructure.Internal
             lock (dictionary)
             {
                 if (dictionary.TryGetValue(path, out var oldValue))
-                    return (TValue) oldValue!;
+                    return (TValue)oldValue!;
                 dictionary.Add(path, value);
                 return value;
             }
@@ -111,10 +111,10 @@ namespace MugenMvvm.Infrastructure.Internal
             lock (dictionary)
             {
                 if (dictionary.TryGetValue(path, out var oldValue))
-                    return (TValue) oldValue!;
+                    return (TValue)oldValue!;
                 oldValue = valueFactory(item, state1, state2);
                 dictionary.Add(path, oldValue);
-                return (TValue) oldValue!;
+                return (TValue)oldValue!;
             }
         }
 
@@ -133,7 +133,7 @@ namespace MugenMvvm.Infrastructure.Internal
             {
                 if (dictionary.TryGetValue(path, out var result))
                 {
-                    value = (TValue) result!;
+                    value = (TValue)result!;
                     return true;
                 }
 
@@ -217,7 +217,7 @@ namespace MugenMvvm.Infrastructure.Internal
         protected virtual bool ClearInternal(object item)
         {
             var items = GetProviders();
-            for (var i = 0; i < items.Count; i++)
+            for (var i = 0; i < items.Length; i++)
             {
                 if (items[i].TryClear(this, item, out var result))
                     return result;
@@ -229,7 +229,7 @@ namespace MugenMvvm.Infrastructure.Internal
         protected virtual LightDictionaryBase<string, object?>? GetOrAddAttachedDictionary(object item, bool required)
         {
             var items = GetProviders();
-            for (var i = 0; i < items.Count; i++)
+            for (var i = 0; i < items.Length; i++)
             {
                 if (items[i].TryGetOrAddAttachedDictionary(this, item, required, out var dict))
                     return dict;
@@ -240,7 +240,7 @@ namespace MugenMvvm.Infrastructure.Internal
             return null;
         }
 
-        private IReadOnlyList<IChildAttachedValueProvider> GetProviders()
+        private IChildAttachedValueProvider[] GetProviders()
         {
             return _providers?.GetItems() ?? Default.EmptyArray<IChildAttachedValueProvider>();
         }

@@ -129,7 +129,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
         private void OnBeginBusy(IBusyInfo busyInfo)
         {
             var items = GetListeners();
-            for (var i = 0; i < items.Count; i++)
+            for (var i = 0; i < items.Length; i++)
                 items[i].OnBeginBusy(this, busyInfo);
         }
 
@@ -138,11 +138,11 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
             if (!ignoreSuspend && IsSuspended)
                 return;
             var items = GetListeners();
-            for (var i = 0; i < items.Count; i++)
+            for (var i = 0; i < items.Length; i++)
                 items[i].OnBusyInfoChanged(this);
         }
 
-        private IReadOnlyList<IBusyIndicatorProviderListener> GetListeners()
+        private IBusyIndicatorProviderListener[] GetListeners()
         {
             return _listeners?.GetItems() ?? Default.EmptyArray<IBusyIndicatorProviderListener>();
         }

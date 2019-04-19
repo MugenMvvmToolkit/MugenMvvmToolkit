@@ -254,14 +254,14 @@ namespace MugenMvvm.Infrastructure.Validation
         protected virtual void OnErrorsChanged(string memberName)
         {
             var listeners = GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnErrorsChanged(this, memberName);
         }
 
         protected virtual void OnAsyncValidation(string memberName, Task validationTask)
         {
             var listeners = GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnAsyncValidation(this, memberName, validationTask);
         }
 
@@ -288,7 +288,7 @@ namespace MugenMvvm.Infrastructure.Validation
                 OnErrorsChanged(memberName);
         }
 
-        protected IReadOnlyList<IValidatorListener> GetListeners()
+        protected IValidatorListener[] GetListeners()
         {
             return _listeners?.GetItems() ?? Default.EmptyArray<IValidatorListener>();
         }

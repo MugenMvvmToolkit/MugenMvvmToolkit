@@ -340,7 +340,7 @@ namespace MugenMvvm.Infrastructure.Metadata
             if (!HasListeners)
                 return;
             var items = GetListeners();
-            for (var i = 0; i < items.Count; i++)
+            for (var i = 0; i < items.Length; i++)
                 items[i].OnAdded(this, key, newValue);
         }
 
@@ -349,7 +349,7 @@ namespace MugenMvvm.Infrastructure.Metadata
             if (!HasListeners)
                 return;
             var items = GetListeners();
-            for (var i = 0; i < items.Count; i++)
+            for (var i = 0; i < items.Length; i++)
                 items[i].OnChanged(this, key, oldValue, newValue);
         }
 
@@ -358,11 +358,11 @@ namespace MugenMvvm.Infrastructure.Metadata
             if (!HasListeners)
                 return;
             var items = GetListeners();
-            for (var i = 0; i < items.Count; i++)
+            for (var i = 0; i < items.Length; i++)
                 items[i].OnRemoved(this, key, oldValue);
         }
 
-        private IReadOnlyList<IObservableMetadataContextListener> GetListeners()
+        private IObservableMetadataContextListener[] GetListeners()
         {
             return _listeners?.GetItems() ?? Default.EmptyArray<IObservableMetadataContextListener>();
         }

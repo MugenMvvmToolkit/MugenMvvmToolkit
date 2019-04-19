@@ -101,13 +101,13 @@ namespace MugenMvvm.Infrastructure.Wrapping
                 ExceptionManager.ThrowWrapperTypeNotSupported(wrapperType);
 
             var listeners = GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnWrapped(this, item, wrapperType, wrapper!, metadata);
 
             return wrapper!;
         }
 
-        protected IReadOnlyList<IWrapperManagerListener> GetListeners()
+        protected IWrapperManagerListener[] GetListeners()
         {
             return _listeners?.GetItems() ?? Default.EmptyArray<IWrapperManagerListener>();
         }

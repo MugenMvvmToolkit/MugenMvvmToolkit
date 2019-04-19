@@ -99,7 +99,7 @@ namespace MugenMvvm.Collections
                 return Default.Disposable;
 
             return WeakActionToken.Create(this, Default.BoolToObject(hasListeners), Default.BoolToObject(hasDecorators),
-                (@base, b1, b2) => @base.EndBatchUpdate((bool) b1, (bool) b2));
+                (@base, b1, b2) => @base.EndBatchUpdate((bool)b1, (bool)b2));
         }
 
         public abstract void Add(T item);
@@ -192,14 +192,14 @@ namespace MugenMvvm.Collections
         protected virtual void OnBeginBatchUpdate(bool decorators)
         {
             var listeners = decorators ? GetDecoratorListeners() : GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnBeginBatchUpdate(this);
         }
 
         protected virtual void OnEndBatchUpdate(bool decorators)
         {
             var listeners = decorators ? GetDecoratorListeners() : GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnEndBatchUpdate(this);
         }
 
@@ -219,7 +219,7 @@ namespace MugenMvvm.Collections
         protected virtual bool OnAdding(T item, int index)
         {
             var listeners = GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
             {
                 if (listeners[i] is IObservableCollectionChangingListener<T> listener && !listener.OnAdding(this, item, index))
                     return false;
@@ -231,7 +231,7 @@ namespace MugenMvvm.Collections
         protected virtual bool OnReplacing(T oldItem, T newItem, int index)
         {
             var listeners = GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
             {
                 if (listeners[i] is IObservableCollectionChangingListener<T> listener && !listener.OnReplacing(this, oldItem, newItem, index))
                     return false;
@@ -243,7 +243,7 @@ namespace MugenMvvm.Collections
         protected virtual bool OnMoving(T item, int oldIndex, int newIndex)
         {
             var listeners = GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
             {
                 if (listeners[i] is IObservableCollectionChangingListener<T> listener && !listener.OnMoving(this, item, oldIndex, newIndex))
                     return false;
@@ -255,7 +255,7 @@ namespace MugenMvvm.Collections
         protected virtual bool OnRemoving(T item, int index)
         {
             var listeners = GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
             {
                 if (listeners[i] is IObservableCollectionChangingListener<T> listener && !listener.OnRemoving(this, item, index))
                     return false;
@@ -267,7 +267,7 @@ namespace MugenMvvm.Collections
         protected virtual bool OnResetting(IEnumerable<T> items)
         {
             var listeners = GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
             {
                 if (listeners[i] is IObservableCollectionChangingListener<T> listener && !listener.OnResetting(this, items))
                     return false;
@@ -279,7 +279,7 @@ namespace MugenMvvm.Collections
         protected virtual bool OnClearing()
         {
             var listeners = GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
             {
                 if (listeners[i] is IObservableCollectionChangingListener<T> listener && !listener.OnClearing(this))
                     return false;
@@ -291,7 +291,7 @@ namespace MugenMvvm.Collections
         protected virtual void OnAdded(T item, int index)
         {
             var listeners = GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnAdded(this, item, index);
 
             OnAdded(null, item, index);
@@ -300,7 +300,7 @@ namespace MugenMvvm.Collections
         protected virtual void OnReplaced(T oldItem, T newItem, int index)
         {
             var listeners = GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnReplaced(this, oldItem, newItem, index);
 
             OnReplaced(null, oldItem, newItem, index);
@@ -309,7 +309,7 @@ namespace MugenMvvm.Collections
         protected virtual void OnMoved(T item, int oldIndex, int newIndex)
         {
             var listeners = GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnMoved(this, item, oldIndex, newIndex);
 
             OnMoved(null, item, oldIndex, newIndex);
@@ -318,7 +318,7 @@ namespace MugenMvvm.Collections
         protected virtual void OnRemoved(T item, int index)
         {
             var listeners = GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnRemoved(this, item, index);
 
             OnRemoved(null, item, index);
@@ -327,7 +327,7 @@ namespace MugenMvvm.Collections
         protected virtual void OnReset(IEnumerable<T> items)
         {
             var listeners = GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnReset(this, items);
 
             OnReset(null, items);
@@ -336,7 +336,7 @@ namespace MugenMvvm.Collections
         protected virtual void OnCleared()
         {
             var listeners = GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnCleared(this);
 
             OnCleared(null);
@@ -345,7 +345,7 @@ namespace MugenMvvm.Collections
         protected virtual void OnItemChanged(IObservableCollectionDecorator<T>? decorator, T item, int index, object? args)
         {
             var listeners = GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnItemChanged(this, item, index, args);
 
             var decorators = GetDecorators(decorator, out var indexOf);
@@ -359,7 +359,7 @@ namespace MugenMvvm.Collections
             }
 
             listeners = GetDecoratorListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnItemChanged(this, item, index, args);
         }
 
@@ -376,7 +376,7 @@ namespace MugenMvvm.Collections
             }
 
             var listeners = GetDecoratorListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnAdded(this, item, index);
         }
 
@@ -393,7 +393,7 @@ namespace MugenMvvm.Collections
             }
 
             var listeners = GetDecoratorListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnReplaced(this, oldItem, newItem, index);
         }
 
@@ -410,7 +410,7 @@ namespace MugenMvvm.Collections
             }
 
             var listeners = GetDecoratorListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnMoved(this, item, oldIndex, newIndex);
         }
 
@@ -427,7 +427,7 @@ namespace MugenMvvm.Collections
             }
 
             var listeners = GetDecoratorListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnRemoved(this, item, index);
         }
 
@@ -444,7 +444,7 @@ namespace MugenMvvm.Collections
             }
 
             var listeners = GetDecoratorListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnReset(this, items);
         }
 
@@ -461,7 +461,7 @@ namespace MugenMvvm.Collections
             }
 
             var listeners = GetDecoratorListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnCleared(this);
         }
 
@@ -476,12 +476,12 @@ namespace MugenMvvm.Collections
             return false;
         }
 
-        protected IReadOnlyList<IObservableCollectionChangedListener<T>> GetListeners()
+        protected IObservableCollectionChangedListener<T>[] GetListeners()
         {
             return _listeners?.GetItems() ?? Default.EmptyArray<IObservableCollectionChangedListener<T>>();
         }
 
-        protected IReadOnlyList<IObservableCollectionChangedListener<T>> GetDecoratorListeners()
+        protected IObservableCollectionChangedListener<T>[] GetDecoratorListeners()
         {
             return _decoratorListeners?.GetItems() ?? Default.EmptyArray<IObservableCollectionChangedListener<T>>();
         }

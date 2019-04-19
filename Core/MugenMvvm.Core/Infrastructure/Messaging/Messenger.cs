@@ -81,7 +81,7 @@ namespace MugenMvvm.Infrastructure.Messaging
             Should.NotBeNull(executionMode, nameof(executionMode));
 
             var listeners = GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 subscriber = listeners[i].OnSubscribing(this, subscriber, executionMode);
 
             bool added;
@@ -93,7 +93,7 @@ namespace MugenMvvm.Infrastructure.Messaging
             if (added)
             {
                 listeners = GetListeners();
-                for (var i = 0; i < listeners.Count; i++)
+                for (var i = 0; i < listeners.Length; i++)
                     listeners[i].OnSubscribed(this, subscriber, executionMode);
             }
         }
@@ -110,7 +110,7 @@ namespace MugenMvvm.Infrastructure.Messaging
             if (removed)
             {
                 var listeners = GetListeners();
-                for (var i = 0; i < listeners.Count; i++)
+                for (var i = 0; i < listeners.Length; i++)
                     listeners[i].OnUnsubscribed(this, subscriber);
             }
 
@@ -143,7 +143,7 @@ namespace MugenMvvm.Infrastructure.Messaging
         {
             var ctx = new MessengerContext(this, metadata);
             var listeners = GetListeners();
-            for (var i = 0; i < listeners.Count; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnContextCreated(this, ctx);
             return ctx;
         }
@@ -203,7 +203,7 @@ namespace MugenMvvm.Infrastructure.Messaging
             return Default.CompletedTask;
         }
 
-        private IReadOnlyList<IMessengerListener> GetListeners()
+        private IMessengerListener[] GetListeners()
         {
             return _listeners?.GetItems() ?? Default.EmptyArray<IMessengerListener>();
         }
@@ -263,7 +263,7 @@ namespace MugenMvvm.Infrastructure.Messaging
             {
                 var listeners = _messenger.GetListeners();
                 MessengerSubscriberResult? subscriberResult = null;
-                for (var i = 0; i < listeners.Count; i++)
+                for (var i = 0; i < listeners.Length; i++)
                 {
                     subscriberResult = listeners[i].OnPublishing(_messenger, subscriber, _sender, _message, _messengerContext);
                     if (subscriberResult != null)
@@ -272,7 +272,7 @@ namespace MugenMvvm.Infrastructure.Messaging
 
                 var result = subscriberResult ?? subscriber.Handle(_sender, _message, _messengerContext);
 
-                for (var i = 0; i < listeners.Count; i++)
+                for (var i = 0; i < listeners.Length; i++)
                     listeners[i].OnPublished(_messenger, subscriber, _sender, _message, _messengerContext, result);
 
                 if (result == MessengerSubscriberResult.Invalid)
