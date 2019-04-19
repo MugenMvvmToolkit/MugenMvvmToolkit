@@ -84,8 +84,8 @@ namespace MugenMvvm.Metadata
                     _parentViewModel = GetBuilder<IViewModelBase?>(nameof(ParentViewModel))
                         .NotNull()
                         .Serializable()
-                        .Getter((context, k, o) => (o as SerializableWeakReference)?.GetTarget<IViewModelBase>())
-                        .Setter((context, k, oldValue, newValue) => newValue == null ? null : new SerializableWeakReference(newValue))
+                        .Getter((context, k, o) => (IViewModelBase)(o as WeakReference)?.Target)
+                        .Setter((context, k, oldValue, newValue) => newValue == null ? null : MugenExtensions.GetWeakReference(newValue))
                         .Build();
                 }
 

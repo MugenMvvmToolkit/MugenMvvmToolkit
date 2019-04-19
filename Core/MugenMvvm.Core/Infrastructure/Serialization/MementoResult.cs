@@ -24,15 +24,16 @@ namespace MugenMvvm.Infrastructure.Serialization
             Metadata = Default.MetadataContext;
         }
 
-        public MementoResult(object target, IHasMetadata<IReadOnlyMetadataContext>? hasMetadata = null)
-            : this(target, hasMetadata?.Metadata)
+        public MementoResult(object? target, IHasMetadata<IReadOnlyMetadataContext>? hasMetadata = null)
+            : this(target, hasMetadata?.Metadata ?? Default.MetadataContext)
         {
         }
 
-        public MementoResult(object target, IReadOnlyMetadataContext? metadata = null)
+        public MementoResult(object? target, IReadOnlyMetadataContext metadata)
         {
+            Should.NotBeNull(metadata, nameof(metadata));
             IsRestored = true;
-            Metadata = metadata ?? Default.MetadataContext;
+            Metadata = metadata;
             Target = target;
         }
 

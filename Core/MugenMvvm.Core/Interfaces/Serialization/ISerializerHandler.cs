@@ -1,14 +1,15 @@
-﻿using System;
-using MugenMvvm.Interfaces.Models;
+﻿using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Serialization
 {
     public interface ISerializerHandler : IHasPriority
     {
-        Type? TryGetSerializationType(Type type);
+        void OnSerializing(ISerializer serializer, object? instance, ISerializationContext serializationContext);
 
-        object? Serialize(object? instance, ISerializationContext serializationContext);
+        void OnSerialized(ISerializer serializer, object? instance, ISerializationContext serializationContext);
 
-        object? Deserialize(object? instance, ISerializationContext serializationContext);
+        void OnDeserializing(ISerializer serializer, object? instance, ISerializationContext serializationContext);
+
+        void OnDeserialized(ISerializer serializer, object? instance, ISerializationContext serializationContext);
     }
 }

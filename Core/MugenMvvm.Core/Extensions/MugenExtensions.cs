@@ -126,14 +126,14 @@ namespace MugenMvvm
 
             public void Handle(object sender, TArg arg)
             {
-                var target = (TTarget) _targetReference.Target;
+                var target = (TTarget)_targetReference.Target;
                 if (target == null)
                 {
                     if (_unsubscribeAction != null)
                     {
                         var action = _unsubscribeAction as Action<object, TDelegate>;
                         if (action == null)
-                            ((Action<object, IWeakEventHandler<TArg>>) _unsubscribeAction).Invoke(sender, this);
+                            ((Action<object, IWeakEventHandler<TArg>>)_unsubscribeAction).Invoke(sender, this);
                         else
                             action.Invoke(sender, HandlerDelegate!);
                     }
@@ -166,7 +166,7 @@ namespace MugenMvvm
             if (millisecondsDelay == 0 && message is IHasBusyDelayMessage hasBusyDelay)
                 millisecondsDelay = hasBusyDelay.Delay;
             var token = busyIndicatorProvider.Begin(message, millisecondsDelay);
-            task.ContinueWith((t, o) => ((IBusyToken) o).Dispose(), token, TaskContinuationOptions.ExecuteSynchronously);
+            task.ContinueWith((t, o) => ((IBusyToken)o).Dispose(), token, TaskContinuationOptions.ExecuteSynchronously);
             return task;
         }
 
@@ -279,14 +279,14 @@ namespace MugenMvvm
             where T : Delegate
         {
             Should.NotBeNull(metadata, nameof(metadata));
-            metadata.AddOrUpdate(key, handler, (object?) null, (object?) null, (item, value, currentValue, state1, state2) => (T) Delegate.Combine(currentValue, value));
+            metadata.AddOrUpdate(key, handler, (object?)null, (object?)null, (item, value, currentValue, state1, state2) => (T)Delegate.Combine(currentValue, value));
         }
 
         public static void RemoveHandler<T>(this IMetadataContext metadata, IMetadataContextKey<T> key, T handler)
             where T : Delegate
         {
             Should.NotBeNull(metadata, nameof(metadata));
-            metadata.AddOrUpdate(key, handler, (object?) null, (object?) null, (item, value, currentValue, state1, state2) => (T) Delegate.Remove(currentValue, value));
+            metadata.AddOrUpdate(key, handler, (object?)null, (object?)null, (item, value, currentValue, state1, state2) => (T)Delegate.Remove(currentValue, value));
         }
 
         public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IMetadataContextKey<T> key, T defaultValue = default)
@@ -325,7 +325,7 @@ namespace MugenMvvm
                 viewModelPresenter.Managers.Add(new DelegateNavigationMediatorFactory((vm, initializer, arg3) =>
                 {
                     if (initializer.ViewType.EqualsEx(viewType))
-                        return (INavigationMediator) Service<IServiceProvider>.Instance.GetService(mediatorType);
+                        return (INavigationMediator)Service<IServiceProvider>.Instance.GetService(mediatorType);
                     return null;
                 }, priority));
             }
@@ -334,7 +334,7 @@ namespace MugenMvvm
                 viewModelPresenter.Managers.Add(new DelegateNavigationMediatorFactory((vm, initializer, arg3) =>
                 {
                     if (viewType.IsAssignableFromUnified(initializer.ViewType) || Service<IWrapperManager>.Instance.CanWrap(initializer.ViewType, viewType, arg3))
-                        return (INavigationMediator) Service<IServiceProvider>.Instance.GetService(mediatorType);
+                        return (INavigationMediator)Service<IServiceProvider>.Instance.GetService(mediatorType);
                     return null;
                 }, priority));
             }
@@ -487,7 +487,7 @@ namespace MugenMvvm
         public static T GetService<T>(this IServiceProvider serviceProvider)
         {
             Should.NotBeNull(serviceProvider, nameof(serviceProvider));
-            return (T) serviceProvider.GetService(typeof(T));
+            return (T)serviceProvider.GetService(typeof(T));
         }
 
         [Pure]
@@ -500,7 +500,7 @@ namespace MugenMvvm
                 {
                     if (serviceProviderEx.TryGetService(typeof(T), out var o))
                     {
-                        service = (T) o!;
+                        service = (T)o!;
                         return true;
                     }
 
@@ -508,7 +508,7 @@ namespace MugenMvvm
                     return false;
                 }
 
-                service = (T) serviceProvider.GetService(typeof(T));
+                service = (T)serviceProvider.GetService(typeof(T));
                 return true;
             }
             catch
@@ -661,7 +661,7 @@ namespace MugenMvvm
         public static TView? TryWrap<TView>(this IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
             where TView : class
         {
-            return (TView?) viewInfo.TryWrap(typeof(TView), metadata);
+            return (TView?)viewInfo.TryWrap(typeof(TView), metadata);
         }
 
         public static object? TryWrap(this IViewInfo viewInfo, Type wrapperType, IReadOnlyMetadataContext metadata)
@@ -672,7 +672,7 @@ namespace MugenMvvm
         public static TView Wrap<TView>(this IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
             where TView : class
         {
-            return (TView) viewInfo.Wrap(typeof(TView), metadata);
+            return (TView)viewInfo.Wrap(typeof(TView), metadata);
         }
 
         public static object Wrap(this IViewInfo viewInfo, Type wrapperType, IReadOnlyMetadataContext metadata)
@@ -700,7 +700,7 @@ namespace MugenMvvm
                 return viewInfo.View;
 
             var collection = viewInfo.Metadata.GetOrAdd(ViewMetadata.Wrappers, viewInfo, viewInfo,
-                (context, _, __) => new ViewWrappersCollection((IObservableMetadataContext) context));
+                (context, _, __) => new ViewWrappersCollection((IObservableMetadataContext)context));
             lock (collection)
             {
                 var item = collection.FirstOrDefault(wrapperType.IsInstanceOfTypeUnified);
@@ -771,7 +771,7 @@ namespace MugenMvvm
         {
             if (items == null)
                 return null;
-            List<T>? result = null;
+            List<T>? result = null;//todo check
             for (var i = 0; i < size.GetValueOrDefault(items.Count); i++)
             {
                 var listener = items[i];

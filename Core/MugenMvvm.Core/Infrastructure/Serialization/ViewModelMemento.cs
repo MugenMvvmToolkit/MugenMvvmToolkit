@@ -146,7 +146,7 @@ namespace MugenMvvm.Infrastructure.Serialization
 
         protected virtual IViewModelBase RestoreInternal(ISerializationContext serializationContext)
         {
-            return (IViewModelBase) serializationContext.ServiceProvider.GetService(ViewModelType);
+            return (IViewModelBase)serializationContext.ServiceProvider.GetService(ViewModelType);
         }
 
         protected virtual void OnRestoringInternal(IViewModelBase viewModel, ISerializationContext serializationContext)

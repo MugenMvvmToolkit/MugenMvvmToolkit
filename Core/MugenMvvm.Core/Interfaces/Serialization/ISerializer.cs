@@ -6,15 +6,23 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Serialization
 {
-    public interface ISerializer //todo review, can serialize instance??
+    public interface ISerializer
     {
         IComponentCollection<ISerializerHandler> Handlers { get; }
+
+        bool IsOnSerializingSupported { get; }
+
+        bool IsOnSerializedSupported { get; }
+
+        bool IsOnDeserializingSupported { get; }
+
+        bool IsOnDeserializedSupported { get; }
 
         [Pure]
         ISerializationContext GetSerializationContext(IServiceProvider? serviceProvider, IMetadataContext? metadata);
 
         [Pure]
-        bool CanSerialize(Type type, IReadOnlyMetadataContext metadata);
+        bool CanSerialize(Type type, IReadOnlyMetadataContext? metadata);
 
         Stream Serialize(object item, ISerializationContext? serializationContext);
 

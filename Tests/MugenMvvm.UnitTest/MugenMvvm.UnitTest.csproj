@@ -15,4 +15,8 @@
     <ProjectReference Include="..\..\Core\MugenMvvm.Core\MugenMvvm.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Infrastructure\Serialization\" />
+  </ItemGroup>
+
 </Project>

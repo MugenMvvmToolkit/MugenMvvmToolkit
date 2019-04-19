@@ -4,7 +4,7 @@
     {
         #region Fields
 
-        public const string DataContractNamespace = "http://schemas.mugenmvvmtoolkit.com";
+        public const string DataContractNamespace = "http://schemas.mugenmvvm.com";
 
         #endregion
     }

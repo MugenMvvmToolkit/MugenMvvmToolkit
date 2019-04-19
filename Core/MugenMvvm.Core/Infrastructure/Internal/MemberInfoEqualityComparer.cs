@@ -6,8 +6,8 @@ using MugenMvvm.Constants;
 
 namespace MugenMvvm.Infrastructure.Internal
 {
-    [DataContract(Namespace = BuildConstants.DataContractNamespace)]
     [Serializable]
+    [DataContract(Namespace = BuildConstants.DataContractNamespace)]
     public sealed class MemberInfoEqualityComparer : IEqualityComparer<MemberInfo>, IEqualityComparer<Type>
     {
         #region Fields

@@ -6,8 +6,8 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Infrastructure.Internal
 {
-    [DataContract(Namespace = BuildConstants.DataContractNamespace)]
     [Serializable]
+    [DataContract(Namespace = BuildConstants.DataContractNamespace)]
     public sealed class HasPriorityComparer : IComparer<IHasPriority>
     {
         #region Fields

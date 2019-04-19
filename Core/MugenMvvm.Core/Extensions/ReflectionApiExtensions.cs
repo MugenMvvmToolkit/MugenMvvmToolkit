@@ -58,6 +58,8 @@ namespace MugenMvvm
 
         public static Func<Type, bool> IsAbstract { get; set; }
 
+        public static Func<Type, bool> IsSerializable { get; set; }
+
         public static Func<Type, bool> IsGenericTypeDefinition { get; set; }
 
         public static Func<Type, bool> ContainsGenericParameters { get; set; }
@@ -190,6 +192,12 @@ namespace MugenMvvm
             return IsAbstract(type);
         }
 
+        public static bool IsSerializableUnified(this Type type)
+        {
+            Should.NotBeNull(type, nameof(type));
+            return IsSerializable(type);
+        }
+
         public static bool IsInterfaceUnified(this Type type)
         {
             Should.NotBeNull(type, nameof(type));
@@ -283,7 +291,7 @@ namespace MugenMvvm
         public static TDelegate GetMethodDelegate<TDelegate>(this IReflectionManager reflectionManager, MethodInfo method) where TDelegate : Delegate
         {
             Should.NotBeNull(method, nameof(method));
-            return (TDelegate) reflectionManager.GetMethodDelegate(typeof(TDelegate), method);
+            return (TDelegate)reflectionManager.GetMethodDelegate(typeof(TDelegate), method);
         }
 
         public static T GetValueEx<T>(this MemberInfo member, object? target)

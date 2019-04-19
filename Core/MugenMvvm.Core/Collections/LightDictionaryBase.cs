@@ -13,7 +13,7 @@ namespace MugenMvvm.Collections
 {
     [DebuggerDisplay("Count = {Count}")]
     [Serializable]
-    [DataContract(Namespace = BuildConstants.DataContractNamespace, IsReference = true)]
+    [DataContract(Namespace = BuildConstants.DataContractNamespace)]
     public abstract class LightDictionaryBase<TKey, TValue> : IReadOnlyCollection<KeyValuePair<TKey, TValue>>
     {
         #region Fields

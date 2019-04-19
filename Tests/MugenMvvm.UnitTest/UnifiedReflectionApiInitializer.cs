@@ -21,6 +21,7 @@ namespace MugenMvvm.UnitTest
             ReflectionApiExtensions.GetGenericArguments = type => type.GenericTypeArguments;
             ReflectionApiExtensions.GetInterfaces = type => type.GetInterfaces();
             ReflectionApiExtensions.IsGenericType = type => type.IsGenericType;
+            ReflectionApiExtensions.GetAssembly = type => type.Assembly;
         }
 
         private static BindingFlags ToBindingFlags(this MemberFlags flags, bool flatten)

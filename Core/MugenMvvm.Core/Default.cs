@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Infrastructure.Metadata;
@@ -31,7 +30,6 @@ namespace MugenMvvm
 
         public static readonly object TrueObject;
         public static readonly object FalseObject;
-        public static readonly NullValue SerializableNullValue;
         public static readonly IReadOnlyMetadataContext MetadataContext;
         public static readonly IDisposable Disposable;
         public static readonly WeakReference WeakReference;
@@ -57,9 +55,8 @@ namespace MugenMvvm
 
             var emptyContext = new EmptyContext();
             MetadataContext = emptyContext;
-            SerializableNullValue = new NullValue();
             WeakReference = new WeakReference(null, false);
-            Disposable = (IDisposable)MetadataContext;
+            Disposable = (IDisposable) MetadataContext;
             TrueTask = Task.FromResult(true);
             FalseTask = Task.FromResult(false);
             CompletedTask = FalseTask;
@@ -106,36 +103,6 @@ namespace MugenMvvm
         #endregion
 
         #region Nested types
-
-        [DataContract]
-        public sealed class NullValue
-        {
-            #region Constructors
-
-            internal NullValue()
-            {
-            }
-
-            #endregion
-
-            #region Methods
-
-            public object To(object? value)
-            {
-                if (value == null)
-                    return SerializableNullValue;
-                return value;
-            }
-
-            public object? From(object? value)
-            {
-                if (value is NullValue)
-                    return null;
-                return value;
-            }
-
-            #endregion
-        }
 
         private sealed class EmptyContext : IReadOnlyMetadataContext, IDisposable, INavigationProvider
         {
