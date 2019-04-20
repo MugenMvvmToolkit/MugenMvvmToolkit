@@ -8,11 +8,11 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Infrastructure.Commands
 {
-    public class RelayCommandDispatcher : IRelayCommandDispatcher
+    public class RelayCommandMediatorProvider : IRelayCommandMediatorProvider
     {
         #region Fields
 
-        private IComponentCollection<IRelayCommandDispatcherListener>? _listeners;
+        private IComponentCollection<IRelayCommandMediatorProviderListener>? _listeners;
         private IComponentCollection<IRelayCommandMediatorFactory>? _mediatorFactories;
 
         #endregion
@@ -20,8 +20,8 @@ namespace MugenMvvm.Infrastructure.Commands
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public RelayCommandDispatcher(IComponentCollection<IRelayCommandMediatorFactory>? mediatorFactories = null,
-            IComponentCollection<IRelayCommandDispatcherListener>? listeners = null)
+        public RelayCommandMediatorProvider(IComponentCollection<IRelayCommandMediatorFactory>? mediatorFactories = null,
+            IComponentCollection<IRelayCommandMediatorProviderListener>? listeners = null)
         {
             _mediatorFactories = mediatorFactories;
             _listeners = listeners;
@@ -41,7 +41,7 @@ namespace MugenMvvm.Infrastructure.Commands
             }
         }
 
-        public IComponentCollection<IRelayCommandDispatcherListener> Listeners
+        public IComponentCollection<IRelayCommandMediatorProviderListener> Listeners
         {
             get
             {
@@ -116,9 +116,9 @@ namespace MugenMvvm.Infrastructure.Commands
             return result;
         }
 
-        protected IRelayCommandDispatcherListener[] GetListeners()
+        protected IRelayCommandMediatorProviderListener[] GetListeners()
         {
-            return _listeners?.GetItems() ?? Default.EmptyArray<IRelayCommandDispatcherListener>();
+            return _listeners?.GetItems() ?? Default.EmptyArray<IRelayCommandMediatorProviderListener>();
         }
 
         #endregion
