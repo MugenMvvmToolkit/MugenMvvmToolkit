@@ -1,11 +1,11 @@
 ﻿using System.Threading;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
-using MugenMvvm.Interfaces;
+using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Infrastructure
+namespace MugenMvvm.Infrastructure.App
 {
     public sealed class ApplicationStateDispatcher : IApplicationStateDispatcher
     {

@@ -2,9 +2,9 @@
 using System.Diagnostics;
 using JetBrains.Annotations;
 using MugenMvvm.Enums;
-using MugenMvvm.Interfaces;
+using MugenMvvm.Interfaces.Internal;
 
-namespace MugenMvvm.Infrastructure
+namespace MugenMvvm.Infrastructure.Internal
 {
     public sealed class Tracer : ITracer
     {

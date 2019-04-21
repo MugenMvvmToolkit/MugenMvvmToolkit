@@ -2,7 +2,7 @@
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm.Interfaces
+namespace MugenMvvm.Interfaces.App
 {
     public interface IApplicationStateDispatcherListener : IListener
     {

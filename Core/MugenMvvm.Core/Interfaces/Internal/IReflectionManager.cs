@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace MugenMvvm.Interfaces
+namespace MugenMvvm.Interfaces.Internal
 {
     public interface IReflectionManager
     {

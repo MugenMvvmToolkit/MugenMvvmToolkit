@@ -4,8 +4,8 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using MugenMvvm.Enums;
-using MugenMvvm.Infrastructure;
-using MugenMvvm.Interfaces;
+using MugenMvvm.Infrastructure.Internal;
+using MugenMvvm.Interfaces.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm

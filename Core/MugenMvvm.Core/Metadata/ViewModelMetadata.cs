@@ -1,7 +1,6 @@
 ﻿using System;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Metadata;
-using MugenMvvm.Infrastructure.Serialization;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation.Presenters;
 using MugenMvvm.Interfaces.ViewModels;

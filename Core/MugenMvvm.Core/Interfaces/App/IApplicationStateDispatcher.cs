@@ -1,7 +1,7 @@
 ﻿using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm.Interfaces
+namespace MugenMvvm.Interfaces.App
 {
     public interface IApplicationStateDispatcher : IHasListeners<IApplicationStateDispatcherListener>
     {

@@ -1,6 +1,6 @@
 ﻿using MugenMvvm.Enums;
 
-namespace MugenMvvm.Interfaces
+namespace MugenMvvm.Interfaces.Internal
 {
     public interface ITracer
     {

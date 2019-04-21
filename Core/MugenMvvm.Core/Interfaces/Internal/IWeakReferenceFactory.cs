@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace MugenMvvm.Interfaces
+namespace MugenMvvm.Interfaces.Internal
 {
-    public interface IWeakReferenceFactory
+    public interface IWeakReferenceFactory//todo provider
     {
         WeakReference GetWeakReference(object item); //todo add light WeakReferenceDescriptor?
     }

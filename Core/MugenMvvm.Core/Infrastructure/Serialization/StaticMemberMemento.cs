@@ -5,6 +5,7 @@ using System.Xml.Serialization;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
+using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces.Serialization;
 
 namespace MugenMvvm.Infrastructure.Serialization

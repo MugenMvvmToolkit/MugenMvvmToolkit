@@ -1,5 +1,5 @@
 ﻿using MugenMvvm.Enums;
-using MugenMvvm.Interfaces;
+using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 
