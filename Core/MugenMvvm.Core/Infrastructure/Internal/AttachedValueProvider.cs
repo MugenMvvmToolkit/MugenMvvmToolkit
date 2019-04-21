@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Attributes;
-using MugenMvvm.Collections;
 using MugenMvvm.Delegates;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
@@ -56,9 +55,9 @@ namespace MugenMvvm.Infrastructure.Internal
             {
                 if (dictionary.TryGetValue(path, out var value))
                 {
-                    value = updateValueFactory(item, addValue, (TValue)value!, state1, state2);
+                    value = updateValueFactory(item, addValue, (TValue) value!, state1, state2);
                     dictionary[path] = value;
-                    return (TValue)value!;
+                    return (TValue) value!;
                 }
 
                 dictionary.Add(path, addValue);
@@ -79,14 +78,14 @@ namespace MugenMvvm.Infrastructure.Internal
             {
                 if (dictionary.TryGetValue(path, out var value))
                 {
-                    value = updateValueFactory(item, addValueFactory, (TValue)value!, state1, state2);
+                    value = updateValueFactory(item, addValueFactory, (TValue) value!, state1, state2);
                     dictionary[path] = value;
-                    return (TValue)value!;
+                    return (TValue) value!;
                 }
 
                 value = addValueFactory(item, state1, state2);
                 dictionary.Add(path, value);
-                return (TValue)value!;
+                return (TValue) value!;
             }
         }
 
@@ -98,7 +97,7 @@ namespace MugenMvvm.Infrastructure.Internal
             lock (dictionary)
             {
                 if (dictionary.TryGetValue(path, out var oldValue))
-                    return (TValue)oldValue!;
+                    return (TValue) oldValue!;
                 dictionary.Add(path, value);
                 return value;
             }
@@ -114,10 +113,10 @@ namespace MugenMvvm.Infrastructure.Internal
             lock (dictionary)
             {
                 if (dictionary.TryGetValue(path, out var oldValue))
-                    return (TValue)oldValue!;
+                    return (TValue) oldValue!;
                 oldValue = valueFactory(item, state1, state2);
                 dictionary.Add(path, oldValue);
-                return (TValue)oldValue!;
+                return (TValue) oldValue!;
             }
         }
 
@@ -136,7 +135,7 @@ namespace MugenMvvm.Infrastructure.Internal
             {
                 if (dictionary.TryGetValue(path, out var result))
                 {
-                    value = (TValue)result!;
+                    value = (TValue) result!;
                     return true;
                 }
 
@@ -229,7 +228,7 @@ namespace MugenMvvm.Infrastructure.Internal
             return false;
         }
 
-        protected virtual LightDictionaryBase<string, object?>? GetOrAddAttachedDictionary(object item, bool required)
+        protected virtual IAttachedValueProviderDictionary? GetOrAddAttachedDictionary(object item, bool required)
         {
             var items = GetProviders();
             for (var i = 0; i < items.Length; i++)
@@ -246,36 +245,6 @@ namespace MugenMvvm.Infrastructure.Internal
         private IChildAttachedValueProvider[] GetProviders()
         {
             return _providers.GetItemsOrDefault();
-        }
-
-        #endregion
-
-        #region Nested types
-
-        public class AttachedValueDictionary : LightDictionaryBase<string, object?>
-        {
-            #region Constructors
-
-            public AttachedValueDictionary()
-                : base(true)
-            {
-            }
-
-            #endregion
-
-            #region Overrides of LightDictionaryBase<string,object>
-
-            protected override bool Equals(string x, string y)
-            {
-                return x.Equals(y);
-            }
-
-            protected override int GetHashCode(string key)
-            {
-                return key.GetHashCode();
-            }
-
-            #endregion
         }
 
         #endregion
