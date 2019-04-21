@@ -157,7 +157,7 @@ namespace MugenMvvm.Infrastructure.Serialization
         {
             var listeners = Metadata!.Listeners.GetItems();
             foreach (var listener in listeners)
-                viewModel.Metadata.Listeners.Add(listener);
+                viewModel.Metadata.AddListener(listener);
             viewModel.Metadata.Merge(Metadata);
 
             if (BusyListeners != null && viewModel is IHasService<IBusyIndicatorProvider> hasBusyIndicatorProvider)
@@ -165,7 +165,7 @@ namespace MugenMvvm.Infrastructure.Serialization
                 foreach (var busyListener in BusyListeners)
                 {
                     if (busyListener != null)
-                        hasBusyIndicatorProvider.Service.Listeners.Add(busyListener);
+                        hasBusyIndicatorProvider.Service.AddListener(busyListener);
                 }
             }
 

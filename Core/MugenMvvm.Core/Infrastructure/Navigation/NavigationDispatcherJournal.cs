@@ -14,6 +14,7 @@ namespace MugenMvvm.Infrastructure.Navigation
     {
         #region Fields
 
+        private readonly IComponentCollectionProvider? _componentCollectionProvider;
         protected readonly Dictionary<NavigationType, List<WeakNavigationEntry>> NavigationEntries;
         private IComponentCollection<INavigationDispatcherJournalListener>? _listeners;
 
@@ -22,9 +23,9 @@ namespace MugenMvvm.Infrastructure.Navigation
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public NavigationDispatcherJournal(IComponentCollection<INavigationDispatcherJournalListener>? listeners = null)
+        public NavigationDispatcherJournal(IComponentCollectionProvider? componentCollectionProvider = null)
         {
-            _listeners = listeners;
+            _componentCollectionProvider = componentCollectionProvider;
             NavigationEntries = new Dictionary<NavigationType, List<WeakNavigationEntry>>();
         }
 
@@ -37,7 +38,7 @@ namespace MugenMvvm.Infrastructure.Navigation
             get
             {
                 if (_listeners == null)
-                    MugenExtensions.LazyInitialize(ref _listeners, this);
+                    MugenExtensions.LazyInitialize(ref _listeners, this, _componentCollectionProvider);
                 return _listeners;
             }
         }
@@ -208,7 +209,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         protected INavigationDispatcherJournalListener[] GetListeners()
         {
-            return _listeners?.GetItems() ?? Default.EmptyArray<INavigationDispatcherJournalListener>();
+            return _listeners.GetItemsOrDefault();
         }
 
         #endregion
@@ -242,7 +243,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
             #region Properties
 
-            public IViewModelBase? ViewModel => (IViewModelBase) _viewModelReference.Target;
+            public IViewModelBase? ViewModel => (IViewModelBase)_viewModelReference.Target;
 
             public INavigationProvider NavigationProvider { get; }
 

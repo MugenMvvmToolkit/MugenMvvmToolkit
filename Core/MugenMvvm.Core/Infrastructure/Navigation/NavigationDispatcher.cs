@@ -12,8 +12,8 @@ namespace MugenMvvm.Infrastructure.Navigation
     {
         #region Fields
 
+        private readonly IComponentCollectionProvider? _componentCollectionProvider;
         private INavigationContextFactory _contextFactory;
-
         private IComponentCollection<INavigationDispatcherListener>? _listeners;
         private INavigationDispatcherJournal _navigationJournal;
 
@@ -22,12 +22,11 @@ namespace MugenMvvm.Infrastructure.Navigation
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public NavigationDispatcher(INavigationContextFactory contextFactory, INavigationDispatcherJournal navigationJournal,
-            IComponentCollection<INavigationDispatcherListener>? listeners = null)
+        public NavigationDispatcher(INavigationContextFactory contextFactory, INavigationDispatcherJournal navigationJournal, IComponentCollectionProvider? componentCollectionProvider = null)
         {
             Should.NotBeNull(contextFactory, nameof(contextFactory));
             Should.NotBeNull(navigationJournal, nameof(navigationJournal));
-            _listeners = listeners;
+            _componentCollectionProvider = componentCollectionProvider;
             ContextFactory = contextFactory;
             NavigationJournal = navigationJournal;
         }
@@ -65,7 +64,7 @@ namespace MugenMvvm.Infrastructure.Navigation
             get
             {
                 if (_listeners == null)
-                    MugenExtensions.LazyInitialize(ref _listeners, this);
+                    MugenExtensions.LazyInitialize(ref _listeners, this, _componentCollectionProvider);
                 return _listeners;
             }
         }
@@ -139,7 +138,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         protected INavigationDispatcherListener[] GetListeners()
         {
-            return _listeners?.GetItems() ?? Default.EmptyArray<INavigationDispatcherListener>();
+            return _listeners.GetItemsOrDefault();
         }
 
         #endregion

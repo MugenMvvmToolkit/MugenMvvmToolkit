@@ -11,6 +11,8 @@ namespace MugenMvvm.Infrastructure
     {
         #region Fields
 
+        private readonly IComponentCollectionProvider? _componentCollectionProvider;
+
         private IComponentCollection<IApplicationStateDispatcherListener>? _listeners;
         private ApplicationState _state;
 
@@ -19,16 +21,16 @@ namespace MugenMvvm.Infrastructure
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ApplicationStateDispatcher(IComponentCollection<IApplicationStateDispatcherListener>? listeners = null)
-            : this(ApplicationState.Active, listeners)
+        public ApplicationStateDispatcher(IComponentCollectionProvider? componentCollectionProvider = null)
+            : this(ApplicationState.Active, componentCollectionProvider)
         {
         }
 
-        public ApplicationStateDispatcher(ApplicationState state, IComponentCollection<IApplicationStateDispatcherListener>? listeners = null)
+        public ApplicationStateDispatcher(ApplicationState state, IComponentCollectionProvider? componentCollectionProvider = null)
         {
             Should.NotBeNull(state, nameof(state));
-            _listeners = listeners;
             _state = state;
+            _componentCollectionProvider = componentCollectionProvider;
         }
 
         #endregion
@@ -40,7 +42,7 @@ namespace MugenMvvm.Infrastructure
             get
             {
                 if (_listeners == null)
-                    MugenExtensions.LazyInitialize(ref _listeners, this);
+                    MugenExtensions.LazyInitialize(ref _listeners, this, _componentCollectionProvider);
                 return _listeners;
             }
         }
@@ -65,7 +67,7 @@ namespace MugenMvvm.Infrastructure
 
         private IApplicationStateDispatcherListener[] GetListeners()
         {
-            return _listeners?.GetItems() ?? Default.EmptyArray<IApplicationStateDispatcherListener>();
+            return _listeners.GetItemsOrDefault();
         }
 
         #endregion

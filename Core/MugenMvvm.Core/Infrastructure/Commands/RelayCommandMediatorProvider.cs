@@ -12,6 +12,7 @@ namespace MugenMvvm.Infrastructure.Commands
     {
         #region Fields
 
+        private readonly IComponentCollectionProvider? _componentCollectionProvider;
         private IComponentCollection<IRelayCommandMediatorProviderListener>? _listeners;
         private IComponentCollection<IRelayCommandMediatorFactory>? _mediatorFactories;
 
@@ -20,11 +21,9 @@ namespace MugenMvvm.Infrastructure.Commands
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public RelayCommandMediatorProvider(IComponentCollection<IRelayCommandMediatorFactory>? mediatorFactories = null,
-            IComponentCollection<IRelayCommandMediatorProviderListener>? listeners = null)
+        public RelayCommandMediatorProvider(IComponentCollectionProvider? componentCollectionProvider = null)
         {
-            _mediatorFactories = mediatorFactories;
-            _listeners = listeners;
+            _componentCollectionProvider = componentCollectionProvider;
         }
 
         #endregion
@@ -36,7 +35,7 @@ namespace MugenMvvm.Infrastructure.Commands
             get
             {
                 if (_mediatorFactories == null)
-                    MugenExtensions.LazyInitialize(ref _mediatorFactories, this);
+                    MugenExtensions.LazyInitialize(ref _mediatorFactories, this, _componentCollectionProvider);
                 return _mediatorFactories;
             }
         }
@@ -46,7 +45,7 @@ namespace MugenMvvm.Infrastructure.Commands
             get
             {
                 if (_listeners == null)
-                    MugenExtensions.LazyInitialize(ref _listeners, this);
+                    MugenExtensions.LazyInitialize(ref _listeners, this, _componentCollectionProvider);
                 return _listeners;
             }
         }
@@ -62,7 +61,16 @@ namespace MugenMvvm.Infrastructure.Commands
             Should.NotBeNull(relayCommand, nameof(relayCommand));
             Should.NotBeNull(execute, nameof(execute));
             Should.NotBeNull(metadata, nameof(metadata));
-            return GetExecutorMediatorInternal<TParameter>(relayCommand, execute, canExecute, notifiers, metadata);
+            var result = GetExecutorMediatorInternal<TParameter>(relayCommand, execute, canExecute, notifiers, metadata);
+
+            if (result == null)
+                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IExecutorRelayCommandMediatorFactory).Name);
+
+            var listeners = GetListeners();
+            for (var i = 0; i < listeners.Length; i++)
+                listeners[i].OnMediatorCreated(this, relayCommand, execute, canExecute, notifiers, metadata, result);
+
+            return result;
         }
 
         #endregion
@@ -84,13 +92,6 @@ namespace MugenMvvm.Infrastructure.Commands
                         break;
                 }
             }
-
-            if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IExecutorRelayCommandMediatorFactory).Name);
-
-            var listeners = GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnMediatorCreated(this, relayCommand, execute, canExecute, notifiers, metadata, result);
 
             return result;
         }
@@ -118,7 +119,7 @@ namespace MugenMvvm.Infrastructure.Commands
 
         protected IRelayCommandMediatorProviderListener[] GetListeners()
         {
-            return _listeners?.GetItems() ?? Default.EmptyArray<IRelayCommandMediatorProviderListener>();
+            return _listeners.GetItemsOrDefault();
         }
 
         #endregion

@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using MugenMvvm.Attributes;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Wrapping;
@@ -10,6 +10,8 @@ namespace MugenMvvm.Infrastructure.Wrapping
     {
         #region Fields
 
+        private readonly IComponentCollectionProvider? _componentCollectionProvider;
+
         private IComponentCollection<IWrapperManagerListener>? _listeners;
         private IComponentCollection<IWrapperManagerFactory>? _wrapperFactories;
 
@@ -17,10 +19,10 @@ namespace MugenMvvm.Infrastructure.Wrapping
 
         #region Constructors
 
-        public WrapperManager(IComponentCollection<IWrapperManagerFactory>? wrapperFactories = null, IComponentCollection<IWrapperManagerListener>? listeners = null)
+        [Preserve(Conditional = true)]
+        public WrapperManager(IComponentCollectionProvider? componentCollectionProvider = null)
         {
-            _wrapperFactories = wrapperFactories;
-            _listeners = listeners;
+            _componentCollectionProvider = componentCollectionProvider;
         }
 
         #endregion
@@ -32,7 +34,7 @@ namespace MugenMvvm.Infrastructure.Wrapping
             get
             {
                 if (_listeners == null)
-                    MugenExtensions.LazyInitialize(ref _listeners, this);
+                    MugenExtensions.LazyInitialize(ref _listeners, this, _componentCollectionProvider);
                 return _listeners;
             }
         }
@@ -42,7 +44,7 @@ namespace MugenMvvm.Infrastructure.Wrapping
             get
             {
                 if (_wrapperFactories == null)
-                    MugenExtensions.LazyInitialize(ref _wrapperFactories, this);
+                    MugenExtensions.LazyInitialize(ref _wrapperFactories, this, _componentCollectionProvider);
                 return _wrapperFactories;
             }
         }
@@ -109,7 +111,7 @@ namespace MugenMvvm.Infrastructure.Wrapping
 
         protected IWrapperManagerListener[] GetListeners()
         {
-            return _listeners?.GetItems() ?? Default.EmptyArray<IWrapperManagerListener>();
+            return _listeners.GetItemsOrDefault();
         }
 
         #endregion

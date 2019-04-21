@@ -14,6 +14,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
         #region Fields
 
         private readonly object? _defaultBusyMessage;
+        private readonly IComponentCollectionProvider? _componentCollectionProvider;
         private readonly object _locker;
         private BusyToken? _busyTail;
         private IComponentCollection<IBusyIndicatorProviderListener>? _listeners;
@@ -24,10 +25,10 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public BusyIndicatorProvider(IComponentCollection<IBusyIndicatorProviderListener>? listeners = null, object? defaultBusyMessage = null)
+        public BusyIndicatorProvider(object? defaultBusyMessage = null, IComponentCollectionProvider? componentCollectionProvider = null)
         {
-            _listeners = listeners;
             _defaultBusyMessage = defaultBusyMessage;
+            _componentCollectionProvider = componentCollectionProvider;
             _locker = this;
         }
 
@@ -42,7 +43,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
             get
             {
                 if (_listeners == null)
-                    MugenExtensions.LazyInitialize(ref _listeners, this);
+                    MugenExtensions.LazyInitialize(ref _listeners, this, _componentCollectionProvider);
                 return _listeners;
             }
         }
@@ -94,7 +95,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                 return;
             for (var index = 0; index < busyTokens.Count; index++)
                 busyTokens[index].Dispose();
-            _listeners?.Clear();
+            _listeners?.Clear(Default.MetadataContext);
         }
 
         #endregion
@@ -144,7 +145,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
 
         private IBusyIndicatorProviderListener[] GetListeners()
         {
-            return _listeners?.GetItems() ?? Default.EmptyArray<IBusyIndicatorProviderListener>();
+            return _listeners.GetItemsOrDefault();
         }
 
         #endregion
@@ -231,7 +232,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                     }
                 }
 
-                return tokens ?? (IReadOnlyList<IBusyToken>) Default.EmptyArray<IBusyToken>();
+                return tokens ?? (IReadOnlyList<IBusyToken>)Default.EmptyArray<IBusyToken>();
             }
 
             public void Register(IBusyTokenCallback callback)
@@ -248,7 +249,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                     if (!IsCompleted)
                     {
                         if (_listeners == null)
-                            _listeners = new[] {callback};
+                            _listeners = new[] { callback };
                         else
                         {
                             var listeners = new IBusyTokenCallback[_listeners.Length + 1];

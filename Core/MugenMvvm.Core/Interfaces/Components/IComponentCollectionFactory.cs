@@ -1,9 +1,10 @@
 ﻿using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Components
 {
-    public interface IComponentCollectionFactory
+    public interface IComponentCollectionFactory : IHasPriority
     {
-        IComponentCollection<T> GetComponentCollection<T>(object owner, IReadOnlyMetadataContext metadata) where T : class;
+        IComponentCollection<T>? TryGetComponentCollection<T>(object owner, IReadOnlyMetadataContext metadata) where T : class;
     }
 }

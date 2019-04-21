@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
 using MugenMvvm.Delegates;
 using MugenMvvm.Interfaces.Components;
@@ -11,15 +12,17 @@ namespace MugenMvvm.Infrastructure.Internal
     {
         #region Fields
 
+        private readonly IComponentCollectionProvider? _componentCollectionProvider;
         private IComponentCollection<IChildAttachedValueProvider>? _providers;
 
         #endregion
 
         #region Constructors
 
-        public AttachedValueProvider(IComponentCollection<IChildAttachedValueProvider>? providers = null)
+        [Preserve(Conditional = true)]
+        public AttachedValueProvider(IComponentCollectionProvider? componentCollectionProvider = null)
         {
-            _providers = providers;
+            _componentCollectionProvider = componentCollectionProvider;
         }
 
         #endregion
@@ -31,7 +34,7 @@ namespace MugenMvvm.Infrastructure.Internal
             get
             {
                 if (_providers == null)
-                    MugenExtensions.LazyInitialize(ref _providers, this);
+                    MugenExtensions.LazyInitialize(ref _providers, this, _componentCollectionProvider);
 
                 return _providers;
             }
@@ -242,7 +245,7 @@ namespace MugenMvvm.Infrastructure.Internal
 
         private IChildAttachedValueProvider[] GetProviders()
         {
-            return _providers?.GetItems() ?? Default.EmptyArray<IChildAttachedValueProvider>();
+            return _providers.GetItemsOrDefault();
         }
 
         #endregion

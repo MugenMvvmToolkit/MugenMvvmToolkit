@@ -16,6 +16,7 @@ namespace MugenMvvm.Infrastructure.Messaging
 
         private readonly HashSet<KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>> _subscribers;
         private readonly IThreadDispatcher _threadDispatcher;
+        private readonly IComponentCollectionProvider? _componentCollectionProvider;
         private IComponentCollection<IMessengerListener>? _listeners;
 
         #endregion
@@ -23,11 +24,11 @@ namespace MugenMvvm.Infrastructure.Messaging
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public Messenger(IThreadDispatcher threadDispatcher, IComponentCollection<IMessengerListener>? listeners = null)
+        public Messenger(IThreadDispatcher threadDispatcher, IComponentCollectionProvider? componentCollectionProvider = null)
         {
             Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
             _threadDispatcher = threadDispatcher;
-            _listeners = listeners;
+            _componentCollectionProvider = componentCollectionProvider;
             _subscribers = new HashSet<KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>>(this);
         }
 
@@ -40,7 +41,7 @@ namespace MugenMvvm.Infrastructure.Messaging
             get
             {
                 if (_listeners == null)
-                    MugenExtensions.LazyInitialize(ref _listeners, this);
+                    MugenExtensions.LazyInitialize(ref _listeners, this, _componentCollectionProvider);
                 return _listeners;
             }
         }
@@ -132,7 +133,7 @@ namespace MugenMvvm.Infrastructure.Messaging
         public void Dispose()
         {
             this.UnsubscribeAll();
-            _listeners?.Clear();
+            _listeners?.Clear(Default.MetadataContext);
         }
 
         #endregion
@@ -205,7 +206,7 @@ namespace MugenMvvm.Infrastructure.Messaging
 
         private IMessengerListener[] GetListeners()
         {
-            return _listeners?.GetItems() ?? Default.EmptyArray<IMessengerListener>();
+            return _listeners.GetItemsOrDefault();
         }
 
         #endregion

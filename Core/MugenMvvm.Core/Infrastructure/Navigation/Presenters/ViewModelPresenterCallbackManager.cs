@@ -19,6 +19,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         #region Fields
 
         private readonly NavigationDispatcherListener _dispatcherListener;
+        private readonly IComponentCollectionProvider? _componentCollectionProvider;
         private IComponentCollection<IViewModelPresenterCallbackManagerListener>? _listeners;
 
         #endregion
@@ -26,10 +27,11 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelPresenterCallbackManager(INavigationDispatcher navigationDispatcher, IComponentCollection<IViewModelPresenterCallbackManagerListener>? listeners = null)
+        public ViewModelPresenterCallbackManager(INavigationDispatcher navigationDispatcher, IComponentCollectionProvider? componentCollectionProvider = null)
         {
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            _componentCollectionProvider = componentCollectionProvider;
             NavigationDispatcher = navigationDispatcher;
-            _listeners = listeners;
             _dispatcherListener = new NavigationDispatcherListener(this);
         }
 
@@ -44,7 +46,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             get
             {
                 if (_listeners == null)
-                    MugenExtensions.LazyInitialize(ref _listeners, this);
+                    MugenExtensions.LazyInitialize(ref _listeners, this, _componentCollectionProvider);
                 return _listeners;
             }
         }
@@ -101,7 +103,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             if (key == null)
                 ExceptionManager.ThrowEnumOutOfRange(nameof(callbackType), callbackType);
 
-            var callbacks = viewModel.Metadata.GetOrAdd(key!, (object?) null, (object?) null, (context, o, arg3) => new List<INavigationCallbackInternal?>())!;
+            var callbacks = viewModel.Metadata.GetOrAdd(key!, (object?)null, (object?)null, (context, o, arg3) => new List<INavigationCallbackInternal?>())!;
             lock (callback)
             {
                 callbacks.Add(callback);
@@ -243,7 +245,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         protected IViewModelPresenterCallbackManagerListener[] GetListeners()
         {
-            return _listeners?.GetItems() ?? Default.EmptyArray<IViewModelPresenterCallbackManagerListener>();
+            return _listeners.GetItemsOrDefault();
         }
 
         private void OnNavigationFailed(INavigationContext navigationContext, Exception? e, bool canceled)

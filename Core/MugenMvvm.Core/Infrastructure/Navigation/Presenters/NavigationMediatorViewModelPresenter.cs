@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
+using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -15,26 +16,25 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.Navigation.Presenters
 {
-    public class NavigationMediatorViewModelPresenter : INavigationMediatorViewModelPresenter, INavigationDispatcherListener, IDisposable
+    public class NavigationMediatorViewModelPresenter : AttachableComponentBase<IViewModelPresenter>, INavigationMediatorViewModelPresenter, INavigationDispatcherListener
     {
         #region Fields
 
+        private readonly IComponentCollectionProvider? _componentCollectionProvider;
         private IComponentCollection<INavigationMediatorViewModelPresenterManager>? _managers;
-        private bool _subscribed;
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public NavigationMediatorViewModelPresenter(IViewManager viewManager, INavigationDispatcher navigationDispatcher,
-            IComponentCollection<INavigationMediatorViewModelPresenterManager>? managers = null)
+        public NavigationMediatorViewModelPresenter(IViewManager viewManager, INavigationDispatcher navigationDispatcher, IComponentCollectionProvider? componentCollectionProvider = null)
         {
             Should.NotBeNull(viewManager, nameof(viewManager));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            _componentCollectionProvider = componentCollectionProvider;
             ViewManager = viewManager;
             NavigationDispatcher = navigationDispatcher;
-            _managers = managers;
         }
 
         #endregion
@@ -50,7 +50,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             get
             {
                 if (_managers == null)
-                    MugenExtensions.LazyInitialize(ref _managers, this);
+                    MugenExtensions.LazyInitialize(ref _managers, this, _componentCollectionProvider);
                 return _managers;
             }
         }
@@ -62,20 +62,6 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         #endregion
 
         #region Implementation of interfaces
-
-        public void Dispose()
-        {
-            _managers?.Clear();
-            if (!_subscribed)
-            {
-                lock (this)
-                {
-                    _subscribed = true;
-                }
-            }
-
-            NavigationDispatcher.Listeners.Remove(this);
-        }
 
         int IListener.GetPriority(object source)
         {
@@ -117,7 +103,6 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         {
             Should.NotBeNull(parentPresenter, nameof(parentPresenter));
             Should.NotBeNull(metadata, nameof(metadata));
-            SubscribeIfNeed();
             return TryShowInternal(parentPresenter, metadata);
         }
 
@@ -125,7 +110,6 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         {
             Should.NotBeNull(parentPresenter, nameof(parentPresenter));
             Should.NotBeNull(metadata, nameof(metadata));
-            SubscribeIfNeed();
             return TryCloseInternal(parentPresenter, metadata);
         }
 
@@ -133,13 +117,22 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         {
             Should.NotBeNull(parentPresenter, nameof(parentPresenter));
             Should.NotBeNull(metadata, nameof(metadata));
-            SubscribeIfNeed();
             return TryRestoreInternal(parentPresenter, metadata);
         }
 
         #endregion
 
         #region Methods
+
+        protected override void OnAttachedInternal(IViewModelPresenter owner, IReadOnlyMetadataContext metadata)
+        {
+            NavigationDispatcher.AddListener(this);
+        }
+
+        protected override void OnDetachedInternal(IViewModelPresenter owner, IReadOnlyMetadataContext metadata)
+        {
+            NavigationDispatcher.RemoveListener(this);
+        }
 
         protected virtual IChildViewModelPresenterResult? TryShowInternal(IViewModelPresenter parentPresenter, IReadOnlyMetadataContext metadata)
         {
@@ -206,7 +199,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         protected virtual INavigationMediator? TryGetMediator(IViewModelBase viewModel, IViewInitializer viewInitializer, IReadOnlyMetadataContext metadata)
         {
-            var mediators = viewModel.Metadata.GetOrAdd(NavigationInternalMetadata.NavigationMediators, (object?) null, (object?) null,
+            var mediators = viewModel.Metadata.GetOrAdd(NavigationInternalMetadata.NavigationMediators, (object?)null, (object?)null,
                 (context, o, arg3) => new List<INavigationMediator>())!;
 
             var managers = Managers.GetItems();
@@ -227,20 +220,6 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 }
 
                 return mediator;
-            }
-        }
-
-        private void SubscribeIfNeed()
-        {
-            if (_subscribed)
-                return;
-            lock (this)
-            {
-                if (!_subscribed)
-                {
-                    NavigationDispatcher.Listeners.Add(this);
-                    _subscribed = true;
-                }
             }
         }
 

@@ -8,10 +8,11 @@ using MugenMvvm.Interfaces.Serialization;
 
 namespace MugenMvvm.Infrastructure.Serialization
 {
-    public abstract class SerializerBase : ISerializer, IComponentOwner<ISerializerHandler>
+    public abstract class SerializerBase : ISerializer, IComponentOwnerAddedCallback<ISerializerHandler>, IComponentOwnerRemovedCallback<ISerializerHandler>
     {
         #region Fields
 
+        private readonly IComponentCollectionProvider? _componentCollectionProvider;
         private readonly IServiceProvider _serviceProvider;
         private IComponentCollection<ISerializerHandler>? _handlers;
 
@@ -19,11 +20,11 @@ namespace MugenMvvm.Infrastructure.Serialization
 
         #region Constructors
 
-        protected SerializerBase(IServiceProvider serviceProvider, IComponentCollection<ISerializerHandler>? handlers = null)
+        protected SerializerBase(IServiceProvider serviceProvider, IComponentCollectionProvider? componentCollectionProvider = null)
         {
             Should.NotBeNull(serviceProvider, nameof(serviceProvider));
             _serviceProvider = serviceProvider;
-            _handlers = handlers;
+            _componentCollectionProvider = componentCollectionProvider;
         }
 
         #endregion
@@ -35,7 +36,7 @@ namespace MugenMvvm.Infrastructure.Serialization
             get
             {
                 if (_handlers == null)
-                    MugenExtensions.LazyInitialize(ref _handlers, this);
+                    MugenExtensions.LazyInitialize(ref _handlers, this, _componentCollectionProvider);
                 return _handlers;
             }
         }
@@ -55,14 +56,14 @@ namespace MugenMvvm.Infrastructure.Serialization
 
         #region Implementation of interfaces
 
-        void IComponentOwner<ISerializerHandler>.OnComponentAdded(ISerializerHandler component, IReadOnlyMetadataContext metadata)
+        void IComponentOwnerAddedCallback<ISerializerHandler>.OnComponentAdded(object collection, ISerializerHandler component, IReadOnlyMetadataContext metadata)
         {
-            OnHandlerAdded(component);
+            OnHandlerAdded(component, metadata);
         }
 
-        void IComponentOwner<ISerializerHandler>.OnComponentRemoved(ISerializerHandler component, IReadOnlyMetadataContext metadata)
+        void IComponentOwnerRemovedCallback<ISerializerHandler>.OnComponentRemoved(object collection, ISerializerHandler component, IReadOnlyMetadataContext metadata)
         {
-            OnHandlerRemoved(component);
+            OnHandlerRemoved(component, metadata);
         }
 
         public ISerializationContext GetSerializationContext(IServiceProvider? serviceProvider, IMetadataContext? metadata)
@@ -206,17 +207,17 @@ namespace MugenMvvm.Infrastructure.Serialization
             return new SerializationContext(this, serviceProvider ?? _serviceProvider, metadata ?? new MetadataContext());
         }
 
-        protected virtual void OnHandlerAdded(ISerializerHandler handler)
+        protected virtual void OnHandlerAdded(ISerializerHandler handler, IReadOnlyMetadataContext metadata)
         {
         }
 
-        protected virtual void OnHandlerRemoved(ISerializerHandler handler)
+        protected virtual void OnHandlerRemoved(ISerializerHandler handler, IReadOnlyMetadataContext metadata)
         {
         }
 
         protected ISerializerHandler[] GetHandlers()
         {
-            return _handlers?.GetItems() ?? Default.EmptyArray<ISerializerHandler>();
+            return _handlers.GetItemsOrDefault();
         }
 
         #endregion

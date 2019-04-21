@@ -8,7 +8,7 @@ namespace MugenMvvm.Interfaces.Threading
 {
     public interface IThreadDispatcher
     {
-        bool CanExecute(ThreadExecutionMode executionMode);
+        bool CanExecuteInline(ThreadExecutionMode executionMode);
 
         void Execute(IThreadDispatcherHandler handler, ThreadExecutionMode executionMode, object? state,
             CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null);

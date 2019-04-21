@@ -315,7 +315,7 @@ namespace MugenMvvm
         }
 
         public static void RegisterMediatorFactory(this INavigationMediatorViewModelPresenter viewModelPresenter, Type mediatorType, Type viewType, bool disableWrap,
-            int priority = 0)
+            int priority = 0, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModelPresenter, nameof(viewModelPresenter));
             Should.NotBeNull(mediatorType, nameof(mediatorType));
@@ -327,7 +327,7 @@ namespace MugenMvvm
                     if (initializer.ViewType.EqualsEx(viewType))
                         return (INavigationMediator)Service<IServiceProvider>.Instance.GetService(mediatorType);
                     return null;
-                }, priority));
+                }, priority), metadata ?? Default.MetadataContext);
             }
             else
             {
@@ -336,7 +336,7 @@ namespace MugenMvvm
                     if (viewType.IsAssignableFromUnified(initializer.ViewType) || Service<IWrapperManager>.Instance.CanWrap(initializer.ViewType, viewType, arg3))
                         return (INavigationMediator)Service<IServiceProvider>.Instance.GetService(mediatorType);
                     return null;
-                }, priority));
+                }, priority), metadata ?? Default.MetadataContext);
             }
         }
 
@@ -393,6 +393,11 @@ namespace MugenMvvm
 
         #region Common
 
+        public static T[] GetItemsOrDefault<T>(this IComponentCollection<T> componentCollection) where T : class//todo R# bug return?
+        {
+            return componentCollection?.GetItems() ?? Default.EmptyArray<T>();
+        }
+
         public static Task<T> TaskFromException<T>(Exception exception)
         {
             var tcs = new TaskCompletionSource<T>();
@@ -413,11 +418,11 @@ namespace MugenMvvm
         }
 
         public static IWrapperManagerFactory AddWrapper(this IWrapperManager wrapperManager, Func<IWrapperManager, Type, Type, IReadOnlyMetadataContext, bool> condition,
-            Func<IWrapperManager, object, Type, IReadOnlyMetadataContext, object?> wrapperFactory)
+            Func<IWrapperManager, object, Type, IReadOnlyMetadataContext, object?> wrapperFactory, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
             var factory = new DelegateWrapperManagerFactory(condition, wrapperFactory);
-            wrapperManager.WrapperFactories.Add(factory);
+            wrapperManager.WrapperFactories.Add(factory, metadata ?? Default.MetadataContext);
             return factory;
         }
 
@@ -465,22 +470,22 @@ namespace MugenMvvm
             return string.Format(format, args);
         }
 
-        public static void AddListener<T>(this IHasListeners<T> hasListeners, T listener) where T : class, IListener
+        public static void AddListener<T>(this IHasListeners<T> hasListeners, T listener, IReadOnlyMetadataContext? metadata = null) where T : class, IListener
         {
             Should.NotBeNull(hasListeners, nameof(hasListeners));
-            hasListeners.Listeners.Add(listener);
+            hasListeners.Listeners.Add(listener, metadata ?? Default.MetadataContext);
         }
 
-        public static void RemoveListener<T>(this IHasListeners<T> hasListeners, T listener) where T : class, IListener
+        public static void RemoveListener<T>(this IHasListeners<T> hasListeners, T listener, IReadOnlyMetadataContext? metadata = null) where T : class, IListener
         {
             Should.NotBeNull(hasListeners, nameof(hasListeners));
-            hasListeners.Listeners.Remove(listener);
+            hasListeners.Listeners.Remove(listener, metadata ?? Default.MetadataContext);
         }
 
-        public static void RemoveAllListeners<T>(this IHasListeners<T> hasListeners) where T : class, IListener
+        public static void RemoveAllListeners<T>(this IHasListeners<T> hasListeners, IReadOnlyMetadataContext? metadata = null) where T : class, IListener
         {
             Should.NotBeNull(hasListeners, nameof(hasListeners));
-            hasListeners.Listeners.Clear();
+            hasListeners.Listeners.Clear(metadata ?? Default.MetadataContext);
         }
 
         [Pure]
@@ -617,7 +622,7 @@ namespace MugenMvvm
 
             public ViewWrappersCollection(IObservableMetadataContext metadata)
             {
-                metadata.Listeners.Add(this);
+                metadata.AddListener(this);
             }
 
             #endregion
@@ -796,9 +801,10 @@ namespace MugenMvvm
             return (handlerMode & value) == value;
         }
 
-        internal static bool LazyInitialize<T>([EnsuresNotNull] ref IComponentCollection<T>? item, object target, IReadOnlyMetadataContext? metadata = null) where T : class
+        internal static bool LazyInitialize<T>([EnsuresNotNull] ref IComponentCollection<T>? item, object target, IComponentCollectionProvider? provider, IReadOnlyMetadataContext? metadata = null) where T : class
         {
-            return item == null && LazyInitialize(ref item, Service<IComponentCollectionFactory>.Instance.GetComponentCollection<T>(target, metadata ?? Default.MetadataContext));
+            return item == null && LazyInitialize(ref item,
+                       (provider ?? Service<IComponentCollectionProvider>.Instance).GetComponentCollection<T>(target, metadata ?? Default.MetadataContext));
         }
 
         internal static bool LazyInitialize<T>([EnsuresNotNull] ref T? item, T value) where T : class

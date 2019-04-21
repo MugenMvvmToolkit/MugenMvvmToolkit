@@ -15,6 +15,7 @@ namespace MugenMvvm.Collections
 
         private int _batchCount;
         private int _batchCountDecorators;
+        private readonly IComponentCollectionProvider? _componentCollectionProvider;
         private IComponentCollection<IObservableCollectionChangedListener<T>>? _decoratorListeners;
         private IComponentCollection<IObservableCollectionDecorator<T>>? _decorators;
         private IComponentCollection<IObservableCollectionChangedListener<T>>? _listeners;
@@ -23,28 +24,14 @@ namespace MugenMvvm.Collections
 
         #region Constructors
 
-        protected ObservableCollectionBase(IComponentCollection<IObservableCollectionChangedListener<T>>? listeners = null,
-            IComponentCollection<IObservableCollectionDecorator<T>>? decorators = null, IComponentCollection<IObservableCollectionChangedListener<T>>? decoratorListeners = null)
+        protected ObservableCollectionBase(IComponentCollectionProvider? componentCollectionProvider = null)
         {
-            _listeners = listeners;
-            _decorators = decorators;
-            _decoratorListeners = decoratorListeners;
+            _componentCollectionProvider = componentCollectionProvider;
         }
 
         #endregion
 
         #region Properties
-
-        public IComponentCollection<IObservableCollectionChangedListener<T>> Listeners
-        {
-            get
-            {
-                if (_listeners == null)
-                    MugenExtensions.LazyInitialize(ref _listeners, this);
-
-                return _listeners;
-            }
-        }
 
         public abstract int Count { get; }
 
@@ -52,12 +39,23 @@ namespace MugenMvvm.Collections
 
         public abstract T this[int index] { get; set; }
 
+        public IComponentCollection<IObservableCollectionChangedListener<T>> Listeners
+        {
+            get
+            {
+                if (_listeners == null)
+                    MugenExtensions.LazyInitialize(ref _listeners, this, _componentCollectionProvider);
+
+                return _listeners;
+            }
+        }
+
         public IComponentCollection<IObservableCollectionDecorator<T>> Decorators
         {
             get
             {
                 if (_decorators == null)
-                    MugenExtensions.LazyInitialize(ref _decorators, this);
+                    MugenExtensions.LazyInitialize(ref _decorators, this, _componentCollectionProvider);
 
                 return _decorators;
             }
@@ -68,7 +66,7 @@ namespace MugenMvvm.Collections
             get
             {
                 if (_decoratorListeners == null)
-                    MugenExtensions.LazyInitialize(ref _decoratorListeners, this);
+                    MugenExtensions.LazyInitialize(ref _decoratorListeners, this, _componentCollectionProvider);
 
                 return _decoratorListeners;
             }
@@ -207,9 +205,9 @@ namespace MugenMvvm.Collections
         {
             IEnumerable<T> items = this;
             var decorators = GetDecorators(decorator, out var indexOf);
-            if (decorators.Count != 0)
+            if (decorators.Length != 0)
             {
-                for (var i = 0; i < indexOf.GetValueOrDefault(decorators.Count); i++)
+                for (var i = 0; i < indexOf.GetValueOrDefault(decorators.Length); i++)
                     items = decorators[i].DecorateItems(items);
             }
 
@@ -349,9 +347,9 @@ namespace MugenMvvm.Collections
                 listeners[i].OnItemChanged(this, item, index, args);
 
             var decorators = GetDecorators(decorator, out var indexOf);
-            if (decorators.Count != 0)
+            if (decorators.Length != 0)
             {
-                for (var i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Count; i++)
+                for (var i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Length; i++)
                 {
                     if (!decorators[i].OnItemChanged(ref item, ref index, ref args))
                         return;
@@ -366,9 +364,9 @@ namespace MugenMvvm.Collections
         protected virtual void OnAdded(IObservableCollectionDecorator<T>? decorator, T item, int index)
         {
             var decorators = GetDecorators(decorator, out var indexOf);
-            if (decorators.Count != 0)
+            if (decorators.Length != 0)
             {
-                for (var i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Count; i++)
+                for (var i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Length; i++)
                 {
                     if (!decorators[i].OnAdded(ref item, ref index))
                         return;
@@ -383,9 +381,9 @@ namespace MugenMvvm.Collections
         protected virtual void OnReplaced(IObservableCollectionDecorator<T>? decorator, T oldItem, T newItem, int index)
         {
             var decorators = GetDecorators(decorator, out var indexOf);
-            if (decorators.Count != 0)
+            if (decorators.Length != 0)
             {
-                for (var i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Count; i++)
+                for (var i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Length; i++)
                 {
                     if (!decorators[i].OnReplaced(ref oldItem, ref newItem, ref index))
                         return;
@@ -400,9 +398,9 @@ namespace MugenMvvm.Collections
         protected virtual void OnMoved(IObservableCollectionDecorator<T>? decorator, T item, int oldIndex, int newIndex)
         {
             var decorators = GetDecorators(decorator, out var indexOf);
-            if (decorators.Count != 0)
+            if (decorators.Length != 0)
             {
-                for (var i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Count; i++)
+                for (var i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Length; i++)
                 {
                     if (!decorators[i].OnMoved(ref item, ref oldIndex, ref newIndex))
                         return;
@@ -417,9 +415,9 @@ namespace MugenMvvm.Collections
         protected virtual void OnRemoved(IObservableCollectionDecorator<T>? decorator, T item, int index)
         {
             var decorators = GetDecorators(decorator, out var indexOf);
-            if (decorators.Count != 0)
+            if (decorators.Length != 0)
             {
-                for (var i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Count; i++)
+                for (var i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Length; i++)
                 {
                     if (!decorators[i].OnRemoved(ref item, ref index))
                         return;
@@ -434,9 +432,9 @@ namespace MugenMvvm.Collections
         protected virtual void OnReset(IObservableCollectionDecorator<T>? decorator, IEnumerable<T> items)
         {
             var decorators = GetDecorators(decorator, out var indexOf);
-            if (decorators.Count != 0)
+            if (decorators.Length != 0)
             {
-                for (var i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Count; i++)
+                for (var i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Length; i++)
                 {
                     if (!decorators[i].OnReset(ref items))
                         return;
@@ -451,9 +449,9 @@ namespace MugenMvvm.Collections
         protected virtual void OnCleared(IObservableCollectionDecorator<T>? decorator)
         {
             var decorators = GetDecorators(decorator, out var indexOf);
-            if (decorators.Count != 0)
+            if (decorators.Length != 0)
             {
-                for (var i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Count; i++)
+                for (var i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Length; i++)
                 {
                     if (!decorators[i].OnCleared())
                         return;
@@ -478,15 +476,15 @@ namespace MugenMvvm.Collections
 
         protected IObservableCollectionChangedListener<T>[] GetListeners()
         {
-            return _listeners?.GetItems() ?? Default.EmptyArray<IObservableCollectionChangedListener<T>>();
+            return _listeners.GetItemsOrDefault();
         }
 
         protected IObservableCollectionChangedListener<T>[] GetDecoratorListeners()
         {
-            return _decoratorListeners?.GetItems() ?? Default.EmptyArray<IObservableCollectionChangedListener<T>>();
+            return _decoratorListeners.GetItemsOrDefault();
         }
 
-        protected IReadOnlyList<IObservableCollectionDecorator<T>> GetDecorators(IObservableCollectionDecorator<T>? decorator, out int? indexOf)
+        protected IObservableCollectionDecorator<T>[] GetDecorators(IObservableCollectionDecorator<T>? decorator, out int? indexOf)
         {
             indexOf = null;
             var decorators = _decorators?.GetItems();

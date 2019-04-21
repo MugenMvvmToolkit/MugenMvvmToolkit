@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
-using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Collections
@@ -12,24 +11,21 @@ namespace MugenMvvm.Collections
     {
         #region Constructors
 
-        protected SynchronizedObservableCollection(IList<T> list, IComponentCollection<IObservableCollectionChangedListener<T>>? listeners = null,
-            IComponentCollection<IObservableCollectionDecorator<T>>? decorators = null, IComponentCollection<IObservableCollectionChangedListener<T>>? decoratorListeners = null)
-            : base(listeners, decorators, decoratorListeners)
+        protected SynchronizedObservableCollection(IList<T> list, IComponentCollectionProvider? componentCollectionProvider = null)
+            : base(componentCollectionProvider)
         {
             Should.NotBeNull(list, nameof(list));
             Items = list;
             Locker = new LockerImpl();
         }
 
-        public SynchronizedObservableCollection(IEnumerable<T> items, IComponentCollection<IObservableCollectionChangedListener<T>>? listeners = null,
-            IComponentCollection<IObservableCollectionDecorator<T>>? decorators = null, IComponentCollection<IObservableCollectionChangedListener<T>>? decoratorListeners = null)
-            : this(new List<T>(items), listeners, decorators, decoratorListeners)
+        public SynchronizedObservableCollection(IEnumerable<T> items, IComponentCollectionProvider? componentCollectionProvider = null)
+            : this(new List<T>(items), componentCollectionProvider)
         {
         }
 
-        public SynchronizedObservableCollection(IComponentCollection<IObservableCollectionChangedListener<T>>? listeners = null,
-            IComponentCollection<IObservableCollectionDecorator<T>>? decorators = null, IComponentCollection<IObservableCollectionChangedListener<T>>? decoratorListeners = null)
-            : this(new List<T>(), listeners, decorators, decoratorListeners)
+        public SynchronizedObservableCollection(IComponentCollectionProvider? componentCollectionProvider = null)
+            : this(new List<T>(), componentCollectionProvider)
         {
         }
 
@@ -61,7 +57,7 @@ namespace MugenMvvm.Collections
         object IList.this[int index]
         {
             get => this[index]!;
-            set => this[index] = (T) value;
+            set => this[index] = (T)value;
         }
 
         public sealed override T this[int index]
@@ -103,7 +99,7 @@ namespace MugenMvvm.Collections
         {
             lock (Locker)
             {
-                InsertInternal(GetCountInternal(), (T) value, true);
+                InsertInternal(GetCountInternal(), (T)value, true);
                 return GetCountInternal() - 1;
             }
         }
@@ -111,26 +107,26 @@ namespace MugenMvvm.Collections
         bool IList.Contains(object value)
         {
             if (IsCompatibleObject(value))
-                return Contains((T) value);
+                return Contains((T)value);
             return false;
         }
 
         int IList.IndexOf(object value)
         {
             if (IsCompatibleObject(value))
-                return IndexOf((T) value);
+                return IndexOf((T)value);
             return -1;
         }
 
         void IList.Insert(int index, object value)
         {
-            Insert(index, (T) value);
+            Insert(index, (T)value);
         }
 
         void IList.Remove(object value)
         {
             if (IsCompatibleObject(value))
-                Remove((T) value);
+                Remove((T)value);
         }
 
         public sealed override void RemoveAt(int index)

@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Infrastructure.Metadata
 {
-    public sealed class MetadataContext : IObservableMetadataContext
+    public sealed class MetadataContext : IObservableMetadataContext//todo factory?
     {
         #region Fields
 
@@ -49,7 +49,7 @@ namespace MugenMvvm.Infrastructure.Metadata
             get
             {
                 if (_listeners == null)
-                    MugenExtensions.LazyInitialize(ref _listeners, this);
+                    MugenExtensions.LazyInitialize(ref _listeners, this, null);
                 return _listeners;
             }
         }
@@ -364,7 +364,7 @@ namespace MugenMvvm.Infrastructure.Metadata
 
         private IObservableMetadataContextListener[] GetListeners()
         {
-            return _listeners?.GetItems() ?? Default.EmptyArray<IObservableMetadataContextListener>();
+            return _listeners.GetItemsOrDefault();
         }
 
         #endregion

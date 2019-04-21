@@ -13,6 +13,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         #region Fields
 
         private IViewModelPresenterCallbackManager _callbackManager;
+        private readonly IComponentCollectionProvider? _componentCollectionProvider;
 
         private IComponentCollection<IViewModelPresenterListener>? _listeners;
         private IComponentCollection<IChildViewModelPresenter>? _presenters;
@@ -22,12 +23,10 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelPresenter(IViewModelPresenterCallbackManager callbackManager,
-            IComponentCollection<IChildViewModelPresenter>? presenters = null, IComponentCollection<IViewModelPresenterListener>? listeners = null)
+        public ViewModelPresenter(IViewModelPresenterCallbackManager callbackManager, IComponentCollectionProvider? componentCollectionProvider = null)
         {
             Should.NotBeNull(callbackManager, nameof(callbackManager));
-            _presenters = presenters;
-            _listeners = listeners;
+            _componentCollectionProvider = componentCollectionProvider;
             CallbackManager = callbackManager;
         }
 
@@ -52,7 +51,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             get
             {
                 if (_presenters == null)
-                    MugenExtensions.LazyInitialize(ref _presenters, this);
+                    MugenExtensions.LazyInitialize(ref _presenters, this, _componentCollectionProvider);
                 return _presenters;
             }
         }
@@ -62,7 +61,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             get
             {
                 if (_listeners == null)
-                    MugenExtensions.LazyInitialize(ref _listeners, this);
+                    MugenExtensions.LazyInitialize(ref _listeners, this, _componentCollectionProvider);
                 return _listeners;
             }
         }
@@ -262,7 +261,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         protected IViewModelPresenterListener[] GetListeners()
         {
-            return _listeners?.GetItems() ?? Default.EmptyArray<IViewModelPresenterListener>();
+            return _listeners.GetItemsOrDefault();
         }
 
         #endregion

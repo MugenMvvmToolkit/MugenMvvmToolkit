@@ -11,6 +11,7 @@ namespace MugenMvvm.Infrastructure.Views
     {
         #region Fields
 
+        private readonly IComponentCollectionProvider? _componentCollectionProvider;
         private IComponentCollection<IViewManagerListener>? _listeners;
         private IComponentCollection<IChildViewManager>? _managers;
 
@@ -19,10 +20,9 @@ namespace MugenMvvm.Infrastructure.Views
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewManager(IComponentCollection<IChildViewManager>? managers = null, IComponentCollection<IViewManagerListener>? listeners = null)
+        public ViewManager(IComponentCollectionProvider? componentCollectionProvider = null)
         {
-            _managers = managers;
-            _listeners = listeners;
+            _componentCollectionProvider = componentCollectionProvider;
         }
 
         #endregion
@@ -34,7 +34,7 @@ namespace MugenMvvm.Infrastructure.Views
             get
             {
                 if (_listeners == null)
-                    MugenExtensions.LazyInitialize(ref _listeners, this);
+                    MugenExtensions.LazyInitialize(ref _listeners, this, _componentCollectionProvider);
                 return _listeners;
             }
         }
@@ -44,7 +44,7 @@ namespace MugenMvvm.Infrastructure.Views
             get
             {
                 if (_managers == null)
-                    MugenExtensions.LazyInitialize(ref _managers, this);
+                    MugenExtensions.LazyInitialize(ref _managers, this, _componentCollectionProvider);
                 return _managers;
             }
         }
@@ -182,7 +182,7 @@ namespace MugenMvvm.Infrastructure.Views
 
         protected IViewManagerListener[] GetListeners()
         {
-            return _listeners?.GetItems() ?? Default.EmptyArray<IViewManagerListener>();
+            return _listeners.GetItemsOrDefault();
         }
 
         #endregion

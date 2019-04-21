@@ -1,14 +1,19 @@
-﻿namespace MugenMvvm.Interfaces.Components
+﻿using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
+
+namespace MugenMvvm.Interfaces.Components
 {
-    public interface IComponentCollection<T> where T : class
+    public interface IComponentCollection<T> : IHasListeners<IComponentCollectionListener> where T : class
     {
+        object Owner { get; }
+
         bool HasItems { get; }
 
-        void Add(T component);
+        bool Add(T component, IReadOnlyMetadataContext metadata);
 
-        bool Remove(T component);
+        bool Remove(T component, IReadOnlyMetadataContext metadata);
 
-        void Clear();
+        bool Clear(IReadOnlyMetadataContext metadata);
 
         T[] GetItems();
     }

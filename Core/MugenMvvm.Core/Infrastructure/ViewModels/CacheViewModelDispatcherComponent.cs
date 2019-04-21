@@ -75,12 +75,12 @@ namespace MugenMvvm.Infrastructure.ViewModels
             if (lifecycleState == ViewModelLifecycleState.Created)
             {
                 AddToCache(viewModel.Metadata.Get(ViewModelMetadata.Id), viewModel);
-                viewModel.Metadata.Listeners.Add(this);
+                viewModel.Metadata.AddListener(this);
             }
             else if (lifecycleState.IsDispose)
             {
                 RemoveFromCache(viewModel.Metadata.Get(ViewModelMetadata.Id));
-                viewModel.Metadata.Listeners.Remove(this);
+                viewModel.Metadata.RemoveListener(this);
             }
         }
 
