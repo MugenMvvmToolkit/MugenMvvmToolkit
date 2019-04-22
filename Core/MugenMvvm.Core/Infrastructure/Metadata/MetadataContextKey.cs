@@ -2,24 +2,25 @@
 using System.Runtime.InteropServices;
 using MugenMvvm.Infrastructure.Serialization;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Serialization;
 
 namespace MugenMvvm.Infrastructure.Metadata
 {
-    public abstract class MetadataContextKey : IMetadataContextKey
+    public abstract class MetadataContextKey : IMetadataContextKey, IHasStringId
     {
         #region Constructors
 
         protected MetadataContextKey(string key)
         {
-            Key = key;
+            Id = key;
         }
 
         #endregion
 
         #region Properties
 
-        public string Key { get; }
+        public string Id { get; }
 
         #endregion
 
@@ -77,17 +78,17 @@ namespace MugenMvvm.Infrastructure.Metadata
 
         public override int GetHashCode()
         {
-            return Key.GetHashCode();
+            return Id.GetHashCode();
         }
 
         public override string ToString()
         {
-            return Key;
+            return Id;
         }
 
         protected virtual bool EqualsInternal(IMetadataContextKey other)
         {
-            return other is MetadataContextKey metadataKey && string.Equals(Key, metadataKey.Key);
+            return other is IHasStringId hasStringId && string.Equals(Id, hasStringId.Id);
         }
 
         #endregion

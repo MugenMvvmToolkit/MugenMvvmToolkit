@@ -19,7 +19,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         #region Fields
 
         private readonly NavigationDispatcherListener _dispatcherListener;
-        private readonly IComponentCollectionProvider? _componentCollectionProvider;
+        private readonly IComponentCollectionProvider _componentCollectionProvider;
         private IComponentCollection<IViewModelPresenterCallbackManagerListener>? _listeners;
 
         #endregion
@@ -27,9 +27,10 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelPresenterCallbackManager(INavigationDispatcher navigationDispatcher, IComponentCollectionProvider? componentCollectionProvider = null)
+        public ViewModelPresenterCallbackManager(INavigationDispatcher navigationDispatcher, IComponentCollectionProvider componentCollectionProvider)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
             _componentCollectionProvider = componentCollectionProvider;
             NavigationDispatcher = navigationDispatcher;
             _dispatcherListener = new NavigationDispatcherListener(this);
@@ -46,7 +47,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             get
             {
                 if (_listeners == null)
-                    MugenExtensions.LazyInitialize(ref _listeners, this, _componentCollectionProvider);
+                    _componentCollectionProvider.LazyInitialize(ref _listeners, this);
                 return _listeners;
             }
         }

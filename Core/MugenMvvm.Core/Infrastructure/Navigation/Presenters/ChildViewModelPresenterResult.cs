@@ -1,5 +1,4 @@
 ﻿using MugenMvvm.Enums;
-using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Presenters;
@@ -40,11 +39,11 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         #region Methods
 
         public static IChildViewModelPresenterResult CreateShowResult(INavigationProvider navigationProvider, NavigationType navigationType, IReadOnlyMetadataContext metadata,
-            IChildViewModelPresenter presenter, bool? isRestorableCallback = null)
+            IChildViewModelPresenter presenter, IMetadataContextProvider metadataContextProvider, bool? isRestorableCallback = null)
         {
             Should.NotBeNull(presenter, nameof(presenter));
-            var resultMetadata = new MetadataContext();
-            resultMetadata.Merge(metadata);
+            Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
+            var resultMetadata = metadataContextProvider.GetMetadataContext(presenter, metadata);
             resultMetadata.Set(NavigationInternalMetadata.IsRestorableCallback, isRestorableCallback.GetValueOrDefault(presenter is IRestorableChildViewModelPresenter));
             return new ChildViewModelPresenterResult(navigationProvider, navigationType, resultMetadata, presenter);
         }

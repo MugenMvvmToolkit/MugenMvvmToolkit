@@ -12,7 +12,7 @@ namespace MugenMvvm.Infrastructure.Navigation
     {
         #region Fields
 
-        private readonly IComponentCollectionProvider? _componentCollectionProvider;
+        private readonly IComponentCollectionProvider _componentCollectionProvider;
         private INavigationContextFactory _contextFactory;
         private IComponentCollection<INavigationDispatcherListener>? _listeners;
         private INavigationDispatcherJournal _navigationJournal;
@@ -22,10 +22,11 @@ namespace MugenMvvm.Infrastructure.Navigation
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public NavigationDispatcher(INavigationContextFactory contextFactory, INavigationDispatcherJournal navigationJournal, IComponentCollectionProvider? componentCollectionProvider = null)
+        public NavigationDispatcher(INavigationContextFactory contextFactory, INavigationDispatcherJournal navigationJournal, IComponentCollectionProvider componentCollectionProvider)
         {
             Should.NotBeNull(contextFactory, nameof(contextFactory));
             Should.NotBeNull(navigationJournal, nameof(navigationJournal));
+            Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
             _componentCollectionProvider = componentCollectionProvider;
             ContextFactory = contextFactory;
             NavigationJournal = navigationJournal;
@@ -64,7 +65,7 @@ namespace MugenMvvm.Infrastructure.Navigation
             get
             {
                 if (_listeners == null)
-                    MugenExtensions.LazyInitialize(ref _listeners, this, _componentCollectionProvider);
+                    _componentCollectionProvider.LazyInitialize(ref _listeners, this);
                 return _listeners;
             }
         }

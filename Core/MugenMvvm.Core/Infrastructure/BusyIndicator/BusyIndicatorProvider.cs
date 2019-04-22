@@ -14,7 +14,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
         #region Fields
 
         private readonly object? _defaultBusyMessage;
-        private readonly IComponentCollectionProvider? _componentCollectionProvider;
+        private readonly IComponentCollectionProvider _componentCollectionProvider;
         private readonly object _locker;
         private BusyToken? _busyTail;
         private IComponentCollection<IBusyIndicatorProviderListener>? _listeners;
@@ -25,8 +25,9 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public BusyIndicatorProvider(object? defaultBusyMessage = null, IComponentCollectionProvider? componentCollectionProvider = null)
+        public BusyIndicatorProvider(IComponentCollectionProvider componentCollectionProvider, object? defaultBusyMessage = null)
         {
+            Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
             _defaultBusyMessage = defaultBusyMessage;
             _componentCollectionProvider = componentCollectionProvider;
             _locker = this;
@@ -43,7 +44,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
             get
             {
                 if (_listeners == null)
-                    MugenExtensions.LazyInitialize(ref _listeners, this, _componentCollectionProvider);
+                    _componentCollectionProvider.LazyInitialize(ref _listeners, this);
                 return _listeners;
             }
         }

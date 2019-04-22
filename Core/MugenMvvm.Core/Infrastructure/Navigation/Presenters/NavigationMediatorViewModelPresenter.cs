@@ -20,7 +20,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
     {
         #region Fields
 
-        private readonly IComponentCollectionProvider? _componentCollectionProvider;
+        private readonly IComponentCollectionProvider _componentCollectionProvider;
+        private readonly IMetadataContextProvider _metadataContextProvider;
         private IComponentCollection<INavigationMediatorViewModelPresenterManager>? _managers;
 
         #endregion
@@ -28,11 +29,15 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public NavigationMediatorViewModelPresenter(IViewManager viewManager, INavigationDispatcher navigationDispatcher, IComponentCollectionProvider? componentCollectionProvider = null)
+        public NavigationMediatorViewModelPresenter(IViewManager viewManager, INavigationDispatcher navigationDispatcher,
+            IComponentCollectionProvider componentCollectionProvider, IMetadataContextProvider metadataContextProvider)
         {
             Should.NotBeNull(viewManager, nameof(viewManager));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
+            Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
             _componentCollectionProvider = componentCollectionProvider;
+            _metadataContextProvider = metadataContextProvider;
             ViewManager = viewManager;
             NavigationDispatcher = navigationDispatcher;
         }
@@ -50,7 +55,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             get
             {
                 if (_managers == null)
-                    MugenExtensions.LazyInitialize(ref _managers, this, _componentCollectionProvider);
+                    _componentCollectionProvider.LazyInitialize(ref _managers, this);
                 return _managers;
             }
         }
@@ -145,7 +150,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             {
                 var mediator = TryGetMediator(viewModel, initializers[i], metadata);
                 if (mediator != null)
-                    return ChildViewModelPresenterResult.CreateShowResult(mediator, mediator.NavigationType, mediator.Show(metadata), this, true);
+                    return ChildViewModelPresenterResult.CreateShowResult(mediator, mediator.NavigationType, mediator.Show(metadata), this, _metadataContextProvider, true);
             }
 
             return null;

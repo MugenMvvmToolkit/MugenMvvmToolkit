@@ -29,7 +29,7 @@ namespace MugenMvvm.Infrastructure.Components
         {
             get
             {
-                if (_listeners == null && MugenExtensions.LazyInitialize(ref _listeners, this, this))
+                if (_listeners == null && this.LazyInitialize(ref _listeners, this))
                     _listeners.AddListener(new ComponentCollectionCallbackListener());
                 return _listeners;
             }
@@ -40,7 +40,7 @@ namespace MugenMvvm.Infrastructure.Components
             get
             {
                 if (_componentCollectionFactories == null)
-                    MugenExtensions.LazyInitialize(ref _componentCollectionFactories, this, this);
+                    this.LazyInitialize(ref _componentCollectionFactories, this);
                 return _componentCollectionFactories;
             }
         }

@@ -3,8 +3,8 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.BusyIndicator;
 using MugenMvvm.Infrastructure.Messaging;
-using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.BusyIndicator;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading;
@@ -15,11 +15,25 @@ namespace MugenMvvm.Infrastructure.ViewModels
 {
     public class ServiceResolverViewModelDispatcherComponent : IServiceResolverViewModelDispatcherComponent
     {
+        #region Fields
+
+        private readonly IComponentCollectionProvider _componentCollectionProvider;
+        private readonly IMetadataContextProvider _metadataContextProvider;
+        private readonly IThreadDispatcher _threadDispatcher;
+
+        #endregion
+
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ServiceResolverViewModelDispatcherComponent()
+        public ServiceResolverViewModelDispatcherComponent(IThreadDispatcher threadDispatcher, IComponentCollectionProvider componentCollectionProvider, IMetadataContextProvider metadataContextProvider)
         {
+            Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
+            Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
+            Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
+            _threadDispatcher = threadDispatcher;
+            _metadataContextProvider = metadataContextProvider;
+            _componentCollectionProvider = componentCollectionProvider;
         }
 
         #endregion
@@ -40,11 +54,11 @@ namespace MugenMvvm.Infrastructure.ViewModels
         public object? TryGetService(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, Type service, IReadOnlyMetadataContext metadata)
         {
             if (service == typeof(IObservableMetadataContext))
-                return new MetadataContext();
+                return _metadataContextProvider.GetObservableMetadataContext(viewModel, null);
             if (service == typeof(IMessenger))
-                return new Messenger(Service<IThreadDispatcher>.Instance);
+                return new Messenger(_threadDispatcher, _componentCollectionProvider, _metadataContextProvider);
             if (service == typeof(IBusyIndicatorProvider))
-                return new BusyIndicatorProvider();
+                return new BusyIndicatorProvider(null, _componentCollectionProvider);
             return null;
         }
 

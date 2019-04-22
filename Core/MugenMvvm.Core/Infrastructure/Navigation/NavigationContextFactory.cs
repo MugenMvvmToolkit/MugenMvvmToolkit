@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Components;
-using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.ViewModels;
@@ -10,6 +9,22 @@ namespace MugenMvvm.Infrastructure.Navigation
 {
     public class NavigationContextFactory : AttachableComponentBase<INavigationDispatcher>, INavigationContextFactory
     {
+        #region Fields
+
+        private readonly IMetadataContextProvider? _metadataContextProvider;
+
+        #endregion
+
+        #region Constructors
+
+        public NavigationContextFactory(IMetadataContextProvider metadataContextProvider)
+        {
+            Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
+            _metadataContextProvider = metadataContextProvider;
+        }
+
+        #endregion
+
         #region Implementation of interfaces
 
         public INavigationContext GetNavigationContext(INavigationProvider navigationProvider, NavigationMode navigationMode, NavigationType navigationTypeFrom,
@@ -52,7 +67,7 @@ namespace MugenMvvm.Infrastructure.Navigation
         protected virtual INavigationContext GetNavigationContextInternal(INavigationProvider navigationProvider, NavigationMode navigationMode, NavigationType navigationTypeFrom,
             IViewModelBase? viewModelFrom, NavigationType navigationTypeTo, IViewModelBase? viewModelTo, IReadOnlyMetadataContext metadata)
         {
-            return new NavigationContext(navigationProvider, navigationMode, navigationTypeFrom, viewModelFrom, navigationTypeTo, viewModelTo, metadata);
+            return new NavigationContext(navigationProvider, navigationMode, navigationTypeFrom, viewModelFrom, navigationTypeTo, viewModelTo, metadata, _metadataContextProvider);
         }
 
         protected virtual INavigationContext GetNavigationContextFromInternal(INavigationProvider navigationProvider, NavigationMode navigationMode, NavigationType navigationType,
@@ -71,7 +86,7 @@ namespace MugenMvvm.Infrastructure.Navigation
                 metadata);
         }
 
-        protected INavigationEntry? GetLastNavigationEntry(NavigationType navigationType, IReadOnlyMetadataContext metadata)
+        protected virtual INavigationEntry? GetLastNavigationEntry(NavigationType navigationType, IReadOnlyMetadataContext metadata)
         {
             var list = Owner.NavigationJournal.GetNavigationEntries(navigationType, metadata);
             if (list.Count != 0)
@@ -89,6 +104,7 @@ namespace MugenMvvm.Infrastructure.Navigation
         {
             #region Fields
 
+            private readonly IMetadataContextProvider? _metadataContextProvider;
             private IMetadataContext? _metadata;
 
             #endregion
@@ -96,8 +112,10 @@ namespace MugenMvvm.Infrastructure.Navigation
             #region Constructors
 
             public NavigationContext(INavigationProvider navigationProvider, NavigationMode navigationMode, NavigationType navigationTypeFrom,
-                IViewModelBase? viewModelFrom, NavigationType navigationTypeTo, IViewModelBase? viewModelTo, IReadOnlyMetadataContext? metadata)
+                IViewModelBase? viewModelFrom, NavigationType navigationTypeTo, IViewModelBase? viewModelTo, IReadOnlyMetadataContext? metadata,
+                IMetadataContextProvider metadataContextProvider)
             {
+                _metadataContextProvider = metadataContextProvider;
                 NavigationProvider = navigationProvider;
                 NavigationMode = navigationMode;
                 NavigationTypeFrom = navigationTypeFrom;
@@ -109,11 +127,7 @@ namespace MugenMvvm.Infrastructure.Navigation
                     if (metadata is IMetadataContext m)
                         _metadata = m;
                     else
-                    {
-                        var metadataContext = new MetadataContext();
-                        metadataContext.Merge(metadata);
-                        _metadata = metadataContext;
-                    }
+                        _metadata = metadataContextProvider.GetMetadataContext(this, metadata);
                 }
             }
 
@@ -126,7 +140,7 @@ namespace MugenMvvm.Infrastructure.Navigation
                 get
                 {
                     if (_metadata == null)
-                        MugenExtensions.LazyInitialize(ref _metadata, new MetadataContext());
+                        _metadataContextProvider.LazyInitialize(ref _metadata, this);
                     return _metadata;
                 }
             }

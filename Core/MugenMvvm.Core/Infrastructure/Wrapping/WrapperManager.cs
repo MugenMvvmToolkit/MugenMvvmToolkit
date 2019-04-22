@@ -10,7 +10,7 @@ namespace MugenMvvm.Infrastructure.Wrapping
     {
         #region Fields
 
-        private readonly IComponentCollectionProvider? _componentCollectionProvider;
+        private readonly IComponentCollectionProvider _componentCollectionProvider;
 
         private IComponentCollection<IWrapperManagerListener>? _listeners;
         private IComponentCollection<IWrapperManagerFactory>? _wrapperFactories;
@@ -20,8 +20,9 @@ namespace MugenMvvm.Infrastructure.Wrapping
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public WrapperManager(IComponentCollectionProvider? componentCollectionProvider = null)
+        public WrapperManager(IComponentCollectionProvider componentCollectionProvider)
         {
+            Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
             _componentCollectionProvider = componentCollectionProvider;
         }
 
@@ -34,7 +35,7 @@ namespace MugenMvvm.Infrastructure.Wrapping
             get
             {
                 if (_listeners == null)
-                    MugenExtensions.LazyInitialize(ref _listeners, this, _componentCollectionProvider);
+                    _componentCollectionProvider.LazyInitialize(ref _listeners, this);
                 return _listeners;
             }
         }
@@ -44,7 +45,7 @@ namespace MugenMvvm.Infrastructure.Wrapping
             get
             {
                 if (_wrapperFactories == null)
-                    MugenExtensions.LazyInitialize(ref _wrapperFactories, this, _componentCollectionProvider);
+                    _componentCollectionProvider.LazyInitialize(ref _wrapperFactories, this);
                 return _wrapperFactories;
             }
         }

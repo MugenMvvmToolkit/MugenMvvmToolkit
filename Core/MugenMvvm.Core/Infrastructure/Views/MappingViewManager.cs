@@ -35,12 +35,14 @@ namespace MugenMvvm.Infrastructure.Views
 
         [Preserve(Conditional = true)]
         public MappingViewManager(IThreadDispatcher threadDispatcher, IViewModelDispatcher viewModelDispatcher, IViewDataContextProvider dataContextProvider,
-            IServiceProvider serviceProvider)
+            IServiceProvider serviceProvider, IMetadataContextProvider metadataContextProvider)
         {
             Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
             Should.NotBeNull(viewModelDispatcher, nameof(viewModelDispatcher));
             Should.NotBeNull(dataContextProvider, nameof(dataContextProvider));
             Should.NotBeNull(serviceProvider, nameof(serviceProvider));
+            Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
+            MetadataContextProvider = metadataContextProvider;
             ThreadDispatcher = threadDispatcher;
             ViewModelDispatcher = viewModelDispatcher;
             DataContextProvider = dataContextProvider;
@@ -67,6 +69,8 @@ namespace MugenMvvm.Infrastructure.Views
         protected IViewDataContextProvider DataContextProvider { get; }
 
         protected IServiceProvider ServiceProvider { get; }
+
+        protected IMetadataContextProvider MetadataContextProvider { get; }
 
         #endregion
 
@@ -181,7 +185,7 @@ namespace MugenMvvm.Infrastructure.Views
         protected virtual IViewManagerResult Initialize(IParentViewManager parentViewManager, IViewManagerInitializer initializer, int mappingId, IViewModelBase viewModel,
             object view, IReadOnlyMetadataContext metadata)
         {
-            var views = viewModel.Metadata.GetOrAdd(ViewsMetadataKey, (object?) null, (object?) null, (context, vm, _) => new Dictionary<int, IViewInfo>());
+            var views = viewModel.Metadata.GetOrAdd(ViewsMetadataKey, (object?)null, (object?)null, (context, vm, _) => new Dictionary<int, IViewInfo>());
             ViewInfo viewInfo;
             lock (views)
             {
@@ -225,7 +229,7 @@ namespace MugenMvvm.Infrastructure.Views
         protected virtual IViewModelBase GetViewModelForView(IParentViewManager parentViewManager, IViewModelViewInitializer initializer, object view,
             IReadOnlyMetadataContext metadata)
         {
-            var vm = (IViewModelBase) ServiceProvider.GetService(initializer.ViewModelType);
+            var vm = ViewModelDispatcher.GetViewModel(initializer.ViewModelType, metadata);
             parentViewManager.OnViewModelCreated(vm, view, metadata);
             return vm;
         }
@@ -233,7 +237,7 @@ namespace MugenMvvm.Infrastructure.Views
         protected virtual object GetViewForViewModel(IParentViewManager parentViewManager, IViewInitializer initializer, IViewModelBase viewModel,
             IReadOnlyMetadataContext metadata)
         {
-            var view = (IViewModelBase) ServiceProvider.GetService(initializer.ViewType);
+            var view = ServiceProvider.GetService(initializer.ViewType);
             parentViewManager.OnViewCreated(viewModel, view, metadata);
             return view;
         }
@@ -497,7 +501,7 @@ namespace MugenMvvm.Infrastructure.Views
                 get
                 {
                     if (_metadata == null)
-                        MugenExtensions.LazyInitialize(ref _metadata, new MetadataContext());
+                        _viewManager.MetadataContextProvider.LazyInitialize(ref _metadata, this);
                     return _metadata;
                 }
             }
@@ -510,7 +514,7 @@ namespace MugenMvvm.Infrastructure.Views
 
             public T GetInitializer<T>() where T : class, IViewManagerInitializer
             {
-                return (T) _initializer;
+                return (T)_initializer;
             }
 
             public Task<ICleanupViewManagerResult> CleanupAsync(IViewModelBase viewModel, IReadOnlyMetadataContext metadata)

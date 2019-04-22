@@ -44,7 +44,7 @@ namespace MugenMvvm.Collections
             get
             {
                 if (_listeners == null)
-                    MugenExtensions.LazyInitialize(ref _listeners, this, _componentCollectionProvider);
+                    _componentCollectionProvider.LazyInitialize(ref _listeners, this);
 
                 return _listeners;
             }
@@ -55,7 +55,7 @@ namespace MugenMvvm.Collections
             get
             {
                 if (_decorators == null)
-                    MugenExtensions.LazyInitialize(ref _decorators, this, _componentCollectionProvider);
+                    _componentCollectionProvider.LazyInitialize(ref _decorators, this);
 
                 return _decorators;
             }
@@ -66,7 +66,7 @@ namespace MugenMvvm.Collections
             get
             {
                 if (_decoratorListeners == null)
-                    MugenExtensions.LazyInitialize(ref _decoratorListeners, this, _componentCollectionProvider);
+                    _componentCollectionProvider.LazyInitialize(ref _decoratorListeners, this);
 
                 return _decoratorListeners;
             }

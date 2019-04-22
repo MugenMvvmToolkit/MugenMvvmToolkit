@@ -9,7 +9,7 @@ namespace MugenMvvm.Infrastructure.Internal
     {
         #region Fields
 
-        private readonly IComponentCollectionProvider? _componentCollectionProvider;
+        private readonly IComponentCollectionProvider _componentCollectionProvider;
         private IComponentCollection<IWeakReferenceFactory>? _weakReferenceFactories;
 
         #endregion
@@ -17,8 +17,9 @@ namespace MugenMvvm.Infrastructure.Internal
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public WeakReferenceProvider(IComponentCollectionProvider? componentCollectionProvider = null)
+        public WeakReferenceProvider(IComponentCollectionProvider componentCollectionProvider)
         {
+            Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
             _componentCollectionProvider = componentCollectionProvider;
         }
 
@@ -31,7 +32,7 @@ namespace MugenMvvm.Infrastructure.Internal
             get
             {
                 if (_weakReferenceFactories == null)
-                    MugenExtensions.LazyInitialize(ref _weakReferenceFactories, this, _componentCollectionProvider);
+                    _componentCollectionProvider.LazyInitialize(ref _weakReferenceFactories, this);
                 return _weakReferenceFactories;
             }
         }

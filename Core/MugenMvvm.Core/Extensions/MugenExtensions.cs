@@ -393,6 +393,48 @@ namespace MugenMvvm
 
         #region Common
 
+        public static bool LazyInitialize(this IMetadataContextProvider provider, [EnsuresNotNull] ref IMetadataContext? metadataContext,
+            object? target, IEnumerable<MetadataContextValue> values = null) //todo R# bug return?
+        {
+            return metadataContext == null && LazyInitialize(ref metadataContext, GetMetadataContext(target, values, provider));
+        }
+
+        public static bool LazyInitialize(this IMetadataContextProvider provider, [EnsuresNotNull] ref IObservableMetadataContext? metadataContext,
+            object? target, IEnumerable<MetadataContextValue> values = null) //todo R# bug return?
+        {
+            return metadataContext == null && LazyInitialize(ref metadataContext, GetObservableMetadataContext(target, values, provider));
+        }
+
+        public static IReadOnlyMetadataContext ToReadOnlyMetadataContext(this IEnumerable<MetadataContextValue>? values, object target = null, IMetadataContextProvider? provider = null)
+        {
+            return GetReadOnlyMetadataContext(target, values, provider);
+        }
+
+        public static IMetadataContext ToMetadataContext(this IEnumerable<MetadataContextValue>? values, object target = null, IMetadataContextProvider? provider = null)
+        {
+            return GetMetadataContext(target, values, provider);
+        }
+
+        public static IObservableMetadataContext ToObservableMetadataContext(this IEnumerable<MetadataContextValue> values, object? target = null, IMetadataContextProvider? provider = null)
+        {
+            return GetObservableMetadataContext(target, values, provider);
+        }
+
+        public static IReadOnlyMetadataContext GetReadOnlyMetadataContext(object? target, IEnumerable<MetadataContextValue> values = null, IMetadataContextProvider? provider = null)
+        {
+            return (provider ?? Service<IMetadataContextProvider>.Instance).GetReadOnlyMetadataContext(target, values);
+        }
+
+        public static IMetadataContext GetMetadataContext(object? target, IEnumerable<MetadataContextValue> values = null, IMetadataContextProvider? provider = null)
+        {
+            return (provider ?? Service<IMetadataContextProvider>.Instance).GetMetadataContext(target, values);
+        }
+
+        public static IObservableMetadataContext GetObservableMetadataContext(object? target, IEnumerable<MetadataContextValue> values = null, IMetadataContextProvider? provider = null)
+        {
+            return (provider ?? Service<IMetadataContextProvider>.Instance).GetObservableMetadataContext(target, values);
+        }
+
         public static T[] GetItemsOrDefault<T>(this IComponentCollection<T> componentCollection) where T : class//todo R# bug return?
         {
             return componentCollection?.GetItems() ?? Default.EmptyArray<T>();
@@ -799,7 +841,8 @@ namespace MugenMvvm
             return (handlerMode & value) == value;
         }
 
-        internal static bool LazyInitialize<T>([EnsuresNotNull] ref IComponentCollection<T>? item, object target, IComponentCollectionProvider? provider, IReadOnlyMetadataContext? metadata = null) where T : class
+        public static bool LazyInitialize<T>(this IComponentCollectionProvider provider, [EnsuresNotNull] ref IComponentCollection<T>? item, object target, IReadOnlyMetadataContext? metadata = null)
+            where T : class //todo R# bug return?
         {
             return item == null && LazyInitialize(ref item,
                        (provider ?? Service<IComponentCollectionProvider>.Instance).GetComponentCollection<T>(target, metadata ?? Default.MetadataContext));

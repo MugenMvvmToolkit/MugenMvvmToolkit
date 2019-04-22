@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
-using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
@@ -16,7 +15,8 @@ namespace MugenMvvm.Infrastructure.Messaging
 
         private readonly HashSet<KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>> _subscribers;
         private readonly IThreadDispatcher _threadDispatcher;
-        private readonly IComponentCollectionProvider? _componentCollectionProvider;
+        private readonly IComponentCollectionProvider _componentCollectionProvider;
+        private readonly IMetadataContextProvider _metadataContextProvider;
         private IComponentCollection<IMessengerListener>? _listeners;
 
         #endregion
@@ -24,11 +24,14 @@ namespace MugenMvvm.Infrastructure.Messaging
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public Messenger(IThreadDispatcher threadDispatcher, IComponentCollectionProvider? componentCollectionProvider = null)
+        public Messenger(IThreadDispatcher threadDispatcher, IComponentCollectionProvider componentCollectionProvider, IMetadataContextProvider metadataContextProvider)
         {
             Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
+            Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
+            Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
             _threadDispatcher = threadDispatcher;
             _componentCollectionProvider = componentCollectionProvider;
+            _metadataContextProvider = metadataContextProvider;
             _subscribers = new HashSet<KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>>(this);
         }
 
@@ -41,7 +44,7 @@ namespace MugenMvvm.Infrastructure.Messaging
             get
             {
                 if (_listeners == null)
-                    MugenExtensions.LazyInitialize(ref _listeners, this, _componentCollectionProvider);
+                    _componentCollectionProvider.LazyInitialize(ref _listeners, this);
                 return _listeners;
             }
         }
@@ -308,7 +311,7 @@ namespace MugenMvvm.Infrastructure.Messaging
                 get
                 {
                     if (_metadata == null)
-                        MugenExtensions.LazyInitialize(ref _metadata, new MetadataContext());
+                        ((Messenger)Messenger)._metadataContextProvider.LazyInitialize(ref _metadata, this);
                     return _metadata!;
                 }
             }

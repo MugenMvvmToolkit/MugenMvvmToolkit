@@ -9,8 +9,9 @@ namespace MugenMvvm.Infrastructure.Validation
     {
         #region Constructors
 
-        public InlineValidator(IObservableMetadataContext metadata = null, IComponentCollectionProvider componentCollectionProvider = null)
-            : base(metadata, componentCollectionProvider, false)
+        public InlineValidator(IObservableMetadataContext metadata = null, IComponentCollectionProvider componentCollectionProvider = null,
+            IMetadataContextProvider? metadataContextProvider = null)
+            : base(metadata, componentCollectionProvider, metadataContextProvider, false)
         {
         }
 

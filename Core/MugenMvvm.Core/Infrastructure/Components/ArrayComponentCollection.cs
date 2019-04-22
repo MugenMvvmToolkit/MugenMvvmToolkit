@@ -36,7 +36,7 @@ namespace MugenMvvm.Infrastructure.Components
             get
             {
                 if (_listeners == null)
-                    MugenExtensions.LazyInitialize(ref _listeners, this, null);
+                    Service<IComponentCollectionProvider>.Instance.LazyInitialize(ref _listeners, this);
                 return _listeners;
             }
         }

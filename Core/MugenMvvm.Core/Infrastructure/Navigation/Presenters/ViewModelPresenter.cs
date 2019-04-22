@@ -13,7 +13,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         #region Fields
 
         private IViewModelPresenterCallbackManager _callbackManager;
-        private readonly IComponentCollectionProvider? _componentCollectionProvider;
+        private readonly IComponentCollectionProvider _componentCollectionProvider;
 
         private IComponentCollection<IViewModelPresenterListener>? _listeners;
         private IComponentCollection<IChildViewModelPresenter>? _presenters;
@@ -23,9 +23,10 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelPresenter(IViewModelPresenterCallbackManager callbackManager, IComponentCollectionProvider? componentCollectionProvider = null)
+        public ViewModelPresenter(IViewModelPresenterCallbackManager callbackManager, IComponentCollectionProvider componentCollectionProvider)
         {
             Should.NotBeNull(callbackManager, nameof(callbackManager));
+            Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
             _componentCollectionProvider = componentCollectionProvider;
             CallbackManager = callbackManager;
         }
@@ -51,7 +52,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             get
             {
                 if (_presenters == null)
-                    MugenExtensions.LazyInitialize(ref _presenters, this, _componentCollectionProvider);
+                    _componentCollectionProvider.LazyInitialize(ref _presenters, this);
                 return _presenters;
             }
         }
@@ -61,7 +62,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             get
             {
                 if (_listeners == null)
-                    MugenExtensions.LazyInitialize(ref _listeners, this, _componentCollectionProvider);
+                    _componentCollectionProvider.LazyInitialize(ref _listeners, this);
                 return _listeners;
             }
         }

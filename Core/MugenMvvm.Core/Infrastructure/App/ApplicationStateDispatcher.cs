@@ -11,7 +11,7 @@ namespace MugenMvvm.Infrastructure.App
     {
         #region Fields
 
-        private readonly IComponentCollectionProvider? _componentCollectionProvider;
+        private readonly IComponentCollectionProvider _componentCollectionProvider;
 
         private IComponentCollection<IApplicationStateDispatcherListener>? _listeners;
         private ApplicationState _state;
@@ -21,14 +21,15 @@ namespace MugenMvvm.Infrastructure.App
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ApplicationStateDispatcher(IComponentCollectionProvider? componentCollectionProvider = null)
+        public ApplicationStateDispatcher(IComponentCollectionProvider componentCollectionProvider)
             : this(ApplicationState.Active, componentCollectionProvider)
         {
         }
 
-        public ApplicationStateDispatcher(ApplicationState state, IComponentCollectionProvider? componentCollectionProvider = null)
+        public ApplicationStateDispatcher(ApplicationState state, IComponentCollectionProvider componentCollectionProvider)
         {
             Should.NotBeNull(state, nameof(state));
+            Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
             _state = state;
             _componentCollectionProvider = componentCollectionProvider;
         }
@@ -42,7 +43,7 @@ namespace MugenMvvm.Infrastructure.App
             get
             {
                 if (_listeners == null)
-                    MugenExtensions.LazyInitialize(ref _listeners, this, _componentCollectionProvider);
+                    _componentCollectionProvider.LazyInitialize(ref _listeners, this);
                 return _listeners;
             }
         }

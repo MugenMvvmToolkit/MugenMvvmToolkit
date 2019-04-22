@@ -12,7 +12,7 @@ namespace MugenMvvm.Infrastructure.Commands
     {
         #region Fields
 
-        private readonly IComponentCollectionProvider? _componentCollectionProvider;
+        private readonly IComponentCollectionProvider _componentCollectionProvider;
         private IComponentCollection<IRelayCommandMediatorProviderListener>? _listeners;
         private IComponentCollection<IRelayCommandMediatorFactory>? _mediatorFactories;
 
@@ -21,8 +21,9 @@ namespace MugenMvvm.Infrastructure.Commands
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public RelayCommandMediatorProvider(IComponentCollectionProvider? componentCollectionProvider = null)
+        public RelayCommandMediatorProvider(IComponentCollectionProvider componentCollectionProvider)
         {
+            Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
             _componentCollectionProvider = componentCollectionProvider;
         }
 
@@ -35,7 +36,7 @@ namespace MugenMvvm.Infrastructure.Commands
             get
             {
                 if (_mediatorFactories == null)
-                    MugenExtensions.LazyInitialize(ref _mediatorFactories, this, _componentCollectionProvider);
+                    _componentCollectionProvider.LazyInitialize(ref _mediatorFactories, this);
                 return _mediatorFactories;
             }
         }
@@ -45,7 +46,7 @@ namespace MugenMvvm.Infrastructure.Commands
             get
             {
                 if (_listeners == null)
-                    MugenExtensions.LazyInitialize(ref _listeners, this, _componentCollectionProvider);
+                    _componentCollectionProvider.LazyInitialize(ref _listeners, this);
                 return _listeners;
             }
         }

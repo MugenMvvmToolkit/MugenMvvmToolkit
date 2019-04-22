@@ -19,6 +19,7 @@ namespace MugenMvvm.Infrastructure.Validation
         #region Fields
 
         private readonly IComponentCollectionProvider? _componentCollectionProvider;
+        private readonly IMetadataContextProvider? _metadataContextProvider;
         private readonly HashSet<string> _validatingMembers;
         protected readonly Dictionary<string, IReadOnlyList<object>> Errors;
         private CancellationTokenSource? _disposeCancellationTokenSource;
@@ -36,10 +37,12 @@ namespace MugenMvvm.Infrastructure.Validation
 
         #region Constructors
 
-        protected ValidatorBase(IObservableMetadataContext? metadata = null, IComponentCollectionProvider? componentCollectionProvider = null, bool hasAsyncValidation = true)
+        protected ValidatorBase(IObservableMetadataContext? metadata = null, IComponentCollectionProvider? componentCollectionProvider = null,
+            IMetadataContextProvider? metadataContextProvider = null, bool hasAsyncValidation = true)
         {
             _metadata = metadata;
             _componentCollectionProvider = componentCollectionProvider;
+            _metadataContextProvider = metadataContextProvider;
             ValidateOnPropertyChanged = true;
             HasAsyncValidation = hasAsyncValidation;
             Errors = new Dictionary<string, IReadOnlyList<object>>(StringComparer.Ordinal);
@@ -56,7 +59,7 @@ namespace MugenMvvm.Infrastructure.Validation
             get
             {
                 if (_listeners == null)
-                    MugenExtensions.LazyInitialize(ref _listeners, this, _componentCollectionProvider);
+                    _componentCollectionProvider.LazyInitialize(ref _listeners, this);
                 return _listeners;
             }
         }
@@ -68,7 +71,7 @@ namespace MugenMvvm.Infrastructure.Validation
             get
             {
                 if (_metadata == null)
-                    MugenExtensions.LazyInitialize(ref _metadata, new MetadataContext());
+                    _metadataContextProvider.LazyInitialize(ref _metadata, this);
                 return _metadata;
             }
         }

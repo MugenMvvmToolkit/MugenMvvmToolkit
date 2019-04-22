@@ -5,6 +5,7 @@ using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Interfaces.Navigation
 {
+    //todo add listeners to all components!
     public interface INavigationContextFactory : IAttachableComponent<INavigationDispatcher>, IDetachableComponent<INavigationDispatcher>
     {
         INavigationContext GetNavigationContext(INavigationProvider navigationProvider, NavigationMode navigationMode, NavigationType navigationTypeFrom,
