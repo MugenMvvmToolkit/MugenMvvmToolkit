@@ -11,7 +11,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Infrastructure.Components
 {
-    public class ComponentCollectionFactoryTest : UnitTestBase
+    public class ComponentCollectionFactoryTest : UnitTestBase//todo add adding test
     {
         #region Methods
 

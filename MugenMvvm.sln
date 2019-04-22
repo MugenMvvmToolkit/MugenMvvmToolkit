@@ -1,13 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.136
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.202
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MugenMvvm.Core", "Core\MugenMvvm.Core\MugenMvvm.Core.csproj", "{6E48847F-3FC2-47A8-834E-ED1E1A42B544}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B2573D53-4B20-4C9A-9D5B-C7E1AC4B5896}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvm.UnitTest", "Tests\MugenMvvm.UnitTest\MugenMvvm.UnitTest.csproj", "{2B89EABA-0D6E-4A29-A10C-7A429979E0AE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MugenMvvm.UnitTest", "Tests\MugenMvvm.UnitTest\MugenMvvm.UnitTest.csproj", "{2B89EABA-0D6E-4A29-A10C-7A429979E0AE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

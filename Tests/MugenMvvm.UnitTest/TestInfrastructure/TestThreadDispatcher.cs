@@ -31,7 +31,7 @@ namespace MugenMvvm.UnitTest.TestInfrastructure
 
         #region Implementation of interfaces
 
-        bool IThreadDispatcher.CanExecute(ThreadExecutionMode executionMode)
+        bool IThreadDispatcher.CanExecuteInline(ThreadExecutionMode executionMode)
         {
             return CanExecute?.Invoke(executionMode) ?? true;
         }
