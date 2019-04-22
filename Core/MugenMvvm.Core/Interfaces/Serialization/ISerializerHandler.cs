@@ -4,6 +4,8 @@ namespace MugenMvvm.Interfaces.Serialization
 {
     public interface ISerializerHandler : IHasPriority
     {
+        void OnContextCreated(ISerializer messenger, ISerializationContext serializationContext);
+
         void OnSerializing(ISerializer serializer, object? instance, ISerializationContext serializationContext);
 
         void OnSerialized(ISerializer serializer, object? instance, ISerializationContext serializationContext);

@@ -68,7 +68,9 @@ namespace MugenMvvm.Infrastructure.Serialization
 
         public ISerializationContext GetSerializationContext(IServiceProvider? serviceProvider, IMetadataContext? metadata)
         {
-            return GetSerializationContextInternal(serviceProvider, metadata);
+            var context = GetSerializationContextInternal(serviceProvider, metadata);
+            OnContextCreated(context);
+            return context;
         }
 
         public bool CanSerialize(Type type, IReadOnlyMetadataContext? metadata)
@@ -81,7 +83,7 @@ namespace MugenMvvm.Infrastructure.Serialization
         {
             Should.NotBeNull(item, nameof(item));
             if (serializationContext == null)
-                serializationContext = GetSerializationContextInternal(null, null);
+                serializationContext = GetSerializationContext(null, null);
             try
             {
                 CurrentSerializationContext = serializationContext;
@@ -97,7 +99,7 @@ namespace MugenMvvm.Infrastructure.Serialization
         {
             Should.NotBeNull(stream, nameof(stream));
             if (serializationContext == null)
-                serializationContext = GetSerializationContextInternal(null, null);
+                serializationContext = GetSerializationContext(null, null);
             try
             {
                 CurrentSerializationContext = serializationContext;
@@ -120,6 +122,13 @@ namespace MugenMvvm.Infrastructure.Serialization
         protected virtual bool CanSerializeInternal(Type type, IReadOnlyMetadataContext metadata)
         {
             return type.IsSerializableUnified() || TryGetSurrogateSerializerHandler(type, out _, out _);
+        }
+
+        protected virtual void OnContextCreated(ISerializationContext context)
+        {
+            var handlers = GetHandlers();
+            for (var i = 0; i < handlers.Length; i++)
+                handlers[i].OnContextCreated(this, context);
         }
 
         protected virtual void OnSerializing(object? instance)
