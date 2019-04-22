@@ -15,7 +15,7 @@ namespace MugenMvvm.Infrastructure.Messaging
         #region Fields
 
         private readonly int _hashCode;
-        private readonly WeakReference _reference;
+        private readonly IWeakReference _reference;
         private static readonly MethodInfo InvokeMethodInfo;
         private static readonly Dictionary<Type, Func<object?, object?[], object?>> MessageTypeToDelegate;
 

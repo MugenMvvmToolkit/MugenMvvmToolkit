@@ -102,7 +102,7 @@ namespace MugenMvvm
             #region Fields
 
             private readonly Action<TTarget, object, TArg> _invokeAction;
-            private readonly WeakReference _targetReference;
+            private readonly IWeakReference _targetReference;
             private readonly Delegate? _unsubscribeAction;
 
             public TDelegate? HandlerDelegate;
@@ -523,13 +523,11 @@ namespace MugenMvvm
             }
         }
 
-        public static WeakReference GetWeakReference(object? item, bool ignoreHasWeakReference = false)
+        public static IWeakReference GetWeakReference(object? item, IReadOnlyMetadataContext? metadata = null)
         {
             if (item == null)
                 return Default.WeakReference;
-            if (!ignoreHasWeakReference && item is IHasWeakReference hasWeakReference)
-                return hasWeakReference.WeakReference;
-            return Service<IWeakReferenceFactory>.Instance.GetWeakReference(item!);
+            return Service<IWeakReferenceProvider>.Instance.GetWeakReference(item, metadata);
         }
 
         public static TResult[] ToArray<T, TResult>(this IReadOnlyCollection<T> collection, Func<T, TResult> selector)

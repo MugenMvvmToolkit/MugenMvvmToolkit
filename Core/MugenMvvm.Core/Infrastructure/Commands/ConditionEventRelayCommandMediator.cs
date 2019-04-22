@@ -5,6 +5,7 @@ using System.Threading;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces.Commands;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
@@ -142,7 +143,7 @@ namespace MugenMvvm.Infrastructure.Commands
         {
             #region Fields
 
-            private readonly WeakReference _reference;
+            private IWeakReference? _reference;
             private PropertyChangedEventHandler? _handler;
 
             #endregion
@@ -165,7 +166,7 @@ namespace MugenMvvm.Infrastructure.Commands
 
             public MessengerSubscriberResult Handle(object sender, object message, IMessengerContext messengerContext)
             {
-                var mediator = (ConditionEventRelayCommandMediator) _reference.Target;
+                var mediator = (ConditionEventRelayCommandMediator)_reference?.Target;
                 if (mediator == null)
                     return MessengerSubscriberResult.Invalid;
                 mediator.Handle(message);
@@ -185,12 +186,13 @@ namespace MugenMvvm.Infrastructure.Commands
 
             public void OnDispose()
             {
-                _reference.Target = null;
+                _reference?.Release();
+                _reference = null;
             }
 
             private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
             {
-                var mediator = (ConditionEventRelayCommandMediator) _reference.Target;
+                var mediator = (ConditionEventRelayCommandMediator)_reference?.Target;
                 if (mediator == null)
                 {
                     if (sender is INotifyPropertyChanged propertyChanged)

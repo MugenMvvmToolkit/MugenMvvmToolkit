@@ -4,6 +4,7 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.ViewModels;
@@ -223,7 +224,7 @@ namespace MugenMvvm.Infrastructure.Navigation
             private readonly DateTime _date;
 
             private readonly NavigationDispatcherJournal _navigationDispatcherJournal;
-            private readonly WeakReference _viewModelReference;
+            private readonly IWeakReference _viewModelReference;
 
             #endregion
 

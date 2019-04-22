@@ -70,7 +70,7 @@ namespace MugenMvvm.Infrastructure.Components
 
         #region Methods
 
-        protected virtual IComponentCollection<T> GetComponentCollectionInternal<T>(object owner, IReadOnlyMetadataContext metadata) where T : class
+        protected virtual IComponentCollection<T>? GetComponentCollectionInternal<T>(object owner, IReadOnlyMetadataContext metadata) where T : class
         {
             var collectionFactories = ComponentCollectionFactories.GetItems();
             for (var i = 0; i < collectionFactories.Length; i++)

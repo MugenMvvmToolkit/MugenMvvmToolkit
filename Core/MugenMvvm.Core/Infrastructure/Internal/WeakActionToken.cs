@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using MugenMvvm.Interfaces.Internal;
 
 namespace MugenMvvm.Infrastructure.Internal
 {
@@ -10,13 +11,13 @@ namespace MugenMvvm.Infrastructure.Internal
         public static IDisposable Create<TTarget>(TTarget target, Action<TTarget> action)
             where TTarget : class
         {
-            return new WeakActionTokenInternal<TTarget, object, object>(action, target);
+            return new WeakActionTokenInternal<TTarget>(action, target);
         }
 
         public static IDisposable Create<TTarget, TArg1>(TTarget target, TArg1 arg1, Action<TTarget, TArg1> action)
             where TTarget : class
         {
-            return new WeakActionTokenInternal<TTarget, TArg1, object>(action, target, arg1);
+            return new WeakActionTokenInternal<TTarget, TArg1>(action, target, arg1);
         }
 
         public static IDisposable Create<TTarget, TArg1, TArg2>(TTarget target, TArg1 arg1, TArg2 arg2, Action<TTarget, TArg1, TArg2> action)
@@ -25,28 +26,27 @@ namespace MugenMvvm.Infrastructure.Internal
             return new WeakActionTokenInternal<TTarget, TArg1, TArg2>(action, target, arg1, arg2);
         }
 
-        private static WeakReference GetWeakReference(object target)
+        private static IWeakReference GetWeakReference(object target)
         {
-            return target as WeakReference ?? MugenExtensions.GetWeakReference(target);
+            return MugenExtensions.GetWeakReference(target);
         }
 
         #endregion
 
         #region Nested types
 
-        private sealed class WeakActionTokenInternal<TTarget, TArg1, TArg2> : IDisposable
-            where TTarget : class
+        private class WeakActionTokenInternal<TTarget> : IDisposable where TTarget : class
         {
             #region Fields
 
-            private object _action;
-            private object _target;
+            private object? _action;
+            private IWeakReference? _target;
 
             #endregion
 
             #region Constructors
 
-            public WeakActionTokenInternal(Action<TTarget> action, TTarget target)
+            public WeakActionTokenInternal(object action, TTarget target)
             {
                 Should.NotBeNull(action, nameof(action));
                 Should.NotBeNull(target, nameof(target));
@@ -54,70 +54,86 @@ namespace MugenMvvm.Infrastructure.Internal
                 _target = GetWeakReference(target);
             }
 
-            public WeakActionTokenInternal(Action<TTarget, TArg1> action, TTarget target, TArg1 arg1)
-            {
-                Should.NotBeNull(action, nameof(action));
-                Should.NotBeNull(target, nameof(target));
-                _action = action;
-                _target = new object[]
-                {
-                    GetWeakReference(target),
-                    arg1!
-                };
-            }
-
-            public WeakActionTokenInternal(Action<TTarget, TArg1, TArg2> action, TTarget target, TArg1 arg1, TArg2 arg2)
-            {
-                Should.NotBeNull(action, nameof(action));
-                Should.NotBeNull(target, nameof(target));
-                _action = action;
-                _target = new object[]
-                {
-                    GetWeakReference(target),
-                    arg1!,
-                    arg2!
-                };
-            }
-
             #endregion
 
             #region Implementation of interfaces
 
-            public void Dispose()
+            void IDisposable.Dispose()
             {
                 var action = Interlocked.Exchange(ref _action, null);
                 if (action == null)
                     return;
+                var target = _target?.Target;
+                if (target != null)
+                    OnDispose(action, (TTarget) target);
+                _target = null;
+            }
 
-                TTarget target;
-                if (_target is WeakReference weakReference)
-                {
-                    target = (TTarget) weakReference.Target;
-                    if (target != null)
-                        ((Action<TTarget>) action).Invoke(target);
-                }
-                else
-                {
-                    var objects = (object[]) _target!;
-                    if (typeof(TTarget) == typeof(WeakReference))
-                        target = (TTarget) objects[0];
-                    else
-                        target = (TTarget) ((WeakReference) objects[0]).Target;
-                    if (target != null)
-                    {
-                        switch (objects.Length)
-                        {
-                            case 2:
-                                ((Action<TTarget, TArg1>) action).Invoke(target, (TArg1) objects[1]);
-                                break;
-                            case 3:
-                                ((Action<TTarget, TArg1, TArg2>) action).Invoke(target, (TArg1) objects[1], (TArg2) objects[2]);
-                                break;
-                        }
-                    }
-                }
+            #endregion
 
-                _target = null!;
+            #region Methods
+
+            protected virtual void OnDispose(object action, TTarget target)
+            {
+                ((Action<TTarget>) action).Invoke(target);
+            }
+
+            #endregion
+        }
+
+        private class WeakActionTokenInternal<TTarget, TArg1> : WeakActionTokenInternal<TTarget> where TTarget : class
+        {
+            #region Fields
+
+            protected TArg1 Arg1;
+
+            #endregion
+
+            #region Constructors
+
+            public WeakActionTokenInternal(object action, TTarget target, TArg1 arg1) : base(action, target)
+            {
+                Arg1 = arg1;
+            }
+
+            #endregion
+
+            #region Methods
+
+            protected override void OnDispose(object action, TTarget target)
+            {
+                ((Action<TTarget, TArg1>) action).Invoke(target, Arg1);
+                Arg1 = default;
+            }
+
+            #endregion
+        }
+
+        private class WeakActionTokenInternal<TTarget, TArg1, TArg2> : WeakActionTokenInternal<TTarget, TArg1> where TTarget : class
+        {
+            #region Fields
+
+            protected TArg2 Arg2;
+
+            #endregion
+
+            #region Constructors
+
+            public WeakActionTokenInternal(object action, TTarget target, TArg1 arg1, TArg2 arg2)
+                : base(action, target, arg1)
+            {
+                Arg2 = arg2;
+            }
+
+            #endregion
+
+            #region Methods
+
+            protected override void OnDispose(object action, TTarget target)
+            {
+                ((Action<TTarget, TArg1, TArg2>) action).Invoke(target, Arg1, Arg2);
+                Arg1 = default;
+                Arg2 = default;
             }
 
             #endregion

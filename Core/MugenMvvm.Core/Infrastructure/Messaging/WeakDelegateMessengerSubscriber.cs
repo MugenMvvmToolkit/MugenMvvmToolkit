@@ -13,7 +13,7 @@ namespace MugenMvvm.Infrastructure.Messaging
         #region Fields
 
         private readonly Action<TTarget, object, TMessage, IMessengerContext> _action;
-        private readonly WeakReference _reference;
+        private readonly IWeakReference _reference;
 
         #endregion
 

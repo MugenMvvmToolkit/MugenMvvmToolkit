@@ -2,19 +2,13 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Commands;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Infrastructure.Commands
 {
-    public abstract class RelayCommandBase<T> : IRelayCommand, IHasWeakReference
+    public abstract class RelayCommandBase<T> : IRelayCommand, IWeakReferenceHolder
     {
-        #region Fields
-
-        private WeakReference? _ref;
-
-        #endregion
-
         #region Constructors
 
         protected RelayCommandBase(Action execute, Func<bool>? canExecute, IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext? metadata)
@@ -50,15 +44,7 @@ namespace MugenMvvm.Infrastructure.Commands
 
         public IExecutorRelayCommandMediator Mediator { get; }
 
-        WeakReference IHasWeakReference.WeakReference
-        {
-            get
-            {
-                if (_ref == null)
-                    MugenExtensions.LazyInitialize(ref _ref, MugenExtensions.GetWeakReference(this, true));
-                return _ref!;
-            }
-        }
+        IWeakReference? IWeakReferenceHolder.WeakReference { get; set; }
 
         public bool IsSuspended => Mediator.IsSuspended;
 

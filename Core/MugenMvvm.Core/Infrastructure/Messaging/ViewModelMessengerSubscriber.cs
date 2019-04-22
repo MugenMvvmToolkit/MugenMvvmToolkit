@@ -8,6 +8,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Infrastructure.Serialization;
 using MugenMvvm.Interfaces.BusyIndicator;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -22,7 +23,7 @@ namespace MugenMvvm.Infrastructure.Messaging
         #region Fields
 
         private readonly int _hashCode;
-        private readonly WeakReference _reference;
+        private readonly IWeakReference _reference;
 
         private static readonly IMetadataContextKey<ViewModelMessengerSubscriber> MetadataKey;
 

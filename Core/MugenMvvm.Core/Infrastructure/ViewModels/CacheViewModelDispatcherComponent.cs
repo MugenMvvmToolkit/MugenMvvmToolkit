@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.ViewModels.Infrastructure;
@@ -101,7 +102,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
             if (!_isWeakCache)
                 return (IViewModelBase) value;
 
-            var vm = (IViewModelBase) ((WeakReference) value).Target;
+            var vm = (IViewModelBase) ((IWeakReference) value).Target;
             if (vm == null)
                 RemoveFromCache(id);
             return vm;

@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Infrastructure.Metadata;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
@@ -32,7 +33,7 @@ namespace MugenMvvm
         public static readonly object FalseObject;
         public static readonly IReadOnlyMetadataContext MetadataContext;
         public static readonly IDisposable Disposable;
-        public static readonly WeakReference WeakReference;
+        public static readonly IWeakReference WeakReference;
         public static readonly Task CompletedTask;
         public static readonly Task<bool> TrueTask;
         public static readonly Task<bool> FalseTask;
@@ -55,8 +56,8 @@ namespace MugenMvvm
 
             var emptyContext = new EmptyContext();
             MetadataContext = emptyContext;
-            WeakReference = new WeakReference(null, false);
-            Disposable = (IDisposable) MetadataContext;
+            WeakReference = emptyContext;
+            Disposable = emptyContext;
             TrueTask = Task.FromResult(true);
             FalseTask = Task.FromResult(false);
             CompletedTask = FalseTask;
@@ -104,13 +105,15 @@ namespace MugenMvvm
 
         #region Nested types
 
-        private sealed class EmptyContext : IReadOnlyMetadataContext, IDisposable, INavigationProvider
+        private sealed class EmptyContext : IReadOnlyMetadataContext, IDisposable, INavigationProvider, IWeakReference
         {
             #region Properties
 
             public int Count => 0;
 
             public string Id => string.Empty;
+
+            object IWeakReference.Target => null;
 
             #endregion
 
@@ -139,6 +142,10 @@ namespace MugenMvvm
             public bool Contains(IMetadataContextKey contextKey)
             {
                 return false;
+            }
+
+            void IWeakReference.Release()
+            {
             }
 
             #endregion

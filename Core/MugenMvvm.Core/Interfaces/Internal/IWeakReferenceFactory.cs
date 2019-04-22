@@ -1,9 +1,10 @@
-﻿using System;
+﻿using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Internal
 {
-    public interface IWeakReferenceFactory//todo provider
+    public interface IWeakReferenceFactory : IHasPriority
     {
-        WeakReference GetWeakReference(object item); //todo add light WeakReferenceDescriptor?
+        IWeakReference? TryGetWeakReference(IWeakReferenceProvider provider, object item, IReadOnlyMetadataContext metadata);
     }
 }

@@ -3,6 +3,7 @@ using System.Runtime.Serialization;
 using System.Xml.Serialization;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
+using MugenMvvm.Interfaces.Internal;
 
 namespace MugenMvvm.Infrastructure.Serialization
 {
@@ -13,7 +14,7 @@ namespace MugenMvvm.Infrastructure.Serialization
     {
         #region Constructors
 
-        public SerializableWeakReference(WeakReference weakReference)
+        public SerializableWeakReference(IWeakReference weakReference)
         {
             Target = weakReference;
         }
@@ -37,7 +38,7 @@ namespace MugenMvvm.Infrastructure.Serialization
         [field: IgnoreDataMember]
         [field: XmlIgnore]
         [field: NonSerialized]
-        public WeakReference Target { get; private set; }
+        public IWeakReference Target { get; private set; }
 
         #endregion
     }
