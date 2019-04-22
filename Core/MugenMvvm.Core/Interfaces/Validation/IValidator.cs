@@ -11,14 +11,12 @@ namespace MugenMvvm.Interfaces.Validation
     {
         bool HasErrors { get; }
 
-        object Target { get; }
+        IReadOnlyList<object> GetErrors(string? memberName, IReadOnlyMetadataContext? metadata = null);
 
-        IReadOnlyList<object> GetErrors(string? memberName);
+        IReadOnlyDictionary<string, IReadOnlyList<object>> GetErrors(IReadOnlyMetadataContext? metadata = null);
 
-        IReadOnlyDictionary<string, IReadOnlyList<object>> GetErrors();
+        Task ValidateAsync(string? memberName = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null);
 
-        Task ValidateAsync(string? memberName = null, CancellationToken cancellationToken = default);
-
-        void ClearErrors(string? memberName = null);
+        void ClearErrors(string? memberName = null, IReadOnlyMetadataContext? metadata = null);
     }
 }
