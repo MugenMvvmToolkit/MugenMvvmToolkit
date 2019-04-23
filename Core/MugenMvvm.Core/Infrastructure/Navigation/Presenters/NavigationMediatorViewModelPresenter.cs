@@ -20,8 +20,6 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
     {
         #region Fields
 
-        private readonly IComponentCollectionProvider _componentCollectionProvider;
-        private readonly IMetadataContextProvider _metadataContextProvider;
         private IComponentCollection<INavigationMediatorViewModelPresenterManager>? _managers;
 
         #endregion
@@ -36,8 +34,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
             Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
-            _componentCollectionProvider = componentCollectionProvider;
-            _metadataContextProvider = metadataContextProvider;
+            ComponentCollectionProvider = componentCollectionProvider;
+            MetadataContextProvider = metadataContextProvider;
             ViewManager = viewManager;
             NavigationDispatcher = navigationDispatcher;
         }
@@ -45,6 +43,10 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         #endregion
 
         #region Properties
+
+        protected IComponentCollectionProvider ComponentCollectionProvider { get; }
+
+        protected IMetadataContextProvider MetadataContextProvider { get; }
 
         protected IViewManager ViewManager { get; }
 
@@ -55,7 +57,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             get
             {
                 if (_managers == null)
-                    _componentCollectionProvider.LazyInitialize(ref _managers, this);
+                    ComponentCollectionProvider.LazyInitialize(ref _managers, this);
                 return _managers;
             }
         }
@@ -150,7 +152,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             {
                 var mediator = TryGetMediator(viewModel, initializers[i], metadata);
                 if (mediator != null)
-                    return ChildViewModelPresenterResult.CreateShowResult(mediator, mediator.NavigationType, mediator.Show(metadata), this, _metadataContextProvider, true);
+                    return ChildViewModelPresenterResult.CreateShowResult(mediator, mediator.NavigationType, mediator.Show(metadata), this, MetadataContextProvider, true);
             }
 
             return null;

@@ -5,7 +5,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Validation;
@@ -18,8 +17,6 @@ namespace MugenMvvm.Infrastructure.Validation
     {
         #region Fields
 
-        private readonly IComponentCollectionProvider? _componentCollectionProvider;
-        private readonly IMetadataContextProvider? _metadataContextProvider;
         private readonly HashSet<string> _validatingMembers;
         protected readonly Dictionary<string, IReadOnlyList<object>> Errors;
         private CancellationTokenSource? _disposeCancellationTokenSource;
@@ -41,8 +38,8 @@ namespace MugenMvvm.Infrastructure.Validation
             IMetadataContextProvider? metadataContextProvider = null, bool hasAsyncValidation = true)
         {
             _metadata = metadata;
-            _componentCollectionProvider = componentCollectionProvider;
-            _metadataContextProvider = metadataContextProvider;
+            ComponentCollectionProvider = componentCollectionProvider;
+            MetadataContextProvider = metadataContextProvider;
             ValidateOnPropertyChanged = true;
             HasAsyncValidation = hasAsyncValidation;
             Errors = new Dictionary<string, IReadOnlyList<object>>(StringComparer.Ordinal);
@@ -54,12 +51,16 @@ namespace MugenMvvm.Infrastructure.Validation
 
         #region Properties
 
+        protected IComponentCollectionProvider? ComponentCollectionProvider { get; }
+
+        protected IMetadataContextProvider? MetadataContextProvider { get; }
+
         public IComponentCollection<IValidatorListener> Listeners
         {
             get
             {
                 if (_listeners == null)
-                    _componentCollectionProvider.LazyInitialize(ref _listeners, this);
+                    ComponentCollectionProvider.LazyInitialize(ref _listeners, this);
                 return _listeners;
             }
         }
@@ -71,7 +72,7 @@ namespace MugenMvvm.Infrastructure.Validation
             get
             {
                 if (_metadata == null)
-                    _metadataContextProvider.LazyInitialize(ref _metadata, this);
+                    MetadataContextProvider.LazyInitialize(ref _metadata, this);
                 return _metadata;
             }
         }

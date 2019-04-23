@@ -13,7 +13,6 @@ namespace MugenMvvm.Infrastructure.ViewModels
     {
         #region Fields
 
-        private readonly IComponentCollectionProvider _componentCollectionProvider;
         private IComponentCollection<IViewModelDispatcherComponent>? _components;
 
         #endregion
@@ -24,19 +23,21 @@ namespace MugenMvvm.Infrastructure.ViewModels
         public ViewModelDispatcher(IComponentCollectionProvider componentCollectionProvider)
         {
             Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
-            _componentCollectionProvider = componentCollectionProvider;
+            ComponentCollectionProvider = componentCollectionProvider;
         }
 
         #endregion
 
         #region Properties
 
+        protected IComponentCollectionProvider ComponentCollectionProvider { get; }
+
         public IComponentCollection<IViewModelDispatcherComponent> Components
         {
             get
             {
                 if (_components == null)
-                    _componentCollectionProvider.LazyInitialize(ref _components, this);
+                    ComponentCollectionProvider.LazyInitialize(ref _components, this);
                 return _components;
             }
         }

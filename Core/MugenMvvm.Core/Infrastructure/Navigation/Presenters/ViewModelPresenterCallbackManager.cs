@@ -19,7 +19,6 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         #region Fields
 
         private readonly NavigationDispatcherListener _dispatcherListener;
-        private readonly IComponentCollectionProvider _componentCollectionProvider;
         private IComponentCollection<IViewModelPresenterCallbackManagerListener>? _listeners;
 
         #endregion
@@ -31,7 +30,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
-            _componentCollectionProvider = componentCollectionProvider;
+            ComponentCollectionProvider = componentCollectionProvider;
             NavigationDispatcher = navigationDispatcher;
             _dispatcherListener = new NavigationDispatcherListener(this);
         }
@@ -40,6 +39,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         #region Properties
 
+        protected IComponentCollectionProvider ComponentCollectionProvider { get; }
+
         protected INavigationDispatcher NavigationDispatcher { get; }
 
         public IComponentCollection<IViewModelPresenterCallbackManagerListener> Listeners
@@ -47,7 +48,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             get
             {
                 if (_listeners == null)
-                    _componentCollectionProvider.LazyInitialize(ref _listeners, this);
+                    ComponentCollectionProvider.LazyInitialize(ref _listeners, this);
                 return _listeners;
             }
         }
@@ -104,7 +105,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             if (key == null)
                 ExceptionManager.ThrowEnumOutOfRange(nameof(callbackType), callbackType);
 
-            var callbacks = viewModel.Metadata.GetOrAdd(key!, (object?)null, (object?)null, (context, o, arg3) => new List<INavigationCallbackInternal?>())!;
+            var callbacks = viewModel.Metadata.GetOrAdd(key!, (object?) null, (object?) null, (context, o, arg3) => new List<INavigationCallbackInternal?>())!;
             lock (callback)
             {
                 callbacks.Add(callback);

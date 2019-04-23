@@ -15,7 +15,6 @@ namespace MugenMvvm.Infrastructure.Navigation
     {
         #region Fields
 
-        private readonly IComponentCollectionProvider _componentCollectionProvider;
         protected readonly Dictionary<NavigationType, List<WeakNavigationEntry>> NavigationEntries;
         private IComponentCollection<INavigationDispatcherJournalListener>? _listeners;
 
@@ -27,7 +26,7 @@ namespace MugenMvvm.Infrastructure.Navigation
         public NavigationDispatcherJournal(IComponentCollectionProvider componentCollectionProvider)
         {
             Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
-            _componentCollectionProvider = componentCollectionProvider;
+            ComponentCollectionProvider = componentCollectionProvider;
             NavigationEntries = new Dictionary<NavigationType, List<WeakNavigationEntry>>();
         }
 
@@ -35,12 +34,14 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         #region Properties
 
+        protected IComponentCollectionProvider ComponentCollectionProvider { get; }
+
         public IComponentCollection<INavigationDispatcherJournalListener> Listeners
         {
             get
             {
                 if (_listeners == null)
-                    _componentCollectionProvider.LazyInitialize(ref _listeners, this);
+                    ComponentCollectionProvider.LazyInitialize(ref _listeners, this);
                 return _listeners;
             }
         }
@@ -245,7 +246,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
             #region Properties
 
-            public IViewModelBase? ViewModel => (IViewModelBase)_viewModelReference.Target;
+            public IViewModelBase? ViewModel => (IViewModelBase) _viewModelReference.Target;
 
             public INavigationProvider NavigationProvider { get; }
 

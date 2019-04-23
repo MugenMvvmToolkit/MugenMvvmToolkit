@@ -9,19 +9,19 @@ namespace MugenMvvm.Infrastructure.Navigation
 {
     public class NavigationContextFactory : AttachableComponentBase<INavigationDispatcher>, INavigationContextFactory
     {
-        #region Fields
-
-        private readonly IMetadataContextProvider? _metadataContextProvider;
-
-        #endregion
-
         #region Constructors
 
         public NavigationContextFactory(IMetadataContextProvider metadataContextProvider)
         {
             Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
-            _metadataContextProvider = metadataContextProvider;
+            MetadataContextProvider = metadataContextProvider;
         }
+
+        #endregion
+
+        #region Properties
+
+        protected IMetadataContextProvider MetadataContextProvider { get; }
 
         #endregion
 
@@ -67,7 +67,7 @@ namespace MugenMvvm.Infrastructure.Navigation
         protected virtual INavigationContext GetNavigationContextInternal(INavigationProvider navigationProvider, NavigationMode navigationMode, NavigationType navigationTypeFrom,
             IViewModelBase? viewModelFrom, NavigationType navigationTypeTo, IViewModelBase? viewModelTo, IReadOnlyMetadataContext metadata)
         {
-            return new NavigationContext(navigationProvider, navigationMode, navigationTypeFrom, viewModelFrom, navigationTypeTo, viewModelTo, metadata, _metadataContextProvider);
+            return new NavigationContext(navigationProvider, navigationMode, navigationTypeFrom, viewModelFrom, navigationTypeTo, viewModelTo, metadata, MetadataContextProvider);
         }
 
         protected virtual INavigationContext GetNavigationContextFromInternal(INavigationProvider navigationProvider, NavigationMode navigationMode, NavigationType navigationType,
@@ -104,7 +104,7 @@ namespace MugenMvvm.Infrastructure.Navigation
         {
             #region Fields
 
-            private readonly IMetadataContextProvider? _metadataContextProvider;
+            private readonly IMetadataContextProvider _metadataContextProvider;
             private IMetadataContext? _metadata;
 
             #endregion

@@ -13,7 +13,6 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         #region Fields
 
         private IViewModelPresenterCallbackManager _callbackManager;
-        private readonly IComponentCollectionProvider _componentCollectionProvider;
 
         private IComponentCollection<IViewModelPresenterListener>? _listeners;
         private IComponentCollection<IChildViewModelPresenter>? _presenters;
@@ -27,13 +26,15 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         {
             Should.NotBeNull(callbackManager, nameof(callbackManager));
             Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
-            _componentCollectionProvider = componentCollectionProvider;
+            ComponentCollectionProvider = componentCollectionProvider;
             CallbackManager = callbackManager;
         }
 
         #endregion
 
         #region Properties
+
+        protected IComponentCollectionProvider ComponentCollectionProvider { get; }
 
         public IViewModelPresenterCallbackManager CallbackManager
         {
@@ -52,7 +53,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             get
             {
                 if (_presenters == null)
-                    _componentCollectionProvider.LazyInitialize(ref _presenters, this);
+                    ComponentCollectionProvider.LazyInitialize(ref _presenters, this);
                 return _presenters;
             }
         }
@@ -62,7 +63,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             get
             {
                 if (_listeners == null)
-                    _componentCollectionProvider.LazyInitialize(ref _listeners, this);
+                    ComponentCollectionProvider.LazyInitialize(ref _listeners, this);
                 return _listeners;
             }
         }

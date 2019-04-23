@@ -15,7 +15,6 @@ namespace MugenMvvm.Collections
 
         private int _batchCount;
         private int _batchCountDecorators;
-        private readonly IComponentCollectionProvider? _componentCollectionProvider;
         private IComponentCollection<IObservableCollectionChangedListener<T>>? _decoratorListeners;
         private IComponentCollection<IObservableCollectionDecorator<T>>? _decorators;
         private IComponentCollection<IObservableCollectionChangedListener<T>>? _listeners;
@@ -26,12 +25,14 @@ namespace MugenMvvm.Collections
 
         protected ObservableCollectionBase(IComponentCollectionProvider? componentCollectionProvider = null)
         {
-            _componentCollectionProvider = componentCollectionProvider;
+            ComponentCollectionProvider = componentCollectionProvider;
         }
 
         #endregion
 
         #region Properties
+
+        protected IComponentCollectionProvider? ComponentCollectionProvider { get; }
 
         public abstract int Count { get; }
 
@@ -44,7 +45,7 @@ namespace MugenMvvm.Collections
             get
             {
                 if (_listeners == null)
-                    _componentCollectionProvider.LazyInitialize(ref _listeners, this);
+                    ComponentCollectionProvider.LazyInitialize(ref _listeners, this);
 
                 return _listeners;
             }
@@ -55,7 +56,7 @@ namespace MugenMvvm.Collections
             get
             {
                 if (_decorators == null)
-                    _componentCollectionProvider.LazyInitialize(ref _decorators, this);
+                    ComponentCollectionProvider.LazyInitialize(ref _decorators, this);
 
                 return _decorators;
             }
@@ -66,7 +67,7 @@ namespace MugenMvvm.Collections
             get
             {
                 if (_decoratorListeners == null)
-                    _componentCollectionProvider.LazyInitialize(ref _decoratorListeners, this);
+                    ComponentCollectionProvider.LazyInitialize(ref _decoratorListeners, this);
 
                 return _decoratorListeners;
             }
@@ -97,7 +98,7 @@ namespace MugenMvvm.Collections
                 return Default.Disposable;
 
             return WeakActionToken.Create(this, Default.BoolToObject(hasListeners), Default.BoolToObject(hasDecorators),
-                (@base, b1, b2) => @base.EndBatchUpdate((bool)b1, (bool)b2));
+                (@base, b1, b2) => @base.EndBatchUpdate((bool) b1, (bool) b2));
         }
 
         public abstract void Add(T item);

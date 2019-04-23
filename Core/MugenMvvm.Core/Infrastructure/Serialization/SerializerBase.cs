@@ -11,9 +11,6 @@ namespace MugenMvvm.Infrastructure.Serialization
     {
         #region Fields
 
-        private readonly IComponentCollectionProvider _componentCollectionProvider;
-        private readonly IMetadataContextProvider _metadataContextProvider;
-        private readonly IServiceProvider _serviceProvider;
         private IComponentCollection<ISerializerHandler>? _handlers;
 
         #endregion
@@ -23,21 +20,29 @@ namespace MugenMvvm.Infrastructure.Serialization
         protected SerializerBase(IServiceProvider serviceProvider, IComponentCollectionProvider componentCollectionProvider, IMetadataContextProvider metadataContextProvider)
         {
             Should.NotBeNull(serviceProvider, nameof(serviceProvider));
-            _serviceProvider = serviceProvider;
-            _componentCollectionProvider = componentCollectionProvider;
-            _metadataContextProvider = metadataContextProvider;
+            Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
+            Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
+            ServiceProvider = serviceProvider;
+            ComponentCollectionProvider = componentCollectionProvider;
+            MetadataContextProvider = metadataContextProvider;
         }
 
         #endregion
 
         #region Properties
 
+        protected IComponentCollectionProvider ComponentCollectionProvider { get; }
+
+        protected IMetadataContextProvider MetadataContextProvider { get; }
+
+        protected IServiceProvider ServiceProvider { get; }
+
         public IComponentCollection<ISerializerHandler> Handlers
         {
             get
             {
                 if (_handlers == null)
-                    _componentCollectionProvider.LazyInitialize(ref _handlers, this);
+                    ComponentCollectionProvider.LazyInitialize(ref _handlers, this);
                 return _handlers;
             }
         }
@@ -214,7 +219,7 @@ namespace MugenMvvm.Infrastructure.Serialization
 
         protected virtual ISerializationContext GetSerializationContextInternal(IServiceProvider? serviceProvider, IMetadataContext? metadata)
         {
-            return new SerializationContext(this, serviceProvider ?? _serviceProvider, metadata ?? _metadataContextProvider.GetMetadataContext(this, null));
+            return new SerializationContext(this, serviceProvider ?? ServiceProvider, metadata ?? MetadataContextProvider.GetMetadataContext(this, null));
         }
 
         protected virtual void OnHandlerAdded(ISerializerHandler handler, IReadOnlyMetadataContext metadata)

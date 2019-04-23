@@ -11,23 +11,19 @@ namespace MugenMvvm.Infrastructure.Metadata
 {
     public class MetadataContextFactory : IMetadataContextFactory
     {
-        #region Fields
-
-        private static IComponentCollectionProvider _componentCollectionProvider;
-
-        #endregion
-
         #region Constructors
 
         public MetadataContextFactory(IComponentCollectionProvider componentCollectionProvider)
         {
             Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
-            _componentCollectionProvider = componentCollectionProvider;
+            ComponentCollectionProvider = componentCollectionProvider;
         }
 
         #endregion
 
         #region Properties
+
+        protected static IComponentCollectionProvider ComponentCollectionProvider { get; private set; }
 
         public int Priority { get; set; }
 
@@ -164,7 +160,7 @@ namespace MugenMvvm.Infrastructure.Metadata
                 get
                 {
                     if (_listeners == null)
-                        _componentCollectionProvider.LazyInitialize(ref _listeners, this);
+                        ComponentCollectionProvider.LazyInitialize(ref _listeners, this);
                     return _listeners;
                 }
             }
