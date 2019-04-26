@@ -97,7 +97,7 @@ namespace MugenMvvm
             Should.NotBeNull(wrapperType, nameof(wrapperType));
             if (metadata == null)
                 metadata = Default.MetadataContext;
-            return wrapperType.IsInstanceOfTypeUnified(viewInfo.View) || wrapperManager.ServiceOrDefault().CanWrap(viewInfo.View.GetType(), wrapperType, metadata);
+            return wrapperType.IsInstanceOfTypeUnified(viewInfo.View) || wrapperManager.ServiceIfNull().CanWrap(viewInfo.View.GetType(), wrapperType, metadata);
         }
 
         private static object? WrapInternal(this IViewInfo viewInfo, Type wrapperType, IReadOnlyMetadataContext? metadata, IWrapperManager? wrapperManager, bool checkCanWrap)
@@ -118,7 +118,7 @@ namespace MugenMvvm
                 var item = collection.GetItems().FirstOrDefault(wrapperType.IsInstanceOfTypeUnified);
                 if (item == null)
                 {
-                    wrapperManager = wrapperManager.ServiceOrDefault();
+                    wrapperManager = wrapperManager.ServiceIfNull();
                     if (checkCanWrap && !wrapperManager.CanWrap(viewInfo.View.GetType(), wrapperType, metadata))
                         return null;
 

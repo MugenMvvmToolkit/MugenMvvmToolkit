@@ -33,7 +33,7 @@ namespace MugenMvvm.Infrastructure.Validation
         public void SetErrors(string memberName, IReadOnlyList<object> errors, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(memberName, nameof(memberName));
-            UpdateErrors(memberName, errors, false, metadata ?? Default.MetadataContext);
+            UpdateErrors(memberName, errors, false, metadata.DefaultIfNull());
         }
 
         protected override Task<ValidationResult> GetErrorsAsync(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext metadata)

@@ -13,7 +13,7 @@ namespace MugenMvvm
     {
         #region Methods
 
-        internal static T ServiceOrDefault<T>(this T service) where T : class //todo nullable R# bug
+        internal static T ServiceIfNull<T>(this T service) where T : class //todo nullable R# bug
         {
             return service ?? Service<T>.Instance;
         }

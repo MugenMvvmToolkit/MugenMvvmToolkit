@@ -44,19 +44,19 @@ namespace MugenMvvm.Infrastructure.ViewModels
                 if (messengerSubscriber != null)
                 {
                     SubscribeBusyTokens(viewModel, targetVm);
-                    messenger.Subscribe(messengerSubscriber, executionMode);
+                    messenger.Subscribe(messengerSubscriber, executionMode, metadata);
                     result = true;
                 }
             }
 
             if (observer is IMessengerSubscriber subscriber)
             {
-                messenger.Subscribe(subscriber, executionMode);
+                messenger.Subscribe(subscriber, executionMode, metadata);
                 result = true;
             }
             else if (observer is IMessengerHandler handler)
             {
-                messenger.Subscribe(handler, executionMode);
+                messenger.Subscribe(handler, executionMode, metadata);
                 result = true;
             }
 
@@ -73,18 +73,18 @@ namespace MugenMvvm.Infrastructure.ViewModels
             if (observer is IViewModelBase targetVm)
             {
                 var messengerSubscriber = ViewModelMessengerSubscriber.TryGetSubscriber(targetVm, false);
-                if (messengerSubscriber != null && messenger.Unsubscribe(messengerSubscriber))
+                if (messengerSubscriber != null && messenger.Unsubscribe(messengerSubscriber, metadata))
                     result = true;
             }
 
             if (observer is IMessengerSubscriber subscriber)
             {
-                if (messenger.Unsubscribe(subscriber))
+                if (messenger.Unsubscribe(subscriber, metadata))
                     result = true;
             }
             else if (observer is IMessengerHandler handler)
             {
-                if (messenger.Unsubscribe(new MessengerHandlerSubscriber(handler)))
+                if (messenger.Unsubscribe(new MessengerHandlerSubscriber(handler), metadata))
                     result = true;
             }
 

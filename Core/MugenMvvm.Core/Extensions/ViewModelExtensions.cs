@@ -17,7 +17,7 @@ namespace MugenMvvm
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(observer, nameof(observer));
-            return dispatcher.ServiceOrDefault().Subscribe(viewModel, observer, executionMode ?? ThreadExecutionMode.Current, metadata ?? Default.MetadataContext);
+            return dispatcher.ServiceIfNull().Subscribe(viewModel, observer, executionMode ?? ThreadExecutionMode.Current, metadata.DefaultIfNull());
         }
 
         public static TService? TryGetService<TService>(this IViewModelBase viewModel) where TService : class

@@ -25,7 +25,7 @@ namespace MugenMvvm.Infrastructure.Serialization
         }
 
         public MementoResult(object? target, IHasMetadata<IReadOnlyMetadataContext>? hasMetadata = null)
-            : this(target, hasMetadata?.Metadata ?? Default.MetadataContext)
+            : this(target, hasMetadata?.Metadata.DefaultIfNull())
         {
         }
 

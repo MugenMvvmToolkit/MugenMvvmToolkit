@@ -22,7 +22,7 @@ namespace MugenMvvm
             IReadOnlyMetadataContext? metadata = null)
             where T : class //todo R# bug return?
         {
-            return item == null && LazyInitialize(ref item, provider.ServiceOrDefault().GetComponentCollection<T>(target, metadata ?? Default.MetadataContext));
+            return item == null && LazyInitialize(ref item, provider.ServiceIfNull().GetComponentCollection<T>(target, metadata.DefaultIfNull()));
         }
 
         public static bool LazyInitialize(this IMetadataContextProvider provider, [EnsuresNotNull] ref IMetadataContext? metadataContext,
@@ -105,7 +105,7 @@ namespace MugenMvvm
         {
             if (item == null)
                 return Default.WeakReference;
-            return provider.ServiceOrDefault().GetWeakReference(item, metadata);
+            return provider.ServiceIfNull().GetWeakReference(item, metadata);
         }
 
         //note for better performance use this method for creating delegate instead of handler.Execute because it will use ldftn opcode instead of ldvirtftn       

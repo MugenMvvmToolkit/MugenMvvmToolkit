@@ -18,6 +18,11 @@ namespace MugenMvvm
 
         #region Methods
 
+        public static IReadOnlyMetadataContext DefaultIfNull(this IReadOnlyMetadataContext metadata)//todo bug R#
+        {
+            return metadata ?? Default.MetadataContext;
+        }
+
         public static string Dump(this IReadOnlyMetadataContext? metadata)
         {
             if (metadata == null)
@@ -78,18 +83,18 @@ namespace MugenMvvm
         public static IReadOnlyMetadataContext GetReadOnlyMetadataContext(object? target, IEnumerable<MetadataContextValue> values = null,
             IMetadataContextProvider? provider = null)
         {
-            return provider.ServiceOrDefault().GetReadOnlyMetadataContext(target, values);
+            return provider.ServiceIfNull().GetReadOnlyMetadataContext(target, values);
         }
 
         public static IMetadataContext GetMetadataContext(object? target, IEnumerable<MetadataContextValue> values = null, IMetadataContextProvider? provider = null)
         {
-            return provider.ServiceOrDefault().GetMetadataContext(target, values);
+            return provider.ServiceIfNull().GetMetadataContext(target, values);
         }
 
         public static IObservableMetadataContext GetObservableMetadataContext(object? target, IEnumerable<MetadataContextValue> values = null,
             IMetadataContextProvider? provider = null)
         {
-            return provider.ServiceOrDefault().GetObservableMetadataContext(target, values);
+            return provider.ServiceIfNull().GetObservableMetadataContext(target, values);
         }
 
         #endregion

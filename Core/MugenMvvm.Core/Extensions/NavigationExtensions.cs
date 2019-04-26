@@ -42,7 +42,7 @@ namespace MugenMvvm
             Should.NotBeNull(viewType, nameof(viewType));
             return viewModelPresenter.RegisterMediatorFactory((vm, initializer, arg3) =>
             {
-                if (viewType.IsAssignableFromUnified(initializer.ViewType) || wrapperManager.ServiceOrDefault().CanWrap(initializer.ViewType, viewType, arg3))
+                if (viewType.IsAssignableFromUnified(initializer.ViewType) || wrapperManager.ServiceIfNull().CanWrap(initializer.ViewType, viewType, arg3))
                 {
                     if (factory == null)
                         return (INavigationMediator)Service<IServiceProvider>.Instance.GetService(mediatorType);
@@ -56,16 +56,14 @@ namespace MugenMvvm
             NavigationType navigationType, IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
-            return navigationDispatcher.OnNavigating(
-                navigationDispatcher.ContextFactory.GetNavigationContextTo(navigationProvider, mode, navigationType, viewModel, metadata ?? Default.MetadataContext));
+            return navigationDispatcher.OnNavigating(navigationDispatcher.ContextFactory.GetNavigationContextTo(navigationProvider, mode, navigationType, viewModel, metadata.DefaultIfNull()));
         }
 
         public static INavigatingResult OnNavigatingFrom(this INavigationDispatcher navigationDispatcher, INavigationProvider navigationProvider, NavigationMode mode,
             NavigationType navigationType, IViewModelBase viewModelFrom, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
-            return navigationDispatcher.OnNavigating(navigationDispatcher.ContextFactory.GetNavigationContextFrom(navigationProvider, mode, navigationType, viewModelFrom,
-                metadata ?? Default.MetadataContext));
+            return navigationDispatcher.OnNavigating(navigationDispatcher.ContextFactory.GetNavigationContextFrom(navigationProvider, mode, navigationType, viewModelFrom, metadata.DefaultIfNull()));
         }
 
         public static Task WaitNavigationAsync(this INavigationDispatcher navigationDispatcher, Func<INavigationCallback, bool> filter,

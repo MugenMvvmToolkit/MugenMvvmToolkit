@@ -174,7 +174,7 @@ namespace MugenMvvm.Infrastructure.Serialization
                 foreach (var subscriber in Subscribers)
                 {
                     if (subscriber.Subscriber != null)
-                        hasMessenger.Service.Subscribe(subscriber.Subscriber, subscriber.ExecutionMode);
+                        hasMessenger.Service.Subscribe(subscriber.Subscriber, subscriber.ExecutionMode, Default.MetadataContext);
                 }
             }
         }

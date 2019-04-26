@@ -82,7 +82,7 @@ namespace MugenMvvm.Infrastructure.Serialization
         public bool CanSerialize(Type type, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(type, nameof(type));
-            return CanSerializeInternal(type, metadata ?? Default.MetadataContext);
+            return CanSerializeInternal(type, metadata.DefaultIfNull());
         }
 
         public Stream Serialize(object item, ISerializationContext? serializationContext)

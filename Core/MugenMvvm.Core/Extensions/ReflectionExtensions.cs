@@ -52,17 +52,17 @@ namespace MugenMvvm
             where TDelegate : Delegate
         {
             Should.NotBeNull(method, nameof(method));
-            return (TDelegate)reflectionManager.ServiceOrDefault().GetMethodDelegate(typeof(TDelegate), method);
+            return (TDelegate)reflectionManager.ServiceIfNull().GetMethodDelegate(typeof(TDelegate), method);
         }
 
         public static T GetValueEx<T>(this MemberInfo member, object? target, IReflectionManager? reflectionManager = null)
         {
-            return reflectionManager.ServiceOrDefault().GetMemberGetter<T>(member).Invoke(target);
+            return reflectionManager.ServiceIfNull().GetMemberGetter<T>(member).Invoke(target);
         }
 
         public static void SetValueEx<T>(this MemberInfo member, object target, T value, IReflectionManager? reflectionManager = null)
         {
-            reflectionManager.ServiceOrDefault().GetMemberSetter<T>(member).Invoke(target, value);
+            reflectionManager.ServiceIfNull().GetMemberSetter<T>(member).Invoke(target, value);
         }
 
         public static object InvokeEx(this ConstructorInfo constructor, IReflectionManager? reflectionManager = null)
@@ -77,7 +77,7 @@ namespace MugenMvvm
 
         public static object InvokeEx(this ConstructorInfo constructor, IReflectionManager? reflectionManager = null, params object?[] parameters)
         {
-            return reflectionManager.ServiceOrDefault().GetActivatorDelegate(constructor).Invoke(parameters);
+            return reflectionManager.ServiceIfNull().GetActivatorDelegate(constructor).Invoke(parameters);
         }
 
         public static object? InvokeEx(this MethodInfo method, object? target, IReflectionManager? reflectionManager = null)
@@ -92,7 +92,7 @@ namespace MugenMvvm
 
         public static object? InvokeEx(this MethodInfo method, object? target, IReflectionManager? reflectionManager = null, params object?[] parameters)
         {
-            return reflectionManager.ServiceOrDefault().GetMethodDelegate(method).Invoke(target, parameters);
+            return reflectionManager.ServiceIfNull().GetMethodDelegate(method).Invoke(target, parameters);
         }
 
         private static void UnsubscribePropertyChanged(object sender, PropertyChangedEventHandler handler)

@@ -106,13 +106,13 @@ namespace MugenMvvm.Infrastructure.Validation
         public IReadOnlyList<object> GetErrors(string? memberName, IReadOnlyMetadataContext? metadata = null)
         {
             EnsureInitialized();
-            return GetErrorsInternal(memberName ?? "", metadata ?? Default.MetadataContext);
+            return GetErrorsInternal(memberName ?? "", metadata.DefaultIfNull());
         }
 
         public IReadOnlyDictionary<string, IReadOnlyList<object>> GetErrors(IReadOnlyMetadataContext? metadata = null)
         {
             EnsureInitialized();
-            return GetErrorsInternal(metadata ?? Default.MetadataContext);
+            return GetErrorsInternal(metadata.DefaultIfNull());
         }
 
         public Task ValidateAsync(string? memberName = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
@@ -132,8 +132,8 @@ namespace MugenMvvm.Infrastructure.Validation
             try
             {
                 if (HasAsyncValidation)
-                    return ValidateAsyncImplAsync(member, cancellationToken, metadata ?? Default.MetadataContext);
-                return ValidateInternalAsync(member, cancellationToken, metadata ?? Default.MetadataContext);
+                    return ValidateAsyncImplAsync(member, cancellationToken, metadata.DefaultIfNull());
+                return ValidateInternalAsync(member, cancellationToken, metadata.DefaultIfNull());
             }
             catch (Exception e)
             {
@@ -153,7 +153,7 @@ namespace MugenMvvm.Infrastructure.Validation
             if (IsDisposed)
                 return;
             EnsureInitialized();
-            ClearErrorsInternal(memberName ?? "", metadata ?? Default.MetadataContext);
+            ClearErrorsInternal(memberName ?? "", metadata.DefaultIfNull());
         }
 
         #endregion
@@ -424,7 +424,7 @@ namespace MugenMvvm.Infrastructure.Validation
             public ValidationResult(IDictionary<string, IReadOnlyList<object>?>? errors, IReadOnlyMetadataContext? metadata = null)
             {
                 Errors = errors;
-                Metadata = metadata ?? Default.MetadataContext;
+                Metadata = metadata.DefaultIfNull();
             }
 
             #endregion
