@@ -72,7 +72,7 @@ namespace MugenMvvm.Infrastructure.Views
             return null;
         }
 
-        protected bool SetDataContextInternal(object view, object? dataContext, IReadOnlyMetadataContext metadata)
+        protected virtual bool SetDataContextInternal(object view, object? dataContext, IReadOnlyMetadataContext metadata)
         {
             var items = Providers.GetItems();
             for (var i = 0; i < items.Length; i++)
