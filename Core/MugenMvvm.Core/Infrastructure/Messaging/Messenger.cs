@@ -79,14 +79,14 @@ namespace MugenMvvm.Infrastructure.Messaging
             return PublishInternalAsync(sender, message, messengerContext, true);
         }
 
-        public void Subscribe(IMessengerSubscriber subscriber, ThreadExecutionMode executionMode)
+        public void Subscribe(IMessengerSubscriber subscriber, ThreadExecutionMode executionMode, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(subscriber, nameof(subscriber));
             Should.NotBeNull(executionMode, nameof(executionMode));
-
+            Should.NotBeNull(metadata, nameof(metadata));
             var listeners = GetListeners();
             for (var i = 0; i < listeners.Length; i++)
-                subscriber = listeners[i].OnSubscribing(this, subscriber, executionMode);
+                subscriber = listeners[i].OnSubscribing(this, subscriber, executionMode, metadata);
 
             bool added;
             lock (_subscribers)
@@ -98,13 +98,14 @@ namespace MugenMvvm.Infrastructure.Messaging
             {
                 listeners = GetListeners();
                 for (var i = 0; i < listeners.Length; i++)
-                    listeners[i].OnSubscribed(this, subscriber, executionMode);
+                    listeners[i].OnSubscribed(this, subscriber, executionMode, metadata);
             }
         }
 
-        public bool Unsubscribe(IMessengerSubscriber subscriber)
+        public bool Unsubscribe(IMessengerSubscriber subscriber, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(subscriber, nameof(subscriber));
+            Should.NotBeNull(metadata, nameof(metadata));
             bool removed;
             lock (_subscribers)
             {
@@ -115,7 +116,7 @@ namespace MugenMvvm.Infrastructure.Messaging
             {
                 var listeners = GetListeners();
                 for (var i = 0; i < listeners.Length; i++)
-                    listeners[i].OnUnsubscribed(this, subscriber);
+                    listeners[i].OnUnsubscribed(this, subscriber, metadata);
             }
 
             return removed;
@@ -254,7 +255,7 @@ namespace MugenMvvm.Infrastructure.Messaging
                     for (var i = 0; i < Count; i++)
                     {
                         if (this[i].Handle(_sender, _message, _messengerContext) == MessengerSubscriberResult.Invalid)
-                            _messenger.Unsubscribe(this[i]);
+                            _messenger.Unsubscribe(this[i], Default.MetadataContext);
                     }
                 }
             }
@@ -277,10 +278,10 @@ namespace MugenMvvm.Infrastructure.Messaging
                 var result = subscriberResult ?? subscriber.Handle(_sender, _message, _messengerContext);
 
                 for (var i = 0; i < listeners.Length; i++)
-                    listeners[i].OnPublished(_messenger, subscriber, _sender, _message, _messengerContext, result);
+                    listeners[i].OnPublished(_messenger, result, subscriber, _sender, _message, _messengerContext);
 
                 if (result == MessengerSubscriberResult.Invalid)
-                    _messenger.Unsubscribe(subscriber);
+                    _messenger.Unsubscribe(subscriber, Default.MetadataContext);
             }
 
             #endregion

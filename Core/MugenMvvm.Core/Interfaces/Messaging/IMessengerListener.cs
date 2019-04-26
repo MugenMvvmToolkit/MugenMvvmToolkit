@@ -1,4 +1,5 @@
 ﻿using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Messaging
@@ -7,15 +8,14 @@ namespace MugenMvvm.Interfaces.Messaging
     {
         void OnContextCreated(IMessenger messenger, IMessengerContext messengerContext);
 
-        IMessengerSubscriber OnSubscribing(IMessenger messenger, IMessengerSubscriber subscriber, ThreadExecutionMode executionMode);
+        IMessengerSubscriber OnSubscribing(IMessenger messenger, IMessengerSubscriber subscriber, ThreadExecutionMode executionMode, IReadOnlyMetadataContext metadata);
 
-        void OnSubscribed(IMessenger messenger, IMessengerSubscriber subscriber, ThreadExecutionMode executionMode);
+        void OnSubscribed(IMessenger messenger, IMessengerSubscriber subscriber, ThreadExecutionMode executionMode, IReadOnlyMetadataContext metadata);
 
-        void OnUnsubscribed(IMessenger messenger, IMessengerSubscriber subscriber);
+        void OnUnsubscribed(IMessenger messenger, IMessengerSubscriber subscriber, IReadOnlyMetadataContext metadata);
 
         MessengerSubscriberResult? OnPublishing(IMessenger messenger, IMessengerSubscriber subscriber, object sender, object message, IMessengerContext messengerContext);
 
-        void OnPublished(IMessenger messenger, IMessengerSubscriber subscriber, object sender, object message, IMessengerContext messengerContext,
-            MessengerSubscriberResult result);
+        void OnPublished(IMessenger messenger, MessengerSubscriberResult result, IMessengerSubscriber subscriber, object sender, object message, IMessengerContext messengerContext);
     }
 }
