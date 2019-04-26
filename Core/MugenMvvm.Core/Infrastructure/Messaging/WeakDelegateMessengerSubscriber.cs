@@ -33,7 +33,7 @@ namespace MugenMvvm.Infrastructure.Messaging
             Should.BeSupported(action.Target != null, MessageConstants.StaticDelegateCannotBeWeak);
             Should.BeSupported(!action.Target.GetType().IsAnonymousClass(), MessageConstants.AnonymousDelegateCannotBeWeak);
             _reference = MugenExtensions.GetWeakReference(action.Target);
-            _action = Service<IReflectionManager>.Instance.GetMethodDelegate<Action<TTarget, object, TMessage, IMessengerContext>>(action.GetMethodInfo());
+            _action = action.GetMethodInfo().GetMethodDelegate<Action<TTarget, object, TMessage, IMessengerContext>>();
         }
 
         #endregion

@@ -79,9 +79,9 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             {
                 var result = ShowInternal(metadata);
                 if (result == null)
-                    ExceptionManager.ThrowPresenterCannotShowRequest(metadata.Dump());
+                    ExceptionManager.ThrowPresenterCannotShowRequest(metadata);
 
-                return OnShownInternal(metadata, result!);
+                return OnShownInternal(result!, metadata);
             }
         }
 
@@ -91,7 +91,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             using (CallbackManager.BeginPresenterOperation(metadata))
             {
                 var result = TryCloseInternal(metadata);
-                return OnClosedInternal(metadata, result);
+                return OnClosedInternal(result, metadata);
             }
         }
 
@@ -101,7 +101,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             using (CallbackManager.BeginPresenterOperation(metadata))
             {
                 var result = TryRestoreInternal(metadata);
-                return OnRestoredInternal(metadata, result);
+                return OnRestoredInternal(result, metadata);
             }
         }
 
@@ -126,14 +126,14 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             return null;
         }
 
-        protected virtual IViewModelPresenterResult OnShownInternal(IReadOnlyMetadataContext metadata, IChildViewModelPresenterResult result)
+        protected virtual IViewModelPresenterResult OnShownInternal(IChildViewModelPresenterResult result, IReadOnlyMetadataContext metadata)
         {
             var r = result as IViewModelPresenterResult;
             if (r == null)
             {
                 var viewModel = metadata.Get(NavigationMetadata.ViewModel, result.Metadata.Get(NavigationMetadata.ViewModel));
                 if (viewModel == null)
-                    ExceptionManager.ThrowPresenterInvalidRequest(metadata.Dump() + result.Metadata.Dump());
+                    ExceptionManager.ThrowPresenterInvalidRequest(metadata, result.Metadata);
 
                 var showingCallback = CallbackManager.AddCallback<bool>(viewModel!, NavigationCallbackType.Showing, result, metadata);
                 var closeCallback = CallbackManager.AddCallback<bool>(viewModel!, NavigationCallbackType.Close, result, metadata);
@@ -143,7 +143,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
             var listeners = GetListeners();
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnShown(this, metadata, r);
+                listeners[i].OnShown(this, r, metadata);
 
             return r;
         }
@@ -166,7 +166,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             return results;
         }
 
-        protected virtual IReadOnlyList<IClosingViewModelPresenterResult> OnClosedInternal(IReadOnlyMetadataContext metadata, IReadOnlyList<IChildViewModelPresenterResult> results)
+        protected virtual IReadOnlyList<IClosingViewModelPresenterResult> OnClosedInternal(IReadOnlyList<IChildViewModelPresenterResult> results, IReadOnlyMetadataContext metadata)
         {
             var r = new List<IClosingViewModelPresenterResult>();
             for (var i = 0; i < results.Count; i++)
@@ -179,7 +179,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 {
                     var viewModel = metadata.Get(NavigationMetadata.ViewModel, result.Metadata.Get(NavigationMetadata.ViewModel));
                     if (viewModel == null)
-                        ExceptionManager.ThrowPresenterInvalidRequest(metadata.Dump() + result.Metadata.Dump());
+                        ExceptionManager.ThrowPresenterInvalidRequest(metadata, result.Metadata);
 
                     var callback = CallbackManager.AddCallback<bool>(viewModel!, NavigationCallbackType.Closing, result, metadata);
                     r.Add(new ClosingViewModelPresenterResult(callback, result));
@@ -189,7 +189,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
             var listeners = GetListeners();
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnClosed(this, metadata, r);
+                listeners[i].OnClosed(this, r, metadata);
 
             return r;
         }
@@ -210,14 +210,14 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             return null;
         }
 
-        protected virtual IRestorationViewModelPresenterResult OnRestoredInternal(IReadOnlyMetadataContext metadata, IChildViewModelPresenterResult? result)
+        protected virtual IRestorationViewModelPresenterResult OnRestoredInternal(IChildViewModelPresenterResult? result, IReadOnlyMetadataContext metadata)
         {
             var r = result == null
                 ? RestorationViewModelPresenterResult.Unrestored
                 : result as IRestorationViewModelPresenterResult ?? new RestorationViewModelPresenterResult(true, result);
             var listeners = GetListeners();
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i]?.OnRestored(this, metadata, r);
+                listeners[i]?.OnRestored(this, r, metadata);
 
             return r;
         }

@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -26,8 +27,13 @@ namespace MugenMvvm.Infrastructure.Validation
 
         public void SetErrors(string memberName, IReadOnlyMetadataContext metadata, params object[] errors)
         {
-            Should.NotBeNull(metadata, nameof(metadata));
-            UpdateErrors(memberName, errors, false, metadata);
+            SetErrors(memberName, errors, metadata);
+        }
+
+        public void SetErrors(string memberName, IReadOnlyList<object> errors, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(memberName, nameof(memberName));
+            UpdateErrors(memberName, errors, false, metadata ?? Default.MetadataContext);
         }
 
         protected override Task<ValidationResult> GetErrorsAsync(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext metadata)

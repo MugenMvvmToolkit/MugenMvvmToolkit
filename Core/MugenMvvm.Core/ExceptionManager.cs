@@ -1,5 +1,6 @@
 ﻿using System;
 using MugenMvvm.Constants;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm
 {
@@ -7,9 +8,9 @@ namespace MugenMvvm
     {
         #region Methods
 
-        public static void ThrowEnumIsNotValid(Type type, object value)
+        public static void ThrowEnumIsNotValid(object value)
         {
-            throw new ArgumentException(MessageConstants.EnumIsNotValidFormat2.Format(value, type), nameof(value));
+            throw new ArgumentException(MessageConstants.EnumIsNotValidFormat2.Format(value, value.GetType()), nameof(value));
         }
 
         internal static void ThrowCapacityLessThanCollection(string paramName)
@@ -47,25 +48,19 @@ namespace MugenMvvm
             throw new ArgumentOutOfRangeException(paramName, MessageConstants.IntOutOfRangeCollection);
         }
 
-        internal static void ThrowPresenterCannotShowRequest(string request)
+        internal static void ThrowPresenterCannotShowRequest(IReadOnlyMetadataContext request)
         {
-            throw new ArgumentException(MessageConstants.PresenterCannotShowRequestFormat1.Format(request));
+            throw new ArgumentException(MessageConstants.PresenterCannotShowRequestFormat1.Format(request.Dump()));
         }
 
-        internal static void ThrowPresenterInvalidRequest(string request)
+        internal static void ThrowPresenterInvalidRequest(IReadOnlyMetadataContext request, IReadOnlyMetadataContext response)
         {
-            throw new ArgumentException(MessageConstants.PresenterCannotHandleRequestFormat1.Format(request));
+            throw new ArgumentException(MessageConstants.PresenterCannotHandleRequestFormat1.Format(request.Dump() + response.Dump()));
         }
 
         internal static void ThrowNavigatingResultHasCallback()
         {
             throw new InvalidOperationException(MessageConstants.NavigatingResultHasCallback);
-        }
-
-        internal static void ThrowObjectInitialized(string objectName, object obj, string? hint = null)
-        {
-            var typeName = obj == null ? string.Empty : obj.GetType().FullName;
-            throw new InvalidOperationException(MessageConstants.ObjectInitializedFormat3.Format(objectName, typeName, hint));
         }
 
         internal static void ThrowViewNotFound(Type viewModelType, Type? viewType = null)
@@ -99,14 +94,19 @@ namespace MugenMvvm
             throw new InvalidOperationException(MessageConstants.CannotGetViewModelFormat1.Format(viewModelType));
         }
 
-        internal static void ThrowObjectDisposed(Type type)
+        internal static void ThrowObjectDisposed(object item)
         {
-            throw new ObjectDisposedException(type.FullName, MessageConstants.ObjectDisposedFormat1.Format(type));
+            throw new ObjectDisposedException(item.GetType().FullName, MessageConstants.ObjectDisposedFormat1.Format(item.GetType()));
         }
 
         internal static void ThrowObjectNotInitialized(object obj, string? hint = null)
         {
             throw new InvalidOperationException(MessageConstants.ObjectNotInitializedFormat2.Format(obj.GetType().Name, hint));
+        }
+
+        internal static void ThrowObjectInitialized(object obj, string? hint = null)
+        {
+            throw new InvalidOperationException(MessageConstants.ObjectInitializedFormat3.Format(obj, obj?.GetType(), hint));
         }
 
         #endregion

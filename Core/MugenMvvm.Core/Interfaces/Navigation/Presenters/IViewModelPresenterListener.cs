@@ -6,10 +6,10 @@ namespace MugenMvvm.Interfaces.Navigation.Presenters
 {
     public interface IViewModelPresenterListener : IListener
     {
-        void OnShown(IViewModelPresenter presenter, IReadOnlyMetadataContext metadata, IViewModelPresenterResult result);
+        void OnShown(IViewModelPresenter presenter, IViewModelPresenterResult result, IReadOnlyMetadataContext metadata);
 
-        void OnClosed(IViewModelPresenter presenter, IReadOnlyMetadataContext metadata, IReadOnlyList<IClosingViewModelPresenterResult> results);
+        void OnClosed(IViewModelPresenter presenter, IReadOnlyList<IClosingViewModelPresenterResult> results, IReadOnlyMetadataContext metadata);
 
-        void OnRestored(IViewModelPresenter presenter, IReadOnlyMetadataContext metadata, IRestorationViewModelPresenterResult result);
+        void OnRestored(IViewModelPresenter presenter, IRestorationViewModelPresenterResult result, IReadOnlyMetadataContext metadata);
     }
 }

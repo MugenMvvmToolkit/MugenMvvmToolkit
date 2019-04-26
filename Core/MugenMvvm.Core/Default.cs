@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
@@ -70,12 +71,17 @@ namespace MugenMvvm
 
         public static T[] EmptyArray<T>()
         {
-            return Value<T>.ArrayInstance;
+            return EmptyArrayImpl<T>.Instance;
         }
 
         public static Task<T> CanceledTask<T>()
         {
-            return Value<T>.CanceledTaskField;
+            return CanceledTaskImpl<T>.Instance;
+        }
+
+        public static ReadOnlyDictionary<TKey, TValue> EmptyDictionary<TKey, TValue>()
+        {
+            return EmptyDictionaryImpl<TKey, TValue>.Instance;
         }
 
         public static object BoolToObject(bool value)
@@ -151,23 +157,57 @@ namespace MugenMvvm
             #endregion
         }
 
-        private static class Value<T>
+        private static class EmptyArrayImpl<T>
         {
             #region Fields
 
-            public static readonly T[] ArrayInstance;
-            public static readonly Task<T> CanceledTaskField;
+            public static readonly T[] Instance;
 
             #endregion
 
             #region Constructors
 
-            static Value()
+            static EmptyArrayImpl()
             {
-                ArrayInstance = new T[0];
+                Instance = new T[0];
+            }
+
+            #endregion
+        }
+
+        private static class EmptyDictionaryImpl<TKey, TValue>
+        {
+            #region Fields
+
+            public static readonly ReadOnlyDictionary<TKey, TValue> Instance;
+
+            #endregion
+
+            #region Constructors
+
+            static EmptyDictionaryImpl()
+            {
+                Instance = new ReadOnlyDictionary<TKey, TValue>(new Dictionary<TKey, TValue>());
+            }
+
+            #endregion
+        }
+
+        private static class CanceledTaskImpl<T>
+        {
+            #region Fields
+
+            public static readonly Task<T> Instance;
+
+            #endregion
+
+            #region Constructors
+
+            static CanceledTaskImpl()
+            {
                 var tcs = new TaskCompletionSource<T>();
                 tcs.SetCanceled();
-                CanceledTaskField = tcs.Task;
+                Instance = tcs.Task;
             }
 
             #endregion

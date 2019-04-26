@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Threading;
@@ -65,8 +64,6 @@ namespace MugenMvvm.Infrastructure.Validation
             }
         }
 
-        public bool HasErrors => !IsDisposed && HasErrorsInternal();
-
         public IObservableMetadataContext Metadata
         {
             get
@@ -76,6 +73,8 @@ namespace MugenMvvm.Infrastructure.Validation
                 return _metadata;
             }
         }
+
+        public bool HasErrors => !IsDisposed && HasErrorsInternal();
 
         public bool ValidateOnPropertyChanged { get; set; }
 
@@ -99,7 +98,7 @@ namespace MugenMvvm.Infrastructure.Validation
             _disposeCancellationTokenSource?.Cancel();
             if (Target is INotifyPropertyChanged notifyPropertyChanged && _weakPropertyHandler != null)
                 notifyPropertyChanged.PropertyChanged -= _weakPropertyHandler;
-            this.RemoveAllListeners();
+            _listeners?.Clear();
             _metadata?.RemoveAllListeners();
             _metadata?.Clear();
         }
@@ -138,7 +137,7 @@ namespace MugenMvvm.Infrastructure.Validation
             }
             catch (Exception e)
             {
-                return MugenExtensions.TaskFromException<object>(e);
+                return e.TaskFromException<object>();
             }
             finally
             {
@@ -166,22 +165,20 @@ namespace MugenMvvm.Infrastructure.Validation
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(metadata, nameof(metadata));
             if (!MugenExtensions.LazyInitialize(ref _target, target))
-                ExceptionManager.ThrowObjectInitialized(GetType().Name, this);
+                ExceptionManager.ThrowObjectInitialized(this);
 
-            if (metadata.Count != 0)
-                Metadata.Merge(metadata);
             if (ValidateOnPropertyChanged && target is INotifyPropertyChanged notifyPropertyChanged)
             {
                 _weakPropertyHandler = MugenExtensions.MakeWeakPropertyChangedHandler(this, (@this, o, arg3) => @this.OnTargetPropertyChanged(arg3));
                 notifyPropertyChanged.PropertyChanged += _weakPropertyHandler;
             }
 
-            OnInitialized();
+            OnInitialized(metadata);
         }
 
         protected abstract Task<ValidationResult> GetErrorsAsync(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext metadata);
 
-        protected virtual void OnInitialized()
+        protected virtual void OnInitialized(IReadOnlyMetadataContext metadata)
         {
         }
 
@@ -221,6 +218,8 @@ namespace MugenMvvm.Infrastructure.Validation
         {
             lock (Errors)
             {
+                if (Errors.Count == 0)
+                    return Default.EmptyDictionary<string, IReadOnlyList<object>>();
                 return new Dictionary<string, IReadOnlyList<object>>(Errors);
             }
         }
@@ -412,8 +411,7 @@ namespace MugenMvvm.Infrastructure.Validation
 
             public static readonly ValidationResult DoNothing = default;
 
-            public static readonly ValidationResult Empty =
-                new ValidationResult(new ReadOnlyDictionary<string, IReadOnlyList<object>>(new Dictionary<string, IReadOnlyList<object>>()));
+            public static readonly ValidationResult Empty = new ValidationResult(Default.EmptyDictionary<string, IReadOnlyList<object>>());
 
             public static readonly Task<ValidationResult> DoNothingTask = Task.FromResult(DoNothing);
 

@@ -62,18 +62,18 @@ namespace MugenMvvm.Infrastructure.Views
         {
         }
 
-        public void OnViewCreated(IViewManager viewManager, IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata)
+        public void OnViewCreated(IViewManager viewManager, object view, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
         {
         }
 
         public void OnViewInitialized(IViewManager viewManager, IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
         {
-            GetUpdateViewMethod(viewModel, viewInfo.View)?.Invoke(null, new[] {viewModel, viewInfo, metadata, Default.FalseObject});
+            GetUpdateViewMethod(viewModel, viewInfo.View)?.Invoke(this, new[] { viewModel, viewInfo, metadata, Default.FalseObject });//todo initialize wrappers
         }
 
         public void OnViewCleared(IViewManager viewManager, IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
         {
-            GetUpdateViewMethod(viewModel, viewInfo.View)?.Invoke(null, new[] {viewModel, viewInfo, metadata, Default.TrueObject});
+            GetUpdateViewMethod(viewModel, viewInfo.View)?.Invoke(this, new[] { viewModel, viewInfo, metadata, Default.TrueObject });//todo initialize wrappers
         }
 
         public int GetPriority(object source)
@@ -114,7 +114,7 @@ namespace MugenMvvm.Infrastructure.Views
         }
 
         [Preserve(Conditional = true)]
-        internal static void UpdateView<TView>(IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata, bool clear)
+        internal void UpdateView<TView>(IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata, bool clear)
             where TView : class
         {
             if (viewModel is IViewAwareViewModel<TView> awareViewModel)
@@ -132,7 +132,7 @@ namespace MugenMvvm.Infrastructure.Views
         }
 
         [Preserve(Conditional = true)]
-        internal static void UpdateViewModel<TViewModel>(object viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata, bool clear)
+        internal void UpdateViewModel<TViewModel>(object viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata, bool clear)
             where TViewModel : class, IViewModelBase
         {
             if (viewInfo.View is IViewModelAwareView<TViewModel> awareView)

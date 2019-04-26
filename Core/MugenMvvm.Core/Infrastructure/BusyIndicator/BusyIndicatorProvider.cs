@@ -96,7 +96,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                 return;
             for (var index = 0; index < busyTokens.Count; index++)
                 busyTokens[index].Dispose();
-            _listeners?.Clear(Default.MetadataContext);
+            _listeners?.Clear();
         }
 
         #endregion

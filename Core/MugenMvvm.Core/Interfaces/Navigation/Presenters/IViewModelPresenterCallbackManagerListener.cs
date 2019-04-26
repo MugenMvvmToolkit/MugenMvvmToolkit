@@ -1,13 +1,15 @@
-﻿using MugenMvvm.Interfaces.Models;
+﻿using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Interfaces.Navigation.Presenters
 {
     public interface IViewModelPresenterCallbackManagerListener : IListener
     {
-        void OnCallbackAdded(IViewModelPresenterCallbackManager callbackManager, IViewModelBase viewModel, INavigationCallback callback,
-            IChildViewModelPresenterResult presenterResult);
+        void OnCallbackAdded(IViewModelPresenterCallbackManager callbackManager, INavigationCallback callback, IViewModelBase viewModel,
+            IChildViewModelPresenterResult presenterResult, IReadOnlyMetadataContext metadata);
 
-        void OnCallbackExecuted(IViewModelPresenterCallbackManager callbackManager, IViewModelBase viewModel, INavigationCallback callback, INavigationContext? navigationContext);
+        void OnCallbackExecuted(IViewModelPresenterCallbackManager callbackManager, INavigationCallback callback, IViewModelBase viewModel,
+            INavigationContext? navigationContext);
     }
 }

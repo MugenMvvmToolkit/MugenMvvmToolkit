@@ -9,6 +9,6 @@ namespace MugenMvvm.Interfaces.Validation
     {
         IComponentCollection<IValidator> Validators { get; }
 
-        void SetErrors(string memberName, IReadOnlyList<object> errors, IReadOnlyMetadataContext metadata);
+        void SetErrors(string memberName, IReadOnlyList<object> errors, IReadOnlyMetadataContext? metadata = null);
     }
 }

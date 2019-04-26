@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using JetBrains.Annotations;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Internal;
-using MugenMvvm.Interfaces.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm
@@ -280,70 +278,6 @@ namespace MugenMvvm
         {
             Should.NotBeNull(assembly, nameof(assembly));
             return GetAssemblyName(assembly);
-        }
-
-        [Pure]
-        public static bool HasMemberFlag(this MemberFlags es, MemberFlags value)
-        {
-            return (es & value) == value;
-        }
-
-        public static TDelegate GetMethodDelegate<TDelegate>(this IReflectionManager reflectionManager, MethodInfo method) where TDelegate : Delegate
-        {
-            Should.NotBeNull(method, nameof(method));
-            return (TDelegate)reflectionManager.GetMethodDelegate(typeof(TDelegate), method);
-        }
-
-        public static T GetValueEx<T>(this MemberInfo member, object? target)
-        {
-            return Service<IReflectionManager>.Instance.GetMemberGetter<T>(member).Invoke(target);
-        }
-
-        public static void SetValueEx<T>(this MemberInfo member, object target, T value)
-        {
-            Service<IReflectionManager>.Instance.GetMemberSetter<T>(member).Invoke(target, value);
-        }
-
-        public static object InvokeEx(this ConstructorInfo constructor)
-        {
-            return constructor.InvokeEx(Default.EmptyArray<object>());
-        }
-
-        public static object InvokeEx(this ConstructorInfo constructor, params object?[] parameters)
-        {
-            return Service<IReflectionManager>.Instance.GetActivatorDelegate(constructor).Invoke(parameters);
-        }
-
-        public static object? InvokeEx(this MethodInfo method, object? target)
-        {
-            return method.InvokeEx(target, Default.EmptyArray<object>());
-        }
-
-        public static object? InvokeEx(this MethodInfo method, object? target, params object[] parameters)
-        {
-            return Service<IReflectionManager>.Instance.GetMethodDelegate(method).Invoke(target, parameters);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static bool EqualsEx(this Type x, Type y) //note idk why but default implementation doesn't use ReferenceEquals before equals check
-        {
-            return ReferenceEquals(x, y) || x.Equals(y);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static bool EqualsEx(this MemberInfo x, MemberInfo y)
-        {
-            return ReferenceEquals(x, y) || x.Equals(y);
-        }
-
-        internal static void SetValue<TValue>(this PropertyInfo property, object target, TValue value)
-        {
-            property.SetValue(target, value, Default.EmptyArray<object>());
-        }
-
-        internal static void SetValue<TValue>(this FieldInfo field, object target, TValue value)
-        {
-            field.SetValue(target, value);
         }
 
         #endregion

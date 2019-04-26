@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Interfaces.Views.Infrastructure
 {
-    public interface IViewDataContextProvider
+    public interface IViewDataContextProvider//todo listeners
     {
         object? GetDataContext(object view, IReadOnlyMetadataContext metadata);
 

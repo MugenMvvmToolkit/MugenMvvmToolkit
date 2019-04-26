@@ -84,12 +84,12 @@ namespace MugenMvvm.Infrastructure.Views
             OnViewModelCreated(viewModel, view, metadata);
         }
 
-        void IParentViewManager.OnViewCreated(IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata)
+        void IParentViewManager.OnViewCreated(object view, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(view, nameof(view));
             Should.NotBeNull(metadata, nameof(metadata));
-            OnViewCreated(viewModel, view, metadata);
+            OnViewCreated(view, viewModel, metadata);
         }
 
         void IParentViewManager.OnViewInitialized(IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
@@ -161,11 +161,11 @@ namespace MugenMvvm.Infrastructure.Views
                 listeners[i].OnViewModelCreated(this, viewModel, view, metadata);
         }
 
-        protected virtual void OnViewCreated(IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata)
+        protected virtual void OnViewCreated(object view, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
         {
             var listeners = GetListeners();
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnViewCreated(this, viewModel, view, metadata);
+                listeners[i].OnViewCreated(this, view, viewModel, metadata);
         }
 
         protected virtual void OnViewInitialized(IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata)

@@ -74,8 +74,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             Should.NotBeNull(callbackType, nameof(callbackType));
             Should.NotBeNull(presenterResult, nameof(presenterResult));
             Should.NotBeNull(metadata, nameof(metadata));
-            var callback = AddCallbackInternal<T>(viewModel, callbackType, presenterResult);
-            OnCallbackAdded(viewModel, callback, presenterResult);
+            var callback = AddCallbackInternal<T>(viewModel, callbackType, presenterResult, metadata);
+            OnCallbackAdded(callback, viewModel, presenterResult, metadata);
             return callback;
         }
 
@@ -96,7 +96,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         }
 
         protected virtual INavigationCallback<T> AddCallbackInternal<T>(IViewModelBase viewModel, NavigationCallbackType callbackType,
-            IChildViewModelPresenterResult presenterResult)
+            IChildViewModelPresenterResult presenterResult, IReadOnlyMetadataContext metadata)
         {
             var serializable = IsSerializable && callbackType == NavigationCallbackType.Close && presenterResult.Metadata.Get(NavigationInternalMetadata.IsRestorableCallback);
             var callback = new NavigationCallback<T>(callbackType, presenterResult.NavigationType, serializable, presenterResult.NavigationProvider.Id);
@@ -105,7 +105,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             if (key == null)
                 ExceptionManager.ThrowEnumOutOfRange(nameof(callbackType), callbackType);
 
-            var callbacks = viewModel.Metadata.GetOrAdd(key!, (object?) null, (object?) null, (context, o, arg3) => new List<INavigationCallbackInternal?>())!;
+            var callbacks = viewModel.Metadata.GetOrAdd(key!, (object?)null, (object?)null, (context, o, arg3) => new List<INavigationCallbackInternal?>())!;
             lock (callback)
             {
                 callbacks.Add(callback);
@@ -142,8 +142,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 InvokeCallbacks(navigationContext, true, NavigationInternalMetadata.ClosingCallbacks!, Default.FalseObject, null, false);
         }
 
-        protected virtual IReadOnlyList<INavigationCallback> GetCallbacksInternal(INavigationEntry navigationEntry, NavigationCallbackType? callbackType,
-            IReadOnlyMetadataContext metadata)
+        protected virtual IReadOnlyList<INavigationCallback> GetCallbacksInternal(INavigationEntry navigationEntry, NavigationCallbackType? callbackType, IReadOnlyMetadataContext metadata)
         {
             List<INavigationCallback>? callbacks = null;
             if (callbackType == null)
@@ -175,18 +174,18 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             return null;
         }
 
-        protected virtual void OnCallbackAdded(IViewModelBase viewModel, INavigationCallback callback, IChildViewModelPresenterResult presenterResult)
+        protected virtual void OnCallbackAdded(INavigationCallback callback, IViewModelBase viewModel, IChildViewModelPresenterResult presenterResult, IReadOnlyMetadataContext metadata)
         {
             var listeners = GetListeners();
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnCallbackAdded(this, viewModel, callback, presenterResult);
+                listeners[i].OnCallbackAdded(this, callback, viewModel, presenterResult, metadata);
         }
 
-        protected virtual void OnCallbackExecuted(IViewModelBase viewModel, INavigationCallback callback, INavigationContext navigationContext)
+        protected virtual void OnCallbackExecuted(INavigationCallback callback, IViewModelBase viewModel, INavigationContext navigationContext)
         {
             var listeners = GetListeners();
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnCallbackExecuted(this, viewModel, callback, navigationContext);
+                listeners[i].OnCallbackExecuted(this, callback, viewModel, navigationContext);
         }
 
         protected void InvokeCallbacks(INavigationContext navigationContext, bool isFromNavigation, IMetadataContextKey<IList<INavigationCallbackInternal?>?> key, object? result,
@@ -241,7 +240,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                     callback.SetCanceled(navigationContext);
                 else
                     callback.SetResult(result, navigationContext);
-                OnCallbackExecuted(viewModel!, callback, navigationContext);
+                OnCallbackExecuted(callback, viewModel!, navigationContext);
             }
         }
 

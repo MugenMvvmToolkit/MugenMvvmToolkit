@@ -4,7 +4,7 @@ using MugenMvvm.Enums;
 
 namespace MugenMvvm.Interfaces.IoC
 {
-    public interface IIoCContainer : IDisposable, IServiceProviderEx
+    public interface IIoCContainer : IDisposable, IServiceProviderEx//todo review parameters
     {
         int Id { get; }
 

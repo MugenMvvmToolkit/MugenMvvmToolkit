@@ -39,7 +39,7 @@ namespace MugenMvvm.Infrastructure.Components
             Should.NotBeNull(owner, nameof(owner));
             Should.NotBeNull(metadata, nameof(metadata));
             if (Interlocked.CompareExchange(ref _state, AttachedState, DetachedState) != DetachedState)
-                ExceptionManager.ThrowObjectInitialized(GetType().Name, this);
+                ExceptionManager.ThrowObjectInitialized(this);
 
             Owner = owner;
             OnAttachedInternal(owner, metadata);

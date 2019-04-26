@@ -105,7 +105,7 @@ namespace MugenMvvm.Infrastructure.Wrapping
 
             var listeners = GetListeners();
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnWrapped(this, item, wrapperType, wrapper!, metadata);
+                listeners[i].OnWrapped(this, wrapper!, item, wrapperType, metadata);
 
             return wrapper!;
         }

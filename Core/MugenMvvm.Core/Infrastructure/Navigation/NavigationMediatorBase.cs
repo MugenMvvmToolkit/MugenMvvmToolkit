@@ -82,7 +82,7 @@ namespace MugenMvvm.Infrastructure.Navigation
             if (ReferenceEquals(ViewModel, viewModel))
                 return;
             if (ViewModel != null)
-                ExceptionManager.ThrowObjectInitialized(GetType().Name, this);
+                ExceptionManager.ThrowObjectInitialized(this);
 
             ViewModel = viewModel;
             ViewInitializer = viewInitializer;

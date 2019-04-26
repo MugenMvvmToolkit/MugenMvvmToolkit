@@ -4,10 +4,10 @@ namespace MugenMvvm.Interfaces.Metadata
 {
     public interface IMetadataContextProviderListener : IListener
     {
-        void OnReadOnlyContextCreated(IMetadataContextProvider provider, object? target, IReadOnlyMetadataContext metadataContext);
+        void OnReadOnlyContextCreated(IMetadataContextProvider provider, IReadOnlyMetadataContext metadataContext, object? target);
 
-        void OnContextCreated(IMetadataContextProvider provider, object? target, IMetadataContext metadataContext);
+        void OnContextCreated(IMetadataContextProvider provider, IMetadataContext metadataContext, object? target);
 
-        void OnObservableContextCreated(IMetadataContextProvider provider, object? target, IObservableMetadataContext metadataContext);
+        void OnObservableContextCreated(IMetadataContextProvider provider, IObservableMetadataContext metadataContext, object? target);
     }
 }

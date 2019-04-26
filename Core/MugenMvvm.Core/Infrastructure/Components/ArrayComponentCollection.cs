@@ -52,10 +52,11 @@ namespace MugenMvvm.Infrastructure.Components
             return Items;
         }
 
-        public bool Add(T component, IReadOnlyMetadataContext metadata)
+        public bool Add(T component, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(component, nameof(component));
-            Should.NotBeNull(metadata, nameof(metadata));
+            if (metadata == null)
+                metadata = Default.MetadataContext;
             var listeners = GetListeners();
             for (var i = 0; i < listeners.Length; i++)
             {
@@ -75,10 +76,11 @@ namespace MugenMvvm.Infrastructure.Components
             return true;
         }
 
-        public bool Remove(T component, IReadOnlyMetadataContext metadata)
+        public bool Remove(T component, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(component, nameof(component));
-            Should.NotBeNull(metadata, nameof(metadata));
+            if (metadata == null)
+                metadata = Default.MetadataContext;
             var listeners = GetListeners();
             for (var i = 0; i < listeners.Length; i++)
             {
@@ -98,9 +100,10 @@ namespace MugenMvvm.Infrastructure.Components
             return true;
         }
 
-        public bool Clear(IReadOnlyMetadataContext metadata)
+        public bool Clear(IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(metadata, nameof(metadata));
+            if (metadata == null)
+                metadata = Default.MetadataContext;
             var listeners = GetListeners();
             for (var i = 0; i < listeners.Length; i++)
             {

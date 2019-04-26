@@ -238,7 +238,7 @@ namespace MugenMvvm.Infrastructure.Views
             IReadOnlyMetadataContext metadata)
         {
             var view = ServiceProvider.GetService(initializer.ViewType);
-            parentViewManager.OnViewCreated(viewModel, view, metadata);
+            parentViewManager.OnViewCreated(view, viewModel, metadata);
             return view;
         }
 

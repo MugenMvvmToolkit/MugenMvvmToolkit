@@ -136,7 +136,7 @@ namespace MugenMvvm.Infrastructure.Messaging
         public void Dispose()
         {
             this.UnsubscribeAll();
-            _listeners?.Clear(Default.MetadataContext);
+            _listeners?.Clear();
         }
 
         #endregion

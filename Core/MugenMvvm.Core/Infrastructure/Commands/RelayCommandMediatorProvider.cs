@@ -68,9 +68,7 @@ namespace MugenMvvm.Infrastructure.Commands
             if (result == null)
                 ExceptionManager.ThrowObjectNotInitialized(this, typeof(IExecutorRelayCommandMediatorFactory).Name);
 
-            var listeners = GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnMediatorCreated(this, relayCommand, execute, canExecute, notifiers, metadata, result);
+            OnMediatorCreated<TParameter>(result, relayCommand, execute, canExecute, notifiers, metadata);
 
             return result;
         }
@@ -117,6 +115,14 @@ namespace MugenMvvm.Infrastructure.Commands
                 return Default.EmptyArray<IRelayCommandMediator>();
             result.Sort(HasPriorityComparer.Instance);
             return result;
+        }
+
+        protected virtual void OnMediatorCreated<TParameter>(IExecutorRelayCommandMediator mediator, IRelayCommand relayCommand, Delegate execute,
+            Delegate? canExecute, IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext metadata)
+        {
+            var listeners = GetListeners();
+            for (var i = 0; i < listeners.Length; i++)
+                listeners[i].OnMediatorCreated<TParameter>(this, mediator, relayCommand, execute, canExecute, notifiers, metadata);
         }
 
         protected IRelayCommandMediatorProviderListener[] GetListeners()

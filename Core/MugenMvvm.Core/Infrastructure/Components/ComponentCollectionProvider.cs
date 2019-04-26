@@ -59,9 +59,7 @@ namespace MugenMvvm.Infrastructure.Components
             if (result == null)
                 ExceptionManager.ThrowObjectNotInitialized(this, typeof(IComponentCollectionFactory).Name);
 
-            var listeners = GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnComponentCollectionCreated(this, result, metadata);
+            OnComponentCollectionCreated(result, metadata);
 
             return result;
         }
@@ -83,6 +81,14 @@ namespace MugenMvvm.Infrastructure.Components
             if (typeof(IHasPriority).IsAssignableFromUnified(typeof(T)) || typeof(IListener).IsAssignableFromUnified(typeof(T)))
                 return new OrderedArrayComponentCollection<T>(owner);
             return new ArrayComponentCollection<T>(owner);
+        }
+
+        protected virtual void OnComponentCollectionCreated<T>(IComponentCollection<T> result, IReadOnlyMetadataContext metadata)
+            where T : class
+        {
+            var listeners = GetListeners();
+            for (var i = 0; i < listeners.Length; i++)
+                listeners[i].OnComponentCollectionCreated(this, result, metadata);
         }
 
         protected IComponentCollectionProviderListener[] GetListeners()

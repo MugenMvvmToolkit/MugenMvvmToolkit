@@ -68,7 +68,7 @@ namespace MugenMvvm.Infrastructure.Metadata
 
             var listeners = _listeners.GetItemsOrDefault();
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnReadOnlyContextCreated(this, target, result);
+                listeners[i].OnReadOnlyContextCreated(this, result, target);
             return result;
         }
 
@@ -88,7 +88,7 @@ namespace MugenMvvm.Infrastructure.Metadata
 
             var listeners = _listeners.GetItemsOrDefault();
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnContextCreated(this, target, result);
+                listeners[i].OnContextCreated(this, result, target);
             return result;
         }
 
@@ -108,7 +108,7 @@ namespace MugenMvvm.Infrastructure.Metadata
 
             var listeners = _listeners.GetItemsOrDefault();
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnObservableContextCreated(this, target, result);
+                listeners[i].OnObservableContextCreated(this, result, target);
             return result;
         }
 
