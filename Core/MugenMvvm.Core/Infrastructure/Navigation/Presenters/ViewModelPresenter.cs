@@ -36,6 +36,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         protected IComponentCollectionProvider ComponentCollectionProvider { get; }
 
+        public bool IsListenersInitialized => _listeners != null;
+
         public IViewModelPresenterCallbackManager CallbackManager
         {
             get => _callbackManager;
@@ -141,7 +143,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 r = new ViewModelPresenterResult(viewModel!, showingCallback, closeCallback, result);
             }
 
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnShown(this, r, metadata);
 
@@ -187,7 +189,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             }
 
 
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnClosed(this, r, metadata);
 
@@ -215,7 +217,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             var r = result == null
                 ? RestorationViewModelPresenterResult.Unrestored
                 : result as IRestorationViewModelPresenterResult ?? new RestorationViewModelPresenterResult(true, result);
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i]?.OnRestored(this, r, metadata);
 
@@ -224,7 +226,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         protected virtual bool CanShow(IChildViewModelPresenter childPresenter, IReadOnlyMetadataContext metadata)
         {
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
             {
                 var canShow = (listeners[i] as IConditionViewModelPresenterListener)?.CanShow(this, childPresenter, metadata) ?? true;
@@ -237,7 +239,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         protected virtual bool CanClose(IChildViewModelPresenter childPresenter, IReadOnlyList<IChildViewModelPresenterResult> currentResults, IReadOnlyMetadataContext metadata)
         {
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
             {
                 var canClose = (listeners[i] as IConditionViewModelPresenterListener)?.CanClose(this, childPresenter, currentResults, metadata) ?? true;
@@ -250,7 +252,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         protected virtual bool CanRestore(IRestorableChildViewModelPresenter childPresenter, IReadOnlyMetadataContext metadata)
         {
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
             {
                 var canRestore = (listeners[i] as IConditionViewModelPresenterListener)?.CanRestore(this, childPresenter, metadata) ?? true;
@@ -259,11 +261,6 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             }
 
             return true;
-        }
-
-        protected IViewModelPresenterListener[] GetListeners()
-        {
-            return _listeners.GetItemsOrDefault();
         }
 
         #endregion

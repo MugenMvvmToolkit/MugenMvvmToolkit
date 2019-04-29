@@ -135,6 +135,8 @@ namespace MugenMvvm.Infrastructure.Navigation
 
             #region Properties
 
+            public bool IsMetadataInitialized => _metadata != null;
+
             public IMetadataContext Metadata
             {
                 get

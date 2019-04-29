@@ -32,6 +32,8 @@ namespace MugenMvvm.Infrastructure.Commands
 
         protected IComponentCollectionProvider ComponentCollectionProvider { get; }
 
+        public bool IsListenersInitialized => _listeners != null;
+
         public IComponentCollection<IRelayCommandMediatorFactory> MediatorFactories
         {
             get
@@ -120,14 +122,9 @@ namespace MugenMvvm.Infrastructure.Commands
         protected virtual void OnMediatorCreated<TParameter>(IExecutorRelayCommandMediator mediator, IRelayCommand relayCommand, Delegate execute,
             Delegate? canExecute, IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext metadata)
         {
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnMediatorCreated<TParameter>(this, mediator, relayCommand, execute, canExecute, notifiers, metadata);
-        }
-
-        protected IRelayCommandMediatorProviderListener[] GetListeners()
-        {
-            return _listeners.GetItemsOrDefault();
         }
 
         #endregion

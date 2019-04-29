@@ -30,6 +30,8 @@ namespace MugenMvvm.Infrastructure.Validation
 
         protected IComponentCollectionProvider ComponentCollectionProvider { get; }
 
+        public bool IsListenersInitialized => _listeners != null;
+
         public IComponentCollection<IValidatorProviderListener> Listeners
         {
             get
@@ -110,24 +112,19 @@ namespace MugenMvvm.Infrastructure.Validation
 
         protected virtual void OnValidatorsCreated(IReadOnlyList<IValidator> validators, IReadOnlyMetadataContext metadata)
         {
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             if (listeners.Length == 0 || validators.Count == 0)
                 return;
             for (var i = 0; i < validators.Count; i++)
-            for (var j = 0; j < listeners.Length; j++)
-                listeners[j].OnValidatorCreated(this, validators[i], metadata);
+                for (var j = 0; j < listeners.Length; j++)
+                    listeners[j].OnValidatorCreated(this, validators[i], metadata);
         }
 
         protected virtual void OnAggregatorValidatorCreated(IAggregatorValidator validator, IReadOnlyMetadataContext metadata)
         {
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnValidatorCreated(this, validator, metadata);
-        }
-
-        protected IValidatorProviderListener[] GetListeners()
-        {
-            return _listeners.GetItemsOrDefault();
         }
 
         #endregion

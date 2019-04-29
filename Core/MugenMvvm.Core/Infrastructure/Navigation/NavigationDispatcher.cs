@@ -38,6 +38,8 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         protected IComponentCollectionProvider ComponentCollectionProvider { get; }
 
+        public bool IsListenersInitialized => _listeners != null;
+
         public INavigationContextFactory ContextFactory
         {
             get => _contextFactory;
@@ -108,40 +110,35 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         protected virtual INavigatingResult OnNavigatingInternal(INavigationContext navigationContext)
         {
-            return new NavigatingResult(this, GetListeners(), navigationContext);
+            return new NavigatingResult(this, this.GetListeners(), navigationContext);
         }
 
         protected virtual void OnNavigatedInternal(INavigationContext navigationContext)
         {
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnNavigated(this, navigationContext);
         }
 
         protected virtual void OnNavigationFailedInternal(INavigationContext navigationContext, Exception exception)
         {
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnNavigationFailed(this, navigationContext, exception);
         }
 
         protected virtual void OnNavigationCanceledInternal(INavigationContext navigationContext)
         {
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnNavigationCanceled(this, navigationContext);
         }
 
         protected virtual void OnNavigatingCanceledInternal(INavigationContext navigationContext)
         {
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnNavigatingCanceled(this, navigationContext);
-        }
-
-        protected INavigationDispatcherListener[] GetListeners()
-        {
-            return _listeners.GetItemsOrDefault();
         }
 
         #endregion

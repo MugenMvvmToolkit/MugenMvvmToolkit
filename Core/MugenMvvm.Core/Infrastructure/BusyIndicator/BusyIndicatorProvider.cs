@@ -39,6 +39,8 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
 
         public bool IsSuspended => _suspendCount != 0;
 
+        public bool IsListenersInitialized => _listeners != null;
+
         public IComponentCollection<IBusyIndicatorProviderListener> Listeners
         {
             get
@@ -96,7 +98,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                 return;
             for (var index = 0; index < busyTokens.Count; index++)
                 busyTokens[index].Dispose();
-            _listeners?.Clear();
+            this.RemoveAllListeners();
         }
 
         #endregion
@@ -130,7 +132,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
 
         private void OnBeginBusy(IBusyInfo busyInfo)
         {
-            var items = GetListeners();
+            var items = this.GetListeners();
             for (var i = 0; i < items.Length; i++)
                 items[i].OnBeginBusy(this, busyInfo);
         }
@@ -139,14 +141,9 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
         {
             if (!ignoreSuspend && IsSuspended)
                 return;
-            var items = GetListeners();
+            var items = this.GetListeners();
             for (var i = 0; i < items.Length; i++)
                 items[i].OnBusyInfoChanged(this);
-        }
-
-        private IBusyIndicatorProviderListener[] GetListeners()
-        {
-            return _listeners.GetItemsOrDefault();
         }
 
         #endregion

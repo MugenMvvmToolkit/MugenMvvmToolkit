@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm
@@ -39,14 +40,14 @@ namespace MugenMvvm
             where T : Delegate
         {
             Should.NotBeNull(metadata, nameof(metadata));
-            metadata.AddOrUpdate(key, handler, (object?) null, (object?) null, (item, value, currentValue, state1, state2) => (T) Delegate.Combine(currentValue, value));
+            metadata.AddOrUpdate(key, handler, (object?)null, (object?)null, (item, value, currentValue, state1, state2) => (T)Delegate.Combine(currentValue, value));
         }
 
         public static void RemoveHandler<T>(this IMetadataContext metadata, IMetadataContextKey<T> key, T handler)
             where T : Delegate
         {
             Should.NotBeNull(metadata, nameof(metadata));
-            metadata.AddOrUpdate(key, handler, (object?) null, (object?) null, (item, value, currentValue, state1, state2) => (T) Delegate.Remove(currentValue, value));
+            metadata.AddOrUpdate(key, handler, (object?)null, (object?)null, (item, value, currentValue, state1, state2) => (T)Delegate.Remove(currentValue, value));
         }
 
         public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IMetadataContextKey<T> key, T defaultValue = default)
@@ -95,6 +96,27 @@ namespace MugenMvvm
             IMetadataContextProvider? provider = null)
         {
             return provider.ServiceIfNull().GetObservableMetadataContext(target, values);
+        }
+
+        public static void ClearMetadata<T>(this IHasMetadata<T> hasMetadata) where T : class, IMetadataContext
+        {
+            Should.NotBeNull(hasMetadata, nameof(hasMetadata));
+            if (hasMetadata.IsMetadataInitialized)
+            {
+                hasMetadata.Metadata.Clear();
+            }
+        }
+
+        public static void ClearMetadata<T>(this IHasMetadata<T> hasMetadata, bool clearListeners)
+            where T : class, IObservableMetadataContext
+        {
+            Should.NotBeNull(hasMetadata, nameof(hasMetadata));
+            if (hasMetadata.IsMetadataInitialized)
+            {
+                hasMetadata.Metadata.Clear();
+                if (clearListeners)
+                    hasMetadata.Metadata.RemoveAllListeners();
+            }
         }
 
         #endregion

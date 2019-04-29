@@ -9,8 +9,8 @@ namespace MugenMvvm.Interfaces.Views.Infrastructure
 
         void OnViewCreated(object view, IViewModelBase viewModel, IReadOnlyMetadataContext metadata);
 
-        void OnViewInitialized(IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata);
+        void OnViewInitialized(IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext metadata);
 
-        void OnViewCleared(IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata);
+        void OnViewCleared(IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext metadata);
     }
 }

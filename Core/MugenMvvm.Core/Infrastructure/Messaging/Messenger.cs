@@ -39,6 +39,8 @@ namespace MugenMvvm.Infrastructure.Messaging
 
         #region Properties
 
+        public bool IsListenersInitialized => _listeners != null;
+
         public IComponentCollection<IMessengerListener> Listeners
         {
             get
@@ -84,7 +86,7 @@ namespace MugenMvvm.Infrastructure.Messaging
             Should.NotBeNull(subscriber, nameof(subscriber));
             Should.NotBeNull(executionMode, nameof(executionMode));
             Should.NotBeNull(metadata, nameof(metadata));
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
                 subscriber = listeners[i].OnSubscribing(this, subscriber, executionMode, metadata);
 
@@ -96,7 +98,7 @@ namespace MugenMvvm.Infrastructure.Messaging
 
             if (added)
             {
-                listeners = GetListeners();
+                listeners = this.GetListeners();
                 for (var i = 0; i < listeners.Length; i++)
                     listeners[i].OnSubscribed(this, subscriber, executionMode, metadata);
             }
@@ -114,7 +116,7 @@ namespace MugenMvvm.Infrastructure.Messaging
 
             if (removed)
             {
-                var listeners = GetListeners();
+                var listeners = this.GetListeners();
                 for (var i = 0; i < listeners.Length; i++)
                     listeners[i].OnUnsubscribed(this, subscriber, metadata);
             }
@@ -137,7 +139,7 @@ namespace MugenMvvm.Infrastructure.Messaging
         public void Dispose()
         {
             this.UnsubscribeAll();
-            _listeners?.Clear();
+            this.RemoveAllListeners();
         }
 
         #endregion
@@ -147,7 +149,7 @@ namespace MugenMvvm.Infrastructure.Messaging
         private MessengerContext GetMessengerContext(IMetadataContext? metadata)
         {
             var ctx = new MessengerContext(this, metadata);
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnContextCreated(this, ctx);
             return ctx;
@@ -208,11 +210,6 @@ namespace MugenMvvm.Infrastructure.Messaging
             return Default.CompletedTask;
         }
 
-        private IMessengerListener[] GetListeners()
-        {
-            return _listeners.GetItemsOrDefault();
-        }
-
         #endregion
 
         #region Nested types
@@ -245,7 +242,7 @@ namespace MugenMvvm.Infrastructure.Messaging
 
             public void Execute(object? state)
             {
-                if (_messenger.Listeners.HasItems)
+                if (_messenger.HasListeners())
                 {
                     for (var i = 0; i < Count; i++)
                         PublishAndNotify(this[i]);
@@ -306,6 +303,8 @@ namespace MugenMvvm.Infrastructure.Messaging
             #endregion
 
             #region Properties
+
+            public bool IsMetadataInitialized => _metadata != null;
 
             public IMetadataContext Metadata
             {

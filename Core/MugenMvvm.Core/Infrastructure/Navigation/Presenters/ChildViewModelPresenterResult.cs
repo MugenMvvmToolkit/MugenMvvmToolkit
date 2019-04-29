@@ -26,6 +26,8 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 
         #region Properties
 
+        public bool IsMetadataInitialized => true;
+
         public INavigationProvider NavigationProvider { get; }
 
         public IChildViewModelPresenter? Presenter { get; }

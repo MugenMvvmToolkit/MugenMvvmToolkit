@@ -38,6 +38,8 @@ namespace MugenMvvm.Infrastructure.App
 
         #region Properties
 
+        public bool IsListenersInitialized => _listeners != null;
+
         public IComponentCollection<IApplicationStateDispatcherListener> Listeners
         {
             get
@@ -61,14 +63,9 @@ namespace MugenMvvm.Infrastructure.App
             var oldState = Interlocked.Exchange(ref _state, state);
             if (oldState == state)
                 return;
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnStateChanged(this, oldState, state, metadata);
-        }
-
-        private IApplicationStateDispatcherListener[] GetListeners()
-        {
-            return _listeners.GetItemsOrDefault();
         }
 
         #endregion

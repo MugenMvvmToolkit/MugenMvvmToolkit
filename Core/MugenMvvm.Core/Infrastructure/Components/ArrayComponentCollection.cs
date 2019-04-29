@@ -31,6 +31,8 @@ namespace MugenMvvm.Infrastructure.Components
 
         public bool HasItems => Items.Length > 0;
 
+        public bool IsListenersInitialized => _listeners != null;
+
         public IComponentCollection<IComponentCollectionListener> Listeners
         {
             get
@@ -40,8 +42,6 @@ namespace MugenMvvm.Infrastructure.Components
                 return _listeners;
             }
         }
-
-        protected bool HasListeners => _listeners != null && _listeners.HasItems;
 
         #endregion
 
@@ -57,7 +57,7 @@ namespace MugenMvvm.Infrastructure.Components
             Should.NotBeNull(component, nameof(component));
             if (metadata == null)
                 metadata = Default.MetadataContext;
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
             {
                 if (!listeners[i].OnAdding(this, component, metadata))
@@ -81,7 +81,7 @@ namespace MugenMvvm.Infrastructure.Components
             Should.NotBeNull(component, nameof(component));
             if (metadata == null)
                 metadata = Default.MetadataContext;
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
             {
                 if (!listeners[i].OnRemoving(this, component, metadata))
@@ -104,7 +104,7 @@ namespace MugenMvvm.Infrastructure.Components
         {
             if (metadata == null)
                 metadata = Default.MetadataContext;
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
             {
                 if (!listeners[i].OnClearing(this, metadata))
@@ -160,11 +160,6 @@ namespace MugenMvvm.Infrastructure.Components
         {
             Items = Default.EmptyArray<T>();
             return true;
-        }
-
-        protected IComponentCollectionListener[] GetListeners()
-        {
-            return _listeners.GetItemsOrDefault();
         }
 
         #endregion

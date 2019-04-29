@@ -22,6 +22,8 @@ namespace MugenMvvm.Infrastructure.Serialization
 
         #region Properties
 
+        public bool IsMetadataInitialized => true;
+
         public IMetadataContext Metadata { get; }
 
         public IServiceProvider ServiceProvider { get; }

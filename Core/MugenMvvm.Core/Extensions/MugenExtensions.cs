@@ -57,13 +57,29 @@ namespace MugenMvvm
         public static void RemoveListener<T>(this IHasListeners<T> hasListeners, T listener, IReadOnlyMetadataContext? metadata = null) where T : class, IListener
         {
             Should.NotBeNull(hasListeners, nameof(hasListeners));
-            hasListeners.Listeners.Remove(listener, metadata);
+            if (hasListeners.IsListenersInitialized)
+                hasListeners.Listeners.Remove(listener, metadata);
         }
 
         public static void RemoveAllListeners<T>(this IHasListeners<T> hasListeners, IReadOnlyMetadataContext? metadata = null) where T : class, IListener
         {
             Should.NotBeNull(hasListeners, nameof(hasListeners));
-            hasListeners.Listeners.Clear(metadata);
+            if (hasListeners.IsListenersInitialized)
+                hasListeners.Listeners.Clear(metadata);
+        }
+
+        public static bool HasListeners<T>(this IHasListeners<T> hasListeners) where T : class, IListener
+        {
+            Should.NotBeNull(hasListeners, nameof(hasListeners));
+            return hasListeners.IsListenersInitialized && hasListeners.Listeners.HasItems;
+        }
+
+        public static T[] GetListeners<T>(this IHasListeners<T> hasListeners) where T : class, IListener
+        {
+            Should.NotBeNull(hasListeners, nameof(hasListeners));
+            if (hasListeners.IsListenersInitialized)
+                return hasListeners.Listeners.GetItems();
+            return Default.EmptyArray<T>();
         }
 
         [Pure]

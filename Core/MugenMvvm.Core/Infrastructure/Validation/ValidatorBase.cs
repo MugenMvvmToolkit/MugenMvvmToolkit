@@ -54,6 +54,10 @@ namespace MugenMvvm.Infrastructure.Validation
 
         protected IMetadataContextProvider? MetadataContextProvider { get; }
 
+        public bool IsListenersInitialized => _listeners != null;
+
+        public bool IsMetadataInitialized => _metadata != null;
+
         public IComponentCollection<IValidatorListener> Listeners
         {
             get
@@ -98,9 +102,8 @@ namespace MugenMvvm.Infrastructure.Validation
             _disposeCancellationTokenSource?.Cancel();
             if (Target is INotifyPropertyChanged notifyPropertyChanged && _weakPropertyHandler != null)
                 notifyPropertyChanged.PropertyChanged -= _weakPropertyHandler;
-            _listeners?.Clear();
-            _metadata?.RemoveAllListeners();
-            _metadata?.Clear();
+            this.RemoveAllListeners();
+            this.ClearMetadata(true);
         }
 
         public IReadOnlyList<object> GetErrors(string? memberName, IReadOnlyMetadataContext? metadata = null)
@@ -261,21 +264,21 @@ namespace MugenMvvm.Infrastructure.Validation
 
         protected virtual void OnErrorsChanged(string memberName, IReadOnlyMetadataContext metadata)
         {
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnErrorsChanged(this, memberName, metadata);
         }
 
         protected virtual void OnAsyncValidation(string memberName, Task validationTask, IReadOnlyMetadataContext metadata)
         {
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnAsyncValidation(this, memberName, validationTask, metadata);
         }
 
         protected virtual void OnDispose()
         {
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnDispose(this);
         }
@@ -297,11 +300,6 @@ namespace MugenMvvm.Infrastructure.Validation
 
             if (raiseNotifications)
                 OnErrorsChanged(memberName, metadata);
-        }
-
-        protected IValidatorListener[] GetListeners()
-        {
-            return _listeners.GetItemsOrDefault();
         }
 
         private void OnValidationCompleted(string memberName, ValidationResult result)

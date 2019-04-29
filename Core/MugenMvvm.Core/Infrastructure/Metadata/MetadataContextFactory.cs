@@ -83,7 +83,7 @@ namespace MugenMvvm.Infrastructure.Metadata
 
             IEnumerator IEnumerable.GetEnumerator()
             {
-                return ((IReadOnlyMetadataContext) this).GetEnumerator();
+                return ((IReadOnlyMetadataContext)this).GetEnumerator();
             }
 
             IEnumerator<MetadataContextValue> IEnumerable<MetadataContextValue>.GetEnumerator()
@@ -155,6 +155,8 @@ namespace MugenMvvm.Infrastructure.Metadata
                 }
             }
 
+            public bool IsListenersInitialized => _listeners != null;
+
             public IComponentCollection<IObservableMetadataContextListener> Listeners
             {
                 get
@@ -164,8 +166,6 @@ namespace MugenMvvm.Infrastructure.Metadata
                     return _listeners;
                 }
             }
-
-            private bool HasListeners => _listeners != null && Listeners.HasItems;
 
             #endregion
 
@@ -354,7 +354,7 @@ namespace MugenMvvm.Infrastructure.Metadata
             public void Merge(IEnumerable<MetadataContextValue> items)
             {
                 Should.NotBeNull(items, nameof(items));
-                if (HasListeners)
+                if (this.HasListeners())
                 {
                     var values = new List<KeyValuePair<MetadataContextValue, object?>>();
                     lock (this)
@@ -392,12 +392,14 @@ namespace MugenMvvm.Infrastructure.Metadata
             bool IMetadataContext.Remove(IMetadataContextKey contextKey)
             {
                 Should.NotBeNull(contextKey, nameof(contextKey));
-                if (HasListeners)
+                if (this.HasListeners())
                 {
                     bool changed;
                     object? oldValue;
                     lock (this)
                     {
+                        if (Count == 0)
+                            return false;
                         changed = TryGetValue(contextKey, out oldValue) && Remove(contextKey);
                     }
 
@@ -408,17 +410,19 @@ namespace MugenMvvm.Infrastructure.Metadata
 
                 lock (this)
                 {
-                    return Remove(contextKey);
+                    return Count != 0 && Remove(contextKey);
                 }
             }
 
             void IMetadataContext.Clear()
             {
-                if (HasListeners)
+                if (this.HasListeners())
                 {
                     KeyValuePair<IMetadataContextKey, object?>[] oldValues;
                     lock (this)
                     {
+                        if (Count == 0)
+                            return;
                         oldValues = ToArray();
                         Clear();
                     }
@@ -454,28 +458,23 @@ namespace MugenMvvm.Infrastructure.Metadata
 
             private void OnAdded(IMetadataContextKey key, object? newValue)
             {
-                var items = GetListeners();
+                var items = this.GetListeners();
                 for (var i = 0; i < items.Length; i++)
                     items[i].OnAdded(this, key, newValue);
             }
 
             private void OnChanged(IMetadataContextKey key, object? oldValue, object? newValue)
             {
-                var items = GetListeners();
+                var items = this.GetListeners();
                 for (var i = 0; i < items.Length; i++)
                     items[i].OnChanged(this, key, oldValue, newValue);
             }
 
             private void OnRemoved(IMetadataContextKey key, object? oldValue)
             {
-                var items = GetListeners();
+                var items = this.GetListeners();
                 for (var i = 0; i < items.Length; i++)
                     items[i].OnRemoved(this, key, oldValue);
-            }
-
-            private IObservableMetadataContextListener[] GetListeners()
-            {
-                return _listeners.GetItemsOrDefault();
             }
 
             #endregion

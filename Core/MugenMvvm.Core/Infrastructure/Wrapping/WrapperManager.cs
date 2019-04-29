@@ -30,6 +30,8 @@ namespace MugenMvvm.Infrastructure.Wrapping
 
         protected IComponentCollectionProvider ComponentCollectionProvider { get; }
 
+        public bool IsListenersInitialized => _listeners != null;
+
         public IComponentCollection<IWrapperManagerListener> Listeners
         {
             get
@@ -103,16 +105,11 @@ namespace MugenMvvm.Infrastructure.Wrapping
             if (wrapper == null)
                 ExceptionManager.ThrowWrapperTypeNotSupported(wrapperType);
 
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnWrapped(this, wrapper!, item, wrapperType, metadata);
 
             return wrapper!;
-        }
-
-        protected IWrapperManagerListener[] GetListeners()
-        {
-            return _listeners.GetItemsOrDefault();
         }
 
         #endregion

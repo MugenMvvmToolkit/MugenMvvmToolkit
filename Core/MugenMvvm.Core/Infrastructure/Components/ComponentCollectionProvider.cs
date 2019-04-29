@@ -25,6 +25,8 @@ namespace MugenMvvm.Infrastructure.Components
 
         #region Properties
 
+        public bool IsListenersInitialized => _listeners != null;
+
         public IComponentCollection<IComponentCollectionProviderListener> Listeners
         {
             get
@@ -86,14 +88,9 @@ namespace MugenMvvm.Infrastructure.Components
         protected virtual void OnComponentCollectionCreated<T>(IComponentCollection<T> result, IReadOnlyMetadataContext metadata)
             where T : class
         {
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnComponentCollectionCreated(this, result, metadata);
-        }
-
-        protected IComponentCollectionProviderListener[] GetListeners()
-        {
-            return _listeners.GetItemsOrDefault();
         }
 
         #endregion

@@ -28,6 +28,8 @@ namespace MugenMvvm.Infrastructure.Metadata
 
         #region Properties
 
+        public bool IsListenersInitialized => _listeners != null;
+
         public IComponentCollection<IMetadataContextProviderListener> Listeners
         {
             get

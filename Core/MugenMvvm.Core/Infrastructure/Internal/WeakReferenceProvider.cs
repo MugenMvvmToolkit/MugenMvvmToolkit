@@ -46,6 +46,9 @@ namespace MugenMvvm.Infrastructure.Internal
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(metadata, nameof(metadata));
 
+            if (item is IWeakReference w)
+                return w;
+
             var factories = WeakReferenceFactories.GetItems();
             for (var i = 0; i < factories.Length; i++)
             {

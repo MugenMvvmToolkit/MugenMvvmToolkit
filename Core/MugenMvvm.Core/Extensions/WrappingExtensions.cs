@@ -63,7 +63,6 @@ namespace MugenMvvm
             return wrapperManager.AddWrapper(typeof(TWrapper), typeof(TImplementation), wrapperFactory);
         }
 
-
         public static TView? TryWrap<TView>(this IViewInfo viewInfo, IReadOnlyMetadataContext? metadata = null, IWrapperManager wrapperManager = null)
             where TView : class
         {
@@ -100,6 +99,13 @@ namespace MugenMvvm
             return wrapperType.IsInstanceOfTypeUnified(viewInfo.View) || wrapperManager.ServiceIfNull().CanWrap(viewInfo.View.GetType(), wrapperType, metadata);
         }
 
+        public static IComponentCollection<object> GetOrAddWrappersCollection(this IViewInfo viewInfo, IComponentCollectionProvider? provider = null)
+        {
+            return viewInfo
+                .Metadata
+                .GetOrAdd(ViewMetadata.Wrappers, viewInfo, provider, (context, v, p) => p.ServiceIfNull().GetComponentCollection<object>(v, context));
+        }
+
         private static object? WrapInternal(this IViewInfo viewInfo, Type wrapperType, IReadOnlyMetadataContext? metadata, IWrapperManager? wrapperManager, bool checkCanWrap)
         {
             Should.NotBeNull(viewInfo, nameof(viewInfo));
@@ -110,9 +116,7 @@ namespace MugenMvvm
             if (metadata == null)
                 metadata = Default.MetadataContext;
 
-            var collection = viewInfo
-                .Metadata
-                .GetOrAdd(ViewMetadata.Wrappers, viewInfo, viewInfo, (context, v, __) => Service<IComponentCollectionProvider>.Instance.GetComponentCollection<object>(v, context));
+            var collection = viewInfo.GetOrAddWrappersCollection();
             lock (collection)
             {
                 var item = collection.GetItems().FirstOrDefault(wrapperType.IsInstanceOfTypeUnified);

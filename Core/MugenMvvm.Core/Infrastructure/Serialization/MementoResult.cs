@@ -43,6 +43,8 @@ namespace MugenMvvm.Infrastructure.Serialization
 
         public bool IsRestored { get; }
 
+        public bool IsMetadataInitialized => true;
+
         public IReadOnlyMetadataContext Metadata { get; }
 
         public object? Target { get; }

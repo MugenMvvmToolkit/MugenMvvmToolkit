@@ -10,7 +10,6 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.ViewModels.Infrastructure;
-using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Infrastructure;
 using MugenMvvm.Metadata;
 
@@ -34,18 +33,15 @@ namespace MugenMvvm.Infrastructure.Views
         }
 
         [Preserve(Conditional = true)]
-        public MappingViewManager(IThreadDispatcher threadDispatcher, IViewModelDispatcher viewModelDispatcher, IViewDataContextProvider dataContextProvider,
-            IServiceProvider serviceProvider, IMetadataContextProvider metadataContextProvider)
+        public MappingViewManager(IThreadDispatcher threadDispatcher, IViewModelDispatcher viewModelDispatcher, IServiceProvider serviceProvider, IMetadataContextProvider metadataContextProvider)
         {
             Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
             Should.NotBeNull(viewModelDispatcher, nameof(viewModelDispatcher));
-            Should.NotBeNull(dataContextProvider, nameof(dataContextProvider));
             Should.NotBeNull(serviceProvider, nameof(serviceProvider));
             Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
             MetadataContextProvider = metadataContextProvider;
             ThreadDispatcher = threadDispatcher;
             ViewModelDispatcher = viewModelDispatcher;
-            DataContextProvider = dataContextProvider;
             ServiceProvider = serviceProvider;
             _mappings = new List<MappingInfo>();
             InitializeExecutionMode = ThreadExecutionMode.Main;
@@ -65,8 +61,6 @@ namespace MugenMvvm.Infrastructure.Views
         protected IThreadDispatcher ThreadDispatcher { get; }
 
         protected IViewModelDispatcher ViewModelDispatcher { get; }
-
-        protected IViewDataContextProvider DataContextProvider { get; }
 
         protected IServiceProvider ServiceProvider { get; }
 
@@ -194,18 +188,14 @@ namespace MugenMvvm.Infrastructure.Views
                     if (ReferenceEquals(oldView.View, view))
                         return new ViewManagerResult(viewModel, oldView, Default.MetadataContext);
 
-                    CleanupInternal(parentViewManager, oldView, viewModel, metadata);
+                    parentViewManager.OnViewCleared(oldView, viewModel, metadata);
                 }
 
                 viewInfo = new ViewInfo(this, parentViewManager, mappingId, initializer, view, null);
                 views[mappingId] = viewInfo;
             }
 
-            ViewModelDispatcher.Subscribe(viewModel, view, ThreadExecutionMode.Main, metadata);
-            DataContextProvider.SetDataContext(view, viewModel, metadata);
-            (view as IInitializableView)?.Initialize(viewModel, viewInfo, metadata);
-            parentViewManager.OnViewInitialized(viewModel, viewInfo, metadata);
-
+            parentViewManager.OnViewInitialized(viewInfo, viewModel, metadata);
             return new ViewManagerResult(viewModel, viewInfo, Default.MetadataContext);
         }
 
@@ -222,7 +212,7 @@ namespace MugenMvvm.Infrastructure.Views
                     return CleanupViewManagerResult.Empty;
             }
 
-            CleanupInternal(parentViewManager, viewInfo, viewModel, metadata);
+            parentViewManager.OnViewCleared(viewInfo, viewModel, metadata);
             return CleanupViewManagerResult.Empty;
         }
 
@@ -240,14 +230,6 @@ namespace MugenMvvm.Infrastructure.Views
             var view = ServiceProvider.GetService(initializer.ViewType);
             parentViewManager.OnViewCreated(view, viewModel, metadata);
             return view;
-        }
-
-        private void CleanupInternal(IParentViewManager parentViewManager, IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
-        {
-            ViewModelDispatcher.Unsubscribe(viewModel, viewInfo.View, metadata);
-            DataContextProvider.SetDataContext(viewInfo.View, null, metadata);
-            (viewInfo.View as ICleanableView)?.Cleanup(metadata);
-            parentViewManager.OnViewCleared(viewModel, viewInfo, metadata);
         }
 
         #endregion
@@ -362,6 +344,8 @@ namespace MugenMvvm.Infrastructure.Views
             #endregion
 
             #region Properties
+
+            public bool IsMetadataInitialized => true;
 
             public IReadOnlyMetadataContext Metadata => Mapping.Metadata;
 
@@ -496,6 +480,8 @@ namespace MugenMvvm.Infrastructure.Views
 
             #region Properties
 
+            public bool IsMetadataInitialized => _metadata != null;
+
             public IObservableMetadataContext Metadata
             {
                 get
@@ -530,9 +516,7 @@ namespace MugenMvvm.Infrastructure.Views
 
             public ICleanupViewManagerResult Cleanup(IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
             {
-                var result = _viewManager.Cleanup(_parentViewManager, this, _mappingId, viewModel, metadata);
-                _metadata?.Clear();
-                return result;
+                return _viewManager.Cleanup(_parentViewManager, this, _mappingId, viewModel, metadata);
             }
 
             #endregion

@@ -43,6 +43,10 @@ namespace MugenMvvm.Infrastructure.Validation
 
         protected IMetadataContextProvider? MetadataContextProvider { get; }
 
+        public bool IsListenersInitialized => _listeners != null;
+
+        public bool IsMetadataInitialized => _metadata != null;
+
         public IComponentCollection<IValidatorListener> Listeners
         {
             get
@@ -88,9 +92,8 @@ namespace MugenMvvm.Infrastructure.Validation
             if (Interlocked.Exchange(ref _state, DisposedState) == DisposedState)
                 return;
             OnDispose();
-            _listeners?.Clear();
-            _metadata?.RemoveAllListeners();
-            _metadata?.Clear();
+            this.RemoveAllListeners();
+            this.ClearMetadata(true);
         }
 
         public IReadOnlyList<object> GetErrors(string? memberName, IReadOnlyMetadataContext? metadata = null)
@@ -191,7 +194,7 @@ namespace MugenMvvm.Infrastructure.Validation
                 errors.AddRange(list);
             }
 
-            return errors ?? (IReadOnlyList<object>) Default.EmptyArray<object>();
+            return errors ?? (IReadOnlyList<object>)Default.EmptyArray<object>();
         }
 
         protected virtual IReadOnlyDictionary<string, IReadOnlyList<object>> GetErrorsInternal(IReadOnlyMetadataContext? metadata)
@@ -218,7 +221,7 @@ namespace MugenMvvm.Infrastructure.Validation
                         errors[keyValuePair.Key] = list;
                     }
 
-                    ((List<object>) list).AddRange(keyValuePair.Value);
+                    ((List<object>)list).AddRange(keyValuePair.Value);
                 }
             }
 
@@ -276,21 +279,21 @@ namespace MugenMvvm.Infrastructure.Validation
 
         protected virtual void OnDispose()
         {
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnDispose(this);
         }
 
         protected virtual void OnErrorsChanged(IValidator validator, string memberName, IReadOnlyMetadataContext metadata)
         {
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnErrorsChanged(this, memberName, metadata);
         }
 
         protected virtual void OnAsyncValidation(IValidator validator, string memberName, Task validationTask, IReadOnlyMetadataContext metadata)
         {
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnAsyncValidation(this, memberName, validationTask, metadata);
         }
@@ -313,11 +316,6 @@ namespace MugenMvvm.Infrastructure.Validation
         protected virtual void OnValidatorRemoved(IValidator validator, IReadOnlyMetadataContext metadata)
         {
             validator.RemoveListener(this);
-        }
-
-        protected IValidatorListener[] GetListeners()
-        {
-            return _listeners.GetItemsOrDefault();
         }
 
         protected IValidator[] GetValidators()

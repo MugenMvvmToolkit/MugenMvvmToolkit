@@ -5,6 +5,8 @@ namespace MugenMvvm.Interfaces.Models
     public interface IHasMetadata<out T>
         where T : class, IReadOnlyMetadataContext
     {
+        bool IsMetadataInitialized { get; }
+
         T Metadata { get; }
     }
 }

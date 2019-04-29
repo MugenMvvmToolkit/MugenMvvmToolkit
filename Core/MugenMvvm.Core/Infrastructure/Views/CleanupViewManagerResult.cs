@@ -23,6 +23,8 @@ namespace MugenMvvm.Infrastructure.Views
 
         #region Properties
 
+        public bool IsMetadataInitialized => true;
+
         public IReadOnlyMetadataContext Metadata { get; }
 
         #endregion

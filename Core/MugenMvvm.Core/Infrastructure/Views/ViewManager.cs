@@ -31,6 +31,8 @@ namespace MugenMvvm.Infrastructure.Views
 
         protected IComponentCollectionProvider ComponentCollectionProvider { get; }
 
+        public bool IsListenersInitialized => _listeners != null;
+
         public IComponentCollection<IViewManagerListener> Listeners
         {
             get
@@ -92,20 +94,20 @@ namespace MugenMvvm.Infrastructure.Views
             OnViewCreated(view, viewModel, metadata);
         }
 
-        void IParentViewManager.OnViewInitialized(IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
+        void IParentViewManager.OnViewInitialized(IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(viewInfo, nameof(viewInfo));
             Should.NotBeNull(metadata, nameof(metadata));
-            OnViewInitialized(viewModel, viewInfo, metadata);
+            OnViewInitialized(viewInfo, viewModel, metadata);
         }
 
-        void IParentViewManager.OnViewCleared(IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
+        void IParentViewManager.OnViewCleared(IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(viewInfo, nameof(viewInfo));
             Should.NotBeNull(metadata, nameof(metadata));
-            OnViewCleared(viewModel, viewInfo, metadata);
+            OnViewCleared(viewInfo, viewModel, metadata);
         }
 
         #endregion
@@ -156,35 +158,30 @@ namespace MugenMvvm.Infrastructure.Views
 
         protected virtual void OnViewModelCreated(IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata)
         {
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnViewModelCreated(this, viewModel, view, metadata);
         }
 
         protected virtual void OnViewCreated(object view, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
         {
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnViewCreated(this, view, viewModel, metadata);
         }
 
-        protected virtual void OnViewInitialized(IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
+        protected virtual void OnViewInitialized(IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
         {
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnViewInitialized(this, viewModel, viewInfo, metadata);
+                listeners[i].OnViewInitialized(this, viewInfo, viewModel, metadata);
         }
 
-        protected virtual void OnViewCleared(IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
+        protected virtual void OnViewCleared(IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
         {
-            var listeners = GetListeners();
+            var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnViewCleared(this, viewModel, viewInfo, metadata);
-        }
-
-        protected IViewManagerListener[] GetListeners()
-        {
-            return _listeners.GetItemsOrDefault();
+                listeners[i].OnViewCleared(this, viewInfo, viewModel, metadata);
         }
 
         #endregion
