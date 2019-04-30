@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Serialization;
 
 namespace MugenMvvm.Infrastructure.Metadata
 {
-    public abstract class MetadataContextKey : IMetadataContextKey, IHasStringId
+    public abstract class MetadataContextKey : IMetadataContextKey, IHasId<string>
     {
         #region Constructors
 
@@ -88,7 +88,7 @@ namespace MugenMvvm.Infrastructure.Metadata
 
         protected virtual bool EqualsInternal(IMetadataContextKey other)
         {
-            return other is IHasStringId hasStringId && string.Equals(Id, hasStringId.Id);
+            return other is IHasId<string> hasStringId && string.Equals(Id, hasStringId.Id);
         }
 
         #endregion

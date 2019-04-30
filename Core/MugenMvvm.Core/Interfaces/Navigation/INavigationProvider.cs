@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Interfaces.Navigation
 {
-    public interface INavigationProvider : IHasStringId
+    public interface INavigationProvider : IHasId<string>
     {
     }
 }
