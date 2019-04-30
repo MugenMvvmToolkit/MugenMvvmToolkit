@@ -58,7 +58,7 @@ namespace MugenMvvm.Infrastructure.Views
 
         public virtual void OnViewCleared(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
         {
-            ViewModelDispatcher.Unsubscribe(viewModel, viewInfo.View, metadata); //todo move to cleanup task
+            ViewModelDispatcher.Unsubscribe(viewModel, viewInfo.View, metadata);
             DataContextProvider.SetDataContext(viewInfo.View, null, metadata);
             (viewInfo.View as ICleanableView)?.Cleanup(metadata);
             viewInfo.ClearMetadata(true);

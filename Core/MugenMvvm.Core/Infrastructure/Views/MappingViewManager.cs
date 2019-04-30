@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
@@ -203,13 +204,12 @@ namespace MugenMvvm.Infrastructure.Views
             IReadOnlyMetadataContext metadata)
         {
             var views = viewModel.Metadata.Get(ViewsMetadataKey);
-            if (views == null)
-                return CleanupViewManagerResult.Empty;
-
-            lock (views)
+            if (views != null)
             {
-                if (!views.Remove(mappingId))
-                    return CleanupViewManagerResult.Empty;
+                lock (views)
+                {
+                    views.Remove(mappingId);
+                }
             }
 
             parentViewManager.OnViewCleared(viewInfo, viewModel, metadata);
@@ -454,7 +454,7 @@ namespace MugenMvvm.Infrastructure.Views
 
             private readonly IViewManagerInitializer _initializer;
 
-            private readonly int _mappingId;
+            private int _mappingId;
             private readonly IParentViewManager _parentViewManager;
             private readonly MappingViewManager _viewManager;
 
@@ -516,6 +516,8 @@ namespace MugenMvvm.Infrastructure.Views
 
             public ICleanupViewManagerResult Cleanup(IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
             {
+                if (Interlocked.Exchange(ref _mappingId, int.MaxValue) == int.MaxValue)
+                    return CleanupViewManagerResult.Empty;
                 return _viewManager.Cleanup(_parentViewManager, this, _mappingId, viewModel, metadata);
             }
 
