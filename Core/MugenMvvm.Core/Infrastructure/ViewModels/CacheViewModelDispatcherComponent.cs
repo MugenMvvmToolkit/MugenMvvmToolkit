@@ -70,7 +70,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
                 RemoveFromCache(ViewModelMetadata.Id.GetValue(metadataContext, oldValue));
         }
 
-        public void OnLifecycleChanged(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState,
+        public IReadOnlyMetadataContext? OnLifecycleChanged(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState,
             IReadOnlyMetadataContext metadata)
         {
             if (lifecycleState == ViewModelLifecycleState.Created)
@@ -83,6 +83,8 @@ namespace MugenMvvm.Infrastructure.ViewModels
                 RemoveFromCache(viewModel.Metadata.Get(ViewModelMetadata.Id));
                 viewModel.Metadata.RemoveListener(this);
             }
+
+            return null;
         }
 
         public IViewModelBase? TryGetViewModel(IViewModelDispatcher viewModelDispatcher, Type viewModelType, IReadOnlyMetadataContext metadata)
@@ -100,9 +102,9 @@ namespace MugenMvvm.Infrastructure.ViewModels
             }
 
             if (!_isWeakCache)
-                return (IViewModelBase) value;
+                return (IViewModelBase)value;
 
-            var vm = (IViewModelBase) ((IWeakReference) value).Target;
+            var vm = (IViewModelBase)((IWeakReference)value).Target;
             if (vm == null)
                 RemoveFromCache(id);
             return vm;
@@ -116,7 +118,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
         {
             lock (_viewModelsCache)
             {
-                _viewModelsCache[id] = _isWeakCache ? (object) MugenExtensions.GetWeakReference(viewModel) : viewModel;
+                _viewModelsCache[id] = _isWeakCache ? (object)MugenExtensions.GetWeakReference(viewModel) : viewModel;
             }
         }
 

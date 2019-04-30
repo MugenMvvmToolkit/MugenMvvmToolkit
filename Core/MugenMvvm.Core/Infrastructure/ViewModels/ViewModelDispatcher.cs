@@ -5,7 +5,6 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.ViewModels.Infrastructure;
-using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.ViewModels
 {
@@ -20,10 +19,12 @@ namespace MugenMvvm.Infrastructure.ViewModels
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelDispatcher(IComponentCollectionProvider componentCollectionProvider)
+        public ViewModelDispatcher(IComponentCollectionProvider componentCollectionProvider, IMetadataContextProvider metadataContextProvider)
         {
             Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
+            Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
             ComponentCollectionProvider = componentCollectionProvider;
+            MetadataContextProvider = metadataContextProvider;
         }
 
         #endregion
@@ -31,6 +32,8 @@ namespace MugenMvvm.Infrastructure.ViewModels
         #region Properties
 
         protected IComponentCollectionProvider ComponentCollectionProvider { get; }
+
+        protected IMetadataContextProvider MetadataContextProvider { get; }
 
         public IComponentCollection<IViewModelDispatcherComponent> Components
         {
@@ -46,12 +49,12 @@ namespace MugenMvvm.Infrastructure.ViewModels
 
         #region Implementation of interfaces
 
-        public void OnLifecycleChanged(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadata)
+        public IReadOnlyMetadataContext OnLifecycleChanged(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(lifecycleState, nameof(lifecycleState));
             Should.NotBeNull(metadata, nameof(metadata));
-            OnLifecycleChangedInternal(viewModel, lifecycleState, metadata);
+            return OnLifecycleChangedInternal(viewModel, lifecycleState, metadata);
         }
 
         public object GetService(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext metadata)
@@ -103,14 +106,24 @@ namespace MugenMvvm.Infrastructure.ViewModels
 
         #region Methods
 
-        protected virtual void OnLifecycleChangedInternal(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadata)
+        protected virtual IReadOnlyMetadataContext? OnLifecycleChangedInternal(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadata)
         {
-            if (lifecycleState != ViewModelLifecycleState.Finalized)
-                viewModel.Metadata.Set(ViewModelMetadata.LifecycleState, lifecycleState);
-
+            //            if (lifecycleState != ViewModelLifecycleState.Finalized)
+            //                viewModel.Metadata.Set(ViewModelMetadata.LifecycleState, lifecycleState);//todo move to component
+            IMetadataContext? result = null;
             var managers = Components.GetItems();
             for (var i = 0; i < managers.Length; i++)
-                managers[i].OnLifecycleChanged(this, viewModel, lifecycleState, metadata);
+            {
+                var m = managers[i].OnLifecycleChanged(this, viewModel, lifecycleState, metadata);
+                if (m == null || m.Count == 0)
+                    continue;
+
+                if (result == null)
+                    result = MetadataContextProvider.GetMetadataContext(this, null);
+                result.Merge(m);
+            }
+
+            return result ?? Default.MetadataContext;
         }
 
         protected virtual object? GetServiceInternal(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext metadata)

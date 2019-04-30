@@ -6,7 +6,6 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Infrastructure.Messaging;
-using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
@@ -18,7 +17,6 @@ namespace MugenMvvm.Infrastructure.Views
     {
         #region Fields
 
-        private readonly IReflectionDelegateProvider _reflectionDelegateProvider;
         private static readonly MethodInfo UpdateViewMethodInfo;
         private static readonly MethodInfo UpdateViewModelMethodInfo;
 
@@ -42,10 +40,8 @@ namespace MugenMvvm.Infrastructure.Views
         }
 
         [Preserve(Conditional = true)]
-        public ViewAwareInitializerViewManagerListener(IReflectionDelegateProvider reflectionDelegateProvider)
+        public ViewAwareInitializerViewManagerListener()
         {
-            Should.NotBeNull(reflectionDelegateProvider, nameof(reflectionDelegateProvider));
-            _reflectionDelegateProvider = reflectionDelegateProvider;
         }
 
         #endregion
@@ -154,7 +150,7 @@ namespace MugenMvvm.Infrastructure.Views
                 var propertyInfo = @interface.GetPropertyUnified(propertyName, MemberFlags.InstancePublic);
                 if (propertyInfo == null)
                     continue;
-                var methodDelegate = _reflectionDelegateProvider.GetMethodDelegate(method.MakeGenericMethod(propertyInfo.PropertyType));
+                var methodDelegate = method.MakeGenericMethod(propertyInfo.PropertyType).GetMethodDelegate();
                 if (result == null)
                     result = methodDelegate;
                 else

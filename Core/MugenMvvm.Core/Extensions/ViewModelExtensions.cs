@@ -13,7 +13,8 @@ namespace MugenMvvm
     {
         #region Methods
 
-        public static bool TrySubscribe(this IViewModelBase viewModel, object observer, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null, IViewModelDispatcher? dispatcher = null)
+        public static bool TrySubscribe(this IViewModelBase viewModel, object observer, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null,
+            IViewModelDispatcher? dispatcher = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(observer, nameof(observer));
@@ -32,6 +33,12 @@ namespace MugenMvvm
             if (viewModel is IHasServiceOptional<TService> hasServiceOptional)
                 return hasServiceOptional.ServiceOptional;
             return viewModel.TryGetService<TService>();
+        }
+
+        public static IReadOnlyMetadataContext NotifyLifecycleChanged(this IViewModelBase viewModel, ViewModelLifecycleState state, IReadOnlyMetadataContext metadata,
+            IViewModelDispatcher? dispatcher = null)
+        {
+            return dispatcher.ServiceIfNull().OnLifecycleChanged(viewModel, state, metadata);
         }
 
         public static void InvalidateCommands<TViewModel>(this TViewModel viewModel) where TViewModel : class, IViewModelBase, IHasService<IEventPublisher>
