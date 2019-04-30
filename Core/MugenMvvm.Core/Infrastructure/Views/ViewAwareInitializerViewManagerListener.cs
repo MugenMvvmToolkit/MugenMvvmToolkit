@@ -18,7 +18,7 @@ namespace MugenMvvm.Infrastructure.Views
     {
         #region Fields
 
-        private readonly IReflectionManager _reflectionManager;
+        private readonly IReflectionDelegateProvider _reflectionDelegateProvider;
         private static readonly MethodInfo UpdateViewMethodInfo;
         private static readonly MethodInfo UpdateViewModelMethodInfo;
 
@@ -42,10 +42,10 @@ namespace MugenMvvm.Infrastructure.Views
         }
 
         [Preserve(Conditional = true)]
-        public ViewAwareInitializerViewManagerListener(IReflectionManager reflectionManager)
+        public ViewAwareInitializerViewManagerListener(IReflectionDelegateProvider reflectionDelegateProvider)
         {
-            Should.NotBeNull(reflectionManager, nameof(reflectionManager));
-            _reflectionManager = reflectionManager;
+            Should.NotBeNull(reflectionDelegateProvider, nameof(reflectionDelegateProvider));
+            _reflectionDelegateProvider = reflectionDelegateProvider;
         }
 
         #endregion
@@ -154,7 +154,7 @@ namespace MugenMvvm.Infrastructure.Views
                 var propertyInfo = @interface.GetPropertyUnified(propertyName, MemberFlags.InstancePublic);
                 if (propertyInfo == null)
                     continue;
-                var methodDelegate = _reflectionManager.GetMethodDelegate(method.MakeGenericMethod(propertyInfo.PropertyType));
+                var methodDelegate = _reflectionDelegateProvider.GetMethodDelegate(method.MakeGenericMethod(propertyInfo.PropertyType));
                 if (result == null)
                     result = methodDelegate;
                 else

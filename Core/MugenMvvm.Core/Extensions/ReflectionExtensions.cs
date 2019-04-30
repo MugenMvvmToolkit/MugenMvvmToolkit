@@ -48,26 +48,32 @@ namespace MugenMvvm
             return CreateWeakDelegate(target, invokeAction, _unsubscribePropertyChangedDelegate, _createPropertyChangedHandlerDelegate);
         }
 
-        public static TDelegate GetMethodDelegate<TDelegate>(this MethodInfo method, IReflectionManager? reflectionManager = null)
+        public static TDelegate GetMethodDelegate<TDelegate>(this MethodInfo method, IReflectionDelegateProvider? reflectionDelegateProvider = null)
             where TDelegate : Delegate
         {
             Should.NotBeNull(method, nameof(method));
-            return (TDelegate)reflectionManager.ServiceIfNull().GetMethodDelegate(typeof(TDelegate), method);
+            return (TDelegate)reflectionDelegateProvider.ServiceIfNull().GetMethodDelegate(typeof(TDelegate), method);
         }
 
-        public static T GetValueEx<T>(this MemberInfo member, object? target, IReflectionManager? reflectionManager = null)
+        public static Func<object?, object?[], object?> GetMethodDelegate(this MethodInfo method, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
-            return reflectionManager.ServiceIfNull().GetMemberGetter<T>(member).Invoke(target);
+            Should.NotBeNull(method, nameof(method));
+            return reflectionDelegateProvider.ServiceIfNull().GetMethodDelegate(method);
         }
 
-        public static void SetValueEx<T>(this MemberInfo member, object target, T value, IReflectionManager? reflectionManager = null)
+        public static T GetValueEx<T>(this MemberInfo member, object? target, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
-            reflectionManager.ServiceIfNull().GetMemberSetter<T>(member).Invoke(target, value);
+            return reflectionDelegateProvider.ServiceIfNull().GetMemberGetter<T>(member).Invoke(target);
         }
 
-        public static object InvokeEx(this ConstructorInfo constructor, IReflectionManager? reflectionManager = null)
+        public static void SetValueEx<T>(this MemberInfo member, object target, T value, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
-            return constructor.InvokeEx(reflectionManager, Default.EmptyArray<object>());
+            reflectionDelegateProvider.ServiceIfNull().GetMemberSetter<T>(member).Invoke(target, value);
+        }
+
+        public static object InvokeEx(this ConstructorInfo constructor, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        {
+            return constructor.InvokeEx(reflectionDelegateProvider, Default.EmptyArray<object>());
         }
 
         public static object InvokeEx(this ConstructorInfo constructor, params object?[] parameters)
@@ -75,14 +81,14 @@ namespace MugenMvvm
             return constructor.InvokeEx(null, parameters);
         }
 
-        public static object InvokeEx(this ConstructorInfo constructor, IReflectionManager? reflectionManager = null, params object?[] parameters)
+        public static object InvokeEx(this ConstructorInfo constructor, IReflectionDelegateProvider? reflectionDelegateProvider = null, params object?[] parameters)
         {
-            return reflectionManager.ServiceIfNull().GetActivatorDelegate(constructor).Invoke(parameters);
+            return reflectionDelegateProvider.ServiceIfNull().GetActivatorDelegate(constructor).Invoke(parameters);
         }
 
-        public static object? InvokeEx(this MethodInfo method, object? target, IReflectionManager? reflectionManager = null)
+        public static object? InvokeEx(this MethodInfo method, object? target, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
-            return method.InvokeEx(target, reflectionManager, Default.EmptyArray<object>());
+            return method.InvokeEx(target, reflectionDelegateProvider, Default.EmptyArray<object>());
         }
 
         public static object? InvokeEx(this MethodInfo method, object? target, params object?[] parameters)
@@ -90,9 +96,9 @@ namespace MugenMvvm
             return method.InvokeEx(target, null, parameters);
         }
 
-        public static object? InvokeEx(this MethodInfo method, object? target, IReflectionManager? reflectionManager = null, params object?[] parameters)
+        public static object? InvokeEx(this MethodInfo method, object? target, IReflectionDelegateProvider? reflectionDelegateProvider = null, params object?[] parameters)
         {
-            return reflectionManager.ServiceIfNull().GetMethodDelegate(method).Invoke(target, parameters);
+            return reflectionDelegateProvider.ServiceIfNull().GetMethodDelegate(method).Invoke(target, parameters);
         }
 
         private static void UnsubscribePropertyChanged(object sender, PropertyChangedEventHandler handler)

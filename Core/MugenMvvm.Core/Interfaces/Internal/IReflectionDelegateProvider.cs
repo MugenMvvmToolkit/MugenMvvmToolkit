@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Reflection;
+using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Internal
 {
-    public interface IReflectionManager
+    public interface IReflectionDelegateProvider
     {
+        IComponentCollection<IReflectionDelegateFactory> ReflectionDelegateFactories { get; }
+
         Func<object?[], object> GetActivatorDelegate(ConstructorInfo constructor);
 
         Func<object?, object?[], object?> GetMethodDelegate(MethodInfo method);

@@ -5,7 +5,6 @@ using System.Reflection;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
@@ -154,7 +153,7 @@ namespace MugenMvvm.Infrastructure.Components
                 if (i.GetGenericTypeDefinition() != interfaceType)
                     continue;
 
-                var methodDelegate = Service<IReflectionManager>.Instance.GetMethodDelegate(AttachDetachMethodInfo.MakeGenericMethod(i.GetGenericArgumentsUnified()[0]));
+                var methodDelegate = AttachDetachMethodInfo.MakeGenericMethod(i.GetGenericArgumentsUnified()[0]).GetMethodDelegate();
                 if (result == null)
                     result = methodDelegate;
                 else
