@@ -119,7 +119,7 @@ namespace MugenMvvm.Infrastructure.Navigation
             }
         }
 
-        protected bool CanAddNavigationEntry(INavigationContext navigationContext)
+        protected virtual bool CanAddNavigationEntry(INavigationContext navigationContext)
         {
             var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
@@ -131,7 +131,7 @@ namespace MugenMvvm.Infrastructure.Navigation
             return navigationContext.NavigationMode.IsRefresh || navigationContext.NavigationMode.IsBack || navigationContext.NavigationMode.IsNew;
         }
 
-        protected bool CanRemoveNavigationEntry(INavigationContext navigationContext)
+        protected virtual bool CanRemoveNavigationEntry(INavigationContext navigationContext)
         {
             var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)

@@ -1,12 +1,13 @@
 ﻿using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Interfaces.Navigation
 {
-    //todo add listeners to all components!
-    public interface INavigationContextFactory : IAttachableComponent<INavigationDispatcher>, IDetachableComponent<INavigationDispatcher>
+    public interface INavigationContextFactory : IHasListeners<INavigationContextFactoryListener>, IAttachableComponent<INavigationDispatcher>,
+        IDetachableComponent<INavigationDispatcher>
     {
         INavigationContext GetNavigationContext(INavigationProvider navigationProvider, NavigationMode navigationMode, NavigationType navigationTypeFrom,
             IViewModelBase? viewModelFrom,

@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Components;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.ViewModels;
@@ -9,11 +10,19 @@ namespace MugenMvvm.Infrastructure.Navigation
 {
     public class NavigationContextFactory : AttachableComponentBase<INavigationDispatcher>, INavigationContextFactory
     {
+        #region Fields
+
+        private IComponentCollection<INavigationContextFactoryListener>? _listeners;
+
+        #endregion
+
         #region Constructors
 
-        public NavigationContextFactory(IMetadataContextProvider metadataContextProvider)
+        public NavigationContextFactory(IComponentCollectionProvider componentCollectionProvider, IMetadataContextProvider metadataContextProvider)
         {
+            Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
             Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
+            ComponentCollectionProvider = componentCollectionProvider;
             MetadataContextProvider = metadataContextProvider;
         }
 
@@ -22,6 +31,20 @@ namespace MugenMvvm.Infrastructure.Navigation
         #region Properties
 
         protected IMetadataContextProvider MetadataContextProvider { get; }
+
+        protected IComponentCollectionProvider ComponentCollectionProvider { get; }
+
+        public bool IsListenersInitialized => _listeners != null;
+
+        public IComponentCollection<INavigationContextFactoryListener> Listeners
+        {
+            get
+            {
+                if (_listeners == null)
+                    ComponentCollectionProvider.LazyInitialize(ref _listeners, this);
+                return _listeners;
+            }
+        }
 
         #endregion
 
@@ -35,29 +58,33 @@ namespace MugenMvvm.Infrastructure.Navigation
             Should.NotBeNull(navigationTypeFrom, nameof(navigationTypeFrom));
             Should.NotBeNull(navigationTypeTo, nameof(navigationTypeTo));
             Should.NotBeNull(metadata, nameof(metadata));
-            return GetNavigationContextInternal(navigationProvider, navigationMode, navigationTypeFrom, viewModelFrom, navigationTypeTo, viewModelTo, metadata);
+            var ctx = GetNavigationContextInternal(navigationProvider, navigationMode, navigationTypeFrom, viewModelFrom, navigationTypeTo, viewModelTo, metadata);
+            OnNavigationContextCreated(ctx, metadata);
+            return ctx;
         }
 
         public INavigationContext GetNavigationContextFrom(INavigationProvider navigationProvider, NavigationMode navigationMode, NavigationType navigationType,
-            IViewModelBase? viewModel,
-            IReadOnlyMetadataContext metadata)
+            IViewModelBase? viewModel, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(navigationProvider, nameof(navigationProvider));
             Should.NotBeNull(navigationMode, nameof(navigationMode));
             Should.NotBeNull(navigationType, nameof(navigationType));
             Should.NotBeNull(metadata, nameof(metadata));
-            return GetNavigationContextFromInternal(navigationProvider, navigationMode, navigationType, viewModel, metadata);
+            var ctx = GetNavigationContextFromInternal(navigationProvider, navigationMode, navigationType, viewModel, metadata);
+            OnNavigationContextCreated(ctx, metadata);
+            return ctx;
         }
 
         public INavigationContext GetNavigationContextTo(INavigationProvider navigationProvider, NavigationMode navigationMode, NavigationType navigationType,
-            IViewModelBase? viewModel,
-            IReadOnlyMetadataContext metadata)
+            IViewModelBase? viewModel, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(navigationProvider, nameof(navigationProvider));
             Should.NotBeNull(navigationMode, nameof(navigationMode));
             Should.NotBeNull(navigationType, nameof(navigationType));
             Should.NotBeNull(metadata, nameof(metadata));
-            return GetNavigationContextToInternal(navigationProvider, navigationMode, navigationType, viewModel, metadata);
+            var ctx = GetNavigationContextToInternal(navigationProvider, navigationMode, navigationType, viewModel, metadata);
+            OnNavigationContextCreated(ctx, metadata);
+            return ctx;
         }
 
         #endregion
@@ -88,12 +115,26 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         protected virtual INavigationEntry? GetLastNavigationEntry(NavigationType navigationType, IReadOnlyMetadataContext metadata)
         {
+            var listeners = this.GetListeners();
+            for (var i = 0; i < listeners.Length; i++)
+            {
+                if (listeners[i].TryGetLastNavigationEntry(navigationType, metadata, out var entry))
+                    return entry;
+            }
+
             var list = Owner.NavigationJournal.GetNavigationEntries(navigationType, metadata);
             if (list.Count != 0)
                 return list.OrderByDescending(entry => entry.NavigationDate).First();
 
             list = Owner.NavigationJournal.GetNavigationEntries(navigationType, metadata);
             return list.Where(entry => entry.NavigationType != NavigationType.Tab).OrderByDescending(entry => entry.NavigationDate).FirstOrDefault();
+        }
+
+        protected virtual void OnNavigationContextCreated(INavigationContext context, IReadOnlyMetadataContext metadata)
+        {
+            var listeners = this.GetListeners();
+            for (var i = 0; i < listeners.Length; i++)
+                listeners[i].OnNavigationContextCreated(this, context, metadata);
         }
 
         #endregion
