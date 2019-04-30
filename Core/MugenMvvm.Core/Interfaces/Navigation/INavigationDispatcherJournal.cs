@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -11,5 +12,8 @@ namespace MugenMvvm.Interfaces.Navigation
         void OnNavigated(INavigationContext navigationContext);
 
         IReadOnlyList<INavigationEntry> GetNavigationEntries(NavigationType? type, IReadOnlyMetadataContext metadata);
+
+        void UpdateNavigationEntries(Func<IReadOnlyDictionary<NavigationType, List<INavigationEntry>>, IReadOnlyMetadataContext, IReadOnlyDictionary<NavigationType, List<INavigationEntry>>> updateHandler,
+            IReadOnlyMetadataContext metadata);
     }
 }

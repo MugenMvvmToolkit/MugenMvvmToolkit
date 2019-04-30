@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Components;
@@ -62,6 +63,14 @@ namespace MugenMvvm.Infrastructure.Navigation
         {
             Should.NotBeNull(metadata, nameof(metadata));
             return GetNavigationEntriesInternal(type, metadata);
+        }
+
+        public void UpdateNavigationEntries(Func<IReadOnlyDictionary<NavigationType, List<INavigationEntry>>, IReadOnlyMetadataContext, IReadOnlyDictionary<NavigationType, List<INavigationEntry>>> updateHandler,
+            IReadOnlyMetadataContext metadata)
+        {
+            Should.NotBeNull(updateHandler, nameof(updateHandler));
+            Should.NotBeNull(metadata, nameof(metadata));
+            UpdateNavigationEntriesInternal(updateHandler, metadata);
         }
 
         #endregion
@@ -186,6 +195,44 @@ namespace MugenMvvm.Infrastructure.Navigation
             return callbacks;
         }
 
+        protected virtual void UpdateNavigationEntriesInternal(
+            Func<IReadOnlyDictionary<NavigationType, List<INavigationEntry>>, IReadOnlyMetadataContext, IReadOnlyDictionary<NavigationType, List<INavigationEntry>>> updateHandler,
+            IReadOnlyMetadataContext metadata)
+        {
+            var oldEntries = new Dictionary<NavigationType, List<INavigationEntry>>();
+            IReadOnlyDictionary<NavigationType, List<INavigationEntry>> newEntries;
+            lock (NavigationEntries)
+            {
+                foreach (var navigationEntry in NavigationEntries)
+                {
+                    var entries = navigationEntry.Value.Select(entry => entry.ToNavigationEntry()).Where(entry => entry != null).ToList();
+                    if (entries.Count != 0)
+                        oldEntries[navigationEntry.Key] = entries;
+                }
+                NavigationEntries.Clear();
+                newEntries = updateHandler(oldEntries, metadata);
+                foreach (var entry in newEntries)
+                {
+                    var list = entry.Value;
+                    if (list.Count == 0)
+                        continue;
+                    var entries = new List<WeakNavigationEntry>(list.Capacity);
+                    for (int i = 0; i < list.Count; i++)
+                        entries.Add(new WeakNavigationEntry(this, list[i]));
+                    NavigationEntries[entry.Key] = entries;
+                }
+            }
+            OnNavigationEntriesUpdated(oldEntries, newEntries, metadata);
+        }
+
+        protected virtual void OnNavigationEntriesUpdated(IReadOnlyDictionary<NavigationType, List<INavigationEntry>> oldEntries,
+            IReadOnlyDictionary<NavigationType, List<INavigationEntry>> newEntries, IReadOnlyMetadataContext metadata)
+        {
+            var listeners = this.GetListeners();
+            for (int i = 0; i < listeners.Length; i++)
+                listeners[i].OnNavigationEntriesUpdated(this, oldEntries, newEntries, metadata);
+        }
+
         private void AddNavigationEntries(NavigationType type, ref List<INavigationEntry>? result)
         {
             if (!NavigationEntries.TryGetValue(type, out var list))
@@ -229,8 +276,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
             #region Constructors
 
-            public WeakNavigationEntry(NavigationDispatcherJournal navigationDispatcherJournal, IViewModelBase viewModel, INavigationProvider provider,
-                NavigationType navigationType)
+            public WeakNavigationEntry(NavigationDispatcherJournal navigationDispatcherJournal, IViewModelBase viewModel, INavigationProvider provider, NavigationType navigationType)
             {
                 _navigationDispatcherJournal = navigationDispatcherJournal;
                 NavigationType = navigationType;
@@ -239,11 +285,20 @@ namespace MugenMvvm.Infrastructure.Navigation
                 _date = DateTime.UtcNow;
             }
 
+            public WeakNavigationEntry(NavigationDispatcherJournal navigationDispatcherJournal, INavigationEntry navigationEntry)
+            {
+                _navigationDispatcherJournal = navigationDispatcherJournal;
+                NavigationType = navigationEntry.NavigationType;
+                NavigationProvider = navigationEntry.NavigationProvider;
+                _viewModelReference = MugenExtensions.GetWeakReference(navigationEntry.ViewModel);
+                _date = navigationEntry.NavigationDate;
+            }
+
             #endregion
 
             #region Properties
 
-            public IViewModelBase? ViewModel => (IViewModelBase) _viewModelReference.Target;
+            public IViewModelBase? ViewModel => (IViewModelBase)_viewModelReference.Target;
 
             public INavigationProvider NavigationProvider { get; }
 

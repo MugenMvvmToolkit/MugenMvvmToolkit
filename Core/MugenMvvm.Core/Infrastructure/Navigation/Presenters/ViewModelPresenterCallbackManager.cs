@@ -350,6 +350,11 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
                 return _callbackManager.GetCallbacksInternal(navigationEntry, callbackType, metadata);
             }
 
+            public void OnNavigationEntriesUpdated(INavigationDispatcherJournal navigationDispatcherJournal, IReadOnlyDictionary<NavigationType, List<INavigationEntry>> oldEntries, IReadOnlyDictionary<NavigationType, List<INavigationEntry>> newEntries,
+                IReadOnlyMetadataContext metadata)
+            {
+            }
+
             public Task<bool>? OnNavigatingAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
             {
                 return null;

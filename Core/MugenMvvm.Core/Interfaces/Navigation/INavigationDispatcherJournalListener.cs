@@ -13,5 +13,8 @@ namespace MugenMvvm.Interfaces.Navigation
 
         IReadOnlyList<INavigationCallback> GetCallbacks(INavigationDispatcherJournal navigationDispatcherJournal, INavigationEntry navigationEntry,
             NavigationCallbackType? callbackType, IReadOnlyMetadataContext metadata);
+
+        void OnNavigationEntriesUpdated(INavigationDispatcherJournal navigationDispatcherJournal, IReadOnlyDictionary<NavigationType, List<INavigationEntry>> oldEntries,
+            IReadOnlyDictionary<NavigationType, List<INavigationEntry>> newEntries, IReadOnlyMetadataContext metadata);
     }
 }
