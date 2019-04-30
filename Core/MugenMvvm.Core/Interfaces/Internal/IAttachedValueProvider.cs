@@ -6,7 +6,7 @@ using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Internal
 {
-    public interface IAttachedValueProvider //todo add extensions
+    public interface IAttachedValueProvider
     {
         IComponentCollection<IChildAttachedValueProvider> Providers { get; }
 
