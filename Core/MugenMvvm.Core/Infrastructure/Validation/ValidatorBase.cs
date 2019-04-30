@@ -307,7 +307,7 @@ namespace MugenMvvm.Infrastructure.Validation
             if (!result.HasResult)
                 return;
 
-            var errors = result.Errors;
+            var errors = result.GetErrors();
             if (errors == null)
                 errors = new Dictionary<string, IReadOnlyList<object>?>();
             if (errors.IsReadOnly)
@@ -419,9 +419,9 @@ namespace MugenMvvm.Infrastructure.Validation
 
             #region Constructors
 
-            public ValidationResult(IDictionary<string, IReadOnlyList<object>?>? errors, IReadOnlyMetadataContext? metadata = null)
+            public ValidationResult(IReadOnlyDictionary<string, IReadOnlyList<object>?>? errors, IReadOnlyMetadataContext? metadata = null)
             {
-                Errors = errors;
+                ErrorsRaw = errors;
                 Metadata = metadata.DefaultIfNull();
             }
 
@@ -429,11 +429,27 @@ namespace MugenMvvm.Infrastructure.Validation
 
             #region Properties
 
-            public bool HasResult => Errors != null;
+            public bool HasResult => ErrorsRaw != null;
 
-            public IDictionary<string, IReadOnlyList<object>> Errors { get; }
+            public IReadOnlyDictionary<string, IReadOnlyList<object>?>? ErrorsRaw { get; }
 
             public IReadOnlyMetadataContext Metadata { get; }
+
+            #endregion
+
+            #region Methods
+
+            public IDictionary<string, IReadOnlyList<object>> GetErrors()
+            {
+                if (ErrorsRaw == null)
+                    return new Dictionary<string, IReadOnlyList<object>>();
+                if (ErrorsRaw is IDictionary<string, IReadOnlyList<object>> errors && !errors.IsReadOnly)
+                    return errors;
+                var result = new Dictionary<string, IReadOnlyList<object>>(ErrorsRaw.Count);
+                foreach (var pair in ErrorsRaw)
+                    result[pair.Key] = pair.Value;
+                return result;
+            }
 
             #endregion
         }
