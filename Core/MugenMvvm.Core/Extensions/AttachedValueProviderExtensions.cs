@@ -29,8 +29,7 @@ namespace MugenMvvm
             where TItem : class
         {
             Should.NotBeNull(attachedValueProvider, nameof(attachedValueProvider));
-            return attachedValueProvider.AddOrUpdate(item, path, addValueFactory, updateValueFactory, (i, s1, _) => s1(i),
-                (i, _, currentValue, s1, s2) => s2(i, s1, currentValue));
+            return attachedValueProvider.AddOrUpdate(item, path, addValueFactory, updateValueFactory, (i, s1, _) => s1(i), (i, _, cV, s1, s2) => s2(i, s1, cV));
         }
 
         public static TValue AddOrUpdate<TItem, TValue, TState1>(this IAttachedValueProvider attachedValueProvider, TItem item, string path, TValue addValue, TState1 state1,
