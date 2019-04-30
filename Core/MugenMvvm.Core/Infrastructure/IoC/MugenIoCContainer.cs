@@ -8,6 +8,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.IoC;
 using MugenMvvm.Interfaces.Models;
 
+// ReSharper disable FieldCanBeMadeReadOnly.Local
 namespace MugenMvvm.Infrastructure.IoC
 {
     public class MugenIoCContainer : IIoCContainer
@@ -653,12 +654,9 @@ namespace MugenMvvm.Infrastructure.IoC
         {
             #region Fields
 
-            // ReSharper disable FieldCanBeMadeReadOnly.Local
             private string? _name;
             private int _hashCode;
-
             public Type Type;
-            // ReSharper restore FieldCanBeMadeReadOnly.Local
 
             public static readonly IEqualityComparer<BindingKey> TypeNameComparer = new TypeNameEqualityComparer();
 
@@ -672,7 +670,7 @@ namespace MugenMvvm.Infrastructure.IoC
                 _name = name;
                 unchecked
                 {
-                    _hashCode = Type.GetHashCode() * 397 ^ (_name != null ? _name.GetHashCode() : 0);
+                    _hashCode = Type.GetHashCode() * 397 ^ (_name?.GetHashCode() ?? 0);
                 }
             }
 
