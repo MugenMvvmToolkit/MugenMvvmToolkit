@@ -48,17 +48,30 @@ namespace MugenMvvm
             return CreateWeakDelegate(target, invokeAction, _unsubscribePropertyChangedDelegate, _createPropertyChangedHandlerDelegate);
         }
 
+        public static Func<object?[], object> GetActivatorDelegate(this ConstructorInfo constructor, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        {
+            return reflectionDelegateProvider.ServiceIfNull().GetActivatorDelegate(constructor);
+        }
+
         public static TDelegate GetMethodDelegate<TDelegate>(this MethodInfo method, IReflectionDelegateProvider? reflectionDelegateProvider = null)
             where TDelegate : Delegate
         {
-            Should.NotBeNull(method, nameof(method));
             return (TDelegate)reflectionDelegateProvider.ServiceIfNull().GetMethodDelegate(typeof(TDelegate), method);
         }
 
         public static Func<object?, object?[], object?> GetMethodDelegate(this MethodInfo method, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
-            Should.NotBeNull(method, nameof(method));
             return reflectionDelegateProvider.ServiceIfNull().GetMethodDelegate(method);
+        }
+
+        public static Func<object?, TType> GetMemberGetter<TType>(this MemberInfo member, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        {
+            return reflectionDelegateProvider.ServiceIfNull().GetMemberGetter<TType>(member);
+        }
+
+        public static Action<object?, TType> GetMemberSetter<TType>(this MemberInfo member, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        {
+            return reflectionDelegateProvider.ServiceIfNull().GetMemberSetter<TType>(member);
         }
 
         public static T GetValueEx<T>(this MemberInfo member, object? target, IReflectionDelegateProvider? reflectionDelegateProvider = null)

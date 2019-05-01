@@ -72,12 +72,15 @@ namespace MugenMvvm.Infrastructure.Components
 
         protected virtual IComponentCollection<T>? GetComponentCollectionInternal<T>(object owner, IReadOnlyMetadataContext metadata) where T : class
         {
-            var collectionFactories = ComponentCollectionFactories.GetItems();
-            for (var i = 0; i < collectionFactories.Length; i++)
+            if (!ReferenceEquals(owner, this))
             {
-                var collection = collectionFactories[i].TryGetComponentCollection<T>(owner, metadata);
-                if (collection != null)
-                    return collection;
+                var collectionFactories = ComponentCollectionFactories.GetItems();
+                for (var i = 0; i < collectionFactories.Length; i++)
+                {
+                    var collection = collectionFactories[i].TryGetComponentCollection<T>(owner, metadata);
+                    if (collection != null)
+                        return collection;
+                }
             }
 
             if (typeof(IHasPriority).IsAssignableFromUnified(typeof(T)) || typeof(IListener).IsAssignableFromUnified(typeof(T)))

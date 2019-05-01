@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Attributes;
 using MugenMvvm.Interfaces.Serialization;
 
 // ReSharper disable once CheckNamespace
@@ -81,6 +82,13 @@ namespace MugenMvvm
         internal static void SetValue<TValue>(this FieldInfo field, object target, TValue value)
         {
             field.SetValue(target, value);
+        }
+
+        [Preserve]
+        internal static void InitializeArray<T>(T[] target, object[] source)
+        {
+            for (int i = 0; i < target.Length; i++)
+                target[i] = (T)source[i];
         }
 
         #endregion

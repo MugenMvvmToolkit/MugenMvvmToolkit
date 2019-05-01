@@ -280,7 +280,7 @@ namespace MugenMvvm.Infrastructure.Validation
         {
             var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnDispose(this);
+                listeners[i].OnDisposed(this);
         }
 
         protected void UpdateErrors(string memberName, IReadOnlyList<object>? errors, bool raiseNotifications, IReadOnlyMetadataContext metadata)

@@ -35,10 +35,10 @@ namespace MugenMvvm
             return viewModel.TryGetService<TService>();
         }
 
-        public static IReadOnlyMetadataContext NotifyLifecycleChanged(this IViewModelBase viewModel, ViewModelLifecycleState state, IReadOnlyMetadataContext metadata,
+        public static IReadOnlyMetadataContext NotifyLifecycleChanged(this IViewModelBase viewModel, ViewModelLifecycleState state, IReadOnlyMetadataContext? metadata = null,
             IViewModelDispatcher? dispatcher = null)
         {
-            return dispatcher.ServiceIfNull().OnLifecycleChanged(viewModel, state, metadata);
+            return dispatcher.ServiceIfNull().OnLifecycleChanged(viewModel, state, metadata.DefaultIfNull());
         }
 
         public static void InvalidateCommands<TViewModel>(this TViewModel viewModel) where TViewModel : class, IViewModelBase, IHasService<IEventPublisher>

@@ -90,14 +90,14 @@ namespace MugenMvvm
         }
 
         [Pure]
-        public static bool TryGetService<T>(this IServiceProvider serviceProvider, [NotNullWhenTrue] out T service) where T : class
+        public static bool TryGetService<T>(this IServiceProvider serviceProvider, out T service)
         {
             Should.NotBeNull(serviceProvider, nameof(serviceProvider));
             try
             {
-                if (serviceProvider is IServiceProviderEx serviceProviderEx)
+                if (serviceProvider is IIoCContainer container)
                 {
-                    if (serviceProviderEx.TryGetService(typeof(T), out var o))
+                    if (container.TryGet(typeof(T), out var o))
                     {
                         service = (T)o!;
                         return true;
@@ -115,6 +115,41 @@ namespace MugenMvvm
                 service = default!;
                 return false;
             }
+        }
+
+        public static bool TryGet<T>(this IIoCContainer iocContainer, out T service, IReadOnlyMetadataContext? metadata = null)
+        {
+            var tryGet = iocContainer.TryGet(typeof(T), out var objService, metadata);
+            if (tryGet)
+            {
+                service = (T)objService;
+                return true;
+            }
+
+            service = default;
+            return false;
+        }
+
+        public static bool TryGet(this IIoCContainer iocContainer, Type serviceType, out object service, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(iocContainer, nameof(iocContainer));
+            Should.NotBeNull(serviceType, nameof(serviceType));
+            if (iocContainer.CanResolve(serviceType, metadata))
+            {
+                try
+                {
+                    service = iocContainer.Get(serviceType, metadata);
+                    return true;
+                }
+                catch
+                {
+                    service = null;
+                    return false;
+                }
+            }
+
+            service = null;
+            return false;
         }
 
         public static IWeakReference GetWeakReference(object? item, IReadOnlyMetadataContext? metadata = null, IWeakReferenceProvider? provider = null)

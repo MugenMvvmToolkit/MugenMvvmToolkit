@@ -163,7 +163,7 @@ namespace MugenMvvm.Infrastructure.Validation
             OnAsyncValidation(validator, memberName, validationTask, metadata);
         }
 
-        void IValidatorListener.OnDispose(IValidator validator)
+        void IValidatorListener.OnDisposed(IValidator validator)
         {
             OnDispose(validator);
         }
@@ -281,7 +281,7 @@ namespace MugenMvvm.Infrastructure.Validation
         {
             var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnDispose(this);
+                listeners[i].OnDisposed(this);
         }
 
         protected virtual void OnErrorsChanged(IValidator validator, string memberName, IReadOnlyMetadataContext metadata)

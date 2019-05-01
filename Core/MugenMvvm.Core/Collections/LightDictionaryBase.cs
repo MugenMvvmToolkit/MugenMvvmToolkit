@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
@@ -14,7 +15,7 @@ namespace MugenMvvm.Collections
     [DebuggerDisplay("Count = {Count}")]
     [Serializable]
     [DataContract(Namespace = BuildConstants.DataContractNamespace)]
-    public abstract class LightDictionaryBase<TKey, TValue> : IReadOnlyCollection<KeyValuePair<TKey, TValue>>
+    public abstract class LightDictionaryBase<TKey, TValue> : IReadOnlyCollection<KeyValuePair<TKey, TValue>>//todo use ref for struct with large size, review
     {
         #region Fields
 
@@ -110,30 +111,6 @@ namespace MugenMvvm.Collections
         #endregion
 
         #region Methods
-
-        private void Restore(IList<KeyValuePair<TKey, TValue>> value)
-        {
-            Initialize(value.Count);
-            for (var i = 0; i < value.Count; i++)
-            {
-                var pair = value[i];
-                Add(pair.Key, pair.Value);
-            }
-        }
-
-        private void RestoreState()
-        {
-            if (_buckets != null)
-                return;
-            var oldValues = new List<KeyValuePair<TKey, TValue>>();
-            for (var index = 0; index < _count; ++index)
-            {
-                if (_entries[index].HashCode >= 0)
-                    oldValues.Add(new KeyValuePair<TKey, TValue>(_entries[index].Key, _entries[index].Value));
-            }
-
-            Restore(oldValues);
-        }
 
         protected internal void Add(TKey key, TValue value)
         {
@@ -234,6 +211,48 @@ namespace MugenMvvm.Collections
 
         protected abstract int GetHashCode(TKey key);
 
+        protected void Initialize(int capacity)
+        {
+            var prime = PrimeNumberHelper.GetPrime(capacity);
+            _buckets = new int[prime];
+            for (var index = 0; index < _buckets.Length; index++)
+                _buckets[index] = -1;
+            _entries = new Entry[prime];
+            _freeList = -1;
+            _count = 0;
+        }
+
+        protected void Clone(LightDictionaryBase<TKey, TValue> clone, Func<TValue, TValue>? valueConverter = null)
+        {
+            clone._buckets = _buckets?.ToArray();
+            clone._count = _count;
+            if (_entries != null)
+            {
+                if (valueConverter == null)
+                    clone._entries = _entries?.ToArray();
+                else
+                {
+                    var entries = new Entry[_entries.Length];
+                    for (int i = 0; i < entries.Length; i++)
+                    {
+                        var old = _entries[i];
+                        entries[i] = new Entry
+                        {
+                            HashCode = old.HashCode,
+                            Next = old.Next,
+                            Key = old.Key,
+                            Value = valueConverter(old.Value)
+                        };
+                    }
+
+                    clone._entries = entries;
+                }
+            }
+
+            clone._freeCount = _freeCount;
+            clone._freeList = _freeList;
+        }
+
         private int GetHashCodeInternal(TKey key)
         {
             return GetHashCode(key) & int.MaxValue;
@@ -251,17 +270,6 @@ namespace MugenMvvm.Collections
             }
 
             return -1;
-        }
-
-        protected void Initialize(int capacity)
-        {
-            var prime = PrimeNumberHelper.GetPrime(capacity);
-            _buckets = new int[prime];
-            for (var index = 0; index < _buckets.Length; index++)
-                _buckets[index] = -1;
-            _entries = new Entry[prime];
-            _freeList = -1;
-            _count = 0;
         }
 
         private void Insert(TKey key, TValue value, bool add)
@@ -359,6 +367,30 @@ namespace MugenMvvm.Collections
 
             _buckets = numArray;
             _entries = entryArray;
+        }
+
+        private void Restore(IList<KeyValuePair<TKey, TValue>> value)
+        {
+            Initialize(value.Count);
+            for (var i = 0; i < value.Count; i++)
+            {
+                var pair = value[i];
+                Add(pair.Key, pair.Value);
+            }
+        }
+
+        private void RestoreState()
+        {
+            if (_buckets != null)
+                return;
+            var oldValues = new List<KeyValuePair<TKey, TValue>>();
+            for (var index = 0; index < _count; ++index)
+            {
+                if (_entries[index].HashCode >= 0)
+                    oldValues.Add(new KeyValuePair<TKey, TValue>(_entries[index].Key, _entries[index].Value));
+            }
+
+            Restore(oldValues);
         }
 
         #endregion

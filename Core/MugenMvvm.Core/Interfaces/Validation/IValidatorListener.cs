@@ -10,6 +10,6 @@ namespace MugenMvvm.Interfaces.Validation
 
         void OnAsyncValidation(IValidator validator, string memberName, Task validationTask, IReadOnlyMetadataContext metadata);
 
-        void OnDispose(IValidator validator);
+        void OnDisposed(IValidator validator);
     }
 }
