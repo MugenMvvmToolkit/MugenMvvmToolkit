@@ -43,7 +43,7 @@ namespace MugenMvvm.Infrastructure.IoC
         {
             _bindingRegistrations = new BindingDictionary();
             _bindingRegistrationsReadonly = _bindingRegistrations;
-            NoLockRead = true;
+            IsLockFreeRead = true;
         }
 
         #endregion
@@ -54,7 +54,7 @@ namespace MugenMvvm.Infrastructure.IoC
 
         public static MemberFlags PropertyMemberFlags { get; set; }
 
-        public bool NoLockRead { get; set; }
+        public bool IsLockFreeRead { get; set; }
 
         public override MugenIocContainer Container => this;
 
@@ -75,7 +75,7 @@ namespace MugenMvvm.Infrastructure.IoC
         {
             return new MugenIocContainer(this)
             {
-                NoLockRead = NoLockRead
+                IsLockFreeRead = IsLockFreeRead
             };
         }
 
@@ -298,7 +298,7 @@ namespace MugenMvvm.Infrastructure.IoC
 
         private bool ContainsBinding(ref BindingKey key)
         {
-            if (NoLockRead)
+            if (IsLockFreeRead)
                 return GetReadOnlyBindingDictionary().ContainsKey(key);
 
             return ContainsBindingLockImpl(ref key);
@@ -306,7 +306,7 @@ namespace MugenMvvm.Infrastructure.IoC
 
         private IBindingRegistration? GetBinding(ref BindingKey key)
         {
-            if (NoLockRead)
+            if (IsLockFreeRead)
             {
                 if (!GetReadOnlyBindingDictionary().TryGetValue(key, out var value))
                     return null;
@@ -324,7 +324,7 @@ namespace MugenMvvm.Infrastructure.IoC
 
         private List<IBindingRegistration>? GetBindings(ref BindingKey key)
         {
-            if (NoLockRead)
+            if (IsLockFreeRead)
             {
                 GetReadOnlyBindingDictionary().TryGetValue(key, out var value);
                 return value;
@@ -689,8 +689,7 @@ namespace MugenMvvm.Infrastructure.IoC
                 return result;
             }
 
-            private static object? ResolveParameter(MugenIocContainer container, ParameterInfoCache parameterInfo, IReadOnlyCollection<IIocParameter> parameters,
-                IReadOnlyMetadataContext metadata)
+            private static object? ResolveParameter(MugenIocContainer container, ParameterInfoCache parameterInfo, IReadOnlyCollection<IIocParameter> parameters, IReadOnlyMetadataContext metadata)
             {
                 var type = parameterInfo.Type;
 
