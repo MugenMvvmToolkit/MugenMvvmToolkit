@@ -2,12 +2,12 @@
 
 namespace MugenMvvm.Interfaces.IoC
 {
-    public interface IIoCParameter
+    public interface IIocParameter
     {
         string Name { get; }
 
         object Value { get; }
 
-        IoCParameterType ParameterType { get; }
+        IocParameterType ParameterType { get; }
     }
 }

@@ -6,21 +6,21 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.IoC
 {
-    public interface IIoCContainerListener : IListener
+    public interface IIocContainerListener : IListener
     {
-        void OnBindToConstant(IIoCContainer container, Type service, object? instance, IReadOnlyMetadataContext metadata);
+        void OnBindToConstant(IIocContainer container, Type service, object? instance, IReadOnlyMetadataContext metadata);
 
-        void OnBindToType(IIoCContainer container, Type service, Type typeTo, IoCDependencyLifecycle lifecycle, IReadOnlyMetadataContext metadata);
+        void OnBindToType(IIocContainer container, Type service, Type typeTo, IocDependencyLifecycle lifecycle, IReadOnlyMetadataContext metadata);
 
-        void OnBindToMethod(IIoCContainer container, Type service, Func<IIoCContainer, IReadOnlyCollection<IIoCParameter>, IReadOnlyMetadataContext, object> methodBindingDelegate,
-            IoCDependencyLifecycle lifecycle, IReadOnlyMetadataContext metadata);
+        void OnBindToMethod(IIocContainer container, Type service, Func<IIocContainer, IReadOnlyCollection<IIocParameter>, IReadOnlyMetadataContext, object> methodBindingDelegate,
+            IocDependencyLifecycle lifecycle, IReadOnlyMetadataContext metadata);
 
-        void OnUnbind(IIoCContainer container, Type service, IReadOnlyMetadataContext metadata);
+        void OnUnbind(IIocContainer container, Type service, IReadOnlyMetadataContext metadata);
 
-        void OnActivated(IIoCContainer container, Type service, object? instance, IReadOnlyMetadataContext metadata);
+        void OnActivated(IIocContainer container, Type service, object? instance, IReadOnlyMetadataContext metadata);
 
-        void OnChildContainerCreated(IIoCContainer container, IIoCContainer childContainer, IReadOnlyMetadataContext metadata);
+        void OnChildContainerCreated(IIocContainer container, IIocContainer childContainer, IReadOnlyMetadataContext metadata);
 
-        void OnDisposed(IIoCContainer container);
+        void OnDisposed(IIocContainer container);
     }
 }

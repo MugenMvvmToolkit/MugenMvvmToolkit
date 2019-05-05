@@ -64,7 +64,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
             Should.NotBeNull(metadata, nameof(metadata));
             var result = GetServiceInternal(viewModel, service, metadata);
             if (result == null)
-                ExceptionManager.ThrowIoCCannotFindBinding(service);
+                ExceptionManager.ThrowIocCannotFindBinding(service);
 
             return result!;
         }

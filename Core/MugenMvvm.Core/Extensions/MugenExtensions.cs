@@ -95,7 +95,7 @@ namespace MugenMvvm
             Should.NotBeNull(serviceProvider, nameof(serviceProvider));
             try
             {
-                if (serviceProvider is IIoCContainer container)
+                if (serviceProvider is IIocContainer container)
                 {
                     if (container.TryGet(typeof(T), out var o))
                     {
@@ -117,7 +117,7 @@ namespace MugenMvvm
             }
         }
 
-        public static bool TryGet<T>(this IIoCContainer iocContainer, out T service, IReadOnlyMetadataContext? metadata = null)
+        public static bool TryGet<T>(this IIocContainer iocContainer, out T service, IReadOnlyMetadataContext? metadata = null)
         {
             var tryGet = iocContainer.TryGet(typeof(T), out var objService, metadata);
             if (tryGet)
@@ -130,7 +130,7 @@ namespace MugenMvvm
             return false;
         }
 
-        public static bool TryGet(this IIoCContainer iocContainer, Type serviceType, out object service, IReadOnlyMetadataContext? metadata = null)
+        public static bool TryGet(this IIocContainer iocContainer, Type serviceType, out object service, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(iocContainer, nameof(iocContainer));
             Should.NotBeNull(serviceType, nameof(serviceType));

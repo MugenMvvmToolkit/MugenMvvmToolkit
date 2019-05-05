@@ -6,15 +6,15 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.IoC
 {
-    public interface IIoCContainer : IHasListeners<IIoCContainerListener>, IDisposable, IServiceProvider
+    public interface IIocContainer : IHasListeners<IIocContainerListener>, IDisposable, IServiceProvider//todo rename IoC to Ioc
     {
         int Id { get; }
 
-        IIoCContainer? Parent { get; }
+        IIocContainer? Parent { get; }
 
         object Container { get; }
 
-        IIoCContainer CreateChild(IReadOnlyMetadataContext? metadata = null);
+        IIocContainer CreateChild(IReadOnlyMetadataContext? metadata = null);
 
         bool CanResolve(Type service, IReadOnlyMetadataContext? metadata = null);
 
@@ -24,10 +24,10 @@ namespace MugenMvvm.Interfaces.IoC
 
         void BindToConstant(Type service, object? instance, IReadOnlyMetadataContext? metadata = null);
 
-        void BindToType(Type service, Type typeTo, IoCDependencyLifecycle lifecycle, IReadOnlyMetadataContext? metadata = null);
+        void BindToType(Type service, Type typeTo, IocDependencyLifecycle lifecycle, IReadOnlyMetadataContext? metadata = null);
 
-        void BindToMethod(Type service, Func<IIoCContainer, IReadOnlyCollection<IIoCParameter>, IReadOnlyMetadataContext, object> methodBindingDelegate,
-            IoCDependencyLifecycle lifecycle, IReadOnlyMetadataContext? metadata = null);
+        void BindToMethod(Type service, Func<IIocContainer, IReadOnlyCollection<IIocParameter>, IReadOnlyMetadataContext, object> methodBindingDelegate,
+            IocDependencyLifecycle lifecycle, IReadOnlyMetadataContext? metadata = null);
 
         void Unbind(Type service, IReadOnlyMetadataContext? metadata = null);
     }

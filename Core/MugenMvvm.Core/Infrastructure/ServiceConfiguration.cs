@@ -26,7 +26,7 @@ namespace MugenMvvm.Infrastructure
                 if (_service == null)
                 {
                     if (typeof(TService) == typeof(IServiceProvider))
-                        ExceptionManager.ThrowIoCCannotFindBinding(typeof(IServiceProvider));
+                        ExceptionManager.ThrowIocCannotFindBinding(typeof(IServiceProvider));
 
                     _service = Service<IServiceProvider>.Instance.GetService<TService>();
                 }

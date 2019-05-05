@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using MugenMvvm.Constants;
-using MugenMvvm.Enums;
 
-namespace MugenMvvm.Models
+namespace MugenMvvm.Enums
 {
     [Serializable]
     [DataContract(Namespace = BuildConstants.DataContractNamespace)]

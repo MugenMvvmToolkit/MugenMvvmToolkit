@@ -2,29 +2,28 @@
 using System.Runtime.Serialization;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
-using MugenMvvm.Models;
 
 namespace MugenMvvm.Enums
 {
     [Serializable]
     [DataContract(Namespace = BuildConstants.DataContractNamespace)]
-    public class IoCParameterType : EnumBase<IoCParameterType, int>
+    public class IocParameterType : EnumBase<IocParameterType, int>
     {
         #region Fields
 
-        public static readonly IoCParameterType Constructor = new IoCParameterType(1);
-        public static readonly IoCParameterType Property = new IoCParameterType(2);
+        public static readonly IocParameterType Constructor = new IocParameterType(1);
+        public static readonly IocParameterType Property = new IocParameterType(2);
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        protected IoCParameterType()
+        protected IocParameterType()
         {
         }
 
-        public IoCParameterType(int value) : base(value)
+        public IocParameterType(int value) : base(value)
         {
         }
 

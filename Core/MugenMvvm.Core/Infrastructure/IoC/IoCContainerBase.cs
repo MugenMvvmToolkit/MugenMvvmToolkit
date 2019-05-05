@@ -10,13 +10,13 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.IoC
 {
-    public abstract class IoCContainerBase<TContainer, TInternalContainer> : IIoCContainer
-        where TContainer : class, IIoCContainer
+    public abstract class IocContainerBase<TContainer, TInternalContainer> : IIocContainer
+        where TContainer : class, IIocContainer
         where TInternalContainer : class
     {
         #region Fields
 
-        private IComponentCollection<IIoCContainerListener>? _listeners;
+        private IComponentCollection<IIocContainerListener>? _listeners;
         private int _state;
 
         // ReSharper disable once StaticMemberInGenericType
@@ -26,7 +26,7 @@ namespace MugenMvvm.Infrastructure.IoC
 
         #region Constructors
 
-        protected IoCContainerBase(TContainer? parent)
+        protected IocContainerBase(TContainer? parent)
         {
             Id = Interlocked.Increment(ref _idCounter);
             Parent = parent;
@@ -38,7 +38,7 @@ namespace MugenMvvm.Infrastructure.IoC
 
         public bool IsListenersInitialized => _listeners != null;
 
-        public IComponentCollection<IIoCContainerListener> Listeners
+        public IComponentCollection<IIocContainerListener> Listeners
         {
             get
             {
@@ -54,9 +54,9 @@ namespace MugenMvvm.Infrastructure.IoC
 
         public abstract TInternalContainer Container { get; }
 
-        IIoCContainer? IIoCContainer.Parent => Parent;
+        IIocContainer? IIocContainer.Parent => Parent;
 
-        object IIoCContainer.Container => Container;
+        object IIocContainer.Container => Container;
 
         #endregion
 
@@ -78,7 +78,7 @@ namespace MugenMvvm.Infrastructure.IoC
             return Get(serviceType);
         }
 
-        IIoCContainer IIoCContainer.CreateChild(IReadOnlyMetadataContext? metadata)
+        IIocContainer IIocContainer.CreateChild(IReadOnlyMetadataContext? metadata)
         {
             return CreateChild(metadata);
         }
@@ -116,7 +116,7 @@ namespace MugenMvvm.Infrastructure.IoC
                 listeners[i].OnBindToConstant(this, service, instance, metadata.DefaultIfNull());
         }
 
-        public void BindToType(Type service, Type typeTo, IoCDependencyLifecycle lifecycle, IReadOnlyMetadataContext? metadata = null)
+        public void BindToType(Type service, Type typeTo, IocDependencyLifecycle lifecycle, IReadOnlyMetadataContext? metadata = null)
         {
             NotBeDisposed();
             Should.NotBeNull(service, nameof(service));
@@ -129,8 +129,8 @@ namespace MugenMvvm.Infrastructure.IoC
                 listeners[i].OnBindToType(this, service, typeTo, lifecycle, metadata.DefaultIfNull());
         }
 
-        public void BindToMethod(Type service, Func<IIoCContainer, IReadOnlyCollection<IIoCParameter>, IReadOnlyMetadataContext, object> methodBindingDelegate,
-            IoCDependencyLifecycle lifecycle, IReadOnlyMetadataContext? metadata = null)
+        public void BindToMethod(Type service, Func<IIocContainer, IReadOnlyCollection<IIocParameter>, IReadOnlyMetadataContext, object> methodBindingDelegate,
+            IocDependencyLifecycle lifecycle, IReadOnlyMetadataContext? metadata = null)
         {
             NotBeDisposed();
             Should.NotBeNull(service, nameof(service));
@@ -174,17 +174,17 @@ namespace MugenMvvm.Infrastructure.IoC
 
         protected abstract bool CanResolveInternal(Type service, string? name, IReadOnlyMetadataContext? metadata);
 
-        protected abstract object GetInternal(Type service, string? name, IReadOnlyCollection<IIoCParameter> parameters, IReadOnlyMetadataContext? metadata);
+        protected abstract object GetInternal(Type service, string? name, IReadOnlyCollection<IIocParameter> parameters, IReadOnlyMetadataContext? metadata);
 
-        protected abstract IEnumerable<object> GetAllInternal(Type service, string? name, IReadOnlyCollection<IIoCParameter> parameters, IReadOnlyMetadataContext? metadata);
+        protected abstract IEnumerable<object> GetAllInternal(Type service, string? name, IReadOnlyCollection<IIocParameter> parameters, IReadOnlyMetadataContext? metadata);
 
         protected abstract void BindToConstantInternal(Type service, object? instance, string? name, IReadOnlyMetadataContext? metadata);
 
-        protected abstract void BindToTypeInternal(Type service, Type typeTo, IoCDependencyLifecycle lifecycle, string? name, IReadOnlyCollection<IIoCParameter> parameters,
+        protected abstract void BindToTypeInternal(Type service, Type typeTo, IocDependencyLifecycle lifecycle, string? name, IReadOnlyCollection<IIocParameter> parameters,
             IReadOnlyMetadataContext? metadata);
 
-        protected abstract void BindToMethodInternal(Type service, Func<IIoCContainer, IReadOnlyCollection<IIoCParameter>, IReadOnlyMetadataContext, object> methodBindingDelegate,
-            IoCDependencyLifecycle lifecycle, string? name, IReadOnlyCollection<IIoCParameter> parameters, IReadOnlyMetadataContext? metadata);
+        protected abstract void BindToMethodInternal(Type service, Func<IIocContainer, IReadOnlyCollection<IIocParameter>, IReadOnlyMetadataContext, object> methodBindingDelegate,
+            IocDependencyLifecycle lifecycle, string? name, IReadOnlyCollection<IIocParameter> parameters, IReadOnlyMetadataContext? metadata);
 
         protected abstract bool UnbindInternal(Type service, string? name, IReadOnlyMetadataContext? metadata);
 
@@ -195,19 +195,19 @@ namespace MugenMvvm.Infrastructure.IoC
                 listeners[i].OnActivated(this, service, instance, metadata.DefaultIfNull());
         }
 
-        protected virtual IComponentCollection<IIoCContainerListener> GetListenersCollection()
+        protected virtual IComponentCollection<IIocContainerListener> GetListenersCollection()
         {
-            return new OrderedArrayComponentCollection<IIoCContainerListener>(this);
+            return new OrderedArrayComponentCollection<IIocContainerListener>(this);
         }
 
         private static string? TryGetName(IReadOnlyMetadataContext? context)
         {
             if (context == null || context.Count == 0)
                 return null;
-            return context.Get(IoCMetadata.Name);
+            return context.Get(IocMetadata.Name);
         }
 
-        private static void TryGetNameAndParameters(IReadOnlyMetadataContext? context, out string? name, out IReadOnlyCollection<IIoCParameter> parameters)
+        private static void TryGetNameAndParameters(IReadOnlyMetadataContext? context, out string? name, out IReadOnlyCollection<IIocParameter> parameters)
         {
             if (context == null || context.Count == 0)
             {
@@ -216,8 +216,8 @@ namespace MugenMvvm.Infrastructure.IoC
             }
             else
             {
-                name = context.Get(IoCMetadata.Name);
-                parameters = context.Get(IoCMetadata.Parameters);
+                name = context.Get(IocMetadata.Name);
+                parameters = context.Get(IocMetadata.Parameters);
             }
         }
 

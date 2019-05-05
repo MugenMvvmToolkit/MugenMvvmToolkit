@@ -34,10 +34,10 @@
         public const string ViewNotFoundFormat2 = "Unable to find a suitable '{0}' for the '{1}'";
         public const string CannotCloseMediator = "The view is closed, before close the view you should show it.";
         public const string ShouldSupportOnlyFieldsReadonlyFields = "supports only properties (non-readonly) and fields";
-        public const string IoCCannotFindBindingFormat1 = "Cannot find binding for type {0}";
-        public const string IoCCyclicalDependencyFormat1 = "A cyclical dependency was detected for type {0}";
+        public const string IocCannotFindBindingFormat1 = "Cannot find binding for type {0}";
+        public const string IocCyclicalDependencyFormat1 = "A cyclical dependency was detected for type {0}";
         public const string CannotFindConstructorFormat1 = "Cannot find constructor for type {0}";
-        public const string IoCMoreThatOneBindingFormat1 = "Cannot activate type {0} found more that one binding";
+        public const string IocMoreThatOneBindingFormat1 = "Cannot activate type {0} found more that one binding";
         public const string ObjectDisposedFormat1 = "Cannot perform the operation, because the current '{0}' is disposed.";
         public const string ObjectNotInitializedFormat2 = "The '{0}' is not initialized {1}";
         public const string CannotGetViewModelFormat1 = "Cannot get view model {0}";

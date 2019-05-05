@@ -8,11 +8,11 @@ namespace MugenMvvm.Infrastructure.IoC
 {
     [Serializable]
     [DataContract(Namespace = BuildConstants.DataContractNamespace)]
-    public class IoCParameter : IIoCParameter
+    public class IocParameter : IIocParameter
     {
         #region Constructors
 
-        public IoCParameter(string name, object value, IoCParameterType parameterType)
+        public IocParameter(string name, object value, IocParameterType parameterType)
         {
             Name = name;
             Value = value;
@@ -24,7 +24,7 @@ namespace MugenMvvm.Infrastructure.IoC
         #region Properties
 
         [DataMember(Name = "p")]
-        public IoCParameterType ParameterType { get; internal set; }
+        public IocParameterType ParameterType { get; internal set; }
 
         [DataMember(Name = "n")]
         public string Name { get; internal set; }

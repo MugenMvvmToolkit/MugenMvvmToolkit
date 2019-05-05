@@ -1,25 +1,24 @@
 ﻿using MugenMvvm.Attributes;
-using MugenMvvm.Models;
 
 namespace MugenMvvm.Enums
 {
-    public class IoCDependencyLifecycle : EnumBase<IoCDependencyLifecycle, int>
+    public class IocDependencyLifecycle : EnumBase<IocDependencyLifecycle, int>
     {
         #region Fields
 
-        public static readonly IoCDependencyLifecycle Singleton = new IoCDependencyLifecycle(1);
-        public static readonly IoCDependencyLifecycle Transient = new IoCDependencyLifecycle(2);
+        public static readonly IocDependencyLifecycle Singleton = new IocDependencyLifecycle(1);
+        public static readonly IocDependencyLifecycle Transient = new IocDependencyLifecycle(2);
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        protected IoCDependencyLifecycle()
+        protected IocDependencyLifecycle()
         {
         }
 
-        public IoCDependencyLifecycle(int value) : base(value)
+        public IocDependencyLifecycle(int value) : base(value)
         {
         }
 

@@ -74,19 +74,19 @@ namespace MugenMvvm
             throw new InvalidOperationException(MessageConstants.CannotFindConstructorFormat1.Format(service));
         }
 
-        internal static void ThrowIoCCannotFindBinding(Type service)
+        internal static void ThrowIocCannotFindBinding(Type service)
         {
-            throw new InvalidOperationException(MessageConstants.IoCCannotFindBindingFormat1.Format(service));
+            throw new InvalidOperationException(MessageConstants.IocCannotFindBindingFormat1.Format(service));
         }
 
-        internal static void ThrowIoCCyclicalDependency(Type service)
+        internal static void ThrowIocCyclicalDependency(Type service)
         {
-            throw new InvalidOperationException(MessageConstants.IoCCyclicalDependencyFormat1.Format(service));
+            throw new InvalidOperationException(MessageConstants.IocCyclicalDependencyFormat1.Format(service));
         }
 
-        internal static void ThrowIoCMoreThatOneBinding(Type service)
+        internal static void ThrowIocMoreThatOneBinding(Type service)
         {
-            throw new InvalidOperationException(MessageConstants.IoCMoreThatOneBindingFormat1.Format(service));
+            throw new InvalidOperationException(MessageConstants.IocMoreThatOneBindingFormat1.Format(service));
         }
 
         internal static void ThrowCannotGetViewModel(Type viewModelType)

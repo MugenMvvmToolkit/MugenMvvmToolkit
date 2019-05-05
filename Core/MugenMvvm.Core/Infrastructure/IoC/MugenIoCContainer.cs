@@ -13,12 +13,12 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Infrastructure.IoC
 {
-    public sealed class MugenIoCContainer : IoCContainerBase<MugenIoCContainer, MugenIoCContainer>
+    public sealed class MugenIocContainer : IocContainerBase<MugenIocContainer, MugenIocContainer>
     {
         #region Fields
 
         private readonly BindingDictionary _bindingRegistrations;
-        private BindingDictionary _bindingRegistrationsReadonly;
+        private BindingDictionary? _bindingRegistrationsReadonly;
 
         private static readonly TypeCacheDictionary TypeCacheDict;
 
@@ -26,19 +26,19 @@ namespace MugenMvvm.Infrastructure.IoC
 
         #region Constructors
 
-        static MugenIoCContainer()
+        static MugenIocContainer()
         {
             TypeCacheDict = new TypeCacheDictionary();
             ConstructorMemberFlags = MemberFlags.InstancePublic;
             PropertyMemberFlags = MemberFlags.InstancePublic;
         }
 
-        public MugenIoCContainer()
+        public MugenIocContainer()
             : this(null)
         {
         }
 
-        private MugenIoCContainer(MugenIoCContainer parent)
+        private MugenIocContainer(MugenIocContainer parent)
             : base(parent)
         {
             _bindingRegistrations = new BindingDictionary();
@@ -56,7 +56,7 @@ namespace MugenMvvm.Infrastructure.IoC
 
         public bool NoLockRead { get; set; }
 
-        public override MugenIoCContainer Container => this;
+        public override MugenIocContainer Container => this;
 
         #endregion
 
@@ -71,9 +71,9 @@ namespace MugenMvvm.Infrastructure.IoC
             }
         }
 
-        protected override MugenIoCContainer CreateChildInternal(IReadOnlyMetadataContext? metadata)
+        protected override MugenIocContainer CreateChildInternal(IReadOnlyMetadataContext? metadata)
         {
-            return new MugenIoCContainer(this)
+            return new MugenIocContainer(this)
             {
                 NoLockRead = NoLockRead
             };
@@ -84,12 +84,12 @@ namespace MugenMvvm.Infrastructure.IoC
             return CanResolveImpl(service, null, name);
         }
 
-        protected override object GetInternal(Type service, string? name, IReadOnlyCollection<IIoCParameter> parameters, IReadOnlyMetadataContext? metadata)
+        protected override object GetInternal(Type service, string? name, IReadOnlyCollection<IIocParameter> parameters, IReadOnlyMetadataContext? metadata)
         {
             return GetImpl(service, null, name, parameters, metadata);
         }
 
-        protected override IEnumerable<object> GetAllInternal(Type service, string? name, IReadOnlyCollection<IIoCParameter> parameters, IReadOnlyMetadataContext? metadata)
+        protected override IEnumerable<object> GetAllInternal(Type service, string? name, IReadOnlyCollection<IIocParameter> parameters, IReadOnlyMetadataContext? metadata)
         {
             return GetAllImpl(service, null, name, parameters, metadata);
         }
@@ -110,7 +110,7 @@ namespace MugenMvvm.Infrastructure.IoC
             }
         }
 
-        protected override void BindToTypeInternal(Type service, Type typeTo, IoCDependencyLifecycle lifecycle, string? name, IReadOnlyCollection<IIoCParameter> parameters,
+        protected override void BindToTypeInternal(Type service, Type typeTo, IocDependencyLifecycle lifecycle, string? name, IReadOnlyCollection<IIocParameter> parameters,
             IReadOnlyMetadataContext? metadata)
         {
             var key = new BindingKey(service, name);
@@ -122,9 +122,9 @@ namespace MugenMvvm.Infrastructure.IoC
                     _bindingRegistrations[key] = list;
                 }
 
-                if (lifecycle == IoCDependencyLifecycle.Singleton)
+                if (lifecycle == IocDependencyLifecycle.Singleton)
                     list.Add(new SingletonBindingRegistration(typeTo, parameters, metadata));
-                else if (lifecycle == IoCDependencyLifecycle.Transient)
+                else if (lifecycle == IocDependencyLifecycle.Transient)
                     list.Add(new TransientBindingRegistration(typeTo, parameters, metadata));
                 else
                     ExceptionManager.ThrowEnumOutOfRange(nameof(lifecycle), lifecycle);
@@ -132,8 +132,8 @@ namespace MugenMvvm.Infrastructure.IoC
             }
         }
 
-        protected override void BindToMethodInternal(Type service, Func<IIoCContainer, IReadOnlyCollection<IIoCParameter>, IReadOnlyMetadataContext, object> methodBindingDelegate,
-            IoCDependencyLifecycle lifecycle, string? name, IReadOnlyCollection<IIoCParameter> parameters, IReadOnlyMetadataContext? metadata)
+        protected override void BindToMethodInternal(Type service, Func<IIocContainer, IReadOnlyCollection<IIocParameter>, IReadOnlyMetadataContext, object> methodBindingDelegate,
+            IocDependencyLifecycle lifecycle, string? name, IReadOnlyCollection<IIocParameter> parameters, IReadOnlyMetadataContext? metadata)
         {
             var key = new BindingKey(service, name);
             lock (_bindingRegistrations)
@@ -144,9 +144,9 @@ namespace MugenMvvm.Infrastructure.IoC
                     _bindingRegistrations[key] = list;
                 }
 
-                if (lifecycle == IoCDependencyLifecycle.Singleton)
+                if (lifecycle == IocDependencyLifecycle.Singleton)
                     list.Add(new SingletonBindingRegistration(methodBindingDelegate, parameters, metadata));
-                else if (lifecycle == IoCDependencyLifecycle.Transient)
+                else if (lifecycle == IocDependencyLifecycle.Transient)
                     list.Add(new TransientBindingRegistration(methodBindingDelegate, parameters, metadata));
                 else
                     ExceptionManager.ThrowEnumOutOfRange(nameof(lifecycle), lifecycle);
@@ -192,7 +192,7 @@ namespace MugenMvvm.Infrastructure.IoC
             return Parent.CanResolveImpl(service, typeCache, ref key);
         }
 
-        private object? GetImpl(Type service, TypeCache? typeCache, string? name, IReadOnlyCollection<IIoCParameter> parameters, IReadOnlyMetadataContext? metadata)
+        private object? GetImpl(Type service, TypeCache? typeCache, string? name, IReadOnlyCollection<IIocParameter> parameters, IReadOnlyMetadataContext? metadata)
         {
             var key = new BindingKey(service, name);
 
@@ -206,11 +206,11 @@ namespace MugenMvvm.Infrastructure.IoC
             if (TryResolve(typeCache ?? GetTypeCache(service), ref key, parameters, metadata, out var value))
                 return value!;
 
-            ExceptionManager.ThrowIoCCannotFindBinding(service);
+            ExceptionManager.ThrowIocCannotFindBinding(service);
             return null!;
         }
 
-        private object[] GetAllImpl(Type service, TypeCache? typeCache, string? name, IReadOnlyCollection<IIoCParameter>? parameters, IReadOnlyMetadataContext? metadata)
+        private object[] GetAllImpl(Type service, TypeCache? typeCache, string? name, IReadOnlyCollection<IIocParameter>? parameters, IReadOnlyMetadataContext? metadata)
         {
             var key = new BindingKey(service, name);
             var registrations = GetBindings(ref key);
@@ -231,7 +231,7 @@ namespace MugenMvvm.Infrastructure.IoC
             return Default.EmptyArray<object>();
         }
 
-        private bool TryResolve(TypeCache service, ref BindingKey key, IReadOnlyCollection<IIoCParameter>? parameters, IReadOnlyMetadataContext? metadata, out object? value)
+        private bool TryResolve(TypeCache service, ref BindingKey key, IReadOnlyCollection<IIocParameter>? parameters, IReadOnlyMetadataContext? metadata, out object? value)
         {
             if (service.IsArray)
             {
@@ -271,7 +271,7 @@ namespace MugenMvvm.Infrastructure.IoC
             return true;
         }
 
-        private bool TryResolveOpenGeneric(TypeCache service, ref BindingKey typeDefKey, IReadOnlyCollection<IIoCParameter>? parameters, IReadOnlyMetadataContext? metadata,
+        private bool TryResolveOpenGeneric(TypeCache service, ref BindingKey typeDefKey, IReadOnlyCollection<IIocParameter>? parameters, IReadOnlyMetadataContext? metadata,
             out object? value)
         {
             var bindingRegistration = GetBinding(ref typeDefKey);
@@ -315,7 +315,7 @@ namespace MugenMvvm.Infrastructure.IoC
                     return null;
 
                 if (value.Count > 1)
-                    ExceptionManager.ThrowIoCMoreThatOneBinding(key.Type);
+                    ExceptionManager.ThrowIocMoreThatOneBinding(key.Type);
                 return value[0];
             }
 
@@ -344,7 +344,7 @@ namespace MugenMvvm.Infrastructure.IoC
                     return null;
 
                 if (value.Count > 1)
-                    ExceptionManager.ThrowIoCMoreThatOneBinding(key.Type);
+                    ExceptionManager.ThrowIocMoreThatOneBinding(key.Type);
                 return value[0];
             }
         }
@@ -401,7 +401,7 @@ namespace MugenMvvm.Infrastructure.IoC
 
         private interface IBindingRegistration
         {
-            object? Resolve(MugenIoCContainer container, Type service, TypeCache? typeCache, IReadOnlyCollection<IIoCParameter>? parameters, IReadOnlyMetadataContext? metadata);
+            object? Resolve(MugenIocContainer container, Type service, TypeCache? typeCache, IReadOnlyCollection<IIocParameter>? parameters, IReadOnlyMetadataContext? metadata);
         }
 
         private sealed class ConstBindingRegistration : IBindingRegistration
@@ -423,7 +423,7 @@ namespace MugenMvvm.Infrastructure.IoC
 
             #region Implementation of interfaces
 
-            public object Resolve(MugenIoCContainer container, Type service, TypeCache? typeCache, IReadOnlyCollection<IIoCParameter> parameters, IReadOnlyMetadataContext metadata)
+            public object Resolve(MugenIocContainer container, Type service, TypeCache? typeCache, IReadOnlyCollection<IIocParameter> parameters, IReadOnlyMetadataContext metadata)
             {
                 return _instance;
             }
@@ -443,14 +443,13 @@ namespace MugenMvvm.Infrastructure.IoC
 
             #region Constructors
 
-            public SingletonBindingRegistration(Func<IIoCContainer, IReadOnlyCollection<IIoCParameter>, IReadOnlyMetadataContext, object> methodBindingDelegate,
-                IReadOnlyCollection<IIoCParameter> parameters,
-                IReadOnlyMetadataContext metadata)
+            public SingletonBindingRegistration(Func<IIocContainer, IReadOnlyCollection<IIocParameter>, IReadOnlyMetadataContext, object> methodBindingDelegate,
+                IReadOnlyCollection<IIocParameter>? parameters, IReadOnlyMetadataContext? metadata)
                 : base(methodBindingDelegate, parameters, metadata)
             {
             }
 
-            public SingletonBindingRegistration(Type type, IReadOnlyCollection<IIoCParameter> parameters, IReadOnlyMetadataContext metadata)
+            public SingletonBindingRegistration(Type type, IReadOnlyCollection<IIocParameter> parameters, IReadOnlyMetadataContext? metadata)
                 : base(type, parameters, metadata)
             {
             }
@@ -459,15 +458,15 @@ namespace MugenMvvm.Infrastructure.IoC
 
             #region Methods
 
-            public override object? Resolve(MugenIoCContainer container, Type service, TypeCache? typeCache, IReadOnlyCollection<IIoCParameter> parameters,
-                IReadOnlyMetadataContext metadata)
+            public override object? Resolve(MugenIocContainer container, Type service, TypeCache? typeCache, IReadOnlyCollection<IIocParameter>? parameters,
+                IReadOnlyMetadataContext? metadata)
             {
                 if (_hasValue)
                     return _value;
                 return ResolveWithLock(container, service, typeCache, parameters, metadata);
             }
 
-            private object? ResolveWithLock(MugenIoCContainer container, Type service, TypeCache? typeCache, IReadOnlyCollection<IIoCParameter> parameters, IReadOnlyMetadataContext metadata)
+            private object? ResolveWithLock(MugenIocContainer container, Type service, TypeCache? typeCache, IReadOnlyCollection<IIocParameter> parameters, IReadOnlyMetadataContext metadata)
             {
                 var lockTaken = false;
                 try
@@ -477,7 +476,7 @@ namespace MugenMvvm.Infrastructure.IoC
                         return _value;
 
                     if (_isActivating)
-                        ExceptionManager.ThrowIoCCyclicalDependency(Type?.Type ?? service);
+                        ExceptionManager.ThrowIocCyclicalDependency(Type?.Type ?? service);
 
                     _value = ResolveInternal(container, service, typeCache, parameters, ref metadata);
                     _hasValue = true;
@@ -508,13 +507,13 @@ namespace MugenMvvm.Infrastructure.IoC
 
             #region Constructors
 
-            public TransientBindingRegistration(Func<IIoCContainer, IReadOnlyCollection<IIoCParameter>, IReadOnlyMetadataContext, object> methodBindingDelegate,
-                IReadOnlyCollection<IIoCParameter> parameters, IReadOnlyMetadataContext metadata)
+            public TransientBindingRegistration(Func<IIocContainer, IReadOnlyCollection<IIocParameter>, IReadOnlyMetadataContext, object> methodBindingDelegate,
+                IReadOnlyCollection<IIocParameter> parameters, IReadOnlyMetadataContext metadata)
                 : base(methodBindingDelegate, parameters, metadata)
             {
             }
 
-            public TransientBindingRegistration(Type type, IReadOnlyCollection<IIoCParameter> parameters, IReadOnlyMetadataContext metadata)
+            public TransientBindingRegistration(Type type, IReadOnlyCollection<IIocParameter> parameters, IReadOnlyMetadataContext metadata)
                 : base(type, parameters, metadata)
             {
             }
@@ -523,7 +522,7 @@ namespace MugenMvvm.Infrastructure.IoC
 
             #region Methods
 
-            public override object? Resolve(MugenIoCContainer container, Type service, TypeCache? typeCache, IReadOnlyCollection<IIoCParameter> parameters,
+            public override object? Resolve(MugenIocContainer container, Type service, TypeCache? typeCache, IReadOnlyCollection<IIocParameter> parameters,
                 IReadOnlyMetadataContext metadata)
             {
                 var result = _isActivated
@@ -533,7 +532,7 @@ namespace MugenMvvm.Infrastructure.IoC
                 return result;
             }
 
-            private object? ResolveWithCyclicalDependencyDetection(MugenIoCContainer container, Type service, TypeCache? typeCache, IReadOnlyCollection<IIoCParameter> parameters,
+            private object? ResolveWithCyclicalDependencyDetection(MugenIocContainer container, Type service, TypeCache? typeCache, IReadOnlyCollection<IIocParameter> parameters,
                 ref IReadOnlyMetadataContext metadata)
             {
                 var lockTaken = false;
@@ -541,7 +540,7 @@ namespace MugenMvvm.Infrastructure.IoC
                 {
                     Monitor.Enter(this, ref lockTaken);
                     if (_isActivating)
-                        ExceptionManager.ThrowIoCCyclicalDependency(Type?.Type ?? service);
+                        ExceptionManager.ThrowIocCyclicalDependency(Type?.Type ?? service);
 
                     var result = ResolveInternal(container, service, typeCache, parameters, ref metadata);
                     _isActivated = true;
@@ -563,23 +562,23 @@ namespace MugenMvvm.Infrastructure.IoC
             #region Fields
 
             private IReadOnlyMetadataContext? _metadata;
-            private Func<IIoCContainer, IReadOnlyCollection<IIoCParameter>, IReadOnlyMetadataContext, object>? _methodBindingDelegate;
-            private IReadOnlyCollection<IIoCParameter>? _parameters;
+            private Func<IIocContainer, IReadOnlyCollection<IIocParameter>, IReadOnlyMetadataContext, object>? _methodBindingDelegate;
+            private IReadOnlyCollection<IIocParameter>? _parameters;
             protected TypeCache? Type;
 
             #endregion
 
             #region Constructors
 
-            protected BindingRegistrationBase(Func<IIoCContainer, IReadOnlyCollection<IIoCParameter>, IReadOnlyMetadataContext, object> methodBindingDelegate,
-                IReadOnlyCollection<IIoCParameter>? parameters, IReadOnlyMetadataContext? metadata)
+            protected BindingRegistrationBase(Func<IIocContainer, IReadOnlyCollection<IIocParameter>, IReadOnlyMetadataContext, object> methodBindingDelegate,
+                IReadOnlyCollection<IIocParameter>? parameters, IReadOnlyMetadataContext? metadata)
             {
                 _methodBindingDelegate = methodBindingDelegate;
                 _parameters = parameters;
                 _metadata = metadata;
             }
 
-            protected BindingRegistrationBase(Type type, IReadOnlyCollection<IIoCParameter>? parameters, IReadOnlyMetadataContext? metadata)
+            protected BindingRegistrationBase(Type type, IReadOnlyCollection<IIocParameter>? parameters, IReadOnlyMetadataContext? metadata)
             {
                 Type = GetTypeCache(type);
                 _parameters = parameters;
@@ -590,14 +589,14 @@ namespace MugenMvvm.Infrastructure.IoC
 
             #region Implementation of interfaces
 
-            public abstract object Resolve(MugenIoCContainer container, Type service, TypeCache? typeCache, IReadOnlyCollection<IIoCParameter> parameters,
-                IReadOnlyMetadataContext metadata);
+            public abstract object Resolve(MugenIocContainer container, Type service, TypeCache? typeCache, IReadOnlyCollection<IIocParameter>? parameters,
+                IReadOnlyMetadataContext? metadata);
 
             #endregion
 
             #region Methods
 
-            protected object? ResolveInternal(MugenIoCContainer container, Type service, TypeCache? typeCache, IReadOnlyCollection<IIoCParameter> parameters,
+            protected object? ResolveInternal(MugenIocContainer container, Type service, TypeCache? typeCache, IReadOnlyCollection<IIocParameter> parameters,
                 ref IReadOnlyMetadataContext metadata)
             {
                 var originalParameters = parameters;
@@ -636,13 +635,13 @@ namespace MugenMvvm.Infrastructure.IoC
                 _parameters = null;
             }
 
-            private IReadOnlyCollection<IIoCParameter> MergeParameters(IReadOnlyCollection<IIoCParameter>? parameters)
+            private IReadOnlyCollection<IIocParameter> MergeParameters(IReadOnlyCollection<IIocParameter>? parameters)
             {
                 if (_parameters == null || _parameters.Count == 0)
-                    return parameters ?? Default.EmptyArray<IIoCParameter>();
+                    return parameters ?? Default.EmptyArray<IIocParameter>();
                 if (parameters == null || parameters.Count == 0)
-                    return _parameters ?? Default.EmptyArray<IIoCParameter>();
-                var iocParameters = new List<IIoCParameter>(parameters);
+                    return _parameters ?? Default.EmptyArray<IIocParameter>();
+                var iocParameters = new List<IIocParameter>(parameters);
                 iocParameters.AddRange(_parameters);
                 return iocParameters;
             }
@@ -660,8 +659,8 @@ namespace MugenMvvm.Infrastructure.IoC
                 return metadataContext;
             }
 
-            private static object?[] GetParameters(MugenIoCContainer container, ConstructorInfoCache constructor, IReadOnlyCollection<IIoCParameter>? parameters,
-                IReadOnlyCollection<IIoCParameter> mergedParameters, IReadOnlyMetadataContext metadata)
+            private static object?[] GetParameters(MugenIocContainer container, ConstructorInfoCache constructor, IReadOnlyCollection<IIocParameter>? parameters,
+                IReadOnlyCollection<IIocParameter> mergedParameters, IReadOnlyMetadataContext metadata)
             {
                 var parameterInfos = constructor.GetParameters();
                 if (parameterInfos.Length == 0)
@@ -690,7 +689,7 @@ namespace MugenMvvm.Infrastructure.IoC
                 return result;
             }
 
-            private static object? ResolveParameter(MugenIoCContainer container, ParameterInfoCache parameterInfo, IReadOnlyCollection<IIoCParameter> parameters,
+            private static object? ResolveParameter(MugenIocContainer container, ParameterInfoCache parameterInfo, IReadOnlyCollection<IIocParameter> parameters,
                 IReadOnlyMetadataContext metadata)
             {
                 var type = parameterInfo.Type;
@@ -756,7 +755,7 @@ namespace MugenMvvm.Infrastructure.IoC
             {
                 Type = type;
                 IsArray = type.IsArray;
-                IsContainerBinding = type.EqualsEx(typeof(IServiceProvider)) || type.EqualsEx(typeof(IIoCContainer));
+                IsContainerBinding = type.EqualsEx(typeof(IServiceProvider)) || type.EqualsEx(typeof(IIocContainer));
             }
 
             #endregion
@@ -913,12 +912,12 @@ namespace MugenMvvm.Infrastructure.IoC
                 return _selfBindableBindingRegistration;
             }
 
-            public void SetProperties(object item, IReadOnlyCollection<IIoCParameter> parameters)
+            public void SetProperties(object item, IReadOnlyCollection<IIocParameter> parameters)
             {
                 PropertyCacheDictionary? props = null;
                 foreach (var iocParameter in parameters)
                 {
-                    if (iocParameter.ParameterType != IoCParameterType.Property)
+                    if (iocParameter.ParameterType != IocParameterType.Property)
                         continue;
                     if (props == null)
                         props = GetCachedProperties();
@@ -928,7 +927,7 @@ namespace MugenMvvm.Infrastructure.IoC
                 }
             }
 
-            public ConstructorInfoCache? FindConstructor(IReadOnlyCollection<IIoCParameter> parameters)
+            public ConstructorInfoCache? FindConstructor(IReadOnlyCollection<IIocParameter> parameters)
             {
                 ConstructorInfoCache? result = null;
                 var bestCount = -1;
@@ -1152,9 +1151,9 @@ namespace MugenMvvm.Infrastructure.IoC
 
             #region Methods
 
-            public bool CanResolveParameter(IIoCParameter parameter)
+            public bool CanResolveParameter(IIocParameter parameter)
             {
-                return parameter.ParameterType == IoCParameterType.Constructor && parameter.Name == _parameterInfo.Name;
+                return parameter.ParameterType == IocParameterType.Constructor && parameter.Name == _parameterInfo.Name;
             }
 
             #endregion
