@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Delegates;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -26,8 +27,7 @@ namespace MugenMvvm.Interfaces.IoC
 
         void BindToType(Type service, Type typeTo, IocDependencyLifecycle lifecycle, IReadOnlyMetadataContext? metadata = null);
 
-        void BindToMethod(Type service, Func<IIocContainer, IReadOnlyCollection<IIocParameter>, IReadOnlyMetadataContext, object> methodBindingDelegate,
-            IocDependencyLifecycle lifecycle, IReadOnlyMetadataContext? metadata = null);
+        void BindToMethod(Type service, IocBindingDelegate bindingDelegate, IocDependencyLifecycle lifecycle, IReadOnlyMetadataContext? metadata = null);
 
         void Unbind(Type service, IReadOnlyMetadataContext? metadata = null);
     }

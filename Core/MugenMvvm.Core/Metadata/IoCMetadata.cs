@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Delegates;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.IoC;
 using MugenMvvm.Interfaces.Metadata;
@@ -11,6 +12,7 @@ namespace MugenMvvm.Metadata
 
         private static IMetadataContextKey<string>? _name;
         private static IMetadataContextKey<IReadOnlyCollection<IIocParameter>?>? _parameters;
+        private static IMetadataContextKey<IocConditionDelegate?> _condition;
 
         #endregion
 
@@ -36,6 +38,17 @@ namespace MugenMvvm.Metadata
                 return _parameters;
             }
             set => _parameters = value;
+        }
+
+        public static IMetadataContextKey<IocConditionDelegate?> Condition
+        {
+            get
+            {
+                if (_condition == null)
+                    _condition = GetBuilder<IocConditionDelegate?>(nameof(Condition)).Build();
+                return _condition;
+            }
+            set => _condition = value;
         }
 
         #endregion

@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using MugenMvvm.Delegates;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.IoC;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.IoC
 {
@@ -87,30 +87,28 @@ namespace MugenMvvm.Infrastructure.IoC
         {
             NotBeDisposed();
             Should.NotBeNull(service, nameof(service));
-            return CanResolveInternal(service, TryGetName(metadata), metadata);
+            return CanResolveInternal(service, metadata);
         }
 
         public object Get(Type service, IReadOnlyMetadataContext? metadata = null)
         {
             NotBeDisposed();
             Should.NotBeNull(service, nameof(service));
-            TryGetNameAndParameters(metadata, out var name, out var parameters);
-            return GetInternal(service, name, parameters, metadata);
+            return GetInternal(service, metadata);
         }
 
         public IEnumerable<object> GetAll(Type service, IReadOnlyMetadataContext? metadata = null)
         {
             NotBeDisposed();
             Should.NotBeNull(service, nameof(service));
-            TryGetNameAndParameters(metadata, out var name, out var parameters);
-            return GetAllInternal(service, name, parameters, metadata);
+            return GetAllInternal(service, metadata);
         }
 
         public void BindToConstant(Type service, object? instance, IReadOnlyMetadataContext? metadata = null)
         {
             NotBeDisposed();
             Should.NotBeNull(service, nameof(service));
-            BindToConstantInternal(service, instance, TryGetName(metadata), metadata);
+            BindToConstantInternal(service, instance, metadata);
             var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnBindToConstant(this, service, instance, metadata.DefaultIfNull());
@@ -122,32 +120,29 @@ namespace MugenMvvm.Infrastructure.IoC
             Should.NotBeNull(service, nameof(service));
             Should.NotBeNull(typeTo, nameof(typeTo));
             Should.NotBeNull(lifecycle, nameof(lifecycle));
-            TryGetNameAndParameters(metadata, out var name, out var parameters);
-            BindToTypeInternal(service, typeTo, lifecycle, name, parameters, metadata);
+            BindToTypeInternal(service, typeTo, lifecycle, metadata);
             var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnBindToType(this, service, typeTo, lifecycle, metadata.DefaultIfNull());
         }
 
-        public void BindToMethod(Type service, Func<IIocContainer, IReadOnlyCollection<IIocParameter>, IReadOnlyMetadataContext, object> methodBindingDelegate,
-            IocDependencyLifecycle lifecycle, IReadOnlyMetadataContext? metadata = null)
+        public void BindToMethod(Type service, IocBindingDelegate bindingDelegate, IocDependencyLifecycle lifecycle, IReadOnlyMetadataContext? metadata = null)
         {
             NotBeDisposed();
             Should.NotBeNull(service, nameof(service));
-            Should.NotBeNull(methodBindingDelegate, nameof(methodBindingDelegate));
+            Should.NotBeNull(bindingDelegate, nameof(bindingDelegate));
             Should.NotBeNull(lifecycle, nameof(lifecycle));
-            TryGetNameAndParameters(metadata, out var name, out var parameters);
-            BindToMethodInternal(service, methodBindingDelegate, lifecycle, name, parameters, metadata);
+            BindToMethodInternal(service, bindingDelegate, lifecycle, metadata);
             var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnBindToMethod(this, service, methodBindingDelegate, lifecycle, metadata.DefaultIfNull());
+                listeners[i].OnBindToMethod(this, service, bindingDelegate, lifecycle, metadata.DefaultIfNull());
         }
 
         public void Unbind(Type service, IReadOnlyMetadataContext? metadata = null)
         {
             NotBeDisposed();
             Should.NotBeNull(service, nameof(service));
-            if (!UnbindInternal(service, TryGetName(metadata), metadata))
+            if (!UnbindInternal(service, metadata))
                 return;
 
             var listeners = this.GetListeners();
@@ -172,53 +167,30 @@ namespace MugenMvvm.Infrastructure.IoC
 
         protected abstract TContainer CreateChildInternal(IReadOnlyMetadataContext? metadata);
 
-        protected abstract bool CanResolveInternal(Type service, string? name, IReadOnlyMetadataContext? metadata);
+        protected abstract bool CanResolveInternal(Type service, IReadOnlyMetadataContext? metadata);
 
-        protected abstract object GetInternal(Type service, string? name, IReadOnlyCollection<IIocParameter> parameters, IReadOnlyMetadataContext? metadata);
+        protected abstract object GetInternal(Type service, IReadOnlyMetadataContext? metadata);
 
-        protected abstract IEnumerable<object> GetAllInternal(Type service, string? name, IReadOnlyCollection<IIocParameter> parameters, IReadOnlyMetadataContext? metadata);
+        protected abstract IEnumerable<object> GetAllInternal(Type service, IReadOnlyMetadataContext? metadata);
 
-        protected abstract void BindToConstantInternal(Type service, object? instance, string? name, IReadOnlyMetadataContext? metadata);
+        protected abstract void BindToConstantInternal(Type service, object? instance, IReadOnlyMetadataContext? metadata);
 
-        protected abstract void BindToTypeInternal(Type service, Type typeTo, IocDependencyLifecycle lifecycle, string? name, IReadOnlyCollection<IIocParameter> parameters,
-            IReadOnlyMetadataContext? metadata);
+        protected abstract void BindToTypeInternal(Type service, Type typeTo, IocDependencyLifecycle lifecycle, IReadOnlyMetadataContext? metadata);
 
-        protected abstract void BindToMethodInternal(Type service, Func<IIocContainer, IReadOnlyCollection<IIocParameter>, IReadOnlyMetadataContext, object> methodBindingDelegate,
-            IocDependencyLifecycle lifecycle, string? name, IReadOnlyCollection<IIocParameter> parameters, IReadOnlyMetadataContext? metadata);
+        protected abstract void BindToMethodInternal(Type service, IocBindingDelegate bindingDelegate, IocDependencyLifecycle lifecycle, IReadOnlyMetadataContext? metadata);
 
-        protected abstract bool UnbindInternal(Type service, string? name, IReadOnlyMetadataContext? metadata);
+        protected abstract bool UnbindInternal(Type service, IReadOnlyMetadataContext? metadata);
 
-        protected virtual void OnActivated(Type service, object? instance, IReadOnlyMetadataContext? metadata)
+        protected virtual void OnActivated(Type service, object? member, object? instance, IReadOnlyMetadataContext? bindingMetadata, IReadOnlyMetadataContext? metadata)
         {
             var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnActivated(this, service, instance, metadata.DefaultIfNull());
+                listeners[i].OnActivated(this, service, member, instance, bindingMetadata, metadata);
         }
 
         protected virtual IComponentCollection<IIocContainerListener> GetListenersCollection()
         {
             return new OrderedArrayComponentCollection<IIocContainerListener>(this);
-        }
-
-        private static string? TryGetName(IReadOnlyMetadataContext? context)
-        {
-            if (context == null || context.Count == 0)
-                return null;
-            return context.Get(IocMetadata.Name);
-        }
-
-        private static void TryGetNameAndParameters(IReadOnlyMetadataContext? context, out string? name, out IReadOnlyCollection<IIocParameter> parameters)
-        {
-            if (context == null || context.Count == 0)
-            {
-                name = null;
-                parameters = null;
-            }
-            else
-            {
-                name = context.Get(IocMetadata.Name);
-                parameters = context.Get(IocMetadata.Parameters);
-            }
         }
 
         protected void NotBeDisposed()
