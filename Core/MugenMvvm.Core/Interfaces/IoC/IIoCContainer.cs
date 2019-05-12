@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.IoC
 {
-    public interface IIocContainer : IHasListeners<IIocContainerListener>, IDisposable, IServiceProvider//todo rename IoC to Ioc
+    public interface IIocContainer : IHasListeners<IIocContainerListener>, IDisposable, IServiceProvider
     {
         int Id { get; }
 
