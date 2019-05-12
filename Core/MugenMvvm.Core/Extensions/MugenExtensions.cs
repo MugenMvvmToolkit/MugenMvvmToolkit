@@ -160,13 +160,13 @@ namespace MugenMvvm
         }
 
         //note for better performance use this method for creating delegate instead of handler.Execute because it will use ldftn opcode instead of ldvirtftn       
-        public static void ExecuteDelegate(this IThreadDispatcherHandler handler, object? state)
+        public static void ToExecuteDelegate(this IThreadDispatcherHandler handler, object? state)
         {
             handler.Execute(state);
         }
 
         //note for better performance use this method for creating delegate if state parameter is null
-        public static void ExecuteNullState(this IThreadDispatcherHandler handler)
+        public static void ToExecuteNullState(this IThreadDispatcherHandler handler)
         {
             handler.Execute(null);
         }
