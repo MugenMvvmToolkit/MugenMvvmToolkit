@@ -15,7 +15,7 @@ namespace MugenMvvm.Collections
     [DebuggerDisplay("Count = {Count}")]
     [Serializable]
     [DataContract(Namespace = BuildConstants.DataContractNamespace)]
-    public abstract class LightDictionaryBase<TKey, TValue> : IReadOnlyCollection<KeyValuePair<TKey, TValue>>//todo use ref for struct with large size, review
+    public abstract class LightDictionaryBase<TKey, TValue> : IReadOnlyCollection<KeyValuePair<TKey, TValue>>
     {
         #region Fields
 
@@ -81,7 +81,7 @@ namespace MugenMvvm.Collections
             }
         }
 
-        protected internal TValue this[TKey key]
+        public TValue this[TKey key]
         {
             get
             {
@@ -112,12 +112,12 @@ namespace MugenMvvm.Collections
 
         #region Methods
 
-        protected internal void Add(TKey key, TValue value)
+        public void Add(TKey key, TValue value)
         {
             Insert(key, value, true);
         }
 
-        protected internal void Clear()
+        public void Clear()
         {
             if (_buckets == null)
                 RestoreState();
@@ -131,12 +131,12 @@ namespace MugenMvvm.Collections
             _freeCount = 0;
         }
 
-        protected internal bool ContainsKey(TKey key)
+        public bool ContainsKey(TKey key)
         {
             return FindEntry(key) >= 0;
         }
 
-        protected internal bool Remove(TKey key)
+        public bool Remove(TKey key)
         {
             if (_buckets == null)
                 RestoreState();
@@ -169,7 +169,7 @@ namespace MugenMvvm.Collections
             return false;
         }
 
-        protected internal bool TryGetValue(TKey key, out TValue value)
+        public bool TryGetValue(TKey key, out TValue value)
         {
             var entry = FindEntry(key);
             if (entry >= 0)
@@ -207,22 +207,7 @@ namespace MugenMvvm.Collections
             return result;
         }
 
-        protected abstract bool Equals(TKey x, TKey y);
-
-        protected abstract int GetHashCode(TKey key);
-
-        protected void Initialize(int capacity)
-        {
-            var prime = PrimeNumberHelper.GetPrime(capacity);
-            _buckets = new int[prime];
-            for (var index = 0; index < _buckets.Length; index++)
-                _buckets[index] = -1;
-            _entries = new Entry[prime];
-            _freeList = -1;
-            _count = 0;
-        }
-
-        protected void Clone(LightDictionaryBase<TKey, TValue> clone, Func<TValue, TValue>? valueConverter = null)
+        public void Clone(LightDictionaryBase<TKey, TValue> clone, Func<TValue, TValue>? valueConverter = null)
         {
             clone._buckets = _buckets?.ToArray();
             clone._count = _count;
@@ -251,6 +236,21 @@ namespace MugenMvvm.Collections
 
             clone._freeCount = _freeCount;
             clone._freeList = _freeList;
+        }
+
+        protected abstract bool Equals(TKey x, TKey y);
+
+        protected abstract int GetHashCode(TKey key);
+
+        protected void Initialize(int capacity)
+        {
+            var prime = PrimeNumberHelper.GetPrime(capacity);
+            _buckets = new int[prime];
+            for (var index = 0; index < _buckets.Length; index++)
+                _buckets[index] = -1;
+            _entries = new Entry[prime];
+            _freeList = -1;
+            _count = 0;
         }
 
         private int GetHashCodeInternal(TKey key)
