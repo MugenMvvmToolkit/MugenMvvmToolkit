@@ -179,13 +179,13 @@ namespace MugenMvvm.Infrastructure.Navigation
             }
 
             public void CompleteNavigation(Func<INavigationDispatcher, INavigationContext, bool> completeNavigationCallback,
-                Action<INavigationDispatcher, INavigationContext, Exception?>? canceledCallback = null)
+                Action<INavigationDispatcher, INavigationContext, Exception?>? cancelCallback = null)
             {
                 Should.NotBeNull(completeNavigationCallback, nameof(completeNavigationCallback));
                 if (Interlocked.Exchange(ref _completeNavigationCallback, completeNavigationCallback) != null)
                     ExceptionManager.ThrowNavigatingResultHasCallback();
 
-                _canceledCallback = canceledCallback;
+                _canceledCallback = cancelCallback;
                 Task.ContinueWith(InvokeCompletedCallback, this, TaskContinuationOptions.ExecuteSynchronously);
             }
 
