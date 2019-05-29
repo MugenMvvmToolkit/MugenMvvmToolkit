@@ -7,10 +7,11 @@ using MugenMvvm.Interfaces.Internal;
 
 namespace MugenMvvm.Infrastructure.Internal
 {
-    public class AttachedValueProvider : IAttachedValueProvider
+    public sealed class AttachedValueProvider : IAttachedValueProvider
     {
         #region Fields
 
+        private readonly IComponentCollectionProvider _componentCollectionProvider;
         private IComponentCollection<IChildAttachedValueProvider>? _providers;
 
         #endregion
@@ -21,21 +22,19 @@ namespace MugenMvvm.Infrastructure.Internal
         public AttachedValueProvider(IComponentCollectionProvider componentCollectionProvider)
         {
             Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
-            ComponentCollectionProvider = componentCollectionProvider;
+            _componentCollectionProvider = componentCollectionProvider;
         }
 
         #endregion
 
         #region Properties
 
-        protected IComponentCollectionProvider ComponentCollectionProvider { get; }
-
         public IComponentCollection<IChildAttachedValueProvider> Providers
         {
             get
             {
                 if (_providers == null)
-                    ComponentCollectionProvider.LazyInitialize(ref _providers, this);
+                    _componentCollectionProvider.LazyInitialize(ref _providers, this);
 
                 return _providers;
             }
@@ -45,29 +44,47 @@ namespace MugenMvvm.Infrastructure.Internal
 
         #region Implementation of interfaces
 
-        public virtual TValue AddOrUpdate<TItem, TValue, TState1, TState2>(TItem item, string path, TValue addValue, TState1 state1, TState2 state2,
+        public IReadOnlyList<KeyValuePair<string, object?>> GetValues<TItem>(TItem item, Func<TItem, string, object?, bool>? predicate)
+            where TItem : class
+        {
+            Should.NotBeNull(item, nameof(item));
+            var dictionary = GetOrAddAttachedDictionary(item, false);
+            if (dictionary == null)
+                return Default.EmptyArray<KeyValuePair<string, object?>>();
+            return dictionary.GetValues(item, predicate);
+        }
+
+        public bool TryGetValue<TItem, TValue>(TItem item, string path, out TValue value)
+            where TItem : class
+        {
+            Should.NotBeNull(item, nameof(item));
+            Should.NotBeNull(path, nameof(path));
+            var dictionary = GetOrAddAttachedDictionary(item, false);
+            if (dictionary != null)
+                return dictionary.TryGetValue(item, path, out value);
+            value = default!;
+            return false;
+        }
+
+        public bool Contains<TItem>(TItem item, string path)
+            where TItem : class
+        {
+            Should.NotBeNull(item, nameof(item));
+            var dictionary = GetOrAddAttachedDictionary(item, false);
+            return dictionary != null && dictionary.Contains(item, path);
+        }
+
+        public TValue AddOrUpdate<TItem, TValue, TState1, TState2>(TItem item, string path, TValue addValue, TState1 state1, TState2 state2,
             UpdateValueDelegate<TItem, TValue, TValue, TState1, TState2> updateValueFactory)
             where TItem : class
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
             Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
-            var dictionary = GetOrAddAttachedDictionary(item, true)!;
-            lock (dictionary)
-            {
-                if (dictionary.TryGetValue(path, out var value))
-                {
-                    value = updateValueFactory(item, addValue, (TValue) value!, state1, state2);
-                    dictionary[path] = value;
-                    return (TValue) value!;
-                }
-
-                dictionary.Add(path, addValue);
-                return addValue;
-            }
+            return GetOrAddAttachedDictionary(item, true)!.AddOrUpdate(item, path, addValue, state1, state2, updateValueFactory);
         }
 
-        public virtual TValue AddOrUpdate<TItem, TValue, TState1, TState2>(TItem item, string path, TState1 state1, TState2 state2,
+        public TValue AddOrUpdate<TItem, TValue, TState1, TState2>(TItem item, string path, TState1 state1, TState2 state2,
             Func<TItem, TState1, TState2, TValue> addValueFactory, UpdateValueDelegate<TItem, Func<TItem, TState1, TState2, TValue>, TValue, TState1, TState2> updateValueFactory)
             where TItem : class
         {
@@ -75,164 +92,60 @@ namespace MugenMvvm.Infrastructure.Internal
             Should.NotBeNull(path, nameof(path));
             Should.NotBeNull(addValueFactory, nameof(addValueFactory));
             Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
-            var dictionary = GetOrAddAttachedDictionary(item, true)!;
-            lock (dictionary)
-            {
-                if (dictionary.TryGetValue(path, out var value))
-                {
-                    value = updateValueFactory(item, addValueFactory, (TValue) value!, state1, state2);
-                    dictionary[path] = value;
-                    return (TValue) value!;
-                }
-
-                value = addValueFactory(item, state1, state2);
-                dictionary.Add(path, value);
-                return (TValue) value!;
-            }
+            return GetOrAddAttachedDictionary(item, true)!.AddOrUpdate(item, path, state1, state2, addValueFactory, updateValueFactory);
         }
 
-        public virtual TValue GetOrAdd<TValue>(object item, string path, TValue value)
+        public TValue GetOrAdd<TItem, TValue>(TItem item, string path, TValue value)
+            where TItem : class
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
-            var dictionary = GetOrAddAttachedDictionary(item, true)!;
-            lock (dictionary)
-            {
-                if (dictionary.TryGetValue(path, out var oldValue))
-                    return (TValue) oldValue!;
-                dictionary.Add(path, value);
-                return value;
-            }
+            return GetOrAddAttachedDictionary(item, true)!.GetOrAdd(item, path, value);
         }
 
-        public virtual TValue GetOrAdd<TItem, TValue, TState1, TState2>(TItem item, string path, TState1 state1, TState2 state2, Func<TItem, TState1, TState2, TValue> valueFactory)
+        public TValue GetOrAdd<TItem, TValue, TState1, TState2>(TItem item, string path, TState1 state1, TState2 state2, Func<TItem, TState1, TState2, TValue> valueFactory)
             where TItem : class
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
             Should.NotBeNull(valueFactory, nameof(valueFactory));
-            var dictionary = GetOrAddAttachedDictionary(item, true)!;
-            lock (dictionary)
-            {
-                if (dictionary.TryGetValue(path, out var oldValue))
-                    return (TValue) oldValue!;
-                oldValue = valueFactory(item, state1, state2);
-                dictionary.Add(path, oldValue);
-                return (TValue) oldValue!;
-            }
+            return GetOrAddAttachedDictionary(item, true)!.GetOrAdd(item, path, state1, state2, valueFactory);
         }
 
-        public virtual bool TryGetValue<TValue>(object item, string path, out TValue value)
+        public void SetValue<TItem, TValue>(TItem item, string path, TValue value)
+            where TItem : class
+        {
+            Should.NotBeNull(item, nameof(item));
+            Should.NotBeNull(path, nameof(path));
+            GetOrAddAttachedDictionary(item, true)!.SetValue(item, path, value);
+        }
+
+        public bool Clear<TItem>(TItem item, string path) where TItem : class
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
             var dictionary = GetOrAddAttachedDictionary(item, false);
             if (dictionary == null)
-            {
-                value = default!;
                 return false;
-            }
-
-            lock (dictionary)
-            {
-                if (dictionary.TryGetValue(path, out var result))
-                {
-                    value = (TValue) result!;
-                    return true;
-                }
-
-                value = default!;
-                return false;
-            }
+            return dictionary.Clear(item, path);
         }
 
-        public virtual void SetValue(object item, string path, object? value)
-        {
-            Should.NotBeNull(item, nameof(item));
-            Should.NotBeNull(path, nameof(path));
-            var dictionary = GetOrAddAttachedDictionary(item, true)!;
-            lock (dictionary)
-            {
-                dictionary[path] = value;
-            }
-        }
-
-        public virtual bool Contains(object item, string path)
+        public bool Clear<TItem>(TItem item) where TItem : class
         {
             Should.NotBeNull(item, nameof(item));
             var dictionary = GetOrAddAttachedDictionary(item, false);
             if (dictionary == null)
                 return false;
-            lock (dictionary)
-            {
-                return dictionary.ContainsKey(path);
-            }
-        }
-
-        public virtual IReadOnlyList<KeyValuePair<string, object?>> GetValues(object item, Func<string, object?, bool>? predicate)
-        {
-            Should.NotBeNull(item, nameof(item));
-            var dictionary = GetOrAddAttachedDictionary(item, false);
-            if (dictionary == null)
-                return Default.EmptyArray<KeyValuePair<string, object?>>();
-            lock (dictionary)
-            {
-                if (predicate == null)
-                    return new List<KeyValuePair<string, object?>>(dictionary);
-                var list = new List<KeyValuePair<string, object?>>();
-                foreach (var keyValue in dictionary)
-                {
-                    if (predicate(keyValue.Key, keyValue.Value))
-                        list.Add(keyValue);
-                }
-
-                return list;
-            }
-        }
-
-        public virtual bool Clear(object item)
-        {
-            Should.NotBeNull(item, nameof(item));
-            return ClearInternal(item);
-        }
-
-        public virtual bool Clear(object item, string path)
-        {
-            var dictionary = GetOrAddAttachedDictionary(item, false);
-            if (dictionary == null)
-                return false;
-            lock (dictionary)
-            {
-                if (dictionary.Remove(path))
-                {
-                    if (dictionary.Count == 0)
-                        ClearInternal(item);
-                    return true;
-                }
-            }
-
-            return false;
+            return dictionary.Clear(item);
         }
 
         #endregion
 
         #region Methods
 
-        protected virtual bool ClearInternal(object item)
+        private IAttachedValueProviderDictionary? GetOrAddAttachedDictionary(object item, bool required)
         {
-            var items = GetProviders();
-            for (var i = 0; i < items.Length; i++)
-            {
-                if (items[i].TryClear(this, item, out var result))
-                    return result;
-            }
-
-            return false;
-        }
-
-        protected virtual IAttachedValueProviderDictionary? GetOrAddAttachedDictionary(object item, bool required)
-        {
-            var items = GetProviders();
+            var items = _providers.GetItemsOrDefault();
             for (var i = 0; i < items.Length; i++)
             {
                 if (items[i].TryGetOrAddAttachedDictionary(this, item, required, out var dict))
@@ -242,11 +155,6 @@ namespace MugenMvvm.Infrastructure.Internal
             if (required)
                 ExceptionManager.ThrowObjectNotInitialized(this);
             return null;
-        }
-
-        private IChildAttachedValueProvider[] GetProviders()
-        {
-            return _providers.GetItemsOrDefault();
         }
 
         #endregion

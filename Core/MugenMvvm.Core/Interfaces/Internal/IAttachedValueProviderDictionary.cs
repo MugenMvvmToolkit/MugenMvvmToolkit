@@ -1,17 +1,41 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using MugenMvvm.Delegates;
 
 namespace MugenMvvm.Interfaces.Internal
 {
-    public interface IAttachedValueProviderDictionary : IReadOnlyCollection<KeyValuePair<string, object>>
+    public interface IAttachedValueProviderDictionary
     {
-        object? this[string key] { get; set; }
+        IReadOnlyList<KeyValuePair<string, object?>> GetValues<TItem>(TItem item, Func<TItem, string, object?, bool>? predicate)
+            where TItem : class;
 
-        bool ContainsKey(string key);
+        bool TryGetValue<TItem, TValue>(TItem item, string path, [NotNullWhenTrue] out TValue value)
+            where TItem : class;
 
-        void Add(string key, object? value);
+        bool Contains<TItem>(TItem item, string path);
 
-        bool Remove(string key);
+        TValue AddOrUpdate<TItem, TValue, TState1, TState2>(TItem item, string path, TValue addValue, TState1 state1, TState2 state2,
+            UpdateValueDelegate<TItem, TValue, TValue, TState1, TState2> updateValueFactory)
+            where TItem : class;
 
-        bool TryGetValue(string key, out object? value);
+        TValue AddOrUpdate<TItem, TValue, TState1, TState2>(TItem item, string path, TState1 state1, TState2 state2, Func<TItem, TState1, TState2, TValue> addValueFactory,
+            UpdateValueDelegate<TItem, Func<TItem, TState1, TState2, TValue>, TValue, TState1, TState2> updateValueFactory)
+            where TItem : class;
+
+        TValue GetOrAdd<TItem, TValue>(TItem item, string path, TValue value)
+            where TItem : class;
+
+        TValue GetOrAdd<TItem, TValue, TState1, TState2>(TItem item, string path, TState1 state1, TState2 state2, Func<TItem, TState1, TState2, TValue> valueFactory)
+            where TItem : class;
+
+        void SetValue<TItem, TValue>(TItem item, string path, TValue value)
+            where TItem : class;
+
+        bool Clear<TItem>(TItem item)
+            where TItem : class;
+
+        bool Clear<TItem>(TItem item, string path)
+            where TItem : class;
     }
 }
