@@ -222,7 +222,7 @@ namespace MugenMvvm.Infrastructure.Validation
             lock (Errors)
             {
                 if (Errors.Count == 0)
-                    return Default.EmptyDictionary<string, IReadOnlyList<object>>();
+                    return Default.ReadOnlyDictionary<string, IReadOnlyList<object>>();
                 return new Dictionary<string, IReadOnlyList<object>>(Errors);
             }
         }
@@ -409,7 +409,7 @@ namespace MugenMvvm.Infrastructure.Validation
 
             public static readonly ValidationResult DoNothing = default;
 
-            public static readonly ValidationResult Empty = new ValidationResult(Default.EmptyDictionary<string, IReadOnlyList<object>>());
+            public static readonly ValidationResult Empty = new ValidationResult(Default.ReadOnlyDictionary<string, IReadOnlyList<object>>());
 
             public static readonly Task<ValidationResult> DoNothingTask = Task.FromResult(DoNothing);
 

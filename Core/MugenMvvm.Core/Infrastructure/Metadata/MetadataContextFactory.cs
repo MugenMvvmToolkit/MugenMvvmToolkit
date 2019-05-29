@@ -34,7 +34,7 @@ namespace MugenMvvm.Infrastructure.Metadata
         public virtual IReadOnlyMetadataContext? TryGetReadOnlyMetadataContext(object? target, IEnumerable<MetadataContextValue>? values)
         {
             if (values == null)
-                return Default.MetadataContext;
+                return Default.Metadata;
 
             int capacity;
             if (values is IReadOnlyCollection<MetadataContextValue> readOnlyCollection)
@@ -45,7 +45,7 @@ namespace MugenMvvm.Infrastructure.Metadata
                 capacity = 3;
 
             if (capacity == 0)
-                return Default.MetadataContext;
+                return Default.Metadata;
 
             return new ReadOnlyMetadataContext(values, capacity);
         }

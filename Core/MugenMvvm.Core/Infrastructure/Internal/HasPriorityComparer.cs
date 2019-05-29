@@ -12,16 +12,11 @@ namespace MugenMvvm.Infrastructure.Internal
     {
         #region Fields
 
-        public static readonly HasPriorityComparer Instance;
+        public static readonly HasPriorityComparer Instance = new HasPriorityComparer();
 
         #endregion
 
         #region Constructors
-
-        static HasPriorityComparer()
-        {
-            Instance = new HasPriorityComparer();
-        }
 
         private HasPriorityComparer()
         {

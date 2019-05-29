@@ -7,7 +7,7 @@ namespace MugenMvvm.Infrastructure.Views
     {
         #region Fields
 
-        public static readonly ICleanupViewManagerResult Empty = new CleanupViewManagerResult(Default.MetadataContext);
+        public static readonly ICleanupViewManagerResult Empty = new CleanupViewManagerResult(Default.Metadata);
 
         #endregion
 

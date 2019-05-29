@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces.Components;
@@ -14,20 +15,21 @@ namespace MugenMvvm.Infrastructure.Components
     {
         #region Fields
 
-        private static readonly Dictionary<Type, Func<object?, object?[], object?>?> AttachDelegates;
-        private static readonly Dictionary<Type, Func<object?, object?[], object?>?> DetachDelegates;
-        private static readonly MethodInfo AttachDetachMethodInfo;
+        private static readonly Dictionary<Type, Func<object?, object?[], object?>?> AttachDelegates =
+            new Dictionary<Type, Func<object?, object?[], object?>?>(MemberInfoEqualityComparer.Instance);
+
+        private static readonly Dictionary<Type, Func<object?, object?[], object?>?> DetachDelegates =
+            new Dictionary<Type, Func<object?, object?[], object?>?>(MemberInfoEqualityComparer.Instance);
+
+        private static readonly MethodInfo AttachDetachMethodInfo = GetAttachDetachMethod();
 
         #endregion
 
         #region Constructors
 
-        static ComponentCollectionCallbackListener()
+        [Preserve(Conditional = true)]
+        public ComponentCollectionCallbackListener()
         {
-            AttachDelegates = new Dictionary<Type, Func<object?, object?[], object?>?>(MemberInfoEqualityComparer.Instance);
-            DetachDelegates = new Dictionary<Type, Func<object?, object?[], object?>?>(MemberInfoEqualityComparer.Instance);
-            AttachDetachMethodInfo = typeof(ComponentCollectionCallbackListener).GetMethodUnified(nameof(AttachDetachIml), MemberFlags.StaticOnly);
-            Should.BeSupported(AttachDetachMethodInfo != null, nameof(AttachDetachMethodInfo));
         }
 
         #endregion
@@ -112,6 +114,13 @@ namespace MugenMvvm.Infrastructure.Components
         #endregion
 
         #region Methods
+
+        private static MethodInfo GetAttachDetachMethod()
+        {
+            var m = typeof(ComponentCollectionCallbackListener).GetMethodUnified(nameof(AttachDetachIml), MemberFlags.StaticOnly);
+            Should.BeSupported(m != null, nameof(AttachDetachMethodInfo));
+            return m;
+        }
 
         private static void Attach<T>(IComponentCollection<T> collection, object component, IReadOnlyMetadataContext metadata) where T : class
         {

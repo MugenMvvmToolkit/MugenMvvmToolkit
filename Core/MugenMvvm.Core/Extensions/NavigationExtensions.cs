@@ -78,7 +78,7 @@ namespace MugenMvvm
             Should.NotBeNull(navigationDispatcherJournal, nameof(navigationDispatcherJournal));
             Should.NotBeNull(filter, nameof(filter));
             if (metadata == null)
-                metadata = Default.MetadataContext;
+                metadata = Default.Metadata;
             var entries = navigationDispatcherJournal.GetNavigationEntries(null, metadata);
             List<Task>? tasks = null;
             for (var i = 0; i < entries.Count; i++)

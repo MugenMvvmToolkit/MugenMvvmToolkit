@@ -135,13 +135,13 @@ namespace MugenMvvm.Infrastructure.Navigation
                 NavigationDispatcher
                     .WaitNavigationAsync(ShouldWaitNavigationBeforeShow, metadata)
                     .ContinueWith(ShowAfterWaitNavigation, metadata, TaskContinuationOptions.ExecuteSynchronously);
-                return Default.MetadataContext;
+                return Default.Metadata;
             }
 
             if (IsOpen)
             {
                 ThreadDispatcher.Execute(RefreshCallback, ExecutionMode, metadata);
-                return Default.MetadataContext;
+                return Default.Metadata;
             }
 
             NavigationDispatcher
@@ -154,7 +154,7 @@ namespace MugenMvvm.Infrastructure.Navigation
                         .ContinueWith(OnViewInitialized, context, TaskContinuationOptions.ExecuteSynchronously);
                     return false;
                 });
-            return Default.MetadataContext;
+            return Default.Metadata;
         }
 
         protected virtual IReadOnlyMetadataContext CloseInternal(bool shouldWaitNavigation, IReadOnlyMetadataContext metadata)
@@ -162,18 +162,18 @@ namespace MugenMvvm.Infrastructure.Navigation
             if (!IsOpen)
             {
                 Tracer.Error(MessageConstants.CannotCloseMediator);
-                return Default.MetadataContext;
+                return Default.Metadata;
             }
 
             if (IsClosing)
-                return Default.MetadataContext;
+                return Default.Metadata;
 
             if (shouldWaitNavigation)
             {
                 NavigationDispatcher
                     .WaitNavigationAsync(ShouldWaitNavigationBeforeClose, metadata)
                     .ContinueWith(CloseAfterWaitNavigation, metadata, TaskContinuationOptions.ExecuteSynchronously);
-                return Default.MetadataContext;
+                return Default.Metadata;
             }
 
             _closingContext = NavigationDispatcher.ContextFactory.GetNavigationContextFrom(this, NavigationMode.Back, NavigationType, ViewModel, metadata);
@@ -182,14 +182,14 @@ namespace MugenMvvm.Infrastructure.Navigation
                 ThreadDispatcher.Execute(CloseViewCallback, ExecutionMode, context);
                 return false;
             }, (dispatcher, context, arg3) => _closingContext = null);
-            return Default.MetadataContext;
+            return Default.Metadata;
         }
 
         protected virtual IReadOnlyMetadataContext RestoreInternal(IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
         {
             UpdateView(viewInfo, true, metadata);
             NavigationDispatcher.OnNavigated(NavigationDispatcher.ContextFactory.GetNavigationContextTo(this, NavigationMode.Restore, NavigationType, ViewModel, metadata));
-            return Default.MetadataContext;
+            return Default.Metadata;
         }
 
         protected virtual bool ShouldWaitNavigationBeforeShow(INavigationCallback callback)
@@ -225,7 +225,7 @@ namespace MugenMvvm.Infrastructure.Navigation
             var navigationContext = _showingContext;
             _showingContext = null;
             if (navigationContext == null)
-                navigationContext = NavigationDispatcher.ContextFactory.GetNavigationContextTo(this, NavigationMode.New, NavigationType, ViewModel, Default.MetadataContext);
+                navigationContext = NavigationDispatcher.ContextFactory.GetNavigationContextTo(this, NavigationMode.New, NavigationType, ViewModel, Default.Metadata);
             NavigationDispatcher.OnNavigated(navigationContext);
         }
 
@@ -234,7 +234,7 @@ namespace MugenMvvm.Infrastructure.Navigation
             var navigationContext = _showingContext;
             _showingContext = null;
             if (navigationContext == null)
-                navigationContext = NavigationDispatcher.ContextFactory.GetNavigationContextTo(this, NavigationMode.Refresh, NavigationType, ViewModel, Default.MetadataContext);
+                navigationContext = NavigationDispatcher.ContextFactory.GetNavigationContextTo(this, NavigationMode.Refresh, NavigationType, ViewModel, Default.Metadata);
             NavigationDispatcher.OnNavigated(navigationContext);
         }
 
@@ -251,7 +251,7 @@ namespace MugenMvvm.Infrastructure.Navigation
                 }
 
                 e.Cancel = true;
-                CloseInternal(false, Default.MetadataContext);
+                CloseInternal(false, Default.Metadata);
             }
             finally
             {
@@ -301,7 +301,7 @@ namespace MugenMvvm.Infrastructure.Navigation
         private void CompleteClose(INavigationContext? navigationContext)
         {
             if (navigationContext == null)
-                navigationContext = NavigationDispatcher.ContextFactory.GetNavigationContextFrom(this, NavigationMode.Back, NavigationType, ViewModel, Default.MetadataContext);
+                navigationContext = NavigationDispatcher.ContextFactory.GetNavigationContextFrom(this, NavigationMode.Back, NavigationType, ViewModel, Default.Metadata);
             NavigationDispatcher.OnNavigated(navigationContext);
             _closingContext = null;
             _shouldClose = false;

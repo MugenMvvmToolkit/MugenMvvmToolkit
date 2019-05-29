@@ -8,7 +8,7 @@ using MugenMvvm.Infrastructure.Internal;
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm
 {
-    public static class ReflectionApiExtensions
+    public static class ReflectionApiExtensions//todo redesign?
     {
         #region Properties
 

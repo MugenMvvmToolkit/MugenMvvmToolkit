@@ -226,7 +226,7 @@ namespace MugenMvvm.Infrastructure.Validation
             }
 
             if (errors == null)
-                return Default.EmptyDictionary<string, IReadOnlyList<object>>();
+                return Default.ReadOnlyDictionary<string, IReadOnlyList<object>>();
             return errors;
         }
 

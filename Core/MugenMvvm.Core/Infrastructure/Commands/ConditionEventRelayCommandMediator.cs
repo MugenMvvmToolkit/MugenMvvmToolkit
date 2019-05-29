@@ -47,13 +47,13 @@ namespace MugenMvvm.Infrastructure.Commands
 
                 if (notifier is IHasService<IMessenger> hasMessenger)
                 {
-                    hasMessenger.Service.Subscribe(_subscriber, eventExecutionMode, Default.MetadataContext);
+                    hasMessenger.Service.Subscribe(_subscriber, eventExecutionMode, Default.Metadata);
                     continue;
                 }
 
                 if (notifier is IMessenger messenger)
                 {
-                    messenger.Subscribe(_subscriber, eventExecutionMode, Default.MetadataContext);
+                    messenger.Subscribe(_subscriber, eventExecutionMode, Default.Metadata);
                     continue;
                 }
 

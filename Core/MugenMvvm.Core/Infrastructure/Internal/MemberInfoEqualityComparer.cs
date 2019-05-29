@@ -12,16 +12,11 @@ namespace MugenMvvm.Infrastructure.Internal
     {
         #region Fields
 
-        public static readonly MemberInfoEqualityComparer Instance;
+        public static readonly MemberInfoEqualityComparer Instance = new MemberInfoEqualityComparer();
 
         #endregion
 
         #region Constructors
-
-        static MemberInfoEqualityComparer()
-        {
-            Instance = new MemberInfoEqualityComparer();
-        }
 
         private MemberInfoEqualityComparer()
         {

@@ -123,7 +123,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
                 result.Merge(m);
             }
 
-            return result ?? Default.MetadataContext;
+            return result ?? Default.Metadata;
         }
 
         protected virtual object? GetServiceInternal(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext metadata)

@@ -46,9 +46,9 @@ namespace MugenMvvm.Infrastructure.Navigation
             set
             {
                 Should.NotBeNull(value, nameof(ContextFactory));
-                _contextFactory?.OnDetached(this, Default.MetadataContext);
+                _contextFactory?.OnDetached(this, Default.Metadata);
                 _contextFactory = value;
-                _contextFactory.OnAttached(this, Default.MetadataContext);
+                _contextFactory.OnAttached(this, Default.Metadata);
             }
         }
 
@@ -58,9 +58,9 @@ namespace MugenMvvm.Infrastructure.Navigation
             set
             {
                 Should.NotBeNull(value, nameof(NavigationJournal));
-                _navigationJournal?.OnDetached(this, Default.MetadataContext);
+                _navigationJournal?.OnDetached(this, Default.Metadata);
                 _navigationJournal = value;
-                _navigationJournal.OnAttached(this, Default.MetadataContext);
+                _navigationJournal.OnAttached(this, Default.Metadata);
             }
         }
 

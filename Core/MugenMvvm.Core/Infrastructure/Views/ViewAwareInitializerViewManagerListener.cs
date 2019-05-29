@@ -17,27 +17,14 @@ namespace MugenMvvm.Infrastructure.Views
     {
         #region Fields
 
-        private static readonly MethodInfo UpdateViewMethodInfo;
-        private static readonly MethodInfo UpdateViewModelMethodInfo;
-
-        private static readonly Dictionary<Type, Func<object?, object?[], object?>?> TypeToInitializeDelegate;
+        private static readonly MethodInfo UpdateViewMethodInfo = GetUpdateViewMethod();
+        private static readonly MethodInfo UpdateViewModelMethodInfo = GetUpdateViewModelMethod();
+        private static readonly Dictionary<Type, Func<object?, object?[], object?>?> TypeToInitializeDelegate =
+            new Dictionary<Type, Func<object?, object?[], object?>>(MemberInfoEqualityComparer.Instance);
 
         #endregion
 
         #region Constructors
-
-        static ViewAwareInitializerViewManagerListener()
-        {
-            UpdateViewMethodInfo = typeof(MessengerHandlerSubscriber)
-                .GetMethodsUnified(MemberFlags.StaticOnly)
-                .FirstOrDefault(info => nameof(UpdateView).Equals(info.Name));
-            UpdateViewModelMethodInfo = typeof(MessengerHandlerSubscriber)
-                .GetMethodsUnified(MemberFlags.StaticOnly)
-                .FirstOrDefault(info => nameof(UpdateViewModel).Equals(info.Name));
-            Should.BeSupported(UpdateViewMethodInfo != null, nameof(UpdateViewMethodInfo));
-            Should.BeSupported(UpdateViewModelMethodInfo != null, nameof(UpdateViewModelMethodInfo));
-            TypeToInitializeDelegate = new Dictionary<Type, Func<object?, object?[], object?>>(MemberInfoEqualityComparer.Instance);
-        }
 
         [Preserve(Conditional = true)]
         public ViewAwareInitializerViewManagerListener()
@@ -80,6 +67,24 @@ namespace MugenMvvm.Infrastructure.Views
         #endregion
 
         #region Methods
+
+        private static MethodInfo GetUpdateViewMethod()
+        {
+            var m = typeof(MessengerHandlerSubscriber)
+                .GetMethodsUnified(MemberFlags.StaticOnly)
+                .FirstOrDefault(info => nameof(UpdateView).Equals(info.Name));
+            Should.BeSupported(m != null, nameof(UpdateViewMethodInfo));
+            return m;
+        }
+
+        private static MethodInfo GetUpdateViewModelMethod()
+        {
+            var m = typeof(MessengerHandlerSubscriber)
+                .GetMethodsUnified(MemberFlags.StaticOnly)
+                .FirstOrDefault(info => nameof(UpdateViewModel).Equals(info.Name));
+            Should.BeSupported(m != null, nameof(UpdateViewModelMethodInfo));
+            return m;
+        }
 
         private Func<object?, object?[], object?>? GetUpdateViewMethod(IViewModelBase viewModel, object view)
         {

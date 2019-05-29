@@ -22,7 +22,7 @@ namespace MugenMvvm
 
         public static IReadOnlyMetadataContext DefaultIfNull(this IReadOnlyMetadataContext metadata)//todo bug R#
         {
-            return metadata ?? Default.MetadataContext;
+            return metadata ?? Default.Metadata;
         }
 
         public static string Dump(this IReadOnlyMetadataContext? metadata)

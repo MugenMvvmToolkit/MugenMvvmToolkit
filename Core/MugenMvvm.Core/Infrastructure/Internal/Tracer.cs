@@ -16,13 +16,6 @@ namespace MugenMvvm.Infrastructure.Internal
 
         #region Constructors
 
-        static Tracer()
-        {
-            var isAttached = Debugger.IsAttached;
-            TraceWarning = isAttached;
-            TraceError = isAttached;
-        }
-
         public Tracer(Action<string> traceDelegate)
         {
             Should.NotBeNull(traceDelegate, nameof(traceDelegate));
@@ -35,9 +28,9 @@ namespace MugenMvvm.Infrastructure.Internal
 
         public static bool TraceInformation { get; set; }
 
-        public static bool TraceWarning { get; set; }
+        public static bool TraceWarning { get; set; } = Debugger.IsAttached;
 
-        public static bool TraceError { get; set; }
+        public static bool TraceError { get; set; } = Debugger.IsAttached;
 
         private static ITracer TracerInternal => Service<ITracer>.Instance;
 

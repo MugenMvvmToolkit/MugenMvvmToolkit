@@ -8,20 +8,15 @@ namespace MugenMvvm.Infrastructure.Serialization
     {
         #region Fields
 
-        public static readonly IMementoResult Unrestored;
+        public static readonly IMementoResult Unrestored = new MementoResult();
 
         #endregion
 
         #region Constructors
 
-        static MementoResult()
-        {
-            Unrestored = new MementoResult();
-        }
-
         private MementoResult()
         {
-            Metadata = Default.MetadataContext;
+            Metadata = Default.Metadata;
         }
 
         public MementoResult(object? target, IHasMetadata<IReadOnlyMetadataContext>? hasMetadata = null)

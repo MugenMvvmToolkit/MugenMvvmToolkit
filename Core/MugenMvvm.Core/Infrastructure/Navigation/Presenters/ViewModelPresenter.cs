@@ -44,9 +44,9 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             set
             {
                 Should.NotBeNull(value, nameof(CallbackManager));
-                _callbackManager?.OnDetached(this, Default.MetadataContext);
+                _callbackManager?.OnDetached(this, Default.Metadata);
                 _callbackManager = value;
-                _callbackManager.OnAttached(this, Default.MetadataContext);
+                _callbackManager.OnAttached(this, Default.Metadata);
             }
         }
 

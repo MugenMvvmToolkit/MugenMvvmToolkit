@@ -56,7 +56,7 @@ namespace MugenMvvm.Infrastructure.Components
         {
             Should.NotBeNull(component, nameof(component));
             if (metadata == null)
-                metadata = Default.MetadataContext;
+                metadata = Default.Metadata;
             var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
             {
@@ -80,7 +80,7 @@ namespace MugenMvvm.Infrastructure.Components
         {
             Should.NotBeNull(component, nameof(component));
             if (metadata == null)
-                metadata = Default.MetadataContext;
+                metadata = Default.Metadata;
             var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
             {
@@ -103,7 +103,7 @@ namespace MugenMvvm.Infrastructure.Components
         public bool Clear(IReadOnlyMetadataContext? metadata = null)
         {
             if (metadata == null)
-                metadata = Default.MetadataContext;
+                metadata = Default.Metadata;
             var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
             {

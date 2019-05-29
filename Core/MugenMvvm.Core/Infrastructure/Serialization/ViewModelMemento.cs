@@ -44,16 +44,11 @@ namespace MugenMvvm.Infrastructure.Serialization
         [DataMember(Name = "T")]
         protected internal Type? ViewModelType;
 
-        protected static readonly object RestorationLocker;
+        protected static readonly object RestorationLocker = new object();
 
         #endregion
 
         #region Constructors
-
-        static ViewModelMemento()
-        {
-            RestorationLocker = new object();
-        }
 
         internal ViewModelMemento()
         {
@@ -174,7 +169,7 @@ namespace MugenMvvm.Infrastructure.Serialization
                 foreach (var subscriber in Subscribers)
                 {
                     if (subscriber.Subscriber != null)
-                        hasMessenger.Service.Subscribe(subscriber.Subscriber, subscriber.ExecutionMode, Default.MetadataContext);
+                        hasMessenger.Service.Subscribe(subscriber.Subscriber, subscriber.ExecutionMode, Default.Metadata);
                 }
             }
         }

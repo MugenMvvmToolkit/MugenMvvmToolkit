@@ -252,7 +252,7 @@ namespace MugenMvvm.Infrastructure.Messaging
                     for (var i = 0; i < Count; i++)
                     {
                         if (this[i].Handle(_sender, _message, _messengerContext) == MessengerSubscriberResult.Invalid)
-                            _messenger.Unsubscribe(this[i], Default.MetadataContext);
+                            _messenger.Unsubscribe(this[i], Default.Metadata);
                     }
                 }
             }
@@ -278,7 +278,7 @@ namespace MugenMvvm.Infrastructure.Messaging
                     listeners[i].OnPublished(_messenger, result, subscriber, _sender, _message, _messengerContext);
 
                 if (result == MessengerSubscriberResult.Invalid)
-                    _messenger.Unsubscribe(subscriber, Default.MetadataContext);
+                    _messenger.Unsubscribe(subscriber, Default.Metadata);
             }
 
             #endregion

@@ -22,16 +22,12 @@ namespace MugenMvvm.Infrastructure.Views
 
         private readonly List<MappingInfo> _mappings;
 
-        protected static readonly IMetadataContextKey<Dictionary<int, IViewInfo>> ViewsMetadataKey;
+        protected static readonly IMetadataContextKey<Dictionary<int, IViewInfo>> ViewsMetadataKey =
+            MetadataContextKey.FromMember<Dictionary<int, IViewInfo>>(typeof(MappingViewManager), nameof(ViewsMetadataKey));
 
         #endregion
 
         #region Constructors
-
-        static MappingViewManager()
-        {
-            ViewsMetadataKey = MetadataContextKey.FromMember<Dictionary<int, IViewInfo>>(typeof(MappingViewManager), nameof(ViewsMetadataKey));
-        }
 
         [Preserve(Conditional = true)]
         public MappingViewManager(IThreadDispatcher threadDispatcher, IViewModelDispatcher viewModelDispatcher, IServiceProvider serviceProvider, IMetadataContextProvider metadataContextProvider)
@@ -187,7 +183,7 @@ namespace MugenMvvm.Infrastructure.Views
                 if (views.TryGetValue(mappingId, out var oldView))
                 {
                     if (ReferenceEquals(oldView.View, view))
-                        return new ViewManagerResult(viewModel, oldView, Default.MetadataContext);
+                        return new ViewManagerResult(viewModel, oldView, Default.Metadata);
 
                     parentViewManager.OnViewCleared(oldView, viewModel, metadata);
                 }
@@ -197,7 +193,7 @@ namespace MugenMvvm.Infrastructure.Views
             }
 
             parentViewManager.OnViewInitialized(viewInfo, viewModel, metadata);
-            return new ViewManagerResult(viewModel, viewInfo, Default.MetadataContext);
+            return new ViewManagerResult(viewModel, viewInfo, Default.Metadata);
         }
 
         protected virtual ICleanupViewManagerResult Cleanup(IParentViewManager parentViewManager, IViewInfo viewInfo, int mappingId, IViewModelBase viewModel,

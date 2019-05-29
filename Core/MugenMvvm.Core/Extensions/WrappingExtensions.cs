@@ -95,7 +95,7 @@ namespace MugenMvvm
             Should.NotBeNull(viewInfo, nameof(viewInfo));
             Should.NotBeNull(wrapperType, nameof(wrapperType));
             if (metadata == null)
-                metadata = Default.MetadataContext;
+                metadata = Default.Metadata;
             return wrapperType.IsInstanceOfTypeUnified(viewInfo.View) || wrapperManager.ServiceIfNull().CanWrap(viewInfo.View.GetType(), wrapperType, metadata);
         }
 
@@ -114,7 +114,7 @@ namespace MugenMvvm
                 return viewInfo.View;
 
             if (metadata == null)
-                metadata = Default.MetadataContext;
+                metadata = Default.Metadata;
 
             var collection = viewInfo.GetOrAddWrappersCollection();
             lock (collection)

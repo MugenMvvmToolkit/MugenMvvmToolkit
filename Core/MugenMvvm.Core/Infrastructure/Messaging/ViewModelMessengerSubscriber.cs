@@ -25,16 +25,12 @@ namespace MugenMvvm.Infrastructure.Messaging
         private readonly int _hashCode;
         private readonly IWeakReference _reference;
 
-        private static readonly IMetadataContextKey<ViewModelMessengerSubscriber> MetadataKey;
+        private static readonly IMetadataContextKey<ViewModelMessengerSubscriber> MetadataKey =
+            MetadataContextKey.FromMember<ViewModelMessengerSubscriber>(typeof(ViewModelMessengerSubscriber), nameof(MetadataKey), true);
 
         #endregion
 
         #region Constructors
-
-        static ViewModelMessengerSubscriber()
-        {
-            MetadataKey = MetadataContextKey.FromMember<ViewModelMessengerSubscriber>(typeof(ViewModelMessengerSubscriber), nameof(MetadataKey), true);
-        }
 
         private ViewModelMessengerSubscriber(IViewModelBase viewModel)
         {

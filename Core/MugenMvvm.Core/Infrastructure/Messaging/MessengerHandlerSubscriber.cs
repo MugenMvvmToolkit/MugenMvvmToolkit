@@ -16,22 +16,14 @@ namespace MugenMvvm.Infrastructure.Messaging
 
         private readonly int _hashCode;
         private readonly IWeakReference _reference;
-        private static readonly MethodInfo InvokeMethodInfo;
-        private static readonly Dictionary<Type, Func<object?, object?[], object?>> MessageTypeToDelegate;
+
+        private static readonly MethodInfo InvokeMethodInfo = GetInvokeMethod();
+        private static readonly Dictionary<Type, Func<object?, object?[], object?>> MessageTypeToDelegate =
+            new Dictionary<Type, Func<object?, object?[], object?>>(MemberInfoEqualityComparer.Instance);
 
         #endregion
 
         #region Constructors
-
-        static MessengerHandlerSubscriber()
-        {
-            InvokeMethodInfo = typeof(MessengerHandlerSubscriber)
-                .GetMethodsUnified(MemberFlags.StaticOnly)
-                .FirstOrDefault(info => nameof(Invoke).Equals(info.Name));
-            Should.BeSupported(InvokeMethodInfo != null, nameof(InvokeMethodInfo));
-
-            MessageTypeToDelegate = new Dictionary<Type, Func<object?, object?[], object?>>(MemberInfoEqualityComparer.Instance);
-        }
 
         public MessengerHandlerSubscriber(IMessengerHandler handler)
         {
@@ -76,7 +68,7 @@ namespace MugenMvvm.Infrastructure.Messaging
                 }
             }
 
-            if (func.Invoke(null, new[] {target, sender, message, messengerContext}) == null)
+            if (func.Invoke(null, new[] { target, sender, message, messengerContext }) == null)
                 return MessengerSubscriberResult.Ignored;
             return MessengerSubscriberResult.Handled;
         }
@@ -84,6 +76,15 @@ namespace MugenMvvm.Infrastructure.Messaging
         #endregion
 
         #region Methods
+
+        private static MethodInfo GetInvokeMethod()
+        {
+            var m = typeof(MessengerHandlerSubscriber)
+                .GetMethodsUnified(MemberFlags.StaticOnly)
+                .FirstOrDefault(info => nameof(Invoke).Equals(info.Name));
+            Should.BeSupported(m != null, nameof(InvokeMethodInfo));
+            return m;
+        }
 
         public override bool Equals(object obj)
         {

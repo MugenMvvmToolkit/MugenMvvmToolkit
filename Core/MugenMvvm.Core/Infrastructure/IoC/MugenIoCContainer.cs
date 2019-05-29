@@ -22,18 +22,11 @@ namespace MugenMvvm.Infrastructure.IoC
         private BindingDictionary? _bindingRegistrationsReadonly;
         private bool _hasConditionBinding;
 
-        private static readonly TypeCacheDictionary TypeCacheDict;
+        private static readonly TypeCacheDictionary TypeCacheDict = new TypeCacheDictionary();
 
         #endregion
 
         #region Constructors
-
-        static MugenIocContainer()
-        {
-            TypeCacheDict = new TypeCacheDictionary();
-            ConstructorMemberFlags = MemberFlags.InstancePublic;
-            PropertyMemberFlags = MemberFlags.InstancePublic;
-        }
 
         public MugenIocContainer()
             : this(null)
@@ -52,9 +45,9 @@ namespace MugenMvvm.Infrastructure.IoC
 
         #region Properties
 
-        public static MemberFlags ConstructorMemberFlags { get; set; }
+        public static MemberFlags ConstructorMemberFlags { get; set; } = MemberFlags.InstancePublic;
 
-        public static MemberFlags PropertyMemberFlags { get; set; }
+        public static MemberFlags PropertyMemberFlags { get; set; } = MemberFlags.InstancePublic;
 
         public bool IsLockFreeRead { get; set; }
 

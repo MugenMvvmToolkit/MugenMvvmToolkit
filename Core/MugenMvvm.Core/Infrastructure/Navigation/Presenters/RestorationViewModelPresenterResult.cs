@@ -9,16 +9,12 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
     {
         #region Fields
 
-        public static readonly IRestorationViewModelPresenterResult Unrestored;
+        public static readonly IRestorationViewModelPresenterResult Unrestored =
+            new RestorationViewModelPresenterResult(false, Default.NavigationProvider, NavigationType.Undefined, Default.Metadata, null);
 
         #endregion
 
         #region Constructors
-
-        static RestorationViewModelPresenterResult()
-        {
-            Unrestored = new RestorationViewModelPresenterResult(false, Default.NavigationProvider, NavigationType.Undefined, Default.MetadataContext, null);
-        }
 
         public RestorationViewModelPresenterResult(bool isRestored, INavigationProvider navigationProvider, NavigationType navigationType,
             IReadOnlyMetadataContext metadata, IChildViewModelPresenter? presenter)

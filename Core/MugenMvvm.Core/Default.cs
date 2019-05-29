@@ -23,47 +23,22 @@ namespace MugenMvvm
 
         private static int _counter;
 
-        internal static readonly PropertyChangedEventArgs IsSuspendedChangedArgs;
-        internal static readonly PropertyChangedEventArgs EmptyPropertyChangedArgs;
-        internal static readonly PropertyChangedEventArgs CountPropertyChangedArgs;
-        internal static readonly PropertyChangedEventArgs IndexerPropertyChangedArgs;
-        internal static readonly NotifyCollectionChangedEventArgs ResetCollectionEventArgs;
-        internal static Action NoDoAction;
+        internal static readonly PropertyChangedEventArgs IsSuspendedChangedArgs = new PropertyChangedEventArgs(nameof(ISuspendable.IsSuspended));
+        internal static readonly PropertyChangedEventArgs EmptyPropertyChangedArgs = new PropertyChangedEventArgs(string.Empty);
+        internal static readonly PropertyChangedEventArgs CountPropertyChangedArgs = new PropertyChangedEventArgs(nameof(IList.Count));
+        internal static readonly PropertyChangedEventArgs IndexerPropertyChangedArgs = new PropertyChangedEventArgs(IndexerName);
+        internal static readonly NotifyCollectionChangedEventArgs ResetCollectionEventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
+        internal static readonly Action NoDoAction = NoDo;
 
-        public static readonly object TrueObject;
-        public static readonly object FalseObject;
-        public static readonly IReadOnlyMetadataContext MetadataContext;
-        public static readonly IDisposable Disposable;
-        public static readonly IWeakReference WeakReference;
-        public static readonly Task CompletedTask;
-        public static readonly Task<bool> TrueTask;
-        public static readonly Task<bool> FalseTask;
-        public static readonly INavigationProvider NavigationProvider;
-
-        #endregion
-
-        #region Constructors
-
-        static Default()
-        {
-            TrueObject = true;
-            FalseObject = false;
-            IsSuspendedChangedArgs = new PropertyChangedEventArgs(nameof(ISuspendable.IsSuspended));
-            EmptyPropertyChangedArgs = new PropertyChangedEventArgs(string.Empty);
-            CountPropertyChangedArgs = new PropertyChangedEventArgs(nameof(IList.Count));
-            IndexerPropertyChangedArgs = new PropertyChangedEventArgs(IndexerName);
-            ResetCollectionEventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
-            NoDoAction = NoDo;
-
-            var emptyContext = new EmptyContext();
-            MetadataContext = emptyContext;
-            WeakReference = emptyContext;
-            Disposable = emptyContext;
-            TrueTask = Task.FromResult(true);
-            FalseTask = Task.FromResult(false);
-            CompletedTask = FalseTask;
-            NavigationProvider = emptyContext;
-        }
+        public static readonly object TrueObject = true;
+        public static readonly object FalseObject = false;
+        public static readonly IReadOnlyMetadataContext Metadata = EmptyContext.Instance;
+        public static readonly IDisposable Disposable = EmptyContext.Instance;
+        public static readonly IWeakReference WeakReference = EmptyContext.Instance;
+        public static readonly Task CompletedTask = Task.FromResult<object>(null);
+        public static readonly Task<bool> TrueTask = Task.FromResult(true);
+        public static readonly Task<bool> FalseTask = Task.FromResult(false);
+        public static readonly INavigationProvider NavigationProvider = EmptyContext.Instance;
 
         #endregion
 
@@ -79,7 +54,7 @@ namespace MugenMvvm
             return CanceledTaskImpl<T>.Instance;
         }
 
-        public static ReadOnlyDictionary<TKey, TValue> EmptyDictionary<TKey, TValue>()
+        public static ReadOnlyDictionary<TKey, TValue> ReadOnlyDictionary<TKey, TValue>()
         {
             return EmptyDictionaryImpl<TKey, TValue>.Instance;
         }
@@ -113,6 +88,16 @@ namespace MugenMvvm
 
         private sealed class EmptyContext : IReadOnlyMetadataContext, IDisposable, INavigationProvider, IWeakReference
         {
+            public static readonly EmptyContext Instance = new EmptyContext();
+
+            #region Constructors
+
+            private EmptyContext()
+            {
+            }
+
+            #endregion
+
             #region Properties
 
             public int Count => 0;
@@ -161,16 +146,7 @@ namespace MugenMvvm
         {
             #region Fields
 
-            public static readonly T[] Instance;
-
-            #endregion
-
-            #region Constructors
-
-            static EmptyArrayImpl()
-            {
-                Instance = new T[0];
-            }
+            public static readonly T[] Instance = new T[0];
 
             #endregion
         }
@@ -179,16 +155,7 @@ namespace MugenMvvm
         {
             #region Fields
 
-            public static readonly ReadOnlyDictionary<TKey, TValue> Instance;
-
-            #endregion
-
-            #region Constructors
-
-            static EmptyDictionaryImpl()
-            {
-                Instance = new ReadOnlyDictionary<TKey, TValue>(new Dictionary<TKey, TValue>());
-            }
+            public static readonly ReadOnlyDictionary<TKey, TValue> Instance = new ReadOnlyDictionary<TKey, TValue>(new Dictionary<TKey, TValue>());
 
             #endregion
         }
@@ -197,17 +164,17 @@ namespace MugenMvvm
         {
             #region Fields
 
-            public static readonly Task<T> Instance;
+            public static readonly Task<T> Instance = GetTask();
 
             #endregion
 
             #region Constructors
 
-            static CanceledTaskImpl()
+            private static Task<T> GetTask()
             {
                 var tcs = new TaskCompletionSource<T>();
                 tcs.SetCanceled();
-                Instance = tcs.Task;
+                return tcs.Task;
             }
 
             #endregion
