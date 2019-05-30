@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <PackageReference Include="System.Reflection.Extensions" Version="4.3.0" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.2" />
   </ItemGroup>
 
 </Project>
