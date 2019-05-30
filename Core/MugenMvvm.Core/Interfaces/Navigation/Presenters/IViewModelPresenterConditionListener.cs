@@ -3,7 +3,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Navigation.Presenters
 {
-    public interface IConditionViewModelPresenterListener : IViewModelPresenterListener
+    public interface IViewModelPresenterConditionListener : IViewModelPresenterListener
     {
         bool CanShow(IViewModelPresenter presenter, IChildViewModelPresenter childPresenter, IReadOnlyMetadataContext metadata);
 

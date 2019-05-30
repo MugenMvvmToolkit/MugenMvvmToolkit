@@ -229,7 +229,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
             {
-                var canShow = (listeners[i] as IConditionViewModelPresenterListener)?.CanShow(this, childPresenter, metadata) ?? true;
+                var canShow = (listeners[i] as IViewModelPresenterConditionListener)?.CanShow(this, childPresenter, metadata) ?? true;
                 if (!canShow)
                     return false;
             }
@@ -242,7 +242,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
             {
-                var canClose = (listeners[i] as IConditionViewModelPresenterListener)?.CanClose(this, childPresenter, currentResults, metadata) ?? true;
+                var canClose = (listeners[i] as IViewModelPresenterConditionListener)?.CanClose(this, childPresenter, currentResults, metadata) ?? true;
                 if (!canClose)
                     return false;
             }
@@ -255,7 +255,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
             var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
             {
-                var canRestore = (listeners[i] as IConditionViewModelPresenterListener)?.CanRestore(this, childPresenter, metadata) ?? true;
+                var canRestore = (listeners[i] as IViewModelPresenterConditionListener)?.CanRestore(this, childPresenter, metadata) ?? true;
                 if (!canRestore)
                     return false;
             }
