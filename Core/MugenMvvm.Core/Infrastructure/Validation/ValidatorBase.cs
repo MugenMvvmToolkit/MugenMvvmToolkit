@@ -230,10 +230,8 @@ namespace MugenMvvm.Infrastructure.Validation
         protected virtual Task ValidateInternalAsync(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext metadata)
         {
             var task = GetErrorsAsync(memberName, cancellationToken, metadata);
-            if (task.IsCompleted)
+            if (task.IsCompletedSuccessfully)
             {
-                if (task.IsFaulted || task.IsCanceled)
-                    return task.AsTask();
                 OnValidationCompleted(memberName, task.Result);
                 return Default.CompletedTask;
             }
