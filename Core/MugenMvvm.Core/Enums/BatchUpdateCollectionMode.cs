@@ -6,7 +6,7 @@ namespace MugenMvvm.Enums
     public enum BatchUpdateCollectionMode
     {
         Listeners = 1,
-        Decorators = 2,
-        Both = Listeners | Decorators
+        DecoratorListeners = 2,
+        Both = Listeners | DecoratorListeners
     }
 }

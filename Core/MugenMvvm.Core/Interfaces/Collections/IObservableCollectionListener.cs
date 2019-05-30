@@ -3,7 +3,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Collections
 {
-    public interface IObservableCollectionChangedListener<T> : IListener
+    public interface IObservableCollectionListener<T> : IListener
     {
         void OnBeginBatchUpdate(IObservableCollection<T> collection);
 

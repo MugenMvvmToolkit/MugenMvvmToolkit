@@ -12,7 +12,7 @@ using MugenMvvm.Interfaces.Threading;
 
 namespace MugenMvvm.Collections
 {
-    public abstract class BindableCollectionWrapperBase<T> : Collection<T>, IObservableCollectionChangedListener<T>, INotifyCollectionChanged, INotifyPropertyChanged
+    public abstract class BindableCollectionWrapperBase<T> : Collection<T>, IObservableCollectionListener<T>, INotifyCollectionChanged, INotifyPropertyChanged
     {
         #region Fields
 
@@ -67,48 +67,48 @@ namespace MugenMvvm.Collections
 
         #region Implementation of interfaces
 
-        void IObservableCollectionChangedListener<T>.OnBeginBatchUpdate(IObservableCollection<T> collection)
+        void IObservableCollectionListener<T>.OnBeginBatchUpdate(IObservableCollection<T> collection)
         {
             OnBeginBatchUpdate();
         }
 
-        void IObservableCollectionChangedListener<T>.OnEndBatchUpdate(IObservableCollection<T> collection)
+        void IObservableCollectionListener<T>.OnEndBatchUpdate(IObservableCollection<T> collection)
         {
             OnEndBatchUpdate();
         }
 
-        void IObservableCollectionChangedListener<T>.OnItemChanged(IObservableCollection<T> collection, T item, int index, object? args)
+        void IObservableCollectionListener<T>.OnItemChanged(IObservableCollection<T> collection, T item, int index, object? args)
         {
             if (!IgnoreItemChangedEvent)
                 OnItemChanged(item, index, args);
         }
 
-        void IObservableCollectionChangedListener<T>.OnAdded(IObservableCollection<T> collection, T item, int index)
+        void IObservableCollectionListener<T>.OnAdded(IObservableCollection<T> collection, T item, int index)
         {
             OnAdded(item, index);
         }
 
-        void IObservableCollectionChangedListener<T>.OnReplaced(IObservableCollection<T> collection, T oldItem, T newItem, int index)
+        void IObservableCollectionListener<T>.OnReplaced(IObservableCollection<T> collection, T oldItem, T newItem, int index)
         {
             OnReplaced(oldItem, newItem, index);
         }
 
-        void IObservableCollectionChangedListener<T>.OnMoved(IObservableCollection<T> collection, T item, int oldIndex, int newIndex)
+        void IObservableCollectionListener<T>.OnMoved(IObservableCollection<T> collection, T item, int oldIndex, int newIndex)
         {
             OnMoved(item, oldIndex, newIndex);
         }
 
-        void IObservableCollectionChangedListener<T>.OnRemoved(IObservableCollection<T> collection, T item, int index)
+        void IObservableCollectionListener<T>.OnRemoved(IObservableCollection<T> collection, T item, int index)
         {
             OnRemoved(item, index);
         }
 
-        void IObservableCollectionChangedListener<T>.OnReset(IObservableCollection<T> collection, IEnumerable<T> items)
+        void IObservableCollectionListener<T>.OnReset(IObservableCollection<T> collection, IEnumerable<T> items)
         {
             OnReset(items);
         }
 
-        void IObservableCollectionChangedListener<T>.OnCleared(IObservableCollection<T> collection)
+        void IObservableCollectionListener<T>.OnCleared(IObservableCollection<T> collection)
         {
             OnCleared();
         }
@@ -199,7 +199,7 @@ namespace MugenMvvm.Collections
             {
                 Detach();
                 WrappedCollection = wrappedCollection;
-                if (wrappedCollection is IHasListeners<IObservableCollectionChangedListener<T>> hasListeners)
+                if (wrappedCollection is IHasListeners<IObservableCollectionListener<T>> hasListeners)
                     hasListeners.AddListener(this);
                 else if (wrappedCollection is INotifyCollectionChanged notifyCollectionChanged)
                     notifyCollectionChanged.CollectionChanged += OnCollectionChanged;
@@ -219,7 +219,7 @@ namespace MugenMvvm.Collections
             OnBeginBatchUpdate();
             try
             {
-                if (WrappedCollection is IHasListeners<IObservableCollectionChangedListener<T>> hasListeners)
+                if (WrappedCollection is IHasListeners<IObservableCollectionListener<T>> hasListeners)
                     hasListeners.RemoveListener(this);
                 else if (WrappedCollection is INotifyCollectionChanged notifyCollectionChanged)
                     notifyCollectionChanged.CollectionChanged -= OnCollectionChanged;
