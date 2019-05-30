@@ -162,7 +162,7 @@ namespace MugenMvvm.Infrastructure.Components
                 if (i.GetGenericTypeDefinition() != interfaceType)
                     continue;
 
-                var methodDelegate = AttachDetachMethodInfo.MakeGenericMethod(i.GetGenericArgumentsUnified()[0]).GetMethodDelegate();
+                var methodDelegate = AttachDetachMethodInfo.MakeGenericMethod(i.GetGenericArgumentsUnified().First()).GetMethodDelegate();
                 if (result == null)
                     result = methodDelegate;
                 else

@@ -884,7 +884,7 @@ namespace MugenMvvm.Infrastructure.IoC
                 }
 
                 var definition = Type.GetGenericTypeDefinition();
-                var originalType = Type.GetGenericArgumentsUnified()[0];
+                var originalType = Type.GetGenericArgumentsUnified().First();
 
                 ConstructorInfo? constructor = null;
                 if (definition.IsInterfaceUnified())
