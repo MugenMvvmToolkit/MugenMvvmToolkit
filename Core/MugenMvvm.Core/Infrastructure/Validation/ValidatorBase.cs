@@ -179,7 +179,7 @@ namespace MugenMvvm.Infrastructure.Validation
             OnInitialized(metadata);
         }
 
-        protected abstract Task<ValidationResult> GetErrorsAsync(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext metadata);
+        protected abstract ValueTask<ValidationResult> GetErrorsAsync(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext metadata);
 
         protected virtual void OnInitialized(IReadOnlyMetadataContext metadata)
         {
@@ -231,10 +231,14 @@ namespace MugenMvvm.Infrastructure.Validation
         {
             var task = GetErrorsAsync(memberName, cancellationToken, metadata);
             if (task.IsCompleted)
+            {
+                if (task.IsFaulted || task.IsCanceled)
+                    return task.AsTask();
                 OnValidationCompleted(memberName, task.Result);
-            else
-                task.ContinueWith(t => OnValidationCompleted(memberName, t.Result), cancellationToken, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
-            return task;
+                return Default.CompletedTask;
+            }
+
+            return task.AsTask().ContinueWith(t => OnValidationCompleted(memberName, t.Result), cancellationToken, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
         }
 
         protected virtual void ClearErrorsInternal(string memberName, IReadOnlyMetadataContext metadata)
@@ -411,9 +415,9 @@ namespace MugenMvvm.Infrastructure.Validation
 
             public static readonly ValidationResult Empty = new ValidationResult(Default.ReadOnlyDictionary<string, IReadOnlyList<object>>());
 
-            public static readonly Task<ValidationResult> DoNothingTask = Task.FromResult(DoNothing);
+            public static readonly ValueTask<ValidationResult> DoNothingTask = new ValueTask<ValidationResult>(DoNothing);
 
-            public static readonly Task<ValidationResult> EmptyTask = Task.FromResult(Empty);
+            public static readonly ValueTask<ValidationResult> EmptyTask = new ValueTask<ValidationResult>(Empty);
 
             #endregion
 

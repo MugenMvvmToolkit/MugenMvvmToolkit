@@ -36,7 +36,7 @@ namespace MugenMvvm.Infrastructure.Validation
             UpdateErrors(memberName, errors, false, metadata.DefaultIfNull());
         }
 
-        protected override Task<ValidationResult> GetErrorsAsync(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext metadata)
+        protected override ValueTask<ValidationResult> GetErrorsAsync(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext metadata)
         {
             return ValidationResult.DoNothingTask;
         }
