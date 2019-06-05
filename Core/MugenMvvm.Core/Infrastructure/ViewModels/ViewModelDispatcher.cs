@@ -85,21 +85,20 @@ namespace MugenMvvm.Infrastructure.ViewModels
             return UnsubscribeInternal(viewModel, observer, metadata);
         }
 
-        public IViewModelBase GetViewModel(Type viewModelType, IReadOnlyMetadataContext metadata)
+        public IViewModelBase GetViewModel(IReadOnlyMetadataContext metadata)
         {
-            Should.NotBeNull(viewModelType, nameof(viewModelType));
             Should.NotBeNull(metadata, nameof(metadata));
-            var vm = GetViewModelInternal(viewModelType, metadata);
+            var vm = TryGetViewModelInternal(metadata);
             if (vm == null)
-                ExceptionManager.ThrowCannotGetViewModel(viewModelType);
+                ExceptionManager.ThrowCannotGetViewModel(metadata);
 
             return vm!;
         }
 
-        public IViewModelBase? TryGetViewModel(Guid id, IReadOnlyMetadataContext metadata)
+        public IViewModelBase? TryGetViewModel(IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(metadata, nameof(metadata));
-            return TryGetViewModelInternal(id, metadata);
+            return TryGetViewModelInternal(metadata);
         }
 
         #endregion
@@ -167,25 +166,12 @@ namespace MugenMvvm.Infrastructure.ViewModels
             return unsubscribed;
         }
 
-        protected virtual IViewModelBase? GetViewModelInternal(Type viewModelType, IReadOnlyMetadataContext metadata)
+        protected virtual IViewModelBase? TryGetViewModelInternal(IReadOnlyMetadataContext metadata)
         {
             var managers = Components.GetItems();
             for (var i = 0; i < managers.Length; i++)
             {
-                var viewModel = (managers[i] as IViewModelProviderViewModelDispatcherComponent)?.TryGetViewModel(this, viewModelType, metadata);
-                if (viewModel != null)
-                    return viewModel;
-            }
-
-            return null;
-        }
-
-        protected virtual IViewModelBase? TryGetViewModelInternal(Guid id, IReadOnlyMetadataContext metadata)
-        {
-            var managers = Components.GetItems();
-            for (var i = 0; i < managers.Length; i++)
-            {
-                var viewModel = (managers[i] as IViewModelProviderViewModelDispatcherComponent)?.TryGetViewModel(this, id, metadata);
+                var viewModel = (managers[i] as IViewModelProviderViewModelDispatcherComponent)?.TryGetViewModel(this, metadata);
                 if (viewModel != null)
                     return viewModel;
             }

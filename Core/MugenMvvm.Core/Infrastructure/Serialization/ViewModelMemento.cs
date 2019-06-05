@@ -115,9 +115,9 @@ namespace MugenMvvm.Infrastructure.Serialization
                 if (_viewModel != null)
                     return new MementoResult(_viewModel, serializationContext);
 
-                if (!serializationContext.Metadata.Get(SerializationMetadata.NoCache) && Metadata.TryGet(ViewModelMetadata.Id, out var id))
+                if (!serializationContext.Metadata.Get(SerializationMetadata.NoCache))
                 {
-                    _viewModel = dispatcher.TryGetViewModel(id, serializationContext.Metadata);
+                    _viewModel = dispatcher.TryGetViewModel(Metadata);
                     if (_viewModel != null)
                         return new MementoResult(_viewModel, serializationContext);
                 }

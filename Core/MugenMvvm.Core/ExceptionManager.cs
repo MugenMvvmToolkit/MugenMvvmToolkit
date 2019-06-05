@@ -89,9 +89,9 @@ namespace MugenMvvm
             throw new InvalidOperationException(MessageConstants.IocMoreThatOneBindingFormat1.Format(service));
         }
 
-        internal static void ThrowCannotGetViewModel(Type viewModelType)
+        internal static void ThrowCannotGetViewModel(IReadOnlyMetadataContext metadata)
         {
-            throw new InvalidOperationException(MessageConstants.CannotGetViewModelFormat1.Format(viewModelType));
+            throw new InvalidOperationException(MessageConstants.CannotGetViewModelFormat1.Format(metadata.Dump()));
         }
 
         internal static void ThrowObjectDisposed(object item)

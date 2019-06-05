@@ -15,6 +15,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
         #region Fields
 
         private readonly bool _isWeakCache;
+        private static readonly Guid DefaultId = new Guid(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1);
 
         private readonly Dictionary<Guid, object> _viewModelsCache;
 
@@ -50,16 +51,16 @@ namespace MugenMvvm.Infrastructure.ViewModels
 
         void IObservableMetadataContextListener.OnChanged(IObservableMetadataContext metadataContext, IMetadataContextKey key, object? oldValue, object? newValue)
         {
-            if (ViewModelMetadata.Id.Equals(key))
+            if (!ViewModelMetadata.Id.Equals(key))
+                return;
+
+            lock (_viewModelsCache)
             {
-                lock (_viewModelsCache)
+                var oldId = ViewModelMetadata.Id.GetValue(metadataContext, oldValue);
+                if (_viewModelsCache.TryGetValue(oldId, out var value))
                 {
-                    var oldId = ViewModelMetadata.Id.GetValue(metadataContext, oldValue);
-                    if (_viewModelsCache.TryGetValue(oldId, out var value))
-                    {
-                        _viewModelsCache.Remove(oldId);
-                        _viewModelsCache[ViewModelMetadata.Id.GetValue(metadataContext, newValue)] = value;
-                    }
+                    _viewModelsCache.Remove(oldId);
+                    _viewModelsCache[ViewModelMetadata.Id.GetValue(metadataContext, newValue)] = value;
                 }
             }
         }
@@ -87,13 +88,12 @@ namespace MugenMvvm.Infrastructure.ViewModels
             return null;
         }
 
-        public IViewModelBase? TryGetViewModel(IViewModelDispatcher viewModelDispatcher, Type viewModelType, IReadOnlyMetadataContext metadata)
+        public IViewModelBase? TryGetViewModel(IViewModelDispatcher viewModelDispatcher, IReadOnlyMetadataContext metadata)
         {
-            return null;
-        }
+            var id = metadata.Get(ViewModelMetadata.Id, DefaultId);
+            if (id == DefaultId)
+                return null;
 
-        public IViewModelBase? TryGetViewModel(IViewModelDispatcher viewModelDispatcher, Guid id, IReadOnlyMetadataContext metadata)
-        {
             object value;
             lock (_viewModelsCache)
             {

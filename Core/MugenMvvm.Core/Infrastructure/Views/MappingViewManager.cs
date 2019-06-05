@@ -212,10 +212,11 @@ namespace MugenMvvm.Infrastructure.Views
             return CleanupViewManagerResult.Empty;
         }
 
-        protected virtual IViewModelBase GetViewModelForView(IParentViewManager parentViewManager, IViewModelViewInitializer initializer, object view,
-            IReadOnlyMetadataContext metadata)
+        protected virtual IViewModelBase GetViewModelForView(IParentViewManager parentViewManager, IViewModelViewInitializer initializer, object view, IReadOnlyMetadataContext metadata)
         {
-            var vm = ViewModelDispatcher.GetViewModel(initializer.ViewModelType, metadata);
+            var metadataContext = MetadataContextProvider.GetMetadataContext(this, metadata);
+            metadataContext.Set(ViewModelMetadata.Type, initializer.ViewModelType);
+            var vm = ViewModelDispatcher.GetViewModel(metadataContext);
             parentViewManager.OnViewModelCreated(vm, view, metadata);
             return vm;
         }

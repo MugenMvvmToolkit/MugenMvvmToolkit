@@ -19,6 +19,7 @@ namespace MugenMvvm.Metadata
         private static IMetadataContextKey<IViewModelBase?> _parentViewModel;
         private static IMetadataContextKey<bool> _noState;
         private static IMetadataContextKey<Func<IViewModelBase, IReadOnlyMetadataContext, IChildViewModelPresenterResult>?> _closeHandler;
+        private static IMetadataContextKey<Type?> _type;
 
         #endregion
 
@@ -84,7 +85,7 @@ namespace MugenMvvm.Metadata
                     _parentViewModel = GetBuilder<IViewModelBase?>(nameof(ParentViewModel))
                         .NotNull()
                         .Serializable()
-                        .Getter((context, k, o) => (IViewModelBase)(o as IWeakReference)?.Target)
+                        .Getter((context, k, o) => (IViewModelBase) (o as IWeakReference)?.Target)
                         .Setter((context, k, oldValue, newValue) => newValue == null ? null : MugenExtensions.GetWeakReference(newValue))
                         .Build();
                 }
@@ -121,14 +122,25 @@ namespace MugenMvvm.Metadata
             set => _closeHandler = value;
         }
 
+        public static IMetadataContextKey<Type?> Type
+        {
+            get
+            {
+                if (_type == null)
+                    _type = GetBuilder<Type?>(nameof(Type)).NotNull().Build();
+                return _type;
+            }
+            set => _type = value;
+        }
+
         #endregion
 
         #region Methods
 
         private static Guid GetViewModelIdDefaultValue(IReadOnlyMetadataContext ctx, IMetadataContextKey<Guid> key, Guid value)
         {
-            if (ctx is IMetadataContext context)
-                return context.GetOrAdd(Id, Guid.NewGuid());
+            if (value == Guid.Empty && ctx is IMetadataContext context)
+                return context.GetOrAdd(key, Guid.NewGuid());
             return value;
         }
 

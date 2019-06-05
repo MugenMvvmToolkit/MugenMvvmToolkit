@@ -20,9 +20,9 @@ namespace MugenMvvm.Interfaces.ViewModels.Infrastructure
         bool Unsubscribe(IViewModelBase viewModel, object observer, IReadOnlyMetadataContext metadata);
 
         [Pure]
-        IViewModelBase GetViewModel(Type viewModelType, IReadOnlyMetadataContext metadata);
+        IViewModelBase GetViewModel(IReadOnlyMetadataContext metadata);
 
         [Pure]
-        IViewModelBase? TryGetViewModel(Guid id, IReadOnlyMetadataContext metadata);
+        IViewModelBase? TryGetViewModel(IReadOnlyMetadataContext metadata);
     }
 }
