@@ -9,11 +9,11 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Infrastructure.Metadata
 {
-    public class MetadataContextFactory : IMetadataContextFactory
+    public class ChildMetadataContextProvider : IChildMetadataContextProvider
     {
         #region Constructors
 
-        public MetadataContextFactory(IComponentCollectionProvider componentCollectionProvider)
+        public ChildMetadataContextProvider(IComponentCollectionProvider componentCollectionProvider)
         {
             Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
             ComponentCollectionProvider = componentCollectionProvider;
@@ -31,7 +31,7 @@ namespace MugenMvvm.Infrastructure.Metadata
 
         #region Implementation of interfaces
 
-        public virtual IReadOnlyMetadataContext? TryGetReadOnlyMetadataContext(object? target, IEnumerable<MetadataContextValue>? values)
+        public virtual IReadOnlyMetadataContext? TryGetReadOnlyMetadataContext(IMetadataContextProvider provider, object? target, IEnumerable<MetadataContextValue>? values)
         {
             if (values == null)
                 return Default.Metadata;
@@ -50,12 +50,12 @@ namespace MugenMvvm.Infrastructure.Metadata
             return new ReadOnlyMetadataContext(values, capacity);
         }
 
-        public virtual IMetadataContext? TryGetMetadataContext(object? target, IEnumerable<MetadataContextValue>? values)
+        public virtual IMetadataContext? TryGetMetadataContext(IMetadataContextProvider provider, object? target, IEnumerable<MetadataContextValue>? values)
         {
-            return TryGetObservableMetadataContext(target, values);
+            return TryGetObservableMetadataContext(provider, target, values);
         }
 
-        public virtual IObservableMetadataContext? TryGetObservableMetadataContext(object? target, IEnumerable<MetadataContextValue>? values)
+        public virtual IObservableMetadataContext? TryGetObservableMetadataContext(IMetadataContextProvider provider, object? target, IEnumerable<MetadataContextValue>? values)
         {
             var metadataContext = new MetadataContext();
             if (values != null)

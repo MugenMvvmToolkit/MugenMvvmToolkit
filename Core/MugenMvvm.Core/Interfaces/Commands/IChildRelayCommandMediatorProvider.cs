@@ -5,9 +5,9 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Commands
 {
-    public interface IRelayCommandMediatorFactory : IHasPriority
+    public interface IChildRelayCommandMediatorProvider : IHasPriority
     {
-        IReadOnlyList<IRelayCommandMediator> GetMediators<TParameter>(IRelayCommandMediatorProvider mediatorProvider, IRelayCommand relayCommand, Delegate execute, Delegate? canExecute,
+        IReadOnlyList<IRelayCommandMediator> GetMediators<TParameter>(IRelayCommandMediatorProvider provider, IRelayCommand relayCommand, Delegate execute, Delegate? canExecute,
             IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext metadata);
     }
 }

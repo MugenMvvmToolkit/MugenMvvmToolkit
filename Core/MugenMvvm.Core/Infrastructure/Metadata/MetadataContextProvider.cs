@@ -11,7 +11,7 @@ namespace MugenMvvm.Infrastructure.Metadata
 
         private readonly IComponentCollectionProvider _componentCollectionProvider;
         private IComponentCollection<IMetadataContextProviderListener>? _listeners;
-        private IComponentCollection<IMetadataContextFactory>? _metadataContextFactories;
+        private IComponentCollection<IChildMetadataContextProvider>? _providers;
 
         #endregion
 
@@ -40,13 +40,13 @@ namespace MugenMvvm.Infrastructure.Metadata
             }
         }
 
-        public IComponentCollection<IMetadataContextFactory> MetadataContextFactories
+        public IComponentCollection<IChildMetadataContextProvider> Providers
         {
             get
             {
-                if (_metadataContextFactories == null)
-                    _componentCollectionProvider.LazyInitialize(ref _metadataContextFactories, this);
-                return _metadataContextFactories;
+                if (_providers == null)
+                    _componentCollectionProvider.LazyInitialize(ref _providers, this);
+                return _providers;
             }
         }
 
@@ -56,17 +56,17 @@ namespace MugenMvvm.Infrastructure.Metadata
 
         public IReadOnlyMetadataContext GetReadOnlyMetadataContext(object? target, IEnumerable<MetadataContextValue>? values)
         {
-            var factories = MetadataContextFactories.GetItems();
+            var factories = Providers.GetItems();
             IReadOnlyMetadataContext? result = null;
             for (var i = 0; i < factories.Length; i++)
             {
-                result = factories[i].TryGetReadOnlyMetadataContext(target, values);
+                result = factories[i].TryGetReadOnlyMetadataContext(this, target, values);
                 if (result != null)
                     break;
             }
 
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IMetadataContextFactory).Name);
+                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IChildMetadataContextProvider).Name);
 
             var listeners = _listeners.GetItemsOrDefault();
             for (var i = 0; i < listeners.Length; i++)
@@ -76,17 +76,17 @@ namespace MugenMvvm.Infrastructure.Metadata
 
         public IMetadataContext GetMetadataContext(object? target, IEnumerable<MetadataContextValue>? values)
         {
-            var factories = MetadataContextFactories.GetItems();
+            var factories = Providers.GetItems();
             IMetadataContext? result = null;
             for (var i = 0; i < factories.Length; i++)
             {
-                result = factories[i].TryGetMetadataContext(target, values);
+                result = factories[i].TryGetMetadataContext(this, target, values);
                 if (result != null)
                     break;
             }
 
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IMetadataContextFactory).Name);
+                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IChildMetadataContextProvider).Name);
 
             var listeners = _listeners.GetItemsOrDefault();
             for (var i = 0; i < listeners.Length; i++)
@@ -96,17 +96,17 @@ namespace MugenMvvm.Infrastructure.Metadata
 
         public IObservableMetadataContext GetObservableMetadataContext(object? target, IEnumerable<MetadataContextValue>? values)
         {
-            var factories = MetadataContextFactories.GetItems();
+            var factories = Providers.GetItems();
             IObservableMetadataContext? result = null;
             for (var i = 0; i < factories.Length; i++)
             {
-                result = factories[i].TryGetObservableMetadataContext(target, values);
+                result = factories[i].TryGetObservableMetadataContext(this, target, values);
                 if (result != null)
                     break;
             }
 
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IMetadataContextFactory).Name);
+                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IChildMetadataContextProvider).Name);
 
             var listeners = _listeners.GetItemsOrDefault();
             for (var i = 0; i < listeners.Length; i++)

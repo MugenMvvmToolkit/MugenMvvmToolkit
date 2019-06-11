@@ -34,13 +34,13 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         #region Implementation of interfaces
 
-        public INavigationMediator? TryGetMediator(INavigationMediatorViewModelPresenter presenter, IViewModelBase viewModel, IViewInitializer viewInitializer,
+        public INavigationMediator? TryGetMediator(INavigationMediatorChildViewModelPresenter presenter, IViewModelBase viewModel, IViewInitializer viewInitializer,
             IReadOnlyMetadataContext metadata)
         {
             return _factory(viewModel, viewInitializer, metadata);
         }
 
-        public IReadOnlyList<IChildViewModelPresenterResult>? TryCloseInternal(INavigationMediatorViewModelPresenter presenter, IViewModelBase viewModel,
+        public IReadOnlyList<IChildViewModelPresenterResult>? TryCloseInternal(INavigationMediatorChildViewModelPresenter presenter, IViewModelBase viewModel,
             IReadOnlyList<INavigationMediator> mediators, IReadOnlyMetadataContext metadata)
         {
             return null;

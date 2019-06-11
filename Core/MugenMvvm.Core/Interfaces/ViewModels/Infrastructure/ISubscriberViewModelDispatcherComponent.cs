@@ -5,9 +5,9 @@ namespace MugenMvvm.Interfaces.ViewModels.Infrastructure
 {
     public interface ISubscriberViewModelDispatcherComponent : IViewModelDispatcherComponent
     {
-        bool TrySubscribe(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode,
+        bool TrySubscribe(IViewModelDispatcher dispatcher, IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode,
             IReadOnlyMetadataContext metadata);
 
-        bool TryUnsubscribe(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, object observer, IReadOnlyMetadataContext metadata);
+        bool TryUnsubscribe(IViewModelDispatcher dispatcher, IViewModelBase viewModel, object observer, IReadOnlyMetadataContext metadata);
     }
 }

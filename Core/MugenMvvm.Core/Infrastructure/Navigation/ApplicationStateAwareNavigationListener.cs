@@ -63,12 +63,12 @@ namespace MugenMvvm.Infrastructure.Navigation
             {
                 if (newState == ApplicationState.Active)
                 {
-                    ctx = _navigationDispatcher.ContextFactory.GetNavigationContext(navigationProvider, NavigationMode.Foreground, entry.NavigationType, entry.ViewModel,
+                    ctx = _navigationDispatcher.ContextProvider.GetNavigationContext(navigationProvider, NavigationMode.Foreground, entry.NavigationType, entry.ViewModel,
                         NavigationType.System, null, metadata);
                 }
                 else if (newState == ApplicationState.Background)
                 {
-                    ctx = _navigationDispatcher.ContextFactory.GetNavigationContext(navigationProvider, NavigationMode.Background, NavigationType.System, null,
+                    ctx = _navigationDispatcher.ContextProvider.GetNavigationContext(navigationProvider, NavigationMode.Background, NavigationType.System, null,
                         entry.NavigationType, entry.ViewModel, metadata);
                 }
             }

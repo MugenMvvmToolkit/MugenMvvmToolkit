@@ -3,7 +3,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Internal
 {
-    public interface IWeakReferenceFactory : IHasPriority//todo factory to child?
+    public interface IChildWeakReferenceProvider : IHasPriority
     {
         IWeakReference? TryGetWeakReference(IWeakReferenceProvider provider, object item, IReadOnlyMetadataContext metadata);
     }

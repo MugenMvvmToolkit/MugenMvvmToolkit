@@ -7,7 +7,7 @@ namespace MugenMvvm.Interfaces.Validation
 {
     public interface IValidatorProvider : IHasListeners<IValidatorProviderListener>
     {
-        IComponentCollection<IValidatorFactory> ValidatorFactories { get; }
+        IComponentCollection<IChildValidatorProvider> Providers { get; }
 
         IReadOnlyList<IValidator> GetValidators(IReadOnlyMetadataContext metadata);
 

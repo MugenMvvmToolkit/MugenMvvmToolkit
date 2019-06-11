@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Interfaces.Internal
 {
-    public interface IChildAttachedValueProvider : IHasPriority
+    public interface IChildAttachedValueProvider : IHasPriority//todo review
     {
         bool TryGetOrAddAttachedDictionary<TItem>(IAttachedValueProvider parentProvider, TItem item, bool required, out IAttachedValueProviderDictionary? dictionary)
             where TItem : class;

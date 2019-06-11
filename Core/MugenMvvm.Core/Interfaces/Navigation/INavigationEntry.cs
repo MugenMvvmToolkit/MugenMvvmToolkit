@@ -16,6 +16,6 @@ namespace MugenMvvm.Interfaces.Navigation
 
         IViewModelBase ViewModel { get; }
 
-        IReadOnlyList<INavigationCallback> GetCallbacks(NavigationCallbackType? callbackType, IReadOnlyMetadataContext metadata);
+        IReadOnlyList<INavigationCallback> GetCallbacks(NavigationCallbackType? callbackType, IReadOnlyMetadataContext metadata);//move to journal
     }
 }

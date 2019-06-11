@@ -16,7 +16,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.Navigation.Presenters
 {
-    public class NavigationMediatorViewModelPresenter : AttachableComponentBase<IViewModelPresenter>, INavigationMediatorViewModelPresenter, INavigationDispatcherListener
+    public class NavigationMediatorChildViewModelPresenter : AttachableComponentBase<IViewModelPresenter>, INavigationMediatorChildViewModelPresenter, INavigationDispatcherListener
     {
         #region Fields
 
@@ -27,7 +27,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public NavigationMediatorViewModelPresenter(IViewManager viewManager, INavigationDispatcher navigationDispatcher,
+        public NavigationMediatorChildViewModelPresenter(IViewManager viewManager, INavigationDispatcher navigationDispatcher,
             IComponentCollectionProvider componentCollectionProvider, IMetadataContextProvider metadataContextProvider)
         {
             Should.NotBeNull(viewManager, nameof(viewManager));

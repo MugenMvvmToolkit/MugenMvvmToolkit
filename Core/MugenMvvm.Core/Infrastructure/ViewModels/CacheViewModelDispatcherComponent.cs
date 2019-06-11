@@ -71,7 +71,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
                 RemoveFromCache(ViewModelMetadata.Id.GetValue(metadataContext, oldValue));
         }
 
-        public IReadOnlyMetadataContext? OnLifecycleChanged(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState,
+        public IReadOnlyMetadataContext? OnLifecycleChanged(IViewModelDispatcher dispatcher, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState,
             IReadOnlyMetadataContext metadata)
         {
             if (lifecycleState == ViewModelLifecycleState.Created)
@@ -88,7 +88,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
             return null;
         }
 
-        public IViewModelBase? TryGetViewModel(IViewModelDispatcher viewModelDispatcher, IReadOnlyMetadataContext metadata)
+        public IViewModelBase? TryGetViewModel(IViewModelDispatcher dispatcher, IReadOnlyMetadataContext metadata)
         {
             var id = metadata.Get(ViewModelMetadata.Id, DefaultId);
             if (id == DefaultId)

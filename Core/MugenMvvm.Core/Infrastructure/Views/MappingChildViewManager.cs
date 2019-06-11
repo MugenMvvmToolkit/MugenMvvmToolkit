@@ -16,21 +16,21 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.Views
 {
-    public class MappingViewManager : IChildViewManager
+    public class MappingChildViewManager : IChildViewManager
     {
         #region Fields
 
         private readonly List<MappingInfo> _mappings;
 
         protected static readonly IMetadataContextKey<Dictionary<int, IViewInfo>> ViewsMetadataKey =
-            MetadataContextKey.FromMember<Dictionary<int, IViewInfo>>(typeof(MappingViewManager), nameof(ViewsMetadataKey));
+            MetadataContextKey.FromMember<Dictionary<int, IViewInfo>>(typeof(MappingChildViewManager), nameof(ViewsMetadataKey));
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public MappingViewManager(IThreadDispatcher threadDispatcher, IViewModelDispatcher viewModelDispatcher, IServiceProvider serviceProvider, IMetadataContextProvider metadataContextProvider)
+        public MappingChildViewManager(IThreadDispatcher threadDispatcher, IViewModelDispatcher viewModelDispatcher, IServiceProvider serviceProvider, IMetadataContextProvider metadataContextProvider)
         {
             Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
             Should.NotBeNull(viewModelDispatcher, nameof(viewModelDispatcher));
@@ -67,28 +67,28 @@ namespace MugenMvvm.Infrastructure.Views
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<IViewInfo> GetViews(IParentViewManager parentViewManager, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
+        public IReadOnlyList<IViewInfo> GetViews(IParentViewManager viewManager, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
         {
-            Should.NotBeNull(parentViewManager, nameof(parentViewManager));
+            Should.NotBeNull(viewManager, nameof(viewManager));
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(metadata, nameof(metadata));
-            return GetViewsInternal(parentViewManager, viewModel, metadata);
+            return GetViewsInternal(viewManager, viewModel, metadata);
         }
 
-        public IReadOnlyList<IViewModelViewInitializer> GetInitializersByView(IParentViewManager parentViewManager, object view, IReadOnlyMetadataContext metadata)
+        public IReadOnlyList<IViewModelViewInitializer> GetInitializersByView(IParentViewManager viewManager, object view, IReadOnlyMetadataContext metadata)
         {
-            Should.NotBeNull(parentViewManager, nameof(parentViewManager));
+            Should.NotBeNull(viewManager, nameof(viewManager));
             Should.NotBeNull(view, nameof(view));
             Should.NotBeNull(metadata, nameof(metadata));
-            return GetInitializersByViewInternal(parentViewManager, view, metadata);
+            return GetInitializersByViewInternal(viewManager, view, metadata);
         }
 
-        public IReadOnlyList<IViewInitializer> GetInitializersByViewModel(IParentViewManager parentViewManager, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
+        public IReadOnlyList<IViewInitializer> GetInitializersByViewModel(IParentViewManager viewManager, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
         {
-            Should.NotBeNull(parentViewManager, nameof(parentViewManager));
+            Should.NotBeNull(viewManager, nameof(viewManager));
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(metadata, nameof(metadata));
-            return GetInitializersByViewModelInternal(parentViewManager, viewModel, metadata);
+            return GetInitializersByViewModelInternal(viewManager, viewModel, metadata);
         }
 
         #endregion
@@ -322,14 +322,14 @@ namespace MugenMvvm.Infrastructure.Views
 
             public readonly MappingInfo Mapping;
             public readonly IParentViewManager ParentViewManager;
-            public readonly MappingViewManager ViewManager;
+            public readonly MappingChildViewManager ViewManager;
             private string? _id;
 
             #endregion
 
             #region Constructors
 
-            public ViewManagerInitializer(MappingViewManager viewManager, IParentViewManager parentViewManager, MappingInfo mapping, Type viewModelType, Type viewType)
+            public ViewManagerInitializer(MappingChildViewManager viewManager, IParentViewManager parentViewManager, MappingInfo mapping, Type viewModelType, Type viewType)
             {
                 ViewManager = viewManager;
                 ParentViewManager = parentViewManager;
@@ -453,7 +453,7 @@ namespace MugenMvvm.Infrastructure.Views
 
             private int _mappingId;
             private readonly IParentViewManager _parentViewManager;
-            private readonly MappingViewManager _viewManager;
+            private readonly MappingChildViewManager _viewManager;
 
             private CleanupHandler? _cleanupHandler;
             private IObservableMetadataContext? _metadata;
@@ -462,7 +462,7 @@ namespace MugenMvvm.Infrastructure.Views
 
             #region Constructors
 
-            public ViewInfo(MappingViewManager viewManager, IParentViewManager parentViewManager, int mappingId, IViewManagerInitializer initializer, object view,
+            public ViewInfo(MappingChildViewManager viewManager, IParentViewManager parentViewManager, int mappingId, IViewManagerInitializer initializer, object view,
                 IObservableMetadataContext? metadata)
             {
                 _viewManager = viewManager;

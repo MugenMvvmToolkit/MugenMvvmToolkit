@@ -10,7 +10,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Infrastructure.Members
 {
-    public sealed class ReflectionBindingMemberProvider : IChildBindingMemberProvider
+    public sealed class ReflectionChildBindingMemberProvider : IChildBindingMemberProvider
     {
         #region Fields
 

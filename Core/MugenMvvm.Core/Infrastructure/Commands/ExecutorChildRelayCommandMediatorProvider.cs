@@ -9,12 +9,12 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.Commands
 {
-    public class ExecutorRelayCommandMediatorFactory : IExecutorRelayCommandMediatorFactory
+    public class ExecutorChildRelayCommandMediatorProvider : IExecutorChildRelayCommandMediatorProvider
     {
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ExecutorRelayCommandMediatorFactory(IThreadDispatcher threadDispatcher)
+        public ExecutorChildRelayCommandMediatorProvider(IThreadDispatcher threadDispatcher)
         {
             Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
             ThreadDispatcher = threadDispatcher;
@@ -40,7 +40,7 @@ namespace MugenMvvm.Infrastructure.Commands
 
         #region Implementation of interfaces
 
-        public IExecutorRelayCommandMediator? TryGetExecutorMediator<TParameter>(IRelayCommandMediatorProvider mediatorProvider, IRelayCommand relayCommand,
+        public IExecutorRelayCommandMediator? TryGetExecutorMediator<TParameter>(IRelayCommandMediatorProvider provider, IRelayCommand relayCommand,
             IReadOnlyList<IRelayCommandMediator> mediators, Delegate execute,
             Delegate? canExecute, IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext metadata)
         {
@@ -48,7 +48,7 @@ namespace MugenMvvm.Infrastructure.Commands
                 metadata.Get(RelayCommandMetadata.AllowMultipleExecution, AllowMultipleExecution), mediators);
         }
 
-        public IReadOnlyList<IRelayCommandMediator> GetMediators<TParameter>(IRelayCommandMediatorProvider mediatorProvider, IRelayCommand relayCommand, Delegate execute, Delegate? canExecute,
+        public IReadOnlyList<IRelayCommandMediator> GetMediators<TParameter>(IRelayCommandMediatorProvider provider, IRelayCommand relayCommand, Delegate execute, Delegate? canExecute,
             IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext metadata)
         {
             if (notifiers == null || notifiers.Count == 0)

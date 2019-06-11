@@ -9,7 +9,7 @@ namespace MugenMvvm.Infrastructure.Components
     {
         #region Fields
 
-        private IComponentCollection<IComponentCollectionFactory> _componentCollectionFactories;
+        private IComponentCollection<IChildComponentCollectionProvider> _componentCollectionFactories;
         private IComponentCollection<IComponentCollectionProviderListener>? _listeners;
 
         #endregion
@@ -37,7 +37,7 @@ namespace MugenMvvm.Infrastructure.Components
             }
         }
 
-        public IComponentCollection<IComponentCollectionFactory> ComponentCollectionFactories
+        public IComponentCollection<IChildComponentCollectionProvider> ComponentCollectionFactories
         {
             get
             {
@@ -59,7 +59,7 @@ namespace MugenMvvm.Infrastructure.Components
             var result = GetComponentCollectionInternal<T>(owner, metadata);
 
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IComponentCollectionFactory).Name);
+                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IChildComponentCollectionProvider).Name);
 
             OnComponentCollectionCreated(result, metadata);
 
@@ -77,7 +77,7 @@ namespace MugenMvvm.Infrastructure.Components
                 var collectionFactories = ComponentCollectionFactories.GetItems();
                 for (var i = 0; i < collectionFactories.Length; i++)
                 {
-                    var collection = collectionFactories[i].TryGetComponentCollection<T>(owner, metadata);
+                    var collection = collectionFactories[i].TryGetComponentCollection<T>(this, owner, metadata);
                     if (collection != null)
                         return collection;
                 }

@@ -5,7 +5,7 @@ namespace MugenMvvm.Interfaces.Navigation
 {
     public interface INavigationDispatcher : IHasListeners<INavigationDispatcherListener>
     {
-        INavigationContextFactory ContextFactory { get; set; }
+        INavigationContextProvider ContextProvider { get; set; }
 
         INavigationDispatcherJournal NavigationJournal { get; set; }
 

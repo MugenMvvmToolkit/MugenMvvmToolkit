@@ -5,7 +5,7 @@ namespace MugenMvvm.Interfaces.Components
 {
     public interface IComponentCollectionProvider : IHasListeners<IComponentCollectionProviderListener>
     {
-        IComponentCollection<IComponentCollectionFactory> ComponentCollectionFactories { get; }
+        IComponentCollection<IChildComponentCollectionProvider> ComponentCollectionFactories { get; }
 
         IComponentCollection<T> GetComponentCollection<T>(object owner, IReadOnlyMetadataContext metadata) where T : class;
     }

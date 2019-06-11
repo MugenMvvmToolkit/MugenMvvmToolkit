@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Interfaces.Navigation.Presenters
 {
-    public interface INavigationMediatorViewModelPresenter : IRestorableChildViewModelPresenter
+    public interface INavigationMediatorChildViewModelPresenter : IRestorableChildViewModelPresenter
     {
         IComponentCollection<INavigationMediatorViewModelPresenterManager> Managers { get; }
     }

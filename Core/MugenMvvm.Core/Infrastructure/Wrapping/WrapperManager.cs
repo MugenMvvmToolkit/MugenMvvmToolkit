@@ -11,7 +11,7 @@ namespace MugenMvvm.Infrastructure.Wrapping
         #region Fields
 
         private IComponentCollection<IWrapperManagerListener>? _listeners;
-        private IComponentCollection<IWrapperManagerFactory>? _wrapperFactories;
+        private IComponentCollection<IChildWrapperManager>? _managers;
 
         #endregion
 
@@ -42,13 +42,13 @@ namespace MugenMvvm.Infrastructure.Wrapping
             }
         }
 
-        public IComponentCollection<IWrapperManagerFactory> WrapperFactories
+        public IComponentCollection<IChildWrapperManager> Managers
         {
             get
             {
-                if (_wrapperFactories == null)
-                    ComponentCollectionProvider.LazyInitialize(ref _wrapperFactories, this);
-                return _wrapperFactories;
+                if (_managers == null)
+                    ComponentCollectionProvider.LazyInitialize(ref _managers, this);
+                return _managers;
             }
         }
 
@@ -81,7 +81,7 @@ namespace MugenMvvm.Infrastructure.Wrapping
             if (wrapperType.IsAssignableFromUnified(type))
                 return true;
 
-            var factories = WrapperFactories.GetItems();
+            var factories = Managers.GetItems();
             for (var i = 0; i < factories.Length; i++)
             {
                 if (factories[i].CanWrap(this, type, wrapperType, metadata))
@@ -94,7 +94,7 @@ namespace MugenMvvm.Infrastructure.Wrapping
         protected virtual object WrapInternal(object item, Type wrapperType, IReadOnlyMetadataContext metadata)
         {
             object? wrapper = null;
-            var factories = WrapperFactories.GetItems();
+            var factories = Managers.GetItems();
             for (var i = 0; i < factories.Length; i++)
             {
                 wrapper = factories[i].TryWrap(this, item.GetType(), wrapperType, metadata);

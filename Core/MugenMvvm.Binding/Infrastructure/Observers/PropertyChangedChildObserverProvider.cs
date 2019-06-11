@@ -6,7 +6,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Infrastructure.Observers
 {
-    public class PropertyChangedObserverProvider : IChildObserverProvider, IBindingMemberObserver
+    public class PropertyChangedChildObserverProvider : IChildObserverProvider, IBindingMemberObserver
     {
         #region Properties
 

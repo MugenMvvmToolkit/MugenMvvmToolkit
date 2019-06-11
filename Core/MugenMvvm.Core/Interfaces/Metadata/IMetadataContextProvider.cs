@@ -5,9 +5,9 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Metadata
 {
-    public interface IMetadataContextProvider : IHasListeners<IMetadataContextProviderListener>
+    public interface IMetadataContextProvider : IHasListeners<IMetadataContextProviderListener>//todo review opts
     {
-        IComponentCollection<IMetadataContextFactory> MetadataContextFactories { get; }
+        IComponentCollection<IChildMetadataContextProvider> Providers { get; }
 
         IReadOnlyMetadataContext GetReadOnlyMetadataContext(object? target, IEnumerable<MetadataContextValue>? values);
 

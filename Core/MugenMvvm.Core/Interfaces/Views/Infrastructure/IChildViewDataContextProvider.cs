@@ -5,8 +5,8 @@ namespace MugenMvvm.Interfaces.Views.Infrastructure
 {
     public interface IChildViewDataContextProvider : IHasPriority
     {
-        bool TryGetDataContext(object view, IReadOnlyMetadataContext metadata, out object? dataContext);
+        bool TryGetDataContext(IViewDataContextProvider provider, object view, IReadOnlyMetadataContext metadata, out object? dataContext);
 
-        bool TrySetDataContext(object view, object? dataContext, IReadOnlyMetadataContext metadata);
+        bool TrySetDataContext(IViewDataContextProvider provider, object view, object? dataContext, IReadOnlyMetadataContext metadata);
     }
 }

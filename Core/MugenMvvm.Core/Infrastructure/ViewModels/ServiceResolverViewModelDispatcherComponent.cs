@@ -45,13 +45,13 @@ namespace MugenMvvm.Infrastructure.ViewModels
 
         #region Implementation of interfaces
 
-        public IReadOnlyMetadataContext? OnLifecycleChanged(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState,
+        public IReadOnlyMetadataContext? OnLifecycleChanged(IViewModelDispatcher dispatcher, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState,
             IReadOnlyMetadataContext metadata)
         {
             return null;
         }
 
-        public object? TryGetService(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, Type service, IReadOnlyMetadataContext metadata)
+        public object? TryGetService(IViewModelDispatcher dispatcher, IViewModelBase viewModel, Type service, IReadOnlyMetadataContext metadata)
         {
             if (service == typeof(IObservableMetadataContext))
                 return MetadataContextProvider.GetObservableMetadataContext(viewModel, null);

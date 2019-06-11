@@ -12,7 +12,7 @@ namespace MugenMvvm.Infrastructure.Navigation
     {
         #region Fields
 
-        private INavigationContextFactory _contextFactory;
+        private INavigationContextProvider _contextProvider;
         private IComponentCollection<INavigationDispatcherListener>? _listeners;
         private INavigationDispatcherJournal _navigationJournal;
 
@@ -21,14 +21,14 @@ namespace MugenMvvm.Infrastructure.Navigation
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public NavigationDispatcher(INavigationContextFactory contextFactory, INavigationDispatcherJournal navigationJournal,
+        public NavigationDispatcher(INavigationContextProvider contextProvider, INavigationDispatcherJournal navigationJournal,
             IComponentCollectionProvider componentCollectionProvider)
         {
-            Should.NotBeNull(contextFactory, nameof(contextFactory));
+            Should.NotBeNull(contextProvider, nameof(contextProvider));
             Should.NotBeNull(navigationJournal, nameof(navigationJournal));
             Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
             ComponentCollectionProvider = componentCollectionProvider;
-            ContextFactory = contextFactory;
+            ContextProvider = contextProvider;
             NavigationJournal = navigationJournal;
         }
 
@@ -40,15 +40,15 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         public bool IsListenersInitialized => _listeners != null;
 
-        public INavigationContextFactory ContextFactory
+        public INavigationContextProvider ContextProvider
         {
-            get => _contextFactory;
+            get => _contextProvider;
             set
             {
-                Should.NotBeNull(value, nameof(ContextFactory));
-                _contextFactory?.OnDetached(this, Default.Metadata);
-                _contextFactory = value;
-                _contextFactory.OnAttached(this, Default.Metadata);
+                Should.NotBeNull(value, nameof(ContextProvider));
+                _contextProvider?.OnDetached(this, Default.Metadata);
+                _contextProvider = value;
+                _contextProvider.OnAttached(this, Default.Metadata);
             }
         }
 

@@ -6,7 +6,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Members
 {
-    public interface IAttachedBindingMemberProvider : IAttachableComponent<IBindingMemberProvider>, IDetachableComponent<IBindingMemberProvider>
+    public interface IAttachedChildBindingMemberProvider : IAttachableComponent<IBindingMemberProvider>, IDetachableComponent<IBindingMemberProvider>
     {
         IBindingMemberInfo? GetMember(Type type, string name, IReadOnlyMetadataContext metadata);
 

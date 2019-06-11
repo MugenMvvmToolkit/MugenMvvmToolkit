@@ -6,7 +6,7 @@ namespace MugenMvvm.Interfaces.Internal
 {
     public interface IReflectionDelegateProvider
     {
-        IComponentCollection<IReflectionDelegateFactory> ReflectionDelegateFactories { get; }
+        IComponentCollection<IChildReflectionDelegateProvider> Providers { get; }
 
         Func<object?[], object> GetActivatorDelegate(ConstructorInfo constructor);
 

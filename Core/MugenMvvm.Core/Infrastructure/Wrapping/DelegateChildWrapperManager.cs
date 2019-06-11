@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Wrapping;
 
 namespace MugenMvvm.Infrastructure.Wrapping
 {
-    public class DelegateWrapperManagerFactory : IWrapperManagerFactory
+    public class DelegateChildWrapperManager : IChildWrapperManager
     {
         #region Fields
 
@@ -15,7 +15,7 @@ namespace MugenMvvm.Infrastructure.Wrapping
 
         #region Constructors
 
-        public DelegateWrapperManagerFactory(Func<IWrapperManager, Type, Type, IReadOnlyMetadataContext, bool> condition,
+        public DelegateChildWrapperManager(Func<IWrapperManager, Type, Type, IReadOnlyMetadataContext, bool> condition,
             Func<IWrapperManager, object, Type, IReadOnlyMetadataContext, object?> wrapperFactory)
         {
             Should.NotBeNull(condition, nameof(condition));
@@ -23,6 +23,12 @@ namespace MugenMvvm.Infrastructure.Wrapping
             Condition = condition;
             WrapperFactory = wrapperFactory;
         }
+
+        #endregion
+
+        #region Properties
+
+        public int Priority { get; set; }
 
         #endregion
 

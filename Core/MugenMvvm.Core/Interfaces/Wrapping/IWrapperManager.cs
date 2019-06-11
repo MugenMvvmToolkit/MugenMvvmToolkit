@@ -7,7 +7,7 @@ namespace MugenMvvm.Interfaces.Wrapping
 {
     public interface IWrapperManager : IHasListeners<IWrapperManagerListener>
     {
-        IComponentCollection<IWrapperManagerFactory> WrapperFactories { get; }
+        IComponentCollection<IChildWrapperManager> Managers { get; }
 
         bool CanWrap(Type type, Type wrapperType, IReadOnlyMetadataContext metadata);
 

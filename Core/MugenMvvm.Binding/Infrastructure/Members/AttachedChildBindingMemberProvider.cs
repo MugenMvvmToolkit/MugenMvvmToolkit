@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Infrastructure.Members
 {
-    public sealed class AttachedBindingMemberProvider : AttachableComponentBase<IBindingMemberProvider>, IAttachedBindingMemberProvider
+    public sealed class AttachedChildBindingMemberProvider : AttachableComponentBase<IBindingMemberProvider>, IAttachedChildBindingMemberProvider
     {
         #region Fields
 
@@ -18,7 +18,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
         #region Constructors
 
-        public AttachedBindingMemberProvider()
+        public AttachedChildBindingMemberProvider()
         {
             _cache = new CacheDictionary();
         }

@@ -6,7 +6,7 @@ using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Interfaces.Navigation
 {
-    public interface INavigationContextFactory : IHasListeners<INavigationContextFactoryListener>, IAttachableComponent<INavigationDispatcher>,
+    public interface INavigationContextProvider : IHasListeners<INavigationContextProviderListener>, IAttachableComponent<INavigationDispatcher>,
         IDetachableComponent<INavigationDispatcher>
     {
         INavigationContext GetNavigationContext(INavigationProvider navigationProvider, NavigationMode navigationMode, NavigationType navigationTypeFrom,

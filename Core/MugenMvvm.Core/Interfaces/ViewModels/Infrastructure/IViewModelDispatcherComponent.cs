@@ -6,6 +6,6 @@ namespace MugenMvvm.Interfaces.ViewModels.Infrastructure
 {
     public interface IViewModelDispatcherComponent : IHasPriority
     {
-        IReadOnlyMetadataContext? OnLifecycleChanged(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadata);
+        IReadOnlyMetadataContext? OnLifecycleChanged(IViewModelDispatcher dispatcher, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadata);
     }
 }

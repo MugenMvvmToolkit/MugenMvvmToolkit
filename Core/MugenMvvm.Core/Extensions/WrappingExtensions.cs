@@ -16,16 +16,16 @@ namespace MugenMvvm
     {
         #region Methods
 
-        public static IWrapperManagerFactory AddWrapper(this IWrapperManager wrapperManager, Func<IWrapperManager, Type, Type, IReadOnlyMetadataContext, bool> condition,
+        public static IChildWrapperManager AddWrapper(this IWrapperManager wrapperManager, Func<IWrapperManager, Type, Type, IReadOnlyMetadataContext, bool> condition,
             Func<IWrapperManager, object, Type, IReadOnlyMetadataContext, object?> wrapperFactory, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
-            var factory = new DelegateWrapperManagerFactory(condition, wrapperFactory);
-            wrapperManager.WrapperFactories.Add(factory, metadata);
+            var factory = new DelegateChildWrapperManager(condition, wrapperFactory);
+            wrapperManager.Managers.Add(factory, metadata);
             return factory;
         }
 
-        public static IWrapperManagerFactory AddWrapper(this IWrapperManager wrapperManager, Type wrapperType, Type implementation,
+        public static IChildWrapperManager AddWrapper(this IWrapperManager wrapperManager, Type wrapperType, Type implementation,
             Func<IWrapperManager, object, Type, IReadOnlyMetadataContext, object>? wrapperFactory = null)
         {
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
@@ -48,14 +48,14 @@ namespace MugenMvvm
             return wrapperManager.AddWrapper((manager, type, arg3, arg4) => wrapperType.EqualsEx(arg3), wrapperFactory);
         }
 
-        public static IWrapperManagerFactory AddWrapper<TWrapper>(this IWrapperManager wrapperManager, Type implementation,
+        public static IChildWrapperManager AddWrapper<TWrapper>(this IWrapperManager wrapperManager, Type implementation,
             Func<IWrapperManager, object, Type, IReadOnlyMetadataContext, TWrapper>? wrapperFactory = null)
             where TWrapper : class
         {
             return wrapperManager.AddWrapper(typeof(TWrapper), implementation, wrapperFactory);
         }
 
-        public static IWrapperManagerFactory AddWrapper<TWrapper, TImplementation>(this IWrapperManager wrapperManager,
+        public static IChildWrapperManager AddWrapper<TWrapper, TImplementation>(this IWrapperManager wrapperManager,
             Func<IWrapperManager, object, Type, IReadOnlyMetadataContext, TWrapper>? wrapperFactory = null)
             where TWrapper : class
             where TImplementation : class, TWrapper

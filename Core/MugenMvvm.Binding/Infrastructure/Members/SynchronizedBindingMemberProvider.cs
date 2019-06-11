@@ -11,8 +11,8 @@ namespace MugenMvvm.Binding.Infrastructure.Members
     {
         #region Constructors
 
-        public SynchronizedBindingMemberProvider(IAttachedBindingMemberProvider attachedBindingMemberProvider, IComponentCollectionProvider componentCollectionProvider) : base(
-            attachedBindingMemberProvider, componentCollectionProvider)
+        public SynchronizedBindingMemberProvider(IAttachedChildBindingMemberProvider attachedChildBindingMemberProvider, IComponentCollectionProvider componentCollectionProvider) : base(
+            attachedChildBindingMemberProvider, componentCollectionProvider)
         {
         }
 

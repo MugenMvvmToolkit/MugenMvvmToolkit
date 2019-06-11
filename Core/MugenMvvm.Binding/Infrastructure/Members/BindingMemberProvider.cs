@@ -15,21 +15,21 @@ namespace MugenMvvm.Binding.Infrastructure.Members
         protected readonly HashSet<string> CurrentNames;
         protected readonly TempCacheDictionary TempCache;
 
-        private IAttachedBindingMemberProvider _attachedBindingMemberProvider;
+        private IAttachedChildBindingMemberProvider _attachedChildBindingMemberProvider;
         private IComponentCollection<IChildBindingMemberProvider>? _providers;
 
         #endregion
 
         #region Constructors
 
-        public BindingMemberProvider(IAttachedBindingMemberProvider attachedBindingMemberProvider, IComponentCollectionProvider componentCollectionProvider)
+        public BindingMemberProvider(IAttachedChildBindingMemberProvider attachedChildBindingMemberProvider, IComponentCollectionProvider componentCollectionProvider)
         {
-            Should.NotBeNull(attachedBindingMemberProvider, nameof(attachedBindingMemberProvider));
+            Should.NotBeNull(attachedChildBindingMemberProvider, nameof(attachedChildBindingMemberProvider));
             Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
             TempCache = new TempCacheDictionary();
             CurrentNames = new HashSet<string>(StringComparer.Ordinal);
             ComponentCollectionProvider = componentCollectionProvider;
-            AttachedBindingMemberProvider = attachedBindingMemberProvider;
+            AttachedChildBindingMemberProvider = attachedChildBindingMemberProvider;
         }
 
         #endregion
@@ -48,15 +48,15 @@ namespace MugenMvvm.Binding.Infrastructure.Members
             }
         }
 
-        public IAttachedBindingMemberProvider AttachedBindingMemberProvider
+        public IAttachedChildBindingMemberProvider AttachedChildBindingMemberProvider
         {
-            get => _attachedBindingMemberProvider;
+            get => _attachedChildBindingMemberProvider;
             set
             {
-                Should.NotBeNull(value, nameof(AttachedBindingMemberProvider));
-                _attachedBindingMemberProvider?.OnDetached(this, Default.Metadata);
-                _attachedBindingMemberProvider = value;
-                _attachedBindingMemberProvider.OnAttached(this, Default.Metadata);
+                Should.NotBeNull(value, nameof(AttachedChildBindingMemberProvider));
+                _attachedChildBindingMemberProvider?.OnDetached(this, Default.Metadata);
+                _attachedChildBindingMemberProvider = value;
+                _attachedChildBindingMemberProvider.OnAttached(this, Default.Metadata);
             }
         }
 
@@ -123,18 +123,18 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
         protected virtual IReadOnlyList<AttachedMemberRegistration> GetAttachedMembersInternal(Type type, IReadOnlyMetadataContext metadata)
         {
-            return AttachedBindingMemberProvider.GetMembers(type, metadata);
+            return AttachedChildBindingMemberProvider.GetMembers(type, metadata);
         }
 
         protected virtual void RegisterInternal(Type type, IBindingMemberInfo member, string? name, IReadOnlyMetadataContext metadata)
         {
-            AttachedBindingMemberProvider.Register(type, member, name, metadata);
+            AttachedChildBindingMemberProvider.Register(type, member, name, metadata);
             TempCache.Clear();
         }
 
         protected virtual bool UnregisterInternal(Type type, string? name, IReadOnlyMetadataContext metadata)
         {
-            var result = AttachedBindingMemberProvider.Unregister(type, name, metadata);
+            var result = AttachedChildBindingMemberProvider.Unregister(type, name, metadata);
             if (result)
                 TempCache.Clear();
             return result;
@@ -148,7 +148,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
             if (!ignoreAttachedMembers)
             {
-                result = AttachedBindingMemberProvider.GetMember(type, name, metadata);
+                result = AttachedChildBindingMemberProvider.GetMember(type, name, metadata);
                 if (result != null)
                 {
                     TempCache[cacheKey] = result;

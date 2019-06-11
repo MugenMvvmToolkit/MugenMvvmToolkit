@@ -17,7 +17,7 @@ namespace MugenMvvm
     {
         #region Methods
 
-        public static bool RegisterMediatorFactory(this INavigationMediatorViewModelPresenter viewModelPresenter,
+        public static bool RegisterMediatorFactory(this INavigationMediatorChildViewModelPresenter viewModelPresenter,
             Func<IViewModelBase, IViewInitializer, IReadOnlyMetadataContext, INavigationMediator?> factory, int priority = 0, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModelPresenter, nameof(viewModelPresenter));
@@ -25,7 +25,7 @@ namespace MugenMvvm
             return viewModelPresenter.Managers.Add(new DelegateNavigationMediatorFactory(factory, priority), metadata);
         }
 
-        public static bool RegisterMediatorFactory<TMediator, TView>(this INavigationMediatorViewModelPresenter viewModelPresenter,
+        public static bool RegisterMediatorFactory<TMediator, TView>(this INavigationMediatorChildViewModelPresenter viewModelPresenter,
             Func<IViewModelBase, IViewInitializer, IReadOnlyMetadataContext, TMediator>? factory = null, int priority = 0,
             IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
             where TMediator : NavigationMediatorBase<TView>
@@ -34,7 +34,7 @@ namespace MugenMvvm
             return viewModelPresenter.RegisterMediatorFactory(typeof(TMediator), typeof(TView), factory, priority, metadata, wrapperManager);
         }
 
-        public static bool RegisterMediatorFactory(this INavigationMediatorViewModelPresenter viewModelPresenter, Type mediatorType, Type viewType,
+        public static bool RegisterMediatorFactory(this INavigationMediatorChildViewModelPresenter viewModelPresenter, Type mediatorType, Type viewType,
             Func<IViewModelBase, IViewInitializer, IReadOnlyMetadataContext, INavigationMediator>? factory = null, int priority = 0,
             IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
         {
@@ -56,14 +56,14 @@ namespace MugenMvvm
             NavigationType navigationType, IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
-            return navigationDispatcher.OnNavigating(navigationDispatcher.ContextFactory.GetNavigationContextTo(navigationProvider, mode, navigationType, viewModel, metadata.DefaultIfNull()));
+            return navigationDispatcher.OnNavigating(navigationDispatcher.ContextProvider.GetNavigationContextTo(navigationProvider, mode, navigationType, viewModel, metadata.DefaultIfNull()));
         }
 
         public static INavigatingResult OnNavigatingFrom(this INavigationDispatcher navigationDispatcher, INavigationProvider navigationProvider, NavigationMode mode,
             NavigationType navigationType, IViewModelBase viewModelFrom, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
-            return navigationDispatcher.OnNavigating(navigationDispatcher.ContextFactory.GetNavigationContextFrom(navigationProvider, mode, navigationType, viewModelFrom, metadata.DefaultIfNull()));
+            return navigationDispatcher.OnNavigating(navigationDispatcher.ContextProvider.GetNavigationContextFrom(navigationProvider, mode, navigationType, viewModelFrom, metadata.DefaultIfNull()));
         }
 
         public static Task WaitNavigationAsync(this INavigationDispatcher navigationDispatcher, Func<INavigationCallback, bool> filter,

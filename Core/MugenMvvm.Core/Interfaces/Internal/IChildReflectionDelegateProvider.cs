@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Internal
 {
-    public interface IReflectionDelegateFactory : IHasPriority
+    public interface IChildReflectionDelegateProvider : IHasPriority
     {
         Func<object?[], object>? TryGetActivatorDelegate(IReflectionDelegateProvider provider, ConstructorInfo constructor);
 

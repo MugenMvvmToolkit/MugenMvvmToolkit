@@ -29,7 +29,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
 
         #region Implementation of interfaces
 
-        public bool TrySubscribe(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode,
+        public bool TrySubscribe(IViewModelDispatcher dispatcher, IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode,
             IReadOnlyMetadataContext metadata)
         {
             var messenger = viewModel.TryGetService<IMessenger>();
@@ -63,7 +63,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
             return result;
         }
 
-        public bool TryUnsubscribe(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, object observer, IReadOnlyMetadataContext metadata)
+        public bool TryUnsubscribe(IViewModelDispatcher dispatcher, IViewModelBase viewModel, object observer, IReadOnlyMetadataContext metadata)
         {
             var messenger = viewModel.TryGetServiceOptional<IMessenger>();
             if (messenger == null)
@@ -91,7 +91,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
             return result;
         }
 
-        public IReadOnlyMetadataContext? OnLifecycleChanged(IViewModelDispatcher viewModelDispatcher, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState,
+        public IReadOnlyMetadataContext? OnLifecycleChanged(IViewModelDispatcher dispatcher, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState,
             IReadOnlyMetadataContext metadata)
         {
             return null;

@@ -13,7 +13,7 @@ namespace MugenMvvm.Infrastructure.Commands
         #region Fields
 
         private IComponentCollection<IRelayCommandMediatorProviderListener>? _listeners;
-        private IComponentCollection<IRelayCommandMediatorFactory>? _mediatorFactories;
+        private IComponentCollection<IChildRelayCommandMediatorProvider>? _providers;
 
         #endregion
 
@@ -34,13 +34,13 @@ namespace MugenMvvm.Infrastructure.Commands
 
         public bool IsListenersInitialized => _listeners != null;
 
-        public IComponentCollection<IRelayCommandMediatorFactory> MediatorFactories
+        public IComponentCollection<IChildRelayCommandMediatorProvider> Providers
         {
             get
             {
-                if (_mediatorFactories == null)
-                    ComponentCollectionProvider.LazyInitialize(ref _mediatorFactories, this);
-                return _mediatorFactories;
+                if (_providers == null)
+                    ComponentCollectionProvider.LazyInitialize(ref _providers, this);
+                return _providers;
             }
         }
 
@@ -68,7 +68,7 @@ namespace MugenMvvm.Infrastructure.Commands
             var result = GetExecutorMediatorInternal<TParameter>(relayCommand, execute, canExecute, notifiers, metadata);
 
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IExecutorRelayCommandMediatorFactory).Name);
+                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IExecutorChildRelayCommandMediatorProvider).Name);
 
             OnMediatorCreated<TParameter>(result, relayCommand, execute, canExecute, notifiers, metadata);
 
@@ -84,10 +84,10 @@ namespace MugenMvvm.Infrastructure.Commands
         {
             var mediators = GetMediatorsInternal<TParameter>(relayCommand, execute, canExecute, notifiers, metadata);
             IExecutorRelayCommandMediator? result = null;
-            var mediatorFactories = MediatorFactories.GetItems();
+            var mediatorFactories = Providers.GetItems();
             for (var i = 0; i < mediatorFactories.Length; i++)
             {
-                if (mediatorFactories[i] is IExecutorRelayCommandMediatorFactory executorFactory)
+                if (mediatorFactories[i] is IExecutorChildRelayCommandMediatorProvider executorFactory)
                 {
                     result = executorFactory.TryGetExecutorMediator<TParameter>(this, relayCommand, mediators, execute, canExecute, notifiers, metadata);
                     if (result != null)
@@ -102,7 +102,7 @@ namespace MugenMvvm.Infrastructure.Commands
             IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext metadata)
         {
             List<IRelayCommandMediator>? result = null;
-            var mediatorFactories = MediatorFactories.GetItems();
+            var mediatorFactories = Providers.GetItems();
             for (var i = 0; i < mediatorFactories.Length; i++)
             {
                 var mediators = mediatorFactories[i].GetMediators<TParameter>(this, relayCommand, execute, canExecute, notifiers, metadata);

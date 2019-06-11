@@ -10,7 +10,7 @@ namespace MugenMvvm.Infrastructure.Internal
         #region Fields
 
         private readonly IComponentCollectionProvider _componentCollectionProvider;
-        private IComponentCollection<IWeakReferenceFactory>? _weakReferenceFactories;
+        private IComponentCollection<IChildWeakReferenceProvider>? _providers;
 
         #endregion
 
@@ -27,13 +27,13 @@ namespace MugenMvvm.Infrastructure.Internal
 
         #region Properties
 
-        public IComponentCollection<IWeakReferenceFactory> WeakReferenceFactories
+        public IComponentCollection<IChildWeakReferenceProvider> Providers
         {
             get
             {
-                if (_weakReferenceFactories == null)
-                    _componentCollectionProvider.LazyInitialize(ref _weakReferenceFactories, this);
-                return _weakReferenceFactories;
+                if (_providers == null)
+                    _componentCollectionProvider.LazyInitialize(ref _providers, this);
+                return _providers;
             }
         }
 
@@ -49,7 +49,7 @@ namespace MugenMvvm.Infrastructure.Internal
             if (item is IWeakReference w)
                 return w;
 
-            var factories = WeakReferenceFactories.GetItems();
+            var factories = Providers.GetItems();
             for (var i = 0; i < factories.Length; i++)
             {
                 var weakReference = factories[i].TryGetWeakReference(this, item, metadata);
@@ -57,7 +57,7 @@ namespace MugenMvvm.Infrastructure.Internal
                     return weakReference;
             }
 
-            ExceptionManager.ThrowObjectNotInitialized(this, typeof(IWeakReferenceFactory).Name);
+            ExceptionManager.ThrowObjectNotInitialized(this, typeof(IChildWeakReferenceProvider).Name);
             return null;
         }
 

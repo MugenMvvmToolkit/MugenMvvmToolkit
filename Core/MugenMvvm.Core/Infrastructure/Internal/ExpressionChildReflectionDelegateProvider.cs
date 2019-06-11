@@ -12,7 +12,7 @@ using MugenMvvm.Interfaces.Internal;
 namespace MugenMvvm.Infrastructure.Internal
 {
     // ReSharper disable FieldCanBeMadeReadOnly.Local
-    public sealed class ExpressionReflectionDelegateFactory : IReflectionDelegateFactory
+    public sealed class ExpressionChildReflectionDelegateProvider : IChildReflectionDelegateProvider
     {
         #region Fields
 
@@ -39,7 +39,7 @@ namespace MugenMvvm.Infrastructure.Internal
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ExpressionReflectionDelegateFactory()
+        public ExpressionChildReflectionDelegateProvider()
         {
         }
 

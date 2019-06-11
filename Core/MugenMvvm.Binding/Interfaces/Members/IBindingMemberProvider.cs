@@ -10,7 +10,7 @@ namespace MugenMvvm.Binding.Interfaces.Members
     {
         IComponentCollection<IChildBindingMemberProvider> Providers { get; }
 
-        IAttachedBindingMemberProvider AttachedBindingMemberProvider { get; set; }
+        IAttachedChildBindingMemberProvider AttachedChildBindingMemberProvider { get; set; }
 
         IBindingMemberInfo? GetMember(Type type, string name, IReadOnlyMetadataContext metadata);
 

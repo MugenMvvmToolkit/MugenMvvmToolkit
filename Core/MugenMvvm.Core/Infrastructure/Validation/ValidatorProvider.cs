@@ -11,7 +11,7 @@ namespace MugenMvvm.Infrastructure.Validation
         #region Fields
 
         private IComponentCollection<IValidatorProviderListener>? _listeners;
-        private IComponentCollection<IValidatorFactory>? _validatorFactories;
+        private IComponentCollection<IChildValidatorProvider>? _providers;
 
         #endregion
 
@@ -42,13 +42,13 @@ namespace MugenMvvm.Infrastructure.Validation
             }
         }
 
-        public IComponentCollection<IValidatorFactory> ValidatorFactories
+        public IComponentCollection<IChildValidatorProvider> Providers
         {
             get
             {
-                if (_validatorFactories == null)
-                    ComponentCollectionProvider.LazyInitialize(ref _validatorFactories, this);
-                return _validatorFactories;
+                if (_providers == null)
+                    ComponentCollectionProvider.LazyInitialize(ref _providers, this);
+                return _providers;
             }
         }
 
@@ -70,7 +70,7 @@ namespace MugenMvvm.Infrastructure.Validation
             var result = GetAggregatorValidatorInternal(metadata);
 
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IAggregatorValidatorFactory).Name);
+                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IAggregatorChildValidatorProvider).Name);
 
             OnAggregatorValidatorCreated(result, metadata);
             return result;
@@ -83,10 +83,10 @@ namespace MugenMvvm.Infrastructure.Validation
         protected virtual IReadOnlyList<IValidator> GetValidatorsInternal(IReadOnlyMetadataContext metadata)
         {
             var validators = new List<IValidator>();
-            var items = ValidatorFactories.GetItems();
+            var items = Providers.GetItems();
             for (var i = 0; i < items.Length; i++)
             {
-                var list = items[i].GetValidators(metadata);
+                var list = items[i].GetValidators(this, metadata);
                 if (list != null)
                     validators.AddRange(list);
             }
@@ -96,12 +96,12 @@ namespace MugenMvvm.Infrastructure.Validation
 
         protected virtual IAggregatorValidator? GetAggregatorValidatorInternal(IReadOnlyMetadataContext metadata)
         {
-            var items = ValidatorFactories.GetItems();
+            var items = Providers.GetItems();
             for (var i = 0; i < items.Length; i++)
             {
-                if (items[i] is IAggregatorValidatorFactory aggregatorValidatorFactory)
+                if (items[i] is IAggregatorChildValidatorProvider aggregatorValidatorFactory)
                 {
-                    var validator = aggregatorValidatorFactory.TryGetAggregatorValidator(metadata);
+                    var validator = aggregatorValidatorFactory.TryGetAggregatorValidator(this, metadata);
                     if (validator != null)
                         return validator;
                 }
@@ -124,7 +124,7 @@ namespace MugenMvvm.Infrastructure.Validation
         {
             var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnValidatorCreated(this, validator, metadata);
+                listeners[i].OnAggregatorValidatorCreated(this, validator, metadata);
         }
 
         #endregion

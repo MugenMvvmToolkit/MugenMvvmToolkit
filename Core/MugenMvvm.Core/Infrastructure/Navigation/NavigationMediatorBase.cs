@@ -176,7 +176,7 @@ namespace MugenMvvm.Infrastructure.Navigation
                 return Default.Metadata;
             }
 
-            _closingContext = NavigationDispatcher.ContextFactory.GetNavigationContextFrom(this, NavigationMode.Back, NavigationType, ViewModel, metadata);
+            _closingContext = NavigationDispatcher.ContextProvider.GetNavigationContextFrom(this, NavigationMode.Back, NavigationType, ViewModel, metadata);
             NavigationDispatcher.OnNavigating(_closingContext).CompleteNavigation((dispatcher, context) =>
             {
                 ThreadDispatcher.Execute(CloseViewCallback, ExecutionMode, context);
@@ -188,7 +188,7 @@ namespace MugenMvvm.Infrastructure.Navigation
         protected virtual IReadOnlyMetadataContext RestoreInternal(IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
         {
             UpdateView(viewInfo, true, metadata);
-            NavigationDispatcher.OnNavigated(NavigationDispatcher.ContextFactory.GetNavigationContextTo(this, NavigationMode.Restore, NavigationType, ViewModel, metadata));
+            NavigationDispatcher.OnNavigated(NavigationDispatcher.ContextProvider.GetNavigationContextTo(this, NavigationMode.Restore, NavigationType, ViewModel, metadata));
             return Default.Metadata;
         }
 
@@ -225,7 +225,7 @@ namespace MugenMvvm.Infrastructure.Navigation
             var navigationContext = _showingContext;
             _showingContext = null;
             if (navigationContext == null)
-                navigationContext = NavigationDispatcher.ContextFactory.GetNavigationContextTo(this, NavigationMode.New, NavigationType, ViewModel, Default.Metadata);
+                navigationContext = NavigationDispatcher.ContextProvider.GetNavigationContextTo(this, NavigationMode.New, NavigationType, ViewModel, Default.Metadata);
             NavigationDispatcher.OnNavigated(navigationContext);
         }
 
@@ -234,7 +234,7 @@ namespace MugenMvvm.Infrastructure.Navigation
             var navigationContext = _showingContext;
             _showingContext = null;
             if (navigationContext == null)
-                navigationContext = NavigationDispatcher.ContextFactory.GetNavigationContextTo(this, NavigationMode.Refresh, NavigationType, ViewModel, Default.Metadata);
+                navigationContext = NavigationDispatcher.ContextProvider.GetNavigationContextTo(this, NavigationMode.Refresh, NavigationType, ViewModel, Default.Metadata);
             NavigationDispatcher.OnNavigated(navigationContext);
         }
 
@@ -301,7 +301,7 @@ namespace MugenMvvm.Infrastructure.Navigation
         private void CompleteClose(INavigationContext? navigationContext)
         {
             if (navigationContext == null)
-                navigationContext = NavigationDispatcher.ContextFactory.GetNavigationContextFrom(this, NavigationMode.Back, NavigationType, ViewModel, Default.Metadata);
+                navigationContext = NavigationDispatcher.ContextProvider.GetNavigationContextFrom(this, NavigationMode.Back, NavigationType, ViewModel, Default.Metadata);
             NavigationDispatcher.OnNavigated(navigationContext);
             _closingContext = null;
             _shouldClose = false;
@@ -318,7 +318,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         private void RefreshCallback(object? state)
         {
-            var ctx = NavigationDispatcher.ContextFactory.GetNavigationContextTo(this, NavigationMode.Refresh, NavigationType, ViewModel, (IReadOnlyMetadataContext)state!);
+            var ctx = NavigationDispatcher.ContextProvider.GetNavigationContextTo(this, NavigationMode.Refresh, NavigationType, ViewModel, (IReadOnlyMetadataContext)state!);
             try
             {
                 _showingContext = ctx;

@@ -8,17 +8,17 @@ using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Infrastructure.Navigation
 {
-    public class NavigationContextFactory : AttachableComponentBase<INavigationDispatcher>, INavigationContextFactory
+    public class NavigationContextProvider : AttachableComponentBase<INavigationDispatcher>, INavigationContextProvider
     {
         #region Fields
 
-        private IComponentCollection<INavigationContextFactoryListener>? _listeners;
+        private IComponentCollection<INavigationContextProviderListener>? _listeners;
 
         #endregion
 
         #region Constructors
 
-        public NavigationContextFactory(IComponentCollectionProvider componentCollectionProvider, IMetadataContextProvider metadataContextProvider)
+        public NavigationContextProvider(IComponentCollectionProvider componentCollectionProvider, IMetadataContextProvider metadataContextProvider)
         {
             Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
             Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
@@ -36,7 +36,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         public bool IsListenersInitialized => _listeners != null;
 
-        public IComponentCollection<INavigationContextFactoryListener> Listeners
+        public IComponentCollection<INavigationContextProviderListener> Listeners
         {
             get
             {
@@ -118,7 +118,7 @@ namespace MugenMvvm.Infrastructure.Navigation
             var listeners = this.GetListeners();
             for (var i = 0; i < listeners.Length; i++)
             {
-                if (listeners[i].TryGetLastNavigationEntry(navigationType, metadata, out var entry))
+                if (listeners[i].TryGetLastNavigationEntry(this, navigationType, metadata, out var entry))
                     return entry;
             }
 

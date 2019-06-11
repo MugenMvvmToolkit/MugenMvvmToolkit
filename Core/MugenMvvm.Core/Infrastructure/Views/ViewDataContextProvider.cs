@@ -65,7 +65,7 @@ namespace MugenMvvm.Infrastructure.Views
             var items = Providers.GetItems();
             for (var i = 0; i < items.Length; i++)
             {
-                if (items[i].TryGetDataContext(view, metadata, out var context))
+                if (items[i].TryGetDataContext(this, view, metadata, out var context))
                     return context;
             }
 
@@ -77,7 +77,7 @@ namespace MugenMvvm.Infrastructure.Views
             var items = Providers.GetItems();
             for (var i = 0; i < items.Length; i++)
             {
-                if (items[i].TrySetDataContext(view, dataContext, metadata))
+                if (items[i].TrySetDataContext(this, view, dataContext, metadata))
                     return true;
             }
 

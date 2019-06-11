@@ -8,10 +8,10 @@ namespace MugenMvvm.Interfaces.Navigation.Presenters
 {
     public interface INavigationMediatorViewModelPresenterManager : IHasPriority
     {
-        INavigationMediator? TryGetMediator(INavigationMediatorViewModelPresenter presenter, IViewModelBase viewModel, IViewInitializer viewInitializer,
+        INavigationMediator? TryGetMediator(INavigationMediatorChildViewModelPresenter presenter, IViewModelBase viewModel, IViewInitializer viewInitializer,
             IReadOnlyMetadataContext metadata);
 
-        IReadOnlyList<IChildViewModelPresenterResult>? TryCloseInternal(INavigationMediatorViewModelPresenter presenter, IViewModelBase viewModel,
+        IReadOnlyList<IChildViewModelPresenterResult>? TryCloseInternal(INavigationMediatorChildViewModelPresenter presenter, IViewModelBase viewModel,
             IReadOnlyList<INavigationMediator> mediators,
             IReadOnlyMetadataContext metadata);
     }
