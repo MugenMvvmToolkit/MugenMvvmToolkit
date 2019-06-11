@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Reflection;
-using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Events;
 using MugenMvvm.Binding.Interfaces.Members;
+using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -20,7 +20,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
         #region Properties
 
-        public int Priority => BindingMemberConstants.NormalProviderPriority;
+        public int Priority { get; set; }
 
         public MemberFlags FieldMemberFlags { get; set; } = DefaultFlags;
 
@@ -41,11 +41,80 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
         #region Nested types
 
+        private sealed class EventInfoBindingMemberInfo : IBindingMemberInfo
+        {
+            #region Fields
+
+            private readonly EventInfo _eventInfo;
+
+            #endregion
+
+            #region Constructors
+
+            public EventInfoBindingMemberInfo(string name, EventInfo eventInfo)
+            {
+                _eventInfo = eventInfo;
+                Name = name;
+                Type = _eventInfo.EventHandlerType;
+            }
+
+            #endregion
+
+            #region Properties
+
+            public string Name { get; }
+
+            public Type Type { get; }
+
+            public object Member => _eventInfo;
+
+            public BindingMemberType MemberType => BindingMemberType.Event;
+
+            public bool CanRead => false;
+
+            public bool CanWrite => true;
+
+            public bool CanObserve => false;
+
+            #endregion
+
+            #region Implementation of interfaces
+
+            public object GetValue(object source, object[] args)
+            {
+                BindingExceptionManager.ThrowBindingMemberMustBeReadable(this);
+                return null;
+            }
+
+            public object SetValue(object source, object value)
+            {
+                var listener = value as IBindingEventListener;
+                if (listener == null)
+                    BindingExceptionManager.ThrowBindingMemberMustBeWritable(this);
+
+                return null;
+                //                return BindingServiceProvider.WeakEventManager.TrySubscribe(o, (EventInfo)_member, listener);
+            }
+
+            public object SetValues(object source, object[] args)
+            {
+                return SetValue(source, args[0]);
+            }
+
+            public IDisposable TryObserve(object source, IBindingEventListener listener)
+            {
+                return null; //todo observer provider method?
+            }
+
+            #endregion
+        }
+
         private sealed class FieldInfoBindingMemberInfo : IBindingMemberInfo
         {
             #region Fields
 
             private readonly FieldInfo _fieldInfo;
+            private readonly IBindingMemberObserver? _observer;
             private Func<object, object>? _getterFunc;
             private Action<object, object>? _setterFunc;
 
@@ -53,9 +122,10 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
             #region Constructors
 
-            public FieldInfoBindingMemberInfo(string name, FieldInfo fieldInfo)
+            public FieldInfoBindingMemberInfo(string name, FieldInfo fieldInfo, IBindingMemberObserver? observer)
             {
                 _fieldInfo = fieldInfo;
+                _observer = observer;
                 Name = name;
                 Type = _fieldInfo.FieldType;
                 _getterFunc = CompileGetter;
@@ -72,13 +142,13 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
             public object Member => _fieldInfo;
 
-            public BindingMemberType MemberType => BindingMemberType.Property;
+            public BindingMemberType MemberType => BindingMemberType.Field;
 
             public bool CanRead => true;
 
             public bool CanWrite => true;
 
-            public bool CanObserve => false;
+            public bool CanObserve => _observer != null;
 
             #endregion
 
@@ -102,7 +172,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
             public IDisposable TryObserve(object source, IBindingEventListener listener)
             {
-                return null; //todo observer provider method?
+                return _observer?.TryObserve(source, Name, listener, Default.Metadata);
             }
 
             #endregion
@@ -131,6 +201,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
             private readonly object[]? _indexerValues;
 
             private readonly bool _nonPublic;
+            private readonly IBindingMemberObserver? _observer;
             private readonly PropertyInfo _propertyInfo;
 
             private Func<object, object>? _getterFunc;
@@ -143,10 +214,11 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
             #region Constructors
 
-            public PropertyInfoBindingMemberInfo(string name, PropertyInfo propertyInfo, bool nonPublic)
+            public PropertyInfoBindingMemberInfo(string name, PropertyInfo propertyInfo, bool nonPublic, IBindingMemberObserver? observer)
             {
                 _propertyInfo = propertyInfo;
                 _nonPublic = nonPublic;
+                _observer = observer;
                 Name = name;
                 Type = _propertyInfo.PropertyType;
                 var indexParameters = propertyInfo.GetIndexParameters();
@@ -194,7 +266,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
             public bool CanWrite { get; }
 
-            public bool CanObserve => false;
+            public bool CanObserve => _observer != null;
 
             #endregion
 
@@ -240,7 +312,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
             public IDisposable TryObserve(object source, IBindingEventListener listener)
             {
-                return null; //todo observer provider method?
+                return _observer?.TryObserve(source, Name, listener, Default.Metadata);
             }
 
             #endregion
