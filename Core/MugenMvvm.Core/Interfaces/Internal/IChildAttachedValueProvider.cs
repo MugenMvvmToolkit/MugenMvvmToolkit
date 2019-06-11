@@ -1,10 +1,11 @@
-﻿using MugenMvvm.Interfaces.Models;
+﻿using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Internal
 {
-    public interface IChildAttachedValueProvider : IHasPriority//todo review
+    public interface IChildAttachedValueProvider : IHasPriority
     {
-        bool TryGetOrAddAttachedDictionary<TItem>(IAttachedValueProvider parentProvider, TItem item, bool required, out IAttachedValueProviderDictionary? dictionary)
+        bool TryGetOrAddAttachedDictionary<TItem>(IAttachedValueProvider parentProvider, TItem item, bool optional, IReadOnlyMetadataContext metadata, out IAttachedValueProviderDictionary? dictionary)
             where TItem : class;
     }
 }

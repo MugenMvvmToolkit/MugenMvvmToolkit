@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using MugenMvvm.Delegates;
-using MugenMvvm.Interfaces.Components;
+﻿using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Internal
 {
@@ -10,36 +7,8 @@ namespace MugenMvvm.Interfaces.Internal
     {
         IComponentCollection<IChildAttachedValueProvider> Providers { get; }
 
-        IReadOnlyList<KeyValuePair<string, object?>> GetValues<TItem>(TItem item, Func<TItem, string, object?, bool>? predicate)
-            where TItem : class;
+        IAttachedValueProviderDictionary GetAttachedDictionary(object item, IReadOnlyMetadataContext metadata);
 
-        bool TryGetValue<TItem, TValue>(TItem item, string path, [NotNullWhenTrue] out TValue value)
-            where TItem : class;
-
-        bool Contains<TItem>(TItem item, string path)
-            where TItem : class;
-
-        TValue AddOrUpdate<TItem, TValue, TState1, TState2>(TItem item, string path, TValue addValue, TState1 state1, TState2 state2,
-            UpdateValueDelegate<TItem, TValue, TValue, TState1, TState2> updateValueFactory)
-            where TItem : class;
-
-        TValue AddOrUpdate<TItem, TValue, TState1, TState2>(TItem item, string path, TState1 state1, TState2 state2, Func<TItem, TState1, TState2, TValue> addValueFactory,
-            UpdateValueDelegate<TItem, Func<TItem, TState1, TState2, TValue>, TValue, TState1, TState2> updateValueFactory)
-            where TItem : class;
-
-        TValue GetOrAdd<TItem, TValue>(TItem item, string path, TValue value)
-            where TItem : class;
-
-        TValue GetOrAdd<TItem, TValue, TState1, TState2>(TItem item, string path, TState1 state1, TState2 state2, Func<TItem, TState1, TState2, TValue> valueFactory)
-            where TItem : class;
-
-        void SetValue<TItem, TValue>(TItem item, string path, TValue value)
-            where TItem : class;
-
-        bool Clear<TItem>(TItem item)
-            where TItem : class;
-
-        bool Clear<TItem>(TItem item, string path)
-            where TItem : class;
+        IAttachedValueProviderDictionary? GetAttachedDictionaryOptional(object item, IReadOnlyMetadataContext metadata);
     }
 }
