@@ -83,7 +83,7 @@ namespace MugenMvvm
             List<Task>? tasks = null;
             for (var i = 0; i < entries.Count; i++)
             {
-                var callbacks = entries[i].GetCallbacks(null, metadata);
+                var callbacks = navigationDispatcherJournal.GetCallbacks(entries[i], null, metadata);
                 for (var j = 0; j < callbacks.Count; j++)
                 {
                     if (tasks == null)

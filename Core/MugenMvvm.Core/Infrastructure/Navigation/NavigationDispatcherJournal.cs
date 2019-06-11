@@ -73,6 +73,14 @@ namespace MugenMvvm.Infrastructure.Navigation
             UpdateNavigationEntriesInternal(updateHandler, metadata);
         }
 
+        public IReadOnlyList<INavigationCallback> GetCallbacks(INavigationEntry navigationEntry, NavigationCallbackType callbackType, IReadOnlyMetadataContext metadata)
+        {
+            Should.NotBeNull(navigationEntry, nameof(navigationEntry));
+            Should.NotBeNull(callbackType, nameof(callbackType));
+            Should.NotBeNull(metadata, nameof(metadata));
+            return GetCallbacksInternal(navigationEntry, callbackType, metadata);
+        }
+
         #endregion
 
         #region Methods
@@ -103,7 +111,7 @@ namespace MugenMvvm.Infrastructure.Navigation
                     }
 
                     if (viewModelRef == null)
-                        viewModelRef = new WeakNavigationEntry(this, navigationContext.ViewModelTo, navigationContext.NavigationProvider, navigationContext.NavigationTypeTo);
+                        viewModelRef = new WeakNavigationEntry(navigationContext.ViewModelTo, navigationContext.NavigationProvider, navigationContext.NavigationTypeTo);
                     list.Add(viewModelRef);
                 }
 
@@ -195,9 +203,8 @@ namespace MugenMvvm.Infrastructure.Navigation
             return callbacks;
         }
 
-        protected virtual void UpdateNavigationEntriesInternal(
-            Func<IReadOnlyDictionary<NavigationType, List<INavigationEntry>>, IReadOnlyMetadataContext, IReadOnlyDictionary<NavigationType, List<INavigationEntry>>> updateHandler,
-            IReadOnlyMetadataContext metadata)
+        protected virtual void UpdateNavigationEntriesInternal(Func<IReadOnlyDictionary<NavigationType, List<INavigationEntry>>, IReadOnlyMetadataContext,
+            IReadOnlyDictionary<NavigationType, List<INavigationEntry>>> updateHandler, IReadOnlyMetadataContext metadata)
         {
             var oldEntries = new Dictionary<NavigationType, List<INavigationEntry>>();
             IReadOnlyDictionary<NavigationType, List<INavigationEntry>> newEntries;
@@ -218,7 +225,7 @@ namespace MugenMvvm.Infrastructure.Navigation
                         continue;
                     var entries = new List<WeakNavigationEntry>(list.Capacity);
                     for (int i = 0; i < list.Count; i++)
-                        entries.Add(new WeakNavigationEntry(this, list[i]));
+                        entries.Add(new WeakNavigationEntry(list[i]));
                     NavigationEntries[entry.Key] = entries;
                 }
             }
@@ -268,26 +275,22 @@ namespace MugenMvvm.Infrastructure.Navigation
             #region Fields
 
             private readonly DateTime _date;
-
-            private readonly NavigationDispatcherJournal _navigationDispatcherJournal;
             private readonly IWeakReference _viewModelReference;
 
             #endregion
 
             #region Constructors
 
-            public WeakNavigationEntry(NavigationDispatcherJournal navigationDispatcherJournal, IViewModelBase viewModel, INavigationProvider provider, NavigationType navigationType)
+            public WeakNavigationEntry(IViewModelBase viewModel, INavigationProvider provider, NavigationType navigationType)
             {
-                _navigationDispatcherJournal = navigationDispatcherJournal;
                 NavigationType = navigationType;
                 NavigationProvider = provider;
                 _viewModelReference = MugenExtensions.GetWeakReference(viewModel);
                 _date = DateTime.UtcNow;
             }
 
-            public WeakNavigationEntry(NavigationDispatcherJournal navigationDispatcherJournal, INavigationEntry navigationEntry)
+            public WeakNavigationEntry(INavigationEntry navigationEntry)
             {
-                _navigationDispatcherJournal = navigationDispatcherJournal;
                 NavigationType = navigationEntry.NavigationType;
                 NavigationProvider = navigationEntry.NavigationProvider;
                 _viewModelReference = MugenExtensions.GetWeakReference(navigationEntry.ViewModel);
@@ -314,7 +317,7 @@ namespace MugenMvvm.Infrastructure.Navigation
                 var provider = NavigationProvider;
                 if (viewModel == null)
                     return null;
-                return new NavigationEntry(_navigationDispatcherJournal, NavigationType, viewModel, _date, provider);
+                return new NavigationEntry(NavigationType, viewModel, _date, provider);
             }
 
             #endregion
@@ -322,21 +325,13 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         protected sealed class NavigationEntry : INavigationEntry
         {
-            #region Fields
-
-            private readonly NavigationDispatcherJournal _navigationDispatcherJournal;
-
-            #endregion
-
             #region Constructors
 
-            public NavigationEntry(NavigationDispatcherJournal navigationDispatcherJournal, NavigationType type, IViewModelBase viewModel, DateTime date,
-                INavigationProvider provider)
+            public NavigationEntry(NavigationType type, IViewModelBase viewModel, DateTime date, INavigationProvider provider)
             {
                 Should.NotBeNull(type, nameof(type));
                 Should.NotBeNull(viewModel, nameof(viewModel));
                 Should.NotBeNull(provider, nameof(provider));
-                _navigationDispatcherJournal = navigationDispatcherJournal;
                 NavigationDate = date;
                 NavigationType = type;
                 NavigationProvider = provider;
@@ -354,17 +349,6 @@ namespace MugenMvvm.Infrastructure.Navigation
             public INavigationProvider NavigationProvider { get; }
 
             public IViewModelBase ViewModel { get; }
-
-            #endregion
-
-            #region Implementation of interfaces
-
-            public IReadOnlyList<INavigationCallback> GetCallbacks(NavigationCallbackType? callbackType, IReadOnlyMetadataContext metadata)
-            {
-                Should.NotBeNull(callbackType, nameof(callbackType));
-                Should.NotBeNull(metadata, nameof(metadata));
-                return _navigationDispatcherJournal.GetCallbacksInternal(this, callbackType, metadata);
-            }
 
             #endregion
         }

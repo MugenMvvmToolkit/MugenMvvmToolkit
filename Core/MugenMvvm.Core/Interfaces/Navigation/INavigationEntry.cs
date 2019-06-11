@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using MugenMvvm.Enums;
-using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Interfaces.Navigation
@@ -15,7 +13,5 @@ namespace MugenMvvm.Interfaces.Navigation
         INavigationProvider NavigationProvider { get; }
 
         IViewModelBase ViewModel { get; }
-
-        IReadOnlyList<INavigationCallback> GetCallbacks(NavigationCallbackType? callbackType, IReadOnlyMetadataContext metadata);//move to journal
     }
 }

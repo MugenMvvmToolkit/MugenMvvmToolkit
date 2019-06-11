@@ -15,5 +15,7 @@ namespace MugenMvvm.Interfaces.Navigation
 
         void UpdateNavigationEntries(Func<IReadOnlyDictionary<NavigationType, List<INavigationEntry>>, IReadOnlyMetadataContext, IReadOnlyDictionary<NavigationType, List<INavigationEntry>>> updateHandler,
             IReadOnlyMetadataContext metadata);
+
+        IReadOnlyList<INavigationCallback> GetCallbacks(INavigationEntry navigationEntry, NavigationCallbackType? callbackType, IReadOnlyMetadataContext metadata);
     }
 }
