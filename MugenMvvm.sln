@@ -9,6 +9,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B2573D53
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MugenMvvm.UnitTest", "Tests\MugenMvvm.UnitTest\MugenMvvm.UnitTest.csproj", "{2B89EABA-0D6E-4A29-A10C-7A429979E0AE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MugenMvvm.Binding", "Core\MugenMvvm.Binding\MugenMvvm.Binding.csproj", "{E6D3BDB6-BB63-44EB-9618-9F9B1E7A7675}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +25,10 @@ Global
 		{2B89EABA-0D6E-4A29-A10C-7A429979E0AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B89EABA-0D6E-4A29-A10C-7A429979E0AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2B89EABA-0D6E-4A29-A10C-7A429979E0AE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6D3BDB6-BB63-44EB-9618-9F9B1E7A7675}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6D3BDB6-BB63-44EB-9618-9F9B1E7A7675}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6D3BDB6-BB63-44EB-9618-9F9B1E7A7675}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6D3BDB6-BB63-44EB-9618-9F9B1E7A7675}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

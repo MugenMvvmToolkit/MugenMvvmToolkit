@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.0</TargetFramework>
+    <NullableContextOptions>enable</NullableContextOptions>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MugenMvvm.Core\MugenMvvm.Core.csproj" />
+  </ItemGroup>
+
+</Project>

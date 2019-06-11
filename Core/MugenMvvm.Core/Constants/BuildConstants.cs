@@ -1,4 +1,8 @@
-﻿namespace MugenMvvm.Constants
+﻿using System.Runtime.CompilerServices;
+
+[assembly:InternalsVisibleTo("MugenMvvm.Binding")]
+
+namespace MugenMvvm.Constants
 {
     public static class BuildConstants
     {
