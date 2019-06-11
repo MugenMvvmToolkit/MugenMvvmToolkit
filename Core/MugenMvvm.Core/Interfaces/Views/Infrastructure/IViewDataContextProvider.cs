@@ -3,7 +3,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Views.Infrastructure
 {
-    public interface IViewDataContextProvider//todo direct provider?
+    public interface IViewDataContextProvider//todo merge with bindings
     {
         IComponentCollection<IChildViewDataContextProvider> Providers { get; }
 
