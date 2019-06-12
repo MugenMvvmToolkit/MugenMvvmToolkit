@@ -59,6 +59,11 @@ namespace MugenMvvm
             return (TDelegate)reflectionDelegateProvider.ServiceIfNull().GetMethodDelegate(typeof(TDelegate), method);
         }
 
+        public static Delegate GetMethodDelegate(this MethodInfo method, Type delegateType, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        {
+            return reflectionDelegateProvider.ServiceIfNull().GetMethodDelegate(delegateType, method);
+        }
+
         public static Func<object?, object?[], object?> GetMethodDelegate(this MethodInfo method, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
             return reflectionDelegateProvider.ServiceIfNull().GetMethodDelegate(method);

@@ -5,6 +5,6 @@ namespace MugenMvvm.Binding.Interfaces.Observers
 {
     public interface IBindingMemberObserverCallback
     {
-        IDisposable? TryObserve(object? source, object member, IBindingEventListener listener, IReadOnlyMetadataContext metadata);
+        IDisposable? TryObserve(object? target, object member, IBindingEventListener listener, IReadOnlyMetadataContext metadata);
     }
 }

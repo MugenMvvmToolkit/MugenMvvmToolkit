@@ -208,6 +208,22 @@ namespace MugenMvvm.Extensions
             return method.IsPublic ? method : null;
         }
 
+        public static MethodInfo GetAddMethod(EventInfo eventInfo, bool nonPublic)
+        {
+            var method = eventInfo.AddMethod;
+            if (nonPublic)
+                return method;
+            return method.IsPublic ? method : null;
+        }
+
+        public static MethodInfo GetRemoveMethod(EventInfo eventInfo, bool nonPublic)
+        {
+            var method = eventInfo.RemoveMethod;
+            if (nonPublic)
+                return method;
+            return method.IsPublic ? method : null;
+        }
+
         private static bool FilterProperty(PropertyInfo property, MemberFlags flags)
         {
             if (property == null)

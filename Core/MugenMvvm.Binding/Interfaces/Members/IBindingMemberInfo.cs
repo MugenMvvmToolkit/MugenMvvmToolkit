@@ -20,12 +20,12 @@ namespace MugenMvvm.Binding.Interfaces.Members
 
         bool CanObserve { get; }
 
-        object? GetValue(object? source, object?[]? args);
+        object? GetValue(object? target, object?[]? args);
 
-        object? SetValue(object? source, object? value);
+        object? SetValue(object? target, object? value);
 
-        object? SetValues(object? source, object?[] args);
+        object? SetValues(object? target, object?[] args);
 
-        IDisposable? TryObserve(object? source, IBindingEventListener listener);
+        IDisposable? TryObserve(object? target, IBindingEventListener listener);
     }
 }

@@ -29,9 +29,9 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
         #region Methods
 
         [Pure]
-        public IDisposable? TryObserve(object? source, IBindingEventListener listener, IReadOnlyMetadataContext metadata)
+        public IDisposable? TryObserve(object? target, IBindingEventListener listener, IReadOnlyMetadataContext metadata)
         {
-            return _observer?.TryObserve(Member, source, listener, metadata);
+            return _observer?.TryObserve(Member, target, listener, metadata);
         }
 
         #endregion

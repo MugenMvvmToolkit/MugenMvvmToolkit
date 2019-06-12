@@ -66,6 +66,10 @@ namespace MugenMvvm
 
         public static Func<PropertyInfo, bool, MethodInfo?>? GetSetMethod { get; set; }
 
+        public static Func<EventInfo, bool, MethodInfo?>? GetAddMethod { get; set; }
+
+        public static Func<EventInfo, bool, MethodInfo?>? GetRemoveMethod { get; set; }
+
         #endregion
 
         #region Methods
@@ -286,6 +290,22 @@ namespace MugenMvvm
             if (GetSetMethod == null)
                 return TypeInfoReflectionApiExtensions.GetSetMethod(propertyInfo, nonPublic);
             return GetSetMethod(propertyInfo, nonPublic);
+        }
+
+        public static MethodInfo? GetAddMethodUnified(this EventInfo eventInfo, bool nonPublic)
+        {
+            Should.NotBeNull(eventInfo, nameof(eventInfo));
+            if (GetAddMethod == null)
+                return TypeInfoReflectionApiExtensions.GetAddMethod(eventInfo, nonPublic);
+            return GetAddMethod(eventInfo, nonPublic);
+        }
+
+        public static MethodInfo? GetRemoveMethodUnified(this EventInfo eventInfo, bool nonPublic)
+        {
+            Should.NotBeNull(eventInfo, nameof(eventInfo));
+            if (GetRemoveMethod == null)
+                return TypeInfoReflectionApiExtensions.GetRemoveMethod(eventInfo, nonPublic);
+            return GetRemoveMethod(eventInfo, nonPublic);
         }
 
         public static bool IsStatic(this MemberInfo member)

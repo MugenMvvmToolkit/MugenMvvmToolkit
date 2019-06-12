@@ -80,13 +80,13 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
             #region Implementation of interfaces
 
-            public object GetValue(object source, object[] args)
+            public object GetValue(object target, object[] args)
             {
                 BindingExceptionManager.ThrowBindingMemberMustBeReadable(this);
                 return null;
             }
 
-            public object SetValue(object source, object value)
+            public object SetValue(object target, object value)
             {
                 var listener = value as IBindingEventListener;
                 if (listener == null)
@@ -96,12 +96,12 @@ namespace MugenMvvm.Binding.Infrastructure.Members
                 //                return BindingServiceProvider.WeakEventManager.TrySubscribe(o, (EventInfo)_member, listener);
             }
 
-            public object SetValues(object source, object[] args)
+            public object SetValues(object target, object[] args)
             {
-                return SetValue(source, args[0]);
+                return SetValue(target, args[0]);
             }
 
-            public IDisposable TryObserve(object source, IBindingEventListener listener)
+            public IDisposable TryObserve(object target, IBindingEventListener listener)
             {
                 return null; //todo observer provider method?
             }
@@ -154,25 +154,25 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
             #region Implementation of interfaces
 
-            public object GetValue(object source, object[] args)
+            public object GetValue(object target, object[] args)
             {
-                return _getterFunc(source);
+                return _getterFunc(target);
             }
 
-            public object SetValue(object source, object value)
+            public object SetValue(object target, object value)
             {
-                _setterFunc(source, value);
+                _setterFunc(target, value);
                 return null;
             }
 
-            public object SetValues(object source, object[] args)
+            public object SetValues(object target, object[] args)
             {
-                return SetValue(source, args[0]);
+                return SetValue(target, args[0]);
             }
 
-            public IDisposable TryObserve(object source, IBindingEventListener listener)
+            public IDisposable TryObserve(object target, IBindingEventListener listener)
             {
-                return _observer?.TryObserve(source, listener, Default.Metadata);
+                return _observer?.TryObserve(target, listener, Default.Metadata);
             }
 
             #endregion
@@ -272,7 +272,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
             #region Implementation of interfaces
 
-            public object GetValue(object source, object[] args)
+            public object GetValue(object target, object[] args)
             {
                 if (!CanRead)
                 {
@@ -281,11 +281,11 @@ namespace MugenMvvm.Binding.Infrastructure.Members
                 }
 
                 if (_getterIndexerFunc == null)
-                    return _getterFunc(source);
-                return _getterIndexerFunc(source, _indexerValues);
+                    return _getterFunc(target);
+                return _getterIndexerFunc(target, _indexerValues);
             }
 
-            public object SetValue(object source, object value)
+            public object SetValue(object target, object value)
             {
                 if (!CanWrite)
                 {
@@ -298,21 +298,21 @@ namespace MugenMvvm.Binding.Infrastructure.Members
                     var args = new object[_indexerValues.Length + 1];
                     Array.Copy(_indexerValues, args, _indexerValues.Length);
                     args[_indexerValues.Length] = value;
-                    return _setterIndexerFunc(source, args);
+                    return _setterIndexerFunc(target, args);
                 }
 
-                _setterFunc(source, value);
+                _setterFunc(target, value);
                 return null;
             }
 
-            public object SetValues(object source, object[] args)
+            public object SetValues(object target, object[] args)
             {
-                return SetValue(source, args[0]);
+                return SetValue(target, args[0]);
             }
 
-            public IDisposable TryObserve(object source, IBindingEventListener listener)
+            public IDisposable TryObserve(object target, IBindingEventListener listener)
             {
-                return _observer?.TryObserve(source, listener, Default.Metadata);
+                return _observer?.TryObserve(target, listener, Default.Metadata);
             }
 
             #endregion
