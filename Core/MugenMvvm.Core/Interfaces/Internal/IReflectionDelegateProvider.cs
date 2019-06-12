@@ -8,6 +8,10 @@ namespace MugenMvvm.Interfaces.Internal
     {
         IComponentCollection<IChildReflectionDelegateProvider> Providers { get; }
 
+        bool CanCreateDelegate(Type delegateType, MethodInfo method);
+
+        Delegate? TryCreateDelegate(Type delegateType, object? target, MethodInfo method);
+
         Func<object?[], object> GetActivator(ConstructorInfo constructor);
 
         Func<object?, object?[], object?> GetMethodInvoker(MethodInfo method);

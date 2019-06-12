@@ -48,6 +48,16 @@ namespace MugenMvvm
             return CreateWeakDelegate(target, invokeAction, _unsubscribePropertyChangedDelegate, _createPropertyChangedHandlerDelegate);
         }
 
+        public static bool CanCreateDelegate(this Type delegateType, MethodInfo method, IReflectionDelegateProvider? provider = null)
+        {
+            return provider.ServiceIfNull().CanCreateDelegate(delegateType, method);
+        }
+
+        public static Delegate? TryCreateDelegate(this Type delegateType, object? target, MethodInfo method, IReflectionDelegateProvider? provider = null)
+        {
+            return provider.ServiceIfNull().TryCreateDelegate(delegateType, target, method);
+        }
+
         public static Func<object?[], object> GetActivator(this ConstructorInfo constructor, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
             return reflectionDelegateProvider.ServiceIfNull().GetActivator(constructor);

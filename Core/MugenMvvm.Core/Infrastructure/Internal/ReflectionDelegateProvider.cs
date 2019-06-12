@@ -42,6 +42,36 @@ namespace MugenMvvm.Infrastructure.Internal
 
         #region Implementation of interfaces
 
+        public bool CanCreateDelegate(Type delegateType, MethodInfo method)
+        {
+            Should.NotBeNull(delegateType, nameof(delegateType));
+            Should.NotBeNull(method, nameof(method));
+            var items = Providers.GetItems();
+            for (var i = 0; i < items.Length; i++)
+            {
+                var value = items[i].CanCreateDelegate(this, delegateType, method);
+                if (value)
+                    return true;
+            }
+
+            return false;
+        }
+
+        public Delegate TryCreateDelegate(Type delegateType, object target, MethodInfo method)
+        {
+            Should.NotBeNull(delegateType, nameof(delegateType));
+            Should.NotBeNull(method, nameof(method));
+            var items = Providers.GetItems();
+            for (var i = 0; i < items.Length; i++)
+            {
+                var value = items[i].TryCreateDelegate(this, delegateType, target, method);
+                if (value != null)
+                    return value;
+            }
+
+            return null;
+        }
+
         public Func<object[], object> GetActivator(ConstructorInfo constructor)
         {
             Should.NotBeNull(constructor, nameof(constructor));

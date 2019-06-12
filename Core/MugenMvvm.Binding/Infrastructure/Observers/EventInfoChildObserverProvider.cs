@@ -41,9 +41,8 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         IDisposable? IBindingMemberObserverCallback.TryObserve(object target, object member, IBindingEventListener listener, IReadOnlyMetadataContext metadata)
         {
-            var eventInfo = (EventInfo) member;
-            var listenerInternal = _attachedValueProvider.GetOrAdd(target, BindingInternalConstants.EventPrefixObserverMember + eventInfo.Name, eventInfo, null,
-                CreateWeakListenerDelegate);
+            var eventInfo = (EventInfo)member;
+            var listenerInternal = _attachedValueProvider.GetOrAdd(target, BindingInternalConstants.EventPrefixObserverMember + eventInfo.Name, eventInfo, null, CreateWeakListenerDelegate);
             if (listenerInternal.IsEmpty)
                 return null;
 
@@ -52,7 +51,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         public bool TryGetMemberObserver(Type type, object member, IReadOnlyMetadataContext metadata, out BindingMemberObserver observer)
         {
-            if (member is EventInfo)
+            if (member is EventInfo eventInfo && eventInfo.EventHandlerType.CanCreateDelegate(RaiseMethod))
             {
                 observer = new BindingMemberObserver(member, this);
                 return true;
@@ -71,7 +70,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
             var listenerInternal = new BindingEventListenerCollection();
             Delegate handler = eventInfo.EventHandlerType.EqualsEx(typeof(EventHandler))
                 ? new EventHandler(listenerInternal.Raise)
-                : ToolkitServiceProvider.ReflectionManager.TryCreateDelegate(listenerInternal, RaiseMethod);
+                : eventInfo.EventHandlerType.TryCreateDelegate(listenerInternal, RaiseMethod);
 
             if (handler == null)
                 return null;

@@ -6,6 +6,10 @@ namespace MugenMvvm.Interfaces.Internal
 {
     public interface IChildReflectionDelegateProvider : IHasPriority
     {
+        bool CanCreateDelegate(IReflectionDelegateProvider provider, Type delegateType, MethodInfo method);
+
+        Delegate? TryCreateDelegate(IReflectionDelegateProvider provider, Type delegateType, object? target, MethodInfo method);
+
         Func<object?[], object>? TryGetActivator(IReflectionDelegateProvider provider, ConstructorInfo constructor);
 
         Func<object?, object?[], object?>? TryGetMethodInvoker(IReflectionDelegateProvider provider, MethodInfo method);

@@ -19,14 +19,17 @@ namespace MugenMvvm.Infrastructure.Internal
         private static readonly ParameterExpression EmptyParameterExpression = Expression.Parameter(typeof(object));
         private static readonly ConstantExpression NullConstantExpression = Expression.Constant(null, typeof(object));
 
+        private static readonly Dictionary<MethodDelegateCacheKey, MethodInfo> CachedDelegates =
+            new Dictionary<MethodDelegateCacheKey, MethodInfo>(MemberCacheKeyComparer.Instance);
+
         private static readonly Dictionary<ConstructorInfo, Func<object?[], object>> ActivatorCache =
             new Dictionary<ConstructorInfo, Func<object?[], object>>(MemberInfoEqualityComparer.Instance);
 
         private static readonly Dictionary<MethodInfo, Func<object?, object?[], object?>> InvokeMethodCache =
             new Dictionary<MethodInfo, Func<object?, object?[], object?>>(MemberInfoEqualityComparer.Instance);
 
-        private static readonly Dictionary<MethodInvokerCacheKey, Delegate> InvokeMethodCacheDelegate =
-            new Dictionary<MethodInvokerCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
+        private static readonly Dictionary<MethodDelegateCacheKey, Delegate> InvokeMethodCacheDelegate =
+            new Dictionary<MethodDelegateCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
 
         private static readonly Dictionary<MemberInfoDelegateCacheKey, Delegate> MemberGetterCache =
             new Dictionary<MemberInfoDelegateCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
@@ -52,6 +55,22 @@ namespace MugenMvvm.Infrastructure.Internal
         #endregion
 
         #region Implementation of interfaces
+
+        public bool CanCreateDelegate(IReflectionDelegateProvider provider, Type delegateType, MethodInfo method)
+        {
+            return TryGetMethodDelegateInternal(delegateType, method) != null;
+        }
+
+        public Delegate? TryCreateDelegate(IReflectionDelegateProvider provider, Type delegateType, object target, MethodInfo method)
+        {
+            method = TryGetMethodDelegateInternal(delegateType, method);
+            if (method == null)
+                return null;
+
+            if (target == null)
+                return method.CreateDelegate(delegateType);
+            return method.CreateDelegate(delegateType, target);
+        }
 
         public Func<object[], object>? TryGetActivator(IReflectionDelegateProvider provider, ConstructorInfo constructor)
         {
@@ -83,7 +102,7 @@ namespace MugenMvvm.Infrastructure.Internal
 
         public Delegate? TryGetMethodInvoker(IReflectionDelegateProvider provider, Type delegateType, MethodInfo method)
         {
-            var cacheKey = new MethodInvokerCacheKey(method, delegateType);
+            var cacheKey = new MethodDelegateCacheKey(method, delegateType);
             lock (InvokeMethodCacheDelegate)
             {
                 if (!InvokeMethodCacheDelegate.TryGetValue(cacheKey, out var value))
@@ -107,7 +126,7 @@ namespace MugenMvvm.Infrastructure.Internal
                     MemberGetterCache[key] = value;
                 }
 
-                return (Func<object?, TType>) value;
+                return (Func<object?, TType>)value;
             }
         }
 
@@ -122,13 +141,53 @@ namespace MugenMvvm.Infrastructure.Internal
                     MemberSetterCache[key] = value;
                 }
 
-                return (Action<object?, TType>) value;
+                return (Action<object?, TType>)value;
             }
         }
 
         #endregion
 
         #region Methods
+
+        public static MethodInfo? TryGetMethodDelegate(Type delegateType, MethodInfo method)
+        {
+            if (!typeof(Delegate).IsAssignableFromUnified(delegateType))
+                return null;
+
+            ParameterInfo[] mParameters = method.GetParameters();
+            ParameterInfo[] eParameters = delegateType.GetMethodUnified(nameof(Action.Invoke), MemberFlags.InstancePublic | MemberFlags.StaticPublic).GetParameters();
+            if (mParameters.Length != eParameters.Length)
+                return null;
+            if (method.IsGenericMethodDefinition)
+            {
+                var genericArguments = method.GetGenericArguments();
+                var types = new Type[genericArguments.Length];
+                int index = 0;
+                for (int i = 0; i < mParameters.Length; i++)
+                {
+                    if (mParameters[i].ParameterType.IsGenericParameter)
+                        types[index++] = eParameters[i].ParameterType;
+                }
+                try
+                {
+                    method = method.MakeGenericMethod(types);
+                }
+                catch (Exception e)
+                {
+                    Tracer.Warn(e.Flatten(true));
+                    return null;
+                }
+                mParameters = method.GetParameters();
+            }
+            for (int i = 0; i < mParameters.Length; i++)
+            {
+                Type mParameter = mParameters[i].ParameterType;
+                Type eParameter = eParameters[i].ParameterType;
+                if (!mParameter.IsAssignableFromUnified(eParameter) || mParameter.IsValueTypeUnified() != eParameter.IsValueTypeUnified())
+                    return null;
+            }
+            return method;
+        }
 
         public static Func<object[], object> GetActivator(ConstructorInfo constructor)
         {
@@ -244,7 +303,7 @@ namespace MugenMvvm.Infrastructure.Internal
             {
                 if (fieldInfo == null)
                 {
-                    var propertyInfo = (PropertyInfo) member;
+                    var propertyInfo = (PropertyInfo)member;
                     return propertyInfo.SetValue<TType>;
                 }
 
@@ -308,11 +367,26 @@ namespace MugenMvvm.Infrastructure.Internal
             return Expression.Convert(expression, type);
         }
 
+        private static MethodInfo? TryGetMethodDelegateInternal(Type delegateType, MethodInfo method)
+        {
+            var key = new MethodDelegateCacheKey(method, delegateType);
+            MethodInfo info;
+            lock (CachedDelegates)
+            {
+                if (!CachedDelegates.TryGetValue(key, out info))
+                {
+                    info = TryGetMethodDelegate(delegateType, method);
+                    CachedDelegates[key] = info;
+                }
+            }
+            return info;
+        }
+
         #endregion
 
         #region Nested types
 
-        private sealed class MemberCacheKeyComparer : IEqualityComparer<MethodInvokerCacheKey>, IEqualityComparer<MemberInfoDelegateCacheKey>
+        private sealed class MemberCacheKeyComparer : IEqualityComparer<MethodDelegateCacheKey>, IEqualityComparer<MemberInfoDelegateCacheKey>
         {
             #region Fields
 
@@ -343,12 +417,12 @@ namespace MugenMvvm.Infrastructure.Internal
                 }
             }
 
-            bool IEqualityComparer<MethodInvokerCacheKey>.Equals(MethodInvokerCacheKey x, MethodInvokerCacheKey y)
+            bool IEqualityComparer<MethodDelegateCacheKey>.Equals(MethodDelegateCacheKey x, MethodDelegateCacheKey y)
             {
                 return x.DelegateType.EqualsEx(y.DelegateType) && x.Method.EqualsEx(y.Method);
             }
 
-            int IEqualityComparer<MethodInvokerCacheKey>.GetHashCode(MethodInvokerCacheKey obj)
+            int IEqualityComparer<MethodDelegateCacheKey>.GetHashCode(MethodDelegateCacheKey obj)
             {
                 unchecked
                 {
@@ -360,7 +434,7 @@ namespace MugenMvvm.Infrastructure.Internal
         }
 
         [StructLayout(LayoutKind.Auto)]
-        private struct MethodInvokerCacheKey
+        private struct MethodDelegateCacheKey
         {
             #region Fields
 
@@ -371,7 +445,7 @@ namespace MugenMvvm.Infrastructure.Internal
 
             #region Constructors
 
-            public MethodInvokerCacheKey(MethodInfo method, Type delegateType)
+            public MethodDelegateCacheKey(MethodInfo method, Type delegateType)
             {
                 Method = method;
                 DelegateType = delegateType;
