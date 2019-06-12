@@ -2,6 +2,7 @@
 using System.Reflection;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
+using MugenMvvm.Binding.Infrastructure.Observers;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Enums;
@@ -113,7 +114,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
             #region Fields
 
             private readonly FieldInfo _fieldInfo;
-            private readonly IBindingMemberObserver? _observer;
+            private readonly BindingMemberObserver? _observer;
             private Func<object, object>? _getterFunc;
             private Action<object, object>? _setterFunc;
 
@@ -121,7 +122,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
             #region Constructors
 
-            public FieldInfoBindingMemberInfo(string name, FieldInfo fieldInfo, IBindingMemberObserver? observer)
+            public FieldInfoBindingMemberInfo(string name, FieldInfo fieldInfo, BindingMemberObserver? observer)
             {
                 _fieldInfo = fieldInfo;
                 _observer = observer;
@@ -171,7 +172,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
             public IDisposable TryObserve(object source, IBindingEventListener listener)
             {
-                return _observer?.TryObserve(source, Name, listener, Default.Metadata);
+                return _observer?.TryObserve(source, listener, Default.Metadata);
             }
 
             #endregion
@@ -200,7 +201,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
             private readonly object[]? _indexerValues;
 
             private readonly bool _nonPublic;
-            private readonly IBindingMemberObserver? _observer;
+            private readonly BindingMemberObserver? _observer;
             private readonly PropertyInfo _propertyInfo;
 
             private Func<object, object>? _getterFunc;
@@ -213,7 +214,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
             #region Constructors
 
-            public PropertyInfoBindingMemberInfo(string name, PropertyInfo propertyInfo, bool nonPublic, IBindingMemberObserver? observer)
+            public PropertyInfoBindingMemberInfo(string name, PropertyInfo propertyInfo, bool nonPublic, BindingMemberObserver? observer)
             {
                 _propertyInfo = propertyInfo;
                 _nonPublic = nonPublic;
@@ -311,7 +312,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
             public IDisposable TryObserve(object source, IBindingEventListener listener)
             {
-                return _observer?.TryObserve(source, Name, listener, Default.Metadata);
+                return _observer?.TryObserve(source, listener, Default.Metadata);
             }
 
             #endregion

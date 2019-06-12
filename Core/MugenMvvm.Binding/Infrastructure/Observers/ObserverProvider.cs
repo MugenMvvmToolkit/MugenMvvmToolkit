@@ -44,29 +44,29 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         #region Implementation of interfaces
 
-        public IBindingMemberObserver? TryGetMemberObserver(Type type, object member, IReadOnlyMetadataContext metadata)
+        public bool TryGetMemberObserver(Type type, object member, IReadOnlyMetadataContext metadata, out BindingMemberObserver observer)
         {
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(member, nameof(member));
             Should.NotBeNull(metadata, nameof(metadata));
-            return TryGetMemberObserverInternal(type, member, metadata);
+            return TryGetMemberObserverInternal(type, member, metadata, out observer);
         }
 
         #endregion
 
         #region Methods
 
-        protected virtual IBindingMemberObserver? TryGetMemberObserverInternal(Type type, object member, IReadOnlyMetadataContext metadata)
+        protected virtual bool TryGetMemberObserverInternal(Type type, object member, IReadOnlyMetadataContext metadata, out BindingMemberObserver observer)
         {
             var items = Providers.GetItems();
             for (var i = 0; i < items.Length; i++)
             {
-                var observer = items[i].TryGetMemberObserver(type, member, metadata);
-                if (observer != null)
-                    return observer;
+                if (items[i].TryGetMemberObserver(type, member, metadata, out observer))
+                    return true;
             }
 
-            return null;
+            observer = default;
+            return false;
         }
 
         #endregion
