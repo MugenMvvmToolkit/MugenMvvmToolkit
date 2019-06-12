@@ -6,7 +6,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Members
 {
-    public interface IBindingMemberProvider
+    public interface IBindingMemberProvider//todo add expando/dynamic objects
     {
         IComponentCollection<IChildBindingMemberProvider> Providers { get; }
 
