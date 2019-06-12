@@ -1,7 +1,9 @@
-﻿using MugenMvvm.Binding.Interfaces.Members;
+﻿using System.Runtime.InteropServices;
+using MugenMvvm.Binding.Interfaces.Members;
 
 namespace MugenMvvm.Binding.Infrastructure.Members
 {
+    [StructLayout(LayoutKind.Auto)]
     public readonly struct AttachedMemberRegistration
     {
         #region Constructors

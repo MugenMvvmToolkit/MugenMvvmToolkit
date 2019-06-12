@@ -10,7 +10,7 @@ namespace MugenMvvm.Binding.Extensions
 
         #region Methods
 
-        internal static object[] GetIndexerValues(string path, IList<ParameterInfo> parameters = null, Type castType = null)//todo Span?
+        internal static object[] GetIndexerValues(string path, IList<ParameterInfo> parameters = null, Type castType = null)//todo fix?
         {
             if (path.StartsWith("Item[", StringComparison.Ordinal))
                 path = path.Substring(4);
@@ -27,7 +27,7 @@ namespace MugenMvvm.Binding.Extensions
                     castType = parameters[i].ParameterType;
                 if (!string.IsNullOrEmpty(s) && s[0] == '\"' && s.EndsWith("\""))
                     s = s.RemoveBounds();
-                result[i] = s == "null" ? null : BindingServiceProvider.ValueConverter(BindingMemberInfo.Empty, castType, s);
+//                result[i] = s == "null" ? null : BindingServiceProvider.ValueConverter(BindingMemberInfo.Empty, castType, s);
             }
 
             return result;

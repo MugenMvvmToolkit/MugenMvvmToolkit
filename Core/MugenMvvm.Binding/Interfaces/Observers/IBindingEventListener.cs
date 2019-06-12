@@ -1,4 +1,4 @@
-﻿namespace MugenMvvm.Binding.Interfaces.Events
+﻿namespace MugenMvvm.Binding.Interfaces.Observers
 {
     public interface IBindingEventListener
     {

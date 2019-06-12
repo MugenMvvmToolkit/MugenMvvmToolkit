@@ -18,6 +18,46 @@ namespace MugenMvvm
     {
         #region Methods
 
+        public static bool MemberNameEqual(string changedMember, string listenedMember, bool emptyListenedMemberResult = false)
+        {
+            if (string.Equals(changedMember, listenedMember) || string.IsNullOrEmpty(changedMember))
+                return true;
+            if (string.IsNullOrEmpty(listenedMember))
+                return emptyListenedMemberResult;
+
+            if (listenedMember[0] == '[')
+            {
+                if (Default.IndexerName.Equals(changedMember))
+                    return true;
+                if (changedMember.StartsWith("Item[", StringComparison.Ordinal))
+                {
+                    int i = 4, j = 0;
+                    while (i < changedMember.Length)
+                    {
+                        if (j >= listenedMember.Length)
+                            return false;
+                        var c1 = changedMember[i];
+                        var c2 = listenedMember[j];
+                        if (c1 == c2)
+                        {
+                            ++i;
+                            ++j;
+                        }
+                        else if (c1 == '"')
+                            ++i;
+                        else if (c2 == '"')
+                            ++j;
+                        else
+                            return false;
+                    }
+
+                    return j == listenedMember.Length;
+                }
+            }
+
+            return false;
+        }
+
         public static bool LazyInitialize<T>(this IComponentCollectionProvider provider, [EnsuresNotNull] ref IComponentCollection<T>? item, object target,
             IReadOnlyMetadataContext? metadata = null)
             where T : class //todo R# bug return?
@@ -86,7 +126,7 @@ namespace MugenMvvm
         public static T GetService<T>(this IServiceProvider serviceProvider)
         {
             Should.NotBeNull(serviceProvider, nameof(serviceProvider));
-            return (T)serviceProvider.GetService(typeof(T));
+            return (T) serviceProvider.GetService(typeof(T));
         }
 
         [Pure]
@@ -99,7 +139,7 @@ namespace MugenMvvm
                 {
                     if (container.TryGet(typeof(T), out var o))
                     {
-                        service = (T)o!;
+                        service = (T) o!;
                         return true;
                     }
 
@@ -107,7 +147,7 @@ namespace MugenMvvm
                     return false;
                 }
 
-                service = (T)serviceProvider.GetService(typeof(T));
+                service = (T) serviceProvider.GetService(typeof(T));
                 return true;
             }
             catch
@@ -122,7 +162,7 @@ namespace MugenMvvm
             var tryGet = iocContainer.TryGet(typeof(T), out var objService, metadata);
             if (tryGet)
             {
-                service = (T)objService;
+                service = (T) objService;
                 return true;
             }
 
