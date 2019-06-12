@@ -321,7 +321,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
             private object CompileIndexerSetter(object arg1, object[] arg2)
             {
-                _setterIndexerFunc = _propertyInfo.GetSetMethodUnified(_nonPublic).GetMethodDelegate();
+                _setterIndexerFunc = _propertyInfo.GetSetMethodUnified(_nonPublic).GetMethodInvoker();
                 return _setterIndexerFunc(arg1, arg2);
             }
 
@@ -339,7 +339,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
             private object CompileIndexerGetter(object arg, object[] values)
             {
-                _getterIndexerFunc = _propertyInfo.GetGetMethodUnified(_nonPublic).GetMethodDelegate();
+                _getterIndexerFunc = _propertyInfo.GetGetMethodUnified(_nonPublic).GetMethodInvoker();
                 return _getterIndexerFunc(arg, values);
             }
 

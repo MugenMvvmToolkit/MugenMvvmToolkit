@@ -48,25 +48,25 @@ namespace MugenMvvm
             return CreateWeakDelegate(target, invokeAction, _unsubscribePropertyChangedDelegate, _createPropertyChangedHandlerDelegate);
         }
 
-        public static Func<object?[], object> GetActivatorDelegate(this ConstructorInfo constructor, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public static Func<object?[], object> GetActivator(this ConstructorInfo constructor, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
-            return reflectionDelegateProvider.ServiceIfNull().GetActivatorDelegate(constructor);
+            return reflectionDelegateProvider.ServiceIfNull().GetActivator(constructor);
         }
 
-        public static TDelegate GetMethodDelegate<TDelegate>(this MethodInfo method, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public static TDelegate GetMethodInvoker<TDelegate>(this MethodInfo method, IReflectionDelegateProvider? reflectionDelegateProvider = null)
             where TDelegate : Delegate
         {
-            return (TDelegate)reflectionDelegateProvider.ServiceIfNull().GetMethodDelegate(typeof(TDelegate), method);
+            return (TDelegate)reflectionDelegateProvider.ServiceIfNull().GetMethodInvoker(typeof(TDelegate), method);
         }
 
-        public static Delegate GetMethodDelegate(this MethodInfo method, Type delegateType, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public static Delegate GetMethodInvoker(this MethodInfo method, Type delegateType, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
-            return reflectionDelegateProvider.ServiceIfNull().GetMethodDelegate(delegateType, method);
+            return reflectionDelegateProvider.ServiceIfNull().GetMethodInvoker(delegateType, method);
         }
 
-        public static Func<object?, object?[], object?> GetMethodDelegate(this MethodInfo method, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public static Func<object?, object?[], object?> GetMethodInvoker(this MethodInfo method, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
-            return reflectionDelegateProvider.ServiceIfNull().GetMethodDelegate(method);
+            return reflectionDelegateProvider.ServiceIfNull().GetMethodInvoker(method);
         }
 
         public static Func<object?, TType> GetMemberGetter<TType>(this MemberInfo member, IReflectionDelegateProvider? reflectionDelegateProvider = null)
@@ -101,7 +101,7 @@ namespace MugenMvvm
 
         public static object InvokeEx(this ConstructorInfo constructor, IReflectionDelegateProvider? reflectionDelegateProvider = null, params object?[] parameters)
         {
-            return reflectionDelegateProvider.ServiceIfNull().GetActivatorDelegate(constructor).Invoke(parameters);
+            return reflectionDelegateProvider.ServiceIfNull().GetActivator(constructor).Invoke(parameters);
         }
 
         public static object? InvokeEx(this MethodInfo method, object? target, IReflectionDelegateProvider? reflectionDelegateProvider = null)
@@ -116,7 +116,7 @@ namespace MugenMvvm
 
         public static object? InvokeEx(this MethodInfo method, object? target, IReflectionDelegateProvider? reflectionDelegateProvider = null, params object?[] parameters)
         {
-            return reflectionDelegateProvider.ServiceIfNull().GetMethodDelegate(method).Invoke(target, parameters);
+            return reflectionDelegateProvider.ServiceIfNull().GetMethodInvoker(method).Invoke(target, parameters);
         }
 
         private static void UnsubscribePropertyChanged(object sender, PropertyChangedEventHandler handler)

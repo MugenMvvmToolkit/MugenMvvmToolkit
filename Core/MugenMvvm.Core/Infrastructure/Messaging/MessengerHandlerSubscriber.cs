@@ -63,7 +63,7 @@ namespace MugenMvvm.Infrastructure.Messaging
                 var msgType = message.GetType();
                 if (!MessageTypeToDelegate.TryGetValue(msgType, out func))
                 {
-                    func = InvokeMethodInfo.MakeGenericMethod(msgType).GetMethodDelegate();
+                    func = InvokeMethodInfo.MakeGenericMethod(msgType).GetMethodInvoker();
                     MessageTypeToDelegate[msgType] = func;
                 }
             }

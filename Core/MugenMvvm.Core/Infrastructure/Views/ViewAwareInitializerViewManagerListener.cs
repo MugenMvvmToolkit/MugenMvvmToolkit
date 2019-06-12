@@ -155,11 +155,11 @@ namespace MugenMvvm.Infrastructure.Views
                 var propertyInfo = @interface.GetPropertyUnified(propertyName, MemberFlags.InstancePublic);
                 if (propertyInfo == null)
                     continue;
-                var methodDelegate = method.MakeGenericMethod(propertyInfo.PropertyType).GetMethodDelegate();
+                var methodInvoker = method.MakeGenericMethod(propertyInfo.PropertyType).GetMethodInvoker();
                 if (result == null)
-                    result = methodDelegate;
+                    result = methodInvoker;
                 else
-                    result += methodDelegate;
+                    result += methodInvoker;
             }
 
             return result;

@@ -25,8 +25,8 @@ namespace MugenMvvm.Infrastructure.Internal
         private static readonly Dictionary<MethodInfo, Func<object?, object?[], object?>> InvokeMethodCache =
             new Dictionary<MethodInfo, Func<object?, object?[], object?>>(MemberInfoEqualityComparer.Instance);
 
-        private static readonly Dictionary<MethodDelegateCacheKey, Delegate> InvokeMethodCacheDelegate =
-            new Dictionary<MethodDelegateCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
+        private static readonly Dictionary<MethodInvokerCacheKey, Delegate> InvokeMethodCacheDelegate =
+            new Dictionary<MethodInvokerCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
 
         private static readonly Dictionary<MemberInfoDelegateCacheKey, Delegate> MemberGetterCache =
             new Dictionary<MemberInfoDelegateCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
@@ -53,13 +53,13 @@ namespace MugenMvvm.Infrastructure.Internal
 
         #region Implementation of interfaces
 
-        public Func<object[], object>? TryGetActivatorDelegate(IReflectionDelegateProvider provider, ConstructorInfo constructor)
+        public Func<object[], object>? TryGetActivator(IReflectionDelegateProvider provider, ConstructorInfo constructor)
         {
             lock (ActivatorCache)
             {
                 if (!ActivatorCache.TryGetValue(constructor, out var value))
                 {
-                    value = GetActivatorDelegate(constructor);
+                    value = GetActivator(constructor);
                     ActivatorCache[constructor] = value;
                 }
 
@@ -67,13 +67,13 @@ namespace MugenMvvm.Infrastructure.Internal
             }
         }
 
-        public Func<object, object[], object>? TryGetMethodDelegate(IReflectionDelegateProvider provider, MethodInfo method)
+        public Func<object, object[], object>? TryGetMethodInvoker(IReflectionDelegateProvider provider, MethodInfo method)
         {
             lock (InvokeMethodCache)
             {
                 if (!InvokeMethodCache.TryGetValue(method, out var value))
                 {
-                    value = GetMethodDelegate(method);
+                    value = GetMethodInvoker(method);
                     InvokeMethodCache[method] = value;
                 }
 
@@ -81,14 +81,14 @@ namespace MugenMvvm.Infrastructure.Internal
             }
         }
 
-        public Delegate? TryGetMethodDelegate(IReflectionDelegateProvider provider, Type delegateType, MethodInfo method)
+        public Delegate? TryGetMethodInvoker(IReflectionDelegateProvider provider, Type delegateType, MethodInfo method)
         {
-            var cacheKey = new MethodDelegateCacheKey(method, delegateType);
+            var cacheKey = new MethodInvokerCacheKey(method, delegateType);
             lock (InvokeMethodCacheDelegate)
             {
                 if (!InvokeMethodCacheDelegate.TryGetValue(cacheKey, out var value))
                 {
-                    value = GetMethodDelegate(delegateType, method);
+                    value = GetMethodInvoker(delegateType, method);
                     InvokeMethodCacheDelegate[cacheKey] = value;
                 }
 
@@ -130,14 +130,14 @@ namespace MugenMvvm.Infrastructure.Internal
 
         #region Methods
 
-        public static Func<object[], object> GetActivatorDelegate(ConstructorInfo constructor)
+        public static Func<object[], object> GetActivator(ConstructorInfo constructor)
         {
             var expressions = GetParametersExpression(constructor, out var parameterExpression);
             var newExpression = ConvertIfNeed(Expression.New(constructor, expressions), typeof(object), false);
             return Expression.Lambda<Func<object?[], object>>(newExpression, parameterExpression).Compile();
         }
 
-        public static Func<object, object[], object> GetMethodDelegate(MethodInfo method)
+        public static Func<object, object[], object> GetMethodInvoker(MethodInfo method)
         {
             var isVoid = method.ReturnType.EqualsEx(typeof(void));
             var expressions = GetParametersExpression(method, out var parameterExpression);
@@ -177,7 +177,7 @@ namespace MugenMvvm.Infrastructure.Internal
                 .Compile();
         }
 
-        public static Delegate GetMethodDelegate(Type delegateType, MethodInfo method)
+        public static Delegate GetMethodInvoker(Type delegateType, MethodInfo method)
         {
             var delegateMethod = delegateType.GetMethodUnified(nameof(Action.Invoke), MemberFlags.InstanceOnly);
             if (delegateMethod == null)
@@ -312,7 +312,7 @@ namespace MugenMvvm.Infrastructure.Internal
 
         #region Nested types
 
-        private sealed class MemberCacheKeyComparer : IEqualityComparer<MethodDelegateCacheKey>, IEqualityComparer<MemberInfoDelegateCacheKey>
+        private sealed class MemberCacheKeyComparer : IEqualityComparer<MethodInvokerCacheKey>, IEqualityComparer<MemberInfoDelegateCacheKey>
         {
             #region Fields
 
@@ -343,12 +343,12 @@ namespace MugenMvvm.Infrastructure.Internal
                 }
             }
 
-            bool IEqualityComparer<MethodDelegateCacheKey>.Equals(MethodDelegateCacheKey x, MethodDelegateCacheKey y)
+            bool IEqualityComparer<MethodInvokerCacheKey>.Equals(MethodInvokerCacheKey x, MethodInvokerCacheKey y)
             {
                 return x.DelegateType.EqualsEx(y.DelegateType) && x.Method.EqualsEx(y.Method);
             }
 
-            int IEqualityComparer<MethodDelegateCacheKey>.GetHashCode(MethodDelegateCacheKey obj)
+            int IEqualityComparer<MethodInvokerCacheKey>.GetHashCode(MethodInvokerCacheKey obj)
             {
                 unchecked
                 {
@@ -360,7 +360,7 @@ namespace MugenMvvm.Infrastructure.Internal
         }
 
         [StructLayout(LayoutKind.Auto)]
-        private struct MethodDelegateCacheKey
+        private struct MethodInvokerCacheKey
         {
             #region Fields
 
@@ -371,7 +371,7 @@ namespace MugenMvvm.Infrastructure.Internal
 
             #region Constructors
 
-            public MethodDelegateCacheKey(MethodInfo method, Type delegateType)
+            public MethodInvokerCacheKey(MethodInfo method, Type delegateType)
             {
                 Method = method;
                 DelegateType = delegateType;

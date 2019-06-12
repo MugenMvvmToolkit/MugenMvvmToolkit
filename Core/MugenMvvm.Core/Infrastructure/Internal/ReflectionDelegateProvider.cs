@@ -42,13 +42,13 @@ namespace MugenMvvm.Infrastructure.Internal
 
         #region Implementation of interfaces
 
-        public Func<object[], object> GetActivatorDelegate(ConstructorInfo constructor)
+        public Func<object[], object> GetActivator(ConstructorInfo constructor)
         {
             Should.NotBeNull(constructor, nameof(constructor));
             var items = Providers.GetItems();
             for (var i = 0; i < items.Length; i++)
             {
-                var value = items[i].TryGetActivatorDelegate(this, constructor);
+                var value = items[i].TryGetActivator(this, constructor);
                 if (value != null)
                     return value;
             }
@@ -57,13 +57,13 @@ namespace MugenMvvm.Infrastructure.Internal
             return null;
         }
 
-        public Func<object, object[], object> GetMethodDelegate(MethodInfo method)
+        public Func<object, object[], object> GetMethodInvoker(MethodInfo method)
         {
             Should.NotBeNull(method, nameof(method));
             var items = Providers.GetItems();
             for (var i = 0; i < items.Length; i++)
             {
-                var value = items[i].TryGetMethodDelegate(this, method);
+                var value = items[i].TryGetMethodInvoker(this, method);
                 if (value != null)
                     return value;
             }
@@ -72,14 +72,14 @@ namespace MugenMvvm.Infrastructure.Internal
             return null;
         }
 
-        public Delegate GetMethodDelegate(Type delegateType, MethodInfo method)
+        public Delegate GetMethodInvoker(Type delegateType, MethodInfo method)
         {
             Should.NotBeNull(delegateType, nameof(delegateType));
             Should.NotBeNull(method, nameof(method));
             var items = Providers.GetItems();
             for (var i = 0; i < items.Length; i++)
             {
-                var value = items[i].TryGetMethodDelegate(this, delegateType, method);
+                var value = items[i].TryGetMethodInvoker(this, delegateType, method);
                 if (value != null)
                     return value;
             }

@@ -779,13 +779,13 @@ namespace MugenMvvm.Infrastructure.IoC
             public readonly bool IsContainerBinding;
             public readonly Type Type;
 
-            private Func<object?[], object>? _arrayActivatorDelegate;
-            private Func<object?, object?[], object>? _arraySetMethodDelegate;
+            private Func<object?[], object>? _arrayActivator;
+            private Func<object?, object?[], object>? _arraySetMethodInvoker;
 
             private List<ConstructorInfoCache>? _cachedConstructors;
             private PropertyCacheDictionary _cachedProperties;
-            private Func<object?[], object>? _collectionActivatorDelegate;
-            private Func<object?, object?[], object>? _collectionAddMethodDelegate;
+            private Func<object?[], object>? _collectionActivator;
+            private Func<object?, object?[], object>? _collectionAddMethodInvoker;
             private TypeCache? _collectionItemType;
             private TypeCache? _elementType;
             private Type[]? _genericArguments;
@@ -913,20 +913,20 @@ namespace MugenMvvm.Infrastructure.IoC
                 }
 
                 _collectionItemType = GetTypeCache(originalType);
-                _collectionActivatorDelegate = constructor.GetActivatorDelegate();
-                _collectionAddMethodDelegate = methodInfo.GetMethodDelegate();
+                _collectionActivator = constructor.GetActivator();
+                _collectionAddMethodInvoker = methodInfo.GetMethodInvoker();
                 _isCollection = true;
                 return _collectionItemType;
             }
 
             public object ConvertToCollection(object[] items)
             {
-                var collection = _collectionActivatorDelegate(Default.EmptyArray<object>());
+                var collection = _collectionActivator(Default.EmptyArray<object>());
                 var args = new object[1];
                 for (var index = 0; index < items.Length; index++)
                 {
                     args[0] = items[index];
-                    _collectionAddMethodDelegate(collection, args);
+                    _collectionAddMethodInvoker(collection, args);
                 }
 
                 return collection;
@@ -934,23 +934,23 @@ namespace MugenMvvm.Infrastructure.IoC
 
             public object ConvertToArray(object[] items)
             {
-                if (_arrayActivatorDelegate == null)
+                if (_arrayActivator == null)
                 {
                     var constructorInfo = Type.GetConstructorUnified(MemberFlags.InstancePublic, ArrayConstructorTypes);
                     if (constructorInfo == null)
                         ExceptionManager.ThrowCannotFindConstructor(Type);
-                    _arrayActivatorDelegate = constructorInfo.GetActivatorDelegate();
+                    _arrayActivator = constructorInfo.GetActivator();
                 }
 
-                var array = _arrayActivatorDelegate(new object[] { items.Length });
-                if (_arraySetMethodDelegate == null)
+                var array = _arrayActivator(new object[] { items.Length });
+                if (_arraySetMethodInvoker == null)
                 {
                     var method = typeof(MugenExtensions).GetMethodUnified(nameof(MugenExtensions.InitializeArray), MemberFlags.StaticOnly);
                     Should.BeSupported(method != null, typeof(MugenExtensions).Name + "." + nameof(MugenExtensions.InitializeArray));
-                    _arraySetMethodDelegate = method.MakeGenericMethod(ElementType.Type).GetMethodDelegate();
+                    _arraySetMethodInvoker = method.MakeGenericMethod(ElementType.Type).GetMethodInvoker();
                 }
 
-                _arraySetMethodDelegate.Invoke(null, new[] { array, items });
+                _arraySetMethodInvoker.Invoke(null, new[] { array, items });
                 return array;
             }
 
@@ -1112,7 +1112,7 @@ namespace MugenMvvm.Infrastructure.IoC
             public object Invoke(params object?[] parameters)
             {
                 if (_activatorDel == null)
-                    _activatorDel = _constructor.GetActivatorDelegate();
+                    _activatorDel = _constructor.GetActivator();
                 return _activatorDel(parameters);
             }
 
