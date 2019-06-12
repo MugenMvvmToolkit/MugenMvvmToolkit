@@ -33,7 +33,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         #region Properties
 
-        public int Priority { get; set; }
+        public int Priority { get; set; } = 1;
 
         #endregion
 
@@ -42,7 +42,8 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
         IDisposable? IBindingMemberObserverCallback.TryObserve(object target, object member, IBindingEventListener listener, IReadOnlyMetadataContext metadata)
         {
             var eventInfo = (EventInfo)member;
-            var listenerInternal = _attachedValueProvider.GetOrAdd(target, BindingInternalConstants.EventPrefixObserverMember + eventInfo.Name, eventInfo, null, CreateWeakListenerDelegate);
+            var listenerInternal = _attachedValueProvider.GetOrAdd(target, BindingInternalConstants.EventPrefixObserverMember + eventInfo.Name, eventInfo, null,
+                CreateWeakListenerDelegate);
             if (listenerInternal.IsEmpty)
                 return null;
 
@@ -68,7 +69,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
         private static BindingEventListenerCollection CreateWeakListener(object target, EventInfo eventInfo, object _)
         {
             var listenerInternal = new BindingEventListenerCollection();
-            Delegate handler = eventInfo.EventHandlerType.EqualsEx(typeof(EventHandler))
+            var handler = eventInfo.EventHandlerType.EqualsEx(typeof(EventHandler))
                 ? new EventHandler(listenerInternal.Raise)
                 : eventInfo.EventHandlerType.TryCreateDelegate(listenerInternal, RaiseMethod);
 

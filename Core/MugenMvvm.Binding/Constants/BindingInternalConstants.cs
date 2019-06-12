@@ -1,9 +1,9 @@
 ﻿namespace MugenMvvm.Binding.Constants
 {
-    public static class BindingInternalConstants
+    internal static class BindingInternalConstants
     {
         #region Fields
-
+        public const string ChangedEventPostfix = "Changed";
         public const string PropertyChangedObserverMember = "~p";
         public const string EventPrefixObserverMember = "~e";
 
