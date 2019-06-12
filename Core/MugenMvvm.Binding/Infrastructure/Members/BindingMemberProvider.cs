@@ -159,7 +159,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
             var items = Providers.GetItems();
             for (var i = 0; i < items.Length; i++)
             {
-                result = items[i].GetMember(this, type, name, metadata);
+                result = items[i].TryGetMember(this, type, name, metadata);
                 if (result != null)
                     break;
             }

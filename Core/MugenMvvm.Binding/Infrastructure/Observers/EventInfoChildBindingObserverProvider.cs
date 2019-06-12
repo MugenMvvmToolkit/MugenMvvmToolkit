@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Infrastructure.Observers
 {
-    public sealed class EventInfoChildObserverProvider : IChildObserverProvider, IBindingMemberObserverCallback
+    public sealed class EventInfoChildBindingObserverProvider : IChildBindingObserverProvider, IBindingMemberObserverCallback
     {
         #region Fields
 
@@ -23,7 +23,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         #region Constructors
 
-        public EventInfoChildObserverProvider(IAttachedValueProvider attachedValueProvider)
+        public EventInfoChildBindingObserverProvider(IAttachedValueProvider attachedValueProvider)
         {
             Should.NotBeNull(attachedValueProvider, nameof(attachedValueProvider));
             _attachedValueProvider = attachedValueProvider;

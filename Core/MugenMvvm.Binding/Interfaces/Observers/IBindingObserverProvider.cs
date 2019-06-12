@@ -5,9 +5,9 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Observers
 {
-    public interface IObserverProvider
+    public interface IBindingObserverProvider
     {
-        IComponentCollection<IChildObserverProvider> Providers { get; }
+        IComponentCollection<IChildBindingObserverProvider> Providers { get; }
 
         bool TryGetMemberObserver(Type type, object member, IReadOnlyMetadataContext metadata, out BindingMemberObserver observer);
     }

@@ -6,6 +6,6 @@ namespace MugenMvvm.Binding.Interfaces.Members
 {
     public interface IChildBindingMemberProvider : IHasPriority
     {
-        IBindingMemberInfo? GetMember(IBindingMemberProvider provider, Type type, string name, IReadOnlyMetadataContext metadata);
+        IBindingMemberInfo? TryGetMember(IBindingMemberProvider provider, Type type, string name, IReadOnlyMetadataContext metadata);
     }
 }

@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Infrastructure.Observers
 {
-    public sealed class PropertyChangedChildObserverProvider : IChildObserverProvider, IBindingMemberObserverCallback
+    public sealed class PropertyChangedChildBindingObserverProvider : IChildBindingObserverProvider, IBindingMemberObserverCallback
     {
         #region Fields
 
@@ -20,7 +20,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         #region Constructors
 
-        public PropertyChangedChildObserverProvider(IAttachedValueProvider attachedValueProvider)
+        public PropertyChangedChildBindingObserverProvider(IAttachedValueProvider attachedValueProvider)
         {
             Should.NotBeNull(attachedValueProvider, nameof(attachedValueProvider));
             _attachedValueProvider = attachedValueProvider;

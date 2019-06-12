@@ -1,20 +1,37 @@
 ﻿using System;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Infrastructure.Observers;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Infrastructure.Members
 {
+    // ReSharper disable FieldCanBeMadeReadOnly.Local
     public sealed class ReflectionChildBindingMemberProvider : IChildBindingMemberProvider
     {
         #region Fields
 
+        private readonly IBindingObserverProvider _bindingObserverProvider;
+        private readonly CacheDictionary _cache;
+
         private const MemberFlags DefaultFlags = MemberFlags.StaticPublic | MemberFlags.InstancePublic;
+
+        #endregion
+
+        #region Constructors
+
+        public ReflectionChildBindingMemberProvider(IBindingObserverProvider bindingObserverProvider)
+        {
+            Should.NotBeNull(bindingObserverProvider, nameof(bindingObserverProvider));
+            _bindingObserverProvider = bindingObserverProvider;
+            _cache = new CacheDictionary();
+        }
 
         #endregion
 
@@ -32,28 +49,240 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
         #region Implementation of interfaces
 
-        public IBindingMemberInfo GetMember(IBindingMemberProvider provider, Type type, string name, IReadOnlyMetadataContext metadata)
+        public IBindingMemberInfo? TryGetMember(IBindingMemberProvider provider, Type type, string name, IReadOnlyMetadataContext metadata)
         {
-            throw new NotImplementedException();
+            var cacheKey = new CacheKey(type, name);
+            if (!_cache.TryGetValue(cacheKey, out var info))
+            {
+                info = GetMemberInternal(type, name, metadata);
+                _cache[cacheKey] = info;
+            }
+
+            return info;
+        }
+
+        #endregion
+
+        #region Methods
+
+        private IBindingMemberInfo GetMemberInternal(Type type, string name, IReadOnlyMetadataContext metadata)
+        {
+            var indexerArgs = BindingMugenExtensions.GetIndexerValuesRaw(name);
+            var types = BindingMugenExtensions.SelfAndBaseTypes(type);
+            foreach (var t in types)
+            {
+                if (indexerArgs == null)
+                {
+                    var property = t.GetPropertyUnified(name, PropertyMemberFlags);
+                    if (property != null)
+                    {
+                        return new PropertyInfoBindingMemberInfo(name, property, null, null, PropertyMemberFlags.HasMemberFlag(MemberFlags.NonPublic),
+                            GetMemberObserver(type, name, metadata));
+                    }
+                }
+                else
+                {
+                    PropertyInfo? candidate = null;
+                    var valueTypeCount = -1;
+                    ParameterInfo[]? indexParameters = null;
+                    foreach (var property in t.GetPropertiesUnified(PropertyMemberFlags))
+                    {
+                        indexParameters = property.GetIndexParameters();
+                        if (indexParameters.Length != indexerArgs.Length)
+                            continue;
+                        try
+                        {
+                            var count = 0;
+                            for (var i = 0; i < indexParameters.Length; i++)
+                            {
+                                var arg = indexerArgs[i];
+                                var paramType = indexParameters[i].ParameterType;
+                                if (arg.StartsWith("\"", StringComparison.Ordinal) && arg.EndsWith("\"", StringComparison.Ordinal))
+                                {
+                                    if (paramType != typeof(string))
+                                        break;
+                                }
+                                else
+                                {
+                                    //BindingServiceProvider.ValueConverter(Empty, paramType, arg);//todo converter
+                                    if (paramType.IsValueTypeUnified())
+                                        count++;
+                                }
+                            }
+
+                            if (valueTypeCount < count)
+                            {
+                                candidate = property;
+                                valueTypeCount = count;
+                            }
+                        }
+                        catch
+                        {
+                            ;
+                        }
+                    }
+
+                    if (candidate != null)
+                    {
+                        return new PropertyInfoBindingMemberInfo(name, candidate, indexParameters, indexerArgs, PropertyMemberFlags.HasMemberFlag(MemberFlags.NonPublic),
+                            GetMemberObserver(type, name, metadata));
+                    }
+
+                    if (t.IsArray && t.GetArrayRank() == indexerArgs.Length)
+                        return new ArrayBindingMemberInfo(name, t, indexerArgs);
+                }
+
+                var eventInfo = t.GetEventUnified(name, EventMemberFlags);
+                if (eventInfo != null)
+                    return new EventInfoBindingMemberInfo(name, eventInfo, GetMemberObserver(type, eventInfo, metadata));
+
+                var field = t.GetFieldUnified(name, FieldMemberFlags);
+                if (field != null)
+                    return new FieldInfoBindingMemberInfo(name, field, GetMemberObserver(type, name, metadata));
+            }
+
+            return null;
+        }
+
+        private BindingMemberObserver? GetMemberObserver(Type type, object member, IReadOnlyMetadataContext metadata)
+        {
+            if (_bindingObserverProvider.TryGetMemberObserver(type, member, metadata, out var observer))
+                return observer;
+            return null;
         }
 
         #endregion
 
         #region Nested types
 
-        private sealed class EventInfoBindingMemberInfo : IBindingMemberInfo
+        [StructLayout(LayoutKind.Auto)]
+        private struct CacheKey
         {
             #region Fields
 
-            private readonly EventInfo _eventInfo;
+            public string Name;
+
+            public Type Type;
 
             #endregion
 
             #region Constructors
 
-            public EventInfoBindingMemberInfo(string name, EventInfo eventInfo)
+            public CacheKey(Type type, string name)
+            {
+                Type = type;
+                Name = name;
+            }
+
+            #endregion
+        }
+
+        private sealed class CacheDictionary : LightDictionaryBase<CacheKey, IBindingMemberInfo>
+        {
+            #region Constructors
+
+            public CacheDictionary() : base(59)
+            {
+            }
+
+            #endregion
+
+            #region Methods
+
+            protected override bool Equals(CacheKey x, CacheKey y)
+            {
+                return x.Type.EqualsEx(y.Type) && string.Equals(x.Name, y.Name);
+            }
+
+            protected override int GetHashCode(CacheKey key)
+            {
+                unchecked
+                {
+                    return key.Type.GetHashCode() * 397 ^ key.Name.GetHashCode();
+                }
+            }
+
+            #endregion
+        }
+
+        private sealed class ArrayBindingMemberInfo : IBindingMemberInfo
+        {
+            #region Fields
+
+            private readonly int[] _indexes;
+
+            #endregion
+
+            #region Constructors
+
+            public ArrayBindingMemberInfo(string name, Type arrayType, string[] indexes)
+            {
+                _indexes = BindingMugenExtensions.GetIndexerValues<int>(indexes);
+                Name = name;
+                Type = arrayType.GetElementType();
+            }
+
+            #endregion
+
+            #region Properties
+
+            public string Name { get; }
+
+            public Type Type { get; }
+
+            public object? Member => null;
+
+            public BindingMemberType MemberType => BindingMemberType.Array;
+
+            public bool CanRead => true;
+
+            public bool CanWrite => true;
+
+            public bool CanObserve => false;
+
+            #endregion
+
+            #region Implementation of interfaces
+
+            public object GetValue(object target, object[] args)
+            {
+                return ((Array) target).GetValue(_indexes);
+            }
+
+            public object SetValue(object target, object value)
+            {
+                ((Array) target).SetValue(value, _indexes);
+                return null;
+            }
+
+            public object SetValues(object target, object[] args)
+            {
+                return SetValue(target, args[0]);
+            }
+
+            public IDisposable TryObserve(object target, IBindingEventListener listener)
+            {
+                return null;
+            }
+
+            #endregion
+        }
+
+        private sealed class EventInfoBindingMemberInfo : IBindingMemberInfo
+        {
+            #region Fields
+
+            private readonly EventInfo _eventInfo;
+            private readonly BindingMemberObserver? _observer;
+
+            #endregion
+
+            #region Constructors
+
+            public EventInfoBindingMemberInfo(string name, EventInfo eventInfo, BindingMemberObserver? observer)
             {
                 _eventInfo = eventInfo;
+                _observer = observer;
                 Name = name;
                 Type = _eventInfo.EventHandlerType;
             }
@@ -89,11 +318,10 @@ namespace MugenMvvm.Binding.Infrastructure.Members
             public object SetValue(object target, object value)
             {
                 var listener = value as IBindingEventListener;
-                if (listener == null)
+                if (_observer == null || listener == null)
                     BindingExceptionManager.ThrowBindingMemberMustBeWritable(this);
 
-                return null;
-                //                return BindingServiceProvider.WeakEventManager.TrySubscribe(o, (EventInfo)_member, listener);
+                return _observer!.Value.TryObserve(target, listener, Default.Metadata);
             }
 
             public object SetValues(object target, object[] args)
@@ -103,7 +331,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
             public IDisposable TryObserve(object target, IBindingEventListener listener)
             {
-                return null; //todo observer provider method?
+                return null;
             }
 
             #endregion
@@ -214,16 +442,16 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
             #region Constructors
 
-            public PropertyInfoBindingMemberInfo(string name, PropertyInfo propertyInfo, bool nonPublic, BindingMemberObserver? observer)
+            public PropertyInfoBindingMemberInfo(string name, PropertyInfo propertyInfo, ParameterInfo[] indexParameters, string[]? indexerValues, bool nonPublic,
+                BindingMemberObserver? observer)
             {
                 _propertyInfo = propertyInfo;
                 _nonPublic = nonPublic;
                 _observer = observer;
                 Name = name;
                 Type = _propertyInfo.PropertyType;
-                var indexParameters = propertyInfo.GetIndexParameters();
-                if (indexParameters.Length != 0)
-                    _indexerValues = BindingMugenExtensions.GetIndexerValues(name);
+                if (indexParameters != null)
+                    _indexerValues = BindingMugenExtensions.GetIndexerValues(indexerValues, indexParameters);
 
                 var method = propertyInfo.GetGetMethodUnified(nonPublic);
                 if (method == null)

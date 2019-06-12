@@ -63,6 +63,18 @@ namespace MugenMvvm.Extensions
             return result;
         }
 
+
+        public static EventInfo GetEvent(Type type, string name, MemberFlags flags)
+        {
+            foreach (var eventInfo in GetEvents(type, flags))
+            {
+                if (eventInfo.Name == name)
+                    return eventInfo;
+            }
+
+            return null;
+        }
+
         public static ConstructorInfo? GetConstructor(Type type, MemberFlags flags, Type[] types)
         {
             foreach (var constructorInfo in GetConstructors(type, flags))
@@ -89,6 +101,15 @@ namespace MugenMvvm.Extensions
             {
                 if (FilterProperty(property, flags))
                     yield return property;
+            }
+        }
+
+        public static IEnumerable<EventInfo> GetEvents(Type type, MemberFlags flags)
+        {
+            foreach (var eventInfo in type.GetRuntimeEvents())
+            {
+                if (FilterEvent(eventInfo, flags))
+                    yield return eventInfo;
             }
         }
 
@@ -231,6 +252,14 @@ namespace MugenMvvm.Extensions
             if (property.CanRead && FilterMethod(property.GetMethod, flags))
                 return true;
             return property.CanWrite && FilterMethod(property.SetMethod, flags);
+        }
+
+        private static bool FilterEvent(EventInfo eventInfo, MemberFlags flags)
+        {
+            if (eventInfo == null)
+                return false;
+            var m = eventInfo.AddMethod ?? eventInfo.RemoveMethod;
+            return m != null && FilterMethod(m, flags);
         }
 
         private static bool FilterField(FieldInfo field, MemberFlags flags)

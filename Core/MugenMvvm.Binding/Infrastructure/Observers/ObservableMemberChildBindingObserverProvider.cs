@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Infrastructure.Observers
 {
-    public class ObservableMemberChildObserverProvider : IChildObserverProvider, IBindingMemberObserverCallback
+    public class ObservableMemberChildBindingObserverProvider : IChildBindingObserverProvider, IBindingMemberObserverCallback
     {
         #region Fields
 
@@ -17,7 +17,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         #region Constructors
 
-        public ObservableMemberChildObserverProvider(IBindingMemberProvider memberProvider)
+        public ObservableMemberChildBindingObserverProvider(IBindingMemberProvider memberProvider)
         {
             _memberProvider = memberProvider;
         }

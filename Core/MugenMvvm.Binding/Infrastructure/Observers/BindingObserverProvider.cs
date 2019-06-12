@@ -5,21 +5,21 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Infrastructure.Observers
 {
-    public class ObserverProvider : IObserverProvider
+    public class BindingObserverProvider : IBindingObserverProvider
     {
         #region Fields
 
-        private IComponentCollection<IChildObserverProvider>? _providers;
+        private IComponentCollection<IChildBindingObserverProvider>? _providers;
 
         #endregion
 
         #region Constructors
 
-        public ObserverProvider()
+        public BindingObserverProvider()
         {
         }
 
-        public ObserverProvider(IComponentCollectionProvider componentCollectionProvider)
+        public BindingObserverProvider(IComponentCollectionProvider componentCollectionProvider)
         {
             ComponentCollectionProvider = componentCollectionProvider;
         }
@@ -28,7 +28,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         #region Properties
 
-        public IComponentCollection<IChildObserverProvider> Providers
+        public IComponentCollection<IChildBindingObserverProvider> Providers
         {
             get
             {

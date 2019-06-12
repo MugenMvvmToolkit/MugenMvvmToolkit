@@ -6,19 +6,78 @@ namespace MugenMvvm.Binding.Extensions
 {
     public static partial class BindingMugenExtensions
     {
+        #region Fields
+
         internal static readonly string[] CommaSeparator = { "," };
+
+        #endregion
 
         #region Methods
 
-        internal static object[] GetIndexerValues(string path, IList<ParameterInfo> parameters = null, Type castType = null)//todo fix?
+        internal static ICollection<Type> SelfAndBaseTypes(Type type)
+        {
+            var types = new HashSet<Type>(SelfAndBaseClasses(type));
+            AddInterface(types, type, true);
+            return types;
+        }
+
+        private static IEnumerable<Type> SelfAndBaseClasses(Type type)
+        {
+            while (type != null)
+            {
+                yield return type;
+                type = type.GetBaseTypeUnified();
+            }
+        }
+
+        private static void AddInterface(HashSet<Type> types, Type type, bool isFirstCall)
+        {
+            if (!isFirstCall && type.IsInterfaceUnified() && types.Contains(type))
+                return;
+            types.Add(type);
+            foreach (var t in type.GetInterfacesUnified())
+                AddInterface(types, t, false);
+        }
+
+        internal static string[]? GetIndexerValuesRaw(string path) //todo fix?
+        {
+            if (path.StartsWith("Item[", StringComparison.Ordinal))
+                path = path.Substring(4);
+            if (!path.StartsWith("[", StringComparison.Ordinal) || !path.EndsWith("]", StringComparison.Ordinal))
+                return null;
+
+            return path
+                .RemoveBounds()
+                .Split(CommaSeparator, StringSplitOptions.RemoveEmptyEntries);
+        }
+
+        internal static object[] GetIndexerValues(string path, ParameterInfo[]? parameters = null, Type? castType = null) //todo fix?
         {
             if (path.StartsWith("Item[", StringComparison.Ordinal))
                 path = path.Substring(4);
             if (!path.StartsWith("[", StringComparison.Ordinal))
                 return Default.EmptyArray<object>();
-            var args = path
+            return GetIndexerValues(path
                 .RemoveBounds()
-                .Split(CommaSeparator, StringSplitOptions.RemoveEmptyEntries);
+                .Split(CommaSeparator, StringSplitOptions.RemoveEmptyEntries), parameters, castType);
+        }
+
+        internal static TItem[] GetIndexerValues<TItem>(string[] args)
+        {
+            var result = new TItem[args.Length];
+            for (var i = 0; i < args.Length; i++)
+            {
+                var s = args[i];
+                if (!string.IsNullOrEmpty(s) && s[0] == '\"' && s.EndsWith("\""))
+                    s = s.RemoveBounds();
+                //                result[i] = s == "null" ? null : BindingServiceProvider.ValueConverter(BindingMemberInfo.Empty, castType, s);
+            }
+
+            return result;
+        }
+
+        internal static object[] GetIndexerValues(string[] args, ParameterInfo[]? parameters = null, Type? castType = null)
+        {
             var result = new object[args.Length];
             for (var i = 0; i < args.Length; i++)
             {
@@ -27,7 +86,7 @@ namespace MugenMvvm.Binding.Extensions
                     castType = parameters[i].ParameterType;
                 if (!string.IsNullOrEmpty(s) && s[0] == '\"' && s.EndsWith("\""))
                     s = s.RemoveBounds();
-//                result[i] = s == "null" ? null : BindingServiceProvider.ValueConverter(BindingMemberInfo.Empty, castType, s);
+                //                result[i] = s == "null" ? null : BindingServiceProvider.ValueConverter(BindingMemberInfo.Empty, castType, s);
             }
 
             return result;

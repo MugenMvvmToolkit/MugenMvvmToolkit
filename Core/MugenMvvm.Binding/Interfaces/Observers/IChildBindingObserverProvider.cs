@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Interfaces.Observers
 {
-    public interface IChildObserverProvider : IHasPriority
+    public interface IChildBindingObserverProvider : IHasPriority
     {
         bool TryGetMemberObserver(Type type, object member, IReadOnlyMetadataContext metadata, out BindingMemberObserver observer);
     }

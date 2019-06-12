@@ -26,6 +26,10 @@ namespace MugenMvvm
 
         public static Func<Type, MemberFlags, IEnumerable<MethodInfo>>? GetMethods { get; set; }
 
+        public static Func<Type, string, MemberFlags, EventInfo?>? GetEvent { get; set; }
+
+        public static Func<Type, MemberFlags, IEnumerable<EventInfo>>? GetEvents { get; set; }
+
         public static Func<Type, MemberFlags, Type[], ConstructorInfo?>? GetConstructor { get; set; }
 
         public static Func<Type, MemberFlags, IEnumerable<ConstructorInfo>>? GetConstructors { get; set; }
@@ -106,6 +110,14 @@ namespace MugenMvvm
             return GetMethodWithTypes(type, name, flags, types);
         }
 
+        public static EventInfo? GetEventUnified(this Type type, string name, MemberFlags flags)
+        {
+            Should.NotBeNull(type, nameof(type));
+            if (GetEvent == null)
+                return TypeInfoReflectionApiExtensions.GetEvent(type, name, flags);
+            return GetEvent(type, name, flags);
+        }
+
         public static ConstructorInfo? GetConstructorUnified(this Type type, MemberFlags flags, Type[] types)
         {
             Should.NotBeNull(type, nameof(type));
@@ -136,6 +148,14 @@ namespace MugenMvvm
             if (GetMethods == null)
                 return TypeInfoReflectionApiExtensions.GetMethods(type, flags);
             return GetMethods(type, flags);
+        }
+
+        public static IEnumerable<EventInfo> GetEventsUnified(this Type type, MemberFlags flags)
+        {
+            Should.NotBeNull(type, nameof(type));
+            if (GetEvents == null)
+                return TypeInfoReflectionApiExtensions.GetEvents(type, flags);
+            return GetEvents(type, flags);
         }
 
         public static IEnumerable<ConstructorInfo> GetConstructorsUnified(this Type type, MemberFlags flags)
