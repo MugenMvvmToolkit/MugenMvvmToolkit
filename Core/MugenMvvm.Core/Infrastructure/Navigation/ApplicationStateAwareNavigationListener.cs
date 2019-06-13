@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Enums;
+﻿using MugenMvvm.Attributes;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
@@ -15,6 +16,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public ApplicationStateAwareNavigationListener(INavigationDispatcher navigationDispatcher)
         {
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));

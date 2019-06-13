@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Attributes;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -28,6 +29,7 @@ namespace MugenMvvm.Infrastructure.Validation
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public AggregatorValidator(IComponentCollectionProvider? componentCollectionProvider = null,
             IMetadataContextProvider? metadataContextProvider = null)
         {

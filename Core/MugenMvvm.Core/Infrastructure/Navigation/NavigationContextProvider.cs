@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Interfaces.Components;
@@ -18,6 +19,7 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public NavigationContextProvider(IComponentCollectionProvider componentCollectionProvider, IMetadataContextProvider metadataContextProvider)
         {
             Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));

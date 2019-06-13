@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation.Presenters;
@@ -8,6 +9,15 @@ namespace MugenMvvm.Infrastructure.Navigation.Presenters
 {
     public class CloseHandlerViewModelPresenter : IChildViewModelPresenter
     {
+        #region Constructors
+
+        [Preserve(Conditional = true)]
+        public CloseHandlerViewModelPresenter()
+        {
+        }
+
+        #endregion
+
         #region Properties
 
         public int Priority => PresenterConstants.CloseHandlerPresenterPriority;

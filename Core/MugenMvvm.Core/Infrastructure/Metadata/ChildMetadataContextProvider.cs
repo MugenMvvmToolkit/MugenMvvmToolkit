@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
 using MugenMvvm.Delegates;
 using MugenMvvm.Interfaces.Components;
@@ -13,6 +14,7 @@ namespace MugenMvvm.Infrastructure.Metadata
     {
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public ChildMetadataContextProvider(IComponentCollectionProvider componentCollectionProvider)
         {
             Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));

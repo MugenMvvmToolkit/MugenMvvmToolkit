@@ -109,6 +109,11 @@ namespace MugenMvvm
             throw new InvalidOperationException(MessageConstants.ObjectInitializedFormat3.Format(obj, obj?.GetType(), hint));
         }
 
+        internal static void ThrowNotSupported(string msg)
+        {
+            throw new NotSupportedException(msg);
+        }
+
         #endregion
     }
 }
