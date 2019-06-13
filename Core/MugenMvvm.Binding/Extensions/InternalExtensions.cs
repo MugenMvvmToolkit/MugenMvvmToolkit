@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace MugenMvvm.Binding.Extensions
+// ReSharper disable once CheckNamespace
+namespace MugenMvvm.Binding
 {
     public static partial class BindingMugenExtensions
     {
