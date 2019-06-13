@@ -8,17 +8,15 @@ using MugenMvvm.Interfaces.Views.Infrastructure;
 
 namespace MugenMvvm.Infrastructure.Views
 {
-    public class ViewInitializerViewManagerListener : IViewManagerListener//todo listen wrappers from metadata
+    public class ViewInitializerViewManagerListener : IViewManagerListener //todo listen wrappers from metadata
     {
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewInitializerViewManagerListener(IViewModelDispatcher viewModelDispatcher, IViewDataContextProvider dataContextProvider, int priority = 1)
+        public ViewInitializerViewManagerListener(IViewModelDispatcher viewModelDispatcher, int priority = 1)
         {
             Should.NotBeNull(viewModelDispatcher, nameof(viewModelDispatcher));
-            Should.NotBeNull(dataContextProvider, nameof(dataContextProvider));
             ViewModelDispatcher = viewModelDispatcher;
-            DataContextProvider = dataContextProvider;
             Priority = priority;
         }
 
@@ -27,8 +25,6 @@ namespace MugenMvvm.Infrastructure.Views
         #region Properties
 
         public IViewModelDispatcher ViewModelDispatcher { get; }
-
-        public IViewDataContextProvider DataContextProvider { get; }
 
         public int Priority { get; }
 
@@ -52,14 +48,12 @@ namespace MugenMvvm.Infrastructure.Views
         public virtual void OnViewInitialized(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
         {
             ViewModelDispatcher.Subscribe(viewModel, viewInfo.View, ThreadExecutionMode.Main, metadata);
-            DataContextProvider.SetDataContext(viewInfo.View, viewModel, metadata);
             (viewInfo.View as IInitializableView)?.Initialize(viewModel, viewInfo, metadata);
         }
 
         public virtual void OnViewCleared(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
         {
             ViewModelDispatcher.Unsubscribe(viewModel, viewInfo.View, metadata);
-            DataContextProvider.SetDataContext(viewInfo.View, null, metadata);
             (viewInfo.View as ICleanableView)?.Cleanup(metadata);
             viewInfo.ClearMetadata(true);
         }

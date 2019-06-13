@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;

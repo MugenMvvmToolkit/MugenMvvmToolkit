@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Interfaces.Views.Infrastructure
 {
-    public interface IViewManagerListener : IListener
+    public interface IViewManagerListener : IListener//todo add data context setter listener
     {
         void OnViewModelCreated(IViewManager viewManager, IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata);
 
