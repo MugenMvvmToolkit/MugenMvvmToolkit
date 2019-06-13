@@ -3,6 +3,7 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Presenters;
 
+// ReSharper disable once CheckNamespace
 namespace MugenMvvm.Infrastructure.Navigation.Presenters
 {
     public class ClosingViewModelPresenterResult : ChildViewModelPresenterResult, IClosingViewModelPresenterResult

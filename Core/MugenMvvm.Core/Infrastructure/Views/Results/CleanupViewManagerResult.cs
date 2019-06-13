@@ -1,6 +1,7 @@
 ﻿using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Views.Infrastructure;
 
+// ReSharper disable once CheckNamespace
 namespace MugenMvvm.Infrastructure.Views
 {
     public class CleanupViewManagerResult : ICleanupViewManagerResult

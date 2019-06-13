@@ -4,6 +4,7 @@ using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Presenters;
 using MugenMvvm.Metadata;
 
+// ReSharper disable once CheckNamespace
 namespace MugenMvvm.Infrastructure.Navigation.Presenters
 {
     public class ChildViewModelPresenterResult : IChildViewModelPresenterResult
