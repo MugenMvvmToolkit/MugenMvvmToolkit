@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
+using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -11,6 +12,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
     {
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public SynchronizedBindingMemberProvider(IAttachedChildBindingMemberProvider attachedChildBindingMemberProvider, IComponentCollectionProvider componentCollectionProvider) : base(
             attachedChildBindingMemberProvider, componentCollectionProvider)
         {

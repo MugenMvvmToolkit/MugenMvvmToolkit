@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Infrastructure.Observers;
 using MugenMvvm.Binding.Interfaces.Members;
@@ -25,6 +26,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public ReflectionChildBindingMemberProvider(IBindingObserverProvider bindingObserverProvider)
         {
             Should.NotBeNull(bindingObserverProvider, nameof(bindingObserverProvider));

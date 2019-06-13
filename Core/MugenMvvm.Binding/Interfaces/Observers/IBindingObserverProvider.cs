@@ -10,5 +10,9 @@ namespace MugenMvvm.Binding.Interfaces.Observers
         IComponentCollection<IChildBindingObserverProvider> Providers { get; }
 
         bool TryGetMemberObserver(Type type, object member, IReadOnlyMetadataContext metadata, out BindingMemberObserver observer);
+
+        IBindingPath GetBindingPath(object path, IReadOnlyMetadataContext metadata);
+
+        IBindingPathObserver GetBindingPathObserver(object source, object path, IReadOnlyMetadataContext metadata);
     }
 }

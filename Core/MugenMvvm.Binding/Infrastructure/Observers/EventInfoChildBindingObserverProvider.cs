@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Enums;
@@ -23,6 +24,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public EventInfoChildBindingObserverProvider(IAttachedValueProvider attachedValueProvider)
         {
             Should.NotBeNull(attachedValueProvider, nameof(attachedValueProvider));

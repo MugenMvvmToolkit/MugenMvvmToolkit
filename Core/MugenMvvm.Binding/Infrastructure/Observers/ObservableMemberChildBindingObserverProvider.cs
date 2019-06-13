@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
@@ -17,8 +18,10 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public ObservableMemberChildBindingObserverProvider(IBindingMemberProvider memberProvider)
         {
+            Should.NotBeNull(memberProvider, nameof(memberProvider));
             _memberProvider = memberProvider;
         }
 

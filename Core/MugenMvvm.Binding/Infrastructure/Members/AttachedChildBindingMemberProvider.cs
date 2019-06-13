@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Collections;
 using MugenMvvm.Infrastructure.Components;
@@ -18,6 +19,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public AttachedChildBindingMemberProvider()
         {
             _cache = new CacheDictionary();

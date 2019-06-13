@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Interfaces.Internal;
@@ -19,6 +20,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public PropertyChangedChildBindingObserverProvider(IAttachedValueProvider attachedValueProvider)
         {
             Should.NotBeNull(attachedValueProvider, nameof(attachedValueProvider));

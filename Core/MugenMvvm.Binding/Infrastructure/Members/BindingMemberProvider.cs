@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Components;
@@ -22,6 +23,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public BindingMemberProvider(IAttachedChildBindingMemberProvider attachedChildBindingMemberProvider, IComponentCollectionProvider componentCollectionProvider)
         {
             Should.NotBeNull(attachedChildBindingMemberProvider, nameof(attachedChildBindingMemberProvider));
