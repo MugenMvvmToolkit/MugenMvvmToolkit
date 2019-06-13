@@ -5,5 +5,7 @@
         string Path { get; }
 
         string[] Parts { get; }
+
+        bool IsSingle { get; }
     }
 }

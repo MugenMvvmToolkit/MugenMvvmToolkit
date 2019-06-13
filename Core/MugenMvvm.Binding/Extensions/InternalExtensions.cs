@@ -9,7 +9,8 @@ namespace MugenMvvm.Binding
     {
         #region Fields
 
-        internal static readonly string[] CommaSeparator = { "," };
+        internal static readonly char[] CommaSeparator = { ',' };
+        internal static readonly char[] DotSeparator = { '.' };
 
         #endregion
 

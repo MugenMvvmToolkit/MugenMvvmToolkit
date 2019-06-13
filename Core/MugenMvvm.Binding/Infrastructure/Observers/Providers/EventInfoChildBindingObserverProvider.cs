@@ -7,6 +7,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 
+// ReSharper disable once CheckNamespace
 namespace MugenMvvm.Binding.Infrastructure.Observers
 {
     public sealed class EventInfoChildBindingObserverProvider : IChildBindingObserverProvider, IBindingMemberObserverCallback

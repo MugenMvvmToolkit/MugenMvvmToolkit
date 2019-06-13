@@ -7,6 +7,7 @@ using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 
+// ReSharper disable once CheckNamespace
 namespace MugenMvvm.Binding.Infrastructure.Observers
 {
     public sealed class PropertyChangedChildBindingObserverProvider : IChildBindingObserverProvider, IBindingMemberObserverCallback
@@ -40,8 +41,8 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
         public IDisposable? TryObserve(object? target, object member, IBindingEventListener listener, IReadOnlyMetadataContext metadata)
         {
             return _attachedValueProvider
-                .GetOrAdd((INotifyPropertyChanged) target, BindingInternalConstants.PropertyChangedObserverMember, null, null, CreateWeakPropertyListenerDelegate)
-                .Add(listener, (string) member);
+                .GetOrAdd((INotifyPropertyChanged)target, BindingInternalConstants.PropertyChangedObserverMember, null, null, CreateWeakPropertyListenerDelegate)
+                .Add(listener, (string)member);
         }
 
         public bool TryGetMemberObserver(Type type, object member, IReadOnlyMetadataContext metadata, out BindingMemberObserver observer)
@@ -142,7 +143,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
                 if (_size == 0)
                     _listeners = Default.EmptyArray<KeyValuePair<WeakBindingEventListener, string>>();
-                else if (_listeners.Length / (float) _size > 2)
+                else if (_listeners.Length / (float)_size > 2)
                 {
                     var listeners = new KeyValuePair<WeakBindingEventListener, string>[_size + (_size >> 2)];
                     Array.Copy(_listeners, 0, listeners, 0, _size);
@@ -156,7 +157,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
                 {
                     if (_listeners.Length == 0)
                     {
-                        _listeners = new[] {new KeyValuePair<WeakBindingEventListener, string>(weakItem, path)};
+                        _listeners = new[] { new KeyValuePair<WeakBindingEventListener, string>(weakItem, path) };
                         _size = 1;
                         _removedSize = 0;
                     }
