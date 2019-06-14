@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using MugenMvvm.Binding.Metadata;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm.Binding
@@ -15,6 +16,26 @@ namespace MugenMvvm.Binding
         #endregion
 
         #region Methods
+
+        internal static bool IsNullOrUnsetValue(this object obj)
+        {
+            return obj == null || ReferenceEquals(obj, BindingMetadata.UnsetValue);
+        }
+
+        internal static bool IsUnsetValueOrDoNothing(this object obj)
+        {
+            return ReferenceEquals(obj, BindingMetadata.UnsetValue) || ReferenceEquals(obj, BindingMetadata.DoNothing);
+        }
+
+        internal static bool IsUnsetValue(this object obj)
+        {
+            return ReferenceEquals(obj, BindingMetadata.UnsetValue);
+        }
+
+        internal static bool IsDoNothing(this object obj)
+        {
+            return ReferenceEquals(obj, BindingMetadata.DoNothing);
+        }
 
         internal static ICollection<Type> SelfAndBaseTypes(Type type)
         {

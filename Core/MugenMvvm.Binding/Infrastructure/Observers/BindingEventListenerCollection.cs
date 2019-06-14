@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Internal;
 
 namespace MugenMvvm.Binding.Infrastructure.Observers
 {
-    public sealed class BindingEventListenerCollection//todo check opt with free index
+    public sealed class BindingEventListenerCollection//todo opt
     {
         #region Fields
 
@@ -34,7 +34,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         public static BindingEventListenerCollection GetOrAdd(object item, string path, IAttachedValueProvider? provider = null)
         {
-            return provider.ServiceIfNull().GetOrAdd(item, path, (object) null, (object) null, (_, __, ___) => new BindingEventListenerCollection());
+            return provider.ServiceIfNull().GetOrAdd(item, path, (object)null, (object)null, (_, __, ___) => new BindingEventListenerCollection());
         }
 
         public static void Raise(object item, string path, object message, IAttachedValueProvider? provider = null)
@@ -112,7 +112,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
             {
                 if (_listeners.Length == 0)
                 {
-                    _listeners = new[] {weakItem};
+                    _listeners = new[] { weakItem };
                     _size = 1;
                     _removedSize = 0;
                 }
@@ -180,7 +180,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
             if (_size == 0)
                 _listeners = Default.EmptyArray<WeakBindingEventListener>();
-            else if (_listeners.Length / (float) _size > 2)
+            else if (_listeners.Length / (float)_size > 2)
             {
                 var listeners = new WeakBindingEventListener[_size + (_size >> 2)];
                 Array.Copy(_listeners, 0, listeners, 0, _size);
@@ -212,7 +212,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         #region Nested types
 
-        internal sealed class Unsubscriber : IDisposable
+        private sealed class Unsubscriber : IDisposable
         {
             #region Fields
 

@@ -38,9 +38,9 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         #region Implementation of interfaces
 
-        public IDisposable TryObserve(object target, object member, IBindingEventListener listener, IReadOnlyMetadataContext metadata)
+        public IDisposable TryObserve(object target, object member, IBindingEventListener listener, IReadOnlyMetadataContext? metadata)
         {
-            return ((IBindingMemberInfo) member).TryObserve(target, listener);
+            return ((IBindingMemberInfo)member).TryObserve(target, listener, metadata);
         }
 
         public bool TryGetMemberObserver(Type type, object member, IReadOnlyMetadataContext metadata, out BindingMemberObserver observer)

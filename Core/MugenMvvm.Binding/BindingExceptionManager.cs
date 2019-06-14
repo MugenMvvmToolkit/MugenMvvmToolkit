@@ -18,6 +18,11 @@ namespace MugenMvvm.Binding
             throw new InvalidOperationException(BindingMessageConstants.BindingMemberMustBeReadableFormat4.Format(member.Name, member.Type, member.MemberType, member.Member));
         }
 
+        internal static void ThrowInvalidBindingMember(Type sourceType, string path)
+        {
+            throw new InvalidOperationException(string.Format(BindingMessageConstants.InvalidBindingMemberFormat2, path, sourceType));
+        }
+
         #endregion
     }
 }

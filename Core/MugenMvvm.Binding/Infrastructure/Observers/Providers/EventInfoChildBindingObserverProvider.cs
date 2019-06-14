@@ -42,7 +42,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         #region Implementation of interfaces
 
-        IDisposable? IBindingMemberObserverCallback.TryObserve(object target, object member, IBindingEventListener listener, IReadOnlyMetadataContext metadata)
+        IDisposable? IBindingMemberObserverCallback.TryObserve(object target, object member, IBindingEventListener listener, IReadOnlyMetadataContext? metadata)
         {
             var eventInfo = (EventInfo)member;
             var listenerInternal = _attachedValueProvider.GetOrAdd(target, BindingInternalConstants.EventPrefixObserverMember + eventInfo.Name, eventInfo, null,

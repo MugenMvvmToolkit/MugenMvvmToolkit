@@ -38,7 +38,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         #region Implementation of interfaces
 
-        public IDisposable? TryObserve(object? target, object member, IBindingEventListener listener, IReadOnlyMetadataContext metadata)
+        public IDisposable? TryObserve(object? target, object member, IBindingEventListener listener, IReadOnlyMetadataContext? metadata)
         {
             return _attachedValueProvider
                 .GetOrAdd((INotifyPropertyChanged)target, BindingInternalConstants.PropertyChangedObserverMember, null, null, CreateWeakPropertyListenerDelegate)
@@ -72,7 +72,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         #region Nested types
 
-        private sealed class WeakPropertyChangedListener
+        private sealed class WeakPropertyChangedListener//todo opt
         {
             #region Fields
 

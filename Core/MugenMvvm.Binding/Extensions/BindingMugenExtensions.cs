@@ -20,15 +20,15 @@ namespace MugenMvvm.Binding
             if (member == null)
                 return default;
             if (member is IAttachedBindingMemberInfo<TSource, TValue> attached)
-                return attached.GetValue(source, args);
-            return (TValue)member.GetValue(source, args);
+                return attached.GetValue(source, args, metadata);
+            return (TValue)member.GetValue(source, args, metadata);
         }
 
         public static IDisposable? TryObserve<TSource, TValue>(this BindingMemberDescriptor<TSource, TValue> descriptor, TSource source, IBindingEventListener listener,
             IReadOnlyMetadataContext? metadata = null, IBindingMemberProvider? provider = null)
             where TSource : class
         {
-            return descriptor.GetMember(source, metadata, provider)?.TryObserve(source, listener);
+            return descriptor.GetMember(source, metadata, provider)?.TryObserve(source, listener, metadata);
         }
 
         public static IBindingMemberInfo? GetMember<TSource, TValue>(this BindingMemberDescriptor<TSource, TValue> descriptor, TSource source,

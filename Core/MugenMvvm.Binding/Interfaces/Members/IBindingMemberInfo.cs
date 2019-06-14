@@ -1,6 +1,7 @@
 ﻿using System;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Members
 {
@@ -20,12 +21,12 @@ namespace MugenMvvm.Binding.Interfaces.Members
 
         bool CanObserve { get; }
 
-        object? GetValue(object? target, object?[]? args);
+        object? GetValue(object? target, object?[]? args, IReadOnlyMetadataContext? metadata);
 
-        object? SetValue(object? target, object? value);
+        object? SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata);
 
-        object? SetValues(object? target, object?[] args);
+        object? SetValues(object? target, object?[] args, IReadOnlyMetadataContext? metadata);
 
-        IDisposable? TryObserve(object? target, IBindingEventListener listener);
+        IDisposable? TryObserve(object? target, IBindingEventListener listener, IReadOnlyMetadataContext? metadata);
     }
 }

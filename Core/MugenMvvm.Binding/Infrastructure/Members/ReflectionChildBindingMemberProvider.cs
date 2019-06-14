@@ -245,23 +245,23 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
             #region Implementation of interfaces
 
-            public object GetValue(object target, object[] args)
+            public object GetValue(object target, object[] args, IReadOnlyMetadataContext? metadata)
             {
-                return ((Array) target).GetValue(_indexes);
+                return ((Array)target).GetValue(_indexes);
             }
 
-            public object SetValue(object target, object value)
+            public object SetValue(object target, object value, IReadOnlyMetadataContext? metadata)
             {
-                ((Array) target).SetValue(value, _indexes);
+                ((Array)target).SetValue(value, _indexes);
                 return null;
             }
 
-            public object SetValues(object target, object[] args)
+            public object SetValues(object target, object[] args, IReadOnlyMetadataContext? metadata)
             {
-                return SetValue(target, args[0]);
+                return SetValue(target, args[0], metadata);
             }
 
-            public IDisposable TryObserve(object target, IBindingEventListener listener)
+            public IDisposable TryObserve(object target, IBindingEventListener listener, IReadOnlyMetadataContext? metadata)
             {
                 return null;
             }
@@ -310,27 +310,27 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
             #region Implementation of interfaces
 
-            public object GetValue(object target, object[] args)
+            public object GetValue(object target, object[] args, IReadOnlyMetadataContext? metadata)
             {
                 BindingExceptionManager.ThrowBindingMemberMustBeReadable(this);
                 return null;
             }
 
-            public object SetValue(object target, object value)
+            public object SetValue(object target, object value, IReadOnlyMetadataContext? metadata)
             {
                 var listener = value as IBindingEventListener;
                 if (_observer == null || listener == null)
                     BindingExceptionManager.ThrowBindingMemberMustBeWritable(this);
 
-                return _observer!.Value.TryObserve(target, listener, Default.Metadata);
+                return _observer!.Value.TryObserve(target, listener, metadata);
             }
 
-            public object SetValues(object target, object[] args)
+            public object SetValues(object target, object[] args, IReadOnlyMetadataContext? metadata)
             {
-                return SetValue(target, args[0]);
+                return SetValue(target, args[0], metadata);
             }
 
-            public IDisposable TryObserve(object target, IBindingEventListener listener)
+            public IDisposable TryObserve(object target, IBindingEventListener listener, IReadOnlyMetadataContext? metadata)
             {
                 return null;
             }
@@ -383,25 +383,25 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
             #region Implementation of interfaces
 
-            public object GetValue(object target, object[] args)
+            public object GetValue(object target, object[] args, IReadOnlyMetadataContext? metadata)
             {
                 return _getterFunc(target);
             }
 
-            public object SetValue(object target, object value)
+            public object SetValue(object target, object value, IReadOnlyMetadataContext? metadata)
             {
                 _setterFunc(target, value);
                 return null;
             }
 
-            public object SetValues(object target, object[] args)
+            public object SetValues(object target, object[] args, IReadOnlyMetadataContext? metadata)
             {
-                return SetValue(target, args[0]);
+                return SetValue(target, args[0], metadata);
             }
 
-            public IDisposable TryObserve(object target, IBindingEventListener listener)
+            public IDisposable TryObserve(object target, IBindingEventListener listener, IReadOnlyMetadataContext? metadata)
             {
-                return _observer?.TryObserve(target, listener, Default.Metadata);
+                return _observer?.TryObserve(target, listener, metadata);
             }
 
             #endregion
@@ -501,7 +501,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
             #region Implementation of interfaces
 
-            public object GetValue(object target, object[] args)
+            public object GetValue(object target, object[] args, IReadOnlyMetadataContext? metadata)
             {
                 if (!CanRead)
                 {
@@ -514,7 +514,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
                 return _getterIndexerFunc(target, _indexerValues);
             }
 
-            public object SetValue(object target, object value)
+            public object SetValue(object target, object value, IReadOnlyMetadataContext? metadata)
             {
                 if (!CanWrite)
                 {
@@ -534,14 +534,14 @@ namespace MugenMvvm.Binding.Infrastructure.Members
                 return null;
             }
 
-            public object SetValues(object target, object[] args)
+            public object SetValues(object target, object[] args, IReadOnlyMetadataContext? metadata)
             {
-                return SetValue(target, args[0]);
+                return SetValue(target, args[0], metadata);
             }
 
-            public IDisposable TryObserve(object target, IBindingEventListener listener)
+            public IDisposable TryObserve(object target, IBindingEventListener listener, IReadOnlyMetadataContext? metadata)
             {
-                return _observer?.TryObserve(target, listener, Default.Metadata);
+                return _observer?.TryObserve(target, listener, metadata);
             }
 
             #endregion

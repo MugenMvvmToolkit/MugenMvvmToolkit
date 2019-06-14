@@ -1,0 +1,70 @@
+﻿using MugenMvvm.Binding.Infrastructure.Members;
+using MugenMvvm.Binding.Interfaces.Members;
+using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Interfaces.Metadata;
+
+// ReSharper disable once CheckNamespace
+namespace MugenMvvm.Binding.Infrastructure.Observers
+{
+    internal sealed class EmptyPathObserver : ObserverBase, IBindingEventListener
+    {
+        #region Constructors
+
+        public EmptyPathObserver(IWeakReference source, IBindingMemberInfo member) : base(source, member)
+        {
+        }
+
+        #endregion
+
+        #region Properties
+
+        public bool IsWeak => true;
+
+        public override IBindingPath Path => EmptyBindingPath.Instance;
+
+        #endregion
+
+        #region Implementation of interfaces
+
+        bool IBindingEventListener.TryHandle(object sender, object message)
+        {
+            var source = Source;
+            if (source == null)
+                return false;
+            OnLastMemberChanged();
+            return true;
+        }
+
+        #endregion
+
+        #region Methods
+
+        public override BindingPathMembers GetMembers(IReadOnlyMetadataContext metadata)
+        {
+            if (TryGetSourceValue(out var source))
+                return new BindingPathMembers(Path, source, source, ConstantBindingMemberInfo.NullInstanceArray, ConstantBindingMemberInfo.NullInstance);
+            return default;
+        }
+
+        public override BindingPathLastMember GetLastMember(IReadOnlyMetadataContext metadata)
+        {
+            if (TryGetSourceValue(out var source))
+                return new BindingPathLastMember(Path, source, ConstantBindingMemberInfo.NullInstance);
+            return default;
+        }
+
+        protected override void OnListenerAdded(IBindingPathObserverListener listener)
+        {
+            if (!HasSourceListener)
+                AddSourceListener();
+        }
+
+        protected override IBindingEventListener GetSourceListener()
+        {
+            return this;
+        }
+
+        #endregion
+    }
+}
