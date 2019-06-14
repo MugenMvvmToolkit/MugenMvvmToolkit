@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Metadata;
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm.Binding.Infrastructure.Observers
 {
-    internal sealed class SinglePathObserver : ObserverBase, IBindingEventListener
+    internal sealed class SinglePathObserver : ObserverBase, IBindingEventListener, IWeakReferenceHolder
     {
         #region Fields
 
@@ -41,7 +41,9 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         public override IBindingPath Path { get; }
 
-        public bool IsWeak => true;
+        public bool IsWeak => false;
+
+        public IWeakReference WeakReference { get; set; }
 
         #endregion
 
@@ -81,7 +83,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         protected override IBindingEventListener GetSourceListener()
         {
-            return new SourceListener(this);
+            return new SourceListener(Service<IWeakReferenceProvider>.Instance.GetWeakReference(this, Default.Metadata));
         }
 
         protected override void OnListenerAdded(IBindingPathObserverListener listener)
@@ -194,13 +196,13 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
         {
             #region Fields
 
-            private readonly SinglePathObserver _observer;
+            private readonly IWeakReference _observer;
 
             #endregion
 
             #region Constructors
 
-            public SourceListener(SinglePathObserver observer)
+            public SourceListener(IWeakReference observer)
             {
                 _observer = observer;
             }
@@ -209,7 +211,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
             #region Properties
 
-            public bool IsAlive => _observer.IsAlive;
+            public bool IsAlive => _observer.Target != null;
 
             public bool IsWeak => true;
 
@@ -219,7 +221,10 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
             public bool TryHandle(object sender, object message)
             {
-                return _observer.Update();
+                var observer = (SinglePathObserver)_observer.Target;
+                if (observer == null)
+                    return false;
+                return observer.Update();
             }
 
             #endregion

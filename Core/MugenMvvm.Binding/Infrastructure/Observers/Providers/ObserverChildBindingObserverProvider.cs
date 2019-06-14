@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Metadata;
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm.Binding.Infrastructure.Observers
 {
-    public sealed class ObserverChildBindingObserverProvider : IBindingPathChildBindingObserverProvider //todo static members?, check leaks
+    public sealed class ObserverChildBindingObserverProvider : IBindingPathChildBindingObserverProvider //todo static members?
     {
         #region Properties
 

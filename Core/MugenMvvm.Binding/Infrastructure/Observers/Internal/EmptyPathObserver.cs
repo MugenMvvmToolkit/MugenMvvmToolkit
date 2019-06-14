@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Metadata;
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm.Binding.Infrastructure.Observers
 {
-    internal sealed class EmptyPathObserver : ObserverBase, IBindingEventListener
+    internal sealed class EmptyPathObserver : ObserverBase, IBindingEventListener, IWeakReferenceHolder
     {
         #region Constructors
 
@@ -19,9 +19,11 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         #region Properties
 
-        public bool IsWeak => true;
+        public bool IsWeak => false;
 
         public override IBindingPath Path => EmptyBindingPath.Instance;
+
+        public IWeakReference WeakReference { get; set; }
 
         #endregion
 

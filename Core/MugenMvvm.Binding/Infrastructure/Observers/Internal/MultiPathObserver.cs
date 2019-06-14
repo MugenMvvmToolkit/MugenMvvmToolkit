@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Metadata;
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm.Binding.Infrastructure.Observers
 {
-    internal sealed class MultiPathObserver : ObserverBase, IBindingEventListener
+    internal sealed class MultiPathObserver : ObserverBase, IBindingEventListener, IWeakReferenceHolder
     {
         #region Fields
 
@@ -44,7 +44,9 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         public override IBindingPath Path { get; }
 
-        public bool IsWeak => true;
+        public bool IsWeak => false;
+
+        public IWeakReference WeakReference { get; set; }
 
         #endregion
 
@@ -215,7 +217,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
         private IBindingEventListener GetLastMemberListener()
         {
             if (_lastMemberListener == null)
-                _lastMemberListener = new LastMemberListener(this);
+                _lastMemberListener = new LastMemberListener(Service<IWeakReferenceProvider>.Instance.GetWeakReference(this, Default.Metadata));
             return _lastMemberListener;
         }
 
@@ -239,13 +241,13 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
         {
             #region Fields
 
-            private readonly MultiPathObserver _observer;
+            private readonly IWeakReference _observer;
 
             #endregion
 
             #region Constructors
 
-            public LastMemberListener(MultiPathObserver observer)
+            public LastMemberListener(IWeakReference observer)
             {
                 _observer = observer;
             }
@@ -254,7 +256,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
             #region Properties
 
-            public bool IsAlive => _observer.IsAlive;
+            public bool IsAlive => _observer.Target != null;
 
             public bool IsWeak => true;
 
@@ -264,7 +266,10 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
             public bool TryHandle(object sender, object message)
             {
-                _observer.OnLastMemberChanged();
+                var observer = (MultiPathObserver) _observer.Target;
+                if (observer == null)
+                    return false;
+                observer.OnLastMemberChanged();
                 return true;
             }
 
