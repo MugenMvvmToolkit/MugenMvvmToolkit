@@ -28,7 +28,7 @@ namespace MugenMvvm.Infrastructure.Internal
 
         private static IWeakReference GetWeakReference(object target)
         {
-            return MugenExtensions.GetWeakReference(target);
+            return Service<IWeakReferenceProvider>.Instance.GetWeakReference(target, Default.Metadata);
         }
 
         #endregion

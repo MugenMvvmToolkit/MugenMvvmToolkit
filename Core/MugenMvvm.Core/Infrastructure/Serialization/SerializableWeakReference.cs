@@ -10,7 +10,7 @@ namespace MugenMvvm.Infrastructure.Serialization
     [Serializable]
     [DataContract(Namespace = BuildConstants.DataContractNamespace)]
     [Preserve(Conditional = true, AllMembers = true)]
-    public sealed class SerializableWeakReference
+    public sealed class SerializableWeakReference//todo check
     {
         #region Constructors
 
@@ -20,7 +20,7 @@ namespace MugenMvvm.Infrastructure.Serialization
         }
 
         public SerializableWeakReference(object? target)
-            : this(MugenExtensions.GetWeakReference(target))
+            : this(Service<IWeakReferenceProvider>.Instance.GetWeakReference(target, Default.Metadata))
         {
         }
 
@@ -32,7 +32,7 @@ namespace MugenMvvm.Infrastructure.Serialization
         internal object? SerializableTarget
         {
             get => Target.Target;
-            set => Target = MugenExtensions.GetWeakReference(value);
+            set => Target = Service<IWeakReferenceProvider>.Instance.GetWeakReference(value, Default.Metadata);
         }
 
         [field: IgnoreDataMember]

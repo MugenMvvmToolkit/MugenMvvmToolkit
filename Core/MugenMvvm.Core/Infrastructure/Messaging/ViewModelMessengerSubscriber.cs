@@ -35,7 +35,7 @@ namespace MugenMvvm.Infrastructure.Messaging
         private ViewModelMessengerSubscriber(IViewModelBase viewModel)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            _reference = MugenExtensions.GetWeakReference(viewModel);
+            _reference = Service<IWeakReferenceProvider>.Instance.GetWeakReference(viewModel, Default.Metadata);
             _hashCode = viewModel.GetHashCode();
             viewModel.Metadata.AddListener(this);
             BroadcastAllMessages = viewModel.Metadata.Get(ViewModelMetadata.BroadcastAllMessages);

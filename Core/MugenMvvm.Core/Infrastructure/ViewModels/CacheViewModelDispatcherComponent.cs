@@ -118,7 +118,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
         {
             lock (_viewModelsCache)
             {
-                _viewModelsCache[id] = _isWeakCache ? (object)MugenExtensions.GetWeakReference(viewModel) : viewModel;
+                _viewModelsCache[id] = _isWeakCache ? (object)Service<IWeakReferenceProvider>.Instance.GetWeakReference(viewModel, Default.Metadata) : viewModel;
             }
         }
 

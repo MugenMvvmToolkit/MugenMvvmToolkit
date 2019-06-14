@@ -5,7 +5,6 @@ using JetBrains.Annotations;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.IoC;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -190,13 +189,6 @@ namespace MugenMvvm
 
             service = null;
             return false;
-        }
-
-        public static IWeakReference GetWeakReference(object? item, IReadOnlyMetadataContext? metadata = null, IWeakReferenceProvider? provider = null)
-        {
-            if (item == null)
-                return Default.WeakReference;
-            return provider.ServiceIfNull().GetWeakReference(item, metadata);
         }
 
         //note for better performance use this method for creating delegate instead of handler.Execute because it will use ldftn opcode instead of ldvirtftn       

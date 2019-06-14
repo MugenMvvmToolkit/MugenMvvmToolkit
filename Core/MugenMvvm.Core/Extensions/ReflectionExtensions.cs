@@ -171,7 +171,7 @@ namespace MugenMvvm
                 Should.NotBeNull(invokeAction, nameof(invokeAction));
                 _invokeAction = invokeAction;
                 _unsubscribeAction = unsubscribeAction;
-                _targetReference = GetWeakReference(target);
+                _targetReference = Service<IWeakReferenceProvider>.Instance.GetWeakReference(target, Default.Metadata);
             }
 
             #endregion

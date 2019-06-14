@@ -152,7 +152,7 @@ namespace MugenMvvm.Infrastructure.Commands
 
             public Subscriber(ConditionEventRelayCommandMediator mediator)
             {
-                _reference = MugenExtensions.GetWeakReference(mediator);
+                _reference = Service<IWeakReferenceProvider>.Instance.GetWeakReference(mediator, Default.Metadata);
             }
 
             #endregion

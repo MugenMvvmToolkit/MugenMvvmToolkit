@@ -2,7 +2,7 @@
 
 namespace MugenMvvm
 {
-    public static class Service<TService>
+    public static class Service<TService>//todo check and use as dependency if possible
         where TService : class
     {
         #region Properties

@@ -285,7 +285,7 @@ namespace MugenMvvm.Infrastructure.Navigation
             {
                 NavigationType = navigationType;
                 NavigationProvider = provider;
-                _viewModelReference = MugenExtensions.GetWeakReference(viewModel);
+                _viewModelReference = Service<IWeakReferenceProvider>.Instance.GetWeakReference(viewModel, Default.Metadata);
                 _date = DateTime.UtcNow;
             }
 
@@ -293,7 +293,7 @@ namespace MugenMvvm.Infrastructure.Navigation
             {
                 NavigationType = navigationEntry.NavigationType;
                 NavigationProvider = navigationEntry.NavigationProvider;
-                _viewModelReference = MugenExtensions.GetWeakReference(navigationEntry.ViewModel);
+                _viewModelReference = Service<IWeakReferenceProvider>.Instance.GetWeakReference(navigationEntry.ViewModel, Default.Metadata);
                 _date = navigationEntry.NavigationDate;
             }
 

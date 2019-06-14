@@ -43,8 +43,10 @@ namespace MugenMvvm.Infrastructure.Internal
 
         public IWeakReference GetWeakReference(object item, IReadOnlyMetadataContext metadata)
         {
-            Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(metadata, nameof(metadata));
+            
+            if (item == null)
+                return Default.WeakReference;
 
             if (item is IWeakReference w)
                 return w;
