@@ -1,20 +1,19 @@
 ﻿using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Components
 {
-    public interface IComponentCollectionListener : IListener
+    public interface IComponentCollectionListener<T> : IComponent<IComponentCollection<T>> where T : class
     {
-        bool OnAdding<T>(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext metadata) where T : class;
+        bool OnAdding(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext metadata);
 
-        void OnAdded<T>(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext metadata) where T : class;
+        void OnAdded(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext metadata);
 
-        bool OnRemoving<T>(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext metadata) where T : class;
+        bool OnRemoving(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext metadata);
 
-        void OnRemoved<T>(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext metadata) where T : class;
+        void OnRemoved(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext metadata);
 
-        bool OnClearing<T>(IComponentCollection<T> collection, IReadOnlyMetadataContext metadata) where T : class;
+        bool OnClearing(IComponentCollection<T> collection, IReadOnlyMetadataContext metadata);
 
-        void OnCleared<T>(IComponentCollection<T> collection, T[] oldItems, IReadOnlyMetadataContext metadata) where T : class;
+        void OnCleared(IComponentCollection<T> collection, T[] oldItems, IReadOnlyMetadataContext metadata);
     }
 }

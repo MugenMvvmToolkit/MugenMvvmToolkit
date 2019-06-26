@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Validation
 {
-    public interface IValidator : IHasListeners<IValidatorListener>, IHasMetadata<IObservableMetadataContext>, IDisposable
+    public interface IValidator : IComponentOwner<IValidator>, IMetadataOwner<IMetadataContext>, IDisposable
     {
         bool HasErrors { get; }
 

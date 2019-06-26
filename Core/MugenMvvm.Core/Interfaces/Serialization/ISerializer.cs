@@ -6,10 +6,8 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Serialization
 {
-    public interface ISerializer
+    public interface ISerializer : IComponentOwner<ISerializer>
     {
-        IComponentCollection<ISerializerHandler> Handlers { get; }
-
         bool IsOnSerializingSupported { get; }
 
         bool IsOnSerializedSupported { get; }
@@ -19,7 +17,7 @@ namespace MugenMvvm.Interfaces.Serialization
         bool IsOnDeserializedSupported { get; }
 
         [Pure]
-        ISerializationContext GetSerializationContext(IServiceProvider? serviceProvider, IMetadataContext? metadata);
+        ISerializationContext GetSerializationContext(IServiceProvider? serviceProvider = null, IReadOnlyMetadataContext? metadata = null);
 
         [Pure]
         bool CanSerialize(Type type, IReadOnlyMetadataContext? metadata);

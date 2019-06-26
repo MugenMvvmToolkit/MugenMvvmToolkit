@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Serialization
 {
-    public interface ISerializationContext : IHasMetadata<IMetadataContext> //todo review?
+    public interface ISerializationContext : IMetadataOwner<IMetadataContext> //todo review?
     {
         IServiceProvider ServiceProvider { get; }
 

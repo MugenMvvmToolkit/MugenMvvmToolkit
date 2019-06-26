@@ -3,7 +3,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Models
 {
-    public interface IDeviceInfo : IHasMetadata<IObservableMetadataContext>
+    public interface IDeviceInfo : IMetadataOwner<IMetadataContext>
     {
         PlatformType Platform { get; }
 

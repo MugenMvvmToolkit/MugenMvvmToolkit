@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Messaging;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Messaging
 {
-    public interface IMessenger : IEventPublisher, IHasListeners<IMessengerListener>, IDisposable
+    public interface IMessenger : IEventPublisher, IComponentOwner<IMessenger>, IDisposable
     {
         IMessengerContext GetMessengerContext(IMetadataContext? metadata);
 

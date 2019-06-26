@@ -1,0 +1,55 @@
+﻿using MugenMvvm.Attributes;
+using MugenMvvm.Infrastructure.Components;
+using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Interfaces.Metadata;
+
+namespace MugenMvvm.Infrastructure.Internal
+{
+    public sealed class AttachedDictionaryProvider : ComponentOwnerBase<IAttachedDictionaryProvider>, IAttachedDictionaryProvider
+    {
+        #region Constructors
+
+        [Preserve(Conditional = true)]
+        public AttachedDictionaryProvider(IComponentCollectionProvider componentCollectionProvider) : base(componentCollectionProvider)
+        {
+        }
+
+        #endregion
+
+        #region Implementation of interfaces
+
+        public IAttachedDictionary GetOrAddAttachedDictionary(object item, IReadOnlyMetadataContext metadata)
+        {
+            Should.NotBeNull(item, nameof(item));
+            Should.NotBeNull(metadata, nameof(metadata));
+
+            var items = Components.GetItems();
+            for (var i = 0; i < items.Length; i++)
+            {
+                if (items[i] is IAttachedDictionaryProviderComponent factory && factory.TryGetOrAddAttachedDictionary(item, metadata, out var dict))
+                    return dict;
+            }
+
+            ExceptionManager.ThrowObjectNotInitialized(this);
+            return null;
+        }
+
+        public IAttachedDictionary GetAttachedDictionary(object item, IReadOnlyMetadataContext metadata)
+        {
+            Should.NotBeNull(item, nameof(item));
+            Should.NotBeNull(metadata, nameof(metadata));
+
+            var items = Components.GetItems();
+            for (var i = 0; i < items.Length; i++)
+            {
+                if (items[i] is IAttachedDictionaryProviderComponent factory && factory.TryGetAttachedDictionary(item, metadata, out var dict))
+                    return dict;
+            }
+
+            return null;
+        }
+
+        #endregion
+    }
+}

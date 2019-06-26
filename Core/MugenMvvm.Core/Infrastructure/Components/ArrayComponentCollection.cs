@@ -9,7 +9,7 @@ namespace MugenMvvm.Infrastructure.Components
     {
         #region Fields
 
-        private IComponentCollection<IComponentCollectionListener>? _listeners;
+        private IComponentCollection<IComponent<IComponentCollection<T>>>? _components;
         protected T[] Items;
 
         #endregion
@@ -31,15 +31,15 @@ namespace MugenMvvm.Infrastructure.Components
 
         public bool HasItems => Items.Length > 0;
 
-        public bool IsListenersInitialized => _listeners != null;
+        public bool HasComponents => _components != null && _components.HasItems;
 
-        public IComponentCollection<IComponentCollectionListener> Listeners
+        public IComponentCollection<IComponent<IComponentCollection<T>>> Components
         {
             get
             {
-                if (_listeners == null)
-                    Service<IComponentCollectionProvider>.Instance.LazyInitialize(ref _listeners, this);
-                return _listeners;
+                if (_components == null)
+                    Service<IComponentCollectionProvider>.Instance.LazyInitialize(ref _components, this);
+                return _components;
             }
         }
 
@@ -57,10 +57,10 @@ namespace MugenMvvm.Infrastructure.Components
             Should.NotBeNull(component, nameof(component));
             if (metadata == null)
                 metadata = Default.Metadata;
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
             {
-                if (!listeners[i].OnAdding(this, component, metadata))
+                if (components[i] is IComponentCollectionListener<T> listener && !listener.OnAdding(this, component, metadata))
                     return false;
             }
 
@@ -70,8 +70,8 @@ namespace MugenMvvm.Infrastructure.Components
                     return false;
             }
 
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnAdded(this, component, metadata);
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as IComponentCollectionListener<T>)?.OnAdded(this, component, metadata);
 
             return true;
         }
@@ -81,10 +81,10 @@ namespace MugenMvvm.Infrastructure.Components
             Should.NotBeNull(component, nameof(component));
             if (metadata == null)
                 metadata = Default.Metadata;
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
             {
-                if (!listeners[i].OnRemoving(this, component, metadata))
+                if (components[i] is IComponentCollectionListener<T> listener && !listener.OnRemoving(this, component, metadata))
                     return false;
             }
 
@@ -94,8 +94,8 @@ namespace MugenMvvm.Infrastructure.Components
                     return false;
             }
 
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnRemoved(this, component, metadata);
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as IComponentCollectionListener<T>)?.OnRemoved(this, component, metadata);
 
             return true;
         }
@@ -104,10 +104,10 @@ namespace MugenMvvm.Infrastructure.Components
         {
             if (metadata == null)
                 metadata = Default.Metadata;
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
             {
-                if (!listeners[i].OnClearing(this, metadata))
+                if (components[i] is IComponentCollectionListener<T> listener && !listener.OnClearing(this, metadata))
                     return false;
             }
 
@@ -115,8 +115,8 @@ namespace MugenMvvm.Infrastructure.Components
             if (!ClearInternal(metadata))
                 return false;
 
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnCleared(this, oldItems, metadata);
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as IComponentCollectionListener<T>)?.OnCleared(this, oldItems, metadata);
 
             Array.Clear(oldItems, 0, oldItems.Length);
             return true;

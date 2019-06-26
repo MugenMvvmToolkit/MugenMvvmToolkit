@@ -18,7 +18,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.Messaging
 {
-    public sealed class ViewModelMessengerSubscriber : IMessengerSubscriber, IObservableMetadataContextListener, IHasMemento
+    public sealed class ViewModelMessengerSubscriber : IMessengerSubscriber, IMetadataContextListener, IHasMemento//todo review
     {
         #region Fields
 
@@ -37,7 +37,7 @@ namespace MugenMvvm.Infrastructure.Messaging
             Should.NotBeNull(viewModel, nameof(viewModel));
             _reference = Service<IWeakReferenceProvider>.Instance.GetWeakReference(viewModel, Default.Metadata);
             _hashCode = viewModel.GetHashCode();
-            viewModel.Metadata.AddListener(this);
+            viewModel.Metadata.AddComponent(this);
             BroadcastAllMessages = viewModel.Metadata.Get(ViewModelMetadata.BroadcastAllMessages);
             BusyMessageHandlerType = viewModel.Metadata.Get(ViewModelMetadata.BusyMessageHandlerType);
         }
@@ -97,7 +97,7 @@ namespace MugenMvvm.Infrastructure.Messaging
             return MessengerSubscriberResult.Handled;
         }
 
-        void IObservableMetadataContextListener.OnAdded(IObservableMetadataContext metadataContext, IMetadataContextKey key, object? newValue)
+        void IMetadataContextListener.OnAdded(IMetadataContext metadataContext, IMetadataContextKey key, object? newValue)
         {
             if (key.Equals(ViewModelMetadata.BroadcastAllMessages))
                 BroadcastAllMessages = ViewModelMetadata.BroadcastAllMessages.GetValue(metadataContext, newValue);
@@ -105,7 +105,7 @@ namespace MugenMvvm.Infrastructure.Messaging
                 BusyMessageHandlerType = ViewModelMetadata.BusyMessageHandlerType.GetValue(metadataContext, newValue);
         }
 
-        void IObservableMetadataContextListener.OnChanged(IObservableMetadataContext metadataContext, IMetadataContextKey key, object? oldValue, object? newValue)
+        void IMetadataContextListener.OnChanged(IMetadataContext metadataContext, IMetadataContextKey key, object? oldValue, object? newValue)
         {
             if (key.Equals(ViewModelMetadata.BroadcastAllMessages))
                 BroadcastAllMessages = ViewModelMetadata.BroadcastAllMessages.GetValue(metadataContext, newValue);
@@ -113,7 +113,7 @@ namespace MugenMvvm.Infrastructure.Messaging
                 BusyMessageHandlerType = ViewModelMetadata.BusyMessageHandlerType.GetValue(metadataContext, newValue);
         }
 
-        void IObservableMetadataContextListener.OnRemoved(IObservableMetadataContext metadataContext, IMetadataContextKey key, object? oldValue)
+        void IMetadataContextListener.OnRemoved(IMetadataContext metadataContext, IMetadataContextKey key, object? oldValue)
         {
             if (key.Equals(ViewModelMetadata.BroadcastAllMessages))
                 BroadcastAllMessages = metadataContext.Get(ViewModelMetadata.BroadcastAllMessages);

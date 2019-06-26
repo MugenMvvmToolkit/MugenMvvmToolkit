@@ -1,29 +1,25 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.CompilerServices;
+using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Serialization;
+using MugenMvvm.Interfaces.Serialization.Components;
 
 namespace MugenMvvm.Infrastructure.Serialization
 {
-    public abstract class SerializerBase : ISerializer, IComponentOwnerAddedCallback<ISerializerHandler>, IComponentOwnerRemovedCallback<ISerializerHandler>
+    public abstract class SerializerBase : ComponentOwnerBase<ISerializer>, ISerializer, IComponentOwnerAddedCallback<IComponent<ISerializer>>,
+        IComponentOwnerRemovedCallback<IComponent<ISerializer>>
     {
-        #region Fields
-
-        private IComponentCollection<ISerializerHandler>? _handlers;
-
-        #endregion
-
         #region Constructors
 
         protected SerializerBase(IServiceProvider serviceProvider, IComponentCollectionProvider componentCollectionProvider, IMetadataContextProvider metadataContextProvider)
+            : base(componentCollectionProvider)
         {
             Should.NotBeNull(serviceProvider, nameof(serviceProvider));
-            Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
             Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
             ServiceProvider = serviceProvider;
-            ComponentCollectionProvider = componentCollectionProvider;
             MetadataContextProvider = metadataContextProvider;
         }
 
@@ -31,21 +27,9 @@ namespace MugenMvvm.Infrastructure.Serialization
 
         #region Properties
 
-        protected IComponentCollectionProvider ComponentCollectionProvider { get; }
-
         protected IMetadataContextProvider MetadataContextProvider { get; }
 
         protected IServiceProvider ServiceProvider { get; }
-
-        public IComponentCollection<ISerializerHandler> Handlers
-        {
-            get
-            {
-                if (_handlers == null)
-                    ComponentCollectionProvider.LazyInitialize(ref _handlers, this);
-                return _handlers;
-            }
-        }
 
         public abstract bool IsOnSerializingSupported { get; }
 
@@ -62,17 +46,17 @@ namespace MugenMvvm.Infrastructure.Serialization
 
         #region Implementation of interfaces
 
-        void IComponentOwnerAddedCallback<ISerializerHandler>.OnComponentAdded(object collection, ISerializerHandler component, IReadOnlyMetadataContext metadata)
+        void IComponentOwnerAddedCallback<IComponent<ISerializer>>.OnComponentAdded(object collection, IComponent<ISerializer> component, IReadOnlyMetadataContext metadata)
         {
-            OnHandlerAdded(component, metadata);
+            OnComponentAdded(component, metadata);
         }
 
-        void IComponentOwnerRemovedCallback<ISerializerHandler>.OnComponentRemoved(object collection, ISerializerHandler component, IReadOnlyMetadataContext metadata)
+        void IComponentOwnerRemovedCallback<IComponent<ISerializer>>.OnComponentRemoved(object collection, IComponent<ISerializer> component, IReadOnlyMetadataContext metadata)
         {
-            OnHandlerRemoved(component, metadata);
+            OnComponentRemoved(component, metadata);
         }
 
-        public ISerializationContext GetSerializationContext(IServiceProvider? serviceProvider, IMetadataContext? metadata)
+        public ISerializationContext GetSerializationContext(IServiceProvider? serviceProvider, IReadOnlyMetadataContext? metadata)
         {
             var context = GetSerializationContextInternal(serviceProvider, metadata);
             OnContextCreated(context);
@@ -132,46 +116,46 @@ namespace MugenMvvm.Infrastructure.Serialization
 
         protected virtual void OnContextCreated(ISerializationContext context)
         {
-            var handlers = GetHandlers();
-            for (var i = 0; i < handlers.Length; i++)
-                handlers[i].OnContextCreated(this, context);
+            var components = GetComponents();
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as ISerializerListener)?.OnContextCreated(this, context);
         }
 
         protected virtual void OnSerializing(object? instance)
         {
-            var handlers = GetHandlers();
-            for (var i = 0; i < handlers.Length; i++)
-                handlers[i].OnSerializing(this, instance, CurrentSerializationContext);
+            var components = GetComponents();
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as ISerializerListener)?.OnSerializing(this, instance, CurrentSerializationContext);
         }
 
         protected virtual void OnSerialized(object? instance)
         {
-            var handlers = GetHandlers();
-            for (var i = 0; i < handlers.Length; i++)
-                handlers[i].OnSerialized(this, instance, CurrentSerializationContext);
+            var components = GetComponents();
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as ISerializerListener)?.OnSerialized(this, instance, CurrentSerializationContext);
         }
 
         protected virtual void OnDeserializing(object? instance)
         {
-            var handlers = GetHandlers();
-            for (var i = 0; i < handlers.Length; i++)
-                handlers[i].OnDeserializing(this, instance, CurrentSerializationContext);
+            var components = GetComponents();
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as ISerializerListener)?.OnDeserializing(this, instance, CurrentSerializationContext);
         }
 
         protected virtual void OnDeserialized(object? instance)
         {
-            var handlers = GetHandlers();
-            for (var i = 0; i < handlers.Length; i++)
-                handlers[i].OnDeserialized(this, instance, CurrentSerializationContext);
+            var components = GetComponents();
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as ISerializerListener)?.OnDeserialized(this, instance, CurrentSerializationContext);
         }
 
-        protected virtual bool TryGetSurrogateSerializerHandler(Type type, [NotNullWhenTrue] out ISurrogateProviderSerializerHandler? provider,
+        protected virtual bool TryGetSurrogateSerializerHandler(Type type, [NotNullWhenTrue] out ISurrogateProviderComponent? provider,
             [NotNullWhenTrue] out Type? surrogateType)
         {
-            var handlers = GetHandlers();
-            for (var i = 0; i < handlers.Length; i++)
+            var components = GetComponents();
+            for (var i = 0; i < components.Length; i++)
             {
-                if (handlers[i] is ISurrogateProviderSerializerHandler surrogate)
+                if (components[i] is ISurrogateProviderComponent surrogate)
                 {
                     surrogateType = surrogate.TryGetSerializationType(this, type);
                     if (surrogateType != null)
@@ -189,10 +173,10 @@ namespace MugenMvvm.Infrastructure.Serialization
 
         protected virtual Type? TryResolveType(string assemblyName, string typeName)
         {
-            var handlers = GetHandlers();
-            for (var i = 0; i < handlers.Length; i++)
+            var components = GetComponents();
+            for (var i = 0; i < components.Length; i++)
             {
-                if (handlers[i] is ITypeResolverSerializationHandler resolver)
+                if (components[i] is ITypeResolverComponent resolver)
                 {
                     var type = resolver.TryResolveType(this, assemblyName, typeName);
                     if (type != null)
@@ -205,10 +189,10 @@ namespace MugenMvvm.Infrastructure.Serialization
 
         protected virtual bool TryResolveName(Type serializedType, out string? assemblyName, out string? typeName)
         {
-            var handlers = GetHandlers();
-            for (var i = 0; i < handlers.Length; i++)
+            var components = GetComponents();
+            for (var i = 0; i < components.Length; i++)
             {
-                if (handlers[i] is ITypeResolverSerializationHandler resolver && resolver.TryResolveName(this, serializedType, out assemblyName, out typeName))
+                if (components[i] is ITypeResolverComponent resolver && resolver.TryResolveName(this, serializedType, out assemblyName, out typeName))
                     return true;
             }
 
@@ -217,22 +201,25 @@ namespace MugenMvvm.Infrastructure.Serialization
             return false;
         }
 
-        protected virtual ISerializationContext GetSerializationContextInternal(IServiceProvider? serviceProvider, IMetadataContext? metadata)
+        protected virtual ISerializationContext GetSerializationContextInternal(IServiceProvider? serviceProvider, IReadOnlyMetadataContext? metadata)
         {
-            return new SerializationContext(this, serviceProvider ?? ServiceProvider, metadata ?? MetadataContextProvider.GetMetadataContext(this, null));
+            var components = GetComponents();
+            for (var i = 0; i < components.Length; i++)
+            {
+                var context = (components[i] as ISerializationContextProviderComponent)?.TryGetSerializationContext(this, serviceProvider, metadata);
+                if (context != null)
+                    return context;
+            }
+
+            return new SerializationContext(this, serviceProvider ?? ServiceProvider, metadata.ToNonReadonly(this, MetadataContextProvider));
         }
 
-        protected virtual void OnHandlerAdded(ISerializerHandler handler, IReadOnlyMetadataContext metadata)
+        protected virtual void OnComponentAdded(IComponent<ISerializer> component, IReadOnlyMetadataContext metadata)
         {
         }
 
-        protected virtual void OnHandlerRemoved(ISerializerHandler handler, IReadOnlyMetadataContext metadata)
+        protected virtual void OnComponentRemoved(IComponent<ISerializer> component, IReadOnlyMetadataContext metadata)
         {
-        }
-
-        protected ISerializerHandler[] GetHandlers()
-        {
-            return _handlers.GetItemsOrDefault();
         }
 
         #endregion

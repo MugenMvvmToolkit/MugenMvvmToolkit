@@ -20,7 +20,14 @@ namespace MugenMvvm
 
         #region Methods
 
-        public static IReadOnlyMetadataContext DefaultIfNull(this IReadOnlyMetadataContext metadata)//todo bug R#
+        public static IMetadataContext ToNonReadonly(this IReadOnlyMetadataContext metadata, object? target = null, IMetadataContextProvider? contextProvider = null) //todo bug R#
+        {
+            if (metadata is IMetadataContext m)
+                return m;
+            return contextProvider.ServiceIfNull().GetMetadataContext(target, metadata);
+        }
+
+        public static IReadOnlyMetadataContext DefaultIfNull(this IReadOnlyMetadataContext metadata) //todo bug R#
         {
             return metadata ?? Default.Metadata;
         }
@@ -76,12 +83,6 @@ namespace MugenMvvm
             return GetMetadataContext(target, values, provider);
         }
 
-        public static IObservableMetadataContext ToObservableMetadataContext(this IEnumerable<MetadataContextValue> values, object? target = null,
-            IMetadataContextProvider? provider = null)
-        {
-            return GetObservableMetadataContext(target, values, provider);
-        }
-
         public static IReadOnlyMetadataContext GetReadOnlyMetadataContext(object? target, IEnumerable<MetadataContextValue> values = null,
             IMetadataContextProvider? provider = null)
         {
@@ -93,34 +94,15 @@ namespace MugenMvvm
             return provider.ServiceIfNull().GetMetadataContext(target, values);
         }
 
-        public static IObservableMetadataContext GetObservableMetadataContext(object? target, IEnumerable<MetadataContextValue> values = null,
-            IMetadataContextProvider? provider = null)
+        public static void ClearMetadata<T>(this IMetadataOwner<T> metadataOwner) where T : class, IMetadataContext//todo clearListeners
         {
-            return provider.ServiceIfNull().GetObservableMetadataContext(target, values);
+            Should.NotBeNull(metadataOwner, nameof(metadataOwner));
+            if (metadataOwner.HasMetadata)
+                metadataOwner.Metadata.Clear();
         }
 
-        public static void ClearMetadata<T>(this IHasMetadata<T> hasMetadata) where T : class, IMetadataContext
-        {
-            Should.NotBeNull(hasMetadata, nameof(hasMetadata));
-            if (hasMetadata.IsMetadataInitialized)
-            {
-                hasMetadata.Metadata.Clear();
-            }
-        }
-
-        public static void ClearMetadata<T>(this IHasMetadata<T> hasMetadata, bool clearListeners)
-            where T : class, IObservableMetadataContext
-        {
-            Should.NotBeNull(hasMetadata, nameof(hasMetadata));
-            if (hasMetadata.IsMetadataInitialized)
-            {
-                hasMetadata.Metadata.Clear();
-                if (clearListeners)
-                    hasMetadata.Metadata.RemoveAllListeners();
-            }
-        }
-
-        public static T GetOrAdd<T, TState1>(this IMetadataContext metadataContext, IMetadataContextKey<T> contextKey, TState1 state1, Func<IMetadataContext, TState1, T> valueFactory)
+        public static T GetOrAdd<T, TState1>(this IMetadataContext metadataContext, IMetadataContextKey<T> contextKey, TState1 state1,
+            Func<IMetadataContext, TState1, T> valueFactory)
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));
             return metadataContext.GetOrAdd(contextKey, state1, valueFactory, (ctx, s1, s2) => s2(ctx, s1));
@@ -146,7 +128,8 @@ namespace MugenMvvm
             return metadataContext.AddOrUpdate(contextKey, addValue, state1, updateValueFactory, (ctx, v, cV, s1, s2) => s2(ctx, v, cV, s1));
         }
 
-        public static T AddOrUpdate<T>(this IMetadataContext metadataContext, IMetadataContextKey<T> contextKey, T addValue, UpdateValueDelegate<IMetadataContext, T, T> updateValueFactory)
+        public static T AddOrUpdate<T>(this IMetadataContext metadataContext, IMetadataContextKey<T> contextKey, T addValue,
+            UpdateValueDelegate<IMetadataContext, T, T> updateValueFactory)
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));
             return metadataContext.AddOrUpdate(contextKey, addValue, updateValueFactory, updateValueFactory, (ctx, v, cV, s1, _) => s1(ctx, v, cV));

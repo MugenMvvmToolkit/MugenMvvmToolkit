@@ -16,7 +16,7 @@ namespace MugenMvvm.Infrastructure.IoC
     {
         #region Fields
 
-        private IComponentCollection<IIocContainerListener>? _listeners;
+        private IComponentCollection<IComponent<IIocContainer>>? _components;
         private int _state;
 
         // ReSharper disable once StaticMemberInGenericType
@@ -36,15 +36,15 @@ namespace MugenMvvm.Infrastructure.IoC
 
         #region Properties
 
-        public bool IsListenersInitialized => _listeners != null;
+        public bool HasComponents => _components != null && _components.HasItems;
 
-        public IComponentCollection<IIocContainerListener> Listeners
+        public IComponentCollection<IComponent<IIocContainer>> Components
         {
             get
             {
-                if (_listeners == null)
-                    MugenExtensions.LazyInitialize(ref _listeners, GetListenersCollection());
-                return _listeners;
+                if (_components == null)
+                    MugenExtensions.LazyInitialize(ref _components, GetListenersCollection());
+                return _components;
             }
         }
 
@@ -67,10 +67,10 @@ namespace MugenMvvm.Infrastructure.IoC
             if (Interlocked.Exchange(ref _state, int.MaxValue) == int.MaxValue)
                 return;
             OnDispose();
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnDisposed(this);
-            this.RemoveAllListeners();
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as IIocContainerListener)?.OnDisposed(this);
+            this.ClearComponents();
         }
 
         object IServiceProvider.GetService(Type serviceType)
@@ -109,9 +109,9 @@ namespace MugenMvvm.Infrastructure.IoC
             NotBeDisposed();
             Should.NotBeNull(service, nameof(service));
             BindToConstantInternal(service, instance, metadata);
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnBindToConstant(this, service, instance, metadata.DefaultIfNull());
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as IIocContainerListener)?.OnBindToConstant(this, service, instance, metadata.DefaultIfNull());
         }
 
         public void BindToType(Type service, Type typeTo, IocDependencyLifecycle lifecycle, IReadOnlyMetadataContext? metadata = null)
@@ -121,9 +121,9 @@ namespace MugenMvvm.Infrastructure.IoC
             Should.NotBeNull(typeTo, nameof(typeTo));
             Should.NotBeNull(lifecycle, nameof(lifecycle));
             BindToTypeInternal(service, typeTo, lifecycle, metadata);
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnBindToType(this, service, typeTo, lifecycle, metadata.DefaultIfNull());
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as IIocContainerListener)?.OnBindToType(this, service, typeTo, lifecycle, metadata.DefaultIfNull());
         }
 
         public void BindToMethod(Type service, IocBindingDelegate bindingDelegate, IocDependencyLifecycle lifecycle, IReadOnlyMetadataContext? metadata = null)
@@ -133,9 +133,9 @@ namespace MugenMvvm.Infrastructure.IoC
             Should.NotBeNull(bindingDelegate, nameof(bindingDelegate));
             Should.NotBeNull(lifecycle, nameof(lifecycle));
             BindToMethodInternal(service, bindingDelegate, lifecycle, metadata);
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnBindToMethod(this, service, bindingDelegate, lifecycle, metadata.DefaultIfNull());
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as IIocContainerListener)?.OnBindToMethod(this, service, bindingDelegate, lifecycle, metadata.DefaultIfNull());
         }
 
         public void Unbind(Type service, IReadOnlyMetadataContext? metadata = null)
@@ -145,9 +145,9 @@ namespace MugenMvvm.Infrastructure.IoC
             if (!UnbindInternal(service, metadata))
                 return;
 
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnUnbind(this, service, metadata.DefaultIfNull());
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as IIocContainerListener)?.OnUnbind(this, service, metadata.DefaultIfNull());
         }
 
         #endregion
@@ -157,9 +157,9 @@ namespace MugenMvvm.Infrastructure.IoC
         public TContainer CreateChild(IReadOnlyMetadataContext? metadata = null)
         {
             var childContainer = CreateChildInternal(metadata);
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnChildContainerCreated(this, childContainer, metadata.DefaultIfNull());
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as IIocContainerListener)?.OnChildContainerCreated(this, childContainer, metadata.DefaultIfNull());
             return childContainer;
         }
 
@@ -183,14 +183,14 @@ namespace MugenMvvm.Infrastructure.IoC
 
         protected virtual void OnActivated(Type service, object? member, object? instance, IReadOnlyMetadataContext? bindingMetadata, IReadOnlyMetadataContext? metadata)
         {
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnActivated(this, service, member, instance, bindingMetadata, metadata);
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as IIocContainerListener)?.OnActivated(this, service, member, instance, bindingMetadata, metadata);
         }
 
-        protected virtual IComponentCollection<IIocContainerListener> GetListenersCollection()
+        protected virtual IComponentCollection<IComponent<IIocContainer>> GetListenersCollection()
         {
-            return new OrderedArrayComponentCollection<IIocContainerListener>(this);
+            return new OrderedArrayComponentCollection<IComponent<IIocContainer>>(this);
         }
 
         protected void NotBeDisposed()

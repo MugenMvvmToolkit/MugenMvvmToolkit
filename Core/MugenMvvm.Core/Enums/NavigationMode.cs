@@ -42,28 +42,28 @@ namespace MugenMvvm.Enums
         public bool IsUndefined => this == Undefined;
 
         [DataMember(Name = "n")]
-        public bool IsNew { get; set; }
+        public bool IsNew { get; protected set; }
 
         [DataMember(Name = "b")]
-        public bool IsBack { get; set; }
+        public bool IsBack { get; protected set; }
 
         [DataMember(Name = "r")]
-        public bool IsRefresh { get; set; }
+        public bool IsRefresh { get; protected set; }
 
         [DataMember(Name = "d")]
-        public bool IsRemove { get; set; }
+        public bool IsRemove { get; protected set; }
 
         [DataMember(Name = "c")]
-        public bool IsClose { get; set; }
+        public bool IsClose { get; protected set; }
 
         [DataMember(Name = "bg")]
-        public bool IsBackground { get; set; }
+        public bool IsBackground { get; protected set; }
 
         [DataMember(Name = "f")]
-        public bool IsForeground { get; set; }
+        public bool IsForeground { get; protected set; }
 
         [DataMember(Name = "rs")]
-        public bool IsRestore { get; set; }
+        public bool IsRestore { get; protected set; }
 
         #endregion
     }

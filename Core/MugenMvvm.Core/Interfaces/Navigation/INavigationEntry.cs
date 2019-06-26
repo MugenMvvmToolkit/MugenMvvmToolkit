@@ -1,17 +1,18 @@
 ﻿using System;
 using MugenMvvm.Enums;
-using MugenMvvm.Interfaces.ViewModels;
+using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Navigation
 {
-    public interface INavigationEntry
+    public interface INavigationEntry : IMetadataOwner<IReadOnlyMetadataContext>
     {
+        string NavigationOperationId { get; }
+
         DateTime NavigationDate { get; }
 
         NavigationType NavigationType { get; }
 
         INavigationProvider NavigationProvider { get; }
-
-        IViewModelBase ViewModel { get; }
     }
 }

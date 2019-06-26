@@ -3,7 +3,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Navigation.Presenters;
+using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Metadata
@@ -18,7 +18,7 @@ namespace MugenMvvm.Metadata
         private static IMetadataContextKey<BusyMessageHandlerType> _busyMessageHandlerType;
         private static IMetadataContextKey<IViewModelBase?> _parentViewModel;
         private static IMetadataContextKey<bool> _noState;
-        private static IMetadataContextKey<Func<IViewModelBase, IReadOnlyMetadataContext, IChildViewModelPresenterResult>?> _closeHandler;
+        private static IMetadataContextKey<Func<IViewModelBase, IMetadataContext, IPresenterResult>?> _closeHandler;
         private static IMetadataContextKey<Type?> _type;
 
         #endregion
@@ -106,13 +106,13 @@ namespace MugenMvvm.Metadata
             set => _noState = value;
         }
 
-        public static IMetadataContextKey<Func<IViewModelBase, IReadOnlyMetadataContext, IChildViewModelPresenterResult>?> CloseHandler
+        public static IMetadataContextKey<Func<IViewModelBase, IMetadataContext, IPresenterResult>?> CloseHandler
         {
             get
             {
                 if (_closeHandler == null)
                 {
-                    _closeHandler = GetBuilder<Func<IViewModelBase, IReadOnlyMetadataContext, IChildViewModelPresenterResult>?>(nameof(CloseHandler))
+                    _closeHandler = GetBuilder<Func<IViewModelBase, IMetadataContext, IPresenterResult>?>(nameof(CloseHandler))
                         .NotNull()
                         .Build();
                 }

@@ -1,55 +1,20 @@
 ﻿using System;
 using MugenMvvm.Attributes;
+using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Wrapping;
 
 namespace MugenMvvm.Infrastructure.Wrapping
 {
-    public class WrapperManager : IWrapperManager
+    public class WrapperManager : ComponentOwnerBase<IWrapperManager>, IWrapperManager
     {
-        #region Fields
-
-        private IComponentCollection<IWrapperManagerListener>? _listeners;
-        private IComponentCollection<IChildWrapperManager>? _managers;
-
-        #endregion
-
         #region Constructors
 
         [Preserve(Conditional = true)]
         public WrapperManager(IComponentCollectionProvider componentCollectionProvider)
+            : base(componentCollectionProvider)
         {
-            Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
-            ComponentCollectionProvider = componentCollectionProvider;
-        }
-
-        #endregion
-
-        #region Properties
-
-        protected IComponentCollectionProvider ComponentCollectionProvider { get; }
-
-        public bool IsListenersInitialized => _listeners != null;
-
-        public IComponentCollection<IWrapperManagerListener> Listeners
-        {
-            get
-            {
-                if (_listeners == null)
-                    ComponentCollectionProvider.LazyInitialize(ref _listeners, this);
-                return _listeners;
-            }
-        }
-
-        public IComponentCollection<IChildWrapperManager> Managers
-        {
-            get
-            {
-                if (_managers == null)
-                    ComponentCollectionProvider.LazyInitialize(ref _managers, this);
-                return _managers;
-            }
         }
 
         #endregion
@@ -81,10 +46,10 @@ namespace MugenMvvm.Infrastructure.Wrapping
             if (wrapperType.IsAssignableFromUnified(type))
                 return true;
 
-            var factories = Managers.GetItems();
-            for (var i = 0; i < factories.Length; i++)
+            var components = Components.GetItems();
+            for (var i = 0; i < components.Length; i++)
             {
-                if (factories[i].CanWrap(this, type, wrapperType, metadata))
+                if (components[i] is IWrapperManagerComponent component && component.CanWrap(this, type, wrapperType, metadata))
                     return true;
             }
 
@@ -94,10 +59,10 @@ namespace MugenMvvm.Infrastructure.Wrapping
         protected virtual object WrapInternal(object item, Type wrapperType, IReadOnlyMetadataContext metadata)
         {
             object? wrapper = null;
-            var factories = Managers.GetItems();
-            for (var i = 0; i < factories.Length; i++)
+            var components = Components.GetItems();
+            for (var i = 0; i < components.Length; i++)
             {
-                wrapper = factories[i].TryWrap(this, item.GetType(), wrapperType, metadata);
+                wrapper = (components[i] as IWrapperManagerComponent)?.TryWrap(this, item.GetType(), wrapperType, metadata);
                 if (wrapper != null)
                     break;
             }
@@ -105,9 +70,8 @@ namespace MugenMvvm.Infrastructure.Wrapping
             if (wrapper == null)
                 ExceptionManager.ThrowWrapperTypeNotSupported(wrapperType);
 
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnWrapped(this, wrapper!, item, wrapperType, metadata);
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as IWrapperManagerListener)?.OnWrapped(this, wrapper!, item, wrapperType, metadata);
 
             return wrapper!;
         }

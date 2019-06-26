@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Metadata
 {
-    public static class RelayCommandMetadata
+    public static class RelayCommandMetadata//todo notifiers
     {
         #region Fields
 

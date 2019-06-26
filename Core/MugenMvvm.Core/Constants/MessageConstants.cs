@@ -41,6 +41,7 @@
         public const string ObjectDisposedFormat1 = "Cannot perform the operation, because the current '{0}' is disposed.";
         public const string ObjectNotInitializedFormat2 = "The '{0}' is not initialized {1}";
         public const string CannotGetViewModelFormat1 = "Cannot get view model {0}";
+        public const string CannotGetComponentFormat2 = "Cannot get component {0} owner {1}";
 
         #endregion
     }

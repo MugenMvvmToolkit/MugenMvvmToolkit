@@ -1,6 +1,5 @@
 ﻿using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
-using MugenMvvm.Interfaces.Views.Infrastructure;
 
 namespace MugenMvvm.Interfaces.Views
 {

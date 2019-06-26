@@ -3,21 +3,21 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
+using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces.BusyIndicator;
+using MugenMvvm.Interfaces.BusyIndicator.Components;
 using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Infrastructure.BusyIndicator
 {
-    public sealed class BusyIndicatorProvider : IBusyIndicatorProvider
+    public sealed class BusyIndicatorProvider : ComponentOwnerBase<IBusyIndicatorProvider>, IBusyIndicatorProvider
     {
         #region Fields
 
         private readonly object? _defaultBusyMessage;
-        private readonly IComponentCollectionProvider _componentCollectionProvider;
         private readonly object _locker;
         private BusyToken? _busyTail;
-        private IComponentCollection<IBusyIndicatorProviderListener>? _listeners;
         private int _suspendCount;
 
         #endregion
@@ -25,11 +25,9 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public BusyIndicatorProvider(IComponentCollectionProvider componentCollectionProvider, object? defaultBusyMessage = null)
+        public BusyIndicatorProvider(IComponentCollectionProvider componentCollectionProvider, object? defaultBusyMessage = null) : base(componentCollectionProvider)
         {
-            Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
             _defaultBusyMessage = defaultBusyMessage;
-            _componentCollectionProvider = componentCollectionProvider;
             _locker = this;
         }
 
@@ -38,18 +36,6 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
         #region Properties
 
         public bool IsSuspended => _suspendCount != 0;
-
-        public bool IsListenersInitialized => _listeners != null;
-
-        public IComponentCollection<IBusyIndicatorProviderListener> Listeners
-        {
-            get
-            {
-                if (_listeners == null)
-                    _componentCollectionProvider.LazyInitialize(ref _listeners, this);
-                return _listeners;
-            }
-        }
 
         public IBusyInfo? BusyInfo => _busyTail?.GetBusyInfo();
 
@@ -98,7 +84,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                 return;
             for (var index = 0; index < busyTokens.Count; index++)
                 busyTokens[index].Dispose();
-            this.RemoveAllListeners();
+            this.ClearComponents();
         }
 
         #endregion
@@ -132,18 +118,24 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
 
         private void OnBeginBusy(IBusyInfo busyInfo)
         {
-            var items = this.GetListeners();
+            var items = GetComponents();
             for (var i = 0; i < items.Length; i++)
-                items[i].OnBeginBusy(this, busyInfo);
+            {
+                if (items[i] is IBusyIndicatorProviderListener listener)
+                    listener.OnBeginBusy(this, busyInfo);
+            }
         }
 
         private void OnBusyInfoChanged(bool ignoreSuspend = false)
         {
             if (!ignoreSuspend && IsSuspended)
                 return;
-            var items = this.GetListeners();
+            var items = GetComponents();
             for (var i = 0; i < items.Length; i++)
-                items[i].OnBusyInfoChanged(this);
+            {
+                if (items[i] is IBusyIndicatorProviderListener listener)
+                    listener.OnBusyInfoChanged(this);
+            }
         }
 
         #endregion
@@ -230,7 +222,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                     }
                 }
 
-                return tokens ?? (IReadOnlyList<IBusyToken>)Default.EmptyArray<IBusyToken>();
+                return tokens ?? (IReadOnlyList<IBusyToken>) Default.EmptyArray<IBusyToken>();
             }
 
             public void Register(IBusyTokenCallback callback)
@@ -247,7 +239,7 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
                     if (!IsCompleted)
                     {
                         if (_listeners == null)
-                            _listeners = new[] { callback };
+                            _listeners = new[] {callback};
                         else
                         {
                             var listeners = new IBusyTokenCallback[_listeners.Length + 1];

@@ -1,41 +1,19 @@
 ﻿using System;
 using System.Reflection;
 using MugenMvvm.Attributes;
+using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 
 namespace MugenMvvm.Infrastructure.Internal
 {
-    public sealed class ReflectionDelegateProvider : IReflectionDelegateProvider
+    public sealed class ReflectionDelegateProvider : ComponentOwnerBase<IReflectionDelegateProvider>, IReflectionDelegateProvider
     {
-        #region Fields
-
-        private readonly IComponentCollectionProvider _componentCollectionProvider;
-        private IComponentCollection<IChildReflectionDelegateProvider>? _providers;
-
-        #endregion
-
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ReflectionDelegateProvider(IComponentCollectionProvider componentCollectionProvider)
+        public ReflectionDelegateProvider(IComponentCollectionProvider componentCollectionProvider) : base(componentCollectionProvider)
         {
-            Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
-            _componentCollectionProvider = componentCollectionProvider;
-        }
-
-        #endregion
-
-        #region Properties
-
-        public IComponentCollection<IChildReflectionDelegateProvider> Providers
-        {
-            get
-            {
-                if (_providers == null)
-                    _componentCollectionProvider.LazyInitialize(ref _providers, this);
-                return _providers;
-            }
         }
 
         #endregion
@@ -46,11 +24,11 @@ namespace MugenMvvm.Infrastructure.Internal
         {
             Should.NotBeNull(delegateType, nameof(delegateType));
             Should.NotBeNull(method, nameof(method));
-            var items = Providers.GetItems();
+            var items = Components.GetItems();
             for (var i = 0; i < items.Length; i++)
             {
-                var value = items[i].CanCreateDelegate(this, delegateType, method);
-                if (value)
+                var value = (items[i] as IReflectionDelegateProviderComponent)?.CanCreateDelegate(delegateType, method);
+                if (value != null && value.Value)
                     return true;
             }
 
@@ -61,10 +39,10 @@ namespace MugenMvvm.Infrastructure.Internal
         {
             Should.NotBeNull(delegateType, nameof(delegateType));
             Should.NotBeNull(method, nameof(method));
-            var items = Providers.GetItems();
+            var items = Components.GetItems();
             for (var i = 0; i < items.Length; i++)
             {
-                var value = items[i].TryCreateDelegate(this, delegateType, target, method);
+                var value = (items[i] as IReflectionDelegateProviderComponent)?.TryCreateDelegate(delegateType, target, method);
                 if (value != null)
                     return value;
             }
@@ -75,10 +53,10 @@ namespace MugenMvvm.Infrastructure.Internal
         public Func<object[], object> GetActivator(ConstructorInfo constructor)
         {
             Should.NotBeNull(constructor, nameof(constructor));
-            var items = Providers.GetItems();
+            var items = Components.GetItems();
             for (var i = 0; i < items.Length; i++)
             {
-                var value = items[i].TryGetActivator(this, constructor);
+                var value = (items[i] as IReflectionDelegateProviderComponent)?.TryGetActivator(constructor);
                 if (value != null)
                     return value;
             }
@@ -90,10 +68,10 @@ namespace MugenMvvm.Infrastructure.Internal
         public Func<object, object[], object> GetMethodInvoker(MethodInfo method)
         {
             Should.NotBeNull(method, nameof(method));
-            var items = Providers.GetItems();
+            var items = Components.GetItems();
             for (var i = 0; i < items.Length; i++)
             {
-                var value = items[i].TryGetMethodInvoker(this, method);
+                var value = (items[i] as IReflectionDelegateProviderComponent)?.TryGetMethodInvoker(method);
                 if (value != null)
                     return value;
             }
@@ -106,10 +84,10 @@ namespace MugenMvvm.Infrastructure.Internal
         {
             Should.NotBeNull(delegateType, nameof(delegateType));
             Should.NotBeNull(method, nameof(method));
-            var items = Providers.GetItems();
+            var items = Components.GetItems();
             for (var i = 0; i < items.Length; i++)
             {
-                var value = items[i].TryGetMethodInvoker(this, delegateType, method);
+                var value = (items[i] as IReflectionDelegateProviderComponent)?.TryGetMethodInvoker(delegateType, method);
                 if (value != null)
                     return value;
             }
@@ -121,10 +99,10 @@ namespace MugenMvvm.Infrastructure.Internal
         public Func<object, TType> GetMemberGetter<TType>(MemberInfo member)
         {
             Should.NotBeNull(member, nameof(member));
-            var items = Providers.GetItems();
+            var items = Components.GetItems();
             for (var i = 0; i < items.Length; i++)
             {
-                var value = items[i].TryGetMemberGetter<TType>(this, member);
+                var value = (items[i] as IReflectionDelegateProviderComponent)?.TryGetMemberGetter<TType>(member);
                 if (value != null)
                     return value;
             }
@@ -136,10 +114,10 @@ namespace MugenMvvm.Infrastructure.Internal
         public Action<object, TType> GetMemberSetter<TType>(MemberInfo member)
         {
             Should.NotBeNull(member, nameof(member));
-            var items = Providers.GetItems();
+            var items = Components.GetItems();
             for (var i = 0; i < items.Length; i++)
             {
-                var value = items[i].TryGetMemberSetter<TType>(this, member);
+                var value = (items[i] as IReflectionDelegateProviderComponent)?.TryGetMemberSetter<TType>(member);
                 if (value != null)
                     return value;
             }
@@ -154,7 +132,7 @@ namespace MugenMvvm.Infrastructure.Internal
 
         private void ThrowNotInitialized()
         {
-            ExceptionManager.ThrowObjectNotInitialized(this, typeof(IChildReflectionDelegateProvider).Name);
+            ExceptionManager.ThrowObjectNotInitialized(this, typeof(IReflectionDelegateProviderComponent).Name);
         }
 
         #endregion

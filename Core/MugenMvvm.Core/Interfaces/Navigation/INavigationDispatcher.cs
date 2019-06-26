@@ -1,15 +1,12 @@
 ﻿using System;
-using MugenMvvm.Interfaces.Models;
+using System.Threading.Tasks;
+using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Navigation
 {
-    public interface INavigationDispatcher : IHasListeners<INavigationDispatcherListener>
+    public interface INavigationDispatcher : IComponentOwner<INavigationDispatcher>
     {
-        INavigationContextProvider ContextProvider { get; set; }
-
-        INavigationDispatcherJournal NavigationJournal { get; set; }
-
-        INavigatingResult OnNavigating(INavigationContext navigationContext);
+        Task<bool> OnNavigatingAsync(INavigationContext navigationContext);
 
         void OnNavigated(INavigationContext navigationContext);
 

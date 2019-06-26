@@ -3,10 +3,8 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Internal
 {
-    public interface IWeakReferenceProvider
+    public interface IWeakReferenceProvider : IComponentOwner<IWeakReferenceProvider>
     {
-        IComponentCollection<IChildWeakReferenceProvider> Providers { get; }
-
         IWeakReference GetWeakReference(object? item, IReadOnlyMetadataContext metadata);
     }
 }

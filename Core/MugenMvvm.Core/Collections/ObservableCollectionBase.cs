@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces.Collections;
+using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Collections
@@ -14,9 +15,7 @@ namespace MugenMvvm.Collections
 
         private int _batchCount;
         private int _batchCountDecorators;
-        private IComponentCollection<IObservableCollectionListener<T>>? _decoratorListeners;
-        private IComponentCollection<IObservableCollectionDecorator<T>>? _decorators;
-        private IComponentCollection<IObservableCollectionListener<T>>? _listeners;
+        private IComponentCollection<IComponent<IObservableCollection<T>>>? _components;
 
         #endregion
 
@@ -33,7 +32,7 @@ namespace MugenMvvm.Collections
 
         protected IComponentCollectionProvider? ComponentCollectionProvider { get; }
 
-        public bool IsListenersInitialized => _listeners != null;
+        public bool HasComponents => _components != null && _components.HasItems;
 
         public abstract int Count { get; }
 
@@ -41,40 +40,18 @@ namespace MugenMvvm.Collections
 
         public abstract T this[int index] { get; set; }
 
-        public IComponentCollection<IObservableCollectionListener<T>> Listeners
-        {
-            get
-            {
-                if (_listeners == null)
-                    ComponentCollectionProvider.LazyInitialize(ref _listeners, this);
-
-                return _listeners;
-            }
-        }
-
-        public IComponentCollection<IObservableCollectionDecorator<T>> Decorators
-        {
-            get
-            {
-                if (_decorators == null)
-                    ComponentCollectionProvider.LazyInitialize(ref _decorators, this);
-
-                return _decorators;
-            }
-        }
-
-        public IComponentCollection<IObservableCollectionListener<T>> DecoratorListeners
-        {
-            get
-            {
-                if (_decoratorListeners == null)
-                    ComponentCollectionProvider.LazyInitialize(ref _decoratorListeners, this);
-
-                return _decoratorListeners;
-            }
-        }
-
         IObservableCollection<T> IObservableCollectionDecoratorManager<T>.Collection => this;
+
+        public IComponentCollection<IComponent<IObservableCollection<T>>> Components
+        {
+            get
+            {
+                if (_components == null)
+                    ComponentCollectionProvider.LazyInitialize(ref _components, this);
+
+                return _components;
+            }
+        }
 
         #endregion
 
@@ -139,48 +116,48 @@ namespace MugenMvvm.Collections
 
         public abstract IDisposable Lock();
 
-        IEnumerable<T> IObservableCollectionDecoratorManager<T>.DecorateItems(IObservableCollectionDecorator<T> decorator)
+        IEnumerable<T> IObservableCollectionDecoratorManager<T>.DecorateItems(IDecoratorObservableCollectionComponent<T> decorator)
         {
             Should.NotBeNull(decorator, nameof(decorator));
             return DecorateItems(decorator);
         }
 
-        void IObservableCollectionDecoratorManager<T>.OnItemChanged(IObservableCollectionDecorator<T> decorator, T item, int index, object? args)
+        void IObservableCollectionDecoratorManager<T>.OnItemChanged(IDecoratorObservableCollectionComponent<T> decorator, T item, int index, object? args)
         {
             OnItemChanged(decorator, item, index, args);
         }
 
-        void IObservableCollectionDecoratorManager<T>.OnAdded(IObservableCollectionDecorator<T> decorator, T item, int index)
+        void IObservableCollectionDecoratorManager<T>.OnAdded(IDecoratorObservableCollectionComponent<T> decorator, T item, int index)
         {
             Should.NotBeNull(decorator, nameof(decorator));
             OnAdded(decorator, item, index);
         }
 
-        void IObservableCollectionDecoratorManager<T>.OnReplaced(IObservableCollectionDecorator<T> decorator, T oldItem, T newItem, int index)
+        void IObservableCollectionDecoratorManager<T>.OnReplaced(IDecoratorObservableCollectionComponent<T> decorator, T oldItem, T newItem, int index)
         {
             Should.NotBeNull(decorator, nameof(decorator));
             OnReplaced(decorator, oldItem, newItem, index);
         }
 
-        void IObservableCollectionDecoratorManager<T>.OnMoved(IObservableCollectionDecorator<T> decorator, T item, int oldIndex, int newIndex)
+        void IObservableCollectionDecoratorManager<T>.OnMoved(IDecoratorObservableCollectionComponent<T> decorator, T item, int oldIndex, int newIndex)
         {
             Should.NotBeNull(decorator, nameof(decorator));
             OnMoved(decorator, item, oldIndex, newIndex);
         }
 
-        void IObservableCollectionDecoratorManager<T>.OnRemoved(IObservableCollectionDecorator<T> decorator, T item, int index)
+        void IObservableCollectionDecoratorManager<T>.OnRemoved(IDecoratorObservableCollectionComponent<T> decorator, T item, int index)
         {
             Should.NotBeNull(decorator, nameof(decorator));
             OnRemoved(decorator, item, index);
         }
 
-        void IObservableCollectionDecoratorManager<T>.OnReset(IObservableCollectionDecorator<T> decorator, IEnumerable<T> items)
+        void IObservableCollectionDecoratorManager<T>.OnReset(IDecoratorObservableCollectionComponent<T> decorator, IEnumerable<T> items)
         {
             Should.NotBeNull(decorator, nameof(decorator));
             OnReset(decorator, items);
         }
 
-        void IObservableCollectionDecoratorManager<T>.OnCleared(IObservableCollectionDecorator<T> decorator)
+        void IObservableCollectionDecoratorManager<T>.OnCleared(IDecoratorObservableCollectionComponent<T> decorator)
         {
             Should.NotBeNull(decorator, nameof(decorator));
             OnCleared(decorator);
@@ -194,26 +171,35 @@ namespace MugenMvvm.Collections
 
         protected virtual void OnBeginBatchUpdate(bool decorators)
         {
-            var listeners = decorators ? GetDecoratorListeners() : this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnBeginBatchUpdate(this);
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i] is IObservableCollectionBatchUpdateListener<T> listener && listener.IsDecoratorComponent == decorators)
+                    listener.OnBeginBatchUpdate(this);
+            }
         }
 
         protected virtual void OnEndBatchUpdate(bool decorators)
         {
-            var listeners = decorators ? GetDecoratorListeners() : this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnEndBatchUpdate(this);
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i] is IObservableCollectionBatchUpdateListener<T> listener && listener.IsDecoratorComponent == decorators)
+                    listener.OnEndBatchUpdate(this);
+            }
         }
 
-        protected virtual IEnumerable<T> DecorateItems(IObservableCollectionDecorator<T>? decorator)
+        protected virtual IEnumerable<T> DecorateItems(IDecoratorObservableCollectionComponent<T>? decorator)
         {
             IEnumerable<T> items = this;
             var decorators = GetDecorators(decorator, out var indexOf);
             if (decorators.Length != 0)
             {
                 for (var i = 0; i < indexOf.GetValueOrDefault(decorators.Length); i++)
-                    items = decorators[i].DecorateItems(items);
+                {
+                    if (decorators[i] is IDecoratorObservableCollectionComponent<T> d)
+                        items = d.DecorateItems(items);
+                }
             }
 
             return items;
@@ -221,16 +207,16 @@ namespace MugenMvvm.Collections
 
         protected virtual bool OnAdding(T item, int index)
         {
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
             {
-                if (listeners[i] is IObservableCollectionConditionListener<T> listener && !listener.CanAdd(this, item, index))
+                if (components[i] is IConditionObservableCollectionComponent<T> listener && !listener.CanAdd(this, item, index))
                     return false;
             }
 
-            for (var i = 0; i < listeners.Length; i++)
+            for (var i = 0; i < components.Length; i++)
             {
-                if (listeners[i] is IObservableCollectionChangingListener<T> listener)
+                if (components[i] is IObservableCollectionChangingListener<T> listener)
                     listener.OnAdding(this, item, index);
             }
 
@@ -239,16 +225,16 @@ namespace MugenMvvm.Collections
 
         protected virtual bool OnReplacing(T oldItem, T newItem, int index)
         {
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
             {
-                if (listeners[i] is IObservableCollectionConditionListener<T> listener && !listener.CanReplace(this, oldItem, newItem, index))
+                if (components[i] is IConditionObservableCollectionComponent<T> listener && !listener.CanReplace(this, oldItem, newItem, index))
                     return false;
             }
 
-            for (var i = 0; i < listeners.Length; i++)
+            for (var i = 0; i < components.Length; i++)
             {
-                if (listeners[i] is IObservableCollectionChangingListener<T> listener)
+                if (components[i] is IObservableCollectionChangingListener<T> listener)
                     listener.OnReplacing(this, oldItem, newItem, index);
             }
 
@@ -257,16 +243,16 @@ namespace MugenMvvm.Collections
 
         protected virtual bool OnMoving(T item, int oldIndex, int newIndex)
         {
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
             {
-                if (listeners[i] is IObservableCollectionConditionListener<T> listener && !listener.CanMove(this, item, oldIndex, newIndex))
+                if (components[i] is IConditionObservableCollectionComponent<T> listener && !listener.CanMove(this, item, oldIndex, newIndex))
                     return false;
             }
 
-            for (var i = 0; i < listeners.Length; i++)
+            for (var i = 0; i < components.Length; i++)
             {
-                if (listeners[i] is IObservableCollectionChangingListener<T> listener)
+                if (components[i] is IObservableCollectionChangingListener<T> listener)
                     listener.OnMoving(this, item, oldIndex, newIndex);
             }
 
@@ -275,16 +261,16 @@ namespace MugenMvvm.Collections
 
         protected virtual bool OnRemoving(T item, int index)
         {
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
             {
-                if (listeners[i] is IObservableCollectionConditionListener<T> listener && !listener.CanRemove(this, item, index))
+                if (components[i] is IConditionObservableCollectionComponent<T> listener && !listener.CanRemove(this, item, index))
                     return false;
             }
 
-            for (var i = 0; i < listeners.Length; i++)
+            for (var i = 0; i < components.Length; i++)
             {
-                if (listeners[i] is IObservableCollectionChangingListener<T> listener)
+                if (components[i] is IObservableCollectionChangingListener<T> listener)
                     listener.OnRemoving(this, item, index);
             }
 
@@ -293,16 +279,16 @@ namespace MugenMvvm.Collections
 
         protected virtual bool OnResetting(IEnumerable<T> items)
         {
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
             {
-                if (listeners[i] is IObservableCollectionConditionListener<T> listener && !listener.CanReset(this, items))
+                if (components[i] is IConditionObservableCollectionComponent<T> listener && !listener.CanReset(this, items))
                     return false;
             }
 
-            for (var i = 0; i < listeners.Length; i++)
+            for (var i = 0; i < components.Length; i++)
             {
-                if (listeners[i] is IObservableCollectionChangingListener<T> listener)
+                if (components[i] is IObservableCollectionChangingListener<T> listener)
                     listener.OnResetting(this, items);
             }
 
@@ -311,16 +297,16 @@ namespace MugenMvvm.Collections
 
         protected virtual bool OnClearing()
         {
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
             {
-                if (listeners[i] is IObservableCollectionConditionListener<T> listener && !listener.CanClear(this))
+                if (components[i] is IConditionObservableCollectionComponent<T> listener && !listener.CanClear(this))
                     return false;
             }
 
-            for (var i = 0; i < listeners.Length; i++)
+            for (var i = 0; i < components.Length; i++)
             {
-                if (listeners[i] is IObservableCollectionChangingListener<T> listener)
+                if (components[i] is IObservableCollectionChangingListener<T> listener)
                     listener.OnClearing(this);
             }
 
@@ -329,179 +315,220 @@ namespace MugenMvvm.Collections
 
         protected virtual void OnAdded(T item, int index)
         {
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnAdded(this, item, index);
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i] is IObservableCollectionChangedListener<T> listener && !listener.IsDecoratorComponent)
+                    listener.OnAdded(this, item, index);
+            }
 
             OnAdded(null, item, index);
         }
 
         protected virtual void OnReplaced(T oldItem, T newItem, int index)
         {
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnReplaced(this, oldItem, newItem, index);
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i] is IObservableCollectionChangedListener<T> listener && !listener.IsDecoratorComponent)
+                    listener.OnReplaced(this, oldItem, newItem, index);
+            }
 
             OnReplaced(null, oldItem, newItem, index);
         }
 
         protected virtual void OnMoved(T item, int oldIndex, int newIndex)
         {
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnMoved(this, item, oldIndex, newIndex);
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i] is IObservableCollectionChangedListener<T> listener && !listener.IsDecoratorComponent)
+                    listener.OnMoved(this, item, oldIndex, newIndex);
+            }
 
             OnMoved(null, item, oldIndex, newIndex);
         }
 
         protected virtual void OnRemoved(T item, int index)
         {
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnRemoved(this, item, index);
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i] is IObservableCollectionChangedListener<T> listener && !listener.IsDecoratorComponent)
+                    listener.OnRemoved(this, item, index);
+            }
 
             OnRemoved(null, item, index);
         }
 
         protected virtual void OnReset(IEnumerable<T> items)
         {
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnReset(this, items);
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i] is IObservableCollectionChangedListener<T> listener && !listener.IsDecoratorComponent)
+                    listener.OnReset(this, items);
+            }
 
             OnReset(null, items);
         }
 
         protected virtual void OnCleared()
         {
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnCleared(this);
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i] is IObservableCollectionChangedListener<T> listener && !listener.IsDecoratorComponent)
+                    listener.OnCleared(this);
+            }
 
             OnCleared(null);
         }
 
-        protected virtual void OnItemChanged(IObservableCollectionDecorator<T>? decorator, T item, int index, object? args)
+        protected virtual void OnItemChanged(IDecoratorObservableCollectionComponent<T>? decorator, T item, int index, object? args)
         {
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnItemChanged(this, item, index, args);
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i] is IObservableCollectionChangedListener<T> listener && !listener.IsDecoratorComponent)
+                    listener.OnItemChanged(this, item, index, args);
+            }
 
             var decorators = GetDecorators(decorator, out var indexOf);
             if (decorators.Length != 0)
             {
                 for (var i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Length; i++)
                 {
-                    if (!decorators[i].OnItemChanged(ref item, ref index, ref args))
+                    if (decorators[i] is IDecoratorObservableCollectionComponent<T> component && !component.OnItemChanged(ref item, ref index, ref args))
                         return;
                 }
             }
 
-            listeners = GetDecoratorListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnItemChanged(this, item, index, args);
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i] is IObservableCollectionChangedListener<T> listener && listener.IsDecoratorComponent)
+                    listener.OnItemChanged(this, item, index, args);
+            }
         }
 
-        protected virtual void OnAdded(IObservableCollectionDecorator<T>? decorator, T item, int index)
+        protected virtual void OnAdded(IDecoratorObservableCollectionComponent<T>? decorator, T item, int index)
         {
             var decorators = GetDecorators(decorator, out var indexOf);
             if (decorators.Length != 0)
             {
                 for (var i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Length; i++)
                 {
-                    if (!decorators[i].OnAdded(ref item, ref index))
+                    if (decorators[i] is IDecoratorObservableCollectionComponent<T> component && !component.OnAdded(ref item, ref index))
                         return;
                 }
             }
 
-            var listeners = GetDecoratorListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnAdded(this, item, index);
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i] is IObservableCollectionChangedListener<T> listener && listener.IsDecoratorComponent)
+                    listener.OnAdded(this, item, index);
+            }
         }
 
-        protected virtual void OnReplaced(IObservableCollectionDecorator<T>? decorator, T oldItem, T newItem, int index)
+        protected virtual void OnReplaced(IDecoratorObservableCollectionComponent<T>? decorator, T oldItem, T newItem, int index)
         {
             var decorators = GetDecorators(decorator, out var indexOf);
             if (decorators.Length != 0)
             {
                 for (var i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Length; i++)
                 {
-                    if (!decorators[i].OnReplaced(ref oldItem, ref newItem, ref index))
+                    if (decorators[i] is IDecoratorObservableCollectionComponent<T> component && !component.OnReplaced(ref oldItem, ref newItem, ref index))
                         return;
                 }
             }
 
-            var listeners = GetDecoratorListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnReplaced(this, oldItem, newItem, index);
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i] is IObservableCollectionChangedListener<T> listener && listener.IsDecoratorComponent)
+                    listener.OnReplaced(this, oldItem, newItem, index);
+            }
         }
 
-        protected virtual void OnMoved(IObservableCollectionDecorator<T>? decorator, T item, int oldIndex, int newIndex)
+        protected virtual void OnMoved(IDecoratorObservableCollectionComponent<T>? decorator, T item, int oldIndex, int newIndex)
         {
             var decorators = GetDecorators(decorator, out var indexOf);
             if (decorators.Length != 0)
             {
                 for (var i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Length; i++)
                 {
-                    if (!decorators[i].OnMoved(ref item, ref oldIndex, ref newIndex))
+                    if (decorators[i] is IDecoratorObservableCollectionComponent<T> component && !component.OnMoved(ref item, ref oldIndex, ref newIndex))
                         return;
                 }
             }
 
-            var listeners = GetDecoratorListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnMoved(this, item, oldIndex, newIndex);
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i] is IObservableCollectionChangedListener<T> listener && listener.IsDecoratorComponent)
+                    listener.OnMoved(this, item, oldIndex, newIndex);
+            }
         }
 
-        protected virtual void OnRemoved(IObservableCollectionDecorator<T>? decorator, T item, int index)
+        protected virtual void OnRemoved(IDecoratorObservableCollectionComponent<T>? decorator, T item, int index)
         {
             var decorators = GetDecorators(decorator, out var indexOf);
             if (decorators.Length != 0)
             {
                 for (var i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Length; i++)
                 {
-                    if (!decorators[i].OnRemoved(ref item, ref index))
+                    if (decorators[i] is IDecoratorObservableCollectionComponent<T> component && !component.OnRemoved(ref item, ref index))
                         return;
                 }
             }
 
-            var listeners = GetDecoratorListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnRemoved(this, item, index);
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i] is IObservableCollectionChangedListener<T> listener && listener.IsDecoratorComponent)
+                    listener.OnRemoved(this, item, index);
+            }
         }
 
-        protected virtual void OnReset(IObservableCollectionDecorator<T>? decorator, IEnumerable<T> items)
+        protected virtual void OnReset(IDecoratorObservableCollectionComponent<T>? decorator, IEnumerable<T> items)
         {
             var decorators = GetDecorators(decorator, out var indexOf);
             if (decorators.Length != 0)
             {
                 for (var i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Length; i++)
                 {
-                    if (!decorators[i].OnReset(ref items))
+                    if (decorators[i] is IDecoratorObservableCollectionComponent<T> component && !component.OnReset(ref items))
                         return;
                 }
             }
 
-            var listeners = GetDecoratorListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnReset(this, items);
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i] is IObservableCollectionChangedListener<T> listener && listener.IsDecoratorComponent)
+                    listener.OnReset(this, items);
+            }
         }
 
-        protected virtual void OnCleared(IObservableCollectionDecorator<T>? decorator)
+        protected virtual void OnCleared(IDecoratorObservableCollectionComponent<T>? decorator)
         {
             var decorators = GetDecorators(decorator, out var indexOf);
             if (decorators.Length != 0)
             {
                 for (var i = indexOf.GetValueOrDefault(-1) + 1; i < decorators.Length; i++)
                 {
-                    if (!decorators[i].OnCleared())
+                    if (decorators[i] is IDecoratorObservableCollectionComponent<T> component && !component.OnCleared())
                         return;
                 }
             }
 
-            var listeners = GetDecoratorListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnCleared(this);
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i] is IObservableCollectionChangedListener<T> listener && listener.IsDecoratorComponent)
+                    listener.OnCleared(this);
+            }
         }
 
         protected static bool IsCompatibleObject(object value)
@@ -515,28 +542,23 @@ namespace MugenMvvm.Collections
             return false;
         }
 
-        protected IObservableCollectionListener<T>[] GetDecoratorListeners()
-        {
-            return _decoratorListeners.GetItemsOrDefault();
-        }
-
-        protected IObservableCollectionDecorator<T>[] GetDecorators(IObservableCollectionDecorator<T>? decorator, out int? indexOf)
+        protected IComponent<IObservableCollection<T>>[] GetDecorators(IDecoratorObservableCollectionComponent<T>? decorator, out int? indexOf)
         {
             indexOf = null;
-            var decorators = _decorators?.GetItems();
-            if (decorator == null || decorators == null)
-                return decorators ?? Default.EmptyArray<IObservableCollectionDecorator<T>>();
+            var components = this.GetComponents();
+            if (decorator == null || components == null)
+                return components ?? Default.EmptyArray<IComponent<IObservableCollection<T>>>();
 
-            for (var i = 0; i < decorators.Length; i++)
+            for (var i = 0; i < components.Length; i++)
             {
-                if (ReferenceEquals(decorators[i], decorator))
+                if (ReferenceEquals(components[i], decorator))
                 {
                     indexOf = i;
                     break;
                 }
             }
 
-            return decorators;
+            return components;
         }
 
         private void EndBatchUpdate(bool hasListeners, bool hasDecorators)

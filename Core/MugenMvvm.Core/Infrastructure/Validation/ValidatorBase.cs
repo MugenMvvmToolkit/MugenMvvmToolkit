@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Validation;
@@ -11,7 +12,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.Validation
 {
-    public abstract class ValidatorBase<TTarget> : IValidator
+    public abstract class ValidatorBase<TTarget> : ComponentOwnerBase<IValidator>, IValidator
         where TTarget : class
     {
         #region Fields
@@ -20,8 +21,7 @@ namespace MugenMvvm.Infrastructure.Validation
         protected readonly Dictionary<string, IReadOnlyList<object>> Errors;
         private CancellationTokenSource? _disposeCancellationTokenSource;
 
-        private IComponentCollection<IValidatorListener>? _listeners;
-        private IObservableMetadataContext? _metadata;
+        private IMetadataContext? _metadata;
         private int _state;
         private TTarget? _target;
         private Dictionary<string, CancellationTokenSource>? _validatingTasks;
@@ -33,11 +33,11 @@ namespace MugenMvvm.Infrastructure.Validation
 
         #region Constructors
 
-        protected ValidatorBase(IObservableMetadataContext? metadata = null, IComponentCollectionProvider? componentCollectionProvider = null,
+        protected ValidatorBase(IMetadataContext? metadata = null, IComponentCollectionProvider? componentCollectionProvider = null,
             IMetadataContextProvider? metadataContextProvider = null, bool hasAsyncValidation = true)
+            : base(componentCollectionProvider)
         {
             _metadata = metadata;
-            ComponentCollectionProvider = componentCollectionProvider;
             MetadataContextProvider = metadataContextProvider;
             ValidateOnPropertyChanged = true;
             HasAsyncValidation = hasAsyncValidation;
@@ -50,25 +50,11 @@ namespace MugenMvvm.Infrastructure.Validation
 
         #region Properties
 
-        protected IComponentCollectionProvider? ComponentCollectionProvider { get; }
-
         protected IMetadataContextProvider? MetadataContextProvider { get; }
 
-        public bool IsListenersInitialized => _listeners != null;
+        public bool HasMetadata => _metadata != null;
 
-        public bool IsMetadataInitialized => _metadata != null;
-
-        public IComponentCollection<IValidatorListener> Listeners
-        {
-            get
-            {
-                if (_listeners == null)
-                    ComponentCollectionProvider.LazyInitialize(ref _listeners, this);
-                return _listeners;
-            }
-        }
-
-        public IObservableMetadataContext Metadata
+        public IMetadataContext Metadata
         {
             get
             {
@@ -102,8 +88,9 @@ namespace MugenMvvm.Infrastructure.Validation
             _disposeCancellationTokenSource?.Cancel();
             if (Target is INotifyPropertyChanged notifyPropertyChanged && _weakPropertyHandler != null)
                 notifyPropertyChanged.PropertyChanged -= _weakPropertyHandler;
-            this.RemoveAllListeners();
-            this.ClearMetadata(true);
+            this.ClearComponents();
+            this.ClearMetadata();
+            _metadata?.ClearComponents();
         }
 
         public IReadOnlyList<object> GetErrors(string? memberName, IReadOnlyMetadataContext? metadata = null)
@@ -236,7 +223,8 @@ namespace MugenMvvm.Infrastructure.Validation
                 return Default.CompletedTask;
             }
 
-            return task.AsTask().ContinueWith(t => OnValidationCompleted(memberName, t.Result), cancellationToken, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
+            return task.AsTask().ContinueWith(t => OnValidationCompleted(memberName, t.Result), cancellationToken, TaskContinuationOptions.ExecuteSynchronously,
+                TaskScheduler.Current);
         }
 
         protected virtual void ClearErrorsInternal(string memberName, IReadOnlyMetadataContext metadata)
@@ -266,23 +254,23 @@ namespace MugenMvvm.Infrastructure.Validation
 
         protected virtual void OnErrorsChanged(string memberName, IReadOnlyMetadataContext metadata)
         {
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnErrorsChanged(this, memberName, metadata);
+            var components = GetComponents();
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as IValidatorListener)?.OnErrorsChanged(this, memberName, metadata);
         }
 
         protected virtual void OnAsyncValidation(string memberName, Task validationTask, IReadOnlyMetadataContext metadata)
         {
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnAsyncValidation(this, memberName, validationTask, metadata);
+            var components = GetComponents();
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as IValidatorListener)?.OnAsyncValidation(this, memberName, validationTask, metadata);
         }
 
         protected virtual void OnDispose()
         {
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnDisposed(this);
+            var components = GetComponents();
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as IValidatorListener)?.OnDisposed(this);
         }
 
         protected void UpdateErrors(string memberName, IReadOnlyList<object>? errors, bool raiseNotifications, IReadOnlyMetadataContext metadata)
@@ -309,9 +297,7 @@ namespace MugenMvvm.Infrastructure.Validation
             if (!result.HasResult)
                 return;
 
-            var errors = result.GetErrors();
-            if (errors == null)
-                errors = new Dictionary<string, IReadOnlyList<object>?>();
+            var errors = result.GetErrors() ?? new Dictionary<string, IReadOnlyList<object>?>();
             if (errors.IsReadOnly)
                 errors = new Dictionary<string, IReadOnlyList<object>>(errors);
 

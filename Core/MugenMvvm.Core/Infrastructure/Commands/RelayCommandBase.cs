@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Commands;
+using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Infrastructure.Commands
 {
-    public abstract class RelayCommandBase<T> : IRelayCommand, IWeakReferenceHolder
+    public abstract class RelayCommandBase<T> : IRelayCommand, IWeakReferenceHolder//todo remove notifiers
     {
         #region Constructors
 
@@ -33,7 +34,7 @@ namespace MugenMvvm.Infrastructure.Commands
 
         protected RelayCommandBase(Delegate execute, Delegate? canExecute, IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext? metadataBase)
         {
-            Mediator = Service<IRelayCommandMediatorProvider>.Instance.GetExecutorMediator<T>(this, execute, canExecute, notifiers, metadataBase.DefaultIfNull());
+            Mediator = Service<ICommandMediatorProvider>.Instance.GetCommandMediator<T>(this, execute, canExecute, notifiers, metadataBase.DefaultIfNull());
         }
 
         #endregion
@@ -42,7 +43,7 @@ namespace MugenMvvm.Infrastructure.Commands
 
         public bool HasCanExecute => Mediator.HasCanExecute();
 
-        public IExecutorRelayCommandMediator Mediator { get; }
+        public ICommandMediator Mediator { get; }
 
         IWeakReference? IWeakReferenceHolder.WeakReference { get; set; }
 

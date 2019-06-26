@@ -1,9 +1,8 @@
 ﻿using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Components
 {
-    public interface IComponentCollection<T> : IHasListeners<IComponentCollectionListener> where T : class
+    public interface IComponentCollection<T> : IComponentOwner<IComponentCollection<T>> where T : class
     {
         object Owner { get; }
 

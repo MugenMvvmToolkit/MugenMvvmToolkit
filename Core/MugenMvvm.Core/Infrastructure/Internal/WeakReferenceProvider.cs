@@ -1,40 +1,18 @@
 ﻿using MugenMvvm.Attributes;
+using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Infrastructure.Internal
 {
-    public sealed class WeakReferenceProvider : IWeakReferenceProvider
+    public sealed class WeakReferenceProvider : ComponentOwnerBase<IWeakReferenceProvider>, IWeakReferenceProvider
     {
-        #region Fields
-
-        private readonly IComponentCollectionProvider _componentCollectionProvider;
-        private IComponentCollection<IChildWeakReferenceProvider>? _providers;
-
-        #endregion
-
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public WeakReferenceProvider(IComponentCollectionProvider componentCollectionProvider)
+        public WeakReferenceProvider(IComponentCollectionProvider componentCollectionProvider) : base(componentCollectionProvider)
         {
-            Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
-            _componentCollectionProvider = componentCollectionProvider;
-        }
-
-        #endregion
-
-        #region Properties
-
-        public IComponentCollection<IChildWeakReferenceProvider> Providers
-        {
-            get
-            {
-                if (_providers == null)
-                    _componentCollectionProvider.LazyInitialize(ref _providers, this);
-                return _providers;
-            }
         }
 
         #endregion
@@ -44,22 +22,22 @@ namespace MugenMvvm.Infrastructure.Internal
         public IWeakReference GetWeakReference(object item, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(metadata, nameof(metadata));
-            
+
             if (item == null)
                 return Default.WeakReference;
 
             if (item is IWeakReference w)
                 return w;
 
-            var factories = Providers.GetItems();
+            var factories = Components.GetItems();
             for (var i = 0; i < factories.Length; i++)
             {
-                var weakReference = factories[i].TryGetWeakReference(this, item, metadata);
+                var weakReference = (factories[i] as IWeakReferenceProviderComponent)?.TryGetWeakReference(item, metadata);
                 if (weakReference != null)
                     return weakReference;
             }
 
-            ExceptionManager.ThrowObjectNotInitialized(this, typeof(IChildWeakReferenceProvider).Name);
+            ExceptionManager.ThrowObjectNotInitialized(this, typeof(IWeakReferenceProviderComponent).Name);
             return null;
         }
 

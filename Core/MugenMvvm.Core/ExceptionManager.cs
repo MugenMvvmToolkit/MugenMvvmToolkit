@@ -94,6 +94,11 @@ namespace MugenMvvm
             throw new InvalidOperationException(MessageConstants.CannotGetViewModelFormat1.Format(metadata.Dump()));
         }
 
+        internal static void ThrowCannotGetComponent(object owner, Type componentType)
+        {
+            throw new InvalidOperationException(MessageConstants.CannotGetComponentFormat2.Format(owner.GetType(), componentType));
+        }
+
         internal static void ThrowObjectDisposed(object item)
         {
             throw new ObjectDisposedException(item.GetType().FullName, MessageConstants.ObjectDisposedFormat1.Format(item.GetType()));

@@ -22,7 +22,7 @@ namespace MugenMvvm.Infrastructure.Serialization
 
         #region Properties
 
-        public bool IsMetadataInitialized => true;
+        public bool HasMetadata => true;
 
         public IMetadataContext Metadata { get; }
 

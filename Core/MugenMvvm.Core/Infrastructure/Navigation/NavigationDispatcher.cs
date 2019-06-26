@@ -1,93 +1,32 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
-using MugenMvvm.Attributes;
+using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Navigation;
 
 namespace MugenMvvm.Infrastructure.Navigation
 {
-    public class NavigationDispatcher : INavigationDispatcher
+    public class NavigationDispatcher : ComponentOwnerBase<INavigationDispatcher>, INavigationDispatcher
     {
-        #region Fields
-
-        private INavigationContextProvider _contextProvider;
-        private IComponentCollection<INavigationDispatcherListener>? _listeners;
-        private INavigationDispatcherJournal _navigationJournal;
-
-        #endregion
-
         #region Constructors
 
-        [Preserve(Conditional = true)]
-        public NavigationDispatcher(INavigationContextProvider contextProvider, INavigationDispatcherJournal navigationJournal,
-            IComponentCollectionProvider componentCollectionProvider)
+        public NavigationDispatcher(IComponentCollectionProvider componentCollectionProvider)
+            : base(componentCollectionProvider)
         {
-            Should.NotBeNull(contextProvider, nameof(contextProvider));
-            Should.NotBeNull(navigationJournal, nameof(navigationJournal));
-            Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
-            ComponentCollectionProvider = componentCollectionProvider;
-            ContextProvider = contextProvider;
-            NavigationJournal = navigationJournal;
-        }
-
-        #endregion
-
-        #region Properties
-
-        protected IComponentCollectionProvider ComponentCollectionProvider { get; }
-
-        public bool IsListenersInitialized => _listeners != null;
-
-        public INavigationContextProvider ContextProvider
-        {
-            get => _contextProvider;
-            set
-            {
-                Should.NotBeNull(value, nameof(ContextProvider));
-                _contextProvider?.OnDetached(this, Default.Metadata);
-                _contextProvider = value;
-                _contextProvider.OnAttached(this, Default.Metadata);
-            }
-        }
-
-        public INavigationDispatcherJournal NavigationJournal
-        {
-            get => _navigationJournal;
-            set
-            {
-                Should.NotBeNull(value, nameof(NavigationJournal));
-                _navigationJournal?.OnDetached(this, Default.Metadata);
-                _navigationJournal = value;
-                _navigationJournal.OnAttached(this, Default.Metadata);
-            }
-        }
-
-        public IComponentCollection<INavigationDispatcherListener> Listeners
-        {
-            get
-            {
-                if (_listeners == null)
-                    ComponentCollectionProvider.LazyInitialize(ref _listeners, this);
-                return _listeners;
-            }
         }
 
         #endregion
 
         #region Implementation of interfaces
 
-        public INavigatingResult OnNavigating(INavigationContext navigationContext)
+        public Task<bool> OnNavigatingAsync(INavigationContext navigationContext)
         {
-            Should.NotBeNull(navigationContext, nameof(navigationContext));
-            return OnNavigatingInternal(navigationContext);
+            return new NavigatingResult(this, Components.GetItems(), navigationContext).Task;
         }
 
         public void OnNavigated(INavigationContext navigationContext)
         {
             Should.NotBeNull(navigationContext, nameof(navigationContext));
-            NavigationJournal.OnNavigated(navigationContext);
             OnNavigatedInternal(navigationContext);
         }
 
@@ -108,85 +47,50 @@ namespace MugenMvvm.Infrastructure.Navigation
 
         #region Methods
 
-        protected virtual INavigatingResult OnNavigatingInternal(INavigationContext navigationContext)
-        {
-            return new NavigatingResult(this, this.GetListeners(), navigationContext);
-        }
-
         protected virtual void OnNavigatedInternal(INavigationContext navigationContext)
         {
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnNavigated(this, navigationContext);
+            var components = Components.GetItems();
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as INavigationDispatcherNavigatedListener)?.OnNavigated(this, navigationContext);
         }
 
         protected virtual void OnNavigationFailedInternal(INavigationContext navigationContext, Exception exception)
         {
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnNavigationFailed(this, navigationContext, exception);
+            var components = Components.GetItems();
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as INavigationDispatcherErrorListener)?.OnNavigationFailed(this, navigationContext, exception);
         }
 
         protected virtual void OnNavigationCanceledInternal(INavigationContext navigationContext)
         {
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnNavigationCanceled(this, navigationContext);
-        }
-
-        protected virtual void OnNavigatingCanceledInternal(INavigationContext navigationContext)
-        {
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnNavigatingCanceled(this, navigationContext);
+            var components = Components.GetItems();
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as INavigationDispatcherErrorListener)?.OnNavigationCanceled(this, navigationContext);
         }
 
         #endregion
 
         #region Nested types
 
-        protected sealed class NavigatingResult : TaskCompletionSource<bool>, INavigatingResult
+        protected sealed class NavigatingResult : TaskCompletionSource<bool>
         {
             #region Fields
 
+            private readonly IComponent<INavigationDispatcher>[] _components;
             private readonly NavigationDispatcher _dispatcher;
-            private readonly IReadOnlyList<INavigationDispatcherListener> _listeners;
-
             private readonly INavigationContext _navigationContext;
-            private Action<INavigationDispatcher, INavigationContext, Exception?>? _canceledCallback;
-            private Func<INavigationDispatcher, INavigationContext, bool> _completeNavigationCallback;
             private int _index;
 
             #endregion
 
             #region Constructors
 
-            public NavigatingResult(NavigationDispatcher dispatcher, IReadOnlyList<INavigationDispatcherListener> listeners, INavigationContext navigationContext)
+            public NavigatingResult(NavigationDispatcher dispatcher, IComponent<INavigationDispatcher>[] components, INavigationContext navigationContext)
             {
                 _dispatcher = dispatcher;
-                _listeners = listeners;
+                _components = components;
                 _navigationContext = navigationContext;
                 OnExecuted(Default.TrueTask);
-            }
-
-            #endregion
-
-            #region Implementation of interfaces
-
-            public Task<bool> GetResultAsync()
-            {
-                return Task;
-            }
-
-            public void CompleteNavigation(Func<INavigationDispatcher, INavigationContext, bool> completeNavigationCallback,
-                Action<INavigationDispatcher, INavigationContext, Exception?>? cancelCallback = null)
-            {
-                Should.NotBeNull(completeNavigationCallback, nameof(completeNavigationCallback));
-                if (Interlocked.Exchange(ref _completeNavigationCallback, completeNavigationCallback) != null)
-                    ExceptionManager.ThrowNavigatingResultHasCallback();
-
-                _canceledCallback = cancelCallback;
-                Task.ContinueWith(InvokeCompletedCallback, this, TaskContinuationOptions.ExecuteSynchronously);
             }
 
             #endregion
@@ -209,13 +113,13 @@ namespace MugenMvvm.Infrastructure.Navigation
                         return;
                     }
 
-                    if (_index >= _listeners.Count)
+                    if (_index >= _components.Length)
                     {
                         SetResult(true, null, false);
                         return;
                     }
 
-                    var resultTask = _listeners[_index].OnNavigatingAsync(_dispatcher, _navigationContext) ?? Default.TrueTask;
+                    var resultTask = (_components[_index] as INavigationDispatcherNavigatingListener)?.OnNavigatingAsync(_dispatcher, _navigationContext) ?? Default.TrueTask;
                     ++_index;
                     resultTask.ContinueWith(OnExecuted, this, TaskContinuationOptions.ExecuteSynchronously);
                 }
@@ -232,62 +136,12 @@ namespace MugenMvvm.Infrastructure.Navigation
                 else if (canceled)
                     TrySetCanceled();
                 else
-                {
                     TrySetResult(result);
-                    if (!result)
-                        _dispatcher.OnNavigatingCanceledInternal(_navigationContext);
-                }
-            }
-
-            private void InvokeCompletedCallback(Task<bool> task)
-            {
-                try
-                {
-                    if (task.IsCanceled)
-                    {
-                        _canceledCallback?.Invoke(_dispatcher, _navigationContext, null);
-                        _dispatcher.OnNavigationCanceled(_navigationContext);
-                        return;
-                    }
-
-                    if (task.IsFaulted)
-                    {
-                        _canceledCallback?.Invoke(_dispatcher, _navigationContext, task.Exception);
-                        _dispatcher.OnNavigationFailed(_navigationContext, task.Exception);
-                        return;
-                    }
-
-                    if (task.Result)
-                    {
-                        if (_completeNavigationCallback(_dispatcher, _navigationContext))
-                            _dispatcher.OnNavigated(_navigationContext);
-                    }
-                    else
-                    {
-                        _canceledCallback?.Invoke(_dispatcher, _navigationContext, null);
-                        _dispatcher.OnNavigationCanceled(_navigationContext);
-                    }
-                }
-                catch (Exception e)
-                {
-                    _canceledCallback?.Invoke(_dispatcher, _navigationContext, e);
-                    _dispatcher.OnNavigationFailed(_navigationContext, e);
-                }
-                finally
-                {
-                    _canceledCallback = null;
-                    _completeNavigationCallback = (dispatcher, context) => false;
-                }
-            }
-
-            private static void InvokeCompletedCallback(Task<bool> task, object state)
-            {
-                ((NavigatingResult)state).InvokeCompletedCallback(task);
             }
 
             private static void OnExecuted(Task<bool> task, object state)
             {
-                ((NavigatingResult)state).OnExecuted(task);
+                ((NavigatingResult) state).OnExecuted(task);
             }
 
             #endregion

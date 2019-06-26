@@ -19,8 +19,8 @@ namespace MugenMvvm.Infrastructure.Serialization
             Metadata = Default.Metadata;
         }
 
-        public MementoResult(object? target, IHasMetadata<IReadOnlyMetadataContext>? hasMetadata = null)
-            : this(target, hasMetadata?.Metadata.DefaultIfNull())
+        public MementoResult(object? target, IMetadataOwner<IReadOnlyMetadataContext>? metadataOwner = null)
+            : this(target, metadataOwner?.Metadata.DefaultIfNull())
         {
         }
 
@@ -38,7 +38,7 @@ namespace MugenMvvm.Infrastructure.Serialization
 
         public bool IsRestored { get; }
 
-        public bool IsMetadataInitialized => true;
+        public bool HasMetadata => true;
 
         public IReadOnlyMetadataContext Metadata { get; }
 

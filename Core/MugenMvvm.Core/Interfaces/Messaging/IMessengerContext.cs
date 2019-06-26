@@ -3,7 +3,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Messaging
 {
-    public interface IMessengerContext : IHasMetadata<IMetadataContext>
+    public interface IMessengerContext : IMetadataOwner<IMetadataContext>
     {
         IMessenger Messenger { get; }
 

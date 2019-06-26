@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.IoC;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
+using MugenMvvm.Interfaces.ViewModels;
+using MugenMvvm.Interfaces.Views;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm
@@ -16,6 +18,29 @@ namespace MugenMvvm
     public static partial class MugenExtensions
     {
         #region Methods
+
+        public static Task<IReadOnlyMetadataContext> CleanupAsync(this IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
+        {
+            Should.NotBeNull(viewInfo, nameof(viewInfo));
+            return viewInfo.Initializer.CleanupAsync(viewInfo, viewModel, metadata);
+        }
+
+        public static TType? GetComponent<T, TType>(this IComponentOwner<T> owner, bool optional)
+            where T : class
+            where TType : class, IComponent<T>
+        {
+            Should.NotBeNull(owner, nameof(owner));
+            var components = owner.GetComponents();
+            for (int i = 0; i < components.Length; i++)
+            {
+                if (components[i] is TType component)
+                    return component;
+            }
+
+            if (!optional)
+                ExceptionManager.ThrowCannotGetComponent(owner, typeof(T));
+            return null;
+        }
 
         public static bool MemberNameEqual(string changedMember, string listenedMember, bool emptyListenedMemberResult = false)
         {
@@ -70,12 +95,6 @@ namespace MugenMvvm
             return metadataContext == null && LazyInitialize(ref metadataContext, GetMetadataContext(target, values, provider));
         }
 
-        public static bool LazyInitialize(this IMetadataContextProvider provider, [EnsuresNotNull] ref IObservableMetadataContext? metadataContext,
-            object? target, IEnumerable<MetadataContextValue> values = null) //todo R# bug return?
-        {
-            return metadataContext == null && LazyInitialize(ref metadataContext, GetObservableMetadataContext(target, values, provider));
-        }
-
         public static T[] GetItemsOrDefault<T>(this IComponentCollection<T> componentCollection) where T : class //todo R# bug return?
         {
             return componentCollection?.GetItems() ?? Default.EmptyArray<T>();
@@ -87,45 +106,39 @@ namespace MugenMvvm
             return string.Format(format, args);
         }
 
-        public static void AddListener<T>(this IHasListeners<T> hasListeners, T listener, IReadOnlyMetadataContext? metadata = null) where T : class, IListener
+        public static void AddComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class
         {
-            Should.NotBeNull(hasListeners, nameof(hasListeners));
-            hasListeners.Listeners.Add(listener, metadata);
+            Should.NotBeNull(componentOwner, nameof(componentOwner));
+            componentOwner.Components.Add(component, metadata);
         }
 
-        public static void RemoveListener<T>(this IHasListeners<T> hasListeners, T listener, IReadOnlyMetadataContext? metadata = null) where T : class, IListener
+        public static void RemoveComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class
         {
-            Should.NotBeNull(hasListeners, nameof(hasListeners));
-            if (hasListeners.IsListenersInitialized)
-                hasListeners.Listeners.Remove(listener, metadata);
+            Should.NotBeNull(componentOwner, nameof(componentOwner));
+            if (componentOwner.HasComponents)
+                componentOwner.Components.Remove(component, metadata);
         }
 
-        public static void RemoveAllListeners<T>(this IHasListeners<T> hasListeners, IReadOnlyMetadataContext? metadata = null) where T : class, IListener
+        public static void ClearComponents<T>(this IComponentOwner<T> componentOwner, IReadOnlyMetadataContext? metadata = null) where T : class
         {
-            Should.NotBeNull(hasListeners, nameof(hasListeners));
-            if (hasListeners.IsListenersInitialized)
-                hasListeners.Listeners.Clear(metadata);
+            Should.NotBeNull(componentOwner, nameof(componentOwner));
+            if (componentOwner.HasComponents)
+                componentOwner.Components.Clear(metadata);
         }
 
-        public static bool HasListeners<T>(this IHasListeners<T> hasListeners) where T : class, IListener
+        public static IComponent<T>[] GetComponents<T>(this IComponentOwner<T> componentOwner) where T : class
         {
-            Should.NotBeNull(hasListeners, nameof(hasListeners));
-            return hasListeners.IsListenersInitialized && hasListeners.Listeners.HasItems;
-        }
-
-        public static T[] GetListeners<T>(this IHasListeners<T> hasListeners) where T : class, IListener
-        {
-            Should.NotBeNull(hasListeners, nameof(hasListeners));
-            if (hasListeners.IsListenersInitialized)
-                return hasListeners.Listeners.GetItems();
-            return Default.EmptyArray<T>();
+            Should.NotBeNull(componentOwner, nameof(componentOwner));
+            if (componentOwner.HasComponents)
+                return componentOwner.Components.GetItems();
+            return Default.EmptyArray<IComponent<T>>();
         }
 
         [Pure]
         public static T GetService<T>(this IServiceProvider serviceProvider)
         {
             Should.NotBeNull(serviceProvider, nameof(serviceProvider));
-            return (T) serviceProvider.GetService(typeof(T));
+            return (T)serviceProvider.GetService(typeof(T));
         }
 
         [Pure]
@@ -138,7 +151,7 @@ namespace MugenMvvm
                 {
                     if (container.TryGet(typeof(T), out var o))
                     {
-                        service = (T) o!;
+                        service = (T)o!;
                         return true;
                     }
 
@@ -146,7 +159,7 @@ namespace MugenMvvm
                     return false;
                 }
 
-                service = (T) serviceProvider.GetService(typeof(T));
+                service = (T)serviceProvider.GetService(typeof(T));
                 return true;
             }
             catch
@@ -161,7 +174,7 @@ namespace MugenMvvm
             var tryGet = iocContainer.TryGet(typeof(T), out var objService, metadata);
             if (tryGet)
             {
-                service = (T) objService;
+                service = (T)objService;
                 return true;
             }
 

@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Interfaces.Metadata;
+﻿using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Infrastructure.Components
@@ -48,8 +49,8 @@ namespace MugenMvvm.Infrastructure.Components
 
         private int GetPriority(T component)
         {
-            if (component is IListener listener)
-                return listener.GetPriority(Owner);
+            if (component is IComponent c)
+                return c.GetPriority(Owner);
             return ((IHasPriority) component).Priority;
         }
 

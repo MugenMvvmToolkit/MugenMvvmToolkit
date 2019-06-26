@@ -9,8 +9,7 @@ namespace MugenMvvm.Infrastructure.Components
     {
         #region Fields
 
-        private IComponentCollection<IChildComponentCollectionProvider> _componentCollectionFactories;
-        private IComponentCollection<IComponentCollectionProviderListener>? _listeners;
+        private IComponentCollection<IComponent<IComponentCollectionProvider>>? _components;
 
         #endregion
 
@@ -25,25 +24,15 @@ namespace MugenMvvm.Infrastructure.Components
 
         #region Properties
 
-        public bool IsListenersInitialized => _listeners != null;
+        public bool HasComponents => _components != null && _components.HasItems;
 
-        public IComponentCollection<IComponentCollectionProviderListener> Listeners
+        public IComponentCollection<IComponent<IComponentCollectionProvider>> Components
         {
             get
             {
-                if (_listeners == null && this.LazyInitialize(ref _listeners, this))
-                    _listeners.AddListener(new ComponentCollectionCallbackListener());
-                return _listeners;
-            }
-        }
-
-        public IComponentCollection<IChildComponentCollectionProvider> ComponentCollectionFactories
-        {
-            get
-            {
-                if (_componentCollectionFactories == null)
-                    this.LazyInitialize(ref _componentCollectionFactories, this);
-                return _componentCollectionFactories;
+                if (_components == null && this.LazyInitialize(ref _components, this))
+                    _components.Add(CallbackInvokerComponentCollectionProviderComponent.GetComponentCollectionProviderListener());
+                return _components;
             }
         }
 
@@ -59,7 +48,7 @@ namespace MugenMvvm.Infrastructure.Components
             var result = GetComponentCollectionInternal<T>(owner, metadata);
 
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IChildComponentCollectionProvider).Name);
+                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IComponentCollectionProviderComponent).Name);
 
             OnComponentCollectionCreated(result, metadata);
 
@@ -74,16 +63,16 @@ namespace MugenMvvm.Infrastructure.Components
         {
             if (!ReferenceEquals(owner, this))
             {
-                var collectionFactories = ComponentCollectionFactories.GetItems();
+                var collectionFactories = this.GetComponents();
                 for (var i = 0; i < collectionFactories.Length; i++)
                 {
-                    var collection = collectionFactories[i].TryGetComponentCollection<T>(this, owner, metadata);
+                    var collection = (collectionFactories[i] as IComponentCollectionProviderComponent)?.TryGetComponentCollection<T>(owner, metadata);
                     if (collection != null)
                         return collection;
                 }
             }
 
-            if (typeof(IHasPriority).IsAssignableFromUnified(typeof(T)) || typeof(IListener).IsAssignableFromUnified(typeof(T)))
+            if (typeof(IHasPriority).IsAssignableFromUnified(typeof(T)) || typeof(IComponent).IsAssignableFromUnified(typeof(T)))
                 return new OrderedArrayComponentCollection<T>(owner);
             return new ArrayComponentCollection<T>(owner);
         }
@@ -91,9 +80,9 @@ namespace MugenMvvm.Infrastructure.Components
         protected virtual void OnComponentCollectionCreated<T>(IComponentCollection<T> result, IReadOnlyMetadataContext metadata)
             where T : class
         {
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnComponentCollectionCreated(this, result, metadata);
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as IComponentCollectionProviderListener)?.OnComponentCollectionCreated(this, result, metadata);
         }
 
         #endregion

@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.ViewModels
 {
-    public interface IViewModelBase : INotifyPropertyChanged, IHasMetadata<IObservableMetadataContext>
+    public interface IViewModelBase : INotifyPropertyChanged, IMetadataOwner<IMetadataContext>
     {
     }
 }

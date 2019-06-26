@@ -12,10 +12,15 @@ namespace MugenMvvm.Enums
         #region Fields
 
         public static readonly NavigationType Undefined = new NavigationType(nameof(Undefined));
-        public static readonly NavigationType Tab = new NavigationType(nameof(Tab));
-        public static readonly NavigationType Generic = new NavigationType(nameof(Generic));
-        public static readonly NavigationType Page = new NavigationType(nameof(Page));
-        public static readonly NavigationType System = new NavigationType(nameof(System));
+
+        public static readonly NavigationType Tab = new NavigationType(nameof(Tab)) { IsNestedNavigation = true };
+        public static readonly NavigationType Window = new NavigationType(nameof(Window)) { IsRootNavigation = true };
+        public static readonly NavigationType Popup = new NavigationType(nameof(Popup)) { IsRootNavigation = true };
+        public static readonly NavigationType Page = new NavigationType(nameof(Page)) { IsRootNavigation = true };
+
+        public static readonly NavigationType System = new NavigationType(nameof(System)) { IsSystemNavigation = true };
+        public static readonly NavigationType Alert = new NavigationType(nameof(Alert)) { IsSystemNavigation = true };
+        public static readonly NavigationType Toast = new NavigationType(nameof(Toast)) { IsSystemNavigation = true };
 
         #endregion
 
@@ -30,6 +35,22 @@ namespace MugenMvvm.Enums
         public NavigationType(string value) : base(value)
         {
         }
+
+        #endregion
+
+        #region Properties
+
+        [IgnoreDataMember]
+        public bool IsUndefined => Undefined == this;
+
+        [DataMember(Name = "r")]
+        public bool IsRootNavigation { get; protected set; }
+
+        [DataMember(Name = "n")]
+        public bool IsNestedNavigation { get; protected set; }
+
+        [DataMember(Name = "s")]
+        public bool IsSystemNavigation { get; protected set; }
 
         #endregion
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Interfaces.Collections.Components;
 
 namespace MugenMvvm.Interfaces.Collections
 {
@@ -9,20 +10,20 @@ namespace MugenMvvm.Interfaces.Collections
 
         IDisposable Lock();
 
-        IEnumerable<T> DecorateItems(IObservableCollectionDecorator<T> decorator);
+        IEnumerable<T> DecorateItems(IDecoratorObservableCollectionComponent<T> decorator);
 
-        void OnItemChanged(IObservableCollectionDecorator<T> decorator, T item, int index, object? args);
+        void OnItemChanged(IDecoratorObservableCollectionComponent<T> decorator, T item, int index, object? args);
 
-        void OnAdded(IObservableCollectionDecorator<T> decorator, T item, int index);
+        void OnAdded(IDecoratorObservableCollectionComponent<T> decorator, T item, int index);
 
-        void OnReplaced(IObservableCollectionDecorator<T> decorator, T oldItem, T newItem, int index);
+        void OnReplaced(IDecoratorObservableCollectionComponent<T> decorator, T oldItem, T newItem, int index);
 
-        void OnMoved(IObservableCollectionDecorator<T> decorator, T item, int oldIndex, int newIndex);
+        void OnMoved(IDecoratorObservableCollectionComponent<T> decorator, T item, int oldIndex, int newIndex);
 
-        void OnRemoved(IObservableCollectionDecorator<T> decorator, T item, int index);
+        void OnRemoved(IDecoratorObservableCollectionComponent<T> decorator, T item, int index);
 
-        void OnReset(IObservableCollectionDecorator<T> decorator, IEnumerable<T> items);
+        void OnReset(IDecoratorObservableCollectionComponent<T> decorator, IEnumerable<T> items);
 
-        void OnCleared(IObservableCollectionDecorator<T> decorator);
+        void OnCleared(IDecoratorObservableCollectionComponent<T> decorator);
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
+using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
@@ -8,22 +9,14 @@ using MugenMvvm.Interfaces.ViewModels.Infrastructure;
 
 namespace MugenMvvm.Infrastructure.ViewModels
 {
-    public class ViewModelDispatcher : IViewModelDispatcher
+    public class ViewModelDispatcher : ComponentOwnerBase<IViewModelDispatcher>, IViewModelDispatcher
     {
-        #region Fields
-
-        private IComponentCollection<IViewModelDispatcherComponent>? _components;
-
-        #endregion
-
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelDispatcher(IComponentCollectionProvider componentCollectionProvider, IMetadataContextProvider metadataContextProvider)
+        public ViewModelDispatcher(IComponentCollectionProvider componentCollectionProvider, IMetadataContextProvider metadataContextProvider) : base(componentCollectionProvider)
         {
-            Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
             Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
-            ComponentCollectionProvider = componentCollectionProvider;
             MetadataContextProvider = metadataContextProvider;
         }
 
@@ -31,19 +24,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
 
         #region Properties
 
-        protected IComponentCollectionProvider ComponentCollectionProvider { get; }
-
         protected IMetadataContextProvider MetadataContextProvider { get; }
-
-        public IComponentCollection<IViewModelDispatcherComponent> Components
-        {
-            get
-            {
-                if (_components == null)
-                    ComponentCollectionProvider.LazyInitialize(ref _components, this);
-                return _components;
-            }
-        }
 
         #endregion
 
@@ -85,16 +66,6 @@ namespace MugenMvvm.Infrastructure.ViewModels
             return UnsubscribeInternal(viewModel, observer, metadata);
         }
 
-        public IViewModelBase GetViewModel(IReadOnlyMetadataContext metadata)
-        {
-            Should.NotBeNull(metadata, nameof(metadata));
-            var vm = TryGetViewModelInternal(metadata);
-            if (vm == null)
-                ExceptionManager.ThrowCannotGetViewModel(metadata);
-
-            return vm!;
-        }
-
         public IViewModelBase? TryGetViewModel(IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(metadata, nameof(metadata));
@@ -112,15 +83,8 @@ namespace MugenMvvm.Infrastructure.ViewModels
             IMetadataContext? result = null;
             var managers = Components.GetItems();
             for (var i = 0; i < managers.Length; i++)
-            {
-                var m = managers[i].OnLifecycleChanged(this, viewModel, lifecycleState, metadata);
-                if (m == null || m.Count == 0)
-                    continue;
-
-                if (result == null)
-                    result = MetadataContextProvider.GetMetadataContext(this, null);
-                result.Merge(m);
-            }
+                (managers[i] as IViewModelDispatcherComponent)?.OnLifecycleChanged(viewModel, lifecycleState, result ??= MetadataContextProvider.GetMetadataContext(this, null),
+                    metadata);
 
             return result ?? Default.Metadata;
         }
@@ -130,7 +94,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
             var managers = Components.GetItems();
             for (var i = 0; i < managers.Length; i++)
             {
-                var result = (managers[i] as IServiceResolverViewModelDispatcherComponent)?.TryGetService(this, viewModel, service, metadata);
+                var result = (managers[i] as IViewModelServiceResolverComponent)?.TryGetService(viewModel, service, metadata);
                 if (result != null)
                     return result;
             }
@@ -144,7 +108,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
             var managers = Components.GetItems();
             for (var i = 0; i < managers.Length; i++)
             {
-                var result = (managers[i] as ISubscriberViewModelDispatcherComponent)?.TrySubscribe(this, viewModel, observer, executionMode, metadata);
+                var result = (managers[i] as ISubscriberViewModelDispatcherComponent)?.TrySubscribe(viewModel, observer, executionMode, metadata);
                 if (result.GetValueOrDefault())
                     subscribed = true;
             }
@@ -158,7 +122,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
             var managers = Components.GetItems();
             for (var i = 0; i < managers.Length; i++)
             {
-                var result = (managers[i] as ISubscriberViewModelDispatcherComponent)?.TryUnsubscribe(this, viewModel, observer, metadata);
+                var result = (managers[i] as ISubscriberViewModelDispatcherComponent)?.TryUnsubscribe(viewModel, observer, metadata);
                 if (result.GetValueOrDefault())
                     unsubscribed = true;
             }
@@ -171,7 +135,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
             var managers = Components.GetItems();
             for (var i = 0; i < managers.Length; i++)
             {
-                var viewModel = (managers[i] as IViewModelProviderViewModelDispatcherComponent)?.TryGetViewModel(this, metadata);
+                var viewModel = (managers[i] as IViewModelProviderComponent)?.TryGetViewModel(metadata);
                 if (viewModel != null)
                     return viewModel;
             }

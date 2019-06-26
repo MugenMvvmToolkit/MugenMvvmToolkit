@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MugenMvvm.Enums;
-using MugenMvvm.Infrastructure.Navigation;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
-using MugenMvvm.Interfaces.Navigation.Presenters;
+using MugenMvvm.Interfaces.Navigation.Components;
 using MugenMvvm.Interfaces.ViewModels;
-using MugenMvvm.Interfaces.Views.Infrastructure;
-using MugenMvvm.Interfaces.Wrapping;
+using MugenMvvm.Metadata;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm
@@ -17,73 +15,83 @@ namespace MugenMvvm
     {
         #region Methods
 
-        public static bool RegisterMediatorFactory(this INavigationMediatorChildViewModelPresenter viewModelPresenter,
-            Func<IViewModelBase, IViewInitializer, IReadOnlyMetadataContext, INavigationMediator?> factory, int priority = 0, IReadOnlyMetadataContext? metadata = null)
+        public static INavigationJournalComponent GetNavigationJournal(this INavigationDispatcher dispatcher)
         {
-            Should.NotBeNull(viewModelPresenter, nameof(viewModelPresenter));
-            Should.NotBeNull(factory, nameof(factory));
-            return viewModelPresenter.Managers.Add(new DelegateNavigationMediatorFactory(factory, priority), metadata);
+            return dispatcher.GetComponent<INavigationDispatcher, INavigationJournalComponent>(false);
         }
 
-        public static bool RegisterMediatorFactory<TMediator, TView>(this INavigationMediatorChildViewModelPresenter viewModelPresenter,
-            Func<IViewModelBase, IViewInitializer, IReadOnlyMetadataContext, TMediator>? factory = null, int priority = 0,
-            IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
-            where TMediator : NavigationMediatorBase<TView>
-            where TView : class
+        public static INavigationContextProviderComponent GetNavigationContextProvider(this INavigationDispatcher dispatcher)
         {
-            return viewModelPresenter.RegisterMediatorFactory(typeof(TMediator), typeof(TView), factory, priority, metadata, wrapperManager);
+            return dispatcher.GetComponent<INavigationDispatcher, INavigationContextProviderComponent>(false);
         }
 
-        public static bool RegisterMediatorFactory(this INavigationMediatorChildViewModelPresenter viewModelPresenter, Type mediatorType, Type viewType,
-            Func<IViewModelBase, IViewInitializer, IReadOnlyMetadataContext, INavigationMediator>? factory = null, int priority = 0,
-            IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
+        public static INavigationContext GetNavigationContext(this INavigationDispatcher dispatcher, IViewModelBase viewModel, INavigationProvider navigationProvider, string navigationOperationId,
+            NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(mediatorType, nameof(mediatorType));
-            Should.NotBeNull(viewType, nameof(viewType));
-            return viewModelPresenter.RegisterMediatorFactory((vm, initializer, arg3) =>
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            var navigationContext = dispatcher.GetNavigationContextProvider().GetNavigationContext(navigationProvider, navigationOperationId, navigationType, navigationMode, metadata);
+            navigationContext.Metadata.Set(NavigationMetadata.ViewModel, viewModel);
+            return navigationContext;
+        }
+
+        public static INavigationContext GetNavigationContext(this INavigationDispatcher dispatcher, IViewModelBase viewModel, INavigationProvider navigationProvider,
+            NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            var navigationContext = dispatcher
+                .GetNavigationContextProvider()
+                .GetNavigationContext(navigationProvider, navigationProvider.GetUniqueNavigationOperationId(viewModel), navigationType, navigationMode, metadata);
+            navigationContext.Metadata.Set(NavigationMetadata.ViewModel, viewModel);
+            return navigationContext;
+        }
+
+        public static string GetUniqueNavigationOperationId(this INavigationProvider navigationProvider, IViewModelBase viewModel)//todo review
+        {
+            return null;
+        }
+
+        public static void OnNavigating(this INavigationDispatcher dispatcher, INavigationContext context, Func<INavigationDispatcher, INavigationContext, bool> completeNavigationCallback,
+            Action<INavigationDispatcher, INavigationContext, Exception?>? fallback = null)
+        {
+            Should.NotBeNull(dispatcher, nameof(dispatcher));
+            Should.NotBeNull(context, nameof(context));
+            dispatcher.OnNavigatingAsync(context)
+                .ContinueWith(task => InvokeCompletedCallback(task, context, dispatcher, completeNavigationCallback, fallback), TaskContinuationOptions.ExecuteSynchronously);
+        }
+
+        public static IReadOnlyList<INavigationCallback> GetCallbacks(this INavigationDispatcher dispatcher, INavigationEntry entry, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(dispatcher, nameof(dispatcher));
+            var components = dispatcher.Components.GetItems();
+            List<INavigationCallback>? result = null;
+            for (int i = 0; i < components.Length; i++)
             {
-                if (viewType.IsAssignableFromUnified(initializer.ViewType) || wrapperManager.ServiceIfNull().CanWrap(initializer.ViewType, viewType, arg3))
+                if (components[i] is INavigationCallbackProviderComponent callbackProvider)
                 {
-                    if (factory == null)
-                        return (INavigationMediator)Service<IServiceProvider>.Instance.GetService(mediatorType);
-                    return factory(vm, initializer, arg3);
+                    var callbacks = callbackProvider.GetCallbacks(entry, metadata);
+                    if (callbacks.Count == 0)
+                        continue;
+                    if (result == null)
+                        result = new List<INavigationCallback>();
+                    result.AddRange(callbacks);
                 }
-                return null;
-            }, priority, metadata);
+            }
+
+            return result ?? (IReadOnlyList<INavigationCallback>)Default.EmptyArray<INavigationCallback>();
         }
 
-        public static INavigatingResult OnNavigatingTo(this INavigationDispatcher navigationDispatcher, INavigationProvider navigationProvider, NavigationMode mode,
-            NavigationType navigationType, IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
-            return navigationDispatcher.OnNavigating(navigationDispatcher.ContextProvider.GetNavigationContextTo(navigationProvider, mode, navigationType, viewModel, metadata.DefaultIfNull()));
-        }
-
-        public static INavigatingResult OnNavigatingFrom(this INavigationDispatcher navigationDispatcher, INavigationProvider navigationProvider, NavigationMode mode,
-            NavigationType navigationType, IViewModelBase viewModelFrom, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
-            return navigationDispatcher.OnNavigating(navigationDispatcher.ContextProvider.GetNavigationContextFrom(navigationProvider, mode, navigationType, viewModelFrom, metadata.DefaultIfNull()));
-        }
-
-        public static Task WaitNavigationAsync(this INavigationDispatcher navigationDispatcher, Func<INavigationCallback, bool> filter,
+        public static Task WaitNavigationAsync(this INavigationDispatcher dispatcher, Func<INavigationCallback, bool> filter,
             IReadOnlyMetadataContext? metadata = null)
         {
-            return navigationDispatcher?.NavigationJournal.WaitNavigationAsync(filter, metadata);
-        }
-
-        public static Task WaitNavigationAsync(this INavigationDispatcherJournal navigationDispatcherJournal, Func<INavigationCallback, bool> filter,
-            IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(navigationDispatcherJournal, nameof(navigationDispatcherJournal));
+            Should.NotBeNull(dispatcher, nameof(dispatcher));
             Should.NotBeNull(filter, nameof(filter));
             if (metadata == null)
                 metadata = Default.Metadata;
-            var entries = navigationDispatcherJournal.GetNavigationEntries(null, metadata);
+            var entries = dispatcher.GetNavigationJournal().GetNavigationEntries(null, metadata);
             List<Task>? tasks = null;
             for (var i = 0; i < entries.Count; i++)
             {
-                var callbacks = navigationDispatcherJournal.GetCallbacks(entries[i], null, metadata);
+                var callbacks = dispatcher.GetCallbacks(entries[i], metadata);
                 for (var j = 0; j < callbacks.Count; j++)
                 {
                     if (tasks == null)
@@ -97,6 +105,44 @@ namespace MugenMvvm
             if (tasks == null)
                 return Default.CompletedTask;
             return Task.WhenAll(tasks);
+        }
+
+        private static void InvokeCompletedCallback(Task<bool> task, INavigationContext navigationContext,
+            INavigationDispatcher dispatcher, Func<INavigationDispatcher, INavigationContext, bool> completeNavigationCallback,
+            Action<INavigationDispatcher, INavigationContext, Exception?>? fallback)
+        {
+            try
+            {
+                if (task.IsCanceled)
+                {
+                    fallback?.Invoke(dispatcher, navigationContext, null);
+                    dispatcher.OnNavigationCanceled(navigationContext);
+                    return;
+                }
+
+                if (task.IsFaulted)
+                {
+                    fallback?.Invoke(dispatcher, navigationContext, task.Exception);
+                    dispatcher.OnNavigationFailed(navigationContext, task.Exception);
+                    return;
+                }
+
+                if (task.Result)
+                {
+                    if (completeNavigationCallback(dispatcher, navigationContext))
+                        dispatcher.OnNavigated(navigationContext);
+                }
+                else
+                {
+                    fallback?.Invoke(dispatcher, navigationContext, null);
+                    dispatcher.OnNavigationCanceled(navigationContext);
+                }
+            }
+            catch (Exception e)
+            {
+                fallback?.Invoke(dispatcher, navigationContext, e);
+                dispatcher.OnNavigationFailed(navigationContext, e);
+            }
         }
 
         #endregion

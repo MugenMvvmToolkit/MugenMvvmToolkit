@@ -7,6 +7,8 @@ using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Messaging;
 using MugenMvvm.Interfaces.BusyIndicator;
+using MugenMvvm.Interfaces.BusyIndicator.Components;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -30,10 +32,10 @@ namespace MugenMvvm.Infrastructure.Serialization
         private IViewModelBase? _viewModel;
 
         [DataMember(Name = "B")]
-        protected internal IList<IBusyIndicatorProviderListener?>? BusyListeners;
+        protected internal IList<IComponent<IBusyIndicatorProvider>?>? BusyComponents;
 
         [DataMember(Name = "C")]
-        protected internal IObservableMetadataContext? Metadata;
+        protected internal IMetadataContext? Metadata;
 
         [DataMember(Name = "N")]
         protected internal bool NoState;
@@ -85,14 +87,14 @@ namespace MugenMvvm.Infrastructure.Serialization
                 NoState = true;
                 Metadata = null;
                 Subscribers = null;
-                BusyListeners = null;
+                BusyComponents = null;
             }
             else
             {
                 NoState = false;
                 Metadata = _viewModel.Metadata;
                 Subscribers = _viewModel.TryGetServiceOptional<IMessenger>()?.GetSubscribers().ToSerializable(serializationContext.Serializer);
-                BusyListeners = _viewModel.TryGetServiceOptional<IBusyIndicatorProvider>()?.Listeners.GetItems().ToSerializable(serializationContext.Serializer);
+                BusyComponents = _viewModel.TryGetServiceOptional<IBusyIndicatorProvider>()?.GetComponents().ToSerializable(serializationContext.Serializer);
             }
 
             OnPreserveInternal(_viewModel!, NoState, serializationContext);
@@ -150,17 +152,17 @@ namespace MugenMvvm.Infrastructure.Serialization
 
         private void RestoreInternal(IViewModelBase viewModel)
         {
-            var listeners = Metadata!.Listeners.GetItems();
-            foreach (var listener in listeners)
-                viewModel.Metadata.AddListener(listener);
+            var components = Metadata!.GetComponents();
+            foreach (var component in components)
+                viewModel.Metadata.AddComponent(component);
             viewModel.Metadata.Merge(Metadata);
 
-            if (BusyListeners != null && viewModel is IHasService<IBusyIndicatorProvider> hasBusyIndicatorProvider)
+            if (BusyComponents != null && viewModel is IHasService<IBusyIndicatorProvider> hasBusyIndicatorProvider)
             {
-                foreach (var busyListener in BusyListeners)
+                foreach (var component in BusyComponents)
                 {
-                    if (busyListener != null)
-                        hasBusyIndicatorProvider.Service.AddListener(busyListener);
+                    if (component != null)
+                        hasBusyIndicatorProvider.Service.AddComponent(component);
                 }
             }
 

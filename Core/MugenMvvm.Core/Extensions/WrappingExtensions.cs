@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Enums;
 using MugenMvvm.Infrastructure.Wrapping;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Views.Infrastructure;
+using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Wrapping;
 using MugenMvvm.Metadata;
 
@@ -16,16 +15,16 @@ namespace MugenMvvm
     {
         #region Methods
 
-        public static IChildWrapperManager AddWrapper(this IWrapperManager wrapperManager, Func<IWrapperManager, Type, Type, IReadOnlyMetadataContext, bool> condition,
+        public static IWrapperManagerComponent AddWrapper(this IWrapperManager wrapperManager, Func<IWrapperManager, Type, Type, IReadOnlyMetadataContext, bool> condition,
             Func<IWrapperManager, object, Type, IReadOnlyMetadataContext, object?> wrapperFactory, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
-            var factory = new DelegateChildWrapperManager(condition, wrapperFactory);
-            wrapperManager.Managers.Add(factory, metadata);
+            var factory = new DelegateWrapperManagerComponent(condition, wrapperFactory);
+            wrapperManager.Components.Add(factory, metadata);
             return factory;
         }
 
-        public static IChildWrapperManager AddWrapper(this IWrapperManager wrapperManager, Type wrapperType, Type implementation,
+        public static IWrapperManagerComponent AddWrapper(this IWrapperManager wrapperManager, Type wrapperType, Type implementation,
             Func<IWrapperManager, object, Type, IReadOnlyMetadataContext, object>? wrapperFactory = null)
         {
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
@@ -48,14 +47,14 @@ namespace MugenMvvm
             return wrapperManager.AddWrapper((manager, type, arg3, arg4) => wrapperType.EqualsEx(arg3), wrapperFactory);
         }
 
-        public static IChildWrapperManager AddWrapper<TWrapper>(this IWrapperManager wrapperManager, Type implementation,
+        public static IWrapperManagerComponent AddWrapper<TWrapper>(this IWrapperManager wrapperManager, Type implementation,
             Func<IWrapperManager, object, Type, IReadOnlyMetadataContext, TWrapper>? wrapperFactory = null)
             where TWrapper : class
         {
             return wrapperManager.AddWrapper(typeof(TWrapper), implementation, wrapperFactory);
         }
 
-        public static IChildWrapperManager AddWrapper<TWrapper, TImplementation>(this IWrapperManager wrapperManager,
+        public static IWrapperManagerComponent AddWrapper<TWrapper, TImplementation>(this IWrapperManager wrapperManager,
             Func<IWrapperManager, object, Type, IReadOnlyMetadataContext, TWrapper>? wrapperFactory = null)
             where TWrapper : class
             where TImplementation : class, TWrapper

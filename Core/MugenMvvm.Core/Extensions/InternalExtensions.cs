@@ -34,12 +34,12 @@ namespace MugenMvvm
             List<T>? result = null; //todo check
             for (var i = 0; i < size.GetValueOrDefault(items.Count); i++)
             {
-                var listener = items[i];
-                if (listener != null && serializer.CanSerialize(listener.GetType(), Default.Metadata))
+                var item = items[i];
+                if (item != null && serializer.CanSerialize(item.GetType(), Default.Metadata))
                 {
                     if (result == null)
                         result = new List<T>();
-                    result.Add(listener);
+                    result.Add(item);
                 }
             }
 

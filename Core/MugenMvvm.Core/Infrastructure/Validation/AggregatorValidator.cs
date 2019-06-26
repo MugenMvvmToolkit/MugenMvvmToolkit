@@ -3,22 +3,20 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
+using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Validation;
 
 namespace MugenMvvm.Infrastructure.Validation
 {
-    public class AggregatorValidator : IAggregatorValidator, IValidatorListener, IComponentOwnerAddedCallback<IValidator>,
+    public class AggregatorValidator : ComponentOwnerBase<IValidator>, IAggregatorValidator, IValidatorListener, IComponentOwnerAddedCallback<IValidator>,
         IComponentOwnerAddingCallback<IValidator>, IComponentOwnerRemovedCallback<IValidator>
     {
         #region Fields
 
         private InlineValidator<object>? _inlineValidator;
-
-        private IComponentCollection<IValidatorListener>? _listeners;
-        private IObservableMetadataContext? _metadata;
+        private IMetadataContext? _metadata;
         private int _state;
         private IComponentCollection<IValidator>? _validators;
 
@@ -30,10 +28,9 @@ namespace MugenMvvm.Infrastructure.Validation
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public AggregatorValidator(IComponentCollectionProvider? componentCollectionProvider = null,
-            IMetadataContextProvider? metadataContextProvider = null)
+        public AggregatorValidator(IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
+            : base(componentCollectionProvider)
         {
-            ComponentCollectionProvider = componentCollectionProvider;
             MetadataContextProvider = metadataContextProvider;
         }
 
@@ -41,25 +38,11 @@ namespace MugenMvvm.Infrastructure.Validation
 
         #region Properties
 
-        protected IComponentCollectionProvider? ComponentCollectionProvider { get; }
-
         protected IMetadataContextProvider? MetadataContextProvider { get; }
 
-        public bool IsListenersInitialized => _listeners != null;
+        public bool HasMetadata => _metadata != null;
 
-        public bool IsMetadataInitialized => _metadata != null;
-
-        public IComponentCollection<IValidatorListener> Listeners
-        {
-            get
-            {
-                if (_listeners == null)
-                    ComponentCollectionProvider.LazyInitialize(ref _listeners, this);
-                return _listeners;
-            }
-        }
-
-        public IObservableMetadataContext Metadata
+        public IMetadataContext Metadata
         {
             get
             {
@@ -94,8 +77,9 @@ namespace MugenMvvm.Infrastructure.Validation
             if (Interlocked.Exchange(ref _state, DisposedState) == DisposedState)
                 return;
             OnDispose();
-            this.RemoveAllListeners();
-            this.ClearMetadata(true);
+            this.ClearComponents();
+            this.ClearMetadata();
+            _metadata?.ClearComponents();
         }
 
         public IReadOnlyList<object> GetErrors(string? memberName, IReadOnlyMetadataContext? metadata = null)
@@ -150,7 +134,7 @@ namespace MugenMvvm.Infrastructure.Validation
             OnValidatorRemoved(component, metadata);
         }
 
-        int IListener.GetPriority(object source)
+        int IComponent.GetPriority(object source)
         {
             return ValidatorListenerPriority;
         }
@@ -256,7 +240,7 @@ namespace MugenMvvm.Infrastructure.Validation
             if (_inlineValidator == null && MugenExtensions.LazyInitialize(ref _inlineValidator, new InlineValidator<object>()))
             {
                 _inlineValidator.Initialize(this, null);
-                _inlineValidator.AddListener(this);
+                _inlineValidator.AddComponent(this);
                 Validators.Add(_inlineValidator);
             }
 
@@ -281,23 +265,23 @@ namespace MugenMvvm.Infrastructure.Validation
 
         protected virtual void OnDispose()
         {
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnDisposed(this);
+            var components = GetComponents();
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as IValidatorListener)?.OnDisposed(this);
         }
 
         protected virtual void OnErrorsChanged(IValidator validator, string memberName, IReadOnlyMetadataContext metadata)
         {
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnErrorsChanged(this, memberName, metadata);
+            var components = GetComponents();
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as IValidatorListener)?.OnErrorsChanged(this, memberName, metadata);
         }
 
         protected virtual void OnAsyncValidation(IValidator validator, string memberName, Task validationTask, IReadOnlyMetadataContext metadata)
         {
-            var listeners = this.GetListeners();
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnAsyncValidation(this, memberName, validationTask, metadata);
+            var components = GetComponents();
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as IValidatorListener)?.OnAsyncValidation(this, memberName, validationTask, metadata);
         }
 
         protected virtual void OnDispose(IValidator validator)
@@ -307,7 +291,7 @@ namespace MugenMvvm.Infrastructure.Validation
 
         protected virtual void OnValidatorAdded(IValidator validator, IReadOnlyMetadataContext metadata)
         {
-            validator.AddListener(this);
+            validator.AddComponent(this);
         }
 
         protected virtual bool OnValidatorAdding(IValidator validator, IReadOnlyMetadataContext metadata)
@@ -317,7 +301,7 @@ namespace MugenMvvm.Infrastructure.Validation
 
         protected virtual void OnValidatorRemoved(IValidator validator, IReadOnlyMetadataContext metadata)
         {
-            validator.RemoveListener(this);
+            validator.RemoveComponent(this);
         }
 
         protected IValidator[] GetValidators()
