@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Commands.Components;
@@ -55,15 +53,26 @@ namespace MugenMvvm.Infrastructure.Commands.Components
             return Priority;
         }
 
-        public ICommandMediator TryGetCommandMediator<TParameter>(ICommand command, Delegate execute, Delegate canExecute, IReadOnlyCollection<object> notifiers, IReadOnlyMetadataContext metadata)
+        public ICommandMediator TryGetCommandMediator<TParameter>(ICommand command, IReadOnlyMetadataContext metadata)
         {
-            var mediator = new CommandMediator<TParameter>(_componentCollectionProvider, execute, canExecute,
-                metadata.Get(RelayCommandMetadata.ExecutionMode, CommandExecutionMode),
-                metadata.Get(RelayCommandMetadata.AllowMultipleExecution, AllowMultipleExecution));
+            var execute = metadata.Get(MediatorCommandMetadata.Execute);
+            if (!DelegateCommandMediator<TParameter>.IsSupported(execute))
+                return null;
+
+            var canExecute = metadata.Get(MediatorCommandMetadata.CanExecute);
+            if (!DelegateCommandMediator<TParameter>.IsCanExecuteSupported(canExecute))
+                return null;
+
+            var notifiers = metadata.Get(MediatorCommandMetadata.Notifiers);
+            var executionMode = metadata.Get(MediatorCommandMetadata.ExecutionMode, CommandExecutionMode);
+            var allowMultipleExecution = metadata.Get(MediatorCommandMetadata.AllowMultipleExecution, AllowMultipleExecution);
+
+            var mediator = new DelegateCommandMediator<TParameter>(_componentCollectionProvider, execute, canExecute, executionMode, allowMultipleExecution);
             if (notifiers != null && notifiers.Count != 0)
             {
-                mediator.AddComponent(new ConditionEventCommandMediatorComponent(ThreadDispatcher, notifiers, metadata.Get(RelayCommandMetadata.IgnoreProperties),
-                    metadata.Get(RelayCommandMetadata.EventThreadMode, EventThreadMode)!, command));
+                var ignoreProperties = metadata.Get(MediatorCommandMetadata.IgnoreProperties);
+                var eventExecutionMode = metadata.Get(MediatorCommandMetadata.EventThreadMode, EventThreadMode);
+                mediator.AddComponent(new ConditionEventCommandMediatorComponent(ThreadDispatcher, notifiers, ignoreProperties, eventExecutionMode, command));
             }
 
             return mediator;

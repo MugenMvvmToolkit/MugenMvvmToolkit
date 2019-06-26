@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
+using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Components;
@@ -11,11 +12,9 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Infrastructure.Commands
 {
-    public class CommandMediator<T> : ICommandMediator
+    public class DelegateCommandMediator<T> : ComponentOwnerBase<ICommandMediator>, ICommandMediator
     {
         #region Fields
-
-        private IComponentCollection<IComponent<ICommandMediator>>? _components;
 
         private bool? _hasCanExecuteImpl;
         private int _state;
@@ -24,16 +23,15 @@ namespace MugenMvvm.Infrastructure.Commands
 
         #region Constructors
 
-        public CommandMediator(IComponentCollectionProvider componentCollectionProvider, Delegate executeDelegate, Delegate? canExecuteDelegate, CommandExecutionMode executionMode,
-            bool allowMultipleExecution)
+        public DelegateCommandMediator(IComponentCollectionProvider componentCollectionProvider, Delegate executeDelegate, Delegate? canExecuteDelegate,
+            CommandExecutionMode executionMode, bool allowMultipleExecution)
+            : base(componentCollectionProvider)
         {
-            Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
             Should.NotBeNull(executeDelegate, nameof(executeDelegate));
             ExecuteDelegate = executeDelegate;
             CanExecuteDelegate = canExecuteDelegate;
             ExecutionMode = executionMode;
             AllowMultipleExecution = allowMultipleExecution;
-            ComponentCollectionProvider = componentCollectionProvider;
         }
 
         #endregion
@@ -48,13 +46,11 @@ namespace MugenMvvm.Infrastructure.Commands
 
         protected Delegate? CanExecuteDelegate { get; private set; }
 
-        protected IComponentCollectionProvider ComponentCollectionProvider { get; }
-
         public virtual bool IsSuspended
         {
             get
             {
-                var components = this.GetComponents();
+                var components = GetComponents();
                 for (var i = 0; i < components.Length; i++)
                 {
                     if (components[i] is ISuspendable suspendNotifications && suspendNotifications.IsSuspended)
@@ -62,18 +58,6 @@ namespace MugenMvvm.Infrastructure.Commands
                 }
 
                 return false;
-            }
-        }
-
-        public bool HasComponents => _components != null && _components.HasItems;
-
-        public IComponentCollection<IComponent<ICommandMediator>> Components
-        {
-            get
-            {
-                if (_components == null)
-                    ComponentCollectionProvider.LazyInitialize(ref _components, this);
-                return _components;
             }
         }
 
@@ -107,7 +91,7 @@ namespace MugenMvvm.Infrastructure.Commands
                 RaiseCanExecuteChanged();
                 return executionTask.ContinueWith((t, o) =>
                 {
-                    var wrapper = (CommandMediator<T>) o;
+                    var wrapper = (DelegateCommandMediator<T>) o;
                     Interlocked.Exchange(ref wrapper._state, 0);
                     wrapper.RaiseCanExecuteChanged();
                 }, this, TaskContinuationOptions.ExecuteSynchronously);
@@ -127,7 +111,7 @@ namespace MugenMvvm.Infrastructure.Commands
             if (_hasCanExecuteImpl.HasValue)
                 return _hasCanExecuteImpl.Value;
 
-            var components = this.GetComponents();
+            var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IConditionCommandMediatorComponent m && m.HasCanExecute())
@@ -149,7 +133,7 @@ namespace MugenMvvm.Infrastructure.Commands
             if (!CanExecuteInternal(parameter))
                 return false;
 
-            var components = this.GetComponents();
+            var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IConditionCommandMediatorComponent m && !m.CanExecute(parameter))
@@ -164,7 +148,7 @@ namespace MugenMvvm.Infrastructure.Commands
             if (!HasCanExecute())
                 return;
 
-            var components = this.GetComponents();
+            var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IConditionEventCommandMediatorComponent m)
@@ -177,7 +161,7 @@ namespace MugenMvvm.Infrastructure.Commands
             if (!HasCanExecute())
                 return;
 
-            var components = this.GetComponents();
+            var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IConditionEventCommandMediatorComponent m)
@@ -190,7 +174,7 @@ namespace MugenMvvm.Infrastructure.Commands
             if (!HasCanExecute())
                 return;
 
-            var components = this.GetComponents();
+            var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IConditionEventCommandMediatorComponent m)
@@ -200,7 +184,7 @@ namespace MugenMvvm.Infrastructure.Commands
 
         public virtual IDisposable Suspend()
         {
-            var components = this.GetComponents();
+            var components = GetComponents();
             List<IDisposable>? tokens = null;
             for (var i = 0; i < components.Length; i++)
             {
@@ -225,9 +209,23 @@ namespace MugenMvvm.Infrastructure.Commands
 
         #region Methods
 
+        public static bool IsSupported(Delegate? executor)
+        {
+            if (executor == null)
+                return false;
+            return executor is Action || executor is Action<T> || executor is Func<Task> || executor is Func<T, Task>;
+        }
+
+        public static bool IsCanExecuteSupported(Delegate? canExecute)
+        {
+            if (canExecute == null)
+                return true;
+            return canExecute is Func<bool> || canExecute is Func<T, bool>;
+        }
+
         protected virtual void OnDispose()
         {
-            var components = this.GetComponents();
+            var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IDisposable disposable)

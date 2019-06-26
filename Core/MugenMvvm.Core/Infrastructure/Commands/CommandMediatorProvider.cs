@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Windows.Input;
+﻿using System.Windows.Input;
 using MugenMvvm.Attributes;
 using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Interfaces.Commands;
@@ -23,18 +21,16 @@ namespace MugenMvvm.Infrastructure.Commands
 
         #region Implementation of interfaces
 
-        public ICommandMediator GetCommandMediator<TParameter>(ICommand command, Delegate execute, Delegate canExecute, IReadOnlyCollection<object> notifiers,
-            IReadOnlyMetadataContext metadata)
+        public ICommandMediator GetCommandMediator<TParameter>(ICommand command, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(command, nameof(command));
-            Should.NotBeNull(execute, nameof(execute));
             Should.NotBeNull(metadata, nameof(metadata));
-            var result = GetExecutorMediatorInternal<TParameter>(command, execute, canExecute, notifiers, metadata);
+            var result = GetExecutorMediatorInternal<TParameter>(command, metadata);
 
             if (result == null)
                 ExceptionManager.ThrowObjectNotInitialized(this, typeof(ICommandMediatorProviderComponent).Name);
 
-            OnMediatorCreated<TParameter>(result, command, execute, canExecute, notifiers, metadata);
+            OnMediatorCreated<TParameter>(result, command, metadata);
 
             return result;
         }
@@ -43,8 +39,7 @@ namespace MugenMvvm.Infrastructure.Commands
 
         #region Methods
 
-        protected virtual ICommandMediator GetExecutorMediatorInternal<TParameter>(ICommand command, Delegate execute, Delegate? canExecute,
-            IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext metadata)
+        protected virtual ICommandMediator GetExecutorMediatorInternal<TParameter>(ICommand command, IReadOnlyMetadataContext metadata)
         {
             ICommandMediator? result = null;
             var components = Components.GetItems();
@@ -52,7 +47,7 @@ namespace MugenMvvm.Infrastructure.Commands
             {
                 if (components[i] is ICommandMediatorProviderComponent executorFactory)
                 {
-                    result = executorFactory.TryGetCommandMediator<TParameter>(command, execute, canExecute, notifiers, metadata);
+                    result = executorFactory.TryGetCommandMediator<TParameter>(command, metadata);
                     if (result != null)
                         break;
                 }
@@ -61,14 +56,13 @@ namespace MugenMvvm.Infrastructure.Commands
             return result;
         }
 
-        protected virtual void OnMediatorCreated<TParameter>(ICommandMediator mediator, ICommand command, Delegate execute,
-            Delegate? canExecute, IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext metadata)
+        protected virtual void OnMediatorCreated<TParameter>(ICommandMediator mediator, ICommand command, IReadOnlyMetadataContext metadata)
         {
             var components = Components.GetItems();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is ICommandMediatorProviderListener listener)
-                    listener.OnCommandMediatorCreated<TParameter>(this, mediator, command, execute, canExecute, notifiers, metadata);
+                    listener.OnCommandMediatorCreated<TParameter>(this, mediator, command, metadata);
             }
         }
 
