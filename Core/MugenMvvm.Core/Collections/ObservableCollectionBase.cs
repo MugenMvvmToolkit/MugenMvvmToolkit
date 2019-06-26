@@ -537,7 +537,7 @@ namespace MugenMvvm.Collections
                 return true;
 
             if (value == null)
-                return default(T) == null;
+                return default(T)! == null;
 
             return false;
         }

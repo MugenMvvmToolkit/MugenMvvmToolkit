@@ -6,6 +6,6 @@ namespace MugenMvvm.Interfaces.ViewModels
     {
         IViewModelBase ViewModel { get; }
 
-        void Wrap(IViewModelBase viewModel, IReadOnlyMetadataContext metadata);
+        void Wrap(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null);
     }
 }

@@ -20,14 +20,14 @@ namespace MugenMvvm
 
         #region Methods
 
-        public static IMetadataContext ToNonReadonly(this IReadOnlyMetadataContext metadata, object? target = null, IMetadataContextProvider? contextProvider = null) //todo bug R#
+        public static IMetadataContext ToNonReadonly(this IReadOnlyMetadataContext? metadata, object? target = null, IMetadataContextProvider? contextProvider = null) //todo bug R#
         {
             if (metadata is IMetadataContext m)
                 return m;
             return contextProvider.ServiceIfNull().GetMetadataContext(target, metadata);
         }
 
-        public static IReadOnlyMetadataContext DefaultIfNull(this IReadOnlyMetadataContext metadata) //todo bug R#
+        public static IReadOnlyMetadataContext DefaultIfNull(this IReadOnlyMetadataContext? metadata) //todo bug R#
         {
             return metadata ?? Default.Metadata;
         }
@@ -72,24 +72,24 @@ namespace MugenMvvm
             return builder.WithValidation(_notNullValidateAction!);
         }
 
-        public static IReadOnlyMetadataContext ToReadOnlyMetadataContext(this IEnumerable<MetadataContextValue>? values, object target = null,
+        public static IReadOnlyMetadataContext ToReadOnlyMetadataContext(this IEnumerable<MetadataContextValue>? values, object? target = null,
             IMetadataContextProvider? provider = null)
         {
             return GetReadOnlyMetadataContext(target, values, provider);
         }
 
-        public static IMetadataContext ToMetadataContext(this IEnumerable<MetadataContextValue>? values, object target = null, IMetadataContextProvider? provider = null)
+        public static IMetadataContext ToMetadataContext(this IEnumerable<MetadataContextValue>? values, object? target = null, IMetadataContextProvider? provider = null)
         {
             return GetMetadataContext(target, values, provider);
         }
 
-        public static IReadOnlyMetadataContext GetReadOnlyMetadataContext(object? target, IEnumerable<MetadataContextValue> values = null,
+        public static IReadOnlyMetadataContext GetReadOnlyMetadataContext(object? target, IEnumerable<MetadataContextValue>? values = null,
             IMetadataContextProvider? provider = null)
         {
             return provider.ServiceIfNull().GetReadOnlyMetadataContext(target, values);
         }
 
-        public static IMetadataContext GetMetadataContext(object? target, IEnumerable<MetadataContextValue> values = null, IMetadataContextProvider? provider = null)
+        public static IMetadataContext GetMetadataContext(object? target, IEnumerable<MetadataContextValue>? values = null, IMetadataContextProvider? provider = null)
         {
             return provider.ServiceIfNull().GetMetadataContext(target, values);
         }

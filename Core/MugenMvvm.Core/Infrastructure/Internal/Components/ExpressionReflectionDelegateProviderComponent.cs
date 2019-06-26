@@ -20,8 +20,8 @@ namespace MugenMvvm.Infrastructure.Internal
         private static readonly ParameterExpression EmptyParameterExpression = Expression.Parameter(typeof(object));
         private static readonly ConstantExpression NullConstantExpression = Expression.Constant(null, typeof(object));
 
-        private static readonly Dictionary<MemberInfoDelegateCacheKey, MethodInfo> CachedDelegates =
-            new Dictionary<MemberInfoDelegateCacheKey, MethodInfo>(MemberCacheKeyComparer.Instance);
+        private static readonly Dictionary<MemberInfoDelegateCacheKey, MethodInfo?> CachedDelegates =
+            new Dictionary<MemberInfoDelegateCacheKey, MethodInfo?>(MemberCacheKeyComparer.Instance);
 
         private static readonly Dictionary<ConstructorInfo, Func<object?[], object>> ActivatorCache =
             new Dictionary<ConstructorInfo, Func<object?[], object>>(MemberInfoEqualityComparer.Instance);
@@ -62,9 +62,9 @@ namespace MugenMvvm.Infrastructure.Internal
             return TryGetMethodDelegateInternal(delegateType, method) != null;
         }
 
-        public Delegate? TryCreateDelegate(Type delegateType, object target, MethodInfo method)
+        public Delegate? TryCreateDelegate(Type delegateType, object? target, MethodInfo method)
         {
-            method = TryGetMethodDelegateInternal(delegateType, method);
+            method = TryGetMethodDelegateInternal(delegateType, method)!;
             if (method == null)
                 return null;
 
@@ -73,7 +73,7 @@ namespace MugenMvvm.Infrastructure.Internal
             return method.CreateDelegate(delegateType, target);
         }
 
-        public Func<object[], object>? TryGetActivator(ConstructorInfo constructor)
+        public Func<object?[], object>? TryGetActivator(ConstructorInfo constructor)
         {
             lock (ActivatorCache)
             {
@@ -87,7 +87,7 @@ namespace MugenMvvm.Infrastructure.Internal
             }
         }
 
-        public Func<object, object[], object>? TryGetMethodInvoker(MethodInfo method)
+        public Func<object?, object?[], object?>? TryGetMethodInvoker(MethodInfo method)
         {
             lock (InvokeMethodCache)
             {
@@ -116,7 +116,7 @@ namespace MugenMvvm.Infrastructure.Internal
             }
         }
 
-        public Func<object, TType>? TryGetMemberGetter<TType>(MemberInfo member)
+        public Func<object?, TType>? TryGetMemberGetter<TType>(MemberInfo member)
         {
             var key = new MemberInfoDelegateCacheKey(member, typeof(TType));
             lock (MemberGetterCache)
@@ -131,7 +131,7 @@ namespace MugenMvvm.Infrastructure.Internal
             }
         }
 
-        public Action<object, TType>? TryGetMemberSetter<TType>(MemberInfo member)
+        public Action<object?, TType>? TryGetMemberSetter<TType>(MemberInfo member)
         {
             var key = new MemberInfoDelegateCacheKey(member, typeof(TType));
             lock (MemberSetterCache)
@@ -161,8 +161,8 @@ namespace MugenMvvm.Infrastructure.Internal
                 return null;
 
             var mParameters = method.GetParameters();
-            var eParameters = delegateType.GetMethodUnified(nameof(Action.Invoke), MemberFlags.InstancePublic | MemberFlags.StaticPublic).GetParameters();
-            if (mParameters.Length != eParameters.Length)
+            var eParameters = delegateType.GetMethodUnified(nameof(Action.Invoke), MemberFlags.InstancePublic | MemberFlags.StaticPublic)?.GetParameters();
+            if (eParameters == null || mParameters.Length != eParameters.Length)
                 return null;
             if (method.IsGenericMethodDefinition)
             {
@@ -199,14 +199,14 @@ namespace MugenMvvm.Infrastructure.Internal
             return method;
         }
 
-        public static Func<object[], object> GetActivator(ConstructorInfo constructor)
+        public static Func<object?[], object> GetActivator(ConstructorInfo constructor)
         {
             var expressions = GetParametersExpression(constructor, out var parameterExpression);
             var newExpression = ConvertIfNeed(Expression.New(constructor, expressions), typeof(object), false);
             return Expression.Lambda<Func<object?[], object>>(newExpression, parameterExpression).Compile();
         }
 
-        public static Func<object, object[], object> GetMethodInvoker(MethodInfo method)
+        public static Func<object?, object?[], object?> GetMethodInvoker(MethodInfo method)
         {
             var isVoid = method.ReturnType.EqualsEx(typeof(void));
             var expressions = GetParametersExpression(method, out var parameterExpression);
@@ -288,7 +288,7 @@ namespace MugenMvvm.Infrastructure.Internal
             return lambdaExpression.Compile();
         }
 
-        public static Func<object, TType> GetMemberGetter<TType>(MemberInfo member)
+        public static Func<object?, TType> GetMemberGetter<TType>(MemberInfo member)
         {
             var target = Expression.Parameter(typeof(object), "instance");
             MemberExpression accessExp;
@@ -305,7 +305,7 @@ namespace MugenMvvm.Infrastructure.Internal
                 .Compile();
         }
 
-        public static Action<object, TType> GetMemberSetter<TType>(MemberInfo member)
+        public static Action<object?, TType> GetMemberSetter<TType>(MemberInfo member)
         {
             var declaringType = member.DeclaringType;
             var fieldInfo = member as FieldInfo;
@@ -341,7 +341,7 @@ namespace MugenMvvm.Infrastructure.Internal
             }
 
             return Expression
-                .Lambda<Action<object, TType>>(expression, targetParameter, valueParameter)
+                .Lambda<Action<object?, TType>>(expression, targetParameter, valueParameter)
                 .Compile();
         }
 
@@ -380,7 +380,7 @@ namespace MugenMvvm.Infrastructure.Internal
         private static MethodInfo? TryGetMethodDelegateInternal(Type delegateType, MethodInfo method)
         {
             var key = new MemberInfoDelegateCacheKey(method, delegateType);
-            MethodInfo info;
+            MethodInfo? info;
             lock (CachedDelegates)
             {
                 if (!CachedDelegates.TryGetValue(key, out info))

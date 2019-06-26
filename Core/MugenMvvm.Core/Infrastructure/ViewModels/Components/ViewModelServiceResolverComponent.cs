@@ -44,14 +44,14 @@ namespace MugenMvvm.Infrastructure.ViewModels
 
         #region Implementation of interfaces
 
-        public object? TryGetService(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext metadata)
+        public object? TryGetService(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext? metadata)
         {
             if (service == typeof(IMetadataContext))
                 return MetadataContextProvider.GetMetadataContext(viewModel, null);
             if (service == typeof(IMessenger))
                 return new Messenger(ThreadDispatcher, ComponentCollectionProvider, MetadataContextProvider);
             if (service == typeof(IBusyIndicatorProvider))
-                return new BusyIndicatorProvider(null, ComponentCollectionProvider);
+                return new BusyIndicatorProvider(ComponentCollectionProvider);
             return null;
         }
 

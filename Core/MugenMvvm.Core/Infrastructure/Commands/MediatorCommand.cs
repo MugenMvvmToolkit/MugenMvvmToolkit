@@ -15,8 +15,8 @@ namespace MugenMvvm.Infrastructure.Commands
         #region Fields
 
         private readonly Func<ICommand, IReadOnlyMetadataContext, ICommandMediator> _getMediator;
-        private readonly IReadOnlyMetadataContext _metadata;
-        private ICommandMediator _mediator;
+        private IReadOnlyMetadataContext? _metadata;
+        private ICommandMediator? _mediator;
 
         #endregion
 
@@ -39,16 +39,19 @@ namespace MugenMvvm.Infrastructure.Commands
             get
             {
                 if (_mediator == null)
-                    MugenExtensions.LazyInitializeDisposable(ref _mediator, _getMediator(this, _metadata));
-                return _mediator;
+                {
+                    var metadata = _metadata;
+                    _metadata = null;
+                    if (metadata != null)
+                        MugenExtensions.LazyInitializeDisposable(ref _mediator, _getMediator(this, metadata));
+                }
+                return _mediator!;
             }
         }
 
         IWeakReference? IWeakReferenceHolder.WeakReference { get; set; }
 
         public bool IsSuspended => Mediator.IsSuspended;
-
-        private static ICommandMediatorProvider Provider => Service<ICommandMediatorProvider>.Instance;
 
         #endregion
 
@@ -260,7 +263,7 @@ namespace MugenMvvm.Infrastructure.Commands
         {
             #region Fields
 
-            public static readonly Func<ICommand, IReadOnlyMetadataContext, ICommandMediator> Invoker = (command, context) => Provider.GetCommandMediator<T>(command, context);
+            public static readonly Func<ICommand, IReadOnlyMetadataContext, ICommandMediator> Invoker = (command, context) => Service<ICommandMediatorProvider>.Instance.GetCommandMediator<T>(command, context);
 
             #endregion
         }

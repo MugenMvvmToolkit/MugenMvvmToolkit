@@ -35,7 +35,7 @@ namespace MugenMvvm.Infrastructure.Messaging
         private ViewModelMessengerSubscriber(IViewModelBase viewModel)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            _reference = Service<IWeakReferenceProvider>.Instance.GetWeakReference(viewModel, Default.Metadata);
+            _reference = Service<IWeakReferenceProvider>.Instance.GetWeakReference(viewModel);
             _hashCode = viewModel.GetHashCode();
             viewModel.Metadata.AddComponent(this);
             BroadcastAllMessages = viewModel.Metadata.Get(ViewModelMetadata.BroadcastAllMessages);
@@ -46,7 +46,7 @@ namespace MugenMvvm.Infrastructure.Messaging
 
         #region Properties
 
-        private IViewModelBase? Target => (IViewModelBase)_reference.Target;
+        private IViewModelBase? Target => (IViewModelBase?)_reference.Target;
 
         private bool BroadcastAllMessages { get; set; }
 

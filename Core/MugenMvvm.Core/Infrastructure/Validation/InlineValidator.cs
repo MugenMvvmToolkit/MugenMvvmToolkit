@@ -10,7 +10,7 @@ namespace MugenMvvm.Infrastructure.Validation
     {
         #region Constructors
 
-        public InlineValidator(IMetadataContext metadata = null, IComponentCollectionProvider componentCollectionProvider = null,
+        public InlineValidator(IMetadataContext? metadata = null, IComponentCollectionProvider? componentCollectionProvider = null,
             IMetadataContextProvider? metadataContextProvider = null)
             : base(metadata, componentCollectionProvider, metadataContextProvider, false)
         {
@@ -22,10 +22,10 @@ namespace MugenMvvm.Infrastructure.Validation
 
         public void SetErrors(string memberName, params object[] errors)
         {
-            SetErrors(memberName, Default.Metadata, errors);
+            SetErrors(memberName, null, errors);
         }
 
-        public void SetErrors(string memberName, IReadOnlyMetadataContext metadata, params object[] errors)
+        public void SetErrors(string memberName, IReadOnlyMetadataContext? metadata = null, params object[] errors)
         {
             SetErrors(memberName, errors, metadata);
         }
@@ -33,10 +33,10 @@ namespace MugenMvvm.Infrastructure.Validation
         public void SetErrors(string memberName, IReadOnlyList<object> errors, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(memberName, nameof(memberName));
-            UpdateErrors(memberName, errors, false, metadata.DefaultIfNull());
+            UpdateErrors(memberName, errors, false, metadata);
         }
 
-        protected override ValueTask<ValidationResult> GetErrorsAsync(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext metadata)
+        protected override ValueTask<ValidationResult> GetErrorsAsync(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             return ValidationResult.DoNothingTask;
         }

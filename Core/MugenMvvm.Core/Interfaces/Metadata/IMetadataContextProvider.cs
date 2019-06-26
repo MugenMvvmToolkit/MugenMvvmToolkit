@@ -6,8 +6,8 @@ namespace MugenMvvm.Interfaces.Metadata
 {
     public interface IMetadataContextProvider : IComponentOwner<IMetadataContextProvider> //todo review opts, api nullable = null parameters
     {
-        IReadOnlyMetadataContext GetReadOnlyMetadataContext(object? target, IEnumerable<MetadataContextValue>? values);
+        IReadOnlyMetadataContext GetReadOnlyMetadataContext(object? target = null, IEnumerable<MetadataContextValue>? values = null);
 
-        IMetadataContext GetMetadataContext(object? target, IEnumerable<MetadataContextValue>? values);
+        IMetadataContext GetMetadataContext(object? target = null, IEnumerable<MetadataContextValue>? values = null);
     }
 }

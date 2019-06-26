@@ -5,6 +5,6 @@ namespace MugenMvvm.Interfaces.Internal
 {
     public interface IWeakReferenceProviderComponent : IComponent<IWeakReferenceProvider>
     {
-        IWeakReference? TryGetWeakReference(object item, IReadOnlyMetadataContext metadata);
+        IWeakReference? TryGetWeakReference(object item, IReadOnlyMetadataContext? metadata);
     }
 }

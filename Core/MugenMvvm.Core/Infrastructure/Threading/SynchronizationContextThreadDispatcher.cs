@@ -27,8 +27,7 @@ namespace MugenMvvm.Infrastructure.Threading
 
         #region Methods
 
-        protected override Task ExecuteOnMainThreadAsync(IThreadDispatcherHandler handler, object? state, bool includeTaskResult, CancellationToken cancellationToken,
-            IReadOnlyMetadataContext? metadata)
+        protected override Task? ExecuteOnMainThreadAsync(IThreadDispatcherHandler handler, object? state, bool includeTaskResult, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             if (includeTaskResult)
             {
@@ -44,7 +43,7 @@ namespace MugenMvvm.Infrastructure.Threading
             return Default.CompletedTask;
         }
 
-        protected override Task ExecuteOnMainThreadAsync(Action<object> action, object? state, bool includeTaskResult, CancellationToken cancellationToken,
+        protected override Task? ExecuteOnMainThreadAsync(Action<object?> action, object? state, bool includeTaskResult, CancellationToken cancellationToken,
             IReadOnlyMetadataContext? metadata)
         {
             if (includeTaskResult)
@@ -55,7 +54,7 @@ namespace MugenMvvm.Infrastructure.Threading
             }
 
             if (state == null)
-                _synchronizationContext.Post(o => ((Action<object>) o).Invoke(null), action);
+                _synchronizationContext.Post(o => ((Action<object?>) o).Invoke(null), action);
             else
                 _synchronizationContext.Post(new SendOrPostCallback(action), state);
             return Default.CompletedTask;
@@ -72,7 +71,7 @@ namespace MugenMvvm.Infrastructure.Threading
 
         #region Nested types
 
-        protected sealed class Closure : TaskCompletionSource<object>
+        protected sealed class Closure : TaskCompletionSource<object?>
         {
             #region Fields
 
@@ -103,7 +102,7 @@ namespace MugenMvvm.Infrastructure.Threading
                     if (_handler is IThreadDispatcherHandler handler)
                         handler.Execute(state);
                     else
-                        ((Action<object>) _handler).Invoke(state);
+                        ((Action<object?>?) _handler)!.Invoke(state);
                     _handler = null;
                     TrySetResult(null);
                 }

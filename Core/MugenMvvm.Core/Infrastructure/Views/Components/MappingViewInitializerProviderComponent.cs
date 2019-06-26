@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
@@ -19,16 +20,19 @@ namespace MugenMvvm.Infrastructure.Views.Components
 
         private readonly List<MappingInfo> _mappings;
         private readonly IThreadDispatcher _threadDispatcher;
+        private readonly IMetadataContextProvider _metadataContextProvider;
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public MappingViewInitializerProviderComponent(IThreadDispatcher threadDispatcher)
+        public MappingViewInitializerProviderComponent(IThreadDispatcher threadDispatcher, IMetadataContextProvider metadataContextProvider)
         {
             Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
+            Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
             _threadDispatcher = threadDispatcher;
+            _metadataContextProvider = metadataContextProvider;
             _mappings = new List<MappingInfo>();
             InitializeExecutionMode = ThreadExecutionMode.Main;
             CleanupExecutionMode = ThreadExecutionMode.MainAsync;
@@ -53,10 +57,9 @@ namespace MugenMvvm.Infrastructure.Views.Components
             return Priority;
         }
 
-        public IReadOnlyList<IViewInitializer> GetInitializersByView(object view, IReadOnlyMetadataContext metadata)
+        public IReadOnlyList<IViewInitializer> GetInitializersByView(object view, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(view, nameof(view));
-            Should.NotBeNull(metadata, nameof(metadata));
             var initializers = new List<IViewInitializer>();
             lock (_mappings)
             {
@@ -65,17 +68,19 @@ namespace MugenMvvm.Infrastructure.Views.Components
                     var mapping = _mappings[i];
                     var viewModelType = mapping.GetViewModelType(view, metadata);
                     if (viewModelType != null)
-                        initializers.Add(new ViewInitializer(_threadDispatcher, Owner, InitializeExecutionMode, CleanupExecutionMode, mapping.Id, view.GetType(), viewModelType, mapping.Metadata));
+                    {
+                        initializers.Add(new ViewInitializer(_threadDispatcher, Owner, _metadataContextProvider, InitializeExecutionMode, CleanupExecutionMode, mapping.Id,
+                              view.GetType(), viewModelType, mapping.Metadata));
+                    }
                 }
             }
 
             return initializers;
         }
 
-        public IReadOnlyList<IViewInitializer> GetInitializersByViewModel(IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
+        public IReadOnlyList<IViewInitializer> GetInitializersByViewModel(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            Should.NotBeNull(metadata, nameof(metadata));
             var initializers = new List<IViewInitializer>();
             lock (_mappings)
             {
@@ -85,7 +90,8 @@ namespace MugenMvvm.Infrastructure.Views.Components
                     var viewType = mapping.GetViewType(viewModel, metadata);
                     if (viewType != null)
                     {
-                        initializers.Add(new ViewInitializer(_threadDispatcher, Owner, InitializeExecutionMode, CleanupExecutionMode, mapping.Id, viewType, viewModel.GetType(), mapping.Metadata));
+                        initializers.Add(new ViewInitializer(_threadDispatcher, Owner, _metadataContextProvider, InitializeExecutionMode, CleanupExecutionMode, mapping.Id,
+                            viewType, viewModel.GetType(), mapping.Metadata));
                     }
                 }
             }
@@ -97,11 +103,10 @@ namespace MugenMvvm.Infrastructure.Views.Components
 
         #region Methods
 
-        public void AddMapping(Type viewModelType, Type viewType, bool exactlyEqual, string? name, IReadOnlyMetadataContext metadata)
+        public void AddMapping(Type viewModelType, Type viewType, bool exactlyEqual, string? name, IReadOnlyMetadataContext? metadata = null)
         {
             Should.BeOfType(viewModelType, nameof(viewModelType), typeof(IViewModelBase));
             Should.NotBeNull(viewType, nameof(viewType));
-            Should.NotBeNull(metadata, nameof(metadata));
             var mappingInfo = new MappingInfo(Default.NextCounter(), metadata, null, null, viewModelType, viewType, exactlyEqual, name);
             lock (_mappings)
             {
@@ -109,12 +114,10 @@ namespace MugenMvvm.Infrastructure.Views.Components
             }
         }
 
-        public void AddMapping(Func<IViewModelBase, IReadOnlyMetadataContext, Type?> getViewType, Func<object, IReadOnlyMetadataContext, Type?> getViewModelType,
-            IReadOnlyMetadataContext metadata)
+        public void AddMapping(Func<IViewModelBase, IReadOnlyMetadataContext?, Type?> getViewType, Func<object, IReadOnlyMetadataContext?, Type?> getViewModelType, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(getViewType, nameof(getViewType));
             Should.NotBeNull(getViewModelType, nameof(getViewModelType));
-            Should.NotBeNull(metadata, nameof(metadata));
             var mappingInfo = new MappingInfo(Default.NextCounter(), metadata, getViewModelType, getViewType, null, null, false, null);
             lock (_mappings)
             {
@@ -140,8 +143,8 @@ namespace MugenMvvm.Infrastructure.Views.Components
             #region Fields
 
             private readonly bool _exactlyEqual;
-            private readonly Func<object, IReadOnlyMetadataContext, Type?>? _getViewModelType;
-            private readonly Func<IViewModelBase, IReadOnlyMetadataContext, Type?>? _getViewType;
+            private readonly Func<object, IReadOnlyMetadataContext?, Type?>? _getViewModelType;
+            private readonly Func<IViewModelBase, IReadOnlyMetadataContext?, Type?>? _getViewType;
             private readonly string? _name;
             private readonly Type? _viewModelType;
             private readonly Type? _viewType;
@@ -153,12 +156,12 @@ namespace MugenMvvm.Infrastructure.Views.Components
 
             #region Constructors
 
-            public MappingInfo(int id, IReadOnlyMetadataContext metadata, Func<object, IReadOnlyMetadataContext, Type?>? getViewModelType,
-                Func<IViewModelBase, IReadOnlyMetadataContext, Type?>? getViewType,
+            public MappingInfo(int id, IReadOnlyMetadataContext? metadata, Func<object, IReadOnlyMetadataContext?, Type?>? getViewModelType,
+                Func<IViewModelBase, IReadOnlyMetadataContext?, Type?>? getViewType,
                 Type? viewModelType, Type? viewType, bool exactlyEqual, string? name)
             {
                 Id = "map-" + id;
-                Metadata = metadata;
+                Metadata = metadata.DefaultIfNull();
                 _getViewModelType = getViewModelType;
                 _getViewType = getViewType;
                 _viewModelType = viewModelType;
@@ -171,7 +174,7 @@ namespace MugenMvvm.Infrastructure.Views.Components
 
             #region Methods
 
-            public Type? GetViewModelType(object view, IReadOnlyMetadataContext metadata)
+            public Type? GetViewModelType(object view, IReadOnlyMetadataContext? metadata)
             {
                 if (_getViewModelType != null)
                     return _getViewModelType(view, metadata);
@@ -190,7 +193,7 @@ namespace MugenMvvm.Infrastructure.Views.Components
                 return null;
             }
 
-            public Type? GetViewType(IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
+            public Type? GetViewType(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata)
             {
                 if (_getViewType != null)
                     return _getViewType(viewModel, metadata);
@@ -209,9 +212,9 @@ namespace MugenMvvm.Infrastructure.Views.Components
                 return null;
             }
 
-            private static string? GetViewNameFromContext(IReadOnlyMetadataContext metadata)
+            private static string? GetViewNameFromContext(IReadOnlyMetadataContext? metadata)
             {
-                return metadata.Get(NavigationMetadata.ViewName) ?? metadata.Get(NavigationMetadata.ViewModel)?.Metadata.Get(NavigationMetadata.ViewName);
+                return metadata?.Get(NavigationMetadata.ViewName) ?? metadata?.Get(NavigationMetadata.ViewModel)?.Metadata.Get(NavigationMetadata.ViewName);
             }
 
             #endregion

@@ -17,12 +17,12 @@ namespace MugenMvvm
 
         public static INavigationJournalComponent GetNavigationJournal(this INavigationDispatcher dispatcher)
         {
-            return dispatcher.GetComponent<INavigationDispatcher, INavigationJournalComponent>(false);
+            return dispatcher.GetComponent<INavigationDispatcher, INavigationJournalComponent>(false)!;
         }
 
         public static INavigationContextProviderComponent GetNavigationContextProvider(this INavigationDispatcher dispatcher)
         {
-            return dispatcher.GetComponent<INavigationDispatcher, INavigationContextProviderComponent>(false);
+            return dispatcher.GetComponent<INavigationDispatcher, INavigationContextProviderComponent>(false)!;
         }
 
         public static INavigationContext GetNavigationContext(this INavigationDispatcher dispatcher, IViewModelBase viewModel, INavigationProvider navigationProvider, string navigationOperationId,
@@ -45,9 +45,9 @@ namespace MugenMvvm
             return navigationContext;
         }
 
-        public static string GetUniqueNavigationOperationId(this INavigationProvider navigationProvider, IViewModelBase viewModel)//todo review
+        public static string GetUniqueNavigationOperationId(this INavigationProvider navigationProvider, IViewModelBase viewModel)
         {
-            return null;
+            return null!;//todo review
         }
 
         public static void OnNavigating(this INavigationDispatcher dispatcher, INavigationContext context, Func<INavigationDispatcher, INavigationContext, bool> completeNavigationCallback,
@@ -85,8 +85,6 @@ namespace MugenMvvm
         {
             Should.NotBeNull(dispatcher, nameof(dispatcher));
             Should.NotBeNull(filter, nameof(filter));
-            if (metadata == null)
-                metadata = Default.Metadata;
             var entries = dispatcher.GetNavigationJournal().GetNavigationEntries(null, metadata);
             List<Task>? tasks = null;
             for (var i = 0; i < entries.Count; i++)

@@ -6,12 +6,12 @@ namespace MugenMvvm.Interfaces.Views
 {
     public interface IViewManagerListener : IComponent<IViewManager>
     {
-        void OnViewModelCreated(IViewManager viewManager, IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata);//todo non readonly metadata check?
+        void OnViewModelCreated(IViewManager viewManager, IViewModelBase viewModel, object view, IMetadataContext metadata);//todo non readonly metadata check?
 
-        void OnViewCreated(IViewManager viewManager, object view, IViewModelBase viewModel, IReadOnlyMetadataContext metadata);
+        void OnViewCreated(IViewManager viewManager, object view, IViewModelBase viewModel, IMetadataContext metadata);
 
-        void OnViewInitialized(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext metadata);
+        void OnViewInitialized(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata);
 
-        void OnViewCleared(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext metadata);
+        void OnViewCleared(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata);
     }
 }

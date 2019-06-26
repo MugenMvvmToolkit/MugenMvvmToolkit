@@ -12,12 +12,12 @@ namespace MugenMvvm.Interfaces.Views
 
         Type ViewModelType { get; }
 
-        Task<IViewInitializerResult> InitializeAsync(IViewModelBase viewModel, IReadOnlyMetadataContext metadata);
+        Task<IViewInitializerResult> InitializeAsync(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null);
 
-        Task<IViewInitializerResult> InitializeAsync(IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata);
+        Task<IViewInitializerResult> InitializeAsync(IViewModelBase viewModel, object view, IReadOnlyMetadataContext? metadata = null);
 
-        Task<IViewInitializerResult> InitializeAsync(object view, IReadOnlyMetadataContext metadata);
+        Task<IViewInitializerResult> InitializeAsync(object view, IReadOnlyMetadataContext? metadata = null);
 
-        Task<IReadOnlyMetadataContext> CleanupAsync(IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext metadata);
+        Task<IReadOnlyMetadataContext> CleanupAsync(IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null);
     }
 }

@@ -14,7 +14,7 @@ namespace MugenMvvm
     {
         #region Methods
 
-        internal static T ServiceIfNull<T>(this T service) where T : class //todo nullable R# bug
+        internal static T ServiceIfNull<T>(this T? service) where T : class //todo nullable R# bug
         {
             return service ?? Service<T>.Instance;
         }
@@ -35,7 +35,7 @@ namespace MugenMvvm
             for (var i = 0; i < size.GetValueOrDefault(items.Count); i++)
             {
                 var item = items[i];
-                if (item != null && serializer.CanSerialize(item.GetType(), Default.Metadata))
+                if (item != null && serializer.CanSerialize(item.GetType()))
                 {
                     if (result == null)
                         result = new List<T>();

@@ -19,7 +19,7 @@ namespace MugenMvvm.Infrastructure.Metadata
 
         #region Implementation of interfaces
 
-        public IReadOnlyMetadataContext GetReadOnlyMetadataContext(object? target, IEnumerable<MetadataContextValue>? values)
+        public IReadOnlyMetadataContext GetReadOnlyMetadataContext(object? target = null, IEnumerable<MetadataContextValue>? values = null)
         {
             var components = Components.GetItems();
             IReadOnlyMetadataContext? result = null;
@@ -34,11 +34,11 @@ namespace MugenMvvm.Infrastructure.Metadata
                 ExceptionManager.ThrowObjectNotInitialized(this, typeof(IMetadataContextProviderComponent).Name);
 
             for (var i = 0; i < components.Length; i++)
-                (components[i] as IMetadataContextProviderListener)?.OnReadOnlyContextCreated(this, result, target);
-            return result;
+                (components[i] as IMetadataContextProviderListener)?.OnReadOnlyContextCreated(this, result!, target);
+            return result!;
         }
 
-        public IMetadataContext GetMetadataContext(object? target, IEnumerable<MetadataContextValue>? values)
+        public IMetadataContext GetMetadataContext(object? target = null, IEnumerable<MetadataContextValue>? values = null)
         {
             var components = Components.GetItems();
             IMetadataContext? result = null;
@@ -53,8 +53,8 @@ namespace MugenMvvm.Infrastructure.Metadata
                 ExceptionManager.ThrowObjectNotInitialized(this, typeof(IMetadataContextProviderComponent).Name);
 
             for (var i = 0; i < components.Length; i++)
-                (components[i] as IMetadataContextProviderListener)?.OnContextCreated(this, result, target);
-            return result;
+                (components[i] as IMetadataContextProviderListener)?.OnContextCreated(this, result!, target);
+            return result!;
         }
 
         #endregion

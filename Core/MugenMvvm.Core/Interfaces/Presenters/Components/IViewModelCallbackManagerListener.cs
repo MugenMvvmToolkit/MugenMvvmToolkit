@@ -7,7 +7,7 @@ namespace MugenMvvm.Interfaces.Presenters.Components
 {
     public interface IViewModelCallbackManagerListener : IComponent<IPresenter>
     {
-        void OnCallbackAdded(INavigationCallback callback, IViewModelBase viewModel, IReadOnlyMetadataContext metadata);
+        void OnCallbackAdded(INavigationCallback callback, IViewModelBase viewModel, IReadOnlyMetadataContext? metadata);
 
         void OnCallbackExecuted(INavigationCallback callback, IViewModelBase viewModel, INavigationContext navigationContext);
     }

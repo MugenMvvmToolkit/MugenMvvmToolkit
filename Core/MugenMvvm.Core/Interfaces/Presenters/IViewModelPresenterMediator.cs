@@ -17,12 +17,12 @@ namespace MugenMvvm.Interfaces.Presenters
 
         IViewInitializer ViewInitializer { get; }
 
-        void Initialize(IViewModelBase viewModel, IViewInitializer viewInitializer, IReadOnlyMetadataContext metadata);
+        void Initialize(IViewModelBase viewModel, IViewInitializer viewInitializer, IReadOnlyMetadataContext? metadata = null);
 
-        IPresenterResult Show(IReadOnlyMetadataContext metadata);
+        IPresenterResult Show(IReadOnlyMetadataContext? metadata = null);
 
-        IPresenterResult Close(IReadOnlyMetadataContext metadata);
+        IPresenterResult Close(IReadOnlyMetadataContext? metadata = null);
 
-        IPresenterResult Restore(IViewInfo viewInfo, IReadOnlyMetadataContext metadata);
+        IPresenterResult Restore(IViewInfo viewInfo, IReadOnlyMetadataContext? metadata = null);
     }
 }

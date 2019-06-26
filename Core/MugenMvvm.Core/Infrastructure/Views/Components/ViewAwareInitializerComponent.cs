@@ -20,7 +20,7 @@ namespace MugenMvvm.Infrastructure.Views.Components
         private static readonly MethodInfo UpdateViewModelMethodInfo = GetUpdateViewModelMethod();
 
         private static readonly Dictionary<Type, Func<object?, object?[], object?>?> TypeToInitializeDelegate =
-            new Dictionary<Type, Func<object?, object?[], object?>>(MemberInfoEqualityComparer.Instance);
+            new Dictionary<Type, Func<object?, object?[], object?>?>(MemberInfoEqualityComparer.Instance);
 
         #endregion
 
@@ -41,20 +41,20 @@ namespace MugenMvvm.Infrastructure.Views.Components
 
         #region Implementation of interfaces
 
-        public void OnViewModelCreated(IViewManager viewManager, IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata)
+        public void OnViewModelCreated(IViewManager viewManager, IViewModelBase viewModel, object view, IMetadataContext metadata)
         {
         }
 
-        public void OnViewCreated(IViewManager viewManager, object view, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
+        public void OnViewCreated(IViewManager viewManager, object view, IViewModelBase viewModel, IMetadataContext metadata)
         {
         }
 
-        public void OnViewInitialized(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
+        public void OnViewInitialized(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
         {
             GetUpdateViewMethod(viewModel, viewInfo.View)?.Invoke(this, new[] { viewModel, viewInfo, metadata, Default.FalseObject }); //todo initialize wrappers
         }
 
-        public void OnViewCleared(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
+        public void OnViewCleared(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
         {
             GetUpdateViewMethod(viewModel, viewInfo.View)?.Invoke(this, new[] { viewModel, viewInfo, metadata, Default.TrueObject }); //todo initialize wrappers
         }

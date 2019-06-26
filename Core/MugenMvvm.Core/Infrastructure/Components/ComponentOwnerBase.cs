@@ -7,21 +7,24 @@ namespace MugenMvvm.Infrastructure.Components
         #region Fields
 
         private IComponentCollection<IComponent<T>>? _components;
+        private readonly IComponentCollectionProvider? _componentCollectionProvider;
 
         #endregion
 
         #region Constructors
 
-        protected ComponentOwnerBase(IComponentCollectionProvider? componentCollectionProvider)
+        protected ComponentOwnerBase(IComponentCollectionProvider? componentCollectionProvider, bool componentCollectionProviderRequired = true)
         {
-            ComponentCollectionProvider = componentCollectionProvider;
+            if (componentCollectionProviderRequired)
+                Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
+            _componentCollectionProvider = componentCollectionProvider;
         }
 
         #endregion
 
         #region Properties
 
-        protected IComponentCollectionProvider ComponentCollectionProvider { get; }
+        protected IComponentCollectionProvider ComponentCollectionProvider => _componentCollectionProvider.ServiceIfNull();
 
         public bool HasComponents => _components != null && _components.HasItems;
 

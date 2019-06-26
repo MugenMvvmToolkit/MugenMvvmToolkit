@@ -37,7 +37,7 @@ namespace MugenMvvm.Infrastructure.Components
             return m;
         }
 
-        private static void Attach<T>(IComponentCollection<T> collection, object component, IReadOnlyMetadataContext metadata) where T : class
+        private static void Attach<T>(IComponentCollection<T> collection, object component, IReadOnlyMetadataContext? metadata) where T : class
         {
             var type = component.GetType();
             Func<object?, object?[], object?>? func;
@@ -53,7 +53,7 @@ namespace MugenMvvm.Infrastructure.Components
             func?.Invoke(null, new[] { collection.Owner, component, Default.TrueObject, metadata });
         }
 
-        private static void Detach<T>(IComponentCollection<T> collection, object component, IReadOnlyMetadataContext metadata) where T : class
+        private static void Detach<T>(IComponentCollection<T> collection, object component, IReadOnlyMetadataContext? metadata) where T : class
         {
             var type = component.GetType();
             Func<object?, object?[], object?>? func;
@@ -87,7 +87,7 @@ namespace MugenMvvm.Infrastructure.Components
             return result;
         }
 
-        private static void AttachDetachIml<T>(object owner, object target, bool attach, IReadOnlyMetadataContext metadata) where T : class
+        private static void AttachDetachIml<T>(object owner, object target, bool attach, IReadOnlyMetadataContext? metadata) where T : class
         {
             if (attach)
             {
@@ -121,14 +121,14 @@ namespace MugenMvvm.Infrastructure.Components
                 return 0;
             }
 
-            public bool OnAdding(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext metadata)
+            public bool OnAdding(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata)
             {
                 if (collection.Owner is IComponentOwnerAddingCallback<T> callback)
                     return callback.OnComponentAdding(collection, component, metadata);
                 return true;
             }
 
-            public void OnAdded(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext metadata)
+            public void OnAdded(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata)
             {
                 if (component is IAttachableComponent)
                     Attach(collection, component, metadata);
@@ -137,14 +137,14 @@ namespace MugenMvvm.Infrastructure.Components
                     callback.OnComponentAdded(collection, component, metadata);
             }
 
-            public bool OnRemoving(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext metadata)
+            public bool OnRemoving(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata)
             {
                 if (collection.Owner is IComponentOwnerRemovingCallback<T> callback)
                     return callback.OnComponentRemoving(collection, component, metadata);
                 return true;
             }
 
-            public void OnRemoved(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext metadata)
+            public void OnRemoved(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata)
             {
                 if (component is IDetachableComponent)
                     Detach(collection, component, metadata);
@@ -153,14 +153,14 @@ namespace MugenMvvm.Infrastructure.Components
                     callback.OnComponentRemoved(collection, component, metadata);
             }
 
-            public bool OnClearing(IComponentCollection<T> collection, IReadOnlyMetadataContext metadata)
+            public bool OnClearing(IComponentCollection<T> collection, IReadOnlyMetadataContext? metadata)
             {
                 if (collection.Owner is IComponentOwnerClearingCallback<T> callback)
                     return callback.OnComponentClearing(collection, collection.GetItems(), metadata);
                 return true;
             }
 
-            public void OnCleared(IComponentCollection<T> collection, T[] oldItems, IReadOnlyMetadataContext metadata)
+            public void OnCleared(IComponentCollection<T> collection, T[] oldItems, IReadOnlyMetadataContext? metadata)
             {
                 var clearedCallback = collection.Owner as IComponentOwnerClearedCallback<T>;
                 var removedCallback = clearedCallback == null ? collection.Owner as IComponentOwnerRemovedCallback<T> : null;
@@ -176,7 +176,7 @@ namespace MugenMvvm.Infrastructure.Components
             }
 
             public void OnComponentCollectionCreated<TItem>(IComponentCollectionProvider provider, IComponentCollection<TItem> componentCollection,
-                IReadOnlyMetadataContext metadata)
+                IReadOnlyMetadataContext? metadata)
                 where TItem : class
             {
                 componentCollection.AddComponent(CallbackComponentCollectionProviderListenerImpl<TItem>.Instance, metadata);

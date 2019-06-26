@@ -21,19 +21,17 @@ namespace MugenMvvm.Infrastructure.Wrapping
 
         #region Implementation of interfaces
 
-        public bool CanWrap(Type type, Type wrapperType, IReadOnlyMetadataContext metadata)
+        public bool CanWrap(Type type, Type wrapperType, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(wrapperType, nameof(wrapperType));
-            Should.NotBeNull(metadata, nameof(metadata));
             return CanWrapInternal(type, wrapperType, metadata);
         }
 
-        public object Wrap(object item, Type wrapperType, IReadOnlyMetadataContext metadata)
+        public object Wrap(object item, Type wrapperType, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(wrapperType, nameof(wrapperType));
-            Should.NotBeNull(metadata, nameof(metadata));
             return WrapInternal(item, wrapperType, metadata);
         }
 
@@ -41,7 +39,7 @@ namespace MugenMvvm.Infrastructure.Wrapping
 
         #region Methods
 
-        protected virtual bool CanWrapInternal(Type type, Type wrapperType, IReadOnlyMetadataContext metadata)
+        protected virtual bool CanWrapInternal(Type type, Type wrapperType, IReadOnlyMetadataContext? metadata)
         {
             if (wrapperType.IsAssignableFromUnified(type))
                 return true;
@@ -56,7 +54,7 @@ namespace MugenMvvm.Infrastructure.Wrapping
             return false;
         }
 
-        protected virtual object WrapInternal(object item, Type wrapperType, IReadOnlyMetadataContext metadata)
+        protected virtual object WrapInternal(object item, Type wrapperType, IReadOnlyMetadataContext? metadata)
         {
             object? wrapper = null;
             var components = Components.GetItems();

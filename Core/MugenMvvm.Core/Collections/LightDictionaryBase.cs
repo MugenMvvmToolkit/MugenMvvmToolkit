@@ -123,7 +123,7 @@ namespace MugenMvvm.Collections
                 RestoreState();
             if (_count <= 0)
                 return;
-            for (var index = 0; index < _buckets.Length; index++)
+            for (var index = 0; index < _buckets!.Length; index++)
                 _buckets[index] = -1;
             Array.Clear(_entries, 0, _count);
             _freeList = -1;
@@ -141,7 +141,7 @@ namespace MugenMvvm.Collections
             if (_buckets == null)
                 RestoreState();
             var num = GetHashCodeInternal(key);
-            var index1 = num % _buckets.Length;
+            var index1 = num % _buckets!.Length;
             var index2 = -1;
             for (var index3 = _buckets[index1]; index3 >= 0; index3 = _entries[index3].Next)
             {
@@ -209,12 +209,12 @@ namespace MugenMvvm.Collections
 
         public void Clone(LightDictionaryBase<TKey, TValue> clone, Func<TValue, TValue>? valueConverter = null)
         {
-            clone._buckets = _buckets?.ToArray();
+            clone._buckets = _buckets?.ToArray()!;
             clone._count = _count;
             if (_entries != null)
             {
                 if (valueConverter == null)
-                    clone._entries = _entries?.ToArray();
+                    clone._entries = _entries?.ToArray()!;
                 else
                 {
                     var entries = new Entry[_entries.Length];
@@ -263,7 +263,7 @@ namespace MugenMvvm.Collections
             if (_buckets == null)
                 RestoreState();
             var num = GetHashCodeInternal(key);
-            for (var index = _buckets[num % _buckets.Length]; index >= 0; index = _entries[index].Next)
+            for (var index = _buckets![num % _buckets.Length]; index >= 0; index = _entries[index].Next)
             {
                 if (_entries[index].HashCode == num && Equals(_entries[index].Key, key))
                     return index;
@@ -277,7 +277,7 @@ namespace MugenMvvm.Collections
             if (_buckets == null)
                 RestoreState();
             var hashCode = GetHashCodeInternal(key);
-            var index1 = hashCode % _buckets.Length;
+            var index1 = hashCode % _buckets!.Length;
             for (var index2 = _buckets[index1]; index2 >= 0; index2 = _entries[index2].Next)
             {
                 if (_entries[index2].HashCode == hashCode && Equals(_entries[index2].Key, key))

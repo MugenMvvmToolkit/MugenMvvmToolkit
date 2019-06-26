@@ -18,7 +18,7 @@ namespace MugenMvvm
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(observer, nameof(observer));
-            return dispatcher.ServiceIfNull().Subscribe(viewModel, observer, executionMode ?? ThreadExecutionMode.Current, metadata.DefaultIfNull());
+            return dispatcher.ServiceIfNull().Subscribe(viewModel, observer, executionMode ?? ThreadExecutionMode.Current, metadata);
         }
 
         public static TService? TryGetService<TService>(this IViewModelBase viewModel) where TService : class
@@ -38,7 +38,7 @@ namespace MugenMvvm
         public static IReadOnlyMetadataContext NotifyLifecycleChanged(this IViewModelBase viewModel, ViewModelLifecycleState state, IReadOnlyMetadataContext? metadata = null,
             IViewModelDispatcher? dispatcher = null)
         {
-            return dispatcher.ServiceIfNull().OnLifecycleChanged(viewModel, state, metadata.DefaultIfNull());
+            return dispatcher.ServiceIfNull().OnLifecycleChanged(viewModel, state, metadata);
         }
 
         public static void InvalidateCommands<TViewModel>(this TViewModel viewModel) where TViewModel : class, IViewModelBase, IHasService<IEventPublisher>

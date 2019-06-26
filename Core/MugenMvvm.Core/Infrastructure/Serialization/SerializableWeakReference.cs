@@ -20,7 +20,7 @@ namespace MugenMvvm.Infrastructure.Serialization
         }
 
         public SerializableWeakReference(object? target)
-            : this(Service<IWeakReferenceProvider>.Instance.GetWeakReference(target, Default.Metadata))
+            : this(Service<IWeakReferenceProvider>.Instance.GetWeakReference(target))
         {
         }
 
@@ -32,7 +32,7 @@ namespace MugenMvvm.Infrastructure.Serialization
         internal object? SerializableTarget
         {
             get => Target.Target;
-            set => Target = Service<IWeakReferenceProvider>.Instance.GetWeakReference(value, Default.Metadata);
+            set => Target = Service<IWeakReferenceProvider>.Instance.GetWeakReference(value);
         }
 
         [field: IgnoreDataMember]

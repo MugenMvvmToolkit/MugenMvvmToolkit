@@ -46,12 +46,12 @@ namespace MugenMvvm.Infrastructure.Serialization
 
         #region Implementation of interfaces
 
-        void IComponentOwnerAddedCallback<IComponent<ISerializer>>.OnComponentAdded(object collection, IComponent<ISerializer> component, IReadOnlyMetadataContext metadata)
+        void IComponentOwnerAddedCallback<IComponent<ISerializer>>.OnComponentAdded(object collection, IComponent<ISerializer> component, IReadOnlyMetadataContext? metadata)
         {
             OnComponentAdded(component, metadata);
         }
 
-        void IComponentOwnerRemovedCallback<IComponent<ISerializer>>.OnComponentRemoved(object collection, IComponent<ISerializer> component, IReadOnlyMetadataContext metadata)
+        void IComponentOwnerRemovedCallback<IComponent<ISerializer>>.OnComponentRemoved(object collection, IComponent<ISerializer> component, IReadOnlyMetadataContext? metadata)
         {
             OnComponentRemoved(component, metadata);
         }
@@ -63,13 +63,13 @@ namespace MugenMvvm.Infrastructure.Serialization
             return context;
         }
 
-        public bool CanSerialize(Type type, IReadOnlyMetadataContext? metadata)
+        public bool CanSerialize(Type type, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(type, nameof(type));
-            return CanSerializeInternal(type, metadata.DefaultIfNull());
+            return CanSerializeInternal(type, metadata);
         }
 
-        public Stream Serialize(object item, ISerializationContext? serializationContext)
+        public Stream Serialize(object item, ISerializationContext? serializationContext = null)
         {
             Should.NotBeNull(item, nameof(item));
             if (serializationContext == null)
@@ -85,7 +85,7 @@ namespace MugenMvvm.Infrastructure.Serialization
             }
         }
 
-        public object Deserialize(Stream stream, ISerializationContext? serializationContext)
+        public object Deserialize(Stream stream, ISerializationContext? serializationContext = null)
         {
             Should.NotBeNull(stream, nameof(stream));
             if (serializationContext == null)
@@ -109,7 +109,7 @@ namespace MugenMvvm.Infrastructure.Serialization
 
         protected abstract object DeserializeInternal(Stream stream);
 
-        protected virtual bool CanSerializeInternal(Type type, IReadOnlyMetadataContext metadata)
+        protected virtual bool CanSerializeInternal(Type type, IReadOnlyMetadataContext? metadata)
         {
             return type.IsSerializableUnified() || TryGetSurrogateSerializerHandler(type, out _, out _);
         }
@@ -125,28 +125,28 @@ namespace MugenMvvm.Infrastructure.Serialization
         {
             var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
-                (components[i] as ISerializerListener)?.OnSerializing(this, instance, CurrentSerializationContext);
+                (components[i] as ISerializerListener)?.OnSerializing(this, instance, CurrentSerializationContext!);
         }
 
         protected virtual void OnSerialized(object? instance)
         {
             var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
-                (components[i] as ISerializerListener)?.OnSerialized(this, instance, CurrentSerializationContext);
+                (components[i] as ISerializerListener)?.OnSerialized(this, instance, CurrentSerializationContext!);
         }
 
         protected virtual void OnDeserializing(object? instance)
         {
             var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
-                (components[i] as ISerializerListener)?.OnDeserializing(this, instance, CurrentSerializationContext);
+                (components[i] as ISerializerListener)?.OnDeserializing(this, instance, CurrentSerializationContext!);
         }
 
         protected virtual void OnDeserialized(object? instance)
         {
             var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
-                (components[i] as ISerializerListener)?.OnDeserialized(this, instance, CurrentSerializationContext);
+                (components[i] as ISerializerListener)?.OnDeserialized(this, instance, CurrentSerializationContext!);
         }
 
         protected virtual bool TryGetSurrogateSerializerHandler(Type type, [NotNullWhenTrue] out ISurrogateProviderComponent? provider,
@@ -214,11 +214,11 @@ namespace MugenMvvm.Infrastructure.Serialization
             return new SerializationContext(this, serviceProvider ?? ServiceProvider, metadata.ToNonReadonly(this, MetadataContextProvider));
         }
 
-        protected virtual void OnComponentAdded(IComponent<ISerializer> component, IReadOnlyMetadataContext metadata)
+        protected virtual void OnComponentAdded(IComponent<ISerializer> component, IReadOnlyMetadataContext? metadata)
         {
         }
 
-        protected virtual void OnComponentRemoved(IComponent<ISerializer> component, IReadOnlyMetadataContext metadata)
+        protected virtual void OnComponentRemoved(IComponent<ISerializer> component, IReadOnlyMetadataContext? metadata)
         {
         }
 

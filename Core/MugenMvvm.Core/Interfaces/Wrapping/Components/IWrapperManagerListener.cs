@@ -6,6 +6,6 @@ namespace MugenMvvm.Interfaces.Wrapping
 {
     public interface IWrapperManagerListener : IComponent<IWrapperManager>
     {
-        void OnWrapped(IWrapperManager wrapperManager, object wrapper, object item, Type wrapperType, IReadOnlyMetadataContext metadata);
+        void OnWrapped(IWrapperManager wrapperManager, object wrapper, object item, Type wrapperType, IReadOnlyMetadataContext? metadata);
     }
 }

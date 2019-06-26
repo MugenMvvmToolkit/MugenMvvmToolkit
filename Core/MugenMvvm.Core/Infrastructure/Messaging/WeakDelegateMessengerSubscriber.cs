@@ -23,7 +23,7 @@ namespace MugenMvvm.Infrastructure.Messaging
         {
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(action, nameof(action));
-            _reference = Service<IWeakReferenceProvider>.Instance.GetWeakReference(target, Default.Metadata);
+            _reference = Service<IWeakReferenceProvider>.Instance.GetWeakReference(target);
             _action = action;
         }
 
@@ -32,7 +32,7 @@ namespace MugenMvvm.Infrastructure.Messaging
             Should.NotBeNull(action, nameof(action));
             Should.BeSupported(action.Target != null, MessageConstants.StaticDelegateCannotBeWeak);
             Should.BeSupported(!action.Target.GetType().IsAnonymousClass(), MessageConstants.AnonymousDelegateCannotBeWeak);
-            _reference = Service<IWeakReferenceProvider>.Instance.GetWeakReference(action.Target, Default.Metadata);
+            _reference = Service<IWeakReferenceProvider>.Instance.GetWeakReference(action.Target);
             _action = action.GetMethodInfo().GetMethodInvoker<Action<TTarget, object, TMessage, IMessengerContext>>();
         }
 
@@ -47,7 +47,7 @@ namespace MugenMvvm.Infrastructure.Messaging
 
         public MessengerSubscriberResult Handle(object sender, object message, IMessengerContext messengerContext)
         {
-            var target = (TTarget)_reference.Target;
+            var target = (TTarget?)_reference.Target;
             if (target == null)
                 return MessengerSubscriberResult.Invalid;
             if (message is TMessage m)
@@ -65,7 +65,7 @@ namespace MugenMvvm.Infrastructure.Messaging
 
         public override string ToString()
         {
-            return _reference.Target?.ToString();
+            return _reference.Target?.ToString() ?? base.ToString();
         }
 
         #endregion

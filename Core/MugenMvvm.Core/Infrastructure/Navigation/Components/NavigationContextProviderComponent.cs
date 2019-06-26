@@ -37,13 +37,12 @@ namespace MugenMvvm.Infrastructure.Navigation.Components
         }
 
         public INavigationContext GetNavigationContext(INavigationProvider navigationProvider, string navigationOperationId,
-            NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext metadata = null)
+            NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(navigationProvider, nameof(navigationProvider));
             Should.NotBeNull(navigationOperationId, nameof(navigationOperationId));
             Should.NotBeNull(navigationMode, nameof(navigationMode));
             Should.NotBeNull(navigationType, nameof(navigationType));
-            Should.NotBeNull(metadata, nameof(metadata));
             return new NavigationContext(navigationProvider, navigationType, navigationOperationId, navigationMode, metadata, _metadataContextProvider);
         }
 

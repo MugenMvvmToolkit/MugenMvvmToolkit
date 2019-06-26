@@ -45,18 +45,17 @@ namespace MugenMvvm.Infrastructure.Messaging
 
         #region Implementation of interfaces
 
-        void IComponentOwnerAddedCallback<IComponent<IMessenger>>.OnComponentAdded(object collection, IComponent<IMessenger> component, IReadOnlyMetadataContext metadata)
+        void IComponentOwnerAddedCallback<IComponent<IMessenger>>.OnComponentAdded(object collection, IComponent<IMessenger> component, IReadOnlyMetadataContext? metadata)
         {
             OnComponentsChanged();
         }
 
-        void IComponentOwnerRemovedCallback<IComponent<IMessenger>>.OnComponentRemoved(object collection, IComponent<IMessenger> component, IReadOnlyMetadataContext metadata)
+        void IComponentOwnerRemovedCallback<IComponent<IMessenger>>.OnComponentRemoved(object collection, IComponent<IMessenger> component, IReadOnlyMetadataContext? metadata)
         {
             OnComponentsChanged();
         }
 
-        bool IEqualityComparer<KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>>.Equals(KeyValuePair<ThreadExecutionMode, IMessengerSubscriber> x,
-            KeyValuePair<ThreadExecutionMode, IMessengerSubscriber> y)
+        bool IEqualityComparer<KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>>.Equals(KeyValuePair<ThreadExecutionMode, IMessengerSubscriber> x, KeyValuePair<ThreadExecutionMode, IMessengerSubscriber> y)
         {
             return x.Value.Equals(y.Value);
         }
@@ -66,9 +65,9 @@ namespace MugenMvvm.Infrastructure.Messaging
             return obj.Value.GetHashCode();
         }
 
-        IMessengerContext IMessenger.GetMessengerContext(IMetadataContext? metadata)
+        public IMessengerContext GetMessengerContext(IMetadataContext? metadata = null)
         {
-            return GetMessengerContext(metadata);
+            return GetMessengerContextInternal(metadata);
         }
 
         public void Publish(object sender, object message, IMessengerContext? messengerContext = null)
@@ -81,11 +80,10 @@ namespace MugenMvvm.Infrastructure.Messaging
             return PublishInternalAsync(sender, message, messengerContext, true);
         }
 
-        public void Subscribe(IMessengerSubscriber subscriber, ThreadExecutionMode executionMode, IReadOnlyMetadataContext metadata)
+        public void Subscribe(IMessengerSubscriber subscriber, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(subscriber, nameof(subscriber));
             Should.NotBeNull(executionMode, nameof(executionMode));
-            Should.NotBeNull(metadata, nameof(metadata));
             if (_hasMessageSubscriberDecoratorComponents)
             {
                 var components = GetComponents();
@@ -110,10 +108,9 @@ namespace MugenMvvm.Infrastructure.Messaging
             }
         }
 
-        public bool Unsubscribe(IMessengerSubscriber subscriber, IReadOnlyMetadataContext metadata)
+        public bool Unsubscribe(IMessengerSubscriber subscriber, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(subscriber, nameof(subscriber));
-            Should.NotBeNull(metadata, nameof(metadata));
             bool removed;
             lock (_subscribers)
             {
@@ -176,7 +173,7 @@ namespace MugenMvvm.Infrastructure.Messaging
             }
         }
 
-        private IMessengerContext GetMessengerContext(IMetadataContext? metadata)
+        private IMessengerContext GetMessengerContextInternal(IMetadataContext? metadata)
         {
             IMessengerContext? ctx = null;
             if (_hasFactoryComponents)
@@ -303,7 +300,7 @@ namespace MugenMvvm.Infrastructure.Messaging
                     for (var i = 0; i < Count; i++)
                     {
                         if (this[i].Handle(_sender, _message, _messengerContext) == MessengerSubscriberResult.Invalid)
-                            _messenger.Unsubscribe(this[i], Default.Metadata);
+                            _messenger.Unsubscribe(this[i]);
                     }
                 }
             }
@@ -329,7 +326,7 @@ namespace MugenMvvm.Infrastructure.Messaging
                     (components[i] as IMessageInterceptorComponent)?.OnPublished(result, subscriber, _sender, _message, _messengerContext);
 
                 if (result == MessengerSubscriberResult.Invalid)
-                    _messenger.Unsubscribe(subscriber, Default.Metadata);
+                    _messenger.Unsubscribe(subscriber);
             }
 
             #endregion

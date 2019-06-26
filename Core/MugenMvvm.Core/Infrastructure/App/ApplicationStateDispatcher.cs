@@ -40,12 +40,11 @@ namespace MugenMvvm.Infrastructure.App
 
         #endregion
 
-        #region Methods
+        #region Implementation of interfaces
 
-        public void SetApplicationState(ApplicationState state, IReadOnlyMetadataContext metadata)
+        public void SetApplicationState(ApplicationState state, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(state, nameof(state));
-            Should.NotBeNull(metadata, nameof(metadata));
             var oldState = Interlocked.Exchange(ref _state, state);
             if (oldState == state)
                 return;

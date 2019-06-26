@@ -35,7 +35,7 @@ namespace MugenMvvm
         public static readonly IReadOnlyMetadataContext Metadata = EmptyContext.Instance;
         public static readonly IDisposable Disposable = EmptyContext.Instance;
         public static readonly IWeakReference WeakReference = EmptyContext.Instance;
-        public static readonly Task CompletedTask = Task.FromResult<object>(null);
+        public static readonly Task CompletedTask = Task.FromResult<object?>(null);
         public static readonly Task<bool> TrueTask = Task.FromResult(true);
         public static readonly Task<bool> FalseTask = Task.FromResult(false);
         public static readonly INavigationProvider NavigationProvider = EmptyContext.Instance;
@@ -104,7 +104,7 @@ namespace MugenMvvm
 
             public string Id => string.Empty;
 
-            object IWeakReference.Target => null;
+            object? IWeakReference.Target => null;
 
             #endregion
 

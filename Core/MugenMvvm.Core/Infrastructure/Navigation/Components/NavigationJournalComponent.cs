@@ -47,23 +47,20 @@ namespace MugenMvvm.Infrastructure.Navigation.Components
             OnNavigatedInternal(navigationContext);
         }
 
-        public IReadOnlyList<INavigationEntry> GetNavigationEntries(NavigationType type, IReadOnlyMetadataContext metadata)
+        public IReadOnlyList<INavigationEntry> GetNavigationEntries(NavigationType? type, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(metadata, nameof(metadata));
             return GetNavigationEntriesInternal(type, metadata);
         }
 
-        public INavigationEntry GetNavigationEntryById(string navigationOperationId, IReadOnlyMetadataContext metadata)
+        public INavigationEntry? GetNavigationEntryById(string navigationOperationId, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(navigationOperationId, nameof(navigationOperationId));
-            Should.NotBeNull(metadata, nameof(metadata));
             return GetNavigationEntryByIdInternal(navigationOperationId, metadata);
         }
 
-        public INavigationEntry GetPreviousNavigationEntry(INavigationEntry navigationEntry, IReadOnlyMetadataContext metadata)
+        public INavigationEntry? GetPreviousNavigationEntry(INavigationEntry navigationEntry, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(navigationEntry, nameof(navigationEntry));
-            Should.NotBeNull(metadata, nameof(metadata));
             return GetPreviousNavigationEntryInternal(navigationEntry, metadata);
         }
 
@@ -119,7 +116,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Components
                 OnNavigationEntryRemoved(removedEntry);
         }
 
-        protected virtual IReadOnlyList<INavigationEntry> GetNavigationEntriesInternal(NavigationType? type, IReadOnlyMetadataContext metadata)
+        protected virtual IReadOnlyList<INavigationEntry> GetNavigationEntriesInternal(NavigationType? type, IReadOnlyMetadataContext? metadata)
         {
             lock (NavigationEntries)
             {
@@ -138,7 +135,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Components
             }
         }
 
-        protected INavigationEntry? GetNavigationEntryByIdInternal(string navigationOperationId, IReadOnlyMetadataContext metadata)
+        protected INavigationEntry? GetNavigationEntryByIdInternal(string navigationOperationId, IReadOnlyMetadataContext? metadata)
         {
             IEnumerable<INavigationEntry>? entries = null;
             lock (NavigationEntries)
@@ -163,7 +160,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Components
             }
         }
 
-        protected virtual INavigationEntry? GetPreviousNavigationEntryInternal(INavigationEntry navigationEntry, IReadOnlyMetadataContext metadata)
+        protected virtual INavigationEntry? GetPreviousNavigationEntryInternal(INavigationEntry navigationEntry, IReadOnlyMetadataContext? metadata)
         {
             IEnumerable<INavigationEntry>? entries = null;
             lock (NavigationEntries)

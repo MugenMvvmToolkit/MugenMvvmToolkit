@@ -4,8 +4,8 @@ using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Interfaces.Views
 {
-    public interface IViewProviderComponent : IComponent<IViewManager>
+    public interface IViewProviderComponent : IComponent<IViewManager>//todo metadataconext?
     {
-        object? TryGetViewForViewModel(IViewInitializer initializer, IViewModelBase viewModel, IReadOnlyMetadataContext metadata);
+        object? TryGetViewForViewModel(IViewInitializer initializer, IViewModelBase viewModel, IMetadataContext metadata);
     }
 }

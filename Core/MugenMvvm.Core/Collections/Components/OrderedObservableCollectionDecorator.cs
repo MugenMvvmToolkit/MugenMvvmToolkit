@@ -144,12 +144,12 @@ namespace MugenMvvm.Collections.Components
 
         #region Methods
 
-        protected override void OnAttachedInternal(IObservableCollectionDecoratorManager<T> owner, IReadOnlyMetadataContext metadata)
+        protected override void OnAttachedInternal(IObservableCollectionDecoratorManager<T> owner, IReadOnlyMetadataContext? metadata)
         {
             Reorder();
         }
 
-        protected override void OnDetachedInternal(IObservableCollectionDecoratorManager<T> owner, IReadOnlyMetadataContext metadata)
+        protected override void OnDetachedInternal(IObservableCollectionDecoratorManager<T> owner, IReadOnlyMetadataContext? metadata)
         {
             _items.Clear();
         }

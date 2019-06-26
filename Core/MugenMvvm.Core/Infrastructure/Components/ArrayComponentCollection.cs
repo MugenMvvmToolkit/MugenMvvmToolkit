@@ -55,8 +55,6 @@ namespace MugenMvvm.Infrastructure.Components
         public bool Add(T component, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(component, nameof(component));
-            if (metadata == null)
-                metadata = Default.Metadata;
             var components = this.GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
@@ -79,8 +77,6 @@ namespace MugenMvvm.Infrastructure.Components
         public bool Remove(T component, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(component, nameof(component));
-            if (metadata == null)
-                metadata = Default.Metadata;
             var components = this.GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
@@ -102,8 +98,6 @@ namespace MugenMvvm.Infrastructure.Components
 
         public bool Clear(IReadOnlyMetadataContext? metadata = null)
         {
-            if (metadata == null)
-                metadata = Default.Metadata;
             var components = this.GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
@@ -126,7 +120,7 @@ namespace MugenMvvm.Infrastructure.Components
 
         #region Methods
 
-        protected virtual bool AddInternal(T component, IReadOnlyMetadataContext metadata)
+        protected virtual bool AddInternal(T component, IReadOnlyMetadataContext? metadata)
         {
             var array = new T[Items.Length + 1];
             Array.Copy(Items, array, Items.Length);
@@ -135,7 +129,7 @@ namespace MugenMvvm.Infrastructure.Components
             return true;
         }
 
-        protected virtual bool RemoveInternal(T component, IReadOnlyMetadataContext metadata)
+        protected virtual bool RemoveInternal(T component, IReadOnlyMetadataContext? metadata)
         {
             T[]? array = null;
             for (var i = 0; i < Items.Length; i++)
@@ -156,7 +150,7 @@ namespace MugenMvvm.Infrastructure.Components
             return array != null;
         }
 
-        protected virtual bool ClearInternal(IReadOnlyMetadataContext metadata)
+        protected virtual bool ClearInternal(IReadOnlyMetadataContext? metadata)
         {
             Items = Default.EmptyArray<T>();
             return true;

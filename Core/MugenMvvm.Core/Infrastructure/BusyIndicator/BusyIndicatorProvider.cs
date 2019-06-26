@@ -25,7 +25,8 @@ namespace MugenMvvm.Infrastructure.BusyIndicator
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public BusyIndicatorProvider(IComponentCollectionProvider componentCollectionProvider, object? defaultBusyMessage = null) : base(componentCollectionProvider)
+        public BusyIndicatorProvider(IComponentCollectionProvider componentCollectionProvider, object? defaultBusyMessage = null) 
+            : base(componentCollectionProvider)
         {
             _defaultBusyMessage = defaultBusyMessage;
             _locker = this;

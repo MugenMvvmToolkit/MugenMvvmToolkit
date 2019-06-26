@@ -82,20 +82,20 @@ namespace MugenMvvm
             return false;
         }
 
-        public static bool LazyInitialize<T>(this IComponentCollectionProvider provider, [EnsuresNotNull] ref IComponentCollection<T>? item, object target,
+        public static bool LazyInitialize<T>(this IComponentCollectionProvider? provider, [EnsuresNotNull] ref IComponentCollection<T>? item, object target,
             IReadOnlyMetadataContext? metadata = null)
             where T : class //todo R# bug return?
         {
-            return item == null && LazyInitialize(ref item, provider.ServiceIfNull().GetComponentCollection<T>(target, metadata.DefaultIfNull()));
+            return item == null && LazyInitialize(ref item, provider.ServiceIfNull().GetComponentCollection<T>(target, metadata));
         }
 
-        public static bool LazyInitialize(this IMetadataContextProvider provider, [EnsuresNotNull] ref IMetadataContext? metadataContext,
-            object? target, IEnumerable<MetadataContextValue> values = null) //todo R# bug return?
+        public static bool LazyInitialize(this IMetadataContextProvider? provider, [EnsuresNotNull] ref IMetadataContext? metadataContext,
+            object? target, IEnumerable<MetadataContextValue>? values = null) //todo R# bug return?
         {
             return metadataContext == null && LazyInitialize(ref metadataContext, GetMetadataContext(target, values, provider));
         }
 
-        public static T[] GetItemsOrDefault<T>(this IComponentCollection<T> componentCollection) where T : class //todo R# bug return?
+        public static T[] GetItemsOrDefault<T>(this IComponentCollection<T>? componentCollection) where T : class //todo R# bug return?
         {
             return componentCollection?.GetItems() ?? Default.EmptyArray<T>();
         }
@@ -169,20 +169,20 @@ namespace MugenMvvm
             }
         }
 
-        public static bool TryGet<T>(this IIocContainer iocContainer, out T service, IReadOnlyMetadataContext? metadata = null)
+        public static bool TryGet<T>(this IIocContainer iocContainer, [NotNullWhenTrue] out T service, IReadOnlyMetadataContext? metadata = null)
         {
             var tryGet = iocContainer.TryGet(typeof(T), out var objService, metadata);
             if (tryGet)
             {
-                service = (T)objService;
+                service = (T)objService!;
                 return true;
             }
 
-            service = default;
+            service = default!;
             return false;
         }
 
-        public static bool TryGet(this IIocContainer iocContainer, Type serviceType, out object service, IReadOnlyMetadataContext? metadata = null)
+        public static bool TryGet(this IIocContainer iocContainer, Type serviceType, [NotNullWhenTrue] out object? service, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(iocContainer, nameof(iocContainer));
             Should.NotBeNull(serviceType, nameof(serviceType));

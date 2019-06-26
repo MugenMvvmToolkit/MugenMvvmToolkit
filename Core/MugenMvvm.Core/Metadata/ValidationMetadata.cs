@@ -16,12 +16,7 @@ namespace MugenMvvm.Metadata
 
         public static IMetadataContextKey<ICollection<string>?> IgnoredMembers
         {
-            get
-            {
-                if (_ignoredMembers == null)
-                    _ignoredMembers = GetBuilder<ICollection<string>?>(nameof(IgnoredMembers)).NotNull().Build();
-                return _ignoredMembers;
-            }
+            get => _ignoredMembers ??= GetBuilder<ICollection<string>?>(nameof(IgnoredMembers)).NotNull().Build();
             set => _ignoredMembers = value;
         }
 

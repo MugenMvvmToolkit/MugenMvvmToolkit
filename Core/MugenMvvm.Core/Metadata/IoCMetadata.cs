@@ -10,7 +10,7 @@ namespace MugenMvvm.Metadata
     {
         #region Fields
 
-        private static IMetadataContextKey<string>? _name;
+        private static IMetadataContextKey<string?>? _name;
         private static IMetadataContextKey<IReadOnlyCollection<IIocParameter>?>? _parameters;
         private static IMetadataContextKey<IocConditionDelegate?> _condition;
 
@@ -20,34 +20,19 @@ namespace MugenMvvm.Metadata
 
         public static IMetadataContextKey<string?> Name
         {
-            get
-            {
-                if (_name == null)
-                    _name = GetBuilder<string?>(nameof(Name)).Serializable().Build();
-                return _name;
-            }
+            get => _name ??= GetBuilder<string?>(nameof(Name)).Serializable().Build();
             set => _name = value;
         }
 
         public static IMetadataContextKey<IReadOnlyCollection<IIocParameter>?> Parameters
         {
-            get
-            {
-                if (_parameters == null)
-                    _parameters = GetBuilder<IReadOnlyCollection<IIocParameter>?>(nameof(Parameters)).Serializable().Build();
-                return _parameters;
-            }
+            get => _parameters ??= GetBuilder<IReadOnlyCollection<IIocParameter>?>(nameof(Parameters)).Serializable().Build();
             set => _parameters = value;
         }
 
         public static IMetadataContextKey<IocConditionDelegate?> Condition
         {
-            get
-            {
-                if (_condition == null)
-                    _condition = GetBuilder<IocConditionDelegate?>(nameof(Condition)).Build();
-                return _condition;
-            }
+            get => _condition ??= GetBuilder<IocConditionDelegate?>(nameof(Condition)).Build();
             set => _condition = value;
         }
 

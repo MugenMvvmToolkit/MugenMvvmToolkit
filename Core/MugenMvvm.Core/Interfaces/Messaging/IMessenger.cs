@@ -9,11 +9,11 @@ namespace MugenMvvm.Interfaces.Messaging
 {
     public interface IMessenger : IEventPublisher, IComponentOwner<IMessenger>, IDisposable
     {
-        IMessengerContext GetMessengerContext(IMetadataContext? metadata);
+        IMessengerContext GetMessengerContext(IMetadataContext? metadata = null);
 
-        void Subscribe(IMessengerSubscriber subscriber, ThreadExecutionMode executionMode, IReadOnlyMetadataContext metadata);
+        void Subscribe(IMessengerSubscriber subscriber, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata = null);
 
-        bool Unsubscribe(IMessengerSubscriber subscriber, IReadOnlyMetadataContext metadata);
+        bool Unsubscribe(IMessengerSubscriber subscriber, IReadOnlyMetadataContext? metadata = null);
 
         IReadOnlyList<MessengerSubscriberInfo> GetSubscribers();
     }

@@ -3,7 +3,7 @@
 // ReSharper disable CheckNamespace
 
 #if !NET40
-namespace System
+namespace System//todo fix namespaces
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Enum | AttributeTargets.Delegate,
         Inherited = false)]

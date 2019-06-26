@@ -42,7 +42,7 @@ namespace MugenMvvm.Infrastructure.Views.Components
             return Priority;
         }
 
-        public IViewModelBase? TryGetViewModelForView(IViewInitializer initializer, object view, IReadOnlyMetadataContext metadata)
+        public IViewModelBase? TryGetViewModelForView(IViewInitializer initializer, object view, IMetadataContext metadata)
         {
             Should.NotBeNull(initializer, nameof(initializer));
             Should.NotBeNull(view, nameof(view));

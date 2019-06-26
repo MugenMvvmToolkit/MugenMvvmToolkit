@@ -40,26 +40,24 @@ namespace MugenMvvm.Infrastructure.Components
 
         #region Implementation of interfaces
 
-        public IComponentCollection<T> GetComponentCollection<T>(object owner, IReadOnlyMetadataContext metadata) where T : class
+        public IComponentCollection<T> GetComponentCollection<T>(object owner, IReadOnlyMetadataContext? metadata = null) where T : class
         {
             Should.NotBeNull(owner, nameof(owner));
-            Should.NotBeNull(metadata, nameof(metadata));
-
             var result = GetComponentCollectionInternal<T>(owner, metadata);
 
             if (result == null)
                 ExceptionManager.ThrowObjectNotInitialized(this, typeof(IComponentCollectionProviderComponent).Name);
 
-            OnComponentCollectionCreated(result, metadata);
+            OnComponentCollectionCreated(result!, metadata);
 
-            return result;
+            return result!;
         }
 
         #endregion
 
         #region Methods
 
-        protected virtual IComponentCollection<T>? GetComponentCollectionInternal<T>(object owner, IReadOnlyMetadataContext metadata) where T : class
+        protected virtual IComponentCollection<T>? GetComponentCollectionInternal<T>(object owner, IReadOnlyMetadataContext? metadata) where T : class
         {
             if (!ReferenceEquals(owner, this))
             {
@@ -77,7 +75,7 @@ namespace MugenMvvm.Infrastructure.Components
             return new ArrayComponentCollection<T>(owner);
         }
 
-        protected virtual void OnComponentCollectionCreated<T>(IComponentCollection<T> result, IReadOnlyMetadataContext metadata)
+        protected virtual void OnComponentCollectionCreated<T>(IComponentCollection<T> result, IReadOnlyMetadataContext? metadata)
             where T : class
         {
             var components = this.GetComponents();

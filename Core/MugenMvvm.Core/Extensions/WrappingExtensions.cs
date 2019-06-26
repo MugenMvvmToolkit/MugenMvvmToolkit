@@ -15,8 +15,8 @@ namespace MugenMvvm
     {
         #region Methods
 
-        public static IWrapperManagerComponent AddWrapper(this IWrapperManager wrapperManager, Func<IWrapperManager, Type, Type, IReadOnlyMetadataContext, bool> condition,
-            Func<IWrapperManager, object, Type, IReadOnlyMetadataContext, object?> wrapperFactory, IReadOnlyMetadataContext? metadata = null)
+        public static IWrapperManagerComponent AddWrapper(this IWrapperManager wrapperManager, Func<IWrapperManager, Type, Type, IReadOnlyMetadataContext?, bool> condition,
+            Func<IWrapperManager, object, Type, IReadOnlyMetadataContext?, object?> wrapperFactory, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
             var factory = new DelegateWrapperManagerComponent(condition, wrapperFactory);
@@ -25,7 +25,7 @@ namespace MugenMvvm
         }
 
         public static IWrapperManagerComponent AddWrapper(this IWrapperManager wrapperManager, Type wrapperType, Type implementation,
-            Func<IWrapperManager, object, Type, IReadOnlyMetadataContext, object>? wrapperFactory = null)
+            Func<IWrapperManager, object, Type, IReadOnlyMetadataContext?, object>? wrapperFactory = null)
         {
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
             Should.NotBeNull(wrapperType, nameof(wrapperType));
@@ -41,28 +41,28 @@ namespace MugenMvvm
                 if (constructor == null)
                     ExceptionManager.ThrowCannotFindConstructor(implementation);
 
-                wrapperFactory = (manager, o, arg3, arg4) => constructor.InvokeEx(o);
+                wrapperFactory = (manager, o, arg3, arg4) => constructor!.InvokeEx(o);
             }
 
             return wrapperManager.AddWrapper((manager, type, arg3, arg4) => wrapperType.EqualsEx(arg3), wrapperFactory);
         }
 
         public static IWrapperManagerComponent AddWrapper<TWrapper>(this IWrapperManager wrapperManager, Type implementation,
-            Func<IWrapperManager, object, Type, IReadOnlyMetadataContext, TWrapper>? wrapperFactory = null)
+            Func<IWrapperManager, object, Type, IReadOnlyMetadataContext?, TWrapper>? wrapperFactory = null)
             where TWrapper : class
         {
             return wrapperManager.AddWrapper(typeof(TWrapper), implementation, wrapperFactory);
         }
 
         public static IWrapperManagerComponent AddWrapper<TWrapper, TImplementation>(this IWrapperManager wrapperManager,
-            Func<IWrapperManager, object, Type, IReadOnlyMetadataContext, TWrapper>? wrapperFactory = null)
+            Func<IWrapperManager, object, Type, IReadOnlyMetadataContext?, TWrapper>? wrapperFactory = null)
             where TWrapper : class
             where TImplementation : class, TWrapper
         {
             return wrapperManager.AddWrapper(typeof(TWrapper), typeof(TImplementation), wrapperFactory);
         }
 
-        public static TView? TryWrap<TView>(this IViewInfo viewInfo, IReadOnlyMetadataContext? metadata = null, IWrapperManager wrapperManager = null)
+        public static TView? TryWrap<TView>(this IViewInfo viewInfo, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
             where TView : class
         {
             return (TView?)viewInfo.TryWrap(typeof(TView), metadata, wrapperManager);
@@ -93,8 +93,6 @@ namespace MugenMvvm
         {
             Should.NotBeNull(viewInfo, nameof(viewInfo));
             Should.NotBeNull(wrapperType, nameof(wrapperType));
-            if (metadata == null)
-                metadata = Default.Metadata;
             return wrapperType.IsInstanceOfTypeUnified(viewInfo.View) || wrapperManager.ServiceIfNull().CanWrap(viewInfo.View.GetType(), wrapperType, metadata);
         }
 
@@ -102,7 +100,7 @@ namespace MugenMvvm
         {
             return viewInfo
                 .Metadata
-                .GetOrAdd(ViewMetadata.Wrappers, viewInfo, provider, (context, v, p) => p.ServiceIfNull().GetComponentCollection<object>(v, context));
+                .GetOrAdd(ViewMetadata.Wrappers, viewInfo, provider, (context, v, p) => p.ServiceIfNull().GetComponentCollection<object>(v, context))!;
         }
 
         private static object? WrapInternal(this IViewInfo viewInfo, Type wrapperType, IReadOnlyMetadataContext? metadata, IWrapperManager? wrapperManager, bool checkCanWrap)
@@ -111,9 +109,6 @@ namespace MugenMvvm
             Should.NotBeNull(wrapperType, nameof(wrapperType));
             if (wrapperType.IsInstanceOfTypeUnified(viewInfo.View))
                 return viewInfo.View;
-
-            if (metadata == null)
-                metadata = Default.Metadata;
 
             var collection = viewInfo.GetOrAddWrappersCollection();
             lock (collection)

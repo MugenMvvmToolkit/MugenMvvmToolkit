@@ -20,15 +20,14 @@ namespace MugenMvvm.Infrastructure.Serialization
         }
 
         public MementoResult(object? target, IMetadataOwner<IReadOnlyMetadataContext>? metadataOwner = null)
-            : this(target, metadataOwner?.Metadata.DefaultIfNull())
+            : this(target, metadataOwner?.Metadata)
         {
         }
 
-        public MementoResult(object? target, IReadOnlyMetadataContext metadata)
+        public MementoResult(object? target, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(metadata, nameof(metadata));
             IsRestored = true;
-            Metadata = metadata;
+            Metadata = metadata.DefaultIfNull();
             Target = target;
         }
 

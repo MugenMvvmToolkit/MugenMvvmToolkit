@@ -25,7 +25,7 @@ namespace MugenMvvm.Infrastructure.Threading
             ExecuteInternalAsync(handler, executionMode, state, false, cancellationToken, metadata);
         }
 
-        public void Execute(Action<object> action, ThreadExecutionMode executionMode, object? state, CancellationToken cancellationToken = default,
+        public void Execute(Action<object?> action, ThreadExecutionMode executionMode, object? state, CancellationToken cancellationToken = default,
             IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(action, nameof(action));
@@ -41,7 +41,7 @@ namespace MugenMvvm.Infrastructure.Threading
             return ExecuteInternalAsync(handler, executionMode, state, false, cancellationToken, metadata)!;
         }
 
-        public Task ExecuteAsync(Action<object> action, ThreadExecutionMode executionMode, object? state, CancellationToken cancellationToken = default,
+        public Task ExecuteAsync(Action<object?> action, ThreadExecutionMode executionMode, object? state, CancellationToken cancellationToken = default,
             IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(action, nameof(action));
@@ -56,7 +56,7 @@ namespace MugenMvvm.Infrastructure.Threading
         protected abstract Task? ExecuteOnMainThreadAsync(IThreadDispatcherHandler handler, object? state, bool includeTaskResult, CancellationToken cancellationToken,
             IReadOnlyMetadataContext? metadata);
 
-        protected abstract Task? ExecuteOnMainThreadAsync(Action<object> action, object? state, bool includeTaskResult, CancellationToken cancellationToken,
+        protected abstract Task? ExecuteOnMainThreadAsync(Action<object?> action, object? state, bool includeTaskResult, CancellationToken cancellationToken,
             IReadOnlyMetadataContext? metadata);
 
         protected abstract bool IsOnMainThread();
@@ -84,7 +84,7 @@ namespace MugenMvvm.Infrastructure.Threading
             return null;
         }
 
-        protected virtual Task? ExecuteInternalAsync(Action<object> action, ThreadExecutionMode executionMode,
+        protected virtual Task? ExecuteInternalAsync(Action<object?> action, ThreadExecutionMode executionMode,
             object? state, bool includeTaskResult, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             if (executionMode == ThreadExecutionMode.Current || executionMode == ThreadExecutionMode.Main && IsOnMainThread())

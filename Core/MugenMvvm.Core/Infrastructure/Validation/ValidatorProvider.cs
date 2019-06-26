@@ -37,8 +37,8 @@ namespace MugenMvvm.Infrastructure.Validation
             if (result == null)
                 ExceptionManager.ThrowObjectNotInitialized(this, typeof(IAggregatorValidatorProviderComponent).Name);
 
-            OnAggregatorValidatorCreated(result, metadata);
-            return result;
+            OnAggregatorValidatorCreated(result!, metadata);
+            return result!;
         }
 
         #endregion

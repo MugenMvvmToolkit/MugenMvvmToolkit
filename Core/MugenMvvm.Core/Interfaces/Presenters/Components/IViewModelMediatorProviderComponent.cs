@@ -7,6 +7,6 @@ namespace MugenMvvm.Interfaces.Presenters.Components
 {
     public interface IViewModelMediatorProviderComponent : IComponent<IPresenter>
     {
-        IViewModelPresenterMediator? TryGetMediator(IViewModelBase viewModel, IViewInitializer viewInitializer, IReadOnlyMetadataContext metadata);
+        IViewModelPresenterMediator? TryGetMediator(IViewModelBase viewModel, IViewInitializer viewInitializer, IReadOnlyMetadataContext? metadata);
     }
 }

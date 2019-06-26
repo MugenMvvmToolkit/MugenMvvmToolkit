@@ -19,11 +19,9 @@ namespace MugenMvvm.Infrastructure.Internal
 
         #region Implementation of interfaces
 
-        public IAttachedDictionary GetOrAddAttachedDictionary(object item, IReadOnlyMetadataContext metadata)
+        public IAttachedDictionary GetOrAddAttachedDictionary(object item, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(item, nameof(item));
-            Should.NotBeNull(metadata, nameof(metadata));
-
             var items = Components.GetItems();
             for (var i = 0; i < items.Length; i++)
             {
@@ -32,14 +30,12 @@ namespace MugenMvvm.Infrastructure.Internal
             }
 
             ExceptionManager.ThrowObjectNotInitialized(this);
-            return null;
+            return null!;
         }
 
-        public IAttachedDictionary GetAttachedDictionary(object item, IReadOnlyMetadataContext metadata)
+        public IAttachedDictionary? GetAttachedDictionary(object item, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(item, nameof(item));
-            Should.NotBeNull(metadata, nameof(metadata));
-
             var items = Components.GetItems();
             for (var i = 0; i < items.Length; i++)
             {

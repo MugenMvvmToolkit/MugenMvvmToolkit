@@ -111,7 +111,7 @@ namespace MugenMvvm.Infrastructure.IoC
             BindToConstantInternal(service, instance, metadata);
             var components = this.GetComponents();
             for (var i = 0; i < components.Length; i++)
-                (components[i] as IIocContainerListener)?.OnBindToConstant(this, service, instance, metadata.DefaultIfNull());
+                (components[i] as IIocContainerListener)?.OnBindToConstant(this, service, instance, metadata);
         }
 
         public void BindToType(Type service, Type typeTo, IocDependencyLifecycle lifecycle, IReadOnlyMetadataContext? metadata = null)
@@ -123,7 +123,7 @@ namespace MugenMvvm.Infrastructure.IoC
             BindToTypeInternal(service, typeTo, lifecycle, metadata);
             var components = this.GetComponents();
             for (var i = 0; i < components.Length; i++)
-                (components[i] as IIocContainerListener)?.OnBindToType(this, service, typeTo, lifecycle, metadata.DefaultIfNull());
+                (components[i] as IIocContainerListener)?.OnBindToType(this, service, typeTo, lifecycle, metadata);
         }
 
         public void BindToMethod(Type service, IocBindingDelegate bindingDelegate, IocDependencyLifecycle lifecycle, IReadOnlyMetadataContext? metadata = null)
@@ -135,7 +135,7 @@ namespace MugenMvvm.Infrastructure.IoC
             BindToMethodInternal(service, bindingDelegate, lifecycle, metadata);
             var components = this.GetComponents();
             for (var i = 0; i < components.Length; i++)
-                (components[i] as IIocContainerListener)?.OnBindToMethod(this, service, bindingDelegate, lifecycle, metadata.DefaultIfNull());
+                (components[i] as IIocContainerListener)?.OnBindToMethod(this, service, bindingDelegate, lifecycle, metadata);
         }
 
         public void Unbind(Type service, IReadOnlyMetadataContext? metadata = null)
@@ -147,7 +147,7 @@ namespace MugenMvvm.Infrastructure.IoC
 
             var components = this.GetComponents();
             for (var i = 0; i < components.Length; i++)
-                (components[i] as IIocContainerListener)?.OnUnbind(this, service, metadata.DefaultIfNull());
+                (components[i] as IIocContainerListener)?.OnUnbind(this, service, metadata);
         }
 
         #endregion
@@ -159,7 +159,7 @@ namespace MugenMvvm.Infrastructure.IoC
             var childContainer = CreateChildInternal(metadata);
             var components = this.GetComponents();
             for (var i = 0; i < components.Length; i++)
-                (components[i] as IIocContainerListener)?.OnChildContainerCreated(this, childContainer, metadata.DefaultIfNull());
+                (components[i] as IIocContainerListener)?.OnChildContainerCreated(this, childContainer, metadata);
             return childContainer;
         }
 

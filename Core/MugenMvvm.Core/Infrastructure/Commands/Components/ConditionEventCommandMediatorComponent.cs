@@ -50,13 +50,13 @@ namespace MugenMvvm.Infrastructure.Commands.Components
 
                 if (notifier is IHasService<IMessenger> hasMessenger)
                 {
-                    hasMessenger.Service.Subscribe(_subscriber, eventExecutionMode, Default.Metadata);
+                    hasMessenger.Service.Subscribe(_subscriber, eventExecutionMode);
                     continue;
                 }
 
                 if (notifier is IMessenger messenger)
                 {
-                    messenger.Subscribe(_subscriber, eventExecutionMode, Default.Metadata);
+                    messenger.Subscribe(_subscriber, eventExecutionMode);
                     continue;
                 }
 
@@ -160,7 +160,7 @@ namespace MugenMvvm.Infrastructure.Commands.Components
 
             public Subscriber(ConditionEventCommandMediatorComponent component)
             {
-                _reference = Service<IWeakReferenceProvider>.Instance.GetWeakReference(component, Default.Metadata);
+                _reference = Service<IWeakReferenceProvider>.Instance.GetWeakReference(component);
             }
 
             #endregion
@@ -174,7 +174,7 @@ namespace MugenMvvm.Infrastructure.Commands.Components
 
             public MessengerSubscriberResult Handle(object sender, object message, IMessengerContext messengerContext)
             {
-                var mediator = (ConditionEventCommandMediatorComponent) _reference?.Target;
+                var mediator = (ConditionEventCommandMediatorComponent?)_reference?.Target;
                 if (mediator == null)
                     return MessengerSubscriberResult.Invalid;
                 mediator.Handle(message);
@@ -198,7 +198,7 @@ namespace MugenMvvm.Infrastructure.Commands.Components
 
             private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
             {
-                var mediator = (ConditionEventCommandMediatorComponent) _reference?.Target;
+                var mediator = (ConditionEventCommandMediatorComponent?)_reference?.Target;
                 if (mediator == null)
                 {
                     if (sender is INotifyPropertyChanged propertyChanged)

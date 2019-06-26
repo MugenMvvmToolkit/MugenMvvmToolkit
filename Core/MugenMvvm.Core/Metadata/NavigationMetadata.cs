@@ -18,34 +18,19 @@ namespace MugenMvvm.Metadata
 
         public static IMetadataContextKey<IViewModelBase?> ViewModel
         {
-            get
-            {
-                if (_viewModel == null)
-                    _viewModel = GetBuilder<IViewModelBase?>(nameof(ViewModel)).NotNull().Serializable().Build();
-                return _viewModel;
-            }
+            get => _viewModel ??= GetBuilder<IViewModelBase?>(nameof(ViewModel)).NotNull().Serializable().Build();
             set => _viewModel = value;
         }
 
         public static IMetadataContextKey<string?> ViewName
         {
-            get
-            {
-                if (_viewName == null)
-                    _viewName = GetBuilder<string?>(nameof(ViewName)).Serializable().Build();
-                return _viewName;
-            }
+            get => _viewName ??= GetBuilder<string?>(nameof(ViewName)).Serializable().Build();
             set => _viewName = value;
         }
 
         public static IMetadataContextKey<bool> IsDialog
         {
-            get
-            {
-                if (_isDialog == null)
-                    _isDialog = GetBuilder<bool>(nameof(IsDialog)).Serializable().Build();
-                return _isDialog;
-            }
+            get => _isDialog ??= GetBuilder<bool>(nameof(IsDialog)).Serializable().Build();
             set => _isDialog = value;
         }
 

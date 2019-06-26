@@ -38,10 +38,9 @@ namespace MugenMvvm.Infrastructure.Views.Components
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<IViewInfo> GetViews(IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
+        public IReadOnlyList<IViewInfo> GetViews(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            Should.NotBeNull(metadata, nameof(metadata));
             var views = viewModel.Metadata.Get(ViewsMetadataKey);
             if (views == null)
                 return Default.EmptyArray<IViewInfo>();
@@ -56,7 +55,7 @@ namespace MugenMvvm.Infrastructure.Views.Components
             return Priority;
         }
 
-        public IViewInitializerResult TryInitialize(IViewInitializer initializer, IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata)
+        public IViewInitializerResult? TryInitialize(IViewInitializer initializer, IViewModelBase viewModel, object view, IMetadataContext metadata)
         {
             Should.NotBeNull(initializer, nameof(initializer));
             Should.NotBeNull(viewModel, nameof(viewModel));
@@ -82,7 +81,7 @@ namespace MugenMvvm.Infrastructure.Views.Components
             return new ViewInitializerResult(viewInfo, viewModel, metadata);
         }
 
-        public IReadOnlyMetadataContext TryCleanup(IViewInitializer initializer, IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
+        public IReadOnlyMetadataContext? TryCleanup(IViewInitializer initializer, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
         {
             bool removed = false;
             var views = viewModel.Metadata.Get(ViewsMetadataKey);
@@ -103,14 +102,14 @@ namespace MugenMvvm.Infrastructure.Views.Components
 
         #region Methods
 
-        private void OnViewInitialized(IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
+        private void OnViewInitialized(IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
         {
             var components = Owner.GetComponents();
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IViewManagerListener)?.OnViewInitialized(Owner, viewInfo, viewModel, metadata);
         }
 
-        private void OnViewCleared(IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
+        private void OnViewCleared(IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
         {
             var components = Owner.GetComponents();
             for (var i = 0; i < components.Length; i++)

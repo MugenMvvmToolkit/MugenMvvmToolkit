@@ -28,7 +28,7 @@ namespace MugenMvvm.Infrastructure.Internal
 
         private static IWeakReference GetWeakReference(object target)
         {
-            return Service<IWeakReferenceProvider>.Instance.GetWeakReference(target, Default.Metadata);
+            return Service<IWeakReferenceProvider>.Instance.GetWeakReference(target);
         }
 
         #endregion
@@ -103,7 +103,7 @@ namespace MugenMvvm.Infrastructure.Internal
             protected override void OnDispose(object action, TTarget target)
             {
                 ((Action<TTarget, TArg1>) action).Invoke(target, Arg1);
-                Arg1 = default;
+                Arg1 = default!;
             }
 
             #endregion
@@ -132,8 +132,8 @@ namespace MugenMvvm.Infrastructure.Internal
             protected override void OnDispose(object action, TTarget target)
             {
                 ((Action<TTarget, TArg1, TArg2>) action).Invoke(target, Arg1, Arg2);
-                Arg1 = default;
-                Arg2 = default;
+                Arg1 = default!;
+                Arg2 = default!;
             }
 
             #endregion

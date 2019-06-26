@@ -66,11 +66,10 @@ namespace MugenMvvm.Infrastructure.Presenters
 
         #region Implementation of interfaces
 
-        public void Initialize(IViewModelBase viewModel, IViewInitializer viewInitializer, IReadOnlyMetadataContext metadata)
+        public void Initialize(IViewModelBase viewModel, IViewInitializer viewInitializer, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(viewInitializer, nameof(viewInitializer));
-            Should.NotBeNull(metadata, nameof(metadata));
             if (ReferenceEquals(ViewModel, viewModel))
                 return;
             if (ViewModel != null)
@@ -81,22 +80,19 @@ namespace MugenMvvm.Infrastructure.Presenters
             OnInitialized(metadata);
         }
 
-        public IPresenterResult Show(IReadOnlyMetadataContext metadata)
+        public IPresenterResult Show(IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(metadata, nameof(metadata));
             ViewModel.NotBeDisposed();
             return ShowInternal(true, metadata);
         }
 
-        public IPresenterResult Close(IReadOnlyMetadataContext metadata)
+        public IPresenterResult Close(IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(metadata, nameof(metadata));
             return CloseInternal(true, metadata);
         }
 
-        public IPresenterResult Restore(IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
+        public IPresenterResult Restore(IViewInfo viewInfo, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(metadata, nameof(metadata));
             return RestoreInternal(viewInfo, metadata);
         }
 
@@ -104,21 +100,21 @@ namespace MugenMvvm.Infrastructure.Presenters
 
         #region Methods
 
-        protected abstract void ShowView(IReadOnlyMetadataContext metadata);
+        protected abstract void ShowView(IReadOnlyMetadataContext? metadata);
 
-        protected abstract bool ActivateView(IReadOnlyMetadataContext metadata);
+        protected abstract bool ActivateView(IReadOnlyMetadataContext? metadata);
 
-        protected abstract void InitializeView(IReadOnlyMetadataContext metadata);
+        protected abstract void InitializeView(IReadOnlyMetadataContext? metadata);
 
-        protected abstract void CloseView(IReadOnlyMetadataContext metadata);
+        protected abstract void CloseView(IReadOnlyMetadataContext? metadata);
 
-        protected abstract void CleanupView(TView view, IReadOnlyMetadataContext metadata);
+        protected abstract void CleanupView(TView view, IReadOnlyMetadataContext? metadata);
 
-        protected virtual void OnInitialized(IReadOnlyMetadataContext metadata)
+        protected virtual void OnInitialized(IReadOnlyMetadataContext? metadata)
         {
         }
 
-        protected virtual IPresenterResult ShowInternal(bool shouldWaitNavigation, IReadOnlyMetadataContext metadata)
+        protected virtual IPresenterResult ShowInternal(bool shouldWaitNavigation, IReadOnlyMetadataContext? metadata)
         {
             if (shouldWaitNavigation)
             {
@@ -146,7 +142,7 @@ namespace MugenMvvm.Infrastructure.Presenters
             return PresenterResult.ViewModelResult(this, NavigationType, ViewModel);
         }
 
-        protected virtual IPresenterResult CloseInternal(bool shouldWaitNavigation, IReadOnlyMetadataContext metadata)
+        protected virtual IPresenterResult CloseInternal(bool shouldWaitNavigation, IReadOnlyMetadataContext? metadata)
         {
             if (!IsOpen)
             {
@@ -174,7 +170,7 @@ namespace MugenMvvm.Infrastructure.Presenters
             return PresenterResult.ViewModelResult(this, NavigationType, ViewModel);
         }
 
-        protected virtual IPresenterResult RestoreInternal(IViewInfo viewInfo, IReadOnlyMetadataContext metadata)
+        protected virtual IPresenterResult RestoreInternal(IViewInfo viewInfo, IReadOnlyMetadataContext? metadata)
         {
             UpdateView(viewInfo, true, metadata);
             NavigationDispatcher.OnNavigated(NavigationDispatcher.GetNavigationContext(ViewModel, this, NavigationType, NavigationMode.Restore, metadata));
@@ -191,7 +187,7 @@ namespace MugenMvvm.Infrastructure.Presenters
             return false;
         }
 
-        protected void UpdateView(IViewInfo? viewInfo, bool isOpen, IReadOnlyMetadataContext metadata)
+        protected void UpdateView(IViewInfo? viewInfo, bool isOpen, IReadOnlyMetadataContext? metadata)
         {
             if (ReferenceEquals(viewInfo, ViewInfo))
                 return;
@@ -240,7 +236,7 @@ namespace MugenMvvm.Infrastructure.Presenters
                 }
 
                 e.Cancel = true;
-                CloseInternal(false, Default.Metadata);
+                CloseInternal(false, null);
             }
             finally
             {

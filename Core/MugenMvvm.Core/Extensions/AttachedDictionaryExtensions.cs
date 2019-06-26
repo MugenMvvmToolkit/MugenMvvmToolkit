@@ -14,7 +14,7 @@ namespace MugenMvvm
             where TItem : class
         {
             Should.NotBeNull(provider, nameof(provider));
-            var dictionary = provider.GetAttachedDictionary(item, Default.Metadata);
+            var dictionary = provider.GetAttachedDictionary(item);
             if (dictionary == null)
                 return Default.EmptyArray<KeyValuePair<string, object?>>();
             return dictionary.GetValues(item, predicate);
@@ -24,7 +24,7 @@ namespace MugenMvvm
             where TItem : class
         {
             Should.NotBeNull(provider, nameof(provider));
-            var dictionary = provider.GetAttachedDictionary(item, Default.Metadata);
+            var dictionary = provider.GetAttachedDictionary(item);
             if (dictionary != null)
                 return dictionary.TryGetValue(item, path, out value);
             value = default!;
@@ -35,7 +35,7 @@ namespace MugenMvvm
             where TItem : class
         {
             Should.NotBeNull(provider, nameof(provider));
-            var dictionary = provider.GetAttachedDictionary(item, Default.Metadata);
+            var dictionary = provider.GetAttachedDictionary(item);
             return dictionary != null && dictionary.Contains(item, path);
         }
 
@@ -45,7 +45,7 @@ namespace MugenMvvm
             where TItem : class
         {
             Should.NotBeNull(provider, nameof(provider));
-            return provider.GetOrAddAttachedDictionary(item, Default.Metadata).AddOrUpdate(item, path, addValue, state1, state2, updateValueFactory);
+            return provider.GetOrAddAttachedDictionary(item).AddOrUpdate(item, path, addValue, state1, state2, updateValueFactory);
         }
 
         public static TValue AddOrUpdate<TItem, TValue, TState1, TState2>(this IAttachedDictionaryProvider provider, TItem item, string path, TState1 state1, TState2 state2,
@@ -53,14 +53,14 @@ namespace MugenMvvm
             where TItem : class
         {
             Should.NotBeNull(provider, nameof(provider));
-            return provider.GetOrAddAttachedDictionary(item, Default.Metadata).AddOrUpdate(item, path, state1, state2, addValueFactory, updateValueFactory);
+            return provider.GetOrAddAttachedDictionary(item).AddOrUpdate(item, path, state1, state2, addValueFactory, updateValueFactory);
         }
 
         public static TValue GetOrAdd<TItem, TValue>(this IAttachedDictionaryProvider provider, TItem item, string path, TValue value)
             where TItem : class
         {
             Should.NotBeNull(provider, nameof(provider));
-            return provider.GetOrAddAttachedDictionary(item, Default.Metadata).GetOrAdd(item, path, value);
+            return provider.GetOrAddAttachedDictionary(item).GetOrAdd(item, path, value);
         }
 
         public static TValue GetOrAdd<TItem, TValue, TState1, TState2>(this IAttachedDictionaryProvider provider, TItem item, string path, TState1 state1, TState2 state2,
@@ -68,20 +68,20 @@ namespace MugenMvvm
             where TItem : class
         {
             Should.NotBeNull(provider, nameof(provider));
-            return provider.GetOrAddAttachedDictionary(item, Default.Metadata).GetOrAdd(item, path, state1, state2, valueFactory);
+            return provider.GetOrAddAttachedDictionary(item).GetOrAdd(item, path, state1, state2, valueFactory);
         }
 
         public static void SetValue<TItem, TValue>(this IAttachedDictionaryProvider provider, TItem item, string path, TValue value)
             where TItem : class
         {
             Should.NotBeNull(provider, nameof(provider));
-            provider.GetOrAddAttachedDictionary(item, Default.Metadata).SetValue(item, path, value);
+            provider.GetOrAddAttachedDictionary(item).SetValue(item, path, value);
         }
 
         public static bool Clear<TItem>(this IAttachedDictionaryProvider provider, TItem item, string path) where TItem : class
         {
             Should.NotBeNull(provider, nameof(provider));
-            var dictionary = provider.GetAttachedDictionary(item, Default.Metadata);
+            var dictionary = provider.GetAttachedDictionary(item);
             if (dictionary == null)
                 return false;
             return dictionary.Clear(item, path);
@@ -90,7 +90,7 @@ namespace MugenMvvm
         public static bool Clear<TItem>(this IAttachedDictionaryProvider provider, TItem item) where TItem : class
         {
             Should.NotBeNull(provider, nameof(provider));
-            var dictionary = provider.GetAttachedDictionary(item, Default.Metadata);
+            var dictionary = provider.GetAttachedDictionary(item);
             if (dictionary == null)
                 return false;
             return dictionary.Clear(item);
@@ -101,14 +101,14 @@ namespace MugenMvvm
             where TItem : class
         {
             Should.NotBeNull(provider, nameof(provider));
-            return provider.GetOrAddAttachedDictionary(item, Default.Metadata).GetOrAdd(item, path, state1, valueFactory, (it, s1, s2) => s2(it, s1));
+            return provider.GetOrAddAttachedDictionary(item).GetOrAdd(item, path, state1, valueFactory, (it, s1, s2) => s2(it, s1));
         }
 
         public static TValue GetOrAdd<TItem, TValue>(this IAttachedDictionaryProvider provider, TItem item, string path, Func<TItem, TValue> valueFactory)
             where TItem : class
         {
             Should.NotBeNull(provider, nameof(provider));
-            return provider.GetOrAddAttachedDictionary(item, Default.Metadata).GetOrAdd(item, path, valueFactory, valueFactory, (it, s1, _) => s1(it));
+            return provider.GetOrAddAttachedDictionary(item).GetOrAdd(item, path, valueFactory, valueFactory, (it, s1, _) => s1(it));
         }
 
         public static TValue AddOrUpdate<TItem, TValue>(this IAttachedDictionaryProvider provider, TItem item, string path, Func<TItem, TValue> addValueFactory,
@@ -116,7 +116,7 @@ namespace MugenMvvm
             where TItem : class
         {
             Should.NotBeNull(provider, nameof(provider));
-            return provider.GetOrAddAttachedDictionary(item, Default.Metadata)
+            return provider.GetOrAddAttachedDictionary(item)
                 .AddOrUpdate(item, path, addValueFactory, updateValueFactory, (i, s1, _) => s1(i), (i, _, cV, s1, s2) => s2(i, s1, cV));
         }
 
@@ -125,7 +125,7 @@ namespace MugenMvvm
             where TItem : class
         {
             Should.NotBeNull(provider, nameof(provider));
-            return provider.GetOrAddAttachedDictionary(item, Default.Metadata)
+            return provider.GetOrAddAttachedDictionary(item)
                 .AddOrUpdate(item, path, addValue, state1, updateValueFactory, (i, addV, cV, s1, s2) => s2(i, addV, cV, s1));
         }
 
@@ -134,7 +134,7 @@ namespace MugenMvvm
             where TItem : class
         {
             Should.NotBeNull(provider, nameof(provider));
-            return provider.GetOrAddAttachedDictionary(item, Default.Metadata)
+            return provider.GetOrAddAttachedDictionary(item)
                 .AddOrUpdate(item, path, addValue, updateValueFactory, updateValueFactory, (i, addV, cV, s1, _) => s1(i, addV, cV));
         }
 

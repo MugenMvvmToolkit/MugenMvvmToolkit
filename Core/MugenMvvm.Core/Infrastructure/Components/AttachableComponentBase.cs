@@ -23,7 +23,7 @@ namespace MugenMvvm.Infrastructure.Components
             {
                 if (_owner == null)
                     ExceptionManager.ThrowObjectNotInitialized(this);
-                return _owner;
+                return _owner!;
             }
             private set => _owner = value;
         }
@@ -34,10 +34,9 @@ namespace MugenMvvm.Infrastructure.Components
 
         #region Implementation of interfaces
 
-        public void OnAttached(T owner, IReadOnlyMetadataContext metadata)
+        public void OnAttached(T owner, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(owner, nameof(owner));
-            Should.NotBeNull(metadata, nameof(metadata));
             if (Interlocked.CompareExchange(ref _state, AttachedState, DetachedState) != DetachedState)
                 ExceptionManager.ThrowObjectInitialized(this);
 
@@ -45,26 +44,25 @@ namespace MugenMvvm.Infrastructure.Components
             OnAttachedInternal(owner, metadata);
         }
 
-        public void OnDetached(T owner, IReadOnlyMetadataContext metadata)
+        public void OnDetached(T owner, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(owner, nameof(owner));
-            Should.NotBeNull(metadata, nameof(metadata));
             if (Interlocked.Exchange(ref _state, DetachedState) == DetachedState)
                 return;
 
             OnDetachedInternal(owner, metadata);
-            Owner = null;
+            Owner = null!;
         }
 
         #endregion
 
         #region Methods
 
-        protected virtual void OnAttachedInternal(T owner, IReadOnlyMetadataContext metadata)
+        protected virtual void OnAttachedInternal(T owner, IReadOnlyMetadataContext? metadata)
         {
         }
 
-        protected virtual void OnDetachedInternal(T owner, IReadOnlyMetadataContext metadata)
+        protected virtual void OnDetachedInternal(T owner, IReadOnlyMetadataContext? metadata)
         {
         }
 

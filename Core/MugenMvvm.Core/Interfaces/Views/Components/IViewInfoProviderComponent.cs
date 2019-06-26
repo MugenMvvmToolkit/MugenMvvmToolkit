@@ -7,6 +7,6 @@ namespace MugenMvvm.Interfaces.Views
 {
     public interface IViewInfoProviderComponent : IComponent<IViewManager>
     {
-        IReadOnlyList<IViewInfo> GetViews(IViewModelBase viewModel, IReadOnlyMetadataContext metadata);
+        IReadOnlyList<IViewInfo> GetViews(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata);
     }
 }

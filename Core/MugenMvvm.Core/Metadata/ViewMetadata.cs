@@ -16,12 +16,7 @@ namespace MugenMvvm.Metadata
 
         public static IMetadataContextKey<IComponentCollection<object>?> Wrappers
         {
-            get
-            {
-                if (_wrappers == null)
-                    _wrappers = GetBuilder<IComponentCollection<object>?>(nameof(Wrappers)).Build();
-                return _wrappers;
-            }
+            get => _wrappers ??= GetBuilder<IComponentCollection<object>?>(nameof(Wrappers)).Build();
             set => _wrappers = value;
         }
 

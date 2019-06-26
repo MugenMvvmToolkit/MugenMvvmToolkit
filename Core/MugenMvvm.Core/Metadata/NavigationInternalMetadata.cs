@@ -38,19 +38,19 @@ namespace MugenMvvm.Metadata
             set => _closeAll = value;
         }
 
-        public static IMetadataContextKey<INavigationCallback?>? ShowingCallback
+        public static IMetadataContextKey<INavigationCallback?> ShowingCallback
         {
             get => _showingCallback ??= GetBuilder<INavigationCallback?>(nameof(ShowingCallback)).NotNull().Build();
             set => _showingCallback = value;
         }
 
-        public static IMetadataContextKey<INavigationCallback?>? ClosingCallback
+        public static IMetadataContextKey<INavigationCallback?> ClosingCallback
         {
             get => _closingCallback ??= GetBuilder<INavigationCallback?>(nameof(ClosingCallback)).NotNull().Build();
             set => _closingCallback = value;
         }
 
-        public static IMetadataContextKey<INavigationCallback?>? CloseCallback
+        public static IMetadataContextKey<INavigationCallback?> CloseCallback
         {
             get => _closeCallback ??= GetBuilder<INavigationCallback?>(nameof(CloseCallback)).NotNull().Build();
             set => _closeCallback = value;

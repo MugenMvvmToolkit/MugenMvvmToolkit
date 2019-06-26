@@ -4,6 +4,6 @@ namespace MugenMvvm.Interfaces.Views
 {
     public interface ICleanableView : IView
     {
-        void Cleanup(IReadOnlyMetadataContext metadata);
+        void Cleanup(IReadOnlyMetadataContext? metadata);
     }
 }

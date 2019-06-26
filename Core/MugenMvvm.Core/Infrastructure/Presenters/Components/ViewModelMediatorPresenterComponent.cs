@@ -19,7 +19,7 @@ namespace MugenMvvm.Infrastructure.Presenters.Components
         #region Fields
 
         protected static readonly IMetadataContextKey<List<IViewModelPresenterMediator>?> NavigationMediators = MetadataContextKey
-            .Create<List<IViewModelPresenterMediator>>(typeof(ViewModelMediatorPresenterComponent), nameof(NavigationMediators))
+            .Create<List<IViewModelPresenterMediator>?>(typeof(ViewModelMediatorPresenterComponent), nameof(NavigationMediators))
             .NotNull()
             .Build();
 
@@ -79,7 +79,7 @@ namespace MugenMvvm.Infrastructure.Presenters.Components
             }
         }
 
-        public IPresenterResult TryShow(IMetadataContext metadata)
+        public IPresenterResult? TryShow(IMetadataContext metadata)
         {
             Should.NotBeNull(metadata, nameof(metadata));
             return TryShowInternal(metadata);
@@ -95,12 +95,12 @@ namespace MugenMvvm.Infrastructure.Presenters.Components
 
         #region Methods
 
-        protected override void OnAttachedInternal(IPresenter owner, IReadOnlyMetadataContext metadata)
+        protected override void OnAttachedInternal(IPresenter owner, IReadOnlyMetadataContext? metadata)
         {
             NavigationDispatcher.AddComponent(this);
         }
 
-        protected override void OnDetachedInternal(IPresenter owner, IReadOnlyMetadataContext metadata)
+        protected override void OnDetachedInternal(IPresenter owner, IReadOnlyMetadataContext? metadata)
         {
             NavigationDispatcher.RemoveComponent(this);
         }
@@ -154,18 +154,18 @@ namespace MugenMvvm.Infrastructure.Presenters.Components
             var viewInfo = metadata.Get(NavigationInternalMetadata.RestoredView);
             var viewModel = metadata.Get(NavigationMetadata.ViewModel);
             if (viewInfo == null || viewModel == null)
-                return null;
+                return Default.EmptyArray<IPresenterResult>();
 
             var mediator = TryGetMediator(viewModel, viewInfo.Initializer, metadata);
             if (mediator == null)
-                return null;
+                return Default.EmptyArray<IPresenterResult>();
 
-            return new[] {mediator.Restore(viewInfo, metadata)};
+            return new[] { mediator.Restore(viewInfo, metadata) };
         }
 
-        protected virtual IViewModelPresenterMediator? TryGetMediator(IViewModelBase viewModel, IViewInitializer viewInitializer, IReadOnlyMetadataContext metadata)
+        protected virtual IViewModelPresenterMediator? TryGetMediator(IViewModelBase viewModel, IViewInitializer viewInitializer, IMetadataContext metadata)
         {
-            var mediators = viewModel.Metadata.GetOrAdd(NavigationMediators, (object?) null, (object?) null,
+            var mediators = viewModel.Metadata.GetOrAdd(NavigationMediators, (object?)null, (object?)null,
                 (context, o, arg3) => new List<IViewModelPresenterMediator>())!;
 
             var components = Owner.GetComponents();
@@ -176,7 +176,7 @@ namespace MugenMvvm.Infrastructure.Presenters.Components
                 {
                     for (var i = 0; i < components.Length; i++)
                     {
-                        mediator = (components[i] as IViewModelMediatorProviderComponent)?.TryGetMediator(viewModel, viewInitializer, metadata);
+                        mediator = (components[i] as IViewModelMediatorProviderComponent)?.TryGetMediator(viewModel, viewInitializer, metadata)!;
                         if (mediator != null)
                         {
                             mediators.Add(mediator);

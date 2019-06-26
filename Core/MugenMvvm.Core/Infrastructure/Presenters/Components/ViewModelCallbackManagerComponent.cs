@@ -24,10 +24,10 @@ namespace MugenMvvm.Infrastructure.Presenters.Components
         private readonly NavigationDispatcherListener _dispatcherListener;
         private readonly INavigationDispatcher _navigationDispatcher;
 
-        private static readonly IMetadataContextKey<List<NavigationCallbackInternal>?> ShowingCallbacks = GetBuilder<List<NavigationCallbackInternal>?>(nameof(ShowingCallbacks))
+        private static readonly IMetadataContextKey<List<NavigationCallbackInternal?>?> ShowingCallbacks = GetBuilder<List<NavigationCallbackInternal?>?>(nameof(ShowingCallbacks))
             .Build();
 
-        private static readonly IMetadataContextKey<List<NavigationCallbackInternal>?> ClosingCallbacks = GetBuilder<List<NavigationCallbackInternal>?>(nameof(ClosingCallbacks))
+        private static readonly IMetadataContextKey<List<NavigationCallbackInternal?>?> ClosingCallbacks = GetBuilder<List<NavigationCallbackInternal?>?>(nameof(ClosingCallbacks))
             .Build();
 
         private static readonly IMetadataContextKey<List<NavigationCallbackInternal?>?> CloseCallbacks = GetBuilder<List<NavigationCallbackInternal?>?>(nameof(CloseCallbacks))
@@ -108,12 +108,12 @@ namespace MugenMvvm.Infrastructure.Presenters.Components
 
         #region Methods
 
-        protected override void OnAttachedInternal(IPresenter owner, IReadOnlyMetadataContext metadata)
+        protected override void OnAttachedInternal(IPresenter owner, IReadOnlyMetadataContext? metadata)
         {
             _navigationDispatcher.AddComponent(_dispatcherListener);
         }
 
-        protected override void OnDetachedInternal(IPresenter owner, IReadOnlyMetadataContext metadata)
+        protected override void OnDetachedInternal(IPresenter owner, IReadOnlyMetadataContext? metadata)
         {
             _navigationDispatcher.RemoveComponent(_dispatcherListener);
         }
@@ -222,7 +222,7 @@ namespace MugenMvvm.Infrastructure.Presenters.Components
                     callback.SetCanceled();
                 else
                     callback.SetResult(result);
-                OnCallbackExecuted(callback, vm, navigationContext);
+                OnCallbackExecuted(callback, vm!, navigationContext);
             }
         }
 
@@ -320,7 +320,7 @@ namespace MugenMvvm.Infrastructure.Presenters.Components
 
             #region Implementation of interfaces
 
-            public IReadOnlyList<INavigationCallback> GetCallbacks(INavigationEntry navigationEntry, IReadOnlyMetadataContext metadata = null)
+            public IReadOnlyList<INavigationCallback> GetCallbacks(INavigationEntry navigationEntry, IReadOnlyMetadataContext? metadata = null)
             {
                 List<INavigationCallback>? callbacks = null;
                 AddEntryCallbacks(navigationEntry, ShowingCallbacks, ref callbacks);

@@ -14,7 +14,8 @@ namespace MugenMvvm.Infrastructure.ViewModels
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelDispatcher(IComponentCollectionProvider componentCollectionProvider, IMetadataContextProvider metadataContextProvider) : base(componentCollectionProvider)
+        public ViewModelDispatcher(IComponentCollectionProvider componentCollectionProvider, IMetadataContextProvider metadataContextProvider) 
+            : base(componentCollectionProvider)
         {
             Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
             MetadataContextProvider = metadataContextProvider;
@@ -30,19 +31,17 @@ namespace MugenMvvm.Infrastructure.ViewModels
 
         #region Implementation of interfaces
 
-        public IReadOnlyMetadataContext OnLifecycleChanged(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadata)
+        public IReadOnlyMetadataContext OnLifecycleChanged(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(lifecycleState, nameof(lifecycleState));
-            Should.NotBeNull(metadata, nameof(metadata));
-            return OnLifecycleChangedInternal(viewModel, lifecycleState, metadata);
+            return OnLifecycleChangedInternal(viewModel, lifecycleState, metadata).DefaultIfNull();
         }
 
-        public object GetService(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext metadata)
+        public object GetService(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(service, nameof(service));
-            Should.NotBeNull(metadata, nameof(metadata));
             var result = GetServiceInternal(viewModel, service, metadata);
             if (result == null)
                 ExceptionManager.ThrowIocCannotFindBinding(service);
@@ -50,19 +49,17 @@ namespace MugenMvvm.Infrastructure.ViewModels
             return result!;
         }
 
-        public bool Subscribe(IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode, IReadOnlyMetadataContext metadata)
+        public bool Subscribe(IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(observer, nameof(observer));
-            Should.NotBeNull(metadata, nameof(metadata));
             return SubscribeInternal(viewModel, observer, executionMode, metadata);
         }
 
-        public bool Unsubscribe(IViewModelBase viewModel, object observer, IReadOnlyMetadataContext metadata)
+        public bool Unsubscribe(IViewModelBase viewModel, object observer, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(observer, nameof(observer));
-            Should.NotBeNull(metadata, nameof(metadata));
             return UnsubscribeInternal(viewModel, observer, metadata);
         }
 
@@ -76,20 +73,19 @@ namespace MugenMvvm.Infrastructure.ViewModels
 
         #region Methods
 
-        protected virtual IReadOnlyMetadataContext? OnLifecycleChangedInternal(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext metadata)
+        protected virtual IReadOnlyMetadataContext? OnLifecycleChangedInternal(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext? metadata)
         {
             //            if (lifecycleState != ViewModelLifecycleState.Finalized)
             //                viewModel.Metadata.Set(ViewModelMetadata.LifecycleState, lifecycleState);//todo move to component
             IMetadataContext? result = null;
             var managers = Components.GetItems();
             for (var i = 0; i < managers.Length; i++)
-                (managers[i] as IViewModelDispatcherComponent)?.OnLifecycleChanged(viewModel, lifecycleState, result ??= MetadataContextProvider.GetMetadataContext(this, null),
-                    metadata);
+                (managers[i] as IViewModelDispatcherComponent)?.OnLifecycleChanged(viewModel, lifecycleState, result ??= MetadataContextProvider.GetMetadataContext(this), metadata);
 
-            return result ?? Default.Metadata;
+            return result;
         }
 
-        protected virtual object? GetServiceInternal(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext metadata)
+        protected virtual object? GetServiceInternal(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext? metadata)
         {
             var managers = Components.GetItems();
             for (var i = 0; i < managers.Length; i++)
@@ -102,7 +98,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
             return null;
         }
 
-        protected virtual bool SubscribeInternal(IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode, IReadOnlyMetadataContext metadata)
+        protected virtual bool SubscribeInternal(IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata)
         {
             var subscribed = false;
             var managers = Components.GetItems();
@@ -116,7 +112,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
             return subscribed;
         }
 
-        protected virtual bool UnsubscribeInternal(IViewModelBase viewModel, object observer, IReadOnlyMetadataContext metadata)
+        protected virtual bool UnsubscribeInternal(IViewModelBase viewModel, object observer, IReadOnlyMetadataContext? metadata)
         {
             var unsubscribed = false;
             var managers = Components.GetItems();

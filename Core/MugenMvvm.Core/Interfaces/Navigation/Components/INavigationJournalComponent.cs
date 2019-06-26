@@ -7,10 +7,10 @@ namespace MugenMvvm.Interfaces.Navigation.Components
 {
     public interface INavigationJournalComponent : IComponent<INavigationDispatcher>
     {
-        IReadOnlyList<INavigationEntry> GetNavigationEntries(NavigationType? type, IReadOnlyMetadataContext metadata);
+        IReadOnlyList<INavigationEntry> GetNavigationEntries(NavigationType? type, IReadOnlyMetadataContext? metadata = null);
 
-        INavigationEntry? GetNavigationEntryById(string navigationOperationId, IReadOnlyMetadataContext metadata);
+        INavigationEntry? GetNavigationEntryById(string navigationOperationId, IReadOnlyMetadataContext? metadata = null);
 
-        INavigationEntry? GetPreviousNavigationEntry(INavigationEntry navigationEntry, IReadOnlyMetadataContext metadata);
+        INavigationEntry? GetPreviousNavigationEntry(INavigationEntry navigationEntry, IReadOnlyMetadataContext? metadata = null);
     }
 }

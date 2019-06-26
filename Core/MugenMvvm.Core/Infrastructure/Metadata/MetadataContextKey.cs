@@ -305,7 +305,7 @@ namespace MugenMvvm.Infrastructure.Metadata
 
             #region Implementation of interfaces
 
-            public IMemento GetMemento()
+            public IMemento? GetMemento()
             {
                 if (_memento == null && _type != null && !string.IsNullOrEmpty(_fieldOrPropertyName))
                     _memento = StaticMemberMemento.Create(this, _type, _fieldOrPropertyName);
@@ -319,14 +319,14 @@ namespace MugenMvvm.Infrastructure.Metadata
                 return CanSerializeFunc(this, item, serializationContext);
             }
 
-            public object Serialize(object? item, ISerializationContext serializationContext)
+            public object? Serialize(object? item, ISerializationContext serializationContext)
             {
                 if (SerializeFunc == null)
                     return item;
                 return SerializeFunc(this, item, serializationContext);
             }
 
-            public object Deserialize(object? item, ISerializationContext serializationContext)
+            public object? Deserialize(object? item, ISerializationContext serializationContext)
             {
                 if (DeserializeFunc == null)
                     return item;

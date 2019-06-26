@@ -15,12 +15,7 @@ namespace MugenMvvm.Metadata
 
         public static IMetadataContextKey<bool> NoCache
         {
-            get
-            {
-                if (_noCache == null)
-                    _noCache = GetBuilder<bool>(nameof(NoCache)).Serializable().Build();
-                return _noCache;
-            }
+            get => _noCache ??= GetBuilder<bool>(nameof(NoCache)).Serializable().Build();
             set => _noCache = value;
         }
 
@@ -34,7 +29,5 @@ namespace MugenMvvm.Metadata
         }
 
         #endregion
-
-//        public static IMetadataContextKey<bool> Supp
     }
 }

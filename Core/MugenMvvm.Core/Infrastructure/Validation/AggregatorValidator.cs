@@ -29,7 +29,7 @@ namespace MugenMvvm.Infrastructure.Validation
 
         [Preserve(Conditional = true)]
         public AggregatorValidator(IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
-            : base(componentCollectionProvider)
+            : base(componentCollectionProvider, false)
         {
             MetadataContextProvider = metadataContextProvider;
         }
@@ -119,17 +119,17 @@ namespace MugenMvvm.Infrastructure.Validation
             SetErrorsInternal(memberName, errors, metadata);
         }
 
-        void IComponentOwnerAddedCallback<IValidator>.OnComponentAdded(object collection, IValidator component, IReadOnlyMetadataContext metadata)
+        void IComponentOwnerAddedCallback<IValidator>.OnComponentAdded(object collection, IValidator component, IReadOnlyMetadataContext? metadata)
         {
             OnValidatorAdded(component, metadata);
         }
 
-        bool IComponentOwnerAddingCallback<IValidator>.OnComponentAdding(object collection, IValidator component, IReadOnlyMetadataContext metadata)
+        bool IComponentOwnerAddingCallback<IValidator>.OnComponentAdding(object collection, IValidator component, IReadOnlyMetadataContext? metadata)
         {
             return OnValidatorAdding(component, metadata);
         }
 
-        void IComponentOwnerRemovedCallback<IValidator>.OnComponentRemoved(object collection, IValidator component, IReadOnlyMetadataContext metadata)
+        void IComponentOwnerRemovedCallback<IValidator>.OnComponentRemoved(object collection, IValidator component, IReadOnlyMetadataContext? metadata)
         {
             OnValidatorRemoved(component, metadata);
         }
@@ -139,12 +139,12 @@ namespace MugenMvvm.Infrastructure.Validation
             return ValidatorListenerPriority;
         }
 
-        void IValidatorListener.OnErrorsChanged(IValidator validator, string memberName, IReadOnlyMetadataContext metadata)
+        void IValidatorListener.OnErrorsChanged(IValidator validator, string memberName, IReadOnlyMetadataContext? metadata)
         {
             OnErrorsChanged(validator, memberName, metadata);
         }
 
-        void IValidatorListener.OnAsyncValidation(IValidator validator, string memberName, Task validationTask, IReadOnlyMetadataContext metadata)
+        void IValidatorListener.OnAsyncValidation(IValidator validator, string memberName, Task validationTask, IReadOnlyMetadataContext? metadata)
         {
             OnAsyncValidation(validator, memberName, validationTask, metadata);
         }
@@ -158,7 +158,7 @@ namespace MugenMvvm.Infrastructure.Validation
 
         #region Methods
 
-        public void Initialize(IReadOnlyMetadataContext metadata)
+        public void Initialize(IReadOnlyMetadataContext? metadata = null)
         {
             if (Interlocked.CompareExchange(ref _state, InitializedState, 0) != 0)
                 ExceptionManager.ThrowObjectInitialized(this);
@@ -259,7 +259,7 @@ namespace MugenMvvm.Infrastructure.Validation
             return false;
         }
 
-        protected virtual void OnInitialized(IReadOnlyMetadataContext metadata)
+        protected virtual void OnInitialized(IReadOnlyMetadataContext? metadata)
         {
         }
 
@@ -270,14 +270,14 @@ namespace MugenMvvm.Infrastructure.Validation
                 (components[i] as IValidatorListener)?.OnDisposed(this);
         }
 
-        protected virtual void OnErrorsChanged(IValidator validator, string memberName, IReadOnlyMetadataContext metadata)
+        protected virtual void OnErrorsChanged(IValidator validator, string memberName, IReadOnlyMetadataContext? metadata)
         {
             var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IValidatorListener)?.OnErrorsChanged(this, memberName, metadata);
         }
 
-        protected virtual void OnAsyncValidation(IValidator validator, string memberName, Task validationTask, IReadOnlyMetadataContext metadata)
+        protected virtual void OnAsyncValidation(IValidator validator, string memberName, Task validationTask, IReadOnlyMetadataContext? metadata)
         {
             var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
@@ -289,17 +289,17 @@ namespace MugenMvvm.Infrastructure.Validation
             Validators.Remove(validator);
         }
 
-        protected virtual void OnValidatorAdded(IValidator validator, IReadOnlyMetadataContext metadata)
+        protected virtual void OnValidatorAdded(IValidator validator, IReadOnlyMetadataContext? metadata)
         {
             validator.AddComponent(this);
         }
 
-        protected virtual bool OnValidatorAdding(IValidator validator, IReadOnlyMetadataContext metadata)
+        protected virtual bool OnValidatorAdding(IValidator validator, IReadOnlyMetadataContext? metadata)
         {
             return !Validators.GetItems().Contains(validator);
         }
 
-        protected virtual void OnValidatorRemoved(IValidator validator, IReadOnlyMetadataContext metadata)
+        protected virtual void OnValidatorRemoved(IValidator validator, IReadOnlyMetadataContext? metadata)
         {
             validator.RemoveComponent(this);
         }

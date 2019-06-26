@@ -28,7 +28,7 @@ namespace MugenMvvm.Infrastructure.Messaging
         public MessengerHandlerSubscriber(IMessengerHandler handler)
         {
             Should.NotBeNull(handler, nameof(handler));
-            _reference = Service<IWeakReferenceProvider>.Instance.GetWeakReference(handler, Default.Metadata);
+            _reference = Service<IWeakReferenceProvider>.Instance.GetWeakReference(handler);
             _hashCode = handler.GetHashCode();
         }
 

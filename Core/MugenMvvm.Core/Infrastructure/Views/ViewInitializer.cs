@@ -12,11 +12,12 @@ namespace MugenMvvm.Infrastructure.Views
     {
         #region Constructors
 
-        public ViewInitializer(IThreadDispatcher threadDispatcher, IViewManager viewManager, ThreadExecutionMode initializeExecutionMode, ThreadExecutionMode cleanupExecutionMode,
-            string id, Type viewType, Type viewModelType, IReadOnlyMetadataContext metadata)
+        public ViewInitializer(IThreadDispatcher threadDispatcher, IViewManager viewManager, IMetadataContextProvider metadataContextProvider,
+            ThreadExecutionMode initializeExecutionMode, ThreadExecutionMode cleanupExecutionMode, string id, Type viewType, Type viewModelType, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
             Should.NotBeNull(viewManager, nameof(viewManager));
+            Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
             Should.NotBeNull(initializeExecutionMode, nameof(initializeExecutionMode));
             Should.NotBeNull(cleanupExecutionMode, nameof(cleanupExecutionMode));
             Should.NotBeNull(id, nameof(id));
@@ -28,6 +29,7 @@ namespace MugenMvvm.Infrastructure.Views
             CleanupExecutionMode = cleanupExecutionMode;
             ThreadDispatcher = threadDispatcher;
             ViewManager = viewManager;
+            MetadataContextProvider = metadataContextProvider;
             Id = id;
             ViewType = viewType;
             ViewModelType = viewModelType;
@@ -51,6 +53,8 @@ namespace MugenMvvm.Infrastructure.Views
 
         public IViewManager ViewManager { get; }
 
+        public IMetadataContextProvider MetadataContextProvider { get; }
+
         public ThreadExecutionMode InitializeExecutionMode { get; }
 
         public ThreadExecutionMode CleanupExecutionMode { get; }
@@ -59,33 +63,29 @@ namespace MugenMvvm.Infrastructure.Views
 
         #region Implementation of interfaces
 
-        public Task<IViewInitializerResult> InitializeAsync(IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
+        public Task<IViewInitializerResult> InitializeAsync(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            Should.NotBeNull(metadata, nameof(metadata));
             return new ViewManagerInitializerHandler(this, viewModel, null, true, metadata).Task;
         }
 
-        public Task<IViewInitializerResult> InitializeAsync(IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata)
+        public Task<IViewInitializerResult> InitializeAsync(IViewModelBase viewModel, object view, IReadOnlyMetadataContext? metadata = null)
         {
             Should.BeOfType(viewModel, nameof(viewModel), ViewModelType);
             Should.BeOfType(view, nameof(view), ViewType);
-            Should.NotBeNull(metadata, nameof(metadata));
             return new ViewManagerInitializerHandler(this, viewModel, view, false, metadata).Task;
         }
 
-        public Task<IViewInitializerResult> InitializeAsync(object view, IReadOnlyMetadataContext metadata)
+        public Task<IViewInitializerResult> InitializeAsync(object view, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(view, nameof(view));
-            Should.NotBeNull(metadata, nameof(metadata));
             return new ViewManagerInitializerHandler(this, null, view, false, metadata).Task;
         }
 
-        public Task<IReadOnlyMetadataContext> CleanupAsync(IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
+        public Task<IReadOnlyMetadataContext> CleanupAsync(IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewInfo, nameof(viewInfo));
             Should.NotBeNull(viewModel, nameof(viewModel));
-            Should.NotBeNull(metadata, nameof(metadata));
             return new CleanupHandler(this, viewInfo, viewModel, metadata).Task;
         }
 
@@ -93,7 +93,7 @@ namespace MugenMvvm.Infrastructure.Views
 
         #region Methods
 
-        private object GetViewForViewModel(ViewInitializer initializer, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
+        private object GetViewForViewModel(ViewInitializer initializer, IViewModelBase viewModel, IMetadataContext metadata)
         {
             var components = ViewManager.GetComponents();
             for (var i = 0; i < components.Length; i++)
@@ -104,10 +104,10 @@ namespace MugenMvvm.Infrastructure.Views
             }
 
             ExceptionManager.ThrowCannotGetComponent(ViewManager, typeof(IViewProviderComponent));
-            return null;
+            return null!;
         }
 
-        private IViewModelBase GetViewModelForView(ViewInitializer initializer, object view, IReadOnlyMetadataContext metadata)
+        private IViewModelBase GetViewModelForView(ViewInitializer initializer, object view, IMetadataContext metadata)
         {
             var components = ViewManager.GetComponents();
             for (var i = 0; i < components.Length; i++)
@@ -118,10 +118,10 @@ namespace MugenMvvm.Infrastructure.Views
             }
 
             ExceptionManager.ThrowCannotGetComponent(ViewManager, typeof(IViewModelProviderViewManagerComponent));
-            return null;
+            return null!;
         }
 
-        private IViewInitializerResult Initialize(ViewInitializer initializer, IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata)
+        private IViewInitializerResult Initialize(ViewInitializer initializer, IViewModelBase viewModel, object view, IMetadataContext metadata)
         {
             var components = ViewManager.GetComponents();
             for (var i = 0; i < components.Length; i++)
@@ -132,10 +132,10 @@ namespace MugenMvvm.Infrastructure.Views
             }
 
             ExceptionManager.ThrowCannotGetComponent(ViewManager, typeof(IViewInitializerComponent));
-            return null;
+            return null!;
         }
 
-        private IReadOnlyMetadataContext Cleanup(ViewInitializer initializer, IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
+        private IReadOnlyMetadataContext Cleanup(ViewInitializer initializer, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
         {
             var components = ViewManager.GetComponents();
             for (var i = 0; i < components.Length; i++)
@@ -146,7 +146,7 @@ namespace MugenMvvm.Infrastructure.Views
             }
 
             ExceptionManager.ThrowCannotGetComponent(ViewManager, typeof(IViewInitializerComponent));
-            return null;
+            return null!;
         }
 
         #endregion
@@ -159,7 +159,7 @@ namespace MugenMvvm.Infrastructure.Views
 
             private readonly ViewInitializer _initializer;
             private readonly bool _isView;
-            private readonly IReadOnlyMetadataContext _metadata;
+            private readonly IMetadataContext _metadata;
             private object? _view;
             private IViewModelBase? _viewModel;
 
@@ -172,7 +172,7 @@ namespace MugenMvvm.Infrastructure.Views
                 _initializer = initializer;
                 _viewModel = viewModel;
                 _view = view;
-                _metadata = metadata;
+                _metadata = metadata.ToNonReadonly(initializer, initializer.MetadataContextProvider);
                 _isView = isView;
                 initializer.ThreadDispatcher.Execute(this, initializer.InitializeExecutionMode, null, metadata: metadata);
             }
@@ -213,7 +213,7 @@ namespace MugenMvvm.Infrastructure.Views
             #region Fields
 
             private readonly ViewInitializer _initializer;
-            private readonly IReadOnlyMetadataContext _metadata;
+            private readonly IMetadataContext _metadata;
             private readonly IViewInfo _viewInfo;
             private readonly IViewModelBase _viewModel;
 
@@ -226,7 +226,7 @@ namespace MugenMvvm.Infrastructure.Views
                 _initializer = initializer;
                 _viewInfo = viewInfo;
                 _viewModel = viewModel;
-                _metadata = metadata;
+                _metadata = metadata.ToNonReadonly(initializer, initializer.MetadataContextProvider);
                 initializer.ThreadDispatcher.Execute(this, initializer.CleanupExecutionMode, null, metadata: metadata);
             }
 

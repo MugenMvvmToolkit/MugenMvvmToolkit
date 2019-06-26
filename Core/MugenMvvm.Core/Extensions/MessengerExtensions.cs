@@ -17,7 +17,7 @@ namespace MugenMvvm
         {
             Should.NotBeNull(messenger, nameof(messenger));
             var subscriber = new WeakDelegateMessengerSubscriber<TTarget, TMessage>(target, action);
-            messenger.Subscribe(subscriber, executionMode, metadata.DefaultIfNull());
+            messenger.Subscribe(subscriber, executionMode, metadata);
             return subscriber;
         }
 
@@ -26,7 +26,7 @@ namespace MugenMvvm
         {
             Should.NotBeNull(messenger, nameof(messenger));
             var subscriber = new WeakDelegateMessengerSubscriber<object, TMessage>(action);
-            messenger.Subscribe(subscriber, executionMode, metadata.DefaultIfNull());
+            messenger.Subscribe(subscriber, executionMode, metadata);
             return subscriber;
         }
 
@@ -35,7 +35,7 @@ namespace MugenMvvm
         {
             Should.NotBeNull(messenger, nameof(messenger));
             var subscriber = new DelegateMessengerSubscriber<TMessage>(action);
-            messenger.Subscribe(subscriber, executionMode, metadata.DefaultIfNull());
+            messenger.Subscribe(subscriber, executionMode, metadata);
             return subscriber;
         }
 
@@ -44,7 +44,7 @@ namespace MugenMvvm
         {
             Should.NotBeNull(messenger, nameof(messenger));
             var subscriber = new MessengerHandlerSubscriber(handler);
-            messenger.Subscribe(subscriber, executionMode, metadata.DefaultIfNull());
+            messenger.Subscribe(subscriber, executionMode, metadata);
             return subscriber;
         }
 
@@ -52,7 +52,7 @@ namespace MugenMvvm
         {
             Should.NotBeNull(messenger, nameof(messenger));
             foreach (var subscriber in messenger.GetSubscribers())
-                messenger.Unsubscribe(subscriber.Subscriber, metadata.DefaultIfNull());
+                messenger.Unsubscribe(subscriber.Subscriber, metadata);
         }
 
         #endregion

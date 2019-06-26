@@ -20,24 +20,21 @@ namespace MugenMvvm.Infrastructure.Views
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<IViewInfo> GetViews(IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
+        public IReadOnlyList<IViewInfo> GetViews(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            Should.NotBeNull(metadata, nameof(metadata));
             return GetViewsInternal(viewModel, metadata);
         }
 
-        public IReadOnlyList<IViewInitializer> GetInitializersByView(object view, IReadOnlyMetadataContext metadata)
+        public IReadOnlyList<IViewInitializer> GetInitializersByView(object view, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(view, nameof(view));
-            Should.NotBeNull(metadata, nameof(metadata));
             return GetInitializersByViewInternal(view, metadata);
         }
 
-        public IReadOnlyList<IViewInitializer> GetInitializersByViewModel(IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
+        public IReadOnlyList<IViewInitializer> GetInitializersByViewModel(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            Should.NotBeNull(metadata, nameof(metadata));
             return GetInitializersByViewModelInternal(viewModel, metadata);
         }
 
@@ -45,7 +42,7 @@ namespace MugenMvvm.Infrastructure.Views
 
         #region Methods
 
-        protected virtual IReadOnlyList<IViewInfo> GetViewsInternal(IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
+        protected virtual IReadOnlyList<IViewInfo> GetViewsInternal(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata)
         {
             var components = Components.GetItems();
             if (components.Length == 0)
@@ -61,7 +58,7 @@ namespace MugenMvvm.Infrastructure.Views
             return result;
         }
 
-        protected virtual IReadOnlyList<IViewInitializer> GetInitializersByViewInternal(object view, IReadOnlyMetadataContext metadata)
+        protected virtual IReadOnlyList<IViewInitializer> GetInitializersByViewInternal(object view, IReadOnlyMetadataContext? metadata)
         {
             var components = Components.GetItems();
             if (components.Length == 0)
@@ -77,7 +74,7 @@ namespace MugenMvvm.Infrastructure.Views
             return result;
         }
 
-        protected virtual IReadOnlyList<IViewInitializer> GetInitializersByViewModelInternal(IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
+        protected virtual IReadOnlyList<IViewInitializer> GetInitializersByViewModelInternal(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata)
         {
             var components = Components.GetItems();
             if (components.Length == 0)

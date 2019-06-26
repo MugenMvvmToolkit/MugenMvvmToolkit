@@ -33,7 +33,7 @@ namespace MugenMvvm.Extensions
 
         public static MethodInfo? GetMethod(Type type, string name, MemberFlags flags)
         {
-            MethodInfo result = null;
+            MethodInfo? result = null;
             foreach (var method in GetMethods(type, flags))
             {
                 if (method.Name == name)
@@ -49,7 +49,7 @@ namespace MugenMvvm.Extensions
 
         public static MethodInfo? GetMethod(Type type, string name, MemberFlags flags, Type[] types)
         {
-            MethodInfo result = null;
+            MethodInfo? result = null;
             foreach (var method in GetMethods(type, flags))
             {
                 if (method.Name == name && FilterMethod(method, types))
@@ -64,7 +64,7 @@ namespace MugenMvvm.Extensions
         }
 
 
-        public static EventInfo GetEvent(Type type, string name, MemberFlags flags)
+        public static EventInfo? GetEvent(Type type, string name, MemberFlags flags)
         {
             foreach (var eventInfo in GetEvents(type, flags))
             {
@@ -161,7 +161,7 @@ namespace MugenMvvm.Extensions
             return type.GetTypeInfo().IsAssignableFrom(typeFrom.GetTypeInfo());
         }
 
-        public static bool IsInstanceOfType(Type type, object item)
+        public static bool IsInstanceOfType(Type type, object? item)
         {
             if (item == null)
                 return false;
@@ -229,7 +229,7 @@ namespace MugenMvvm.Extensions
             return method.IsPublic ? method : null;
         }
 
-        public static MethodInfo GetAddMethod(EventInfo eventInfo, bool nonPublic)
+        public static MethodInfo? GetAddMethod(EventInfo eventInfo, bool nonPublic)
         {
             var method = eventInfo.AddMethod;
             if (nonPublic)
@@ -237,7 +237,7 @@ namespace MugenMvvm.Extensions
             return method.IsPublic ? method : null;
         }
 
-        public static MethodInfo GetRemoveMethod(EventInfo eventInfo, bool nonPublic)
+        public static MethodInfo? GetRemoveMethod(EventInfo eventInfo, bool nonPublic)
         {
             var method = eventInfo.RemoveMethod;
             if (nonPublic)

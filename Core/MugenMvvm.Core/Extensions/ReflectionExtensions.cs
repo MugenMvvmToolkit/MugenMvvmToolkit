@@ -171,7 +171,7 @@ namespace MugenMvvm
                 Should.NotBeNull(invokeAction, nameof(invokeAction));
                 _invokeAction = invokeAction;
                 _unsubscribeAction = unsubscribeAction;
-                _targetReference = Service<IWeakReferenceProvider>.Instance.GetWeakReference(target, Default.Metadata);
+                _targetReference = Service<IWeakReferenceProvider>.Instance.GetWeakReference(target);
             }
 
             #endregion
@@ -180,7 +180,7 @@ namespace MugenMvvm
 
             public void Handle(object sender, TArg arg)
             {
-                var target = (TTarget)_targetReference.Target;
+                var target = (TTarget?)_targetReference.Target;
                 if (target == null)
                 {
                     if (_unsubscribeAction != null)

@@ -8,8 +8,8 @@ namespace MugenMvvm.Interfaces.Messaging.Components
     {
         void OnContextCreated(IMessenger messenger, IMessengerContext messengerContext);
 
-        void OnSubscribed(IMessenger messenger, IMessengerSubscriber subscriber, ThreadExecutionMode executionMode, IReadOnlyMetadataContext metadata);
+        void OnSubscribed(IMessenger messenger, IMessengerSubscriber subscriber, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata);
 
-        void OnUnsubscribed(IMessenger messenger, IMessengerSubscriber subscriber, IReadOnlyMetadataContext metadata);
+        void OnUnsubscribed(IMessenger messenger, IMessengerSubscriber subscriber, IReadOnlyMetadataContext? metadata);
     }
 }

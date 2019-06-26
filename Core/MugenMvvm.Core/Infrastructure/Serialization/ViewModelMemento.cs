@@ -155,7 +155,7 @@ namespace MugenMvvm.Infrastructure.Serialization
             var components = Metadata!.GetComponents();
             foreach (var component in components)
                 viewModel.Metadata.AddComponent(component);
-            viewModel.Metadata.Merge(Metadata);
+            viewModel.Metadata.Merge(Metadata!);
 
             if (BusyComponents != null && viewModel is IHasService<IBusyIndicatorProvider> hasBusyIndicatorProvider)
             {
@@ -171,7 +171,7 @@ namespace MugenMvvm.Infrastructure.Serialization
                 foreach (var subscriber in Subscribers)
                 {
                     if (subscriber.Subscriber != null)
-                        hasMessenger.Service.Subscribe(subscriber.Subscriber, subscriber.ExecutionMode, Default.Metadata);
+                        hasMessenger.Service.Subscribe(subscriber.Subscriber, subscriber.ExecutionMode);
                 }
             }
         }

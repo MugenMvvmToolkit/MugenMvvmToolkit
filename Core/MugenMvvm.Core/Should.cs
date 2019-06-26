@@ -31,7 +31,7 @@ namespace MugenMvvm
                 throw new ArgumentException(MessageConstants.ArgumentCannotBeNull.Format(paramName), paramName);
         }
 
-        public static void BeSupported([AssertionCondition(AssertionConditionType.IS_TRUE)]
+        public static void BeSupported([AssertionCondition(AssertionConditionType.IS_TRUE)] [AssertsTrue]
             bool isSupported, string error)
         {
             if (!isSupported)
@@ -40,7 +40,7 @@ namespace MugenMvvm
 
         [DebuggerStepThrough]
         [AssertionMethod]
-        public static void BeValid(string paramName, [AssertionCondition(AssertionConditionType.IS_TRUE)]
+        public static void BeValid(string paramName, [AssertionCondition(AssertionConditionType.IS_TRUE)] [AssertsTrue]
             bool validation)
         {
             if (!validation)

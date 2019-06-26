@@ -35,7 +35,7 @@ namespace MugenMvvm.Infrastructure.Internal
             return false;
         }
 
-        public Delegate TryCreateDelegate(Type delegateType, object target, MethodInfo method)
+        public Delegate? TryCreateDelegate(Type delegateType, object? target, MethodInfo method)
         {
             Should.NotBeNull(delegateType, nameof(delegateType));
             Should.NotBeNull(method, nameof(method));
@@ -50,7 +50,7 @@ namespace MugenMvvm.Infrastructure.Internal
             return null;
         }
 
-        public Func<object[], object> GetActivator(ConstructorInfo constructor)
+        public Func<object?[], object> GetActivator(ConstructorInfo constructor)
         {
             Should.NotBeNull(constructor, nameof(constructor));
             var items = Components.GetItems();
@@ -62,10 +62,10 @@ namespace MugenMvvm.Infrastructure.Internal
             }
 
             ThrowNotInitialized();
-            return null;
+            return null!;
         }
 
-        public Func<object, object[], object> GetMethodInvoker(MethodInfo method)
+        public Func<object?, object?[], object?> GetMethodInvoker(MethodInfo method)
         {
             Should.NotBeNull(method, nameof(method));
             var items = Components.GetItems();
@@ -77,7 +77,7 @@ namespace MugenMvvm.Infrastructure.Internal
             }
 
             ThrowNotInitialized();
-            return null;
+            return null!;
         }
 
         public Delegate GetMethodInvoker(Type delegateType, MethodInfo method)
@@ -93,10 +93,10 @@ namespace MugenMvvm.Infrastructure.Internal
             }
 
             ThrowNotInitialized();
-            return null;
+            return null!;
         }
 
-        public Func<object, TType> GetMemberGetter<TType>(MemberInfo member)
+        public Func<object?, TType> GetMemberGetter<TType>(MemberInfo member)
         {
             Should.NotBeNull(member, nameof(member));
             var items = Components.GetItems();
@@ -108,10 +108,10 @@ namespace MugenMvvm.Infrastructure.Internal
             }
 
             ThrowNotInitialized();
-            return null;
+            return null!;
         }
 
-        public Action<object, TType> GetMemberSetter<TType>(MemberInfo member)
+        public Action<object?, TType> GetMemberSetter<TType>(MemberInfo member)
         {
             Should.NotBeNull(member, nameof(member));
             var items = Components.GetItems();
@@ -123,7 +123,7 @@ namespace MugenMvvm.Infrastructure.Internal
             }
 
             ThrowNotInitialized();
-            return null;
+            return null!;
         }
 
         #endregion

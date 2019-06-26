@@ -6,6 +6,6 @@ namespace MugenMvvm.Interfaces.Messaging.Components
 {
     public interface ISubscriberDecoratorComponent : IComponent<IMessenger>
     {
-        IMessengerSubscriber OnSubscribing(IMessengerSubscriber subscriber, ThreadExecutionMode executionMode, IReadOnlyMetadataContext metadata);
+        IMessengerSubscriber OnSubscribing(IMessengerSubscriber subscriber, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata);
     }
 }

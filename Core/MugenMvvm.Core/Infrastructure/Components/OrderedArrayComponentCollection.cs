@@ -16,7 +16,7 @@ namespace MugenMvvm.Infrastructure.Components
 
         #region Methods
 
-        protected override bool AddInternal(T component, IReadOnlyMetadataContext metadata)
+        protected override bool AddInternal(T component, IReadOnlyMetadataContext? metadata)
         {
             var array = new T[Items.Length + 1];
             var added = false;

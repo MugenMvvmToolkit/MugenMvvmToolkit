@@ -9,15 +9,15 @@ namespace MugenMvvm.Infrastructure.Wrapping
     {
         #region Fields
 
-        public Func<IWrapperManager, Type, Type, IReadOnlyMetadataContext, bool> Condition;
-        public Func<IWrapperManager, object, Type, IReadOnlyMetadataContext, object?> WrapperFactory;
+        public Func<IWrapperManager, Type, Type, IReadOnlyMetadataContext?, bool> Condition;
+        public Func<IWrapperManager, object, Type, IReadOnlyMetadataContext?, object?> WrapperFactory;
 
         #endregion
 
         #region Constructors
 
-        public DelegateWrapperManagerComponent(Func<IWrapperManager, Type, Type, IReadOnlyMetadataContext, bool> condition,
-            Func<IWrapperManager, object, Type, IReadOnlyMetadataContext, object?> wrapperFactory)
+        public DelegateWrapperManagerComponent(Func<IWrapperManager, Type, Type, IReadOnlyMetadataContext?, bool> condition,
+            Func<IWrapperManager, object, Type, IReadOnlyMetadataContext?, object?> wrapperFactory)
         {
             Should.NotBeNull(condition, nameof(condition));
             Should.NotBeNull(wrapperFactory, nameof(wrapperFactory));
@@ -35,12 +35,12 @@ namespace MugenMvvm.Infrastructure.Wrapping
 
         #region Implementation of interfaces
 
-        public bool CanWrap(IWrapperManager wrapperManager, Type type, Type wrapperType, IReadOnlyMetadataContext metadata)
+        public bool CanWrap(IWrapperManager wrapperManager, Type type, Type wrapperType, IReadOnlyMetadataContext? metadata)
         {
             return Condition(wrapperManager, type, wrapperType, metadata);
         }
 
-        public object? TryWrap(IWrapperManager wrapperManager, object item, Type wrapperType, IReadOnlyMetadataContext metadata)
+        public object? TryWrap(IWrapperManager wrapperManager, object item, Type wrapperType, IReadOnlyMetadataContext? metadata)
         {
             return WrapperFactory(wrapperManager, item, wrapperType, metadata);
         }

@@ -27,109 +27,60 @@ namespace MugenMvvm.Metadata
 
         public static IMetadataContextKey<Guid> Id
         {
-            get
-            {
-                if (_id == null)
-                    _id = GetBuilder<Guid>(nameof(Id)).DefaultValue(GetViewModelIdDefaultValue).Serializable().Build();
-                return _id;
-            }
+            get => _id ??= GetBuilder<Guid>(nameof(Id)).DefaultValue(GetViewModelIdDefaultValue).Serializable().Build();
             set => _id = value;
         }
 
         public static IMetadataContextKey<ViewModelLifecycleState> LifecycleState
         {
-            get
-            {
-                if (_lifecycleState == null)
-                {
-                    _lifecycleState = GetBuilder<ViewModelLifecycleState>(nameof(LifecycleState))
-                        .NotNull()
-                        .Serializable()
-                        .DefaultValue(ViewModelLifecycleState.Disposed)
-                        .Build();
-                }
-
-                return _lifecycleState;
-            }
+            get => _lifecycleState ??= GetBuilder<ViewModelLifecycleState>(nameof(LifecycleState))
+                    .NotNull()
+                    .Serializable()
+                    .DefaultValue(ViewModelLifecycleState.Disposed)
+                    .Build();
             set => _lifecycleState = value;
         }
 
         public static IMetadataContextKey<bool> BroadcastAllMessages
         {
-            get => _broadcastAllMessages;
-            set
-            {
-                if (_broadcastAllMessages == null)
-                    _broadcastAllMessages = GetBuilder<bool>(nameof(BroadcastAllMessages)).Serializable().Build();
-                _broadcastAllMessages = value;
-            }
+            get => _broadcastAllMessages ??= GetBuilder<bool>(nameof(BroadcastAllMessages)).Serializable().Build();
+            set => _broadcastAllMessages = value;
         }
 
         public static IMetadataContextKey<BusyMessageHandlerType> BusyMessageHandlerType
         {
-            get
-            {
-                if (_busyMessageHandlerType == null)
-                    _busyMessageHandlerType = GetBuilder<BusyMessageHandlerType>(nameof(BusyMessageHandlerType)).Serializable().Build();
-                return _busyMessageHandlerType;
-            }
+            get => _busyMessageHandlerType ??= GetBuilder<BusyMessageHandlerType>(nameof(BusyMessageHandlerType)).Serializable().Build();
             set => _busyMessageHandlerType = value;
         }
 
         public static IMetadataContextKey<IViewModelBase?> ParentViewModel
         {
-            get
-            {
-                if (_parentViewModel == null)
-                {
-                    _parentViewModel = GetBuilder<IViewModelBase?>(nameof(ParentViewModel))
-                        .NotNull()
-                        .Serializable()
-                        .Getter((context, k, o) => (IViewModelBase)(o as IWeakReference)?.Target)
-                        .Setter((context, k, oldValue, newValue) => newValue == null ? null : Service<IWeakReferenceProvider>.Instance.GetWeakReference(newValue, Default.Metadata))
-                        .Build();
-                }
-
-                return _parentViewModel;
-            }
+            get => _parentViewModel ??= GetBuilder<IViewModelBase?>(nameof(ParentViewModel))
+                    .NotNull()
+                    .Serializable()
+                    .Getter((context, k, o) => (IViewModelBase?)(o as IWeakReference)?.Target)
+                    .Setter((context, k, oldValue, newValue) => newValue == null ? null : Service<IWeakReferenceProvider>.Instance.GetWeakReference(newValue))
+                    .Build();
             set => _parentViewModel = value;
         }
 
         public static IMetadataContextKey<bool> NoState
         {
-            get
-            {
-                if (_noState == null)
-                    _noState = GetBuilder<bool>(nameof(NoState)).Serializable().Build();
-                return _noState;
-            }
+            get => _noState ??= GetBuilder<bool>(nameof(NoState)).Serializable().Build();
             set => _noState = value;
         }
 
         public static IMetadataContextKey<Func<IViewModelBase, IMetadataContext, IPresenterResult>?> CloseHandler
         {
-            get
-            {
-                if (_closeHandler == null)
-                {
-                    _closeHandler = GetBuilder<Func<IViewModelBase, IMetadataContext, IPresenterResult>?>(nameof(CloseHandler))
-                        .NotNull()
-                        .Build();
-                }
-
-                return _closeHandler;
-            }
+            get => _closeHandler ??= GetBuilder<Func<IViewModelBase, IMetadataContext, IPresenterResult>?>(nameof(CloseHandler))
+                    .NotNull()
+                    .Build();
             set => _closeHandler = value;
         }
 
         public static IMetadataContextKey<Type?> Type
         {
-            get
-            {
-                if (_type == null)
-                    _type = GetBuilder<Type?>(nameof(Type)).NotNull().Build();
-                return _type;
-            }
+            get => _type ??= GetBuilder<Type?>(nameof(Type)).NotNull().Build();
             set => _type = value;
         }
 

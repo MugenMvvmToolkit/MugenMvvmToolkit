@@ -36,7 +36,7 @@ namespace MugenMvvm
 
         public static Func<Type, Type, bool>? IsAssignableFrom { get; set; }
 
-        public static Func<Type, object, bool>? IsInstanceOfType { get; set; }
+        public static Func<Type, object?, bool>? IsInstanceOfType { get; set; }
 
         public static Func<Type, Type, bool, bool>? IsDefined { get; set; }
 
@@ -215,7 +215,7 @@ namespace MugenMvvm
             return IsAssignableFrom(type, typeFrom);
         }
 
-        public static bool IsInstanceOfTypeUnified(this Type type, object item)
+        public static bool IsInstanceOfTypeUnified(this Type type, object? item)
         {
             Should.NotBeNull(type, nameof(type));
             if (IsInstanceOfType == null)

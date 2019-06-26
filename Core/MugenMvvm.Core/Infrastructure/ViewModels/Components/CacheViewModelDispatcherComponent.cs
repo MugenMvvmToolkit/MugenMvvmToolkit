@@ -17,7 +17,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
         private readonly bool _isWeakCache;
 
         private readonly Dictionary<Guid, object> _viewModelsCache;
-        private static readonly Guid DefaultId = new Guid(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1);
+        private static readonly Guid DefaultId = new Guid(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1);//todo review vmid
 
         #endregion
 
@@ -66,7 +66,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
                 RemoveFromCache(ViewModelMetadata.Id.GetValue(metadataContext, oldValue));
         }
 
-        public void OnLifecycleChanged(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IMetadataContext dispatcherMetadata, IReadOnlyMetadataContext metadata)
+        public void OnLifecycleChanged(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IMetadataContext dispatcherMetadata, IReadOnlyMetadataContext? metadata)
         {
             if (lifecycleState == ViewModelLifecycleState.Created)
             {
@@ -103,7 +103,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
             if (!_isWeakCache)
                 return (IViewModelBase) value;
 
-            var vm = (IViewModelBase) ((IWeakReference) value).Target;
+            var vm = (IViewModelBase?) ((IWeakReference) value).Target;
             if (vm == null)
                 RemoveFromCache(id);
             return vm;
@@ -117,7 +117,7 @@ namespace MugenMvvm.Infrastructure.ViewModels
         {
             lock (_viewModelsCache)
             {
-                _viewModelsCache[id] = _isWeakCache ? (object) Service<IWeakReferenceProvider>.Instance.GetWeakReference(viewModel, Default.Metadata) : viewModel;
+                _viewModelsCache[id] = _isWeakCache ? (object) Service<IWeakReferenceProvider>.Instance.GetWeakReference(viewModel) : viewModel;
             }
         }
 

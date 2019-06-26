@@ -19,10 +19,8 @@ namespace MugenMvvm.Infrastructure.Internal
 
         #region Implementation of interfaces
 
-        public IWeakReference GetWeakReference(object item, IReadOnlyMetadataContext metadata)
+        public IWeakReference GetWeakReference(object? item, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(metadata, nameof(metadata));
-
             if (item == null)
                 return Default.WeakReference;
 
@@ -38,7 +36,7 @@ namespace MugenMvvm.Infrastructure.Internal
             }
 
             ExceptionManager.ThrowObjectNotInitialized(this, typeof(IWeakReferenceProviderComponent).Name);
-            return null;
+            return null!;
         }
 
         #endregion

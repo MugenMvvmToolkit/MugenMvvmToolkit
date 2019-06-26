@@ -33,7 +33,7 @@ namespace MugenMvvm.Infrastructure.IoC
         {
         }
 
-        private MugenIocContainer(MugenIocContainer parent)
+        private MugenIocContainer(MugenIocContainer? parent)
             : base(parent)
         {
             _bindingRegistrations = new BindingDictionary();
@@ -81,7 +81,7 @@ namespace MugenMvvm.Infrastructure.IoC
 
         protected override object GetInternal(Type service, IReadOnlyMetadataContext? metadata)
         {
-            return GetImpl(service, null, null, metadata);
+            return GetImpl(service, null, null, metadata)!;
         }
 
         protected override IEnumerable<object> GetAllInternal(Type service, IReadOnlyMetadataContext? metadata)
@@ -201,7 +201,7 @@ namespace MugenMvvm.Infrastructure.IoC
             return null!;
         }
 
-        private object[] GetAllImpl(Type service, TypeCache? typeCache, ParameterInfoCache? parameterInfo, IReadOnlyMetadataContext? metadata)
+        private object?[] GetAllImpl(Type service, TypeCache? typeCache, ParameterInfoCache? parameterInfo, IReadOnlyMetadataContext? metadata)
         {
             var registrations = GetBindings(service);
 
@@ -209,13 +209,13 @@ namespace MugenMvvm.Infrastructure.IoC
             {
                 if (_hasConditionBinding)
                 {
-                    List<object>? result = null;
+                    List<object?>? result = null;
                     for (var i = 0; i < registrations.Count; i++)
                     {
                         if (registrations[i].CanResolve(this, service, parameterInfo, metadata))
                         {
                             if (result == null)
-                                result = new List<object>();
+                                result = new List<object?>();
                             result.Add(registrations[i].Resolve(this, service, typeCache, parameterInfo, metadata));
                         }
                     }
@@ -225,7 +225,7 @@ namespace MugenMvvm.Infrastructure.IoC
                 }
                 else
                 {
-                    var result = new object[registrations.Count];
+                    var result = new object?[registrations.Count];
                     for (var i = 0; i < result.Length; i++)
                         result[i] = registrations[i].Resolve(this, service, typeCache, parameterInfo, metadata);
                     return result;
@@ -445,13 +445,13 @@ namespace MugenMvvm.Infrastructure.IoC
         {
             #region Fields
 
-            private readonly object _instance;
+            private readonly object? _instance;
 
             #endregion
 
             #region Constructors
 
-            public ConstBindingRegistration(object instance, IReadOnlyMetadataContext? metadata) : base(metadata)
+            public ConstBindingRegistration(object? instance, IReadOnlyMetadataContext? metadata) : base(metadata)
             {
                 _instance = instance;
             }
@@ -460,7 +460,7 @@ namespace MugenMvvm.Infrastructure.IoC
 
             #region Methods
 
-            public override object Resolve(MugenIocContainer container, Type service, TypeCache? typeCache, ParameterInfoCache? parameterInfo, IReadOnlyMetadataContext metadata)
+            public override object? Resolve(MugenIocContainer container, Type service, TypeCache? typeCache, ParameterInfoCache? parameterInfo, IReadOnlyMetadataContext? metadata)
             {
                 return _instance;
             }
@@ -501,7 +501,7 @@ namespace MugenMvvm.Infrastructure.IoC
                 return ResolveWithLock(container, service, typeCache, parameterInfo, metadata);
             }
 
-            private object? ResolveWithLock(MugenIocContainer container, Type service, TypeCache? typeCache, ParameterInfoCache? parameterInfo, IReadOnlyMetadataContext metadata)
+            private object? ResolveWithLock(MugenIocContainer container, Type service, TypeCache? typeCache, ParameterInfoCache? parameterInfo, IReadOnlyMetadataContext? metadata)
             {
                 var lockTaken = false;
                 try
@@ -542,12 +542,12 @@ namespace MugenMvvm.Infrastructure.IoC
 
             #region Constructors
 
-            public TransientBindingRegistration(IocBindingDelegate bindingDelegate, IReadOnlyMetadataContext metadata)
+            public TransientBindingRegistration(IocBindingDelegate bindingDelegate, IReadOnlyMetadataContext? metadata)
                 : base(bindingDelegate, metadata)
             {
             }
 
-            public TransientBindingRegistration(Type type, IReadOnlyMetadataContext metadata)
+            public TransientBindingRegistration(Type type, IReadOnlyMetadataContext? metadata)
                 : base(type, metadata)
             {
             }
@@ -556,17 +556,16 @@ namespace MugenMvvm.Infrastructure.IoC
 
             #region Methods
 
-            public override object? Resolve(MugenIocContainer container, Type service, TypeCache? typeCache, ParameterInfoCache? parameterInfo, IReadOnlyMetadataContext metadata)
+            public override object? Resolve(MugenIocContainer container, Type service, TypeCache? typeCache, ParameterInfoCache? parameterInfo, IReadOnlyMetadataContext? metadata)
             {
                 var result = _isActivated
                     ? ResolveInternal(container, service, typeCache, parameterInfo, metadata)
-                    : ResolveWithCyclicalDependencyDetection(container, service, typeCache, parameterInfo, ref metadata);
+                    : ResolveWithCyclicalDependencyDetection(container, service, typeCache, parameterInfo, metadata);
                 container.OnActivated(service, parameterInfo?.ParameterInfo, result, Metadata, metadata);
                 return result;
             }
 
-            private object? ResolveWithCyclicalDependencyDetection(MugenIocContainer container, Type service, TypeCache? typeCache, ParameterInfoCache? parameterInfo,
-                ref IReadOnlyMetadataContext metadata)
+            private object? ResolveWithCyclicalDependencyDetection(MugenIocContainer container, Type service, TypeCache? typeCache, ParameterInfoCache? parameterInfo, IReadOnlyMetadataContext? metadata)
             {
                 var lockTaken = false;
                 try
@@ -615,13 +614,13 @@ namespace MugenMvvm.Infrastructure.IoC
 
             #region Methods
 
-            protected object? ResolveInternal(MugenIocContainer container, Type service, TypeCache? typeCache, ParameterInfoCache? parameterInfo, IReadOnlyMetadataContext metadata)
+            protected object? ResolveInternal(MugenIocContainer container, Type service, TypeCache? typeCache, ParameterInfoCache? parameterInfo, IReadOnlyMetadataContext? metadata)
             {
                 if (_bindingDelegate != null)
                     return _bindingDelegate.Invoke(container, service, parameterInfo?.ParameterInfo, Metadata, metadata);
 
                 TypeCache type;
-                if (Type.IsGenericTypeDefinition)
+                if (Type!.IsGenericTypeDefinition)
                 {
                     if (typeCache == null)
                         typeCache = GetTypeCache(service);
@@ -649,7 +648,7 @@ namespace MugenMvvm.Infrastructure.IoC
             }
 
             private static object?[] GetParameters(MugenIocContainer container, ConstructorInfoCache constructor, IReadOnlyCollection<IIocParameter> parameters,
-                IReadOnlyMetadataContext metadata)
+                IReadOnlyMetadataContext? metadata)
             {
                 var parameterInfos = constructor.GetParameters();
                 if (parameterInfos.Length == 0)
@@ -756,11 +755,11 @@ namespace MugenMvvm.Infrastructure.IoC
                 switch (_state)
                 {
                     case BothCondition:
-                        return _name.Equals(metadata?.Get(IocMetadata.Name)) && _condition(container, service, parameterInfo.ParameterInfo, Metadata, metadata);
+                        return _name!.Equals(metadata?.Get(IocMetadata.Name)) && _condition!(container, service, parameterInfo?.ParameterInfo, Metadata, metadata);
                     case NameCondition:
-                        return _name.Equals(metadata?.Get(IocMetadata.Name));
+                        return _name!.Equals(metadata?.Get(IocMetadata.Name));
                     case DelegateCondition:
-                        return _condition(container, service, parameterInfo.ParameterInfo, Metadata, metadata);
+                        return _condition!(container, service, parameterInfo?.ParameterInfo, Metadata, metadata);
                 }
 
                 return true;
@@ -780,12 +779,12 @@ namespace MugenMvvm.Infrastructure.IoC
             public readonly Type Type;
 
             private Func<object?[], object>? _arrayActivator;
-            private Func<object?, object?[], object>? _arraySetMethodInvoker;
+            private Func<object?, object?[], object?>? _arraySetMethodInvoker;
 
             private List<ConstructorInfoCache>? _cachedConstructors;
             private PropertyCacheDictionary _cachedProperties;
             private Func<object?[], object>? _collectionActivator;
-            private Func<object?, object?[], object>? _collectionAddMethodInvoker;
+            private Func<object?, object?[], object?>? _collectionAddMethodInvoker;
             private TypeCache? _collectionItemType;
             private TypeCache? _elementType;
             private Type[]? _genericArguments;
@@ -865,7 +864,7 @@ namespace MugenMvvm.Infrastructure.IoC
 
             #region Methods
 
-            public TypeCache? GetGenericTypeDefinition()
+            public TypeCache GetGenericTypeDefinition()
             {
                 if (_genericTypeDefinition == null)
                     _genericTypeDefinition = GetTypeCache(Type.GetGenericTypeDefinition());
@@ -919,27 +918,27 @@ namespace MugenMvvm.Infrastructure.IoC
                 return _collectionItemType;
             }
 
-            public object ConvertToCollection(object[] items)
+            public object ConvertToCollection(object?[] items)
             {
-                var collection = _collectionActivator(Default.EmptyArray<object>());
-                var args = new object[1];
+                var collection = _collectionActivator!(Default.EmptyArray<object>());
+                var args = new object?[1];
                 for (var index = 0; index < items.Length; index++)
                 {
                     args[0] = items[index];
-                    _collectionAddMethodInvoker(collection, args);
+                    _collectionAddMethodInvoker!(collection, args);
                 }
 
                 return collection;
             }
 
-            public object ConvertToArray(object[] items)
+            public object ConvertToArray(object?[] items)
             {
                 if (_arrayActivator == null)
                 {
                     var constructorInfo = Type.GetConstructorUnified(MemberFlags.InstancePublic, ArrayConstructorTypes);
                     if (constructorInfo == null)
                         ExceptionManager.ThrowCannotFindConstructor(Type);
-                    _arrayActivator = constructorInfo.GetActivator();
+                    _arrayActivator = constructorInfo!.GetActivator();
                 }
 
                 var array = _arrayActivator(new object[] { items.Length });
@@ -954,7 +953,7 @@ namespace MugenMvvm.Infrastructure.IoC
                 return array;
             }
 
-            public TransientBindingRegistration GetSelfBindableRegistration()
+            public TransientBindingRegistration? GetSelfBindableRegistration()
             {
                 if (!IsSelfBindable)
                     return null;
@@ -1282,7 +1281,7 @@ namespace MugenMvvm.Infrastructure.IoC
             public BindingDictionary Clone()
             {
                 var bindingDictionary = new BindingDictionary(false);
-                Clone(bindingDictionary, list => list?.ToList());
+                Clone(bindingDictionary, list => list?.ToList()!);
                 return bindingDictionary;
             }
 

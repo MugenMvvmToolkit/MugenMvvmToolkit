@@ -20,10 +20,10 @@ namespace MugenMvvm.Interfaces.Serialization
         ISerializationContext GetSerializationContext(IServiceProvider? serviceProvider = null, IReadOnlyMetadataContext? metadata = null);
 
         [Pure]
-        bool CanSerialize(Type type, IReadOnlyMetadataContext? metadata);
+        bool CanSerialize(Type type, IReadOnlyMetadataContext? metadata = null);
 
-        Stream Serialize(object item, ISerializationContext? serializationContext);
+        Stream Serialize(object item, ISerializationContext? serializationContext = null);
 
-        object Deserialize(Stream stream, ISerializationContext? serializationContext);
+        object Deserialize(Stream stream, ISerializationContext? serializationContext = null);
     }
 }

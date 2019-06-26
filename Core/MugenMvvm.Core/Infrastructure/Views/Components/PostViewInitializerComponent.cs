@@ -36,21 +36,21 @@ namespace MugenMvvm.Infrastructure.Views.Components
             return Priority;
         }
 
-        public virtual void OnViewModelCreated(IViewManager viewManager, IViewModelBase viewModel, object view, IReadOnlyMetadataContext metadata)
+        public virtual void OnViewModelCreated(IViewManager viewManager, IViewModelBase viewModel, object view, IMetadataContext metadata)
         {
         }
 
-        public virtual void OnViewCreated(IViewManager viewManager, object view, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
+        public virtual void OnViewCreated(IViewManager viewManager, object view, IViewModelBase viewModel, IMetadataContext metadata)
         {
         }
 
-        public virtual void OnViewInitialized(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
+        public virtual void OnViewInitialized(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
         {
             ViewModelDispatcher.Subscribe(viewModel, viewInfo.View, ThreadExecutionMode.Main, metadata);
             (viewInfo.View as IInitializableView)?.Initialize(viewModel, viewInfo, metadata);
         }
 
-        public virtual void OnViewCleared(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
+        public virtual void OnViewCleared(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
         {
             ViewModelDispatcher.Unsubscribe(viewModel, viewInfo.View, metadata);
             (viewInfo.View as ICleanableView)?.Cleanup(metadata);

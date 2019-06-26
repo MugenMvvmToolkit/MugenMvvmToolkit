@@ -6,6 +6,6 @@ namespace MugenMvvm.Interfaces.App.Components
 {
     public interface IApplicationStateDispatcherListener : IComponent<IApplicationStateDispatcher>
     {
-        void OnStateChanged(IApplicationStateDispatcher dispatcher, ApplicationState oldState, ApplicationState newState, IReadOnlyMetadataContext metadata);
+        void OnStateChanged(IApplicationStateDispatcher dispatcher, ApplicationState oldState, ApplicationState newState, IReadOnlyMetadataContext? metadata);
     }
 }

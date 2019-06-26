@@ -30,16 +30,16 @@ namespace MugenMvvm.Infrastructure.Commands
             if (result == null)
                 ExceptionManager.ThrowObjectNotInitialized(this, typeof(ICommandMediatorProviderComponent).Name);
 
-            OnMediatorCreated<TParameter>(result, command, metadata);
+            OnMediatorCreated<TParameter>(result!, command, metadata);
 
-            return result;
+            return result!;
         }
 
         #endregion
 
         #region Methods
 
-        protected virtual ICommandMediator GetExecutorMediatorInternal<TParameter>(ICommand command, IReadOnlyMetadataContext metadata)
+        protected virtual ICommandMediator? GetExecutorMediatorInternal<TParameter>(ICommand command, IReadOnlyMetadataContext metadata)
         {
             ICommandMediator? result = null;
             var components = Components.GetItems();

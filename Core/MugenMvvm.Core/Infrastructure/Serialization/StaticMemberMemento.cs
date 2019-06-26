@@ -77,7 +77,7 @@ namespace MugenMvvm.Infrastructure.Serialization
         public static StaticMemberMemento? Create(object target, Type type, string fieldOrPropertyName)
         {
             MemberInfo? member = type.GetFieldUnified(fieldOrPropertyName, MemberFlags.StaticOnly) ??
-                                 (MemberInfo)type.GetPropertyUnified(fieldOrPropertyName, MemberFlags.StaticOnly);
+                                 (MemberInfo?)type.GetPropertyUnified(fieldOrPropertyName, MemberFlags.StaticOnly);
             if (member == null)
             {
                 Tracer.Error(MessageConstants.FieldOrPropertyNotFoundFormat2, fieldOrPropertyName, type);
