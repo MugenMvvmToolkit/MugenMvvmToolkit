@@ -10,6 +10,7 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Infrastructure.Internal;
 
+#pragma warning disable CS8618
 namespace MugenMvvm.Collections
 {
     [DebuggerDisplay("Count = {Count}")]
@@ -474,3 +475,4 @@ namespace MugenMvvm.Collections
         #endregion
     }
 }
+#pragma warning restore CS8618

@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
-using MugenMvvm;
 
+#pragma warning disable CS8618
 namespace MugenMvvm.Enums
 {
     [Serializable]
@@ -164,3 +163,4 @@ namespace MugenMvvm.Enums
         #endregion
     }
 }
+#pragma warning restore CS8618

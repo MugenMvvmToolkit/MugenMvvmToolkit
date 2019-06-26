@@ -5,10 +5,10 @@ using System.Xml.Serialization;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
-using MugenMvvm;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces.Serialization;
 
+#pragma warning disable CS8618
 namespace MugenMvvm.Infrastructure.Serialization
 {
     [Serializable]
@@ -91,3 +91,4 @@ namespace MugenMvvm.Infrastructure.Serialization
         #endregion
     }
 }
+#pragma warning restore CS8618

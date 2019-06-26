@@ -6,6 +6,7 @@ using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Navigation;
 
+#pragma warning disable CS8618
 namespace MugenMvvm.Infrastructure.Navigation
 {
     [Serializable]
@@ -93,3 +94,4 @@ namespace MugenMvvm.Infrastructure.Navigation
         #endregion
     }
 }
+#pragma warning restore CS8618

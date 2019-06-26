@@ -783,7 +783,7 @@ namespace MugenMvvm.Infrastructure.IoC
             private Func<object?, object?[], object?>? _arraySetMethodInvoker;
 
             private List<ConstructorInfoCache>? _cachedConstructors;
-            private PropertyCacheDictionary _cachedProperties;
+            private PropertyCacheDictionary? _cachedProperties;
             private Func<object?[], object>? _collectionActivator;
             private Func<object?, object?[], object?>? _collectionAddMethodInvoker;
             private TypeCache? _collectionItemType;
@@ -795,7 +795,7 @@ namespace MugenMvvm.Infrastructure.IoC
             private bool? _isGenericType;
             private bool? _isGenericTypeDefinition;
             private bool? _isSelfBindable;
-            private TransientBindingRegistration _selfBindableBindingRegistration;
+            private TransientBindingRegistration? _selfBindableBindingRegistration;
 
             private static readonly Type[] ArrayConstructorTypes = { typeof(int) };
 
@@ -1073,7 +1073,7 @@ namespace MugenMvvm.Infrastructure.IoC
 
             private readonly ConstructorInfo _constructor;
             private Func<object?[], object>? _activatorDel;
-            private ParameterInfoCache[] _parameters;
+            private ParameterInfoCache[]? _parameters;
 
             #endregion
 

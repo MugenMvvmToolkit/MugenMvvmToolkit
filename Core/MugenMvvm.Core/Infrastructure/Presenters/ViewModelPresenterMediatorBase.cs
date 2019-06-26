@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
-using MugenMvvm;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
@@ -12,6 +11,7 @@ using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 
+#pragma warning disable CS8618
 namespace MugenMvvm.Infrastructure.Presenters
 {
     public abstract class ViewModelPresenterMediatorBase<TView> : IViewModelPresenterMediator, INavigationProvider
@@ -253,20 +253,20 @@ namespace MugenMvvm.Infrastructure.Presenters
 
         private void OnViewInitialized(Task<IViewInitializerResult> task, object state)
         {
-            var navigationContext = (INavigationContext)state;
+            var navigationContext = (INavigationContext) state;
             UpdateView(task.Result.ViewInfo, true, navigationContext.Metadata);
 
             ThreadDispatcher.Execute(o =>
             {
                 try
                 {
-                    _showingContext = (INavigationContext)o!;
+                    _showingContext = (INavigationContext) o!;
                     ShowView(_showingContext.Metadata);
                 }
                 catch (Exception e)
                 {
                     _showingContext = null;
-                    NavigationDispatcher.OnNavigationFailed((INavigationContext)o!, e);
+                    NavigationDispatcher.OnNavigationFailed((INavigationContext) o!, e);
                     throw;
                 }
             }, ExecutionMode, navigationContext);
@@ -275,13 +275,13 @@ namespace MugenMvvm.Infrastructure.Presenters
         private void ShowAfterWaitNavigation(Task task, object state)
         {
             ViewModel.NotBeDisposed();
-            ShowInternal(false, (IReadOnlyMetadataContext)state);
+            ShowInternal(false, (IReadOnlyMetadataContext) state);
         }
 
         private void CloseAfterWaitNavigation(Task task, object state)
         {
             ViewModel.NotBeDisposed();
-            CloseInternal(false, (IReadOnlyMetadataContext)state);
+            CloseInternal(false, (IReadOnlyMetadataContext) state);
         }
 
         private void CompleteClose(INavigationContext? navigationContext)
@@ -304,7 +304,7 @@ namespace MugenMvvm.Infrastructure.Presenters
 
         private void RefreshCallback(object? state)
         {
-            var ctx = NavigationDispatcher.GetNavigationContext(ViewModel, this, NavigationType, NavigationMode.Refresh, (IReadOnlyMetadataContext)state!);
+            var ctx = NavigationDispatcher.GetNavigationContext(ViewModel, this, NavigationType, NavigationMode.Refresh, (IReadOnlyMetadataContext) state!);
             try
             {
                 _showingContext = ctx;
@@ -324,7 +324,7 @@ namespace MugenMvvm.Infrastructure.Presenters
 
         private void CloseViewCallback(object? state)
         {
-            var navigationContext = (INavigationContext)state!;
+            var navigationContext = (INavigationContext) state!;
             try
             {
                 if (_cancelArgs != null)
@@ -348,3 +348,4 @@ namespace MugenMvvm.Infrastructure.Presenters
         #endregion
     }
 }
+#pragma warning restore CS8618
