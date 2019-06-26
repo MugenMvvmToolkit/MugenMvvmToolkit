@@ -169,7 +169,7 @@ namespace MugenMvvm.Infrastructure.Views
 
             #region Constructors
 
-            public ViewManagerInitializerHandler(ViewInitializer initializer, IViewModelBase? viewModel, object? view, bool isView, IReadOnlyMetadataContext metadata)
+            public ViewManagerInitializerHandler(ViewInitializer initializer, IViewModelBase? viewModel, object? view, bool isView, IReadOnlyMetadataContext? metadata)
             {
                 _initializer = initializer;
                 _viewModel = viewModel;
@@ -223,7 +223,7 @@ namespace MugenMvvm.Infrastructure.Views
 
             #region Constructors
 
-            public CleanupHandler(ViewInitializer initializer, IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
+            public CleanupHandler(ViewInitializer initializer, IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext? metadata)
             {
                 _initializer = initializer;
                 _viewInfo = viewInfo;
