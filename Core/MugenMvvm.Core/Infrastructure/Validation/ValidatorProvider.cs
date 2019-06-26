@@ -4,6 +4,7 @@ using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Validation;
+using MugenMvvm.Interfaces.Validation.Components;
 
 namespace MugenMvvm.Infrastructure.Validation
 {

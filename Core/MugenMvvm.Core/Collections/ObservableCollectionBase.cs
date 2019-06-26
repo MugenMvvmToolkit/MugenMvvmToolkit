@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using MugenMvvm.Enums;
+using MugenMvvm;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;

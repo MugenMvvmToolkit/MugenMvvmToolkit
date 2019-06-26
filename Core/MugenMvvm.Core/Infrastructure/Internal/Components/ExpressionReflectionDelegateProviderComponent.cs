@@ -7,10 +7,11 @@ using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
+using MugenMvvm;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Interfaces.Internal.Components;
 
-namespace MugenMvvm.Infrastructure.Internal
+namespace MugenMvvm.Infrastructure.Internal.Components
 {
     // ReSharper disable FieldCanBeMadeReadOnly.Local
     public sealed class ExpressionReflectionDelegateProviderComponent : IReflectionDelegateProviderComponent

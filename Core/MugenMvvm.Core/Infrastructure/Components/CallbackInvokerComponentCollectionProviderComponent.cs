@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using MugenMvvm.Enums;
+using MugenMvvm;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;

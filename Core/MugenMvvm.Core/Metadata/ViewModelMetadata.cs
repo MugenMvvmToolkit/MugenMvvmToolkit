@@ -1,5 +1,6 @@
 ﻿using System;
 using MugenMvvm.Enums;
+using MugenMvvm;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;

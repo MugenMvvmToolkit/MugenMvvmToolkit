@@ -1,7 +1,7 @@
 ﻿using System;
 using MugenMvvm.Interfaces.Components;
 
-namespace MugenMvvm.Interfaces.Navigation
+namespace MugenMvvm.Interfaces.Navigation.Components
 {
     public interface INavigationDispatcherErrorListener : IComponent<INavigationDispatcher>
     {

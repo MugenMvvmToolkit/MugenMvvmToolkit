@@ -1,6 +1,8 @@
 ﻿using System.Windows.Input;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
+using MugenMvvm;
+using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;

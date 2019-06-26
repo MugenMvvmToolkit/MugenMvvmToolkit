@@ -1,9 +1,11 @@
 ﻿using System;
 using MugenMvvm.Attributes;
+using MugenMvvm;
 using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Wrapping;
+using MugenMvvm.Interfaces.Wrapping.Components;
 
 namespace MugenMvvm.Infrastructure.Wrapping
 {

@@ -5,10 +5,12 @@ using System.Linq;
 using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
 using MugenMvvm.Delegates;
+using MugenMvvm;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Metadata.Components;
 
-namespace MugenMvvm.Infrastructure.Metadata
+namespace MugenMvvm.Infrastructure.Metadata.Components
 {
     public class MetadataContextProviderComponent : IMetadataContextProviderComponent
     {

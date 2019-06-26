@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
+using MugenMvvm;
 using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Navigation;
+using MugenMvvm.Interfaces.Navigation.Components;
 
 namespace MugenMvvm.Infrastructure.Navigation
 {

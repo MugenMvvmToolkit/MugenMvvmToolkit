@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using JetBrains.Annotations;
 using MugenMvvm.Enums;
+using MugenMvvm;
 using MugenMvvm.Interfaces.Internal;
 
 namespace MugenMvvm.Infrastructure.Internal

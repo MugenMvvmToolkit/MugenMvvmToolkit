@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.Serialization;
+using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 
 namespace MugenMvvm.Infrastructure.Serialization

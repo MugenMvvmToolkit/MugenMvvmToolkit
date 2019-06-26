@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using MugenMvvm;
 using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
+using MugenMvvm.Interfaces.Views.Components;
 
 namespace MugenMvvm.Infrastructure.Views.Components
 {

@@ -2,8 +2,9 @@
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Wrapping;
+using MugenMvvm.Interfaces.Wrapping.Components;
 
-namespace MugenMvvm.Infrastructure.Wrapping
+namespace MugenMvvm.Infrastructure.Wrapping.Components
 {
     public sealed class DelegateWrapperManagerComponent : IWrapperManagerComponent
     {

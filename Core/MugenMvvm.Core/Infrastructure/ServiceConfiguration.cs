@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Infrastructure

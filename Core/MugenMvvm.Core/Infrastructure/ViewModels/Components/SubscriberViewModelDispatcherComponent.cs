@@ -1,15 +1,16 @@
 ﻿using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
+using MugenMvvm;
 using MugenMvvm.Infrastructure.Messaging;
 using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
-using MugenMvvm.Interfaces.ViewModels.Infrastructure;
+using MugenMvvm.Interfaces.ViewModels.Components;
 using MugenMvvm.Metadata;
 
-namespace MugenMvvm.Infrastructure.ViewModels
+namespace MugenMvvm.Infrastructure.ViewModels.Components
 {
     public class SubscriberViewModelDispatcherComponent : ISubscriberViewModelDispatcherComponent
     {

@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
+using MugenMvvm;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;

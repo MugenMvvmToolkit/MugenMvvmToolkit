@@ -5,7 +5,6 @@ using System.Text;
 using MugenMvvm.Delegates;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm

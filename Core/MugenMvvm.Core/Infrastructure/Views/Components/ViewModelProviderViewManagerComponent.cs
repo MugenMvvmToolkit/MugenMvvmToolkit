@@ -1,9 +1,10 @@
-﻿using MugenMvvm.Infrastructure.Components;
+﻿using MugenMvvm;
+using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
-using MugenMvvm.Interfaces.ViewModels.Infrastructure;
 using MugenMvvm.Interfaces.Views;
+using MugenMvvm.Interfaces.Views.Components;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.Views.Components

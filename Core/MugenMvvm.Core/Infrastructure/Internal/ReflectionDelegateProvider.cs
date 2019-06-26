@@ -4,6 +4,7 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Interfaces.Internal.Components;
 
 namespace MugenMvvm.Infrastructure.Internal
 {

@@ -1,6 +1,6 @@
 ﻿using MugenMvvm.Interfaces.Components;
 
-namespace MugenMvvm.Interfaces.Navigation
+namespace MugenMvvm.Interfaces.Navigation.Components
 {
     public interface INavigationDispatcherNavigatedListener : IComponent<INavigationDispatcher>
     {

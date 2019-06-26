@@ -4,7 +4,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Interfaces.ViewModels.Infrastructure
+namespace MugenMvvm.Interfaces.ViewModels
 {
     public interface IViewModelDispatcher : IComponentOwner<IViewModelDispatcher> //todo cleanup manager, clear commands, initialize manager, provider manager
     {

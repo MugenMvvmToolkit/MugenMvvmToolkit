@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
+using MugenMvvm;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Metadata.Components;
 using MugenMvvm.Interfaces.ViewModels;
-using MugenMvvm.Interfaces.ViewModels.Infrastructure;
+using MugenMvvm.Interfaces.ViewModels.Components;
 using MugenMvvm.Metadata;
 
-namespace MugenMvvm.Infrastructure.ViewModels
+namespace MugenMvvm.Infrastructure.ViewModels.Components
 {
     public sealed class CacheViewModelDispatcherComponent : IViewModelProviderComponent, IMetadataContextListener, IViewModelDispatcherComponent
     {

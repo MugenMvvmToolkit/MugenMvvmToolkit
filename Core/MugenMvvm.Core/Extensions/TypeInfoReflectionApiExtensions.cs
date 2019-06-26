@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using MugenMvvm.Enums;
 
-namespace MugenMvvm.Extensions
+// ReSharper disable once CheckNamespace
+namespace MugenMvvm
 {
     public static class TypeInfoReflectionApiExtensions
     {

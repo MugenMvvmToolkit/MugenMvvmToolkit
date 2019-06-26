@@ -1,6 +1,4 @@
-﻿using MugenMvvm.Interfaces.Metadata;
-
-namespace MugenMvvm.Interfaces.Models
+﻿namespace MugenMvvm.Interfaces.Metadata
 {
     public interface IMetadataOwner<out T>
         where T : class, IReadOnlyMetadataContext

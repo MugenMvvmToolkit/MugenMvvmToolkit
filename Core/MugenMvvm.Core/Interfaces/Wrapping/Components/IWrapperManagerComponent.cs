@@ -2,7 +2,7 @@
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Interfaces.Wrapping
+namespace MugenMvvm.Interfaces.Wrapping.Components
 {
     public interface IWrapperManagerComponent : IComponent<IWrapperManager>
     {

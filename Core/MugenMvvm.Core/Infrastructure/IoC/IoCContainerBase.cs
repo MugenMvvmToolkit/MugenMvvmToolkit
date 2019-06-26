@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Threading;
 using MugenMvvm.Delegates;
 using MugenMvvm.Enums;
+using MugenMvvm;
 using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.IoC;
+using MugenMvvm.Interfaces.IoC.Components;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Infrastructure.IoC

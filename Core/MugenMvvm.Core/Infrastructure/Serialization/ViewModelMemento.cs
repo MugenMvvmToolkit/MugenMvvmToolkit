@@ -5,6 +5,7 @@ using System.Xml.Serialization;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
+using MugenMvvm;
 using MugenMvvm.Infrastructure.Messaging;
 using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.BusyIndicator.Components;
@@ -14,7 +15,6 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.ViewModels;
-using MugenMvvm.Interfaces.ViewModels.Infrastructure;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Infrastructure.Serialization

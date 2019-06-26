@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Enums;
-using MugenMvvm.Extensions;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm

@@ -4,7 +4,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Interfaces.IoC
+namespace MugenMvvm.Interfaces.IoC.Components
 {
     public interface IIocContainerListener : IComponent<IIocContainer>
     {

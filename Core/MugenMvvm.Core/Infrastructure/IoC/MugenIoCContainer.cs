@@ -8,6 +8,7 @@ using System.Threading;
 using MugenMvvm.Collections;
 using MugenMvvm.Delegates;
 using MugenMvvm.Enums;
+using MugenMvvm;
 using MugenMvvm.Interfaces.IoC;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Metadata;

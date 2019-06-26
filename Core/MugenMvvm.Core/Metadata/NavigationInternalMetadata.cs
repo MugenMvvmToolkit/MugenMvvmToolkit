@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Infrastructure.Metadata;
+﻿using MugenMvvm;
+using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Views;

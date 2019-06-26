@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
+using MugenMvvm;
 using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Infrastructure.Navigation;

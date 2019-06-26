@@ -2,7 +2,7 @@
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Interfaces.Internal
+namespace MugenMvvm.Interfaces.Internal.Components
 {
     public interface IAttachedDictionaryProviderComponent : IComponent<IAttachedDictionaryProvider>
     {

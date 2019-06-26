@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.Serialization;
+using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
+using MugenMvvm;
 
 namespace MugenMvvm.Infrastructure.Internal
 {

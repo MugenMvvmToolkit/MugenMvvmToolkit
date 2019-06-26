@@ -1,5 +1,6 @@
 ﻿using System;
 using MugenMvvm.Constants;
+using MugenMvvm;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm

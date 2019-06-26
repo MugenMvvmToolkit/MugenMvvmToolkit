@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm.Interfaces.Commands.Components
+namespace MugenMvvm.Interfaces.Commands
 {
     public interface ICommandMediator : IComponentOwner<ICommandMediator>, ISuspendable, IDisposable
     {

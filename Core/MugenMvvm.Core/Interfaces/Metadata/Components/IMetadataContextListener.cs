@@ -1,6 +1,6 @@
 ﻿using MugenMvvm.Interfaces.Components;
 
-namespace MugenMvvm.Interfaces.Metadata
+namespace MugenMvvm.Interfaces.Metadata.Components
 {
     public interface IMetadataContextListener : IComponent<IMetadataContext>
     {

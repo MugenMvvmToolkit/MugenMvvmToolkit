@@ -2,6 +2,7 @@
 using System.Reflection;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
+using MugenMvvm;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
 

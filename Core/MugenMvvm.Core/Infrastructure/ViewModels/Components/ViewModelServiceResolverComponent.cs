@@ -8,9 +8,9 @@ using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
-using MugenMvvm.Interfaces.ViewModels.Infrastructure;
+using MugenMvvm.Interfaces.ViewModels.Components;
 
-namespace MugenMvvm.Infrastructure.ViewModels
+namespace MugenMvvm.Infrastructure.ViewModels.Components
 {
     public class ViewModelServiceResolverComponent : IViewModelServiceResolverComponent
     {

@@ -4,11 +4,13 @@ using System.Linq;
 using System.Reflection;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
+using MugenMvvm;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Infrastructure.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
+using MugenMvvm.Interfaces.Views.Components;
 
 namespace MugenMvvm.Infrastructure.Views.Components
 {

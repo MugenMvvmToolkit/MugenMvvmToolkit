@@ -2,7 +2,7 @@
 using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Components;
 
-namespace MugenMvvm.Interfaces.Metadata
+namespace MugenMvvm.Interfaces.Metadata.Components
 {
     public interface IMetadataContextProviderComponent : IComponent<IMetadataContextProvider>
     {

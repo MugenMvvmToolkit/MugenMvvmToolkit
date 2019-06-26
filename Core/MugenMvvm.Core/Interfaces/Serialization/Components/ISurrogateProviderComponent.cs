@@ -1,7 +1,7 @@
 ﻿using System;
 using MugenMvvm.Interfaces.Components;
 
-namespace MugenMvvm.Interfaces.Serialization
+namespace MugenMvvm.Interfaces.Serialization.Components
 {
     public interface ISurrogateProviderComponent : IComponent<ISerializer>
     {

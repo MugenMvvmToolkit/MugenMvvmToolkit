@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Enums;
+using MugenMvvm;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading;
 
