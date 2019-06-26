@@ -11,7 +11,7 @@ using MugenMvvm.Interfaces.Navigation.Components;
 
 namespace MugenMvvm.Infrastructure.Navigation.Components
 {
-    public class NavigationJournalComponent : ComponentOwnerBase<INavigationJournalComponent>, INavigationJournalComponent, INavigationDispatcherNavigatedListener
+    public class NavigationJournalComponent : AttachableComponentBase<INavigationDispatcher>, INavigationJournalComponent, INavigationDispatcherNavigatedListener
     {
         #region Fields
 
@@ -22,8 +22,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public NavigationJournalComponent(IComponentCollectionProvider componentCollectionProvider, IMetadataContextProvider metadataContextProvider)
-            : base(componentCollectionProvider)
+        public NavigationJournalComponent(IMetadataContextProvider metadataContextProvider)
         {
             Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
             MetadataContextProvider = metadataContextProvider;
@@ -144,7 +143,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Components
             IEnumerable<INavigationEntry>? entries = null;
             lock (NavigationEntries)
             {
-                var components = GetComponents();
+                var components = Owner.GetComponents();
                 for (var i = 0; i < components.Length; i++)
                 {
                     var navigationEntry = (components[i] as INavigationEntryFinderComponent)
@@ -169,7 +168,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Components
             IEnumerable<INavigationEntry>? entries = null;
             lock (NavigationEntries)
             {
-                var components = GetComponents();
+                var components = Owner.GetComponents();
                 for (var i = 0; i < components.Length; i++)
                 {
                     var result = (components[i] as INavigationEntryFinderComponent)
@@ -209,7 +208,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Components
 
         protected virtual INavigationEntry GetNavigationEntry(INavigationContext context)
         {
-            var components = GetComponents();
+            var components = Owner.GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 var result = (components[i] as INavigationEntryFactoryComponent)?.TryGetNavigationEntry(context);
@@ -222,28 +221,28 @@ namespace MugenMvvm.Infrastructure.Navigation.Components
 
         protected virtual void OnNavigationEntryAdded(INavigationEntry navigationEntry)
         {
-            var components = GetComponents();
+            var components = Owner.GetComponents();
             for (var i = 0; i < components.Length; i++)
                 (components[i] as INavigationJournalListener)?.OnNavigationEntryAdded(this, navigationEntry);
         }
 
         protected virtual void OnNavigationEntryUpdated(INavigationEntry navigationEntry)
         {
-            var components = GetComponents();
+            var components = Owner.GetComponents();
             for (var i = 0; i < components.Length; i++)
                 (components[i] as INavigationJournalListener)?.OnNavigationEntryUpdated(this, navigationEntry);
         }
 
         protected virtual void OnNavigationEntryRemoved(INavigationEntry navigationEntry)
         {
-            var components = GetComponents();
+            var components = Owner.GetComponents();
             for (var i = 0; i < components.Length; i++)
                 (components[i] as INavigationJournalListener)?.OnNavigationEntryRemoved(this, navigationEntry);
         }
 
         protected virtual bool CanAddNavigationEntry(INavigationContext navigationContext)
         {
-            var components = GetComponents();
+            var components = Owner.GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IConditionNavigationJournalComponent component && component.CanAddNavigationEntry(navigationContext))
@@ -255,7 +254,7 @@ namespace MugenMvvm.Infrastructure.Navigation.Components
 
         protected virtual bool CanRemoveNavigationEntry(INavigationContext navigationContext)
         {
-            var components = GetComponents();
+            var components = Owner.GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IConditionNavigationJournalComponent component && component.CanRemoveNavigationEntry(navigationContext))

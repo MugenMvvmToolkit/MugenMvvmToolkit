@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Navigation.Components
 {
-    public interface INavigationEntryFinderComponent : IComponent<INavigationJournalComponent>
+    public interface INavigationEntryFinderComponent : IComponent<INavigationDispatcher>
     {
         INavigationEntry? TryGetGetNavigationEntryById(IEnumerable<INavigationEntry> entries, string navigationOperationId, IReadOnlyMetadataContext metadata);
 

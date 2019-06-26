@@ -3,7 +3,6 @@ using System.Linq;
 using MugenMvvm.Attributes;
 using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Infrastructure.Metadata;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presenters;
@@ -15,11 +14,9 @@ using MugenMvvm.Metadata;
 namespace MugenMvvm.Infrastructure.Presenters.Components
 {
     public class ViewModelMediatorPresenterComponent : AttachableComponentBase<IPresenter>, ICloseablePresenterComponent, IRestorablePresenterComponent, IPresenterComponent,
-        IComponentOwner<ViewModelMediatorPresenterComponent>, INavigationDispatcherNavigatedListener
+        INavigationDispatcherNavigatedListener
     {
         #region Fields
-
-        private IComponentCollection<IComponent<ViewModelMediatorPresenterComponent>>? _components;
 
         protected static readonly IMetadataContextKey<List<IViewModelPresenterMediator>?> NavigationMediators = MetadataContextKey
             .Create<List<IViewModelPresenterMediator>>(typeof(ViewModelMediatorPresenterComponent), nameof(NavigationMediators))
@@ -31,12 +28,10 @@ namespace MugenMvvm.Infrastructure.Presenters.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelMediatorPresenterComponent(IViewManager viewManager, INavigationDispatcher navigationDispatcher, IComponentCollectionProvider componentCollectionProvider)
+        public ViewModelMediatorPresenterComponent(IViewManager viewManager, INavigationDispatcher navigationDispatcher)
         {
             Should.NotBeNull(viewManager, nameof(viewManager));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
-            Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
-            ComponentCollectionProvider = componentCollectionProvider;
             ViewManager = viewManager;
             NavigationDispatcher = navigationDispatcher;
         }
@@ -45,23 +40,9 @@ namespace MugenMvvm.Infrastructure.Presenters.Components
 
         #region Properties
 
-        protected IComponentCollectionProvider ComponentCollectionProvider { get; }
-
         protected IViewManager ViewManager { get; }
 
         protected INavigationDispatcher NavigationDispatcher { get; }
-
-        public bool HasComponents => _components != null && _components.HasItems;
-
-        public IComponentCollection<IComponent<ViewModelMediatorPresenterComponent>> Components
-        {
-            get
-            {
-                if (_components == null)
-                    ComponentCollectionProvider.LazyInitialize(ref _components, this);
-                return _components;
-            }
-        }
 
         public int Priority { get; set; }
 
@@ -154,7 +135,7 @@ namespace MugenMvvm.Infrastructure.Presenters.Components
                 m = mediators.ToArray();
             }
 
-            var managers = this.GetComponents();
+            var managers = Owner.GetComponents();
             for (var i = 0; i < managers.Length; i++)
             {
                 var result = (managers[i] as IViewModelMediatorClosingManagerComponent)?.TryCloseInternal(viewModel!, m, metadata);
@@ -179,15 +160,15 @@ namespace MugenMvvm.Infrastructure.Presenters.Components
             if (mediator == null)
                 return null;
 
-            return new[] { mediator.Restore(viewInfo, metadata) };
+            return new[] {mediator.Restore(viewInfo, metadata)};
         }
 
         protected virtual IViewModelPresenterMediator? TryGetMediator(IViewModelBase viewModel, IViewInitializer viewInitializer, IReadOnlyMetadataContext metadata)
         {
-            var mediators = viewModel.Metadata.GetOrAdd(NavigationMediators, (object?)null, (object?)null,
+            var mediators = viewModel.Metadata.GetOrAdd(NavigationMediators, (object?) null, (object?) null,
                 (context, o, arg3) => new List<IViewModelPresenterMediator>())!;
 
-            var components = this.GetComponents();
+            var components = Owner.GetComponents();
             lock (mediators)
             {
                 var mediator = mediators.FirstOrDefault(m => m.ViewInitializer.Id == viewInitializer.Id);
@@ -206,20 +187,6 @@ namespace MugenMvvm.Infrastructure.Presenters.Components
 
                 return mediator;
             }
-        }
-
-        #endregion
-
-        #region Nested types
-        //todo redesign to dispatcher?
-        public interface IViewModelMediatorProviderComponent : IComponent<ViewModelMediatorPresenterComponent>
-        {
-            IViewModelPresenterMediator? TryGetMediator(IViewModelBase viewModel, IViewInitializer viewInitializer, IReadOnlyMetadataContext metadata);
-        }
-
-        public interface IViewModelMediatorClosingManagerComponent : IComponent<ViewModelMediatorPresenterComponent>
-        {
-            IReadOnlyList<IPresenterResult>? TryCloseInternal(IViewModelBase viewModel, IReadOnlyList<IViewModelPresenterMediator> mediators, IReadOnlyMetadataContext metadata);
         }
 
         #endregion

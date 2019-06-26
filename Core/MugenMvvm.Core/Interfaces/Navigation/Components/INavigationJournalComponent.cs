@@ -5,8 +5,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Navigation.Components
 {
-    //todo check componenet design move to INavigationDispatcher?
-    public interface INavigationJournalComponent : IComponent<INavigationDispatcher>, IComponentOwner<INavigationJournalComponent>
+    public interface INavigationJournalComponent : IComponent<INavigationDispatcher>
     {
         IReadOnlyList<INavigationEntry> GetNavigationEntries(NavigationType? type, IReadOnlyMetadataContext metadata);
 

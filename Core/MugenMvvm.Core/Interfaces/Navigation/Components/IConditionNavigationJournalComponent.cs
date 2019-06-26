@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Interfaces.Navigation.Components
 {
-    public interface IConditionNavigationJournalComponent : IComponent<INavigationJournalComponent>
+    public interface IConditionNavigationJournalComponent : IComponent<INavigationDispatcher>
     {
         bool CanAddNavigationEntry(INavigationContext navigationContext);
 

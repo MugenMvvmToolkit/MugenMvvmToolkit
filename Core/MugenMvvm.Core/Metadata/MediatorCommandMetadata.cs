@@ -6,7 +6,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Metadata
 {
-    public static class MediatorCommandMetadata //todo notifiers
+    public static class MediatorCommandMetadata
     {
         #region Fields
 

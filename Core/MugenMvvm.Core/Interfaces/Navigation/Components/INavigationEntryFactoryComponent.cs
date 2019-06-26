@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Interfaces.Navigation.Components
 {
-    public interface INavigationEntryFactoryComponent : IComponent<INavigationJournalComponent>
+    public interface INavigationEntryFactoryComponent : IComponent<INavigationDispatcher>
     {
         INavigationEntry? TryGetNavigationEntry(INavigationContext navigationContext);
     }

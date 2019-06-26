@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Interfaces.Navigation.Components
 {
-    public interface INavigationJournalListener : IComponent<INavigationJournalComponent>
+    public interface INavigationJournalListener : IComponent<INavigationDispatcher>
     {
         void OnNavigationEntryAdded(INavigationJournalComponent navigationJournal, INavigationEntry navigationEntry);
 
