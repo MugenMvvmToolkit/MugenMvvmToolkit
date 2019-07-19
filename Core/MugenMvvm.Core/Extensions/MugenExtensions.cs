@@ -84,18 +84,18 @@ namespace MugenMvvm
 
         public static bool LazyInitialize<T>(this IComponentCollectionProvider? provider, [EnsuresNotNull] ref IComponentCollection<T>? item, object target,
             IReadOnlyMetadataContext? metadata = null)
-            where T : class //todo R# bug return?
+            where T : class
         {
             return item == null && LazyInitialize(ref item, provider.ServiceIfNull().GetComponentCollection<T>(target, metadata));
         }
 
         public static bool LazyInitialize(this IMetadataContextProvider? provider, [EnsuresNotNull] ref IMetadataContext? metadataContext,
-            object? target, IEnumerable<MetadataContextValue>? values = null) //todo R# bug return?
+            object? target, IEnumerable<MetadataContextValue>? values = null)
         {
             return metadataContext == null && LazyInitialize(ref metadataContext, GetMetadataContext(target, values, provider));
         }
 
-        public static T[] GetItemsOrDefault<T>(this IComponentCollection<T>? componentCollection) where T : class //todo R# bug return?
+        public static T[] GetItemsOrDefault<T>(this IComponentCollection<T>? componentCollection) where T : class
         {
             return componentCollection?.GetItems() ?? Default.EmptyArray<T>();
         }

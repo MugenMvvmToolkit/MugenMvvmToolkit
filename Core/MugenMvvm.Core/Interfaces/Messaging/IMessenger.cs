@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Messaging
 {
-    public interface IMessenger : IEventPublisher, IComponentOwner<IMessenger>, IDisposable
+    public interface IMessenger : IEventPublisher, IComponentOwner<IMessenger>, IDisposable//todo remove IMessengerSubscriber, common interface
     {
         IMessengerContext GetMessengerContext(IMetadataContext? metadata = null);
 

@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Interfaces.Metadata;
+﻿using JetBrains.Annotations;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Components
 {
@@ -14,6 +15,7 @@ namespace MugenMvvm.Interfaces.Components
 
         bool Clear(IReadOnlyMetadataContext? metadata = null);
 
+        [Pure]
         T[] GetItems();
     }
 }

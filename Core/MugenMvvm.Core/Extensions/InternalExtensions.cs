@@ -14,7 +14,7 @@ namespace MugenMvvm
     {
         #region Methods
 
-        internal static T ServiceIfNull<T>(this T? service) where T : class //todo nullable R# bug
+        internal static T ServiceIfNull<T>(this T? service) where T : class
         {
             return service ?? Service<T>.Instance;
         }
@@ -27,7 +27,7 @@ namespace MugenMvvm
                 tcs.SetException(e);
         }
 
-        internal static List<T>? ToSerializable<T>(this IReadOnlyList<T> items, ISerializer serializer, int? size = null) //todo R# bug
+        internal static List<T>? ToSerializable<T>(this IReadOnlyList<T>? items, ISerializer serializer, int? size = null)
         {
             if (items == null)
                 return null;

@@ -19,14 +19,14 @@ namespace MugenMvvm
 
         #region Methods
 
-        public static IMetadataContext ToNonReadonly(this IReadOnlyMetadataContext? metadata, object? target = null, IMetadataContextProvider? contextProvider = null) //todo bug R#
+        public static IMetadataContext ToNonReadonly(this IReadOnlyMetadataContext? metadata, object? target = null, IMetadataContextProvider? contextProvider = null)
         {
             if (metadata is IMetadataContext m)
                 return m;
             return contextProvider.ServiceIfNull().GetMetadataContext(target, metadata);
         }
 
-        public static IReadOnlyMetadataContext DefaultIfNull(this IReadOnlyMetadataContext? metadata) //todo bug R#
+        public static IReadOnlyMetadataContext DefaultIfNull(this IReadOnlyMetadataContext? metadata)
         {
             return metadata ?? Default.Metadata;
         }
