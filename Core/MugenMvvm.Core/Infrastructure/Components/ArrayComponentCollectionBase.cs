@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using MugenMvvm;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Infrastructure.Components
 {
-    public class ArrayComponentCollection<T> : IComponentCollection<T> where T : class
+    public abstract class ArrayComponentCollectionBase<T> : IComponentCollection<T> where T : class
     {
         #region Fields
 
@@ -17,10 +17,8 @@ namespace MugenMvvm.Infrastructure.Components
 
         #region Constructors
 
-        public ArrayComponentCollection(object owner)
+        protected ArrayComponentCollectionBase()
         {
-            Should.NotBeNull(owner, nameof(owner));
-            Owner = owner;
             Items = Default.EmptyArray<T>();
         }
 
@@ -28,13 +26,15 @@ namespace MugenMvvm.Infrastructure.Components
 
         #region Properties
 
-        public object Owner { get; }
+        public abstract object Owner { get; }
+
+        protected abstract bool IsOrdered { get; }
 
         public bool HasItems => Items.Length > 0;
 
-        public bool HasComponents => _components != null && _components.HasItems;
+        bool IComponentOwner<IComponentCollection<T>>.HasComponents => _components != null && _components.HasItems;
 
-        public IComponentCollection<IComponent<IComponentCollection<T>>> Components
+        IComponentCollection<IComponent<IComponentCollection<T>>> IComponentOwner<IComponentCollection<T>>.Components
         {
             get
             {
@@ -56,6 +56,11 @@ namespace MugenMvvm.Infrastructure.Components
         public bool Add(T component, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(component, nameof(component));
+
+            var defaultListener = CallbackInvokerComponentCollectionProviderComponent.GetComponentCollectionListener<T>();
+            if (!defaultListener.OnAdding(this, component, metadata))
+                return false;
+
             var components = this.GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
@@ -72,12 +77,19 @@ namespace MugenMvvm.Infrastructure.Components
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IComponentCollectionListener<T>)?.OnAdded(this, component, metadata);
 
+            defaultListener.OnAdded(this, component, metadata);
+
             return true;
         }
 
         public bool Remove(T component, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(component, nameof(component));
+
+            var defaultListener = CallbackInvokerComponentCollectionProviderComponent.GetComponentCollectionListener<T>();
+            if (!defaultListener.OnRemoving(this, component, metadata))
+                return false;
+
             var components = this.GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
@@ -94,11 +106,17 @@ namespace MugenMvvm.Infrastructure.Components
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IComponentCollectionListener<T>)?.OnRemoved(this, component, metadata);
 
+            defaultListener.OnRemoved(this, component, metadata);
+
             return true;
         }
 
         public bool Clear(IReadOnlyMetadataContext? metadata = null)
         {
+            var defaultListener = CallbackInvokerComponentCollectionProviderComponent.GetComponentCollectionListener<T>();
+            if (!defaultListener.OnClearing(this, metadata))
+                return false;
+
             var components = this.GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
@@ -113,6 +131,7 @@ namespace MugenMvvm.Infrastructure.Components
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IComponentCollectionListener<T>)?.OnCleared(this, oldItems, metadata);
 
+            defaultListener.OnCleared(this, oldItems, metadata);
             Array.Clear(oldItems, 0, oldItems.Length);
             return true;
         }
@@ -123,10 +142,16 @@ namespace MugenMvvm.Infrastructure.Components
 
         protected virtual bool AddInternal(T component, IReadOnlyMetadataContext? metadata)
         {
-            var array = new T[Items.Length + 1];
-            Array.Copy(Items, array, Items.Length);
-            array[array.Length - 1] = component;
-            Items = array;
+            if (IsOrdered)
+                AddOrdered(component);
+            else
+            {
+                var array = new T[Items.Length + 1];
+                Array.Copy(Items, array, Items.Length);
+                array[array.Length - 1] = component;
+                Items = array;
+            }
+
             return true;
         }
 
@@ -155,6 +180,43 @@ namespace MugenMvvm.Infrastructure.Components
         {
             Items = Default.EmptyArray<T>();
             return true;
+        }
+
+        protected virtual int GetPriority(T component)
+        {
+            if (component is IComponent c)
+                return c.GetPriority(Owner);
+            return ((IHasPriority)component).Priority;
+        }
+
+        private void AddOrdered(T component)
+        {
+            var array = new T[Items.Length + 1];
+            var added = false;
+            var priority = GetPriority(component);
+            for (var i = 0; i < Items.Length; i++)
+            {
+                if (added)
+                {
+                    array[i + 1] = Items[i];
+                    continue;
+                }
+
+                var oldItem = Items[i];
+                var compareTo = priority.CompareTo(GetPriority(oldItem));
+                if (compareTo > 0)
+                {
+                    array[i] = component;
+                    added = true;
+                    --i;
+                }
+                else
+                    array[i] = oldItem;
+            }
+
+            if (!added)
+                array[array.Length - 1] = component;
+            Items = array;
         }
 
         #endregion

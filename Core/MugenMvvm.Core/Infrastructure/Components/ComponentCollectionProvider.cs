@@ -1,8 +1,6 @@
 ﻿using MugenMvvm.Attributes;
-using MugenMvvm;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Infrastructure.Components
 {
@@ -31,8 +29,8 @@ namespace MugenMvvm.Infrastructure.Components
         {
             get
             {
-                if (_components == null && this.LazyInitialize(ref _components, this))
-                    _components.Add(CallbackInvokerComponentCollectionProviderComponent.GetComponentCollectionProviderListener());
+                if (_components == null)
+                    this.LazyInitialize(ref _components, this);
                 return _components;
             }
         }
@@ -71,9 +69,7 @@ namespace MugenMvvm.Infrastructure.Components
                 }
             }
 
-            if (typeof(IHasPriority).IsAssignableFromUnified(typeof(T)) || typeof(IComponent).IsAssignableFromUnified(typeof(T)))
-                return new OrderedArrayComponentCollection<T>(owner);
-            return new ArrayComponentCollection<T>(owner);
+            return new OrderedArrayComponentCollection<T>(owner);
         }
 
         protected virtual void OnComponentCollectionCreated<T>(IComponentCollection<T> result, IReadOnlyMetadataContext? metadata)

@@ -26,6 +26,11 @@ namespace MugenMvvm.Infrastructure.Components
 
         #region Methods
 
+        public static IComponentCollectionListener<T> GetComponentCollectionListener<T>() where T : class
+        {
+            return CallbackComponentCollectionProviderListenerImpl<T>.Instance;
+        }
+
         public static IComponentCollectionProviderListener GetComponentCollectionProviderListener()
         {
             return CallbackComponentCollectionProviderListenerImpl<object>.Instance;
