@@ -3,62 +3,45 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Interfaces.Members;
+using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Collections;
+using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Infrastructure.Members
 {
-    public class BindingMemberProvider : IBindingMemberProvider
+    public class BindingMemberProvider : ComponentOwnerBase<IBindingMemberProvider>, IBindingMemberProvider, IComponentOwnerAddedCallback<IComponent<IBindingMemberProvider>>
     {
         #region Fields
 
         protected readonly HashSet<string> CurrentNames;
         protected readonly TempCacheDictionary TempCache;
 
-        private IAttachedChildBindingMemberProvider _attachedChildBindingMemberProvider;
-        private IComponentCollection<IChildBindingMemberProvider>? _providers;
+        private IAttachedBindingMemberProviderComponent? _attachedBindingMemberProvider;
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public BindingMemberProvider(IAttachedChildBindingMemberProvider attachedChildBindingMemberProvider, IComponentCollectionProvider componentCollectionProvider)
+        public BindingMemberProvider(IComponentCollectionProvider componentCollectionProvider)
+            : base(componentCollectionProvider)
         {
-            Should.NotBeNull(attachedChildBindingMemberProvider, nameof(attachedChildBindingMemberProvider));
-            Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
             TempCache = new TempCacheDictionary();
             CurrentNames = new HashSet<string>(StringComparer.Ordinal);
-            ComponentCollectionProvider = componentCollectionProvider;
-            AttachedChildBindingMemberProvider = attachedChildBindingMemberProvider;
         }
 
         #endregion
 
         #region Properties
 
-        protected IComponentCollectionProvider ComponentCollectionProvider { get; }
-
-        public IComponentCollection<IChildBindingMemberProvider> Providers
+        protected IAttachedBindingMemberProviderComponent AttachedBindingMemberProvider
         {
             get
             {
-                if (_providers == null)
-                    ComponentCollectionProvider.LazyInitialize(ref _providers, this);
-                return _providers;
-            }
-        }
-
-        public IAttachedChildBindingMemberProvider AttachedChildBindingMemberProvider
-        {
-            get => _attachedChildBindingMemberProvider;
-            set
-            {
-                Should.NotBeNull(value, nameof(AttachedChildBindingMemberProvider));
-                _attachedChildBindingMemberProvider?.OnDetached(this, Default.Metadata);
-                _attachedChildBindingMemberProvider = value;
-                _attachedChildBindingMemberProvider.OnAttached(this, Default.Metadata);
+                Should.NotBeNull(_attachedBindingMemberProvider, nameof(AttachedBindingMemberProvider));
+                return _attachedBindingMemberProvider;
             }
         }
 
@@ -66,7 +49,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
         #region Implementation of interfaces
 
-        public IBindingMemberInfo GetMember(Type type, string name, IReadOnlyMetadataContext metadata)
+        public IBindingMemberInfo? GetMember(Type type, string name, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(name, nameof(name));
@@ -74,7 +57,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
             return GetMemberInternal(type, name, false, metadata);
         }
 
-        public IBindingMemberInfo GetRawMember(Type type, string name, IReadOnlyMetadataContext metadata)
+        public IBindingMemberInfo? GetRawMember(Type type, string name, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(name, nameof(name));
@@ -82,14 +65,14 @@ namespace MugenMvvm.Binding.Infrastructure.Members
             return GetMemberInternal(type, name, true, metadata);
         }
 
-        public IReadOnlyList<AttachedMemberRegistration> GetAttachedMembers(Type type, IReadOnlyMetadataContext metadata)
+        public IReadOnlyList<AttachedMemberRegistration> GetAttachedMembers(Type type, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(metadata, nameof(metadata));
             return GetAttachedMembersInternal(type, metadata);
         }
 
-        public void Register(Type type, IBindingMemberInfo member, string? name, IReadOnlyMetadataContext metadata)
+        public void Register(Type type, IBindingMemberInfo member, string? name, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(member, nameof(member));
@@ -97,11 +80,23 @@ namespace MugenMvvm.Binding.Infrastructure.Members
             RegisterInternal(type, member, name, metadata);
         }
 
-        public bool Unregister(Type type, string? name, IReadOnlyMetadataContext metadata)
+        public bool Unregister(Type type, string? name, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(metadata, nameof(metadata));
             return UnregisterInternal(type, name, metadata);
+        }
+
+        void IComponentOwnerAddedCallback<IComponent<IBindingMemberProvider>>.OnComponentAdded(object collection, IComponent<IBindingMemberProvider> component, IReadOnlyMetadataContext? metadata)
+        {
+            if (component is IAttachedBindingMemberProviderComponent provider)
+            {
+                if (ReferenceEquals(_attachedBindingMemberProvider, provider))
+                    return;
+                if (_attachedBindingMemberProvider != null)
+                    Components.Remove(_attachedBindingMemberProvider, metadata);
+                _attachedBindingMemberProvider = provider;
+            }
         }
 
         #endregion
@@ -125,18 +120,18 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
         protected virtual IReadOnlyList<AttachedMemberRegistration> GetAttachedMembersInternal(Type type, IReadOnlyMetadataContext metadata)
         {
-            return AttachedChildBindingMemberProvider.GetMembers(type, metadata);
+            return AttachedBindingMemberProvider.GetMembers(type, metadata);
         }
 
         protected virtual void RegisterInternal(Type type, IBindingMemberInfo member, string? name, IReadOnlyMetadataContext metadata)
         {
-            AttachedChildBindingMemberProvider.Register(type, member, name, metadata);
+            AttachedBindingMemberProvider.Register(type, member, name, metadata);
             TempCache.Clear();
         }
 
         protected virtual bool UnregisterInternal(Type type, string? name, IReadOnlyMetadataContext metadata)
         {
-            var result = AttachedChildBindingMemberProvider.Unregister(type, name, metadata);
+            var result = AttachedBindingMemberProvider.Unregister(type, name, metadata);
             if (result)
                 TempCache.Clear();
             return result;
@@ -150,7 +145,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
             if (!ignoreAttachedMembers)
             {
-                result = AttachedChildBindingMemberProvider.GetMember(type, name, metadata);
+                result = AttachedBindingMemberProvider.TryGetMember(type, name, metadata);
                 if (result != null)
                 {
                     TempCache[cacheKey] = result;
@@ -158,10 +153,10 @@ namespace MugenMvvm.Binding.Infrastructure.Members
                 }
             }
 
-            var items = Providers.GetItems();
+            var items = Components.GetItems();
             for (var i = 0; i < items.Length; i++)
             {
-                result = items[i].TryGetMember(this, type, name, metadata);
+                result = (items[i] as IBindingMemberProviderComponent)?.TryGetMember(this, type, name, metadata);
                 if (result != null)
                     break;
             }

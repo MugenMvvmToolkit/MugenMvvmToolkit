@@ -16,12 +16,19 @@ namespace MugenMvvm.Binding
             object?[]? args = null, IReadOnlyMetadataContext? metadata = null, IBindingMemberProvider? provider = null)
             where TSource : class
         {
+            return descriptor.GetValueOrDefault(source, default!, args, metadata, provider);
+        }
+
+        public static TValue GetValueOrDefault<TSource, TValue>(this BindingMemberDescriptor<TSource, TValue> descriptor, TSource source, TValue defaultValue,
+            object?[]? args = null, IReadOnlyMetadataContext? metadata = null, IBindingMemberProvider? provider = null)
+            where TSource : class
+        {
             var member = descriptor.GetMember(source, metadata, provider);
             if (member == null)
-                return default;
+                return defaultValue!;
             if (member is IAttachedBindingMemberInfo<TSource, TValue> attached)
                 return attached.GetValue(source, args, metadata);
-            return (TValue)member.GetValue(source, args, metadata);
+            return (TValue)member.GetValue(source, args, metadata)!;
         }
 
         public static IDisposable? TryObserve<TSource, TValue>(this BindingMemberDescriptor<TSource, TValue> descriptor, TSource source, IBindingEventListener listener,

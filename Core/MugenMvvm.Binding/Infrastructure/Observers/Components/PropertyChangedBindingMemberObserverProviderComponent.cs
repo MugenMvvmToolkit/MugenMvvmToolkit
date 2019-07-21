@@ -4,28 +4,29 @@ using System.ComponentModel;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Binding.Interfaces.Observers.Components;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 
-// ReSharper disable once CheckNamespace
-namespace MugenMvvm.Binding.Infrastructure.Observers
+namespace MugenMvvm.Binding.Infrastructure.Observers.Components
 {
-    public sealed class PropertyChangedChildBindingObserverProvider : IChildBindingObserverProvider, IBindingMemberObserverCallback
+    public sealed class PropertyChangedBindingMemberObserverProviderComponent : IBindingMemberObserverProviderComponent, BindingMemberObserver.IHandler
     {
         #region Fields
 
-        private readonly IAttachedValueProvider _attachedValueProvider;
-        private static readonly Func<INotifyPropertyChanged, object, object, WeakPropertyChangedListener> CreateWeakPropertyListenerDelegate = CreateWeakPropertyListener;
+        private readonly IAttachedDictionaryProvider _attachedDictionaryProvider;
+        private static readonly Func<INotifyPropertyChanged, object?, object?, WeakPropertyChangedListener> CreateWeakPropertyListenerDelegate = CreateWeakPropertyListener;
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public PropertyChangedChildBindingObserverProvider(IAttachedValueProvider attachedValueProvider)
+        public PropertyChangedBindingMemberObserverProviderComponent(IAttachedDictionaryProvider attachedDictionaryProvider)
         {
-            Should.NotBeNull(attachedValueProvider, nameof(attachedValueProvider));
-            _attachedValueProvider = attachedValueProvider;
+            Should.NotBeNull(attachedDictionaryProvider, nameof(attachedDictionaryProvider));
+            _attachedDictionaryProvider = attachedDictionaryProvider;
         }
 
         #endregion
@@ -38,30 +39,30 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         #region Implementation of interfaces
 
-        public IDisposable? TryObserve(object? target, object member, IBindingEventListener listener, IReadOnlyMetadataContext? metadata)
+        IDisposable? BindingMemberObserver.IHandler.TryObserve(object? target, object member, IBindingEventListener listener, IReadOnlyMetadataContext? metadata)
         {
-            return _attachedValueProvider
-                .GetOrAdd((INotifyPropertyChanged)target, BindingInternalConstants.PropertyChangedObserverMember, null, null, CreateWeakPropertyListenerDelegate)
+            return _attachedDictionaryProvider
+                .GetOrAdd((INotifyPropertyChanged)target!, BindingInternalConstants.PropertyChangedObserverMember, null, null, CreateWeakPropertyListenerDelegate)
                 .Add(listener, (string)member);
         }
 
-        public bool TryGetMemberObserver(Type type, object member, IReadOnlyMetadataContext metadata, out BindingMemberObserver observer)
+        public BindingMemberObserver TryGetMemberObserver(Type type, object member, IReadOnlyMetadataContext? metadata)
         {
             if (typeof(INotifyPropertyChanged).IsAssignableFromUnified(type) && member is string)
-            {
-                observer = new BindingMemberObserver(member, this);
-                return true;
-            }
+                return new BindingMemberObserver(this, member);
+            return default;
+        }
 
-            observer = default;
-            return false;
+        int IComponent.GetPriority(object source)
+        {
+            return Priority;
         }
 
         #endregion
 
         #region Methods
 
-        private static WeakPropertyChangedListener CreateWeakPropertyListener(INotifyPropertyChanged propertyChanged, object _, object __)
+        private static WeakPropertyChangedListener CreateWeakPropertyListener(INotifyPropertyChanged propertyChanged, object? _, object? __)
         {
             var listener = new WeakPropertyChangedListener();
             propertyChanged.PropertyChanged += listener.Handle;
@@ -72,7 +73,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         #region Nested types
 
-        private sealed class WeakPropertyChangedListener//todo opt
+        private sealed class WeakPropertyChangedListener //todo opt
         {
             #region Fields
 
@@ -214,7 +215,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
                 private readonly string _propertyName;
 
-                private WeakPropertyChangedListener _eventListener;
+                private WeakPropertyChangedListener? _eventListener;
                 private WeakBindingEventListener _weakItem;
 
                 #endregion

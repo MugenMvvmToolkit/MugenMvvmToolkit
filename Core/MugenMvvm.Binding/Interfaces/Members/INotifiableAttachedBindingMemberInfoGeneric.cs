@@ -6,6 +6,6 @@ namespace MugenMvvm.Binding.Interfaces.Members
         IAttachedBindingMemberInfo<TTarget, TType>, INotifiableAttachedBindingMemberInfo
         where TTarget : class ?
     {
-        bool Raise(TTarget target, object? message, IReadOnlyMetadataContext? metadata);
+        bool Raise(TTarget target, object? message, IReadOnlyMetadataContext? metadata = null);
     }
 }

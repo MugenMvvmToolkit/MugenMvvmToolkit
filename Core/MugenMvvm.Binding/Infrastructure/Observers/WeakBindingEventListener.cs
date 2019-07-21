@@ -37,12 +37,12 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
                     return false;
                 if (Source is IBindingEventListener listener)
                     return listener.IsAlive;
-                listener = (IBindingEventListener) ((IWeakReference) Source).Target;
+                listener = (IBindingEventListener) ((IWeakReference) Source).Target!;
                 return listener != null && listener.IsAlive;
             }
         }
 
-        public IBindingEventListener Listener
+        public IBindingEventListener? Listener
         {
             get
             {
@@ -50,11 +50,11 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
                     return null;
                 if (Source is IBindingEventListener listener)
                     return listener;
-                return (IBindingEventListener) ((IWeakReference) Source).Target;
+                return (IBindingEventListener?) ((IWeakReference) Source).Target;
             }
         }
 
-        public bool TryHandle(object sender, object message)
+        public bool TryHandle(object sender, object? message)
         {
             if (Source == null)
                 return false;
@@ -62,7 +62,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
             if (Source is IBindingEventListener listener)
                 return listener.TryHandle(sender, message);
 
-            listener = (IBindingEventListener) ((IWeakReference) Source).Target;
+            listener = (IBindingEventListener) ((IWeakReference) Source).Target!;
             return listener != null && listener.TryHandle(sender, message);
         }
 

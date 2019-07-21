@@ -11,7 +11,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
     {
         #region Fields
 
-        private readonly object _result;
+        private readonly object? _result;
 
         public static readonly ConstantBindingMemberInfo NullInstance = new ConstantBindingMemberInfo(null, false);
         public static readonly ConstantBindingMemberInfo UnsetInstance = new ConstantBindingMemberInfo(BindingMetadata.UnsetValue, false);
@@ -25,7 +25,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
         #region Constructors
 
-        private ConstantBindingMemberInfo(object result, bool canWrite)
+        private ConstantBindingMemberInfo(object? result, bool canWrite)
         {
             _result = result;
             CanWrite = canWrite;
@@ -39,7 +39,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
         public Type Type => typeof(object);
 
-        public object Member => null;
+        public object? Member => null;
 
         public BindingMemberType MemberType => BindingMemberType.Empty;
 
@@ -53,24 +53,24 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
         #region Implementation of interfaces
 
-        public object GetValue(object target, object[] args, IReadOnlyMetadataContext metadata)
+        public object? GetValue(object? target, object?[]? args, IReadOnlyMetadataContext? metadata = null)
         {
             return _result;
         }
 
-        public object SetValue(object target, object value, IReadOnlyMetadataContext metadata)
+        public object? SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata = null)
         {
             if (!CanWrite)
                 BindingExceptionManager.ThrowBindingMemberMustBeWritable(this);
             return _result;
         }
 
-        public object SetValues(object target, object[] args, IReadOnlyMetadataContext metadata)
+        public object? SetValues(object? target, object?[] args, IReadOnlyMetadataContext? metadata = null)
         {
             return SetValue(target, null, null);
         }
 
-        public IDisposable TryObserve(object target, IBindingEventListener listener, IReadOnlyMetadataContext metadata)
+        public IDisposable? TryObserve(object? target, IBindingEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
             return null;
         }

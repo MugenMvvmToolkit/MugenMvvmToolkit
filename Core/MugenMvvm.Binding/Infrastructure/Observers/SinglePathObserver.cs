@@ -4,10 +4,9 @@ using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 
-// ReSharper disable once CheckNamespace
 namespace MugenMvvm.Binding.Infrastructure.Observers
 {
-    internal sealed class SinglePathObserver : ObserverBase, IBindingEventListener, IWeakReferenceHolder
+    public sealed class SinglePathObserver : ObserverBase, IBindingEventListener, IWeakReferenceHolder
     {
         #region Fields
 
@@ -24,8 +23,8 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         #region Constructors
 
-        public SinglePathObserver(IWeakReference source, IBindingMemberInfo member, IBindingPath path, bool ignoreAttachedMembers, bool hasStablePath, bool observable,
-            bool optional)
+        public SinglePathObserver(IWeakReference source, IBindingMemberInfo? member, IBindingPath path,
+            bool ignoreAttachedMembers, bool hasStablePath, bool observable, bool optional)
             : base(source, member)
         {
             _ignoreAttachedMembers = ignoreAttachedMembers;
@@ -43,13 +42,13 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         public bool IsWeak => false;
 
-        public IWeakReference WeakReference { get; set; }
+        public IWeakReference? WeakReference { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        bool IBindingEventListener.TryHandle(object sender, object message)
+        bool IBindingEventListener.TryHandle(object sender, object? message)
         {
             OnLastMemberChanged();
             return true;
@@ -65,7 +64,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
             if (_exception != null)
                 return new BindingPathMembers(Path, _exception);
             var target = _penultimateValue?.Target;
-            if (target == null)
+            if (target == null || _lastMember == null)
                 return default;
             return new BindingPathMembers(Path, target, target, null, _lastMember);
         }
@@ -76,7 +75,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
             if (_exception != null)
                 return new BindingPathLastMember(Path, _exception);
             var target = _penultimateValue?.Target;
-            if (target == null)
+            if (target == null || _lastMember == null)
                 return default;
             return new BindingPathLastMember(Path, target, _lastMember);
         }
@@ -168,7 +167,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
             return true;
         }
 
-        private void SetLastMember(IWeakReference? penultimateValue, IBindingMemberInfo lastMember, Exception exception)
+        private void SetLastMember(IWeakReference? penultimateValue, IBindingMemberInfo? lastMember, Exception? exception)
         {
             _penultimateValue = penultimateValue;
             _lastMember = lastMember;
@@ -176,10 +175,10 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
             OnPathMembersChanged();
         }
 
-        private void Subscribe(object source, IBindingMemberInfo lastMember)
+        private void Subscribe(object source, IBindingMemberInfo? lastMember)
         {
             _lastMemberUnsubscriber?.Dispose();
-            _lastMemberUnsubscriber = lastMember.TryObserve(source, this, null) ?? Default.Disposable;
+            _lastMemberUnsubscriber = lastMember?.TryObserve(source, this, null) ?? Default.Disposable;
         }
 
         private void Unsubscribe()
@@ -219,9 +218,9 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
             #region Implementation of interfaces
 
-            public bool TryHandle(object sender, object message)
+            public bool TryHandle(object sender, object? message)
             {
-                var observer = (SinglePathObserver)_observer.Target;
+                var observer = (SinglePathObserver?)_observer.Target;
                 if (observer == null)
                     return false;
                 return observer.Update();

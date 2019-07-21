@@ -1,56 +1,48 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using MugenMvvm.Binding.Infrastructure.Members;
-using MugenMvvm.Binding.Infrastructure.Observers;
 using MugenMvvm.Binding.Interfaces.Members;
+using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Metadata;
 
-namespace MugenMvvm.Binding.Interfaces.Observers
+namespace MugenMvvm.Binding.Infrastructure.Observers
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly ref struct BindingPathMembers
+    public readonly ref struct BindingPathLastMember
     {
         #region Fields
 
-        private readonly IBindingPath _bindingPath;
         private readonly IBindingMemberInfo? _lastMember;
-        private readonly IBindingMemberInfo[]? _members;
+        private readonly IBindingPath _bindingPath;
         private readonly object? _penultimateValue;
-        private readonly object? _source;
 
         #endregion
 
         #region Constructors
 
-        public BindingPathMembers(IBindingPath bindingPath)
+        public BindingPathLastMember(IBindingPath bindingPath)
         {
             Should.NotBeNull(bindingPath, nameof(bindingPath));
             _bindingPath = bindingPath;
-            _source = null;
             _penultimateValue = null;
-            _members = null;
             _lastMember = null;
         }
 
-        public BindingPathMembers(IBindingPath bindingPath, object? source, object? penultimateValue, IBindingMemberInfo[]? members, IBindingMemberInfo lastMember)
+        public BindingPathLastMember(IBindingPath bindingPath, object? penultimateValue, IBindingMemberInfo lastMember)
         {
             Should.NotBeNull(bindingPath, nameof(bindingPath));
             Should.NotBeNull(lastMember, nameof(lastMember));
-            _bindingPath = bindingPath;
-            _source = source;
             _penultimateValue = penultimateValue;
-            _members = members;
             _lastMember = lastMember;
+            _bindingPath = bindingPath;
         }
 
-        public BindingPathMembers(IBindingPath bindingPath, Exception exception)
+        public BindingPathLastMember(IBindingPath bindingPath, Exception exception)
         {
             Should.NotBeNull(bindingPath, nameof(bindingPath));
             Should.NotBeNull(exception, nameof(exception));
             _bindingPath = bindingPath;
-            _source = null;
             _penultimateValue = exception;
-            _members = null;
             _lastMember = null;
         }
 
@@ -67,18 +59,8 @@ namespace MugenMvvm.Binding.Interfaces.Observers
             get
             {
                 if (_lastMember == null)
-                    return (Exception)_penultimateValue;
+                    return (Exception?)_penultimateValue;
                 return null;
-            }
-        }
-
-        public object? Source
-        {
-            get
-            {
-                if (_lastMember == null)
-                    return BindingMetadata.UnsetValue;
-                return _source;
             }
         }
 
@@ -99,18 +81,6 @@ namespace MugenMvvm.Binding.Interfaces.Observers
                 if (_lastMember == null)
                     return ConstantBindingMemberInfo.UnsetInstance;
                 return _lastMember;
-            }
-        }
-
-        public IBindingMemberInfo[] Members
-        {
-            get
-            {
-                if (_lastMember == null)
-                    return ConstantBindingMemberInfo.UnsetInstanceArray;
-                if (_members == null)
-                    return new[] { _lastMember };
-                return _members;
             }
         }
 

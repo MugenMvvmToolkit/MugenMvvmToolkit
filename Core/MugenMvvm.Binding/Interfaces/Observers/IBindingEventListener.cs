@@ -6,6 +6,6 @@
 
         bool IsWeak { get; }
 
-        bool TryHandle(object sender, object message);
+        bool TryHandle(object sender, object? message);
     }
 }

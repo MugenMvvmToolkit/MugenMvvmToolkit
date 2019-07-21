@@ -16,8 +16,9 @@ namespace MugenMvvm.Binding
             return ObjectBindableMembers.Parent.GetValueOrDefault(target, null, metadata, provider);
         }
 
-        public static object FindByName(object target, string elementName, IReadOnlyMetadataContext? metadata = null, IBindingMemberProvider? provider = null)
+        public static object? FindByName(object target, string elementName, IReadOnlyMetadataContext? metadata = null, IBindingMemberProvider? provider = null)
         {
+            Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(elementName, nameof(elementName));
             var args = new object[1];
             while (target != null)
@@ -26,22 +27,22 @@ namespace MugenMvvm.Binding
                 var result = ObjectBindableMembers.FindByNameMethod.GetValueOrDefault(target, args, metadata, provider);
                 if (result != null)
                     return result;
-                target = GetParent(target);
+                target = GetParent(target)!;
             }
 
             return null;
         }
 
-        public static object FindRelativeSource(object target, string typeName, uint level)
+        public static object? FindRelativeSource(object target, string typeName, uint level)
         {
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(typeName, nameof(typeName));
-            object fullNameSource = null;
-            object nameSource = null;
+            object? fullNameSource = null;
+            object? nameSource = null;
             uint fullNameLevel = 0;
             uint nameLevel = 0;
 
-            target = GetParent(target);
+            target = GetParent(target)!;
             while (target != null)
             {
                 TypeNameEqual(target.GetType(), typeName, out var shortNameEqual, out var fullNameEqual);
@@ -62,7 +63,7 @@ namespace MugenMvvm.Binding
                 if (nameSource != null && nameLevel == level)
                     return nameSource;
 
-                target = GetParent(target);
+                target = GetParent(target)!;
             }
 
             return null;

@@ -3,10 +3,9 @@ using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 
-// ReSharper disable once CheckNamespace
 namespace MugenMvvm.Binding.Infrastructure.Observers
 {
-    internal sealed class EmptyPathRawSourceObserver : IBindingPathObserver
+    public sealed class EmptyPathRawSourceObserver : IBindingPathObserver
     {
         #region Fields
 
@@ -29,7 +28,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         public IBindingPath Path => EmptyBindingPath.Instance;
 
-        public object Source => _source?.Target;
+        public object? Source => _source?.Target;
 
         #endregion
 

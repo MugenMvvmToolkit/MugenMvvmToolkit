@@ -4,14 +4,14 @@ using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 
-// ReSharper disable once CheckNamespace
 namespace MugenMvvm.Binding.Infrastructure.Observers
 {
-    internal sealed class EmptyPathObserver : ObserverBase, IBindingEventListener, IWeakReferenceHolder
+    public sealed class EmptyPathObserver : ObserverBase, IBindingEventListener, IWeakReferenceHolder
     {
         #region Constructors
 
-        public EmptyPathObserver(IWeakReference source, IBindingMemberInfo member) : base(source, member)
+        public EmptyPathObserver(IWeakReference source, IBindingMemberInfo? member) 
+            : base(source, member)
         {
         }
 
@@ -23,13 +23,13 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         public override IBindingPath Path => EmptyBindingPath.Instance;
 
-        public IWeakReference WeakReference { get; set; }
+        public IWeakReference? WeakReference { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        bool IBindingEventListener.TryHandle(object sender, object message)
+        bool IBindingEventListener.TryHandle(object sender, object? message)
         {
             var source = Source;
             if (source == null)

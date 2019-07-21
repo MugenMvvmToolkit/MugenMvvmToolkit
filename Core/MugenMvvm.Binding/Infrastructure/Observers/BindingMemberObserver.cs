@@ -11,18 +11,25 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
     {
         #region Fields
 
-        private readonly IBindingMemberObserverCallback _observer;
+        private readonly IHandler _handler;
         public readonly object Member;
 
         #endregion
 
         #region Constructors
 
-        public BindingMemberObserver(object member, IBindingMemberObserverCallback observer)
+        public BindingMemberObserver(IHandler handler, object member)
         {
+            Should.NotBeNull(member, nameof(member));
             Member = member;
-            _observer = observer;
+            _handler = handler;
         }
+
+        #endregion
+
+        #region Properties
+
+        public bool IsEmpty => _handler == null;
 
         #endregion
 
@@ -31,7 +38,16 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
         [Pure]
         public IDisposable? TryObserve(object? target, IBindingEventListener listener, IReadOnlyMetadataContext? metadata)
         {
-            return _observer?.TryObserve(Member, target, listener, metadata);
+            return _handler?.TryObserve(target, Member, listener, metadata);
+        }
+
+        #endregion
+
+        #region Nested types
+
+        public interface IHandler
+        {
+            IDisposable? TryObserve(object? target, object member, IBindingEventListener listener, IReadOnlyMetadataContext? metadata);
         }
 
         #endregion

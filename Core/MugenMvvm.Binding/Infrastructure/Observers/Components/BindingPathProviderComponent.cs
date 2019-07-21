@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Binding.Interfaces.Observers.Components;
 using MugenMvvm.Collections;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
-// ReSharper disable once CheckNamespace
-namespace MugenMvvm.Binding.Infrastructure.Observers
+namespace MugenMvvm.Binding.Infrastructure.Observers.Components
 {
-    public sealed class BindingPathChildBindingObserverProvider : IBindingPathChildBindingObserverProvider
+    public sealed class BindingPathProviderComponent : IBindingPathProviderComponent
     {
         #region Fields
 
@@ -19,7 +20,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public BindingPathChildBindingObserverProvider()
+        public BindingPathProviderComponent()
         {
             _cache = new CacheDictionary();
         }
@@ -36,13 +37,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         #region Implementation of interfaces
 
-        public bool TryGetMemberObserver(Type type, object member, IReadOnlyMetadataContext metadata, out BindingMemberObserver observer)
-        {
-            observer = default;
-            return false;
-        }
-
-        public IBindingPath TryGetBindingPath(object path, IReadOnlyMetadataContext metadata)
+        public IBindingPath? TryGetBindingPath(object path, IReadOnlyMetadataContext? metadata)
         {
             if (!(path is string stringPath))
                 return null;
@@ -53,7 +48,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
             var hasDot = stringPath.IndexOf('.') >= 0;
             var hasBracket = stringPath.IndexOf('[') >= 0;
             if (!hasDot && !hasBracket)
-                return new SimpleBindingPath(stringPath);
+                return new SingleBindingPath(stringPath);
 
             if (UseCache)
                 return GetFromCache(stringPath, hasBracket);
@@ -61,9 +56,9 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
             return new MultiBindingPath(stringPath, hasBracket);
         }
 
-        public IBindingPathObserver? TryGetBindingPathObserver(object source, IBindingPath path, IReadOnlyMetadataContext metadata)
+        int IComponent.GetPriority(object source)
         {
-            return null;
+            return Priority;
         }
 
         #endregion
@@ -110,7 +105,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
             #endregion
         }
 
-        private sealed class SimpleBindingPath : IBindingPath
+        private sealed class SingleBindingPath : IBindingPath
         {
             #region Fields
 
@@ -120,7 +115,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
             #region Constructors
 
-            public SimpleBindingPath(string path)
+            public SingleBindingPath(string path)
             {
                 Path = path;
             }

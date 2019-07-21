@@ -13,8 +13,8 @@ namespace MugenMvvm.Binding.Infrastructure.Members
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public SynchronizedBindingMemberProvider(IAttachedChildBindingMemberProvider attachedChildBindingMemberProvider, IComponentCollectionProvider componentCollectionProvider) : base(
-            attachedChildBindingMemberProvider, componentCollectionProvider)
+        public SynchronizedBindingMemberProvider(IComponentCollectionProvider componentCollectionProvider)
+            : base(componentCollectionProvider)
         {
         }
 
@@ -22,7 +22,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
         #region Methods
 
-        protected override IBindingMemberInfo GetMemberInternal(Type type, string name, bool ignoreAttachedMembers, IReadOnlyMetadataContext metadata)
+        protected override IBindingMemberInfo? GetMemberInternal(Type type, string name, bool ignoreAttachedMembers, IReadOnlyMetadataContext metadata)
         {
             var lockTaken = false;
             try
@@ -49,7 +49,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
             }
         }
 
-        protected override void RegisterInternal(Type type, IBindingMemberInfo member, string name, IReadOnlyMetadataContext metadata)
+        protected override void RegisterInternal(Type type, IBindingMemberInfo member, string? name, IReadOnlyMetadataContext metadata)
         {
             lock (TempCache)
             {
@@ -57,7 +57,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
             }
         }
 
-        protected override bool UnregisterInternal(Type type, string name, IReadOnlyMetadataContext metadata)
+        protected override bool UnregisterInternal(Type type, string? name, IReadOnlyMetadataContext metadata)
         {
             lock (TempCache)
             {

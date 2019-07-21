@@ -24,20 +24,14 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         #endregion
 
-        #region Properties
-
-        public bool IsEmpty => _listeners == null;
-
-        #endregion
-
         #region Methods
 
-        public static BindingEventListenerCollection GetOrAdd(object item, string path, IAttachedValueProvider? provider = null)
+        public static BindingEventListenerCollection GetOrAdd(object item, string path, IAttachedDictionaryProvider? provider = null)
         {
-            return provider.ServiceIfNull().GetOrAdd(item, path, (object)null, (object)null, (_, __, ___) => new BindingEventListenerCollection());
+            return provider.ServiceIfNull().GetOrAdd(item, path, (object?)null, (object?)null, (_, __, ___) => new BindingEventListenerCollection());
         }
 
-        public static void Raise(object item, string path, object message, IAttachedValueProvider? provider = null)
+        public static void Raise(object item, string path, object message, IAttachedDictionaryProvider? provider = null)
         {
             provider.ServiceIfNull().TryGetValue(item, path, out BindingEventListenerCollection collection);
             collection?.Raise(item, message);
@@ -72,7 +66,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         public IDisposable AddWithUnsubscriber(IBindingEventListener target)
         {
-            return AddInternal(target.ToWeak(), true);
+            return AddInternal(target.ToWeak(), true)!;
         }
 
         public void Remove(IBindingEventListener listener)
@@ -106,7 +100,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
             }
         }
 
-        private IDisposable AddInternal(WeakBindingEventListener weakItem, bool withUnsubscriber)
+        private IDisposable? AddInternal(WeakBindingEventListener weakItem, bool withUnsubscriber)
         {
             lock (this)
             {
@@ -216,7 +210,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
         {
             #region Fields
 
-            private BindingEventListenerCollection _eventListener;
+            private BindingEventListenerCollection? _eventListener;
             private WeakBindingEventListener _weakItem;
 
             #endregion

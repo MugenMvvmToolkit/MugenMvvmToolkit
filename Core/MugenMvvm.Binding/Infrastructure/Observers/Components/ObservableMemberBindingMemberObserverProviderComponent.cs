@@ -4,12 +4,13 @@ using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Binding.Interfaces.Observers.Components;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
-// ReSharper disable once CheckNamespace
-namespace MugenMvvm.Binding.Infrastructure.Observers
+namespace MugenMvvm.Binding.Infrastructure.Observers.Components
 {
-    public class ObservableMemberChildBindingObserverProvider : IChildBindingObserverProvider, IBindingMemberObserverCallback
+    public class ObservableMemberBindingMemberObserverProviderComponent : IBindingMemberObserverProviderComponent, BindingMemberObserver.IHandler
     {
         #region Fields
 
@@ -20,7 +21,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ObservableMemberChildBindingObserverProvider(IBindingMemberProvider memberProvider)
+        public ObservableMemberBindingMemberObserverProviderComponent(IBindingMemberProvider memberProvider)
         {
             Should.NotBeNull(memberProvider, nameof(memberProvider));
             _memberProvider = memberProvider;
@@ -32,38 +33,39 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         public int Priority { get; set; } = 1;
 
-        public Func<Type, string, IReadOnlyMetadataContext, IBindingMemberInfo?>? ObservableMemberFinder { get; set; }
+        public Func<Type, string, IReadOnlyMetadataContext?, IBindingMemberInfo?>? ObservableMemberFinder { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        public IDisposable TryObserve(object target, object member, IBindingEventListener listener, IReadOnlyMetadataContext? metadata)
+        IDisposable? BindingMemberObserver.IHandler.TryObserve(object? target, object member, IBindingEventListener listener, IReadOnlyMetadataContext? metadata)
         {
             return ((IBindingMemberInfo)member).TryObserve(target, listener, metadata);
         }
 
-        public bool TryGetMemberObserver(Type type, object member, IReadOnlyMetadataContext metadata, out BindingMemberObserver observer)
+        public BindingMemberObserver TryGetMemberObserver(Type type, object member, IReadOnlyMetadataContext? metadata)
         {
             if (member is string name)
             {
                 var observableMember = TryGetObservableMember(type, name, metadata);
                 if (observableMember != null)
-                {
-                    observer = new BindingMemberObserver(observableMember, this);
-                    return true;
-                }
+                    return new BindingMemberObserver(this, observableMember);
             }
 
-            observer = default;
-            return false;
+            return default;
+        }
+
+        int IComponent.GetPriority(object source)
+        {
+            return Priority;
         }
 
         #endregion
 
         #region Methods
 
-        private IBindingMemberInfo? TryGetObservableMember(Type type, string memberName, IReadOnlyMetadataContext metadata)
+        private IBindingMemberInfo? TryGetObservableMember(Type type, string memberName, IReadOnlyMetadataContext? metadata)
         {
             if (ObservableMemberFinder != null)
                 return ObservableMemberFinder(type, memberName, metadata);

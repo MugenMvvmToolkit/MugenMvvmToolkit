@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Interfaces.Members;
+using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Collections;
-using MugenMvvm.Infrastructure.Components;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Binding.Infrastructure.Members
+namespace MugenMvvm.Binding.Infrastructure.Members.Components
 {
-    public sealed class AttachedChildBindingMemberProvider : AttachableComponentBase<IBindingMemberProvider>, IAttachedChildBindingMemberProvider
+    public sealed class AttachedBindingMemberProviderComponent : IAttachedBindingMemberProviderComponent
     {
         #region Fields
 
@@ -20,22 +21,28 @@ namespace MugenMvvm.Binding.Infrastructure.Members
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public AttachedChildBindingMemberProvider()
+        public AttachedBindingMemberProviderComponent()
         {
             _cache = new CacheDictionary();
         }
 
         #endregion
 
+        #region Properties
+
+        public int Priority { get; set; } = int.MaxValue;
+
+        #endregion
+
         #region Implementation of interfaces
 
-        public IBindingMemberInfo GetMember(Type type, string name, IReadOnlyMetadataContext metadata)
+        public IBindingMemberInfo? TryGetMember(Type type, string name, IReadOnlyMetadataContext? metadata)
         {
             _cache.TryGetValue(new CacheKey(type, name), out var result);
             return result;
         }
 
-        public IReadOnlyList<AttachedMemberRegistration> GetMembers(Type type, IReadOnlyMetadataContext metadata)
+        public IReadOnlyList<AttachedMemberRegistration> GetMembers(Type type, IReadOnlyMetadataContext? metadata)
         {
             var members = new List<AttachedMemberRegistration>();
             foreach (var member in _cache)
@@ -47,12 +54,12 @@ namespace MugenMvvm.Binding.Infrastructure.Members
             return members;
         }
 
-        public void Register(Type type, IBindingMemberInfo member, string? name, IReadOnlyMetadataContext metadata)
+        public void Register(Type type, IBindingMemberInfo member, string? name, IReadOnlyMetadataContext? metadata)
         {
             _cache[new CacheKey(type, name ?? member.Name)] = member;
         }
 
-        public bool Unregister(Type type, string? name, IReadOnlyMetadataContext metadata)
+        public bool Unregister(Type type, string? name, IReadOnlyMetadataContext? metadata)
         {
             if (name != null)
                 return _cache.Remove(new CacheKey(type, name));
@@ -72,6 +79,11 @@ namespace MugenMvvm.Binding.Infrastructure.Members
             for (var index = 0; index < toRemove.Count; index++)
                 _cache.Remove(toRemove[index]);
             return true;
+        }
+
+        int IComponent.GetPriority(object source)
+        {
+            return Priority;
         }
 
         #endregion

@@ -21,12 +21,12 @@ namespace MugenMvvm.Binding.Interfaces.Members
 
         bool CanObserve { get; }
 
-        object? GetValue(object? target, object?[]? args, IReadOnlyMetadataContext? metadata);
+        object? GetValue(object? target, object?[]? args, IReadOnlyMetadataContext? metadata = null);
 
-        object? SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata);
+        object? SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata = null);
 
-        object? SetValues(object? target, object?[] args, IReadOnlyMetadataContext? metadata);
+        object? SetValues(object? target, object?[] args, IReadOnlyMetadataContext? metadata = null);
 
-        IDisposable? TryObserve(object? target, IBindingEventListener listener, IReadOnlyMetadataContext? metadata);
+        IDisposable? TryObserve(object? target, IBindingEventListener listener, IReadOnlyMetadataContext? metadata = null);
     }
 }

@@ -7,12 +7,12 @@ namespace MugenMvvm.Binding.Interfaces.Members
     public interface IAttachedBindingMemberInfo<in TTarget, TType> : IBindingMemberInfo
         where TTarget : class ?
     {
-        TType GetValue(TTarget target, object?[]? args, IReadOnlyMetadataContext? metadata);
+        TType GetValue(TTarget target, object?[]? args, IReadOnlyMetadataContext? metadata = null);
 
-        object? SetValue(TTarget target, TType value, IReadOnlyMetadataContext? metadata);
+        object? SetValue(TTarget target, TType value, IReadOnlyMetadataContext? metadata = null);
 
-        object? SetValues(TTarget target, object?[]? args, IReadOnlyMetadataContext? metadata);
+        object? SetValues(TTarget target, object?[]? args, IReadOnlyMetadataContext? metadata = null);
 
-        IDisposable? TryObserve(TTarget target, IBindingEventListener listener, IReadOnlyMetadataContext? metadata);
+        IDisposable? TryObserve(TTarget target, IBindingEventListener listener, IReadOnlyMetadataContext? metadata = null);
     }
 }

@@ -5,14 +5,12 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Observers
 {
-    public interface IBindingObserverProvider
+    public interface IBindingObserverProvider : IComponentOwner<IBindingObserverProvider>
     {
-        IComponentCollection<IChildBindingObserverProvider> Providers { get; }
+        BindingMemberObserver GetMemberObserver(Type type, object member, IReadOnlyMetadataContext? metadata = null);
 
-        bool TryGetMemberObserver(Type type, object member, IReadOnlyMetadataContext metadata, out BindingMemberObserver observer);
+        IBindingPath GetBindingPath(object path, IReadOnlyMetadataContext? metadata = null);
 
-        IBindingPath GetBindingPath(object path, IReadOnlyMetadataContext metadata);
-
-        IBindingPathObserver GetBindingPathObserver(object source, object path, IReadOnlyMetadataContext metadata);
+        IBindingPathObserver GetBindingPathObserver(object source, object path, IReadOnlyMetadataContext? metadata = null);
     }
 }

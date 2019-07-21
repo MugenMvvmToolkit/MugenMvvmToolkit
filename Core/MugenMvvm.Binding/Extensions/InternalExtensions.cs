@@ -17,24 +17,24 @@ namespace MugenMvvm.Binding
 
         #region Methods
 
-        internal static bool IsNullOrUnsetValue(this object obj)
+        internal static bool IsNullOrUnsetValue(this object? value)
         {
-            return obj == null || ReferenceEquals(obj, BindingMetadata.UnsetValue);
+            return value == null || ReferenceEquals(value, BindingMetadata.UnsetValue);
         }
 
-        internal static bool IsUnsetValueOrDoNothing(this object obj)
+        internal static bool IsUnsetValueOrDoNothing(this object? value)
         {
-            return ReferenceEquals(obj, BindingMetadata.UnsetValue) || ReferenceEquals(obj, BindingMetadata.DoNothing);
+            return ReferenceEquals(value, BindingMetadata.UnsetValue) || ReferenceEquals(value, BindingMetadata.DoNothing);
         }
 
-        internal static bool IsUnsetValue(this object obj)
+        internal static bool IsUnsetValue(this object? value)
         {
-            return ReferenceEquals(obj, BindingMetadata.UnsetValue);
+            return ReferenceEquals(value, BindingMetadata.UnsetValue);
         }
 
-        internal static bool IsDoNothing(this object obj)
+        internal static bool IsDoNothing(this object? value)
         {
-            return ReferenceEquals(obj, BindingMetadata.DoNothing);
+            return ReferenceEquals(value, BindingMetadata.DoNothing);
         }
 
         internal static ICollection<Type> SelfAndBaseTypes(Type type)
@@ -92,7 +92,7 @@ namespace MugenMvvm.Binding
             {
                 var s = args[i];
                 if (!string.IsNullOrEmpty(s) && s[0] == '\"' && s.EndsWith("\""))
-                    s = s.RemoveBounds();
+                    s = s.RemoveBounds();//todo check
                 //                result[i] = s == "null" ? null : BindingServiceProvider.ValueConverter(BindingMemberInfo.Empty, castType, s);
             }
 
@@ -108,7 +108,7 @@ namespace MugenMvvm.Binding
                 if (parameters != null)
                     castType = parameters[i].ParameterType;
                 if (!string.IsNullOrEmpty(s) && s[0] == '\"' && s.EndsWith("\""))
-                    s = s.RemoveBounds();
+                    s = s.RemoveBounds();//todo check
                 //                result[i] = s == "null" ? null : BindingServiceProvider.ValueConverter(BindingMemberInfo.Empty, castType, s);
             }
 

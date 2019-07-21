@@ -6,20 +6,17 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Members
 {
-    public interface IBindingMemberProvider//todo add expando/dynamic objects
+    //todo add expando/dynamic objects
+    public interface IBindingMemberProvider : IComponentOwner<IBindingMemberProvider>
     {
-        IComponentCollection<IChildBindingMemberProvider> Providers { get; }
+        IBindingMemberInfo? GetMember(Type type, string name, IReadOnlyMetadataContext? metadata = null);
 
-        IAttachedChildBindingMemberProvider AttachedChildBindingMemberProvider { get; set; }
+        IBindingMemberInfo? GetRawMember(Type type, string name, IReadOnlyMetadataContext? metadata = null);
 
-        IBindingMemberInfo? GetMember(Type type, string name, IReadOnlyMetadataContext metadata);
+        IReadOnlyList<AttachedMemberRegistration> GetAttachedMembers(Type type, IReadOnlyMetadataContext? metadata = null);
 
-        IBindingMemberInfo? GetRawMember(Type type, string name, IReadOnlyMetadataContext metadata);
+        void Register(Type type, IBindingMemberInfo member, string? name, IReadOnlyMetadataContext? metadata = null);
 
-        IReadOnlyList<AttachedMemberRegistration> GetAttachedMembers(Type type, IReadOnlyMetadataContext metadata);
-
-        void Register(Type type, IBindingMemberInfo member, string? name, IReadOnlyMetadataContext metadata);
-
-        bool Unregister(Type type, string? name, IReadOnlyMetadataContext metadata);
+        bool Unregister(Type type, string? name, IReadOnlyMetadataContext? metadata = null);
     }
 }

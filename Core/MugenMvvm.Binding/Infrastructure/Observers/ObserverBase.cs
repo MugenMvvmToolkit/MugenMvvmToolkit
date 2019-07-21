@@ -4,10 +4,9 @@ using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 
-// ReSharper disable once CheckNamespace
 namespace MugenMvvm.Binding.Infrastructure.Observers
 {
-    internal abstract class ObserverBase : IBindingPathObserver
+    public abstract class ObserverBase : IBindingPathObserver
     {
         #region Fields
 
@@ -33,11 +32,11 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         #region Properties
 
-        public bool IsAlive=> _source?.Target != null;
+        public bool IsAlive => _source?.Target != null;
 
         public abstract IBindingPath Path { get; }
 
-        public object Source => _source?.Target;
+        public object? Source => _source?.Target;
 
         protected bool HasListeners => _listeners.Length > 0;
 
@@ -133,7 +132,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
         protected IWeakReference GetSourceWeakReference(object source)
         {
             if (_member == null)
-                return _source;
+                return _source!;
             return Service<IWeakReferenceProvider>.Instance.GetWeakReference(source, Default.Metadata);
         }
 
@@ -146,7 +145,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
                 return false;
             }
 
-            value = _member.GetValue(source, null, null);
+            value = _member == null ? source : _member.GetValue(source, null, null);
             return true;
         }
 
