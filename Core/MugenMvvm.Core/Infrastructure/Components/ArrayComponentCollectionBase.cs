@@ -57,7 +57,7 @@ namespace MugenMvvm.Infrastructure.Components
         {
             Should.NotBeNull(component, nameof(component));
 
-            var defaultListener = CallbackInvokerComponentCollectionProviderComponent.GetComponentCollectionListener<T>();
+            var defaultListener = CallbackInvokerComponentCollectionComponent.GetComponentCollectionListener<T>();
             if (!defaultListener.OnAdding(this, component, metadata))
                 return false;
 
@@ -86,7 +86,7 @@ namespace MugenMvvm.Infrastructure.Components
         {
             Should.NotBeNull(component, nameof(component));
 
-            var defaultListener = CallbackInvokerComponentCollectionProviderComponent.GetComponentCollectionListener<T>();
+            var defaultListener = CallbackInvokerComponentCollectionComponent.GetComponentCollectionListener<T>();
             if (!defaultListener.OnRemoving(this, component, metadata))
                 return false;
 
@@ -113,7 +113,7 @@ namespace MugenMvvm.Infrastructure.Components
 
         public bool Clear(IReadOnlyMetadataContext? metadata = null)
         {
-            var defaultListener = CallbackInvokerComponentCollectionProviderComponent.GetComponentCollectionListener<T>();
+            var defaultListener = CallbackInvokerComponentCollectionComponent.GetComponentCollectionListener<T>();
             if (!defaultListener.OnClearing(this, metadata))
                 return false;
 

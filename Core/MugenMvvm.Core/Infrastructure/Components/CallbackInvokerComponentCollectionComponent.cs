@@ -10,7 +10,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Infrastructure.Components
 {
-    public static class CallbackInvokerComponentCollectionProviderComponent
+    public static class CallbackInvokerComponentCollectionComponent
     {
         #region Fields
 
@@ -38,7 +38,7 @@ namespace MugenMvvm.Infrastructure.Components
 
         private static MethodInfo GetAttachDetachMethod()
         {
-            var m = typeof(CallbackInvokerComponentCollectionProviderComponent).GetMethodUnified(nameof(AttachDetachIml), MemberFlags.StaticOnly);
+            var m = typeof(CallbackInvokerComponentCollectionComponent).GetMethodUnified(nameof(AttachDetachIml), MemberFlags.StaticOnly);
             Should.BeSupported(m != null, nameof(AttachDetachMethodInfo));
             return m;
         }
