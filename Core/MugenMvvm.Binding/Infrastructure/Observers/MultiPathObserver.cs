@@ -10,11 +10,8 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
     {
         #region Fields
 
-        private readonly bool _hasStablePath;
-        private readonly bool _ignoreAttachedMembers;
-
+        private byte _state;
         private readonly IDisposable?[]? _listeners;
-        private readonly bool _optional;
         private Exception? _exception;
         private IBindingEventListener? _lastMemberListener;
         private IBindingMemberInfo[]? _members;
@@ -24,13 +21,16 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         #region Constructors
 
-        public MultiPathObserver(IWeakReference source, IBindingMemberInfo? member, IBindingPath path,
+        public MultiPathObserver(IWeakReference source, IBindingPath path,
             bool ignoreAttachedMembers, bool hasStablePath, bool observable, bool optional)
-            : base(source, member)
+            : base(source)
         {
-            _ignoreAttachedMembers = ignoreAttachedMembers;
-            _hasStablePath = hasStablePath;
-            _optional = optional;
+            if (ignoreAttachedMembers)
+                _state |= IgnoreAttachedMembersFlag;
+            if (hasStablePath)
+                _state |= HasStablePathFlag;
+            if (optional)
+                _state |= OptionalFlag;
             if (observable)
                 _listeners = new IDisposable[path.Parts.Length];
             Path = path;
@@ -46,6 +46,22 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         public IWeakReference? WeakReference { get; set; }
 
+        private bool IgnoreAttachedMembers => CheckFlag(IgnoreAttachedMembersFlag);
+
+        private bool HasStablePath => CheckFlag(HasStablePathFlag);
+
+        private bool Optional => CheckFlag(OptionalFlag);
+
+        private bool IsInitialized
+        {
+            get => CheckFlag(InitializedFlag);
+            set
+            {
+                if (value)
+                    _state |= InitializedFlag;
+            }
+        }
+
         #endregion
 
         #region Implementation of interfaces
@@ -59,23 +75,24 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         #region Methods
 
-        public override BindingPathMembers GetMembers(IReadOnlyMetadataContext metadata)
+        public override BindingPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null)
         {
             UpdateIfNeed();
             if (_exception != null)
                 return new BindingPathMembers(Path, _exception);
 
-            var target = _penultimateValue?.Target;
-            if (target == null)
+            var source = Source;
+            if (source == null)
                 return default;
 
-            if (!TryGetSourceValue(out var source) || _members == null)
+            var target = _penultimateValue?.Target;
+            if (target == null || _members == null)
                 return default;
 
             return new BindingPathMembers(Path, source, target, _members, _members[_members.Length - 1]);
         }
 
-        public override BindingPathLastMember GetLastMember(IReadOnlyMetadataContext metadata)
+        public override BindingPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null)
         {
             UpdateIfNeed();
             if (_exception != null)
@@ -86,11 +103,6 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
                 return default;
 
             return new BindingPathLastMember(Path, target, _members[_members.Length - 1]);
-        }
-
-        protected override IBindingEventListener GetSourceListener()
-        {
-            return this;
         }
 
         protected override void OnListenerAdded(IBindingPathObserverListener listener)
@@ -115,9 +127,9 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         private void UpdateIfNeed()
         {
-            if (!HasSourceListener)
+            if (!IsInitialized)
             {
-                AddSourceListener();
+                IsInitialized = true;
                 Update();
             }
         }
@@ -126,18 +138,16 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
         {
             try
             {
-                if (!TryGetSourceValue(out var source))
-                    return false;
-
+                var source = Source;
                 if (source == null)
                 {
                     SetMembers(null, null, null);
-                    return true;
+                    return false;
                 }
 
                 ClearListeners();
 
-                if (_hasStablePath && _members != null)
+                if (HasStablePath && _members != null)
                 {
                     UpdateHasStablePath(_members, source);
                     return true;
@@ -147,10 +157,10 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
                 var members = new IBindingMemberInfo[paths.Length];
                 for (var i = 0; i < members.Length - 1; i++)
                 {
-                    var member = GetBindingMember(source!.GetType(), paths[i], _ignoreAttachedMembers);
+                    var member = GetBindingMember(source!.GetType(), paths[i], IgnoreAttachedMembers);
                     if (member == null)
                     {
-                        if (_optional)
+                        if (Optional)
                             SetMembers(null, null, null);
                         else
                             BindingExceptionManager.ThrowInvalidBindingMember(source.GetType(), paths[i]);
@@ -171,7 +181,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
                 if (_listeners != null && HasListeners)
                     _listeners[_listeners.Length - 1] = members[members.Length - 1].TryObserve(source, GetLastMemberListener(), null) ?? Default.Disposable;
-                SetMembers(Service<IWeakReferenceProvider>.Instance.GetWeakReference(source, Default.Metadata), members, null);
+                SetMembers(Service<IWeakReferenceProvider>.Instance.GetWeakReference(source), members, null);
             }
             catch (Exception e)
             {
@@ -201,7 +211,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
             if (_listeners != null && HasListeners)
                 _listeners[_listeners.Length - 1] = members[members.Length - 1].TryObserve(source, GetLastMemberListener(), null) ?? Default.Disposable;
 
-            SetMembers(Service<IWeakReferenceProvider>.Instance.GetWeakReference(source, Default.Metadata), members, null);
+            SetMembers(Service<IWeakReferenceProvider>.Instance.GetWeakReference(source), members, null);
         }
 
         private void SetMembers(IWeakReference? penultimateValue, IBindingMemberInfo[]? members, Exception? exception)
@@ -215,7 +225,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
         private IBindingEventListener GetLastMemberListener()
         {
             if (_lastMemberListener == null)
-                _lastMemberListener = new LastMemberListener(Service<IWeakReferenceProvider>.Instance.GetWeakReference(this, Default.Metadata));
+                _lastMemberListener = new LastMemberListener(Service<IWeakReferenceProvider>.Instance.GetWeakReference(this));
             return _lastMemberListener;
         }
 
@@ -229,6 +239,11 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
                     _listeners[index] = null;
                 }
             }
+        }
+
+        private bool CheckFlag(byte flag)
+        {
+            return (_state & flag) == flag;
         }
 
         #endregion

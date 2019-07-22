@@ -10,10 +10,14 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
     {
         #region Fields
 
+        protected const byte IgnoreAttachedMembersFlag = 1;
+        protected const byte ObservableFlag = 2;
+        protected const byte OptionalFlag = 4;
+        protected const byte HasStablePathFlag = 8;
+        protected const byte InitializedFlag = 16;
+
         private IBindingPathObserverListener[] _listeners;
-        private readonly IBindingMemberInfo? _member;
         private IWeakReference? _source;
-        private IDisposable? _unsubscriber;
 
         private static readonly IBindingPathObserverListener[] DisposedItems = new IBindingPathObserverListener[0];
 
@@ -21,10 +25,9 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         #region Constructors
 
-        protected ObserverBase(IWeakReference source, IBindingMemberInfo? member)
+        protected ObserverBase(IWeakReference source)
         {
             _source = source;
-            _member = member;
             _listeners = Default.EmptyArray<IBindingPathObserverListener>();
         }
 
@@ -38,9 +41,9 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         public object? Source => _source?.Target;
 
-        protected bool HasListeners => _listeners.Length > 0;
+        protected IWeakReference SourceWeakReference => _source!;
 
-        protected bool HasSourceListener => _unsubscriber != null;
+        protected bool HasListeners => _listeners.Length > 0;
 
         protected bool IsDisposed => ReferenceEquals(_listeners, DisposedItems);
 
@@ -53,10 +56,8 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
             if (ReferenceEquals(_listeners, DisposedItems))
                 return;
             _listeners = DisposedItems;
-            _unsubscriber?.Dispose();
             _source?.Release();
             _source = null;
-            _unsubscriber = null;
             OnDisposed();
         }
 
@@ -96,15 +97,13 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
                 Array.Resize(ref _listeners, _listeners.Length - 1);
         }
 
-        public abstract BindingPathMembers GetMembers(IReadOnlyMetadataContext metadata);
+        public abstract BindingPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null);
 
-        public abstract BindingPathLastMember GetLastMember(IReadOnlyMetadataContext metadata);
+        public abstract BindingPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null);
 
         #endregion
 
         #region Methods
-
-        protected abstract IBindingEventListener GetSourceListener();
 
         protected virtual void OnListenerAdded(IBindingPathObserverListener listener)
         {
@@ -112,41 +111,6 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
 
         protected virtual void OnDisposed()
         {
-        }
-
-        protected void AddSourceListener()
-        {
-            if (_unsubscriber != null)
-                return;
-            if (_member != null && _member.CanObserve)
-            {
-                var source = Source;
-                if (source != null)
-                    _unsubscriber = _member.TryObserve(source, GetSourceListener(), null);
-            }
-
-            if (_unsubscriber == null)
-                _unsubscriber = Default.Disposable;
-        }
-
-        protected IWeakReference GetSourceWeakReference(object source)
-        {
-            if (_member == null)
-                return _source!;
-            return Service<IWeakReferenceProvider>.Instance.GetWeakReference(source, Default.Metadata);
-        }
-
-        protected bool TryGetSourceValue(out object? value)
-        {
-            var source = Source;
-            if (source == null)
-            {
-                value = null;
-                return false;
-            }
-
-            value = _member == null ? source : _member.GetValue(source, null, null);
-            return true;
         }
 
         protected void OnPathMembersChanged()

@@ -1,70 +1,70 @@
 ﻿using MugenMvvm.Binding.Infrastructure.Members;
-using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Infrastructure.Observers
 {
-    public sealed class EmptyPathObserver : ObserverBase, IBindingEventListener, IWeakReferenceHolder
+    public sealed class EmptyPathObserver : IBindingPathObserver
     {
+        #region Fields
+
+        private IWeakReference? _source;
+
+        #endregion
+
         #region Constructors
 
-        public EmptyPathObserver(IWeakReference source, IBindingMemberInfo? member) 
-            : base(source, member)
+        public EmptyPathObserver(IWeakReference source)
         {
+            Should.NotBeNull(source, nameof(source));
+            _source = source;
         }
 
         #endregion
 
         #region Properties
 
-        public bool IsWeak => false;
+        public bool IsAlive => _source?.Target != null;
 
-        public override IBindingPath Path => EmptyBindingPath.Instance;
+        public IBindingPath Path => EmptyBindingPath.Instance;
 
-        public IWeakReference? WeakReference { get; set; }
+        public object? Source => _source?.Target;
 
         #endregion
 
         #region Implementation of interfaces
 
-        bool IBindingEventListener.TryHandle(object sender, object? message)
+        public void AddListener(IBindingPathObserverListener listener)
         {
-            var source = Source;
-            if (source == null)
-                return false;
-            OnLastMemberChanged();
-            return true;
         }
 
-        #endregion
-
-        #region Methods
-
-        public override BindingPathMembers GetMembers(IReadOnlyMetadataContext metadata)
+        public void RemoveListener(IBindingPathObserverListener listener)
         {
-            if (TryGetSourceValue(out var source))
-                return new BindingPathMembers(Path, source, source, ConstantBindingMemberInfo.NullInstanceArray, ConstantBindingMemberInfo.NullInstance);
-            return default;
         }
 
-        public override BindingPathLastMember GetLastMember(IReadOnlyMetadataContext metadata)
+        public BindingPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null)
         {
-            if (TryGetSourceValue(out var source))
-                return new BindingPathLastMember(Path, source, ConstantBindingMemberInfo.NullInstance);
-            return default;
+            var target = _source?.Target;
+            if (target == null)
+                return default;
+
+            return new BindingPathMembers(Path, target, target, ConstantBindingMemberInfo.NullInstanceArray, ConstantBindingMemberInfo.NullInstance);
         }
 
-        protected override void OnListenerAdded(IBindingPathObserverListener listener)
+        public BindingPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null)
         {
-            if (!HasSourceListener)
-                AddSourceListener();
+            var target = _source?.Target;
+            if (target == null)
+                return default;
+
+            return new BindingPathLastMember(Path, target, ConstantBindingMemberInfo.NullInstance);
         }
 
-        protected override IBindingEventListener GetSourceListener()
+        public void Dispose()
         {
-            return this;
+            _source?.Release();
+            _source = null;
         }
 
         #endregion

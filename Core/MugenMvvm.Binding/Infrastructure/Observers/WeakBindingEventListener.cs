@@ -20,7 +20,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
             if (listener.IsWeak)
                 Source = listener;
             else
-                Source = Service<IWeakReferenceProvider>.Instance.GetWeakReference(listener, Default.Metadata);
+                Source = Service<IWeakReferenceProvider>.Instance.GetWeakReference(listener);
         }
 
         #endregion
@@ -37,7 +37,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
                     return false;
                 if (Source is IBindingEventListener listener)
                     return listener.IsAlive;
-                listener = (IBindingEventListener) ((IWeakReference) Source).Target!;
+                listener = (IBindingEventListener)((IWeakReference)Source).Target!;
                 return listener != null && listener.IsAlive;
             }
         }
@@ -50,7 +50,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
                     return null;
                 if (Source is IBindingEventListener listener)
                     return listener;
-                return (IBindingEventListener?) ((IWeakReference) Source).Target;
+                return (IBindingEventListener?)((IWeakReference)Source).Target;
             }
         }
 
@@ -62,7 +62,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
             if (Source is IBindingEventListener listener)
                 return listener.TryHandle(sender, message);
 
-            listener = (IBindingEventListener) ((IWeakReference) Source).Target!;
+            listener = (IBindingEventListener)((IWeakReference)Source).Target!;
             return listener != null && listener.TryHandle(sender, message);
         }
 
