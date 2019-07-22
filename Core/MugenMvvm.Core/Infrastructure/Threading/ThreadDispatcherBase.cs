@@ -78,7 +78,7 @@ namespace MugenMvvm.Infrastructure.Threading
             {
                 if (state == null)
                     return Task.Factory.StartNew(o => ((IThreadDispatcherHandler)o).Execute(null), handler, cancellationToken);
-                return Task.Factory.StartNew(handler.ToExecuteDelegate, state, cancellationToken);
+                return Task.Factory.StartNew(handler.Execute, state, cancellationToken);
             }
 
             ExceptionManager.ThrowEnumOutOfRange(nameof(executionMode), executionMode);

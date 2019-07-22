@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using MugenMvvm;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading;
 
@@ -40,7 +39,7 @@ namespace MugenMvvm.Infrastructure.Threading
             if (state == null)
                 _synchronizationContext.Post(o => ((IThreadDispatcherHandler) o).Execute(null), handler);
             else
-                _synchronizationContext.Post(handler.ToExecuteDelegate, state);
+                _synchronizationContext.Post(handler.Execute, state);
             return Default.CompletedTask;
         }
 
