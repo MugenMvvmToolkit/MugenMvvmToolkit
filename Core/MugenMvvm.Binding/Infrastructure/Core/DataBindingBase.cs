@@ -197,14 +197,25 @@ namespace MugenMvvm.Binding.Infrastructure.Core
                 return;
             SetFlag(DisposedFlag);
             OnDispose();
+            if (_targetObserverCount != 0)
+                Target.RemoveListener(this);
             Target.Dispose();
             if (this is ISingleSourceDataBinding singleSource)
+            {
+                if (_sourceObserverCount != 0)
+                    singleSource.Source.RemoveListener(this);
                 singleSource.Source.Dispose();
+            }
             else
             {
                 var sources = Sources;
                 for (var i = 0; i < sources.Length; i++)
-                    sources[i].Dispose();
+                {
+                    var observer = sources[i];
+                    if (_sourceObserverCount != 0)
+                        observer.RemoveListener(this);
+                    observer.Dispose();
+                }
             }
 
             Clear();
@@ -271,14 +282,14 @@ namespace MugenMvvm.Binding.Infrastructure.Core
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return ((IReadOnlyMetadataContext) this).GetEnumerator();
+            return ((IReadOnlyMetadataContext)this).GetEnumerator();
         }
 
         bool IReadOnlyMetadataContext.TryGet<T>(IMetadataContextKey<T> contextKey, out T value, T defaultValue)
         {
             if (BindingMetadata.Binding.Equals(contextKey))
             {
-                value = (T) (object) this;
+                value = (T)(object)this;
                 return true;
             }
 
@@ -495,7 +506,7 @@ namespace MugenMvvm.Binding.Infrastructure.Core
 
         protected void ClearFlag(short flag)
         {
-            _state = (byte) (_state & ~flag);
+            _state = (byte)(_state & ~flag);
         }
 
         #endregion
