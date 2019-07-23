@@ -53,7 +53,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members
 
         #region Implementation of interfaces
 
-        public object? GetValue(object? target, object?[]? args, IReadOnlyMetadataContext? metadata = null)
+        public object? GetValue(object? target, object?[]? args = null, IReadOnlyMetadataContext? metadata = null)
         {
             return _result;
         }

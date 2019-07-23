@@ -18,6 +18,8 @@
 
         protected override bool IsOrdered => true;
 
+        protected override bool IsSynchronized => true;
+
         #endregion
     }
 }

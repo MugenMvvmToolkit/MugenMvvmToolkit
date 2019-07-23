@@ -85,5 +85,15 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
         }
 
         #endregion
+
+        #region Methods
+
+        public void ThrowIfError()
+        {
+            if (Error != null)
+                throw Error!;
+        }
+
+        #endregion
     }
 }

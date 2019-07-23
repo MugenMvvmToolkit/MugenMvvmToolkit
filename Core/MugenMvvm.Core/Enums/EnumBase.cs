@@ -11,7 +11,7 @@ namespace MugenMvvm.Enums
     [DataContract(Namespace = BuildConstants.DataContractNamespace)]
     public class EnumBase<TEnumeration, TValue> : IComparable<TEnumeration?>, IEquatable<TEnumeration?>
         where TEnumeration : EnumBase<TEnumeration, TValue>
-        where TValue : IComparable
+        where TValue : IComparable<TValue>, IEquatable<TValue>
     {
         #region Fields
 
@@ -76,7 +76,7 @@ namespace MugenMvvm.Enums
 
         public bool Equals(TEnumeration? other)
         {
-            return other != null! && Value.Equals(other.Value);
+            return other != null && Value.Equals(other.Value);
         }
 
         #endregion

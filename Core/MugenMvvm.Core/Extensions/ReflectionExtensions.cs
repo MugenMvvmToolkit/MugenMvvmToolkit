@@ -129,6 +129,13 @@ namespace MugenMvvm
             return reflectionDelegateProvider.ServiceIfNull().GetMethodInvoker(method).Invoke(target, parameters);
         }
 
+        public static object GetDefaultValue(this Type type)
+        {
+            if (type.IsValueTypeUnified())
+                return Activator.CreateInstance(type);
+            return null;
+        }
+
         private static void UnsubscribePropertyChanged(object sender, PropertyChangedEventHandler handler)
         {
             if (sender is INotifyPropertyChanged notifyPropertyChanged)

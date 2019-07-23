@@ -116,6 +116,17 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
             }
         }
 
+        protected override void OnListenersRemoved()
+        {
+            var listeners = _listeners;
+            var listener = listeners?[listeners.Length - 1];
+            if (listener != null)
+            {
+                listener.Dispose();
+                listeners![listeners.Length - 1] = null;
+            }
+        }
+
         protected override void OnDisposed()
         {
             ClearListeners();
@@ -171,7 +182,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
                     if (_listeners != null)
                         _listeners[i] = member.TryObserve(source, this, null);
 
-                    source = member.GetValue(source, null, null);
+                    source = member.GetValue(source);
                     if (source.IsNullOrUnsetValue())
                     {
                         SetMembers(null, null, null);
@@ -200,7 +211,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
                 if (_listeners != null)
                     _listeners[index] = member.TryObserve(source, this, null);
 
-                source = member.GetValue(source, null, null)!;
+                source = member.GetValue(source)!;
                 if (source.IsNullOrUnsetValue())
                 {
                     SetMembers(null, members, null);

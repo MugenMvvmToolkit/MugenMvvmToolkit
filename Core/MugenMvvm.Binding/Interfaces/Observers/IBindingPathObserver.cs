@@ -16,8 +16,8 @@ namespace MugenMvvm.Binding.Interfaces.Observers
 
         void RemoveListener(IBindingPathObserverListener listener);
 
-        BindingPathMembers GetMembers(IReadOnlyMetadataContext metadata);
+        BindingPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null);
 
-        BindingPathLastMember GetLastMember(IReadOnlyMetadataContext metadata);
+        BindingPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null);
     }
 }

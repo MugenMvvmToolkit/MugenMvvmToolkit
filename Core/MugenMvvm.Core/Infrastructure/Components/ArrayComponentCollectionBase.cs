@@ -30,6 +30,8 @@ namespace MugenMvvm.Infrastructure.Components
 
         protected abstract bool IsOrdered { get; }
 
+        protected abstract bool IsSynchronized { get; }
+
         public bool HasItems => Items.Length > 0;
 
         bool IComponentOwner<IComponentCollection<T>>.HasComponents => _components != null && _components.HasItems;
@@ -68,7 +70,12 @@ namespace MugenMvvm.Infrastructure.Components
                     return false;
             }
 
-            lock (this)
+            if (IsSynchronized)
+            {
+                if (!AddLockImpl(component, metadata))
+                    return false;
+            }
+            else
             {
                 if (!AddInternal(component, metadata))
                     return false;
@@ -97,7 +104,12 @@ namespace MugenMvvm.Infrastructure.Components
                     return false;
             }
 
-            lock (this)
+            if (IsSynchronized)
+            {
+                if (!RemoveLockImpl(component, metadata))
+                    return false;
+            }
+            else
             {
                 if (!RemoveInternal(component, metadata))
                     return false;
@@ -187,6 +199,22 @@ namespace MugenMvvm.Infrastructure.Components
             if (component is IComponent c)
                 return c.GetPriority(Owner);
             return ((IHasPriority)component).Priority;
+        }
+
+        private bool AddLockImpl(T component, IReadOnlyMetadataContext? metadata)
+        {
+            lock (this)
+            {
+                return AddInternal(component, metadata);
+            }
+        }
+
+        private bool RemoveLockImpl(T component, IReadOnlyMetadataContext? metadata)
+        {
+            lock (this)
+            {
+                return RemoveInternal(component, metadata);
+            }
         }
 
         private void AddOrdered(T component)

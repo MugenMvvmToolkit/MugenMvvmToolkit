@@ -21,7 +21,7 @@ namespace MugenMvvm.Binding.Interfaces.Members
 
         bool CanObserve { get; }
 
-        object? GetValue(object? target, object?[]? args, IReadOnlyMetadataContext? metadata = null);
+        object? GetValue(object? target, object?[]? args = null, IReadOnlyMetadataContext? metadata = null);
 
         object? SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata = null);
 

@@ -107,6 +107,15 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
             }
         }
 
+        protected override void OnListenersRemoved()
+        {
+            if (_lastMemberUnsubscriber != null)
+            {
+                _lastMemberUnsubscriber?.Dispose();
+                _lastMemberUnsubscriber = null;
+            }
+        }
+
         protected override void OnDisposed()
         {
             _lastMemberUnsubscriber?.Dispose();

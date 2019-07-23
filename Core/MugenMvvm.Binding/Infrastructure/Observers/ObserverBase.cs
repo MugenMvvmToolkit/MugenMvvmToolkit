@@ -92,7 +92,10 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
                 return;
 
             if (_listeners.Length == 1)
+            {
                 _listeners = Default.EmptyArray<IBindingPathObserverListener>();
+                OnListenersRemoved();
+            }
             else
                 Array.Resize(ref _listeners, _listeners.Length - 1);
         }
@@ -106,6 +109,10 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
         #region Methods
 
         protected virtual void OnListenerAdded(IBindingPathObserverListener listener)
+        {
+        }
+
+        protected virtual void OnListenersRemoved()
         {
         }
 
