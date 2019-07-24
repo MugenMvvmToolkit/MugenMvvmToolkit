@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
@@ -239,6 +240,7 @@ namespace MugenMvvm.Collections.Components
             #endregion
         }
 
+        [StructLayout(LayoutKind.Auto)]
         private struct OrderedItem
         {
             #region Fields
