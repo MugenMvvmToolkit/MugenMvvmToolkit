@@ -28,12 +28,24 @@ namespace MugenMvvm.Infrastructure.Internal
             if (item is IWeakReference w)
                 return w;
 
+            var holder = item as IWeakReferenceHolder;
+            if (holder != null)
+            {
+                var weakReference = holder.WeakReference;
+                if (weakReference != null)
+                    return weakReference;
+            }
+
             var factories = Components.GetItems();
             for (var i = 0; i < factories.Length; i++)
             {
                 var weakReference = (factories[i] as IWeakReferenceProviderComponent)?.TryGetWeakReference(item, metadata);
                 if (weakReference != null)
+                {
+                    if (holder != null)
+                        holder.WeakReference = weakReference;
                     return weakReference;
+                }
             }
 
             ExceptionManager.ThrowObjectNotInitialized(this, typeof(IWeakReferenceProviderComponent).Name);
