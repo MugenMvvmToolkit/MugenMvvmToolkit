@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Infrastructure.Observers;
 using MugenMvvm.Binding.Interfaces.Core;
@@ -223,10 +224,11 @@ namespace MugenMvvm.Binding.Infrastructure.Core
 
         public void UpdateTarget()
         {
-            if (CheckFlag(TargetUpdatingFlag))
-                return;
             try
             {
+                if (CheckFlag(TargetUpdatingFlag))
+                    return;
+
                 SetFlag(TargetUpdatingFlag);
                 var success = UpdateTargetInternal(out var newValue);
                 if (CheckFlag(HasTargetListenerFlag))
@@ -250,10 +252,11 @@ namespace MugenMvvm.Binding.Infrastructure.Core
 
         public void UpdateSource()
         {
-            if (CheckFlag(SourceUpdatingFlag))
-                return;
             try
             {
+                if (CheckFlag(SourceUpdatingFlag))
+                    return;
+
                 SetFlag(SourceUpdatingFlag);
                 var success = UpdateSourceInternal(out var newValue);
                 if (CheckFlag(HasSourceListenerFlag))
@@ -494,16 +497,19 @@ namespace MugenMvvm.Binding.Infrastructure.Core
             return true;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected bool CheckFlag(short flag)
         {
             return (_state & flag) == flag;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void SetFlag(short flag)
         {
             _state |= flag;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected void ClearFlag(short flag)
         {
             _state = (byte)(_state & ~flag);

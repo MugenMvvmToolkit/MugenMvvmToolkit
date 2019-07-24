@@ -19,7 +19,7 @@ namespace MugenMvvm.Binding.Metadata
 
         public static IMetadataContextKey<IDataBinding?> Binding
         {
-            get => _binding ??= GetBuilder<IDataBinding?>(nameof(Binding)).Build();
+            get => _binding ??= GetBuilder<IDataBinding?>(nameof(Binding)).Build();//todo inline?
             set => _binding = value;
         }
 

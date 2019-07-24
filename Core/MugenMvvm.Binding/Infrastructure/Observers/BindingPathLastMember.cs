@@ -4,6 +4,7 @@ using MugenMvvm.Binding.Infrastructure.Members;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Metadata;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Infrastructure.Observers
 {
@@ -92,6 +93,13 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
         {
             if (Error != null)
                 throw Error!;
+        }
+
+
+        public object? GetLastMemberValue(object?[]? args = null, IReadOnlyMetadataContext? metadata = null)
+        {
+            ThrowIfError();
+            return LastMember.GetValue(PenultimateValue, args, metadata);
         }
 
         #endregion

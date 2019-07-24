@@ -26,14 +26,12 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
         {
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(member, nameof(member));
-            Should.NotBeNull(metadata, nameof(metadata));
             return GetMemberObserverInternal(type, member, metadata);
         }
 
         public IBindingPath GetBindingPath(object path, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(path, nameof(path));
-            Should.NotBeNull(metadata, nameof(metadata));
             var p = path as IBindingPath ?? TryGetBindingPathInternal(path, metadata);
             if (p == null)
                 ExceptionManager.ThrowNotSupported(nameof(path));

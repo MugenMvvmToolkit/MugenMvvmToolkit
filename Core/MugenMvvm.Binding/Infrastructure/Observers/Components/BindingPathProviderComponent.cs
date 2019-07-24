@@ -45,15 +45,10 @@ namespace MugenMvvm.Binding.Infrastructure.Observers.Components
             if (stringPath.Length == 0)
                 return EmptyBindingPath.Instance;
 
-            var hasDot = stringPath.IndexOf('.') >= 0;
-            var hasBracket = stringPath.IndexOf('[') >= 0;
-            if (!hasDot && !hasBracket)
-                return new SingleBindingPath(stringPath);
-
             if (UseCache)
-                return GetFromCache(stringPath, hasBracket);
+                return GetFromCache(stringPath);
 
-            return new MultiBindingPath(stringPath, hasBracket);
+            return GetObserver(stringPath);
         }
 
         int IComponent.GetPriority(object source)
@@ -65,22 +60,30 @@ namespace MugenMvvm.Binding.Infrastructure.Observers.Components
 
         #region Methods
 
-        private MultiBindingPath GetFromCache(string path, bool hasBracket)
+        private IBindingPath GetFromCache(string path)
         {
             if (!_cache.TryGetValue(path, out var value))
             {
-                value = new MultiBindingPath(path, hasBracket);
+                value = GetObserver(path);
                 _cache[path] = value;
             }
 
             return value;
         }
 
+        private IBindingPath GetObserver(string path)
+        {
+            var hasBracket = path.IndexOf('[') >= 0;
+            if (path.IndexOf('.') >= 0 || hasBracket)
+                return new MultiBindingPath(path, hasBracket);
+            return new SingleBindingPath(path);
+        }
+
         #endregion
 
         #region Nested types
 
-        private sealed class CacheDictionary : LightDictionaryBase<string, MultiBindingPath>
+        private sealed class CacheDictionary : LightDictionaryBase<string, IBindingPath>
         {
             #region Constructors
 
@@ -131,7 +134,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers.Components
                 get
                 {
                     if (_parts == null)
-                        _parts = new[] {Path};
+                        _parts = new[] { Path };
                     return _parts;
                 }
             }

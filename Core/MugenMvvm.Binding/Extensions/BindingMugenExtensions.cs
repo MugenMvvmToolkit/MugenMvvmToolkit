@@ -12,12 +12,6 @@ namespace MugenMvvm.Binding
     {
         #region Methods
 
-        public static object? GetLastMemberValue(this BindingPathLastMember member, object?[]? args = null, IReadOnlyMetadataContext? metadata = null)
-        {
-            member.ThrowIfError();
-            return member.LastMember.GetValue(member.PenultimateValue, args, metadata);
-        }
-
         public static TValue GetValueOrDefault<TSource, TValue>(this BindingMemberDescriptor<TSource, TValue> descriptor, TSource source,
             object?[]? args = null, IReadOnlyMetadataContext? metadata = null, IBindingMemberProvider? provider = null)
             where TSource : class

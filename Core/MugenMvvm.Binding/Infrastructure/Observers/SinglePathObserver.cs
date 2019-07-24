@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Interfaces.Internal;
@@ -124,6 +125,7 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
             _exception = null;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void UpdateIfNeed()
         {
             if (!IsInitialized)

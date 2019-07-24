@@ -53,7 +53,6 @@ namespace MugenMvvm.Binding.Infrastructure.Members
         {
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(name, nameof(name));
-            Should.NotBeNull(metadata, nameof(metadata));
             return GetMemberInternal(type, name, false, metadata);
         }
 
@@ -61,14 +60,12 @@ namespace MugenMvvm.Binding.Infrastructure.Members
         {
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(name, nameof(name));
-            Should.NotBeNull(metadata, nameof(metadata));
             return GetMemberInternal(type, name, true, metadata);
         }
 
         public IReadOnlyList<AttachedMemberRegistration> GetAttachedMembers(Type type, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(type, nameof(type));
-            Should.NotBeNull(metadata, nameof(metadata));
             return GetAttachedMembersInternal(type, metadata);
         }
 
@@ -76,14 +73,12 @@ namespace MugenMvvm.Binding.Infrastructure.Members
         {
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(member, nameof(member));
-            Should.NotBeNull(metadata, nameof(metadata));
             RegisterInternal(type, member, name, metadata);
         }
 
         public bool Unregister(Type type, string? name, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(type, nameof(type));
-            Should.NotBeNull(metadata, nameof(metadata));
             return UnregisterInternal(type, name, metadata);
         }
 
