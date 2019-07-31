@@ -28,7 +28,7 @@ namespace MugenMvvm.Binding.Infrastructure.Core
         private const short AttachedFlag = 1;
         private const short DisposedFlag = 2;
 
-        private const short DisableEqualityCheckingFlag = 4;
+        private const short DisableEqualityCheckingFlag = 4;//todo remove
 
         private const short HasTargetValueInterceptorFlag = 8;
         private const short HasSourceValueInterceptorFlag = 16;
