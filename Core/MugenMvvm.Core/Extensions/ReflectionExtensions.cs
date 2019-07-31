@@ -158,7 +158,7 @@ namespace MugenMvvm
 
         private sealed class WeakEventHandler<TTarget, TArg, TDelegate> : IWeakEventHandler<TArg>
             where TTarget : class
-            where TDelegate : class
+            where TDelegate : class?
         {
             #region Fields
 
@@ -166,7 +166,7 @@ namespace MugenMvvm
             private readonly IWeakReference _targetReference;
             private readonly Delegate? _unsubscribeAction;
 
-            public TDelegate? HandlerDelegate;
+            public TDelegate HandlerDelegate;
 
             #endregion
 
@@ -187,7 +187,7 @@ namespace MugenMvvm
 
             public void Handle(object sender, TArg arg)
             {
-                var target = (TTarget?)_targetReference.Target;
+                var target = (TTarget)_targetReference.Target;
                 if (target == null)
                 {
                     if (_unsubscribeAction != null)

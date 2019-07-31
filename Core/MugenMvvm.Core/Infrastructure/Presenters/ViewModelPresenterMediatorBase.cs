@@ -57,7 +57,7 @@ namespace MugenMvvm.Infrastructure.Presenters
 
         protected IThreadDispatcher ThreadDispatcher { get; }
 
-        protected TView? View { get; private set; }
+        protected TView View { get; private set; }
 
         protected bool IsClosing => _closingContext != null;
 

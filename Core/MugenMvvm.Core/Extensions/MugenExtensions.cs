@@ -25,9 +25,9 @@ namespace MugenMvvm
             return viewInfo.Initializer.CleanupAsync(viewInfo, viewModel, metadata);
         }
 
-        public static TType? GetComponent<T, TType>(this IComponentOwner<T> owner, bool optional)
+        public static TType GetComponent<T, TType>(this IComponentOwner<T> owner, bool optional)
             where T : class
-            where TType : class, IComponent<T>
+            where TType : class?, IComponent<T>
         {
             Should.NotBeNull(owner, nameof(owner));
             var components = owner.GetComponents();

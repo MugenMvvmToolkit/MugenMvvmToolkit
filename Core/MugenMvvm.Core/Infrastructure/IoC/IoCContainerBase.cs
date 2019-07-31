@@ -28,7 +28,7 @@ namespace MugenMvvm.Infrastructure.IoC
 
         #region Constructors
 
-        protected IocContainerBase(TContainer? parent)
+        protected IocContainerBase(TContainer parent = null)
         {
             Id = Interlocked.Increment(ref _idCounter);
             Parent = parent;
@@ -52,7 +52,7 @@ namespace MugenMvvm.Infrastructure.IoC
 
         public int Id { get; protected set; }
 
-        public TContainer? Parent { get; }
+        public TContainer Parent { get; }
 
         public abstract TInternalContainer Container { get; }
 

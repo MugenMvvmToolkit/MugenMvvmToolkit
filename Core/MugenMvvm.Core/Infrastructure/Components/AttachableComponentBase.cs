@@ -8,7 +8,7 @@ namespace MugenMvvm.Infrastructure.Components
     {
         #region Fields
 
-        private T? _owner;
+        private T _owner;
         private int _state;
         private const int DetachedState = 0;
         private const int AttachedState = 1;

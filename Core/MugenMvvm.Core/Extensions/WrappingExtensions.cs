@@ -63,10 +63,10 @@ namespace MugenMvvm
             return wrapperManager.AddWrapper(typeof(TWrapper), typeof(TImplementation), wrapperFactory);
         }
 
-        public static TView? TryWrap<TView>(this IViewInfo viewInfo, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
-            where TView : class
+        public static TView TryWrap<TView>(this IViewInfo viewInfo, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
+            where TView : class?
         {
-            return (TView?)viewInfo.TryWrap(typeof(TView), metadata, wrapperManager);
+            return (TView)viewInfo.TryWrap(typeof(TView), metadata, wrapperManager);
         }
 
         public static object? TryWrap(this IViewInfo viewInfo, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
