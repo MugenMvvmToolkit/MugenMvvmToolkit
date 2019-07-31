@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using MugenMvvm.Binding.Infrastructure.Components;
 using MugenMvvm.Binding.Metadata;
 
 // ReSharper disable once CheckNamespace
@@ -62,7 +63,7 @@ namespace MugenMvvm.Binding
                 AddInterface(types, t, false);
         }
 
-        internal static string[]? GetIndexerValuesRaw(string path) //todo fix?
+        internal static string[]? GetIndexerValuesRaw(string path)
         {
             if (path.StartsWith("Item[", StringComparison.Ordinal))
                 path = path.Substring(4);
@@ -74,7 +75,7 @@ namespace MugenMvvm.Binding
                 .Split(CommaSeparator, StringSplitOptions.RemoveEmptyEntries);
         }
 
-        internal static object[] GetIndexerValues(string path, ParameterInfo[]? parameters = null, Type? castType = null) //todo fix?
+        internal static object[] GetIndexerValues(string path, ParameterInfo[]? parameters = null, Type? castType = null)
         {
             if (path.StartsWith("Item[", StringComparison.Ordinal))
                 path = path.Substring(4);
@@ -92,8 +93,8 @@ namespace MugenMvvm.Binding
             {
                 var s = args[i];
                 if (!string.IsNullOrEmpty(s) && s[0] == '\"' && s.EndsWith("\""))
-                    s = s.RemoveBounds();//todo check
-                //                result[i] = s == "null" ? null : BindingServiceProvider.ValueConverter(BindingMemberInfo.Empty, castType, s);
+                    s = s.RemoveBounds();
+                result[i] = (TItem)(s == "null" ? null : GlobalBindingValueConverter.Convert(s, typeof(TItem)));
             }
 
             return result;
@@ -108,8 +109,8 @@ namespace MugenMvvm.Binding
                 if (parameters != null)
                     castType = parameters[i].ParameterType;
                 if (!string.IsNullOrEmpty(s) && s[0] == '\"' && s.EndsWith("\""))
-                    s = s.RemoveBounds();//todo check
-                //                result[i] = s == "null" ? null : BindingServiceProvider.ValueConverter(BindingMemberInfo.Empty, castType, s);
+                    s = s.RemoveBounds();
+                result[i] = s == "null" ? null : GlobalBindingValueConverter.Convert(s, castType);
             }
 
             return result;

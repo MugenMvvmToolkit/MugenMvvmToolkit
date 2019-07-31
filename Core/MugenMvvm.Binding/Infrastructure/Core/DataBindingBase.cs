@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Infrastructure.Components;
 using MugenMvvm.Binding.Infrastructure.Observers;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
@@ -447,8 +448,7 @@ namespace MugenMvvm.Binding.Infrastructure.Core
                     return false;
             }
 
-            //todo convert
-
+            newValue = GlobalBindingValueConverter.Convert(newValue, pathLastMember.LastMember.Type, pathLastMember.LastMember, Metadata);
             if (!DisableEqualityChecking && pathLastMember.LastMember.CanRead)
             {
                 var oldValue = pathLastMember.LastMember.GetValue(pathLastMember.PenultimateValue, null, Metadata);
@@ -483,8 +483,7 @@ namespace MugenMvvm.Binding.Infrastructure.Core
                     return false;
             }
 
-            //todo convert
-
+            newValue = GlobalBindingValueConverter.Convert(newValue, pathLastMember.LastMember.Type, pathLastMember.LastMember, Metadata);
             if (!DisableEqualityChecking && pathLastMember.LastMember.CanRead)
             {
                 var oldValue = pathLastMember.LastMember.GetValue(pathLastMember.PenultimateValue, null, Metadata);

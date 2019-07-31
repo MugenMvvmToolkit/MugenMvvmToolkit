@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Infrastructure.Components;
 using MugenMvvm.Binding.Infrastructure.Observers;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
@@ -112,7 +113,7 @@ namespace MugenMvvm.Binding.Infrastructure.Members.Components
                                 }
                                 else
                                 {
-                                    //BindingServiceProvider.ValueConverter(Empty, paramType, arg);//todo converter
+                                    GlobalBindingValueConverter.Convert(arg, paramType, metadata: metadata);
                                     if (paramType.IsValueTypeUnified())
                                         count++;
                                 }
