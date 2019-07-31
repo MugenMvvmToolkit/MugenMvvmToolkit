@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using MugenMvvm.Enums;
-using MugenMvvm;
 using MugenMvvm.Infrastructure.Internal;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -26,14 +25,9 @@ namespace MugenMvvm.Infrastructure.Components
 
         #region Methods
 
-        public static IComponentCollectionListener<T> GetComponentCollectionListener<T>() where T : class
+        public static ComponentCollectionListener<TItem> GetComponentCollectionListener<TItem>() where TItem : class
         {
-            return CallbackComponentCollectionProviderListenerImpl<T>.Instance;
-        }
-
-        public static IComponentCollectionProviderListener GetComponentCollectionProviderListener()
-        {
-            return CallbackComponentCollectionProviderListenerImpl<object>.Instance;
+            return ComponentCollectionListener<TItem>.Instance;
         }
 
         private static MethodInfo GetAttachDetachMethod()
@@ -111,12 +105,12 @@ namespace MugenMvvm.Infrastructure.Components
 
         #region Nested types
 
-        private sealed class CallbackComponentCollectionProviderListenerImpl<T> : IComponentCollectionListener<T>, IComponentCollectionProviderListener
+        public sealed class ComponentCollectionListener<T> : IComponentCollectionChangedListener<T>, IComponentCollectionProviderListener
             where T : class
         {
             #region Fields
 
-            public static readonly CallbackComponentCollectionProviderListenerImpl<T> Instance = new CallbackComponentCollectionProviderListenerImpl<T>();
+            public static readonly ComponentCollectionListener<T> Instance = new ComponentCollectionListener<T>();
 
             #endregion
 
@@ -185,7 +179,7 @@ namespace MugenMvvm.Infrastructure.Components
                 IReadOnlyMetadataContext? metadata)
                 where TItem : class
             {
-                componentCollection.AddComponent(CallbackComponentCollectionProviderListenerImpl<TItem>.Instance, metadata);
+                componentCollection.AddComponent(ComponentCollectionListener<TItem>.Instance, metadata);
             }
 
             #endregion
