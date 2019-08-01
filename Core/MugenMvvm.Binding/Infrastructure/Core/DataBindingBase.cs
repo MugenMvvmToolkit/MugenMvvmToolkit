@@ -17,7 +17,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Infrastructure.Core
 {
-    public abstract class DataBindingBase : ArrayComponentCollectionBase<IComponent<IDataBinding>>, IDataBinding, IBindingPathObserverListener,
+    public abstract class DataBindingBase : ArrayComponentCollectionBase<IComponent<IDataBinding>>, IHasEqualityCheckingSettingsDataBinding, IBindingPathObserverListener,
         IComponentOwnerAddedCallback<IComponent<IDataBinding>>, IComponentOwnerRemovedCallback<IComponent<IDataBinding>>, IReadOnlyMetadataContext
     {
         #region Fields
@@ -27,32 +27,32 @@ namespace MugenMvvm.Binding.Infrastructure.Core
         private byte _targetObserverCount;
 
         private const short AttachedFlag = 1;
-        private const short DisposedFlag = 2;
+        private const short DisposedFlag = 1 << 1;
 
-        private const short DisableEqualityCheckingFlag = 4;//todo remove
+        private const short DisableEqualityCheckingTargetFlag = 1 << 2;
+        private const short DisableEqualityCheckingSourceFlag = 1 << 3;
 
-        private const short HasTargetValueInterceptorFlag = 8;
-        private const short HasSourceValueInterceptorFlag = 16;
+        private const short HasTargetValueInterceptorFlag = 1 << 4;
+        private const short HasSourceValueInterceptorFlag = 1 << 5;
 
-        private const short HasTargetListenerFlag = 32;
-        private const short HasSourceListenerFlag = 64;
+        private const short HasTargetListenerFlag = 1 << 6;
+        private const short HasSourceListenerFlag = 1 << 7;
 
-        private const short HasTargetValueSetterFlag = 128;
-        private const short HasSourceValueSetterFlag = 256;
+        private const short HasTargetValueSetterFlag = 1 << 8;
+        private const short HasSourceValueSetterFlag = 1 << 9;
 
-        private const short TargetUpdatingFlag = 512;
-        private const short SourceUpdatingFlag = 1024;
+        private const short TargetUpdatingFlag = 1 << 10;
+        private const short SourceUpdatingFlag = 1 << 11;
 
         #endregion
 
         #region Constructors
 
-        protected DataBindingBase(IBindingPathObserver target, bool disableEqualityChecking)
+        protected DataBindingBase(IBindingPathObserver target, IComponent<IDataBinding>[]? components)
         {
             Should.NotBeNull(target, nameof(target));
             Target = target;
-            if (disableEqualityChecking)
-                SetFlag(DisableEqualityCheckingFlag);
+            //todo init components
         }
 
         #endregion
@@ -79,13 +79,35 @@ namespace MugenMvvm.Binding.Infrastructure.Core
 
         public sealed override object Owner => this;
 
+        public bool DisableEqualityCheckingTarget
+        {
+            get => CheckFlag(DisableEqualityCheckingTargetFlag);
+            set
+            {
+                if (value)
+                    SetFlag(DisableEqualityCheckingTargetFlag);
+                else
+                    ClearFlag(DisableEqualityCheckingTargetFlag);
+            }
+        }
+
+        public bool DisableEqualityCheckingSource
+        {
+            get => CheckFlag(DisableEqualityCheckingSourceFlag);
+            set
+            {
+                if (value)
+                    SetFlag(DisableEqualityCheckingSourceFlag);
+                else
+                    ClearFlag(DisableEqualityCheckingSourceFlag);
+            }
+        }
+
         protected virtual IReadOnlyMetadataContext Metadata => this;
 
         protected sealed override bool IsOrdered => true;
 
         protected sealed override bool IsSynchronized => false;
-
-        protected bool DisableEqualityChecking => CheckFlag(DisableEqualityCheckingFlag);
 
         int IReadOnlyCollection<MetadataContextValue>.Count => 1;
 
@@ -449,7 +471,7 @@ namespace MugenMvvm.Binding.Infrastructure.Core
             }
 
             newValue = GlobalBindingValueConverter.Convert(newValue, pathLastMember.LastMember.Type, pathLastMember.LastMember, Metadata);
-            if (!DisableEqualityChecking && pathLastMember.LastMember.CanRead)
+            if (!DisableEqualityCheckingTarget && pathLastMember.LastMember.CanRead)
             {
                 var oldValue = pathLastMember.LastMember.GetValue(pathLastMember.PenultimateValue, null, Metadata);
                 if (Equals(oldValue, newValue))
@@ -484,7 +506,7 @@ namespace MugenMvvm.Binding.Infrastructure.Core
             }
 
             newValue = GlobalBindingValueConverter.Convert(newValue, pathLastMember.LastMember.Type, pathLastMember.LastMember, Metadata);
-            if (!DisableEqualityChecking && pathLastMember.LastMember.CanRead)
+            if (!DisableEqualityCheckingSource && pathLastMember.LastMember.CanRead)
             {
                 var oldValue = pathLastMember.LastMember.GetValue(pathLastMember.PenultimateValue, null, Metadata);
                 if (Equals(oldValue, newValue))

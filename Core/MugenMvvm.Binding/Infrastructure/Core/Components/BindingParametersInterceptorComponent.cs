@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Infrastructure.Core.Components
 {
-    public sealed class BindingParametersValueInterceptorComponent : ISourceValueInterceptorDataBindingComponent, ITargetValueInterceptorDataBindingComponent
+    public sealed class BindingParametersInterceptorComponent : ISourceValueInterceptorDataBindingComponent, ITargetValueInterceptorDataBindingComponent
     {
         #region Fields
 
@@ -21,7 +21,7 @@ namespace MugenMvvm.Binding.Infrastructure.Core.Components
 
         #region Constructors
 
-        public BindingParametersValueInterceptorComponent(Func<IReadOnlyMetadataContext, IBindingValueConverter> converterDelegate,
+        public BindingParametersInterceptorComponent(Func<IReadOnlyMetadataContext, IBindingValueConverter> converterDelegate,
             Func<IReadOnlyMetadataContext, object> converterParameterDelegate, Func<IReadOnlyMetadataContext, object> commandParameterDelegate,
             Func<IReadOnlyMetadataContext, object> fallbackDelegate, object targetNullValue)
         {

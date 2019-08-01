@@ -3,6 +3,7 @@ using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Infrastructure.Core
@@ -17,8 +18,8 @@ namespace MugenMvvm.Binding.Infrastructure.Core
 
         #region Constructors
 
-        public MultiDataBinding(IBindingPathObserver target, IBindingPathObserver[] sources, Func<object?[]?, IReadOnlyMetadataContext?, object?> expression)
-            : base(target, true)
+        public MultiDataBinding(IBindingPathObserver target, IBindingPathObserver[] sources, Func<object?[]?, IReadOnlyMetadataContext?, object?> expression, IComponent<IDataBinding>[]? components)
+            : base(target, components)
         {
             Should.NotBeNull(sources, nameof(sources));
             _expression = expression;

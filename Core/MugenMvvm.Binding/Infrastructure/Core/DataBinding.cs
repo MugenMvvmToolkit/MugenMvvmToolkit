@@ -1,6 +1,7 @@
 ﻿using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Binding.Infrastructure.Core
 {
@@ -8,8 +9,8 @@ namespace MugenMvvm.Binding.Infrastructure.Core
     {
         #region Constructors
 
-        public DataBinding(IBindingPathObserver target, IBindingPathObserver source, bool disableEqualityChecking)
-            : base(target, disableEqualityChecking)
+        public DataBinding(IBindingPathObserver target, IBindingPathObserver source, IComponent<IDataBinding>[]? components)
+            : base(target, components)
         {
             Should.NotBeNull(source, nameof(source));
             Source = source;
@@ -19,7 +20,7 @@ namespace MugenMvvm.Binding.Infrastructure.Core
 
         #region Properties
 
-        public override IBindingPathObserver[] Sources => new[] {Source};
+        public override IBindingPathObserver[] Sources => new[] { Source };
 
         public IBindingPathObserver Source { get; }
 

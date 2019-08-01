@@ -11,10 +11,10 @@ namespace MugenMvvm.Binding.Infrastructure.Observers
         #region Fields
 
         protected const byte IgnoreAttachedMembersFlag = 1;
-        protected const byte ObservableFlag = 2;
-        protected const byte OptionalFlag = 4;
-        protected const byte HasStablePathFlag = 8;
-        protected const byte InitializedFlag = 16;
+        protected const byte ObservableFlag = 1 << 1;
+        protected const byte OptionalFlag = 1 << 2;
+        protected const byte HasStablePathFlag = 1 << 3;
+        protected const byte InitializedFlag = 1 << 4;
 
         private IBindingPathObserverListener[] _listeners;
         private IWeakReference? _source;
