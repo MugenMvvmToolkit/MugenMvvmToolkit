@@ -48,11 +48,10 @@ namespace MugenMvvm.Binding.Infrastructure.Core
 
         #region Constructors
 
-        protected DataBindingBase(IBindingPathObserver target, IComponent<IDataBinding>[]? components)
+        protected DataBindingBase(IBindingPathObserver target)
         {
             Should.NotBeNull(target, nameof(target));
             Target = target;
-            //todo init components
         }
 
         #endregion
@@ -331,6 +330,21 @@ namespace MugenMvvm.Binding.Infrastructure.Core
         #endregion
 
         #region Methods
+
+        public void SetComponents(IComponent<IDataBinding>[]? components)
+        {
+            if (Items.Length != 0)
+                ExceptionManager.ThrowObjectInitialized(this);
+            var listener = CallbackInvokerComponentCollectionComponent.GetComponentCollectionListener<IComponent<IDataBinding>>();
+            for (int i = 0; i < components.Length; i++)
+            {
+                var component = components[i];
+                if (listener.OnAdding(this, component, Metadata))
+                    listener.OnAdded(this, component, Metadata);
+            }
+
+            Items = components;
+        }
 
         protected abstract object? GetSourceValue(IBindingMemberInfo lastMember);
 

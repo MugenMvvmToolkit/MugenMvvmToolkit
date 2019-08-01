@@ -44,7 +44,7 @@ namespace MugenMvvm.Binding.Infrastructure.Core.Components
 
         int IComponent.GetPriority(object source)
         {
-            return 0;
+            return int.MinValue;
         }
 
         #endregion

@@ -18,8 +18,8 @@ namespace MugenMvvm.Binding.Infrastructure.Core
 
         #region Constructors
 
-        public MultiDataBinding(IBindingPathObserver target, IBindingPathObserver[] sources, Func<object?[]?, IReadOnlyMetadataContext?, object?> expression, IComponent<IDataBinding>[]? components)
-            : base(target, components)
+        public MultiDataBinding(IBindingPathObserver target, IBindingPathObserver[] sources, Func<object?[]?, IReadOnlyMetadataContext?, object?> expression)
+            : base(target)
         {
             Should.NotBeNull(sources, nameof(sources));
             _expression = expression;
