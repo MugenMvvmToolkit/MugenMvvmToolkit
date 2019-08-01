@@ -37,7 +37,7 @@ namespace MugenMvvm.Infrastructure.Components
             return m;
         }
 
-        private static void Attach<T>(IComponentCollection<T> collection, object component, IReadOnlyMetadataContext? metadata) where T : class
+        private static bool Attach<T>(IComponentCollection<T> collection, object component, bool preBind, IReadOnlyMetadataContext? metadata) where T : class
         {
             var type = component.GetType();
             Func<object?, object?[], object?>? func;
@@ -50,10 +50,12 @@ namespace MugenMvvm.Infrastructure.Components
                 }
             }
 
-            func?.Invoke(null, new[] { collection.Owner, component, Default.TrueObject, metadata });
+            if (func == null)
+                return true;
+            return (bool)func.Invoke(null, new[] { collection.Owner, component, Default.TrueObject, Default.BoolToObject(preBind), metadata });
         }
 
-        private static void Detach<T>(IComponentCollection<T> collection, object component, IReadOnlyMetadataContext? metadata) where T : class
+        private static bool Detach<T>(IComponentCollection<T> collection, object component, bool preBind, IReadOnlyMetadataContext? metadata) where T : class
         {
             var type = component.GetType();
             Func<object?, object?[], object?>? func;
@@ -66,7 +68,10 @@ namespace MugenMvvm.Infrastructure.Components
                 }
             }
 
-            func?.Invoke(null, new[] { collection.Owner, component, Default.FalseObject, metadata });
+            if (func == null)
+                return true;
+
+            return (bool)func.Invoke(null, new[] { collection.Owner, component, Default.FalseObject, Default.BoolToObject(preBind), metadata });
         }
 
         private static Func<object?, object?[], object?>? GetAttachFunc(Type targetType, Type interfaceType)
@@ -87,18 +92,28 @@ namespace MugenMvvm.Infrastructure.Components
             return result;
         }
 
-        private static void AttachDetachIml<T>(object owner, object target, bool attach, IReadOnlyMetadataContext? metadata) where T : class
+        private static object AttachDetachIml<T>(object owner, object target, bool attach, bool preBind, IReadOnlyMetadataContext? metadata) where T : class
         {
             if (attach)
             {
                 if (target is IAttachableComponent<T> component && owner is T value)
+                {
+                    if (preBind)
+                        return Default.BoolToObject(component.OnAttaching(value, metadata));
                     component.OnAttached(value, metadata);
+                }
             }
             else
             {
                 if (target is IDetachableComponent<T> component && owner is T value)
+                {
+                    if (preBind)
+                        return Default.BoolToObject(component.OnDetaching(value, metadata));
                     component.OnDetached(value, metadata);
+                }
             }
+
+            return Default.TrueObject;
         }
 
         #endregion
@@ -121,43 +136,22 @@ namespace MugenMvvm.Infrastructure.Components
                 return 0;
             }
 
-            public bool OnAdding(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata)
-            {
-                if (collection.Owner is IComponentOwnerAddingCallback<T> callback)
-                    return callback.OnComponentAdding(collection, component, metadata);
-                return true;
-            }
-
             public void OnAdded(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata)
             {
                 if (component is IAttachableComponent)
-                    Attach(collection, component, metadata);
+                    Attach(collection, component, false, metadata);
 
                 if (collection.Owner is IComponentOwnerAddedCallback<T> callback)
                     callback.OnComponentAdded(collection, component, metadata);
             }
 
-            public bool OnRemoving(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata)
-            {
-                if (collection.Owner is IComponentOwnerRemovingCallback<T> callback)
-                    return callback.OnComponentRemoving(collection, component, metadata);
-                return true;
-            }
-
             public void OnRemoved(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata)
             {
                 if (component is IDetachableComponent)
-                    Detach(collection, component, metadata);
+                    Detach(collection, component, false, metadata);
 
                 if (collection.Owner is IComponentOwnerRemovedCallback<T> callback)
                     callback.OnComponentRemoved(collection, component, metadata);
-            }
-
-            public bool OnClearing(IComponentCollection<T> collection, IReadOnlyMetadataContext? metadata)
-            {
-                if (collection.Owner is IComponentOwnerClearingCallback<T> callback)
-                    return callback.OnComponentClearing(collection, collection.GetItems(), metadata);
-                return true;
             }
 
             public void OnCleared(IComponentCollection<T> collection, T[] oldItems, IReadOnlyMetadataContext? metadata)
@@ -168,7 +162,7 @@ namespace MugenMvvm.Infrastructure.Components
                 {
                     var oldItem = oldItems[i];
                     if (oldItem is IDetachableComponent)
-                        Detach(collection, oldItem, metadata);
+                        Detach(collection, oldItem, false, metadata);
                     removedCallback?.OnComponentRemoved(collection, oldItem, metadata);
                 }
 
@@ -180,6 +174,34 @@ namespace MugenMvvm.Infrastructure.Components
                 where TItem : class
             {
                 componentCollection.AddComponent(ComponentCollectionListener<TItem>.Instance, metadata);
+            }
+
+            #endregion
+
+            #region Methods
+
+            public bool OnAdding(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata)
+            {
+                if (collection.Owner is IComponentOwnerAddingCallback<T> callback
+                    && !callback.OnComponentAdding(collection, component, metadata))
+                    return false;
+
+                return Attach(collection, component, true, metadata);
+            }
+
+            public bool OnRemoving(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata)
+            {
+                if (collection.Owner is IComponentOwnerRemovingCallback<T> callback
+                    && !callback.OnComponentRemoving(collection, component, metadata))
+                    return false;
+                return Detach(collection, component, true, metadata);
+            }
+
+            public bool OnClearing(IComponentCollection<T> collection, IReadOnlyMetadataContext? metadata)
+            {
+                if (collection.Owner is IComponentOwnerClearingCallback<T> callback)
+                    return callback.OnComponentClearing(collection, collection.GetItems(), metadata);
+                return true;
             }
 
             #endregion

@@ -34,6 +34,12 @@ namespace MugenMvvm.Infrastructure.Components
 
         #region Implementation of interfaces
 
+        public bool OnAttaching(T owner, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(owner, nameof(owner));
+            return OnAttachingInternal(owner, metadata);
+        }
+
         public void OnAttached(T owner, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(owner, nameof(owner));
@@ -42,6 +48,12 @@ namespace MugenMvvm.Infrastructure.Components
 
             Owner = owner;
             OnAttachedInternal(owner, metadata);
+        }
+
+        public bool OnDetaching(T owner, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(owner, nameof(owner));
+            return OnDetachingInternal(owner, metadata);
         }
 
         public void OnDetached(T owner, IReadOnlyMetadataContext? metadata)
@@ -58,8 +70,18 @@ namespace MugenMvvm.Infrastructure.Components
 
         #region Methods
 
+        protected virtual bool OnAttachingInternal(T owner, IReadOnlyMetadataContext? metadata)
+        {
+            return true;
+        }
+
         protected virtual void OnAttachedInternal(T owner, IReadOnlyMetadataContext? metadata)
         {
+        }
+
+        protected virtual bool OnDetachingInternal(T owner, IReadOnlyMetadataContext? metadata)
+        {
+            return true;
         }
 
         protected virtual void OnDetachedInternal(T owner, IReadOnlyMetadataContext? metadata)
