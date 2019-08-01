@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using MugenMvvm.Binding.Interfaces.Core;
+using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Infrastructure.Components;
 using MugenMvvm.Interfaces.Components;
