@@ -1,7 +1,8 @@
-﻿using MugenMvvm.Interfaces.Components;
+﻿using MugenMvvm.Binding.Interfaces.Core;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Binding.Interfaces.Core.Components
+namespace MugenMvvm.Binding.Interfaces.Resources.Components
 {
     public interface IBindingComponentResolverComponent : IComponent<IBindingManager>
     {

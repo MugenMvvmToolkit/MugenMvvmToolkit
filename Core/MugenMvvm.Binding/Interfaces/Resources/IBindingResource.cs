@@ -1,4 +1,4 @@
-﻿namespace MugenMvvm.Binding.Interfaces.Core
+﻿namespace MugenMvvm.Binding.Interfaces.Resources
 {
     public interface IBindingResource
     {
