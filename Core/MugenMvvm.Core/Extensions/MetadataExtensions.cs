@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using MugenMvvm.Delegates;
-using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Metadata;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm

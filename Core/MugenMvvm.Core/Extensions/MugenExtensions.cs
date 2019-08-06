@@ -4,13 +4,12 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvm.Enums;
-using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.IoC;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
+using MugenMvvm.Metadata;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm

@@ -1,5 +1,4 @@
 ﻿using System.Windows.Input;
-using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 

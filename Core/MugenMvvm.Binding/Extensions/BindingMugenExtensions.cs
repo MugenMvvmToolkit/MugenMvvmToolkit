@@ -1,8 +1,8 @@
 ﻿using System;
-using MugenMvvm.Binding.Infrastructure.Members;
-using MugenMvvm.Binding.Infrastructure.Observers;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Binding.Members;
+using MugenMvvm.Binding.Observers;
 using MugenMvvm.Interfaces.Metadata;
 
 // ReSharper disable once CheckNamespace
@@ -12,18 +12,18 @@ namespace MugenMvvm.Binding
     {
         #region Methods
 
-        public static TValue GetValueOrDefault<TSource, TValue>(this BindingMemberDescriptor<TSource, TValue> descriptor, TSource source,
+        public static TValue GetValueOrDefault<TSource, TValue>(this BindableMember<TSource, TValue> bindableMember, TSource source,
             object?[]? args = null, IReadOnlyMetadataContext? metadata = null, IBindingMemberProvider? provider = null)
             where TSource : class
         {
-            return descriptor.GetValueOrDefault(source, default!, args, metadata, provider);
+            return bindableMember.GetValueOrDefault(source, default!, args, metadata, provider);
         }
 
-        public static TValue GetValueOrDefault<TSource, TValue>(this BindingMemberDescriptor<TSource, TValue> descriptor, TSource source, TValue defaultValue,
+        public static TValue GetValueOrDefault<TSource, TValue>(this BindableMember<TSource, TValue> bindableMember, TSource source, TValue defaultValue,
             object?[]? args = null, IReadOnlyMetadataContext? metadata = null, IBindingMemberProvider? provider = null)
             where TSource : class
         {
-            var member = descriptor.GetMember(source, metadata, provider);
+            var member = bindableMember.GetMember(source, metadata, provider);
             if (member == null)
                 return defaultValue!;
             if (member is IAttachedBindingMemberInfo<TSource, TValue> attached)
@@ -31,18 +31,18 @@ namespace MugenMvvm.Binding
             return (TValue)member.GetValue(source, args, metadata)!;
         }
 
-        public static IDisposable? TryObserve<TSource, TValue>(this BindingMemberDescriptor<TSource, TValue> descriptor, TSource source, IBindingEventListener listener,
+        public static IDisposable? TryObserve<TSource, TValue>(this BindableMember<TSource, TValue> bindableMember, TSource source, IBindingEventListener listener,
             IReadOnlyMetadataContext? metadata = null, IBindingMemberProvider? provider = null)
             where TSource : class
         {
-            return descriptor.GetMember(source, metadata, provider)?.TryObserve(source, listener, metadata);
+            return bindableMember.GetMember(source, metadata, provider)?.TryObserve(source, listener, metadata);
         }
 
-        public static IBindingMemberInfo? GetMember<TSource, TValue>(this BindingMemberDescriptor<TSource, TValue> descriptor, TSource source,
+        public static IBindingMemberInfo? GetMember<TSource, TValue>(this BindableMember<TSource, TValue> bindableMember, TSource source,
             IReadOnlyMetadataContext? metadata = null, IBindingMemberProvider? provider = null) where TSource : class
         {
             Should.NotBeNull(source, nameof(source));
-            return provider.ServiceIfNull().GetMember(source.GetType(), descriptor, metadata ?? Default.Metadata);
+            return provider.ServiceIfNull().GetMember(source.GetType(), bindableMember, metadata ?? Default.Metadata);
         }
 
         public static WeakBindingEventListener ToWeak(this IBindingEventListener listener)

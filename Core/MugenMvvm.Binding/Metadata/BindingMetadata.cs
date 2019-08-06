@@ -1,6 +1,6 @@
 ﻿using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Binding.Metadata
 {

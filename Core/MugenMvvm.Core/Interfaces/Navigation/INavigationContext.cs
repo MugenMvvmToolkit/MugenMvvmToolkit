@@ -1,6 +1,5 @@
 ﻿using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Navigation
 {

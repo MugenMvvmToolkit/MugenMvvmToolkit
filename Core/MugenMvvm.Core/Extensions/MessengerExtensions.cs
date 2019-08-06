@@ -1,8 +1,8 @@
 ﻿using System;
 using MugenMvvm.Enums;
-using MugenMvvm.Infrastructure.Messaging;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Messaging;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm

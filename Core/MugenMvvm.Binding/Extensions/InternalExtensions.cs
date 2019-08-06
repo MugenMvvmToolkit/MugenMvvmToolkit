@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using MugenMvvm.Binding.Infrastructure.Components;
+using MugenMvvm.Binding.Components;
 using MugenMvvm.Binding.Metadata;
 
 // ReSharper disable once CheckNamespace

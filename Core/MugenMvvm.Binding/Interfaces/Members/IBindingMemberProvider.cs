@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using MugenMvvm.Binding.Infrastructure.Members;
+using MugenMvvm.Binding.Members;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 

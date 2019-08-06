@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Delegates;
-using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Interfaces.Metadata
 {

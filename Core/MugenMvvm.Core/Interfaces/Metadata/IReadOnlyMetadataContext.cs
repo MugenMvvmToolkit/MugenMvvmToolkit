@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using MugenMvvm.Infrastructure.Metadata;
+using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Interfaces.Metadata
 {

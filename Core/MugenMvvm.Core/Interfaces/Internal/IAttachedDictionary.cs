@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using MugenMvvm.Attributes;
 using MugenMvvm.Delegates;
 
 namespace MugenMvvm.Interfaces.Internal

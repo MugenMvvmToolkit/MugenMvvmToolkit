@@ -1,5 +1,4 @@
-﻿using MugenMvvm.Infrastructure.Metadata;
-using MugenMvvm.Interfaces.Components;
+﻿using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Metadata

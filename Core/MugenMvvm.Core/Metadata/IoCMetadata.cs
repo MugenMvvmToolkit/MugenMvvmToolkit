@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Delegates;
-using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.IoC;
 using MugenMvvm.Interfaces.Metadata;
 

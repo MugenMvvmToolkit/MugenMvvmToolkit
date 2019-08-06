@@ -2,9 +2,7 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
-using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
-using MugenMvvm;
 using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm

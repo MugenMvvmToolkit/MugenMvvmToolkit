@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Windows.Input;
-using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Commands

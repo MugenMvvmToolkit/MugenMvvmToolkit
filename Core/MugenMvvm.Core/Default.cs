@@ -7,11 +7,11 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
+using MugenMvvm.Metadata;
 
 namespace MugenMvvm
 {

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Enums;
-using MugenMvvm;
-using MugenMvvm.Infrastructure.Metadata;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Metadata

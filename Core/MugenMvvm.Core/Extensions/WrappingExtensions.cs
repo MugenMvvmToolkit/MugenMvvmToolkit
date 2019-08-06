@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Linq;
 using MugenMvvm.Enums;
-using MugenMvvm.Infrastructure.Wrapping.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Wrapping;
 using MugenMvvm.Interfaces.Wrapping.Components;
 using MugenMvvm.Metadata;
+using MugenMvvm.Wrapping.Components;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm

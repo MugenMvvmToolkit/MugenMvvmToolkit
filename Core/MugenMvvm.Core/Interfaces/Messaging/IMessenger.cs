@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Enums;
-using MugenMvvm.Infrastructure.Messaging;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Messaging;
 
 namespace MugenMvvm.Interfaces.Messaging
 {
