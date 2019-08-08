@@ -10,6 +10,6 @@ namespace MugenMvvm.Binding.Interfaces.Parsing
 
         IExpressionNode? Target { get; }
 
-        IList<IExpressionNode> Arguments { get; }
+        IReadOnlyList<IExpressionNode> Arguments { get; }
     }
 }

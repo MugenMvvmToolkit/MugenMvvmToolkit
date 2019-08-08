@@ -18,6 +18,18 @@ namespace MugenMvvm.Binding
 
         #region Methods
 
+        internal static void CheckDuplicateLambdaParameter(IReadOnlyList<string> parameters)
+        {
+            if (parameters.Count == 0 || parameters.Count == 1)
+                return;
+            var strings = new HashSet<string>();
+            for (var index = 0; index < parameters.Count; index++)
+            {
+                //                if (!strings.Add(parameters[index]))
+                //                    throw BindingExceptionManager.DuplicateLambdaParameter(parameters[index]);//todo fix
+            }
+        }
+
         internal static bool IsNullOrUnsetValue(this object? value)
         {
             return value == null || ReferenceEquals(value, BindingMetadata.UnsetValue);
