@@ -21,6 +21,27 @@ namespace MugenMvvm
             return array;
         }
 
+        public static bool Remove<T>(ref T[] items, T item)
+        {
+            T[]? array = null;
+            for (var i = 0; i < items.Length; i++)
+            {
+                if (array == null && EqualityComparer<T>.Default.Equals(item, items[i]))
+                {
+                    array = new T[items.Length - 1];
+                    Array.Copy(items, 0, array, 0, i);
+                    continue;
+                }
+
+                if (array != null)
+                    array[i - 1] = items[i];
+            }
+
+            if (array != null)
+                items = array;
+            return array != null;
+        }
+
         #endregion
     }
 }

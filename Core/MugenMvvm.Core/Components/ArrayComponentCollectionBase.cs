@@ -169,23 +169,7 @@ namespace MugenMvvm.Components
 
         protected virtual bool RemoveInternal(T component, IReadOnlyMetadataContext? metadata)
         {
-            T[]? array = null;
-            for (var i = 0; i < Items.Length; i++)
-            {
-                if (array == null && EqualityComparer<T>.Default.Equals(component, Items[i]))
-                {
-                    array = new T[Items.Length - 1];
-                    Array.Copy(Items, 0, array, 0, i);
-                    continue;
-                }
-
-                if (array != null)
-                    array[i - 1] = Items[i];
-            }
-
-            if (array != null)
-                Items = array;
-            return array != null;
+            return MugenExtensions.Remove(ref Items, component);
         }
 
         protected virtual bool ClearInternal(IReadOnlyMetadataContext? metadata)
