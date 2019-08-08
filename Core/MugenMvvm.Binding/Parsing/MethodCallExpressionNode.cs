@@ -9,7 +9,7 @@ namespace MugenMvvm.Binding.Parsing
     {
         #region Constructors
 
-        public MethodCallExpressionNode(IExpressionNode target, string method,
+        public MethodCallExpressionNode(IExpressionNode? target, string method,
             IReadOnlyList<IExpressionNode> arguments, IReadOnlyList<string>? typeArgs = null)
         {
             Should.NotBeNull(method, nameof(method));
@@ -62,7 +62,7 @@ namespace MugenMvvm.Binding.Parsing
 
         public override string ToString()
         {
-            string typeArgs = null;
+            string? typeArgs = null;
             if (TypeArgs.Count != 0)
                 typeArgs = $"<{string.Join(", ", TypeArgs)}>";
             var join = string.Join(",", Arguments);

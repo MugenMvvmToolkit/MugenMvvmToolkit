@@ -249,13 +249,13 @@ namespace MugenMvvm.Binding.Members.Components
             public object? GetValue(object? target, object?[]? args = null, IReadOnlyMetadataContext? metadata = null)
             {
                 Should.NotBeNull(target, nameof(target));
-                return ((Array)target).GetValue(_indexes);
+                return ((Array)target!).GetValue(_indexes);
             }
 
             public object? SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata = null)
             {
                 Should.NotBeNull(target, nameof(target));
-                ((Array)target).SetValue(value, _indexes);
+                ((Array)target!).SetValue(value, _indexes);
                 return null;
             }
 
@@ -430,7 +430,7 @@ namespace MugenMvvm.Binding.Members.Components
         {
             #region Fields
 
-            private readonly object[]? _indexerValues;
+            private readonly object?[]? _indexerValues;
 
             private readonly bool _nonPublic;
             private readonly BindingMemberObserver _observer;

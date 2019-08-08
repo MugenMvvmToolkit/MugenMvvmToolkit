@@ -12,7 +12,7 @@ namespace MugenMvvm.Components
         #region Fields
 
         private TComponent[] _items;
-        private IComponentOwner<TComponentBase> _owner;
+        private IComponentOwner<TComponentBase>? _owner;
 
         #endregion
 
@@ -33,21 +33,21 @@ namespace MugenMvvm.Components
         }
 
         void IComponentCollectionChangedListener<IComponent<TComponentBase>>.OnAdded(IComponentCollection<IComponent<TComponentBase>> collection,
-            IComponent<TComponentBase> component, IReadOnlyMetadataContext metadata)
+            IComponent<TComponentBase> component, IReadOnlyMetadataContext? metadata)
         {
             if (component is TComponent c)
                 Add(c);
         }
 
         void IComponentCollectionChangedListener<IComponent<TComponentBase>>.OnRemoved(IComponentCollection<IComponent<TComponentBase>> collection,
-            IComponent<TComponentBase> component, IReadOnlyMetadataContext metadata)
+            IComponent<TComponentBase> component, IReadOnlyMetadataContext? metadata)
         {
             if (component is TComponent c)
                 Remove(c);
         }
 
         void IComponentCollectionChangedListener<IComponent<TComponentBase>>.OnCleared(IComponentCollection<IComponent<TComponentBase>> collection,
-            IComponent<TComponentBase>[] oldItems, IReadOnlyMetadataContext metadata)
+            IComponent<TComponentBase>[] oldItems, IReadOnlyMetadataContext? metadata)
         {
             foreach (var item in oldItems)
             {
@@ -78,7 +78,7 @@ namespace MugenMvvm.Components
         {
             var array = new TComponent[_items.Length + 1];
             var added = false;
-            var priority = component.GetPriority(_owner);
+            var priority = component.GetPriority(_owner!);
             for (var i = 0; i < _items.Length; i++)
             {
                 if (added)
@@ -88,7 +88,7 @@ namespace MugenMvvm.Components
                 }
 
                 var oldItem = _items[i];
-                var compareTo = priority.CompareTo(oldItem.GetPriority(_owner));
+                var compareTo = priority.CompareTo(oldItem.GetPriority(_owner!));
                 if (compareTo > 0)
                 {
                     array[i] = component;

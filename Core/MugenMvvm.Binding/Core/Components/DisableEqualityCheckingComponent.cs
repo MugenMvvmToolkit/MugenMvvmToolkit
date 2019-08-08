@@ -27,7 +27,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Implementation of interfaces
 
-        bool IAttachableComponent<IDataBinding>.OnAttaching(IDataBinding owner, IReadOnlyMetadataContext metadata)
+        bool IAttachableComponent<IDataBinding>.OnAttaching(IDataBinding owner, IReadOnlyMetadataContext? metadata)
         {
             if (owner is IHasEqualityCheckingSettingsDataBinding binding)
             {
@@ -38,7 +38,7 @@ namespace MugenMvvm.Binding.Core.Components
             return false;
         }
 
-        void IAttachableComponent<IDataBinding>.OnAttached(IDataBinding owner, IReadOnlyMetadataContext metadata)
+        void IAttachableComponent<IDataBinding>.OnAttached(IDataBinding owner, IReadOnlyMetadataContext? metadata)
         {
         }
 

@@ -41,7 +41,7 @@ namespace MugenMvvm.Binding.Members
             get
             {
                 Should.NotBeNull(_attachedBindingMemberProvider, nameof(AttachedBindingMemberProvider));
-                return _attachedBindingMemberProvider;
+                return _attachedBindingMemberProvider!;
             }
         }
 
@@ -98,7 +98,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Methods
 
-        protected virtual IBindingMemberInfo? GetMemberInternal(Type type, string name, bool ignoreAttachedMembers, IReadOnlyMetadataContext metadata)
+        protected virtual IBindingMemberInfo? GetMemberInternal(Type type, string name, bool ignoreAttachedMembers, IReadOnlyMetadataContext? metadata)
         {
             try
             {
@@ -113,18 +113,18 @@ namespace MugenMvvm.Binding.Members
             }
         }
 
-        protected virtual IReadOnlyList<AttachedMemberRegistration> GetAttachedMembersInternal(Type type, IReadOnlyMetadataContext metadata)
+        protected virtual IReadOnlyList<AttachedMemberRegistration> GetAttachedMembersInternal(Type type, IReadOnlyMetadataContext? metadata)
         {
             return AttachedBindingMemberProvider.GetMembers(type, metadata);
         }
 
-        protected virtual void RegisterInternal(Type type, IBindingMemberInfo member, string? name, IReadOnlyMetadataContext metadata)
+        protected virtual void RegisterInternal(Type type, IBindingMemberInfo member, string? name, IReadOnlyMetadataContext? metadata)
         {
             AttachedBindingMemberProvider.Register(type, member, name, metadata);
             TempCache.Clear();
         }
 
-        protected virtual bool UnregisterInternal(Type type, string? name, IReadOnlyMetadataContext metadata)
+        protected virtual bool UnregisterInternal(Type type, string? name, IReadOnlyMetadataContext? metadata)
         {
             var result = AttachedBindingMemberProvider.Unregister(type, name, metadata);
             if (result)
@@ -132,7 +132,7 @@ namespace MugenMvvm.Binding.Members
             return result;
         }
 
-        protected IBindingMemberInfo? GetMemberImpl(Type type, string name, bool ignoreAttachedMembers, IReadOnlyMetadataContext metadata)
+        protected IBindingMemberInfo? GetMemberImpl(Type type, string name, bool ignoreAttachedMembers, IReadOnlyMetadataContext? metadata)
         {
             var cacheKey = new CacheKey(type, name, ignoreAttachedMembers);
             if (TempCache.TryGetValue(cacheKey, out var result))

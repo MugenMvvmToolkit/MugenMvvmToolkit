@@ -87,7 +87,7 @@ namespace MugenMvvm.Binding
                 .Split(CommaSeparator, StringSplitOptions.RemoveEmptyEntries);
         }
 
-        internal static object[] GetIndexerValues(string path, ParameterInfo[]? parameters = null, Type? castType = null)
+        internal static object?[] GetIndexerValues(string path, ParameterInfo[]? parameters = null, Type? castType = null)
         {
             if (path.StartsWith("Item[", StringComparison.Ordinal))
                 path = path.Substring(4);
@@ -106,15 +106,19 @@ namespace MugenMvvm.Binding
                 var s = args[i];
                 if (!string.IsNullOrEmpty(s) && s[0] == '\"' && s.EndsWith("\""))
                     s = s.RemoveBounds();
-                result[i] = (TItem)(s == "null" ? null : GlobalBindingValueConverter.Convert(s, typeof(TItem)));
+                result[i] = (TItem)(s == "null" ? null : GlobalBindingValueConverter.Convert(s, typeof(TItem)))!;
             }
 
             return result;
         }
 
-        internal static object[] GetIndexerValues(string[] args, ParameterInfo[]? parameters = null, Type? castType = null)
+        internal static object?[] GetIndexerValues(string[] args, ParameterInfo[]? parameters = null, Type? castType = null)
         {
-            var result = new object[args.Length];
+            if (parameters == null)
+                Should.NotBeNull(castType, nameof(castType));
+            else
+                Should.NotBeNull(parameters, nameof(parameters));
+            var result = new object?[args.Length];
             for (var i = 0; i < args.Length; i++)
             {
                 var s = args[i];
@@ -122,7 +126,7 @@ namespace MugenMvvm.Binding
                     castType = parameters[i].ParameterType;
                 if (!string.IsNullOrEmpty(s) && s[0] == '\"' && s.EndsWith("\""))
                     s = s.RemoveBounds();
-                result[i] = s == "null" ? null : GlobalBindingValueConverter.Convert(s, castType);
+                result[i] = s == "null" ? null : GlobalBindingValueConverter.Convert(s, castType ?? typeof(object));
             }
 
             return result;

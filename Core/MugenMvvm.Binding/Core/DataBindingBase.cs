@@ -331,7 +331,7 @@ namespace MugenMvvm.Binding.Core
 
         #region Methods
 
-        public void SetComponents(IComponent<IDataBinding>[]? components)
+        public void SetComponents(IComponent<IDataBinding>[] components)
         {
             if (Items.Length != 0)
                 ExceptionManager.ThrowObjectInitialized(this);

@@ -9,9 +9,8 @@ namespace MugenMvvm.Binding.Parsing
     {
         #region Constructors
 
-        public IndexExpressionNode(IExpressionNode target, IReadOnlyList<IExpressionNode> arguments)
+        public IndexExpressionNode(IExpressionNode? target, IReadOnlyList<IExpressionNode> arguments)
         {
-            Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(arguments, nameof(arguments));
             Target = target;
             Arguments = arguments;
@@ -49,7 +48,7 @@ namespace MugenMvvm.Binding.Parsing
             }
 
             if (changed || itemsChanged)
-                return new IndexExpressionNode(target, newArgs ?? Arguments);
+                return new IndexExpressionNode(target!, newArgs ?? Arguments);
             return this;
         }
 

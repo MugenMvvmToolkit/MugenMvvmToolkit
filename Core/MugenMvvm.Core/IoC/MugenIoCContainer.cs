@@ -86,7 +86,7 @@ namespace MugenMvvm.IoC
 
         protected override IEnumerable<object> GetAllInternal(Type service, IReadOnlyMetadataContext? metadata)
         {
-            return GetAllImpl(service, null, null, metadata);
+            return GetAllImpl(service, null, null, metadata)!;
         }
 
         protected override void BindToConstantInternal(Type service, object? instance, IReadOnlyMetadataContext? metadata)

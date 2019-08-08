@@ -22,7 +22,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Methods
 
-        protected override IBindingMemberInfo? GetMemberInternal(Type type, string name, bool ignoreAttachedMembers, IReadOnlyMetadataContext metadata)
+        protected override IBindingMemberInfo? GetMemberInternal(Type type, string name, bool ignoreAttachedMembers, IReadOnlyMetadataContext? metadata)
         {
             var lockTaken = false;
             try
@@ -41,7 +41,7 @@ namespace MugenMvvm.Binding.Members
             }
         }
 
-        protected override IReadOnlyList<AttachedMemberRegistration> GetAttachedMembersInternal(Type type, IReadOnlyMetadataContext metadata)
+        protected override IReadOnlyList<AttachedMemberRegistration> GetAttachedMembersInternal(Type type, IReadOnlyMetadataContext? metadata)
         {
             lock (TempCache)
             {
@@ -49,7 +49,7 @@ namespace MugenMvvm.Binding.Members
             }
         }
 
-        protected override void RegisterInternal(Type type, IBindingMemberInfo member, string? name, IReadOnlyMetadataContext metadata)
+        protected override void RegisterInternal(Type type, IBindingMemberInfo member, string? name, IReadOnlyMetadataContext? metadata)
         {
             lock (TempCache)
             {
@@ -57,7 +57,7 @@ namespace MugenMvvm.Binding.Members
             }
         }
 
-        protected override bool UnregisterInternal(Type type, string? name, IReadOnlyMetadataContext metadata)
+        protected override bool UnregisterInternal(Type type, string? name, IReadOnlyMetadataContext? metadata)
         {
             lock (TempCache)
             {

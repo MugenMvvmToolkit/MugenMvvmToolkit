@@ -129,7 +129,7 @@ namespace MugenMvvm
             return reflectionDelegateProvider.ServiceIfNull().GetMethodInvoker(method).Invoke(target, parameters);
         }
 
-        public static object GetDefaultValue(this Type type)
+        public static object? GetDefaultValue(this Type type)
         {
             if (type.IsValueTypeUnified())
                 return Activator.CreateInstance(type);

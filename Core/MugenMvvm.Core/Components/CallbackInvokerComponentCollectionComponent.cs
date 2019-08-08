@@ -52,7 +52,7 @@ namespace MugenMvvm.Components
 
             if (func == null)
                 return true;
-            return (bool)func.Invoke(null, new[] { collection.Owner, component, Default.TrueObject, Default.BoolToObject(preBind), metadata });
+            return (bool)func.Invoke(null, new[] { collection.Owner, component, Default.TrueObject, Default.BoolToObject(preBind), metadata })!;
         }
 
         private static bool Detach<T>(IComponentCollection<T> collection, object component, bool preBind, IReadOnlyMetadataContext? metadata) where T : class
@@ -71,7 +71,7 @@ namespace MugenMvvm.Components
             if (func == null)
                 return true;
 
-            return (bool)func.Invoke(null, new[] { collection.Owner, component, Default.FalseObject, Default.BoolToObject(preBind), metadata });
+            return (bool)func.Invoke(null, new[] { collection.Owner, component, Default.FalseObject, Default.BoolToObject(preBind), metadata })!;
         }
 
         private static Func<object?, object?[], object?>? GetAttachFunc(Type targetType, Type interfaceType)

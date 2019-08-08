@@ -52,7 +52,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Methods
 
-        protected virtual BindingMemberObserver GetMemberObserverInternal(Type type, object member, IReadOnlyMetadataContext metadata)
+        protected virtual BindingMemberObserver GetMemberObserverInternal(Type type, object member, IReadOnlyMetadataContext? metadata)
         {
             var items = Components.GetItems();
             for (var i = 0; i < items.Length; i++)
@@ -68,7 +68,7 @@ namespace MugenMvvm.Binding.Observers
             return default;
         }
 
-        protected virtual IBindingPath? TryGetBindingPathInternal(object path, IReadOnlyMetadataContext metadata)
+        protected virtual IBindingPath? TryGetBindingPathInternal(object path, IReadOnlyMetadataContext? metadata)
         {
             var items = Components.GetItems();
             for (var i = 0; i < items.Length; i++)

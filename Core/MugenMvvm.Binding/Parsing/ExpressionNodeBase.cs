@@ -22,11 +22,12 @@ namespace MugenMvvm.Binding.Parsing
         public IExpressionNode Accept(IExpressionVisitor visitor)
         {
             Should.NotBeNull(visitor, nameof(visitor));
-            IExpressionNode node;
+            IExpressionNode? node;
+            bool changed = false;
             if (!visitor.IsPostOrder)
             {
-                node = visitor.Visit(this);
-                if (node != this)
+                node = VisitWithCheck(visitor, this, true, ref changed);
+                if (changed)
                     return node;
             }
 
@@ -37,7 +38,7 @@ namespace MugenMvvm.Binding.Parsing
                 _updating = true;
                 node = VisitInternal(visitor);
                 if (visitor.IsPostOrder)
-                    return visitor.Visit(node);
+                    return VisitWithCheck(visitor, node, true, ref changed);
                 return node;
             }
             finally
