@@ -6,6 +6,13 @@ namespace MugenMvvm.Binding.Parsing
 {
     public sealed class ConstantExpressionNode : ExpressionNodeBase, IConstantExpressionNode
     {
+        #region Fields
+
+        public static readonly ConstantExpressionNode True = new ConstantExpressionNode(Default.TrueObject, typeof(bool));
+        public static readonly ConstantExpressionNode False = new ConstantExpressionNode(Default.FalseObject, typeof(bool));
+
+        #endregion
+
         #region Constructors
 
         public ConstantExpressionNode(object? value, Type? type = null)
