@@ -12,8 +12,8 @@ using MugenMvvm.Interfaces.Metadata;
 namespace MugenMvvm.IoC
 {
     public abstract class IocContainerBase<TContainer, TInternalContainer> : IIocContainer
-        where TContainer : class, IIocContainer
-        where TInternalContainer : class
+            where TContainer : class, IIocContainer
+            where TInternalContainer : class
     {
         #region Fields
 
@@ -27,7 +27,7 @@ namespace MugenMvvm.IoC
 
         #region Constructors
 
-        protected IocContainerBase(TContainer parent = null)
+        protected IocContainerBase(TContainer? parent)
         {
             Id = Interlocked.Increment(ref _idCounter);
             Parent = parent;
@@ -51,7 +51,7 @@ namespace MugenMvvm.IoC
 
         public int Id { get; protected set; }
 
-        public TContainer Parent { get; }
+        public TContainer? Parent { get; }
 
         public abstract TInternalContainer Container { get; }
 

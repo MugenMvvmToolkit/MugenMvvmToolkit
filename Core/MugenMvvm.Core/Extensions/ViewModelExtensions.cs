@@ -20,14 +20,14 @@ namespace MugenMvvm
             return dispatcher.ServiceIfNull().Subscribe(viewModel, observer, executionMode ?? ThreadExecutionMode.Current, metadata);
         }
 
-        public static TService TryGetService<TService>(this IViewModelBase viewModel) where TService : class?
+        public static TService? TryGetService<TService>(this IViewModelBase viewModel) where TService : class
         {
             if (viewModel is IHasService<TService> hasService)
                 return hasService.Service;
             return null;
         }
 
-        public static TService TryGetServiceOptional<TService>(this IViewModelBase viewModel) where TService : class?
+        public static TService? TryGetServiceOptional<TService>(this IViewModelBase viewModel) where TService : class
         {
             if (viewModel is IHasServiceOptional<TService> hasServiceOptional)
                 return hasServiceOptional.ServiceOptional;

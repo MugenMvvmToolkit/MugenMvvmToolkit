@@ -9,7 +9,7 @@ namespace MugenMvvm.Enums
 {
     [Serializable]
     [DataContract(Namespace = BuildConstants.DataContractNamespace)]
-    public class EnumBase<TEnumeration, TValue> : IComparable<TEnumeration>, IEquatable<TEnumeration>
+    public class EnumBase<TEnumeration, TValue> : IComparable<TEnumeration?>, IEquatable<TEnumeration?>
         where TEnumeration : EnumBase<TEnumeration, TValue>
         where TValue : IComparable<TValue>, IEquatable<TValue>
     {
@@ -67,14 +67,14 @@ namespace MugenMvvm.Enums
 
         #region Implementation of interfaces
 
-        public int CompareTo(TEnumeration other)
+        public int CompareTo(TEnumeration? other)
         {
             if (other == null)
                 return 1;
             return Value.CompareTo(other.Value);
         }
 
-        public bool Equals(TEnumeration other)
+        public bool Equals(TEnumeration? other)
         {
             return other != null && Value.Equals(other.Value);
         }

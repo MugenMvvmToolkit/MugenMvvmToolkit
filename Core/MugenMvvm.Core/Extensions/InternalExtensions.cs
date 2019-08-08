@@ -14,7 +14,7 @@ namespace MugenMvvm
     {
         #region Methods
 
-        internal static T ServiceIfNull<T>(this T service) where T : class?
+        internal static T ServiceIfNull<T>(this T? service) where T : class
         {
             return service ?? Service<T>.Instance;
         }
@@ -46,12 +46,12 @@ namespace MugenMvvm
             return result;
         }
 
-        internal static bool LazyInitialize<T>([EnsuresNotNull] ref T item, T value) where T : class?
+        internal static bool LazyInitialize<T>([EnsuresNotNull] ref T? item, T value) where T : class
         {
             return Interlocked.CompareExchange(ref item, value, null) == null;
         }
 
-        internal static bool LazyInitializeDisposable<T>([EnsuresNotNull] ref T item, T value) where T : class?, IDisposable
+        internal static bool LazyInitializeDisposable<T>([EnsuresNotNull] ref T? item, T value) where T : class, IDisposable
         {
             if (!LazyInitialize(ref item, value))
             {

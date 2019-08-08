@@ -25,7 +25,7 @@ namespace MugenMvvm.Validation
 
         private IMetadataContext? _metadata;
         private int _state;
-        private TTarget _target;
+        private TTarget? _target;
         private Dictionary<string, CancellationTokenSource>? _validatingTasks;
         private PropertyChangedEventHandler? _weakPropertyHandler;
 

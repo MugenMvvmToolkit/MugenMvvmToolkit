@@ -4,13 +4,13 @@ using MugenMvvm.Interfaces.Models;
 namespace MugenMvvm
 {
     public class ServiceConfiguration<TService>
-        where TService : class?
+        where TService : class
     {
         #region Fields
 
         // ReSharper disable once StaticMemberInGenericType
         private static bool _hasOptionalValue;
-        private static TService _service;
+        private static TService? _service;
         private static IHasService<TService>? _serviceConfiguration;
 
         #endregion
@@ -35,7 +35,7 @@ namespace MugenMvvm
             }
         }
 
-        public static TService InstanceOptional
+        public static TService? InstanceOptional
         {
             get
             {
@@ -72,7 +72,7 @@ namespace MugenMvvm
             InitializeInternal(service);
         }
 
-        private static void InitializeInternal(TService service)
+        private static void InitializeInternal(TService? service)
         {
             _serviceConfiguration = null;
             _service = service;

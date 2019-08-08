@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Messaging;
 
 namespace MugenMvvm.Messaging
 {
-    public sealed class WeakDelegateMessengerSubscriber<TTarget, TMessage> : IMessengerSubscriber
+public sealed class WeakDelegateMessengerSubscriber<TTarget, TMessage> : IMessengerSubscriber
         where TTarget : class
     {
         #region Fields
@@ -47,7 +47,7 @@ namespace MugenMvvm.Messaging
 
         public MessengerSubscriberResult Handle(object sender, object message, IMessengerContext messengerContext)
         {
-            var target = (TTarget)_reference.Target;
+            var target = (TTarget?)_reference.Target;
             if (target == null)
                 return MessengerSubscriberResult.Invalid;
             if (message is TMessage m)
