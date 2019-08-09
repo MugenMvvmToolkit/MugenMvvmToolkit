@@ -1,34 +1,37 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Parsing;
+using MugenMvvm.Binding.Interfaces.Parsing.Nodes;
 
-namespace MugenMvvm.Binding.Parsing
+namespace MugenMvvm.Binding.Parsing.Nodes
 {
-    public sealed class MethodCallExpressionNode : ExpressionNodeBase, IMethodCallExpressionNode
+    public sealed class IndexExpressionNode : ExpressionNodeBase, IIndexExpressionNode
     {
         #region Constructors
 
-        public MethodCallExpressionNode(IExpressionNode? target, string method,
-            IReadOnlyList<IExpressionNode> arguments, IReadOnlyList<string>? typeArgs = null)
+        public IndexExpressionNode(IExpressionNode? target, IReadOnlyList<IExpressionNode> arguments)
         {
-            Should.NotBeNull(method, nameof(method));
             Should.NotBeNull(arguments, nameof(arguments));
             Target = target;
-            Method = method;
             Arguments = arguments;
-            TypeArgs = typeArgs ?? Default.EmptyArray<string>();
+        }
+
+        public IndexExpressionNode(PropertyInfo indexer, IExpressionNode? target, IReadOnlyList<IExpressionNode> arguments)
+            : this(target, arguments)
+        {
+            Should.NotBeNull(indexer, nameof(indexer));
+            Indexer = indexer;
         }
 
         #endregion
 
         #region Properties
 
-        public override ExpressionNodeType NodeType => ExpressionNodeType.MethodCall;
+        public override ExpressionNodeType NodeType => ExpressionNodeType.Index;
 
-        public string Method { get; }
-
-        public IReadOnlyList<string> TypeArgs { get; }
+        public PropertyInfo? Indexer { get; private set; }
 
         public IExpressionNode? Target { get; }
 
@@ -56,19 +59,14 @@ namespace MugenMvvm.Binding.Parsing
             }
 
             if (changed || itemsChanged)
-                return new MethodCallExpressionNode(target, Method, newArgs ?? Arguments, TypeArgs);
+                return new IndexExpressionNode(target!, newArgs ?? Arguments) { Indexer = Indexer };
             return this;
         }
 
         public override string ToString()
         {
-            string? typeArgs = null;
-            if (TypeArgs.Count != 0)
-                typeArgs = $"<{string.Join(", ", TypeArgs)}>";
-            var join = string.Join(",", Arguments);
-            if (Target == null)
-                return $"{Method}{typeArgs}({join})";
-            return $"{Target}.{Method}{typeArgs}({join})";
+            var join = string.Join(", ", Arguments);
+            return $"{Target}[{join}]";
         }
 
         #endregion

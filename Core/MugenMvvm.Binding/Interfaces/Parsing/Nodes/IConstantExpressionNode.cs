@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MugenMvvm.Binding.Interfaces.Parsing
+namespace MugenMvvm.Binding.Interfaces.Parsing.Nodes
 {
     public interface IConstantExpressionNode : IExpressionNode
     {

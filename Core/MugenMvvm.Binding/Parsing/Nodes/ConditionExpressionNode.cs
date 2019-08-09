@@ -1,7 +1,8 @@
 ﻿using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Parsing;
+using MugenMvvm.Binding.Interfaces.Parsing.Nodes;
 
-namespace MugenMvvm.Binding.Parsing
+namespace MugenMvvm.Binding.Parsing.Nodes
 {
     public sealed class ConditionExpressionNode : ExpressionNodeBase, IConditionExpressionNode
     {

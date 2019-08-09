@@ -1,4 +1,4 @@
-﻿namespace MugenMvvm.Binding.Interfaces.Parsing
+﻿namespace MugenMvvm.Binding.Interfaces.Parsing.Nodes
 {
     public interface IConditionExpressionNode : IExpressionNode
     {

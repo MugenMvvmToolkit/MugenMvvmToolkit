@@ -1,4 +1,6 @@
-﻿namespace MugenMvvm.Binding.Interfaces.Parsing
+﻿using MugenMvvm.Binding.Interfaces.Parsing.Nodes;
+
+namespace MugenMvvm.Binding.Interfaces.Parsing
 {
     public interface IExpressionVisitor
     {

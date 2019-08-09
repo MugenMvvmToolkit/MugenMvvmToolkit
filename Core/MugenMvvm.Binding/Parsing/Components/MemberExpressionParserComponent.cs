@@ -1,0 +1,44 @@
+﻿using MugenMvvm.Binding.Interfaces.Parsing;
+using MugenMvvm.Binding.Interfaces.Parsing.Components;
+using MugenMvvm.Binding.Interfaces.Parsing.Nodes;
+using MugenMvvm.Binding.Parsing.Nodes;
+using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Metadata;
+
+namespace MugenMvvm.Binding.Parsing.Components
+{
+    public sealed class MemberExpressionParserComponent : IExpressionParserComponent
+    {
+        #region Properties
+
+        public int Priority { get; set; }
+
+        #endregion
+
+        #region Implementation of interfaces
+
+        int IComponent.GetPriority(object source)
+        {
+            return Priority;
+        }
+
+        public IExpressionNode? TryParse(IBindingParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
+        {
+            context.SkipWhitespaces(out var position);
+            if (expression != null)
+            {
+                if (!context.IsToken('.', position))
+                    return null;
+                ++position;
+            }
+
+            if (!context.IsIdentifier(position, out var endPosition))
+                return null;
+
+            context.SetPosition(endPosition);
+            return new MemberExpressionNode(expression, context.GetToken(position, endPosition));
+        }
+
+        #endregion
+    }
+}

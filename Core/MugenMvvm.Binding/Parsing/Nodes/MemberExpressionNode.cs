@@ -1,7 +1,9 @@
-﻿using MugenMvvm.Binding.Enums;
+﻿using System.Reflection;
+using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Parsing;
+using MugenMvvm.Binding.Interfaces.Parsing.Nodes;
 
-namespace MugenMvvm.Binding.Parsing
+namespace MugenMvvm.Binding.Parsing.Nodes
 {
     public sealed class MemberExpressionNode : ExpressionNodeBase, IMemberExpressionNode
     {
@@ -11,7 +13,15 @@ namespace MugenMvvm.Binding.Parsing
         {
             Should.NotBeNull(member, nameof(member));
             Target = target;
+            MemberName = member;
+        }
+
+        public MemberExpressionNode(IExpressionNode? target, MemberInfo member)
+        {
+            Should.NotBeNull(member, nameof(member));
+            Target = target;
             Member = member;
+            MemberName = member.Name;
         }
 
         #endregion
@@ -20,7 +30,9 @@ namespace MugenMvvm.Binding.Parsing
 
         public override ExpressionNodeType NodeType => ExpressionNodeType.Member;
 
-        public string Member { get; }
+        public MemberInfo? Member { get; private set; }
+
+        public string MemberName { get; }
 
         public IExpressionNode? Target { get; }
 
@@ -35,15 +47,15 @@ namespace MugenMvvm.Binding.Parsing
             var changed = false;
             var node = VisitWithCheck(visitor, Target, false, ref changed);
             if (changed)
-                return new MemberExpressionNode(node, Member);
+                return new MemberExpressionNode(node, MemberName) { Member = Member };
             return this;
         }
 
         public override string ToString()
         {
             if (Target == null)
-                return Member;
-            return $"{Target}.{Member}";
+                return MemberName;
+            return $"{Target}.{MemberName}";
         }
 
         #endregion
