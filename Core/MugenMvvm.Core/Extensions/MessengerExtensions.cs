@@ -51,8 +51,9 @@ namespace MugenMvvm
         public static void UnsubscribeAll(this IMessenger messenger, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(messenger, nameof(messenger));
-            foreach (var subscriber in messenger.GetSubscribers())
-                messenger.Unsubscribe(subscriber.Subscriber, metadata);
+            var list = messenger.GetSubscribers();
+            for (var index = 0; index < list.Count; index++)
+                messenger.Unsubscribe(list[index].Subscriber, metadata);
         }
 
         #endregion

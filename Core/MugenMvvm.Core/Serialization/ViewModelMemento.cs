@@ -151,14 +151,16 @@ namespace MugenMvvm.Serialization
         private void RestoreInternal(IViewModelBase viewModel)
         {
             var components = Metadata!.GetComponents();
-            foreach (var component in components)
-                viewModel.Metadata.AddComponent(component);
+            for (var index = 0; index < components.Length; index++)
+                viewModel.Metadata.AddComponent(components[index]);
+
             viewModel.Metadata.Merge(Metadata!);
 
             if (BusyComponents != null && viewModel is IHasService<IBusyIndicatorProvider> hasBusyIndicatorProvider)
             {
-                foreach (var component in BusyComponents)
+                for (var index = 0; index < BusyComponents.Count; index++)
                 {
+                    var component = BusyComponents[index];
                     if (component != null)
                         hasBusyIndicatorProvider.Service.AddComponent(component);
                 }
@@ -166,8 +168,9 @@ namespace MugenMvvm.Serialization
 
             if (Subscribers != null && viewModel is IHasService<IMessenger> hasMessenger)
             {
-                foreach (var subscriber in Subscribers)
+                for (var index = 0; index < Subscribers.Count; index++)
                 {
+                    var subscriber = Subscribers[index];
                     if (subscriber.Subscriber != null)
                         hasMessenger.Service.Subscribe(subscriber.Subscriber, subscriber.ExecutionMode);
                 }

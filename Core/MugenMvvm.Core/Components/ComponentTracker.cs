@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -50,9 +49,9 @@ namespace MugenMvvm.Components
         void IComponentCollectionChangedListener<IComponent<TComponentBase>>.OnCleared(IComponentCollection<IComponent<TComponentBase>> collection,
             IComponent<TComponentBase>[] oldItems, IReadOnlyMetadataContext? metadata)
         {
-            foreach (var item in oldItems)
+            for (var index = 0; index < oldItems.Length; index++)
             {
-                if (item is TComponent c)
+                if (oldItems[index] is TComponent c)
                     Remove(c);
             }
         }

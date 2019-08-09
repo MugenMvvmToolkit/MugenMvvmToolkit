@@ -374,8 +374,9 @@ namespace MugenMvvm.Metadata.Components
                         }
                     }
 
-                    foreach (var pair in values)
+                    for (var index = 0; index < values.Count; index++)
                     {
+                        var pair = values[index];
                         if (ReferenceEquals(pair.Value, this))
                             OnAdded(pair.Key.ContextKey, pair.Key.Value);
                         else

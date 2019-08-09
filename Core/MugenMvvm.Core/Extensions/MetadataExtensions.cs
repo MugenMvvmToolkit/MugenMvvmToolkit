@@ -37,8 +37,12 @@ namespace MugenMvvm
                 return string.Empty;
             var builder = new StringBuilder("(");
             var values = metadata.ToArray();
-            foreach (var item in values)
+            for (var index = 0; index < values.Length; index++)
+            {
+                var item = values[index];
                 builder.Append(item.ContextKey).Append("=").Append(item.Value).Append(";");
+            }
+
             builder.Append(")");
             return builder.ToString();
         }

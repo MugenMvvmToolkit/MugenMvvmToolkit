@@ -138,7 +138,7 @@ namespace MugenMvvm.Presenters.Components
             var managers = Owner.GetComponents();
             for (var i = 0; i < managers.Length; i++)
             {
-                var result = (managers[i] as IViewModelMediatorClosingManagerComponent)?.TryCloseInternal(viewModel!, m, metadata);
+                var result = (managers[i] as IViewModelMediatorCloseManagerComponent)?.TryCloseInternal(viewModel!, m, metadata);
                 if (result != null)
                     return result;
             }
