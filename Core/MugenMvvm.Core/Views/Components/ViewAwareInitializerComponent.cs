@@ -146,7 +146,7 @@ namespace MugenMvvm.Views.Components
             }
         }
 
-        private Func<object?, object?[], object?>? GetDelegate(Type targetType, Type interfaceType, string propertyName, MethodInfo method)
+        private static Func<object?, object?[], object?>? GetDelegate(Type targetType, Type interfaceType, string propertyName, MethodInfo method)
         {
             Func<object?, object?[], object?>? result = null;
             foreach (var @interface in targetType.GetInterfacesUnified().Where(type => type.IsGenericTypeUnified()))
