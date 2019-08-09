@@ -208,7 +208,7 @@ namespace MugenMvvm.Navigation.Components
             var components = Owner.GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
-                var result = (components[i] as INavigationEntryFactoryComponent)?.TryGetNavigationEntry(context);
+                var result = (components[i] as INavigationEntryProviderComponent)?.TryGetNavigationEntry(context);
                 if (result != null)
                     return result;
             }

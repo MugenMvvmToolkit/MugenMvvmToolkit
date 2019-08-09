@@ -5,6 +5,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Components
 {
+    //todo add to global classes
     public sealed class ComponentTracker<TComponent, TComponentBase> : IComponentCollectionChangedListener<IComponent<TComponentBase>>
         where TComponent : class, IComponent
         where TComponentBase : class
