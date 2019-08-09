@@ -50,7 +50,7 @@ namespace MugenMvvm.Binding
             return ReferenceEquals(value, BindingMetadata.DoNothing);
         }
 
-        internal static ICollection<Type> SelfAndBaseTypes(Type type)
+        internal static HashSet<Type> SelfAndBaseTypes(Type type)
         {
             var types = new HashSet<Type>(SelfAndBaseClasses(type));
             AddInterface(types, type, true);
