@@ -1,82 +1,103 @@
-﻿using System;
+﻿using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm
 {
-    public class ServiceConfiguration<TService>
-        where TService : class
+    public static class ServiceConfiguration
     {
         #region Fields
 
-        // ReSharper disable once StaticMemberInGenericType
-        private static bool _hasOptionalValue;
-        private static TService? _service;
-        private static IHasService<TService>? _serviceConfiguration;
-
-        #endregion
-
-        #region Properties
-
-        public static TService Instance
-        {
-            get
-            {
-                if (_serviceConfiguration != null)
-                    return _serviceConfiguration.Service;
-                if (_service == null)
-                {
-                    if (typeof(TService) == typeof(IServiceProvider))
-                        ExceptionManager.ThrowIocCannotFindBinding(typeof(IServiceProvider));
-
-                    _service = (TService)ServiceConfiguration<IServiceProvider>.Instance.GetService(typeof(TService));
-                }
-
-                return _service!;
-            }
-        }
-
-        public static TService? InstanceOptional
-        {
-            get
-            {
-                if (_serviceConfiguration != null)
-                {
-                    if (_serviceConfiguration is IHasServiceOptional<TService> optional)
-                        return optional.ServiceOptional;
-                    return _serviceConfiguration.Service;
-                }
-
-                if (_service == null || !_hasOptionalValue)
-                {
-                    Service<IServiceProvider>.Instance.TryGetService(out _service);
-                    _hasOptionalValue = true;
-                }
-
-                return _service;
-            }
-        }
+        private static IFallbackServiceConfiguration? _fallbackConfiguration;
 
         #endregion
 
         #region Methods
 
-        public static void Initialize(IHasService<TService>? serviceConfiguration)
+        public static void InitializeFallback(IFallbackServiceConfiguration? fallbackConfiguration)
         {
-            InitializeInternal(null);
-            _serviceConfiguration = serviceConfiguration;
+            _fallbackConfiguration = fallbackConfiguration;
         }
 
-        public static void Initialize(TService service)
+        public static void Initialize<TService>(IHasService<TService>? serviceConfiguration) where TService : class
         {
-            Should.NotBeNull(service, nameof(service));
-            InitializeInternal(service);
+            Configuration<TService>.Initialize(serviceConfiguration);
         }
 
-        private static void InitializeInternal(TService? service)
+        public static void Initialize<TService>(TService service) where TService : class
         {
-            _serviceConfiguration = null;
-            _service = service;
-            _hasOptionalValue = false;
+            Configuration<TService>.Initialize(service);
+        }
+
+        #endregion
+
+        #region Nested types
+
+        public static class Configuration<TService> where TService : class
+        {
+            #region Fields
+
+            // ReSharper disable once StaticMemberInGenericType
+            private static TService? _service;
+            private static IHasService<TService>? _serviceConfiguration;
+            private static IHasServiceOptional<TService>? _serviceConfigurationOptional;
+
+            #endregion
+
+            #region Properties
+
+            public static TService Instance
+            {
+                get
+                {
+                    if (_serviceConfiguration != null)
+                        return _serviceConfiguration.Service;
+                    if (_service == null)
+                        return _fallbackConfiguration.Instance<TService>();
+                    return _service!;
+                }
+            }
+
+            public static TService? InstanceOptional
+            {
+                get
+                {
+                    if (_serviceConfigurationOptional != null)
+                        return _serviceConfigurationOptional.ServiceOptional;
+
+                    if (_serviceConfiguration != null)
+                        return _serviceConfiguration.Service;
+
+                    if (_service == null)
+                        return _fallbackConfiguration.InstanceOptional<TService>();
+
+                    return _service;
+                }
+            }
+
+            #endregion
+
+            #region Methods
+
+            public static void Initialize(IHasService<TService>? serviceConfiguration)
+            {
+                InitializeInternal(null);
+                _serviceConfiguration = serviceConfiguration;
+                _serviceConfigurationOptional = serviceConfiguration as IHasServiceOptional<TService>;
+            }
+
+            public static void Initialize(TService service)
+            {
+                Should.NotBeNull(service, nameof(service));
+                InitializeInternal(service);
+            }
+
+            private static void InitializeInternal(TService? service)
+            {
+                _serviceConfiguration = null;
+                _service = service;
+            }
+
+            #endregion
         }
 
         #endregion
