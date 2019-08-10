@@ -1,12 +1,13 @@
 ﻿using System;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Wrapping;
 using MugenMvvm.Interfaces.Wrapping.Components;
 
 namespace MugenMvvm.Wrapping.Components
 {
-    public sealed class DelegateWrapperManagerComponent : IWrapperManagerComponent
+    public sealed class DelegateWrapperManagerComponent : IWrapperManagerComponent, IHasPriority
     {
         #region Fields
 
@@ -45,12 +46,7 @@ namespace MugenMvvm.Wrapping.Components
         {
             return WrapperFactory(wrapperManager, item, wrapperType, metadata);
         }
-
-        int IComponent.GetPriority(object source)
-        {
-            return Priority;
-        }
-
+        
         #endregion
     }
 }

@@ -5,8 +5,8 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Components
 {
-    public sealed class SingletonComponentTracker<TComponent, TComponentBase> : IComponentCollectionChangedListener<IComponent<TComponentBase>>, IHasService<TComponent>
-        where TComponent : class, IComponent
+    public sealed class SingletonComponentTracker<TComponent, TComponentBase> : IComponentCollectionChangedListener<IComponent<TComponentBase>>, IHasService<TComponent>//todo call detach auto
+        where TComponent : class
         where TComponentBase : class
     {
         #region Fields
@@ -32,11 +32,6 @@ namespace MugenMvvm.Components
         #endregion
 
         #region Implementation of interfaces
-
-        int IComponent.GetPriority(object source)
-        {
-            return 0;
-        }
 
         void IComponentCollectionChangedListener<IComponent<TComponentBase>>.OnAdded(IComponentCollection<IComponent<TComponentBase>> collection,
             IComponent<TComponentBase> component, IReadOnlyMetadataContext? metadata)

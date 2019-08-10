@@ -2,16 +2,18 @@
 using System.Collections.Generic;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Metadata.Components;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.ViewModels.Components;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.ViewModels.Components
 {
-    public sealed class CacheViewModelDispatcherComponent : IViewModelProviderComponent, IMetadataContextListener, IViewModelDispatcherComponent
+    public sealed class CacheViewModelDispatcherComponent : IViewModelProviderComponent, IMetadataContextListener, IViewModelDispatcherComponent, IHasComponentPriority, IHasPriority
     {
         #region Fields
 
@@ -81,9 +83,9 @@ namespace MugenMvvm.ViewModels.Components
             }
         }
 
-        public int GetPriority(object source)
+        public int GetPriority(object owner)
         {
-            if (source is IViewModelDispatcher)
+            if (owner is IViewModelDispatcher)
                 return Priority;
             return 0;
         }
@@ -102,9 +104,9 @@ namespace MugenMvvm.ViewModels.Components
             }
 
             if (!_isWeakCache)
-                return (IViewModelBase) value;
+                return (IViewModelBase)value;
 
-            var vm = (IViewModelBase?) ((IWeakReference) value).Target;
+            var vm = (IViewModelBase?)((IWeakReference)value).Target;
             if (vm == null)
                 RemoveFromCache(id);
             return vm;
@@ -118,7 +120,7 @@ namespace MugenMvvm.ViewModels.Components
         {
             lock (_viewModelsCache)
             {
-                _viewModelsCache[id] = _isWeakCache ? (object) Service<IWeakReferenceProvider>.Instance.GetWeakReference(viewModel) : viewModel;
+                _viewModelsCache[id] = _isWeakCache ? (object)Service<IWeakReferenceProvider>.Instance.GetWeakReference(viewModel) : viewModel;
             }
         }
 

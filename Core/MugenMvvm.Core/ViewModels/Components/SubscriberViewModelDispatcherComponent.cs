@@ -1,9 +1,9 @@
 ﻿using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.BusyIndicator;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.ViewModels.Components;
 using MugenMvvm.Messaging;
@@ -11,7 +11,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.ViewModels.Components
 {
-    public class SubscriberViewModelDispatcherComponent : ISubscriberViewModelDispatcherComponent
+    public class SubscriberViewModelDispatcherComponent : ISubscriberViewModelDispatcherComponent, IHasPriority
     {
         #region Constructors
 
@@ -89,11 +89,6 @@ namespace MugenMvvm.ViewModels.Components
             }
 
             return result;
-        }
-
-        int IComponent.GetPriority(object source)
-        {
-            return Priority;
         }
 
         #endregion

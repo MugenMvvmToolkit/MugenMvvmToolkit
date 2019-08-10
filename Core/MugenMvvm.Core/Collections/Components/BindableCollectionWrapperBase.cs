@@ -117,11 +117,6 @@ namespace MugenMvvm.Collections.Components
             OnCleared();
         }
 
-        public int GetPriority(object source)
-        {
-            return GetPriorityInternal(source);
-        }
-
         #endregion
 
         #region Methods
@@ -234,11 +229,6 @@ namespace MugenMvvm.Collections.Components
             {
                 OnEndBatchUpdate();
             }
-        }
-
-        protected virtual int GetPriorityInternal(object source)
-        {
-            return 0;
         }
 
         protected virtual void OnBeginBatchUpdateInternal()

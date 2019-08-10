@@ -4,14 +4,14 @@ using System.Linq;
 using MugenMvvm.Attributes;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
 
 namespace MugenMvvm.Navigation.Components
 {
-    public class NavigationJournalComponent : AttachableComponentBase<INavigationDispatcher>, INavigationJournalComponent, INavigationDispatcherNavigatedListener
+    public class NavigationJournalComponent : AttachableComponentBase<INavigationDispatcher>, INavigationJournalComponent, INavigationDispatcherNavigatedListener, IHasPriority
     {
         #region Fields
 
@@ -35,7 +35,7 @@ namespace MugenMvvm.Navigation.Components
 
         protected IMetadataContextProvider MetadataContextProvider => _metadataContextProvider.ServiceIfNull();
 
-        public int Priority { get; set; } = int.MaxValue;
+        public int Priority => int.MaxValue;
 
         #endregion
 
@@ -62,11 +62,6 @@ namespace MugenMvvm.Navigation.Components
         {
             Should.NotBeNull(navigationEntry, nameof(navigationEntry));
             return GetPreviousNavigationEntryInternal(navigationEntry, metadata);
-        }
-
-        int IComponent.GetPriority(object source)
-        {
-            return Priority;
         }
 
         #endregion

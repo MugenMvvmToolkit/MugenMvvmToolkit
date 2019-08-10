@@ -7,10 +7,11 @@ using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Observers.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
-    public class ObservableMemberBindingMemberObserverProviderComponent : IBindingMemberObserverProviderComponent, BindingMemberObserver.IHandler
+    public class ObservableMemberBindingMemberObserverProviderComponent : IBindingMemberObserverProviderComponent, BindingMemberObserver.IHandler, IHasPriority
     {
         #region Fields
 
@@ -54,11 +55,6 @@ namespace MugenMvvm.Binding.Observers.Components
             }
 
             return default;
-        }
-
-        int IComponent.GetPriority(object source)
-        {
-            return Priority;
         }
 
         #endregion

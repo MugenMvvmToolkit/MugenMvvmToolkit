@@ -122,11 +122,6 @@ namespace MugenMvvm.Messaging//todo review pragma
                 BusyMessageHandlerType = metadataContext.Get(ViewModelMetadata.BusyMessageHandlerType);
         }
 
-        public int GetPriority(object source)
-        {
-            return 0;
-        }
-
         #endregion
 
         #region Methods

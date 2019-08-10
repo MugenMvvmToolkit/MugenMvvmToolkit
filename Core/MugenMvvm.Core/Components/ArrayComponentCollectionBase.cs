@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Components
 {
@@ -155,7 +153,7 @@ namespace MugenMvvm.Components
         protected virtual bool AddInternal(T component, IReadOnlyMetadataContext? metadata)
         {
             if (IsOrdered)
-                AddOrdered(component);
+                MugenExtensions.AddOrdered(ref Items, component, Owner);
             else
             {
                 var array = new T[Items.Length + 1];
@@ -178,13 +176,6 @@ namespace MugenMvvm.Components
             return true;
         }
 
-        protected virtual int GetPriority(T component)
-        {
-            if (component is IComponent c)
-                return c.GetPriority(Owner);
-            return ((IHasPriority)component).Priority;
-        }
-
         private bool AddLockImpl(T component, IReadOnlyMetadataContext? metadata)
         {
             lock (this)
@@ -199,36 +190,6 @@ namespace MugenMvvm.Components
             {
                 return RemoveInternal(component, metadata);
             }
-        }
-
-        private void AddOrdered(T component)
-        {
-            var array = new T[Items.Length + 1];
-            var added = false;
-            var priority = GetPriority(component);
-            for (var i = 0; i < Items.Length; i++)
-            {
-                if (added)
-                {
-                    array[i + 1] = Items[i];
-                    continue;
-                }
-
-                var oldItem = Items[i];
-                var compareTo = priority.CompareTo(GetPriority(oldItem));
-                if (compareTo > 0)
-                {
-                    array[i] = component;
-                    added = true;
-                    --i;
-                }
-                else
-                    array[i] = oldItem;
-            }
-
-            if (!added)
-                array[array.Length - 1] = component;
-            Items = array;
         }
 
         #endregion

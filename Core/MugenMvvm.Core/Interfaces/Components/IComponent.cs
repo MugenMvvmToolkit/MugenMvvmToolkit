@@ -1,7 +1,6 @@
 ﻿namespace MugenMvvm.Interfaces.Components
 {
-    public interface IComponent
+    public interface IComponent<out TContainer> where TContainer : class
     {
-        int GetPriority(object source);
     }
 }

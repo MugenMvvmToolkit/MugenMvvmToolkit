@@ -6,10 +6,11 @@ using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Collections.Components
 {
-    public sealed class FilterObservableCollectionDecorator<T> : AttachableComponentBase<IObservableCollectionDecoratorManager<T>>, IDecoratorObservableCollectionComponent<T>, IEnumerable<T>
+    public sealed class FilterObservableCollectionDecorator<T> : AttachableComponentBase<IObservableCollectionDecoratorManager<T>>, IDecoratorObservableCollectionComponent<T>, IEnumerable<T>, IHasPriority
     {
         #region Fields
 
@@ -181,11 +182,6 @@ namespace MugenMvvm.Collections.Components
         {
             Clear();
             return true;
-        }
-
-        public int GetPriority(object source)
-        {
-            return Priority;
         }
 
         public IEnumerator<T> GetEnumerator()

@@ -5,6 +5,7 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
 using MugenMvvm.Interfaces.Presenters;
@@ -16,7 +17,7 @@ using MugenMvvm.Navigation;
 
 namespace MugenMvvm.Presenters.Components
 {
-    public sealed class ViewModelCallbackManagerComponent : AttachableComponentBase<IPresenter>, IPresenterShowListener, IPresenterCloseListener
+    public sealed class ViewModelCallbackManagerComponent : AttachableComponentBase<IPresenter>, IPresenterShowListener, IPresenterCloseListener, IHasPriority
     {
         #region Fields
 
@@ -78,11 +79,6 @@ namespace MugenMvvm.Presenters.Components
         public void OnCloseError(IPresenter presenter, string operationId, Exception exception, IMetadataContext metadata)
         {
             _dispatcherListener.EndSuspend(operationId);
-        }
-
-        public int GetPriority(object source)
-        {
-            return Priority;
         }
 
         public void OnShowing(IPresenter presenter, string operationId, IMetadataContext metadata)
@@ -297,7 +293,8 @@ namespace MugenMvvm.Presenters.Components
 
         #region Nested types
 
-        private sealed class NavigationDispatcherListener : INavigationDispatcherNavigatedListener, INavigationDispatcherErrorListener, INavigationCallbackProviderComponent
+        private sealed class NavigationDispatcherListener : INavigationDispatcherNavigatedListener, INavigationDispatcherErrorListener, 
+            INavigationCallbackProviderComponent, IHasPriority
         {
             #region Fields
 
@@ -316,6 +313,12 @@ namespace MugenMvvm.Presenters.Components
                 _suspendedEvents = new List<KeyValuePair<INavigationContext, object?>>();
                 _operations = new HashSet<string>();
             }
+
+            #endregion
+
+            #region Properties
+
+            public int Priority => _callbackManager.NavigationDispatcherListenerPriority;
 
             #endregion
 
@@ -359,11 +362,6 @@ namespace MugenMvvm.Presenters.Components
                 }
 
                 _callbackManager.OnNavigationCanceledInternal(navigationContext);
-            }
-
-            public int GetPriority(object source)
-            {
-                return _callbackManager.NavigationDispatcherListenerPriority;
             }
 
             public void OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)

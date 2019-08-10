@@ -6,10 +6,11 @@ using MugenMvvm.Binding.Interfaces.Parsing.Nodes;
 using MugenMvvm.Binding.Parsing.Nodes;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
 {
-    public sealed class UnaryExpressionParserComponent : IExpressionParserComponent
+    public sealed class UnaryExpressionParserComponent : IExpressionParserComponent, IHasPriority
     {
         #region Fields
 
@@ -44,11 +45,6 @@ namespace MugenMvvm.Binding.Parsing.Components
         #endregion
 
         #region Implementation of interfaces
-
-        int IComponent.GetPriority(object source)
-        {
-            return Priority;
-        }
 
         public IExpressionNode? TryParse(IBindingParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
         {

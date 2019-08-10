@@ -68,8 +68,6 @@ namespace MugenMvvm.Validation
 
         public bool IsDisposed => _state == DisposedState;
 
-        public int ValidatorListenerPriority { get; set; }
-
         #endregion
 
         #region Implementation of interfaces
@@ -134,11 +132,6 @@ namespace MugenMvvm.Validation
         void IComponentOwnerRemovedCallback<IValidator>.OnComponentRemoved(object collection, IValidator component, IReadOnlyMetadataContext? metadata)
         {
             OnValidatorRemoved(component, metadata);
-        }
-
-        int IComponent.GetPriority(object source)
-        {
-            return ValidatorListenerPriority;
         }
 
         void IValidatorListener.OnErrorsChanged(IValidator validator, string memberName, IReadOnlyMetadataContext? metadata)

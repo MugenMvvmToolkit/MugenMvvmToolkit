@@ -14,7 +14,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Commands.Components
 {
-    public sealed class ConditionEventCommandMediatorComponent : IConditionEventCommandMediatorComponent, IThreadDispatcherHandler, ISuspendable, IDisposable
+    public sealed class ConditionEventCommandMediatorComponent : IConditionEventCommandMediatorComponent, IThreadDispatcherHandler, ISuspendable, IDisposable, IHasPriority
     {
         #region Fields
 
@@ -100,11 +100,6 @@ namespace MugenMvvm.Commands.Components
             }
 
             _threadDispatcher.ServiceIfNull().Execute(this, _eventExecutionMode, null);
-        }
-
-        public int GetPriority(object source)
-        {
-            return Priority;
         }
 
         public void Dispose()

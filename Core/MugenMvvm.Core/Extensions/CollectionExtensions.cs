@@ -21,12 +21,42 @@ namespace MugenMvvm
             return array;
         }
 
-        public static bool Remove<T>(ref T[] items, T item)
+        public static void AddOrdered<T>(ref T[] items, T component, object owner) where T : class
+        {
+            var array = new T[items.Length + 1];
+            var added = false;
+            var priority = GetComponentPriority(component, owner);
+            for (var i = 0; i < items.Length; i++)
+            {
+                if (added)
+                {
+                    array[i + 1] = items[i];
+                    continue;
+                }
+
+                var oldItem = items[i];
+                var compareTo = priority.CompareTo(GetComponentPriority(oldItem, owner));
+                if (compareTo > 0)
+                {
+                    array[i] = component;
+                    added = true;
+                    --i;
+                }
+                else
+                    array[i] = oldItem;
+            }
+
+            if (!added)
+                array[array.Length - 1] = component;
+            items = array;
+        }
+
+        public static bool Remove<T>(ref T[] items, T item) where T : class
         {
             T[]? array = null;
             for (var i = 0; i < items.Length; i++)
             {
-                if (array == null && EqualityComparer<T>.Default.Equals(item, items[i]))
+                if (array == null && ReferenceEquals(item, items[i]))
                 {
                     array = new T[items.Length - 1];
                     Array.Copy(items, 0, array, 0, i);

@@ -2,13 +2,14 @@
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
 
 namespace MugenMvvm.Views.Components
 {
-    public sealed class ViewProviderComponent : AttachableComponentBase<IViewManager>, IViewProviderComponent
+    public sealed class ViewProviderComponent : AttachableComponentBase<IViewManager>, IViewProviderComponent, IHasPriority
     {
         #region Fields
 
@@ -20,7 +21,6 @@ namespace MugenMvvm.Views.Components
 
         public ViewProviderComponent(IServiceProvider? serviceProvider = null)
         {
-            Should.NotBeNull(serviceProvider, nameof(serviceProvider));
             _serviceProvider = serviceProvider;
         }
 
@@ -33,11 +33,6 @@ namespace MugenMvvm.Views.Components
         #endregion
 
         #region Implementation of interfaces
-
-        int IComponent.GetPriority(object source)
-        {
-            return Priority;
-        }
 
         public object? TryGetViewForViewModel(IViewInitializer initializer, IViewModelBase viewModel, IMetadataContext metadata)
         {

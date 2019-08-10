@@ -5,10 +5,11 @@ using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Collections.Components
 {
-    public sealed class OrderedObservableCollectionDecorator<T> : AttachableComponentBase<IObservableCollectionDecoratorManager<T>>, IDecoratorObservableCollectionComponent<T>
+    public sealed class OrderedObservableCollectionDecorator<T> : AttachableComponentBase<IObservableCollectionDecoratorManager<T>>, IDecoratorObservableCollectionComponent<T>, IHasPriority
     {
         #region Fields
 
@@ -134,11 +135,6 @@ namespace MugenMvvm.Collections.Components
         {
             _items.Clear();
             return true;
-        }
-
-        public int GetPriority(object source)
-        {
-            return Priority;
         }
 
         #endregion

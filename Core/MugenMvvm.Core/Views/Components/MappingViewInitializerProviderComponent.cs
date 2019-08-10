@@ -6,6 +6,7 @@ using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
@@ -14,7 +15,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Views.Components
 {
-    public sealed class MappingViewInitializerProviderComponent : AttachableComponentBase<IViewManager>, IViewInitializerProviderComponent
+    public sealed class MappingViewInitializerProviderComponent : AttachableComponentBase<IViewManager>, IViewInitializerProviderComponent, IHasPriority
     {
         #region Fields
 
@@ -49,11 +50,6 @@ namespace MugenMvvm.Views.Components
         #endregion
 
         #region Implementation of interfaces
-
-        int IComponent.GetPriority(object source)
-        {
-            return Priority;
-        }
 
         public IReadOnlyList<IViewInitializer> GetInitializersByView(object view, IReadOnlyMetadataContext? metadata)
         {

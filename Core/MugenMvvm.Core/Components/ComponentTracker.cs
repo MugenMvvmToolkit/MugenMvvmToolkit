@@ -6,7 +6,7 @@ namespace MugenMvvm.Components
 {
     //todo add to global classes
     public sealed class ComponentTracker<TComponent, TComponentBase> : IComponentCollectionChangedListener<IComponent<TComponentBase>>
-        where TComponent : class, IComponent
+        where TComponent : class
         where TComponentBase : class
     {
         #region Fields
@@ -27,16 +27,11 @@ namespace MugenMvvm.Components
 
         #region Implementation of interfaces
 
-        int IComponent.GetPriority(object source)
-        {
-            return 0;
-        }
-
         void IComponentCollectionChangedListener<IComponent<TComponentBase>>.OnAdded(IComponentCollection<IComponent<TComponentBase>> collection,
             IComponent<TComponentBase> component, IReadOnlyMetadataContext? metadata)
         {
             if (component is TComponent c)
-                Add(c);
+                MugenExtensions.AddOrdered(ref _items, c, _owner!);
         }
 
         void IComponentCollectionChangedListener<IComponent<TComponentBase>>.OnRemoved(IComponentCollection<IComponent<TComponentBase>> collection,
@@ -72,36 +67,6 @@ namespace MugenMvvm.Components
         public TComponent[] GetComponents()
         {
             return _items;
-        }
-
-        private void Add(TComponent component)
-        {
-            var array = new TComponent[_items.Length + 1];
-            var added = false;
-            var priority = component.GetPriority(_owner!);
-            for (var i = 0; i < _items.Length; i++)
-            {
-                if (added)
-                {
-                    array[i + 1] = _items[i];
-                    continue;
-                }
-
-                var oldItem = _items[i];
-                var compareTo = priority.CompareTo(oldItem.GetPriority(_owner!));
-                if (compareTo > 0)
-                {
-                    array[i] = component;
-                    added = true;
-                    --i;
-                }
-                else
-                    array[i] = oldItem;
-            }
-
-            if (!added)
-                array[array.Length - 1] = component;
-            _items = array;
         }
 
         private void Remove(TComponent component)

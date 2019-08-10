@@ -1,10 +1,11 @@
 ﻿using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Core.Components
 {
-    public sealed class DisableEqualityCheckingComponent : IComponent<IDataBinding>, IAttachableComponent<IDataBinding>
+    public sealed class DisableEqualityCheckingComponent : IComponent<IDataBinding>, IAttachableComponent<IDataBinding>, IHasPriority
     {
         #region Fields
 
@@ -25,6 +26,12 @@ namespace MugenMvvm.Binding.Core.Components
 
         #endregion
 
+        #region Properties
+
+        public int Priority => int.MinValue;
+
+        #endregion
+
         #region Implementation of interfaces
 
         bool IAttachableComponent<IDataBinding>.OnAttaching(IDataBinding owner, IReadOnlyMetadataContext? metadata)
@@ -40,11 +47,6 @@ namespace MugenMvvm.Binding.Core.Components
 
         void IAttachableComponent<IDataBinding>.OnAttached(IDataBinding owner, IReadOnlyMetadataContext? metadata)
         {
-        }
-
-        int IComponent.GetPriority(object source)
-        {
-            return int.MinValue;
         }
 
         #endregion

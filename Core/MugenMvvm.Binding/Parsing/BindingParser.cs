@@ -9,11 +9,6 @@ namespace MugenMvvm.Binding.Parsing
     {
         #region Implementation of interfaces
 
-        int IComponent.GetPriority(object source)
-        {
-            return int.MaxValue;
-        }
-
         public IBindingParserResult[] Parse(string expression, IReadOnlyMetadataContext? metadata)
         {
             throw new NotImplementedException();

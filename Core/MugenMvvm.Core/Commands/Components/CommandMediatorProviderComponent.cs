@@ -5,12 +5,13 @@ using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Commands.Components
 {
-    public sealed class CommandMediatorProviderComponent : ICommandMediatorProviderComponent
+    public sealed class CommandMediatorProviderComponent : ICommandMediatorProviderComponent, IHasPriority
     {
         #region Fields
 
@@ -45,11 +46,6 @@ namespace MugenMvvm.Commands.Components
         #endregion
 
         #region Implementation of interfaces
-
-        public int GetPriority(object source)
-        {
-            return Priority;
-        }
 
         public ICommandMediator? TryGetCommandMediator<TParameter>(ICommand command, IReadOnlyMetadataContext metadata)
         {

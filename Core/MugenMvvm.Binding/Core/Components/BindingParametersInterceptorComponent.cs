@@ -2,12 +2,12 @@
 using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Interfaces.Resources;
 using MugenMvvm.Binding.Observers;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Core.Components
 {
-    public sealed class BindingParametersInterceptorComponent : ISourceValueInterceptorDataBindingComponent, ITargetValueInterceptorDataBindingComponent
+    public sealed class BindingParametersInterceptorComponent : ISourceValueInterceptorDataBindingComponent, ITargetValueInterceptorDataBindingComponent, IHasPriority
     {
         #region Fields
 
@@ -38,14 +38,11 @@ namespace MugenMvvm.Binding.Core.Components
 
         public static int Priority { get; set; } = int.MaxValue;
 
+        int IHasPriority.Priority => Priority;
+
         #endregion
 
         #region Implementation of interfaces
-
-        int IComponent.GetPriority(object source)
-        {
-            return Priority;
-        }
 
         public object? InterceptSourceValue(in BindingPathLastMember sourceMembers, object? value, IReadOnlyMetadataContext metadata)
         {

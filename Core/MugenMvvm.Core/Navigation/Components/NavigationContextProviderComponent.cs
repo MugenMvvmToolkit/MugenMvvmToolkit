@@ -1,12 +1,13 @@
 ﻿using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
 
 namespace MugenMvvm.Navigation.Components
 {
-    public sealed class NavigationContextProviderComponent : INavigationContextProviderComponent
+    public sealed class NavigationContextProviderComponent : INavigationContextProviderComponent, IHasPriority
     {
         #region Fields
 
@@ -26,16 +27,11 @@ namespace MugenMvvm.Navigation.Components
 
         #region Properties
 
-        public int Priority { get; set; } = int.MaxValue;
+        public int Priority => int.MaxValue;
 
         #endregion
 
         #region Implementation of interfaces
-
-        public int GetPriority(object source)
-        {
-            return Priority;
-        }
 
         public INavigationContext GetNavigationContext(INavigationProvider navigationProvider, string navigationOperationId,
             NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null)

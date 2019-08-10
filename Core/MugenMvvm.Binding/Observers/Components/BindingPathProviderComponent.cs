@@ -6,10 +6,11 @@ using MugenMvvm.Binding.Interfaces.Observers.Components;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
-    public sealed class BindingPathProviderComponent : IBindingPathProviderComponent
+    public sealed class BindingPathProviderComponent : IBindingPathProviderComponent, IHasPriority
     {
         #region Fields
 
@@ -49,11 +50,6 @@ namespace MugenMvvm.Binding.Observers.Components
                 return GetFromCache(stringPath);
 
             return GetObserver(stringPath);
-        }
-
-        int IComponent.GetPriority(object source)
-        {
-            return Priority;
         }
 
         #endregion

@@ -2,6 +2,7 @@
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
@@ -9,7 +10,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Views.Components
 {
-    public sealed class ViewModelProviderViewManagerComponent : AttachableComponentBase<IViewManager>, IViewModelProviderViewManagerComponent
+    public sealed class ViewModelProviderViewManagerComponent : AttachableComponentBase<IViewManager>, IViewModelProviderViewManagerComponent, IHasPriority
     {
         #region Fields
 
@@ -36,11 +37,6 @@ namespace MugenMvvm.Views.Components
         #endregion
 
         #region Implementation of interfaces
-
-        int IComponent.GetPriority(object source)
-        {
-            return Priority;
-        }
 
         public IViewModelBase? TryGetViewModelForView(IViewInitializer initializer, object view, IMetadataContext metadata)
         {

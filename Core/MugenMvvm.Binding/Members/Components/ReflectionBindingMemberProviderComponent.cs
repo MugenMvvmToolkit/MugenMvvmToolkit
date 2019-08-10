@@ -12,11 +12,12 @@ using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Members.Components
 {
     // ReSharper disable FieldCanBeMadeReadOnly.Local
-    public sealed class ReflectionBindingMemberProviderComponent : IBindingMemberProviderComponent
+    public sealed class ReflectionBindingMemberProviderComponent : IBindingMemberProviderComponent, IHasPriority
     {
         #region Fields
 
@@ -63,11 +64,6 @@ namespace MugenMvvm.Binding.Members.Components
             }
 
             return info;
-        }
-
-        int IComponent.GetPriority(object source)
-        {
-            return Priority;
         }
 
         #endregion

@@ -8,10 +8,11 @@ using MugenMvvm.Binding.Interfaces.Observers.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
-    public sealed class PropertyChangedBindingMemberObserverProviderComponent : IBindingMemberObserverProviderComponent, BindingMemberObserver.IHandler
+    public sealed class PropertyChangedBindingMemberObserverProviderComponent : IBindingMemberObserverProviderComponent, BindingMemberObserver.IHandler, IHasPriority
     {
         #region Fields
 
@@ -51,11 +52,6 @@ namespace MugenMvvm.Binding.Observers.Components
             if (typeof(INotifyPropertyChanged).IsAssignableFromUnified(type) && member is string)
                 return new BindingMemberObserver(this, member);
             return default;
-        }
-
-        int IComponent.GetPriority(object source)
-        {
-            return Priority;
         }
 
         #endregion

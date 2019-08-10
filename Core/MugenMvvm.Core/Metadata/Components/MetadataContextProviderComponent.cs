@@ -8,10 +8,11 @@ using MugenMvvm.Delegates;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Metadata.Components;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Metadata.Components
 {
-    public class MetadataContextProviderComponent : IMetadataContextProviderComponent
+    public class MetadataContextProviderComponent : IMetadataContextProviderComponent, IHasPriority
     {
         #region Constructors
 
@@ -55,11 +56,6 @@ namespace MugenMvvm.Metadata.Components
             if (values != null)
                 metadataContext.Merge(values);
             return metadataContext;
-        }
-
-        int IComponent.GetPriority(object source)
-        {
-            return Priority;
         }
 
         #endregion

@@ -2,7 +2,9 @@
 using System.Linq;
 using MugenMvvm.Attributes;
 using MugenMvvm.Components;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
 using MugenMvvm.Interfaces.Presenters;
@@ -14,7 +16,7 @@ using MugenMvvm.Metadata;
 namespace MugenMvvm.Presenters.Components
 {
     public class ViewModelMediatorPresenterComponent : AttachableComponentBase<IPresenter>, ICloseablePresenterComponent, IRestorablePresenterComponent, IPresenterComponent,
-        INavigationDispatcherNavigatedListener
+        INavigationDispatcherNavigatedListener, IHasComponentPriority, IHasPriority
     {
         #region Fields
 
@@ -53,9 +55,9 @@ namespace MugenMvvm.Presenters.Components
 
         #region Implementation of interfaces
 
-        public int GetPriority(object source)
+        public int GetPriority(object owner)
         {
-            if (source is INavigationDispatcher)
+            if (owner is INavigationDispatcher)
                 return NavigationDispatcherListenerPriority;
             return Priority;
         }

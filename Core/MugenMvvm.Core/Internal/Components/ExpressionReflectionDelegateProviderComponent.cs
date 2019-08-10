@@ -7,13 +7,13 @@ using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal.Components;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Internal.Components
 {
     // ReSharper disable FieldCanBeMadeReadOnly.Local
-    public sealed class ExpressionReflectionDelegateProviderComponent : IReflectionDelegateProviderComponent
+    public sealed class ExpressionReflectionDelegateProviderComponent : IReflectionDelegateProviderComponent, IHasPriority
     {
         #region Fields
 
@@ -144,11 +144,6 @@ namespace MugenMvvm.Internal.Components
 
                 return (Action<object?, TType>) value;
             }
-        }
-
-        int IComponent.GetPriority(object source)
-        {
-            return Priority;
         }
 
         #endregion

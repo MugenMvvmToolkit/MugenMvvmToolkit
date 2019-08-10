@@ -5,7 +5,6 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Collections;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members.Components
@@ -25,12 +24,6 @@ namespace MugenMvvm.Binding.Members.Components
         {
             _cache = new CacheDictionary();
         }
-
-        #endregion
-
-        #region Properties
-
-        public int Priority { get; set; } = int.MaxValue;
 
         #endregion
 
@@ -79,11 +72,6 @@ namespace MugenMvvm.Binding.Members.Components
             for (var index = 0; index < toRemove.Count; index++)
                 _cache.Remove(toRemove[index]);
             return true;
-        }
-
-        int IComponent.GetPriority(object source)
-        {
-            return Priority;
         }
 
         #endregion

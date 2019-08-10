@@ -7,6 +7,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.IoC;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Metadata;
@@ -103,6 +104,15 @@ namespace MugenMvvm
         public static string Format(this string format, params object?[] args)
         {
             return string.Format(format, args);
+        }
+
+        public static int GetComponentPriority(object component, object owner)
+        {
+            if (component is IHasComponentPriority c)
+                return c.GetPriority(owner);
+            if (component is IHasPriority p)
+                return p.Priority;
+            return 0;
         }
 
         public static void AddComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class

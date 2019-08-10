@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Attributes;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Presenters.Components;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Presenters.Components
 {
-    public class CloseHandlerViewModelPresenterComponent : ICloseablePresenterComponent
+    public class CloseHandlerViewModelPresenterComponent : ICloseablePresenterComponent, IHasPriority
     {
         #region Constructors
 
@@ -26,11 +27,6 @@ namespace MugenMvvm.Presenters.Components
 
         #region Implementation of interfaces
 
-        public int GetPriority(object source)
-        {
-            return Priority;
-        }
-
         public IReadOnlyList<IPresenterResult> TryClose(IMetadataContext metadata)
         {
             var viewModel = metadata.Get(NavigationMetadata.ViewModel);
@@ -43,7 +39,7 @@ namespace MugenMvvm.Presenters.Components
             var r = closeHandler(viewModel, metadata);
             if (r == null)
                 return Default.EmptyArray<IPresenterResult>();
-            return new[] { r };
+            return new[] {r};
         }
 
         #endregion

@@ -131,11 +131,6 @@ namespace MugenMvvm.Components
 
             #region Implementation of interfaces
 
-            public int GetPriority(object source)
-            {
-                return 0;
-            }
-
             public void OnAdded(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata)
             {
                 if (component is IAttachableComponent)
