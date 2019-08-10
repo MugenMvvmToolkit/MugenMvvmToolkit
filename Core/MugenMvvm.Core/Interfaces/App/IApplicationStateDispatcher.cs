@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.App
 {
-    public interface IApplicationStateDispatcher : IComponentOwner<IApplicationStateDispatcher>
+    public interface IApplicationStateDispatcher : IComponentOwner<IApplicationStateDispatcher>, IComponent<IMugenApplication>
     {
         ApplicationState State { get; }
 

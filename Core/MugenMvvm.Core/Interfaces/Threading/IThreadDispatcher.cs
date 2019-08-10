@@ -2,11 +2,13 @@
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.App;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Threading
 {
-    public interface IThreadDispatcher
+    public interface IThreadDispatcher : IComponent<IMugenApplication>
     {
         bool CanExecuteInline(ThreadExecutionMode executionMode);
 

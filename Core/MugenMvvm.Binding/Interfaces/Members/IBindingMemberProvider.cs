@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -7,7 +8,7 @@ using MugenMvvm.Interfaces.Metadata;
 namespace MugenMvvm.Binding.Interfaces.Members
 {
     //todo add expando/dynamic objects
-    public interface IBindingMemberProvider : IComponentOwner<IBindingMemberProvider>//todo component of binding manager
+    public interface IBindingMemberProvider : IComponentOwner<IBindingMemberProvider>, IComponent<IBindingManager>//todo component of binding manager
     {
         IBindingMemberInfo? GetMember(Type type, string name, IReadOnlyMetadataContext? metadata = null);
 

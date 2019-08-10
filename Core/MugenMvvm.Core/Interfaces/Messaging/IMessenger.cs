@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Messaging;
 
 namespace MugenMvvm.Interfaces.Messaging
 {
-    public interface IMessenger : IEventPublisher, IComponentOwner<IMessenger>, IDisposable//todo remove IMessengerSubscriber, common interface, wait execution from context?
+    public interface IMessenger : IEventPublisher, IComponentOwner<IMessenger>, IComponent<IMugenApplication>, IDisposable//todo remove IMessengerSubscriber, common interface, wait execution from context?
     {
         IMessengerContext GetMessengerContext(IMetadataContext? metadata = null);
 

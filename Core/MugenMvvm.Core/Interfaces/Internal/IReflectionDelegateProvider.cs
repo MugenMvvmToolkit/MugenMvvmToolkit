@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Reflection;
+using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Internal
 {
-    public interface IReflectionDelegateProvider : IComponentOwner<IReflectionDelegateProvider>
+    public interface IReflectionDelegateProvider : IComponentOwner<IReflectionDelegateProvider>, IComponent<IMugenApplication>
     {
         bool CanCreateDelegate(Type delegateType, MethodInfo method);
 

@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using MugenMvvm.Delegates;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.IoC
 {
-    public interface IIocContainer : IComponentOwner<IIocContainer>, IDisposable, IServiceProvider
+    public interface IIocContainer : IComponentOwner<IIocContainer>, IComponent<IMugenApplication>, IDisposable, IServiceProvider
     {
         int Id { get; }
 

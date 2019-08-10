@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Threading.Tasks;
+using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Navigation
 {
-    public interface INavigationDispatcher : IComponentOwner<INavigationDispatcher>
+    public interface INavigationDispatcher : IComponentOwner<INavigationDispatcher>, IComponent<IMugenApplication>
     {
         Task<bool> OnNavigatingAsync(INavigationContext navigationContext);
 

@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Core.Components
 {
-    public interface IBindingValueConverterComponent : IComponent<IBindingManager>
+    public interface IBindingValueConverterComponent : IComponent<IBindingManager>//todo check move to resources
     {
         object? Convert(object? value, Type targetType, IBindingMemberInfo? member, IReadOnlyMetadataContext? metadata);
     }
