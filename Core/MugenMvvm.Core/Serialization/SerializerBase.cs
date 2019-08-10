@@ -47,12 +47,12 @@ namespace MugenMvvm.Serialization
 
         #region Implementation of interfaces
 
-        void IComponentOwnerAddedCallback<IComponent<ISerializer>>.OnComponentAdded(object collection, IComponent<ISerializer> component, IReadOnlyMetadataContext? metadata)
+        void IComponentOwnerAddedCallback<IComponent<ISerializer>>.OnComponentAdded(IComponentCollection<IComponent<ISerializer>> collection, IComponent<ISerializer> component, IReadOnlyMetadataContext? metadata)
         {
             OnComponentAdded(component, metadata);
         }
 
-        void IComponentOwnerRemovedCallback<IComponent<ISerializer>>.OnComponentRemoved(object collection, IComponent<ISerializer> component, IReadOnlyMetadataContext? metadata)
+        void IComponentOwnerRemovedCallback<IComponent<ISerializer>>.OnComponentRemoved(IComponentCollection<IComponent<ISerializer>> collection, IComponent<ISerializer> component, IReadOnlyMetadataContext? metadata)
         {
             OnComponentRemoved(component, metadata);
         }

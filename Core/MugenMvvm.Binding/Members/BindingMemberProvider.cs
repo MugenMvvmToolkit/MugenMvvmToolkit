@@ -11,7 +11,8 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members
 {
-    public class BindingMemberProvider : ComponentOwnerBase<IBindingMemberProvider>, IBindingMemberProvider, IComponentOwnerAddedCallback<IComponent<IBindingMemberProvider>>
+    public class BindingMemberProvider : ComponentOwnerBase<IBindingMemberProvider>, IBindingMemberProvider, IComponentOwnerAddedCallback<IComponent<IBindingMemberProvider>>,
+        IComponentOwnerRemovedCallback<IComponent<IBindingMemberProvider>>
     {
         #region Fields
 
@@ -40,7 +41,8 @@ namespace MugenMvvm.Binding.Members
         {
             get
             {
-                Should.NotBeNull(_attachedBindingMemberProvider, nameof(AttachedBindingMemberProvider));
+                if (_attachedBindingMemberProvider == null)
+                    ExceptionManager.ThrowObjectNotInitialized(typeof(IAttachedBindingMemberProviderComponent).Name);
                 return _attachedBindingMemberProvider!;
             }
         }
@@ -82,16 +84,16 @@ namespace MugenMvvm.Binding.Members
             return UnregisterInternal(type, name, metadata);
         }
 
-        void IComponentOwnerAddedCallback<IComponent<IBindingMemberProvider>>.OnComponentAdded(object collection, IComponent<IBindingMemberProvider> component, IReadOnlyMetadataContext? metadata)
+        void IComponentOwnerAddedCallback<IComponent<IBindingMemberProvider>>.OnComponentAdded(IComponentCollection<IComponent<IBindingMemberProvider>> collection,
+            IComponent<IBindingMemberProvider> component, IReadOnlyMetadataContext? metadata)
         {
-            if (component is IAttachedBindingMemberProviderComponent provider)
-            {
-                if (ReferenceEquals(_attachedBindingMemberProvider, provider))
-                    return;
-                if (_attachedBindingMemberProvider != null)
-                    Components.Remove(_attachedBindingMemberProvider, metadata);
-                _attachedBindingMemberProvider = provider;
-            }
+            MugenExtensions.SingletonComponentTrackerOnAdded(ref _attachedBindingMemberProvider, true, collection, component, metadata);
+        }
+
+        void IComponentOwnerRemovedCallback<IComponent<IBindingMemberProvider>>.OnComponentRemoved(IComponentCollection<IComponent<IBindingMemberProvider>> collection,
+            IComponent<IBindingMemberProvider> component, IReadOnlyMetadataContext metadata)
+        {
+            MugenExtensions.SingletonComponentTrackerOnRemoved(ref _attachedBindingMemberProvider, collection, component, metadata);
         }
 
         #endregion

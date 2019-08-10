@@ -2,8 +2,8 @@
 
 namespace MugenMvvm.Interfaces.Components
 {
-    public interface IComponentOwnerClearedCallback<in T> where T : class
+    public interface IComponentOwnerClearedCallback<T> where T : class
     {
-        void OnComponentCleared(object collection, T[] oldItems, IReadOnlyMetadataContext? metadata);
+        void OnComponentCleared(IComponentCollection<T> collection, T[] oldItems, IReadOnlyMetadataContext? metadata);
     }
 }

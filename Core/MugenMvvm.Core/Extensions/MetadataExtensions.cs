@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using MugenMvvm.Delegates;
 using MugenMvvm.Interfaces.Metadata;
@@ -18,6 +19,12 @@ namespace MugenMvvm
         #endregion
 
         #region Methods
+
+        public static bool LazyInitialize(this IMetadataContextProvider? provider, [EnsuresNotNull] ref IMetadataContext? metadataContext,
+            object? target, IEnumerable<MetadataContextValue>? values = null)
+        {
+            return metadataContext == null && LazyInitialize(ref metadataContext, GetMetadataContext(target, values, provider));
+        }
 
         public static IMetadataContext ToNonReadonly(this IReadOnlyMetadataContext? metadata, object? target = null, IMetadataContextProvider? contextProvider = null)
         {

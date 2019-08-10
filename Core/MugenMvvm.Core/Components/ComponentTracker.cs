@@ -30,25 +30,19 @@ namespace MugenMvvm.Components
         void IComponentCollectionChangedListener<IComponent<TComponentBase>>.OnAdded(IComponentCollection<IComponent<TComponentBase>> collection,
             IComponent<TComponentBase> component, IReadOnlyMetadataContext? metadata)
         {
-            if (component is TComponent c)
-                MugenExtensions.AddOrdered(ref _items, c, _owner!);
+            MugenExtensions.ComponentTrackerOnAdded(ref _items, _owner, collection, component, metadata);
         }
 
         void IComponentCollectionChangedListener<IComponent<TComponentBase>>.OnRemoved(IComponentCollection<IComponent<TComponentBase>> collection,
             IComponent<TComponentBase> component, IReadOnlyMetadataContext? metadata)
         {
-            if (component is TComponent c)
-                Remove(c);
+            MugenExtensions.ComponentTrackerOnRemoved(ref _items, collection, component, metadata);
         }
 
         void IComponentCollectionChangedListener<IComponent<TComponentBase>>.OnCleared(IComponentCollection<IComponent<TComponentBase>> collection,
             IComponent<TComponentBase>[] oldItems, IReadOnlyMetadataContext? metadata)
         {
-            for (var index = 0; index < oldItems.Length; index++)
-            {
-                if (oldItems[index] is TComponent c)
-                    Remove(c);
-            }
+            MugenExtensions.ComponentTrackerOnCleared(ref _items, collection, oldItems, metadata);
         }
 
         #endregion
@@ -67,11 +61,6 @@ namespace MugenMvvm.Components
         public TComponent[] GetComponents()
         {
             return _items;
-        }
-
-        private void Remove(TComponent component)
-        {
-            MugenExtensions.Remove(ref _items, component);
         }
 
         #endregion

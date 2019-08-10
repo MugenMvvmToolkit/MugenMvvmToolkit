@@ -42,12 +42,12 @@ namespace MugenMvvm.Messaging
 
         #region Implementation of interfaces
 
-        void IComponentOwnerAddedCallback<IComponent<IMessenger>>.OnComponentAdded(object collection, IComponent<IMessenger> component, IReadOnlyMetadataContext? metadata)
+        void IComponentOwnerAddedCallback<IComponent<IMessenger>>.OnComponentAdded(IComponentCollection<IComponent<IMessenger>> collection, IComponent<IMessenger> component, IReadOnlyMetadataContext? metadata)
         {
             OnComponentsChanged();
         }
 
-        void IComponentOwnerRemovedCallback<IComponent<IMessenger>>.OnComponentRemoved(object collection, IComponent<IMessenger> component, IReadOnlyMetadataContext? metadata)
+        void IComponentOwnerRemovedCallback<IComponent<IMessenger>>.OnComponentRemoved(IComponentCollection<IComponent<IMessenger>> collection, IComponent<IMessenger> component, IReadOnlyMetadataContext? metadata)
         {
             OnComponentsChanged();
         }

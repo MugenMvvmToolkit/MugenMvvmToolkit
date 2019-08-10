@@ -162,7 +162,7 @@ namespace MugenMvvm.Binding.Core
             }
         }
 
-        void IComponentOwnerAddedCallback<IComponent<IDataBinding>>.OnComponentAdded(object collection, IComponent<IDataBinding> component, IReadOnlyMetadataContext? metadata)
+        void IComponentOwnerAddedCallback<IComponent<IDataBinding>>.OnComponentAdded(IComponentCollection<IComponent<IDataBinding>> collection, IComponent<IDataBinding> component, IReadOnlyMetadataContext? metadata)
         {
             if (component is ISourceValueInterceptorDataBindingComponent)
                 SetFlag(HasSourceValueInterceptorFlag);
@@ -193,7 +193,7 @@ namespace MugenMvvm.Binding.Core
             OnComponentAdded(component, metadata);
         }
 
-        void IComponentOwnerRemovedCallback<IComponent<IDataBinding>>.OnComponentRemoved(object collection, IComponent<IDataBinding> component, IReadOnlyMetadataContext? metadata)
+        void IComponentOwnerRemovedCallback<IComponent<IDataBinding>>.OnComponentRemoved(IComponentCollection<IComponent<IDataBinding>> collection, IComponent<IDataBinding> component, IReadOnlyMetadataContext? metadata)
         {
             if (CheckFlag(DisposedFlag))
                 return;

@@ -5,29 +5,33 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Components
 {
-    public sealed class SingletonComponentTracker<TComponent, TComponentBase> : IComponentCollectionChangedListener<IComponent<TComponentBase>>, IHasService<TComponent>//todo call detach auto
+    public sealed class SingletonComponentTracker<TComponent, TComponentBase> : IComponentCollectionChangedListener<IComponent<TComponentBase>>,
+            IHasService<TComponent>, IHasServiceOptional<TComponent>
         where TComponent : class
         where TComponentBase : class
     {
         #region Fields
 
+        private readonly bool _autoDetachOld;
+        private TComponent? _component;
         private IComponentOwner<TComponentBase>? _owner;
+
+        #endregion
+
+        #region Constructors
+
+        public SingletonComponentTracker(bool autoDetachOld)
+        {
+            _autoDetachOld = autoDetachOld;
+        }
 
         #endregion
 
         #region Properties
 
-        public TComponent? Component { get; private set; }
+        TComponent IHasService<TComponent>.Service => GetComponent(true);
 
-        TComponent IHasService<TComponent>.Service
-        {
-            get
-            {
-                if (Component == null)
-                    ExceptionManager.ThrowObjectNotInitialized(typeof(TComponent).Name);
-                return Component!;
-            }
-        }
+        TComponent? IHasServiceOptional<TComponent>.ServiceOptional => GetComponent(false);
 
         #endregion
 
@@ -36,28 +40,19 @@ namespace MugenMvvm.Components
         void IComponentCollectionChangedListener<IComponent<TComponentBase>>.OnAdded(IComponentCollection<IComponent<TComponentBase>> collection,
             IComponent<TComponentBase> component, IReadOnlyMetadataContext? metadata)
         {
-            if (component is TComponent c)
-                Component = c;
+            MugenExtensions.SingletonComponentTrackerOnAdded(ref _component, _autoDetachOld, collection, component, metadata);
         }
 
         void IComponentCollectionChangedListener<IComponent<TComponentBase>>.OnRemoved(IComponentCollection<IComponent<TComponentBase>> collection,
             IComponent<TComponentBase> component, IReadOnlyMetadataContext? metadata)
         {
-            if (ReferenceEquals(Component, component))
-                Component = null;
+            MugenExtensions.SingletonComponentTrackerOnRemoved(ref _component, collection, component, metadata);
         }
 
         void IComponentCollectionChangedListener<IComponent<TComponentBase>>.OnCleared(IComponentCollection<IComponent<TComponentBase>> collection,
             IComponent<TComponentBase>[] oldItems, IReadOnlyMetadataContext? metadata)
         {
-            for (var index = 0; index < oldItems.Length; index++)
-            {
-                if (ReferenceEquals(Component, oldItems[index]))
-                {
-                    Component = null;
-                    break;
-                }
-            }
+            MugenExtensions.SingletonComponentTrackerOnCleared(ref _component, collection, oldItems, metadata);
         }
 
         #endregion
@@ -69,8 +64,15 @@ namespace MugenMvvm.Components
             Should.NotBeNull(owner, nameof(owner));
             _owner?.Components.Components.Remove(this);
             _owner = owner;
-            Component = owner.Components.GetItems().OfType<TComponent>().FirstOrDefault();
+            _component = owner.Components.GetItems().OfType<TComponent>().FirstOrDefault();
             owner.Components.Components.Add(this);
+        }
+
+        public TComponent? GetComponent(bool throwIfNotInitialized)
+        {
+            if (throwIfNotInitialized && _component == null)
+                ExceptionManager.ThrowObjectNotInitialized(typeof(TComponent).Name);
+            return _component!;
         }
 
         #endregion

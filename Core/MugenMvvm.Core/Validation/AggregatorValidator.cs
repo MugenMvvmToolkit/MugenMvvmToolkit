@@ -118,17 +118,17 @@ namespace MugenMvvm.Validation
             SetErrorsInternal(memberName, errors, metadata);
         }
 
-        void IComponentOwnerAddedCallback<IValidator>.OnComponentAdded(object collection, IValidator component, IReadOnlyMetadataContext? metadata)
+        void IComponentOwnerAddedCallback<IValidator>.OnComponentAdded(IComponentCollection<IValidator> collection, IValidator component, IReadOnlyMetadataContext? metadata)
         {
             OnValidatorAdded(component, metadata);
         }
 
-        bool IComponentOwnerAddingCallback<IValidator>.OnComponentAdding(object collection, IValidator component, IReadOnlyMetadataContext? metadata)
+        bool IComponentOwnerAddingCallback<IValidator>.OnComponentAdding(IComponentCollection<IValidator> collection, IValidator component, IReadOnlyMetadataContext? metadata)
         {
             return OnValidatorAdding(component, metadata);
         }
 
-        void IComponentOwnerRemovedCallback<IValidator>.OnComponentRemoved(object collection, IValidator component, IReadOnlyMetadataContext? metadata)
+        void IComponentOwnerRemovedCallback<IValidator>.OnComponentRemoved(IComponentCollection<IValidator> collection, IValidator component, IReadOnlyMetadataContext? metadata)
         {
             OnValidatorRemoved(component, metadata);
         }
