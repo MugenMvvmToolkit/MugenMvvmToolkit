@@ -78,8 +78,7 @@ namespace MugenMvvm.Validation
                 return;
             OnDispose();
             this.ClearComponents();
-            this.ClearMetadata();
-            _metadata?.ClearComponents();
+            this.ClearMetadata(true);
         }
 
         public IReadOnlyList<object> GetErrors(string? memberName, IReadOnlyMetadataContext? metadata = null)

@@ -91,8 +91,7 @@ namespace MugenMvvm.Validation
             if (Target is INotifyPropertyChanged notifyPropertyChanged && _weakPropertyHandler != null)
                 notifyPropertyChanged.PropertyChanged -= _weakPropertyHandler;
             this.ClearComponents();
-            this.ClearMetadata();
-            _metadata?.ClearComponents();
+            this.ClearMetadata(true);
         }
 
         public IReadOnlyList<object> GetErrors(string? memberName, IReadOnlyMetadataContext? metadata = null)

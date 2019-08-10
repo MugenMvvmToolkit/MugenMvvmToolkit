@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Views.Components;
 
 namespace MugenMvvm.Views.Components
 {
-    public sealed class PostViewInitializerComponent : IViewManagerListener, IHasPriority //todo listen wrappers from metadata, review priority
+    public sealed class PostViewInitializerComponent : IViewManagerListener, IHasPriority //todo listen wrappers from metadata
     {
         #region Fields
 
@@ -52,7 +52,7 @@ namespace MugenMvvm.Views.Components
         {
             _viewModelDispatcher.ServiceIfNull().Unsubscribe(viewModel, viewInfo.View, metadata);
             (viewInfo.View as ICleanableView)?.Cleanup(metadata);
-            viewInfo.ClearMetadata();
+            viewInfo.ClearMetadata(true);
         }
 
         #endregion

@@ -14,7 +14,7 @@ using MugenMvvm.Messaging;
 
 namespace MugenMvvm.Views.Components
 {
-    public sealed class ViewAwareInitializerComponent : IViewManagerListener, IHasPriority//todo check preserve
+    public sealed class ViewAwareInitializerComponent : IViewManagerListener, IHasPriority
     {
         #region Fields
 

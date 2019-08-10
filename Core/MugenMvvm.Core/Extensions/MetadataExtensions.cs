@@ -97,11 +97,15 @@ namespace MugenMvvm
             return provider.ServiceIfNull().GetMetadataContext(target, values);
         }
 
-        public static void ClearMetadata<T>(this IMetadataOwner<T> metadataOwner) where T : class, IMetadataContext//todo clearListeners
+        public static void ClearMetadata<T>(this IMetadataOwner<T> metadataOwner, bool clearComponents) where T : class, IMetadataContext
         {
             Should.NotBeNull(metadataOwner, nameof(metadataOwner));
             if (metadataOwner.HasMetadata)
+            {
                 metadataOwner.Metadata.Clear();
+                if (clearComponents)
+                    metadataOwner.Metadata.ClearComponents();
+            }
         }
 
         public static T GetOrAdd<T, TState1>(this IMetadataContext metadataContext, IMetadataContextKey<T> contextKey, TState1 state1,
