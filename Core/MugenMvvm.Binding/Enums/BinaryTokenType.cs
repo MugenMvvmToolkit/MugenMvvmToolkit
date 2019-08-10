@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Enums;
+﻿using System.Runtime.Serialization;
+using MugenMvvm.Enums;
 
 namespace MugenMvvm.Binding.Enums
 {
@@ -50,9 +51,11 @@ namespace MugenMvvm.Binding.Enums
 
         #region Properties
 
+        [DataMember(Name = "P")]
         public int Priority { get; set; }
 
-        public string[] Aliases { get; set; }
+        [DataMember(Name = "A")]
+        public string[]? Aliases { get; set; }
 
         #endregion
     }

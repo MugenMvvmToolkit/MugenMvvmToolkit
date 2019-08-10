@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using MugenMvvm.Attributes;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Navigation;
@@ -11,7 +12,8 @@ namespace MugenMvvm.Navigation
     {
         #region Constructors
 
-        public NavigationDispatcher(IComponentCollectionProvider componentCollectionProvider)
+        [Preserve(Conditional = true)]
+        public NavigationDispatcher(IComponentCollectionProvider? componentCollectionProvider = null)
             : base(componentCollectionProvider)
         {
         }
@@ -142,7 +144,7 @@ namespace MugenMvvm.Navigation
 
             private static void OnExecuted(Task<bool> task, object state)
             {
-                ((NavigatingResult) state).OnExecuted(task);
+                ((NavigatingResult)state).OnExecuted(task);
             }
 
             #endregion

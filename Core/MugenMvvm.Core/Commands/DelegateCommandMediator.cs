@@ -24,8 +24,8 @@ namespace MugenMvvm.Commands
 
         #region Constructors
 
-        public DelegateCommandMediator(IComponentCollectionProvider componentCollectionProvider, Delegate executeDelegate, Delegate? canExecuteDelegate,
-            CommandExecutionMode executionMode, bool allowMultipleExecution)
+        public DelegateCommandMediator(IComponentCollectionProvider? componentCollectionProvider, Delegate executeDelegate,
+            Delegate? canExecuteDelegate, CommandExecutionMode executionMode, bool allowMultipleExecution)
             : base(componentCollectionProvider)
         {
             Should.NotBeNull(executeDelegate, nameof(executeDelegate));
@@ -92,7 +92,7 @@ namespace MugenMvvm.Commands
                 RaiseCanExecuteChanged();
                 return executionTask.ContinueWith((t, o) =>
                 {
-                    var wrapper = (DelegateCommandMediator<T>) o;
+                    var wrapper = (DelegateCommandMediator<T>)o;
                     Interlocked.Exchange(ref wrapper._state, 0);
                     wrapper.RaiseCanExecuteChanged();
                 }, this, TaskContinuationOptions.ExecuteSynchronously);
@@ -247,7 +247,7 @@ namespace MugenMvvm.Commands
                 return false;
             if (canExecuteDelegate is Func<bool> func)
                 return func();
-            return ((Func<T, bool>) canExecuteDelegate).Invoke((T) parameter!);
+            return ((Func<T, bool>)canExecuteDelegate).Invoke((T)parameter!);
         }
 
         protected virtual Task ExecuteInternalAsync(object? parameter)
@@ -278,13 +278,13 @@ namespace MugenMvvm.Commands
 
             if (executeAction is Action<T> genericExecute)
             {
-                genericExecute((T) parameter!);
+                genericExecute((T)parameter!);
                 return Default.CompletedTask;
             }
 
             if (executeAction is Func<Task> executeTask)
                 return executeTask();
-            return ((Func<T, Task>) executeAction).Invoke((T) parameter!);
+            return ((Func<T, Task>)executeAction).Invoke((T)parameter!);
         }
 
         #endregion

@@ -7,23 +7,26 @@ using MugenMvvm.Interfaces.Views.Components;
 
 namespace MugenMvvm.Views.Components
 {
-    public class PostViewInitializerComponent : IViewManagerListener //todo listen wrappers from metadata
+    public sealed class PostViewInitializerComponent : IViewManagerListener //todo listen wrappers from metadata, review priority
     {
+        #region Fields
+
+        private readonly IViewModelDispatcher? _viewModelDispatcher;
+
+        #endregion
+
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public PostViewInitializerComponent(IViewModelDispatcher viewModelDispatcher, int priority = 1)
+        public PostViewInitializerComponent(IViewModelDispatcher? viewModelDispatcher = null, int priority = 1)
         {
-            Should.NotBeNull(viewModelDispatcher, nameof(viewModelDispatcher));
-            ViewModelDispatcher = viewModelDispatcher;
+            _viewModelDispatcher = viewModelDispatcher;
             Priority = priority;
         }
 
         #endregion
 
         #region Properties
-
-        public IViewModelDispatcher ViewModelDispatcher { get; }
 
         public int Priority { get; }
 
@@ -36,23 +39,23 @@ namespace MugenMvvm.Views.Components
             return Priority;
         }
 
-        public virtual void OnViewModelCreated(IViewManager viewManager, IViewModelBase viewModel, object view, IMetadataContext metadata)
+        public void OnViewModelCreated(IViewManager viewManager, IViewModelBase viewModel, object view, IMetadataContext metadata)
         {
         }
 
-        public virtual void OnViewCreated(IViewManager viewManager, object view, IViewModelBase viewModel, IMetadataContext metadata)
+        public void OnViewCreated(IViewManager viewManager, object view, IViewModelBase viewModel, IMetadataContext metadata)
         {
         }
 
-        public virtual void OnViewInitialized(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
+        public void OnViewInitialized(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
         {
-            ViewModelDispatcher.Subscribe(viewModel, viewInfo.View, ThreadExecutionMode.Main, metadata);
+            _viewModelDispatcher.ServiceIfNull().Subscribe(viewModel, viewInfo.View, ThreadExecutionMode.Main, metadata);
             (viewInfo.View as IInitializableView)?.Initialize(viewModel, viewInfo, metadata);
         }
 
-        public virtual void OnViewCleared(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
+        public void OnViewCleared(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
         {
-            ViewModelDispatcher.Unsubscribe(viewModel, viewInfo.View, metadata);
+            _viewModelDispatcher.ServiceIfNull().Unsubscribe(viewModel, viewInfo.View, metadata);
             (viewInfo.View as ICleanableView)?.Cleanup(metadata);
             viewInfo.ClearMetadata();
         }

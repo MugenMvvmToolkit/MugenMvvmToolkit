@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Components;
+﻿using MugenMvvm.Attributes;
+using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
@@ -12,17 +13,16 @@ namespace MugenMvvm.Views.Components
     {
         #region Fields
 
-        private readonly IMetadataContextProvider _metadataContextProvider;
-        private readonly IViewModelDispatcher _viewModelDispatcher;
+        private readonly IMetadataContextProvider? _metadataContextProvider;
+        private readonly IViewModelDispatcher? _viewModelDispatcher;
 
         #endregion
 
         #region Constructors
 
-        public ViewModelProviderViewManagerComponent(IViewModelDispatcher viewModelDispatcher, IMetadataContextProvider metadataContextProvider)
+        [Preserve(Conditional = true)]
+        public ViewModelProviderViewManagerComponent(IViewModelDispatcher? viewModelDispatcher = null, IMetadataContextProvider? metadataContextProvider = null)
         {
-            Should.NotBeNull(viewModelDispatcher, nameof(viewModelDispatcher));
-            Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
             _viewModelDispatcher = viewModelDispatcher;
             _metadataContextProvider = metadataContextProvider;
         }
@@ -47,9 +47,9 @@ namespace MugenMvvm.Views.Components
             Should.NotBeNull(initializer, nameof(initializer));
             Should.NotBeNull(view, nameof(view));
             Should.NotBeNull(metadata, nameof(metadata));
-            var metadataContext = _metadataContextProvider.GetMetadataContext(this, metadata);
+            var metadataContext = _metadataContextProvider.ServiceIfNull().GetMetadataContext(this, metadata);
             metadataContext.Set(ViewModelMetadata.Type, initializer.ViewModelType);
-            var viewModel = _viewModelDispatcher.TryGetViewModel(metadataContext);
+            var viewModel = _viewModelDispatcher.ServiceIfNull().TryGetViewModel(metadataContext);
             if (viewModel != null)
             {
                 var components = Owner.GetComponents();

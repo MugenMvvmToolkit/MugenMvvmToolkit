@@ -12,13 +12,13 @@ namespace MugenMvvm.Views.Components
     {
         #region Fields
 
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceProvider? _serviceProvider;
 
         #endregion
 
         #region Constructors
 
-        public ViewProviderComponent(IServiceProvider serviceProvider)
+        public ViewProviderComponent(IServiceProvider? serviceProvider = null)
         {
             Should.NotBeNull(serviceProvider, nameof(serviceProvider));
             _serviceProvider = serviceProvider;
@@ -44,7 +44,7 @@ namespace MugenMvvm.Views.Components
             Should.NotBeNull(initializer, nameof(initializer));
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(metadata, nameof(metadata));
-            var view = _serviceProvider.GetService(initializer.ViewType);
+            var view = _serviceProvider.ServiceIfNull().GetService(initializer.ViewType);
             var components = Owner.GetComponents();
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IViewManagerListener)?.OnViewCreated(Owner, view, viewModel, metadata);

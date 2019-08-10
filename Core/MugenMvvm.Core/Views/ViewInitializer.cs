@@ -11,14 +11,19 @@ namespace MugenMvvm.Views
 {
     public sealed class ViewInitializer : IViewInitializer
     {
+        #region Fields
+
+        private readonly IMetadataContextProvider? _metadataContextProvider;
+        private readonly IThreadDispatcher? _threadDispatcher;
+        private readonly IViewManager? _viewManager;
+
+        #endregion
+
         #region Constructors
 
-        public ViewInitializer(IThreadDispatcher threadDispatcher, IViewManager viewManager, IMetadataContextProvider metadataContextProvider,
+        public ViewInitializer(IThreadDispatcher? threadDispatcher, IViewManager? viewManager, IMetadataContextProvider? metadataContextProvider,
             ThreadExecutionMode initializeExecutionMode, ThreadExecutionMode cleanupExecutionMode, string id, Type viewType, Type viewModelType, IReadOnlyMetadataContext metadata)
         {
-            Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
-            Should.NotBeNull(viewManager, nameof(viewManager));
-            Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
             Should.NotBeNull(initializeExecutionMode, nameof(initializeExecutionMode));
             Should.NotBeNull(cleanupExecutionMode, nameof(cleanupExecutionMode));
             Should.NotBeNull(id, nameof(id));
@@ -28,9 +33,9 @@ namespace MugenMvvm.Views
             Metadata = metadata;
             InitializeExecutionMode = initializeExecutionMode;
             CleanupExecutionMode = cleanupExecutionMode;
-            ThreadDispatcher = threadDispatcher;
-            ViewManager = viewManager;
-            MetadataContextProvider = metadataContextProvider;
+            _threadDispatcher = threadDispatcher;
+            _viewManager = viewManager;
+            _metadataContextProvider = metadataContextProvider;
             Id = id;
             ViewType = viewType;
             ViewModelType = viewModelType;
@@ -50,15 +55,15 @@ namespace MugenMvvm.Views
 
         public string Id { get; }
 
-        public IThreadDispatcher ThreadDispatcher { get; }
+        private IThreadDispatcher ThreadDispatcher => _threadDispatcher.ServiceIfNull();
 
-        public IViewManager ViewManager { get; }
+        private IViewManager ViewManager => _viewManager.ServiceIfNull();
 
-        public IMetadataContextProvider MetadataContextProvider { get; }
+        private IMetadataContextProvider MetadataContextProvider => _metadataContextProvider.ServiceIfNull();
 
-        public ThreadExecutionMode InitializeExecutionMode { get; }
+        private ThreadExecutionMode InitializeExecutionMode { get; }
 
-        public ThreadExecutionMode CleanupExecutionMode { get; }
+        private ThreadExecutionMode CleanupExecutionMode { get; }
 
         #endregion
 

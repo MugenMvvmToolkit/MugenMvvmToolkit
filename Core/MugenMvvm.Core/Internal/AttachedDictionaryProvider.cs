@@ -12,7 +12,7 @@ namespace MugenMvvm.Internal
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public AttachedDictionaryProvider(IComponentCollectionProvider componentCollectionProvider) : base(componentCollectionProvider)
+        public AttachedDictionaryProvider(IComponentCollectionProvider? componentCollectionProvider = null) : base(componentCollectionProvider)
         {
         }
 

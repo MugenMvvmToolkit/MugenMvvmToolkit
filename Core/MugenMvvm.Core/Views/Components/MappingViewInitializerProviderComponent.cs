@@ -19,18 +19,16 @@ namespace MugenMvvm.Views.Components
         #region Fields
 
         private readonly List<MappingInfo> _mappings;
-        private readonly IThreadDispatcher _threadDispatcher;
-        private readonly IMetadataContextProvider _metadataContextProvider;
+        private readonly IThreadDispatcher? _threadDispatcher;
+        private readonly IMetadataContextProvider? _metadataContextProvider;
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public MappingViewInitializerProviderComponent(IThreadDispatcher threadDispatcher, IMetadataContextProvider metadataContextProvider)
+        public MappingViewInitializerProviderComponent(IThreadDispatcher? threadDispatcher = null, IMetadataContextProvider? metadataContextProvider = null)
         {
-            Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
-            Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
             _threadDispatcher = threadDispatcher;
             _metadataContextProvider = metadataContextProvider;
             _mappings = new List<MappingInfo>();
@@ -157,8 +155,7 @@ namespace MugenMvvm.Views.Components
             #region Constructors
 
             public MappingInfo(int id, IReadOnlyMetadataContext? metadata, Func<object, IReadOnlyMetadataContext?, Type?>? getViewModelType,
-                Func<IViewModelBase, IReadOnlyMetadataContext?, Type?>? getViewType,
-                Type? viewModelType, Type? viewType, bool exactlyEqual, string? name)
+                Func<IViewModelBase, IReadOnlyMetadataContext?, Type?>? getViewType, Type? viewModelType, Type? viewType, bool exactlyEqual, string? name)
             {
                 Id = "map-" + id;
                 Metadata = metadata.DefaultIfNull();

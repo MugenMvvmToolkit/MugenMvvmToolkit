@@ -23,26 +23,27 @@ namespace MugenMvvm.Presenters.Components
             .NotNull()
             .Build();
 
+        private readonly IViewManager? _viewManager;
+        private INavigationDispatcher? _navigationDispatcher;
+
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelMediatorPresenterComponent(IViewManager viewManager, INavigationDispatcher navigationDispatcher)
+        public ViewModelMediatorPresenterComponent(IViewManager? viewManager = null, INavigationDispatcher? navigationDispatcher = null)
         {
-            Should.NotBeNull(viewManager, nameof(viewManager));
-            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
-            ViewManager = viewManager;
-            NavigationDispatcher = navigationDispatcher;
+            _viewManager = viewManager;
+            _navigationDispatcher = navigationDispatcher;
         }
 
         #endregion
 
         #region Properties
 
-        protected IViewManager ViewManager { get; }
+        protected IViewManager ViewManager => _viewManager.ServiceIfNull();
 
-        protected INavigationDispatcher NavigationDispatcher { get; }
+        protected INavigationDispatcher NavigationDispatcher => _navigationDispatcher.ServiceIfNull();
 
         public int Priority { get; set; }
 
@@ -97,12 +98,15 @@ namespace MugenMvvm.Presenters.Components
 
         protected override void OnAttachedInternal(IPresenter owner, IReadOnlyMetadataContext? metadata)
         {
-            NavigationDispatcher.AddComponent(this);
+            if (_navigationDispatcher == null)
+                _navigationDispatcher = Service<INavigationDispatcher>.Instance;
+            _navigationDispatcher.AddComponent(this);
         }
 
         protected override void OnDetachedInternal(IPresenter owner, IReadOnlyMetadataContext? metadata)
         {
-            NavigationDispatcher.RemoveComponent(this);
+            _navigationDispatcher?.RemoveComponent(this);
+            _navigationDispatcher = null;
         }
 
         protected virtual IPresenterResult? TryShowInternal(IMetadataContext metadata)

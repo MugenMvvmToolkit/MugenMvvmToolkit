@@ -23,17 +23,17 @@ namespace MugenMvvm.Presenters
         private INavigationContext? _closingContext;
         private bool _shouldClose;
         private INavigationContext? _showingContext;
+        private readonly INavigationDispatcher? _navigationDispatcher;
+        private readonly IThreadDispatcher? _threadDispatcher;
 
         #endregion
 
         #region Constructors
 
-        protected ViewModelPresenterMediatorBase(INavigationDispatcher navigationDispatcher, IThreadDispatcher threadDispatcher)
+        protected ViewModelPresenterMediatorBase(INavigationDispatcher? navigationDispatcher = null, IThreadDispatcher? threadDispatcher = null)
         {
-            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
-            Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
-            NavigationDispatcher = navigationDispatcher;
-            ThreadDispatcher = threadDispatcher;
+            _navigationDispatcher = navigationDispatcher;
+            _threadDispatcher = threadDispatcher;
             Id = GetType().FullName;
         }
 
@@ -53,9 +53,9 @@ namespace MugenMvvm.Presenters
 
         public IViewInitializer ViewInitializer { get; private set; }
 
-        protected INavigationDispatcher NavigationDispatcher { get; }
+        protected INavigationDispatcher NavigationDispatcher => _navigationDispatcher.ServiceIfNull();
 
-        protected IThreadDispatcher ThreadDispatcher { get; }
+        protected IThreadDispatcher ThreadDispatcher => _threadDispatcher.ServiceIfNull();
 
         protected TView? View { get; private set; }
 

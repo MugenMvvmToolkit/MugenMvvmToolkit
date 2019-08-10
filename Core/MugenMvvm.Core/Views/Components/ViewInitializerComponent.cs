@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using MugenMvvm.Attributes;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -14,7 +15,7 @@ namespace MugenMvvm.Views.Components
     {
         #region Fields
 
-        private readonly IMetadataContextProvider _metadataContextProvider;
+        private readonly IMetadataContextProvider? _metadataContextProvider;
 
         private static readonly IMetadataContextKey<Dictionary<string, IViewInfo>> ViewsMetadataKey =
             MetadataContextKey.FromMember<Dictionary<string, IViewInfo>>(typeof(ViewInitializerComponent), nameof(ViewsMetadataKey));
@@ -23,9 +24,9 @@ namespace MugenMvvm.Views.Components
 
         #region Constructors
 
-        public ViewInitializerComponent(IMetadataContextProvider metadataContextProvider)
+        [Preserve(Conditional = true)]
+        public ViewInitializerComponent(IMetadataContextProvider? metadataContextProvider = null)
         {
-            Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
             _metadataContextProvider = metadataContextProvider;
         }
 

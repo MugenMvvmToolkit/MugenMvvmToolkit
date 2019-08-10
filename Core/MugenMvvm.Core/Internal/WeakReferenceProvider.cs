@@ -12,7 +12,7 @@ namespace MugenMvvm.Internal
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public WeakReferenceProvider(IComponentCollectionProvider componentCollectionProvider) : base(componentCollectionProvider)
+        public WeakReferenceProvider(IComponentCollectionProvider? componentCollectionProvider = null) : base(componentCollectionProvider)
         {
         }
 

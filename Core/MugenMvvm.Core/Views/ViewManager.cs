@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Attributes;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -12,7 +13,8 @@ namespace MugenMvvm.Views
     {
         #region Constructors
 
-        public ViewManager(IComponentCollectionProvider componentCollectionProvider)
+        [Preserve(Conditional = true)]
+        public ViewManager(IComponentCollectionProvider? componentCollectionProvider = null)
             : base(componentCollectionProvider)
         {
         }

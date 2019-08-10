@@ -17,7 +17,7 @@ namespace MugenMvvm.Components
 
         #region Properties
 
-        public TComponent Component { get; private set; }
+        public TComponent? Component { get; private set; }
 
         TComponent IHasService<TComponent>.Service
         {

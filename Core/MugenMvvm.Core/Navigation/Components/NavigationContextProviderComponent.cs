@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Enums;
+﻿using MugenMvvm.Attributes;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
@@ -9,15 +10,15 @@ namespace MugenMvvm.Navigation.Components
     {
         #region Fields
 
-        private readonly IMetadataContextProvider _metadataContextProvider;
+        private readonly IMetadataContextProvider? _metadataContextProvider;
 
         #endregion
 
         #region Constructors
 
-        public NavigationContextProviderComponent(IMetadataContextProvider metadataContextProvider)
+        [Preserve(Conditional = true)]
+        public NavigationContextProviderComponent(IMetadataContextProvider? metadataContextProvider = null)
         {
-            Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
             _metadataContextProvider = metadataContextProvider;
         }
 
@@ -54,7 +55,7 @@ namespace MugenMvvm.Navigation.Components
         {
             #region Fields
 
-            private readonly IMetadataContextProvider _metadataContextProvider;
+            private readonly IMetadataContextProvider? _metadataContextProvider;
             private IMetadataContext? _metadata;
 
             #endregion
@@ -62,7 +63,7 @@ namespace MugenMvvm.Navigation.Components
             #region Constructors
 
             public NavigationContext(INavigationProvider navigationProvider, NavigationType navigationType, string navigationOperationId,
-                NavigationMode navigationMode, IReadOnlyMetadataContext? metadata, IMetadataContextProvider metadataContextProvider)
+                NavigationMode navigationMode, IReadOnlyMetadataContext? metadata, IMetadataContextProvider? metadataContextProvider)
             {
                 _metadataContextProvider = metadataContextProvider;
                 NavigationType = navigationType;

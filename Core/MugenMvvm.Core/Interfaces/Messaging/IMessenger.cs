@@ -7,7 +7,7 @@ using MugenMvvm.Messaging;
 
 namespace MugenMvvm.Interfaces.Messaging
 {
-    public interface IMessenger : IEventPublisher, IComponentOwner<IMessenger>, IDisposable//todo remove IMessengerSubscriber, common interface, wait execution?
+    public interface IMessenger : IEventPublisher, IComponentOwner<IMessenger>, IDisposable//todo remove IMessengerSubscriber, common interface, wait execution from context?
     {
         IMessengerContext GetMessengerContext(IMetadataContext? metadata = null);
 

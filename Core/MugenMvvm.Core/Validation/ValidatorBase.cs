@@ -35,9 +35,9 @@ namespace MugenMvvm.Validation
 
         #region Constructors
 
-        protected ValidatorBase(IMetadataContext? metadata = null, IComponentCollectionProvider? componentCollectionProvider = null,
-            IMetadataContextProvider? metadataContextProvider = null, bool hasAsyncValidation = true)
-            : base(componentCollectionProvider, false)
+        protected ValidatorBase(bool hasAsyncValidation, IMetadataContext? metadata = null, IComponentCollectionProvider? componentCollectionProvider = null,
+            IMetadataContextProvider? metadataContextProvider = null)
+            : base(componentCollectionProvider)
         {
             _metadata = metadata;
             MetadataContextProvider = metadataContextProvider;

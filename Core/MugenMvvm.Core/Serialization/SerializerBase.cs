@@ -12,24 +12,25 @@ namespace MugenMvvm.Serialization
     public abstract class SerializerBase : ComponentOwnerBase<ISerializer>, ISerializer, IComponentOwnerAddedCallback<IComponent<ISerializer>>,
         IComponentOwnerRemovedCallback<IComponent<ISerializer>>
     {
+        #region Fields
+
+        private readonly IMetadataContextProvider? _metadataContextProvider;
+
+        #endregion
+
         #region Constructors
 
-        protected SerializerBase(IServiceProvider serviceProvider, IComponentCollectionProvider componentCollectionProvider, IMetadataContextProvider metadataContextProvider)
+        protected SerializerBase(IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
             : base(componentCollectionProvider)
         {
-            Should.NotBeNull(serviceProvider, nameof(serviceProvider));
-            Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
-            ServiceProvider = serviceProvider;
-            MetadataContextProvider = metadataContextProvider;
+            _metadataContextProvider = metadataContextProvider;
         }
 
         #endregion
 
         #region Properties
 
-        protected IMetadataContextProvider MetadataContextProvider { get; }
-
-        protected IServiceProvider ServiceProvider { get; }
+        protected IMetadataContextProvider MetadataContextProvider => _metadataContextProvider.ServiceIfNull();
 
         public abstract bool IsOnSerializingSupported { get; }
 
@@ -211,7 +212,7 @@ namespace MugenMvvm.Serialization
                     return context;
             }
 
-            return new SerializationContext(this, serviceProvider ?? ServiceProvider, metadata.ToNonReadonly(this, MetadataContextProvider));
+            return new SerializationContext(this, metadata.ToNonReadonly(this, MetadataContextProvider));//todo lazy context
         }
 
         protected virtual void OnComponentAdded(IComponent<ISerializer> component, IReadOnlyMetadataContext? metadata)

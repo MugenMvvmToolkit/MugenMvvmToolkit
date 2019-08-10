@@ -10,20 +10,25 @@ namespace MugenMvvm.Presenters
 {
     public class Presenter : ComponentOwnerBase<IPresenter>, IPresenter
     {
+        #region Fields
+
+        private readonly IMetadataContextProvider? _metadataContextProvider;
+
+        #endregion
+
         #region Constructors
 
-        public Presenter(IComponentCollectionProvider componentCollectionProvider, IMetadataContextProvider metadataContextProvider)
+        public Presenter(IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
             : base(componentCollectionProvider)
         {
-            Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
-            MetadataContextProvider = metadataContextProvider;
+            _metadataContextProvider = metadataContextProvider;
         }
 
         #endregion
 
         #region Properties
 
-        protected IMetadataContextProvider MetadataContextProvider { get; }
+        protected IMetadataContextProvider MetadataContextProvider => _metadataContextProvider.ServiceIfNull();
 
         #endregion
 

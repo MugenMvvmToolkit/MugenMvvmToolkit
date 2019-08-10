@@ -16,6 +16,7 @@ namespace MugenMvvm.Collections
         private int _batchCount;
         private int _batchCountDecorators;
         private IComponentCollection<IComponent<IObservableCollection<T>>>? _components;
+        private readonly IComponentCollectionProvider? _componentCollectionProvider;
 
         #endregion
 
@@ -23,14 +24,14 @@ namespace MugenMvvm.Collections
 
         protected ObservableCollectionBase(IComponentCollectionProvider? componentCollectionProvider = null)
         {
-            ComponentCollectionProvider = componentCollectionProvider;
+            _componentCollectionProvider = componentCollectionProvider;
         }
 
         #endregion
 
         #region Properties
 
-        protected IComponentCollectionProvider? ComponentCollectionProvider { get; }
+        protected IComponentCollectionProvider ComponentCollectionProvider => _componentCollectionProvider.ServiceIfNull();
 
         public bool HasComponents => _components != null && _components.HasItems;
 

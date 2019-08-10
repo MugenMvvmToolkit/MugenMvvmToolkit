@@ -13,7 +13,8 @@ namespace MugenMvvm.Commands
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public CommandMediatorProvider(IComponentCollectionProvider componentCollectionProvider) : base(componentCollectionProvider)
+        public CommandMediatorProvider(IComponentCollectionProvider? componentCollectionProvider = null)
+            : base(componentCollectionProvider)
         {
         }
 

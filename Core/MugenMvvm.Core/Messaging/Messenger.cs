@@ -16,10 +16,9 @@ namespace MugenMvvm.Messaging
     {
         #region Fields
 
-        private readonly IMetadataContextProvider _metadataContextProvider;
-
         private readonly HashSet<KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>> _subscribers;
-        private readonly IThreadDispatcher _threadDispatcher;
+        private readonly IMetadataContextProvider? _metadataContextProvider;
+        private readonly IThreadDispatcher? _threadDispatcher;
 
         private bool _hasFactoryComponents;
         private bool _hasListenerComponents;
@@ -31,11 +30,9 @@ namespace MugenMvvm.Messaging
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public Messenger(IThreadDispatcher threadDispatcher, IComponentCollectionProvider componentCollectionProvider, IMetadataContextProvider metadataContextProvider)
+        public Messenger(IThreadDispatcher? threadDispatcher = null, IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
             : base(componentCollectionProvider)
         {
-            Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
-            Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
             _threadDispatcher = threadDispatcher;
             _metadataContextProvider = metadataContextProvider;
             _subscribers = new HashSet<KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>>(this);
@@ -246,7 +243,7 @@ namespace MugenMvvm.Messaging
                 var index = 0;
                 foreach (var dispatcherExecutor in dictionary)
                 {
-                    tasks[index] = _threadDispatcher.ExecuteAsync(dispatcherExecutor.Value, dispatcherExecutor.Key, null);
+                    tasks[index] = _threadDispatcher.ServiceIfNull().ExecuteAsync(dispatcherExecutor.Value, dispatcherExecutor.Key, null);
                     ++index;
                 }
 
@@ -254,7 +251,7 @@ namespace MugenMvvm.Messaging
             }
 
             foreach (var dispatcherExecutor in dictionary)
-                _threadDispatcher.Execute(dispatcherExecutor.Value, dispatcherExecutor.Key, null);
+                _threadDispatcher.ServiceIfNull().Execute(dispatcherExecutor.Value, dispatcherExecutor.Key, null);
             return Default.CompletedTask;
         }
 

@@ -12,31 +12,30 @@ using MugenMvvm.Messaging;
 
 namespace MugenMvvm.ViewModels.Components
 {
-    public class ViewModelServiceResolverComponent : IViewModelServiceResolverComponent
+    public sealed class ViewModelServiceResolverComponent : IViewModelServiceResolverComponent
     {
+        #region Fields
+
+        private readonly IComponentCollectionProvider? _componentCollectionProvider;
+        private readonly IMetadataContextProvider? _metadataContextProvider;
+        private readonly IThreadDispatcher? _threadDispatcher;
+
+        #endregion
+
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelServiceResolverComponent(IThreadDispatcher threadDispatcher, IComponentCollectionProvider componentCollectionProvider,
-            IMetadataContextProvider metadataContextProvider)
+        public ViewModelServiceResolverComponent(IThreadDispatcher? threadDispatcher = null, IComponentCollectionProvider? componentCollectionProvider = null,
+            IMetadataContextProvider? metadataContextProvider = null)
         {
-            Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
-            Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
-            Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
-            ThreadDispatcher = threadDispatcher;
-            MetadataContextProvider = metadataContextProvider;
-            ComponentCollectionProvider = componentCollectionProvider;
+            _threadDispatcher = threadDispatcher;
+            _metadataContextProvider = metadataContextProvider;
+            _componentCollectionProvider = componentCollectionProvider;
         }
 
         #endregion
 
         #region Properties
-
-        protected IComponentCollectionProvider ComponentCollectionProvider { get; }
-
-        protected IMetadataContextProvider MetadataContextProvider { get; }
-
-        protected IThreadDispatcher ThreadDispatcher { get; }
 
         public int Priority { get; set; }
 
@@ -47,11 +46,11 @@ namespace MugenMvvm.ViewModels.Components
         public object? TryGetService(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext? metadata)
         {
             if (service == typeof(IMetadataContext))
-                return MetadataContextProvider.GetMetadataContext(viewModel, null);
+                return _metadataContextProvider.ServiceIfNull().GetMetadataContext(viewModel);
             if (service == typeof(IMessenger))
-                return new Messenger(ThreadDispatcher, ComponentCollectionProvider, MetadataContextProvider);
+                return new Messenger(_threadDispatcher, _componentCollectionProvider, _metadataContextProvider);
             if (service == typeof(IBusyIndicatorProvider))
-                return new BusyIndicatorProvider(ComponentCollectionProvider);
+                return new BusyIndicatorProvider(_componentCollectionProvider);
             return null;
         }
 

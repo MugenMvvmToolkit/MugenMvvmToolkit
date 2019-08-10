@@ -12,7 +12,7 @@ namespace MugenMvvm.Validation
 
         public InlineValidator(IMetadataContext? metadata = null, IComponentCollectionProvider? componentCollectionProvider = null,
             IMetadataContextProvider? metadataContextProvider = null)
-            : base(metadata, componentCollectionProvider, metadataContextProvider, false)
+            : base(false, metadata, componentCollectionProvider, metadataContextProvider)
         {
         }
 

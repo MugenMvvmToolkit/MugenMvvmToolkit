@@ -13,7 +13,7 @@ namespace MugenMvvm.Wrapping
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public WrapperManager(IComponentCollectionProvider componentCollectionProvider)
+        public WrapperManager(IComponentCollectionProvider? componentCollectionProvider = null)
             : base(componentCollectionProvider)
         {
         }

@@ -28,7 +28,7 @@ namespace MugenMvvm
                     if (typeof(TService) == typeof(IServiceProvider))
                         ExceptionManager.ThrowIocCannotFindBinding(typeof(IServiceProvider));
 
-                    _service = Service<IServiceProvider>.Instance.GetService<TService>();
+                    _service = (TService)ServiceConfiguration<IServiceProvider>.Instance.GetService(typeof(TService));
                 }
 
                 return _service!;

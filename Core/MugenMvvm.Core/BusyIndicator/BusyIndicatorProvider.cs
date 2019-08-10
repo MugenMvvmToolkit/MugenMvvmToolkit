@@ -16,20 +16,18 @@ namespace MugenMvvm.BusyIndicator
         #region Fields
 
         private readonly object? _defaultBusyMessage;
-        private readonly object _locker;
         private BusyToken? _busyTail;
-        private int _suspendCount;
+        private short _suspendCount;
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public BusyIndicatorProvider(IComponentCollectionProvider componentCollectionProvider, object? defaultBusyMessage = null) 
+        public BusyIndicatorProvider(object? defaultBusyMessage = null, IComponentCollectionProvider? componentCollectionProvider = null)
             : base(componentCollectionProvider)
         {
             _defaultBusyMessage = defaultBusyMessage;
-            _locker = this;
         }
 
         #endregion
@@ -39,6 +37,8 @@ namespace MugenMvvm.BusyIndicator
         public bool IsSuspended => _suspendCount != 0;
 
         public IBusyInfo? BusyInfo => _busyTail?.GetBusyInfo();
+
+        private object Locker => this;
 
         #endregion
 
@@ -62,7 +62,7 @@ namespace MugenMvvm.BusyIndicator
         public IDisposable Suspend()
         {
             bool? notify = null;
-            lock (_locker)
+            lock (Locker)
             {
                 if (++_suspendCount == 1)
                     notify = _busyTail?.SetSuspended(true);
@@ -107,7 +107,7 @@ namespace MugenMvvm.BusyIndicator
         private void EndSuspendNotifications()
         {
             bool? notify = null;
-            lock (_locker)
+            lock (Locker)
             {
                 if (--_suspendCount == 0)
                     notify = _busyTail?.SetSuspended(false);
@@ -185,7 +185,7 @@ namespace MugenMvvm.BusyIndicator
 
             public IBusyToken Token => this;
 
-            private object Locker => _provider._locker;
+            private object Locker => _provider.Locker;
 
             #endregion
 
@@ -223,7 +223,7 @@ namespace MugenMvvm.BusyIndicator
                     }
                 }
 
-                return tokens ?? (IReadOnlyList<IBusyToken>) Default.EmptyArray<IBusyToken>();
+                return tokens ?? (IReadOnlyList<IBusyToken>)Default.EmptyArray<IBusyToken>();
             }
 
             public void Register(IBusyTokenCallback callback)
@@ -240,7 +240,7 @@ namespace MugenMvvm.BusyIndicator
                     if (!IsCompleted)
                     {
                         if (_listeners == null)
-                            _listeners = new[] {callback};
+                            _listeners = new[] { callback };
                         else
                         {
                             var listeners = new IBusyTokenCallback[_listeners.Length + 1];

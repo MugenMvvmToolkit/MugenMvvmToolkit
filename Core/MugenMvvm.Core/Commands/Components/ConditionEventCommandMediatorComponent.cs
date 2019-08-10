@@ -22,7 +22,7 @@ namespace MugenMvvm.Commands.Components
 
         private readonly ThreadExecutionMode _eventExecutionMode;
         private readonly HashSet<string>? _ignoreProperties;
-        private readonly IThreadDispatcher _threadDispatcher;
+        private readonly IThreadDispatcher? _threadDispatcher;
         private EventHandler? _canExecuteChanged;
         private bool _isNotificationsDirty;
         private Subscriber? _subscriber;
@@ -32,10 +32,9 @@ namespace MugenMvvm.Commands.Components
 
         #region Constructors
 
-        public ConditionEventCommandMediatorComponent(IThreadDispatcher threadDispatcher, IReadOnlyCollection<object> notifiers,
+        public ConditionEventCommandMediatorComponent(IThreadDispatcher? threadDispatcher, IReadOnlyCollection<object> notifiers,
             IReadOnlyCollection<string>? ignoreProperties, ThreadExecutionMode eventExecutionMode, ICommand command)
         {
-            Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
             _threadDispatcher = threadDispatcher;
             _eventExecutionMode = eventExecutionMode;
             _command = command;
@@ -100,7 +99,7 @@ namespace MugenMvvm.Commands.Components
                 return;
             }
 
-            _threadDispatcher.Execute(this, _eventExecutionMode, null);
+            _threadDispatcher.ServiceIfNull().Execute(this, _eventExecutionMode, null);
         }
 
         public int GetPriority(object source)

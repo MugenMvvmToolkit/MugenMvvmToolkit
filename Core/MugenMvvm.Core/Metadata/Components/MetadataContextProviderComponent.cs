@@ -16,17 +16,13 @@ namespace MugenMvvm.Metadata.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public MetadataContextProviderComponent(IComponentCollectionProvider componentCollectionProvider)
+        public MetadataContextProviderComponent()
         {
-            Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
-            ComponentCollectionProvider = componentCollectionProvider;
         }
 
         #endregion
 
         #region Properties
-
-        protected static IComponentCollectionProvider ComponentCollectionProvider { get; private set; }
 
         public int Priority { get; set; }
 
@@ -86,7 +82,7 @@ namespace MugenMvvm.Metadata.Components
 
             IEnumerator IEnumerable.GetEnumerator()
             {
-                return ((IReadOnlyMetadataContext)this).GetEnumerator();
+                return ((IReadOnlyMetadataContext) this).GetEnumerator();
             }
 
             IEnumerator<MetadataContextValue> IEnumerable<MetadataContextValue>.GetEnumerator()
@@ -165,7 +161,7 @@ namespace MugenMvvm.Metadata.Components
                 get
                 {
                     if (_components == null)
-                        ComponentCollectionProvider.LazyInitialize(ref _components, this);
+                        Service<IComponentCollectionProvider>.Instance.LazyInitialize(ref _components, this);
                     return _components;
                 }
             }

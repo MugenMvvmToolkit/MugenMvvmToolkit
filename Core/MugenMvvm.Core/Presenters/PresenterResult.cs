@@ -12,7 +12,7 @@ namespace MugenMvvm.Presenters
         #region Constructors
 
         public PresenterResult(INavigationProvider navigationProvider, string navigationOperationId, NavigationType navigationType,
-            IReadOnlyMetadataContext? metadata, IMetadataContextProvider? contextProvider)
+            IReadOnlyMetadataContext? metadata, IMetadataContextProvider? metadataContextProvider = null)
         {
             Should.NotBeNull(navigationProvider, nameof(navigationProvider));
             Should.NotBeNull(navigationOperationId, nameof(navigationOperationId));
@@ -20,7 +20,7 @@ namespace MugenMvvm.Presenters
             NavigationProvider = navigationProvider;
             NavigationOperationId = navigationOperationId;
             NavigationType = navigationType;
-            Metadata = metadata.ToNonReadonly(navigationProvider, contextProvider);
+            Metadata = metadata.ToNonReadonly(navigationProvider, metadataContextProvider);
         }
 
         #endregion
@@ -42,15 +42,15 @@ namespace MugenMvvm.Presenters
         #region Methods
 
         public static IPresenterResult ViewModelResult(INavigationProvider provider, NavigationType navigationType, IViewModelBase viewModel,
-            IReadOnlyMetadataContext? metadata = null, IMetadataContextProvider? contextProvider = null)
+            IReadOnlyMetadataContext? metadata = null, IMetadataContextProvider? metadataContextProvider = null)
         {
-            return ViewModelResult(provider, provider.GetUniqueNavigationOperationId(viewModel), navigationType, viewModel, metadata, contextProvider);
+            return ViewModelResult(provider, provider.GetUniqueNavigationOperationId(viewModel), navigationType, viewModel, metadata, metadataContextProvider);
         }
 
         public static IPresenterResult ViewModelResult(INavigationProvider provider, string navigationOperationId, NavigationType navigationType, IViewModelBase viewModel,
-            IReadOnlyMetadataContext? metadata = null, IMetadataContextProvider? contextProvider = null)
+            IReadOnlyMetadataContext? metadata = null, IMetadataContextProvider? metadataContextProvider = null)
         {
-            var result = new PresenterResult(provider, navigationOperationId, navigationType, metadata, contextProvider);
+            var result = new PresenterResult(provider, navigationOperationId, navigationType, metadata, metadataContextProvider);
             result.Metadata.Set(NavigationMetadata.ViewModel, viewModel);
             return result;
         }

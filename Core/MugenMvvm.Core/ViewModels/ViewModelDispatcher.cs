@@ -11,21 +11,26 @@ namespace MugenMvvm.ViewModels
 {
     public class ViewModelDispatcher : ComponentOwnerBase<IViewModelDispatcher>, IViewModelDispatcher
     {
+        #region Fields
+
+        private readonly IMetadataContextProvider? _metadataContextProvider;
+
+        #endregion
+
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelDispatcher(IComponentCollectionProvider componentCollectionProvider, IMetadataContextProvider metadataContextProvider) 
+        public ViewModelDispatcher(IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
             : base(componentCollectionProvider)
         {
-            Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
-            MetadataContextProvider = metadataContextProvider;
+            _metadataContextProvider = metadataContextProvider;
         }
 
         #endregion
 
         #region Properties
 
-        protected IMetadataContextProvider MetadataContextProvider { get; }
+        protected IMetadataContextProvider MetadataContextProvider => _metadataContextProvider.ServiceIfNull();
 
         #endregion
 
@@ -80,7 +85,8 @@ namespace MugenMvvm.ViewModels
             IMetadataContext? result = null;
             var managers = Components.GetItems();
             for (var i = 0; i < managers.Length; i++)
-                (managers[i] as IViewModelDispatcherComponent)?.OnLifecycleChanged(viewModel, lifecycleState, result ??= MetadataContextProvider.GetMetadataContext(this), metadata);
+                (managers[i] as IViewModelDispatcherComponent)?.OnLifecycleChanged(viewModel, lifecycleState, result ??= MetadataContextProvider.GetMetadataContext(this),
+                    metadata);
 
             return result;
         }

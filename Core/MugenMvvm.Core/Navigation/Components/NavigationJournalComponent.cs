@@ -16,16 +16,16 @@ namespace MugenMvvm.Navigation.Components
         #region Fields
 
         protected readonly Dictionary<NavigationType, List<INavigationEntry>> NavigationEntries;
+        private readonly IMetadataContextProvider? _metadataContextProvider;
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public NavigationJournalComponent(IMetadataContextProvider metadataContextProvider)
+        public NavigationJournalComponent(IMetadataContextProvider? metadataContextProvider = null)
         {
-            Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
-            MetadataContextProvider = metadataContextProvider;
+            _metadataContextProvider = metadataContextProvider;
             NavigationEntries = new Dictionary<NavigationType, List<INavigationEntry>>();
         }
 
@@ -33,7 +33,7 @@ namespace MugenMvvm.Navigation.Components
 
         #region Properties
 
-        protected IMetadataContextProvider MetadataContextProvider { get; }
+        protected IMetadataContextProvider MetadataContextProvider => _metadataContextProvider.ServiceIfNull();
 
         public int Priority { get; set; } = int.MaxValue;
 

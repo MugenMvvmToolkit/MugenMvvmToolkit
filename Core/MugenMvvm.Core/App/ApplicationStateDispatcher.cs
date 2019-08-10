@@ -20,16 +20,10 @@ namespace MugenMvvm.App
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ApplicationStateDispatcher(IComponentCollectionProvider componentCollectionProvider)
-            : this(ApplicationState.Active, componentCollectionProvider)
-        {
-        }
-
-        public ApplicationStateDispatcher(ApplicationState state, IComponentCollectionProvider componentCollectionProvider)
+        public ApplicationStateDispatcher(ApplicationState? state = null, IComponentCollectionProvider? componentCollectionProvider = null)
             : base(componentCollectionProvider)
         {
-            Should.NotBeNull(state, nameof(state));
-            _state = state;
+            _state = state ?? ApplicationState.Active;
         }
 
         #endregion

@@ -14,19 +14,18 @@ namespace MugenMvvm.Commands.Components
     {
         #region Fields
 
-        private readonly IComponentCollectionProvider _componentCollectionProvider;
+        private readonly IComponentCollectionProvider? _componentCollectionProvider;
+        private readonly IThreadDispatcher? _threadDispatcher;
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public CommandMediatorProviderComponent(IThreadDispatcher threadDispatcher, IComponentCollectionProvider componentCollectionProvider)
+        public CommandMediatorProviderComponent(IThreadDispatcher? threadDispatcher = null, IComponentCollectionProvider? componentCollectionProvider = null)
         {
-            Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
-            Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
             _componentCollectionProvider = componentCollectionProvider;
-            ThreadDispatcher = threadDispatcher;
+            _threadDispatcher = threadDispatcher;
             CommandExecutionMode = CommandExecutionMode.CanExecuteBeforeExecute;
             EventThreadMode = ThreadExecutionMode.Main;
         }
@@ -34,8 +33,6 @@ namespace MugenMvvm.Commands.Components
         #endregion
 
         #region Properties
-
-        public IThreadDispatcher ThreadDispatcher { get; }
 
         public bool AllowMultipleExecution { get; set; }
 
@@ -73,7 +70,7 @@ namespace MugenMvvm.Commands.Components
             {
                 var ignoreProperties = metadata.Get(MediatorCommandMetadata.IgnoreProperties);
                 var eventExecutionMode = metadata.Get(MediatorCommandMetadata.EventThreadMode, EventThreadMode);
-                mediator.AddComponent(new ConditionEventCommandMediatorComponent(ThreadDispatcher, notifiers, ignoreProperties, eventExecutionMode!, command));
+                mediator.AddComponent(new ConditionEventCommandMediatorComponent(_threadDispatcher, notifiers, ignoreProperties, eventExecutionMode!, command));
             }
 
             return mediator;

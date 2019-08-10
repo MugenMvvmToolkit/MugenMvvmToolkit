@@ -18,18 +18,18 @@ namespace MugenMvvm.Collections.Components
     {
         #region Fields
 
+        private readonly IThreadDispatcher? _threadDispatcher;
         private int _suspendCount;
 
         #endregion
 
         #region Constructors
 
-        protected BindableCollectionWrapperBase(IThreadDispatcher threadDispatcher, IList<T>? sourceCollection = null, ThreadExecutionMode? executionMode = null,
-            bool ignoreItemChangedEvent = true)
+        protected BindableCollectionWrapperBase(IThreadDispatcher? threadDispatcher = null, IList<T>? sourceCollection = null,
+            ThreadExecutionMode? executionMode = null, bool ignoreItemChangedEvent = true)
             : base(sourceCollection ?? new List<T>())
         {
-            Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
-            ThreadDispatcher = threadDispatcher;
+            _threadDispatcher = threadDispatcher;
             Events = new List<CollectionChangedEvent>();
             ExecutionMode = executionMode ?? ThreadExecutionMode.Main;
             IgnoreItemChangedEvent = ignoreItemChangedEvent;
@@ -43,7 +43,7 @@ namespace MugenMvvm.Collections.Components
 
         protected List<CollectionChangedEvent> Events { get; }
 
-        protected IThreadDispatcher ThreadDispatcher { get; }
+        protected IThreadDispatcher ThreadDispatcher => _threadDispatcher.ServiceIfNull();
 
         protected bool IgnoreItemChangedEvent { get; set; }
 

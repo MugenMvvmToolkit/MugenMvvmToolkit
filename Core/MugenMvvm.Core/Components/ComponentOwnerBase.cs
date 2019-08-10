@@ -6,17 +6,15 @@ namespace MugenMvvm.Components
     {
         #region Fields
 
-        private IComponentCollection<IComponent<T>>? _components;
         private readonly IComponentCollectionProvider? _componentCollectionProvider;
+        private IComponentCollection<IComponent<T>>? _components;
 
         #endregion
 
         #region Constructors
 
-        protected ComponentOwnerBase(IComponentCollectionProvider? componentCollectionProvider, bool componentCollectionProviderRequired = true)
+        protected ComponentOwnerBase(IComponentCollectionProvider? componentCollectionProvider)
         {
-            if (componentCollectionProviderRequired)
-                Should.NotBeNull(componentCollectionProvider, nameof(componentCollectionProvider));
             _componentCollectionProvider = componentCollectionProvider;
         }
 

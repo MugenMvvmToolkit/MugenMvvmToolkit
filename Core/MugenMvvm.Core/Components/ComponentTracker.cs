@@ -18,9 +18,9 @@ namespace MugenMvvm.Components
 
         #region Constructors
 
-        public ComponentTracker(TComponent[]? items = null)
+        public ComponentTracker()
         {
-            _items = items ?? Default.EmptyArray<TComponent>();
+            _items = Default.EmptyArray<TComponent>();
         }
 
         #endregion

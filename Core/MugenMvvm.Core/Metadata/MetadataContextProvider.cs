@@ -12,7 +12,7 @@ namespace MugenMvvm.Metadata
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public MetadataContextProvider(IComponentCollectionProvider componentCollectionProvider) : base(componentCollectionProvider)
+        public MetadataContextProvider(IComponentCollectionProvider? componentCollectionProvider = null) : base(componentCollectionProvider)
         {
         }
 

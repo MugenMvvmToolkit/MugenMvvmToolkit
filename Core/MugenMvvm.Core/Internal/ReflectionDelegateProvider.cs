@@ -13,7 +13,7 @@ namespace MugenMvvm.Internal
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ReflectionDelegateProvider(IComponentCollectionProvider componentCollectionProvider) : base(componentCollectionProvider)
+        public ReflectionDelegateProvider(IComponentCollectionProvider? componentCollectionProvider = null) : base(componentCollectionProvider)
         {
         }
 

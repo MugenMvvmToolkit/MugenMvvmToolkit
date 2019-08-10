@@ -20,6 +20,7 @@ namespace MugenMvvm.Validation
         private IMetadataContext? _metadata;
         private int _state;
         private IComponentCollection<IValidator>? _validators;
+        private readonly IMetadataContextProvider? _metadataContextProvider;
 
         private const int DisposedState = -1;
         private const int InitializedState = 1;
@@ -30,16 +31,16 @@ namespace MugenMvvm.Validation
 
         [Preserve(Conditional = true)]
         public AggregatorValidator(IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
-            : base(componentCollectionProvider, false)
+            : base(componentCollectionProvider)
         {
-            MetadataContextProvider = metadataContextProvider;
+            _metadataContextProvider = metadataContextProvider;
         }
 
         #endregion
 
         #region Properties
 
-        protected IMetadataContextProvider? MetadataContextProvider { get; }
+        protected IMetadataContextProvider MetadataContextProvider => _metadataContextProvider.ServiceIfNull();
 
         public bool HasMetadata => _metadata != null;
 
