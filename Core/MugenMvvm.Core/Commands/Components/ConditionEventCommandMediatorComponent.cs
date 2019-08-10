@@ -154,7 +154,7 @@ namespace MugenMvvm.Commands.Components
 
             public Subscriber(ConditionEventCommandMediatorComponent component)
             {
-                _reference = Service<IWeakReferenceProvider>.Instance.GetWeakReference(component);
+                _reference = component.ToWeakReference();
             }
 
             #endregion

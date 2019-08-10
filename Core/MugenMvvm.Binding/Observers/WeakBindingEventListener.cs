@@ -20,7 +20,7 @@ namespace MugenMvvm.Binding.Observers
             if (listener.IsWeak)
                 Source = listener;
             else
-                Source = Service<IWeakReferenceProvider>.Instance.GetWeakReference(listener);
+                Source = listener.ToWeakReference();
         }
 
         #endregion

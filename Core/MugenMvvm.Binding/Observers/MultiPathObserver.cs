@@ -194,7 +194,7 @@ namespace MugenMvvm.Binding.Observers
 
                 if (_listeners != null && HasListeners)
                     _listeners[_listeners.Length - 1] = members[members.Length - 1].TryObserve(source, GetLastMemberListener(), null) ?? Default.Disposable;
-                SetMembers(Service<IWeakReferenceProvider>.Instance.GetWeakReference(source), members, null);
+                SetMembers(source.ToWeakReference(), members, null);
             }
             catch (Exception e)
             {
@@ -224,7 +224,7 @@ namespace MugenMvvm.Binding.Observers
             if (_listeners != null && HasListeners)
                 _listeners[_listeners.Length - 1] = members[members.Length - 1].TryObserve(source, GetLastMemberListener(), null) ?? Default.Disposable;
 
-            SetMembers(Service<IWeakReferenceProvider>.Instance.GetWeakReference(source), members, null);
+            SetMembers(source.ToWeakReference(), members, null);
         }
 
         private void SetMembers(IWeakReference? penultimateValue, IBindingMemberInfo[]? members, Exception? exception)
@@ -238,7 +238,7 @@ namespace MugenMvvm.Binding.Observers
         private IBindingEventListener GetLastMemberListener()
         {
             if (_lastMemberListener == null)
-                _lastMemberListener = new LastMemberListener(Service<IWeakReferenceProvider>.Instance.GetWeakReference(this));
+                _lastMemberListener = new LastMemberListener(this.ToWeakReference());
             return _lastMemberListener;
         }
 

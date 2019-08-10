@@ -26,11 +26,6 @@ namespace MugenMvvm.Internal
             return new WeakActionTokenInternal<TTarget, TArg1, TArg2>(action, target, arg1, arg2);
         }
 
-        private static IWeakReference GetWeakReference(object target)
-        {
-            return Service<IWeakReferenceProvider>.Instance.GetWeakReference(target);
-        }
-
         #endregion
 
         #region Nested types
@@ -51,7 +46,7 @@ namespace MugenMvvm.Internal
                 Should.NotBeNull(action, nameof(action));
                 Should.NotBeNull(target, nameof(target));
                 _action = action;
-                _target = GetWeakReference(target);
+                _target = target.ToWeakReference();
             }
 
             #endregion
@@ -65,7 +60,7 @@ namespace MugenMvvm.Internal
                     return;
                 var target = _target?.Target;
                 if (target != null)
-                    OnDispose(action, (TTarget) target);
+                    OnDispose(action, (TTarget)target);
                 _target = null;
             }
 
@@ -75,7 +70,7 @@ namespace MugenMvvm.Internal
 
             protected virtual void OnDispose(object action, TTarget target)
             {
-                ((Action<TTarget>) action).Invoke(target);
+                ((Action<TTarget>)action).Invoke(target);
             }
 
             #endregion
@@ -102,7 +97,7 @@ namespace MugenMvvm.Internal
 
             protected override void OnDispose(object action, TTarget target)
             {
-                ((Action<TTarget, TArg1>) action).Invoke(target, Arg1);
+                ((Action<TTarget, TArg1>)action).Invoke(target, Arg1);
                 Arg1 = default!;
             }
 
@@ -131,7 +126,7 @@ namespace MugenMvvm.Internal
 
             protected override void OnDispose(object action, TTarget target)
             {
-                ((Action<TTarget, TArg1, TArg2>) action).Invoke(target, Arg1, Arg2);
+                ((Action<TTarget, TArg1, TArg2>)action).Invoke(target, Arg1, Arg2);
                 Arg1 = default!;
                 Arg2 = default!;
             }

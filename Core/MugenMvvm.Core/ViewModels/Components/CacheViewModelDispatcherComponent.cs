@@ -120,7 +120,7 @@ namespace MugenMvvm.ViewModels.Components
         {
             lock (_viewModelsCache)
             {
-                _viewModelsCache[id] = _isWeakCache ? (object)Service<IWeakReferenceProvider>.Instance.GetWeakReference(viewModel) : viewModel;
+                _viewModelsCache[id] = _isWeakCache ? (object)viewModel.ToWeakReference() : viewModel;
             }
         }
 

@@ -7,8 +7,8 @@ using MugenMvvm.Interfaces.Messaging;
 
 namespace MugenMvvm.Messaging
 {
-public sealed class WeakDelegateMessengerSubscriber<TTarget, TMessage> : IMessengerSubscriber
-        where TTarget : class
+    public sealed class WeakDelegateMessengerSubscriber<TTarget, TMessage> : IMessengerSubscriber
+            where TTarget : class
     {
         #region Fields
 
@@ -23,7 +23,7 @@ public sealed class WeakDelegateMessengerSubscriber<TTarget, TMessage> : IMessen
         {
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(action, nameof(action));
-            _reference = Service<IWeakReferenceProvider>.Instance.GetWeakReference(target);
+            _reference = target.ToWeakReference();
             _action = action;
         }
 
@@ -32,7 +32,7 @@ public sealed class WeakDelegateMessengerSubscriber<TTarget, TMessage> : IMessen
             Should.NotBeNull(action, nameof(action));
             Should.BeSupported(action.Target != null, MessageConstants.StaticDelegateCannotBeWeak);
             Should.BeSupported(!action.Target.GetType().IsAnonymousClass(), MessageConstants.AnonymousDelegateCannotBeWeak);
-            _reference = Service<IWeakReferenceProvider>.Instance.GetWeakReference(action.Target);
+            _reference = action.Target.ToWeakReference();
             _action = action.GetMethodInfo().GetMethodInvoker<Action<TTarget, object, TMessage, IMessengerContext>>();
         }
 

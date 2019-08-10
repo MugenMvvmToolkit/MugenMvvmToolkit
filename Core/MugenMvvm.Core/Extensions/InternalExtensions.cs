@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Serialization;
 
 // ReSharper disable once CheckNamespace
@@ -13,6 +14,11 @@ namespace MugenMvvm
     public static partial class MugenExtensions
     {
         #region Methods
+
+        internal static IWeakReference ToWeakReference(this object? item)
+        {
+            return Service<IWeakReferenceProvider>.Instance.GetWeakReference(item);
+        }
 
         internal static T ServiceIfNull<T>(this T? service) where T : class
         {

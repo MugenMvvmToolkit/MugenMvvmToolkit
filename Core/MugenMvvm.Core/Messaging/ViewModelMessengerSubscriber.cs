@@ -36,7 +36,7 @@ namespace MugenMvvm.Messaging//todo review pragma
         private ViewModelMessengerSubscriber(IViewModelBase viewModel)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            _reference = Service<IWeakReferenceProvider>.Instance.GetWeakReference(viewModel);
+            _reference = viewModel.ToWeakReference();
             _hashCode = viewModel.GetHashCode();
             viewModel.Metadata.AddComponent(this);
             BroadcastAllMessages = viewModel.Metadata.Get(ViewModelMetadata.BroadcastAllMessages);
