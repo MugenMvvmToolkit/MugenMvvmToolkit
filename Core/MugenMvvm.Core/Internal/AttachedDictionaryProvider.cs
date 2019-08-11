@@ -7,13 +7,21 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Internal
 {
-    public sealed class AttachedDictionaryProvider : ComponentOwnerBase<IAttachedDictionaryProvider>, IAttachedDictionaryProvider
+    public sealed class AttachedDictionaryProvider : ComponentOwnerBase<IAttachedDictionaryProvider>, IAttachedDictionaryProvider,
+        IComponentOwnerAddedCallback<IComponent<IAttachedDictionaryProvider>>, IComponentOwnerRemovedCallback<IComponent<IAttachedDictionaryProvider>>
     {
+        #region Fields
+
+        private IAttachedDictionaryProviderComponent[] _components;
+
+        #endregion
+
         #region Constructors
 
         [Preserve(Conditional = true)]
         public AttachedDictionaryProvider(IComponentCollectionProvider? componentCollectionProvider = null) : base(componentCollectionProvider)
         {
+            _components = Default.EmptyArray<IAttachedDictionaryProviderComponent>();
         }
 
         #endregion
@@ -23,10 +31,9 @@ namespace MugenMvvm.Internal
         public IAttachedDictionary GetOrAddAttachedDictionary(object item, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(item, nameof(item));
-            var items = Components.GetItems();
-            for (var i = 0; i < items.Length; i++)
+            for (var i = 0; i < _components.Length; i++)
             {
-                if (items[i] is IAttachedDictionaryProviderComponent factory && factory.TryGetOrAddAttachedDictionary(item, metadata, out var dict))
+                if (_components[i].TryGetOrAddAttachedDictionary(item, metadata, out var dict))
                     return dict;
             }
 
@@ -37,14 +44,25 @@ namespace MugenMvvm.Internal
         public IAttachedDictionary? GetAttachedDictionary(object item, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(item, nameof(item));
-            var items = Components.GetItems();
-            for (var i = 0; i < items.Length; i++)
+            for (var i = 0; i < _components.Length; i++)
             {
-                if (items[i] is IAttachedDictionaryProviderComponent factory && factory.TryGetAttachedDictionary(item, metadata, out var dict))
+                if (_components[i].TryGetAttachedDictionary(item, metadata, out var dict))
                     return dict;
             }
 
             return null;
+        }
+
+        void IComponentOwnerAddedCallback<IComponent<IAttachedDictionaryProvider>>.OnComponentAdded(IComponentCollection<IComponent<IAttachedDictionaryProvider>> collection,
+            IComponent<IAttachedDictionaryProvider> component, IReadOnlyMetadataContext metadata)
+        {
+            MugenExtensions.ComponentTrackerOnAdded(ref _components, this, collection, component, metadata);
+        }
+
+        void IComponentOwnerRemovedCallback<IComponent<IAttachedDictionaryProvider>>.OnComponentRemoved(IComponentCollection<IComponent<IAttachedDictionaryProvider>> collection,
+            IComponent<IAttachedDictionaryProvider> component, IReadOnlyMetadataContext metadata)
+        {
+            MugenExtensions.ComponentTrackerOnRemoved(ref _components, collection, component, metadata);
         }
 
         #endregion
