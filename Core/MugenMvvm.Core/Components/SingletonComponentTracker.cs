@@ -71,7 +71,7 @@ namespace MugenMvvm.Components
         public TComponent? GetComponent(bool throwIfNotInitialized)
         {
             if (throwIfNotInitialized && _component == null)
-                ExceptionManager.ThrowObjectNotInitialized(typeof(TComponent).Name);
+                ExceptionManager.ThrowObjectNotInitialized(this, typeof(TComponent).Name);
             return _component!;
         }
 

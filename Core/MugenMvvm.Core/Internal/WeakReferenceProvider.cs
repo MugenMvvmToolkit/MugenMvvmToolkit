@@ -7,18 +7,38 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Internal
 {
-    public sealed class WeakReferenceProvider : ComponentOwnerBase<IWeakReferenceProvider>, IWeakReferenceProvider
+    public sealed class WeakReferenceProvider : ComponentOwnerBase<IWeakReferenceProvider>, IWeakReferenceProvider,
+        IComponentOwnerAddedCallback<IComponent<IWeakReferenceProvider>>, IComponentOwnerRemovedCallback<IComponent<IWeakReferenceProvider>>
     {
+        #region Fields
+
+        private IWeakReferenceProviderComponent[] _providers;
+
+        #endregion
+
         #region Constructors
 
         [Preserve(Conditional = true)]
         public WeakReferenceProvider(IComponentCollectionProvider? componentCollectionProvider = null) : base(componentCollectionProvider)
         {
+            _providers = Default.EmptyArray<IWeakReferenceProviderComponent>();
         }
 
         #endregion
 
         #region Implementation of interfaces
+
+        void IComponentOwnerAddedCallback<IComponent<IWeakReferenceProvider>>.OnComponentAdded(IComponentCollection<IComponent<IWeakReferenceProvider>> collection,
+            IComponent<IWeakReferenceProvider> component, IReadOnlyMetadataContext? metadata)
+        {
+            MugenExtensions.ComponentTrackerOnAdded(ref _providers, this, collection, component, metadata);
+        }
+
+        void IComponentOwnerRemovedCallback<IComponent<IWeakReferenceProvider>>.OnComponentRemoved(IComponentCollection<IComponent<IWeakReferenceProvider>> collection,
+            IComponent<IWeakReferenceProvider> component, IReadOnlyMetadataContext? metadata)
+        {
+            MugenExtensions.ComponentTrackerOnRemoved(ref _providers, collection, component, metadata);
+        }
 
         public IWeakReference GetWeakReference(object? item, IReadOnlyMetadataContext? metadata = null)
         {
@@ -36,10 +56,9 @@ namespace MugenMvvm.Internal
                     return weakReference;
             }
 
-            var factories = Components.GetItems();
-            for (var i = 0; i < factories.Length; i++)
+            for (var i = 0; i < _providers.Length; i++)
             {
-                var weakReference = (factories[i] as IWeakReferenceProviderComponent)?.TryGetWeakReference(item, metadata);
+                var weakReference = _providers[i].TryGetWeakReference(item, metadata);
                 if (weakReference != null)
                 {
                     if (holder != null)

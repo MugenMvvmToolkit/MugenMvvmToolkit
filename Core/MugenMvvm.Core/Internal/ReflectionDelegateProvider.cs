@@ -60,8 +60,7 @@ namespace MugenMvvm.Internal
             Should.NotBeNull(method, nameof(method));
             for (var i = 0; i < _delegateComponents.Length; i++)
             {
-                var value = _delegateComponents[i]?.CanCreateDelegate(delegateType, method);
-                if (value != null && value.Value)
+                if (_delegateComponents[i].CanCreateDelegate(delegateType, method))
                     return true;
             }
 
@@ -74,7 +73,7 @@ namespace MugenMvvm.Internal
             Should.NotBeNull(method, nameof(method));
             for (var i = 0; i < _delegateComponents.Length; i++)
             {
-                var value = _delegateComponents[i]?.TryCreateDelegate(delegateType, target, method);
+                var value = _delegateComponents[i].TryCreateDelegate(delegateType, target, method);
                 if (value != null)
                     return value;
             }
@@ -87,7 +86,7 @@ namespace MugenMvvm.Internal
             Should.NotBeNull(constructor, nameof(constructor));
             for (var i = 0; i < _activatorComponents.Length; i++)
             {
-                var value = _activatorComponents[i]?.TryGetActivator(constructor);
+                var value = _activatorComponents[i].TryGetActivator(constructor);
                 if (value != null)
                     return value;
             }
@@ -101,7 +100,7 @@ namespace MugenMvvm.Internal
             Should.NotBeNull(method, nameof(method));
             for (var i = 0; i < _methodComponents.Length; i++)
             {
-                var value = _methodComponents[i]?.TryGetMethodInvoker(method);
+                var value = _methodComponents[i].TryGetMethodInvoker(method);
                 if (value != null)
                     return value;
             }
@@ -116,7 +115,7 @@ namespace MugenMvvm.Internal
             Should.NotBeNull(method, nameof(method));
             for (var i = 0; i < _methodComponents.Length; i++)
             {
-                var value = _methodComponents[i]?.TryGetMethodInvoker(delegateType, method);
+                var value = _methodComponents[i].TryGetMethodInvoker(delegateType, method);
                 if (value != null)
                     return value;
             }
@@ -130,7 +129,7 @@ namespace MugenMvvm.Internal
             Should.NotBeNull(member, nameof(member));
             for (var i = 0; i < _memberComponents.Length; i++)
             {
-                var value = _memberComponents[i]?.TryGetMemberGetter<TType>(member);
+                var value = _memberComponents[i].TryGetMemberGetter<TType>(member);
                 if (value != null)
                     return value;
             }
@@ -144,7 +143,7 @@ namespace MugenMvvm.Internal
             Should.NotBeNull(member, nameof(member));
             for (var i = 0; i < _memberComponents.Length; i++)
             {
-                var value = _memberComponents[i]?.TryGetMemberSetter<TType>(member);
+                var value = _memberComponents[i].TryGetMemberSetter<TType>(member);
                 if (value != null)
                     return value;
             }

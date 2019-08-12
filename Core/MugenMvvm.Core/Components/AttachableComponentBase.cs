@@ -22,7 +22,7 @@ namespace MugenMvvm.Components
             get
             {
                 if (_owner == null)
-                    ExceptionManager.ThrowObjectNotInitialized(this);
+                    ExceptionManager.ThrowObjectNotInitialized(this, nameof(Owner));
                 return _owner!;
             }
             private set => _owner = value;
