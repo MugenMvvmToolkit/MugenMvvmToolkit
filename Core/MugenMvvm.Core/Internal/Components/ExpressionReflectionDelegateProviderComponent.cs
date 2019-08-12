@@ -13,7 +13,8 @@ using MugenMvvm.Interfaces.Models;
 namespace MugenMvvm.Internal.Components
 {
     // ReSharper disable FieldCanBeMadeReadOnly.Local
-    public sealed class ExpressionReflectionDelegateProviderComponent : IReflectionDelegateProviderComponent, IHasPriority
+    public sealed class ExpressionReflectionDelegateProviderComponent : IReflectionDelegateProviderComponent, IActivatorReflectionDelegateProviderComponent,
+        IMemberReflectionDelegateProviderComponent, IMethodReflectionDelegateProviderComponent, IHasPriority
     {
         #region Fields
 
@@ -127,7 +128,7 @@ namespace MugenMvvm.Internal.Components
                     MemberGetterCache[key] = value;
                 }
 
-                return (Func<object?, TType>) value;
+                return (Func<object?, TType>)value;
             }
         }
 
@@ -142,7 +143,7 @@ namespace MugenMvvm.Internal.Components
                     MemberSetterCache[key] = value;
                 }
 
-                return (Action<object?, TType>) value;
+                return (Action<object?, TType>)value;
             }
         }
 
@@ -308,7 +309,7 @@ namespace MugenMvvm.Internal.Components
             {
                 if (fieldInfo == null)
                 {
-                    var propertyInfo = (PropertyInfo) member;
+                    var propertyInfo = (PropertyInfo)member;
                     return propertyInfo.SetValue<TType>;
                 }
 
