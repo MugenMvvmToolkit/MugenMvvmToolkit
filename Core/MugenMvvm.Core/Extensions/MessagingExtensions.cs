@@ -12,17 +12,9 @@ namespace MugenMvvm
     {
         #region Methods
 
-        public static IMessageContext Publish(this IMessagePublisher publisher, object message, IMetadataContext? metadata = null)
+        public static IMessageContext Publish(this IMessagePublisher publisher, object message, IReadOnlyMetadataContext? metadata = null)
         {
             return publisher.Publish(null, message, metadata);
-        }
-
-        public static IMessageContext Publish(this IMessagePublisher publisher, object? sender, object message, IMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(publisher, nameof(publisher));
-            var context = publisher.GetMessageContext(sender, message, metadata);
-            publisher.Publish(context);
-            return context;
         }
 
         public static MessengerHandlerComponent.IMessengerSubscriber SubscribeWeak<TTarget, TMessage>(this IMessenger messenger, TTarget target,

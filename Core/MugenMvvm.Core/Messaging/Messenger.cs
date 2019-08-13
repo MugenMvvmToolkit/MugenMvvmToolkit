@@ -76,66 +76,17 @@ namespace MugenMvvm.Messaging
             return obj.Subscriber.GetHashCode();
         }
 
-        public IMessageContext GetMessageContext(object? sender, object message, IMetadataContext? metadata = null)
+        public IMessageContext Publish(object? sender, object message, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(message, nameof(message));
-            IMessageContext? ctx = null;
-            for (var i = 0; i < _contextProviders.Length; i++)
-            {
-                ctx = _contextProviders[i].TryGetMessengerContext(metadata);
-                if (ctx != null)
-                    break;
-            }
-
-            if (ctx == null)
-                ctx = new MessageContext(this, sender, message, metadata);
-
-            for (var i = 0; i < _listeners.Length; i++)
-                _listeners[i].OnContextCreated(this, message, ctx);
-            return ctx!;
+            var context = GetMessageContext(sender, message, metadata);
+            PublishInternal(context, true);
+            return context;
         }
 
         public void Publish(IMessageContext messageContext)
         {
             Should.NotBeNull(messageContext, nameof(messageContext));
-            var threadDispatcher = _threadDispatcher.ServiceIfNull();
-            Dictionary<ThreadExecutionMode, MessageThreadExecutor>? dictionary = null;
-            MessageThreadExecutor? inlineExecutor = null;
-            lock (_subscribers)
-            {
-                foreach (var subscriber in _subscribers)
-                {
-                    if (!messageContext.MarkAsHandled(subscriber.Subscriber))
-                        continue;
-
-                    if (threadDispatcher.CanExecuteInline(subscriber.ExecutionMode))
-                    {
-                        if (inlineExecutor == null)
-                            inlineExecutor = new MessageThreadExecutor(this, messageContext);
-                        inlineExecutor.Add(subscriber.Subscriber);
-                    }
-                    else
-                    {
-                        if (dictionary == null)
-                            dictionary = new Dictionary<ThreadExecutionMode, MessageThreadExecutor>();
-
-                        if (!dictionary.TryGetValue(subscriber.ExecutionMode, out var value))
-                        {
-                            value = new MessageThreadExecutor(this, messageContext);
-                            dictionary[subscriber.ExecutionMode] = value;
-                        }
-
-                        value.Add(subscriber.Subscriber);
-                    }
-                }
-            }
-
-            inlineExecutor?.Execute(null);
-            if (dictionary != null)
-            {
-                foreach (var dispatcherExecutor in dictionary)
-                    threadDispatcher.Execute(dispatcherExecutor.Value, dispatcherExecutor.Key, null);
-            }
+            PublishInternal(messageContext, false);
         }
 
         public void Dispose()
@@ -174,7 +125,7 @@ namespace MugenMvvm.Messaging
         public bool Unsubscribe(object subscriber, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(subscriber, nameof(subscriber));
-            bool removed = false;
+            var removed = false;
             lock (_subscribers)
             {
                 var info = new MessengerSubscriberInfo(subscriber, ThreadExecutionMode.Current);
@@ -196,6 +147,81 @@ namespace MugenMvvm.Messaging
             lock (_subscribers)
             {
                 return _subscribers.ToArray();
+            }
+        }
+
+        #endregion
+
+        #region Methods
+
+        private IMessageContext GetMessageContext(object? sender, object message, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(message, nameof(message));
+            IMessageContext? ctx = null;
+            for (var i = 0; i < _contextProviders.Length; i++)
+            {
+                ctx = _contextProviders[i].TryGetMessengerContext(metadata);
+                if (ctx != null)
+                    break;
+            }
+
+            if (ctx == null)
+                ctx = new MessageContext(this, sender, message, metadata);
+
+            for (var i = 0; i < _listeners.Length; i++)
+                _listeners[i].OnContextCreated(this, message, ctx);
+            return ctx!;
+        }
+
+        private void PublishInternal(IMessageContext messageContext, bool isOwner)
+        {
+            var threadDispatcher = _threadDispatcher.ServiceIfNull();
+            Dictionary<ThreadExecutionMode, MessageThreadExecutor>? dictionary = null;
+            MessageThreadExecutor? inlineExecutor = null;
+            MessageContext? localContext = isOwner ? messageContext as MessageContext : null;
+            lock (_subscribers)
+            {
+                foreach (var subscriber in _subscribers)
+                {
+                    if (localContext == null)
+                    {
+                        if (!messageContext.MarkAsHandled(subscriber.Subscriber))
+                            continue;
+                    }
+                    else
+                    {
+                        if (!localContext.MarkAsHandledNoLock(subscriber.Subscriber))
+                            continue;
+                    }
+
+
+                    if (threadDispatcher.CanExecuteInline(subscriber.ExecutionMode))
+                    {
+                        if (inlineExecutor == null)
+                            inlineExecutor = new MessageThreadExecutor(this, messageContext);
+                        inlineExecutor.Add(subscriber.Subscriber);
+                    }
+                    else
+                    {
+                        if (dictionary == null)
+                            dictionary = new Dictionary<ThreadExecutionMode, MessageThreadExecutor>();
+
+                        if (!dictionary.TryGetValue(subscriber.ExecutionMode, out var value))
+                        {
+                            value = new MessageThreadExecutor(this, messageContext);
+                            dictionary[subscriber.ExecutionMode] = value;
+                        }
+
+                        value.Add(subscriber.Subscriber);
+                    }
+                }
+            }
+
+            inlineExecutor?.Execute(null);
+            if (dictionary != null)
+            {
+                foreach (var dispatcherExecutor in dictionary)
+                    threadDispatcher.Execute(dispatcherExecutor.Value, dispatcherExecutor.Key, null);
             }
         }
 
@@ -258,13 +284,13 @@ namespace MugenMvvm.Messaging
             #region Fields
 
             private readonly Messenger _messenger;
-            private IMetadataContext? _metadata;
+            private IReadOnlyMetadataContext? _metadata;
 
             #endregion
 
             #region Constructors
 
-            public MessageContext(Messenger messenger, object? sender, object message, IMetadataContext? metadata)
+            public MessageContext(Messenger messenger, object? sender, object message, IReadOnlyMetadataContext? metadata)
             {
                 _metadata = metadata;
                 _messenger = messenger;
@@ -282,9 +308,12 @@ namespace MugenMvvm.Messaging
             {
                 get
                 {
-                    if (_metadata == null)
-                        _messenger._metadataContextProvider.LazyInitialize(ref _metadata, this);
-                    return _metadata!;
+                    if (!(_metadata is IMetadataContext ctx))
+                    {
+                        ctx = _metadata.ToNonReadonly(this, _messenger._metadataContextProvider);
+                        _metadata = ctx;
+                    }
+                    return ctx;
                 }
             }
 
@@ -304,6 +333,15 @@ namespace MugenMvvm.Messaging
                 {
                     return Add(subscriber);
                 }
+            }
+
+            #endregion
+
+            #region Methods
+
+            public bool MarkAsHandledNoLock(object subscriber)
+            {
+                return Add(subscriber);
             }
 
             #endregion
