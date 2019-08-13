@@ -106,7 +106,7 @@ namespace MugenMvvm
 
         internal static void ThrowObjectNotInitialized(object obj, string? hint = null)
         {
-            throw new InvalidOperationException(MessageConstants.ObjectNotInitializedFormat2.Format(obj.GetType().Name, hint));
+            throw new InvalidOperationException(MessageConstants.ObjectNotInitializedFormat2.Format((obj as Type ?? obj.GetType()).Name, hint));
         }
 
         internal static void ThrowObjectInitialized(object obj, string? hint = null)

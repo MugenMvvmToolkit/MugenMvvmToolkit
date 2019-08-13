@@ -1,7 +1,7 @@
 ﻿using System;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Binding.Interfaces.Resources
+namespace MugenMvvm.Binding.Interfaces.Converters
 {
     public interface IBindingValueConverter
     {

@@ -2,8 +2,8 @@
 using System.Reflection;
 using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
-using MugenMvvm.Binding.Components;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Binding.Interfaces.Observers;
@@ -95,36 +95,38 @@ namespace MugenMvvm.Binding.Members.Components
                         indexParameters = property.GetIndexParameters();
                         if (indexParameters.Length != indexerArgs.Length)
                             continue;
-                        try
-                        {
-                            var count = 0;
-                            for (var i = 0; i < indexParameters.Length; i++)
-                            {
-                                var arg = indexerArgs[i];
-                                var paramType = indexParameters[i].ParameterType;
-                                if (arg.StartsWith("\"", StringComparison.Ordinal) && arg.EndsWith("\"", StringComparison.Ordinal))
-                                {
-                                    if (paramType != typeof(string))
-                                        break;
-                                }
-                                else
-                                {
-                                    GlobalBindingValueConverter.Convert(arg, paramType, metadata: metadata);
-                                    if (paramType.IsValueTypeUnified())
-                                        count++;
-                                }
-                            }
 
-                            if (valueTypeCount < count)
+                        var count = 0;
+                        for (var i = 0; i < indexParameters.Length; i++)
+                        {
+                            var arg = indexerArgs[i];
+                            var paramType = indexParameters[i].ParameterType;
+                            if (arg.StartsWith("\"", StringComparison.Ordinal) && arg.EndsWith("\"", StringComparison.Ordinal))
                             {
-                                candidate = property;
-                                valueTypeCount = count;
+                                if (paramType != typeof(string))
+                                {
+                                    count = -1;
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                if (!Service<IGlobalBindingValueConverter>.Instance.TryConvert(arg, paramType, null, metadata, out _))
+                                {
+                                    count = -1;
+                                    break;
+                                }
+                                if (paramType.IsValueTypeUnified())
+                                    count++;
                             }
                         }
-                        catch
+
+                        if (valueTypeCount < count)
                         {
-                            ;
+                            candidate = property;
+                            valueTypeCount = count;
                         }
+
                     }
 
                     if (candidate != null)

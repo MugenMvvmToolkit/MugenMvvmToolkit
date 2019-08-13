@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Members;
@@ -11,6 +12,21 @@ namespace MugenMvvm.Binding
     public static partial class BindingMugenExtensions
     {
         #region Methods
+
+        public static bool TryConvert(this IGlobalBindingValueConverter? converter, object? value, Type targetType, IBindingMemberInfo? member, IReadOnlyMetadataContext? metadata,
+            out object? result)
+        {
+            try
+            {
+                result = converter.ServiceIfNull().Convert(value, targetType, member, metadata);
+                return true;
+            }
+            catch
+            {
+                result = null;
+                return false;
+            }
+        }
 
         public static TValue GetValueOrDefault<TSource, TValue>(this BindableMember<TSource, TValue> bindableMember, TSource source,
             object?[]? args = null, IReadOnlyMetadataContext? metadata = null, IBindingMemberProvider? provider = null)

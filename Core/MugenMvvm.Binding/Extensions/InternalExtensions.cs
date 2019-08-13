@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using MugenMvvm.Binding.Components;
+using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Binding.Metadata;
 
 // ReSharper disable once CheckNamespace
@@ -106,7 +106,7 @@ namespace MugenMvvm.Binding
                 var s = args[i];
                 if (!string.IsNullOrEmpty(s) && s[0] == '\"' && s.EndsWith("\""))
                     s = s.RemoveBounds();
-                result[i] = (TItem)(s == "null" ? null : GlobalBindingValueConverter.Convert(s, typeof(TItem)))!;
+                result[i] = (TItem)(s == "null" ? null : Service<IGlobalBindingValueConverter>.Instance.Convert(s, typeof(TItem)))!;
             }
 
             return result;
@@ -126,7 +126,7 @@ namespace MugenMvvm.Binding
                     castType = parameters[i].ParameterType;
                 if (!string.IsNullOrEmpty(s) && s[0] == '\"' && s.EndsWith("\""))
                     s = s.RemoveBounds();
-                result[i] = s == "null" ? null : GlobalBindingValueConverter.Convert(s, castType ?? typeof(object));
+                result[i] = s == "null" ? null : Service<IGlobalBindingValueConverter>.Instance.Convert(s, castType ?? typeof(object));
             }
 
             return result;

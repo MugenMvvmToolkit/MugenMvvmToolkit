@@ -55,7 +55,7 @@ namespace MugenMvvm
                     {
                         if (_fallbackConfiguration != null)
                             return _fallbackConfiguration.Instance<TService>();
-                        ExceptionManager.ThrowIocCannotFindBinding(typeof(TService));
+                        ExceptionManager.ThrowObjectNotInitialized(typeof(Service<TService>), typeof(TService).Name);
                     }
                     return _service!;
                 }

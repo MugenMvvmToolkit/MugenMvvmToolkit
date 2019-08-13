@@ -2,8 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using MugenMvvm.Binding.Components;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Interfaces.Members;
@@ -484,7 +484,7 @@ namespace MugenMvvm.Binding.Core
                     return false;
             }
 
-            newValue = GlobalBindingValueConverter.Convert(newValue, pathLastMember.LastMember.Type, pathLastMember.LastMember, Metadata);
+            newValue = Service<IGlobalBindingValueConverter>.Instance.Convert(newValue, pathLastMember.LastMember.Type, pathLastMember.LastMember, Metadata);
             if (!DisableEqualityCheckingTarget && pathLastMember.LastMember.CanRead)
             {
                 var oldValue = pathLastMember.LastMember.GetValue(pathLastMember.PenultimateValue, null, Metadata);
@@ -519,7 +519,7 @@ namespace MugenMvvm.Binding.Core
                     return false;
             }
 
-            newValue = GlobalBindingValueConverter.Convert(newValue, pathLastMember.LastMember.Type, pathLastMember.LastMember, Metadata);
+            newValue = Service<IGlobalBindingValueConverter>.Instance.Convert(newValue, pathLastMember.LastMember.Type, pathLastMember.LastMember, Metadata);
             if (!DisableEqualityCheckingSource && pathLastMember.LastMember.CanRead)
             {
                 var oldValue = pathLastMember.LastMember.GetValue(pathLastMember.PenultimateValue, null, Metadata);
