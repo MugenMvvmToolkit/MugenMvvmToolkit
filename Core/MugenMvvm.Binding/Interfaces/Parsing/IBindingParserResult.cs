@@ -1,6 +1,5 @@
 ﻿using MugenMvvm.Binding.Interfaces.Parsing.Nodes;
 using MugenMvvm.Binding.Parsing;
-using MugenMvvm.Binding.Parsing.Nodes;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Parsing
