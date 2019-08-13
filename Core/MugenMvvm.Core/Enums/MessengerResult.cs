@@ -1,6 +1,6 @@
 ﻿namespace MugenMvvm.Enums
 {
-    public enum MessengerSubscriberResult
+    public enum MessengerResult : byte
     {
         Handled = 1,
         Ignored = 2,

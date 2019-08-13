@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.Linq;
 using MugenMvvm.Attributes;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
@@ -11,128 +11,125 @@ using MugenMvvm.Interfaces.Threading;
 
 namespace MugenMvvm.Messaging
 {
-    public sealed class Messenger : ComponentOwnerBase<IMessenger>, IMessenger, IEqualityComparer<KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>>,
+    public sealed class Messenger : ComponentOwnerBase<IMessenger>, IMessenger, IEqualityComparer<MessengerSubscriberInfo>,
         IComponentOwnerAddedCallback<IComponent<IMessenger>>, IComponentOwnerRemovedCallback<IComponent<IMessenger>>
     {
         #region Fields
 
-        private readonly HashSet<KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>> _subscribers;
         private readonly IMetadataContextProvider? _metadataContextProvider;
+
+        private readonly HashSet<MessengerSubscriberInfo> _subscribers;
         private readonly IThreadDispatcher? _threadDispatcher;
 
-        private bool _hasFactoryComponents;
-        private bool _hasListenerComponents;
-        private bool _hasMessageInterceptorComponents;
-        private bool _hasMessageSubscriberDecoratorComponents;
+        private IMessageContextProviderComponent[] _contextProviders;
+        private IMessengerSubscriberDecoratorComponent[] _decorators;
+        private IMessengerHandlerComponent[] _handlers;
+        private IMessengerListener[] _listeners;
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public Messenger(IThreadDispatcher? threadDispatcher = null, IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
+        public Messenger(IThreadDispatcher? threadDispatcher = null, IComponentCollectionProvider? componentCollectionProvider = null,
+            IMetadataContextProvider? metadataContextProvider = null)
             : base(componentCollectionProvider)
         {
             _threadDispatcher = threadDispatcher;
             _metadataContextProvider = metadataContextProvider;
-            _subscribers = new HashSet<KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>>(this);
+            _subscribers = new HashSet<MessengerSubscriberInfo>(this);
         }
 
         #endregion
 
         #region Implementation of interfaces
 
-        void IComponentOwnerAddedCallback<IComponent<IMessenger>>.OnComponentAdded(IComponentCollection<IComponent<IMessenger>> collection, IComponent<IMessenger> component, IReadOnlyMetadataContext? metadata)
+        void IComponentOwnerAddedCallback<IComponent<IMessenger>>.OnComponentAdded(IComponentCollection<IComponent<IMessenger>> collection, IComponent<IMessenger> component,
+            IReadOnlyMetadataContext metadata)
         {
-            OnComponentsChanged();
+            MugenExtensions.ComponentTrackerOnAdded(ref _contextProviders, this, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnAdded(ref _decorators, this, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnAdded(ref _handlers, this, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnAdded(ref _listeners, this, collection, component, metadata);
         }
 
-        void IComponentOwnerRemovedCallback<IComponent<IMessenger>>.OnComponentRemoved(IComponentCollection<IComponent<IMessenger>> collection, IComponent<IMessenger> component, IReadOnlyMetadataContext? metadata)
+        void IComponentOwnerRemovedCallback<IComponent<IMessenger>>.OnComponentRemoved(IComponentCollection<IComponent<IMessenger>> collection, IComponent<IMessenger> component,
+            IReadOnlyMetadataContext metadata)
         {
-            OnComponentsChanged();
+            MugenExtensions.ComponentTrackerOnRemoved(ref _contextProviders, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnRemoved(ref _decorators, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnRemoved(ref _handlers, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnRemoved(ref _listeners, collection, component, metadata);
         }
 
-        bool IEqualityComparer<KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>>.Equals(KeyValuePair<ThreadExecutionMode, IMessengerSubscriber> x, KeyValuePair<ThreadExecutionMode, IMessengerSubscriber> y)
+        public bool Equals(MessengerSubscriberInfo x, MessengerSubscriberInfo y)
         {
-            return x.Value.Equals(y.Value);
+            return x.Subscriber.Equals(y.Subscriber);
         }
 
-        int IEqualityComparer<KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>>.GetHashCode(KeyValuePair<ThreadExecutionMode, IMessengerSubscriber> obj)
+        public int GetHashCode(MessengerSubscriberInfo obj)
         {
-            return obj.Value.GetHashCode();
+            return obj.Subscriber.GetHashCode();
         }
 
-        public IMessengerContext GetMessengerContext(IMetadataContext? metadata = null)
+        public IMessageContext GetMessageContext(object? sender, object? message, IMetadataContext? metadata = null)
         {
-            return GetMessengerContextInternal(metadata);
-        }
-
-        public void Publish(object sender, object message, IMessengerContext? messengerContext = null)
-        {
-            PublishInternalAsync(sender, message, messengerContext, false);
-        }
-
-        public Task PublishAsync(object sender, object message, IMessengerContext? messengerContext = null)
-        {
-            return PublishInternalAsync(sender, message, messengerContext, true);
-        }
-
-        public void Subscribe(IMessengerSubscriber subscriber, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(subscriber, nameof(subscriber));
-            Should.NotBeNull(executionMode, nameof(executionMode));
-            if (_hasMessageSubscriberDecoratorComponents)
+            IMessageContext? ctx = null;
+            for (var i = 0; i < _contextProviders.Length; i++)
             {
-                var components = GetComponents();
-                for (var i = 0; i < components.Length; i++)
+                ctx = _contextProviders[i].TryGetMessengerContext(metadata);
+                if (ctx != null)
+                    break;
+            }
+
+            if (ctx == null)
+                ctx = new MessageContext(this, sender, message, metadata);
+
+            for (var i = 0; i < _listeners.Length; i++)
+                _listeners[i].OnContextCreated(this, message, ctx);
+            return ctx!;
+        }
+
+        public void Publish(IMessageContext messageContext)
+        {
+            Should.NotBeNull(messageContext, nameof(messageContext));
+            var threadDispatcher = _threadDispatcher.ServiceIfNull();
+            Dictionary<ThreadExecutionMode, MessageThreadExecutor>? dictionary = null;
+            MessageThreadExecutor? inlineExecutor = null;
+            lock (_subscribers)
+            {
+                foreach (var subscriber in _subscribers)
                 {
-                    if (components[i] is ISubscriberDecoratorComponent decorator)
-                        subscriber = decorator.OnSubscribing(subscriber, executionMode, metadata);
+                    if (!messageContext.MarkAsHandled(subscriber.Subscriber))
+                        continue;
+
+                    if (threadDispatcher.CanExecuteInline(subscriber.ExecutionMode))
+                    {
+                        if (inlineExecutor == null)
+                            inlineExecutor = new MessageThreadExecutor(this, messageContext);
+                        inlineExecutor.Add(subscriber.Subscriber);
+                    }
+                    else
+                    {
+                        if (dictionary == null)
+                            dictionary = new Dictionary<ThreadExecutionMode, MessageThreadExecutor>();
+
+                        if (!dictionary.TryGetValue(subscriber.ExecutionMode, out var value))
+                        {
+                            value = new MessageThreadExecutor(this, messageContext);
+                            dictionary[subscriber.ExecutionMode] = value;
+                        }
+
+                        value.Add(subscriber.Subscriber);
+                    }
                 }
             }
 
-            bool added;
-            lock (_subscribers)
+            inlineExecutor?.Execute(null);
+            if (dictionary != null)
             {
-                added = _subscribers.Add(new KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>(executionMode, subscriber));
-            }
-
-            if (added && _hasListenerComponents)
-            {
-                var components = GetComponents();
-                for (var i = 0; i < components.Length; i++)
-                    (components[i] as IMessengerListener)?.OnSubscribed(this, subscriber, executionMode, metadata);
-            }
-        }
-
-        public bool Unsubscribe(IMessengerSubscriber subscriber, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(subscriber, nameof(subscriber));
-            bool removed;
-            lock (_subscribers)
-            {
-                removed = _subscribers.Remove(new KeyValuePair<ThreadExecutionMode, IMessengerSubscriber>(ThreadExecutionMode.Current, subscriber));
-            }
-
-            if (removed && _hasListenerComponents)
-            {
-                var components = GetComponents();
-                for (var i = 0; i < components.Length; i++)
-                    (components[i] as IMessengerListener)?.OnUnsubscribed(this, subscriber, metadata);
-            }
-
-            return removed;
-        }
-
-        public IReadOnlyList<MessengerSubscriberInfo> GetSubscribers()
-        {
-            var index = 0;
-            lock (_subscribers)
-            {
-                var subscribers = new MessengerSubscriberInfo[_subscribers.Count];
-                foreach (var subscriber in _subscribers)
-                    subscribers[index++] = new MessengerSubscriberInfo(subscriber.Value, subscriber.Key);
-                return subscribers;
+                foreach (var dispatcherExecutor in dictionary)
+                    threadDispatcher.Execute(dispatcherExecutor.Value, dispatcherExecutor.Key, null);
             }
         }
 
@@ -142,143 +139,80 @@ namespace MugenMvvm.Messaging
             this.ClearComponents();
         }
 
-        #endregion
-
-        #region Methods
-
-        private void OnComponentsChanged()
+        public bool Subscribe(object subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext metadata = null)
         {
-            var components = GetComponents();
-            _hasListenerComponents = false;
-            _hasFactoryComponents = false;
-            _hasMessageInterceptorComponents = false;
-            _hasMessageSubscriberDecoratorComponents = false;
-            for (var i = 0; i < components.Length; i++)
+            Should.NotBeNull(subscriber, nameof(subscriber));
+            if (executionMode == null)
+                executionMode = ThreadExecutionMode.Current;
+            for (var i = 0; i < _decorators.Length; i++)
             {
-                var component = components[i];
-                if (component is IMessengerListener)
-                    _hasListenerComponents = true;
-                else if (component is IMessengerContextProviderComponent)
-                    _hasFactoryComponents = true;
-                else if (component is IMessageInterceptorComponent)
-                    _hasMessageInterceptorComponents = true;
-                else if (component is ISubscriberDecoratorComponent)
-                    _hasMessageSubscriberDecoratorComponents = true;
-
-                if (_hasListenerComponents && _hasFactoryComponents && _hasMessageInterceptorComponents && _hasMessageSubscriberDecoratorComponents)
-                    return;
-            }
-        }
-
-        private IMessengerContext GetMessengerContextInternal(IMetadataContext? metadata)
-        {
-            IMessengerContext? ctx = null;
-            if (_hasFactoryComponents)
-            {
-                var components = GetComponents();
-                for (var i = 0; i < components.Length; i++)
-                {
-                    if (components[i] is IMessengerContextProviderComponent factory)
-                    {
-                        ctx = factory.TryGetMessengerContext(metadata);
-                        if (ctx != null)
-                            break;
-                    }
-                }
+                subscriber = _decorators[i].OnSubscribing(subscriber, executionMode, metadata);
+                if (subscriber == null)
+                    return false;
             }
 
-            if (ctx == null)
-                ctx = new MessengerContext(this, metadata);
-
-            if (_hasListenerComponents)
-            {
-                var components = GetComponents();
-                for (var i = 0; i < components.Length; i++)
-                    (components[i] as IMessengerListener)?.OnContextCreated(this, ctx);
-            }
-
-            return ctx;
-        }
-
-        private Task PublishInternalAsync(object sender, object message, IMessengerContext? messengerContext, bool isAsync)
-        {
-            Should.NotBeNull(sender, nameof(sender));
-            Should.NotBeNull(message, nameof(message));
-            MessengerContext? rawContext = null;
-            if (messengerContext == null)
-            {
-                messengerContext = GetMessengerContext(null);
-                rawContext = messengerContext as MessengerContext;
-            }
-
-            var dictionary = new Dictionary<ThreadExecutionMode, ThreadDispatcherExecutor>();
+            bool added;
             lock (_subscribers)
             {
-                foreach (var subscriber in _subscribers)
-                {
-                    if (rawContext == null)
-                    {
-                        if (!messengerContext.MarkAsHandled(subscriber.Value))
-                            continue;
-                    }
-                    else
-                    {
-                        if (!rawContext.MarkAsHandledNoLock(subscriber.Value))
-                            continue;
-                    }
-
-                    if (!dictionary.TryGetValue(subscriber.Key, out var value))
-                    {
-                        value = new ThreadDispatcherExecutor(this, sender, message, messengerContext);
-                        dictionary[subscriber.Key] = value;
-                    }
-
-                    value.Add(subscriber.Value);
-                }
+                added = _subscribers.Add(new MessengerSubscriberInfo(subscriber, executionMode));
             }
 
-            if (isAsync)
+            if (added)
             {
-                var tasks = new Task[dictionary.Count];
-                var index = 0;
-                foreach (var dispatcherExecutor in dictionary)
-                {
-                    tasks[index] = _threadDispatcher.ServiceIfNull().ExecuteAsync(dispatcherExecutor.Value, dispatcherExecutor.Key, null);
-                    ++index;
-                }
-
-                return Task.WhenAll(tasks);
+                for (var i = 0; i < _listeners.Length; i++)
+                    _listeners[i].OnSubscribed(this, subscriber, executionMode, metadata);
             }
 
-            foreach (var dispatcherExecutor in dictionary)
-                _threadDispatcher.ServiceIfNull().Execute(dispatcherExecutor.Value, dispatcherExecutor.Key, null);
-            return Default.CompletedTask;
+            return true;
+        }
+
+        public bool Unsubscribe(object subscriber, IReadOnlyMetadataContext metadata = null)
+        {
+            Should.NotBeNull(subscriber, nameof(subscriber));
+            bool removed = false;
+            lock (_subscribers)
+            {
+                var info = new MessengerSubscriberInfo(subscriber, ThreadExecutionMode.Current);
+                while (_subscribers.Remove(info))
+                    removed = true;
+            }
+
+            if (removed)
+            {
+                for (var i = 0; i < _listeners.Length; i++)
+                    _listeners[i].OnUnsubscribed(this, subscriber, metadata);
+            }
+
+            return removed;
+        }
+
+        public IReadOnlyList<MessengerSubscriberInfo> GetSubscribers()
+        {
+            lock (_subscribers)
+            {
+                return _subscribers.ToArray();
+            }
         }
 
         #endregion
 
         #region Nested types
 
-        private sealed class ThreadDispatcherExecutor : List<IMessengerSubscriber>, IThreadDispatcherHandler
+        private sealed class MessageThreadExecutor : List<object>, IThreadDispatcherHandler
         {
             #region Fields
 
-            private readonly object _message;
+            private readonly IMessageContext _messageContext;
             private readonly Messenger _messenger;
-
-            private readonly IMessengerContext _messengerContext;
-            private readonly object _sender;
 
             #endregion
 
             #region Constructors
 
-            public ThreadDispatcherExecutor(Messenger messenger, object sender, object message, IMessengerContext messengerContext)
+            public MessageThreadExecutor(Messenger messenger, IMessageContext messageContext)
             {
                 _messenger = messenger;
-                _sender = sender;
-                _message = message;
-                _messengerContext = messengerContext;
+                _messageContext = messageContext;
             }
 
             #endregion
@@ -287,62 +221,50 @@ namespace MugenMvvm.Messaging
 
             public void Execute(object? state)
             {
-                if (_messenger._hasMessageInterceptorComponents)
+                var handlers = _messenger._handlers;
+                var listeners = _messenger._listeners;
+                for (var i = 0; i < Count; i++)
                 {
-                    for (var i = 0; i < Count; i++)
-                        PublishAndNotify(this[i]);
-                }
-                else
-                {
-                    for (var i = 0; i < Count; i++)
+                    var subscriber = this[i];
+                    for (var j = 0; j < listeners.Length; i++)
+                        listeners[j].OnHandling(subscriber, _messageContext);
+
+                    MessengerResult? result = null;
+                    for (var j = 0; j < handlers.Length; j++)
                     {
-                        if (this[i].Handle(_sender, _message, _messengerContext) == MessengerSubscriberResult.Invalid)
-                            _messenger.Unsubscribe(this[i]);
+                        result = handlers[j].TryHandle(subscriber, _messageContext);
+                        if (result != null)
+                            break;
                     }
+
+                    for (var j = 0; j < listeners.Length; i++)
+                        listeners[j].OnHandled(result, subscriber, _messageContext);
+
+                    if (result == MessengerResult.Invalid)
+                        _messenger.Unsubscribe(subscriber, _messageContext.Metadata);
                 }
-            }
-
-            #endregion
-
-            #region Methods
-
-            private void PublishAndNotify(IMessengerSubscriber subscriber)
-            {
-                var components = _messenger.GetComponents();
-                MessengerSubscriberResult? subscriberResult = null;
-                for (var i = 0; i < components.Length; i++)
-                {
-                    subscriberResult = (components[i] as IMessageInterceptorComponent)?.OnPublishing(subscriber, _sender, _message, _messengerContext);
-                    if (subscriberResult != null)
-                        break;
-                }
-
-                var result = subscriberResult ?? subscriber.Handle(_sender, _message, _messengerContext);
-
-                for (var i = 0; i < components.Length; i++)
-                    (components[i] as IMessageInterceptorComponent)?.OnPublished(result, subscriber, _sender, _message, _messengerContext);
-
-                if (result == MessengerSubscriberResult.Invalid)
-                    _messenger.Unsubscribe(subscriber);
             }
 
             #endregion
         }
 
-        private sealed class MessengerContext : HashSet<object>, IMessengerContext
+        private sealed class MessageContext : HashSet<object>, IMessageContext
         {
             #region Fields
 
+            private readonly Messenger _messenger;
             private IMetadataContext? _metadata;
 
             #endregion
 
             #region Constructors
 
-            public MessengerContext(IMessenger messenger, IMetadataContext? metadata)
+            public MessageContext(Messenger messenger, object? sender, object message, IMetadataContext? metadata)
             {
-                Messenger = messenger;
                 _metadata = metadata;
+                _messenger = messenger;
+                Sender = sender;
+                Message = message;
             }
 
             #endregion
@@ -356,32 +278,27 @@ namespace MugenMvvm.Messaging
                 get
                 {
                     if (_metadata == null)
-                        ((Messenger)Messenger)._metadataContextProvider.LazyInitialize(ref _metadata, this);
+                        _messenger._metadataContextProvider.LazyInitialize(ref _metadata, this);
                     return _metadata!;
                 }
             }
 
-            public IMessenger Messenger { get; }
+            public IMessagePublisher Publisher => _messenger;
+
+            public object? Sender { get; }
+
+            public object Message { get; }
 
             #endregion
 
             #region Implementation of interfaces
 
-            public bool MarkAsHandled(object handler)
+            public bool MarkAsHandled(object subscriber)
             {
                 lock (this)
                 {
-                    return Add(handler);
+                    return Add(subscriber);
                 }
-            }
-
-            #endregion
-
-            #region Methods
-
-            public bool MarkAsHandledNoLock(object handler)
-            {
-                return Add(handler);
             }
 
             #endregion

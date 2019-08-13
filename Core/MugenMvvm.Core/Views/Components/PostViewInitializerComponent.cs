@@ -10,18 +10,11 @@ namespace MugenMvvm.Views.Components
 {
     public sealed class PostViewInitializerComponent : IViewManagerListener, IHasPriority //todo listen wrappers from metadata
     {
-        #region Fields
-
-        private readonly IViewModelDispatcher? _viewModelDispatcher;
-
-        #endregion
-
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public PostViewInitializerComponent(IViewModelDispatcher? viewModelDispatcher = null)
+        public PostViewInitializerComponent()
         {
-            _viewModelDispatcher = viewModelDispatcher;
         }
 
         #endregion
@@ -44,13 +37,13 @@ namespace MugenMvvm.Views.Components
 
         public void OnViewInitialized(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
         {
-            _viewModelDispatcher.ServiceIfNull().Subscribe(viewModel, viewInfo.View, ThreadExecutionMode.Main, metadata);
+            viewModel.TrySubscribe(viewInfo.View, ThreadExecutionMode.Main, metadata);
             (viewInfo.View as IInitializableView)?.Initialize(viewModel, viewInfo, metadata);
         }
 
         public void OnViewCleared(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
         {
-            _viewModelDispatcher.ServiceIfNull().Unsubscribe(viewModel, viewInfo.View, metadata);
+            viewModel.TryUnsubscribe(viewInfo.View, metadata);
             (viewInfo.View as ICleanableView)?.Cleanup(metadata);
             viewInfo.ClearMetadata(true);
         }

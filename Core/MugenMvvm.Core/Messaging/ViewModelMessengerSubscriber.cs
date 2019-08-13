@@ -13,13 +13,14 @@ using MugenMvvm.Interfaces.Metadata.Components;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.ViewModels;
+using MugenMvvm.Messaging.Components;
 using MugenMvvm.Metadata;
 using MugenMvvm.Serialization;
 
 #pragma warning disable CS8618
 namespace MugenMvvm.Messaging//todo review pragma
 {
-    public sealed class ViewModelMessengerSubscriber : IMessengerSubscriber, IMetadataContextListener, IHasMemento//todo review
+    public sealed class ViewModelMessengerSubscriber : MessengerHandlerComponent.IMessengerSubscriber, IMetadataContextListener, IHasMemento//todo review memento
     {
         #region Fields
 
@@ -65,37 +66,29 @@ namespace MugenMvvm.Messaging//todo review pragma
             return new ViewModelMessengerSubscriberMemento(viewModel);
         }
 
-        public bool Equals(IMessengerSubscriber other)
-        {
-            if (ReferenceEquals(null, other))
-                return false;
-            if (ReferenceEquals(this, other))
-                return true;
-            return other is ViewModelMessengerSubscriber handler && ReferenceEquals(Target, handler.Target);
-        }
-
-        public MessengerSubscriberResult Handle(object sender, object message, IMessengerContext messengerContext)
+        public MessengerResult Handle(IMessageContext messageContext)
         {
             var viewModel = Target;
             if (viewModel == null)
-                return MessengerSubscriberResult.Invalid;
+                return MessengerResult.Invalid;
 
-            if (ReferenceEquals(sender, viewModel))
-                return MessengerSubscriberResult.Ignored;
+            if (ReferenceEquals(messageContext.Sender, viewModel))
+                return MessengerResult.Ignored;
 
-            var messenger = viewModel.TryGetServiceOptional<IEventPublisher>();
+            var message = messageContext.Message;
+            var messenger = viewModel.TryGetServiceOptional<IMessagePublisher>();
             if (message is IBusyToken busyToken)
             {
                 var messageMode = BusyMessageHandlerType;
                 if (messageMode.HasFlagEx(BusyMessageHandlerType.Handle))
                     viewModel.TryGetService<IBusyIndicatorProvider>()?.Begin(busyToken);
                 if (messageMode.HasFlagEx(BusyMessageHandlerType.NotifySubscribers))
-                    messenger?.Publish(sender, busyToken, messengerContext);
+                    messenger?.Publish(messageContext);
             }
             else if (BroadcastAllMessages || message is IBroadcastMessage || message is PropertyChangedEventArgs)
-                messenger?.Publish(sender, message, messengerContext);
+                messenger?.Publish(messageContext);
 
-            return MessengerSubscriberResult.Handled;
+            return MessengerResult.Handled;
         }
 
         void IMetadataContextListener.OnAdded(IMetadataContext metadataContext, IMetadataContextKey key, object? newValue)
@@ -142,9 +135,10 @@ namespace MugenMvvm.Messaging//todo review pragma
                 return false;
             if (ReferenceEquals(this, obj))
                 return true;
-            if (obj is ViewModelMessengerSubscriber handler)
-                return Equals(handler);
-            return false;
+            var target = Target;
+            if (ReferenceEquals(obj, target))
+                return true;
+            return obj is ViewModelMessengerSubscriber handler && ReferenceEquals(target, handler.Target);
         }
 
         public override int GetHashCode()

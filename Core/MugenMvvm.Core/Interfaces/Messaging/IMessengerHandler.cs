@@ -9,6 +9,6 @@ namespace MugenMvvm.Interfaces.Messaging
     public interface IMessengerHandler<in TMessage> : IMessengerHandler
     {
         [Preserve(Conditional = true)]
-        void Handle(object sender, TMessage message, IMessengerContext messengerContext);
+        void Handle(TMessage message, IMessageContext messageContext);
     }
 }

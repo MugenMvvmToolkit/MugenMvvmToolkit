@@ -3,7 +3,7 @@
 namespace MugenMvvm.Enums
 {
     [Flags]
-    public enum BatchUpdateCollectionMode
+    public enum BatchUpdateCollectionMode : byte
     {
         Listeners = 1,
         DecoratorListeners = 2,

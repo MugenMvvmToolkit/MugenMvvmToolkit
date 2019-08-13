@@ -4,22 +4,23 @@ using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
+using MugenMvvm.Messaging.Components;
 
 namespace MugenMvvm.Messaging
 {
-    public sealed class WeakDelegateMessengerSubscriber<TTarget, TMessage> : IMessengerSubscriber
-            where TTarget : class
+    public sealed class WeakDelegateMessengerSubscriber<TTarget, TMessage> : MessengerHandlerComponent.IMessengerSubscriber
+        where TTarget : class
     {
         #region Fields
 
-        private readonly Action<TTarget, object, TMessage, IMessengerContext> _action;
+        private readonly Action<TTarget, TMessage, IMessageContext> _action;
         private readonly IWeakReference _reference;
 
         #endregion
 
         #region Constructors
 
-        public WeakDelegateMessengerSubscriber(TTarget target, Action<TTarget, object, TMessage, IMessengerContext> action)
+        public WeakDelegateMessengerSubscriber(TTarget target, Action<TTarget, TMessage, IMessageContext> action)
         {
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(action, nameof(action));
@@ -27,36 +28,31 @@ namespace MugenMvvm.Messaging
             _action = action;
         }
 
-        public WeakDelegateMessengerSubscriber(Action<object, TMessage, IMessengerContext> action)
+        public WeakDelegateMessengerSubscriber(Action<TMessage, IMessageContext> action)
         {
             Should.NotBeNull(action, nameof(action));
             Should.BeSupported(action.Target != null, MessageConstants.StaticDelegateCannotBeWeak);
             Should.BeSupported(!action.Target.GetType().IsAnonymousClass(), MessageConstants.AnonymousDelegateCannotBeWeak);
             _reference = action.Target.ToWeakReference();
-            _action = action.GetMethodInfo().GetMethodInvoker<Action<TTarget, object, TMessage, IMessengerContext>>();
+            _action = action.GetMethodInfo().GetMethodInvoker<Action<TTarget, TMessage, IMessageContext>>();
         }
 
         #endregion
 
         #region Implementation of interfaces
 
-        public bool Equals(IMessengerSubscriber other)
+        public MessengerResult Handle(IMessageContext messageContext)
         {
-            return ReferenceEquals(other, this);
-        }
-
-        public MessengerSubscriberResult Handle(object sender, object message, IMessengerContext messengerContext)
-        {
-            var target = (TTarget?)_reference.Target;
+            var target = (TTarget?) _reference.Target;
             if (target == null)
-                return MessengerSubscriberResult.Invalid;
-            if (message is TMessage m)
+                return MessengerResult.Invalid;
+            if (messageContext.Message is TMessage m)
             {
-                _action(target, sender, m, messengerContext);
-                return MessengerSubscriberResult.Handled;
+                _action(target, m, messageContext);
+                return MessengerResult.Handled;
             }
 
-            return MessengerSubscriberResult.Ignored;
+            return MessengerResult.Ignored;
         }
 
         #endregion

@@ -3,7 +3,7 @@
 namespace MugenMvvm.Enums
 {
     [Flags]
-    public enum BusyMessageHandlerType
+    public enum BusyMessageHandlerType : byte
     {
         None = 0,
         Handle = 1,

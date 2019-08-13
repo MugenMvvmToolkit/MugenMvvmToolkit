@@ -4,7 +4,6 @@ using System.Runtime.Serialization;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
-using MugenMvvm.Interfaces.Messaging;
 
 namespace MugenMvvm.Messaging
 {
@@ -20,13 +19,13 @@ namespace MugenMvvm.Messaging
         public readonly ThreadExecutionMode ExecutionMode;
 
         [DataMember(Name = "S")]
-        public readonly IMessengerSubscriber Subscriber;
+        public readonly object Subscriber;
 
         #endregion
 
         #region Constructors
 
-        public MessengerSubscriberInfo(IMessengerSubscriber subscriber, ThreadExecutionMode executionMode)
+        public MessengerSubscriberInfo(object subscriber, ThreadExecutionMode executionMode)
         {
             Subscriber = subscriber;
             ExecutionMode = executionMode;

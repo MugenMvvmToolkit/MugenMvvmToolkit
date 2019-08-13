@@ -12,12 +12,20 @@ namespace MugenMvvm
     {
         #region Methods
 
-        public static bool TrySubscribe(this IViewModelBase viewModel, object observer, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null,
-            IViewModelDispatcher? dispatcher = null)
+        public static bool TrySubscribe(this IViewModelBase viewModel, object subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            Should.NotBeNull(observer, nameof(observer));
-            return dispatcher.ServiceIfNull().Subscribe(viewModel, observer, executionMode ?? ThreadExecutionMode.Current, metadata);
+            Should.NotBeNull(subscriber, nameof(subscriber));
+            var service = viewModel.TryGetService<IMessenger>();
+            return service != null && service.Subscribe(subscriber, executionMode, metadata);
+        }
+
+        public static bool TryUnsubscribe(this IViewModelBase viewModel, object subscriber, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            Should.NotBeNull(subscriber, nameof(subscriber));
+            var service = viewModel.TryGetService<IMessenger>();
+            return service != null && service.Unsubscribe(subscriber, metadata);
         }
 
         public static TService? TryGetService<TService>(this IViewModelBase viewModel) where TService : class
@@ -40,7 +48,7 @@ namespace MugenMvvm
             return dispatcher.ServiceIfNull().OnLifecycleChanged(viewModel, state, metadata);
         }
 
-        public static void InvalidateCommands<TViewModel>(this TViewModel viewModel) where TViewModel : class, IViewModelBase, IHasService<IEventPublisher>
+        public static void InvalidateCommands<TViewModel>(this TViewModel viewModel) where TViewModel : class, IViewModelBase, IHasService<IMessagePublisher>
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             viewModel.Service.Publish(viewModel, Default.EmptyPropertyChangedArgs);

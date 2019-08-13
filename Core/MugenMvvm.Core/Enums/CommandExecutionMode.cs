@@ -1,6 +1,6 @@
 ﻿namespace MugenMvvm.Enums
 {
-    public enum CommandExecutionMode
+    public enum CommandExecutionMode : byte
     {
         None = 0,
         CanExecuteBeforeExecute = 1,

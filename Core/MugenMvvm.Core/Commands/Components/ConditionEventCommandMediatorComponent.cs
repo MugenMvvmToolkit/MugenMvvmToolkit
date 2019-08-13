@@ -11,6 +11,7 @@ using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Internal;
+using MugenMvvm.Messaging.Components;
 
 namespace MugenMvvm.Commands.Components
 {
@@ -141,7 +142,7 @@ namespace MugenMvvm.Commands.Components
 
         #region Nested types
 
-        private sealed class Subscriber : IMessengerSubscriber
+        private sealed class Subscriber : MessengerHandlerComponent.IMessengerSubscriber
         {
             #region Fields
 
@@ -161,18 +162,13 @@ namespace MugenMvvm.Commands.Components
 
             #region Implementation of interfaces
 
-            public bool Equals(IMessengerSubscriber other)
-            {
-                return ReferenceEquals(other, this);
-            }
-
-            public MessengerSubscriberResult Handle(object sender, object message, IMessengerContext messengerContext)
+            public MessengerResult Handle(IMessageContext messageContext)
             {
                 var mediator = (ConditionEventCommandMediatorComponent?)_reference?.Target;
                 if (mediator == null)
-                    return MessengerSubscriberResult.Invalid;
-                mediator.Handle(message);
-                return MessengerSubscriberResult.Handled;
+                    return MessengerResult.Invalid;
+                mediator.Handle(messageContext.Message);
+                return MessengerResult.Handled;
             }
 
             #endregion

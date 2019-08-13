@@ -10,6 +10,7 @@ using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.ViewModels.Components;
 using MugenMvvm.Messaging;
+using MugenMvvm.Messaging.Components;
 
 namespace MugenMvvm.ViewModels.Components
 {
@@ -49,7 +50,14 @@ namespace MugenMvvm.ViewModels.Components
             if (service == typeof(IMetadataContext))
                 return _metadataContextProvider.ServiceIfNull().GetMetadataContext(viewModel);
             if (service == typeof(IMessenger))
-                return new Messenger(_threadDispatcher, _componentCollectionProvider, _metadataContextProvider);
+            {
+                var messenger = new Messenger(_threadDispatcher, _componentCollectionProvider, _metadataContextProvider);
+                messenger.Components.Add(MessengerHandlerComponent.Instance);
+                messenger.Components.Add(ViewModelMessengerSubscriberDecoratorComponent.Instance);
+                messenger.Components.Add(MessengerHandlerSubscriberDecoratorComponent.InstanceWeak);
+                return messenger;
+            }
+
             if (service == typeof(IBusyIndicatorProvider))
                 return new BusyIndicatorProvider(_componentCollectionProvider);
             return null;

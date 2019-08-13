@@ -1,6 +1,6 @@
 ﻿namespace MugenMvvm.Enums
 {
-    public enum TraceLevel
+    public enum TraceLevel : byte
     {
         Information = 0,
         Warning = 1,

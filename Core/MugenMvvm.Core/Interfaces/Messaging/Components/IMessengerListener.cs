@@ -6,10 +6,14 @@ namespace MugenMvvm.Interfaces.Messaging.Components
 {
     public interface IMessengerListener : IComponent<IMessenger>
     {
-        void OnContextCreated(IMessenger messenger, IMessengerContext messengerContext);
+        void OnContextCreated(IMessenger messenger, object message, IMessageContext messageContext);
 
-        void OnSubscribed(IMessenger messenger, IMessengerSubscriber subscriber, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata);
+        void OnSubscribed(IMessenger messenger, object subscriber, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata);
 
-        void OnUnsubscribed(IMessenger messenger, IMessengerSubscriber subscriber, IReadOnlyMetadataContext? metadata);
+        void OnUnsubscribed(IMessenger messenger, object subscriber, IReadOnlyMetadataContext? metadata);
+
+        void OnHandling(object subscriber, IMessageContext messageContext);
+
+        void OnHandled(MessengerResult? result, object subscriber, IMessageContext messageContext);
     }
 }

@@ -1,20 +1,21 @@
 ﻿using System;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Messaging;
+using MugenMvvm.Messaging.Components;
 
 namespace MugenMvvm.Messaging
 {
-    public sealed class DelegateMessengerSubscriber<TMessage> : IMessengerSubscriber
+    public sealed class DelegateMessengerSubscriber<TMessage> : MessengerHandlerComponent.IMessengerSubscriber
     {
         #region Fields
 
-        private readonly Action<object, TMessage, IMessengerContext> _action;
+        private readonly Action<TMessage, IMessageContext> _action;
 
         #endregion
 
         #region Constructors
 
-        public DelegateMessengerSubscriber(Action<object, TMessage, IMessengerContext> action)
+        public DelegateMessengerSubscriber(Action<TMessage, IMessageContext> action)
         {
             Should.NotBeNull(action, nameof(action));
             _action = action;
@@ -24,20 +25,15 @@ namespace MugenMvvm.Messaging
 
         #region Implementation of interfaces
 
-        public bool Equals(IMessengerSubscriber other)
+        public MessengerResult Handle(IMessageContext messageContext)
         {
-            return ReferenceEquals(other, this);
-        }
-
-        public MessengerSubscriberResult Handle(object sender, object message, IMessengerContext messengerContext)
-        {
-            if (message is TMessage m)
+            if (messageContext.Message is TMessage m)
             {
-                _action(sender, m, messengerContext);
-                return MessengerSubscriberResult.Handled;
+                _action(m, messageContext);
+                return MessengerResult.Handled;
             }
 
-            return MessengerSubscriberResult.Ignored;
+            return MessengerResult.Ignored;
         }
 
         #endregion

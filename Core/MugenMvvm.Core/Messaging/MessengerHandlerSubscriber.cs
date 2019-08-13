@@ -7,17 +7,20 @@ using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Internal;
+using MugenMvvm.Messaging.Components;
 
 namespace MugenMvvm.Messaging
 {
-    public sealed class MessengerHandlerSubscriber : IMessengerSubscriber
+    public sealed class MessengerHandlerSubscriber : MessengerHandlerComponent.IMessengerSubscriber
     {
         #region Fields
 
         private readonly int _hashCode;
-        private readonly IWeakReference _reference;
+        private readonly bool _isWeak;
+        private readonly object _target;
 
         private static readonly MethodInfo InvokeMethodInfo = GetInvokeMethod();
+
         private static readonly Dictionary<Type, Func<object?, object?[], object?>> MessageTypeToDelegate =
             new Dictionary<Type, Func<object?, object?[], object?>>(MemberInfoEqualityComparer.Instance);
 
@@ -25,10 +28,11 @@ namespace MugenMvvm.Messaging
 
         #region Constructors
 
-        public MessengerHandlerSubscriber(IMessengerHandler handler)
+        public MessengerHandlerSubscriber(IMessengerHandler handler, bool isWeak)
         {
             Should.NotBeNull(handler, nameof(handler));
-            _reference = handler.ToWeakReference();
+            _isWeak = isWeak;
+            _target = isWeak ? (object)handler.ToWeakReference() : handler;
             _hashCode = handler.GetHashCode();
         }
 
@@ -36,31 +40,30 @@ namespace MugenMvvm.Messaging
 
         #region Properties
 
-        private object? Target => _reference.Target;
+        private object? Target
+        {
+            get
+            {
+                if (_isWeak)
+                    return ((IWeakReference)_target).Target;
+                return _target;
+            }
+        }
 
         #endregion
 
         #region Implementation of interfaces
 
-        public bool Equals(IMessengerSubscriber other)
+        public MessengerResult Handle(IMessageContext messageContext)
         {
-            if (ReferenceEquals(null, other))
-                return false;
-            if (ReferenceEquals(this, other))
-                return true;
-            return other is MessengerHandlerSubscriber handler && ReferenceEquals(Target, handler.Target);
-        }
-
-        public MessengerSubscriberResult Handle(object sender, object message, IMessengerContext messengerContext)
-        {
-            var target = _reference.Target;
+            var target = Target;
             if (target == null)
-                return MessengerSubscriberResult.Invalid;
+                return MessengerResult.Invalid;
 
             Func<object?, object?[], object?> func;
             lock (MessageTypeToDelegate)
             {
-                var msgType = message.GetType();
+                var msgType = messageContext.Message.GetType();
                 if (!MessageTypeToDelegate.TryGetValue(msgType, out func))
                 {
                     func = InvokeMethodInfo.MakeGenericMethod(msgType).GetMethodInvoker();
@@ -68,9 +71,9 @@ namespace MugenMvvm.Messaging
                 }
             }
 
-            if (func.Invoke(null, new[] { target, sender, message, messengerContext }) == null)
-                return MessengerSubscriberResult.Ignored;
-            return MessengerSubscriberResult.Handled;
+            if (func.Invoke(null, new[] { target, messageContext }) == null)
+                return MessengerResult.Ignored;
+            return MessengerResult.Handled;
         }
 
         #endregion
@@ -92,9 +95,11 @@ namespace MugenMvvm.Messaging
                 return false;
             if (ReferenceEquals(this, obj))
                 return true;
-            if (obj is MessengerHandlerSubscriber handler)
-                return Equals(handler);
-            return false;
+
+            var target = Target;
+            if (ReferenceEquals(target, obj))
+                return true;
+            return obj is MessengerHandlerSubscriber handler && ReferenceEquals(target, handler.Target);
         }
 
         public override int GetHashCode()
@@ -103,11 +108,11 @@ namespace MugenMvvm.Messaging
         }
 
         [Preserve(Conditional = true)]
-        internal static object? Invoke<T>(object target, object sender, T message, IMessengerContext messengerContext)
+        internal static object? Invoke<T>(object target, IMessageContext messageContext)
         {
             if (target is IMessengerHandler<T> handler)
             {
-                handler.Handle(sender, message, messengerContext);
+                handler.Handle((T)messageContext.Message, messageContext);
                 return handler;
             }
 
