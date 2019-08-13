@@ -47,21 +47,16 @@ namespace MugenMvvm.Serialization
 
         #region Implementation of interfaces
 
-        void IComponentOwnerAddedCallback<IComponent<ISerializer>>.OnComponentAdded(IComponentCollection<IComponent<ISerializer>> collection, IComponent<ISerializer> component, IReadOnlyMetadataContext? metadata)
+        void IComponentOwnerAddedCallback<IComponent<ISerializer>>.OnComponentAdded(IComponentCollection<IComponent<ISerializer>> collection, IComponent<ISerializer> component,
+            IReadOnlyMetadataContext? metadata)
         {
             OnComponentAdded(component, metadata);
         }
 
-        void IComponentOwnerRemovedCallback<IComponent<ISerializer>>.OnComponentRemoved(IComponentCollection<IComponent<ISerializer>> collection, IComponent<ISerializer> component, IReadOnlyMetadataContext? metadata)
+        void IComponentOwnerRemovedCallback<IComponent<ISerializer>>.OnComponentRemoved(IComponentCollection<IComponent<ISerializer>> collection, IComponent<ISerializer> component,
+            IReadOnlyMetadataContext? metadata)
         {
             OnComponentRemoved(component, metadata);
-        }
-
-        public ISerializationContext GetSerializationContext(IServiceProvider? serviceProvider, IReadOnlyMetadataContext? metadata)
-        {
-            var context = GetSerializationContextInternal(serviceProvider, metadata);
-            OnContextCreated(context);
-            return context;
         }
 
         public bool CanSerialize(Type type, IReadOnlyMetadataContext? metadata = null)
@@ -70,11 +65,10 @@ namespace MugenMvvm.Serialization
             return CanSerializeInternal(type, metadata);
         }
 
-        public Stream Serialize(object item, ISerializationContext? serializationContext = null)
+        public Stream Serialize(object item, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(item, nameof(item));
-            if (serializationContext == null)
-                serializationContext = GetSerializationContext(null, null);
+            var serializationContext = GetSerializationContext(metadata);
             try
             {
                 CurrentSerializationContext = serializationContext;
@@ -86,11 +80,10 @@ namespace MugenMvvm.Serialization
             }
         }
 
-        public object Deserialize(Stream stream, ISerializationContext? serializationContext = null)
+        public object Deserialize(Stream stream, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(stream, nameof(stream));
-            if (serializationContext == null)
-                serializationContext = GetSerializationContext(null, null);
+            var serializationContext = GetSerializationContext(metadata);
             try
             {
                 CurrentSerializationContext = serializationContext;
@@ -202,17 +195,11 @@ namespace MugenMvvm.Serialization
             return false;
         }
 
-        protected virtual ISerializationContext GetSerializationContextInternal(IServiceProvider? serviceProvider, IReadOnlyMetadataContext? metadata)
+        protected virtual ISerializationContext GetSerializationContext(IReadOnlyMetadataContext? metadata)
         {
-            var components = GetComponents();
-            for (var i = 0; i < components.Length; i++)
-            {
-                var context = (components[i] as ISerializationContextProviderComponent)?.TryGetSerializationContext(this, serviceProvider, metadata);
-                if (context != null)
-                    return context;
-            }
-
-            return new SerializationContext(this, metadata.ToNonReadonly(this, MetadataContextProvider));//todo lazy context
+            var context = GetSerializationContextInternal(metadata);
+            OnContextCreated(context);
+            return context;
         }
 
         protected virtual void OnComponentAdded(IComponent<ISerializer> component, IReadOnlyMetadataContext? metadata)
@@ -221,6 +208,65 @@ namespace MugenMvvm.Serialization
 
         protected virtual void OnComponentRemoved(IComponent<ISerializer> component, IReadOnlyMetadataContext? metadata)
         {
+        }
+
+        private ISerializationContext GetSerializationContextInternal(IReadOnlyMetadataContext? metadata)
+        {
+            var components = GetComponents();
+            for (var i = 0; i < components.Length; i++)
+            {
+                var context = (components[i] as ISerializationContextProviderComponent)?.TryGetSerializationContext(this, metadata);
+                if (context != null)
+                    return context;
+            }
+
+            return new SerializationContext(this, metadata);
+        }
+
+        #endregion
+
+        #region Nested types
+
+        private sealed class SerializationContext : ISerializationContext
+        {
+            #region Fields
+
+            private readonly SerializerBase _serializer;
+            private IReadOnlyMetadataContext? _metadata;
+
+            #endregion
+
+            #region Constructors
+
+            public SerializationContext(SerializerBase serializer, IReadOnlyMetadataContext? metadata)
+            {
+                _metadata = metadata;
+                _serializer = serializer;
+            }
+
+            #endregion
+
+            #region Properties
+
+            public bool HasMetadata => _metadata != null;
+
+            public IMetadataContext Metadata
+            {
+                get
+                {
+                    if (!(_metadata is IMetadataContext ctx))
+                    {
+                        ctx = _metadata.ToNonReadonly(this, _serializer._metadataContextProvider);
+                        _metadata = ctx;
+                    }
+
+                    return ctx;
+                }
+            }
+
+            public ISerializer Serializer => _serializer;
+
+            #endregion
         }
 
         #endregion
