@@ -6,6 +6,13 @@ namespace MugenMvvm.Binding.Members
     [StructLayout(LayoutKind.Auto)]
     public readonly struct AttachedMemberRegistration
     {
+        #region Fields
+
+        public readonly string Name;
+        public readonly IBindingMemberInfo Member;
+
+        #endregion
+
         #region Constructors
 
         public AttachedMemberRegistration(string name, IBindingMemberInfo member)
@@ -13,14 +20,6 @@ namespace MugenMvvm.Binding.Members
             Name = name;
             Member = member;
         }
-
-        #endregion
-
-        #region Properties
-
-        public string Name { get; }
-
-        public IBindingMemberInfo Member { get; }
 
         #endregion
     }

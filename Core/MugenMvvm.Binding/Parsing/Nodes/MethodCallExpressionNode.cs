@@ -13,7 +13,7 @@ namespace MugenMvvm.Binding.Parsing.Nodes
 
         public MethodCallExpressionNode(IExpressionNode? target, MethodInfo method,
             IReadOnlyList<IExpressionNode> arguments, IReadOnlyList<string>? typeArgs = null)
-            : this(target, method?.Name, arguments, typeArgs)
+            : this(target, method?.Name!, arguments, typeArgs)
         {
             Method = method;
         }

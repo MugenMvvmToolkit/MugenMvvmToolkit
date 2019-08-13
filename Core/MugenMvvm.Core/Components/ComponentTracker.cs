@@ -4,7 +4,6 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Components
 {
-    //todo add to global classes
     public sealed class ComponentTracker<TComponent, TComponentBase> : IComponentCollectionChangedListener<IComponent<TComponentBase>>
         where TComponent : class
         where TComponentBase : class
@@ -30,7 +29,7 @@ namespace MugenMvvm.Components
         void IComponentCollectionChangedListener<IComponent<TComponentBase>>.OnAdded(IComponentCollection<IComponent<TComponentBase>> collection,
             IComponent<TComponentBase> component, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnAdded(ref _items, _owner, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnAdded(ref _items, _owner!, collection, component, metadata);
         }
 
         void IComponentCollectionChangedListener<IComponent<TComponentBase>>.OnRemoved(IComponentCollection<IComponent<TComponentBase>> collection,

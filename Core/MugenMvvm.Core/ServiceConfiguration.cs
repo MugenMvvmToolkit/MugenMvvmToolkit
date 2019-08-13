@@ -52,7 +52,11 @@ namespace MugenMvvm
                     if (_serviceConfiguration != null)
                         return _serviceConfiguration.Service;
                     if (_service == null)
-                        return _fallbackConfiguration.Instance<TService>();
+                    {
+                        if (_fallbackConfiguration != null)
+                            return _fallbackConfiguration.Instance<TService>();
+                        ExceptionManager.ThrowIocCannotFindBinding(typeof(TService));
+                    }
                     return _service!;
                 }
             }
@@ -68,7 +72,7 @@ namespace MugenMvvm
                         return _serviceConfiguration.Service;
 
                     if (_service == null)
-                        return _fallbackConfiguration.InstanceOptional<TService>();
+                        return _fallbackConfiguration?.InstanceOptional<TService>();
 
                     return _service;
                 }

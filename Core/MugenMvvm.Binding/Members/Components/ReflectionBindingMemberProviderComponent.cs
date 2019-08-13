@@ -10,7 +10,6 @@ using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Observers;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
@@ -21,7 +20,7 @@ namespace MugenMvvm.Binding.Members.Components
     {
         #region Fields
 
-        private readonly IBindingObserverProvider _bindingObserverProvider;
+        private readonly IBindingObserverProvider? _bindingObserverProvider;
         private readonly CacheDictionary _cache;
 
         private const MemberFlags DefaultFlags = MemberFlags.StaticPublic | MemberFlags.InstancePublic;
@@ -31,9 +30,8 @@ namespace MugenMvvm.Binding.Members.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ReflectionBindingMemberProviderComponent(IBindingObserverProvider bindingObserverProvider)
+        public ReflectionBindingMemberProviderComponent(IBindingObserverProvider? bindingObserverProvider = null)
         {
-            Should.NotBeNull(bindingObserverProvider, nameof(bindingObserverProvider));
             _bindingObserverProvider = bindingObserverProvider;
             _cache = new CacheDictionary();
         }
@@ -49,6 +47,8 @@ namespace MugenMvvm.Binding.Members.Components
         public MemberFlags PropertyMemberFlags { get; set; } = DefaultFlags;
 
         public MemberFlags EventMemberFlags { get; set; } = DefaultFlags;
+
+        private IBindingObserverProvider ObserverProvider => _bindingObserverProvider.ServiceIfNull();
 
         #endregion
 
@@ -82,7 +82,7 @@ namespace MugenMvvm.Binding.Members.Components
                     if (property != null)
                     {
                         return new PropertyInfoBindingMemberInfo(name, property, null, null,
-                            PropertyMemberFlags.HasMemberFlag(MemberFlags.NonPublic), _bindingObserverProvider.GetMemberObserver(type, name, metadata));
+                            PropertyMemberFlags.HasMemberFlag(MemberFlags.NonPublic), ObserverProvider.GetMemberObserver(type, name, metadata));
                     }
                 }
                 else
@@ -130,7 +130,7 @@ namespace MugenMvvm.Binding.Members.Components
                     if (candidate != null)
                     {
                         return new PropertyInfoBindingMemberInfo(name, candidate, indexParameters!, indexerArgs,
-                            PropertyMemberFlags.HasMemberFlag(MemberFlags.NonPublic), _bindingObserverProvider.GetMemberObserver(type, name, metadata));
+                            PropertyMemberFlags.HasMemberFlag(MemberFlags.NonPublic), ObserverProvider.GetMemberObserver(type, name, metadata));
                     }
 
                     if (t.IsArray && t.GetArrayRank() == indexerArgs.Length)
@@ -139,11 +139,11 @@ namespace MugenMvvm.Binding.Members.Components
 
                 var eventInfo = t.GetEventUnified(name, EventMemberFlags);
                 if (eventInfo != null)
-                    return new EventInfoBindingMemberInfo(name, eventInfo, _bindingObserverProvider.GetMemberObserver(type, eventInfo, metadata));
+                    return new EventInfoBindingMemberInfo(name, eventInfo, ObserverProvider.GetMemberObserver(type, eventInfo, metadata));
 
                 var field = t.GetFieldUnified(name, FieldMemberFlags);
                 if (field != null)
-                    return new FieldInfoBindingMemberInfo(name, field, _bindingObserverProvider.GetMemberObserver(type, name, metadata));
+                    return new FieldInfoBindingMemberInfo(name, field, ObserverProvider.GetMemberObserver(type, name, metadata));
             }
 
             return null;
@@ -159,7 +159,6 @@ namespace MugenMvvm.Binding.Members.Components
             #region Fields
 
             public string Name;
-
             public Type Type;
 
             #endregion

@@ -397,12 +397,12 @@ namespace MugenMvvm.Validation
             #region Fields
 
             public static readonly ValidationResult DoNothing = default;
-
             public static readonly ValidationResult Empty = new ValidationResult(Default.ReadOnlyDictionary<string, IReadOnlyList<object>?>());
-
             public static readonly ValueTask<ValidationResult> DoNothingTask = new ValueTask<ValidationResult>(DoNothing);
-
             public static readonly ValueTask<ValidationResult> EmptyTask = new ValueTask<ValidationResult>(Empty);
+
+            public readonly IReadOnlyDictionary<string, IReadOnlyList<object>?>? ErrorsRaw;
+            public readonly IReadOnlyMetadataContext Metadata;
 
             #endregion
 
@@ -419,10 +419,6 @@ namespace MugenMvvm.Validation
             #region Properties
 
             public bool HasResult => ErrorsRaw != null;
-
-            public IReadOnlyDictionary<string, IReadOnlyList<object>?>? ErrorsRaw { get; }
-
-            public IReadOnlyMetadataContext Metadata { get; }
 
             #endregion
 

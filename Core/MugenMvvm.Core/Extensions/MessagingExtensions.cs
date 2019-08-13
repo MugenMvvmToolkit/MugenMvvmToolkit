@@ -67,7 +67,7 @@ namespace MugenMvvm
         }
 
         private static MessengerHandlerComponent.IMessengerSubscriber Subscribe(this IMessenger messenger, IMessengerHandler handler, bool isWeak,
-            ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata)
+            ThreadExecutionMode? executionMode, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(messenger, nameof(messenger));
             var subscriber = new MessengerHandlerSubscriber(handler, isWeak);

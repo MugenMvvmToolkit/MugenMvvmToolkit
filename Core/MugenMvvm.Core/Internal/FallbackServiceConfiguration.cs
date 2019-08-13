@@ -28,10 +28,10 @@ namespace MugenMvvm.Internal
             return (TService) _container.Get(typeof(TService));
         }
 
-        public TService InstanceOptional<TService>() where TService : class
+        public TService? InstanceOptional<TService>() where TService : class
         {
             if (_container.TryGet(typeof(TService), out var service))
-                return (TService) service;
+                return (TService?) service;
             return null;
         }
 

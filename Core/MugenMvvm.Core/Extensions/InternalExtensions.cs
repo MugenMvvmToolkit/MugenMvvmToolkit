@@ -93,8 +93,8 @@ namespace MugenMvvm
         [Preserve]
         internal static void InitializeArray<T>(T[] target, object[] source)
         {
-            for (int i = 0; i < target.Length; i++)
-                target[i] = (T)source[i];
+            for (var i = 0; i < target.Length; i++)
+                target[i] = (T) source[i];
         }
 
         #endregion

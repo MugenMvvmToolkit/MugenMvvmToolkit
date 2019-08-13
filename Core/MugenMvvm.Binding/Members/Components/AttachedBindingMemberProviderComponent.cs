@@ -47,13 +47,20 @@ namespace MugenMvvm.Binding.Members.Components
             return members;
         }
 
-        public void Register(Type type, IBindingMemberInfo member, string? name, IReadOnlyMetadataContext? metadata)
+        #endregion
+
+        #region Methods
+
+        public void Register(Type type, IBindingMemberInfo member, string? name = null, IReadOnlyMetadataContext? metadata = null)
         {
+            Should.NotBeNull(type, nameof(type));
+            Should.NotBeNull(member, nameof(member));
             _cache[new CacheKey(type, name ?? member.Name)] = member;
         }
 
-        public bool Unregister(Type type, string? name, IReadOnlyMetadataContext? metadata)
+        public bool Unregister(Type type, string? name = null, IReadOnlyMetadataContext? metadata = null)
         {
+            Should.NotBeNull(type, nameof(type));
             if (name != null)
                 return _cache.Remove(new CacheKey(type, name));
 

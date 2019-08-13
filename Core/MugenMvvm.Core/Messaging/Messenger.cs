@@ -38,6 +38,10 @@ namespace MugenMvvm.Messaging
             _threadDispatcher = threadDispatcher;
             _metadataContextProvider = metadataContextProvider;
             _subscribers = new HashSet<MessengerSubscriberInfo>(this);
+            _contextProviders = Default.EmptyArray<IMessageContextProviderComponent>();
+            _decorators = Default.EmptyArray<IMessengerSubscriberDecoratorComponent>();
+            _handlers = Default.EmptyArray<IMessengerHandlerComponent>();
+            _listeners = Default.EmptyArray<IMessengerListener>();
         }
 
         #endregion
@@ -45,7 +49,7 @@ namespace MugenMvvm.Messaging
         #region Implementation of interfaces
 
         void IComponentOwnerAddedCallback<IComponent<IMessenger>>.OnComponentAdded(IComponentCollection<IComponent<IMessenger>> collection, IComponent<IMessenger> component,
-            IReadOnlyMetadataContext metadata)
+            IReadOnlyMetadataContext? metadata)
         {
             MugenExtensions.ComponentTrackerOnAdded(ref _contextProviders, this, collection, component, metadata);
             MugenExtensions.ComponentTrackerOnAdded(ref _decorators, this, collection, component, metadata);
@@ -54,7 +58,7 @@ namespace MugenMvvm.Messaging
         }
 
         void IComponentOwnerRemovedCallback<IComponent<IMessenger>>.OnComponentRemoved(IComponentCollection<IComponent<IMessenger>> collection, IComponent<IMessenger> component,
-            IReadOnlyMetadataContext metadata)
+            IReadOnlyMetadataContext? metadata)
         {
             MugenExtensions.ComponentTrackerOnRemoved(ref _contextProviders, collection, component, metadata);
             MugenExtensions.ComponentTrackerOnRemoved(ref _decorators, collection, component, metadata);
@@ -72,8 +76,9 @@ namespace MugenMvvm.Messaging
             return obj.Subscriber.GetHashCode();
         }
 
-        public IMessageContext GetMessageContext(object? sender, object? message, IMetadataContext? metadata = null)
+        public IMessageContext GetMessageContext(object? sender, object message, IMetadataContext? metadata = null)
         {
+            Should.NotBeNull(message, nameof(message));
             IMessageContext? ctx = null;
             for (var i = 0; i < _contextProviders.Length; i++)
             {
@@ -139,14 +144,14 @@ namespace MugenMvvm.Messaging
             this.ClearComponents();
         }
 
-        public bool Subscribe(object subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext metadata = null)
+        public bool Subscribe(object subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(subscriber, nameof(subscriber));
             if (executionMode == null)
                 executionMode = ThreadExecutionMode.Current;
             for (var i = 0; i < _decorators.Length; i++)
             {
-                subscriber = _decorators[i].OnSubscribing(subscriber, executionMode, metadata);
+                subscriber = _decorators[i].OnSubscribing(subscriber, executionMode, metadata)!;
                 if (subscriber == null)
                     return false;
             }
@@ -166,7 +171,7 @@ namespace MugenMvvm.Messaging
             return true;
         }
 
-        public bool Unsubscribe(object subscriber, IReadOnlyMetadataContext metadata = null)
+        public bool Unsubscribe(object subscriber, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(subscriber, nameof(subscriber));
             bool removed = false;

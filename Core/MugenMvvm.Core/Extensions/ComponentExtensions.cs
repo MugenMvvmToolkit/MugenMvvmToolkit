@@ -10,6 +10,11 @@ namespace MugenMvvm
     {
         #region Methods
 
+        public static T DefaultIfNull<T>(this T? component) where T : class, IComponent
+        {
+            return component ?? Service<T>.Instance;
+        }
+
         public static void AddComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class
         {
             Should.NotBeNull(componentOwner, nameof(componentOwner));
@@ -101,7 +106,7 @@ namespace MugenMvvm
             }
         }
 
-        public static void SingletonComponentTrackerOnAdded<TComponent, TComponentBase>(ref TComponent currentComponent, bool autoDetachOld,
+        public static void SingletonComponentTrackerOnAdded<TComponent, TComponentBase>(ref TComponent? currentComponent, bool autoDetachOld,
             IComponentCollection<IComponent<TComponentBase>> collection, IComponent<TComponentBase> component, IReadOnlyMetadataContext? metadata)
             where TComponent : class
             where TComponentBase : class
@@ -120,7 +125,7 @@ namespace MugenMvvm
             }
         }
 
-        public static void SingletonComponentTrackerOnRemoved<TComponent, TComponentBase>(ref TComponent currentComponent,
+        public static void SingletonComponentTrackerOnRemoved<TComponent, TComponentBase>(ref TComponent? currentComponent,
             IComponentCollection<IComponent<TComponentBase>> collection, IComponent<TComponentBase> component, IReadOnlyMetadataContext? metadata)
             where TComponent : class
             where TComponentBase : class
@@ -129,7 +134,7 @@ namespace MugenMvvm
                 currentComponent = null;
         }
 
-        public static void SingletonComponentTrackerOnCleared<TComponent, TComponentBase>(ref TComponent currentComponent,
+        public static void SingletonComponentTrackerOnCleared<TComponent, TComponentBase>(ref TComponent? currentComponent,
             IComponentCollection<IComponent<TComponentBase>> collection, IComponent<TComponentBase>[] oldItems, IReadOnlyMetadataContext? metadata)
             where TComponent : class
             where TComponentBase : class

@@ -1,6 +1,9 @@
 ﻿namespace MugenMvvm.Interfaces.Components
 {
-    public interface IComponent<out TContainer> where TContainer : class
+    //marker for components
+    public interface IComponent { }
+
+    public interface IComponent<out TContainer> : IComponent where TContainer : class
     {
     }
 }

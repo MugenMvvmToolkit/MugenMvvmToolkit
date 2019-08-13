@@ -27,7 +27,7 @@ namespace MugenMvvm.Messaging.Components
 
         #region Implementation of interfaces
 
-        public object? OnSubscribing(object subscriber, ThreadExecutionMode executionMode, IReadOnlyMetadataContext metadata)
+        public object? OnSubscribing(object subscriber, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata)
         {
             if (subscriber is IMessengerHandler handler)
                 return new MessengerHandlerSubscriber(handler, _isWeak);

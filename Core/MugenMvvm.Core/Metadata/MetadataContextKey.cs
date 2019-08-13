@@ -103,7 +103,6 @@ namespace MugenMvvm.Metadata
             // ReSharper disable FieldCanBeMadeReadOnly.Local
             private string? _fieldOrPropertyName;
             private string _key;
-
             private Type? _type;
             // ReSharper restore FieldCanBeMadeReadOnly.Local
 

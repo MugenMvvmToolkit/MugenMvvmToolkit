@@ -12,6 +12,9 @@ namespace MugenMvvm.Metadata
 
         internal static readonly Func<KeyValuePair<IMetadataContextKey, object?>, MetadataContextValue> CreateDelegate = Create;
 
+        public readonly IMetadataContextKey ContextKey;
+        public readonly object? Value;
+
         #endregion
 
         #region Constructors
@@ -26,14 +29,6 @@ namespace MugenMvvm.Metadata
             ContextKey = contextKey;
             Value = value;
         }
-
-        #endregion
-
-        #region Properties
-
-        public IMetadataContextKey ContextKey { get; }
-
-        public object? Value { get; }
 
         #endregion
 

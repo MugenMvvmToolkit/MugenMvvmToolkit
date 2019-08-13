@@ -5,7 +5,6 @@ using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Observers.Components;
 using MugenMvvm.Enums;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -16,7 +15,7 @@ namespace MugenMvvm.Binding.Observers.Components
     {
         #region Fields
 
-        private readonly IAttachedDictionaryProvider _attachedDictionaryProvider;
+        private readonly IAttachedDictionaryProvider? _attachedDictionaryProvider;
 
         private static readonly MethodInfo RaiseMethod = GetRaiseMethod();
         private static readonly Func<object, EventInfo, object?, BindingEventListenerCollection?> CreateWeakListenerDelegate = CreateWeakListener;
@@ -26,9 +25,8 @@ namespace MugenMvvm.Binding.Observers.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public EventInfoBindingMemberObserverProviderComponent(IAttachedDictionaryProvider attachedDictionaryProvider)
+        public EventInfoBindingMemberObserverProviderComponent(IAttachedDictionaryProvider? attachedDictionaryProvider = null)
         {
-            Should.NotBeNull(attachedDictionaryProvider, nameof(attachedDictionaryProvider));
             _attachedDictionaryProvider = attachedDictionaryProvider;
         }
 
@@ -46,6 +44,7 @@ namespace MugenMvvm.Binding.Observers.Components
         {
             var eventInfo = (EventInfo)member;
             var listenerInternal = _attachedDictionaryProvider
+                .ServiceIfNull()
                 .GetOrAdd(target!, BindingInternalConstants.EventPrefixObserverMember + eventInfo.Name, eventInfo, null, CreateWeakListenerDelegate);
             return listenerInternal?.AddWithUnsubscriber(listener);
         }

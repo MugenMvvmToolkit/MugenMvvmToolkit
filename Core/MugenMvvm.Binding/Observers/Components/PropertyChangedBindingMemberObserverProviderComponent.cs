@@ -5,7 +5,6 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Observers.Components;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -16,7 +15,7 @@ namespace MugenMvvm.Binding.Observers.Components
     {
         #region Fields
 
-        private readonly IAttachedDictionaryProvider _attachedDictionaryProvider;
+        private readonly IAttachedDictionaryProvider? _attachedDictionaryProvider;
         private static readonly Func<INotifyPropertyChanged, object?, object?, WeakPropertyChangedListener> CreateWeakPropertyListenerDelegate = CreateWeakPropertyListener;
 
         #endregion
@@ -24,9 +23,8 @@ namespace MugenMvvm.Binding.Observers.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public PropertyChangedBindingMemberObserverProviderComponent(IAttachedDictionaryProvider attachedDictionaryProvider)
+        public PropertyChangedBindingMemberObserverProviderComponent(IAttachedDictionaryProvider? attachedDictionaryProvider = null)
         {
-            Should.NotBeNull(attachedDictionaryProvider, nameof(attachedDictionaryProvider));
             _attachedDictionaryProvider = attachedDictionaryProvider;
         }
 
@@ -40,18 +38,19 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Implementation of interfaces
 
-        IDisposable? BindingMemberObserver.IHandler.TryObserve(object? target, object member, IBindingEventListener listener, IReadOnlyMetadataContext? metadata)
-        {
-            return _attachedDictionaryProvider
-                .GetOrAdd((INotifyPropertyChanged)target!, BindingInternalConstants.PropertyChangedObserverMember, null, null, CreateWeakPropertyListenerDelegate)
-                .Add(listener, (string)member);
-        }
-
         public BindingMemberObserver TryGetMemberObserver(Type type, object member, IReadOnlyMetadataContext? metadata)
         {
             if (typeof(INotifyPropertyChanged).IsAssignableFromUnified(type) && member is string)
                 return new BindingMemberObserver(this, member);
             return default;
+        }
+
+        IDisposable? BindingMemberObserver.IHandler.TryObserve(object? target, object member, IBindingEventListener listener, IReadOnlyMetadataContext? metadata)
+        {
+            return _attachedDictionaryProvider
+                .ServiceIfNull()
+                .GetOrAdd((INotifyPropertyChanged) target!, BindingInternalConstants.PropertyChangedObserverMember, null, null, CreateWeakPropertyListenerDelegate)
+                .Add(listener, (string) member);
         }
 
         #endregion
@@ -140,7 +139,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
                 if (_size == 0)
                     _listeners = Default.EmptyArray<KeyValuePair<WeakBindingEventListener, string>>();
-                else if (_listeners.Length / (float)_size > 2)
+                else if (_listeners.Length / (float) _size > 2)
                 {
                     var listeners = new KeyValuePair<WeakBindingEventListener, string>[_size + (_size >> 2)];
                     Array.Copy(_listeners, 0, listeners, 0, _size);
@@ -154,7 +153,7 @@ namespace MugenMvvm.Binding.Observers.Components
                 {
                     if (_listeners.Length == 0)
                     {
-                        _listeners = new[] { new KeyValuePair<WeakBindingEventListener, string>(weakItem, path) };
+                        _listeners = new[] {new KeyValuePair<WeakBindingEventListener, string>(weakItem, path)};
                         _size = 1;
                         _removedSize = 0;
                     }

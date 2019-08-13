@@ -8,14 +8,26 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Observers
 {
-    public class BindingObserverProvider : ComponentOwnerBase<IBindingObserverProvider>, IBindingObserverProvider
+    public class BindingObserverProvider : ComponentOwnerBase<IBindingObserverProvider>, IBindingObserverProvider,
+        IComponentOwnerAddedCallback<IComponent<IBindingObserverProvider>>, IComponentOwnerRemovedCallback<IComponent<IBindingObserverProvider>>
     {
+        #region Fields
+
+        protected IBindingMemberObserverProviderComponent[] MemberObserverProviders;
+        protected IBindingPathObserverProviderComponent[] PathObserverProviders;
+        protected IBindingPathProviderComponent[] PathProviders;
+
+        #endregion
+
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public BindingObserverProvider(IComponentCollectionProvider componentCollectionProvider)
+        public BindingObserverProvider(IComponentCollectionProvider? componentCollectionProvider = null)
             : base(componentCollectionProvider)
         {
+            MemberObserverProviders = Default.EmptyArray<IBindingMemberObserverProviderComponent>();
+            PathObserverProviders = Default.EmptyArray<IBindingPathObserverProviderComponent>();
+            PathProviders = Default.EmptyArray<IBindingPathProviderComponent>();
         }
 
         #endregion
@@ -48,21 +60,45 @@ namespace MugenMvvm.Binding.Observers
             return observer!;
         }
 
+        void IComponentOwnerAddedCallback<IComponent<IBindingObserverProvider>>.OnComponentAdded(IComponentCollection<IComponent<IBindingObserverProvider>> collection,
+            IComponent<IBindingObserverProvider> component, IReadOnlyMetadataContext? metadata)
+        {
+            OnComponentAdded(collection, component, metadata);
+        }
+
+        void IComponentOwnerRemovedCallback<IComponent<IBindingObserverProvider>>.OnComponentRemoved(IComponentCollection<IComponent<IBindingObserverProvider>> collection,
+            IComponent<IBindingObserverProvider> component, IReadOnlyMetadataContext? metadata)
+        {
+            OnComponentRemoved(collection, component, metadata);
+        }
+
         #endregion
 
         #region Methods
 
+        protected virtual void OnComponentAdded(IComponentCollection<IComponent<IBindingObserverProvider>> collection,
+            IComponent<IBindingObserverProvider> component, IReadOnlyMetadataContext? metadata)
+        {
+            MugenExtensions.ComponentTrackerOnAdded(ref MemberObserverProviders, this, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnAdded(ref PathObserverProviders, this, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnAdded(ref PathProviders, this, collection, component, metadata);
+        }
+
+        protected virtual void OnComponentRemoved(IComponentCollection<IComponent<IBindingObserverProvider>> collection,
+            IComponent<IBindingObserverProvider> component, IReadOnlyMetadataContext? metadata)
+        {
+            MugenExtensions.ComponentTrackerOnRemoved(ref MemberObserverProviders, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnRemoved(ref PathObserverProviders, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnRemoved(ref PathProviders, collection, component, metadata);
+        }
+
         protected virtual BindingMemberObserver GetMemberObserverInternal(Type type, object member, IReadOnlyMetadataContext? metadata)
         {
-            var items = Components.GetItems();
-            for (var i = 0; i < items.Length; i++)
+            for (var i = 0; i < MemberObserverProviders.Length; i++)
             {
-                if (items[i] is IBindingMemberObserverProviderComponent component)
-                {
-                    var observer = component.TryGetMemberObserver(type, member, metadata);
-                    if (!observer.IsEmpty)
-                        return observer;
-                }
+                var observer = MemberObserverProviders[i].TryGetMemberObserver(type, member, metadata);
+                if (!observer.IsEmpty)
+                    return observer;
             }
 
             return default;
@@ -70,10 +106,9 @@ namespace MugenMvvm.Binding.Observers
 
         protected virtual IBindingPath? TryGetBindingPathInternal(object path, IReadOnlyMetadataContext? metadata)
         {
-            var items = Components.GetItems();
-            for (var i = 0; i < items.Length; i++)
+            for (var i = 0; i < PathProviders.Length; i++)
             {
-                var bindingPath = (items[i] as IBindingPathProviderComponent)?.TryGetBindingPath(path, metadata);
+                var bindingPath = PathProviders[i].TryGetBindingPath(path, metadata);
                 if (bindingPath != null)
                     return bindingPath;
             }
@@ -83,10 +118,9 @@ namespace MugenMvvm.Binding.Observers
 
         protected virtual IBindingPathObserver? TryGetBindingPathObserverInternal(object source, IBindingPath path, IReadOnlyMetadataContext? metadata)
         {
-            var items = Components.GetItems();
-            for (var i = 0; i < items.Length; i++)
+            for (var i = 0; i < PathObserverProviders.Length; i++)
             {
-                var observer = (items[i] as IBindingPathObserverProviderComponent)?.TryGetBindingPathObserver(source, path, metadata);
+                var observer = PathObserverProviders[i].TryGetBindingPathObserver(source, path, metadata);
                 if (observer != null)
                     return observer;
             }

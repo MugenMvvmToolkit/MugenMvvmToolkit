@@ -11,9 +11,5 @@ namespace MugenMvvm.Binding.Interfaces.Members.Components
         IBindingMemberInfo? TryGetMember(Type type, string name, IReadOnlyMetadataContext? metadata);
 
         IReadOnlyList<AttachedMemberRegistration> GetMembers(Type type, IReadOnlyMetadataContext? metadata);
-
-        void Register(Type type, IBindingMemberInfo member, string? name, IReadOnlyMetadataContext? metadata);
-
-        bool Unregister(Type type, string? name, IReadOnlyMetadataContext? metadata);
     }
 }

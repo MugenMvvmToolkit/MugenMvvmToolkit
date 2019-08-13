@@ -13,7 +13,7 @@ namespace MugenMvvm.Binding.Members
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public SynchronizedBindingMemberProvider(IComponentCollectionProvider componentCollectionProvider)
+        public SynchronizedBindingMemberProvider(IComponentCollectionProvider? componentCollectionProvider = null)
             : base(componentCollectionProvider)
         {
         }
@@ -46,22 +46,6 @@ namespace MugenMvvm.Binding.Members
             lock (TempCache)
             {
                 return base.GetAttachedMembersInternal(type, metadata);
-            }
-        }
-
-        protected override void RegisterInternal(Type type, IBindingMemberInfo member, string? name, IReadOnlyMetadataContext? metadata)
-        {
-            lock (TempCache)
-            {
-                base.RegisterInternal(type, member, name, metadata);
-            }
-        }
-
-        protected override bool UnregisterInternal(Type type, string? name, IReadOnlyMetadataContext? metadata)
-        {
-            lock (TempCache)
-            {
-                return base.UnregisterInternal(type, name, metadata);
             }
         }
 

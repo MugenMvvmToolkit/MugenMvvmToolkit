@@ -5,7 +5,6 @@ using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Observers.Components;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
@@ -15,16 +14,15 @@ namespace MugenMvvm.Binding.Observers.Components
     {
         #region Fields
 
-        private readonly IBindingMemberProvider _memberProvider;
+        private readonly IBindingMemberProvider? _memberProvider;
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ObservableMemberBindingMemberObserverProviderComponent(IBindingMemberProvider memberProvider)
+        public ObservableMemberBindingMemberObserverProviderComponent(IBindingMemberProvider? memberProvider = null)
         {
-            Should.NotBeNull(memberProvider, nameof(memberProvider));
             _memberProvider = memberProvider;
         }
 
@@ -40,11 +38,6 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Implementation of interfaces
 
-        IDisposable? BindingMemberObserver.IHandler.TryObserve(object? target, object member, IBindingEventListener listener, IReadOnlyMetadataContext? metadata)
-        {
-            return ((IBindingMemberInfo)member).TryObserve(target, listener, metadata);
-        }
-
         public BindingMemberObserver TryGetMemberObserver(Type type, object member, IReadOnlyMetadataContext? metadata)
         {
             if (member is string name)
@@ -57,6 +50,11 @@ namespace MugenMvvm.Binding.Observers.Components
             return default;
         }
 
+        IDisposable? BindingMemberObserver.IHandler.TryObserve(object? target, object member, IBindingEventListener listener, IReadOnlyMetadataContext? metadata)
+        {
+            return ((IBindingMemberInfo) member).TryObserve(target, listener, metadata);
+        }
+
         #endregion
 
         #region Methods
@@ -66,9 +64,10 @@ namespace MugenMvvm.Binding.Observers.Components
             if (ObservableMemberFinder != null)
                 return ObservableMemberFinder(type, memberName, metadata);
 
-            var member = _memberProvider.GetMember(type, memberName + BindingInternalConstants.ChangedEventPostfix, metadata);
+            var provider = _memberProvider.ServiceIfNull();
+            var member = provider.GetMember(type, memberName + BindingInternalConstants.ChangedEventPostfix, metadata);
             if (member == null || member.MemberType != BindingMemberType.Event)
-                member = _memberProvider.GetMember(type, memberName + "Change", metadata);
+                member = provider.GetMember(type, memberName + "Change", metadata);
             if (member == null || member.MemberType != BindingMemberType.Event)
                 return null;
             return member;
