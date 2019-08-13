@@ -49,6 +49,14 @@ namespace MugenMvvm.Binding.Members
             }
         }
 
+        protected override void ClearCacheInternal()
+        {
+            lock (TempCache)
+            {
+                TempCache.Clear();
+            }
+        }
+
         #endregion
     }
 }

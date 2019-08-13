@@ -5,11 +5,13 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Collections;
+using MugenMvvm.Components;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class AttachedBindingMemberProviderComponent : IAttachedBindingMemberProviderComponent
+    public sealed class AttachedBindingMemberProviderComponent : AttachableComponentBase<IBindingMemberProvider>, IAttachedBindingMemberProviderComponent
     {
         #region Fields
 
@@ -56,13 +58,21 @@ namespace MugenMvvm.Binding.Members.Components
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(member, nameof(member));
             _cache[new CacheKey(type, name ?? member.Name)] = member;
+            (Owner as IHasCache)?.ClearCache();
         }
 
         public bool Unregister(Type type, string? name = null, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(type, nameof(type));
             if (name != null)
-                return _cache.Remove(new CacheKey(type, name));
+            {
+                if (_cache.Remove(new CacheKey(type, name)))
+                {
+                    (Owner as IHasCache)?.ClearCache();
+                    return true;
+                }
+                return false;
+            }
 
             List<CacheKey>? toRemove = null;
             foreach (var keyValuePair in _cache)
@@ -78,6 +88,7 @@ namespace MugenMvvm.Binding.Members.Components
                 return false;
             for (var index = 0; index < toRemove.Count; index++)
                 _cache.Remove(toRemove[index]);
+            (Owner as IHasCache)?.ClearCache();
             return true;
         }
 
