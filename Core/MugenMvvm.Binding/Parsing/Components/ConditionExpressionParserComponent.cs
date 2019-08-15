@@ -28,7 +28,8 @@ namespace MugenMvvm.Binding.Parsing.Components
                 return null;
 
             context.MoveNext();
-            var ifTrue = context.ParseWhileToken(':', position, null, metadata);
+            var ifTrue = context.TryParseWhileNotNull(null, metadata);
+            context.SetPosition(context.SkipWhitespaces());
             if (!context.IsToken(':', null))
             {
                 context.SetPosition(p);

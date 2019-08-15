@@ -78,7 +78,8 @@ namespace MugenMvvm.Binding.Parsing.Components
             IExpressionNode? node = null;
             while (true)
             {
-                var newNode = context.TryParse(node, metadata);
+                var p1 = context.SkipWhitespaces();
+                var newNode = context.IsToken('?', p1) && !context.IsToken("??", p1) ? null : context.TryParse(node, metadata);
                 if (newNode == null)
                 {
                     if (node != null)
@@ -126,7 +127,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Methods
 
-        private int GetMaxPriorityTokenIndex(List<BinaryTokenType> tokens)
+        private static int GetMaxPriorityTokenIndex(List<BinaryTokenType> tokens)
         {
             if (tokens.Count == 0)
                 return -1;

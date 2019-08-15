@@ -23,7 +23,7 @@ namespace MugenMvvm.Binding
 
         public static bool IsEof(this IBindingParserContext context, int? position)
         {
-            return context.GetPosition(position) == context.Length;
+            return context.GetPosition(position) >= context.Length;
         }
 
         public static bool IsToken(this IBindingParserContext context, char token, int? position)
@@ -39,7 +39,8 @@ namespace MugenMvvm.Binding
             var i = 0;
             while (i != token.Length)
             {
-                if (TokenAt(context, p + i) != token[i])
+                var pos = p + i;
+                if (context.IsEof(pos) || TokenAt(context, pos) != token[i])
                     return false;
                 ++i;
             }
@@ -80,7 +81,7 @@ namespace MugenMvvm.Binding
         public static bool IsIdentifier(this IBindingParserContext context, int? position, out int endPosition)
         {
             endPosition = context.GetPosition(position);
-            if (!IsValidIdentifierSymbol(true, TokenAt(context, endPosition)))
+            if (context.IsEof(endPosition) || !IsValidIdentifierSymbol(true, TokenAt(context, endPosition)))
                 return false;
 
             do
@@ -149,29 +150,29 @@ namespace MugenMvvm.Binding
             }
         }
 
-//        public static IExpressionNode? ParseWhileToken(this IBindingParserContext context, char token, int? position = null, IExpressionNode? expression = null, IReadOnlyMetadataContext? metadata = null)
-//        {
-//            var expressionNode = context.Parse(expression, metadata);
-//            while (!context.IsToken(token, position) && !context.IsEof(position))
-//                expressionNode = context.Parse(expressionNode, metadata);
-//            return expressionNode;
-//        }
-//
-//        public static IExpressionNode? ParseWhileAnyOf(this IBindingParserContext context, HashSet<char> tokens, int? position = null, IExpressionNode? expression = null, IReadOnlyMetadataContext? metadata = null)
-//        {
-//            var expressionNode = context.Parse(expression, metadata);
-//            while (!context.IsEofOrAnyOf(tokens, position))
-//                expressionNode = context.Parse(expressionNode, metadata);
-//            return expressionNode;
-//        }
-//
-//        public static IExpressionNode? ParseWhileAnyOf(this IBindingParserContext context, IReadOnlyList<string> tokens, int? position = null, IExpressionNode? expression = null, IReadOnlyMetadataContext? metadata = null)
-//        {
-//            var expressionNode = context.Parse(expression, metadata);
-//            while (!context.IsEofOrAnyOf(tokens, position))
-//                expressionNode = context.Parse(expressionNode, metadata);
-//            return expressionNode;
-//        }
+        public static IExpressionNode? ParseWhileToken(this IBindingParserContext context, char token, int? position = null, IExpressionNode? expression = null, IReadOnlyMetadataContext? metadata = null)
+        {
+            var expressionNode = context.Parse(expression, metadata);
+            while (!context.IsToken(token, position) && !context.IsEof(position))
+                expressionNode = context.Parse(expressionNode, metadata);
+            return expressionNode;
+        }
+
+        public static IExpressionNode? ParseWhileAnyOf(this IBindingParserContext context, HashSet<char> tokens, int? position = null, IExpressionNode? expression = null, IReadOnlyMetadataContext? metadata = null)
+        {
+            var expressionNode = context.Parse(expression, metadata);
+            while (!context.IsEofOrAnyOf(tokens, position))
+                expressionNode = context.Parse(expressionNode, metadata);
+            return expressionNode;
+        }
+
+        public static IExpressionNode? ParseWhileAnyOf(this IBindingParserContext context, IReadOnlyList<string> tokens, int? position = null, IExpressionNode? expression = null, IReadOnlyMetadataContext? metadata = null)
+        {
+            var expressionNode = context.Parse(expression, metadata);
+            while (!context.IsEofOrAnyOf(tokens, position))
+                expressionNode = context.Parse(expressionNode, metadata);
+            return expressionNode;
+        }
 
         private static bool IsValidIdentifierSymbol(bool firstSymbol, char symbol)
         {
