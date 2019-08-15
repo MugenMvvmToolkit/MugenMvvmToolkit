@@ -3,14 +3,20 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Parsing
 {
-    public interface IBindingParserContext : IMetadataOwner<IMetadataContext>
+    public interface IBindingParserContext : IMetadataOwner<IMetadataContext>//todo use span/memory?
     {
-        string Source { get; }
-
         int Position { get; }
+
+        int Length { get; }
+
+        char TokenAt(int position);
+
+        string GetValue(int start, int end);
 
         void SetPosition(int position);
 
-        IExpressionNode Parse(IExpressionNode? expression, IReadOnlyMetadataContext? metadata);
+        void SetLimit(int? limit);
+
+        IExpressionNode? TryParse(IExpressionNode? expression = null, IReadOnlyMetadataContext? metadata = null);
     }
 }

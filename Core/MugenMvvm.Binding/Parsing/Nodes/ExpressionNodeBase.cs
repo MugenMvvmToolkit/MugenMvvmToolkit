@@ -57,7 +57,7 @@ namespace MugenMvvm.Binding.Parsing.Nodes
         protected T VisitWithCheck<T>(IExpressionVisitor visitor, T node, bool notNull, ref bool changed)
             where T : class, IExpressionNode
         {
-            var result = node.Accept(visitor);
+            var result = ReferenceEquals(this, node) ? visitor.Visit(node) : node.Accept(visitor);
             if (!changed && result != node)
                 changed = true;
             //            if (notNull && result == null)//todo add

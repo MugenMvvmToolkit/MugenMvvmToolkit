@@ -50,8 +50,8 @@ namespace MugenMvvm.Binding.Parsing.Components
             if (expression != null)
                 return null;
 
-            context.SkipWhitespaces(out var position);
-            if (!_tokensMapping.TryGetValue(context.Current(position), out var values))
+            var position = context.SkipWhitespaces();
+            if (!_tokensMapping.TryGetValue(BindingMugenExtensions.TokenAt(context, position), out var values))
                 return null;
             for (var i = 0; i < values.Length; i++)
             {

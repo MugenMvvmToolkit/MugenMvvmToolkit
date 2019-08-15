@@ -19,7 +19,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         public IExpressionNode? TryParse(IBindingParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
         {
-            context.SkipWhitespaces(out var position);
+            var position = context.SkipWhitespaces();
             if (expression != null)
             {
                 if (!context.IsToken('.', position))
@@ -31,7 +31,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 return null;
 
             context.SetPosition(endPosition);
-            return new MemberExpressionNode(expression, context.GetToken(position, endPosition));
+            return new MemberExpressionNode(expression, context.GetValue(position, endPosition));
         }
 
         #endregion
