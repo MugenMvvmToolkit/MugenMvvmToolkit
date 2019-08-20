@@ -11,7 +11,7 @@ namespace MugenMvvm.Binding.Parsing.Components
     {
         #region Properties
 
-        public int Priority { get; set; }
+        public int Priority { get; set; } = 990;
 
         #endregion
 
@@ -27,7 +27,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 ++position;
             }
 
-            if (!context.IsIdentifier(position, out var endPosition))
+            if (!context.IsIdentifier(out var endPosition, position))
                 return null;
 
             context.SetPosition(endPosition);

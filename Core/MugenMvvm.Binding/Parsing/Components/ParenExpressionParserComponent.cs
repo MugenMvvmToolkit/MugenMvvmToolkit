@@ -6,17 +6,17 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
 {
-    public class ParenExpressionParserComponent : IExpressionParserComponent, IHasPriority
+    public sealed class ParenExpressionParserComponent : IExpressionParserComponent, IHasPriority
     {
         #region Properties
 
-        public int Priority { get; set; } = 1000;
+        public int Priority { get; set; } = 980;
 
         #endregion
 
         #region Implementation of interfaces
 
-        public IExpressionNode TryParse(IBindingParserContext context, IExpressionNode expression, IReadOnlyMetadataContext metadata)
+        public IExpressionNode? TryParse(IBindingParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
         {
             var p = context.Position;
             var position = context.SkipWhitespaces();
@@ -24,8 +24,8 @@ namespace MugenMvvm.Binding.Parsing.Components
             {
                 context.SetPosition(position + 1);
                 var node = context.TryParseWhileNotNull(expression, metadata);
-                context.SetPosition(context.SkipWhitespaces());
-                if (context.IsToken(')', null))
+                context.SkipWhitespacesSetPosition();
+                if (context.IsToken(')'))
                 {
                     context.MoveNext();
                     return node;

@@ -44,8 +44,8 @@ namespace MugenMvvm.Binding.Parsing
 
         private static BindingParserResult Parse(IBindingParserContext context)
         {
-            context.SetPosition(context.SkipWhitespaces());
-            var delimiterPos = context.FindAnyOf(context.Position, TargetDelimiters);
+            context.SetPosition(context.SkipWhitespaces(null));
+            var delimiterPos = context.FindAnyOf(TargetDelimiters);
             var length = context.Length;
             if (delimiterPos > 0)
                 context.SetLimit(delimiterPos);
@@ -142,7 +142,7 @@ namespace MugenMvvm.Binding.Parsing
                 Length = limit.GetValueOrDefault(_source.Length);
             }
 
-            public IExpressionNode TryParse(IExpressionNode expression = null, IReadOnlyMetadataContext metadata = null)
+            public IExpressionNode? TryParse(IExpressionNode? expression = null, IReadOnlyMetadataContext? metadata = null)
             {
                 var components = _parser.GetComponents();
                 for (int i = 0; i < components.Length; i++)

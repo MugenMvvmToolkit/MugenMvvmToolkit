@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
 {
-    public class BinaryExpressionParserComponent : IExpressionParserComponent, IHasPriority
+    public sealed class BinaryExpressionParserComponent : IExpressionParserComponent, IHasPriority
     {
         #region Fields
 
@@ -55,7 +55,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Properties
 
-        public int Priority { get; set; } = 990;
+        public int Priority { get; set; } = 970;
 
         #endregion
 
@@ -63,23 +63,35 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         public IExpressionNode? TryParse(IBindingParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
         {
+            var p = context.Position;
+            var node = TryParseInternal(context, expression, metadata);
+            if (node == null)
+                context.SetPosition(p);
+            return node;
+        }
+
+        #endregion
+
+        #region Methods
+
+        private IExpressionNode? TryParseInternal(IBindingParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
+        {
             if (expression == null)
                 return null;
 
-            var p = context.Position;
-            var position = context.SkipWhitespaces();
-            var token = GetToken(context, position, out var tokenLength);
+            context.SkipWhitespacesSetPosition();
+            var token = GetToken(context);
             if (token == null)
                 return null;
-            context.SetPosition(position + tokenLength);
-            var nodes = new List<IExpressionNode> { expression };
-            var tokens = new List<BinaryTokenType> { token };
+
+            var nodes = new List<IExpressionNode> {expression};
+            var tokens = new List<BinaryTokenType> {token};
 
             IExpressionNode? node = null;
             while (true)
             {
-                var p1 = context.SkipWhitespaces();
-                var newNode = context.IsToken('?', p1) && !context.IsToken("??", p1) ? null : context.TryParse(node, metadata);
+                context.SkipWhitespacesSetPosition();
+                var newNode = context.IsToken('?') && !context.IsToken("??") ? null : context.TryParse(node, metadata);
                 if (newNode == null)
                 {
                     if (node != null)
@@ -88,17 +100,16 @@ namespace MugenMvvm.Binding.Parsing.Components
                 }
 
                 node = newNode;
-                context.SetPosition(context.SkipWhitespaces());
+                context.SkipWhitespacesSetPosition();
                 if (context.IsEof(context.Position))
                 {
                     nodes.Add(node);
                     break;
                 }
 
-                token = GetToken(context, context.Position, out tokenLength);
+                token = GetToken(context);
                 if (token != null)
                 {
-                    context.SetPosition(context.Position + tokenLength);
                     nodes.Add(node);
                     node = null;
                     tokens.Add(token);
@@ -106,12 +117,9 @@ namespace MugenMvvm.Binding.Parsing.Components
             }
 
             if (nodes.Count - 1 != tokens.Count)
-            {
-                context.SetPosition(p);
                 return null;
-            }
 
-            int index = GetMaxPriorityTokenIndex(tokens);
+            var index = GetMaxPriorityTokenIndex(tokens);
             while (index != -1)
             {
                 token = tokens[index];
@@ -120,12 +128,9 @@ namespace MugenMvvm.Binding.Parsing.Components
                 nodes.RemoveAt(index + 1);
                 index = GetMaxPriorityTokenIndex(tokens);
             }
+
             return nodes[0];
         }
-
-        #endregion
-
-        #region Methods
 
         private static int GetMaxPriorityTokenIndex(List<BinaryTokenType> tokens)
         {
@@ -147,14 +152,14 @@ namespace MugenMvvm.Binding.Parsing.Components
             return index;
         }
 
-        private BinaryTokenType? GetToken(IBindingParserContext context, int position, out int tokenLength)
+        private BinaryTokenType? GetToken(IBindingParserContext context)
         {
             for (var i = 0; i < _tokens.Length; i++)
             {
                 var token = _tokens[i];
-                if (context.IsToken(token.Value, position))
+                if (context.IsToken(token.Value))
                 {
-                    tokenLength = token.Value.Length;
+                    context.MoveNext(token.Value.Length);
                     return token;
                 }
 
@@ -163,15 +168,14 @@ namespace MugenMvvm.Binding.Parsing.Components
 
                 for (var j = 0; j < token.Aliases.Length; j++)
                 {
-                    if (context.IsToken(token.Aliases[j], position))
+                    if (context.IsToken(token.Aliases[j]))
                     {
-                        tokenLength = token.Aliases[j].Length;
+                        context.MoveNext(token.Aliases[j].Length);
                         return token;
                     }
                 }
             }
 
-            tokenLength = -1;
             return null;
         }
 

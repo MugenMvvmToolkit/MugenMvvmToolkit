@@ -39,7 +39,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Properties
 
-        public int Priority { get; set; }
+        public int Priority { get; set; } = 960;
 
         #endregion
 
@@ -53,6 +53,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             var position = context.SkipWhitespaces();
             if (!_tokensMapping.TryGetValue(BindingMugenExtensions.TokenAt(context, position), out var values))
                 return null;
+
             for (var i = 0; i < values.Length; i++)
             {
                 var value = values[i];
