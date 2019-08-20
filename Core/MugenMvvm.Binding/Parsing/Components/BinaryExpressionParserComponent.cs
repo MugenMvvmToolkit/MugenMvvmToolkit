@@ -79,39 +79,37 @@ namespace MugenMvvm.Binding.Parsing.Components
             if (expression == null)
                 return null;
 
-            context.SkipWhitespacesSetPosition();
-            var token = GetToken(context);
+            var token = GetToken(context.SkipWhitespaces());
             if (token == null)
                 return null;
 
-            var nodes = new List<IExpressionNode> {expression};
-            var tokens = new List<BinaryTokenType> {token};
+            var nodes = new List<IExpressionNode> { expression };
+            var tokens = new List<BinaryTokenType> { token };
 
-            IExpressionNode? node = null;
+            expression = null;
             while (true)
             {
-                context.SkipWhitespacesSetPosition();
-                var newNode = context.IsToken('?') && !context.IsToken("??") ? null : context.TryParse(node, metadata);
+                context.SkipWhitespaces();
+                var newNode = context.IsToken('?') && !context.IsToken("??") ? null : context.TryParse(expression, metadata);
                 if (newNode == null)
                 {
-                    if (node != null)
-                        nodes.Add(node);
+                    if (expression != null)
+                        nodes.Add(expression);
                     break;
                 }
 
-                node = newNode;
-                context.SkipWhitespacesSetPosition();
-                if (context.IsEof(context.Position))
+                expression = newNode;
+                if (context.SkipWhitespaces().IsEof())
                 {
-                    nodes.Add(node);
+                    nodes.Add(expression);
                     break;
                 }
 
                 token = GetToken(context);
                 if (token != null)
                 {
-                    nodes.Add(node);
-                    node = null;
+                    nodes.Add(expression);
+                    expression = null;
                     tokens.Add(token);
                 }
             }

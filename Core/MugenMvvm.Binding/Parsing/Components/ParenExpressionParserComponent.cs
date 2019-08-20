@@ -19,23 +19,21 @@ namespace MugenMvvm.Binding.Parsing.Components
         public IExpressionNode? TryParse(IBindingParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
         {
             var p = context.Position;
-            var position = context.SkipWhitespaces();
-            if (context.IsToken('(', position))
-            {
-                context.SetPosition(position + 1);
-                var node = context.TryParseWhileNotNull(expression, metadata);
-                context.SkipWhitespacesSetPosition();
-                if (context.IsToken(')'))
-                {
-                    context.MoveNext();
-                    return node;
-                }
-
-                context.SetPosition(p);
+            var position = context.SkipWhitespacesPosition();
+            if (!context.IsToken('(', position))
                 return null;
+
+            context.SetPosition(position + 1);
+            var node = context.TryParseWhileNotNull(expression, metadata);
+            if (context.SkipWhitespaces().IsToken(')'))
+            {
+                context.MoveNext();
+                return node;
             }
 
+            context.SetPosition(p);
             return null;
+
         }
 
         #endregion

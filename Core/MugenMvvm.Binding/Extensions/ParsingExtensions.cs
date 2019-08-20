@@ -36,6 +36,9 @@ namespace MugenMvvm.Binding
 
         public static bool IsToken(this IBindingParserContext context, string token, int? position = null)
         {
+            if (token.Length == 1)
+                return context.IsToken(token[0], position);
+
             var p = context.GetPosition(position);
             var i = 0;
             while (i != token.Length)
@@ -122,7 +125,7 @@ namespace MugenMvvm.Binding
             return -1;
         }
 
-        public static int SkipWhitespaces(this IBindingParserContext context, int? position = null)
+        public static int SkipWhitespacesPosition(this IBindingParserContext context, int? position = null)
         {
             var p = context.GetPosition(position);
             while (!context.IsEof(p) && char.IsWhiteSpace(TokenAt(context, p)))
@@ -130,15 +133,22 @@ namespace MugenMvvm.Binding
             return p;
         }
 
-        public static void SkipWhitespacesSetPosition(this IBindingParserContext context, int? position = null)
+        public static IBindingParserContext SkipWhitespaces(this IBindingParserContext context, int? position = null)
         {
-            context.SetPosition(context.SkipWhitespaces(position));
+            context.SetPosition(context.SkipWhitespacesPosition(position));
+            return context;
         }
 
-        public static void MoveNext(this IBindingParserContext context, int value = 1)
+        public static IBindingParserContext MoveNext(this IBindingParserContext context, int value = 1)
         {
             if (!context.IsEof(context.Position))
                 context.SetPosition(context.Position + value);
+            return context;
+        }
+
+        public static PositionState SavePosition(this IBindingParserContext context)
+        {
+            return new PositionState(context);
         }
 
         public static IExpressionNode Parse(this IBindingParserContext context, IExpressionNode? expression = null, IReadOnlyMetadataContext? metadata = null)
@@ -153,13 +163,12 @@ namespace MugenMvvm.Binding
         public static IExpressionNode? TryParseWhileNotNull(this IBindingParserContext context, IExpressionNode? expression = null, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(context, nameof(context));
-            var result = expression;
             while (true)
             {
-                var node = context.TryParse(result, metadata);
+                var node = context.TryParse(expression, metadata);
                 if (node == null)
-                    return result;
-                result = node;
+                    return expression;
+                expression = node;
             }
         }
 
@@ -190,12 +199,7 @@ namespace MugenMvvm.Binding
             return expressionNode;
         }
 
-        public static PositionState SavePosition(this IBindingParserContext context)
-        {
-            return new PositionState(context);
-        }
-
-        public static List<IExpressionNode>? ParseArguments(this IBindingParserContext context, char endSymbol, IReadOnlyMetadataContext? metadata = null)
+        public static List<IExpressionNode>? ParseArguments(this IBindingParserContext context, string endSymbol, IReadOnlyMetadataContext? metadata = null)
         {
             List<IExpressionNode>? args = null;
             while (true)
@@ -208,8 +212,7 @@ namespace MugenMvvm.Binding
                     args.Add(node);
                 }
 
-                context.SkipWhitespacesSetPosition();
-                if (context.IsToken(','))
+                if (context.SkipWhitespaces().IsToken(','))
                 {
                     context.MoveNext();
                     continue;
@@ -227,15 +230,14 @@ namespace MugenMvvm.Binding
             return args;
         }
 
-        public static List<string>? ParseStringArguments(this IBindingParserContext context, char endSymbol, bool isPointSupported)
+        public static List<string>? ParseStringArguments(this IBindingParserContext context, string endSymbol, bool isPointSupported)
         {
             List<string>? args = null;
             var start = context.Position;
             int? end = null;
             while (true)
             {
-                context.SkipWhitespacesSetPosition();
-                var isEnd = context.IsToken(endSymbol);
+                var isEnd = context.SkipWhitespaces().IsToken(endSymbol);
                 if (isEnd || context.IsToken(','))
                 {
                     if (end == null)
@@ -248,8 +250,7 @@ namespace MugenMvvm.Binding
                     if (isEnd)
                         break;
 
-                    context.SkipWhitespacesSetPosition();
-                    start = context.Position;
+                    start = context.SkipWhitespaces().Position;
                     continue;
                 }
 

@@ -19,7 +19,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         public IExpressionNode? TryParse(IBindingParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
         {
-            var position = context.SkipWhitespaces();
+            var position = context.SkipWhitespacesPosition();
             if (expression != null)
             {
                 if (!context.IsToken('.', position))

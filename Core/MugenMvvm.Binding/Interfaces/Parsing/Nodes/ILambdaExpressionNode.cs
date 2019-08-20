@@ -4,7 +4,7 @@ namespace MugenMvvm.Binding.Interfaces.Parsing.Nodes
 {
     public interface ILambdaExpressionNode : IExpressionNode
     {
-        IReadOnlyList<string> Parameters { get; }
+        IReadOnlyList<IParameterExpression> Parameters { get; }
 
         IExpressionNode Body { get; }
     }

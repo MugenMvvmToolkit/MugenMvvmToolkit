@@ -18,8 +18,8 @@ namespace MugenMvvm.Binding.Parsing
         private IBindingParserContextProviderComponent[] _contextProviders;
         private IExpressionParserComponent[] _parsers;
 
-        public static readonly HashSet<char> TargetDelimiters = new HashSet<char> {',', ';', ' '};
-        public static readonly HashSet<char> Delimiters = new HashSet<char> {',', ';'};
+        public static readonly HashSet<char> TargetDelimiters = new HashSet<char> { ',', ';', ' ' };
+        public static readonly HashSet<char> Delimiters = new HashSet<char> { ',', ';' };
 
         #endregion
 
@@ -42,21 +42,21 @@ namespace MugenMvvm.Binding.Parsing
             Should.NotBeNull(expression, nameof(expression));
             var result = new List<BindingParserResult>();
             var context = GetBindingParserContext(expression, metadata);
-            while (!context.IsEof(context.Position))
+            while (!context.IsEof())
                 result.Add(Parse(context));
 
             return result;
         }
 
         void IComponentOwnerAddedCallback<IComponent<IBindingParser>>.OnComponentAdded(IComponentCollection<IComponent<IBindingParser>> collection,
-            IComponent<IBindingParser> component, IReadOnlyMetadataContext metadata)
+            IComponent<IBindingParser> component, IReadOnlyMetadataContext? metadata)
         {
             MugenExtensions.ComponentTrackerOnAdded(ref _contextProviders, this, collection, component, metadata);
             MugenExtensions.ComponentTrackerOnAdded(ref _parsers, this, collection, component, metadata);
         }
 
         void IComponentOwnerRemovedCallback<IComponent<IBindingParser>>.OnComponentRemoved(IComponentCollection<IComponent<IBindingParser>> collection,
-            IComponent<IBindingParser> component, IReadOnlyMetadataContext metadata)
+            IComponent<IBindingParser> component, IReadOnlyMetadataContext? metadata)
         {
             MugenExtensions.ComponentTrackerOnRemoved(ref _contextProviders, collection, component, metadata);
             MugenExtensions.ComponentTrackerOnRemoved(ref _parsers, collection, component, metadata);
@@ -68,8 +68,7 @@ namespace MugenMvvm.Binding.Parsing
 
         private static BindingParserResult Parse(IBindingParserContext context)
         {
-            context.SkipWhitespacesSetPosition();
-            var delimiterPos = context.FindAnyOf(TargetDelimiters);
+            var delimiterPos = context.SkipWhitespaces().FindAnyOf(TargetDelimiters);
             var length = context.Length;
             if (delimiterPos > 0)
                 context.SetLimit(delimiterPos);
@@ -78,21 +77,20 @@ namespace MugenMvvm.Binding.Parsing
             context.SetLimit(length);
 
             IExpressionNode? source = null;
-            if (context.IsToken(' ', context.Position))
+            if (context.IsToken(' '))
                 source = context.ParseWhileAnyOf(Delimiters);
 
             List<IExpressionNode>? parameters = null;
-            while (context.IsToken(',', context.Position))
+            while (context.IsToken(','))
             {
                 if (parameters == null)
                     parameters = new List<IExpressionNode>();
-                context.MoveNext();
-                parameters.Add(context.ParseWhileAnyOf(Delimiters));
+                parameters.Add(context.MoveNext().ParseWhileAnyOf(Delimiters));
             }
 
-            if (context.IsEof(context.Position) || context.IsToken(';', context.Position))
+            if (context.IsEof() || context.IsToken(';'))
             {
-                if (context.IsToken(';', context.Position))
+                if (context.IsToken(';'))
                     context.MoveNext();
                 return new BindingParserResult(target, source, parameters, context);
             }

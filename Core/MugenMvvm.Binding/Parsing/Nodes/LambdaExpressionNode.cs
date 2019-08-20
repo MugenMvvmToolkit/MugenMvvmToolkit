@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Nodes;
@@ -9,13 +10,11 @@ namespace MugenMvvm.Binding.Parsing.Nodes
     {
         #region Constructors
 
-        public LambdaExpressionNode(IExpressionNode body, IReadOnlyList<string> parameters)
+        public LambdaExpressionNode(IExpressionNode body, IReadOnlyList<IParameterExpression>? parameters)
         {
             Should.NotBeNull(body, nameof(body));
-            Should.NotBeNull(parameters, nameof(parameters));
             Body = body;
-            Parameters = parameters;
-            BindingMugenExtensions.CheckDuplicateLambdaParameter(Parameters);
+            Parameters = parameters ?? Default.EmptyArray<IParameterExpression>();
         }
 
         #endregion
@@ -24,7 +23,7 @@ namespace MugenMvvm.Binding.Parsing.Nodes
 
         public override ExpressionNodeType NodeType => ExpressionNodeType.Lambda;
 
-        public IReadOnlyList<string> Parameters { get; }
+        public IReadOnlyList<IParameterExpression> Parameters { get; }
 
         public IExpressionNode Body { get; }
 
@@ -36,8 +35,20 @@ namespace MugenMvvm.Binding.Parsing.Nodes
         {
             var changed = false;
             var body = VisitWithCheck(visitor, Body, true, ref changed);
-            if (changed)
-                return new LambdaExpressionNode(body, Parameters);
+
+            var itemsChanged = false;
+            IParameterExpression[]? newParams = null;
+            for (var i = 0; i < Parameters.Count; i++)
+            {
+                var node = VisitWithCheck(visitor, Parameters[i], true, ref itemsChanged);
+                if (itemsChanged)
+                    newParams = Parameters.ToArray();
+                if (newParams != null)
+                    newParams[i] = node;
+            }
+
+            if (changed || itemsChanged)
+                return new LambdaExpressionNode(body, newParams ?? Parameters);
             return this;
         }
 

@@ -33,7 +33,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         private static IExpressionNode? TryParseInternal(IBindingParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
         {
-            context.SkipWhitespacesSetPosition();
+            context.SkipWhitespaces();
             if (expression != null)
             {
                 if (!context.IsToken('.'))
@@ -46,14 +46,12 @@ namespace MugenMvvm.Binding.Parsing.Components
 
             var nameStart = context.Position;
             context.SetPosition(nameEndPos);
-            context.SkipWhitespacesSetPosition();
-
+            context.SkipWhitespaces();
 
             List<string>? typeArgs = null;
             if (context.IsToken('<'))
             {
-                context.MoveNext();
-                typeArgs = context.ParseStringArguments('>', true);
+                typeArgs = context.MoveNext().ParseStringArguments(">", true);
                 if (typeArgs == null)
                     return null;
             }
@@ -62,15 +60,13 @@ namespace MugenMvvm.Binding.Parsing.Components
             if (!context.IsToken('('))
                 return null;
 
-            context.MoveNext();
-            context.SkipWhitespacesSetPosition();
-            if (context.IsToken(')'))
+            if (context.MoveNext().SkipWhitespaces().IsToken(')'))
             {
                 context.MoveNext();
                 return new MethodCallExpressionNode(expression, context.GetValue(nameStart, nameEndPos), Default.EmptyArray<IExpressionNode>(), typeArgs);
             }
 
-            var args = context.ParseArguments(')', metadata);
+            var args = context.ParseArguments(")", metadata);
             if (args == null)
                 return null;
             return new MethodCallExpressionNode(expression, context.GetValue(nameStart, nameEndPos), args, typeArgs);

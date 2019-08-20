@@ -60,7 +60,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             if (expression != null)
                 return null;
 
-            var start = context.SkipWhitespaces();
+            var start = context.SkipWhitespacesPosition();
             if (!context.IsDigit(start))
                 return null;
 
