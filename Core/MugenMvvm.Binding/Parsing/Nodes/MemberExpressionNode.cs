@@ -47,7 +47,7 @@ namespace MugenMvvm.Binding.Parsing.Nodes
             var changed = false;
             var node = VisitWithCheck(visitor, Target, false, ref changed);
             if (changed)
-                return new MemberExpressionNode(node, MemberName) { Member = Member };
+                return new MemberExpressionNode(node, MemberName) {Member = Member};
             return this;
         }
 
