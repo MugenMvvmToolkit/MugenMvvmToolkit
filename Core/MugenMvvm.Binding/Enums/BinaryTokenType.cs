@@ -16,13 +16,13 @@ namespace MugenMvvm.Binding.Enums
         public static readonly BinaryTokenType Subtraction = new BinaryTokenType("-", 980);
         public static readonly BinaryTokenType LeftShift = new BinaryTokenType("<<", 970);
         public static readonly BinaryTokenType RightShift = new BinaryTokenType(">>", 970);
-        public static readonly BinaryTokenType LessThan = new BinaryTokenType("<", 960);
-        public static readonly BinaryTokenType GreaterThan = new BinaryTokenType(">", 960);
+        public static readonly BinaryTokenType LessThan = new BinaryTokenType("<", 960, "&lt;");
+        public static readonly BinaryTokenType GreaterThan = new BinaryTokenType(">", 960, "&gt;");
         public static readonly BinaryTokenType LessThanOrEqualTo = new BinaryTokenType("<=", 960);
         public static readonly BinaryTokenType GreaterThanOrEqualTo = new BinaryTokenType(">=", 960);
         public static readonly BinaryTokenType Equality = new BinaryTokenType("==", 950, "=");
         public static readonly BinaryTokenType NotEqual = new BinaryTokenType("!=", 950);
-        public static readonly BinaryTokenType LogicalAnd = new BinaryTokenType("&", 940);
+        public static readonly BinaryTokenType LogicalAnd = new BinaryTokenType("&", 940, "&amp;");
         public static readonly BinaryTokenType LogicalXor = new BinaryTokenType("^", 930);
         public static readonly BinaryTokenType LogicalOr = new BinaryTokenType("|", 920);
         public static readonly BinaryTokenType ConditionalAnd = new BinaryTokenType("&&", 910, "and");

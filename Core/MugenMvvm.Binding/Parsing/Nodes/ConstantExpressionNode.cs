@@ -47,6 +47,10 @@ namespace MugenMvvm.Binding.Parsing.Nodes
         {
             if (Value == null)
                 return "null";
+            if (Value is string v)
+                return $"\"{Value}\"";
+            if (Value is char)
+                return $"'{Value}'";
             return Value.ToString();
         }
 

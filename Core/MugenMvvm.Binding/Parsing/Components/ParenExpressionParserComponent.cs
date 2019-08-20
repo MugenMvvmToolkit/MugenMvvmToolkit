@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Binding.Interfaces.Parsing;
+﻿using MugenMvvm.Binding.Constants;
+using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Nodes;
 using MugenMvvm.Interfaces.Metadata;
@@ -10,7 +11,7 @@ namespace MugenMvvm.Binding.Parsing.Components
     {
         #region Properties
 
-        public int Priority { get; set; } = 980;
+        public int Priority { get; set; } = BindingParserPriority.Paren;
 
         #endregion
 

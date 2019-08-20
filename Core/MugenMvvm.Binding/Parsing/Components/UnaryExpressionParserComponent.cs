@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
@@ -39,7 +40,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Properties
 
-        public int Priority { get; set; } = 960;
+        public int Priority { get; set; } = BindingParserPriority.Unary;
 
         #endregion
 
