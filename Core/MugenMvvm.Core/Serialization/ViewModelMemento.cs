@@ -77,7 +77,7 @@
 //        {
 //            if (_viewModel == null)
 //                return;
-//            var dispatcher = serializationContext.ServiceProvider.GetService<IViewModelDispatcher>();
+//            var dispatcher = serializationContext.ServiceProvider.GetService<IViewModelManager>();
 //            dispatcher.OnLifecycleChanged(_viewModel, ViewModelLifecycleState.Preserving, serializationContext.Metadata);
 //
 //            if (_viewModel.Metadata.Get(ViewModelMetadata.NoState))
@@ -109,7 +109,7 @@
 //            if (_viewModel != null)
 //                return new MementoResult(_viewModel, serializationContext);
 //
-//            var dispatcher = serializationContext.ServiceProvider.GetService<IViewModelDispatcher>();
+//            var dispatcher = serializationContext.ServiceProvider.GetService<IViewModelManager>();
 //            lock (RestorationLocker)
 //            {
 //                if (_viewModel != null)

@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.ViewModels.Components;
 
 namespace MugenMvvm.ViewModels
 {
-    public class ViewModelDispatcher : ComponentOwnerBase<IViewModelDispatcher>, IViewModelDispatcher
+    public class ViewModelManager : ComponentOwnerBase<IViewModelManager>, IViewModelManager
     {
         #region Fields
 
@@ -20,7 +20,7 @@ namespace MugenMvvm.ViewModels
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelDispatcher(IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
+        public ViewModelManager(IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
             : base(componentCollectionProvider)
         {
             _metadataContextProvider = metadataContextProvider;
@@ -54,20 +54,6 @@ namespace MugenMvvm.ViewModels
             return result!;
         }
 
-        public bool Subscribe(IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            Should.NotBeNull(observer, nameof(observer));
-            return SubscribeInternal(viewModel, observer, executionMode, metadata);
-        }
-
-        public bool Unsubscribe(IViewModelBase viewModel, object observer, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            Should.NotBeNull(observer, nameof(observer));
-            return UnsubscribeInternal(viewModel, observer, metadata);
-        }
-
         public IViewModelBase? TryGetViewModel(IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(metadata, nameof(metadata));
@@ -85,8 +71,10 @@ namespace MugenMvvm.ViewModels
             IMetadataContext? result = null;
             var managers = Components.GetItems();
             for (var i = 0; i < managers.Length; i++)
-                (managers[i] as IViewModelDispatcherComponent)?.OnLifecycleChanged(viewModel, lifecycleState, result ??= MetadataContextProvider.GetMetadataContext(this),
+            {
+                (managers[i] as IViewModelStateDispatcherComponent)?.OnLifecycleChanged(viewModel, lifecycleState, result ??= MetadataContextProvider.GetMetadataContext(this),
                     metadata);
+            }
 
             return result;
         }
@@ -102,34 +90,6 @@ namespace MugenMvvm.ViewModels
             }
 
             return null;
-        }
-
-        protected virtual bool SubscribeInternal(IViewModelBase viewModel, object observer, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata)
-        {
-            var subscribed = false;
-            var managers = Components.GetItems();
-            for (var i = 0; i < managers.Length; i++)
-            {
-                var result = (managers[i] as ISubscriberViewModelDispatcherComponent)?.TrySubscribe(viewModel, observer, executionMode, metadata);
-                if (result.GetValueOrDefault())
-                    subscribed = true;
-            }
-
-            return subscribed;
-        }
-
-        protected virtual bool UnsubscribeInternal(IViewModelBase viewModel, object observer, IReadOnlyMetadataContext? metadata)
-        {
-            var unsubscribed = false;
-            var managers = Components.GetItems();
-            for (var i = 0; i < managers.Length; i++)
-            {
-                var result = (managers[i] as ISubscriberViewModelDispatcherComponent)?.TryUnsubscribe(viewModel, observer, metadata);
-                if (result.GetValueOrDefault())
-                    unsubscribed = true;
-            }
-
-            return unsubscribed;
         }
 
         protected virtual IViewModelBase? TryGetViewModelInternal(IReadOnlyMetadataContext metadata)

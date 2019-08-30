@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Metadata;
 namespace MugenMvvm.Interfaces.ViewModels
 {
     //todo cleanup manager, clear commands, initialize manager, provider manager
-    public interface IViewModelDispatcher : IComponentOwner<IViewModelDispatcher>, IComponent<IMugenApplication>
+    public interface IViewModelManager : IComponentOwner<IViewModelManager>, IComponent<IMugenApplication>
     {
         IReadOnlyMetadataContext OnLifecycleChanged(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext? metadata = null);
 

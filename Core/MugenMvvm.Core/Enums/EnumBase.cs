@@ -124,7 +124,7 @@ namespace MugenMvvm.Enums
             return GetEnumerations().TryGetValue(value, out result);
         }
 
-        public static TEnumeration FromValue(TValue value)
+        public static TEnumeration Parse(TValue value)
         {
             if (!TryParse(value, out var result))
                 ExceptionManager.ThrowEnumIsNotValid(value);

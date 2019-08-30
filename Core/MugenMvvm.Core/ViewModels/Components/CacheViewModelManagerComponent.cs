@@ -13,7 +13,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.ViewModels.Components
 {
-    public sealed class CacheViewModelDispatcherComponent : IViewModelProviderComponent, IMetadataContextListener, IViewModelDispatcherComponent, IHasComponentPriority, IHasPriority
+    public sealed class CacheViewModelManagerComponent : IViewModelProviderComponent, IMetadataContextListener, IViewModelStateDispatcherComponent, IHasComponentPriority, IHasPriority
     {
         #region Fields
 
@@ -27,7 +27,7 @@ namespace MugenMvvm.ViewModels.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public CacheViewModelDispatcherComponent(bool isWeakCache = true)
+        public CacheViewModelManagerComponent(bool isWeakCache = true)
         {
             _isWeakCache = isWeakCache;
             _viewModelsCache = new Dictionary<Guid, object>();
@@ -85,7 +85,7 @@ namespace MugenMvvm.ViewModels.Components
 
         public int GetPriority(object owner)
         {
-            if (owner is IViewModelDispatcher)
+            if (owner is IViewModelManager)
                 return Priority;
             return 0;
         }

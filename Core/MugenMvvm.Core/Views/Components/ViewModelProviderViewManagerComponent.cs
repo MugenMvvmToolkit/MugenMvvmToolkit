@@ -14,14 +14,14 @@ namespace MugenMvvm.Views.Components
         #region Fields
 
         private readonly IMetadataContextProvider? _metadataContextProvider;
-        private readonly IViewModelDispatcher? _viewModelDispatcher;
+        private readonly IViewModelManager? _viewModelDispatcher;
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelProviderViewManagerComponent(IViewModelDispatcher? viewModelDispatcher = null, IMetadataContextProvider? metadataContextProvider = null)
+        public ViewModelProviderViewManagerComponent(IViewModelManager? viewModelDispatcher = null, IMetadataContextProvider? metadataContextProvider = null)
         {
             _viewModelDispatcher = viewModelDispatcher;
             _metadataContextProvider = metadataContextProvider;
