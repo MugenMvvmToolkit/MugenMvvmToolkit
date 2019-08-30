@@ -69,7 +69,7 @@ namespace MugenMvvm.ViewModels.Components
                 RemoveFromCache(ViewModelMetadata.Id.GetValue(metadataContext, oldValue));
         }
 
-        public void OnLifecycleChanged(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IMetadataContext dispatcherMetadata, IReadOnlyMetadataContext? metadata)
+        public IReadOnlyMetadataContext? OnLifecycleChanged(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext? metadata)
         {
             if (lifecycleState == ViewModelLifecycleState.Created)
             {
@@ -81,6 +81,8 @@ namespace MugenMvvm.ViewModels.Components
                 RemoveFromCache(viewModel.Metadata.Get(ViewModelMetadata.Id));
                 viewModel.Metadata.RemoveComponent(this);
             }
+
+            return null;
         }
 
         public int GetPriority(object owner)

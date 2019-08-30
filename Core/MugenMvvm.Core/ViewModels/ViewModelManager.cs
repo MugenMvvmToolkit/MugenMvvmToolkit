@@ -68,12 +68,22 @@ namespace MugenMvvm.ViewModels
         {
             //            if (lifecycleState != ViewModelLifecycleState.Finalized)
             //                viewModel.Metadata.Set(ViewModelMetadata.LifecycleState, lifecycleState);//todo move to component
-            IMetadataContext? result = null;
-            var managers = Components.GetItems();
-            for (var i = 0; i < managers.Length; i++)
+            IReadOnlyMetadataContext? result = null;
+            var components = Components.GetItems();
+            for (var i = 0; i < components.Length; i++)
             {
-                (managers[i] as IViewModelLifecycleDispatcherComponent)?.OnLifecycleChanged(viewModel, lifecycleState, result ??= MetadataContextProvider.GetMetadataContext(this),
-                    metadata);
+                var m = (components[i] as IViewModelLifecycleDispatcherComponent)?.OnLifecycleChanged(viewModel, lifecycleState, metadata);
+                if (m == null || m.Count == 0)
+                    continue;
+
+                if (result == null)
+                    result = m;
+                else
+                {
+                    var r = result.ToNonReadonly(this, _metadataContextProvider);
+                    r.Merge(m);
+                    result = r;
+                }
             }
 
             return result;
@@ -81,10 +91,10 @@ namespace MugenMvvm.ViewModels
 
         protected virtual object? GetServiceInternal(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext? metadata)
         {
-            var managers = Components.GetItems();
-            for (var i = 0; i < managers.Length; i++)
+            var components = Components.GetItems();
+            for (var i = 0; i < components.Length; i++)
             {
-                var result = (managers[i] as IViewModelServiceResolverComponent)?.TryGetService(viewModel, service, metadata);
+                var result = (components[i] as IViewModelServiceResolverComponent)?.TryGetService(viewModel, service, metadata);
                 if (result != null)
                     return result;
             }
@@ -94,10 +104,10 @@ namespace MugenMvvm.ViewModels
 
         protected virtual IViewModelBase? TryGetViewModelInternal(IReadOnlyMetadataContext metadata)
         {
-            var managers = Components.GetItems();
-            for (var i = 0; i < managers.Length; i++)
+            var components = Components.GetItems();
+            for (var i = 0; i < components.Length; i++)
             {
-                var viewModel = (managers[i] as IViewModelProviderComponent)?.TryGetViewModel(metadata);
+                var viewModel = (components[i] as IViewModelProviderComponent)?.TryGetViewModel(metadata);
                 if (viewModel != null)
                     return viewModel;
             }

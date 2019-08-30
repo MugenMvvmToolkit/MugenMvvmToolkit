@@ -6,6 +6,6 @@ namespace MugenMvvm.Interfaces.ViewModels.Components
 {
     public interface IViewModelLifecycleDispatcherComponent : IComponent<IViewModelManager>
     {
-        void OnLifecycleChanged(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IMetadataContext dispatcherMetadata, IReadOnlyMetadataContext? metadata);
+        IReadOnlyMetadataContext? OnLifecycleChanged(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext? metadata);
     }
 }
