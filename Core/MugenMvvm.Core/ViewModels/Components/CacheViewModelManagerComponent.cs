@@ -13,7 +13,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.ViewModels.Components
 {
-    public sealed class CacheViewModelManagerComponent : IViewModelProviderComponent, IMetadataContextListener, IViewModelStateDispatcherComponent, IHasComponentPriority, IHasPriority
+    public sealed class CacheViewModelManagerComponent : IViewModelProviderComponent, IMetadataContextListener, IViewModelLifecycleDispatcherComponent, IHasComponentPriority, IHasPriority
     {
         #region Fields
 

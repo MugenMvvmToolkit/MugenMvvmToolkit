@@ -72,7 +72,7 @@ namespace MugenMvvm.ViewModels
             var managers = Components.GetItems();
             for (var i = 0; i < managers.Length; i++)
             {
-                (managers[i] as IViewModelStateDispatcherComponent)?.OnLifecycleChanged(viewModel, lifecycleState, result ??= MetadataContextProvider.GetMetadataContext(this),
+                (managers[i] as IViewModelLifecycleDispatcherComponent)?.OnLifecycleChanged(viewModel, lifecycleState, result ??= MetadataContextProvider.GetMetadataContext(this),
                     metadata);
             }
 
