@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -9,22 +8,20 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Commands
 {
-    public sealed class MediatorCommand : IMediatorCommand, IWeakReferenceHolder
+    public class MediatorCommand : IMediatorCommand, IWeakReferenceHolder
     {
         #region Fields
 
-        private readonly Func<ICommand, IReadOnlyMetadataContext, ICommandMediator> _getMediator;
-        private IReadOnlyMetadataContext? _metadata;
         private ICommandMediator? _mediator;
+        private IReadOnlyMetadataContext? _metadata;
 
         #endregion
 
         #region Constructors
 
-        private MediatorCommand(IReadOnlyMetadataContext metadata, Func<ICommand, IReadOnlyMetadataContext, ICommandMediator> getMediator)
+        private MediatorCommand(IReadOnlyMetadataContext metadata)
         {
             _metadata = metadata;
-            _getMediator = getMediator;
         }
 
         #endregion
@@ -42,8 +39,9 @@ namespace MugenMvvm.Commands
                     var metadata = _metadata;
                     _metadata = null;
                     if (metadata != null)
-                        MugenExtensions.LazyInitializeDisposable(ref _mediator, _getMediator(this, metadata));
+                        MugenExtensions.LazyInitializeDisposable(ref _mediator, GetMediator(metadata));
                 }
+
                 return _mediator!;
             }
         }
@@ -94,6 +92,11 @@ namespace MugenMvvm.Commands
         #endregion
 
         #region Methods
+
+        protected virtual ICommandMediator GetMediator(IReadOnlyMetadataContext metadata)
+        {
+            return Service<ICommandMediatorProvider>.Instance.GetCommandMediator<object>(this, metadata);
+        }
 
         public static MediatorCommand Create(Action execute, IReadOnlyMetadataContext? metadata = null)
         {
@@ -209,7 +212,7 @@ namespace MugenMvvm.Commands
                 request.Set(MediatorCommandMetadata.AllowMultipleExecution, allowMultipleExecution.Value);
             if (notifiers != null && notifiers.Count != 0)
                 request.Set(MediatorCommandMetadata.Notifiers, notifiers);
-            return new MediatorCommand(request, DelegateInvoker<object>.Invoker);
+            return new MediatorCommand(request);
         }
 
         public static MediatorCommand Create<T>(Action<T> execute, Func<T, bool>? canExecute, bool? allowMultipleExecution, IReadOnlyCollection<object>? notifiers,
@@ -223,7 +226,7 @@ namespace MugenMvvm.Commands
                 request.Set(MediatorCommandMetadata.AllowMultipleExecution, allowMultipleExecution.Value);
             if (notifiers != null && notifiers.Count != 0)
                 request.Set(MediatorCommandMetadata.Notifiers, notifiers);
-            return new MediatorCommand(request, DelegateInvoker<T>.Invoker);
+            return new MediatorCommandGeneric<T>(request);
         }
 
         public static MediatorCommand CreateFromTask(Func<Task> execute, Func<bool>? canExecute, bool? allowMultipleExecution, IReadOnlyCollection<object>? notifiers,
@@ -237,7 +240,7 @@ namespace MugenMvvm.Commands
                 request.Set(MediatorCommandMetadata.AllowMultipleExecution, allowMultipleExecution.Value);
             if (notifiers != null && notifiers.Count != 0)
                 request.Set(MediatorCommandMetadata.Notifiers, notifiers);
-            return new MediatorCommand(request, DelegateInvoker<object>.Invoker);
+            return new MediatorCommand(request);
         }
 
         public static MediatorCommand CreateFromTask<T>(Func<T, Task> execute, Func<T, bool>? canExecute, bool? allowMultipleExecution, IReadOnlyCollection<object>? notifiers,
@@ -251,18 +254,29 @@ namespace MugenMvvm.Commands
                 request.Set(MediatorCommandMetadata.AllowMultipleExecution, allowMultipleExecution.Value);
             if (notifiers != null && notifiers.Count != 0)
                 request.Set(MediatorCommandMetadata.Notifiers, notifiers);
-            return new MediatorCommand(request, DelegateInvoker<T>.Invoker);
+            return new MediatorCommandGeneric<T>(request);
         }
 
         #endregion
 
         #region Nested types
 
-        private static class DelegateInvoker<T>
+        private sealed class MediatorCommandGeneric<T> : MediatorCommand
         {
-            #region Fields
+            #region Constructors
 
-            public static readonly Func<ICommand, IReadOnlyMetadataContext, ICommandMediator> Invoker = (command, context) => Service<ICommandMediatorProvider>.Instance.GetCommandMediator<T>(command, context);
+            public MediatorCommandGeneric(IReadOnlyMetadataContext metadata) : base(metadata)
+            {
+            }
+
+            #endregion
+
+            #region Methods
+
+            protected override ICommandMediator GetMediator(IReadOnlyMetadataContext metadata)
+            {
+                return Service<ICommandMediatorProvider>.Instance.GetCommandMediator<T>(this, metadata);
+            }
 
             #endregion
         }
