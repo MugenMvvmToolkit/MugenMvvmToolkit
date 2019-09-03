@@ -53,6 +53,19 @@ namespace MugenMvvm
 
         public static bool Remove<T>(ref T[] items, T item) where T : class
         {
+            if (items.Length == 0)
+                return false;
+            if (items.Length == 1)
+            {
+                if (ReferenceEquals(items[0], items))
+                {
+                    items = Default.EmptyArray<T>();
+                    return true;
+                }
+
+                return false;
+            }
+
             T[]? array = null;
             for (var i = 0; i < items.Length; i++)
             {

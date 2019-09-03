@@ -66,15 +66,12 @@ namespace MugenMvvm
             List<INavigationCallback>? result = null;
             for (int i = 0; i < components.Length; i++)
             {
-                if (components[i] is INavigationCallbackProviderComponent callbackProvider)
-                {
-                    var callbacks = callbackProvider.GetCallbacks(entry, metadata);
-                    if (callbacks.Count == 0)
-                        continue;
-                    if (result == null)
-                        result = new List<INavigationCallback>();
-                    result.AddRange(callbacks);
-                }
+                var callbacks = (components[i] as INavigationCallbackProviderComponent)?.GetCallbacks(entry, metadata);
+                if (callbacks == null || callbacks.Count == 0)
+                    continue;
+                if (result == null)
+                    result = new List<INavigationCallback>();
+                result.AddRange(callbacks);
             }
 
             return result ?? (IReadOnlyList<INavigationCallback>)Default.EmptyArray<INavigationCallback>();

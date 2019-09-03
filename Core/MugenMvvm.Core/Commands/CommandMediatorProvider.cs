@@ -46,12 +46,9 @@ namespace MugenMvvm.Commands
             var components = Components.GetItems();
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i] is ICommandMediatorProviderComponent executorFactory)
-                {
-                    result = executorFactory.TryGetCommandMediator<TParameter>(command, metadata);
-                    if (result != null)
-                        break;
-                }
+                result = (components[i] as ICommandMediatorProviderComponent)?.TryGetCommandMediator<TParameter>(command, metadata);
+                if (result != null)
+                    break;
             }
 
             return result;
@@ -61,10 +58,7 @@ namespace MugenMvvm.Commands
         {
             var components = Components.GetItems();
             for (var i = 0; i < components.Length; i++)
-            {
-                if (components[i] is ICommandMediatorProviderListener listener)
-                    listener.OnCommandMediatorCreated<TParameter>(this, mediator, command, metadata);
-            }
+                (components[i] as ICommandMediatorProviderListener)?.OnCommandMediatorCreated<TParameter>(this, mediator, command, metadata);
         }
 
         #endregion

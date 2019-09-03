@@ -151,10 +151,7 @@ namespace MugenMvvm.Commands
 
             var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
-            {
-                if (components[i] is IConditionEventCommandMediatorComponent m)
-                    m.AddCanExecuteChanged(handler);
-            }
+                (components[i] as IConditionEventCommandMediatorComponent)?.AddCanExecuteChanged(handler);
         }
 
         public virtual void RemoveCanExecuteChanged(EventHandler handler)
@@ -164,10 +161,7 @@ namespace MugenMvvm.Commands
 
             var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
-            {
-                if (components[i] is IConditionEventCommandMediatorComponent m)
-                    m.RemoveCanExecuteChanged(handler);
-            }
+                (components[i] as IConditionEventCommandMediatorComponent)?.RemoveCanExecuteChanged(handler);
         }
 
         public virtual void RaiseCanExecuteChanged()
@@ -177,10 +171,7 @@ namespace MugenMvvm.Commands
 
             var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
-            {
-                if (components[i] is IConditionEventCommandMediatorComponent m)
-                    m.RaiseCanExecuteChanged();
-            }
+                (components[i] as IConditionEventCommandMediatorComponent)?.RaiseCanExecuteChanged();
         }
 
         public virtual IDisposable Suspend()
@@ -228,10 +219,7 @@ namespace MugenMvvm.Commands
         {
             var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
-            {
-                if (components[i] is IDisposable disposable)
-                    disposable.Dispose();
-            }
+                (components[i] as IDisposable)?.Dispose();
 
             ExecuteDelegate = Default.NoDoAction;
             CanExecuteDelegate = null;

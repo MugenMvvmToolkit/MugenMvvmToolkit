@@ -54,8 +54,9 @@ namespace MugenMvvm.Views
             var result = new List<IViewInfo>();
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i] is IViewInfoProviderComponent component)
-                    result.AddRange(component.GetViews(viewModel, metadata));
+                var views = (components[i] as IViewInfoProviderComponent)?.GetViews(viewModel, metadata);
+                if (views != null && views.Count != 0)
+                    result.AddRange(views);
             }
 
             return result;
@@ -70,8 +71,9 @@ namespace MugenMvvm.Views
             var result = new List<IViewInitializer>();
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i] is IViewInitializerProviderComponent component)
-                    result.AddRange(component.GetInitializersByView(view, metadata));
+                var initializers = (components[i] as IViewInitializerProviderComponent)?.GetInitializersByView(view, metadata);
+                if (initializers != null && initializers.Count != 0)
+                    result.AddRange(initializers);
             }
 
             return result;
@@ -86,8 +88,9 @@ namespace MugenMvvm.Views
             var result = new List<IViewInitializer>();
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i] is IViewInitializerProviderComponent component)
-                    result.AddRange(component.GetInitializersByViewModel(viewModel, metadata));
+                var initializers = (components[i] as IViewInitializerProviderComponent)?.GetInitializersByViewModel(viewModel, metadata);
+                if (initializers != null && initializers.Count != 0)
+                    result.AddRange(initializers);
             }
 
             return result;

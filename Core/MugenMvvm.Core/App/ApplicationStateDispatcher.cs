@@ -44,10 +44,7 @@ namespace MugenMvvm.App
                 return;
             var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
-            {
-                if (components[i] is IApplicationStateDispatcherListener listener)
-                    listener.OnStateChanged(this, oldState, state, metadata);
-            }
+                (components[i] as IApplicationStateDispatcherListener)?.OnStateChanged(this, oldState, state, metadata);
         }
 
         #endregion

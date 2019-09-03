@@ -170,12 +170,9 @@ namespace MugenMvvm.Serialization
             var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i] is ITypeResolverComponent resolver)
-                {
-                    var type = resolver.TryResolveType(this, assemblyName, typeName);
-                    if (type != null)
-                        return type;
-                }
+                var type = (components[i] as ITypeResolverComponent)?.TryResolveType(this, assemblyName, typeName);
+                if (type != null)
+                    return type;
             }
 
             return null;

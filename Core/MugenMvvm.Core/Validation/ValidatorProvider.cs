@@ -53,7 +53,7 @@ namespace MugenMvvm.Validation
             for (var i = 0; i < components.Length; i++)
             {
                 var list = (components[i] as IValidatorProviderComponent)?.GetValidators(metadata);
-                if (list != null)
+                if (list != null && list.Count != 0)
                     validators.AddRange(list);
             }
 

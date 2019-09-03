@@ -77,7 +77,7 @@ namespace MugenMvvm
         public static T GetService<T>(this IServiceProvider serviceProvider)
         {
             Should.NotBeNull(serviceProvider, nameof(serviceProvider));
-            return (T) serviceProvider.GetService(typeof(T));
+            return (T)serviceProvider.GetService(typeof(T));
         }
 
         [Pure]
@@ -90,7 +90,7 @@ namespace MugenMvvm
                 {
                     if (container.TryGet(typeof(T), out var o))
                     {
-                        service = (T) o!;
+                        service = (T)o!;
                         return true;
                     }
 
@@ -98,7 +98,7 @@ namespace MugenMvvm
                     return false;
                 }
 
-                service = (T) serviceProvider.GetService(typeof(T));
+                service = (T)serviceProvider.GetService(typeof(T));
                 return true;
             }
             catch
@@ -113,7 +113,7 @@ namespace MugenMvvm
             var tryGet = iocContainer.TryGet(typeof(T), out var objService, metadata);
             if (tryGet)
             {
-                service = (T) objService!;
+                service = (T)objService!;
                 return true;
             }
 
