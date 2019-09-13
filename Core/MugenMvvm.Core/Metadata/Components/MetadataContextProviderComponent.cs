@@ -78,7 +78,7 @@ namespace MugenMvvm.Metadata.Components
 
             IEnumerator IEnumerable.GetEnumerator()
             {
-                return ((IReadOnlyMetadataContext) this).GetEnumerator();
+                return ((IReadOnlyMetadataContext)this).GetEnumerator();
             }
 
             IEnumerator<MetadataContextValue> IEnumerable<MetadataContextValue>.GetEnumerator()
@@ -157,7 +157,7 @@ namespace MugenMvvm.Metadata.Components
                 get
                 {
                     if (_components == null)
-                        Service<IComponentCollectionProvider>.Instance.LazyInitialize(ref _components, this);
+                        MugenService.ComponentCollectionProvider.LazyInitialize(ref _components, this);
                     return _components;
                 }
             }

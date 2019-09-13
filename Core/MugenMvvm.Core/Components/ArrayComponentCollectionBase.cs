@@ -39,7 +39,7 @@ namespace MugenMvvm.Components
             get
             {
                 if (_components == null)
-                    Service<IComponentCollectionProvider>.Instance.LazyInitialize(ref _components, this);
+                    MugenService.ComponentCollectionProvider.LazyInitialize(ref _components, this);
                 return _components;
             }
         }

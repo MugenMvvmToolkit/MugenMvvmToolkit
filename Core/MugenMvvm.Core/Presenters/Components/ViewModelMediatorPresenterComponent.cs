@@ -101,7 +101,7 @@ namespace MugenMvvm.Presenters.Components
         protected override void OnAttachedInternal(IPresenter owner, IReadOnlyMetadataContext? metadata)
         {
             if (_navigationDispatcher == null)
-                _navigationDispatcher = Service<INavigationDispatcher>.Instance;
+                _navigationDispatcher = MugenService.NavigationDispatcher;
             _navigationDispatcher.AddComponent(this);
         }
 

@@ -17,7 +17,7 @@ namespace MugenMvvm
 
         internal static IWeakReference ToWeakReference(this object? item)
         {
-            return Service<IWeakReferenceProvider>.Instance.GetWeakReference(item);
+            return MugenService.WeakReferenceProvider.GetWeakReference(item);
         }
 
         internal static T ServiceIfNull<T>(this T? service) where T : class
@@ -94,7 +94,7 @@ namespace MugenMvvm
         internal static void InitializeArray<T>(T[] target, object[] source)
         {
             for (var i = 0; i < target.Length; i++)
-                target[i] = (T) source[i];
+                target[i] = (T)source[i];
         }
 
         #endregion

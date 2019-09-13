@@ -95,7 +95,7 @@ namespace MugenMvvm.Commands
 
         protected virtual ICommandMediator GetMediator(IReadOnlyMetadataContext metadata)
         {
-            return Service<ICommandMediatorProvider>.Instance.GetCommandMediator<object>(this, metadata);
+            return MugenService.CommandMediatorProvider.GetCommandMediator<object>(this, metadata);
         }
 
         public static MediatorCommand Create(Action execute, IReadOnlyMetadataContext? metadata = null)
@@ -275,7 +275,7 @@ namespace MugenMvvm.Commands
 
             protected override ICommandMediator GetMediator(IReadOnlyMetadataContext metadata)
             {
-                return Service<ICommandMediatorProvider>.Instance.GetCommandMediator<T>(this, metadata);
+                return MugenService.CommandMediatorProvider.GetCommandMediator<T>(this, metadata);
             }
 
             #endregion

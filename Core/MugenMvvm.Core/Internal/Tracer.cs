@@ -32,8 +32,6 @@ namespace MugenMvvm.Internal
 
         public static bool TraceError { get; set; } = Debugger.IsAttached;
 
-        private static ITracer TracerInternal => Service<ITracer>.Instance;
-
         #endregion
 
         #region Implementation of interfaces
@@ -65,35 +63,35 @@ namespace MugenMvvm.Internal
 
         public static void Info(string message)
         {
-            TracerInternal.Trace(TraceLevel.Information, message);
+            MugenService.Tracer.Trace(TraceLevel.Information, message);
         }
 
         public static void Warn(string message)
         {
-            TracerInternal.Trace(TraceLevel.Warning, message);
+            MugenService.Tracer.Trace(TraceLevel.Warning, message);
         }
 
         public static void Error(string message)
         {
-            TracerInternal.Trace(TraceLevel.Error, message);
+            MugenService.Tracer.Trace(TraceLevel.Error, message);
         }
 
         [StringFormatMethod("format")]
         public static void Info(string format, params object[] args)
         {
-            TracerInternal.Trace(TraceLevel.Information, format, args);
+            MugenService.Tracer.Trace(TraceLevel.Information, format, args);
         }
 
         [StringFormatMethod("format")]
         public static void Warn(string format, params object[] args)
         {
-            TracerInternal.Trace(TraceLevel.Warning, format, args);
+            MugenService.Tracer.Trace(TraceLevel.Warning, format, args);
         }
 
         [StringFormatMethod("format")]
         public static void Error(string format, params object[] args)
         {
-            TracerInternal.Trace(TraceLevel.Error, format, args);
+            MugenService.Tracer.Trace(TraceLevel.Error, format, args);
         }
 
         #endregion
