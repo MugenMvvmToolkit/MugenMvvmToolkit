@@ -62,7 +62,7 @@ namespace MugenMvvm.Binding.Parsing.Nodes
                 changed = true;
             //            if (notNull && result == null)//todo add
             //                throw BindingExceptionManager.ExpressionNodeCannotBeNull(GetType());
-            return (T)result;
+            return (T)result!;
         }
 
         #endregion

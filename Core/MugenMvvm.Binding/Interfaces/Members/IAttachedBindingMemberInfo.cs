@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Members
 {
-    public interface IAttachedBindingMemberInfo<in TTarget, TType> : IBindingMemberInfo
+    public interface IAttachedBindingMemberInfo<in TTarget, TType> : IBindingMemberInfo//todo field/property/method
         where TTarget : class ?
     {
         TType GetValue(TTarget target, object?[]? args, IReadOnlyMetadataContext? metadata = null);

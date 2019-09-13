@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Nodes;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Parsing
 {
@@ -12,7 +13,7 @@ namespace MugenMvvm.Binding.Parsing
         #region Fields
 
         public readonly IReadOnlyMetadataContext Metadata;
-        public readonly IReadOnlyList<IExpressionNode> Parameters;
+        public readonly ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>> Parameters;
         public readonly IExpressionNode? SourceExpression;
         public readonly IExpressionNode TargetExpression;
 
@@ -20,20 +21,20 @@ namespace MugenMvvm.Binding.Parsing
 
         #region Constructors
 
-        public BindingParserResult(IExpressionNode targetExpression, IExpressionNode? sourceExpression, IReadOnlyList<IExpressionNode>? parameters, IReadOnlyMetadataContext? metadata)
+        public BindingParserResult(IExpressionNode targetExpression, IExpressionNode? sourceExpression, ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>> parameters,
+            IReadOnlyMetadataContext? metadata)
         {
+            Should.NotBeNull(targetExpression, nameof(targetExpression));
             TargetExpression = targetExpression;
             SourceExpression = sourceExpression;
-            Parameters = parameters ?? Default.EmptyArray<IExpressionNode>();
+            Parameters = parameters;
             Metadata = metadata ?? Default.Metadata;
         }
 
-        public BindingParserResult(IExpressionNode targetExpression, IExpressionNode? sourceExpression, IReadOnlyList<IExpressionNode>? parameters, IBindingParserContext context)
+        public BindingParserResult(IExpressionNode targetExpression, IExpressionNode? sourceExpression, ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>> parameters,
+            IBindingParserContext context)
+            : this(targetExpression, sourceExpression, parameters, context.HasMetadata ? context.Metadata : Default.Metadata)
         {
-            TargetExpression = targetExpression;
-            SourceExpression = sourceExpression;
-            Parameters = parameters ?? Default.EmptyArray<IExpressionNode>();
-            Metadata = context.HasMetadata ? context.Metadata : Default.Metadata;
         }
 
         #endregion

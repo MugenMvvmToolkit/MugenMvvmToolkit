@@ -6,6 +6,7 @@ using MugenMvvm.Binding.Interfaces.Parsing.Nodes;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Parsing
 {
@@ -37,14 +38,27 @@ namespace MugenMvvm.Binding.Parsing
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<BindingParserResult> Parse(string expression, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<BindingParserResult, IReadOnlyList<BindingParserResult>> Parse(string expression, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(expression, nameof(expression));
-            var result = new List<BindingParserResult>();
+            BindingParserResult? itemResult = null;
+            List<BindingParserResult>? result = null;
             var context = GetBindingParserContext(expression, metadata);
             while (!context.IsEof())
-                result.Add(Parse(context));
+            {
+                var r = Parse(context);
+                if (itemResult == null)
+                    itemResult = r;
+                else
+                {
+                    if (result == null)
+                        result = new List<BindingParserResult> { itemResult.Value };
+                    result.Add(r);
+                }
+            }
 
+            if (result == null)
+                return itemResult.GetValueOrDefault();
             return result;
         }
 
@@ -81,18 +95,25 @@ namespace MugenMvvm.Binding.Parsing
                 source = context.ParseWhileAnyOf(Delimiters);
 
             List<IExpressionNode>? parameters = null;
+            IExpressionNode? parameter = null;
             while (context.IsToken(','))
             {
-                if (parameters == null)
-                    parameters = new List<IExpressionNode>();
-                parameters.Add(context.MoveNext().ParseWhileAnyOf(Delimiters));
+                var param = context.MoveNext().ParseWhileAnyOf(Delimiters);
+                if (parameter == null)
+                    parameter = param;
+                else
+                {
+                    if (parameters == null)
+                        parameters = new List<IExpressionNode> { parameter };
+                    parameters.Add(param);
+                }
             }
 
             if (context.IsEof() || context.IsToken(';'))
             {
                 if (context.IsToken(';'))
                     context.MoveNext();
-                return new BindingParserResult(target, source, parameters, context);
+                return new BindingParserResult(target, source, parameters ?? new ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>>(parameter!), context);
             }
 
             throw new Exception(); //todo add 

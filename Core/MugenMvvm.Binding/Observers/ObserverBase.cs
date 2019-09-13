@@ -16,7 +16,7 @@ namespace MugenMvvm.Binding.Observers
         protected const byte HasStablePathFlag = 1 << 3;
         protected const byte InitializedFlag = 1 << 4;
 
-        private IBindingPathObserverListener[] _listeners;
+        private IBindingPathObserverListener[] _listeners;//todo change to item or array
         private IWeakReference? _source;
 
         private static readonly IBindingPathObserverListener[] DisposedItems = new IBindingPathObserverListener[0];

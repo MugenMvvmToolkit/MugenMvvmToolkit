@@ -1,6 +1,6 @@
 ﻿namespace MugenMvvm.Binding.Interfaces.Core
 {
-    public interface IHasEqualityCheckingSettingsDataBinding : IDataBinding
+    public interface IHasEqualityCheckingSettingsDataBinding : IDataBinding//todo move to metadata
     {
         bool DisableEqualityCheckingTarget { get; set; }
 
