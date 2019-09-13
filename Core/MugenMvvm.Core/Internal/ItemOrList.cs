@@ -1,16 +1,16 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace MugenMvvm.Internal
 {
+    [StructLayout(LayoutKind.Auto)]
     public readonly struct ItemOrList<TItem, TList>
-        where TItem : class ?
-        where TList : class ?, IEnumerable<TItem>
+        where TList : class, IEnumerable<TItem>
     {
         #region Fields
 
         public readonly TItem Item;
-        public readonly TList List;
+        public readonly TList? List;
 
         #endregion
 
@@ -25,7 +25,7 @@ namespace MugenMvvm.Internal
         public ItemOrList(TList list)
         {
             List = list;
-            Item = null;
+            Item = default;
         }
 
         #endregion
