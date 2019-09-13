@@ -110,13 +110,12 @@ namespace MugenMvvm.Messaging
         [Preserve(Conditional = true)]
         internal static object? Invoke<T>(object target, IMessageContext messageContext)
         {
-            if (target is IMessengerHandler<T> handler)
-            {
-                handler.Handle((T)messageContext.Message, messageContext);
-                return handler;
-            }
+            if (!(target is IMessengerHandler<T> handler))
+                return null;
 
-            return null;
+            handler.Handle((T)messageContext.Message, messageContext);
+            return handler;
+
         }
 
         #endregion

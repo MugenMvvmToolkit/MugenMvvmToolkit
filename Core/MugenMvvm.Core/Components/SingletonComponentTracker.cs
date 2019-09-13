@@ -2,6 +2,7 @@
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Components
 {
@@ -50,7 +51,7 @@ namespace MugenMvvm.Components
         }
 
         void IComponentCollectionChangedListener<IComponent<TComponentBase>>.OnCleared(IComponentCollection<IComponent<TComponentBase>> collection,
-            IComponent<TComponentBase>[] oldItems, IReadOnlyMetadataContext? metadata)
+            ItemOrList<IComponent<TComponentBase>, IComponent<TComponentBase>[]> oldItems, IReadOnlyMetadataContext? metadata)
         {
             MugenExtensions.SingletonComponentTrackerOnCleared(ref _component, collection, oldItems, metadata);
         }

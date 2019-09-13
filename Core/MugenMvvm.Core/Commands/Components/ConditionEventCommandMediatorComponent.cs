@@ -133,9 +133,8 @@ namespace MugenMvvm.Commands.Components
 
         private void Handle(object message)
         {
-            if (_ignoreProperties != null && message is PropertyChangedEventArgs args && _ignoreProperties.Contains(args.PropertyName))
-                return;
-            RaiseCanExecuteChanged();
+            if (_ignoreProperties == null || !(message is PropertyChangedEventArgs args) || !_ignoreProperties.Contains(args.PropertyName))
+                RaiseCanExecuteChanged();
         }
 
         #endregion

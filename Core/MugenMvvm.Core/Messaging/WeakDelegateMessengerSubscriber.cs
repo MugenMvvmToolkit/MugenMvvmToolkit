@@ -43,16 +43,16 @@ namespace MugenMvvm.Messaging
 
         public MessengerResult Handle(IMessageContext messageContext)
         {
-            var target = (TTarget?) _reference.Target;
+            var target = (TTarget?)_reference.Target;
             if (target == null)
                 return MessengerResult.Invalid;
-            if (messageContext.Message is TMessage m)
-            {
-                _action(target, m, messageContext);
-                return MessengerResult.Handled;
-            }
 
-            return MessengerResult.Ignored;
+            if (!(messageContext.Message is TMessage m))
+                return MessengerResult.Ignored;
+
+            _action(target, m, messageContext);
+            return MessengerResult.Handled;
+
         }
 
         #endregion

@@ -87,9 +87,7 @@ namespace MugenMvvm.ViewModels.Components
 
         public int GetPriority(object owner)
         {
-            if (owner is IViewModelManager)
-                return Priority;
-            return 0;
+            return owner is IViewModelManager ? Priority : 0;
         }
 
         public IViewModelBase? TryGetViewModel(IReadOnlyMetadataContext metadata)

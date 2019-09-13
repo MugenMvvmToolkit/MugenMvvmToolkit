@@ -33,9 +33,7 @@ namespace MugenMvvm.Serialization
 
         public static object? From(object? value)
         {
-            if (value is SerializableNullValue)
-                return null;
-            return value;
+            return value is SerializableNullValue ? null : value;
         }
 
         public static bool IsNull(object? value)

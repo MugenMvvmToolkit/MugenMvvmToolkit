@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -149,14 +150,14 @@ namespace MugenMvvm.Serialization
             var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i] is ISurrogateProviderComponent surrogate)
+                if (!(components[i] is ISurrogateProviderComponent surrogate))
+                    continue;
+
+                surrogateType = surrogate.TryGetSerializationType(this, type);
+                if (surrogateType != null)
                 {
-                    surrogateType = surrogate.TryGetSerializationType(this, type);
-                    if (surrogateType != null)
-                    {
-                        provider = surrogate;
-                        return true;
-                    }
+                    provider = surrogate;
+                    return true;
                 }
             }
 
@@ -251,13 +252,11 @@ namespace MugenMvvm.Serialization
             {
                 get
                 {
-                    if (!(_metadata is IMetadataContext ctx))
-                    {
-                        ctx = _metadata.ToNonReadonly(this, _serializer._metadataContextProvider);
-                        _metadata = ctx;
-                    }
+                    if (_metadata is IMetadataContext ctx)
+                        return ctx;
 
-                    return ctx;
+                    Interlocked.CompareExchange(ref _metadata, _metadata.ToNonReadonly(this, _serializer._metadataContextProvider), null);
+                    return (IMetadataContext)_metadata;
                 }
             }
 

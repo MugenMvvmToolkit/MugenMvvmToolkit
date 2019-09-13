@@ -80,6 +80,7 @@ namespace MugenMvvm.Validation
             {
                 if (!(components[i] is IValidatorProviderListener listener))
                     continue;
+
                 for (var j = 0; j < validators.Count; j++)
                     listener.OnValidatorCreated(this, validators[j], metadata);
             }

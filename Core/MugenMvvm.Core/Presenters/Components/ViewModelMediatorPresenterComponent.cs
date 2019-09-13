@@ -57,9 +57,7 @@ namespace MugenMvvm.Presenters.Components
 
         public int GetPriority(object owner)
         {
-            if (owner is INavigationDispatcher)
-                return NavigationDispatcherListenerPriority;
-            return Priority;
+            return owner is INavigationDispatcher ? NavigationDispatcherListenerPriority : Priority;
         }
 
         public IReadOnlyList<IPresenterResult> TryClose(IMetadataContext metadata)
@@ -70,15 +68,16 @@ namespace MugenMvvm.Presenters.Components
 
         void INavigationDispatcherNavigatedListener.OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
         {
-            if (navigationContext.NavigationMode.IsClose && navigationContext.NavigationProvider is IViewModelPresenterMediator mediator)
+            if (!navigationContext.NavigationMode.IsClose || !(navigationContext.NavigationProvider is IViewModelPresenterMediator mediator))
+                return;
+
+            var mediators = mediator.ViewModel.Metadata.Get(NavigationMediators);
+            if (mediators == null)
+                return;
+
+            lock (mediators)
             {
-                var mediators = mediator.ViewModel.Metadata.Get(NavigationMediators);
-                if (mediators == null)
-                    return;
-                lock (mediators)
-                {
-                    mediators.Remove(mediator);
-                }
+                mediators.Remove(mediator);
             }
         }
 

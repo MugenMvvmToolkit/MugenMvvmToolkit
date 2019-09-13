@@ -120,7 +120,7 @@ namespace MugenMvvm.Components
 
         #region Nested types
 
-        public sealed class ComponentCollectionListener<T> : IComponentCollectionChangedListener<T>, IComponentCollectionProviderListener
+        public sealed class ComponentCollectionListener<T> : IComponentCollectionChangedListener<T>, IComponentCollectionChangingListener<T>, IComponentCollectionProviderListener
             where T : class
         {
             #region Fields
@@ -136,44 +136,32 @@ namespace MugenMvvm.Components
                 if (component is IAttachableComponent)
                     Attach(collection, component, false, metadata);
 
-                if (collection.Owner is IComponentOwnerAddedCallback<T> callback)
-                    callback.OnComponentAdded(collection, component, metadata);
+                (collection.Owner as IComponentOwnerAddedCallback<T>)?.OnComponentAdded(collection, component, metadata);
             }
 
             public void OnRemoved(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata)
             {
-                if (component is IDetachableComponent)
-                    Detach(collection, component, false, metadata);
-
-                if (collection.Owner is IComponentOwnerRemovedCallback<T> callback)
-                    callback.OnComponentRemoved(collection, component, metadata);
+                RemoveInternal(collection, component, collection.Owner as IComponentOwnerRemovedCallback<T>, metadata);
             }
 
-            public void OnCleared(IComponentCollection<T> collection, T[] oldItems, IReadOnlyMetadataContext? metadata)
+            public void OnCleared(IComponentCollection<T> collection, ItemOrList<T, T[]> oldItems, IReadOnlyMetadataContext? metadata)
             {
                 var clearedCallback = collection.Owner as IComponentOwnerClearedCallback<T>;
                 var removedCallback = clearedCallback == null ? collection.Owner as IComponentOwnerRemovedCallback<T> : null;
-                for (var i = 0; i < oldItems.Length; i++)
+                var items = oldItems.List;
+                if (items == null)
                 {
-                    var oldItem = oldItems[i];
-                    if (oldItem is IDetachableComponent)
-                        Detach(collection, oldItem, false, metadata);
-                    removedCallback?.OnComponentRemoved(collection, oldItem, metadata);
+                    if (oldItems.Item != null)
+                        RemoveInternal(collection, oldItems.Item, removedCallback, metadata);
+                }
+                else
+                {
+                    for (var i = 0; i < items.Length; i++)
+                        RemoveInternal(collection, items[i], removedCallback, metadata);
                 }
 
                 clearedCallback?.OnComponentCleared(collection, oldItems, metadata);
             }
-
-            public void OnComponentCollectionCreated<TItem>(IComponentCollectionProvider provider, IComponentCollection<TItem> componentCollection,
-                IReadOnlyMetadataContext? metadata)
-                where TItem : class
-            {
-                componentCollection.AddComponent(ComponentCollectionListener<TItem>.Instance, metadata);
-            }
-
-            #endregion
-
-            #region Methods
 
             public bool OnAdding(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata)
             {
@@ -199,7 +187,21 @@ namespace MugenMvvm.Components
                 return true;
             }
 
+            public void OnComponentCollectionCreated<TItem>(IComponentCollectionProvider provider, IComponentCollection<TItem> componentCollection,
+                IReadOnlyMetadataContext? metadata)
+                where TItem : class
+            {
+                componentCollection.AddComponent(ComponentCollectionListener<TItem>.Instance, metadata);
+            }
+
             #endregion
+
+            private static void RemoveInternal(IComponentCollection<T> collection, T oldItem, IComponentOwnerRemovedCallback<T>? removedCallback, IReadOnlyMetadataContext? metadata)
+            {
+                if (oldItem is IDetachableComponent)
+                    Detach(collection, oldItem, false, metadata);
+                removedCallback?.OnComponentRemoved(collection, oldItem, metadata);
+            }
         }
 
         #endregion

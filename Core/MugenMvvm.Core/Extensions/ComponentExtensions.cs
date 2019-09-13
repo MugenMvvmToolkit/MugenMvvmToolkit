@@ -2,6 +2,7 @@
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm
@@ -95,13 +96,21 @@ namespace MugenMvvm
         }
 
         public static void ComponentTrackerOnCleared<TComponent, TComponentBase>(ref TComponent[] items,
-            IComponentCollection<IComponent<TComponentBase>> collection, IComponent<TComponentBase>[] oldItems, IReadOnlyMetadataContext? metadata)
+            IComponentCollection<IComponent<TComponentBase>> collection, ItemOrList<IComponent<TComponentBase>, IComponent<TComponentBase>[]> oldItems, IReadOnlyMetadataContext? metadata)
             where TComponent : class
             where TComponentBase : class
         {
-            for (var index = 0; index < oldItems.Length; index++)
+            var components = oldItems.List;
+            if (items == null)
             {
-                if (oldItems[index] is TComponent c)
+                if (oldItems.Item is TComponent c)
+                    Remove(ref items, c);
+                return;
+            }
+
+            for (var index = 0; index < components.Length; index++)
+            {
+                if (components[index] is TComponent c)
                     Remove(ref items, c);
             }
         }
@@ -111,18 +120,18 @@ namespace MugenMvvm
             where TComponent : class
             where TComponentBase : class
         {
-            if (component is TComponent c)
-            {
-                if (autoDetachOld)
-                {
-                    if (ReferenceEquals(c, currentComponent))
-                        return;
-                    if (currentComponent != null)
-                        collection.Remove((IComponent<TComponentBase>)currentComponent, metadata);
-                }
+            if (!(component is TComponent c))
+                return;
 
-                currentComponent = c;
+            if (autoDetachOld)
+            {
+                if (ReferenceEquals(c, currentComponent))
+                    return;
+                if (currentComponent != null)
+                    collection.Remove((IComponent<TComponentBase>)currentComponent, metadata);
             }
+
+            currentComponent = c;
         }
 
         public static void SingletonComponentTrackerOnRemoved<TComponent, TComponentBase>(ref TComponent? currentComponent,
@@ -135,13 +144,21 @@ namespace MugenMvvm
         }
 
         public static void SingletonComponentTrackerOnCleared<TComponent, TComponentBase>(ref TComponent? currentComponent,
-            IComponentCollection<IComponent<TComponentBase>> collection, IComponent<TComponentBase>[] oldItems, IReadOnlyMetadataContext? metadata)
+            IComponentCollection<IComponent<TComponentBase>> collection, ItemOrList<IComponent<TComponentBase>, IComponent<TComponentBase>[]> oldItems, IReadOnlyMetadataContext? metadata)
             where TComponent : class
             where TComponentBase : class
         {
-            for (var index = 0; index < oldItems.Length; index++)
+            var components = oldItems.List;
+            if (components == null)
             {
-                if (ReferenceEquals(currentComponent, oldItems[index]))
+                if (ReferenceEquals(oldItems.Item, currentComponent))
+                    currentComponent = null;
+                return;
+            }
+
+            for (var index = 0; index < components.Length; index++)
+            {
+                if (ReferenceEquals(currentComponent, components[index]))
                 {
                     currentComponent = null;
                     break;

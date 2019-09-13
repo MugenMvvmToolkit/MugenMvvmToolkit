@@ -24,12 +24,12 @@ namespace MugenMvvm.Messaging.Components
 
         public object OnSubscribing(object subscriber, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata)
         {
-            if (subscriber is IViewModelBase vm)
-            {
-                var vmSubscriber = ViewModelMessengerSubscriber.TryGetSubscriber(vm, true);
-                if (vmSubscriber != null)
-                    return vmSubscriber;
-            }
+            if (!(subscriber is IViewModelBase vm))
+                return subscriber;
+
+            var vmSubscriber = ViewModelMessengerSubscriber.TryGetSubscriber(vm, true);
+            if (vmSubscriber != null)
+                return vmSubscriber;
 
             return subscriber;
         }

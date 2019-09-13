@@ -27,13 +27,12 @@ namespace MugenMvvm.Messaging
 
         public MessengerResult Handle(IMessageContext messageContext)
         {
-            if (messageContext.Message is TMessage m)
-            {
-                _action(m, messageContext);
-                return MessengerResult.Handled;
-            }
+            if (!(messageContext.Message is TMessage m))
+                return MessengerResult.Ignored;
 
-            return MessengerResult.Ignored;
+            _action(m, messageContext);
+            return MessengerResult.Handled;
+
         }
 
         #endregion

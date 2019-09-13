@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using MugenMvvm.Attributes;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
@@ -308,12 +309,11 @@ namespace MugenMvvm.Messaging
             {
                 get
                 {
-                    if (!(_metadata is IMetadataContext ctx))
-                    {
-                        ctx = _metadata.ToNonReadonly(this, _messenger._metadataContextProvider);
-                        _metadata = ctx;
-                    }
-                    return ctx;
+                    if (_metadata is IMetadataContext ctx)
+                        return ctx;
+
+                    Interlocked.CompareExchange(ref _metadata, _metadata.ToNonReadonly(this, _messenger._metadataContextProvider), null);
+                    return (IMetadataContext)_metadata;
                 }
             }
 

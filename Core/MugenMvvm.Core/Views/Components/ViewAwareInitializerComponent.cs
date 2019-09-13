@@ -115,31 +115,31 @@ namespace MugenMvvm.Views.Components
         internal void UpdateView<TView>(IViewModelBase viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata, bool clear)
             where TView : class
         {
-            if (viewModel is IViewAwareViewModel<TView> awareViewModel)
-            {
-                if (clear)
-                {
-                    awareViewModel.View = null;
-                    return;
-                }
+            if (!(viewModel is IViewAwareViewModel<TView> awareViewModel))
+                return;
 
-                var wrappedView = viewInfo.TryWrap<TView>(metadata);
-                if (wrappedView != null)
-                    awareViewModel.View = wrappedView;
+            if (clear)
+            {
+                awareViewModel.View = null;
+                return;
             }
+
+            var wrappedView = viewInfo.TryWrap<TView>(metadata);
+            if (wrappedView != null)
+                awareViewModel.View = wrappedView;
         }
 
         [Preserve(Conditional = true)]
         internal void UpdateViewModel<TViewModel>(object viewModel, IViewInfo viewInfo, IReadOnlyMetadataContext metadata, bool clear)
             where TViewModel : class, IViewModelBase
         {
-            if (viewInfo.View is IViewModelAwareView<TViewModel> awareView)
-            {
-                if (clear)
-                    awareView.ViewModel = null;
-                else if (viewModel is TViewModel vm)
-                    awareView.ViewModel = vm;
-            }
+            if (!(viewInfo.View is IViewModelAwareView<TViewModel> awareView))
+                return;
+
+            if (clear)
+                awareView.ViewModel = null;
+            else if (viewModel is TViewModel vm)
+                awareView.ViewModel = vm;
         }
 
         private static Func<object?, object?[], object?>? GetDelegate(Type targetType, Type interfaceType, string propertyName, MethodInfo method)
