@@ -279,7 +279,7 @@ namespace MugenMvvm.Binding.Core
                 return;
             SetFlag(DisposedFlag);
             OnDispose();
-            Service<IBindingManager>.Instance.OnLifecycleChanged(this, DataBindingLifecycleState.Disposed, Metadata);
+            MugenBindingService.BindingManager.OnLifecycleChanged(this, DataBindingLifecycleState.Disposed, Metadata);
             if (_targetObserverCount != 0)
                 Target.RemoveListener(this);
             Target.Dispose();
@@ -633,7 +633,7 @@ namespace MugenMvvm.Binding.Core
                     return false;
             }
 
-            newValue = Service<IGlobalBindingValueConverter>.Instance.Convert(newValue, pathLastMember.LastMember.Type, pathLastMember.LastMember, Metadata);
+            newValue = MugenBindingService.GlobalBindingValueConverter.Convert(newValue, pathLastMember.LastMember.Type, pathLastMember.LastMember, Metadata);
             if (!CheckFlag(DisableEqualityCheckingTargetFlag) && pathLastMember.LastMember.CanRead)
             {
                 var oldValue = pathLastMember.LastMember.GetValue(pathLastMember.PenultimateValue, null, Metadata);
@@ -668,7 +668,7 @@ namespace MugenMvvm.Binding.Core
                     return false;
             }
 
-            newValue = Service<IGlobalBindingValueConverter>.Instance.Convert(newValue, pathLastMember.LastMember.Type, pathLastMember.LastMember, Metadata);
+            newValue = MugenBindingService.GlobalBindingValueConverter.Convert(newValue, pathLastMember.LastMember.Type, pathLastMember.LastMember, Metadata);
             if (!CheckFlag(DisableEqualityCheckingSourceFlag) && pathLastMember.LastMember.CanRead)
             {
                 var oldValue = pathLastMember.LastMember.GetValue(pathLastMember.PenultimateValue, null, Metadata);

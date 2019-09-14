@@ -162,8 +162,8 @@ namespace MugenMvvm.Binding.Observers
         protected static IBindingMemberInfo? GetBindingMember(Type type, string path, bool ignoreAttached)
         {
             if (ignoreAttached)
-                return Service<IBindingMemberProvider>.Instance.GetRawMember(type, path, Default.Metadata);
-            return Service<IBindingMemberProvider>.Instance.GetMember(type, path, Default.Metadata);
+                return MugenBindingService.BindingMemberProvider.GetRawMember(type, path, Default.Metadata);
+            return MugenBindingService.BindingMemberProvider.GetMember(type, path, Default.Metadata);
         }
 
         #endregion

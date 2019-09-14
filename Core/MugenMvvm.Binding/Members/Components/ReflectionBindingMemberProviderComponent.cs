@@ -111,7 +111,7 @@ namespace MugenMvvm.Binding.Members.Components
                             }
                             else
                             {
-                                if (!Service<IGlobalBindingValueConverter>.Instance.TryConvert(arg, paramType, null, metadata, out _))
+                                if (!MugenBindingService.GlobalBindingValueConverter.TryConvert(arg, paramType, null, metadata, out _))
                                 {
                                     count = -1;
                                     break;
