@@ -45,7 +45,7 @@ namespace MugenMvvm.IoC
             {
                 if (_components == null)
                     MugenExtensions.LazyInitialize(ref _components, GetListenersCollection());
-                return _components;
+                return _components!;
             }
         }
 

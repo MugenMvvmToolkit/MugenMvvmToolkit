@@ -25,7 +25,7 @@ namespace MugenMvvm.Internal
         public ItemOrList(TList list)
         {
             List = list;
-            Item = default;
+            Item = default!;
         }
 
         #endregion

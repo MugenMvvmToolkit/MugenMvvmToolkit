@@ -30,7 +30,7 @@ namespace MugenMvvm.Components
 
         #region Properties
 
-        TComponent IHasService<TComponent>.Service => GetComponent(true);
+        TComponent IHasService<TComponent>.Service => GetComponent(true)!;
 
         TComponent? IHasServiceOptional<TComponent>.ServiceOptional => GetComponent(false);
 
@@ -51,7 +51,7 @@ namespace MugenMvvm.Components
         }
 
         void IComponentCollectionChangedListener<IComponent<TComponentBase>>.OnCleared(IComponentCollection<IComponent<TComponentBase>> collection,
-            ItemOrList<IComponent<TComponentBase>, IComponent<TComponentBase>[]> oldItems, IReadOnlyMetadataContext? metadata)
+            ItemOrList<IComponent<TComponentBase>?, IComponent<TComponentBase>[]> oldItems, IReadOnlyMetadataContext? metadata)
         {
             MugenExtensions.SingletonComponentTrackerOnCleared(ref _component, collection, oldItems, metadata);
         }

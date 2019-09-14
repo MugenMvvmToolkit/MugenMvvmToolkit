@@ -32,7 +32,7 @@ namespace MugenMvvm.Components
             {
                 if (_components == null)
                     ComponentCollectionProvider.LazyInitialize(ref _components, this);
-                return _components;
+                return _components!;
             }
         }
 

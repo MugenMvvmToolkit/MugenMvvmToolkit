@@ -71,7 +71,7 @@ namespace MugenMvvm.Views.Components
                 .GetMethodsUnified(MemberFlags.StaticOnly)
                 .FirstOrDefault(info => nameof(UpdateView).Equals(info.Name));
             Should.BeSupported(m != null, nameof(UpdateViewMethodInfo));
-            return m;
+            return m!;
         }
 
         private static MethodInfo GetUpdateViewModelMethod()
@@ -80,7 +80,7 @@ namespace MugenMvvm.Views.Components
                 .GetMethodsUnified(MemberFlags.StaticOnly)
                 .FirstOrDefault(info => nameof(UpdateViewModel).Equals(info.Name));
             Should.BeSupported(m != null, nameof(UpdateViewModelMethodInfo));
-            return m;
+            return m!;
         }
 
         private Func<object?, object?[], object?>? GetUpdateViewMethod(IViewModelBase viewModel, object view)

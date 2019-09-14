@@ -4,7 +4,6 @@ using System.Linq;
 using System.Runtime.Serialization;
 using MugenMvvm.Constants;
 
-#pragma warning disable CS8618
 namespace MugenMvvm.Enums
 {
     [Serializable]
@@ -24,10 +23,12 @@ namespace MugenMvvm.Enums
 
         #region Constructors
 
+#pragma warning disable CS8618
         //note serialization only
         protected EnumBase()
         {
         }
+#pragma warning restore CS8618
 
         protected EnumBase(TValue value, string? displayName)
         {
@@ -163,4 +164,3 @@ namespace MugenMvvm.Enums
         #endregion
     }
 }
-#pragma warning restore CS8618

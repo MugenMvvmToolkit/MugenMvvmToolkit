@@ -11,7 +11,6 @@ using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Internal;
 
-#pragma warning disable CS8618
 namespace MugenMvvm.Presenters
 {
     public abstract class ViewModelPresenterMediatorBase<TView> : IViewModelPresenterMediator, INavigationProvider
@@ -30,12 +29,14 @@ namespace MugenMvvm.Presenters
 
         #region Constructors
 
+#pragma warning disable CS8618
         protected ViewModelPresenterMediatorBase(INavigationDispatcher? navigationDispatcher = null, IThreadDispatcher? threadDispatcher = null)
         {
             _navigationDispatcher = navigationDispatcher;
             _threadDispatcher = threadDispatcher;
             Id = GetType().FullName;
         }
+#pragma warning restore CS8618
 
         #endregion
 
@@ -348,4 +349,3 @@ namespace MugenMvvm.Presenters
         #endregion
     }
 }
-#pragma warning restore CS8618

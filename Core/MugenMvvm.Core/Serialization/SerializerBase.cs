@@ -256,7 +256,7 @@ namespace MugenMvvm.Serialization
                         return ctx;
 
                     Interlocked.CompareExchange(ref _metadata, _metadata.ToNonReadonly(this, _serializer._metadataContextProvider), null);
-                    return (IMetadataContext)_metadata;
+                    return (IMetadataContext)_metadata!;
                 }
             }
 

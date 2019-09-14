@@ -34,7 +34,7 @@ namespace MugenMvvm.Internal
             for (var i = 0; i < _components.Length; i++)
             {
                 if (_components[i].TryGetOrAddAttachedDictionary(item, metadata, out var dict))
-                    return dict;
+                    return dict!;
             }
 
             ExceptionManager.ThrowObjectNotInitialized(this);

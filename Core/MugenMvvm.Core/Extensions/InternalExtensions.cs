@@ -13,7 +13,23 @@ namespace MugenMvvm
 {
     public static partial class MugenExtensions
     {
+        #region Fields
+
+        private static readonly Func<bool, bool> IsTrueDelegate = b => b;
+
+        #endregion
+
         #region Methods
+
+        internal static bool ToBoolNoBox<T>(T value)
+        {
+            return ((Func<T, bool>)(object)IsTrueDelegate).Invoke(value);
+        }
+
+        internal static T FromBoolNoBox<T>(bool value)
+        {
+            return ((Func<bool, T>)(object)IsTrueDelegate).Invoke(value);
+        }
 
         internal static IWeakReference ToWeakReference(this object? item)
         {

@@ -8,7 +8,6 @@ using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Internal;
 
-#pragma warning disable CS8618
 namespace MugenMvvm.Serialization
 {
     [Serializable]
@@ -28,9 +27,11 @@ namespace MugenMvvm.Serialization
 
         #region Constructors
 
+#pragma warning disable CS8618
         internal StaticMemberMemento()
         {
         }
+#pragma warning restore CS8618
 
         private StaticMemberMemento(object target, MemberInfo member)
         {
@@ -91,4 +92,3 @@ namespace MugenMvvm.Serialization
         #endregion
     }
 }
-#pragma warning restore CS8618

@@ -96,12 +96,12 @@ namespace MugenMvvm
         }
 
         public static void ComponentTrackerOnCleared<TComponent, TComponentBase>(ref TComponent[] items,
-            IComponentCollection<IComponent<TComponentBase>> collection, ItemOrList<IComponent<TComponentBase>, IComponent<TComponentBase>[]> oldItems, IReadOnlyMetadataContext? metadata)
+            IComponentCollection<IComponent<TComponentBase>> collection, ItemOrList<IComponent<TComponentBase>?, IComponent<TComponentBase>[]> oldItems, IReadOnlyMetadataContext? metadata)
             where TComponent : class
             where TComponentBase : class
         {
             var components = oldItems.List;
-            if (items == null)
+            if (components == null)
             {
                 if (oldItems.Item is TComponent c)
                     Remove(ref items, c);
@@ -144,7 +144,7 @@ namespace MugenMvvm
         }
 
         public static void SingletonComponentTrackerOnCleared<TComponent, TComponentBase>(ref TComponent? currentComponent,
-            IComponentCollection<IComponent<TComponentBase>> collection, ItemOrList<IComponent<TComponentBase>, IComponent<TComponentBase>[]> oldItems, IReadOnlyMetadataContext? metadata)
+            IComponentCollection<IComponent<TComponentBase>> collection, ItemOrList<IComponent<TComponentBase>?, IComponent<TComponentBase>[]> oldItems, IReadOnlyMetadataContext? metadata)
             where TComponent : class
             where TComponentBase : class
         {

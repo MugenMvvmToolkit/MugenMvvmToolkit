@@ -86,7 +86,7 @@ namespace MugenMvvm.Messaging
                 .GetMethodsUnified(MemberFlags.StaticOnly)
                 .FirstOrDefault(info => nameof(Invoke).Equals(info.Name));
             Should.BeSupported(m != null, nameof(InvokeMethodInfo));
-            return m;
+            return m!;
         }
 
         public override bool Equals(object obj)

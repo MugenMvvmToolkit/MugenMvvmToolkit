@@ -17,8 +17,7 @@ using MugenMvvm.Messaging.Components;
 using MugenMvvm.Metadata;
 using MugenMvvm.Serialization;
 
-#pragma warning disable CS8618
-namespace MugenMvvm.Messaging//todo review pragma
+namespace MugenMvvm.Messaging
 {
     public sealed class ViewModelMessengerSubscriber : MessengerHandlerComponent.IMessengerSubscriber, IMetadataContextListener, IHasMemento//todo review memento
     {
@@ -169,9 +168,11 @@ namespace MugenMvvm.Messaging//todo review pragma
                 ViewModel = viewModel;
             }
 
+#pragma warning disable CS8618
             internal ViewModelMessengerSubscriberMemento()
             {
             }
+#pragma warning restore CS8618
 
             #endregion
 
@@ -204,4 +205,3 @@ namespace MugenMvvm.Messaging//todo review pragma
         #endregion
     }
 }
-#pragma warning restore CS8618

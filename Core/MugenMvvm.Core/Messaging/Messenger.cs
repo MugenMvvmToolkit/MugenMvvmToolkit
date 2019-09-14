@@ -313,7 +313,7 @@ namespace MugenMvvm.Messaging
                         return ctx;
 
                     Interlocked.CompareExchange(ref _metadata, _metadata.ToNonReadonly(this, _messenger._metadataContextProvider), null);
-                    return (IMetadataContext)_metadata;
+                    return (IMetadataContext)_metadata!;
                 }
             }
 

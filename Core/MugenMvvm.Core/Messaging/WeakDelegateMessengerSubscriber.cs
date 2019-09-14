@@ -32,7 +32,7 @@ namespace MugenMvvm.Messaging
         {
             Should.NotBeNull(action, nameof(action));
             Should.BeSupported(action.Target != null, MessageConstants.StaticDelegateCannotBeWeak);
-            Should.BeSupported(!action.Target.GetType().IsAnonymousClass(), MessageConstants.AnonymousDelegateCannotBeWeak);
+            Should.BeSupported(!action.Target!.GetType().IsAnonymousClass(), MessageConstants.AnonymousDelegateCannotBeWeak);
             _reference = action.Target.ToWeakReference();
             _action = action.GetMethodInfo().GetMethodInvoker<Action<TTarget, TMessage, IMessageContext>>();
         }

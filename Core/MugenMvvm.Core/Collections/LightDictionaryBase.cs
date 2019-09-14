@@ -10,7 +10,7 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Internal;
 
-#pragma warning disable CS8618
+
 namespace MugenMvvm.Collections
 {
     [DebuggerDisplay("Count = {Count}")]
@@ -49,6 +49,7 @@ namespace MugenMvvm.Collections
 
         #region Constructors
 
+#pragma warning disable CS8618
         protected LightDictionaryBase(bool initialize)
         {
             if (initialize)
@@ -59,6 +60,7 @@ namespace MugenMvvm.Collections
         {
             Initialize(capacity);
         }
+#pragma warning restore CS8618
 
         #endregion
 
@@ -475,4 +477,3 @@ namespace MugenMvvm.Collections
         #endregion
     }
 }
-#pragma warning restore CS8618

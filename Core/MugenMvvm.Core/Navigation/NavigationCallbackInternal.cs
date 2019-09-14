@@ -6,7 +6,6 @@ using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Navigation;
 
-#pragma warning disable CS8618
 namespace MugenMvvm.Navigation
 {
     [Serializable]
@@ -44,9 +43,11 @@ namespace MugenMvvm.Navigation
             TaskCompletionSource = new TaskCompletionSource<bool>();
         }
 
+#pragma warning disable CS8618
         internal NavigationCallbackInternal()
         {
         }
+#pragma warning restore CS8618
 
         #endregion
 
@@ -94,4 +95,3 @@ namespace MugenMvvm.Navigation
         #endregion
     }
 }
-#pragma warning restore CS8618

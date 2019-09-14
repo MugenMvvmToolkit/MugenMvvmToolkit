@@ -62,7 +62,7 @@ namespace MugenMvvm.Validation
             {
                 if (_metadata == null)
                     MetadataContextProvider.LazyInitialize(ref _metadata, this);
-                return _metadata;
+                return _metadata!;
             }
         }
 
@@ -333,7 +333,7 @@ namespace MugenMvvm.Validation
             if (_disposeCancellationTokenSource == null)
                 MugenExtensions.LazyInitializeDisposable(ref _disposeCancellationTokenSource, new CancellationTokenSource());
 
-            var source = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _disposeCancellationTokenSource.Token);
+            var source = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _disposeCancellationTokenSource!.Token);
             if (_validatingTasks != null)
             {
                 CancellationTokenSource? oldValue;
@@ -354,7 +354,7 @@ namespace MugenMvvm.Validation
                 if (_validatingTasks == null)
                     MugenExtensions.LazyInitialize(ref _validatingTasks, new Dictionary<string, CancellationTokenSource>(StringComparer.Ordinal));
                 CancellationTokenSource? oldValue;
-                lock (_validatingTasks)
+                lock (_validatingTasks!)
                 {
                     if (_validatingTasks.TryGetValue(member, out oldValue))
                         _validatingTasks[member] = source;

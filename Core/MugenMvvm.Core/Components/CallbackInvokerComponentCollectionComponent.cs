@@ -34,7 +34,7 @@ namespace MugenMvvm.Components
         {
             var m = typeof(CallbackInvokerComponentCollectionComponent).GetMethodUnified(nameof(AttachDetachIml), MemberFlags.StaticOnly);
             Should.BeSupported(m != null, nameof(AttachDetachMethodInfo));
-            return m;
+            return m!;
         }
 
         private static bool Attach<T>(IComponentCollection<T> collection, object component, bool preBind, IReadOnlyMetadataContext? metadata) where T : class
@@ -144,7 +144,7 @@ namespace MugenMvvm.Components
                 RemoveInternal(collection, component, collection.Owner as IComponentOwnerRemovedCallback<T>, metadata);
             }
 
-            public void OnCleared(IComponentCollection<T> collection, ItemOrList<T, T[]> oldItems, IReadOnlyMetadataContext? metadata)
+            public void OnCleared(IComponentCollection<T> collection, ItemOrList<T?, T[]> oldItems, IReadOnlyMetadataContext? metadata)
             {
                 var clearedCallback = collection.Owner as IComponentOwnerClearedCallback<T>;
                 var removedCallback = clearedCallback == null ? collection.Owner as IComponentOwnerRemovedCallback<T> : null;
