@@ -1,27 +1,16 @@
-﻿using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Binding.Interfaces.Members;
+﻿using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 
 namespace MugenMvvm.Binding.Core
 {
-    public sealed class DataBinding : DataBindingBase, ISingleSourceDataBinding
+    public sealed class DataBinding : DataBindingBase
     {
         #region Constructors
 
         public DataBinding(IBindingPathObserver target, IBindingPathObserver source)
-            : base(target)
+            : base(target, source)
         {
-            Should.NotBeNull(source, nameof(source));
-            Source = source;
         }
-
-        #endregion
-
-        #region Properties
-
-        public override IBindingPathObserver[] Sources => new[] { Source };
-
-        public IBindingPathObserver Source { get; }
 
         #endregion
 
@@ -29,12 +18,7 @@ namespace MugenMvvm.Binding.Core
 
         protected override object? GetSourceValue(IBindingMemberInfo lastMember)
         {
-            return Source.GetLastMember(Metadata).GetLastMemberValue(metadata: Metadata);
-        }
-
-        protected override bool UpdateSourceInternal(out object? newValue)
-        {
-            return SetTargetValue(Source, out newValue);
+            return ((IBindingPathObserver)SourceRaw).GetLastMember(Metadata).GetLastMemberValue(metadata: Metadata);
         }
 
         #endregion

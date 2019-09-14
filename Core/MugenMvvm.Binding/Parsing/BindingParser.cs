@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Nodes;
@@ -165,13 +166,11 @@ namespace MugenMvvm.Binding.Parsing
             {
                 get
                 {
-                    if (!(_metadata is IMetadataContext ctx))
-                    {
-                        ctx = _metadata.ToNonReadonly(this, _parser._metadataContextProvider);
-                        _metadata = ctx;
-                    }
+                    if (_metadata is IMetadataContext ctx)
+                        return ctx;
 
-                    return ctx;
+                    Interlocked.CompareExchange(ref _metadata, _metadata.ToNonReadonly(this, _parser._metadataContextProvider), null);
+                    return (IMetadataContext)_metadata!;
                 }
             }
 

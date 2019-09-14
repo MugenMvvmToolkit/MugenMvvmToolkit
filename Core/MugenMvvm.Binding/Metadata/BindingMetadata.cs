@@ -12,6 +12,8 @@ namespace MugenMvvm.Binding.Metadata
         public static readonly object DoNothing = new object();
 
         private static IMetadataContextKey<IDataBinding?> _binding;
+        private static IMetadataContextKey<bool> _disableEqualityCheckingTarget;
+        private static IMetadataContextKey<bool> _disableEqualityCheckingSource;
 
         #endregion
 
@@ -19,8 +21,20 @@ namespace MugenMvvm.Binding.Metadata
 
         public static IMetadataContextKey<IDataBinding?> Binding
         {
-            get => _binding ??= GetBuilder<IDataBinding?>(nameof(Binding)).Build();//todo inline?
+            get => _binding ??= GetBuilder<IDataBinding?>(nameof(Binding)).Build();
             set => _binding = value;
+        }
+
+        public static IMetadataContextKey<bool> DisableEqualityCheckingTarget
+        {
+            get => _disableEqualityCheckingTarget ??= GetBuilder<bool>(nameof(DisableEqualityCheckingTarget)).Build();
+            set => _disableEqualityCheckingTarget = value;
+        }
+
+        public static IMetadataContextKey<bool> DisableEqualityCheckingSource
+        {
+            get => _disableEqualityCheckingSource ??= GetBuilder<bool>(nameof(DisableEqualityCheckingSource)).Build();
+            set => _disableEqualityCheckingSource = value;
         }
 
         #endregion

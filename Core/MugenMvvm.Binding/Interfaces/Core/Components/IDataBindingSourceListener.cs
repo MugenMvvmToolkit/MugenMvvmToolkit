@@ -8,7 +8,7 @@ namespace MugenMvvm.Binding.Interfaces.Core.Components
     {
         void OnSourceUpdateFailed(IDataBinding dataBinding, Exception error, IReadOnlyMetadataContext metadata);
 
-        void OnSourceUpdateCanceled(IDataBinding dataBinding, IReadOnlyMetadataContext? metadata);
+        void OnSourceUpdateCanceled(IDataBinding dataBinding, IReadOnlyMetadataContext metadata);
 
         void OnSourceUpdated(IDataBinding dataBinding, object? newValue, IReadOnlyMetadataContext metadata);
     }

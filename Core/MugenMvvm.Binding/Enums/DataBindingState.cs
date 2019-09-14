@@ -7,9 +7,9 @@ namespace MugenMvvm.Binding.Enums
     {
         #region Fields
 
-        public static readonly DataBindingState Detached = new DataBindingState(1);
-        public static readonly DataBindingState Attached = new DataBindingState(2);
-        public static readonly DataBindingState Disposed = new DataBindingState(3);
+        public static readonly DataBindingState Attached = new DataBindingState(1);
+        public static readonly DataBindingState Disposed = new DataBindingState(2);
+        public static readonly DataBindingState Invalid = new DataBindingState(3);
 
         #endregion
 

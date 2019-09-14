@@ -2,6 +2,8 @@
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Interfaces.Core
 {
@@ -11,7 +13,11 @@ namespace MugenMvvm.Binding.Interfaces.Core
 
         IBindingPathObserver Target { get; }
 
-        IBindingPathObserver[] Sources { get; }
+        ItemOrList<IBindingPathObserver, IBindingPathObserver[]> Source { get; }
+
+        bool TryGet<T>(IMetadataContextKey<T> key, out T value);
+
+        bool Set<T>(IMetadataContextKey<T> key, T value);
 
         void UpdateTarget();
 

@@ -18,18 +18,11 @@ namespace MugenMvvm.Binding.Core
         #region Constructors
 
         public MultiDataBinding(IBindingPathObserver target, IBindingPathObserver[] sources, Func<object?[]?, IReadOnlyMetadataContext?, object?> expression)
-            : base(target)
+            : base(target, sources)
         {
-            Should.NotBeNull(sources, nameof(sources));
+            Should.NotBeNull(expression, nameof(expression));
             _expression = expression;
-            Sources = sources;
         }
-
-        #endregion
-
-        #region Properties
-
-        public override IBindingPathObserver[] Sources { get; }
 
         #endregion
 
@@ -37,7 +30,7 @@ namespace MugenMvvm.Binding.Core
 
         public object? GetValue()
         {
-            var sources = Sources;
+            var sources = (IBindingPathObserver[]) SourceRaw;
             var values = new object?[sources.Length];
             for (var i = 0; i < sources.Length; i++)
             {
@@ -65,12 +58,6 @@ namespace MugenMvvm.Binding.Core
             if (BindingMemberType.Event.Equals(lastMember.MemberType))
                 return this;
             return GetValue();
-        }
-
-        protected override bool UpdateSourceInternal(out object? newValue)
-        {
-            newValue = null;
-            return false;
         }
 
         #endregion

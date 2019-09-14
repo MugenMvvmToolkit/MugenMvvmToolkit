@@ -1,4 +1,5 @@
 ﻿using MugenMvvm.Binding.Interfaces.Core;
+using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -36,12 +37,8 @@ namespace MugenMvvm.Binding.Core.Components
 
         bool IAttachableComponent<IDataBinding>.OnAttaching(IDataBinding owner, IReadOnlyMetadataContext? metadata)
         {
-            if (owner is IHasEqualityCheckingSettingsDataBinding binding)
-            {
-                binding.DisableEqualityCheckingTarget = _targetValue;
-                binding.DisableEqualityCheckingSource = _sourceValue;
-            }
-
+            owner.Set(BindingMetadata.DisableEqualityCheckingTarget, _targetValue);
+            owner.Set(BindingMetadata.DisableEqualityCheckingSource, _sourceValue);
             return false;
         }
 
