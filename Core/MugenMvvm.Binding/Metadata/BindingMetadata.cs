@@ -14,6 +14,7 @@ namespace MugenMvvm.Binding.Metadata
         private static IMetadataContextKey<IDataBinding?> _binding;
         private static IMetadataContextKey<bool> _disableEqualityCheckingTarget;
         private static IMetadataContextKey<bool> _disableEqualityCheckingSource;
+        private static IMetadataContextKey<bool> _debugMode;
 
         #endregion
 
@@ -35,6 +36,12 @@ namespace MugenMvvm.Binding.Metadata
         {
             get => _disableEqualityCheckingSource ??= GetBuilder<bool>(nameof(DisableEqualityCheckingSource)).Build();
             set => _disableEqualityCheckingSource = value;
+        }
+
+        public static IMetadataContextKey<bool> DebugMode
+        {
+            get => _debugMode ??= GetBuilder<bool>(nameof(DebugMode)).Build();
+            set => _debugMode = value;
         }
 
         #endregion

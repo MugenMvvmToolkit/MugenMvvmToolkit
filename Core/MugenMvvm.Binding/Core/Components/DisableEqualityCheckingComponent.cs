@@ -10,7 +10,6 @@ namespace MugenMvvm.Binding.Core.Components
     {
         #region Fields
 
-        private readonly bool _checkTwoWay;
         private readonly bool _sourceValue;
         private readonly bool _targetValue;
 
@@ -18,11 +17,10 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Constructors
 
-        public DisableEqualityCheckingComponent(bool targetValue, bool sourceValue, bool checkTwoWay)
+        public DisableEqualityCheckingComponent(bool targetValue, bool sourceValue)
         {
             _targetValue = targetValue;
             _sourceValue = sourceValue;
-            _checkTwoWay = checkTwoWay;
         }
 
         #endregion
@@ -37,8 +35,8 @@ namespace MugenMvvm.Binding.Core.Components
 
         bool IAttachableComponent<IDataBinding>.OnAttaching(IDataBinding owner, IReadOnlyMetadataContext? metadata)
         {
-            owner.Set(BindingMetadata.DisableEqualityCheckingTarget, _targetValue);
-            owner.Set(BindingMetadata.DisableEqualityCheckingSource, _sourceValue);
+            owner.SetFlag(BindingMetadata.DisableEqualityCheckingTarget, _targetValue);
+            owner.SetFlag(BindingMetadata.DisableEqualityCheckingSource, _sourceValue);
             return false;
         }
 

@@ -7,7 +7,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Interfaces.Core
 {
-    public interface IDataBinding : IDisposable, IComponentOwner<IDataBinding>
+    public interface IDataBinding : IDisposable, IComponentOwner<IDataBinding>, IMetadataOwner<IReadOnlyMetadataContext>
     {
         DataBindingState State { get; }
 
@@ -15,9 +15,9 @@ namespace MugenMvvm.Binding.Interfaces.Core
 
         ItemOrList<IBindingPathObserver, IBindingPathObserver[]> Source { get; }
 
-        bool TryGet<T>(IMetadataContextKey<T> key, out T value);
+        bool? GetFlag(IMetadataContextKey<bool> flag);
 
-        bool Set<T>(IMetadataContextKey<T> key, T value);
+        bool SetFlag(IMetadataContextKey<bool> flag, bool value);
 
         void UpdateTarget();
 

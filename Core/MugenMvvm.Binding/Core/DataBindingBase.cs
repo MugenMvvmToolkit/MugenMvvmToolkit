@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Interfaces.Members;
@@ -43,6 +42,7 @@ namespace MugenMvvm.Binding.Core
         private const short HasSourceValueSetterFlag = 1 << 9;
 
         private const short DisposedFlag = 1 << 10;
+        private const short DebugFlag = 1 << 11;
 
         #endregion
 
@@ -90,6 +90,10 @@ namespace MugenMvvm.Binding.Core
         object IComponentCollection<IComponent<IDataBinding>>.Owner => this;
 
         bool IComponentCollection<IComponent<IDataBinding>>.HasItems => HasComponents;
+
+        bool IMetadataOwner<IReadOnlyMetadataContext>.HasMetadata => true;
+
+        IReadOnlyMetadataContext IMetadataOwner<IReadOnlyMetadataContext>.Metadata => Metadata;
 
         protected virtual IReadOnlyMetadataContext Metadata => this;
 
@@ -304,52 +308,52 @@ namespace MugenMvvm.Binding.Core
             Components.Clear();
         }
 
-        public bool TryGet<T>(IMetadataContextKey<T> key, out T value)
+        public bool? GetFlag(IMetadataContextKey<bool> flag)
         {
-            Should.NotBeNull(key, nameof(key));
-            if (BindingMetadata.DisableEqualityCheckingSource.Equals(key))
-            {
-                value = MugenExtensions.FromBoolNoBox<T>(CheckFlag(DisableEqualityCheckingSourceFlag));
-                return true;
-            }
+            Should.NotBeNull(flag, nameof(flag));
+            if (BindingMetadata.DisableEqualityCheckingSource.Equals(flag))
+                return CheckFlag(DisableEqualityCheckingSourceFlag);
 
-            if (BindingMetadata.DisableEqualityCheckingTarget.Equals(key))
-            {
-                value = MugenExtensions.FromBoolNoBox<T>(CheckFlag(DisableEqualityCheckingTargetFlag));
-                return true;
-            }
+            if (BindingMetadata.DisableEqualityCheckingTarget.Equals(flag))
+                return CheckFlag(DisableEqualityCheckingTargetFlag);
 
-            if (BindingMetadata.Binding.Equals(key))
-            {
-                value = (T)(object)this;
-                return true;
-            }
+            if (BindingMetadata.DebugMode.Equals(flag))
+                return CheckFlag(DebugFlag);
 
-            return TryGetInternal(key, out value);
+            return GetFlagInternal(flag);
         }
 
-        public bool Set<T>(IMetadataContextKey<T> key, T value)
+        public bool SetFlag(IMetadataContextKey<bool> flag, bool value)
         {
-            Should.NotBeNull(key, nameof(key));
-            if (BindingMetadata.DisableEqualityCheckingSource.Equals(key))
+            Should.NotBeNull(flag, nameof(flag));
+            if (BindingMetadata.DisableEqualityCheckingSource.Equals(flag))
             {
-                if (MugenExtensions.ToBoolNoBox(value))
+                if (value)
                     SetFlag(DisableEqualityCheckingSourceFlag);
                 else
                     ClearFlag(DisableEqualityCheckingSourceFlag);
                 return true;
             }
 
-            if (BindingMetadata.DisableEqualityCheckingTarget.Equals(key))
+            if (BindingMetadata.DisableEqualityCheckingTarget.Equals(flag))
             {
-                if (MugenExtensions.ToBoolNoBox(value))
+                if (value)
                     SetFlag(DisableEqualityCheckingTargetFlag);
                 else
                     ClearFlag(DisableEqualityCheckingTargetFlag);
                 return true;
             }
 
-            return SetInternal(key, value);
+            if (BindingMetadata.DebugMode.Equals(flag))
+            {
+                if (value)
+                    SetFlag(DebugFlag);
+                else
+                    ClearFlag(DebugFlag);
+                return true;
+            }
+
+            return SetFlagInternal(flag, value);
         }
 
         public void UpdateTarget()
@@ -420,8 +424,11 @@ namespace MugenMvvm.Binding.Core
 
         bool IReadOnlyMetadataContext.TryGet<T>(IMetadataContextKey<T> contextKey, out T value, T defaultValue)
         {
-            if (TryGet(contextKey, out value))
+            if (BindingMetadata.Binding.Equals(contextKey))
+            {
+                value = (T)(object)this;
                 return true;
+            }
 
             value = contextKey.GetDefaultValue(this, defaultValue);
             return false;
@@ -600,13 +607,12 @@ namespace MugenMvvm.Binding.Core
         {
         }
 
-        protected virtual bool TryGetInternal<T>(IMetadataContextKey<T> key, out T value)
+        protected virtual bool? GetFlagInternal(IMetadataContextKey<bool> flag)
         {
-            value = default!;
-            return false;
+            return null;
         }
 
-        protected virtual bool SetInternal<T>(IMetadataContextKey<T> key, T value)
+        protected virtual bool SetFlagInternal(IMetadataContextKey<bool> flag, bool value)
         {
             return false;
         }
