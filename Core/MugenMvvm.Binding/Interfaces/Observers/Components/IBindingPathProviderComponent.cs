@@ -5,6 +5,10 @@ namespace MugenMvvm.Binding.Interfaces.Observers.Components
 {
     public interface IBindingPathProviderComponent : IComponent<IBindingObserverProvider>
     {
-        IBindingPath? TryGetBindingPath(object path, IReadOnlyMetadataContext? metadata);
+    }
+
+    public interface IBindingPathProviderComponent<TPath> : IBindingPathProviderComponent
+    {
+        IBindingPath? TryGetBindingPath(in TPath path, IReadOnlyMetadataContext? metadata);
     }
 }

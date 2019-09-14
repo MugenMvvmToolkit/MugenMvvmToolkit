@@ -4,7 +4,7 @@
     {
         string Path { get; }
 
-        string[] Parts { get; }
+        string[] Members { get; }
 
         bool IsSingle { get; }
     }

@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
-    public sealed class BindingPathProviderComponent : IBindingPathProviderComponent, IHasPriority
+    public sealed class BindingPathProviderComponent : IBindingPathProviderComponent<string>, IHasPriority
     {
         #region Fields
 
@@ -37,18 +37,15 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Implementation of interfaces
 
-        public IBindingPath? TryGetBindingPath(object path, IReadOnlyMetadataContext? metadata)
+        public IBindingPath? TryGetBindingPath(in string path, IReadOnlyMetadataContext? metadata)
         {
-            if (!(path is string stringPath))
-                return null;
-
-            if (stringPath.Length == 0)
+            if (path.Length == 0)
                 return EmptyBindingPath.Instance;
 
             if (UseCache)
-                return GetFromCache(stringPath);
+                return GetFromCache(path);
 
-            return GetObserver(stringPath);
+            return GetObserver(path);
         }
 
         #endregion
@@ -66,7 +63,7 @@ namespace MugenMvvm.Binding.Observers.Components
             return value;
         }
 
-        private IBindingPath GetObserver(string path)
+        private static IBindingPath GetObserver(string path)
         {
             var hasBracket = path.IndexOf('[') >= 0;
             if (path.IndexOf('.') >= 0 || hasBracket)
@@ -107,7 +104,7 @@ namespace MugenMvvm.Binding.Observers.Components
         {
             #region Fields
 
-            private string[]? _parts;
+            private string[]? _members;
 
             #endregion
 
@@ -124,13 +121,13 @@ namespace MugenMvvm.Binding.Observers.Components
 
             public string Path { get; }
 
-            public string[] Parts
+            public string[] Members
             {
                 get
                 {
-                    if (_parts == null)
-                        _parts = new[] { Path };
-                    return _parts;
+                    if (_members == null)
+                        _members = new[] {Path};
+                    return _members;
                 }
             }
 
@@ -146,14 +143,14 @@ namespace MugenMvvm.Binding.Observers.Components
             public MultiBindingPath(string path, bool hasIndexer)
             {
                 Path = path;
-                Parts = path.Split(BindingMugenExtensions.DotSeparator, StringSplitOptions.RemoveEmptyEntries);
+                Members = path.Split(BindingMugenExtensions.DotSeparator, StringSplitOptions.RemoveEmptyEntries);
 
                 if (hasIndexer)
                 {
                     var items = new List<string>();
-                    for (var index = 0; index < Parts.Length; index++)
+                    for (var index = 0; index < Members.Length; index++)
                     {
-                        var s = Parts[index];
+                        var s = Members[index];
                         var start = s.IndexOf('[');
                         var end = s.IndexOf(']');
                         if (start <= 0 || end < 0)
@@ -168,7 +165,7 @@ namespace MugenMvvm.Binding.Observers.Components
                     }
 
 
-                    Parts = items.ToArray();
+                    Members = items.ToArray();
                 }
             }
 
@@ -178,7 +175,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
             public string Path { get; }
 
-            public string[] Parts { get; }
+            public string[] Members { get; }
 
             public bool IsSingle => false;
 

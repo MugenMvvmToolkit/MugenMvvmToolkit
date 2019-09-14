@@ -10,8 +10,8 @@ namespace MugenMvvm.Binding.Interfaces.Observers
     {
         BindingMemberObserver GetMemberObserver(Type type, object member, IReadOnlyMetadataContext? metadata = null);
 
-        IBindingPath GetBindingPath(object path, IReadOnlyMetadataContext? metadata = null);
+        IBindingPath GetBindingPath<TPath>(in TPath path, IReadOnlyMetadataContext? metadata = null);
 
-        IBindingPathObserver GetBindingPathObserver(object source, object path, IReadOnlyMetadataContext? metadata = null);
+        IBindingPathObserver GetBindingPathObserver<TPath>(object source, in TPath path, IReadOnlyMetadataContext? metadata = null);
     }
 }

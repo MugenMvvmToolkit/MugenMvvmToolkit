@@ -9,9 +9,9 @@ namespace MugenMvvm.Binding.Interfaces.Core
 {
     public interface IBindingManager : IComponentOwner<IBindingManager>, IComponent<IMugenApplication>
     {
-        ItemOrList<IDataBindingExpression, IReadOnlyList<IDataBindingExpression>> BuildBindingExpressions<T>(ref T expression, IReadOnlyMetadataContext? metadata = null);
+        ItemOrList<IDataBindingExpression, IReadOnlyList<IDataBindingExpression>> BuildBindingExpressions<T>(in T expression, IReadOnlyMetadataContext? metadata = null);
 
-        ItemOrList<IDataBinding, IReadOnlyList<IDataBinding>> BuildBindings<T>(ref T expression, object target, in ItemOrList<object?, IReadOnlyList<object?>> sources = default,
+        ItemOrList<IDataBinding, IReadOnlyList<IDataBinding>> BuildBindings<T>(in T expression, object target, in ItemOrList<object?, IReadOnlyList<object?>> sources = default,
             IReadOnlyMetadataContext? metadata = null);
 
         ItemOrList<IDataBinding?, IReadOnlyList<IDataBinding>> GetBindings(object target, string? path = null, IReadOnlyMetadataContext? metadata = null);

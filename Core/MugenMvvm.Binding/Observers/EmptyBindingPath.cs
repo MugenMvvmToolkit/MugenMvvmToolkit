@@ -22,7 +22,7 @@ namespace MugenMvvm.Binding.Observers
 
         public string Path => "";
 
-        public string[] Parts => Default.EmptyArray<string>();
+        public string[] Members => Default.EmptyArray<string>();
 
         public bool IsSingle => false;
 

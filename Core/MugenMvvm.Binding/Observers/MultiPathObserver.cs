@@ -33,7 +33,7 @@ namespace MugenMvvm.Binding.Observers
             if (optional)
                 _state |= OptionalFlag;
             if (observable)
-                _listeners = new IDisposable[path.Parts.Length];
+                _listeners = new IDisposable[path.Members.Length];
             Path = path;
         }
 
@@ -166,7 +166,7 @@ namespace MugenMvvm.Binding.Observers
                     return true;
                 }
 
-                var paths = Path.Parts;
+                var paths = Path.Members;
                 var members = new IBindingMemberInfo[paths.Length];
                 for (var i = 0; i < members.Length - 1; i++)
                 {

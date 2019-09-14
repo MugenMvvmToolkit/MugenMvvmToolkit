@@ -41,16 +41,15 @@ namespace MugenMvvm.Binding.Observers
             return GetMemberObserverInternal(type, member, metadata);
         }
 
-        public IBindingPath GetBindingPath(object path, IReadOnlyMetadataContext? metadata = null)
+        public IBindingPath GetBindingPath<TPath>(in TPath path, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(path, nameof(path));
             var p = path as IBindingPath ?? TryGetBindingPathInternal(path, metadata);
             if (p == null)
                 ExceptionManager.ThrowNotSupported(nameof(path));
             return p!;
         }
 
-        public IBindingPathObserver GetBindingPathObserver(object source, object path, IReadOnlyMetadataContext? metadata = null)
+        public IBindingPathObserver GetBindingPathObserver<TPath>(object source, in TPath path, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(source, nameof(source));
             var bindingPath = GetBindingPath(path, metadata);
@@ -104,11 +103,11 @@ namespace MugenMvvm.Binding.Observers
             return default;
         }
 
-        protected virtual IBindingPath? TryGetBindingPathInternal(object path, IReadOnlyMetadataContext? metadata)
+        protected virtual IBindingPath? TryGetBindingPathInternal<TPath>(in TPath path, IReadOnlyMetadataContext? metadata)
         {
             for (var i = 0; i < PathProviders.Length; i++)
             {
-                var bindingPath = PathProviders[i].TryGetBindingPath(path, metadata);
+                var bindingPath = (PathProviders[i] as IBindingPathProviderComponent<TPath>)?.TryGetBindingPath(path, metadata);
                 if (bindingPath != null)
                     return bindingPath;
             }
