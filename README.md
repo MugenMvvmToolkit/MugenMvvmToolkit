@@ -12,7 +12,7 @@ The Mugen MVVM Toolkit provides a cross-platform MVVM development framework buil
  - UWP
  
 # Questions & support
-We have a [group on Slack](https://mugenmvvmtoolkit.slack.com/signup) where we will be glad to answer your questions.
+We have a [group on Slack](https://join.slack.com/t/mugenmvvmtoolkit/shared_invite/enQtNzYxMzExNzg4OTI4LWUxOTVjZDhkODUwZjEwNjJiOWUzM2E0OGE1ZThhYTY5MTgzOTA5MjY1MTY5NzI2YWQ4NDg3ODQxNmM5NTBkNzc) where we will be glad to answer your questions.
 
 # Documentation
 Please chek out MugenMvvmToolkit [documentation](https://mugenmvvmtoolkit.readme.io/docs).
