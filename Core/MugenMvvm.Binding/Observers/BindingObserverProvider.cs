@@ -34,7 +34,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Implementation of interfaces
 
-        public BindingMemberObserver GetMemberObserver(Type type, object member, IReadOnlyMetadataContext? metadata = null)
+        public BindingMemberObserver GetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(member, nameof(member));
@@ -91,13 +91,16 @@ namespace MugenMvvm.Binding.Observers
             MugenExtensions.ComponentTrackerOnRemoved(ref PathProviders, collection, component, metadata);
         }
 
-        protected virtual BindingMemberObserver GetMemberObserverInternal(Type type, object member, IReadOnlyMetadataContext? metadata)
+        protected virtual BindingMemberObserver GetMemberObserverInternal<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata)
         {
             for (var i = 0; i < MemberObserverProviders.Length; i++)
             {
-                var observer = MemberObserverProviders[i].TryGetMemberObserver(type, member, metadata);
-                if (!observer.IsEmpty)
-                    return observer;
+                if (MemberObserverProviders[i] is IBindingMemberObserverProviderComponent<TMember> component)
+                {
+                    var observer = component.TryGetMemberObserver(type, member, metadata);
+                    if (!observer.IsEmpty)
+                        return observer;
+                }
             }
 
             return default;

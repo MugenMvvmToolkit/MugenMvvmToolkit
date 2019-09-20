@@ -80,7 +80,7 @@ namespace MugenMvvm.Binding.Observers
             get
             {
                 if (_lastMember == null)
-                    return ConstantBindingMemberInfo.UnsetInstance;
+                    return ConstantBindingMemberInfo.Unset;
                 return _lastMember;
             }
         }
@@ -96,10 +96,14 @@ namespace MugenMvvm.Binding.Observers
         }
 
 
-        public object? GetLastMemberValue(object?[]? args = null, IReadOnlyMetadataContext? metadata = null)
+        public object? GetLastMemberValue(IReadOnlyMetadataContext? metadata = null)
         {
-            ThrowIfError();
-            return LastMember.GetValue(PenultimateValue, args, metadata);
+            return ((IBindingPropertyInfo)LastMember).GetValue(PenultimateValue, metadata);
+        }
+
+        public void SetLastMemberValue(object? value, IReadOnlyMetadataContext? metadata = null)
+        {
+            ((IBindingPropertyInfo)LastMember).SetValue(PenultimateValue, value, metadata);
         }
 
         #endregion

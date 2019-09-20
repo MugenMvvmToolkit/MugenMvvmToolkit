@@ -97,7 +97,7 @@ namespace MugenMvvm.Binding.Observers
             get
             {
                 if (_lastMember == null)
-                    return ConstantBindingMemberInfo.UnsetInstance;
+                    return ConstantBindingMemberInfo.Unset;
                 return _lastMember;
             }
         }
@@ -107,7 +107,7 @@ namespace MugenMvvm.Binding.Observers
             get
             {
                 if (_lastMember == null)
-                    return ConstantBindingMemberInfo.UnsetInstanceArray;
+                    return ConstantBindingMemberInfo.UnsetArray;
                 if (_members == null)
                     return new[] { _lastMember };
                 return _members;

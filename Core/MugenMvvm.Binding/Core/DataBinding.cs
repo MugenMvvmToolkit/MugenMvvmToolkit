@@ -18,7 +18,7 @@ namespace MugenMvvm.Binding.Core
 
         protected override object? GetSourceValue(IBindingMemberInfo lastMember)
         {
-            return ((IBindingPathObserver)SourceRaw).GetLastMember(Metadata).GetLastMemberValue(metadata: Metadata);
+            return ((IBindingPathObserver)SourceRaw).GetLastMember(Metadata).GetLastMemberValue(Metadata);
         }
 
         #endregion

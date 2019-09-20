@@ -15,10 +15,6 @@ namespace MugenMvvm.Binding.Interfaces.Core
 
         ItemOrList<IBindingPathObserver, IBindingPathObserver[]> Source { get; }
 
-        bool? GetFlag(IMetadataContextKey<bool> flag);
-
-        bool SetFlag(IMetadataContextKey<bool> flag, bool value);
-
         void UpdateTarget();
 
         void UpdateSource();

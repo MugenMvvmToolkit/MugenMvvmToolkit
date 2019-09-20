@@ -8,10 +8,8 @@ namespace MugenMvvm.Binding.Enums
         #region Fields
 
         public static readonly BindingMemberType Property = new BindingMemberType(nameof(Property));
-        public static readonly BindingMemberType Field = new BindingMemberType(nameof(Field));
+        public static readonly BindingMemberType Method = new BindingMemberType(nameof(Method));
         public static readonly BindingMemberType Event = new BindingMemberType(nameof(Event));
-        public static readonly BindingMemberType Array = new BindingMemberType(nameof(Array));
-        public static readonly BindingMemberType Empty = new BindingMemberType(nameof(Empty));
 
         #endregion
 

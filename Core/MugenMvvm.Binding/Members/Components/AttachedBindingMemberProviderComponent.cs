@@ -11,11 +11,12 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class AttachedBindingMemberProviderComponent : AttachableComponentBase<IBindingMemberProvider>, IAttachedBindingMemberProviderComponent
+    public sealed class AttachedBindingMemberProviderComponent : AttachableComponentBase<IBindingMemberProvider>, IBindingMemberProviderComponent, IBindingMethodProviderComponent
     {
         #region Fields
 
-        private readonly CacheDictionary _cache;
+        private readonly CacheDictionary<IBindingMemberInfo> _cache;
+        private readonly CacheDictionary<List<IBindingMethodInfo>> _methodsCache;
 
         #endregion
 
@@ -24,7 +25,8 @@ namespace MugenMvvm.Binding.Members.Components
         [Preserve(Conditional = true)]
         public AttachedBindingMemberProviderComponent()
         {
-            _cache = new CacheDictionary();
+            _cache = new CacheDictionary<IBindingMemberInfo>();
+            _methodsCache = new CacheDictionary<List<IBindingMethodInfo>>();
         }
 
         #endregion
@@ -37,23 +39,17 @@ namespace MugenMvvm.Binding.Members.Components
             return result;
         }
 
-        public IReadOnlyList<AttachedMemberRegistration> GetMembers(Type type, IReadOnlyMetadataContext? metadata)
+        public IReadOnlyList<IBindingMethodInfo> TryGetMethods(Type type, string name, IReadOnlyMetadataContext metadata)
         {
-            var members = new List<AttachedMemberRegistration>();
-            foreach (var member in _cache)
-            {
-                if (member.Key.Type.IsAssignableFromUnified(type))
-                    members.Add(new AttachedMemberRegistration(member.Key.Name, member.Value));
-            }
-
-            return members;
+            _methodsCache.TryGetValue(new CacheKey(type, name), out var result);
+            return (IReadOnlyList<IBindingMethodInfo>) result ?? Default.EmptyArray<IBindingMethodInfo>();
         }
 
         #endregion
 
         #region Methods
 
-        public void Register(Type type, IBindingMemberInfo member, string? name = null, IReadOnlyMetadataContext? metadata = null)
+        public void Register(Type type, IBindingMemberInfo member, string? name = null)
         {
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(member, nameof(member));
@@ -61,21 +57,47 @@ namespace MugenMvvm.Binding.Members.Components
             (Owner as IHasCache)?.ClearCache();
         }
 
-        public bool Unregister(Type type, string? name = null, IReadOnlyMetadataContext? metadata = null)
+        public bool Unregister(Type type, string? name = null)
+        {
+            return UnregisterInternal(_cache, type, name);
+        }
+
+        public void RegisterMethod(Type type, IBindingMethodInfo method, string? name = null)
+        {
+            Should.NotBeNull(type, nameof(type));
+            Should.NotBeNull(method, nameof(method));
+            var key = new CacheKey(type, name ?? method.Name);
+            if (!_methodsCache.TryGetValue(key, out var list))
+            {
+                list = new List<IBindingMethodInfo>();
+                _methodsCache[key] = list;
+            }
+
+            list.Add(method);
+            (Owner as IHasCache)?.ClearCache();
+        }
+
+        public bool UnregisterMethod(Type type, string? name = null)
+        {
+            return UnregisterInternal(_methodsCache, type, name);
+        }
+
+        private bool UnregisterInternal<T>(LightDictionaryBase<CacheKey, T> cache, Type type, string? name) where T : class
         {
             Should.NotBeNull(type, nameof(type));
             if (name != null)
             {
-                if (_cache.Remove(new CacheKey(type, name)))
+                if (cache.Remove(new CacheKey(type, name)))
                 {
                     (Owner as IHasCache)?.ClearCache();
                     return true;
                 }
+
                 return false;
             }
 
             List<CacheKey>? toRemove = null;
-            foreach (var keyValuePair in _cache)
+            foreach (var keyValuePair in cache)
             {
                 if (keyValuePair.Key.Type != type)
                     continue;
@@ -87,7 +109,7 @@ namespace MugenMvvm.Binding.Members.Components
             if (toRemove == null)
                 return false;
             for (var index = 0; index < toRemove.Count; index++)
-                _cache.Remove(toRemove[index]);
+                cache.Remove(toRemove[index]);
             (Owner as IHasCache)?.ClearCache();
             return true;
         }
@@ -96,7 +118,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Nested types
 
-        private sealed class CacheDictionary : LightDictionaryBase<CacheKey, IBindingMemberInfo>
+        private sealed class CacheDictionary<TItem> : LightDictionaryBase<CacheKey, TItem> where TItem : class
         {
             #region Constructors
 

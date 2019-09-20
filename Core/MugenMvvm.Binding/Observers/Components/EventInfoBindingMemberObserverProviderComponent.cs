@@ -11,7 +11,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
-    public sealed class EventInfoBindingMemberObserverProviderComponent : IBindingMemberObserverProviderComponent, BindingMemberObserver.IHandler, IHasPriority
+    public sealed class EventInfoBindingMemberObserverProviderComponent : IBindingMemberObserverProviderComponent<EventInfo>, BindingMemberObserver.IHandler, IHasPriority
     {
         #region Fields
 
@@ -40,18 +40,21 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Implementation of interfaces
 
-        IDisposable? BindingMemberObserver.IHandler.TryObserve(object? target, object member, IBindingEventListener listener, IReadOnlyMetadataContext? metadata)
+        IDisposable? BindingMemberObserver.IHandler.TryObserve(object? source, object member, IBindingEventListener listener, IReadOnlyMetadataContext? metadata)
         {
+            if (source == null)
+                return null;
+
             var eventInfo = (EventInfo)member;
             var listenerInternal = _attachedDictionaryProvider
                 .ServiceIfNull()
-                .GetOrAdd(target!, BindingInternalConstants.EventPrefixObserverMember + eventInfo.Name, eventInfo, null, CreateWeakListenerDelegate);
+                .GetOrAdd(source, BindingInternalConstants.EventPrefixObserverMember + eventInfo.Name, eventInfo, null, CreateWeakListenerDelegate);
             return listenerInternal?.AddWithUnsubscriber(listener);
         }
 
-        public BindingMemberObserver TryGetMemberObserver(Type type, object member, IReadOnlyMetadataContext? metadata)
+        public BindingMemberObserver TryGetMemberObserver(Type type, in EventInfo member, IReadOnlyMetadataContext? metadata)
         {
-            if (member is EventInfo eventInfo && eventInfo.EventHandlerType.CanCreateDelegate(RaiseMethod))
+            if (member.EventHandlerType.CanCreateDelegate(RaiseMethod))
                 return new BindingMemberObserver(this, member);
             return default;
         }

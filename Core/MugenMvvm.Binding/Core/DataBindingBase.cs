@@ -29,20 +29,16 @@ namespace MugenMvvm.Binding.Core
         private const short TargetUpdatingFlag = 1;
         private const short SourceUpdatingFlag = 1 << 1;
 
-        private const short DisableEqualityCheckingTargetFlag = 1 << 2;
-        private const short DisableEqualityCheckingSourceFlag = 1 << 3;
+        private const short HasTargetValueInterceptorFlag = 1 << 2;
+        private const short HasSourceValueInterceptorFlag = 1 << 3;
 
-        private const short HasTargetValueInterceptorFlag = 1 << 4;
-        private const short HasSourceValueInterceptorFlag = 1 << 5;
+        private const short HasTargetListenerFlag = 1 << 4;
+        private const short HasSourceListenerFlag = 1 << 5;
 
-        private const short HasTargetListenerFlag = 1 << 6;
-        private const short HasSourceListenerFlag = 1 << 7;
+        private const short HasTargetValueSetterFlag = 1 << 6;
+        private const short HasSourceValueSetterFlag = 1 << 7;
 
-        private const short HasTargetValueSetterFlag = 1 << 8;
-        private const short HasSourceValueSetterFlag = 1 << 9;
-
-        private const short DisposedFlag = 1 << 10;
-        private const short DebugFlag = 1 << 11;
+        private const short DisposedFlag = 1 << 8;
 
         #endregion
 
@@ -206,12 +202,8 @@ namespace MugenMvvm.Binding.Core
                 return false;
 
             if (_components == null)
-            {
                 _components = component;
-                return true;
-            }
-
-            if (_components is IComponent<IDataBinding>[] items)
+            else if (_components is IComponent<IDataBinding>[] items)
             {
                 MugenExtensions.AddOrdered(ref items, component, this);
                 _components = items;
@@ -306,54 +298,6 @@ namespace MugenMvvm.Binding.Core
             }
 
             Components.Clear();
-        }
-
-        public bool? GetFlag(IMetadataContextKey<bool> flag)
-        {
-            Should.NotBeNull(flag, nameof(flag));
-            if (BindingMetadata.DisableEqualityCheckingSource.Equals(flag))
-                return CheckFlag(DisableEqualityCheckingSourceFlag);
-
-            if (BindingMetadata.DisableEqualityCheckingTarget.Equals(flag))
-                return CheckFlag(DisableEqualityCheckingTargetFlag);
-
-            if (BindingMetadata.DebugMode.Equals(flag))
-                return CheckFlag(DebugFlag);
-
-            return GetFlagInternal(flag);
-        }
-
-        public bool SetFlag(IMetadataContextKey<bool> flag, bool value)
-        {
-            Should.NotBeNull(flag, nameof(flag));
-            if (BindingMetadata.DisableEqualityCheckingSource.Equals(flag))
-            {
-                if (value)
-                    SetFlag(DisableEqualityCheckingSourceFlag);
-                else
-                    ClearFlag(DisableEqualityCheckingSourceFlag);
-                return true;
-            }
-
-            if (BindingMetadata.DisableEqualityCheckingTarget.Equals(flag))
-            {
-                if (value)
-                    SetFlag(DisableEqualityCheckingTargetFlag);
-                else
-                    ClearFlag(DisableEqualityCheckingTargetFlag);
-                return true;
-            }
-
-            if (BindingMetadata.DebugMode.Equals(flag))
-            {
-                if (value)
-                    SetFlag(DebugFlag);
-                else
-                    ClearFlag(DebugFlag);
-                return true;
-            }
-
-            return SetFlagInternal(flag, value);
         }
 
         public void UpdateTarget()
@@ -455,7 +399,7 @@ namespace MugenMvvm.Binding.Core
 
         protected virtual object? GetTargetValue(IBindingMemberInfo lastMember)
         {
-            return Target.GetLastMember(Metadata).GetLastMemberValue(metadata: Metadata);
+            return Target.GetLastMember(Metadata).GetLastMemberValue(Metadata);
         }
 
         protected virtual bool UpdateTargetInternal(out object? newValue)
@@ -607,16 +551,6 @@ namespace MugenMvvm.Binding.Core
         {
         }
 
-        protected virtual bool? GetFlagInternal(IMetadataContextKey<bool> flag)
-        {
-            return null;
-        }
-
-        protected virtual bool SetFlagInternal(IMetadataContextKey<bool> flag, bool value)
-        {
-            return false;
-        }
-
         protected bool SetTargetValue(IBindingPathObserver target, out object? newValue)
         {
             var pathLastMember = target.GetLastMember(Metadata);
@@ -640,15 +574,9 @@ namespace MugenMvvm.Binding.Core
             }
 
             newValue = MugenBindingService.GlobalBindingValueConverter.Convert(newValue, pathLastMember.LastMember.Type, pathLastMember.LastMember, Metadata);
-            if (!CheckFlag(DisableEqualityCheckingTargetFlag) && pathLastMember.LastMember.CanRead)
-            {
-                var oldValue = pathLastMember.LastMember.GetValue(pathLastMember.PenultimateValue, null, Metadata);
-                if (Equals(oldValue, newValue))
-                    return false;
-            }
 
             if (!CheckFlag(HasTargetValueSetterFlag) || !TrySetTargetValue(pathLastMember, newValue))
-                pathLastMember.LastMember.SetValue(pathLastMember.PenultimateValue, newValue, Metadata);
+                pathLastMember.SetLastMemberValue(newValue, Metadata);
             return true;
         }
 
@@ -675,15 +603,9 @@ namespace MugenMvvm.Binding.Core
             }
 
             newValue = MugenBindingService.GlobalBindingValueConverter.Convert(newValue, pathLastMember.LastMember.Type, pathLastMember.LastMember, Metadata);
-            if (!CheckFlag(DisableEqualityCheckingSourceFlag) && pathLastMember.LastMember.CanRead)
-            {
-                var oldValue = pathLastMember.LastMember.GetValue(pathLastMember.PenultimateValue, null, Metadata);
-                if (Equals(oldValue, newValue))
-                    return false;
-            }
 
             if (!CheckFlag(HasSourceValueSetterFlag) || !TrySetSourceValue(pathLastMember, newValue))
-                pathLastMember.LastMember.SetValue(pathLastMember.PenultimateValue, newValue, Metadata);
+                pathLastMember.SetLastMemberValue(newValue, Metadata);
             return true;
         }
 

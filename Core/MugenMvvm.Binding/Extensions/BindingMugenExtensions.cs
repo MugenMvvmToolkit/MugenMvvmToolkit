@@ -29,29 +29,28 @@ namespace MugenMvvm.Binding
         }
 
         public static TValue GetValueOrDefault<TSource, TValue>(this BindableMember<TSource, TValue> bindableMember, TSource source,
-            object?[]? args = null, IReadOnlyMetadataContext? metadata = null, IBindingMemberProvider? provider = null)
+            IReadOnlyMetadataContext? metadata = null, IBindingMemberProvider? provider = null)
             where TSource : class
         {
-            return bindableMember.GetValueOrDefault(source, default!, args, metadata, provider);
+            return bindableMember.GetValueOrDefault(source, default!, metadata, provider);
         }
 
         public static TValue GetValueOrDefault<TSource, TValue>(this BindableMember<TSource, TValue> bindableMember, TSource source, TValue defaultValue,
-            object?[]? args = null, IReadOnlyMetadataContext? metadata = null, IBindingMemberProvider? provider = null)
+             IReadOnlyMetadataContext? metadata = null, IBindingMemberProvider? provider = null)
             where TSource : class
         {
-            var member = bindableMember.GetMember(source, metadata, provider);
-            if (member == null)
+            if (!(bindableMember.GetMember(source, metadata, provider) is IBindingPropertyInfo member))
                 return defaultValue!;
-            if (member is IAttachedBindingMemberInfo<TSource, TValue> attached)
-                return attached.GetValue(source, args, metadata);
-            return (TValue)member.GetValue(source, args, metadata)!;
+            if (member is IBindingPropertyInfo<TSource, TValue> attached)
+                return attached.GetValue(source, metadata);
+            return (TValue)member.GetValue(source, metadata)!;
         }
 
         public static IDisposable? TryObserve<TSource, TValue>(this BindableMember<TSource, TValue> bindableMember, TSource source, IBindingEventListener listener,
             IReadOnlyMetadataContext? metadata = null, IBindingMemberProvider? provider = null)
             where TSource : class
         {
-            return bindableMember.GetMember(source, metadata, provider)?.TryObserve(source, listener, metadata);
+            return (bindableMember.GetMember(source, metadata, provider) as IObservableBindingMemberInfo)?.TryObserve(source, listener, metadata);
         }
 
         public static IBindingMemberInfo? GetMember<TSource, TValue>(this BindableMember<TSource, TValue> bindableMember, TSource source,

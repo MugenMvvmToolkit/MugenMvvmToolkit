@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Binding.Interfaces.Parsing.Nodes;
 using MugenMvvm.Binding.Metadata;
@@ -19,21 +20,25 @@ namespace MugenMvvm.Binding
 
         #region Methods
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsNullOrUnsetValue(this object? value)
         {
             return value == null || ReferenceEquals(value, BindingMetadata.UnsetValue);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsUnsetValueOrDoNothing(this object? value)
         {
             return ReferenceEquals(value, BindingMetadata.UnsetValue) || ReferenceEquals(value, BindingMetadata.DoNothing);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsUnsetValue(this object? value)
         {
             return ReferenceEquals(value, BindingMetadata.UnsetValue);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsDoNothing(this object? value)
         {
             return ReferenceEquals(value, BindingMetadata.DoNothing);

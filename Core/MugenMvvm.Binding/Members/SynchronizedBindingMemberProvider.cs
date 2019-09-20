@@ -41,11 +41,11 @@ namespace MugenMvvm.Binding.Members
             }
         }
 
-        protected override IReadOnlyList<AttachedMemberRegistration> GetAttachedMembersInternal(Type type, IReadOnlyMetadataContext? metadata)
+        protected override IReadOnlyList<IBindingMethodInfo> GetMethodsInternal(Type type, string name, bool ignoreAttachedMembers, IReadOnlyMetadataContext? metadata)
         {
-            lock (TempCache)
+            lock (TempMethodsCache)
             {
-                return base.GetAttachedMembersInternal(type, metadata);
+                return base.GetMethodsInternal(type, name, ignoreAttachedMembers, metadata);
             }
         }
 
@@ -54,6 +54,11 @@ namespace MugenMvvm.Binding.Members
             lock (TempCache)
             {
                 TempCache.Clear();
+            }
+
+            lock (TempMethodsCache)
+            {
+                TempMethodsCache.Clear();
             }
         }
 

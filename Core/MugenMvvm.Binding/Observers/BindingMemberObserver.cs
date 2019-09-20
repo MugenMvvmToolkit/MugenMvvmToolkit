@@ -20,7 +20,6 @@ namespace MugenMvvm.Binding.Observers
 
         public BindingMemberObserver(IHandler handler, object member)
         {
-            Should.NotBeNull(member, nameof(member));
             Member = member;
             _handler = handler;
         }
@@ -36,9 +35,9 @@ namespace MugenMvvm.Binding.Observers
         #region Methods
 
         [Pure]
-        public IDisposable? TryObserve(object? target, IBindingEventListener listener, IReadOnlyMetadataContext? metadata)
+        public IDisposable? TryObserve(object? source, IBindingEventListener listener, IReadOnlyMetadataContext? metadata)
         {
-            return _handler?.TryObserve(target, Member, listener, metadata);
+            return _handler?.TryObserve(source, Member, listener, metadata);
         }
 
         #endregion
@@ -47,7 +46,7 @@ namespace MugenMvvm.Binding.Observers
 
         public interface IHandler
         {
-            IDisposable? TryObserve(object? target, object member, IBindingEventListener listener, IReadOnlyMetadataContext? metadata);
+            IDisposable? TryObserve(object? source, object member, IBindingEventListener listener, IReadOnlyMetadataContext? metadata);
         }
 
         #endregion

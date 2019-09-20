@@ -10,7 +10,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
-    public class ObservableMemberBindingMemberObserverProviderComponent : IBindingMemberObserverProviderComponent, BindingMemberObserver.IHandler, IHasPriority
+    public class ObservableMemberBindingMemberObserverProviderComponent : IBindingMemberObserverProviderComponent<string>, BindingMemberObserver.IHandler, IHasPriority
     {
         #region Fields
 
@@ -32,42 +32,39 @@ namespace MugenMvvm.Binding.Observers.Components
 
         public int Priority { get; set; } = 1;
 
-        public Func<Type, string, IReadOnlyMetadataContext?, IBindingMemberInfo?>? ObservableMemberFinder { get; set; }
+        public Func<Type, string, IReadOnlyMetadataContext?, IObservableBindingMemberInfo?>? ObservableMemberFinder { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        public BindingMemberObserver TryGetMemberObserver(Type type, object member, IReadOnlyMetadataContext? metadata)
+        public BindingMemberObserver TryGetMemberObserver(Type type, in string member, IReadOnlyMetadataContext? metadata)
         {
-            if (member is string name)
-            {
-                var observableMember = TryGetObservableMember(type, name, metadata);
-                if (observableMember != null)
-                    return new BindingMemberObserver(this, observableMember);
-            }
+            var observableMember = TryGetObservableMember(type, member, metadata);
+            if (observableMember != null)
+                return new BindingMemberObserver(this, observableMember);
 
             return default;
         }
 
-        IDisposable? BindingMemberObserver.IHandler.TryObserve(object? target, object member, IBindingEventListener listener, IReadOnlyMetadataContext? metadata)
+        IDisposable? BindingMemberObserver.IHandler.TryObserve(object? source, object member, IBindingEventListener listener, IReadOnlyMetadataContext? metadata)
         {
-            return ((IBindingMemberInfo) member).TryObserve(target, listener, metadata);
+            return ((IObservableBindingMemberInfo)member).TryObserve(source, listener, metadata);
         }
 
         #endregion
 
         #region Methods
 
-        private IBindingMemberInfo? TryGetObservableMember(Type type, string memberName, IReadOnlyMetadataContext? metadata)
+        private IObservableBindingMemberInfo? TryGetObservableMember(Type type, string memberName, IReadOnlyMetadataContext? metadata)
         {
             if (ObservableMemberFinder != null)
                 return ObservableMemberFinder(type, memberName, metadata);
 
             var provider = _memberProvider.ServiceIfNull();
-            var member = provider.GetMember(type, memberName + BindingInternalConstants.ChangedEventPostfix, metadata);
+            var member = provider.GetMember(type, memberName + BindingInternalConstants.ChangedEventPostfix, metadata) as IObservableBindingMemberInfo;
             if (member == null || member.MemberType != BindingMemberType.Event)
-                member = provider.GetMember(type, memberName + "Change", metadata);
+                member = provider.GetMember(type, memberName + "Change", metadata) as IObservableBindingMemberInfo;
             if (member == null || member.MemberType != BindingMemberType.Event)
                 return null;
             return member;

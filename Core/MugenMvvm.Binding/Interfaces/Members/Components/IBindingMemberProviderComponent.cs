@@ -6,6 +6,6 @@ namespace MugenMvvm.Binding.Interfaces.Members.Components
 {
     public interface IBindingMemberProviderComponent : IComponent<IBindingMemberProvider>
     {
-        IBindingMemberInfo? TryGetMember(IBindingMemberProvider provider, Type type, string name, IReadOnlyMetadataContext? metadata);
+        IBindingMemberInfo? TryGetMember(Type type, string name, IReadOnlyMetadataContext? metadata);
     }
 }

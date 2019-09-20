@@ -1,12 +1,12 @@
 ﻿using System;
 using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Observers;
-using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Members
 {
     public interface IBindingMemberInfo
     {
+        bool IsAttached { get; }
+
         string Name { get; }
 
         Type Type { get; }
@@ -14,19 +14,5 @@ namespace MugenMvvm.Binding.Interfaces.Members
         object? Member { get; }
 
         BindingMemberType MemberType { get; }
-
-        bool CanRead { get; }
-
-        bool CanWrite { get; }
-
-        bool CanObserve { get; }
-
-        object? GetValue(object? target, object?[]? args = null, IReadOnlyMetadataContext? metadata = null);
-
-        object? SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata = null);
-
-        object? SetValues(object? target, object?[] args, IReadOnlyMetadataContext? metadata = null);
-
-        IDisposable? TryObserve(object? target, IBindingEventListener listener, IReadOnlyMetadataContext? metadata = null);
     }
 }

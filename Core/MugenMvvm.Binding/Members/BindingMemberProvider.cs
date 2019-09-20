@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
+using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
@@ -18,10 +19,11 @@ namespace MugenMvvm.Binding.Members
         #region Fields
 
         protected readonly HashSet<string> CurrentNames;
-        protected readonly TempCacheDictionary TempCache;
+        protected readonly TempCacheDictionary<IBindingMemberInfo> TempCache;
+        protected readonly TempCacheDictionary<IReadOnlyList<IBindingMethodInfo>> TempMethodsCache;
 
-        protected IAttachedBindingMemberProviderComponent[] AttachedProviders;
         protected IBindingMemberProviderComponent[] MemberProviders;
+        protected IBindingMethodProviderComponent[] MethodProviders;
 
         #endregion
 
@@ -31,9 +33,10 @@ namespace MugenMvvm.Binding.Members
         public BindingMemberProvider(IComponentCollectionProvider? componentCollectionProvider = null)
             : base(componentCollectionProvider)
         {
-            AttachedProviders = Default.EmptyArray<IAttachedBindingMemberProviderComponent>();
             MemberProviders = Default.EmptyArray<IBindingMemberProviderComponent>();
-            TempCache = new TempCacheDictionary();
+            MethodProviders = Default.EmptyArray<IBindingMethodProviderComponent>();
+            TempCache = new TempCacheDictionary<IBindingMemberInfo>();
+            TempMethodsCache = new TempCacheDictionary<IReadOnlyList<IBindingMethodInfo>>();
             CurrentNames = new HashSet<string>(StringComparer.Ordinal);
         }
 
@@ -45,20 +48,20 @@ namespace MugenMvvm.Binding.Members
         {
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(name, nameof(name));
-            return GetMemberInternal(type, name, false, metadata);
+            bool ignoreAttachedMembers = false;
+            if (metadata != null)
+                ignoreAttachedMembers = metadata.Get(BindingMemberMetadata.IgnoreAttachedMembers);
+            return GetMemberInternal(type, name, ignoreAttachedMembers, metadata);
         }
 
-        public IBindingMemberInfo? GetRawMember(Type type, string name, IReadOnlyMetadataContext? metadata = null)
+        public IReadOnlyList<IBindingMethodInfo> GetMethods(Type type, string name, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(name, nameof(name));
-            return GetMemberInternal(type, name, true, metadata);
-        }
-
-        public IReadOnlyList<AttachedMemberRegistration> GetAttachedMembers(Type type, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(type, nameof(type));
-            return GetAttachedMembersInternal(type, metadata);
+            bool ignoreAttachedMembers = false;
+            if (metadata != null)
+                ignoreAttachedMembers = metadata.Get(BindingMemberMetadata.IgnoreAttachedMembers);
+            return GetMethodsInternal(type, name, ignoreAttachedMembers, metadata);
         }
 
         void IComponentOwnerAddedCallback<IComponent<IBindingMemberProvider>>.OnComponentAdded(IComponentCollection<IComponent<IBindingMemberProvider>> collection,
@@ -86,14 +89,14 @@ namespace MugenMvvm.Binding.Members
             IReadOnlyMetadataContext? metadata)
         {
             MugenExtensions.ComponentTrackerOnAdded(ref MemberProviders, this, collection, component, metadata);
-            MugenExtensions.ComponentTrackerOnAdded(ref AttachedProviders, this, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnAdded(ref MethodProviders, this, collection, component, metadata);
         }
 
         protected virtual void OnComponentRemoved(IComponentCollection<IComponent<IBindingMemberProvider>> collection, IComponent<IBindingMemberProvider> component,
             IReadOnlyMetadataContext? metadata)
         {
             MugenExtensions.ComponentTrackerOnRemoved(ref MemberProviders, collection, component, metadata);
-            MugenExtensions.ComponentTrackerOnRemoved(ref AttachedProviders, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnRemoved(ref MethodProviders, collection, component, metadata);
         }
 
         protected virtual IBindingMemberInfo? GetMemberInternal(Type type, string name, bool ignoreAttachedMembers, IReadOnlyMetadataContext? metadata)
@@ -111,41 +114,14 @@ namespace MugenMvvm.Binding.Members
             }
         }
 
+        protected virtual IReadOnlyList<IBindingMethodInfo> GetMethodsInternal(Type type, string name, bool ignoreAttachedMembers, IReadOnlyMetadataContext? metadata)
+        {
+            return GetMethodsImpl(type, name, ignoreAttachedMembers, metadata);
+        }
+
         protected virtual void ClearCacheInternal()
         {
             TempCache.Clear();
-        }
-
-        protected virtual IReadOnlyList<AttachedMemberRegistration> GetAttachedMembersInternal(Type type, IReadOnlyMetadataContext? metadata)
-        {
-            if (AttachedProviders.Length == 1)
-                return AttachedProviders[0].GetMembers(type, metadata);
-
-            List<AttachedMemberRegistration>? result = null;
-            for (var i = 0; i < AttachedProviders.Length; i++)
-            {
-                var list = AttachedProviders[i].GetMembers(type, metadata);
-                if (list != null && list.Count != 0)
-                {
-                    if (result == null)
-                        result = new List<AttachedMemberRegistration>();
-                    result.AddRange(list);
-                }
-            }
-
-            return result ?? (IReadOnlyList<AttachedMemberRegistration>) Default.EmptyArray<AttachedMemberRegistration>();
-        }
-
-        protected virtual IBindingMemberInfo? TryGetAttachedMember(Type type, string name, IReadOnlyMetadataContext? metadata)
-        {
-            for (var i = 0; i < AttachedProviders.Length; i++)
-            {
-                var member = AttachedProviders[i].TryGetMember(type, name, metadata);
-                if (member != null)
-                    return member;
-            }
-
-            return null;
         }
 
         protected IBindingMemberInfo? GetMemberImpl(Type type, string name, bool ignoreAttachedMembers, IReadOnlyMetadataContext? metadata)
@@ -154,20 +130,10 @@ namespace MugenMvvm.Binding.Members
             if (TempCache.TryGetValue(cacheKey, out var result))
                 return result;
 
-            if (!ignoreAttachedMembers)
-            {
-                result = TryGetAttachedMember(type, name, metadata);
-                if (result != null)
-                {
-                    TempCache[cacheKey] = result;
-                    return result;
-                }
-            }
-
             for (var i = 0; i < MemberProviders.Length; i++)
             {
-                result = MemberProviders[i].TryGetMember(this, type, name, metadata);
-                if (result != null)
+                result = MemberProviders[i].TryGetMember(type, name, metadata);
+                if (result != null && (!ignoreAttachedMembers || !result.IsAttached))
                     break;
             }
 
@@ -175,11 +141,39 @@ namespace MugenMvvm.Binding.Members
             return result;
         }
 
+        protected IReadOnlyList<IBindingMethodInfo> GetMethodsImpl(Type type, string name, bool ignoreAttachedMembers, IReadOnlyMetadataContext? metadata)
+        {
+            var cacheKey = new CacheKey(type, name, ignoreAttachedMembers);
+            if (TempMethodsCache.TryGetValue(cacheKey, out var result))
+                return result;
+
+            List<IBindingMethodInfo>? methods = null;
+            for (var i = 0; i < MethodProviders.Length; i++)
+            {
+                var m = MethodProviders[i].TryGetMethods(type, name, metadata);
+                if (m == null || m.Count == 0)
+                    continue;
+
+                foreach (var info in m)
+                {
+                    if (ignoreAttachedMembers && info.IsAttached)
+                        continue;
+
+                    if (methods == null)
+                        methods = new List<IBindingMethodInfo>();
+                    methods.Add(info);
+                }
+            }
+
+            TempMethodsCache[cacheKey] = (IReadOnlyList<IBindingMethodInfo>)methods ?? Default.EmptyArray<IBindingMethodInfo>();
+            return result;
+        }
+
         #endregion
 
         #region Nested types
 
-        protected sealed class TempCacheDictionary : LightDictionaryBase<CacheKey, IBindingMemberInfo?>
+        protected sealed class TempCacheDictionary<TItem> : LightDictionaryBase<CacheKey, TItem?> where TItem : class
         {
             #region Constructors
 

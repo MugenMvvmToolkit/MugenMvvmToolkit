@@ -15,7 +15,7 @@ namespace MugenMvvm.Binding.Observers
         private readonly IDisposable?[]? _listeners;
         private Exception? _exception;
         private IBindingEventListener? _lastMemberListener;
-        private IBindingMemberInfo[]? _members;
+        private IBindingPropertyInfo[]? _members;
         private IWeakReference? _penultimateValue;
 
         #endregion
@@ -167,7 +167,7 @@ namespace MugenMvvm.Binding.Observers
                 }
 
                 var paths = Path.Members;
-                var members = new IBindingMemberInfo[paths.Length];
+                var members = new IBindingPropertyInfo[paths.Length];
                 for (var i = 0; i < members.Length - 1; i++)
                 {
                     var member = GetBindingMember(source!.GetType(), paths[i], IgnoreAttachedMembers);
@@ -205,7 +205,7 @@ namespace MugenMvvm.Binding.Observers
             return true;
         }
 
-        private void UpdateHasStablePath(IBindingMemberInfo[] members, object source)
+        private void UpdateHasStablePath(IBindingPropertyInfo[] members, object source)
         {
             for (var index = 0; index < members.Length - 1; index++)
             {
@@ -227,7 +227,7 @@ namespace MugenMvvm.Binding.Observers
             SetMembers(source.ToWeakReference(), members, null);
         }
 
-        private void SetMembers(IWeakReference? penultimateValue, IBindingMemberInfo[]? members, Exception? exception)
+        private void SetMembers(IWeakReference? penultimateValue, IBindingPropertyInfo[]? members, Exception? exception)
         {
             _penultimateValue = penultimateValue;
             _members = members;

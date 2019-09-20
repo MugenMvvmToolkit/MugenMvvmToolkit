@@ -13,7 +13,7 @@ namespace MugenMvvm.Binding.Observers
 
         private byte _state;
         private Exception? _exception;
-        private IBindingMemberInfo? _lastMember;
+        private IBindingPropertyInfo? _lastMember;
         private IDisposable? _lastMemberUnsubscriber;
 
         #endregion
@@ -170,14 +170,14 @@ namespace MugenMvvm.Binding.Observers
             }
         }
 
-        private void SetLastMember(IBindingMemberInfo? lastMember, Exception? exception)
+        private void SetLastMember(IBindingPropertyInfo? lastMember, Exception? exception)
         {
             _lastMember = lastMember;
             _exception = exception;
             OnLastMemberChanged();
         }
 
-        private void Subscribe(object source, IBindingMemberInfo? lastMember)
+        private void Subscribe(object source, IBindingPropertyInfo? lastMember)
         {
             _lastMemberUnsubscriber?.Dispose();
             _lastMemberUnsubscriber = lastMember?.TryObserve(source, this) ?? Default.Disposable;

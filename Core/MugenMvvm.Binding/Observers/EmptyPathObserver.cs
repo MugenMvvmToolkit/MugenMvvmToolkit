@@ -49,7 +49,7 @@ namespace MugenMvvm.Binding.Observers
             if (target == null)
                 return default;
 
-            return new BindingPathMembers(Path, target, target, ConstantBindingMemberInfo.NullInstanceArray, ConstantBindingMemberInfo.NullInstance);
+            return new BindingPathMembers(Path, target, target, ConstantBindingMemberInfo.NullArray, ConstantBindingMemberInfo.Null);
         }
 
         public BindingPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null)
@@ -58,7 +58,7 @@ namespace MugenMvvm.Binding.Observers
             if (target == null)
                 return default;
 
-            return new BindingPathLastMember(Path, target, ConstantBindingMemberInfo.NullInstance);
+            return new BindingPathLastMember(Path, target, ConstantBindingMemberInfo.Null);
         }
 
         public void Dispose()

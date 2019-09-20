@@ -30,12 +30,12 @@ namespace MugenMvvm.Binding.Core
 
         public object? GetValue()
         {
-            var sources = (IBindingPathObserver[]) SourceRaw;
+            var sources = (IBindingPathObserver[])SourceRaw;
             var values = new object?[sources.Length];
             for (var i = 0; i < sources.Length; i++)
             {
                 var members = sources[i].GetLastMember(Metadata);
-                var value = members.GetLastMemberValue(metadata: Metadata);
+                var value = members.GetLastMemberValue(Metadata);
                 if (value.IsUnsetValueOrDoNothing())
                     return value;
                 values[i] = value;
