@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Interfaces.Internal;
+﻿using System.Runtime.CompilerServices;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm
@@ -47,17 +48,14 @@ namespace MugenMvvm
 
             public static TService Instance
             {
+                [MethodImpl(MethodImplOptions.AggressiveInlining)]
                 get
                 {
+                    if (_service != null)
+                        return _service;
                     if (_serviceConfiguration != null)
                         return _serviceConfiguration.Service;
-                    if (_service == null)
-                    {
-                        if (_fallbackConfiguration != null)
-                            return _fallbackConfiguration.Instance<TService>();
-                        ExceptionManager.ThrowObjectNotInitialized(typeof(Service<TService>), typeof(TService).Name);
-                    }
-                    return _service!;
+                    return GetFallbackService();
                 }
             }
 
@@ -93,6 +91,14 @@ namespace MugenMvvm
             {
                 Should.NotBeNull(service, nameof(service));
                 InitializeInternal(service);
+            }
+
+            private static TService GetFallbackService()
+            {
+                if (_fallbackConfiguration != null)
+                    return _fallbackConfiguration.Instance<TService>();
+                ExceptionManager.ThrowObjectNotInitialized(typeof(Service<TService>), typeof(TService).Name);
+                return null!;
             }
 
             private static void InitializeInternal(TService? service)

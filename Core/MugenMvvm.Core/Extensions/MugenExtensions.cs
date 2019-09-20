@@ -16,6 +16,11 @@ namespace MugenMvvm
     {
         #region Methods
 
+        public static TTo ConvertGenericValue<TFrom, TTo>(TFrom value)
+        {
+            return ((Func<TFrom, TTo>)(object)GenericConverter<TFrom>.Convert).Invoke(value);
+        }
+
         public static Task<IReadOnlyMetadataContext> CleanupAsync(this IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(viewInfo, nameof(viewInfo));
@@ -159,6 +164,19 @@ namespace MugenMvvm
         public static bool HasFlagEx(this BusyMessageHandlerType handlerMode, BusyMessageHandlerType value)
         {
             return (handlerMode & value) == value;
+        }
+
+        #endregion
+
+        #region Nested types
+
+        private sealed class GenericConverter<T>
+        {
+            #region Fields
+
+            public static readonly Func<T, T> Convert = arg => arg;
+
+            #endregion
         }
 
         #endregion
