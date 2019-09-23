@@ -1,6 +1,6 @@
 ﻿namespace MugenMvvm.Binding.Interfaces.Core
 {
-    public interface IDynamicDataBindingValue
+    public interface IDynamicBindingValue
     {
         object? GetValue();
     }

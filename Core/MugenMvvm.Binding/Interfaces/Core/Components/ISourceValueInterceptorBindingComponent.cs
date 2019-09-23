@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Core.Components
 {
-    public interface ISourceValueInterceptorDataBindingComponent : IComponent<IDataBinding>
+    public interface ISourceValueInterceptorBindingComponent : IComponent<IBinding>
     {
         object? InterceptSourceValue(in BindingPathLastMember sourceMembers, object? value, IReadOnlyMetadataContext metadata);
     }

@@ -3,11 +3,11 @@ using MugenMvvm.Binding.Interfaces.Observers;
 
 namespace MugenMvvm.Binding.Core
 {
-    public sealed class DataBinding : DataBindingBase
+    public sealed class Binding : BindingBase
     {
         #region Constructors
 
-        public DataBinding(IBindingPathObserver target, IBindingPathObserver source)
+        public Binding(IBindingPathObserver target, IBindingPathObserver source)
             : base(target, source)
         {
         }

@@ -11,7 +11,7 @@ namespace MugenMvvm.Binding.Interfaces.Resources
 {
     public interface IResourceResolver : IComponentOwner<IResourceResolver>, IComponent<IBindingManager>
     {
-        IComponent<IDataBinding>? TryGetComponent(string name, IReadOnlyMetadataContext? metadata = null);
+        IComponent<IBinding>? TryGetComponent(string name, IReadOnlyMetadataContext? metadata = null);
 
         IResourceValue? TryGetResource(string name, IReadOnlyMetadataContext? metadata);
 

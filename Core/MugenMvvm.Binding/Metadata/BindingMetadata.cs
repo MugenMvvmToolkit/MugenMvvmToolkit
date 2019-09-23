@@ -11,15 +11,15 @@ namespace MugenMvvm.Binding.Metadata
         public static readonly object UnsetValue = new object();
         public static readonly object DoNothing = new object();
 
-        private static IMetadataContextKey<IDataBinding?> _binding;
+        private static IMetadataContextKey<IBinding?> _binding;
 
         #endregion
 
         #region Properties
 
-        public static IMetadataContextKey<IDataBinding?> Binding
+        public static IMetadataContextKey<IBinding?> Binding
         {
-            get => _binding ??= GetBuilder<IDataBinding?>(nameof(Binding)).Build();
+            get => _binding ??= GetBuilder<IBinding?>(nameof(Binding)).Build();
             set => _binding = value;
         }
 

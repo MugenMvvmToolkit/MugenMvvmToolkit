@@ -7,7 +7,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Interfaces.Core
 {
-    public interface IDataBinding : IDisposable, IComponentOwner<IDataBinding>, IMetadataOwner<IReadOnlyMetadataContext>
+    public interface IBinding : IDisposable, IComponentOwner<IBinding>, IMetadataOwner<IReadOnlyMetadataContext>
     {
         DataBindingState State { get; }
 

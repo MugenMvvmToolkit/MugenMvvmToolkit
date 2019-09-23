@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Core
 {
-    public sealed class MultiDataBinding : DataBindingBase, IDynamicDataBindingValue
+    public sealed class MultiBinding : BindingBase, IDynamicBindingValue
     {
         #region Fields
 
@@ -17,7 +17,7 @@ namespace MugenMvvm.Binding.Core
 
         #region Constructors
 
-        public MultiDataBinding(IBindingPathObserver target, IBindingPathObserver[] sources, Func<object?[]?, IReadOnlyMetadataContext?, object?> expression)
+        public MultiBinding(IBindingPathObserver target, IBindingPathObserver[] sources, Func<object?[]?, IReadOnlyMetadataContext?, object?> expression)
             : base(target, sources)
         {
             Should.NotBeNull(expression, nameof(expression));

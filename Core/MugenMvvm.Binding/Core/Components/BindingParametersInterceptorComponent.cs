@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Core.Components
 {
-    public sealed class BindingParametersInterceptorComponent : ISourceValueInterceptorDataBindingComponent, ITargetValueInterceptorDataBindingComponent, IHasPriority
+    public sealed class BindingParametersInterceptorComponent : ISourceValueInterceptorBindingComponent, ITargetValueInterceptorBindingComponent, IHasPriority
     {
         #region Fields
 

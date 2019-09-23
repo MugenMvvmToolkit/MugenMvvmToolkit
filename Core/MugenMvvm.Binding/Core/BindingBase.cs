@@ -17,7 +17,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Binding.Core
 {
-    public abstract class DataBindingBase : IDataBinding, IComponentCollection<IComponent<IDataBinding>>, IBindingPathObserverListener, IReadOnlyMetadataContext
+    public abstract class BindingBase : IBinding, IComponentCollection<IComponent<IBinding>>, IBindingPathObserverListener, IReadOnlyMetadataContext
     {
         #region Fields
 
@@ -45,20 +45,20 @@ namespace MugenMvvm.Binding.Core
         #region Constructors
 
 #pragma warning disable CS8618
-        private DataBindingBase(IBindingPathObserver target)
+        private BindingBase(IBindingPathObserver target)
         {
             Should.NotBeNull(target, nameof(target));
             Target = target;
         }
 #pragma warning restore CS8618
 
-        protected DataBindingBase(IBindingPathObserver target, IBindingPathObserver source) : this(target)
+        protected BindingBase(IBindingPathObserver target, IBindingPathObserver source) : this(target)
         {
             Should.NotBeNull(source, nameof(source));
             SourceRaw = source;
         }
 
-        protected DataBindingBase(IBindingPathObserver target, IBindingPathObserver[] sources) : this(target)
+        protected BindingBase(IBindingPathObserver target, IBindingPathObserver[] sources) : this(target)
         {
             Should.NotBeNull(sources, nameof(sources));
             SourceRaw = sources;
@@ -68,13 +68,13 @@ namespace MugenMvvm.Binding.Core
 
         #region Properties
 
-        bool IComponentOwner<IComponentCollection<IComponent<IDataBinding>>>.HasComponents => false;
+        bool IComponentOwner<IComponentCollection<IComponent<IBinding>>>.HasComponents => false;
 
-        public IComponentCollection<IComponent<IDataBinding>> Components => this;
+        public IComponentCollection<IComponent<IBinding>> Components => this;
 
         public bool HasComponents => _components != null;
 
-        IComponentCollection<IComponent<IComponentCollection<IComponent<IDataBinding>>>> IComponentOwner<IComponentCollection<IComponent<IDataBinding>>>.Components
+        IComponentCollection<IComponent<IComponentCollection<IComponent<IBinding>>>> IComponentOwner<IComponentCollection<IComponent<IBinding>>>.Components
         {
             get
             {
@@ -83,9 +83,9 @@ namespace MugenMvvm.Binding.Core
             }
         }
 
-        object IComponentCollection<IComponent<IDataBinding>>.Owner => this;
+        object IComponentCollection<IComponent<IBinding>>.Owner => this;
 
-        bool IComponentCollection<IComponent<IDataBinding>>.HasItems => HasComponents;
+        bool IComponentCollection<IComponent<IBinding>>.HasItems => HasComponents;
 
         bool IMetadataOwner<IReadOnlyMetadataContext>.HasMetadata => true;
 
@@ -121,23 +121,23 @@ namespace MugenMvvm.Binding.Core
             var components = _components;
             if (isTarget)
             {
-                if (components is IComponent<IDataBinding>[] c)
+                if (components is IComponent<IBinding>[] c)
                 {
                     for (var i = 0; i < c.Length; i++)
-                        (c[i] as IDataBindingTargetObserverListener)?.OnTargetPathMembersChanged(this, observer, Metadata);
+                        (c[i] as IBindingTargetObserverListener)?.OnTargetPathMembersChanged(this, observer, Metadata);
                 }
                 else
-                    (components as IDataBindingTargetObserverListener)?.OnTargetPathMembersChanged(this, observer, Metadata);
+                    (components as IBindingTargetObserverListener)?.OnTargetPathMembersChanged(this, observer, Metadata);
             }
             else
             {
-                if (components is IComponent<IDataBinding>[] c)
+                if (components is IComponent<IBinding>[] c)
                 {
                     for (var i = 0; i < c.Length; i++)
-                        (c[i] as IDataBindingSourceObserverListener)?.OnSourcePathMembersChanged(this, observer, Metadata);
+                        (c[i] as IBindingSourceObserverListener)?.OnSourcePathMembersChanged(this, observer, Metadata);
                 }
                 else
-                    (components as IDataBindingSourceObserverListener)?.OnSourcePathMembersChanged(this, observer, Metadata);
+                    (components as IBindingSourceObserverListener)?.OnSourcePathMembersChanged(this, observer, Metadata);
             }
         }
 
@@ -147,23 +147,23 @@ namespace MugenMvvm.Binding.Core
             var components = _components;
             if (isTarget)
             {
-                if (components is IComponent<IDataBinding>[] c)
+                if (components is IComponent<IBinding>[] c)
                 {
                     for (var i = 0; i < c.Length; i++)
-                        (c[i] as IDataBindingTargetObserverListener)?.OnTargetLastMemberChanged(this, observer, Metadata);
+                        (c[i] as IBindingTargetObserverListener)?.OnTargetLastMemberChanged(this, observer, Metadata);
                 }
                 else
-                    (components as IDataBindingTargetObserverListener)?.OnTargetLastMemberChanged(this, observer, Metadata);
+                    (components as IBindingTargetObserverListener)?.OnTargetLastMemberChanged(this, observer, Metadata);
             }
             else
             {
-                if (components is IComponent<IDataBinding>[] c)
+                if (components is IComponent<IBinding>[] c)
                 {
                     for (var i = 0; i < c.Length; i++)
-                        (c[i] as IDataBindingSourceObserverListener)?.OnSourceLastMemberChanged(this, observer, Metadata);
+                        (c[i] as IBindingSourceObserverListener)?.OnSourceLastMemberChanged(this, observer, Metadata);
                 }
                 else
-                    (components as IDataBindingSourceObserverListener)?.OnSourceLastMemberChanged(this, observer, Metadata);
+                    (components as IBindingSourceObserverListener)?.OnSourceLastMemberChanged(this, observer, Metadata);
             }
         }
 
@@ -173,37 +173,37 @@ namespace MugenMvvm.Binding.Core
             var components = _components;
             if (isTarget)
             {
-                if (components is IComponent<IDataBinding>[] c)
+                if (components is IComponent<IBinding>[] c)
                 {
                     for (var i = 0; i < c.Length; i++)
-                        (c[i] as IDataBindingTargetObserverListener)?.OnTargetError(this, observer, exception, Metadata);
+                        (c[i] as IBindingTargetObserverListener)?.OnTargetError(this, observer, exception, Metadata);
                 }
                 else
-                    (components as IDataBindingTargetObserverListener)?.OnTargetError(this, observer, exception, Metadata);
+                    (components as IBindingTargetObserverListener)?.OnTargetError(this, observer, exception, Metadata);
             }
             else
             {
-                if (components is IComponent<IDataBinding>[] c)
+                if (components is IComponent<IBinding>[] c)
                 {
                     for (var i = 0; i < c.Length; i++)
-                        (c[i] as IDataBindingSourceObserverListener)?.OnSourceError(this, observer, exception, Metadata);
+                        (c[i] as IBindingSourceObserverListener)?.OnSourceError(this, observer, exception, Metadata);
                 }
                 else
-                    (components as IDataBindingSourceObserverListener)?.OnSourceError(this, observer, exception, Metadata);
+                    (components as IBindingSourceObserverListener)?.OnSourceError(this, observer, exception, Metadata);
             }
         }
 
-        bool IComponentCollection<IComponent<IDataBinding>>.Add(IComponent<IDataBinding> component, IReadOnlyMetadataContext? metadata)
+        bool IComponentCollection<IComponent<IBinding>>.Add(IComponent<IBinding> component, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(component, nameof(component));
 
-            var defaultListener = CallbackInvokerComponentCollectionComponent.GetComponentCollectionListener<IComponent<IDataBinding>>();
+            var defaultListener = CallbackInvokerComponentCollectionComponent.GetComponentCollectionListener<IComponent<IBinding>>();
             if (!defaultListener.OnAdding(this, component, metadata))
                 return false;
 
             if (_components == null)
                 _components = component;
-            else if (_components is IComponent<IDataBinding>[] items)
+            else if (_components is IComponent<IBinding>[] items)
             {
                 MugenExtensions.AddOrdered(ref items, component, this);
                 _components = items;
@@ -211,8 +211,8 @@ namespace MugenMvvm.Binding.Core
             else
             {
                 _components = MugenExtensions.GetComponentPriority(_components, this) >= MugenExtensions.GetComponentPriority(component, this)
-                    ? new[] { (IComponent<IDataBinding>)_components, component }
-                    : new[] { component, (IComponent<IDataBinding>)_components };
+                    ? new[] { (IComponent<IBinding>)_components, component }
+                    : new[] { component, (IComponent<IBinding>)_components };
             }
 
             OnComponentAdded(component);
@@ -220,11 +220,11 @@ namespace MugenMvvm.Binding.Core
             return true;
         }
 
-        bool IComponentCollection<IComponent<IDataBinding>>.Remove(IComponent<IDataBinding> component, IReadOnlyMetadataContext? metadata)
+        bool IComponentCollection<IComponent<IBinding>>.Remove(IComponent<IBinding> component, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(component, nameof(component));
 
-            var defaultListener = CallbackInvokerComponentCollectionComponent.GetComponentCollectionListener<IComponent<IDataBinding>>();
+            var defaultListener = CallbackInvokerComponentCollectionComponent.GetComponentCollectionListener<IComponent<IBinding>>();
             if (!defaultListener.OnRemoving(this, component, metadata) || !RemoveComponent(component))
                 return false;
 
@@ -233,16 +233,16 @@ namespace MugenMvvm.Binding.Core
             return true;
         }
 
-        bool IComponentCollection<IComponent<IDataBinding>>.Clear(IReadOnlyMetadataContext? metadata)
+        bool IComponentCollection<IComponent<IBinding>>.Clear(IReadOnlyMetadataContext? metadata)
         {
-            var defaultListener = CallbackInvokerComponentCollectionComponent.GetComponentCollectionListener<IComponent<IDataBinding>>();
+            var defaultListener = CallbackInvokerComponentCollectionComponent.GetComponentCollectionListener<IComponent<IBinding>>();
             if (!defaultListener.OnClearing(this, metadata))
                 return false;
 
             var components = _components;
             _components = null;
-            ItemOrList<IComponent<IDataBinding>?, IComponent<IDataBinding>[]> oldItems;
-            if (components is IComponent<IDataBinding>[] array)
+            ItemOrList<IComponent<IBinding>?, IComponent<IBinding>[]> oldItems;
+            if (components is IComponent<IBinding>[] array)
             {
                 oldItems = array;
                 for (var i = 0; i < array.Length; i++)
@@ -250,8 +250,8 @@ namespace MugenMvvm.Binding.Core
             }
             else
             {
-                var component = (IComponent<IDataBinding>?)components;
-                oldItems = new ItemOrList<IComponent<IDataBinding>?, IComponent<IDataBinding>[]>(component);
+                var component = (IComponent<IBinding>?)components;
+                oldItems = new ItemOrList<IComponent<IBinding>?, IComponent<IBinding>[]>(component);
                 if (component != null)
                     OnComponentRemoved(component);
             }
@@ -260,13 +260,13 @@ namespace MugenMvvm.Binding.Core
             return true;
         }
 
-        IComponent<IDataBinding>[] IComponentCollection<IComponent<IDataBinding>>.GetItems()
+        IComponent<IBinding>[] IComponentCollection<IComponent<IBinding>>.GetItems()
         {
             if (_components == null)
-                return Default.EmptyArray<IComponent<IDataBinding>>();
-            if (_components is IComponent<IDataBinding>[] components)
+                return Default.EmptyArray<IComponent<IBinding>>();
+            if (_components is IComponent<IBinding>[] components)
                 return components;
-            return new[] { (IComponent<IDataBinding>)_components };
+            return new[] { (IComponent<IBinding>)_components };
         }
 
         public void Dispose()
@@ -410,87 +410,87 @@ namespace MugenMvvm.Binding.Core
         protected virtual void OnTargetUpdateFailed(Exception error)
         {
             var components = _components;
-            if (components is IComponent<IDataBinding>[] c)
+            if (components is IComponent<IBinding>[] c)
             {
                 for (var i = 0; i < c.Length; i++)
-                    (c[i] as IDataBindingTargetListener)?.OnTargetUpdateFailed(this, error, Metadata);
+                    (c[i] as IBindingTargetListener)?.OnTargetUpdateFailed(this, error, Metadata);
             }
             else
-                (components as IDataBindingTargetListener)?.OnTargetUpdateFailed(this, error, Metadata);
+                (components as IBindingTargetListener)?.OnTargetUpdateFailed(this, error, Metadata);
         }
 
         protected virtual void OnTargetUpdateCanceled()
         {
             var components = _components;
-            if (components is IComponent<IDataBinding>[] c)
+            if (components is IComponent<IBinding>[] c)
             {
                 for (var i = 0; i < c.Length; i++)
-                    (c[i] as IDataBindingTargetListener)?.OnTargetUpdateCanceled(this, Metadata);
+                    (c[i] as IBindingTargetListener)?.OnTargetUpdateCanceled(this, Metadata);
             }
             else
-                (components as IDataBindingTargetListener)?.OnTargetUpdateCanceled(this, Metadata);
+                (components as IBindingTargetListener)?.OnTargetUpdateCanceled(this, Metadata);
         }
 
         protected virtual void OnTargetUpdated(object? newValue)
         {
             var components = _components;
-            if (components is IComponent<IDataBinding>[] c)
+            if (components is IComponent<IBinding>[] c)
             {
                 for (var i = 0; i < c.Length; i++)
-                    (c[i] as IDataBindingTargetListener)?.OnTargetUpdated(this, newValue, Metadata);
+                    (c[i] as IBindingTargetListener)?.OnTargetUpdated(this, newValue, Metadata);
             }
             else
-                (components as IDataBindingTargetListener)?.OnTargetUpdated(this, newValue, Metadata);
+                (components as IBindingTargetListener)?.OnTargetUpdated(this, newValue, Metadata);
         }
 
         protected virtual void OnSourceUpdateFailed(Exception error)
         {
             var components = _components;
-            if (components is IComponent<IDataBinding>[] c)
+            if (components is IComponent<IBinding>[] c)
             {
                 for (var i = 0; i < c.Length; i++)
-                    (c[i] as IDataBindingSourceListener)?.OnSourceUpdateFailed(this, error, Metadata);
+                    (c[i] as IBindingSourceListener)?.OnSourceUpdateFailed(this, error, Metadata);
             }
             else
-                (components as IDataBindingSourceListener)?.OnSourceUpdateFailed(this, error, Metadata);
+                (components as IBindingSourceListener)?.OnSourceUpdateFailed(this, error, Metadata);
         }
 
         protected virtual void OnSourceUpdateCanceled()
         {
             var components = _components;
-            if (components is IComponent<IDataBinding>[] c)
+            if (components is IComponent<IBinding>[] c)
             {
                 for (var i = 0; i < c.Length; i++)
-                    (c[i] as IDataBindingSourceListener)?.OnSourceUpdateCanceled(this, Metadata);
+                    (c[i] as IBindingSourceListener)?.OnSourceUpdateCanceled(this, Metadata);
             }
             else
-                (components as IDataBindingSourceListener)?.OnSourceUpdateCanceled(this, Metadata);
+                (components as IBindingSourceListener)?.OnSourceUpdateCanceled(this, Metadata);
         }
 
         protected virtual void OnSourceUpdated(object? newValue)
         {
             var components = _components;
-            if (components is IComponent<IDataBinding>[] c)
+            if (components is IComponent<IBinding>[] c)
             {
                 for (var i = 0; i < c.Length; i++)
-                    (c[i] as IDataBindingSourceListener)?.OnSourceUpdated(this, newValue, Metadata);
+                    (c[i] as IBindingSourceListener)?.OnSourceUpdated(this, newValue, Metadata);
             }
             else
-                (components as IDataBindingSourceListener)?.OnSourceUpdated(this, newValue, Metadata);
+                (components as IBindingSourceListener)?.OnSourceUpdated(this, newValue, Metadata);
         }
 
         protected virtual object? InterceptTargetValue(in BindingPathLastMember targetMembers, object? value)
         {
             var components = _components;
-            if (components is IComponent<IDataBinding>[] c)
+            if (components is IComponent<IBinding>[] c)
             {
                 for (var i = 0; i < c.Length; i++)
                 {
-                    if (c[i] is ITargetValueInterceptorDataBindingComponent interceptor)
+                    if (c[i] is ITargetValueInterceptorBindingComponent interceptor)
                         value = interceptor.InterceptTargetValue(targetMembers, value, Metadata);
                 }
             }
-            else if (components is ITargetValueInterceptorDataBindingComponent interceptor)
+            else if (components is ITargetValueInterceptorBindingComponent interceptor)
                 value = interceptor.InterceptTargetValue(targetMembers, value, Metadata);
 
             return value;
@@ -499,15 +499,15 @@ namespace MugenMvvm.Binding.Core
         protected virtual object? InterceptSourceValue(in BindingPathLastMember sourceMembers, object? value)
         {
             var components = _components;
-            if (components is IComponent<IDataBinding>[] c)
+            if (components is IComponent<IBinding>[] c)
             {
                 for (var i = 0; i < c.Length; i++)
                 {
-                    if (c[i] is ISourceValueInterceptorDataBindingComponent interceptor)
+                    if (c[i] is ISourceValueInterceptorBindingComponent interceptor)
                         value = interceptor.InterceptSourceValue(sourceMembers, value, Metadata);
                 }
             }
-            else if (components is ISourceValueInterceptorDataBindingComponent interceptor)
+            else if (components is ISourceValueInterceptorBindingComponent interceptor)
                 value = interceptor.InterceptSourceValue(sourceMembers, value, Metadata);
 
             return value;
@@ -516,15 +516,15 @@ namespace MugenMvvm.Binding.Core
         protected virtual bool TrySetTargetValue(in BindingPathLastMember targetMembers, object? newValue)
         {
             var components = _components;
-            if (components is IComponent<IDataBinding>[] c)
+            if (components is IComponent<IBinding>[] c)
             {
                 for (var i = 0; i < c.Length; i++)
                 {
-                    if (c[i] is ITargetValueSetterDataBindingComponent setter && setter.TrySetTargetValue(targetMembers, newValue, Metadata))
+                    if (c[i] is ITargetValueSetterBindingComponent setter && setter.TrySetTargetValue(targetMembers, newValue, Metadata))
                         return true;
                 }
             }
-            else if (components is ITargetValueSetterDataBindingComponent setter && setter.TrySetTargetValue(targetMembers, newValue, Metadata))
+            else if (components is ITargetValueSetterBindingComponent setter && setter.TrySetTargetValue(targetMembers, newValue, Metadata))
                 return true;
 
             return false;
@@ -533,15 +533,15 @@ namespace MugenMvvm.Binding.Core
         protected virtual bool TrySetSourceValue(in BindingPathLastMember sourceMembers, object? newValue)
         {
             var components = _components;
-            if (components is IComponent<IDataBinding>[] c)
+            if (components is IComponent<IBinding>[] c)
             {
                 for (var i = 0; i < c.Length; i++)
                 {
-                    if (c[i] is ISourceValueSetterDataBindingComponent setter && setter.TrySetSourceValue(sourceMembers, newValue, Metadata))
+                    if (c[i] is ISourceValueSetterBindingComponent setter && setter.TrySetSourceValue(sourceMembers, newValue, Metadata))
                         return true;
                 }
             }
-            else if (components is ISourceValueSetterDataBindingComponent setter && setter.TrySetSourceValue(sourceMembers, newValue, Metadata))
+            else if (components is ISourceValueSetterBindingComponent setter && setter.TrySetSourceValue(sourceMembers, newValue, Metadata))
                 return true;
 
             return false;
@@ -627,7 +627,7 @@ namespace MugenMvvm.Binding.Core
             _state = (byte)(_state & ~flag);
         }
 
-        private bool RemoveComponent(IComponent<IDataBinding> component)
+        private bool RemoveComponent(IComponent<IBinding> component)
         {
             if (_components == null)
                 return false;
@@ -638,7 +638,7 @@ namespace MugenMvvm.Binding.Core
                 return true;
             }
 
-            if (!(_components is IComponent<IDataBinding>[] items))
+            if (!(_components is IComponent<IBinding>[] items))
                 return false;
 
             if (items.Length == 2)
@@ -664,23 +664,23 @@ namespace MugenMvvm.Binding.Core
             return false;
         }
 
-        private void OnComponentAdded(IComponent<IDataBinding> component)
+        private void OnComponentAdded(IComponent<IBinding> component)
         {
-            if (component is ISourceValueInterceptorDataBindingComponent)
+            if (component is ISourceValueInterceptorBindingComponent)
                 SetFlag(HasSourceValueInterceptorFlag);
-            if (component is ITargetValueInterceptorDataBindingComponent)
+            if (component is ITargetValueInterceptorBindingComponent)
                 SetFlag(HasTargetValueInterceptorFlag);
-            if (component is IDataBindingSourceListener)
+            if (component is IBindingSourceListener)
                 SetFlag(HasSourceListenerFlag);
-            if (component is IDataBindingTargetListener)
+            if (component is IBindingTargetListener)
                 SetFlag(HasTargetListenerFlag);
-            if (component is ITargetValueSetterDataBindingComponent)
+            if (component is ITargetValueSetterBindingComponent)
                 SetFlag(HasTargetValueSetterFlag);
-            if (component is ISourceValueSetterDataBindingComponent)
+            if (component is ISourceValueSetterBindingComponent)
                 SetFlag(HasSourceValueSetterFlag);
-            if (component is IDataBindingTargetObserverListener && ++_targetObserverCount == 1)
+            if (component is IBindingTargetObserverListener && ++_targetObserverCount == 1)
                 Target.AddListener(this);
-            if (!(component is IDataBindingSourceObserverListener) || ++_sourceObserverCount != 1)
+            if (!(component is IBindingSourceObserverListener) || ++_sourceObserverCount != 1)
                 return;
 
             if (SourceRaw is IBindingPathObserver source)
@@ -693,13 +693,13 @@ namespace MugenMvvm.Binding.Core
             }
         }
 
-        private void OnComponentRemoved(IComponent<IDataBinding> component)
+        private void OnComponentRemoved(IComponent<IBinding> component)
         {
             if (CheckFlag(DisposedFlag))
                 return;
-            if (component is IDataBindingTargetObserverListener && --_targetObserverCount == 0)
+            if (component is IBindingTargetObserverListener && --_targetObserverCount == 0)
                 Target.RemoveListener(this);
-            if (component is IDataBindingSourceObserverListener && --_sourceObserverCount == 0)
+            if (component is IBindingSourceObserverListener && --_sourceObserverCount == 0)
             {
                 if (SourceRaw is IBindingPathObserver source)
                     source.RemoveListener(this);
