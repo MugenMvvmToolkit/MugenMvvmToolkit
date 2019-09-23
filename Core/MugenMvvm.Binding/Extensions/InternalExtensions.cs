@@ -99,7 +99,7 @@ namespace MugenMvvm.Binding
                 var s = args[i];
                 if (!string.IsNullOrEmpty(s) && s[0] == '\"' && s.EndsWith("\""))
                     s = s.RemoveBounds();
-                result[i] = (TItem)(s == "null" ? null : MugenBindingService.GlobalBindingValueConverter.Convert(s, typeof(TItem)))!;
+                result[i] = (TItem)(s == "null" ? null : MugenBindingService.GlobalValueConverter.Convert(s, typeof(TItem)))!;
             }
 
             return result;
@@ -119,7 +119,7 @@ namespace MugenMvvm.Binding
                     castType = parameters[i].ParameterType;
                 if (!string.IsNullOrEmpty(s) && s[0] == '\"' && s.EndsWith("\""))
                     s = s.RemoveBounds();
-                result[i] = s == "null" ? null : MugenBindingService.GlobalBindingValueConverter.Convert(s, castType ?? typeof(object));
+                result[i] = s == "null" ? null : MugenBindingService.GlobalValueConverter.Convert(s, castType ?? typeof(object));
             }
 
             return result;

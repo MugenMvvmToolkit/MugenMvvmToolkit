@@ -1,6 +1,6 @@
 ﻿namespace MugenMvvm.Binding.Interfaces.Resources
 {
-    public interface IBindingResource
+    public interface IResourceValue
     {
         object? Value { get; }
     }

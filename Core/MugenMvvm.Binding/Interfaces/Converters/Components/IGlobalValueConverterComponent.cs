@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Converters.Components
 {
-    public interface IGlobalBindingValueConverterComponent : IComponent<IGlobalBindingValueConverter>
+    public interface IGlobalValueConverterComponent : IComponent<IGlobalValueConverter>
     {
         object? Convert(object? value, Type targetType, IBindingMemberInfo? member, IReadOnlyMetadataContext? metadata);
     }

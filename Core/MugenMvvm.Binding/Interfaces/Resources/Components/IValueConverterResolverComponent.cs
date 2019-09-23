@@ -4,8 +4,8 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Resources.Components
 {
-    public interface IBindingValueConverterResolverComponent : IComponent<IBindingResourceResolver>
+    public interface IValueConverterResolverComponent : IComponent<IResourceResolver>
     {
-        IBindingValueConverter? TryGetConverter(string name, IReadOnlyMetadataContext? metadata);
+        IValueConverter? TryGetConverter(string name, IReadOnlyMetadataContext? metadata);
     }
 }

@@ -13,7 +13,7 @@ namespace MugenMvvm.Binding
     {
         #region Methods
 
-        public static bool TryConvert(this IGlobalBindingValueConverter? converter, object? value, Type targetType, IBindingMemberInfo? member, IReadOnlyMetadataContext? metadata,
+        public static bool TryConvert(this IGlobalValueConverter? converter, object? value, Type targetType, IBindingMemberInfo? member, IReadOnlyMetadataContext? metadata,
             out object? result)
         {
             try

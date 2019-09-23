@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace MugenMvvm.Binding.Core
+namespace MugenMvvm.Binding.Resources
 {
-    public struct BindingType
+    public struct KnownType
     {
         #region Fields
 
@@ -13,7 +13,7 @@ namespace MugenMvvm.Binding.Core
 
         #region Constructors
 
-        public BindingType(Type type, string alias)
+        public KnownType(Type type, string alias)
         {
             Type = type;
             Alias = alias;

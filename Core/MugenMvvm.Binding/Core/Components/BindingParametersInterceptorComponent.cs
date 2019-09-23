@@ -12,7 +12,7 @@ namespace MugenMvvm.Binding.Core.Components
         #region Fields
 
         public readonly Func<IReadOnlyMetadataContext, object?>? CommandParameterDelegate;
-        public readonly Func<IReadOnlyMetadataContext, IBindingValueConverter?>? ConverterDelegate;
+        public readonly Func<IReadOnlyMetadataContext, IValueConverter?>? ConverterDelegate;
         public readonly Func<IReadOnlyMetadataContext, object?>? ConverterParameterDelegate;
         public readonly Func<IReadOnlyMetadataContext, object?>? FallbackDelegate;
         public readonly object? TargetNullValue;
@@ -21,7 +21,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Constructors
 
-        public BindingParametersInterceptorComponent(Func<IReadOnlyMetadataContext, IBindingValueConverter> converterDelegate,
+        public BindingParametersInterceptorComponent(Func<IReadOnlyMetadataContext, IValueConverter> converterDelegate,
             Func<IReadOnlyMetadataContext, object> converterParameterDelegate, Func<IReadOnlyMetadataContext, object> commandParameterDelegate,
             Func<IReadOnlyMetadataContext, object> fallbackDelegate, object targetNullValue)
         {

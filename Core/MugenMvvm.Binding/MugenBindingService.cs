@@ -10,7 +10,7 @@ namespace MugenMvvm.Binding
     {
         #region Properties
 
-        public static IGlobalBindingValueConverter GlobalBindingValueConverter => Service<IGlobalBindingValueConverter>.Instance;
+        public static IGlobalValueConverter GlobalValueConverter => Service<IGlobalValueConverter>.Instance;
 
         public static IBindingManager BindingManager => Service<IBindingManager>.Instance;
 
@@ -18,7 +18,7 @@ namespace MugenMvvm.Binding
 
         public static IBindingObserverProvider BindingObserverProvider => Service<IBindingObserverProvider>.Instance;
 
-        public static IBindingResourceResolver BindingResourceResolver => Service<IBindingResourceResolver>.Instance;
+        public static IResourceResolver ResourceResolver => Service<IResourceResolver>.Instance;
 
         #endregion
     }

@@ -9,35 +9,35 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Converters
 {
-    public sealed class GlobalBindingValueConverter : ComponentOwnerBase<IGlobalBindingValueConverter>, IGlobalBindingValueConverter,
-        IComponentOwnerAddedCallback<IComponent<IGlobalBindingValueConverter>>, IComponentOwnerRemovedCallback<IComponent<IGlobalBindingValueConverter>>
+    public sealed class GlobalValueConverter : ComponentOwnerBase<IGlobalValueConverter>, IGlobalValueConverter,
+        IComponentOwnerAddedCallback<IComponent<IGlobalValueConverter>>, IComponentOwnerRemovedCallback<IComponent<IGlobalValueConverter>>
     {
         #region Fields
 
-        private IGlobalBindingValueConverterComponent[] _converters;
+        private IGlobalValueConverterComponent[] _converters;
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public GlobalBindingValueConverter(IComponentCollectionProvider? componentCollectionProvider = null) : base(componentCollectionProvider)
+        public GlobalValueConverter(IComponentCollectionProvider? componentCollectionProvider = null) : base(componentCollectionProvider)
         {
-            _converters = Default.EmptyArray<IGlobalBindingValueConverterComponent>();
+            _converters = Default.EmptyArray<IGlobalValueConverterComponent>();
         }
 
         #endregion
 
         #region Implementation of interfaces
 
-        void IComponentOwnerAddedCallback<IComponent<IGlobalBindingValueConverter>>.OnComponentAdded(IComponentCollection<IComponent<IGlobalBindingValueConverter>> collection,
-            IComponent<IGlobalBindingValueConverter> component, IReadOnlyMetadataContext? metadata)
+        void IComponentOwnerAddedCallback<IComponent<IGlobalValueConverter>>.OnComponentAdded(IComponentCollection<IComponent<IGlobalValueConverter>> collection,
+            IComponent<IGlobalValueConverter> component, IReadOnlyMetadataContext? metadata)
         {
             MugenExtensions.ComponentTrackerOnAdded(ref _converters, this, collection, component, metadata);
         }
 
-        void IComponentOwnerRemovedCallback<IComponent<IGlobalBindingValueConverter>>.OnComponentRemoved(IComponentCollection<IComponent<IGlobalBindingValueConverter>> collection,
-            IComponent<IGlobalBindingValueConverter> component, IReadOnlyMetadataContext? metadata)
+        void IComponentOwnerRemovedCallback<IComponent<IGlobalValueConverter>>.OnComponentRemoved(IComponentCollection<IComponent<IGlobalValueConverter>> collection,
+            IComponent<IGlobalValueConverter> component, IReadOnlyMetadataContext? metadata)
         {
             MugenExtensions.ComponentTrackerOnRemoved(ref _converters, collection, component, metadata);
         }

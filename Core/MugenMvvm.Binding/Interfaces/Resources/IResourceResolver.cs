@@ -3,21 +3,22 @@ using System.Collections.Generic;
 using MugenMvvm.Binding.Core;
 using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Binding.Interfaces.Core;
+using MugenMvvm.Binding.Resources;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Resources
 {
-    public interface IBindingResourceResolver : IComponentOwner<IBindingResourceResolver>, IComponent<IBindingManager>
+    public interface IResourceResolver : IComponentOwner<IResourceResolver>, IComponent<IBindingManager>
     {
         IComponent<IDataBinding>? TryGetComponent(string name, IReadOnlyMetadataContext? metadata = null);
 
-        IBindingResource? TryGetBindingResource(string name, IReadOnlyMetadataContext? metadata);
+        IResourceValue? TryGetResource(string name, IReadOnlyMetadataContext? metadata);
 
-        IBindingValueConverter? TryGetConverter(string name, IReadOnlyMetadataContext? metadata);
+        IValueConverter? TryGetConverter(string name, IReadOnlyMetadataContext? metadata);
 
         Type? TryGetType(string name, IReadOnlyMetadataContext? metadata);
 
-        IReadOnlyList<BindingType> GetKnownTypes();
+        IReadOnlyList<KnownType> GetKnownTypes();
     }
 }
