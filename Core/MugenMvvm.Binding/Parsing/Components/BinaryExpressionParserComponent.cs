@@ -10,7 +10,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
 {
-    public sealed class BinaryExpressionParserComponent : IExpressionParserComponent, IHasPriority
+    public sealed class BinaryExpressionParserComponent : IExpressionParserComponent<ITokenExpressionParserContext>, IHasPriority
     {
         #region Fields
 
@@ -62,7 +62,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Implementation of interfaces
 
-        public IExpressionNode? TryParse(IExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
+        public IExpressionNode? TryParse(ITokenExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
         {
             var p = context.Position;
             var node = TryParseInternal(context, expression, metadata);
@@ -75,7 +75,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Methods
 
-        private IExpressionNode? TryParseInternal(IExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
+        private IExpressionNode? TryParseInternal(ITokenExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
         {
             if (expression == null)
                 return null;
@@ -151,7 +151,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             return index;
         }
 
-        private BinaryTokenType? GetToken(IExpressionParserContext context)
+        private BinaryTokenType? GetToken(ITokenExpressionParserContext context)
         {
             for (var i = 0; i < _tokens.Length; i++)
             {

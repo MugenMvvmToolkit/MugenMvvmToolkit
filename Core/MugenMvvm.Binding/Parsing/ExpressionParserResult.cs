@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -32,10 +31,16 @@ namespace MugenMvvm.Binding.Parsing
         }
 
         public ExpressionParserResult(IExpressionNode target, IExpressionNode? source, ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>> parameters,
-            IExpressionParserContext context)
+            IMetadataOwner<IReadOnlyMetadataContext> context)
             : this(target, source, parameters, context.HasMetadata ? context.Metadata : Default.Metadata)
         {
         }
+
+        #endregion
+
+        #region Properties
+
+        public bool IsEmpty => Target == null;
 
         #endregion
     }

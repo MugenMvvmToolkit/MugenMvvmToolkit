@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
 {
-    public sealed class ConstantExpressionParserComponent : IExpressionParserComponent, IHasPriority
+    public sealed class ConstantExpressionParserComponent : IExpressionParserComponent<ITokenExpressionParserContext>, IHasPriority
     {
         #region Fields
 
@@ -44,7 +44,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Implementation of interfaces
 
-        public IExpressionNode? TryParse(IExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
+        public IExpressionNode? TryParse(ITokenExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
         {
             if (expression != null)
                 return null;

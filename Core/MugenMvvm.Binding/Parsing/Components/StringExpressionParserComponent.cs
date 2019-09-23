@@ -14,7 +14,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 {
     //https://devblogs.microsoft.com/csharpfaq/what-character-escape-sequences-are-available/
     //note doesn't support unicode escape sequence
-    public sealed class StringExpressionParserComponent : IExpressionParserComponent, IHasPriority
+    public sealed class StringExpressionParserComponent : IExpressionParserComponent<ITokenExpressionParserContext>, IHasPriority
     {
         #region Fields
 
@@ -72,7 +72,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Implementation of interfaces
 
-        public IExpressionNode? TryParse(IExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
+        public IExpressionNode? TryParse(ITokenExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
         {
             var p = context.Position;
             var node = TryParseInternal(context, expression, metadata);
@@ -85,7 +85,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Methods
 
-        private IExpressionNode? TryParseInternal(IExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
+        private IExpressionNode? TryParseInternal(ITokenExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
         {
             context.SkipWhitespaces();
             var isInterpolated = context.IsToken('$');
@@ -211,14 +211,14 @@ namespace MugenMvvm.Binding.Parsing.Components
             return new MethodCallExpressionNode(StringType, "Format", args);
         }
 
-        private static void InitializeBuilder(IExpressionParserContext context, int start, int end, ref StringBuilder? builder)
+        private static void InitializeBuilder(ITokenExpressionParserContext context, int start, int end, ref StringBuilder? builder)
         {
             if (builder != null)
                 return;
             builder = new StringBuilder(context.GetValue(start, end));
         }
 
-        private string? GetQuoteToken(IExpressionParserContext context)
+        private string? GetQuoteToken(ITokenExpressionParserContext context)
         {
             if (context.IsEof())
                 return null;

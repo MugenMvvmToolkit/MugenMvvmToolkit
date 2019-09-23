@@ -5,6 +5,10 @@ namespace MugenMvvm.Binding.Interfaces.Parsing.Components
 {
     public interface IExpressionParserContextProviderComponent : IComponent<IExpressionParser>
     {
-        IExpressionParserContext? TryGetParserContext(object expression, IReadOnlyMetadataContext? metadata);
+    }
+
+    public interface IExpressionParserContextProviderComponent<TExpression> : IExpressionParserContextProviderComponent
+    {
+        IExpressionParserContext? TryGetParserContext(in TExpression expression, IReadOnlyMetadataContext? metadata);
     }
 }

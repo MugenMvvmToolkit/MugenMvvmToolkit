@@ -7,7 +7,7 @@ using MugenMvvm.Internal;
 namespace MugenMvvm.Components
 {
     public sealed class SingletonComponentTracker<TComponent, TComponentBase> : IComponentCollectionChangedListener<IComponent<TComponentBase>>,
-            IHasService<TComponent>, IHasServiceOptional<TComponent>
+        IHasService<TComponent>, IHasServiceOptional<TComponent>
         where TComponent : class
         where TComponentBase : class
     {
@@ -67,6 +67,13 @@ namespace MugenMvvm.Components
             _owner = owner;
             _component = owner.Components.GetItems().OfType<TComponent>().FirstOrDefault();
             owner.Components.Components.Add(this);
+        }
+
+        public void Detach()
+        {
+            _owner?.Components.Components.Remove(this);
+            _owner = null;
+            _component = null;
         }
 
         public TComponent? GetComponent(bool throwIfNotInitialized)

@@ -1,22 +1,10 @@
-﻿using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+﻿using MugenMvvm.Binding.Parsing;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Parsing
 {
-    public interface IExpressionParserContext : IMetadataOwner<IMetadataContext>//todo use span/memory?
+    public interface IExpressionParserContext : IMetadataOwner<IMetadataContext>
     {
-        int Position { get; }
-
-        int Length { get; }
-
-        char TokenAt(int position);
-
-        string GetValue(int start, int end);
-
-        void SetPosition(int position);
-
-        void SetLimit(int? limit);
-
-        IExpressionNode? TryParse(IExpressionNode? expression = null, IReadOnlyMetadataContext? metadata = null);
+        ExpressionParserResult Parse(IReadOnlyMetadataContext? metadata);
     }
 }

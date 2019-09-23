@@ -58,6 +58,13 @@ namespace MugenMvvm.Components
             _owner.Components.Components.Add(this);
         }
 
+        public void Detach()
+        {
+            _owner?.Components.Components.Remove(this);
+            _owner = null;
+            _items = Default.EmptyArray<TComponent>();
+        }
+
         public TComponent[] GetComponents()
         {
             return _items;

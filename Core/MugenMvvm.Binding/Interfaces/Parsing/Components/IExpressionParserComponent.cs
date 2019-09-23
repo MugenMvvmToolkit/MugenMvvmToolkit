@@ -6,6 +6,10 @@ namespace MugenMvvm.Binding.Interfaces.Parsing.Components
 {
     public interface IExpressionParserComponent : IComponent<IExpressionParser>
     {
-        IExpressionNode? TryParse(IExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata);
+    }
+
+    public interface IExpressionParserComponent<in TContext> : IExpressionParserComponent where TContext : class, ITokenExpressionParserContext
+    {
+        IExpressionNode? TryParse(TContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata);
     }
 }

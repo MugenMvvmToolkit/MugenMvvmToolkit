@@ -10,7 +10,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
 {
-    public sealed class DigitExpressionParserComponent : IExpressionParserComponent, IHasPriority
+    public sealed class DigitExpressionParserComponent : IExpressionParserComponent<ITokenExpressionParserContext>, IHasPriority
     {
         #region Fields
 
@@ -56,7 +56,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Implementation of interfaces
 
-        public IExpressionNode? TryParse(IExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
+        public IExpressionNode? TryParse(ITokenExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
         {
             if (expression != null)
                 return null;
