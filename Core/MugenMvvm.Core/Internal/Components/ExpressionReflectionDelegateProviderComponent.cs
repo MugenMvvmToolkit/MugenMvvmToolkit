@@ -245,8 +245,7 @@ namespace MugenMvvm.Internal.Components
         public static Delegate GetMethodInvoker(Type delegateType, MethodInfo method)
         {
             var delegateMethod = delegateType.GetMethodUnified(nameof(Action.Invoke), MemberFlags.InstanceOnly);
-            if (delegateMethod == null)
-                throw new ArgumentException(string.Empty, nameof(delegateType));
+            Should.NotBeNull(delegateMethod, nameof(delegateMethod));
 
             var delegateParams = delegateMethod.GetParameters().ToList();
             var methodParams = method.GetParameters();
