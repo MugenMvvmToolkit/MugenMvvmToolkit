@@ -70,7 +70,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Nested types
 
-        private sealed class WeakPropertyChangedListener //todo opt
+        private sealed class WeakPropertyChangedListener
         {
             #region Fields
 
@@ -114,12 +114,7 @@ namespace MugenMvvm.Binding.Observers.Components
                 }
 
                 if (hasDeadRef)
-                {
-                    lock (this)
-                    {
-                        Cleanup();
-                    }
-                }
+                    Cleanup();
             }
 
             public IDisposable Add(IEventListener target, string path)
@@ -151,32 +146,29 @@ namespace MugenMvvm.Binding.Observers.Components
 
             private IDisposable AddInternal(WeakEventListener weakItem, string path)
             {
-                lock (this)
+                if (_listeners.Length == 0)
                 {
-                    if (_listeners.Length == 0)
+                    _listeners = new[] { new KeyValuePair<WeakEventListener, string>(weakItem, path) };
+                    _size = 1;
+                    _removedSize = 0;
+                }
+                else
+                {
+                    if (_removedSize == 0)
                     {
-                        _listeners = new[] { new KeyValuePair<WeakEventListener, string>(weakItem, path) };
-                        _size = 1;
-                        _removedSize = 0;
+                        if (_size == _listeners.Length)
+                            EventListenerCollection.EnsureCapacity(ref _listeners, _size, _size + 1);
+                        _listeners[_size++] = new KeyValuePair<WeakEventListener, string>(weakItem, path);
                     }
                     else
                     {
-                        if (_removedSize == 0)
+                        for (var i = 0; i < _size; i++)
                         {
-                            if (_size == _listeners.Length)
-                                EventListenerCollection.EnsureCapacity(ref _listeners, _size, _size + 1);
-                            _listeners[_size++] = new KeyValuePair<WeakEventListener, string>(weakItem, path);
-                        }
-                        else
-                        {
-                            for (var i = 0; i < _size; i++)
+                            if (_listeners[i].Key.IsEmpty)
                             {
-                                if (_listeners[i].Key.IsEmpty)
-                                {
-                                    _listeners[i] = new KeyValuePair<WeakEventListener, string>(weakItem, path);
-                                    --_removedSize;
-                                    break;
-                                }
+                                _listeners[i] = new KeyValuePair<WeakEventListener, string>(weakItem, path);
+                                --_removedSize;
+                                break;
                             }
                         }
                     }
@@ -187,17 +179,14 @@ namespace MugenMvvm.Binding.Observers.Components
 
             private void Remove(WeakEventListener weakItem, string propertyName)
             {
-                lock (this)
+                for (var i = 0; i < _listeners.Length; i++)
                 {
-                    for (var i = 0; i < _listeners.Length; i++)
+                    var pair = _listeners[i];
+                    if (!pair.Key.IsEmpty && pair.Value == propertyName && ReferenceEquals(pair.Key.Source, weakItem.Source))
                     {
-                        var pair = _listeners[i];
-                        if (!pair.Key.IsEmpty && pair.Value == propertyName && ReferenceEquals(pair.Key.Source, weakItem.Source))
-                        {
-                            ++_removedSize;
-                            _listeners[i] = default;
-                            return;
-                        }
+                        ++_removedSize;
+                        _listeners[i] = default;
+                        return;
                     }
                 }
             }

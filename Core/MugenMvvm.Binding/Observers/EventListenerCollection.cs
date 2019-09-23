@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Internal;
 
 namespace MugenMvvm.Binding.Observers
 {
-    public sealed class EventListenerCollection//todo opt
+    public sealed class EventListenerCollection
     {
         #region Fields
 
@@ -51,12 +51,7 @@ namespace MugenMvvm.Binding.Observers
             }
 
             if (hasDeadRef)
-            {
-                lock (this)
-                {
-                    Cleanup();
-                }
-            }
+                Cleanup();
         }
 
         public void Add(IEventListener target)
@@ -77,57 +72,48 @@ namespace MugenMvvm.Binding.Observers
                 return;
             }
 
-            lock (this)//todo review locks for binding
+            for (var i = 0; i < _listeners.Length; i++)
             {
-                for (var i = 0; i < _listeners.Length; i++)
+                if (ReferenceEquals(_listeners[i].Listener, listener))
                 {
-                    if (ReferenceEquals(_listeners[i].Listener, listener))
-                    {
-                        RemoveAt(i);
-                        return;
-                    }
+                    RemoveAt(i);
+                    return;
                 }
             }
         }
 
         public void Clear()
         {
-            lock (this)
-            {
-                _listeners = Default.EmptyArray<WeakEventListener>();
-                _size = 0;
-                _removedSize = 0;
-            }
+            _listeners = Default.EmptyArray<WeakEventListener>();
+            _size = 0;
+            _removedSize = 0;
         }
 
         private IDisposable? AddInternal(WeakEventListener weakItem, bool withUnsubscriber)
         {
-            lock (this)
+            if (_listeners.Length == 0)
             {
-                if (_listeners.Length == 0)
+                _listeners = new[] { weakItem };
+                _size = 1;
+                _removedSize = 0;
+            }
+            else
+            {
+                if (_removedSize == 0)
                 {
-                    _listeners = new[] { weakItem };
-                    _size = 1;
-                    _removedSize = 0;
+                    if (_size == _listeners.Length)
+                        EnsureCapacity(ref _listeners, _size, _size + 1);
+                    _listeners[_size++] = weakItem;
                 }
                 else
                 {
-                    if (_removedSize == 0)
+                    for (var i = 0; i < _size; i++)
                     {
-                        if (_size == _listeners.Length)
-                            EnsureCapacity(ref _listeners, _size, _size + 1);
-                        _listeners[_size++] = weakItem;
-                    }
-                    else
-                    {
-                        for (var i = 0; i < _size; i++)
+                        if (_listeners[i].IsEmpty)
                         {
-                            if (_listeners[i].IsEmpty)
-                            {
-                                _listeners[i] = weakItem;
-                                --_removedSize;
-                                break;
-                            }
+                            _listeners[i] = weakItem;
+                            --_removedSize;
+                            break;
                         }
                     }
                 }
@@ -140,16 +126,13 @@ namespace MugenMvvm.Binding.Observers
 
         private void Remove(WeakEventListener weakItem)
         {
-            lock (this)
+            for (var i = 0; i < _listeners.Length; i++)
             {
-                for (var i = 0; i < _listeners.Length; i++)
+                var wrapper = _listeners[i];
+                if (!wrapper.IsEmpty && ReferenceEquals(wrapper.Source, weakItem.Source))
                 {
-                    var wrapper = _listeners[i];
-                    if (!wrapper.IsEmpty && ReferenceEquals(wrapper.Source, weakItem.Source))
-                    {
-                        RemoveAt(i);
-                        return;
-                    }
+                    RemoveAt(i);
+                    return;
                 }
             }
         }
