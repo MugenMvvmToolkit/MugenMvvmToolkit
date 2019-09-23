@@ -104,7 +104,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
             #region Implementation of interfaces
 
-            public ExpressionParserResult TryParse(IReadOnlyMetadataContext? metadata)
+            public ExpressionParserResult TryParseNext(IReadOnlyMetadataContext? metadata)
             {
                 if (this.IsEof())
                     return default;
