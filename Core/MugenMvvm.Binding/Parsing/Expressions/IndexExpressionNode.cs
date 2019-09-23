@@ -3,9 +3,9 @@ using System.Linq;
 using System.Reflection;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Parsing;
-using MugenMvvm.Binding.Interfaces.Parsing.Nodes;
+using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 
-namespace MugenMvvm.Binding.Parsing.Nodes
+namespace MugenMvvm.Binding.Parsing.Expressions
 {
     public sealed class IndexExpressionNode : ExpressionNodeBase, IIndexExpressionNode
     {

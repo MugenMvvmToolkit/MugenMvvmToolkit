@@ -7,8 +7,8 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Interfaces.Parsing
 {
-    public interface IBindingParser : IComponentOwner<IBindingParser>, IComponent<IBindingManager>
+    public interface IExpressionParser : IComponentOwner<IExpressionParser>, IComponent<IBindingManager>
     {
-        ItemOrList<BindingParserResult, IReadOnlyList<BindingParserResult>> Parse(string expression, IReadOnlyMetadataContext? metadata);
+        ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> Parse(string expression, IReadOnlyMetadataContext? metadata);
     }
 }

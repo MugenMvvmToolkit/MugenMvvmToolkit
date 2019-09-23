@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
-using MugenMvvm.Binding.Interfaces.Parsing.Nodes;
+using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -11,13 +11,13 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Parsing
 {
-    public sealed class BindingParser : ComponentOwnerBase<IBindingParser>, IBindingParser, IComponentOwnerAddedCallback<IComponent<IBindingParser>>,
-        IComponentOwnerRemovedCallback<IComponent<IBindingParser>>
+    public sealed class ExpressionParser : ComponentOwnerBase<IExpressionParser>, IExpressionParser, IComponentOwnerAddedCallback<IComponent<IExpressionParser>>,
+        IComponentOwnerRemovedCallback<IComponent<IExpressionParser>>
     {
         #region Fields
 
         private readonly IMetadataContextProvider? _metadataContextProvider;
-        private IBindingParserContextProviderComponent[] _contextProviders;
+        private IExpressionParserContextProviderComponent[] _contextProviders;
         private IExpressionParserComponent[] _parsers;
 
         public static readonly HashSet<char> TargetDelimiters = new HashSet<char> { ',', ';', ' ' };
@@ -27,23 +27,23 @@ namespace MugenMvvm.Binding.Parsing
 
         #region Constructors
 
-        public BindingParser(IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
+        public ExpressionParser(IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
             : base(componentCollectionProvider)
         {
             _metadataContextProvider = metadataContextProvider;
             _parsers = Default.EmptyArray<IExpressionParserComponent>();
-            _contextProviders = Default.EmptyArray<IBindingParserContextProviderComponent>();
+            _contextProviders = Default.EmptyArray<IExpressionParserContextProviderComponent>();
         }
 
         #endregion
 
         #region Implementation of interfaces
 
-        public ItemOrList<BindingParserResult, IReadOnlyList<BindingParserResult>> Parse(string expression, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> Parse(string expression, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(expression, nameof(expression));
-            BindingParserResult? itemResult = null;
-            List<BindingParserResult>? result = null;
+            ExpressionParserResult? itemResult = null;
+            List<ExpressionParserResult>? result = null;
             var context = GetBindingParserContext(expression, metadata);
             while (!context.IsEof())
             {
@@ -53,7 +53,7 @@ namespace MugenMvvm.Binding.Parsing
                 else
                 {
                     if (result == null)
-                        result = new List<BindingParserResult> { itemResult.Value };
+                        result = new List<ExpressionParserResult> { itemResult.Value };
                     result.Add(r);
                 }
             }
@@ -63,15 +63,15 @@ namespace MugenMvvm.Binding.Parsing
             return result;
         }
 
-        void IComponentOwnerAddedCallback<IComponent<IBindingParser>>.OnComponentAdded(IComponentCollection<IComponent<IBindingParser>> collection,
-            IComponent<IBindingParser> component, IReadOnlyMetadataContext? metadata)
+        void IComponentOwnerAddedCallback<IComponent<IExpressionParser>>.OnComponentAdded(IComponentCollection<IComponent<IExpressionParser>> collection,
+            IComponent<IExpressionParser> component, IReadOnlyMetadataContext? metadata)
         {
             MugenExtensions.ComponentTrackerOnAdded(ref _contextProviders, this, collection, component, metadata);
             MugenExtensions.ComponentTrackerOnAdded(ref _parsers, this, collection, component, metadata);
         }
 
-        void IComponentOwnerRemovedCallback<IComponent<IBindingParser>>.OnComponentRemoved(IComponentCollection<IComponent<IBindingParser>> collection,
-            IComponent<IBindingParser> component, IReadOnlyMetadataContext? metadata)
+        void IComponentOwnerRemovedCallback<IComponent<IExpressionParser>>.OnComponentRemoved(IComponentCollection<IComponent<IExpressionParser>> collection,
+            IComponent<IExpressionParser> component, IReadOnlyMetadataContext? metadata)
         {
             MugenExtensions.ComponentTrackerOnRemoved(ref _contextProviders, collection, component, metadata);
             MugenExtensions.ComponentTrackerOnRemoved(ref _parsers, collection, component, metadata);
@@ -81,7 +81,7 @@ namespace MugenMvvm.Binding.Parsing
 
         #region Methods
 
-        private static BindingParserResult Parse(IBindingParserContext context)
+        private static ExpressionParserResult Parse(IExpressionParserContext context)
         {
             var delimiterPos = context.SkipWhitespaces().FindAnyOf(TargetDelimiters);
             var length = context.Length;
@@ -114,13 +114,13 @@ namespace MugenMvvm.Binding.Parsing
             {
                 if (context.IsToken(';'))
                     context.MoveNext();
-                return new BindingParserResult(target, source, parameters ?? new ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>>(parameter!), context);
+                return new ExpressionParserResult(target, source, parameters ?? new ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>>(parameter!), context);
             }
 
             throw new Exception(); //todo add 
         }
 
-        private IBindingParserContext GetBindingParserContext(string expression, IReadOnlyMetadataContext? metadata)
+        private IExpressionParserContext GetBindingParserContext(string expression, IReadOnlyMetadataContext? metadata)
         {
             for (var i = 0; i < _contextProviders.Length; i++)
             {
@@ -129,18 +129,18 @@ namespace MugenMvvm.Binding.Parsing
                     return context;
             }
 
-            return new BindingParserContext(expression, this, metadata);
+            return new ExpressionParserContext(expression, this, metadata);
         }
 
         #endregion
 
         #region Nested types
 
-        private sealed class BindingParserContext : IBindingParserContext
+        private sealed class ExpressionParserContext : IExpressionParserContext
         {
             #region Fields
 
-            private readonly BindingParser _parser;
+            private readonly ExpressionParser _parser;
             private readonly string _source;
             private IReadOnlyMetadataContext? _metadata;
 
@@ -148,7 +148,7 @@ namespace MugenMvvm.Binding.Parsing
 
             #region Constructors
 
-            public BindingParserContext(string source, BindingParser parser, IReadOnlyMetadataContext? metadata)
+            public ExpressionParserContext(string source, ExpressionParser parser, IReadOnlyMetadataContext? metadata)
             {
                 _source = source;
                 _parser = parser;

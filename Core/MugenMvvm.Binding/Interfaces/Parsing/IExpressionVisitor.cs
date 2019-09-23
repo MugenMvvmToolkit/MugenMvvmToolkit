@@ -1,4 +1,4 @@
-﻿using MugenMvvm.Binding.Interfaces.Parsing.Nodes;
+﻿using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 
 namespace MugenMvvm.Binding.Interfaces.Parsing
 {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MugenMvvm.Binding.Interfaces.Parsing.Nodes
+namespace MugenMvvm.Binding.Interfaces.Parsing.Expressions
 {
     public interface IParameterExpression : IExpressionNode
     {

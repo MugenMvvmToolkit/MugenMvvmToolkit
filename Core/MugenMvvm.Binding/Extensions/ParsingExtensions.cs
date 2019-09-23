@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Binding.Interfaces.Parsing;
-using MugenMvvm.Binding.Interfaces.Parsing.Nodes;
+using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
 
 // ReSharper disable once CheckNamespace
@@ -11,30 +11,30 @@ namespace MugenMvvm.Binding
     {
         #region Methods
 
-        public static int GetPosition(this IBindingParserContext context, int? position = null)
+        public static int GetPosition(this IExpressionParserContext context, int? position = null)
         {
             Should.NotBeNull(context, nameof(context));
             return position.GetValueOrDefault(context.Position);
         }
 
-        public static char TokenAt(this IBindingParserContext context, int? position = null)
+        public static char TokenAt(this IExpressionParserContext context, int? position = null)
         {
             return context.TokenAt(context.GetPosition(position));
         }
 
-        public static bool IsEof(this IBindingParserContext context, int? position = null)
+        public static bool IsEof(this IExpressionParserContext context, int? position = null)
         {
             return context.GetPosition(position) >= context.Length;
         }
 
-        public static bool IsToken(this IBindingParserContext context, char token, int? position = null)
+        public static bool IsToken(this IExpressionParserContext context, char token, int? position = null)
         {
             if (context.IsEof(position))
                 return false;
             return context.TokenAt(position) == token;
         }
 
-        public static bool IsToken(this IBindingParserContext context, string token, int? position = null)
+        public static bool IsToken(this IExpressionParserContext context, string token, int? position = null)
         {
             if (token.Length == 1)
                 return context.IsToken(token[0], position);
@@ -52,14 +52,14 @@ namespace MugenMvvm.Binding
             return true;
         }
 
-        public static bool IsAnyOf(this IBindingParserContext context, HashSet<char> tokens, int? position = null)
+        public static bool IsAnyOf(this IExpressionParserContext context, HashSet<char> tokens, int? position = null)
         {
             if (context.IsEof(position))
                 return false;
             return tokens.Contains(context.TokenAt(position));
         }
 
-        public static bool IsAnyOf(this IBindingParserContext context, IReadOnlyList<string> tokens, int? position = null)
+        public static bool IsAnyOf(this IExpressionParserContext context, IReadOnlyList<string> tokens, int? position = null)
         {
             if (context.IsEof(position))
                 return false;
@@ -72,17 +72,17 @@ namespace MugenMvvm.Binding
             return false;
         }
 
-        public static bool IsEofOrAnyOf(this IBindingParserContext context, HashSet<char> tokens, int? position = null)
+        public static bool IsEofOrAnyOf(this IExpressionParserContext context, HashSet<char> tokens, int? position = null)
         {
             return context.IsEof(position) || context.IsAnyOf(tokens, position);
         }
 
-        public static bool IsEofOrAnyOf(this IBindingParserContext context, IReadOnlyList<string> tokens, int? position = null)
+        public static bool IsEofOrAnyOf(this IExpressionParserContext context, IReadOnlyList<string> tokens, int? position = null)
         {
             return context.IsEof(position) || context.IsAnyOf(tokens, position);
         }
 
-        public static bool IsIdentifier(this IBindingParserContext context, out int endPosition, int? position = null)
+        public static bool IsIdentifier(this IExpressionParserContext context, out int endPosition, int? position = null)
         {
             endPosition = context.GetPosition(position);
             if (context.IsEof(endPosition) || !IsValidIdentifierSymbol(true, TokenAt(context, endPosition)))
@@ -96,12 +96,12 @@ namespace MugenMvvm.Binding
             return true;
         }
 
-        public static bool IsDigit(this IBindingParserContext context, int? position = null)
+        public static bool IsDigit(this IExpressionParserContext context, int? position = null)
         {
             return !context.IsEof(position) && char.IsDigit(context.TokenAt(position));
         }
 
-        public static int FindToken(this IBindingParserContext context, char token, int? position = null)
+        public static int FindToken(this IExpressionParserContext context, char token, int? position = null)
         {
             var start = context.GetPosition(position);
             for (var i = start; i < context.Length; i++)
@@ -113,7 +113,7 @@ namespace MugenMvvm.Binding
             return -1;
         }
 
-        public static int FindAnyOf(this IBindingParserContext context, HashSet<char> tokens, int? position = null)
+        public static int FindAnyOf(this IExpressionParserContext context, HashSet<char> tokens, int? position = null)
         {
             var start = context.GetPosition(position);
             for (var i = start; i < context.Length; i++)
@@ -125,7 +125,7 @@ namespace MugenMvvm.Binding
             return -1;
         }
 
-        public static int SkipWhitespacesPosition(this IBindingParserContext context, int? position = null)
+        public static int SkipWhitespacesPosition(this IExpressionParserContext context, int? position = null)
         {
             var p = context.GetPosition(position);
             while (!context.IsEof(p) && char.IsWhiteSpace(TokenAt(context, p)))
@@ -133,25 +133,25 @@ namespace MugenMvvm.Binding
             return p;
         }
 
-        public static IBindingParserContext SkipWhitespaces(this IBindingParserContext context, int? position = null)
+        public static IExpressionParserContext SkipWhitespaces(this IExpressionParserContext context, int? position = null)
         {
             context.SetPosition(context.SkipWhitespacesPosition(position));
             return context;
         }
 
-        public static IBindingParserContext MoveNext(this IBindingParserContext context, int value = 1)
+        public static IExpressionParserContext MoveNext(this IExpressionParserContext context, int value = 1)
         {
             if (!context.IsEof(context.Position))
                 context.SetPosition(context.Position + value);
             return context;
         }
 
-        public static PositionState SavePosition(this IBindingParserContext context)
+        public static PositionState SavePosition(this IExpressionParserContext context)
         {
             return new PositionState(context);
         }
 
-        public static IExpressionNode Parse(this IBindingParserContext context, IExpressionNode? expression = null, IReadOnlyMetadataContext? metadata = null)
+        public static IExpressionNode Parse(this IExpressionParserContext context, IExpressionNode? expression = null, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(context, nameof(context));
             var node = context.TryParse(expression, metadata);
@@ -160,7 +160,7 @@ namespace MugenMvvm.Binding
             return node;
         }
 
-        public static IExpressionNode? TryParseWhileNotNull(this IBindingParserContext context, IExpressionNode? expression = null, IReadOnlyMetadataContext? metadata = null)
+        public static IExpressionNode? TryParseWhileNotNull(this IExpressionParserContext context, IExpressionNode? expression = null, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(context, nameof(context));
             while (true)
@@ -172,7 +172,7 @@ namespace MugenMvvm.Binding
             }
         }
 
-        public static IExpressionNode ParseWhileToken(this IBindingParserContext context, char token, int? position = null, IExpressionNode? expression = null,
+        public static IExpressionNode ParseWhileToken(this IExpressionParserContext context, char token, int? position = null, IExpressionNode? expression = null,
             IReadOnlyMetadataContext? metadata = null)
         {
             var expressionNode = context.Parse(expression, metadata);
@@ -181,7 +181,7 @@ namespace MugenMvvm.Binding
             return expressionNode;
         }
 
-        public static IExpressionNode ParseWhileAnyOf(this IBindingParserContext context, HashSet<char> tokens, int? position = null, IExpressionNode? expression = null,
+        public static IExpressionNode ParseWhileAnyOf(this IExpressionParserContext context, HashSet<char> tokens, int? position = null, IExpressionNode? expression = null,
             IReadOnlyMetadataContext? metadata = null)
         {
             var expressionNode = context.Parse(expression, metadata);
@@ -190,7 +190,7 @@ namespace MugenMvvm.Binding
             return expressionNode;
         }
 
-        public static IExpressionNode ParseWhileAnyOf(this IBindingParserContext context, IReadOnlyList<string> tokens, int? position = null, IExpressionNode? expression = null,
+        public static IExpressionNode ParseWhileAnyOf(this IExpressionParserContext context, IReadOnlyList<string> tokens, int? position = null, IExpressionNode? expression = null,
             IReadOnlyMetadataContext? metadata = null)
         {
             var expressionNode = context.Parse(expression, metadata);
@@ -199,7 +199,7 @@ namespace MugenMvvm.Binding
             return expressionNode;
         }
 
-        public static List<IExpressionNode>? ParseArguments(this IBindingParserContext context, string endSymbol, IReadOnlyMetadataContext? metadata = null)
+        public static List<IExpressionNode>? ParseArguments(this IExpressionParserContext context, string endSymbol, IReadOnlyMetadataContext? metadata = null)
         {
             List<IExpressionNode>? args = null;
             while (true)
@@ -230,7 +230,7 @@ namespace MugenMvvm.Binding
             return args;
         }
 
-        public static List<string>? ParseStringArguments(this IBindingParserContext context, string endSymbol, bool isPointSupported)
+        public static List<string>? ParseStringArguments(this IExpressionParserContext context, string endSymbol, bool isPointSupported)
         {
             List<string>? args = null;
             var start = context.Position;
@@ -289,13 +289,13 @@ namespace MugenMvvm.Binding
             #region Fields
 
             private readonly int _position;
-            private IBindingParserContext? _context;
+            private IExpressionParserContext? _context;
 
             #endregion
 
             #region Constructors
 
-            public PositionState(IBindingParserContext context)
+            public PositionState(IExpressionParserContext context)
             {
                 Should.NotBeNull(context, nameof(context));
                 _context = context;

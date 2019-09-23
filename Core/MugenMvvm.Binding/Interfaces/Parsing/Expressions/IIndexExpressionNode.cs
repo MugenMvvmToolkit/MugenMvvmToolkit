@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 
-namespace MugenMvvm.Binding.Interfaces.Parsing.Nodes
+namespace MugenMvvm.Binding.Interfaces.Parsing.Expressions
 {
     public interface IIndexExpressionNode : IExpressionNode
     {

@@ -1,9 +1,9 @@
-﻿using MugenMvvm.Binding.Interfaces.Parsing.Nodes;
+﻿using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Parsing
 {
-    public interface IBindingParserContext : IMetadataOwner<IMetadataContext>//todo use span/memory?
+    public interface IExpressionParserContext : IMetadataOwner<IMetadataContext>//todo use span/memory?
     {
         int Position { get; }
 
