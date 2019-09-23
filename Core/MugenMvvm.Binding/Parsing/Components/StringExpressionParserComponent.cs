@@ -87,6 +87,9 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         private IExpressionNode? TryParseInternal(ITokenExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
         {
+            if (expression != null)
+                return null;
+
             context.SkipWhitespaces();
             var isInterpolated = context.IsToken('$');
             if (isInterpolated)

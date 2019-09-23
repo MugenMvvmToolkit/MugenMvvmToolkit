@@ -37,7 +37,7 @@ namespace MugenMvvm.Internal
                     return dict!;
             }
 
-            ExceptionManager.ThrowObjectNotInitialized(this);
+            ExceptionManager.ThrowObjectNotInitialized(this, typeof(IAttachedDictionaryProviderComponent).Name);
             return null!;
         }
 

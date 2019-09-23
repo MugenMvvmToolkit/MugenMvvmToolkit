@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using MugenMvvm.Interfaces.Components;
+﻿using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
@@ -8,7 +7,7 @@ namespace MugenMvvm.Components
 {
     public sealed class SingletonComponentTracker<TComponent, TComponentBase> : IComponentCollectionChangedListener<IComponent<TComponentBase>>,
         IHasService<TComponent>, IHasServiceOptional<TComponent>
-        where TComponent : class
+        where TComponent : class, IComponent<TComponentBase>
         where TComponentBase : class
     {
         #region Fields
@@ -65,7 +64,7 @@ namespace MugenMvvm.Components
             Should.NotBeNull(owner, nameof(owner));
             _owner?.Components.Components.Remove(this);
             _owner = owner;
-            _component = owner.Components.GetItems().OfType<TComponent>().FirstOrDefault();
+            _component = owner.GetComponent<TComponentBase, TComponent>(true);
             owner.Components.Components.Add(this);
         }
 

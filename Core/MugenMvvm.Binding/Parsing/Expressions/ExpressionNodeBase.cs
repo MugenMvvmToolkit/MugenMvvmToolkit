@@ -60,8 +60,8 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             var result = ReferenceEquals(this, node) ? visitor.Visit(node) : node.Accept(visitor);
             if (!changed && result != node)
                 changed = true;
-            //            if (notNull && result == null)//todo add
-            //                throw BindingExceptionManager.ExpressionNodeCannotBeNull(GetType());
+            if (notNull && result == null)
+                BindingExceptionManager.ExpressionNodeCannotBeNull(GetType());
             return (T)result!;
         }
 

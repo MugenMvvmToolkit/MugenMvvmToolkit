@@ -37,7 +37,7 @@ namespace MugenMvvm
         {
             if (items == null)
                 return null;
-            List<T>? result = null; //todo check
+            List<T>? result = null;
             for (var i = 0; i < size.GetValueOrDefault(items.Count); i++)
             {
                 var item = items[i];

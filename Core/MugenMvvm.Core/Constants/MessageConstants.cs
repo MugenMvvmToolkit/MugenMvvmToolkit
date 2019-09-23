@@ -30,7 +30,7 @@
         public const string TraceViewModelPresenterFormat3 = "The {0} request {1} is handled by {2}";
         public const string FieldOrPropertyNotFoundFormat2 = "Cannot get field/property by name '{0}' on type '{1}'";
         public const string NavigatingResultHasCallback = "The NavigatingResult already has completion callback";
-        public const string ObjectInitializedFormat3 = "The '{0}' is already initialized, type '{1}' {2}";
+        public const string ObjectInitializedFormat2 = "The '{0}' is already initialized '{1}'";
         public const string ViewNotFoundFormat2 = "Unable to find a suitable '{0}' for the '{1}'";
         public const string CannotCloseMediator = "The view is closed, before close the view you should show it.";
         public const string ShouldSupportOnlyFieldsReadonlyFields = "supports only properties (non-readonly) and fields";
@@ -42,6 +42,7 @@
         public const string ObjectNotInitializedFormat2 = "The '{0}' is not initialized {1}";
         public const string CannotGetViewModelFormat1 = "Cannot get view model {0}";
         public const string CannotGetComponentFormat2 = "Cannot get component {0} owner {1}";
+        public const string DuplicateKeyException = "An item with the same key has already been added.";
 
         #endregion
     }

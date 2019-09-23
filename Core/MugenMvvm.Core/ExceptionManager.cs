@@ -1,6 +1,6 @@
 ﻿using System;
-using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Metadata;
+using static MugenMvvm.Constants.MessageConstants;
 
 namespace MugenMvvm
 {
@@ -10,113 +10,118 @@ namespace MugenMvvm
 
         public static void ThrowEnumIsNotValid(object value)
         {
-            throw new ArgumentException(MessageConstants.EnumIsNotValidFormat2.Format(value, value.GetType()), nameof(value));
+            throw new ArgumentException(EnumIsNotValidFormat2.Format(value, value.GetType()), nameof(value));
         }
 
-        internal static void ThrowCapacityLessThanCollection(string paramName)
+        public static void ThrowCapacityLessThanCollection(string paramName)
         {
-            throw new ArgumentOutOfRangeException(paramName, MessageConstants.CapacityShouldBeGreaterOrEqual);
+            throw new ArgumentOutOfRangeException(paramName, CapacityShouldBeGreaterOrEqual);
         }
 
-        internal static void ThrowIndexOutOfRangeCollection(string paramName)
+        public static void ThrowIndexOutOfRangeCollection(string paramName)
         {
-            throw new ArgumentOutOfRangeException(paramName, MessageConstants.IndexMustBeWithinBounds);
+            throw new ArgumentOutOfRangeException(paramName, IndexMustBeWithinBounds);
         }
 
-        internal static void ThrowEnumOutOfRange(string paramName, object @enum)
+        public static void ThrowEnumOutOfRange(string paramName, object @enum)
         {
-            throw new ArgumentOutOfRangeException(paramName, MessageConstants.UnhandledEnumFormat1.Format(@enum));
+            throw new ArgumentOutOfRangeException(paramName, UnhandledEnumFormat1.Format(@enum));
         }
 
-        internal static void ThrowCommandCannotBeExecuted()
+        public static void ThrowCommandCannotBeExecuted()
         {
-            throw new InvalidOperationException(MessageConstants.CommandCannotBeExecutedString);
+            throw new InvalidOperationException(CommandCannotBeExecutedString);
         }
 
-        internal static void ThrowWrapperTypeShouldBeNonAbstract(Type wrapperType)
+        public static void ThrowWrapperTypeShouldBeNonAbstract(Type wrapperType)
         {
-            throw new ArgumentException(MessageConstants.WrapperTypeShouldBeNonAbstractFormat1.Format(wrapperType), nameof(wrapperType));
+            throw new ArgumentException(WrapperTypeShouldBeNonAbstractFormat1.Format(wrapperType), nameof(wrapperType));
         }
 
-        internal static void ThrowWrapperTypeNotSupported(Type wrapperType)
+        public static void ThrowWrapperTypeNotSupported(Type wrapperType)
         {
-            throw new ArgumentException(MessageConstants.WrapperTypeNotSupportedFormat1.Format(wrapperType), nameof(wrapperType));
+            throw new ArgumentException(WrapperTypeNotSupportedFormat1.Format(wrapperType), nameof(wrapperType));
         }
 
-        internal static void ThrowIntOutOfRangeCollection(string paramName)
+        public static void ThrowIntOutOfRangeCollection(string paramName)
         {
-            throw new ArgumentOutOfRangeException(paramName, MessageConstants.IntOutOfRangeCollection);
+            throw new ArgumentOutOfRangeException(paramName, IntOutOfRangeCollection);
         }
 
-        internal static void ThrowPresenterCannotShowRequest(IReadOnlyMetadataContext request)
+        public static void ThrowPresenterCannotShowRequest(IReadOnlyMetadataContext request)
         {
-            throw new ArgumentException(MessageConstants.PresenterCannotShowRequestFormat1.Format(request.Dump()));
+            throw new ArgumentException(PresenterCannotShowRequestFormat1.Format(request.Dump()));
         }
 
-        internal static void ThrowPresenterInvalidRequest(IReadOnlyMetadataContext request, IReadOnlyMetadataContext response)
+        public static void ThrowPresenterInvalidRequest(IReadOnlyMetadataContext request, IReadOnlyMetadataContext response)
         {
-            throw new ArgumentException(MessageConstants.PresenterCannotHandleRequestFormat1.Format(request.Dump() + response.Dump()));
+            throw new ArgumentException(PresenterCannotHandleRequestFormat1.Format(request.Dump() + response.Dump()));
         }
 
-        internal static void ThrowNavigatingResultHasCallback()
+        public static void ThrowNavigatingResultHasCallback()
         {
-            throw new InvalidOperationException(MessageConstants.NavigatingResultHasCallback);
+            throw new InvalidOperationException(NavigatingResultHasCallback);
         }
 
-        internal static void ThrowViewNotFound(Type viewModelType, Type? viewType = null)
+        public static void ThrowViewNotFound(Type viewModelType, Type? viewType = null)
         {
             var viewName = viewType == null ? "view" : viewType.FullName;
-            throw new InvalidOperationException(MessageConstants.ViewNotFoundFormat2.Format(viewName, viewModelType));
+            throw new InvalidOperationException(ViewNotFoundFormat2.Format(viewName, viewModelType));
         }
 
-        internal static void ThrowCannotFindConstructor(Type service)
+        public static void ThrowCannotFindConstructor(Type service)
         {
-            throw new InvalidOperationException(MessageConstants.CannotFindConstructorFormat1.Format(service));
+            throw new InvalidOperationException(CannotFindConstructorFormat1.Format(service));
         }
 
-        internal static void ThrowIocCannotFindBinding(Type service)
+        public static void ThrowIocCannotFindBinding(Type service)
         {
-            throw new InvalidOperationException(MessageConstants.IocCannotFindBindingFormat1.Format(service));
+            throw new InvalidOperationException(IocCannotFindBindingFormat1.Format(service));
         }
 
-        internal static void ThrowIocCyclicalDependency(Type service)
+        public static void ThrowIocCyclicalDependency(Type service)
         {
-            throw new InvalidOperationException(MessageConstants.IocCyclicalDependencyFormat1.Format(service));
+            throw new InvalidOperationException(IocCyclicalDependencyFormat1.Format(service));
         }
 
-        internal static void ThrowIocMoreThatOneBinding(Type service)
+        public static void ThrowIocMoreThatOneBinding(Type service)
         {
-            throw new InvalidOperationException(MessageConstants.IocMoreThatOneBindingFormat1.Format(service));
+            throw new InvalidOperationException(IocMoreThatOneBindingFormat1.Format(service));
         }
 
-        internal static void ThrowCannotGetViewModel(IReadOnlyMetadataContext metadata)
+        public static void ThrowCannotGetViewModel(IReadOnlyMetadataContext metadata)
         {
-            throw new InvalidOperationException(MessageConstants.CannotGetViewModelFormat1.Format(metadata.Dump()));
+            throw new InvalidOperationException(CannotGetViewModelFormat1.Format(metadata.Dump()));
         }
 
-        internal static void ThrowCannotGetComponent(object owner, Type componentType)
+        public static void ThrowCannotGetComponent(object owner, Type componentType)
         {
-            throw new InvalidOperationException(MessageConstants.CannotGetComponentFormat2.Format(owner.GetType(), componentType));
+            throw new InvalidOperationException(CannotGetComponentFormat2.Format(owner.GetType(), componentType));
         }
 
-        internal static void ThrowObjectDisposed(object item)
+        public static void ThrowObjectDisposed(object item)
         {
-            throw new ObjectDisposedException(item.GetType().FullName, MessageConstants.ObjectDisposedFormat1.Format(item.GetType()));
+            throw new ObjectDisposedException(item.GetType().FullName, ObjectDisposedFormat1.Format(item.GetType()));
         }
 
-        internal static void ThrowObjectNotInitialized(object obj, string? hint = null)
+        public static void ThrowObjectNotInitialized(object obj, string? hint = null)
         {
-            throw new InvalidOperationException(MessageConstants.ObjectNotInitializedFormat2.Format((obj as Type ?? obj.GetType()).Name, hint));
+            throw new InvalidOperationException(ObjectNotInitializedFormat2.Format((obj as Type ?? obj.GetType()).Name, hint));
         }
 
-        internal static void ThrowObjectInitialized(object obj, string? hint = null)
+        public static void ThrowObjectInitialized(object obj, string? hint = null)
         {
-            throw new InvalidOperationException(MessageConstants.ObjectInitializedFormat3.Format(obj, obj?.GetType(), hint));
+            throw new InvalidOperationException(ObjectInitializedFormat2.Format(obj, hint));
         }
 
-        internal static void ThrowNotSupported(string msg)
+        public static void ThrowNotSupported(string msg)
         {
             throw new NotSupportedException(msg);
+        }
+
+        public static void DuplicateKey()
+        {
+            throw new ArgumentException(DuplicateKeyException);
         }
 
         #endregion

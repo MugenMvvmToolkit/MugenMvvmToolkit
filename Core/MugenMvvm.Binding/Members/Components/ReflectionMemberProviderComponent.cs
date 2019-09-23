@@ -138,7 +138,11 @@ namespace MugenMvvm.Binding.Members.Components
 
                 var eventInfo = t.GetEventUnified(name, EventMemberFlags);
                 if (eventInfo != null)
-                    return new BindingEventInfo(name, eventInfo, ObserverProvider.GetMemberObserver(type, eventInfo, metadata));
+                {
+                    var memberObserver = ObserverProvider.GetMemberObserver(type, eventInfo, metadata);
+                    if (!memberObserver.IsEmpty)
+                        return new BindingEventInfo(name, eventInfo, memberObserver);
+                }
 
                 var field = t.GetFieldUnified(name, FieldMemberFlags);
                 if (field != null)
@@ -554,9 +558,6 @@ namespace MugenMvvm.Binding.Members.Components
 
             public IDisposable? TrySubscribe(object? source, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
             {
-                if (_observer.IsEmpty)
-                    BindingExceptionManager.ThrowBindingMemberMustBeWritable(this);
-
                 return _observer.TryObserve(source, listener!, metadata);
             }
 

@@ -109,7 +109,7 @@ namespace MugenMvvm.Views
                     return view;
             }
 
-            ExceptionManager.ThrowCannotGetComponent(ViewManager, typeof(IViewProviderComponent));
+            ExceptionManager.ThrowObjectNotInitialized(ViewManager, typeof(IViewProviderComponent).Name);
             return null!;
         }
 
@@ -123,7 +123,7 @@ namespace MugenMvvm.Views
                     return viewModel;
             }
 
-            ExceptionManager.ThrowCannotGetComponent(ViewManager, typeof(IViewModelProviderViewManagerComponent));
+            ExceptionManager.ThrowObjectNotInitialized(ViewManager, typeof(IViewModelProviderViewManagerComponent).Name);
             return null!;
         }
 
@@ -137,7 +137,7 @@ namespace MugenMvvm.Views
                     return result;
             }
 
-            ExceptionManager.ThrowCannotGetComponent(ViewManager, typeof(IViewInitializerComponent));
+            ExceptionManager.ThrowObjectNotInitialized(ViewManager, typeof(IViewInitializerComponent).Name);
             return null!;
         }
 
@@ -151,7 +151,7 @@ namespace MugenMvvm.Views
                     return result;
             }
 
-            ExceptionManager.ThrowCannotGetComponent(ViewManager, typeof(IViewInitializerComponent));
+            ExceptionManager.ThrowObjectNotInitialized(ViewManager, typeof(IViewInitializerComponent).Name);
             return null!;
         }
 

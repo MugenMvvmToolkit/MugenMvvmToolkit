@@ -143,7 +143,8 @@ namespace MugenMvvm.Binding.Parsing.Components
                     return new ExpressionParserResult(target, source, parameters ?? new ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>>(parameter!), this);
                 }
 
-                throw new Exception(); //todo add 
+                BindingExceptionManager.CannotParseExpression(this);
+                return default;
             }
 
             public char TokenAt(int position)
@@ -187,7 +188,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
             public override string ToString()
             {
-                return $"Position '{Position}' CurrentToken '{GetToken(Position)}' PrevToken '{GetToken(Position - 1)}' NextToken '{GetToken(Position + 1)}'";
+                return $"Position '{Position}' CurrentToken '{GetToken(Position)}' PrevToken '{GetToken(Position - 1)}' NextToken '{GetToken(Position + 1)}' Source '{_source}'";
             }
 
             private void SetLimit(int? limit)

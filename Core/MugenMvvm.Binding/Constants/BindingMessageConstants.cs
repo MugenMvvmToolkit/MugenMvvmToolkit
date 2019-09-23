@@ -12,6 +12,14 @@
 
         internal const string InvalidBindingMemberFormat2 = "The binding member cannot be obtained from the path '{0}' on the '{1}'.";
 
+        internal const string UnexpectedExpressionTyperFormat3 = "Unexpected expression type '{0}', expected '{1}', node: '{2}'";
+
+        internal const string CannotParseExpressionFormat1 = "Cannot parse expression '{0}'";
+
+        internal const string DuplicateLambdaParameterFormat1 = "The lambda parameter '{0}' is defined more than once";
+
+        internal const string ExpressionNodeCannotBeNullFormat1 = "The expression node on type '{0}' cannot be null";
+
         #endregion
     }
 }

@@ -92,7 +92,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 {
                     var parameter = args[i];
                     if (_currentParameters.ContainsKey(parameter.Name))
-                        throw new Exception();//todo add dups
+                        BindingExceptionManager.DuplicateLambdaParameter(parameter.Name);
 
                     _currentParameters[parameter.Name] = parameter;
                 }

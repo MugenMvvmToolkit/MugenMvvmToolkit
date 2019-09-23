@@ -45,7 +45,7 @@ namespace MugenMvvm.Binding.Observers
         {
             var p = path as IMemberPath ?? TryGetMemberPathInternal(path, metadata);
             if (p == null)
-                ExceptionManager.ThrowNotSupported(nameof(path));
+                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IMemberPathProviderComponent<TPath>).Name);
             return p!;
         }
 
@@ -55,7 +55,7 @@ namespace MugenMvvm.Binding.Observers
             var memberPath = GetMemberPath(path, metadata);
             var observer = TryGetMemberPathObserverInternal(source, memberPath, metadata);
             if (observer == null)
-                ExceptionManager.ThrowNotSupported(nameof(IMemberPathObserver));
+                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IMemberObserverProviderComponent).Name);
             return observer!;
         }
 

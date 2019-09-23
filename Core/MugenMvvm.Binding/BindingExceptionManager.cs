@@ -1,6 +1,8 @@
 ﻿using System;
-using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Members;
+using MugenMvvm.Binding.Interfaces.Parsing;
+using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using static MugenMvvm.Binding.Constants.BindingMessageConstants;
 
 namespace MugenMvvm.Binding
 {
@@ -8,19 +10,39 @@ namespace MugenMvvm.Binding
     {
         #region Methods
 
-        internal static void ThrowBindingMemberMustBeWritable(IBindingMemberInfo member)
+        public static void ThrowBindingMemberMustBeWritable(IBindingMemberInfo member)
         {
-            throw new InvalidOperationException(BindingMessageConstants.BindingMemberMustBeWritableFormat4.Format(member.Name, member.Type, member.MemberType, member.Member));
+            throw new InvalidOperationException(BindingMemberMustBeWritableFormat4.Format(member.Name, member.Type, member.MemberType, member.Member));
         }
 
-        internal static void ThrowBindingMemberMustBeReadable(IBindingMemberInfo member)
+        public static void ThrowBindingMemberMustBeReadable(IBindingMemberInfo member)
         {
-            throw new InvalidOperationException(BindingMessageConstants.BindingMemberMustBeReadableFormat4.Format(member.Name, member.Type, member.MemberType, member.Member));
+            throw new InvalidOperationException(BindingMemberMustBeReadableFormat4.Format(member.Name, member.Type, member.MemberType, member.Member));
         }
 
-        internal static void ThrowInvalidBindingMember(Type sourceType, string path)
+        public static void ThrowInvalidBindingMember(Type sourceType, string path)
         {
-            throw new InvalidOperationException(string.Format(BindingMessageConstants.InvalidBindingMemberFormat2, path, sourceType));
+            throw new InvalidOperationException(string.Format(InvalidBindingMemberFormat2, path, sourceType));
+        }
+
+        public static void UnexpectedExpressionNode(IExpressionNode node, Type type)
+        {
+            throw new InvalidOperationException(UnexpectedExpressionTyperFormat3.Format(node.NodeType, type.Name, node));
+        }
+
+        public static void CannotParseExpression(IExpressionParserContext context)
+        {
+            throw new InvalidOperationException(CannotParseExpressionFormat1.Format(context));
+        }
+
+        public static void DuplicateLambdaParameter(string parameterName)
+        {
+            throw new InvalidOperationException(DuplicateLambdaParameterFormat1.Format(parameterName));
+        }
+
+        public static void ExpressionNodeCannotBeNull(Type ownerType)
+        {
+            throw new InvalidOperationException(ExpressionNodeCannotBeNullFormat1.Format(ownerType));
         }
 
         #endregion

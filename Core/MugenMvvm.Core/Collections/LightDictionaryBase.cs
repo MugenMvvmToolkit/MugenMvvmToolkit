@@ -286,7 +286,7 @@ namespace MugenMvvm.Collections
                 if (_entries[index2].HashCode == hashCode && Equals(_entries[index2].Key, key))
                 {
                     if (add)
-                        throw new ArgumentException("An item with the same key has already been added.");//todo move to manager
+                        ExceptionManager.DuplicateKey();
                     _entries[index2].Value = value;
                     return;
                 }

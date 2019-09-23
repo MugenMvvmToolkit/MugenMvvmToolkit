@@ -6,7 +6,7 @@ using MugenMvvm.Internal;
 namespace MugenMvvm.Components
 {
     public sealed class ComponentTracker<TComponent, TComponentBase> : IComponentCollectionChangedListener<IComponent<TComponentBase>>
-        where TComponent : class
+        where TComponent : class, IComponent<TComponentBase>
         where TComponentBase : class
     {
         #region Fields

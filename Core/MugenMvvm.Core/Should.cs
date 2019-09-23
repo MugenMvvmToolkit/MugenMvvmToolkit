@@ -35,7 +35,7 @@ namespace MugenMvvm
             bool isSupported, string error)
         {
             if (!isSupported)
-                throw new NotSupportedException(error);
+                ExceptionManager.ThrowNotSupported(error);
         }
 
         [DebuggerStepThrough]

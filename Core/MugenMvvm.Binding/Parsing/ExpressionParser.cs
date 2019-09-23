@@ -57,7 +57,7 @@ namespace MugenMvvm.Binding.Parsing
                 else
                 {
                     if (result == null)
-                        result = new List<ExpressionParserResult> {itemResult};
+                        result = new List<ExpressionParserResult> { itemResult };
                     result.Add(r);
                 }
             }
@@ -65,7 +65,7 @@ namespace MugenMvvm.Binding.Parsing
             if (result == null)
             {
                 if (itemResult.IsEmpty)
-                    throw new Exception(); //todo cannot parse exception
+                    BindingExceptionManager.CannotParseExpression(context);
                 return itemResult;
             }
 
@@ -85,7 +85,8 @@ namespace MugenMvvm.Binding.Parsing
                     return context;
             }
 
-            throw new Exception(); //todo cannot parse exception
+            ExceptionManager.ThrowObjectNotInitialized(this, typeof(IExpressionParserContextProviderComponent<TExpression>).Name);
+            return null;
         }
 
         #endregion

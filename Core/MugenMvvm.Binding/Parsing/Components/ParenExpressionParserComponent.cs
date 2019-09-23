@@ -19,6 +19,9 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         public IExpressionNode? TryParse(ITokenExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
         {
+            if (expression != null)
+                return null;
+
             var p = context.Position;
             var position = context.SkipWhitespacesPosition();
             if (!context.IsToken('(', position))

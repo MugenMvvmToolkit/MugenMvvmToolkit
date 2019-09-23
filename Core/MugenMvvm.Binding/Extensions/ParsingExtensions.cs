@@ -156,8 +156,8 @@ namespace MugenMvvm.Binding
             Should.NotBeNull(context, nameof(context));
             var node = context.TryParse(expression, metadata);
             if (node == null)
-                throw new Exception(); //todo add
-            return node;
+                BindingExceptionManager.CannotParseExpression(context);
+            return node!;
         }
 
         public static IExpressionNode? TryParseWhileNotNull(this ITokenExpressionParserContext context, IExpressionNode? expression = null, IReadOnlyMetadataContext? metadata = null)
