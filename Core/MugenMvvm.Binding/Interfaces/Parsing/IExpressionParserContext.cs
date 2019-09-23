@@ -5,6 +5,6 @@ namespace MugenMvvm.Binding.Interfaces.Parsing
 {
     public interface IExpressionParserContext : IMetadataOwner<IMetadataContext>
     {
-        ExpressionParserResult Parse(IReadOnlyMetadataContext? metadata);
+        ExpressionParserResult TryParse(IReadOnlyMetadataContext? metadata);
     }
 }

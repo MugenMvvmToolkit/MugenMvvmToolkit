@@ -49,7 +49,7 @@ namespace MugenMvvm.Binding.Parsing
             var context = GetParserContext(expression, metadata);
             while (true)
             {
-                var r = context.Parse(metadata);
+                var r = context.TryParse(metadata);
                 if (r.IsEmpty)
                     break;
                 if (itemResult.IsEmpty)

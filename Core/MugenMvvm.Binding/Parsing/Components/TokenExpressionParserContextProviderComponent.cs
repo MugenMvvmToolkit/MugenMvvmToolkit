@@ -18,8 +18,8 @@ namespace MugenMvvm.Binding.Parsing.Components
         private readonly IMetadataContextProvider? _metadataContextProvider;
         private readonly TokenExpressionParserContext _parserContext;
 
-        public static readonly HashSet<char> TargetDelimiters = new HashSet<char> {',', ';', ' '};
-        public static readonly HashSet<char> Delimiters = new HashSet<char> {',', ';'};
+        public static readonly HashSet<char> TargetDelimiters = new HashSet<char> { ',', ';', ' ' };
+        public static readonly HashSet<char> Delimiters = new HashSet<char> { ',', ';' };
 
         #endregion
 
@@ -92,7 +92,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                         return ctx;
 
                     Interlocked.CompareExchange(ref _metadata, _metadata.ToNonReadonly(this, _provider._metadataContextProvider), null);
-                    return (IMetadataContext) _metadata!;
+                    return (IMetadataContext)_metadata!;
                 }
             }
 
@@ -104,8 +104,11 @@ namespace MugenMvvm.Binding.Parsing.Components
 
             #region Implementation of interfaces
 
-            public ExpressionParserResult Parse(IReadOnlyMetadataContext? metadata)
+            public ExpressionParserResult TryParse(IReadOnlyMetadataContext? metadata)
             {
+                if (this.IsEof())
+                    return default;
+
                 var delimiterPos = this.SkipWhitespaces().FindAnyOf(TargetDelimiters);
                 var length = Length;
                 if (delimiterPos > 0)
@@ -128,7 +131,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                     else
                     {
                         if (parameters == null)
-                            parameters = new List<IExpressionNode> {parameter};
+                            parameters = new List<IExpressionNode> { parameter };
                         parameters.Add(param);
                     }
                 }
