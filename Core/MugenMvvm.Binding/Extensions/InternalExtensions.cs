@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Binding.Metadata;
 
 // ReSharper disable once CheckNamespace

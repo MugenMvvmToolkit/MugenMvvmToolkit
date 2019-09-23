@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using MugenMvvm.Binding.Core;
 using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Resources;
@@ -13,7 +12,7 @@ namespace MugenMvvm.Binding.Interfaces.Resources
     {
         IComponent<IBinding>? TryGetComponent(string name, IReadOnlyMetadataContext? metadata = null);
 
-        IResourceValue? TryGetResource(string name, IReadOnlyMetadataContext? metadata);
+        IResourceValue? TryGetResourceValue(string name, IReadOnlyMetadataContext? metadata);
 
         IValueConverter? TryGetConverter(string name, IReadOnlyMetadataContext? metadata);
 

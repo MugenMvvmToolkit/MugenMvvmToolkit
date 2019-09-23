@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using MugenMvvm.Binding.Core;
 using MugenMvvm.Binding.Resources;
 using MugenMvvm.Interfaces.Components;
 
