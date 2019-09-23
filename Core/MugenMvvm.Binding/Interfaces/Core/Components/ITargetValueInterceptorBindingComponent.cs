@@ -6,6 +6,6 @@ namespace MugenMvvm.Binding.Interfaces.Core.Components
 {
     public interface ITargetValueInterceptorBindingComponent : IComponent<IBinding>
     {
-        object? InterceptTargetValue(in MemberPathLastMember targetMembers, object? value, IReadOnlyMetadataContext metadata);
+        object? InterceptTargetValue(in MemberPathLastMember targetMember, object? value, IReadOnlyMetadataContext metadata);
     }
 }

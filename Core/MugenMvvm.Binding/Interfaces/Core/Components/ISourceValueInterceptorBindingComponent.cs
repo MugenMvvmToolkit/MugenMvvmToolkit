@@ -6,6 +6,6 @@ namespace MugenMvvm.Binding.Interfaces.Core.Components
 {
     public interface ISourceValueInterceptorBindingComponent : IComponent<IBinding>
     {
-        object? InterceptSourceValue(in MemberPathLastMember sourceMembers, object? value, IReadOnlyMetadataContext metadata);
+        object? InterceptSourceValue(in MemberPathLastMember sourceMember, object? value, IReadOnlyMetadataContext metadata);
     }
 }

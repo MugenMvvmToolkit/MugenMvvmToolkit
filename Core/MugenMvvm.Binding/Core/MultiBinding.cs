@@ -1,13 +1,13 @@
 ﻿using System;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Binding.Observers;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Core
 {
-    public sealed class MultiBinding : BindingBase, IDynamicBindingValue
+    public sealed class MultiBinding : Binding, IDynamicBindingValue
     {
         #region Fields
 
@@ -30,7 +30,7 @@ namespace MugenMvvm.Binding.Core
 
         public object? GetValue()
         {
-            var sources = (IMemberPathObserver[])SourceRaw;
+            var sources = (IMemberPathObserver[]) SourceRaw;
             var values = new object?[sources.Length];
             for (var i = 0; i < sources.Length; i++)
             {
@@ -53,9 +53,9 @@ namespace MugenMvvm.Binding.Core
             _expression = null;
         }
 
-        protected override object? GetSourceValue(IBindingMemberInfo lastMember)
+        protected override object? GetSourceValue(in MemberPathLastMember targetMember)
         {
-            if (BindingMemberType.Event.Equals(lastMember.MemberType))
+            if (BindingMemberType.Event.Equals(targetMember.LastMember.MemberType))
                 return this;
             return GetValue();
         }

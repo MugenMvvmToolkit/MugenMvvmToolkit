@@ -6,6 +6,6 @@ namespace MugenMvvm.Binding.Interfaces.Core.Components
 {
     public interface ISourceValueSetterBindingComponent : IComponent<IBinding>
     {
-        bool TrySetSourceValue(in MemberPathLastMember sourceMembers, object? newValue, IReadOnlyMetadataContext metadata);
+        bool TrySetSourceValue(in MemberPathLastMember sourceMember, object? value, IReadOnlyMetadataContext metadata);
     }
 }

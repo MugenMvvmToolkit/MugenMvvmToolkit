@@ -44,28 +44,28 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Implementation of interfaces
 
-        public object? InterceptSourceValue(in MemberPathLastMember sourceMembers, object? value, IReadOnlyMetadataContext metadata)
+        public object? InterceptSourceValue(in MemberPathLastMember sourceMember, object? value, IReadOnlyMetadataContext metadata)
         {
             var converter = ConverterDelegate?.Invoke(metadata);
             if (converter != null)
-                value = converter.ConvertBack(value, sourceMembers.LastMember.Type, ConverterParameterDelegate?.Invoke(metadata), metadata);
+                value = converter.ConvertBack(value, sourceMember.LastMember.Type, ConverterParameterDelegate?.Invoke(metadata), metadata);
 
             if (Equals(value, TargetNullValue))
                 return null;
             return value;
         }
 
-        public object? InterceptTargetValue(in MemberPathLastMember targetMembers, object? value, IReadOnlyMetadataContext metadata)
+        public object? InterceptTargetValue(in MemberPathLastMember targetMember, object? value, IReadOnlyMetadataContext metadata)
         {
             if (ConverterDelegate != null && !value.IsUnsetValue())
             {
                 var converter = ConverterDelegate(metadata);
                 if (converter != null)
-                    value = converter.Convert(value, targetMembers.LastMember.Type, ConverterParameterDelegate?.Invoke(metadata), metadata);
+                    value = converter.Convert(value, targetMember.LastMember.Type, ConverterParameterDelegate?.Invoke(metadata), metadata);
             }
 
             if (value.IsUnsetValue())
-                value = FallbackDelegate?.Invoke(metadata) ?? targetMembers.LastMember.Type.GetDefaultValue();
+                value = FallbackDelegate?.Invoke(metadata) ?? targetMember.LastMember.Type.GetDefaultValue();
             if (value == null)
                 return TargetNullValue;
             return value;
