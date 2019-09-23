@@ -7,10 +7,10 @@ namespace MugenMvvm.Binding.Interfaces.Core.Components
 {
     public interface IBindingTargetObserverListener : IComponent<IBinding>
     {
-        void OnTargetPathMembersChanged(IBinding binding, IBindingPathObserver observer, IReadOnlyMetadataContext metadata);
+        void OnTargetPathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata);
 
-        void OnTargetLastMemberChanged(IBinding binding, IBindingPathObserver observer, IReadOnlyMetadataContext metadata);
+        void OnTargetLastMemberChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata);
 
-        void OnTargetError(IBinding binding, IBindingPathObserver observer, Exception exception, IReadOnlyMetadataContext metadata);
+        void OnTargetError(IBinding binding, IMemberPathObserver observer, Exception exception, IReadOnlyMetadataContext metadata);
     }
 }

@@ -7,7 +7,7 @@ namespace MugenMvvm.Binding.Core
     {
         #region Constructors
 
-        public Binding(IBindingPathObserver target, IBindingPathObserver source)
+        public Binding(IMemberPathObserver target, IMemberPathObserver source)
             : base(target, source)
         {
         }
@@ -18,7 +18,7 @@ namespace MugenMvvm.Binding.Core
 
         protected override object? GetSourceValue(IBindingMemberInfo lastMember)
         {
-            return ((IBindingPathObserver)SourceRaw).GetLastMember(Metadata).GetLastMemberValue(Metadata);
+            return ((IMemberPathObserver)SourceRaw).GetLastMember(Metadata).GetLastMemberValue(Metadata);
         }
 
         #endregion

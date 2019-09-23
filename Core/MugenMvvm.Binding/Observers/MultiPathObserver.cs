@@ -7,14 +7,14 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Observers
 {
-    public sealed class MultiPathObserver : ObserverBase, IBindingEventListener, IWeakReferenceHolder
+    public sealed class MultiPathObserver : ObserverBase, IEventListener, IWeakReferenceHolder
     {
         #region Fields
 
         private byte _state;
         private readonly IDisposable?[]? _listeners;
         private Exception? _exception;
-        private IBindingEventListener? _lastMemberListener;
+        private IEventListener? _lastMemberListener;
         private IBindingPropertyInfo[]? _members;
         private IWeakReference? _penultimateValue;
 
@@ -22,7 +22,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        public MultiPathObserver(IWeakReference source, IBindingPath path,
+        public MultiPathObserver(IWeakReference source, IMemberPath path,
             bool ignoreAttachedMembers, bool hasStablePath, bool observable, bool optional)
             : base(source)
         {
@@ -41,7 +41,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Properties
 
-        public override IBindingPath Path { get; }
+        public override IMemberPath Path { get; }
 
         public bool IsWeak => false;
 
@@ -67,7 +67,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Implementation of interfaces
 
-        bool IBindingEventListener.TryHandle(object sender, object? message)
+        bool IEventListener.TryHandle(object sender, object? message)
         {
             return Update();
         }
@@ -76,11 +76,11 @@ namespace MugenMvvm.Binding.Observers
 
         #region Methods
 
-        public override BindingPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null)
+        public override MemberPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null)
         {
             UpdateIfNeed();
             if (_exception != null)
-                return new BindingPathMembers(Path, _exception);
+                return new MemberPathMembers(Path, _exception);
 
             var source = Source;
             if (source == null)
@@ -90,23 +90,23 @@ namespace MugenMvvm.Binding.Observers
             if (target == null || _members == null)
                 return default;
 
-            return new BindingPathMembers(Path, source, target, _members, _members[_members.Length - 1]);
+            return new MemberPathMembers(Path, source, target, _members, _members[_members.Length - 1]);
         }
 
-        public override BindingPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null)
+        public override MemberPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null)
         {
             UpdateIfNeed();
             if (_exception != null)
-                return new BindingPathLastMember(Path, _exception);
+                return new MemberPathLastMember(Path, _exception);
 
             var target = _penultimateValue?.Target;
             if (target == null || _members == null)
                 return default;
 
-            return new BindingPathLastMember(Path, target, _members[_members.Length - 1]);
+            return new MemberPathLastMember(Path, target, _members[_members.Length - 1]);
         }
 
-        protected override void OnListenerAdded(IBindingPathObserverListener listener)
+        protected override void OnListenerAdded(IMemberPathObserverListener listener)
         {
             UpdateIfNeed();
             if (_listeners != null && _members != null && _listeners[_listeners.Length - 1] == null && _penultimateValue != null)
@@ -170,7 +170,7 @@ namespace MugenMvvm.Binding.Observers
                 var members = new IBindingPropertyInfo[paths.Length];
                 for (var i = 0; i < members.Length - 1; i++)
                 {
-                    var member = GetBindingMember(source!.GetType(), paths[i], IgnoreAttachedMembers);
+                    var member = GetMember(source!.GetType(), paths[i], IgnoreAttachedMembers);
                     if (member == null)
                     {
                         if (Optional)
@@ -235,7 +235,7 @@ namespace MugenMvvm.Binding.Observers
             OnPathMembersChanged();
         }
 
-        private IBindingEventListener GetLastMemberListener()
+        private IEventListener GetLastMemberListener()
         {
             if (_lastMemberListener == null)
                 _lastMemberListener = new LastMemberListener(this.ToWeakReference());
@@ -263,7 +263,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Nested types
 
-        private sealed class LastMemberListener : IBindingEventListener
+        private sealed class LastMemberListener : IEventListener
         {
             #region Fields
 

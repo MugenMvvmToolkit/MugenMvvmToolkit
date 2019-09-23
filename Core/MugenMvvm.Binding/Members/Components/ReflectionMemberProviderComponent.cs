@@ -15,11 +15,11 @@ using MugenMvvm.Interfaces.Models;
 namespace MugenMvvm.Binding.Members.Components
 {
     // ReSharper disable FieldCanBeMadeReadOnly.Local
-    public sealed class ReflectionBindingMemberProviderComponent : IBindingMemberProviderComponent, IHasPriority
+    public sealed class ReflectionMemberProviderComponent : IMemberProviderComponent, IHasPriority
     {
         #region Fields
 
-        private readonly IBindingObserverProvider? _bindingObserverProvider;
+        private readonly IObserverProvider? _bindingObserverProvider;
         private readonly CacheDictionary _cache;
 
         private const MemberFlags DefaultFlags = MemberFlags.StaticPublic | MemberFlags.InstancePublic;
@@ -29,7 +29,7 @@ namespace MugenMvvm.Binding.Members.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ReflectionBindingMemberProviderComponent(IBindingObserverProvider? bindingObserverProvider = null)
+        public ReflectionMemberProviderComponent(IObserverProvider? bindingObserverProvider = null)
         {
             _bindingObserverProvider = bindingObserverProvider;
             _cache = new CacheDictionary();
@@ -47,7 +47,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         public MemberFlags EventMemberFlags { get; set; } = DefaultFlags;
 
-        private IBindingObserverProvider ObserverProvider => _bindingObserverProvider.ServiceIfNull();
+        private IObserverProvider ObserverProvider => _bindingObserverProvider.ServiceIfNull();
 
         #endregion
 
@@ -206,7 +206,7 @@ namespace MugenMvvm.Binding.Members.Components
             #region Fields
 
             private readonly FieldInfo _fieldInfo;
-            private readonly BindingMemberObserver _observer;
+            private readonly MemberObserver _observer;
             private Func<object?, object?> _getterFunc;
             private Action<object?, object?> _setterFunc;
 
@@ -214,7 +214,7 @@ namespace MugenMvvm.Binding.Members.Components
 
             #region Constructors
 
-            public BindingFieldInfo(string name, FieldInfo fieldInfo, BindingMemberObserver observer)
+            public BindingFieldInfo(string name, FieldInfo fieldInfo, MemberObserver observer)
             {
                 _fieldInfo = fieldInfo;
                 _observer = observer;
@@ -246,7 +246,7 @@ namespace MugenMvvm.Binding.Members.Components
 
             #region Implementation of interfaces
 
-            public IDisposable? TryObserve(object? source, IBindingEventListener listener, IReadOnlyMetadataContext? metadata = null)
+            public IDisposable? TryObserve(object? source, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
             {
                 return _observer.TryObserve(source, listener, metadata);
             }
@@ -284,7 +284,7 @@ namespace MugenMvvm.Binding.Members.Components
         {
             #region Fields
 
-            private readonly BindingMemberObserver _observer;
+            private readonly MemberObserver _observer;
             private readonly PropertyInfo _propertyInfo;
 
             private Func<object?, object?>? _getterFunc;
@@ -294,7 +294,7 @@ namespace MugenMvvm.Binding.Members.Components
 
             #region Constructors
 
-            public BindingPropertyInfo(string name, PropertyInfo propertyInfo, bool nonPublic, BindingMemberObserver observer)
+            public BindingPropertyInfo(string name, PropertyInfo propertyInfo, bool nonPublic, MemberObserver observer)
             {
                 _propertyInfo = propertyInfo;
                 _observer = observer;
@@ -348,7 +348,7 @@ namespace MugenMvvm.Binding.Members.Components
 
             #region Implementation of interfaces
 
-            public IDisposable? TryObserve(object? source, IBindingEventListener listener, IReadOnlyMetadataContext? metadata = null)
+            public IDisposable? TryObserve(object? source, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
             {
                 return _observer.TryObserve(source, listener, metadata);
             }
@@ -400,7 +400,7 @@ namespace MugenMvvm.Binding.Members.Components
             private readonly object?[]? _indexerValues;
 
             private readonly bool _nonPublic;
-            private readonly BindingMemberObserver _observer;
+            private readonly MemberObserver _observer;
             private readonly PropertyInfo _propertyInfo;
 
             private Func<object?, object?[], object?>? _getterIndexerFunc;
@@ -410,7 +410,7 @@ namespace MugenMvvm.Binding.Members.Components
 
             #region Constructors
 
-            public IndexerBindingPropertyInfo(string name, PropertyInfo propertyInfo, ParameterInfo[] indexParameters, string[] indexerValues, bool nonPublic, BindingMemberObserver observer)
+            public IndexerBindingPropertyInfo(string name, PropertyInfo propertyInfo, ParameterInfo[] indexParameters, string[] indexerValues, bool nonPublic, MemberObserver observer)
             {
                 _propertyInfo = propertyInfo;
                 _nonPublic = nonPublic;
@@ -466,7 +466,7 @@ namespace MugenMvvm.Binding.Members.Components
 
             #region Implementation of interfaces
 
-            public IDisposable? TryObserve(object? source, IBindingEventListener listener, IReadOnlyMetadataContext? metadata = null)
+            public IDisposable? TryObserve(object? source, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
             {
                 return _observer.TryObserve(source, listener, metadata);
             }
@@ -520,13 +520,13 @@ namespace MugenMvvm.Binding.Members.Components
             #region Fields
 
             private readonly EventInfo _eventInfo;
-            private readonly BindingMemberObserver _observer;
+            private readonly MemberObserver _observer;
 
             #endregion
 
             #region Constructors
 
-            public BindingEventInfo(string name, EventInfo eventInfo, BindingMemberObserver observer)
+            public BindingEventInfo(string name, EventInfo eventInfo, MemberObserver observer)
             {
                 _eventInfo = eventInfo;
                 _observer = observer;
@@ -552,7 +552,7 @@ namespace MugenMvvm.Binding.Members.Components
 
             #region Implementation of interfaces
 
-            public IDisposable? TrySubscribe(object? source, IBindingEventListener listener, IReadOnlyMetadataContext? metadata = null)
+            public IDisposable? TrySubscribe(object? source, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
             {
                 if (_observer.IsEmpty)
                     BindingExceptionManager.ThrowBindingMemberMustBeWritable(this);
@@ -614,7 +614,7 @@ namespace MugenMvvm.Binding.Members.Components
                 ((Array)source!).SetValue(value, _indexes);
             }
 
-            public IDisposable? TryObserve(object? target, IBindingEventListener listener, IReadOnlyMetadataContext? metadata = null)
+            public IDisposable? TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
             {
                 return null;
             }

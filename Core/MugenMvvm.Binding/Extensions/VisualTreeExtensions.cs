@@ -9,14 +9,14 @@ namespace MugenMvvm.Binding
     {
         #region Methods
 
-        public static object? GetParent(object? target, IReadOnlyMetadataContext? metadata = null, IBindingMemberProvider? provider = null)
+        public static object? GetParent(object? target, IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null)
         {
             if (target == null)
                 return null;
             return ObjectBindableMembers.Parent.GetValueOrDefault(target, null, metadata, provider);
         }
 
-        public static object? FindByName(object target, string elementName, IReadOnlyMetadataContext? metadata = null, IBindingMemberProvider? provider = null)
+        public static object? FindByName(object target, string elementName, IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null)
         {
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(elementName, nameof(elementName));

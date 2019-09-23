@@ -1,6 +1,6 @@
 ﻿namespace MugenMvvm.Binding.Interfaces.Observers
 {
-    public interface IBindingEventListener
+    public interface IEventListener
     {
         bool IsAlive { get; }
 

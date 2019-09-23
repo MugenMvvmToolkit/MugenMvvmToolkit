@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Members.Components
 {
-    public interface IBindingMethodProviderComponent : IComponent<IBindingMemberProvider>
+    public interface IMethodProviderComponent : IComponent<IMemberProvider>
     {
         IReadOnlyList<IBindingMethodInfo> TryGetMethods(Type type, string name, IReadOnlyMetadataContext? metadata);
     }

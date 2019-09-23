@@ -11,7 +11,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
-    public sealed class PropertyChangedBindingMemberObserverProviderComponent : IBindingMemberObserverProviderComponent<string>, BindingMemberObserver.IHandler, IHasPriority
+    public sealed class PropertyChangedMemberObserverProviderComponent : IMemberObserverProviderComponent<string>, MemberObserver.IHandler, IHasPriority
     {
         #region Fields
 
@@ -23,7 +23,7 @@ namespace MugenMvvm.Binding.Observers.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public PropertyChangedBindingMemberObserverProviderComponent(IAttachedDictionaryProvider? attachedDictionaryProvider = null)
+        public PropertyChangedMemberObserverProviderComponent(IAttachedDictionaryProvider? attachedDictionaryProvider = null)
         {
             _attachedDictionaryProvider = attachedDictionaryProvider;
         }
@@ -38,14 +38,14 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Implementation of interfaces
 
-        public BindingMemberObserver TryGetMemberObserver(Type type, in string member, IReadOnlyMetadataContext? metadata)
+        public MemberObserver TryGetMemberObserver(Type type, in string member, IReadOnlyMetadataContext? metadata)
         {
             if (typeof(INotifyPropertyChanged).IsAssignableFromUnified(type))
-                return new BindingMemberObserver(this, member);
+                return new MemberObserver(this, member);
             return default;
         }
 
-        IDisposable? BindingMemberObserver.IHandler.TryObserve(object? source, object member, IBindingEventListener listener, IReadOnlyMetadataContext? metadata)
+        IDisposable? MemberObserver.IHandler.TryObserve(object? source, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
             if (source == null)
                 return null;
@@ -74,7 +74,7 @@ namespace MugenMvvm.Binding.Observers.Components
         {
             #region Fields
 
-            private KeyValuePair<WeakBindingEventListener, string>[] _listeners;
+            private KeyValuePair<WeakEventListener, string>[] _listeners;
             private ushort _removedSize;
             private ushort _size;
 
@@ -84,7 +84,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
             public WeakPropertyChangedListener()
             {
-                _listeners = Default.EmptyArray<KeyValuePair<WeakBindingEventListener, string>>();
+                _listeners = Default.EmptyArray<KeyValuePair<WeakEventListener, string>>();
             }
 
             #endregion
@@ -122,7 +122,7 @@ namespace MugenMvvm.Binding.Observers.Components
                 }
             }
 
-            public IDisposable Add(IBindingEventListener target, string path)
+            public IDisposable Add(IEventListener target, string path)
             {
                 return AddInternal(target.ToWeak(), path);
             }
@@ -140,22 +140,22 @@ namespace MugenMvvm.Binding.Observers.Components
                 }
 
                 if (_size == 0)
-                    _listeners = Default.EmptyArray<KeyValuePair<WeakBindingEventListener, string>>();
+                    _listeners = Default.EmptyArray<KeyValuePair<WeakEventListener, string>>();
                 else if (_listeners.Length / (float)_size > 2)
                 {
-                    var listeners = new KeyValuePair<WeakBindingEventListener, string>[_size + (_size >> 2)];
+                    var listeners = new KeyValuePair<WeakEventListener, string>[_size + (_size >> 2)];
                     Array.Copy(_listeners, 0, listeners, 0, _size);
                     _listeners = listeners;
                 }
             }
 
-            private IDisposable AddInternal(WeakBindingEventListener weakItem, string path)
+            private IDisposable AddInternal(WeakEventListener weakItem, string path)
             {
                 lock (this)
                 {
                     if (_listeners.Length == 0)
                     {
-                        _listeners = new[] { new KeyValuePair<WeakBindingEventListener, string>(weakItem, path) };
+                        _listeners = new[] { new KeyValuePair<WeakEventListener, string>(weakItem, path) };
                         _size = 1;
                         _removedSize = 0;
                     }
@@ -164,8 +164,8 @@ namespace MugenMvvm.Binding.Observers.Components
                         if (_removedSize == 0)
                         {
                             if (_size == _listeners.Length)
-                                BindingEventListenerCollection.EnsureCapacity(ref _listeners, _size, _size + 1);
-                            _listeners[_size++] = new KeyValuePair<WeakBindingEventListener, string>(weakItem, path);
+                                EventListenerCollection.EnsureCapacity(ref _listeners, _size, _size + 1);
+                            _listeners[_size++] = new KeyValuePair<WeakEventListener, string>(weakItem, path);
                         }
                         else
                         {
@@ -173,7 +173,7 @@ namespace MugenMvvm.Binding.Observers.Components
                             {
                                 if (_listeners[i].Key.IsEmpty)
                                 {
-                                    _listeners[i] = new KeyValuePair<WeakBindingEventListener, string>(weakItem, path);
+                                    _listeners[i] = new KeyValuePair<WeakEventListener, string>(weakItem, path);
                                     --_removedSize;
                                     break;
                                 }
@@ -185,7 +185,7 @@ namespace MugenMvvm.Binding.Observers.Components
                 return new Unsubscriber(this, weakItem, path);
             }
 
-            private void Remove(WeakBindingEventListener weakItem, string propertyName)
+            private void Remove(WeakEventListener weakItem, string propertyName)
             {
                 lock (this)
                 {
@@ -213,13 +213,13 @@ namespace MugenMvvm.Binding.Observers.Components
                 private readonly string _propertyName;
 
                 private WeakPropertyChangedListener? _eventListener;
-                private WeakBindingEventListener _weakItem;
+                private WeakEventListener _weakItem;
 
                 #endregion
 
                 #region Constructors
 
-                public Unsubscriber(WeakPropertyChangedListener eventListener, WeakBindingEventListener weakItem, string propertyName)
+                public Unsubscriber(WeakPropertyChangedListener eventListener, WeakEventListener weakItem, string propertyName)
                 {
                     _eventListener = eventListener;
                     _weakItem = weakItem;

@@ -6,6 +6,6 @@ namespace MugenMvvm.Binding.Interfaces.Members
 {
     public interface IBindingEventInfo : IBindingMemberInfo
     {
-        IDisposable? TrySubscribe(object? source, IBindingEventListener listener, IReadOnlyMetadataContext? metadata = null);
+        IDisposable? TrySubscribe(object? source, IEventListener listener, IReadOnlyMetadataContext? metadata = null);
     }
 }

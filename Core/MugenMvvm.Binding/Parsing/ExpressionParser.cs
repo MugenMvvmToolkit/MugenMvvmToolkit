@@ -44,7 +44,7 @@ namespace MugenMvvm.Binding.Parsing
             Should.NotBeNull(expression, nameof(expression));
             ExpressionParserResult? itemResult = null;
             List<ExpressionParserResult>? result = null;
-            var context = GetBindingParserContext(expression, metadata);
+            var context = GetParserContext(expression, metadata);
             while (!context.IsEof())
             {
                 var r = Parse(context);
@@ -120,11 +120,11 @@ namespace MugenMvvm.Binding.Parsing
             throw new Exception(); //todo add 
         }
 
-        private IExpressionParserContext GetBindingParserContext(string expression, IReadOnlyMetadataContext? metadata)
+        private IExpressionParserContext GetParserContext(string expression, IReadOnlyMetadataContext? metadata)
         {
             for (var i = 0; i < _contextProviders.Length; i++)
             {
-                var context = _contextProviders[i].TryGetBindingParserContext(expression, metadata);
+                var context = _contextProviders[i].TryGetParserContext(expression, metadata);
                 if (context != null)
                     return context;
             }

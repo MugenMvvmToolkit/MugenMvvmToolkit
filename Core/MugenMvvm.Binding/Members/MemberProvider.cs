@@ -13,8 +13,8 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members
 {
-    public class BindingMemberProvider : ComponentOwnerBase<IBindingMemberProvider>, IBindingMemberProvider, IComponentOwnerAddedCallback<IComponent<IBindingMemberProvider>>,
-        IComponentOwnerRemovedCallback<IComponent<IBindingMemberProvider>>, IHasCache
+    public class MemberProvider : ComponentOwnerBase<IMemberProvider>, IMemberProvider, IComponentOwnerAddedCallback<IComponent<IMemberProvider>>,
+        IComponentOwnerRemovedCallback<IComponent<IMemberProvider>>, IHasCache
     {
         #region Fields
 
@@ -22,19 +22,19 @@ namespace MugenMvvm.Binding.Members
         protected readonly TempCacheDictionary<IBindingMemberInfo> TempCache;
         protected readonly TempCacheDictionary<IReadOnlyList<IBindingMethodInfo>> TempMethodsCache;
 
-        protected IBindingMemberProviderComponent[] MemberProviders;
-        protected IBindingMethodProviderComponent[] MethodProviders;
+        protected IMemberProviderComponent[] MemberProviders;
+        protected IMethodProviderComponent[] MethodProviders;
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public BindingMemberProvider(IComponentCollectionProvider? componentCollectionProvider = null)
+        public MemberProvider(IComponentCollectionProvider? componentCollectionProvider = null)
             : base(componentCollectionProvider)
         {
-            MemberProviders = Default.EmptyArray<IBindingMemberProviderComponent>();
-            MethodProviders = Default.EmptyArray<IBindingMethodProviderComponent>();
+            MemberProviders = Default.EmptyArray<IMemberProviderComponent>();
+            MethodProviders = Default.EmptyArray<IMethodProviderComponent>();
             TempCache = new TempCacheDictionary<IBindingMemberInfo>();
             TempMethodsCache = new TempCacheDictionary<IReadOnlyList<IBindingMethodInfo>>();
             CurrentNames = new HashSet<string>(StringComparer.Ordinal);
@@ -64,14 +64,14 @@ namespace MugenMvvm.Binding.Members
             return GetMethodsInternal(type, name, ignoreAttachedMembers, metadata);
         }
 
-        void IComponentOwnerAddedCallback<IComponent<IBindingMemberProvider>>.OnComponentAdded(IComponentCollection<IComponent<IBindingMemberProvider>> collection,
-            IComponent<IBindingMemberProvider> component, IReadOnlyMetadataContext? metadata)
+        void IComponentOwnerAddedCallback<IComponent<IMemberProvider>>.OnComponentAdded(IComponentCollection<IComponent<IMemberProvider>> collection,
+            IComponent<IMemberProvider> component, IReadOnlyMetadataContext? metadata)
         {
             OnComponentAdded(collection, component, metadata);
         }
 
-        void IComponentOwnerRemovedCallback<IComponent<IBindingMemberProvider>>.OnComponentRemoved(IComponentCollection<IComponent<IBindingMemberProvider>> collection,
-            IComponent<IBindingMemberProvider> component, IReadOnlyMetadataContext? metadata)
+        void IComponentOwnerRemovedCallback<IComponent<IMemberProvider>>.OnComponentRemoved(IComponentCollection<IComponent<IMemberProvider>> collection,
+            IComponent<IMemberProvider> component, IReadOnlyMetadataContext? metadata)
         {
             OnComponentRemoved(collection, component, metadata);
         }
@@ -85,14 +85,14 @@ namespace MugenMvvm.Binding.Members
 
         #region Methods
 
-        protected virtual void OnComponentAdded(IComponentCollection<IComponent<IBindingMemberProvider>> collection, IComponent<IBindingMemberProvider> component,
+        protected virtual void OnComponentAdded(IComponentCollection<IComponent<IMemberProvider>> collection, IComponent<IMemberProvider> component,
             IReadOnlyMetadataContext? metadata)
         {
             MugenExtensions.ComponentTrackerOnAdded(ref MemberProviders, this, collection, component, metadata);
             MugenExtensions.ComponentTrackerOnAdded(ref MethodProviders, this, collection, component, metadata);
         }
 
-        protected virtual void OnComponentRemoved(IComponentCollection<IComponent<IBindingMemberProvider>> collection, IComponent<IBindingMemberProvider> component,
+        protected virtual void OnComponentRemoved(IComponentCollection<IComponent<IMemberProvider>> collection, IComponent<IMemberProvider> component,
             IReadOnlyMetadataContext? metadata)
         {
             MugenExtensions.ComponentTrackerOnRemoved(ref MemberProviders, collection, component, metadata);

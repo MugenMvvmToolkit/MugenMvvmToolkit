@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Observers
 {
-    public abstract class ObserverBase : IBindingPathObserver
+    public abstract class ObserverBase : IMemberPathObserver
     {
         #region Fields
 
@@ -22,7 +22,7 @@ namespace MugenMvvm.Binding.Observers
 
         private static readonly IReadOnlyMetadataContext IgnoreAttachedMembersMetadata =
             MugenExtensions.GetSingleValueMetadataContext(BindingMemberMetadata.IgnoreAttachedMembers, true);
-        private static readonly IBindingPathObserverListener[] DisposedItems = new IBindingPathObserverListener[0];
+        private static readonly IMemberPathObserverListener[] DisposedItems = new IMemberPathObserverListener[0];
 
         #endregion
 
@@ -31,7 +31,7 @@ namespace MugenMvvm.Binding.Observers
         protected ObserverBase(IWeakReference source)
         {
             _source = source;
-            _listeners = Default.EmptyArray<IBindingPathObserverListener>();
+            _listeners = Default.EmptyArray<IMemberPathObserverListener>();
         }
 
         #endregion
@@ -40,7 +40,7 @@ namespace MugenMvvm.Binding.Observers
 
         public bool IsAlive => _source?.Target != null;
 
-        public abstract IBindingPath Path { get; }
+        public abstract IMemberPath Path { get; }
 
         public object? Source => _source?.Target;
 
@@ -64,41 +64,41 @@ namespace MugenMvvm.Binding.Observers
             OnDisposed();
         }
 
-        public void AddListener(IBindingPathObserverListener listener)
+        public void AddListener(IMemberPathObserverListener listener)
         {
             Should.NotBeNull(listener, nameof(listener));
             if (IsDisposed)
                 return;
             if (_listeners == null)
                 _listeners = listener;
-            else if (_listeners is IBindingPathObserverListener[] listeners)
+            else if (_listeners is IMemberPathObserverListener[] listeners)
             {
                 Array.Resize(ref listeners, listeners.Length + 1);
                 listeners[listeners.Length - 1] = listener;
                 _listeners = listeners;
             }
             else
-                _listeners = new[] { (IBindingPathObserverListener)_listeners, listener };
+                _listeners = new[] { (IMemberPathObserverListener)_listeners, listener };
 
             OnListenerAdded(listener);
         }
 
-        public void RemoveListener(IBindingPathObserverListener listener)
+        public void RemoveListener(IMemberPathObserverListener listener)
         {
             Should.NotBeNull(listener, nameof(listener));
             if (!IsDisposed && RemoveListenerInternal(listener) && _listeners == null)
                 OnListenersRemoved();
         }
 
-        public abstract BindingPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null);
+        public abstract MemberPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null);
 
-        public abstract BindingPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null);
+        public abstract MemberPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null);
 
         #endregion
 
         #region Methods
 
-        protected virtual void OnListenerAdded(IBindingPathObserverListener listener)
+        protected virtual void OnListenerAdded(IMemberPathObserverListener listener)
         {
         }
 
@@ -115,13 +115,13 @@ namespace MugenMvvm.Binding.Observers
             try
             {
                 var listeners = _listeners;
-                if (listeners is IBindingPathObserverListener[] l)
+                if (listeners is IMemberPathObserverListener[] l)
                 {
                     for (var i = 0; i < l.Length; i++)
                         l[i].OnPathMembersChanged(this);
                 }
                 else
-                    (listeners as IBindingPathObserverListener)?.OnPathMembersChanged(this);
+                    (listeners as IMemberPathObserverListener)?.OnPathMembersChanged(this);
             }
             catch (Exception e)
             {
@@ -134,13 +134,13 @@ namespace MugenMvvm.Binding.Observers
             try
             {
                 var listeners = _listeners;
-                if (listeners is IBindingPathObserverListener[] l)
+                if (listeners is IMemberPathObserverListener[] l)
                 {
                     for (var i = 0; i < l.Length; i++)
                         l[i].OnLastMemberChanged(this);
                 }
                 else
-                    (listeners as IBindingPathObserverListener)?.OnLastMemberChanged(this);
+                    (listeners as IMemberPathObserverListener)?.OnLastMemberChanged(this);
             }
             catch (Exception e)
             {
@@ -153,13 +153,13 @@ namespace MugenMvvm.Binding.Observers
             try
             {
                 var listeners = _listeners;
-                if (listeners is IBindingPathObserverListener[] l)
+                if (listeners is IMemberPathObserverListener[] l)
                 {
                     for (var i = 0; i < l.Length; i++)
                         l[i].OnError(this, exception);
                 }
                 else
-                    (listeners as IBindingPathObserverListener)?.OnError(this, exception);
+                    (listeners as IMemberPathObserverListener)?.OnError(this, exception);
             }
             catch
             {
@@ -167,12 +167,12 @@ namespace MugenMvvm.Binding.Observers
             }
         }
 
-        protected static IBindingPropertyInfo? GetBindingMember(Type type, string path, bool ignoreAttached)
+        protected static IBindingPropertyInfo? GetMember(Type type, string path, bool ignoreAttached)
         {
-            return MugenBindingService.BindingMemberProvider.GetMember(type, path, ignoreAttached ? IgnoreAttachedMembersMetadata : null) as IBindingPropertyInfo;
+            return MugenBindingService.MemberProvider.GetMember(type, path, ignoreAttached ? IgnoreAttachedMembersMetadata : null) as IBindingPropertyInfo;
         }
 
-        private bool RemoveListenerInternal(IBindingPathObserverListener listener)
+        private bool RemoveListenerInternal(IMemberPathObserverListener listener)
         {
             if (_listeners == null)
                 return false;
@@ -183,7 +183,7 @@ namespace MugenMvvm.Binding.Observers
                 return true;
             }
 
-            if (!(_listeners is IBindingPathObserverListener[] items))
+            if (!(_listeners is IMemberPathObserverListener[] items))
                 return false;
 
             if (items.Length == 2)

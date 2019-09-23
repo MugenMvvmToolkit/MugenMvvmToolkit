@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Metadata;
 namespace MugenMvvm.Binding.Observers
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct BindingMemberObserver
+    public readonly struct MemberObserver
     {
         #region Fields
 
@@ -18,7 +18,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        public BindingMemberObserver(IHandler handler, object member)
+        public MemberObserver(IHandler handler, object member)
         {
             Member = member;
             _handler = handler;
@@ -35,7 +35,7 @@ namespace MugenMvvm.Binding.Observers
         #region Methods
 
         [Pure]
-        public IDisposable? TryObserve(object? source, IBindingEventListener listener, IReadOnlyMetadataContext? metadata)
+        public IDisposable? TryObserve(object? source, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
             return _handler?.TryObserve(source, Member, listener, metadata);
         }
@@ -46,7 +46,7 @@ namespace MugenMvvm.Binding.Observers
 
         public interface IHandler
         {
-            IDisposable? TryObserve(object? source, object member, IBindingEventListener listener, IReadOnlyMetadataContext? metadata);
+            IDisposable? TryObserve(object? source, object member, IEventListener listener, IReadOnlyMetadataContext? metadata);
         }
 
         #endregion

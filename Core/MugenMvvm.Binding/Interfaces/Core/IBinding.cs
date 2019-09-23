@@ -9,11 +9,11 @@ namespace MugenMvvm.Binding.Interfaces.Core
 {
     public interface IBinding : IDisposable, IComponentOwner<IBinding>, IMetadataOwner<IReadOnlyMetadataContext>
     {
-        DataBindingState State { get; }
+        BindingState State { get; }
 
-        IBindingPathObserver Target { get; }
+        IMemberPathObserver Target { get; }
 
-        ItemOrList<IBindingPathObserver, IBindingPathObserver[]> Source { get; }
+        ItemOrList<IMemberPathObserver, IMemberPathObserver[]> Source { get; }
 
         void UpdateTarget();
 

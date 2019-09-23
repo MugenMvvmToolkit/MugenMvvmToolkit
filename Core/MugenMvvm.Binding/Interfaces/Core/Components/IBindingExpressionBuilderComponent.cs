@@ -10,6 +10,6 @@ namespace MugenMvvm.Binding.Interfaces.Core.Components
 
     public interface IBindingExpressionBuilderComponent<TExpression> : IBindingExpressionBuilderComponent
     {
-        IReadOnlyList<IBindingExpression> TryBuildBindingExpressions(in TExpression expression, IReadOnlyMetadataContext? metadata);
+        IReadOnlyList<IBindingExpression> TryBuildBindingExpression(in TExpression expression, IReadOnlyMetadataContext? metadata);
     }
 }

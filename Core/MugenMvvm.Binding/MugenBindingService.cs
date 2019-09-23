@@ -14,9 +14,9 @@ namespace MugenMvvm.Binding
 
         public static IBindingManager BindingManager => Service<IBindingManager>.Instance;
 
-        public static IBindingMemberProvider BindingMemberProvider => Service<IBindingMemberProvider>.Instance;
+        public static IMemberProvider MemberProvider => Service<IMemberProvider>.Instance;
 
-        public static IBindingObserverProvider BindingObserverProvider => Service<IBindingObserverProvider>.Instance;
+        public static IObserverProvider ObserverProvider => Service<IObserverProvider>.Instance;
 
         public static IResourceResolver ResourceResolver => Service<IResourceResolver>.Instance;
 

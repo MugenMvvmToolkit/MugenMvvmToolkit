@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Observers
 {
-    public sealed class EmptyPathObserver : IBindingPathObserver
+    public sealed class EmptyPathObserver : IMemberPathObserver
     {
         #region Fields
 
@@ -27,7 +27,7 @@ namespace MugenMvvm.Binding.Observers
 
         public bool IsAlive => _source?.Target != null;
 
-        public IBindingPath Path => EmptyBindingPath.Instance;
+        public IMemberPath Path => EmptyMemberPath.Instance;
 
         public object? Source => _source?.Target;
 
@@ -35,30 +35,30 @@ namespace MugenMvvm.Binding.Observers
 
         #region Implementation of interfaces
 
-        public void AddListener(IBindingPathObserverListener listener)
+        public void AddListener(IMemberPathObserverListener listener)
         {
         }
 
-        public void RemoveListener(IBindingPathObserverListener listener)
+        public void RemoveListener(IMemberPathObserverListener listener)
         {
         }
 
-        public BindingPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null)
+        public MemberPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null)
         {
             var target = _source?.Target;
             if (target == null)
                 return default;
 
-            return new BindingPathMembers(Path, target, target, ConstantBindingMemberInfo.NullArray, ConstantBindingMemberInfo.Null);
+            return new MemberPathMembers(Path, target, target, ConstantBindingMemberInfo.NullArray, ConstantBindingMemberInfo.Null);
         }
 
-        public BindingPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null)
+        public MemberPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null)
         {
             var target = _source?.Target;
             if (target == null)
                 return default;
 
-            return new BindingPathLastMember(Path, target, ConstantBindingMemberInfo.Null);
+            return new MemberPathLastMember(Path, target, ConstantBindingMemberInfo.Null);
         }
 
         public void Dispose()

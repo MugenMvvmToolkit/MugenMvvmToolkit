@@ -5,11 +5,11 @@ using MugenMvvm.Interfaces.Internal;
 
 namespace MugenMvvm.Binding.Observers
 {
-    public sealed class BindingEventListenerCollection//todo opt
+    public sealed class EventListenerCollection//todo opt
     {
         #region Fields
 
-        private WeakBindingEventListener[] _listeners;
+        private WeakEventListener[] _listeners;
         private ushort _removedSize;
         private ushort _size;
 
@@ -17,23 +17,23 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        public BindingEventListenerCollection()
+        public EventListenerCollection()
         {
-            _listeners = Default.EmptyArray<WeakBindingEventListener>();
+            _listeners = Default.EmptyArray<WeakEventListener>();
         }
 
         #endregion
 
         #region Methods
 
-        public static BindingEventListenerCollection GetOrAdd(object item, string path, IAttachedDictionaryProvider? provider = null)
+        public static EventListenerCollection GetOrAdd(object item, string path, IAttachedDictionaryProvider? provider = null)
         {
-            return provider.ServiceIfNull().GetOrAdd(item, path, (object?)null, (object?)null, (_, __, ___) => new BindingEventListenerCollection());
+            return provider.ServiceIfNull().GetOrAdd(item, path, (object?)null, (object?)null, (_, __, ___) => new EventListenerCollection());
         }
 
         public static void Raise(object item, string path, object message, IAttachedDictionaryProvider? provider = null)
         {
-            provider.ServiceIfNull().TryGetValue(item, path, out BindingEventListenerCollection collection);
+            provider.ServiceIfNull().TryGetValue(item, path, out EventListenerCollection collection);
             collection?.Raise(item, message);
         }
 
@@ -59,17 +59,17 @@ namespace MugenMvvm.Binding.Observers
             }
         }
 
-        public void Add(IBindingEventListener target)
+        public void Add(IEventListener target)
         {
             AddInternal(target.ToWeak(), false);
         }
 
-        public IDisposable AddWithUnsubscriber(IBindingEventListener target)
+        public IDisposable AddWithUnsubscriber(IEventListener target)
         {
             return AddInternal(target.ToWeak(), true)!;
         }
 
-        public void Remove(IBindingEventListener listener)
+        public void Remove(IEventListener listener)
         {
             if (!listener.IsWeak)
             {
@@ -94,13 +94,13 @@ namespace MugenMvvm.Binding.Observers
         {
             lock (this)
             {
-                _listeners = Default.EmptyArray<WeakBindingEventListener>();
+                _listeners = Default.EmptyArray<WeakEventListener>();
                 _size = 0;
                 _removedSize = 0;
             }
         }
 
-        private IDisposable? AddInternal(WeakBindingEventListener weakItem, bool withUnsubscriber)
+        private IDisposable? AddInternal(WeakEventListener weakItem, bool withUnsubscriber)
         {
             lock (this)
             {
@@ -138,7 +138,7 @@ namespace MugenMvvm.Binding.Observers
             return null;
         }
 
-        private void Remove(WeakBindingEventListener weakItem)
+        private void Remove(WeakEventListener weakItem)
         {
             lock (this)
             {
@@ -173,10 +173,10 @@ namespace MugenMvvm.Binding.Observers
             }
 
             if (_size == 0)
-                _listeners = Default.EmptyArray<WeakBindingEventListener>();
+                _listeners = Default.EmptyArray<WeakEventListener>();
             else if (_listeners.Length / (float)_size > 2)
             {
-                var listeners = new WeakBindingEventListener[_size + (_size >> 2)];
+                var listeners = new WeakEventListener[_size + (_size >> 2)];
                 Array.Copy(_listeners, 0, listeners, 0, _size);
                 _listeners = listeners;
             }
@@ -210,14 +210,14 @@ namespace MugenMvvm.Binding.Observers
         {
             #region Fields
 
-            private BindingEventListenerCollection? _eventListener;
-            private WeakBindingEventListener _weakItem;
+            private EventListenerCollection? _eventListener;
+            private WeakEventListener _weakItem;
 
             #endregion
 
             #region Constructors
 
-            public Unsubscriber(BindingEventListenerCollection eventListener, WeakBindingEventListener weakItem)
+            public Unsubscriber(EventListenerCollection eventListener, WeakEventListener weakItem)
             {
                 _eventListener = eventListener;
                 _weakItem = weakItem;

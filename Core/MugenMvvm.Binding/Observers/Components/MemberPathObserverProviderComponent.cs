@@ -6,7 +6,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
-    public sealed class BindingPathObserverProviderComponent : IBindingPathObserverProviderComponent, IHasPriority //todo static members?
+    public sealed class MemberPathObserverProviderComponent : IMemberPathObserverProviderComponent, IHasPriority //todo static members?
     {
         #region Properties
 
@@ -16,7 +16,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Implementation of interfaces
 
-        public IBindingPathObserver? TryGetBindingPathObserver(object source, IBindingPath path, IReadOnlyMetadataContext? metadata)
+        public IMemberPathObserver? TryGetMemberPathObserver(object source, IMemberPath path, IReadOnlyMetadataContext? metadata)
         {
             throw new NotImplementedException();
         }

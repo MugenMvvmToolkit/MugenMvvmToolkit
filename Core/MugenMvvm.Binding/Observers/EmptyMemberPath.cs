@@ -2,17 +2,17 @@
 
 namespace MugenMvvm.Binding.Observers
 {
-    public sealed class EmptyBindingPath : IBindingPath
+    public sealed class EmptyMemberPath : IMemberPath
     {
         #region Fields
 
-        public static readonly EmptyBindingPath Instance = new EmptyBindingPath();
+        public static readonly EmptyMemberPath Instance = new EmptyMemberPath();
 
         #endregion
 
         #region Constructors
 
-        private EmptyBindingPath()
+        private EmptyMemberPath()
         {
         }
 

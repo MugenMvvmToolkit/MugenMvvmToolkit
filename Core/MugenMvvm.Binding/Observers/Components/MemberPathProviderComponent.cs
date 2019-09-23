@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
-    public sealed class BindingPathProviderComponent : IBindingPathProviderComponent<string>, IHasPriority
+    public sealed class MemberPathProviderComponent : IMemberPathProviderComponent<string>, IHasPriority
     {
         #region Fields
 
@@ -20,7 +20,7 @@ namespace MugenMvvm.Binding.Observers.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public BindingPathProviderComponent()
+        public MemberPathProviderComponent()
         {
             _cache = new CacheDictionary();
         }
@@ -37,10 +37,10 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Implementation of interfaces
 
-        public IBindingPath? TryGetBindingPath(in string path, IReadOnlyMetadataContext? metadata)
+        public IMemberPath? TryGetMemberPath(in string path, IReadOnlyMetadataContext? metadata)
         {
             if (path.Length == 0)
-                return EmptyBindingPath.Instance;
+                return EmptyMemberPath.Instance;
 
             if (UseCache)
                 return GetFromCache(path);
@@ -52,7 +52,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Methods
 
-        private IBindingPath GetFromCache(string path)
+        private IMemberPath GetFromCache(string path)
         {
             if (!_cache.TryGetValue(path, out var value))
             {
@@ -63,19 +63,19 @@ namespace MugenMvvm.Binding.Observers.Components
             return value;
         }
 
-        private static IBindingPath GetObserver(string path)
+        private static IMemberPath GetObserver(string path)
         {
             var hasBracket = path.IndexOf('[') >= 0;
             if (path.IndexOf('.') >= 0 || hasBracket)
-                return new MultiBindingPath(path, hasBracket);
-            return new SingleBindingPath(path);
+                return new MultiMemberPath(path, hasBracket);
+            return new SingleMemberPath(path);
         }
 
         #endregion
 
         #region Nested types
 
-        private sealed class CacheDictionary : LightDictionaryBase<string, IBindingPath>
+        private sealed class CacheDictionary : LightDictionaryBase<string, IMemberPath>
         {
             #region Constructors
 
@@ -100,7 +100,7 @@ namespace MugenMvvm.Binding.Observers.Components
             #endregion
         }
 
-        private sealed class SingleBindingPath : IBindingPath
+        private sealed class SingleMemberPath : IMemberPath
         {
             #region Fields
 
@@ -110,7 +110,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
             #region Constructors
 
-            public SingleBindingPath(string path)
+            public SingleMemberPath(string path)
             {
                 Path = path;
             }
@@ -136,11 +136,11 @@ namespace MugenMvvm.Binding.Observers.Components
             #endregion
         }
 
-        private sealed class MultiBindingPath : IBindingPath
+        private sealed class MultiMemberPath : IMemberPath
         {
             #region Constructors
 
-            public MultiBindingPath(string path, bool hasIndexer)
+            public MultiMemberPath(string path, bool hasIndexer)
             {
                 Path = path;
                 Members = path.Split(BindingMugenExtensions.DotSeparator, StringSplitOptions.RemoveEmptyEntries);

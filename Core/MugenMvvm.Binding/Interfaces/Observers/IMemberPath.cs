@@ -1,6 +1,6 @@
 ﻿namespace MugenMvvm.Binding.Interfaces.Observers
 {
-    public interface IBindingPath
+    public interface IMemberPath
     {
         string Path { get; }
 

@@ -29,14 +29,14 @@ namespace MugenMvvm.Binding
         }
 
         public static TValue GetValueOrDefault<TSource, TValue>(this BindableMember<TSource, TValue> bindableMember, TSource source,
-            IReadOnlyMetadataContext? metadata = null, IBindingMemberProvider? provider = null)
+            IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null)
             where TSource : class
         {
             return bindableMember.GetValueOrDefault(source, default!, metadata, provider);
         }
 
         public static TValue GetValueOrDefault<TSource, TValue>(this BindableMember<TSource, TValue> bindableMember, TSource source, TValue defaultValue,
-             IReadOnlyMetadataContext? metadata = null, IBindingMemberProvider? provider = null)
+             IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null)
             where TSource : class
         {
             if (!(bindableMember.GetMember(source, metadata, provider) is IBindingPropertyInfo member))
@@ -46,23 +46,23 @@ namespace MugenMvvm.Binding
             return (TValue)member.GetValue(source, metadata)!;
         }
 
-        public static IDisposable? TryObserve<TSource, TValue>(this BindableMember<TSource, TValue> bindableMember, TSource source, IBindingEventListener listener,
-            IReadOnlyMetadataContext? metadata = null, IBindingMemberProvider? provider = null)
+        public static IDisposable? TryObserve<TSource, TValue>(this BindableMember<TSource, TValue> bindableMember, TSource source, IEventListener listener,
+            IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null)
             where TSource : class
         {
             return (bindableMember.GetMember(source, metadata, provider) as IObservableBindingMemberInfo)?.TryObserve(source, listener, metadata);
         }
 
         public static IBindingMemberInfo? GetMember<TSource, TValue>(this BindableMember<TSource, TValue> bindableMember, TSource source,
-            IReadOnlyMetadataContext? metadata = null, IBindingMemberProvider? provider = null) where TSource : class
+            IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TSource : class
         {
             Should.NotBeNull(source, nameof(source));
             return provider.ServiceIfNull().GetMember(source.GetType(), bindableMember, metadata ?? Default.Metadata);
         }
 
-        public static WeakBindingEventListener ToWeak(this IBindingEventListener listener)
+        public static WeakEventListener ToWeak(this IEventListener listener)
         {
-            return new WeakBindingEventListener(listener);
+            return new WeakEventListener(listener);
         }
 
         #endregion

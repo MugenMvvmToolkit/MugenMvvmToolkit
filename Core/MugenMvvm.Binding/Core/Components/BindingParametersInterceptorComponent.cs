@@ -44,7 +44,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Implementation of interfaces
 
-        public object? InterceptSourceValue(in BindingPathLastMember sourceMembers, object? value, IReadOnlyMetadataContext metadata)
+        public object? InterceptSourceValue(in MemberPathLastMember sourceMembers, object? value, IReadOnlyMetadataContext metadata)
         {
             var converter = ConverterDelegate?.Invoke(metadata);
             if (converter != null)
@@ -55,7 +55,7 @@ namespace MugenMvvm.Binding.Core.Components
             return value;
         }
 
-        public object? InterceptTargetValue(in BindingPathLastMember targetMembers, object? value, IReadOnlyMetadataContext metadata)
+        public object? InterceptTargetValue(in MemberPathLastMember targetMembers, object? value, IReadOnlyMetadataContext metadata)
         {
             if (ConverterDelegate != null && !value.IsUnsetValue())
             {

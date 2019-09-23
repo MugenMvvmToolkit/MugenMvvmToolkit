@@ -11,7 +11,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class AttachedBindingMemberProviderComponent : AttachableComponentBase<IBindingMemberProvider>, IBindingMemberProviderComponent, IBindingMethodProviderComponent
+    public sealed class AttachedMemberProviderComponent : AttachableComponentBase<IMemberProvider>, IMemberProviderComponent, IMethodProviderComponent
     {
         #region Fields
 
@@ -23,7 +23,7 @@ namespace MugenMvvm.Binding.Members.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public AttachedBindingMemberProviderComponent()
+        public AttachedMemberProviderComponent()
         {
             _cache = new CacheDictionary<IBindingMemberInfo>();
             _methodsCache = new CacheDictionary<List<IBindingMethodInfo>>();

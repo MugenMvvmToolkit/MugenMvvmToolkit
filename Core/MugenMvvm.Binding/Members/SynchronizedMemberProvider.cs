@@ -8,12 +8,12 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members
 {
-    public class SynchronizedBindingMemberProvider : BindingMemberProvider
+    public class SynchronizedMemberProvider : MemberProvider
     {
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public SynchronizedBindingMemberProvider(IComponentCollectionProvider? componentCollectionProvider = null)
+        public SynchronizedMemberProvider(IComponentCollectionProvider? componentCollectionProvider = null)
             : base(componentCollectionProvider)
         {
         }

@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Internal;
 namespace MugenMvvm.Binding.Observers
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct WeakBindingEventListener
+    public readonly struct WeakEventListener
     {
         #region Fields
 
@@ -15,7 +15,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        public WeakBindingEventListener(IBindingEventListener listener)
+        public WeakEventListener(IEventListener listener)
         {
             if (listener.IsWeak)
                 Source = listener;
@@ -35,22 +35,22 @@ namespace MugenMvvm.Binding.Observers
             {
                 if (Source == null)
                     return false;
-                if (Source is IBindingEventListener listener)
+                if (Source is IEventListener listener)
                     return listener.IsAlive;
-                listener = (IBindingEventListener)((IWeakReference)Source).Target!;
+                listener = (IEventListener)((IWeakReference)Source).Target!;
                 return listener != null && listener.IsAlive;
             }
         }
 
-        public IBindingEventListener? Listener
+        public IEventListener? Listener
         {
             get
             {
                 if (Source == null)
                     return null;
-                if (Source is IBindingEventListener listener)
+                if (Source is IEventListener listener)
                     return listener;
-                return (IBindingEventListener?)((IWeakReference)Source).Target;
+                return (IEventListener?)((IWeakReference)Source).Target;
             }
         }
 
@@ -59,10 +59,10 @@ namespace MugenMvvm.Binding.Observers
             if (Source == null)
                 return false;
 
-            if (Source is IBindingEventListener listener)
+            if (Source is IEventListener listener)
                 return listener.TryHandle(sender, message);
 
-            listener = (IBindingEventListener)((IWeakReference)Source).Target!;
+            listener = (IEventListener)((IWeakReference)Source).Target!;
             return listener != null && listener.TryHandle(sender, message);
         }
 

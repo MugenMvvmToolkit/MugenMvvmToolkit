@@ -11,21 +11,21 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
-    public sealed class EventInfoBindingMemberObserverProviderComponent : IBindingMemberObserverProviderComponent<EventInfo>, BindingMemberObserver.IHandler, IHasPriority
+    public sealed class EventInfoMemberObserverProviderComponent : IMemberObserverProviderComponent<EventInfo>, MemberObserver.IHandler, IHasPriority
     {
         #region Fields
 
         private readonly IAttachedDictionaryProvider? _attachedDictionaryProvider;
 
         private static readonly MethodInfo RaiseMethod = GetRaiseMethod();
-        private static readonly Func<object, EventInfo, object?, BindingEventListenerCollection?> CreateWeakListenerDelegate = CreateWeakListener;
+        private static readonly Func<object, EventInfo, object?, EventListenerCollection?> CreateWeakListenerDelegate = CreateWeakListener;
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public EventInfoBindingMemberObserverProviderComponent(IAttachedDictionaryProvider? attachedDictionaryProvider = null)
+        public EventInfoMemberObserverProviderComponent(IAttachedDictionaryProvider? attachedDictionaryProvider = null)
         {
             _attachedDictionaryProvider = attachedDictionaryProvider;
         }
@@ -40,7 +40,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Implementation of interfaces
 
-        IDisposable? BindingMemberObserver.IHandler.TryObserve(object? source, object member, IBindingEventListener listener, IReadOnlyMetadataContext? metadata)
+        IDisposable? MemberObserver.IHandler.TryObserve(object? source, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
             if (source == null)
                 return null;
@@ -52,10 +52,10 @@ namespace MugenMvvm.Binding.Observers.Components
             return listenerInternal?.AddWithUnsubscriber(listener);
         }
 
-        public BindingMemberObserver TryGetMemberObserver(Type type, in EventInfo member, IReadOnlyMetadataContext? metadata)
+        public MemberObserver TryGetMemberObserver(Type type, in EventInfo member, IReadOnlyMetadataContext? metadata)
         {
             if (member.EventHandlerType.CanCreateDelegate(RaiseMethod))
-                return new BindingMemberObserver(this, member);
+                return new MemberObserver(this, member);
             return default;
         }
 
@@ -65,16 +65,16 @@ namespace MugenMvvm.Binding.Observers.Components
 
         private static MethodInfo GetRaiseMethod()
         {
-            var m = typeof(BindingEventListenerCollection)
-                .GetMethodUnified(nameof(BindingEventListenerCollection.Raise), MemberFlags.Public | MemberFlags.Instance);
+            var m = typeof(EventListenerCollection)
+                .GetMethodUnified(nameof(EventListenerCollection.Raise), MemberFlags.Public | MemberFlags.Instance);
             if (m == null)
-                BindingExceptionManager.ThrowInvalidBindingMember(typeof(BindingEventListenerCollection), nameof(BindingEventListenerCollection.Raise));
+                BindingExceptionManager.ThrowInvalidBindingMember(typeof(EventListenerCollection), nameof(EventListenerCollection.Raise));
             return m!;
         }
 
-        private static BindingEventListenerCollection? CreateWeakListener(object target, EventInfo eventInfo, object? _)
+        private static EventListenerCollection? CreateWeakListener(object target, EventInfo eventInfo, object? _)
         {
-            var listenerInternal = new BindingEventListenerCollection();
+            var listenerInternal = new EventListenerCollection();
             var handler = eventInfo.EventHandlerType.EqualsEx(typeof(EventHandler))
                 ? new EventHandler(listenerInternal.Raise)
                 : eventInfo.EventHandlerType.TryCreateDelegate(listenerInternal, RaiseMethod);

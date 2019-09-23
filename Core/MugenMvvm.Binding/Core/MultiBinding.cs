@@ -17,7 +17,7 @@ namespace MugenMvvm.Binding.Core
 
         #region Constructors
 
-        public MultiBinding(IBindingPathObserver target, IBindingPathObserver[] sources, Func<object?[]?, IReadOnlyMetadataContext?, object?> expression)
+        public MultiBinding(IMemberPathObserver target, IMemberPathObserver[] sources, Func<object?[]?, IReadOnlyMetadataContext?, object?> expression)
             : base(target, sources)
         {
             Should.NotBeNull(expression, nameof(expression));
@@ -30,7 +30,7 @@ namespace MugenMvvm.Binding.Core
 
         public object? GetValue()
         {
-            var sources = (IBindingPathObserver[])SourceRaw;
+            var sources = (IMemberPathObserver[])SourceRaw;
             var values = new object?[sources.Length];
             for (var i = 0; i < sources.Length; i++)
             {

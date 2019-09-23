@@ -17,7 +17,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Binding.Core
 {
-    public abstract class BindingBase : IBinding, IComponentCollection<IComponent<IBinding>>, IBindingPathObserverListener, IReadOnlyMetadataContext
+    public abstract class BindingBase : IBinding, IComponentCollection<IComponent<IBinding>>, IMemberPathObserverListener, IReadOnlyMetadataContext
     {
         #region Fields
 
@@ -45,20 +45,20 @@ namespace MugenMvvm.Binding.Core
         #region Constructors
 
 #pragma warning disable CS8618
-        private BindingBase(IBindingPathObserver target)
+        private BindingBase(IMemberPathObserver target)
         {
             Should.NotBeNull(target, nameof(target));
             Target = target;
         }
 #pragma warning restore CS8618
 
-        protected BindingBase(IBindingPathObserver target, IBindingPathObserver source) : this(target)
+        protected BindingBase(IMemberPathObserver target, IMemberPathObserver source) : this(target)
         {
             Should.NotBeNull(source, nameof(source));
             SourceRaw = source;
         }
 
-        protected BindingBase(IBindingPathObserver target, IBindingPathObserver[] sources) : this(target)
+        protected BindingBase(IMemberPathObserver target, IMemberPathObserver[] sources) : this(target)
         {
             Should.NotBeNull(sources, nameof(sources));
             SourceRaw = sources;
@@ -93,17 +93,17 @@ namespace MugenMvvm.Binding.Core
 
         protected virtual IReadOnlyMetadataContext Metadata => this;
 
-        public DataBindingState State => CheckFlag(DisposedFlag) ? DataBindingState.Disposed : DataBindingState.Attached;
+        public BindingState State => CheckFlag(DisposedFlag) ? BindingState.Disposed : BindingState.Attached;
 
-        public IBindingPathObserver Target { get; }
+        public IMemberPathObserver Target { get; }
 
-        public ItemOrList<IBindingPathObserver, IBindingPathObserver[]> Source
+        public ItemOrList<IMemberPathObserver, IMemberPathObserver[]> Source
         {
             get
             {
-                if (SourceRaw is IBindingPathObserver[] array)
+                if (SourceRaw is IMemberPathObserver[] array)
                     return array;
-                return new ItemOrList<IBindingPathObserver, IBindingPathObserver[]>((IBindingPathObserver)SourceRaw);
+                return new ItemOrList<IMemberPathObserver, IMemberPathObserver[]>((IMemberPathObserver)SourceRaw);
             }
         }
 
@@ -115,7 +115,7 @@ namespace MugenMvvm.Binding.Core
 
         #region Implementation of interfaces
 
-        void IBindingPathObserverListener.OnPathMembersChanged(IBindingPathObserver observer)
+        void IMemberPathObserverListener.OnPathMembersChanged(IMemberPathObserver observer)
         {
             var isTarget = ReferenceEquals(Target, observer);
             var components = _components;
@@ -141,7 +141,7 @@ namespace MugenMvvm.Binding.Core
             }
         }
 
-        void IBindingPathObserverListener.OnLastMemberChanged(IBindingPathObserver observer)
+        void IMemberPathObserverListener.OnLastMemberChanged(IMemberPathObserver observer)
         {
             var isTarget = ReferenceEquals(Target, observer);
             var components = _components;
@@ -167,7 +167,7 @@ namespace MugenMvvm.Binding.Core
             }
         }
 
-        void IBindingPathObserverListener.OnError(IBindingPathObserver observer, Exception exception)
+        void IMemberPathObserverListener.OnError(IMemberPathObserver observer, Exception exception)
         {
             var isTarget = ReferenceEquals(Target, observer);
             var components = _components;
@@ -275,11 +275,11 @@ namespace MugenMvvm.Binding.Core
                 return;
             SetFlag(DisposedFlag);
             OnDispose();
-            MugenBindingService.BindingManager.OnLifecycleChanged(this, DataBindingLifecycleState.Disposed, Metadata);
+            MugenBindingService.BindingManager.OnLifecycleChanged(this, BindingLifecycleState.Disposed, Metadata);
             if (_targetObserverCount != 0)
                 Target.RemoveListener(this);
             Target.Dispose();
-            if (SourceRaw is IBindingPathObserver source)
+            if (SourceRaw is IMemberPathObserver source)
             {
                 if (_sourceObserverCount != 0)
                     source.RemoveListener(this);
@@ -287,7 +287,7 @@ namespace MugenMvvm.Binding.Core
             }
             else
             {
-                var sources = (IBindingPathObserver[])SourceRaw;
+                var sources = (IMemberPathObserver[])SourceRaw;
                 for (var i = 0; i < sources.Length; i++)
                 {
                     var observer = sources[i];
@@ -391,7 +391,7 @@ namespace MugenMvvm.Binding.Core
 
         protected virtual bool UpdateSourceInternal(out object? newValue)
         {
-            if (SourceRaw is IBindingPathObserver observer)
+            if (SourceRaw is IMemberPathObserver observer)
                 return SetSourceValue(observer, out newValue);
             newValue = null;
             return false;
@@ -479,7 +479,7 @@ namespace MugenMvvm.Binding.Core
                 (components as IBindingSourceListener)?.OnSourceUpdated(this, newValue, Metadata);
         }
 
-        protected virtual object? InterceptTargetValue(in BindingPathLastMember targetMembers, object? value)
+        protected virtual object? InterceptTargetValue(in MemberPathLastMember targetMembers, object? value)
         {
             var components = _components;
             if (components is IComponent<IBinding>[] c)
@@ -496,7 +496,7 @@ namespace MugenMvvm.Binding.Core
             return value;
         }
 
-        protected virtual object? InterceptSourceValue(in BindingPathLastMember sourceMembers, object? value)
+        protected virtual object? InterceptSourceValue(in MemberPathLastMember sourceMembers, object? value)
         {
             var components = _components;
             if (components is IComponent<IBinding>[] c)
@@ -513,7 +513,7 @@ namespace MugenMvvm.Binding.Core
             return value;
         }
 
-        protected virtual bool TrySetTargetValue(in BindingPathLastMember targetMembers, object? newValue)
+        protected virtual bool TrySetTargetValue(in MemberPathLastMember targetMembers, object? newValue)
         {
             var components = _components;
             if (components is IComponent<IBinding>[] c)
@@ -530,7 +530,7 @@ namespace MugenMvvm.Binding.Core
             return false;
         }
 
-        protected virtual bool TrySetSourceValue(in BindingPathLastMember sourceMembers, object? newValue)
+        protected virtual bool TrySetSourceValue(in MemberPathLastMember sourceMembers, object? newValue)
         {
             var components = _components;
             if (components is IComponent<IBinding>[] c)
@@ -551,7 +551,7 @@ namespace MugenMvvm.Binding.Core
         {
         }
 
-        protected bool SetTargetValue(IBindingPathObserver target, out object? newValue)
+        protected bool SetTargetValue(IMemberPathObserver target, out object? newValue)
         {
             var pathLastMember = target.GetLastMember(Metadata);
             pathLastMember.ThrowIfError();
@@ -580,7 +580,7 @@ namespace MugenMvvm.Binding.Core
             return true;
         }
 
-        protected bool SetSourceValue(IBindingPathObserver sourceObserver, out object? newValue)
+        protected bool SetSourceValue(IMemberPathObserver sourceObserver, out object? newValue)
         {
             var pathLastMember = sourceObserver.GetLastMember(Metadata);
             pathLastMember.ThrowIfError();
@@ -683,11 +683,11 @@ namespace MugenMvvm.Binding.Core
             if (!(component is IBindingSourceObserverListener) || ++_sourceObserverCount != 1)
                 return;
 
-            if (SourceRaw is IBindingPathObserver source)
+            if (SourceRaw is IMemberPathObserver source)
                 source.AddListener(this);
             else
             {
-                var observers = (IBindingPathObserver[])SourceRaw;
+                var observers = (IMemberPathObserver[])SourceRaw;
                 for (var i = 0; i < observers.Length; i++)
                     observers[i].AddListener(this);
             }
@@ -701,11 +701,11 @@ namespace MugenMvvm.Binding.Core
                 Target.RemoveListener(this);
             if (component is IBindingSourceObserverListener && --_sourceObserverCount == 0)
             {
-                if (SourceRaw is IBindingPathObserver source)
+                if (SourceRaw is IMemberPathObserver source)
                     source.RemoveListener(this);
                 else
                 {
-                    var observers = (IBindingPathObserver[])SourceRaw;
+                    var observers = (IMemberPathObserver[])SourceRaw;
                     for (var i = 0; i < observers.Length; i++)
                         observers[i].RemoveListener(this);
                 }

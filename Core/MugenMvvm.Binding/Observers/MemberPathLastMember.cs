@@ -9,40 +9,40 @@ using MugenMvvm.Interfaces.Metadata;
 namespace MugenMvvm.Binding.Observers
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly ref struct BindingPathLastMember
+    public readonly ref struct MemberPathLastMember
     {
         #region Fields
 
         private readonly IBindingMemberInfo? _lastMember;
-        private readonly IBindingPath _bindingPath;
+        private readonly IMemberPath _path;
         private readonly object? _penultimateValue;
 
         #endregion
 
         #region Constructors
 
-        public BindingPathLastMember(IBindingPath bindingPath)
+        public MemberPathLastMember(IMemberPath path)
         {
-            Should.NotBeNull(bindingPath, nameof(bindingPath));
-            _bindingPath = bindingPath;
+            Should.NotBeNull(path, nameof(path));
+            _path = path;
             _penultimateValue = null;
             _lastMember = null;
         }
 
-        public BindingPathLastMember(IBindingPath bindingPath, object? penultimateValue, IBindingMemberInfo lastMember)
+        public MemberPathLastMember(IMemberPath path, object? penultimateValue, IBindingMemberInfo lastMember)
         {
-            Should.NotBeNull(bindingPath, nameof(bindingPath));
+            Should.NotBeNull(path, nameof(path));
             Should.NotBeNull(lastMember, nameof(lastMember));
             _penultimateValue = penultimateValue;
             _lastMember = lastMember;
-            _bindingPath = bindingPath;
+            _path = path;
         }
 
-        public BindingPathLastMember(IBindingPath bindingPath, Exception exception)
+        public MemberPathLastMember(IMemberPath path, Exception exception)
         {
-            Should.NotBeNull(bindingPath, nameof(bindingPath));
+            Should.NotBeNull(path, nameof(path));
             Should.NotBeNull(exception, nameof(exception));
-            _bindingPath = bindingPath;
+            _path = path;
             _penultimateValue = exception;
             _lastMember = null;
         }
@@ -53,7 +53,7 @@ namespace MugenMvvm.Binding.Observers
 
         public bool IsAvailable => _lastMember != null;
 
-        public IBindingPath BindingPath => _bindingPath ?? EmptyBindingPath.Instance;
+        public IMemberPath Path => _path ?? EmptyMemberPath.Instance;
 
         public Exception? Error
         {

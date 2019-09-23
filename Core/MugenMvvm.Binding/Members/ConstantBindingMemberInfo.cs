@@ -53,7 +53,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Implementation of interfaces
 
-        public IDisposable? TryObserve(object? source, IBindingEventListener listener, IReadOnlyMetadataContext? metadata = null)
+        public IDisposable? TryObserve(object? source, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
             return null;
         }
