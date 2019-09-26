@@ -7,7 +7,7 @@ namespace MugenMvvm.Metadata
     {
         #region Fields
 
-        private static IMetadataContextKey<IComponentCollection<object>?> _wrappers;
+        private static IMetadataContextKey<IComponentCollection<object>?>? _wrappers;
 
         #endregion
 

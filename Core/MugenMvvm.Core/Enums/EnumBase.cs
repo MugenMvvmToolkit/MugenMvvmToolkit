@@ -17,7 +17,7 @@ namespace MugenMvvm.Enums
         private string? _displayName;
         private TValue _value;
 
-        private static Dictionary<TValue, TEnumeration> _enumerations;
+        private static Dictionary<TValue, TEnumeration>? _enumerations;
 
         #endregion
 

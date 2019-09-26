@@ -10,8 +10,8 @@ namespace MugenMvvm
     {
         #region Fields
 
-        private static Action<object, PropertyChangedEventHandler> _unsubscribePropertyChangedDelegate;
-        private static Func<IWeakEventHandler<PropertyChangedEventArgs>, PropertyChangedEventHandler> _createPropertyChangedHandlerDelegate;
+        private static Action<object, PropertyChangedEventHandler>? _unsubscribePropertyChangedDelegate;
+        private static Func<IWeakEventHandler<PropertyChangedEventArgs>, PropertyChangedEventHandler>? _createPropertyChangedHandlerDelegate;
 
         #endregion
 

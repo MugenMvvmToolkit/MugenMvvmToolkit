@@ -11,7 +11,7 @@ namespace MugenMvvm.Metadata
 
         private static IMetadataContextKey<string?>? _name;
         private static IMetadataContextKey<IReadOnlyCollection<IIocParameter>?>? _parameters;
-        private static IMetadataContextKey<IocConditionDelegate?> _condition;
+        private static IMetadataContextKey<IocConditionDelegate?>? _condition;
 
         #endregion
 

@@ -11,14 +11,14 @@ namespace MugenMvvm.Metadata
     {
         #region Fields
 
-        private static IMetadataContextKey<Guid> _id;
-        private static IMetadataContextKey<ViewModelLifecycleState> _lifecycleState;
-        private static IMetadataContextKey<bool> _broadcastAllMessages;
-        private static IMetadataContextKey<BusyMessageHandlerType> _busyMessageHandlerType;
-        private static IMetadataContextKey<IViewModelBase?> _parentViewModel;
-        private static IMetadataContextKey<bool> _noState;
-        private static IMetadataContextKey<Func<IViewModelBase, IMetadataContext, IPresenterResult>?> _closeHandler;
-        private static IMetadataContextKey<Type?> _type;
+        private static IMetadataContextKey<Guid>? _id;
+        private static IMetadataContextKey<ViewModelLifecycleState>? _lifecycleState;
+        private static IMetadataContextKey<bool>? _broadcastAllMessages;
+        private static IMetadataContextKey<BusyMessageHandlerType>? _busyMessageHandlerType;
+        private static IMetadataContextKey<IViewModelBase?>? _parentViewModel;
+        private static IMetadataContextKey<bool>? _noState;
+        private static IMetadataContextKey<Func<IViewModelBase, IMetadataContext, IPresenterResult>?>? _closeHandler;
+        private static IMetadataContextKey<Type?>? _type;
 
         #endregion
 

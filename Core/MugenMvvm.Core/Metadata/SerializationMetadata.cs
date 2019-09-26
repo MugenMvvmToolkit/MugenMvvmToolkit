@@ -6,7 +6,7 @@ namespace MugenMvvm.Metadata
     {
         #region Fields
 
-        private static IMetadataContextKey<bool> _noCache;
+        private static IMetadataContextKey<bool>? _noCache;
 
         #endregion
 

@@ -8,9 +8,9 @@ namespace MugenMvvm.Metadata
     {
         #region Fields
 
-        private static IMetadataContextKey<IViewInfo?> _restoredView;
-        private static IMetadataContextKey<bool> _isRestorableCallback;
-        private static IMetadataContextKey<bool> _closeAll;
+        private static IMetadataContextKey<IViewInfo?>? _restoredView;
+        private static IMetadataContextKey<bool>? _isRestorableCallback;
+        private static IMetadataContextKey<bool>? _closeAll;
         private static IMetadataContextKey<INavigationCallback?>? _showingCallback;
         private static IMetadataContextKey<INavigationCallback?>? _closingCallback;
         private static IMetadataContextKey<INavigationCallback?>? _closeCallback;

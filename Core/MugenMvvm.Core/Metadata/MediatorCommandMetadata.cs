@@ -9,13 +9,13 @@ namespace MugenMvvm.Metadata
     {
         #region Fields
 
-        private static IMetadataContextKey<bool> _allowMultipleExecution;
-        private static IMetadataContextKey<IReadOnlyCollection<string>?> _ignoreProperties;
-        private static IMetadataContextKey<CommandExecutionMode> _executionMode;
-        private static IMetadataContextKey<ThreadExecutionMode?> _eventThreadMode;
-        private static IMetadataContextKey<Delegate?> _execute;
-        private static IMetadataContextKey<Delegate?> _canExecute;
-        private static IMetadataContextKey<IReadOnlyCollection<object>?> _notifiers;
+        private static IMetadataContextKey<bool>? _allowMultipleExecution;
+        private static IMetadataContextKey<IReadOnlyCollection<string>?>? _ignoreProperties;
+        private static IMetadataContextKey<CommandExecutionMode>? _executionMode;
+        private static IMetadataContextKey<ThreadExecutionMode?>? _eventThreadMode;
+        private static IMetadataContextKey<Delegate?>? _execute;
+        private static IMetadataContextKey<Delegate?>? _canExecute;
+        private static IMetadataContextKey<IReadOnlyCollection<object>?>? _notifiers;
 
         #endregion
 

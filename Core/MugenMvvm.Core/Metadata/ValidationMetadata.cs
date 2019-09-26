@@ -7,7 +7,7 @@ namespace MugenMvvm.Metadata
     {
         #region Fields
 
-        private static IMetadataContextKey<ICollection<string>?> _ignoredMembers;
+        private static IMetadataContextKey<ICollection<string>?>? _ignoredMembers;
 
         #endregion
 
