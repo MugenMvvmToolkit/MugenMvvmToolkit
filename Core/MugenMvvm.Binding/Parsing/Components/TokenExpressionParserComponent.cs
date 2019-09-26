@@ -157,7 +157,7 @@ namespace MugenMvvm.Binding.Parsing.Components
         {
             #region Fields
 
-            private readonly TokenExpressionParserComponent _provider;
+            private readonly TokenExpressionParserComponent _parser;
             private IReadOnlyMetadataContext? _metadata;
             private string _source;
 
@@ -165,10 +165,10 @@ namespace MugenMvvm.Binding.Parsing.Components
 
             #region Constructors
 
-            public TokenParserContext(TokenExpressionParserComponent provider)
+            public TokenParserContext(TokenExpressionParserComponent parser)
             {
                 _source = string.Empty;
-                _provider = provider;
+                _parser = parser;
             }
 
             #endregion
@@ -184,7 +184,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                     if (_metadata is IMetadataContext ctx)
                         return ctx;
 
-                    Interlocked.CompareExchange(ref _metadata, _metadata.ToNonReadonly(this, _provider._metadataContextProvider), null);
+                    Interlocked.CompareExchange(ref _metadata, _metadata.ToNonReadonly(this, _parser._metadataContextProvider), null);
                     return (IMetadataContext)_metadata!;
                 }
             }
@@ -214,7 +214,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
             public IExpressionNode? TryParse(IExpressionNode? expression = null)
             {
-                var components = _provider._componentTracker.GetComponents();
+                var components = _parser._componentTracker.GetComponents();
                 for (var i = 0; i < components.Length; i++)
                 {
                     var result = components[i].TryParse(this, expression);

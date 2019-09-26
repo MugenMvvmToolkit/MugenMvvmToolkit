@@ -34,6 +34,11 @@ namespace MugenMvvm.Binding
             throw new InvalidOperationException(CannotParseExpressionFormat1.Format(expression));
         }
 
+        public static void CannotCompileExpression(IExpressionNode expression)
+        {
+            throw new InvalidOperationException(CannotCompileExpressionFormat1.Format(expression));
+        }
+
         public static void DuplicateLambdaParameter(string parameterName)
         {
             throw new InvalidOperationException(DuplicateLambdaParameterFormat1.Format(parameterName));

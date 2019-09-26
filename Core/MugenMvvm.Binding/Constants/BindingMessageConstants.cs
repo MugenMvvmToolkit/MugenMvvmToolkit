@@ -16,6 +16,8 @@
 
         internal const string CannotParseExpressionFormat1 = "Cannot parse expression '{0}'";
 
+        internal const string CannotCompileExpressionFormat1 = "Cannot compile expression '{0}'";
+
         internal const string DuplicateLambdaParameterFormat1 = "The lambda parameter '{0}' is defined more than once";
 
         internal const string ExpressionNodeCannotBeNullFormat1 = "The expression node on type '{0}' cannot be null";

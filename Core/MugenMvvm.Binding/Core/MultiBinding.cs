@@ -1,9 +1,8 @@
-﻿using System;
-using MugenMvvm.Binding.Enums;
+﻿using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Observers;
-using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Core
 {
@@ -11,13 +10,13 @@ namespace MugenMvvm.Binding.Core
     {
         #region Fields
 
-        private Func<object?[]?, IReadOnlyMetadataContext?, object?>? _expression;
+        private ICompiledExpression? _expression;
 
         #endregion
 
         #region Constructors
 
-        public MultiBinding(IMemberPathObserver target, IMemberPathObserver[] sources, Func<object?[]?, IReadOnlyMetadataContext?, object?> expression)
+        public MultiBinding(IMemberPathObserver target, IMemberPathObserver[] sources, ICompiledExpression expression)
             : base(target, sources)
         {
             Should.NotBeNull(expression, nameof(expression));
@@ -41,7 +40,7 @@ namespace MugenMvvm.Binding.Core
                 values[i] = value;
             }
 
-            return _expression!(values, Metadata);
+            return _expression!.Invoke(values, Metadata);
         }
 
         #endregion
