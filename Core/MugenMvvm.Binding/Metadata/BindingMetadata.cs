@@ -11,7 +11,7 @@ namespace MugenMvvm.Binding.Metadata
         public static readonly object UnsetValue = new object();
         public static readonly object DoNothing = new object();
 
-        private static IMetadataContextKey<IBinding?> _binding;
+        private static IMetadataContextKey<IBinding?>? _binding;
 
         #endregion
 

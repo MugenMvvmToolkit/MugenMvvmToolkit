@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Interfaces.Parsing;
-using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
@@ -10,7 +8,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
 {
-    public sealed class DigitExpressionParserComponent : IExpressionParserComponent<ITokenExpressionParserContext>, IHasPriority
+    public sealed class DigitTokenParserComponent : TokenExpressionParserComponent.ITokenExpressionParser, IHasPriority
     {
         #region Fields
 
@@ -20,7 +18,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Constructors
 
-        public DigitExpressionParserComponent(Dictionary<string, ConvertDelegate>? postfixToConverters = null)
+        public DigitTokenParserComponent(Dictionary<string, ConvertDelegate>? postfixToConverters = null)
         {
             if (postfixToConverters == null)
             {
@@ -56,7 +54,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Implementation of interfaces
 
-        public IExpressionNode? TryParse(ITokenExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
+        public IExpressionNode? TryParse(TokenExpressionParserComponent.ITokenExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
         {
             if (expression != null)
                 return null;
@@ -159,9 +157,9 @@ namespace MugenMvvm.Binding.Parsing.Components
                         if (ulong.TryParse(value, out var result))
                         {
                             if (result <= int.MaxValue)
-                                return new ConstantExpressionNode((int)result, typeof(int));
+                                return new ConstantExpressionNode((int) result, typeof(int));
                             if (result <= long.MaxValue)
-                                return new ConstantExpressionNode((long)result, typeof(long));
+                                return new ConstantExpressionNode((long) result, typeof(long));
                             return new ConstantExpressionNode(result, typeof(ulong));
                         }
 

@@ -1,6 +1,4 @@
 ﻿using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Interfaces.Parsing;
-using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
@@ -8,7 +6,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
 {
-    public sealed class IndexerExpressionParserComponent : IExpressionParserComponent<ITokenExpressionParserContext>, IHasPriority
+    public sealed class IndexerTokenParserComponent : TokenExpressionParserComponent.ITokenExpressionParser, IHasPriority
     {
         #region Properties
 
@@ -18,7 +16,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Implementation of interfaces
 
-        public IExpressionNode? TryParse(ITokenExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
+        public IExpressionNode? TryParse(TokenExpressionParserComponent.ITokenExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
         {
             var p = context.Position;
             var node = TryParseInternal(context, expression, metadata);
@@ -31,7 +29,8 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Methods
 
-        private static IExpressionNode? TryParseInternal(ITokenExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
+        private static IExpressionNode? TryParseInternal(TokenExpressionParserComponent.ITokenExpressionParserContext context, IExpressionNode? expression,
+            IReadOnlyMetadataContext? metadata)
         {
             if (!context.SkipWhitespaces().IsToken('['))
                 return null;

@@ -1,6 +1,8 @@
-﻿using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+﻿using System.Collections.Generic;
+using MugenMvvm.Binding.Parsing;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Interfaces.Parsing.Components
 {
@@ -8,8 +10,8 @@ namespace MugenMvvm.Binding.Interfaces.Parsing.Components
     {
     }
 
-    public interface IExpressionParserComponent<in TContext> : IExpressionParserComponent where TContext : class, ITokenExpressionParserContext
+    public interface IExpressionParserComponent<TExpression> : IExpressionParserComponent
     {
-        IExpressionNode? TryParse(TContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata);
+        ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> TryParse(in TExpression expression, IReadOnlyMetadataContext? metadata);
     }
 }

@@ -19,7 +19,7 @@ namespace MugenMvvm.Binding.Members
         #region Fields
 
         protected readonly HashSet<string> CurrentNames;
-        protected readonly TempCacheDictionary<IBindingMemberInfo> TempCache;
+        protected readonly TempCacheDictionary<IBindingMemberInfo?> TempCache;
         protected readonly TempCacheDictionary<IReadOnlyList<IBindingMethodInfo>> TempMethodsCache;
 
         protected IMemberProviderComponent[] MemberProviders;
@@ -35,7 +35,7 @@ namespace MugenMvvm.Binding.Members
         {
             MemberProviders = Default.EmptyArray<IMemberProviderComponent>();
             MethodProviders = Default.EmptyArray<IMethodProviderComponent>();
-            TempCache = new TempCacheDictionary<IBindingMemberInfo>();
+            TempCache = new TempCacheDictionary<IBindingMemberInfo?>();
             TempMethodsCache = new TempCacheDictionary<IReadOnlyList<IBindingMethodInfo>>();
             CurrentNames = new HashSet<string>(StringComparer.Ordinal);
         }
@@ -165,7 +165,7 @@ namespace MugenMvvm.Binding.Members
                 }
             }
 
-            TempMethodsCache[cacheKey] = (IReadOnlyList<IBindingMethodInfo>)methods ?? Default.EmptyArray<IBindingMethodInfo>();
+            TempMethodsCache[cacheKey] = (IReadOnlyList<IBindingMethodInfo>?)methods ?? Default.EmptyArray<IBindingMethodInfo>();
             return result;
         }
 
@@ -173,7 +173,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Nested types
 
-        protected sealed class TempCacheDictionary<TItem> : LightDictionaryBase<CacheKey, TItem?> where TItem : class
+        protected sealed class TempCacheDictionary<TItem> : LightDictionaryBase<CacheKey, TItem> where TItem : class?
         {
             #region Constructors
 

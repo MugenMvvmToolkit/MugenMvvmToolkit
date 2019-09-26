@@ -291,8 +291,8 @@ namespace MugenMvvm.Binding.Members.Components
             private readonly MemberObserver _observer;
             private readonly PropertyInfo _propertyInfo;
 
-            private Func<object?, object?>? _getterFunc;
-            private Action<object?, object?>? _setterFunc;
+            private Func<object?, object?> _getterFunc;
+            private Action<object?, object?> _setterFunc;
 
             #endregion
 
@@ -359,7 +359,7 @@ namespace MugenMvvm.Binding.Members.Components
 
             public object? GetValue(object? source, IReadOnlyMetadataContext? metadata = null)
             {
-                return _getterFunc!(source);
+                return _getterFunc(source);
             }
 
             public void SetValue(object? source, object? value, IReadOnlyMetadataContext? metadata = null)
@@ -371,15 +371,15 @@ namespace MugenMvvm.Binding.Members.Components
 
             #region Methods
 
-            private void MustBeWritable(object _, object __)
+            private void MustBeWritable(object? _, object? __)
             {
                 BindingExceptionManager.ThrowBindingMemberMustBeWritable(this);
             }
 
-            private object MustBeReadable(object _)
+            private object MustBeReadable(object? _)
             {
                 BindingExceptionManager.ThrowBindingMemberMustBeReadable(this);
-                return null;
+                return null!;
             }
 
             private void CompileSetter(object? arg1, object? arg2)
@@ -407,8 +407,8 @@ namespace MugenMvvm.Binding.Members.Components
             private readonly MemberObserver _observer;
             private readonly PropertyInfo _propertyInfo;
 
-            private Func<object?, object?[], object?>? _getterIndexerFunc;
-            private Func<object?, object?[], object?>? _setterIndexerFunc;
+            private Func<object?, object?[], object?> _getterIndexerFunc;
+            private Func<object?, object?[], object?> _setterIndexerFunc;
 
             #endregion
 
@@ -485,20 +485,20 @@ namespace MugenMvvm.Binding.Members.Components
                 var args = new object?[_indexerValues!.Length + 1];
                 Array.Copy(_indexerValues, args, _indexerValues.Length);
                 args[_indexerValues.Length] = value;
-                _setterIndexerFunc!(source, args);
+                _setterIndexerFunc(source, args);
             }
 
             #endregion
 
             #region Methods
 
-            private object? MustBeWritable(object _, object __)
+            private object? MustBeWritable(object? _, object? __)
             {
                 BindingExceptionManager.ThrowBindingMemberMustBeWritable(this);
                 return null;
             }
 
-            private object MustBeReadable(object? _, object?[] __)
+            private object? MustBeReadable(object? _, object?[] __)
             {
                 BindingExceptionManager.ThrowBindingMemberMustBeReadable(this);
                 return null;

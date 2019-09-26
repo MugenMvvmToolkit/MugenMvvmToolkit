@@ -12,7 +12,7 @@ namespace MugenMvvm.Binding.Parsing
         #region Fields
 
         public readonly IReadOnlyMetadataContext Metadata;
-        public readonly ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>> Parameters;
+        public readonly ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> Parameters;
         public readonly IExpressionNode? Source;
         public readonly IExpressionNode Target;
 
@@ -20,7 +20,7 @@ namespace MugenMvvm.Binding.Parsing
 
         #region Constructors
 
-        public ExpressionParserResult(IExpressionNode target, IExpressionNode? source, ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>> parameters,
+        public ExpressionParserResult(IExpressionNode target, IExpressionNode? source, ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> parameters,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(target, nameof(target));
@@ -30,7 +30,7 @@ namespace MugenMvvm.Binding.Parsing
             Metadata = metadata ?? Default.Metadata;
         }
 
-        public ExpressionParserResult(IExpressionNode target, IExpressionNode? source, ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>> parameters,
+        public ExpressionParserResult(IExpressionNode target, IExpressionNode? source, ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> parameters,
             IMetadataOwner<IReadOnlyMetadataContext> context)
             : this(target, source, parameters, context.HasMetadata ? context.Metadata : Default.Metadata)
         {

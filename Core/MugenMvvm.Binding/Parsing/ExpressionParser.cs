@@ -13,7 +13,7 @@ namespace MugenMvvm.Binding.Parsing
     {
         #region Fields
 
-        private IExpressionParserContextProviderComponent[] _contextProviders;
+        private IExpressionParserComponent[] _parsers;
 
         #endregion
 
@@ -22,7 +22,7 @@ namespace MugenMvvm.Binding.Parsing
         public ExpressionParser(IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
             : base(componentCollectionProvider)
         {
-            _contextProviders = Default.EmptyArray<IExpressionParserContextProviderComponent>();
+            _parsers = Default.EmptyArray<IExpressionParserComponent>();
         }
 
         #endregion
@@ -32,60 +32,29 @@ namespace MugenMvvm.Binding.Parsing
         void IComponentOwnerAddedCallback<IComponent<IExpressionParser>>.OnComponentAdded(IComponentCollection<IComponent<IExpressionParser>> collection,
             IComponent<IExpressionParser> component, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnAdded(ref _contextProviders, this, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnAdded(ref _parsers, this, collection, component, metadata);
         }
 
         void IComponentOwnerRemovedCallback<IComponent<IExpressionParser>>.OnComponentRemoved(IComponentCollection<IComponent<IExpressionParser>> collection,
             IComponent<IExpressionParser> component, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnRemoved(ref _contextProviders, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnRemoved(ref _parsers, collection, component, metadata);
         }
 
-        public ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> Parse<TExpression>(in TExpression expression, IReadOnlyMetadataContext metadata)
+        public ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> Parse<TExpression>(in TExpression expression, IReadOnlyMetadataContext? metadata = null)
         {
-            ExpressionParserResult itemResult = default;
-            List<ExpressionParserResult>? result = null;
-            var context = GetParserContext(expression, metadata);
-            while (true)
+            for (var i = 0; i < _parsers.Length; i++)
             {
-                var r = context.TryParseNext(metadata);
-                if (r.IsEmpty)
-                    break;
-                if (itemResult.IsEmpty)
-                    itemResult = r;
-                else
-                {
-                    if (result == null)
-                        result = new List<ExpressionParserResult> { itemResult };
-                    result.Add(r);
-                }
+                var component = _parsers[i] as IExpressionParserComponent<TExpression>;
+                if (component == null)
+                    continue;
+                var result = component.TryParse(expression, metadata);
+                if (!result.Item.IsEmpty || result.IsList)
+                    return result;
             }
 
-            if (result == null)
-            {
-                if (itemResult.IsEmpty)
-                    BindingExceptionManager.CannotParseExpression(context);
-                return itemResult;
-            }
-
-            return result;
-        }
-
-        #endregion
-
-        #region Methods
-
-        private IExpressionParserContext GetParserContext<TExpression>(in TExpression expression, IReadOnlyMetadataContext? metadata)
-        {
-            for (var i = 0; i < _contextProviders.Length; i++)
-            {
-                var context = (_contextProviders[i] as IExpressionParserContextProviderComponent<TExpression>)?.TryGetParserContext(expression, metadata);
-                if (context != null)
-                    return context;
-            }
-
-            ExceptionManager.ThrowObjectNotInitialized(this, typeof(IExpressionParserContextProviderComponent<TExpression>).Name);
-            return null;
+            BindingExceptionManager.CannotParseExpression(expression);
+            return default;
         }
 
         #endregion

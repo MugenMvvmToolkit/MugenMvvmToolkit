@@ -7,7 +7,7 @@ namespace MugenMvvm.Binding.Metadata
     {
         #region Fields
 
-        private static IMetadataContextKey<bool> _ignoreAttachedMembers;
+        private static IMetadataContextKey<bool>? _ignoreAttachedMembers;
 
         #endregion
 

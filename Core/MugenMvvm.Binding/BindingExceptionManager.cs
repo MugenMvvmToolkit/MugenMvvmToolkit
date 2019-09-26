@@ -1,6 +1,5 @@
 ﻿using System;
 using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using static MugenMvvm.Binding.Constants.BindingMessageConstants;
 
@@ -30,9 +29,9 @@ namespace MugenMvvm.Binding
             throw new InvalidOperationException(UnexpectedExpressionTyperFormat3.Format(node.NodeType, type.Name, node));
         }
 
-        public static void CannotParseExpression(IExpressionParserContext context)
+        public static void CannotParseExpression<T>(in T expression)
         {
-            throw new InvalidOperationException(CannotParseExpressionFormat1.Format(context));
+            throw new InvalidOperationException(CannotParseExpressionFormat1.Format(expression));
         }
 
         public static void DuplicateLambdaParameter(string parameterName)

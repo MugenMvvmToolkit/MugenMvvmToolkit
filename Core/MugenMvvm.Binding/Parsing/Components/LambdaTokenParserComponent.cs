@@ -1,7 +1,5 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Interfaces.Parsing;
-using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
@@ -9,7 +7,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
 {
-    public sealed class LambdaExpressionParserComponent : IExpressionParserComponent<ITokenExpressionParserContext>, IHasPriority
+    public sealed class LambdaTokenParserComponent : TokenExpressionParserComponent.ITokenExpressionParser, IHasPriority
     {
         #region Fields
 
@@ -19,7 +17,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Constructors
 
-        public LambdaExpressionParserComponent()
+        public LambdaTokenParserComponent()
         {
             _currentParameters = new Dictionary<string, IParameterExpression>();
         }
@@ -34,7 +32,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Implementation of interfaces
 
-        public IExpressionNode? TryParse(ITokenExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
+        public IExpressionNode? TryParse(TokenExpressionParserComponent.ITokenExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
         {
             var p = context.Position;
             var node = TryParseInternal(context, expression, metadata);
@@ -47,7 +45,8 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Methods
 
-        private IExpressionNode? TryParseInternal(ITokenExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
+        private IExpressionNode? TryParseInternal(TokenExpressionParserComponent.ITokenExpressionParserContext context, IExpressionNode? expression,
+            IReadOnlyMetadataContext? metadata)
         {
             if (expression != null)
                 return null;
@@ -78,7 +77,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 if (stringArgs == null)
                     return null;
 
-                args = stringArgs.ToArray(s => (IParameterExpression)new ParameterExpression(s));
+                args = stringArgs.ToArray(s => (IParameterExpression) new ParameterExpression(s));
             }
 
 
@@ -87,7 +86,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
             try
             {
-                for (int i = 0; i < args.Length; i++)
+                for (var i = 0; i < args.Length; i++)
                 {
                     var parameter = args[i];
                     if (_currentParameters.ContainsKey(parameter.Name))
@@ -103,7 +102,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             }
             finally
             {
-                for (int i = 0; i < args.Length; i++)
+                for (var i = 0; i < args.Length; i++)
                     _currentParameters.Remove(args[i].Name);
             }
         }

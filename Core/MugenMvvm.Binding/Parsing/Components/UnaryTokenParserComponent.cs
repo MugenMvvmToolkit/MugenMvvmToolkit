@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Parsing;
-using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
@@ -10,7 +8,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
 {
-    public sealed class UnaryExpressionParserComponent : IExpressionParserComponent<ITokenExpressionParserContext>, IHasPriority
+    public sealed class UnaryTokenParserComponent : TokenExpressionParserComponent.ITokenExpressionParser, IHasPriority
     {
         #region Fields
 
@@ -20,7 +18,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Constructors
 
-        public UnaryExpressionParserComponent(IDictionary<char, UnaryTokenType[]>? mapping = null)
+        public UnaryTokenParserComponent(IDictionary<char, UnaryTokenType[]>? mapping = null)
         {
             if (mapping == null)
             {
@@ -46,7 +44,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Implementation of interfaces
 
-        public IExpressionNode? TryParse(ITokenExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
+        public IExpressionNode? TryParse(TokenExpressionParserComponent.ITokenExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
         {
             if (expression != null)
                 return null;

@@ -39,7 +39,7 @@ namespace MugenMvvm.Binding.Members.Components
             return result;
         }
 
-        public IReadOnlyList<IBindingMethodInfo> TryGetMethods(Type type, string name, IReadOnlyMetadataContext metadata)
+        public IReadOnlyList<IBindingMethodInfo> TryGetMethods(Type type, string name, IReadOnlyMetadataContext? metadata)
         {
             _methodsCache.TryGetValue(new CacheKey(type, name), out var result);
             return (IReadOnlyList<IBindingMethodInfo>) result ?? Default.EmptyArray<IBindingMethodInfo>();

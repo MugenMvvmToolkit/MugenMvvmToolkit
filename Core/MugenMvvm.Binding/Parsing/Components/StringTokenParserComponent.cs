@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Interfaces.Parsing;
-using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
@@ -14,7 +12,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 {
     //https://devblogs.microsoft.com/csharpfaq/what-character-escape-sequences-are-available/
     //note doesn't support unicode escape sequence
-    public sealed class StringExpressionParserComponent : IExpressionParserComponent<ITokenExpressionParserContext>, IHasPriority
+    public sealed class StringTokenParserComponent : TokenExpressionParserComponent.ITokenExpressionParser, IHasPriority
     {
         #region Fields
 
@@ -29,7 +27,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Constructors
 
-        public StringExpressionParserComponent(IReadOnlyList<string>? quoteTokens = null, Dictionary<char, char>? escapeSequenceMap = null)
+        public StringTokenParserComponent(IReadOnlyList<string>? quoteTokens = null, Dictionary<char, char>? escapeSequenceMap = null)
         {
             if (quoteTokens == null)
             {
@@ -72,7 +70,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Implementation of interfaces
 
-        public IExpressionNode? TryParse(ITokenExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
+        public IExpressionNode? TryParse(TokenExpressionParserComponent.ITokenExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
         {
             var p = context.Position;
             var node = TryParseInternal(context, expression, metadata);
@@ -85,7 +83,8 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Methods
 
-        private IExpressionNode? TryParseInternal(ITokenExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
+        private IExpressionNode? TryParseInternal(TokenExpressionParserComponent.ITokenExpressionParserContext context, IExpressionNode? expression,
+            IReadOnlyMetadataContext? metadata)
         {
             if (expression != null)
                 return null;
@@ -111,7 +110,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             {
                 if (!isVerbatim && context.IsToken('\\'))
                 {
-                    int prevEnd = context.Position;
+                    var prevEnd = context.Position;
                     context.MoveNext();
                     char result;
                     var token = GetQuoteToken(context);
@@ -136,7 +135,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
                 if (isInterpolated && context.IsToken('{'))
                 {
-                    int intStart = context.Position;
+                    var intStart = context.Position;
                     if (context.MoveNext().IsToken('{'))
                     {
                         InitializeBuilder(context, start, context.Position, ref builder);
@@ -214,14 +213,14 @@ namespace MugenMvvm.Binding.Parsing.Components
             return new MethodCallExpressionNode(StringType, "Format", args);
         }
 
-        private static void InitializeBuilder(ITokenExpressionParserContext context, int start, int end, ref StringBuilder? builder)
+        private static void InitializeBuilder(TokenExpressionParserComponent.ITokenExpressionParserContext context, int start, int end, ref StringBuilder? builder)
         {
             if (builder != null)
                 return;
             builder = new StringBuilder(context.GetValue(start, end));
         }
 
-        private string? GetQuoteToken(ITokenExpressionParserContext context)
+        private string? GetQuoteToken(TokenExpressionParserComponent.ITokenExpressionParserContext context)
         {
             if (context.IsEof())
                 return null;
