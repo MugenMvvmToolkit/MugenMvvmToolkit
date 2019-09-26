@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Components;
-using MugenMvvm.Interfaces.Metadata;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm.Binding
@@ -152,23 +151,21 @@ namespace MugenMvvm.Binding
             return new PositionState(context);
         }
 
-        public static IExpressionNode Parse(this TokenExpressionParserComponent.IContext context, IExpressionNode? expression = null,
-            IReadOnlyMetadataContext? metadata = null)
+        public static IExpressionNode Parse(this TokenExpressionParserComponent.IContext context, IExpressionNode? expression = null)
         {
             Should.NotBeNull(context, nameof(context));
-            var node = context.TryParse(expression, metadata);
+            var node = context.TryParse(expression);
             if (node == null)
                 BindingExceptionManager.CannotParseExpression(context);
             return node!;
         }
 
-        public static IExpressionNode? TryParseWhileNotNull(this TokenExpressionParserComponent.IContext context, IExpressionNode? expression = null,
-            IReadOnlyMetadataContext? metadata = null)
+        public static IExpressionNode? TryParseWhileNotNull(this TokenExpressionParserComponent.IContext context, IExpressionNode? expression = null)
         {
             Should.NotBeNull(context, nameof(context));
             while (true)
             {
-                var node = context.TryParse(expression, metadata);
+                var node = context.TryParse(expression);
                 if (node == null)
                     return expression;
                 expression = node;
@@ -176,42 +173,38 @@ namespace MugenMvvm.Binding
         }
 
         public static IExpressionNode ParseWhileToken(this TokenExpressionParserComponent.IContext context, char token, int? position = null,
-            IExpressionNode? expression = null,
-            IReadOnlyMetadataContext? metadata = null)
+            IExpressionNode? expression = null)
         {
-            var expressionNode = context.Parse(expression, metadata);
+            var expressionNode = context.Parse(expression);
             while (!context.IsToken(token, position) && !context.IsEof(position))
-                expressionNode = context.Parse(expressionNode, metadata);
+                expressionNode = context.Parse(expressionNode);
             return expressionNode;
         }
 
         public static IExpressionNode ParseWhileAnyOf(this TokenExpressionParserComponent.IContext context, HashSet<char> tokens, int? position = null,
-            IExpressionNode? expression = null,
-            IReadOnlyMetadataContext? metadata = null)
+            IExpressionNode? expression = null)
         {
-            var expressionNode = context.Parse(expression, metadata);
+            var expressionNode = context.Parse(expression);
             while (!context.IsEofOrAnyOf(tokens, position))
-                expressionNode = context.Parse(expressionNode, metadata);
+                expressionNode = context.Parse(expressionNode);
             return expressionNode;
         }
 
         public static IExpressionNode ParseWhileAnyOf(this TokenExpressionParserComponent.IContext context, IReadOnlyList<string> tokens, int? position = null,
-            IExpressionNode? expression = null,
-            IReadOnlyMetadataContext? metadata = null)
+            IExpressionNode? expression = null)
         {
-            var expressionNode = context.Parse(expression, metadata);
+            var expressionNode = context.Parse(expression);
             while (!context.IsEofOrAnyOf(tokens, position))
-                expressionNode = context.Parse(expressionNode, metadata);
+                expressionNode = context.Parse(expressionNode);
             return expressionNode;
         }
 
-        public static List<IExpressionNode>? ParseArguments(this TokenExpressionParserComponent.IContext context, string endSymbol,
-            IReadOnlyMetadataContext? metadata = null)
+        public static List<IExpressionNode>? ParseArguments(this TokenExpressionParserComponent.IContext context, string endSymbol)
         {
             List<IExpressionNode>? args = null;
             while (true)
             {
-                var node = context.TryParseWhileNotNull(null, metadata);
+                var node = context.TryParseWhileNotNull();
                 if (node != null)
                 {
                     if (args == null)

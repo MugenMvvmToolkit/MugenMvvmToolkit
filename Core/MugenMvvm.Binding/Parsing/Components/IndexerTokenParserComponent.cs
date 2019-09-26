@@ -1,7 +1,6 @@
 ﻿using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
-using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
@@ -16,10 +15,10 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Implementation of interfaces
 
-        public IExpressionNode? TryParse(TokenExpressionParserComponent.IContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
+        public IExpressionNode? TryParse(TokenExpressionParserComponent.IContext context, IExpressionNode? expression)
         {
             var p = context.Position;
-            var node = TryParseInternal(context, expression, metadata);
+            var node = TryParseInternal(context, expression);
             if (node == null)
                 context.SetPosition(p);
             return node;
@@ -29,8 +28,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Methods
 
-        private static IExpressionNode? TryParseInternal(TokenExpressionParserComponent.IContext context, IExpressionNode? expression,
-            IReadOnlyMetadataContext? metadata)
+        private static IExpressionNode? TryParseInternal(TokenExpressionParserComponent.IContext context, IExpressionNode? expression)
         {
             if (!context.SkipWhitespaces().IsToken('['))
                 return null;
@@ -38,7 +36,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             var args = context
                 .MoveNext()
                 .SkipWhitespaces()
-                .ParseArguments("]", metadata);
+                .ParseArguments("]");
             if (args == null)
                 return null;
             return new IndexExpressionNode(expression, args);

@@ -3,7 +3,6 @@ using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
-using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
@@ -60,10 +59,10 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Implementation of interfaces
 
-        public IExpressionNode? TryParse(TokenExpressionParserComponent.IContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
+        public IExpressionNode? TryParse(TokenExpressionParserComponent.IContext context, IExpressionNode? expression)
         {
             var p = context.Position;
-            var node = TryParseInternal(context, expression, metadata);
+            var node = TryParseInternal(context, expression);
             if (node == null)
                 context.SetPosition(p);
             return node;
@@ -73,8 +72,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Methods
 
-        private IExpressionNode? TryParseInternal(TokenExpressionParserComponent.IContext context, IExpressionNode? expression,
-            IReadOnlyMetadataContext? metadata)
+        private IExpressionNode? TryParseInternal(TokenExpressionParserComponent.IContext context, IExpressionNode? expression)
         {
             if (expression == null)
                 return null;
@@ -90,7 +88,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             while (true)
             {
                 context.SkipWhitespaces();
-                var newNode = context.IsToken('?') && !context.IsToken("??") ? null : context.TryParse(expression, metadata);
+                var newNode = context.IsToken('?') && !context.IsToken("??") ? null : context.TryParse(expression);
                 if (newNode == null)
                 {
                     if (expression != null)

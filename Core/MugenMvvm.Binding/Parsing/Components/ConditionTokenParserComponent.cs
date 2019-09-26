@@ -1,7 +1,6 @@
 ﻿using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
-using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
@@ -16,10 +15,10 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Implementation of interfaces
 
-        public IExpressionNode? TryParse(TokenExpressionParserComponent.IContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
+        public IExpressionNode? TryParse(TokenExpressionParserComponent.IContext context, IExpressionNode? expression)
         {
             var p = context.Position;
-            var node = TryParseInternal(context, expression, metadata);
+            var node = TryParseInternal(context, expression);
             if (node == null)
                 context.SetPosition(p);
             return node;
@@ -29,17 +28,16 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Methods
 
-        private static IExpressionNode? TryParseInternal(TokenExpressionParserComponent.IContext context, IExpressionNode? expression,
-            IReadOnlyMetadataContext? metadata)
+        private static IExpressionNode? TryParseInternal(TokenExpressionParserComponent.IContext context, IExpressionNode? expression)
         {
             if (expression == null || !context.SkipWhitespaces().IsToken('?'))
                 return null;
 
-            var ifTrue = context.MoveNext().TryParseWhileNotNull(null, metadata);
+            var ifTrue = context.MoveNext().TryParseWhileNotNull();
             if (ifTrue == null || !context.SkipWhitespaces().IsToken(':'))
                 return null;
 
-            var ifFalse = context.MoveNext().TryParseWhileNotNull(null, metadata);
+            var ifFalse = context.MoveNext().TryParseWhileNotNull();
             if (ifFalse == null)
                 return null;
 

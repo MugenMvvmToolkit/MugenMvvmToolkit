@@ -3,7 +3,6 @@ using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
-using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
@@ -44,7 +43,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Implementation of interfaces
 
-        public IExpressionNode? TryParse(TokenExpressionParserComponent.IContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
+        public IExpressionNode? TryParse(TokenExpressionParserComponent.IContext context, IExpressionNode? expression)
         {
             if (expression != null)
                 return null;
@@ -59,7 +58,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 if (context.IsToken(value.Value, position))
                 {
                     context.SetPosition(position + value.Value.Length);
-                    return new UnaryExpressionNode(value, context.Parse(null, metadata));
+                    return new UnaryExpressionNode(value, context.Parse());
                 }
             }
 

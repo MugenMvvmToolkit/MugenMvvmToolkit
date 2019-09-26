@@ -145,12 +145,12 @@ namespace MugenMvvm.Binding.Parsing.Components
 
             void SetLimit(int? limit);
 
-            IExpressionNode? TryParse(IExpressionNode? expression = null, IReadOnlyMetadataContext? metadata = null);
+            IExpressionNode? TryParse(IExpressionNode? expression = null);
         }
 
         public interface IParser : IComponent<IExpressionParser>
         {
-            IExpressionNode? TryParse(IContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata);
+            IExpressionNode? TryParse(IContext context, IExpressionNode? expression);
         }
 
         private sealed class TokenParserContext : IContext
@@ -212,12 +212,12 @@ namespace MugenMvvm.Binding.Parsing.Components
                 Position = position;
             }
 
-            public IExpressionNode? TryParse(IExpressionNode? expression = null, IReadOnlyMetadataContext? metadata = null)
+            public IExpressionNode? TryParse(IExpressionNode? expression = null)
             {
                 var components = _provider._componentTracker.GetComponents();
                 for (var i = 0; i < components.Length; i++)
                 {
-                    var result = components[i].TryParse(this, expression, metadata);
+                    var result = components[i].TryParse(this, expression);
                     if (result != null)
                         return result;
                 }
