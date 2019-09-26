@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
 {
-    public sealed class ConstantTokenParserComponent : TokenExpressionParserComponent.ITokenExpressionParser, IHasPriority
+    public sealed class ConstantTokenParserComponent : TokenExpressionParserComponent.IParser, IHasPriority
     {
         #region Fields
 
@@ -42,7 +42,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Implementation of interfaces
 
-        public IExpressionNode? TryParse(TokenExpressionParserComponent.ITokenExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
+        public IExpressionNode? TryParse(TokenExpressionParserComponent.IContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
         {
             if (expression != null)
                 return null;

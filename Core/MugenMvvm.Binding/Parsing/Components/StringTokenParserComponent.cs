@@ -12,7 +12,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 {
     //https://devblogs.microsoft.com/csharpfaq/what-character-escape-sequences-are-available/
     //note doesn't support unicode escape sequence
-    public sealed class StringTokenParserComponent : TokenExpressionParserComponent.ITokenExpressionParser, IHasPriority
+    public sealed class StringTokenParserComponent : TokenExpressionParserComponent.IParser, IHasPriority
     {
         #region Fields
 
@@ -70,7 +70,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Implementation of interfaces
 
-        public IExpressionNode? TryParse(TokenExpressionParserComponent.ITokenExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
+        public IExpressionNode? TryParse(TokenExpressionParserComponent.IContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
         {
             var p = context.Position;
             var node = TryParseInternal(context, expression, metadata);
@@ -83,7 +83,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Methods
 
-        private IExpressionNode? TryParseInternal(TokenExpressionParserComponent.ITokenExpressionParserContext context, IExpressionNode? expression,
+        private IExpressionNode? TryParseInternal(TokenExpressionParserComponent.IContext context, IExpressionNode? expression,
             IReadOnlyMetadataContext? metadata)
         {
             if (expression != null)
@@ -213,14 +213,14 @@ namespace MugenMvvm.Binding.Parsing.Components
             return new MethodCallExpressionNode(StringType, "Format", args);
         }
 
-        private static void InitializeBuilder(TokenExpressionParserComponent.ITokenExpressionParserContext context, int start, int end, ref StringBuilder? builder)
+        private static void InitializeBuilder(TokenExpressionParserComponent.IContext context, int start, int end, ref StringBuilder? builder)
         {
             if (builder != null)
                 return;
             builder = new StringBuilder(context.GetValue(start, end));
         }
 
-        private string? GetQuoteToken(TokenExpressionParserComponent.ITokenExpressionParserContext context)
+        private string? GetQuoteToken(TokenExpressionParserComponent.IContext context)
         {
             if (context.IsEof())
                 return null;

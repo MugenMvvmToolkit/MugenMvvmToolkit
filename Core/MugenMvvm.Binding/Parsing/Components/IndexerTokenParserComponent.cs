@@ -6,7 +6,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
 {
-    public sealed class IndexerTokenParserComponent : TokenExpressionParserComponent.ITokenExpressionParser, IHasPriority
+    public sealed class IndexerTokenParserComponent : TokenExpressionParserComponent.IParser, IHasPriority
     {
         #region Properties
 
@@ -16,7 +16,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Implementation of interfaces
 
-        public IExpressionNode? TryParse(TokenExpressionParserComponent.ITokenExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
+        public IExpressionNode? TryParse(TokenExpressionParserComponent.IContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata)
         {
             var p = context.Position;
             var node = TryParseInternal(context, expression, metadata);
@@ -29,7 +29,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Methods
 
-        private static IExpressionNode? TryParseInternal(TokenExpressionParserComponent.ITokenExpressionParserContext context, IExpressionNode? expression,
+        private static IExpressionNode? TryParseInternal(TokenExpressionParserComponent.IContext context, IExpressionNode? expression,
             IReadOnlyMetadataContext? metadata)
         {
             if (!context.SkipWhitespaces().IsToken('['))

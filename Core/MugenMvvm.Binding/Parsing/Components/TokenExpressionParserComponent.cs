@@ -15,9 +15,9 @@ namespace MugenMvvm.Binding.Parsing.Components
     {
         #region Fields
 
-        private readonly ComponentTracker<ITokenExpressionParser, IExpressionParser> _componentTracker;
+        private readonly ComponentTracker<IParser, IExpressionParser> _componentTracker;
         private readonly IMetadataContextProvider? _metadataContextProvider;
-        private readonly StringExpressionParserContext _parserContext;
+        private readonly TokenParserContext _parserContext;
 
         public static readonly HashSet<char> TargetDelimiters = new HashSet<char> { ',', ';', ' ' };
         public static readonly HashSet<char> Delimiters = new HashSet<char> { ',', ';' };
@@ -29,8 +29,8 @@ namespace MugenMvvm.Binding.Parsing.Components
         public TokenExpressionParserComponent(IMetadataContextProvider? metadataContextProvider = null)
         {
             _metadataContextProvider = metadataContextProvider;
-            _parserContext = new StringExpressionParserContext(this);
-            _componentTracker = new ComponentTracker<ITokenExpressionParser, IExpressionParser>();
+            _parserContext = new TokenParserContext(this);
+            _componentTracker = new ComponentTracker<IParser, IExpressionParser>();
         }
 
         #endregion
@@ -63,7 +63,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             return ParseInternal(_parserContext);
         }
 
-        protected ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> ParseInternal(ITokenExpressionParserContext context)
+        protected ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> ParseInternal(IContext context)
         {
             ExpressionParserResult itemResult = default;
             List<ExpressionParserResult>? result = null;
@@ -87,7 +87,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             return result;
         }
 
-        private ExpressionParserResult TryParseNext(ITokenExpressionParserContext context)
+        private ExpressionParserResult TryParseNext(IContext context)
         {
             var delimiterPos = context.SkipWhitespaces().FindAnyOf(TargetDelimiters);
             var length = context.Length;
@@ -131,7 +131,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Nested types
 
-        public interface ITokenExpressionParserContext : IMetadataOwner<IMetadataContext>
+        public interface IContext : IMetadataOwner<IMetadataContext>
         {
             int Position { get; }
 
@@ -148,12 +148,12 @@ namespace MugenMvvm.Binding.Parsing.Components
             IExpressionNode? TryParse(IExpressionNode? expression = null, IReadOnlyMetadataContext? metadata = null);
         }
 
-        public interface ITokenExpressionParser : IComponent<IExpressionParser>
+        public interface IParser : IComponent<IExpressionParser>
         {
-            IExpressionNode? TryParse(ITokenExpressionParserContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata);
+            IExpressionNode? TryParse(IContext context, IExpressionNode? expression, IReadOnlyMetadataContext? metadata);
         }
 
-        private sealed class StringExpressionParserContext : ITokenExpressionParserContext
+        private sealed class TokenParserContext : IContext
         {
             #region Fields
 
@@ -165,7 +165,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
             #region Constructors
 
-            public StringExpressionParserContext(TokenExpressionParserComponent provider)
+            public TokenParserContext(TokenExpressionParserComponent provider)
             {
                 _source = string.Empty;
                 _provider = provider;
