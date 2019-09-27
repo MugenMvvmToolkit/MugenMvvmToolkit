@@ -156,7 +156,7 @@ namespace MugenMvvm.Binding
             Should.NotBeNull(context, nameof(context));
             var node = context.TryParse(expression);
             if (node == null)
-                BindingExceptionManager.CannotParseExpression(context);
+                BindingExceptionManager.ThrowCannotParseExpression(context);
             return node!;
         }
 

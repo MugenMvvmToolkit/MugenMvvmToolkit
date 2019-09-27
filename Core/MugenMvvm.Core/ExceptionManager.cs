@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using MugenMvvm.Interfaces.Metadata;
 using static MugenMvvm.Constants.MessageConstants;
 
@@ -119,9 +120,14 @@ namespace MugenMvvm
             throw new NotSupportedException(msg);
         }
 
-        public static void DuplicateKey()
+        public static void ThrowDuplicateKey()
         {
             throw new ArgumentException(DuplicateKeyException);
+        }
+
+        public static void ThrowKeyNotFound()
+        {
+            throw new KeyNotFoundException();
         }
 
         #endregion

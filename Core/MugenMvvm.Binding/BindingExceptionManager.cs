@@ -24,27 +24,27 @@ namespace MugenMvvm.Binding
             throw new InvalidOperationException(string.Format(InvalidBindingMemberFormat2, path, sourceType));
         }
 
-        public static void UnexpectedExpressionNode(IExpressionNode node, Type type)
+        public static void ThrowUnexpectedExpressionNode(IExpressionNode node, Type type)
         {
             throw new InvalidOperationException(UnexpectedExpressionTyperFormat3.Format(node.NodeType, type.Name, node));
         }
 
-        public static void CannotParseExpression<T>(in T expression)
+        public static void ThrowCannotParseExpression<T>(in T expression)
         {
             throw new InvalidOperationException(CannotParseExpressionFormat1.Format(expression));
         }
 
-        public static void CannotCompileExpression(IExpressionNode expression)
+        public static void ThrowCannotCompileExpression(IExpressionNode expression)
         {
             throw new InvalidOperationException(CannotCompileExpressionFormat1.Format(expression));
         }
 
-        public static void DuplicateLambdaParameter(string parameterName)
+        public static void ThrowDuplicateLambdaParameter(string parameterName)
         {
             throw new InvalidOperationException(DuplicateLambdaParameterFormat1.Format(parameterName));
         }
 
-        public static void ExpressionNodeCannotBeNull(Type ownerType)
+        public static void ThrowExpressionNodeCannotBeNull(Type ownerType)
         {
             throw new InvalidOperationException(ExpressionNodeCannotBeNullFormat1.Format(ownerType));
         }

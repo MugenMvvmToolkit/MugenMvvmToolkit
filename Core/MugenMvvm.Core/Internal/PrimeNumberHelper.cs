@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Internal
 {
-    internal static class PrimeNumberHelper
+    public static class PrimeNumberHelper
     {
         #region Fields
 
@@ -21,7 +21,7 @@ namespace MugenMvvm.Internal
 
         #region Methods
 
-        internal static int ExpandPrime(int oldSize)
+        public static int ExpandPrime(int oldSize)
         {
             var min = 2 * oldSize;
             if (min > MaxPrime && MaxPrime > oldSize)
@@ -29,7 +29,7 @@ namespace MugenMvvm.Internal
             return GetPrime(min);
         }
 
-        internal static bool IsPrime(int candidate)
+        public static bool IsPrime(int candidate)
         {
             if ((candidate & 1) != 0)
             {
@@ -46,7 +46,7 @@ namespace MugenMvvm.Internal
             return candidate == 2;
         }
 
-        internal static int GetPrime(int min)
+        public static int GetPrime(int min)
         {
             for (var i = 0; i < Primes.Length; i++)
             {

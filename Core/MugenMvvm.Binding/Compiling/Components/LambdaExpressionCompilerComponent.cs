@@ -107,7 +107,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                         return compile;
                 }
 
-                BindingExceptionManager.CannotCompileExpression(expression);
+                BindingExceptionManager.ThrowCannotCompileExpression(expression);
                 return null!;
             }
 

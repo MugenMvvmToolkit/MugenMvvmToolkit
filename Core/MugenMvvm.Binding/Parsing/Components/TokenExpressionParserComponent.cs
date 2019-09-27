@@ -123,7 +123,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 return new ExpressionParserResult(target, source, parameters ?? new ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>>(parameter), context);
             }
 
-            BindingExceptionManager.CannotParseExpression(this);
+            BindingExceptionManager.ThrowCannotParseExpression(this);
             return default;
         }
 

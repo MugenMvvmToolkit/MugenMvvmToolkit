@@ -53,7 +53,7 @@ namespace MugenMvvm.Binding.Parsing
                     return result;
             }
 
-            BindingExceptionManager.CannotParseExpression(expression);
+            BindingExceptionManager.ThrowCannotParseExpression(expression);
             return default;
         }
 

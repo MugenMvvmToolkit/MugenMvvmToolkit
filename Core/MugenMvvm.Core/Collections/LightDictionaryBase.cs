@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
@@ -91,7 +92,8 @@ namespace MugenMvvm.Collections
                 var entry = FindEntry(key);
                 if (entry >= 0)
                     return _entries[entry].Value;
-                throw new KeyNotFoundException();
+                ExceptionManager.ThrowKeyNotFound();
+                return default!;
             }
 
             set => Insert(key, value, false);
@@ -143,22 +145,22 @@ namespace MugenMvvm.Collections
         {
             if (_buckets == null)
                 RestoreState();
-            var num = GetHashCodeInternal(key);
-            var index1 = num % _buckets!.Length;
-            var index2 = -1;
-            for (var index3 = _buckets[index1]; index3 >= 0; index3 = _entries[index3].Next)
+            var hashCode = GetHashCode(key) & int.MaxValue;
+            var bucket = hashCode % _buckets!.Length;
+            var last = -1;
+            for (var i = _buckets[bucket]; i >= 0; i = _entries[i].Next)
             {
-                if (_entries[index3].HashCode == num && Equals(_entries[index3].Key, key))
+                if (_entries[i].HashCode == hashCode && Equals(_entries[i].Key, key))
                 {
-                    if (index2 < 0)
-                        _buckets[index1] = _entries[index3].Next;
+                    if (last < 0)
+                        _buckets[bucket] = _entries[i].Next;
                     else
-                        _entries[index2].Next = _entries[index3].Next;
-                    _entries[index3].HashCode = -1;
-                    _entries[index3].Next = _freeList;
-                    _entries[index3].Key = default!;
-                    _entries[index3].Value = default!;
-                    _freeList = index3;
+                        _entries[last].Next = _entries[i].Next;
+                    _entries[i].HashCode = -1;
+                    _entries[i].Next = _freeList;
+                    _entries[i].Key = default!;
+                    _entries[i].Value = default!;
+                    _freeList = i;
                     ++_freeCount;
 
                     if (_entries.Length > 1000 && _entries.Length / 4 > Count)
@@ -166,7 +168,7 @@ namespace MugenMvvm.Collections
                     return true;
                 }
 
-                index2 = index3;
+                last = i;
             }
 
             return false;
@@ -249,27 +251,23 @@ namespace MugenMvvm.Collections
         {
             var prime = PrimeNumberHelper.GetPrime(capacity);
             _buckets = new int[prime];
-            for (var index = 0; index < _buckets.Length; index++)
-                _buckets[index] = -1;
+            for (var i = 0; i < _buckets.Length; i++)
+                _buckets[i] = -1;
             _entries = new Entry[prime];
             _freeList = -1;
             _count = 0;
         }
 
-        private int GetHashCodeInternal(TKey key)
-        {
-            return GetHashCode(key) & int.MaxValue;
-        }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private int FindEntry(TKey key)
         {
             if (_buckets == null)
                 RestoreState();
-            var num = GetHashCodeInternal(key);
-            for (var index = _buckets![num % _buckets.Length]; index >= 0; index = _entries[index].Next)
+            var hashCode = GetHashCode(key) & int.MaxValue;
+            for (var i = _buckets![hashCode % _buckets.Length]; i >= 0; i = _entries[i].Next)
             {
-                if (_entries[index].HashCode == num && Equals(_entries[index].Key, key))
-                    return index;
+                if (_entries[i].HashCode == hashCode && Equals(_entries[i].Key, key))
+                    return i;
             }
 
             return -1;
@@ -279,24 +277,24 @@ namespace MugenMvvm.Collections
         {
             if (_buckets == null)
                 RestoreState();
-            var hashCode = GetHashCodeInternal(key);
-            var index1 = hashCode % _buckets!.Length;
-            for (var index2 = _buckets[index1]; index2 >= 0; index2 = _entries[index2].Next)
+            var hashCode = GetHashCode(key) & int.MaxValue;
+            var targetBucket = hashCode % _buckets!.Length;
+            for (var i = _buckets[targetBucket]; i >= 0; i = _entries[i].Next)
             {
-                if (_entries[index2].HashCode == hashCode && Equals(_entries[index2].Key, key))
+                if (_entries[i].HashCode == hashCode && Equals(_entries[i].Key, key))
                 {
                     if (add)
-                        ExceptionManager.DuplicateKey();
-                    _entries[index2].Value = value;
+                        ExceptionManager.ThrowDuplicateKey();
+                    _entries[i].Value = value;
                     return;
                 }
             }
 
-            int index3;
+            int index;
             if (_freeCount > 0)
             {
-                index3 = _freeList;
-                _freeList = _entries[index3].Next;
+                index = _freeList;
+                _freeList = _entries[index].Next;
                 --_freeCount;
             }
             else
@@ -304,18 +302,18 @@ namespace MugenMvvm.Collections
                 if (_count == _entries.Length)
                 {
                     Resize();
-                    index1 = hashCode % _buckets.Length;
+                    targetBucket = hashCode % _buckets.Length;
                 }
 
-                index3 = _count;
+                index = _count;
                 ++_count;
             }
 
-            _entries[index3].HashCode = hashCode;
-            _entries[index3].Next = _buckets[index1];
-            _entries[index3].Key = key;
-            _entries[index3].Value = value;
-            _buckets[index1] = index3;
+            _entries[index].HashCode = hashCode;
+            _entries[index].Next = _buckets[targetBucket];
+            _entries[index].Key = key;
+            _entries[index].Value = value;
+            _buckets[targetBucket] = index;
         }
 
         private void Resize()
@@ -327,6 +325,8 @@ namespace MugenMvvm.Collections
         {
             var count = _count - _freeCount;
             var newSize = PrimeNumberHelper.GetPrime(count);
+            if (_count == newSize)
+                return;
             var numArray = new int[newSize];
             for (var i = 0; i < numArray.Length; i++)
                 numArray[i] = -1;

@@ -61,7 +61,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             if (!changed && result != node)
                 changed = true;
             if (notNull && result == null)
-                BindingExceptionManager.ExpressionNodeCannotBeNull(GetType());
+                BindingExceptionManager.ThrowExpressionNodeCannotBeNull(GetType());
             return (T)result!;
         }
 
