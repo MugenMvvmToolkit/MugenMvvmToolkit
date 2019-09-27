@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Internal
 {
-    public static class PrimeNumberHelper
+    internal static class PrimeNumberHelper
     {
         #region Fields
 
@@ -33,7 +33,7 @@ namespace MugenMvvm.Internal
         {
             if ((candidate & 1) != 0)
             {
-                var limit = (int) Math.Sqrt(candidate);
+                var limit = (int)Math.Sqrt(candidate);
                 for (var divisor = 3; divisor <= limit; divisor += 2)
                 {
                     if (candidate % divisor == 0)

@@ -173,7 +173,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Nested types
 
-        protected sealed class TempCacheDictionary<TItem> : LightDictionaryBase<CacheKey, TItem> where TItem : class?
+        protected sealed class TempCacheDictionary<TItem> : LightDictionary<CacheKey, TItem> where TItem : class?
         {
             #region Constructors
 

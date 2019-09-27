@@ -8,19 +8,13 @@ namespace MugenMvvm.Binding.Parsing.Components
 {
     public sealed class ConstantTokenParserComponent : TokenExpressionParserComponent.IParser, IHasPriority
     {
-        #region Fields
-
-        private readonly Dictionary<string, IExpressionNode> _literalToExpression;
-
-        #endregion
-
         #region Constructors
 
         public ConstantTokenParserComponent(Dictionary<string, IExpressionNode>? literalToExpression = null)
         {
             if (literalToExpression == null)
             {
-                _literalToExpression = new Dictionary<string, IExpressionNode>
+                LiteralToExpression = new Dictionary<string, IExpressionNode>
                 {
                     {"null", new ConstantExpressionNode(null, typeof(object))},
                     {bool.TrueString, new ConstantExpressionNode(Default.TrueObject, typeof(bool))},
@@ -28,12 +22,14 @@ namespace MugenMvvm.Binding.Parsing.Components
                 };
             }
             else
-                _literalToExpression = literalToExpression;
+                LiteralToExpression = literalToExpression;
         }
 
         #endregion
 
         #region Properties
+
+        public Dictionary<string, IExpressionNode> LiteralToExpression { get; }
 
         public int Priority { get; set; } = BindingParserPriority.Constant;
 
@@ -51,7 +47,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             if (!context.IsIdentifier(out var end, start))
                 return null;
 
-            if (!_literalToExpression.TryGetValue(context.GetValue(start, end), out expression))
+            if (!LiteralToExpression.TryGetValue(context.GetValue(start, end), out expression))
                 return null;
 
             context.SetPosition(end);

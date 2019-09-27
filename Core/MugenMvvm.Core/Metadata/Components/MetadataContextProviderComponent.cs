@@ -62,7 +62,7 @@ namespace MugenMvvm.Metadata.Components
 
         #region Nested types
 
-        protected sealed class ReadOnlyMetadataContext : LightDictionaryBase<IMetadataContextKey, object?>, IReadOnlyMetadataContext
+        protected sealed class ReadOnlyMetadataContext : LightDictionary<IMetadataContextKey, object?>, IReadOnlyMetadataContext
         {
             #region Constructors
 
@@ -120,7 +120,7 @@ namespace MugenMvvm.Metadata.Components
             #endregion
         }
 
-        protected sealed class MetadataContext : LightDictionaryBase<IMetadataContextKey, object?>, IMetadataContext
+        protected sealed class MetadataContext : LightDictionary<IMetadataContextKey, object?>, IMetadataContext
         {
             #region Fields
 

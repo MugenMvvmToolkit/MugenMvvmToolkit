@@ -9,12 +9,6 @@ namespace MugenMvvm.Binding.Parsing.Components
 {
     public sealed class DigitTokenParserComponent : TokenExpressionParserComponent.IParser, IHasPriority
     {
-        #region Fields
-
-        private readonly Dictionary<string, ConvertDelegate> _postfixToConverters;
-
-        #endregion
-
         #region Constructors
 
         public DigitTokenParserComponent(Dictionary<string, ConvertDelegate>? postfixToConverters = null)
@@ -22,7 +16,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             if (postfixToConverters == null)
             {
                 ConvertDelegate defaultConverter = Convert;
-                _postfixToConverters = new Dictionary<string, ConvertDelegate>
+                PostfixToConverter = new Dictionary<string, ConvertDelegate>
                 {
                     [""] = defaultConverter,
                     ["f"] = defaultConverter,
@@ -40,12 +34,14 @@ namespace MugenMvvm.Binding.Parsing.Components
                 };
             }
             else
-                _postfixToConverters = postfixToConverters;
+                PostfixToConverter = postfixToConverters;
         }
 
         #endregion
 
         #region Properties
+
+        public Dictionary<string, ConvertDelegate> PostfixToConverter { get; }
 
         public int Priority { get; set; } = BindingParserPriority.Constant;
 
@@ -104,7 +100,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 end = position;
             }
 
-            if (_postfixToConverters.TryGetValue(postfix, out var convert))
+            if (PostfixToConverter.TryGetValue(postfix, out var convert))
             {
                 var result = convert(value, integer, postfix);
                 if (result != null)

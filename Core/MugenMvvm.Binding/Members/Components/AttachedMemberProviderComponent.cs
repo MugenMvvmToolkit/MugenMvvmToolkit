@@ -82,7 +82,7 @@ namespace MugenMvvm.Binding.Members.Components
             return UnregisterInternal(_methodsCache, type, name);
         }
 
-        private bool UnregisterInternal<T>(LightDictionaryBase<CacheKey, T> cache, Type type, string? name) where T : class
+        private bool UnregisterInternal<T>(LightDictionary<CacheKey, T> cache, Type type, string? name) where T : class
         {
             Should.NotBeNull(type, nameof(type));
             if (name != null)
@@ -118,7 +118,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Nested types
 
-        private sealed class CacheDictionary<TItem> : LightDictionaryBase<CacheKey, TItem> where TItem : class
+        private sealed class CacheDictionary<TItem> : LightDictionary<CacheKey, TItem> where TItem : class
         {
             #region Constructors
 

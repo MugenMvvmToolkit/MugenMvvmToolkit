@@ -9,19 +9,13 @@ namespace MugenMvvm.Binding.Parsing.Components
 {
     public sealed class UnaryTokenParserComponent : TokenExpressionParserComponent.IParser, IHasPriority
     {
-        #region Fields
-
-        private readonly Dictionary<char, UnaryTokenType[]> _tokensMapping;
-
-        #endregion
-
         #region Constructors
 
-        public UnaryTokenParserComponent(IDictionary<char, UnaryTokenType[]>? mapping = null)
+        public UnaryTokenParserComponent(Dictionary<char, UnaryTokenType[]>? mapping = null)
         {
             if (mapping == null)
             {
-                _tokensMapping = new Dictionary<char, UnaryTokenType[]>
+                TokensMapping = new Dictionary<char, UnaryTokenType[]>
                 {
                     {UnaryTokenType.Minus.Value[0], new[] {UnaryTokenType.Minus}},
                     {UnaryTokenType.BitwiseNegation.Value[0], new[] {UnaryTokenType.BitwiseNegation}},
@@ -30,12 +24,14 @@ namespace MugenMvvm.Binding.Parsing.Components
                 };
             }
             else
-                _tokensMapping = new Dictionary<char, UnaryTokenType[]>(mapping);
+                TokensMapping = mapping;
         }
 
         #endregion
 
         #region Properties
+
+        public Dictionary<char, UnaryTokenType[]> TokensMapping { get; }
 
         public int Priority { get; set; } = BindingParserPriority.Unary;
 
@@ -49,7 +45,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 return null;
 
             var position = context.SkipWhitespacesPosition();
-            if (!_tokensMapping.TryGetValue(BindingMugenExtensions.TokenAt(context, position), out var values))
+            if (!TokensMapping.TryGetValue(BindingMugenExtensions.TokenAt(context, position), out var values))
                 return null;
 
             for (var i = 0; i < values.Length; i++)

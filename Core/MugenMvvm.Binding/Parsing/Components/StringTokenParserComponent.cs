@@ -15,10 +15,6 @@ namespace MugenMvvm.Binding.Parsing.Components
     {
         #region Fields
 
-        private readonly Dictionary<char, char> _escapeSequenceMap;
-
-        private readonly IReadOnlyList<string> _quoteTokens;
-
         public static readonly ConstantExpressionNode Empty = new ConstantExpressionNode("", typeof(string));
         public static readonly ConstantExpressionNode StringType = new ConstantExpressionNode(typeof(string), typeof(Type));
 
@@ -26,11 +22,11 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Constructors
 
-        public StringTokenParserComponent(IReadOnlyList<string>? quoteTokens = null, Dictionary<char, char>? escapeSequenceMap = null)
+        public StringTokenParserComponent(List<string>? quoteTokens = null, Dictionary<char, char>? escapeSequenceMap = null)
         {
             if (quoteTokens == null)
             {
-                _quoteTokens = new[]
+                QuoteTokens = new List<string>(3)
                 {
                     "&amp;",
                     "\"",
@@ -38,11 +34,11 @@ namespace MugenMvvm.Binding.Parsing.Components
                 };
             }
             else
-                _quoteTokens = quoteTokens;
+                QuoteTokens = quoteTokens;
 
             if (escapeSequenceMap == null)
             {
-                _escapeSequenceMap = new Dictionary<char, char>
+                EscapeSequenceMap = new Dictionary<char, char>
                 {
                     {'\\', '\\'},
                     {'0', '\0'},
@@ -56,12 +52,16 @@ namespace MugenMvvm.Binding.Parsing.Components
                 };
             }
             else
-                _escapeSequenceMap = escapeSequenceMap;
+                EscapeSequenceMap = escapeSequenceMap;
         }
 
         #endregion
 
         #region Properties
+
+        public Dictionary<char, char> EscapeSequenceMap { get; }
+
+        public List<string> QuoteTokens { get; }
 
         public int Priority { get; set; } = BindingParserPriority.Constant;
 
@@ -114,7 +114,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                     var token = GetQuoteToken(context);
                     if (token == null)
                     {
-                        if (_escapeSequenceMap.TryGetValue(context.TokenAt(), out result))
+                        if (EscapeSequenceMap.TryGetValue(context.TokenAt(), out result))
                             context.MoveNext();
                         else
                             return null;
@@ -222,10 +222,10 @@ namespace MugenMvvm.Binding.Parsing.Components
         {
             if (context.IsEof())
                 return null;
-            for (var i = 0; i < _quoteTokens.Count; i++)
+            for (var i = 0; i < QuoteTokens.Count; i++)
             {
-                if (context.IsToken(_quoteTokens[i]))
-                    return _quoteTokens[i];
+                if (context.IsToken(QuoteTokens[i]))
+                    return QuoteTokens[i];
             }
 
             return null;

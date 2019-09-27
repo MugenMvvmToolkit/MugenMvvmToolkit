@@ -75,7 +75,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Nested types
 
-        private sealed class CacheDictionary : LightDictionaryBase<string, IMemberPath>
+        private sealed class CacheDictionary : LightDictionary<string, IMemberPath>
         {
             #region Constructors
 

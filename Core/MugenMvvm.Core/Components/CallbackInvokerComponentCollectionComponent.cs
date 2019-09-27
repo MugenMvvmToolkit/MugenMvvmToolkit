@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using MugenMvvm.Collections;
+using MugenMvvm.Collections.Internal;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -13,11 +15,11 @@ namespace MugenMvvm.Components
     {
         #region Fields
 
-        private static readonly Dictionary<Type, Func<object?, object?[], object?>?> AttachDelegates =
-            new Dictionary<Type, Func<object?, object?[], object?>?>(MemberInfoEqualityComparer.Instance);
+        private static readonly TypeLightDictionary<Func<object?, object?[], object?>?> AttachDelegates =
+            new TypeLightDictionary<Func<object?, object?[], object?>?>(59);
 
-        private static readonly Dictionary<Type, Func<object?, object?[], object?>?> DetachDelegates =
-            new Dictionary<Type, Func<object?, object?[], object?>?>(MemberInfoEqualityComparer.Instance);
+        private static readonly TypeLightDictionary<Func<object?, object?[], object?>?> DetachDelegates =
+            new TypeLightDictionary<Func<object?, object?[], object?>?>(59);
 
         private static readonly MethodInfo AttachDetachMethodInfo = GetAttachDetachMethod();
 

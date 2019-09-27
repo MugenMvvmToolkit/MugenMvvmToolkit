@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using MugenMvvm.Attributes;
+using MugenMvvm.Collections;
+using MugenMvvm.Collections.Internal;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -21,8 +23,8 @@ namespace MugenMvvm.Views.Components
         private static readonly MethodInfo UpdateViewMethodInfo = GetUpdateViewMethod();
         private static readonly MethodInfo UpdateViewModelMethodInfo = GetUpdateViewModelMethod();
 
-        private static readonly Dictionary<Type, Func<object?, object?[], object?>?> TypeToInitializeDelegate =
-            new Dictionary<Type, Func<object?, object?[], object?>?>(MemberInfoEqualityComparer.Instance);
+        private static readonly TypeLightDictionary<Func<object?, object?[], object?>?> TypeToInitializeDelegate =
+            new TypeLightDictionary<Func<object?, object?[], object?>?>(17);
 
         #endregion
 

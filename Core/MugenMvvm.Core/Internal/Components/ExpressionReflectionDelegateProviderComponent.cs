@@ -5,6 +5,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
+using MugenMvvm.Collections;
+using MugenMvvm.Collections.Internal;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal.Components;
@@ -21,23 +23,23 @@ namespace MugenMvvm.Internal.Components
         private static readonly ParameterExpression EmptyParameterExpression = Expression.Parameter(typeof(object));
         private static readonly ConstantExpression NullConstantExpression = Expression.Constant(null, typeof(object));
 
-        private static readonly Dictionary<MemberInfoDelegateCacheKey, MethodInfo?> CachedDelegates =
-            new Dictionary<MemberInfoDelegateCacheKey, MethodInfo?>(MemberCacheKeyComparer.Instance);
+        private static readonly MemberInfoDelegateCache<MethodInfo?> CachedDelegates =
+            new MemberInfoDelegateCache<MethodInfo?>();
 
-        private static readonly Dictionary<ConstructorInfo, Func<object?[], object>> ActivatorCache =
-            new Dictionary<ConstructorInfo, Func<object?[], object>>(MemberInfoEqualityComparer.Instance);
+        private static readonly MemberInfoLightDictionary<ConstructorInfo, Func<object?[], object>> ActivatorCache =
+            new MemberInfoLightDictionary<ConstructorInfo, Func<object?[], object>>(59);
 
-        private static readonly Dictionary<MethodInfo, Func<object?, object?[], object?>> InvokeMethodCache =
-            new Dictionary<MethodInfo, Func<object?, object?[], object?>>(MemberInfoEqualityComparer.Instance);
+        private static readonly MemberInfoLightDictionary<MethodInfo, Func<object?, object?[], object?>> InvokeMethodCache =
+            new MemberInfoLightDictionary<MethodInfo, Func<object?, object?[], object?>>(59);
 
-        private static readonly Dictionary<MemberInfoDelegateCacheKey, Delegate> InvokeMethodCacheDelegate =
-            new Dictionary<MemberInfoDelegateCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
+        private static readonly MemberInfoDelegateCache<Delegate> InvokeMethodCacheDelegate =
+            new MemberInfoDelegateCache<Delegate>();
 
-        private static readonly Dictionary<MemberInfoDelegateCacheKey, Delegate> MemberGetterCache =
-            new Dictionary<MemberInfoDelegateCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
+        private static readonly MemberInfoDelegateCache<Delegate> MemberGetterCache =
+            new MemberInfoDelegateCache<Delegate>();
 
-        private static readonly Dictionary<MemberInfoDelegateCacheKey, Delegate> MemberSetterCache =
-            new Dictionary<MemberInfoDelegateCacheKey, Delegate>(MemberCacheKeyComparer.Instance);
+        private static readonly MemberInfoDelegateCache<Delegate> MemberSetterCache =
+            new MemberInfoDelegateCache<Delegate>();
 
         #endregion
 
@@ -58,22 +60,6 @@ namespace MugenMvvm.Internal.Components
 
         #region Implementation of interfaces
 
-        public bool CanCreateDelegate(Type delegateType, MethodInfo method)
-        {
-            return TryGetMethodDelegateInternal(delegateType, method) != null;
-        }
-
-        public Delegate? TryCreateDelegate(Type delegateType, object? target, MethodInfo method)
-        {
-            method = TryGetMethodDelegateInternal(delegateType, method)!;
-            if (method == null)
-                return null;
-
-            if (target == null)
-                return method.CreateDelegate(delegateType);
-            return method.CreateDelegate(delegateType, target);
-        }
-
         public Func<object?[], object>? TryGetActivator(ConstructorInfo constructor)
         {
             lock (ActivatorCache)
@@ -85,6 +71,36 @@ namespace MugenMvvm.Internal.Components
                 }
 
                 return value;
+            }
+        }
+
+        public Func<object?, TType>? TryGetMemberGetter<TType>(MemberInfo member)
+        {
+            var key = new MemberInfoDelegateCacheKey(member, typeof(TType));
+            lock (MemberGetterCache)
+            {
+                if (!MemberGetterCache.TryGetValue(key, out var value))
+                {
+                    value = GetMemberGetter<TType>(member);
+                    MemberGetterCache[key] = value;
+                }
+
+                return (Func<object?, TType>) value;
+            }
+        }
+
+        public Action<object?, TType>? TryGetMemberSetter<TType>(MemberInfo member)
+        {
+            var key = new MemberInfoDelegateCacheKey(member, typeof(TType));
+            lock (MemberSetterCache)
+            {
+                if (!MemberSetterCache.TryGetValue(key, out var value))
+                {
+                    value = GetMemberSetter<TType>(member);
+                    MemberSetterCache[key] = value;
+                }
+
+                return (Action<object?, TType>) value;
             }
         }
 
@@ -117,34 +133,20 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public Func<object?, TType>? TryGetMemberGetter<TType>(MemberInfo member)
+        public bool CanCreateDelegate(Type delegateType, MethodInfo method)
         {
-            var key = new MemberInfoDelegateCacheKey(member, typeof(TType));
-            lock (MemberGetterCache)
-            {
-                if (!MemberGetterCache.TryGetValue(key, out var value))
-                {
-                    value = GetMemberGetter<TType>(member);
-                    MemberGetterCache[key] = value;
-                }
-
-                return (Func<object?, TType>)value;
-            }
+            return TryGetMethodDelegateInternal(delegateType, method) != null;
         }
 
-        public Action<object?, TType>? TryGetMemberSetter<TType>(MemberInfo member)
+        public Delegate? TryCreateDelegate(Type delegateType, object? target, MethodInfo method)
         {
-            var key = new MemberInfoDelegateCacheKey(member, typeof(TType));
-            lock (MemberSetterCache)
-            {
-                if (!MemberSetterCache.TryGetValue(key, out var value))
-                {
-                    value = GetMemberSetter<TType>(member);
-                    MemberSetterCache[key] = value;
-                }
+            method = TryGetMethodDelegateInternal(delegateType, method)!;
+            if (method == null)
+                return null;
 
-                return (Action<object?, TType>)value;
-            }
+            if (target == null)
+                return method.CreateDelegate(delegateType);
+            return method.CreateDelegate(delegateType, target);
         }
 
         #endregion
@@ -308,7 +310,7 @@ namespace MugenMvvm.Internal.Components
             {
                 if (fieldInfo == null)
                 {
-                    var propertyInfo = (PropertyInfo)member;
+                    var propertyInfo = (PropertyInfo) member;
                     return propertyInfo.SetValue<TType>;
                 }
 
@@ -392,34 +394,28 @@ namespace MugenMvvm.Internal.Components
 
         #region Nested types
 
-        private sealed class MemberCacheKeyComparer : IEqualityComparer<MemberInfoDelegateCacheKey>
+        private sealed class MemberInfoDelegateCache<TValue> : LightDictionary<MemberInfoDelegateCacheKey, TValue>
         {
-            #region Fields
-
-            public static readonly MemberCacheKeyComparer Instance = new MemberCacheKeyComparer();
-
-            #endregion
-
             #region Constructors
 
-            private MemberCacheKeyComparer()
+            public MemberInfoDelegateCache() : base(59)
             {
             }
 
             #endregion
 
-            #region Implementation of interfaces
+            #region Methods
 
-            bool IEqualityComparer<MemberInfoDelegateCacheKey>.Equals(MemberInfoDelegateCacheKey x, MemberInfoDelegateCacheKey y)
+            protected override bool Equals(MemberInfoDelegateCacheKey x, MemberInfoDelegateCacheKey y)
             {
                 return x.DelegateType.EqualsEx(y.DelegateType) && x.Member.EqualsEx(y.Member);
             }
 
-            int IEqualityComparer<MemberInfoDelegateCacheKey>.GetHashCode(MemberInfoDelegateCacheKey obj)
+            protected override int GetHashCode(MemberInfoDelegateCacheKey key)
             {
                 unchecked
                 {
-                    return obj.DelegateType.GetHashCode() * 397 ^ obj.Member.GetHashCode();
+                    return key.DelegateType.GetHashCode() * 397 ^ key.Member.GetHashCode();
                 }
             }
 

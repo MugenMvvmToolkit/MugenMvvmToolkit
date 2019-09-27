@@ -17,9 +17,11 @@ namespace MugenMvvm.Collections
     [DebuggerDisplay("Count = {Count}")]
     [Serializable]
     [DataContract(Namespace = BuildConstants.DataContractNamespace)]
-    public abstract class LightDictionaryBase<TKey, TValue> : IReadOnlyCollection<KeyValuePair<TKey, TValue>>
+    public class LightDictionary<TKey, TValue> : IReadOnlyCollection<KeyValuePair<TKey, TValue>>
     {
         #region Fields
+
+        private static readonly IEqualityComparer<TKey> DefaultComparer = EqualityComparer<TKey>.Default;
 
         [IgnoreDataMember]
         [XmlIgnore]
@@ -51,13 +53,17 @@ namespace MugenMvvm.Collections
         #region Constructors
 
 #pragma warning disable CS8618
-        protected LightDictionaryBase(bool initialize)
+        protected LightDictionary(bool initialize)
         {
             if (initialize)
                 Initialize(0);
         }
 
-        protected LightDictionaryBase(int capacity)
+        public LightDictionary() : this(0)
+        {
+        }
+
+        public LightDictionary(int capacity)
         {
             Initialize(capacity);
         }
@@ -212,7 +218,7 @@ namespace MugenMvvm.Collections
             return result;
         }
 
-        public void Clone(LightDictionaryBase<TKey, TValue> clone, Func<TValue, TValue>? valueConverter = null)
+        public void Clone(LightDictionary<TKey, TValue> clone, Func<TValue, TValue>? valueConverter = null)
         {
             clone._buckets = _buckets?.ToArray()!;
             clone._count = _count;
@@ -243,9 +249,15 @@ namespace MugenMvvm.Collections
             clone._freeList = _freeList;
         }
 
-        protected abstract bool Equals(TKey x, TKey y);
+        protected virtual bool Equals(TKey x, TKey y)
+        {
+            return DefaultComparer.Equals(x, y);
+        }
 
-        protected abstract int GetHashCode(TKey key);
+        protected virtual int GetHashCode(TKey key)
+        {
+            return DefaultComparer.GetHashCode(key);
+        }
 
         protected void Initialize(int capacity)
         {
@@ -416,14 +428,14 @@ namespace MugenMvvm.Collections
             #region Fields
 
             // ReSharper disable once FieldCanBeMadeReadOnly.Local
-            private LightDictionaryBase<TKey, TValue> _dictionary;
+            private LightDictionary<TKey, TValue> _dictionary;
             private int _index;
 
             #endregion
 
             #region Constructors
 
-            internal Enumerator(LightDictionaryBase<TKey, TValue> dictionary)
+            internal Enumerator(LightDictionary<TKey, TValue> dictionary)
             {
                 _dictionary = dictionary;
                 _index = 0;

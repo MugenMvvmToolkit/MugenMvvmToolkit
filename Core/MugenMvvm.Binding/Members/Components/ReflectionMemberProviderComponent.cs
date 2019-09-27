@@ -177,7 +177,7 @@ namespace MugenMvvm.Binding.Members.Components
             #endregion
         }
 
-        private sealed class CacheDictionary : LightDictionaryBase<CacheKey, IBindingMemberInfo?>
+        private sealed class CacheDictionary : LightDictionary<CacheKey, IBindingMemberInfo?>
         {
             #region Constructors
 

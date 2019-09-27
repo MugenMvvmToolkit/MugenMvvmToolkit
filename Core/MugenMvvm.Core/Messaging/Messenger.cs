@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using MugenMvvm.Attributes;
+using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
@@ -177,9 +178,9 @@ namespace MugenMvvm.Messaging
         private void PublishInternal(IMessageContext messageContext, bool isOwner)
         {
             var threadDispatcher = _threadDispatcher.ServiceIfNull();
-            Dictionary<ThreadExecutionMode, MessageThreadExecutor>? dictionary = null;
+            ThreadExecutionModeDictionary? dictionary = null;
             MessageThreadExecutor? inlineExecutor = null;
-            MessageContext? localContext = isOwner ? messageContext as MessageContext : null;
+            var localContext = isOwner ? messageContext as MessageContext : null;
             lock (_subscribers)
             {
                 foreach (var subscriber in _subscribers)
@@ -205,7 +206,7 @@ namespace MugenMvvm.Messaging
                     else
                     {
                         if (dictionary == null)
-                            dictionary = new Dictionary<ThreadExecutionMode, MessageThreadExecutor>();
+                            dictionary = new ThreadExecutionModeDictionary();
 
                         if (!dictionary.TryGetValue(subscriber.ExecutionMode, out var value))
                         {
@@ -229,6 +230,31 @@ namespace MugenMvvm.Messaging
         #endregion
 
         #region Nested types
+
+        private sealed class ThreadExecutionModeDictionary : LightDictionary<ThreadExecutionMode, MessageThreadExecutor>
+        {
+            #region Constructors
+
+            public ThreadExecutionModeDictionary() : base(3)
+            {
+            }
+
+            #endregion
+
+            #region Methods
+
+            protected override bool Equals(ThreadExecutionMode x, ThreadExecutionMode y)
+            {
+                return x.Equals(y);
+            }
+
+            protected override int GetHashCode(ThreadExecutionMode key)
+            {
+                return key.GetHashCode();
+            }
+
+            #endregion
+        }
 
         private sealed class MessageThreadExecutor : List<object>, IThreadDispatcherHandler
         {
@@ -313,7 +339,7 @@ namespace MugenMvvm.Messaging
                         return ctx;
 
                     Interlocked.CompareExchange(ref _metadata, _metadata.ToNonReadonly(this, _messenger._metadataContextProvider), null);
-                    return (IMetadataContext)_metadata!;
+                    return (IMetadataContext) _metadata!;
                 }
             }
 

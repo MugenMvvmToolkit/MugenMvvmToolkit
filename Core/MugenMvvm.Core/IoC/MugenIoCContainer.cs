@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using MugenMvvm.Collections;
+using MugenMvvm.Collections.Internal;
 using MugenMvvm.Delegates;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.IoC;
@@ -22,7 +23,7 @@ namespace MugenMvvm.IoC
         private BindingDictionary? _bindingRegistrationsReadonly;
         private bool _hasConditionBinding;
 
-        private static readonly TypeCacheDictionary TypeCacheDict = new TypeCacheDictionary();
+        private static readonly TypeLightDictionary<TypeCache> TypeCacheDict = new TypeLightDictionary<TypeCache>(17);
 
         #endregion
 
@@ -782,7 +783,7 @@ namespace MugenMvvm.IoC
             private Func<object?, object?[], object?>? _arraySetMethodInvoker;
 
             private List<ConstructorInfoCache>? _cachedConstructors;
-            private PropertyCacheDictionary? _cachedProperties;
+            private StringOrdinalLightDictionary<PropertyInfoCache>? _cachedProperties;
             private Func<object?[], object>? _collectionActivator;
             private Func<object?, object?[], object?>? _collectionAddMethodInvoker;
             private TypeCache? _collectionItemType;
@@ -965,7 +966,7 @@ namespace MugenMvvm.IoC
 
             public void SetProperties(object item, IReadOnlyCollection<IIocParameter> parameters)
             {
-                PropertyCacheDictionary? props = null;
+                StringOrdinalLightDictionary<PropertyInfoCache>? props = null;
                 foreach (var iocParameter in parameters)
                 {
                     if (iocParameter.ParameterType != IocParameterType.Property)
@@ -1017,11 +1018,11 @@ namespace MugenMvvm.IoC
                 return result;
             }
 
-            private PropertyCacheDictionary GetCachedProperties()
+            private StringOrdinalLightDictionary<PropertyInfoCache> GetCachedProperties()
             {
                 if (_cachedProperties == null)
                 {
-                    var cachedProperties = new PropertyCacheDictionary();
+                    var cachedProperties = new StringOrdinalLightDictionary<PropertyInfoCache>(3);
                     foreach (var propertyInfo in Type.GetPropertiesUnified(PropertyMemberFlags))
                     {
                         var method = propertyInfo.GetSetMethodUnified(PropertyMemberFlags.HasMemberFlag(MemberFlags.NonPublic));
@@ -1211,57 +1212,7 @@ namespace MugenMvvm.IoC
             #endregion
         }
 
-        private sealed class TypeCacheDictionary : LightDictionaryBase<Type, TypeCache>
-        {
-            #region Constructors
-
-            public TypeCacheDictionary() : base(17)
-            {
-            }
-
-            #endregion
-
-            #region Methods
-
-            protected override bool Equals(Type x, Type y)
-            {
-                return x.EqualsEx(y);
-            }
-
-            protected override int GetHashCode(Type key)
-            {
-                return key.GetHashCode();
-            }
-
-            #endregion
-        }
-
-        private sealed class PropertyCacheDictionary : LightDictionaryBase<string, PropertyInfoCache>
-        {
-            #region Constructors
-
-            public PropertyCacheDictionary() : base(3)
-            {
-            }
-
-            #endregion
-
-            #region Methods
-
-            protected override bool Equals(string x, string y)
-            {
-                return string.Equals(x, y, StringComparison.Ordinal);
-            }
-
-            protected override int GetHashCode(string key)
-            {
-                return key.GetHashCode();
-            }
-
-            #endregion
-        }
-
-        private sealed class BindingDictionary : LightDictionaryBase<Type, List<BindingRegistrationBase>>
+        private sealed class BindingDictionary : LightDictionary<Type, List<BindingRegistrationBase>>
         {
             #region Constructors
 

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Attributes;
+using MugenMvvm.Collections.Internal;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -17,8 +18,8 @@ namespace MugenMvvm.Views.Components
 
         private readonly IMetadataContextProvider? _metadataContextProvider;
 
-        private static readonly IMetadataContextKey<Dictionary<string, IViewInfo>> ViewsMetadataKey =
-            MetadataContextKey.FromMember<Dictionary<string, IViewInfo>>(typeof(ViewInitializerComponent), nameof(ViewsMetadataKey));
+        private static readonly IMetadataContextKey<StringOrdinalLightDictionary<IViewInfo>> ViewsMetadataKey =
+            MetadataContextKey.FromMember<StringOrdinalLightDictionary<IViewInfo>>(typeof(ViewInitializerComponent), nameof(ViewsMetadataKey));
 
         #endregion
 
@@ -48,7 +49,7 @@ namespace MugenMvvm.Views.Components
                 return Default.EmptyArray<IViewInfo>();
             lock (views)
             {
-                return views.Values.ToArray();
+                return views.Select(pair => pair.Value).ToArray();
             }
         }
 
@@ -58,7 +59,7 @@ namespace MugenMvvm.Views.Components
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(view, nameof(view));
             Should.NotBeNull(metadata, nameof(metadata));
-            var views = viewModel.Metadata.GetOrAdd(ViewsMetadataKey, (object?)null, (object?)null, (context, vm, _) => new Dictionary<string, IViewInfo>());
+            var views = viewModel.Metadata.GetOrAdd(ViewsMetadataKey, (object?)null, (object?)null, (context, vm, _) => new StringOrdinalLightDictionary<IViewInfo>(1));
             ViewInfo viewInfo;
             lock (views)
             {
