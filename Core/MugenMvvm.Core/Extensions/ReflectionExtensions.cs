@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Reflection;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -16,6 +17,13 @@ namespace MugenMvvm
         #endregion
 
         #region Methods
+
+        public static MethodInfo GetMethodOrThrow(this Type type, string name, MemberFlags flags, Type[]? types = null)
+        {
+            var method = types == null ? type.GetMethodUnified(name, flags) : type.GetMethodUnified(name, flags, types);
+            Should.BeSupported(method != null, type.Name + "." + name);
+            return method!;
+        }
 
         public static IWeakEventHandler<TArg> CreateWeakEventHandler<TTarget, TArg>(TTarget target, Action<TTarget, object, TArg> invokeAction,
             Action<object, IWeakEventHandler<TArg>>? unsubscribeAction = null)

@@ -53,6 +53,8 @@ namespace MugenMvvm
 
         public static Func<Type, bool>? IsValueType { get; set; }
 
+        public static Func<Type, bool>? IsEnum { get; set; }
+
         public static Func<Type, bool>? IsGenericType { get; set; }
 
         public static Func<Type, bool>? IsInterface { get; set; }
@@ -277,6 +279,14 @@ namespace MugenMvvm
             if (IsGenericType == null)
                 return TypeInfoReflectionApiExtensions.IsGenericType(type);
             return IsGenericType(type);
+        }
+
+        public static bool IsEnumUnified(this Type type)
+        {
+            Should.NotBeNull(type, nameof(type));
+            if (IsEnum == null)
+                return TypeInfoReflectionApiExtensions.IsEnum(type);
+            return IsEnum(type);
         }
 
         public static bool IsGenericTypeDefinitionUnified(this Type type)

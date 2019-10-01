@@ -199,6 +199,11 @@ namespace MugenMvvm
             return type.GetTypeInfo().IsValueType;
         }
 
+        public static bool IsEnum(Type type)
+        {
+            return type.GetTypeInfo().IsEnum;
+        }
+
         public static bool IsGenericType(Type type)
         {
             return type.GetTypeInfo().IsGenericType;

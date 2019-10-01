@@ -6,12 +6,13 @@ using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Parsing.Components
 {
     //todo use span/memory?
-    public class TokenExpressionParserComponent : AttachableComponentBase<IExpressionParser>, IExpressionParserComponent<string>
+    public class TokenExpressionParserComponent : AttachableComponentBase<IExpressionParser>, IExpressionParserComponent<string>, IHasPriority
     {
         #region Fields
 
@@ -19,8 +20,8 @@ namespace MugenMvvm.Binding.Parsing.Components
         private readonly IMetadataContextProvider? _metadataContextProvider;
         private readonly TokenParserContext _parserContext;
 
-        public static readonly HashSet<char> TargetDelimiters = new HashSet<char> { ',', ';', ' ' };
-        public static readonly HashSet<char> Delimiters = new HashSet<char> { ',', ';' };
+        public static readonly HashSet<char> TargetDelimiters = new HashSet<char> {',', ';', ' '};
+        public static readonly HashSet<char> Delimiters = new HashSet<char> {',', ';'};
 
         #endregion
 
@@ -32,6 +33,12 @@ namespace MugenMvvm.Binding.Parsing.Components
             _parserContext = new TokenParserContext(this);
             _componentTracker = new ComponentTracker<IParser, IExpressionParser>();
         }
+
+        #endregion
+
+        #region Properties
+
+        public int Priority { get; set; }
 
         #endregion
 
@@ -77,7 +84,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 else
                 {
                     if (result == null)
-                        result = new List<ExpressionParserResult> { itemResult };
+                        result = new List<ExpressionParserResult> {itemResult};
                     result.Add(r);
                 }
             }
@@ -111,7 +118,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 else
                 {
                     if (parameters == null)
-                        parameters = new List<IExpressionNode> { parameter };
+                        parameters = new List<IExpressionNode> {parameter};
                     parameters.Add(param);
                 }
             }
@@ -185,7 +192,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                         return ctx;
 
                     Interlocked.CompareExchange(ref _metadata, _metadata.ToNonReadonly(this, _parser._metadataContextProvider), null);
-                    return (IMetadataContext)_metadata!;
+                    return (IMetadataContext) _metadata!;
                 }
             }
 

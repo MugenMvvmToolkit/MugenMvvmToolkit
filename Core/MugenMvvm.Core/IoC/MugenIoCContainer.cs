@@ -945,9 +945,8 @@ namespace MugenMvvm.IoC
                 var array = _arrayActivator(new object[] { items.Length });
                 if (_arraySetMethodInvoker == null)
                 {
-                    var method = typeof(MugenExtensions).GetMethodUnified(nameof(MugenExtensions.InitializeArray), MemberFlags.StaticOnly);
-                    Should.BeSupported(method != null, typeof(MugenExtensions).Name + "." + nameof(MugenExtensions.InitializeArray));
-                    _arraySetMethodInvoker = method!.MakeGenericMethod(ElementType.Type).GetMethodInvoker();
+                    var method = typeof(MugenExtensions).GetMethodOrThrow(nameof(MugenExtensions.InitializeArray), MemberFlags.StaticOnly);
+                    _arraySetMethodInvoker = method.MakeGenericMethod(ElementType.Type).GetMethodInvoker();
                 }
 
                 _arraySetMethodInvoker.Invoke(null, new[] { array, items });

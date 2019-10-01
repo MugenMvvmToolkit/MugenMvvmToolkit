@@ -9,9 +9,10 @@ namespace MugenMvvm.Binding.Parsing.Expressions
     {
         #region Constructors
 
-        public ParameterExpression(string name, Type? type = null)
+        public ParameterExpression(string name, int index, Type? type = null)
         {
             Should.NotBeNull(name, nameof(name));
+            Index = index;
             Name = name;
             Type = type;
         }
@@ -21,6 +22,8 @@ namespace MugenMvvm.Binding.Parsing.Expressions
         #region Properties
 
         public override ExpressionNodeType NodeType => ExpressionNodeType.Parameter;
+
+        public int Index { get; }
 
         public string Name { get; }
 

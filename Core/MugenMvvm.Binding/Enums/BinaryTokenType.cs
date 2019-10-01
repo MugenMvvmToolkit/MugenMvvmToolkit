@@ -18,8 +18,8 @@ namespace MugenMvvm.Binding.Enums
         public static readonly BinaryTokenType RightShift = new BinaryTokenType(">>", 970);
         public static readonly BinaryTokenType LessThan = new BinaryTokenType("<", 960, "&lt;");
         public static readonly BinaryTokenType GreaterThan = new BinaryTokenType(">", 960, "&gt;");
-        public static readonly BinaryTokenType LessThanOrEqualTo = new BinaryTokenType("<=", 960);
-        public static readonly BinaryTokenType GreaterThanOrEqualTo = new BinaryTokenType(">=", 960);
+        public static readonly BinaryTokenType LessThanOrEqual = new BinaryTokenType("<=", 960);
+        public static readonly BinaryTokenType GreaterThanOrEqual = new BinaryTokenType(">=", 960);
         public static readonly BinaryTokenType Equality = new BinaryTokenType("==", 950, "=");
         public static readonly BinaryTokenType NotEqual = new BinaryTokenType("!=", 950);
         public static readonly BinaryTokenType LogicalAnd = new BinaryTokenType("&", 940, "&amp;");

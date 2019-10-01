@@ -76,7 +76,9 @@ namespace MugenMvvm.Binding.Parsing.Components
                 if (stringArgs == null)
                     return null;
 
-                args = stringArgs.ToArray(s => (IParameterExpression)new ParameterExpression(s));
+                args = new IParameterExpression[stringArgs.Count];
+                for (int i = 0; i < args.Length; i++)
+                    args[i] = new ParameterExpression(stringArgs[i], i);
             }
 
 

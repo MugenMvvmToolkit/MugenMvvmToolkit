@@ -21,7 +21,7 @@ namespace MugenMvvm.Components
         private static readonly TypeLightDictionary<Func<object?, object?[], object?>?> DetachDelegates =
             new TypeLightDictionary<Func<object?, object?[], object?>?>(59);
 
-        private static readonly MethodInfo AttachDetachMethodInfo = GetAttachDetachMethod();
+        private static readonly MethodInfo AttachDetachMethodInfo = typeof(CallbackInvokerComponentCollectionComponent).GetMethodOrThrow(nameof(AttachDetachIml), MemberFlags.StaticOnly);
 
         #endregion
 
@@ -30,13 +30,6 @@ namespace MugenMvvm.Components
         public static ComponentCollectionListener<TItem> GetComponentCollectionListener<TItem>() where TItem : class
         {
             return ComponentCollectionListener<TItem>.Instance;
-        }
-
-        private static MethodInfo GetAttachDetachMethod()
-        {
-            var m = typeof(CallbackInvokerComponentCollectionComponent).GetMethodUnified(nameof(AttachDetachIml), MemberFlags.StaticOnly);
-            Should.BeSupported(m != null, nameof(AttachDetachMethodInfo));
-            return m!;
         }
 
         private static bool Attach<T>(IComponentCollection<T> collection, object component, bool preBind, IReadOnlyMetadataContext? metadata) where T : class

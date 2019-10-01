@@ -85,7 +85,7 @@ namespace MugenMvvm.Internal.Components
                     MemberGetterCache[key] = value;
                 }
 
-                return (Func<object?, TType>) value;
+                return (Func<object?, TType>)value;
             }
         }
 
@@ -100,7 +100,7 @@ namespace MugenMvvm.Internal.Components
                     MemberSetterCache[key] = value;
                 }
 
-                return (Action<object?, TType>) value;
+                return (Action<object?, TType>)value;
             }
         }
 
@@ -246,9 +246,7 @@ namespace MugenMvvm.Internal.Components
 
         public static Delegate GetMethodInvoker(Type delegateType, MethodInfo method)
         {
-            var delegateMethod = delegateType.GetMethodUnified(nameof(Action.Invoke), MemberFlags.InstanceOnly);
-            Should.NotBeNull(delegateMethod, nameof(delegateMethod));
-
+            var delegateMethod = delegateType.GetMethodOrThrow(nameof(Action.Invoke), MemberFlags.InstanceOnly);
             var delegateParams = delegateMethod.GetParameters().ToList();
             var methodParams = method.GetParameters();
             var expressions = new List<Expression>();
@@ -310,7 +308,7 @@ namespace MugenMvvm.Internal.Components
             {
                 if (fieldInfo == null)
                 {
-                    var propertyInfo = (PropertyInfo) member;
+                    var propertyInfo = (PropertyInfo)member;
                     return propertyInfo.SetValue<TType>;
                 }
 
@@ -342,6 +340,17 @@ namespace MugenMvvm.Internal.Components
                 .Compile();
         }
 
+        public static Expression ConvertIfNeed(Expression? expression, Type type, bool exactly)
+        {
+            if (expression == null)
+                return null!;
+            if (type.EqualsEx(typeof(void)) || type.EqualsEx(expression.Type))
+                return expression;
+            if (!exactly && !expression.Type.IsValueTypeUnified() && !type.IsValueTypeUnified() && type.IsAssignableFromUnified(expression.Type))
+                return expression;
+            return Expression.Convert(expression, type);
+        }
+
         private static Expression[] GetParametersExpression(MethodBase methodBase, out ParameterExpression parameterExpression)
         {
             var paramsInfo = methodBase.GetParameters();
@@ -361,17 +370,6 @@ namespace MugenMvvm.Internal.Components
             }
 
             return argsExp;
-        }
-
-        private static Expression ConvertIfNeed(Expression? expression, Type type, bool exactly)
-        {
-            if (expression == null)
-                return null!;
-            if (type.EqualsEx(typeof(void)) || type.EqualsEx(expression.Type))
-                return expression;
-            if (!exactly && !expression.Type.IsValueTypeUnified() && !type.IsValueTypeUnified() && type.IsAssignableFromUnified(expression.Type))
-                return expression;
-            return Expression.Convert(expression, type);
         }
 
         private static MethodInfo? TryGetMethodDelegateInternal(Type delegateType, MethodInfo method)

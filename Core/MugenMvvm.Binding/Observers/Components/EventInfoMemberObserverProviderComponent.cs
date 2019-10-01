@@ -17,7 +17,8 @@ namespace MugenMvvm.Binding.Observers.Components
 
         private readonly IAttachedDictionaryProvider? _attachedDictionaryProvider;
 
-        private static readonly MethodInfo RaiseMethod = GetRaiseMethod();
+        private static readonly MethodInfo RaiseMethod = typeof(EventListenerCollection)
+            .GetMethodOrThrow(nameof(EventListenerCollection.Raise), MemberFlags.Public | MemberFlags.Instance);
         private static readonly Func<object, EventInfo, object?, EventListenerCollection?> CreateWeakListenerDelegate = CreateWeakListener;
 
         #endregion
@@ -62,15 +63,6 @@ namespace MugenMvvm.Binding.Observers.Components
         #endregion
 
         #region Methods
-
-        private static MethodInfo GetRaiseMethod()
-        {
-            var m = typeof(EventListenerCollection)
-                .GetMethodUnified(nameof(EventListenerCollection.Raise), MemberFlags.Public | MemberFlags.Instance);
-            if (m == null)
-                BindingExceptionManager.ThrowInvalidBindingMember(typeof(EventListenerCollection), nameof(EventListenerCollection.Raise));
-            return m!;
-        }
 
         private static EventListenerCollection? CreateWeakListener(object target, EventInfo eventInfo, object? _)
         {
