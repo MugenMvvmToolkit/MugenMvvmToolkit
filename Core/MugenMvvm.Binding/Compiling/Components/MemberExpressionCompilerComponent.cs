@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq.Expressions;
 using System.Reflection;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
@@ -46,9 +47,10 @@ namespace MugenMvvm.Binding.Compiling.Components
             if (@enum != null)
                 return Expression.Constant(@enum);
 
-            var member = _memberProvider.ServiceIfNull().GetMember(type, memberExpression.MemberName);
-            if (member == null)
-                return null;
+            throw new NotImplementedException();
+//            var member = _memberProvider.ServiceIfNull().GetMember(type, memberExpression.MemberName);
+//            if (member == null)
+//                return null;
         }
 
         #endregion

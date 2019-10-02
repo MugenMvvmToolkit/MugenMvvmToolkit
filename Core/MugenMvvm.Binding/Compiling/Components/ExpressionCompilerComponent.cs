@@ -164,6 +164,26 @@ namespace MugenMvvm.Binding.Compiling.Components
                 //                return result;
             }
 
+            public MethodInfo GetCurrentLambdaMethod()
+            {
+                throw new NotImplementedException();
+            }
+
+            public void SetCurrentLambdaType(Type lambdaType)
+            {
+                throw new NotImplementedException();
+            }
+
+            public ParameterExpression GetParameterExpression(IParameterExpression parameterExpression)
+            {
+                throw new NotImplementedException();
+            }
+
+            public void SetParameterExpression(IParameterExpression parameterExpression, ParameterExpression value)
+            {
+                throw new NotImplementedException();
+            }
+
             public Expression Compile(IExpressionNode expression)
             {
                 var components = _compiler._componentTracker.GetComponents();
