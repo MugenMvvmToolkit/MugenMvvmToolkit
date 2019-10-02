@@ -9,6 +9,7 @@ namespace MugenMvvm.Binding.Enums
         public static readonly UnaryTokenType DynamicExpression = new UnaryTokenType("$");
         public static readonly UnaryTokenType StaticExpression = new UnaryTokenType("$$");
         public static readonly UnaryTokenType Minus = new UnaryTokenType("-");
+        public static readonly UnaryTokenType Plus = new UnaryTokenType("+");
         public static readonly UnaryTokenType LogicalNegation = new UnaryTokenType("!");
         public static readonly UnaryTokenType BitwiseNegation = new UnaryTokenType("~");
 

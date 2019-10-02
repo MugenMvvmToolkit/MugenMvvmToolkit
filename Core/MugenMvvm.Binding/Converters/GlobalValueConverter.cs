@@ -10,7 +10,7 @@ using MugenMvvm.Interfaces.Metadata;
 namespace MugenMvvm.Binding.Converters
 {
     public sealed class GlobalValueConverter : ComponentOwnerBase<IGlobalValueConverter>, IGlobalValueConverter,
-        IComponentOwnerAddedCallback<IComponent<IGlobalValueConverter>>, IComponentOwnerRemovedCallback<IComponent<IGlobalValueConverter>>
+        IComponentOwnerAddedCallback<IComponent<IGlobalValueConverter>>, IComponentOwnerRemovedCallback<IComponent<IGlobalValueConverter>>//todo review IConvertible
     {
         #region Fields
 

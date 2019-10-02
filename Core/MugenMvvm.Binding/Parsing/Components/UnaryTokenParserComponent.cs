@@ -18,6 +18,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 TokensMapping = new Dictionary<char, UnaryTokenType[]>
                 {
                     {UnaryTokenType.Minus.Value[0], new[] {UnaryTokenType.Minus}},
+                    {UnaryTokenType.Plus.Value[0], new[] {UnaryTokenType.Plus}},
                     {UnaryTokenType.BitwiseNegation.Value[0], new[] {UnaryTokenType.BitwiseNegation}},
                     {UnaryTokenType.LogicalNegation.Value[0], new[] {UnaryTokenType.LogicalNegation}},
                     {UnaryTokenType.DynamicExpression.Value[0], new[] {UnaryTokenType.StaticExpression, UnaryTokenType.DynamicExpression}}
