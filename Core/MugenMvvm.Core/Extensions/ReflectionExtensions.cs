@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Linq.Expressions;
 using System.Reflection;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
@@ -142,6 +143,17 @@ namespace MugenMvvm
             if (type.IsValueTypeUnified())
                 return Activator.CreateInstance(type);
             return null;
+        }
+
+        public static Expression ConvertIfNeed(this Expression? expression, Type type, bool exactly)
+        {
+            if (expression == null)
+                return null!;
+            if (type.EqualsEx(typeof(void)) || type.EqualsEx(expression.Type))
+                return expression;
+            if (!exactly && !expression.Type.IsValueTypeUnified() && !type.IsValueTypeUnified() && type.IsAssignableFromUnified(expression.Type))
+                return expression;
+            return Expression.Convert(expression, type);
         }
 
         private static void UnsubscribePropertyChanged(object sender, PropertyChangedEventHandler handler)

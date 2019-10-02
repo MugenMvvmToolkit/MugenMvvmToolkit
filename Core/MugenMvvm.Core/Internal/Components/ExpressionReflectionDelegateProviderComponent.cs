@@ -200,7 +200,7 @@ namespace MugenMvvm.Internal.Components
         public static Func<object?[], object> GetActivator(ConstructorInfo constructor)
         {
             var expressions = GetParametersExpression(constructor, out var parameterExpression);
-            var newExpression = ConvertIfNeed(Expression.New(constructor, expressions), typeof(object), false);
+            var newExpression = Expression.New(constructor, expressions).ConvertIfNeed(typeof(object), false);
             return Expression.Lambda<Func<object?[], object>>(newExpression, parameterExpression).Compile();
         }
 
@@ -221,7 +221,7 @@ namespace MugenMvvm.Internal.Components
                         .Compile();
                 }
 
-                callExpression = ConvertIfNeed(callExpression, typeof(object), false);
+                callExpression = callExpression.ConvertIfNeed(typeof(object), false);
                 return Expression
                     .Lambda<Func<object?, object?[], object?>>(callExpression, EmptyParameterExpression, parameterExpression)
                     .Compile();
@@ -229,7 +229,7 @@ namespace MugenMvvm.Internal.Components
 
             var declaringType = method.DeclaringType;
             var targetExp = Expression.Parameter(typeof(object), "target");
-            callExpression = Expression.Call(ConvertIfNeed(targetExp, declaringType, false), method, expressions);
+            callExpression = Expression.Call(targetExp.ConvertIfNeed(declaringType, false), method, expressions);
             if (isVoid)
             {
                 return Expression
@@ -238,7 +238,7 @@ namespace MugenMvvm.Internal.Components
                     .Compile();
             }
 
-            callExpression = ConvertIfNeed(callExpression, typeof(object), false);
+            callExpression = callExpression.ConvertIfNeed(typeof(object), false);
             return Expression
                 .Lambda<Func<object?, object?[], object?>>(callExpression, targetExp, parameterExpression)
                 .Compile();
@@ -255,7 +255,7 @@ namespace MugenMvvm.Internal.Components
             {
                 var thisParam = Expression.Parameter(delegateParams[0].ParameterType, "@this");
                 parameters.Add(thisParam);
-                expressions.Add(ConvertIfNeed(thisParam, method.DeclaringType, false));
+                expressions.Add(thisParam.ConvertIfNeed(method.DeclaringType, false));
                 delegateParams.RemoveAt(0);
             }
 
@@ -264,7 +264,7 @@ namespace MugenMvvm.Internal.Components
             {
                 var parameter = Expression.Parameter(delegateParams[i].ParameterType, i.ToString());
                 parameters.Add(parameter);
-                expressions.Add(ConvertIfNeed(parameter, methodParams[i].ParameterType, false));
+                expressions.Add(parameter.ConvertIfNeed(methodParams[i].ParameterType, false));
             }
 
             Expression callExpression;
@@ -278,7 +278,7 @@ namespace MugenMvvm.Internal.Components
             }
 
             if (delegateMethod.ReturnType != typeof(void))
-                callExpression = ConvertIfNeed(callExpression, delegateMethod.ReturnType, false);
+                callExpression = callExpression.ConvertIfNeed(delegateMethod.ReturnType, false);
             var lambdaExpression = Expression.Lambda(delegateType, callExpression, parameters);
             return lambdaExpression.Compile();
         }
@@ -292,11 +292,11 @@ namespace MugenMvvm.Internal.Components
             else
             {
                 var declaringType = member.DeclaringType;
-                accessExp = Expression.MakeMemberAccess(ConvertIfNeed(target, declaringType, false), member);
+                accessExp = Expression.MakeMemberAccess(target.ConvertIfNeed(declaringType, false), member);
             }
 
             return Expression
-                .Lambda<Func<object?, TType>>(ConvertIfNeed(accessExp, typeof(TType), false), target)
+                .Lambda<Func<object?, TType>>(accessExp.ConvertIfNeed(typeof(TType), false), target)
                 .Compile();
         }
 
@@ -318,7 +318,7 @@ namespace MugenMvvm.Internal.Components
             Expression expression;
             var targetParameter = Expression.Parameter(typeof(object), "instance");
             var valueParameter = Expression.Parameter(typeof(TType), "value");
-            var target = ConvertIfNeed(targetParameter, declaringType, false);
+            var target = targetParameter.ConvertIfNeed(declaringType, false);
             if (fieldInfo == null)
             {
                 var propertyInfo = member as PropertyInfo;
@@ -326,29 +326,18 @@ namespace MugenMvvm.Internal.Components
                 if (propertyInfo != null)
                     setMethod = propertyInfo.GetSetMethodUnified(true);
                 Should.MethodBeSupported(propertyInfo != null && setMethod != null, MessageConstants.ShouldSupportOnlyFieldsReadonlyFields);
-                var valueExpression = ConvertIfNeed(valueParameter, propertyInfo!.PropertyType, false);
-                expression = Expression.Call(setMethod!.IsStatic ? null : ConvertIfNeed(target, declaringType, false), setMethod, valueExpression);
+                var valueExpression = valueParameter.ConvertIfNeed(propertyInfo!.PropertyType, false);
+                expression = Expression.Call(setMethod!.IsStatic ? null : target.ConvertIfNeed(declaringType, false), setMethod, valueExpression);
             }
             else
             {
-                expression = Expression.Field(fieldInfo.IsStatic ? null : ConvertIfNeed(target, declaringType, false), fieldInfo);
-                expression = Expression.Assign(expression, ConvertIfNeed(valueParameter, fieldInfo.FieldType, false));
+                expression = Expression.Field(fieldInfo.IsStatic ? null : target.ConvertIfNeed(declaringType, false), fieldInfo);
+                expression = Expression.Assign(expression, valueParameter.ConvertIfNeed(fieldInfo.FieldType, false));
             }
 
             return Expression
                 .Lambda<Action<object?, TType>>(expression, targetParameter, valueParameter)
                 .Compile();
-        }
-
-        public static Expression ConvertIfNeed(Expression? expression, Type type, bool exactly)
-        {
-            if (expression == null)
-                return null!;
-            if (type.EqualsEx(typeof(void)) || type.EqualsEx(expression.Type))
-                return expression;
-            if (!exactly && !expression.Type.IsValueTypeUnified() && !type.IsValueTypeUnified() && type.IsAssignableFromUnified(expression.Type))
-                return expression;
-            return Expression.Convert(expression, type);
         }
 
         private static Expression[] GetParametersExpression(MethodBase methodBase, out ParameterExpression parameterExpression)
@@ -365,7 +354,7 @@ namespace MugenMvvm.Internal.Components
                 Expression index = Expression.Constant(i);
                 var paramType = paramsInfo[i].ParameterType;
                 Expression paramAccessorExp = Expression.ArrayIndex(parameterExpression, index);
-                var paramCastExp = ConvertIfNeed(paramAccessorExp, paramType, false);
+                var paramCastExp = paramAccessorExp.ConvertIfNeed(paramType, false);
                 argsExp[i] = paramCastExp;
             }
 
