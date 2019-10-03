@@ -13,9 +13,9 @@ namespace MugenMvvm.Binding.Compiling.Components
         #region Fields
 
         private static readonly MethodInfo StringConcatMethod =
-            typeof(string).GetMethodOrThrow(nameof(string.Concat), MemberFlags.Public | MemberFlags.Static, new[] { typeof(object), typeof(object) });
+            typeof(string).GetMethodOrThrow(nameof(string.Concat), MemberFlags.StaticPublic, new[] { typeof(object), typeof(object) });
 
-        private static readonly MethodInfo EqualsMethod = typeof(object).GetMethodOrThrow(nameof(Equals), MemberFlags.Public | MemberFlags.Static);
+        private static readonly MethodInfo EqualsMethod = typeof(object).GetMethodOrThrow(nameof(Equals), MemberFlags.StaticPublic);
 
         #endregion
 

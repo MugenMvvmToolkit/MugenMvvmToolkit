@@ -216,7 +216,7 @@ namespace MugenMvvm.Binding
             if (!type.IsEnumUnified())
                 return null;
 
-            foreach (var field in type.GetFieldsUnified(MemberFlags.Public | MemberFlags.Static))
+            foreach (var field in type.GetFieldsUnified(MemberFlags.StaticPublic))
             {
                 if (field.Name.Equals(name, StringComparison.CurrentCultureIgnoreCase))
                     return field.GetValue(null);
