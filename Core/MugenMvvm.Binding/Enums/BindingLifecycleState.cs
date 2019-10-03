@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
@@ -19,15 +20,40 @@ namespace MugenMvvm.Binding.Enums
         #endregion
 
         #region Constructors
+        
+        [Preserve(Conditional = true)]
+        protected BindingLifecycleState()
+        {
+        }
 
         public BindingLifecycleState(string value)
             : base(value)
         {
         }
 
-        [Preserve(Conditional = true)]
-        internal BindingLifecycleState()
+        #endregion
+
+        #region Methods
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(BindingLifecycleState? left, BindingLifecycleState? right)
         {
+            if (ReferenceEquals(left, right))
+                return true;
+            if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
+                return false;
+            return left.Value == right.Value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(BindingLifecycleState? left, BindingLifecycleState? right)
+        {
+            return !(left == right);
+        }
+
+        protected override bool Equals(string value)
+        {
+            return Value.Equals(value);
         }
 
         #endregion

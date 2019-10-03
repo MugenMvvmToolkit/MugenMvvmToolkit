@@ -1,4 +1,6 @@
-﻿using MugenMvvm.Enums;
+﻿using System.Runtime.CompilerServices;
+using MugenMvvm.Attributes;
+using MugenMvvm.Enums;
 
 namespace MugenMvvm.Binding.Enums
 {
@@ -20,6 +22,7 @@ namespace MugenMvvm.Binding.Enums
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         protected ExpressionNodeType()
         {
         }
@@ -28,8 +31,33 @@ namespace MugenMvvm.Binding.Enums
         {
         }
 
-        public ExpressionNodeType(int value, string displayName) : base(value, displayName)
+        public ExpressionNodeType(int value, string name) : base(value, name)
         {
+        }
+
+        #endregion
+
+        #region Methods
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(ExpressionNodeType? left, ExpressionNodeType? right)
+        {
+            if (ReferenceEquals(left, right))
+                return true;
+            if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
+                return false;
+            return left.Value == right.Value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(ExpressionNodeType? left, ExpressionNodeType? right)
+        {
+            return !(left == right);
+        }
+
+        protected override bool Equals(int value)
+        {
+            return Value == value;
         }
 
         #endregion

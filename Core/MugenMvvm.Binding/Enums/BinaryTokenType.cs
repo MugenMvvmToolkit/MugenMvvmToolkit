@@ -1,4 +1,6 @@
-﻿using System.Runtime.Serialization;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
+using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
 
 namespace MugenMvvm.Binding.Enums
@@ -33,6 +35,7 @@ namespace MugenMvvm.Binding.Enums
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         protected BinaryTokenType()
         {
         }
@@ -59,6 +62,31 @@ namespace MugenMvvm.Binding.Enums
 
         [DataMember(Name = "A")]
         public string[]? Aliases { get; set; }
+
+        #endregion
+
+        #region Methods
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(BinaryTokenType? left, BinaryTokenType? right)
+        {
+            if (ReferenceEquals(left, right))
+                return true;
+            if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
+                return false;
+            return left.Value == right.Value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(BinaryTokenType? left, BinaryTokenType? right)
+        {
+            return !(left == right);
+        }
+
+        protected override bool Equals(string value)
+        {
+            return Value.Equals(value);
+        }
 
         #endregion
     }
