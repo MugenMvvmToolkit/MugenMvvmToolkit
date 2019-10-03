@@ -13,18 +13,22 @@ namespace MugenMvvm.Enums
         public static readonly MemberFlags Instance = new MemberFlags(1 << 1);
         public static readonly MemberFlags Public = new MemberFlags(1 << 2);
         public static readonly MemberFlags NonPublic = new MemberFlags(1 << 3);
-        public static readonly MemberFlags Attached = new MemberFlags(1 << 4);
 
-        public static readonly MemberFlags All = null;//Static | Instance | Public | NonPublic | Attached;
-        public static readonly MemberFlags InstancePublic = null;//Instance | Public;
-        public static readonly MemberFlags StaticPublic = null;//Static | Public;
-        public static readonly MemberFlags StaticOnly = null;//StaticPublic | NonPublic;
-        public static readonly MemberFlags InstanceOnly = null;//InstancePublic | NonPublic;
+        public static readonly MemberFlags All = Static | Instance | Public | NonPublic;
+        public static readonly MemberFlags InstancePublic = Instance | Public;
+        public static readonly MemberFlags StaticPublic = Static | Public;
+        public static readonly MemberFlags StaticOnly = StaticPublic | NonPublic;
+        public static readonly MemberFlags InstanceOnly = InstancePublic | NonPublic;
 
         #endregion
 
         #region Constructors
 
+        static MemberFlags()
+        {
+            SetIsFlagEnum(i => new MemberFlags(i));
+        }
+        
         [Preserve(Conditional = true)]
         protected MemberFlags()
         {
@@ -52,6 +56,14 @@ namespace MugenMvvm.Enums
         public static bool operator !=(MemberFlags? left, MemberFlags? right)
         {
             return !(left == right);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static MemberFlags operator |(MemberFlags left, MemberFlags right)
+        {
+            Should.NotBeNull(left, nameof(left));
+            Should.NotBeNull(right, nameof(right));
+            return Parse(left.Value | right.Value);
         }
 
         [Pure]
