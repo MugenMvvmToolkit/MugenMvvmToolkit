@@ -148,24 +148,6 @@ namespace MugenMvvm
             return false;
         }
 
-        [Pure]
-        public static bool HasMemberFlag(this MemberFlags es, MemberFlags value)
-        {
-            return (es & value) == value;
-        }
-
-        [Pure]
-        public static bool HasFlagEx(this BatchUpdateCollectionMode mode, BatchUpdateCollectionMode value)
-        {
-            return (mode & value) == value;
-        }
-
-        [Pure]
-        public static bool HasFlagEx(this BusyMessageHandlerType handlerMode, BusyMessageHandlerType value)
-        {
-            return (handlerMode & value) == value;
-        }
-
         #endregion
 
         #region Nested types

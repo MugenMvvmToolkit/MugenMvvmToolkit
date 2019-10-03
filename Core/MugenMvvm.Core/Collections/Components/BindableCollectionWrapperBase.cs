@@ -488,7 +488,7 @@ namespace MugenMvvm.Collections.Components
             #endregion
         }
 
-        protected enum CollectionChangedAction : byte
+        protected enum CollectionChangedAction
         {
             Add = 1,
             Move = 2,

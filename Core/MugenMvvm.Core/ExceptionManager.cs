@@ -9,7 +9,7 @@ namespace MugenMvvm
     {
         #region Methods
 
-        public static void ThrowEnumIsNotValid(object value)
+        public static void ThrowEnumIsNotValid<T>(T value)
         {
             throw new ArgumentException(EnumIsNotValidFormat2.Format(value, value.GetType()), nameof(value));
         }

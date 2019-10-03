@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
@@ -22,13 +23,38 @@ namespace MugenMvvm.Enums
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
+        protected PlatformIdiom()
+        {
+        }
+
         public PlatformIdiom(string id) : base(id)
         {
         }
 
-        [Preserve(Conditional = true)]
-        protected PlatformIdiom()
+        #endregion
+
+        #region Methods
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(PlatformIdiom? left, PlatformIdiom? right)
         {
+            if (ReferenceEquals(left, right))
+                return true;
+            if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
+                return false;
+            return left.Value == right.Value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(PlatformIdiom? left, PlatformIdiom? right)
+        {
+            return !(left == right);
+        }
+
+        protected override bool Equals(string value)
+        {
+            return Value.Equals(value);
         }
 
         #endregion

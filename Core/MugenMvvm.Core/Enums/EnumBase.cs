@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
 using MugenMvvm.Constants;
 
@@ -8,20 +7,25 @@ namespace MugenMvvm.Enums
 {
     [Serializable]
     [DataContract(Namespace = BuildConstants.DataContractNamespace)]
-    public class EnumBase<TEnumeration, TValue> : IComparable<TEnumeration?>, IEquatable<TEnumeration?>
+    public abstract class EnumBase<TEnumeration, TValue> : IComparable<TEnumeration?>, IEquatable<TEnumeration?>
         where TEnumeration : EnumBase<TEnumeration, TValue>
         where TValue : IComparable<TValue>, IEquatable<TValue>
     {
         #region Fields
 
-        private string? _displayName;
-        private TValue _value;
-
-        private static Dictionary<TValue, TEnumeration>? _enumerations;
+        private string? _name;
+        private static readonly bool NullCheckRequired;
+        private static Func<TValue, TEnumeration>? _flagEnumConverter;
+        private static Dictionary<TValue, TEnumeration> _enumerations = new Dictionary<TValue, TEnumeration>();
 
         #endregion
 
         #region Constructors
+
+        static EnumBase()
+        {
+            NullCheckRequired = default(TValue) == null;
+        }
 
 #pragma warning disable CS8618
         //note serialization only
@@ -30,10 +34,12 @@ namespace MugenMvvm.Enums
         }
 #pragma warning restore CS8618
 
-        protected EnumBase(TValue value, string? displayName)
+        protected EnumBase(TValue value, string? name)
         {
-            _value = value;
-            _displayName = displayName;
+            Value = value;
+            _name = name;
+            if (!_enumerations.ContainsKey(value))
+                _enumerations[value] = (TEnumeration) this;
         }
 
         protected EnumBase(TValue value)
@@ -46,23 +52,19 @@ namespace MugenMvvm.Enums
         #region Properties
 
         [DataMember(Name = "_d")]
-        public string DisplayName
+        public string Name
         {
             get
             {
-                if (_displayName == null)
-                    _displayName = Value?.ToString() ?? string.Empty;
-                return _displayName;
+                if (_name == null)
+                    _name = Value?.ToString() ?? string.Empty;
+                return _name;
             }
-            internal set => _displayName = value;
+            internal set => _name = value;
         }
 
         [DataMember(Name = "_v")]
-        public TValue Value
-        {
-            get => _value;
-            internal set => _value = value;
-        }
+        public TValue Value { get; internal set; }
 
         #endregion
 
@@ -70,59 +72,77 @@ namespace MugenMvvm.Enums
 
         public int CompareTo(TEnumeration? other)
         {
-            if (other == null)
+            if (ReferenceEquals(other, null))
                 return 1;
             return Value.CompareTo(other.Value);
         }
 
         public bool Equals(TEnumeration? other)
         {
-            return other != null && Value.Equals(other.Value);
+            return !ReferenceEquals(other, null) && Equals(other.Value);
         }
 
         #endregion
 
         #region Methods
 
-        public override bool Equals(object obj)
+        protected abstract bool Equals(TValue value);
+
+        public sealed override bool Equals(object obj)
         {
             return Equals(obj as TEnumeration);
         }
 
-        public override int GetHashCode()
+        public sealed override int GetHashCode()
         {
+            // ReSharper disable once NonReadonlyMemberInGetHashCode
             return Value.GetHashCode();
         }
 
         public sealed override string ToString()
         {
-            return DisplayName;
+            return Name;
         }
 
         public static bool operator ==(EnumBase<TEnumeration, TValue>? left, EnumBase<TEnumeration, TValue>? right)
         {
-            return Equals(left, right);
+            if (ReferenceEquals(left, right))
+                return true;
+            if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
+                return false;
+            return left.Equals(right);
         }
 
         public static bool operator !=(EnumBase<TEnumeration, TValue>? left, EnumBase<TEnumeration, TValue>? right)
         {
-            return !Equals(left, right);
+            return !(left == right);
+        }
+
+        public static explicit operator EnumBase<TEnumeration, TValue>(TValue value)
+        {
+            return Parse(value);
         }
 
         public static ICollection<TEnumeration> GetAll()
         {
-            return GetEnumerations().Values;
+            return _enumerations.Values;
         }
 
         public static bool TryParse(TValue value, out TEnumeration result)
         {
-            if (value == null)
+            if (NullCheckRequired && IsNull(value))
             {
                 result = default!;
                 return false;
             }
 
-            return GetEnumerations().TryGetValue(value, out result);
+            if (_enumerations.TryGetValue(value, out result))
+                return true;
+
+            if (_flagEnumConverter == null)
+                return false;
+            result = _flagEnumConverter(value);
+            return true;
         }
 
         public static TEnumeration Parse(TValue value)
@@ -135,30 +155,31 @@ namespace MugenMvvm.Enums
 
         public static TEnumeration FromValueOrDefault(TValue value, TEnumeration defaultValue)
         {
-            if (!TryParse(value, out var result))
-                return defaultValue;
-            return result;
+            if (TryParse(value, out var result))
+                return result;
+            return defaultValue;
         }
 
-        public static void SetAllEnumerations(Dictionary<TValue, TEnumeration> enumerations)
+        public static void SetEnumerations(Dictionary<TValue, TEnumeration> enumerations)
         {
             Should.NotBeNull(enumerations, nameof(enumerations));
             _enumerations = enumerations;
         }
 
-        private static Dictionary<TValue, TEnumeration> GetEnumerations()
+        public static void SetEnum(TValue value, TEnumeration enumeration)
         {
-            if (_enumerations == null)
-            {
-                _enumerations = typeof(TEnumeration)
-                    .GetFieldsUnified(MemberFlags.StaticPublic)
-                    .Where(info => typeof(TEnumeration).IsAssignableFromUnified(info.FieldType))
-                    .Select(info => info.GetValue(null))
-                    .Cast<TEnumeration>()
-                    .ToDictionary(enumeration => enumeration.Value);
-            }
+            _enumerations[value] = enumeration;
+        }
 
-            return _enumerations;
+        protected static void SetIsFlagEnum(Func<TValue, TEnumeration> flagEnumConverter)
+        {
+            Should.NotBeNull(flagEnumConverter, nameof(flagEnumConverter));
+            _flagEnumConverter = flagEnumConverter;
+        }
+
+        private static bool IsNull(TValue value)
+        {
+            return value == null;
         }
 
         #endregion

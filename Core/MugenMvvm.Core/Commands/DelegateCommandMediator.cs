@@ -241,21 +241,19 @@ namespace MugenMvvm.Commands
         protected virtual Task ExecuteInternalAsync(object? parameter)
         {
             var executeAction = ExecuteDelegate;
-            switch (ExecutionMode)
+            if (ExecutionMode == CommandExecutionMode.CanExecuteBeforeExecute)
             {
-                case CommandExecutionMode.CanExecuteBeforeExecute:
-                    if (!CanExecute(parameter))
-                    {
-                        Tracer.Warn(MessageConstants.CommandCannotBeExecutedString);
-                        RaiseCanExecuteChanged();
-                        return Default.CompletedTask;
-                    }
-
-                    break;
-                case CommandExecutionMode.CanExecuteBeforeExecuteWithException:
-                    if (!CanExecute(parameter))
-                        ExceptionManager.ThrowCommandCannotBeExecuted();
-                    break;
+                if (!CanExecute(parameter))
+                {
+                    Tracer.Warn(MessageConstants.CommandCannotBeExecutedString);
+                    RaiseCanExecuteChanged();
+                    return Default.CompletedTask;
+                }
+            }
+            else if (ExecutionMode == CommandExecutionMode.CanExecuteBeforeExecuteWithException)
+            {
+                if (!CanExecute(parameter))
+                    ExceptionManager.ThrowCommandCannotBeExecuted();
             }
 
             if (executeAction is Action execute)

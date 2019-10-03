@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
@@ -11,9 +12,9 @@ namespace MugenMvvm.Enums
     {
         #region Fields
 
-        public static readonly NavigationCallbackType Showing = new NavigationCallbackType(0);
-        public static readonly NavigationCallbackType Closing = new NavigationCallbackType(1);
-        public static readonly NavigationCallbackType Close = new NavigationCallbackType(2);
+        public static readonly NavigationCallbackType Showing = new NavigationCallbackType(1);
+        public static readonly NavigationCallbackType Closing = new NavigationCallbackType(2);
+        public static readonly NavigationCallbackType Close = new NavigationCallbackType(3);
 
         #endregion
 
@@ -26,6 +27,31 @@ namespace MugenMvvm.Enums
 
         public NavigationCallbackType(int value) : base(value)
         {
+        }
+
+        #endregion
+
+        #region Methods
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(NavigationCallbackType? left, NavigationCallbackType? right)
+        {
+            if (ReferenceEquals(left, right))
+                return true;
+            if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
+                return false;
+            return left.Value == right.Value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(NavigationCallbackType? left, NavigationCallbackType? right)
+        {
+            return !(left == right);
+        }
+
+        protected override bool Equals(int value)
+        {
+            return Value == value;
         }
 
         #endregion

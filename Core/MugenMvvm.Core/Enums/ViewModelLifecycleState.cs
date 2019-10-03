@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
@@ -25,13 +26,13 @@ namespace MugenMvvm.Enums
 
         #region Constructors
 
-        public ViewModelLifecycleState(string value)
-            : base(value)
+        [Preserve(Conditional = true)]
+        protected ViewModelLifecycleState()
         {
         }
 
-        [Preserve(Conditional = true)]
-        internal ViewModelLifecycleState()
+        public ViewModelLifecycleState(string value)
+            : base(value)
         {
         }
 
@@ -44,6 +45,31 @@ namespace MugenMvvm.Enums
 
         [DataMember(Name = "r")]
         public bool IsRestore { get; set; }
+
+        #endregion
+
+        #region Methods
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(ViewModelLifecycleState? left, ViewModelLifecycleState? right)
+        {
+            if (ReferenceEquals(left, right))
+                return true;
+            if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
+                return false;
+            return left.Value == right.Value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(ViewModelLifecycleState? left, ViewModelLifecycleState? right)
+        {
+            return !(left == right);
+        }
+
+        protected override bool Equals(string value)
+        {
+            return Value.Equals(value);
+        }
 
         #endregion
     }

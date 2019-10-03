@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
@@ -24,13 +25,13 @@ namespace MugenMvvm.Enums
 
         #region Constructors
 
-        public PlatformType(string id)
-            : base(id)
+        [Preserve(Conditional = true)]
+        protected PlatformType()
         {
         }
 
-        [Preserve(Conditional = true)]
-        protected PlatformType()
+        public PlatformType(string id)
+            : base(id)
         {
         }
 
@@ -48,6 +49,27 @@ namespace MugenMvvm.Enums
         public PlatformType ToXamForms()
         {
             return new PlatformType(Value) {IsXamForms = true};
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(PlatformType? left, PlatformType? right)
+        {
+            if (ReferenceEquals(left, right))
+                return true;
+            if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
+                return false;
+            return left.Value == right.Value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(PlatformType? left, PlatformType? right)
+        {
+            return !(left == right);
+        }
+
+        protected override bool Equals(string value)
+        {
+            return Value.Equals(value);
         }
 
         #endregion

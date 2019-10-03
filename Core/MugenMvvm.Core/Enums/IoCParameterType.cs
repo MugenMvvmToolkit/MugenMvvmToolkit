@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
@@ -25,6 +26,31 @@ namespace MugenMvvm.Enums
 
         public IocParameterType(int value) : base(value)
         {
+        }
+
+        #endregion
+
+        #region Methods
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(IocParameterType? left, IocParameterType? right)
+        {
+            if (ReferenceEquals(left, right))
+                return true;
+            if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
+                return false;
+            return left.Value == right.Value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(IocParameterType? left, IocParameterType? right)
+        {
+            return !(left == right);
+        }
+
+        protected override bool Equals(int value)
+        {
+            return Value == value;
         }
 
         #endregion

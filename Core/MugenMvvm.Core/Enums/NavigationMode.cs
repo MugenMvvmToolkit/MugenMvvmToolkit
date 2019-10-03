@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
@@ -64,6 +65,31 @@ namespace MugenMvvm.Enums
 
         [DataMember(Name = "rs")]
         public bool IsRestore { get; protected set; }
+
+        #endregion
+
+        #region Methods
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(NavigationMode? left, NavigationMode? right)
+        {
+            if (ReferenceEquals(left, right))
+                return true;
+            if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
+                return false;
+            return left.Value == right.Value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(NavigationMode? left, NavigationMode? right)
+        {
+            return !(left == right);
+        }
+
+        protected override bool Equals(string value)
+        {
+            return Value.Equals(value);
+        }
 
         #endregion
     }

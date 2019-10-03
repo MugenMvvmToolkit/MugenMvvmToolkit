@@ -44,17 +44,11 @@ namespace MugenMvvm.Internal
 
         public bool CanTrace(TraceLevel level)
         {
-            switch (level)
-            {
-                case TraceLevel.Information:
-                    return TraceInformation;
-                case TraceLevel.Warning:
-                    return TraceWarning;
-                case TraceLevel.Error:
-                    return TraceError;
-                default:
-                    return false;
-            }
+            if (level == TraceLevel.Information)
+                return TraceInformation;
+            if (level == TraceLevel.Warning)
+                return TraceWarning;
+            return level == TraceLevel.Error;
         }
 
         #endregion

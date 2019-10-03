@@ -159,7 +159,7 @@ namespace MugenMvvm.Internal.Components
                 return null;
 
             var mParameters = method.GetParameters();
-            var eParameters = delegateType.GetMethodUnified(nameof(Action.Invoke), MemberFlags.InstancePublic | MemberFlags.StaticPublic)?.GetParameters();
+            var eParameters = delegateType.GetMethodUnified(nameof(Action.Invoke), MemberFlags.InstancePublic)?.GetParameters();
             if (eParameters == null || mParameters.Length != eParameters.Length)
                 return null;
             if (method.IsGenericMethodDefinition)

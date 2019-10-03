@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
@@ -13,14 +14,14 @@ namespace MugenMvvm.Enums
 
         public static readonly NavigationType Undefined = new NavigationType(nameof(Undefined));
 
-        public static readonly NavigationType Tab = new NavigationType(nameof(Tab)) { IsNestedNavigation = true };
-        public static readonly NavigationType Window = new NavigationType(nameof(Window)) { IsRootNavigation = true };
-        public static readonly NavigationType Popup = new NavigationType(nameof(Popup)) { IsRootNavigation = true };
-        public static readonly NavigationType Page = new NavigationType(nameof(Page)) { IsRootNavigation = true };
+        public static readonly NavigationType Tab = new NavigationType(nameof(Tab)) {IsNestedNavigation = true};
+        public static readonly NavigationType Window = new NavigationType(nameof(Window)) {IsRootNavigation = true};
+        public static readonly NavigationType Popup = new NavigationType(nameof(Popup)) {IsRootNavigation = true};
+        public static readonly NavigationType Page = new NavigationType(nameof(Page)) {IsRootNavigation = true};
 
-        public static readonly NavigationType System = new NavigationType(nameof(System)) { IsSystemNavigation = true };
-        public static readonly NavigationType Alert = new NavigationType(nameof(Alert)) { IsSystemNavigation = true };
-        public static readonly NavigationType Toast = new NavigationType(nameof(Toast)) { IsSystemNavigation = true };
+        public static readonly NavigationType System = new NavigationType(nameof(System)) {IsSystemNavigation = true};
+        public static readonly NavigationType Alert = new NavigationType(nameof(Alert)) {IsSystemNavigation = true};
+        public static readonly NavigationType Toast = new NavigationType(nameof(Toast)) {IsSystemNavigation = true};
 
         #endregion
 
@@ -30,7 +31,6 @@ namespace MugenMvvm.Enums
         protected NavigationType()
         {
         }
-
 
         public NavigationType(string value) : base(value)
         {
@@ -51,6 +51,31 @@ namespace MugenMvvm.Enums
 
         [DataMember(Name = "s")]
         public bool IsSystemNavigation { get; protected set; }
+
+        #endregion
+
+        #region Methods
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator ==(NavigationType? left, NavigationType? right)
+        {
+            if (ReferenceEquals(left, right))
+                return true;
+            if (ReferenceEquals(left, null) || ReferenceEquals(right, null))
+                return false;
+            return left.Value == right.Value;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool operator !=(NavigationType? left, NavigationType? right)
+        {
+            return !(left == right);
+        }
+
+        protected override bool Equals(string value)
+        {
+            return Value.Equals(value);
+        }
 
         #endregion
     }

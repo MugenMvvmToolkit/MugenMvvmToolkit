@@ -63,10 +63,12 @@ namespace MugenMvvm.Collections
             return DecorateItems(null);
         }
 
-        public IDisposable BeginBatchUpdate(BatchUpdateCollectionMode mode = BatchUpdateCollectionMode.Both)
+        public IDisposable BeginBatchUpdate(BatchUpdateCollectionMode mode = null)
         {
-            var hasListeners = mode.HasFlagEx(BatchUpdateCollectionMode.Listeners);
-            var hasDecorators = mode.HasFlagEx(BatchUpdateCollectionMode.DecoratorListeners);
+            if (mode == null)
+                mode = BatchUpdateCollectionMode.Both;
+            var hasListeners = mode.HasFlag(BatchUpdateCollectionMode.Listeners);
+            var hasDecorators = mode.HasFlag(BatchUpdateCollectionMode.DecoratorListeners);
             if (!hasListeners && !hasDecorators)
                 return Default.Disposable;
 
