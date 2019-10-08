@@ -29,7 +29,7 @@ namespace MugenMvvm.Binding.Core
 
         public object? GetValue()
         {
-            var sources = (IMemberPathObserver[]) SourceRaw;
+            var sources = (IMemberPathObserver[])SourceRaw;
             var values = new object?[sources.Length];
             for (var i = 0; i < sources.Length; i++)
             {
@@ -54,7 +54,7 @@ namespace MugenMvvm.Binding.Core
 
         protected override object? GetSourceValue(in MemberPathLastMember targetMember)
         {
-            if (BindingMemberType.Event.Equals(targetMember.LastMember.MemberType))
+            if (BindingMemberType.Event == targetMember.LastMember.MemberType)
                 return this;
             return GetValue();
         }

@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
+using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
-using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Collections;
 using MugenMvvm.Components;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -18,12 +19,10 @@ namespace MugenMvvm.Binding.Members
     {
         #region Fields
 
-        protected readonly HashSet<string> CurrentNames;
         protected readonly TempCacheDictionary<IBindingMemberInfo?> TempCache;
-        protected readonly TempCacheDictionary<IReadOnlyList<IBindingMethodInfo>> TempMethodsCache;
+        protected readonly TempCacheDictionary<IReadOnlyList<IBindingMemberInfo>> TempMembersCache;
 
         protected IMemberProviderComponent[] MemberProviders;
-        protected IMethodProviderComponent[] MethodProviders;
 
         #endregion
 
@@ -34,51 +33,49 @@ namespace MugenMvvm.Binding.Members
             : base(componentCollectionProvider)
         {
             MemberProviders = Default.EmptyArray<IMemberProviderComponent>();
-            MethodProviders = Default.EmptyArray<IMethodProviderComponent>();
             TempCache = new TempCacheDictionary<IBindingMemberInfo?>();
-            TempMethodsCache = new TempCacheDictionary<IReadOnlyList<IBindingMethodInfo>>();
-            CurrentNames = new HashSet<string>(StringComparer.Ordinal);
+            TempMembersCache = new TempCacheDictionary<IReadOnlyList<IBindingMemberInfo>>();
         }
 
         #endregion
 
         #region Implementation of interfaces
 
-        public IBindingMemberInfo? GetMember(Type type, string name, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(type, nameof(type));
-            Should.NotBeNull(name, nameof(name));
-            bool ignoreAttachedMembers = false;
-            if (metadata != null)
-                ignoreAttachedMembers = metadata.Get(BindingMemberMetadata.IgnoreAttachedMembers);
-            return GetMemberInternal(type, name, ignoreAttachedMembers, metadata);
-        }
-
-        public IReadOnlyList<IBindingMethodInfo> GetMethods(Type type, string name, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(type, nameof(type));
-            Should.NotBeNull(name, nameof(name));
-            bool ignoreAttachedMembers = false;
-            if (metadata != null)
-                ignoreAttachedMembers = metadata.Get(BindingMemberMetadata.IgnoreAttachedMembers);
-            return GetMethodsInternal(type, name, ignoreAttachedMembers, metadata);
-        }
-
         void IComponentOwnerAddedCallback<IComponent<IMemberProvider>>.OnComponentAdded(IComponentCollection<IComponent<IMemberProvider>> collection,
             IComponent<IMemberProvider> component, IReadOnlyMetadataContext? metadata)
         {
             OnComponentAdded(collection, component, metadata);
+            Invalidate();
         }
 
         void IComponentOwnerRemovedCallback<IComponent<IMemberProvider>>.OnComponentRemoved(IComponentCollection<IComponent<IMemberProvider>> collection,
             IComponent<IMemberProvider> component, IReadOnlyMetadataContext? metadata)
         {
             OnComponentRemoved(collection, component, metadata);
+            Invalidate();
         }
 
-        public void ClearCache()
+        public void Invalidate()
         {
-            ClearCacheInternal();
+            InvalidateCacheInternal();
+        }
+
+        public IBindingMemberInfo? GetMember(Type type, string name, BindingMemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(type, nameof(type));
+            Should.NotBeNull(name, nameof(name));
+            if (!flags.HasFlagEx(MemberFlags.NonPublic))
+                flags |= MemberFlags.Public;
+            return GetMemberInternal(type, name, memberTypes, flags, metadata);
+        }
+
+        public IReadOnlyList<IBindingMemberInfo> GetMembers(Type type, string name, BindingMemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(type, nameof(type));
+            Should.NotBeNull(name, nameof(name));
+            if (!flags.HasFlagEx(MemberFlags.NonPublic))
+                flags |= MemberFlags.Public;
+            return GetMembersInternal(type, name, memberTypes, flags, metadata);
         }
 
         #endregion
@@ -89,51 +86,27 @@ namespace MugenMvvm.Binding.Members
             IReadOnlyMetadataContext? metadata)
         {
             MugenExtensions.ComponentTrackerOnAdded(ref MemberProviders, this, collection, component, metadata);
-            MugenExtensions.ComponentTrackerOnAdded(ref MethodProviders, this, collection, component, metadata);
         }
 
         protected virtual void OnComponentRemoved(IComponentCollection<IComponent<IMemberProvider>> collection, IComponent<IMemberProvider> component,
             IReadOnlyMetadataContext? metadata)
         {
             MugenExtensions.ComponentTrackerOnRemoved(ref MemberProviders, collection, component, metadata);
-            MugenExtensions.ComponentTrackerOnRemoved(ref MethodProviders, collection, component, metadata);
         }
 
-        protected virtual IBindingMemberInfo? GetMemberInternal(Type type, string name, bool ignoreAttachedMembers, IReadOnlyMetadataContext? metadata)
+        protected virtual IBindingMemberInfo? GetMemberInternal(Type type, string name, BindingMemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
         {
-            try
-            {
-                if (!CurrentNames.Add(name))
-                    return null;
-
-                return GetMemberImpl(type, name, ignoreAttachedMembers, metadata);
-            }
-            finally
-            {
-                CurrentNames.Remove(name);
-            }
-        }
-
-        protected virtual IReadOnlyList<IBindingMethodInfo> GetMethodsInternal(Type type, string name, bool ignoreAttachedMembers, IReadOnlyMetadataContext? metadata)
-        {
-            return GetMethodsImpl(type, name, ignoreAttachedMembers, metadata);
-        }
-
-        protected virtual void ClearCacheInternal()
-        {
-            TempCache.Clear();
-        }
-
-        protected IBindingMemberInfo? GetMemberImpl(Type type, string name, bool ignoreAttachedMembers, IReadOnlyMetadataContext? metadata)
-        {
-            var cacheKey = new CacheKey(type, name, ignoreAttachedMembers);
+            var cacheKey = new CacheKey(type, name, memberTypes, flags);
             if (TempCache.TryGetValue(cacheKey, out var result))
                 return result;
 
             for (var i = 0; i < MemberProviders.Length; i++)
             {
-                result = MemberProviders[i].TryGetMember(type, name, metadata);
-                if (result != null && (!ignoreAttachedMembers || !result.IsAttached))
+                var members = MemberProviders[i].TryGetMembers(type, name, metadata);
+                if (members == null || members.Count == 0)
+                    continue;
+                result = SelectMember(members, memberTypes, flags, metadata);
+                if (result != null)
                     break;
             }
 
@@ -141,32 +114,52 @@ namespace MugenMvvm.Binding.Members
             return result;
         }
 
-        protected IReadOnlyList<IBindingMethodInfo> GetMethodsImpl(Type type, string name, bool ignoreAttachedMembers, IReadOnlyMetadataContext? metadata)
+        protected virtual IReadOnlyList<IBindingMemberInfo> GetMembersInternal(Type type, string name, BindingMemberType memberTypes, MemberFlags flags,
+            IReadOnlyMetadataContext? metadata)
         {
-            var cacheKey = new CacheKey(type, name, ignoreAttachedMembers);
-            if (TempMethodsCache.TryGetValue(cacheKey, out var result))
+            var cacheKey = new CacheKey(type, name, memberTypes, flags);
+            if (TempMembersCache.TryGetValue(cacheKey, out var result))
                 return result;
 
-            List<IBindingMethodInfo>? methods = null;
-            for (var i = 0; i < MethodProviders.Length; i++)
+            List<IBindingMemberInfo>? list = null;
+            for (var i = 0; i < MemberProviders.Length; i++)
             {
-                var m = MethodProviders[i].TryGetMethods(type, name, metadata);
-                if (m == null || m.Count == 0)
+                var members = MemberProviders[i].TryGetMembers(type, name, metadata);
+                if (members == null || members.Count == 0)
                     continue;
 
-                foreach (var info in m)
-                {
-                    if (ignoreAttachedMembers && info.IsAttached)
-                        continue;
+                if (list == null)
+                    list = new List<IBindingMemberInfo>();
 
-                    if (methods == null)
-                        methods = new List<IBindingMethodInfo>();
-                    methods.Add(info);
+                for (var j = 0; j < members.Count; j++)
+                {
+                    var member = members[i];
+                    if (memberTypes.HasFlagEx(member.MemberType) && flags.HasFlagEx(member.AccessModifiers))
+                        list.Add(member);
                 }
             }
 
-            TempMethodsCache[cacheKey] = (IReadOnlyList<IBindingMethodInfo>?)methods ?? Default.EmptyArray<IBindingMethodInfo>();
+            result = (IReadOnlyList<IBindingMemberInfo>) list ?? Default.EmptyArray<IBindingMemberInfo>();
+            TempMembersCache[cacheKey] = result;
             return result;
+        }
+
+        protected virtual void InvalidateCacheInternal()
+        {
+            TempCache.Clear();
+            TempMembersCache.Clear();
+        }
+
+        protected IBindingMemberInfo? SelectMember(IReadOnlyList<IBindingMemberInfo> members, BindingMemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
+        {
+            for (var i = 0; i < members.Count; i++)
+            {
+                var member = members[i];
+                if (memberTypes.HasFlagEx(member.MemberType) && flags.HasFlagEx(member.AccessModifiers))
+                    return member;
+            }
+
+            return null;
         }
 
         #endregion
@@ -187,15 +180,18 @@ namespace MugenMvvm.Binding.Members
 
             protected override bool Equals(CacheKey x, CacheKey y)
             {
-                return x.IgnoreAttachedMembers == y.IgnoreAttachedMembers &&
-                       x.Name.Equals(y.Name) && x.Type.EqualsEx(y.Type);
+                return x.MemberType == y.MemberType && x.MemberFlags == y.MemberFlags && x.Name.Equals(y.Name) && x.Type.EqualsEx(y.Type);
             }
 
             protected override int GetHashCode(CacheKey key)
             {
                 unchecked
                 {
-                    return (key.Type.GetHashCode() * 397 ^ key.Name.GetHashCode()) * 397 ^ key.IgnoreAttachedMembers.GetHashCode();
+                    var hashCode = key.Name.GetHashCode();
+                    hashCode = hashCode * 397 ^ key.Type.GetHashCode();
+                    hashCode = hashCode * 397 ^ key.MemberType.GetHashCode();
+                    hashCode = hashCode * 397 ^ key.MemberFlags.GetHashCode();
+                    return hashCode;
                 }
             }
 
@@ -209,19 +205,21 @@ namespace MugenMvvm.Binding.Members
 
             public readonly string Name;
             public readonly Type Type;
-            public readonly bool IgnoreAttachedMembers;
+            public readonly byte MemberType;
+            public readonly byte MemberFlags;
 
             #endregion
 
             #region Constructors
 
-            public CacheKey(Type type, string name, bool ignoreAttachedMembers)
+            public CacheKey(Type type, string name, BindingMemberType memberType, MemberFlags memberFlags)
             {
                 Type = type;
                 if (name == null)
                     name = string.Empty;
                 Name = name;
-                IgnoreAttachedMembers = ignoreAttachedMembers;
+                MemberType = (byte) memberType;
+                MemberFlags = (byte) memberFlags;
             }
 
             #endregion

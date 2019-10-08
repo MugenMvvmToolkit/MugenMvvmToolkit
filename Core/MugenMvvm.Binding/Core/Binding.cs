@@ -16,7 +16,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Binding.Core
 {
-    public class Binding : IBinding, IComponentCollection<IComponent<IBinding>>, IMemberPathObserverListener, IReadOnlyMetadataContext
+    public class Binding : IBinding, IComponentCollection<IComponent<IBinding>>, IMemberPathObserverListener, IReadOnlyMetadataContext//todo use byte state
     {
         #region Fields
 

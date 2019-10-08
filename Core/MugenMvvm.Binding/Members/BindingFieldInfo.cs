@@ -1,0 +1,94 @@
+﻿using System;
+using System.Reflection;
+using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Interfaces.Members;
+using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Binding.Observers;
+using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Metadata;
+
+namespace MugenMvvm.Binding.Members
+{
+    internal sealed class BindingFieldInfo : IBindingPropertyInfo
+    {
+        #region Fields
+
+        private readonly FieldInfo _fieldInfo;
+        private readonly MemberObserver _observer;
+        private Func<object?, object?> _getterFunc;
+        private Action<object?, object?> _setterFunc;
+
+        #endregion
+
+        #region Constructors
+
+        public BindingFieldInfo(string name, FieldInfo fieldInfo, MemberObserver observer)
+        {
+            _fieldInfo = fieldInfo;
+            _observer = observer;
+            Name = name;
+            Type = _fieldInfo.FieldType;
+            _getterFunc = CompileGetter;
+            _setterFunc = CompileSetter;
+            if (fieldInfo.IsStatic)
+                AccessModifiers = fieldInfo.IsPublic ? MemberFlags.StaticPublic : MemberFlags.StaticNonPublic;
+            else
+                AccessModifiers = fieldInfo.IsPublic ? MemberFlags.InstancePublic : MemberFlags.InstanceNonPublic;
+        }
+
+        #endregion
+
+        #region Properties
+
+        public string Name { get; }
+
+        public Type Type { get; }
+
+        public object? Member => _fieldInfo;
+
+        public BindingMemberType MemberType => BindingMemberType.Field;
+
+        public MemberFlags AccessModifiers { get; }
+
+        public bool CanRead => true;
+
+        public bool CanWrite => true;
+
+        #endregion
+
+        #region Implementation of interfaces
+
+        public IDisposable? TryObserve(object? source, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
+        {
+            return _observer.TryObserve(source, listener, metadata);
+        }
+
+        public object? GetValue(object? source, IReadOnlyMetadataContext? metadata = null)
+        {
+            return _getterFunc(source);
+        }
+
+        public void SetValue(object? source, object? value, IReadOnlyMetadataContext? metadata = null)
+        {
+            _setterFunc(source, value);
+        }
+
+        #endregion
+
+        #region Methods
+
+        private void CompileSetter(object? arg1, object? arg2)
+        {
+            _setterFunc = _fieldInfo.GetMemberSetter<object?>();
+            _setterFunc(arg1, arg2);
+        }
+
+        private object? CompileGetter(object? arg)
+        {
+            _getterFunc = _fieldInfo.GetMemberGetter<object?>();
+            return _getterFunc(arg);
+        }
+
+        #endregion
+    }
+}

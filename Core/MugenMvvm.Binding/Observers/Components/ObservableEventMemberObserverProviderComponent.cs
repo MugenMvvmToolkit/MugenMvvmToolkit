@@ -1,9 +1,11 @@
 ﻿using System;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
+using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Observers.Components;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
@@ -39,7 +41,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         public MemberObserver TryGetMemberObserver(Type type, in string member, IReadOnlyMetadataContext? metadata)
         {
-            var observableMember = TryGetEvent(type, member, metadata);
+            var observableMember = TryGetEvent(type, member, MemberFlags.InstancePublic, metadata);
             if (observableMember != null)
                 return new MemberObserver(this, observableMember);
 
@@ -55,14 +57,14 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Methods
 
-        private IBindingEventInfo? TryGetEvent(Type type, string memberName, IReadOnlyMetadataContext? metadata)
+        private IBindingEventInfo? TryGetEvent(Type type, string memberName, MemberFlags flags, IReadOnlyMetadataContext? metadata)
         {
             if (EventFinder != null)
                 return EventFinder(type, memberName, metadata);
 
             var provider = _memberProvider.ServiceIfNull();
-            return provider.GetMember(type, memberName + BindingInternalConstants.ChangedEventPostfix, metadata) as IBindingEventInfo
-                   ?? provider.GetMember(type, memberName + "Change", metadata) as IBindingEventInfo;
+            return provider.GetMember(type, memberName + BindingInternalConstants.ChangedEventPostfix, BindingMemberType.Event, flags, metadata) as IBindingEventInfo
+                   ?? provider.GetMember(type, memberName + "Change", BindingMemberType.Event, flags, metadata) as IBindingEventInfo;
         }
 
         #endregion

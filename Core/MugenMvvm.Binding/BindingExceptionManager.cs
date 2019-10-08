@@ -31,7 +31,7 @@ namespace MugenMvvm.Binding
 
         public static void ThrowCannotParseExpression<T>(in T expression)
         {
-            throw new InvalidOperationException(CannotParseExpressionFormat1.Format(expression));
+            throw new InvalidOperationException(CannotParseExpressionFormat1.Format(expression.ToString()));
         }
 
         public static void ThrowCannotCompileExpression(IExpressionNode expression)

@@ -20,8 +20,8 @@ namespace MugenMvvm.Binding.Parsing.Components
         private readonly IMetadataContextProvider? _metadataContextProvider;
         private readonly TokenParserContext _parserContext;
 
-        public static readonly HashSet<char> TargetDelimiters = new HashSet<char> {',', ';', ' '};
-        public static readonly HashSet<char> Delimiters = new HashSet<char> {',', ';'};
+        public static readonly HashSet<char> TargetDelimiters = new HashSet<char> { ',', ';', ' ' };
+        public static readonly HashSet<char> Delimiters = new HashSet<char> { ',', ';' };
 
         #endregion
 
@@ -84,7 +84,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 else
                 {
                     if (result == null)
-                        result = new List<ExpressionParserResult> {itemResult};
+                        result = new List<ExpressionParserResult> { itemResult };
                     result.Add(r);
                 }
             }
@@ -118,7 +118,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 else
                 {
                     if (parameters == null)
-                        parameters = new List<IExpressionNode> {parameter};
+                        parameters = new List<IExpressionNode> { parameter };
                     parameters.Add(param);
                 }
             }
@@ -192,7 +192,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                         return ctx;
 
                     Interlocked.CompareExchange(ref _metadata, _metadata.ToNonReadonly(this, _parser._metadataContextProvider), null);
-                    return (IMetadataContext) _metadata!;
+                    return (IMetadataContext)_metadata!;
                 }
             }
 
@@ -250,7 +250,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
             public override string ToString()
             {
-                return $"Position '{Position}' CurrentToken '{GetToken(Position)}' PrevToken '{GetToken(Position - 1)}' NextToken '{GetToken(Position + 1)}' Source '{_source}'";
+                return $"Position '{Position.ToString()}' CurrentToken '{GetToken(Position)}' PrevToken '{GetToken(Position - 1)}' NextToken '{GetToken(Position + 1)}' Source '{_source}'";
             }
 
             private string GetToken(int position)

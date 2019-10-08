@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -11,21 +13,22 @@ namespace MugenMvvm.Binding.Observers
     {
         #region Fields
 
-        private byte _state;
         private Exception? _exception;
-        private IBindingPropertyInfo? _lastMember;
+        private IBindingMemberInfo? _lastMember;
         private IDisposable? _lastMemberUnsubscriber;
+
+        private byte _state;
+        private readonly MemberFlags _memberFlags;
 
         #endregion
 
         #region Constructors
 
-        public SinglePathObserver(IWeakReference source, IMemberPath path, bool ignoreAttachedMembers, bool observable, bool optional)
+        public SinglePathObserver(IWeakReference source, IMemberPath path, MemberFlags memberFlags, bool observable, bool optional)
             : base(source)
         {
             Should.NotBeNull(path, nameof(path));
-            if (ignoreAttachedMembers)
-                _state |= IgnoreAttachedMembersFlag;
+            _memberFlags = memberFlags;
             if (observable)
                 _state |= ObservableFlag;
             if (optional)
@@ -42,8 +45,6 @@ namespace MugenMvvm.Binding.Observers
         public bool IsWeak => false;
 
         public IWeakReference? WeakReference { get; set; }
-
-        private bool IgnoreAttachedMembers => CheckFlag(IgnoreAttachedMembersFlag);
 
         private bool Observable => CheckFlag(ObservableFlag);
 
@@ -149,7 +150,9 @@ namespace MugenMvvm.Binding.Observers
                 if (_lastMember != null)
                     return;
 
-                _lastMember = GetMember(source.GetType(), Path.Path, IgnoreAttachedMembers);
+                _lastMember = MugenBindingService
+                    .MemberProvider
+                    .GetMember(source.GetType(), Path.Path, BindingMemberType.Event | BindingMemberType.Field | BindingMemberType.Property, _memberFlags);
                 if (_lastMember == null)
                 {
                     if (Optional)
@@ -170,19 +173,20 @@ namespace MugenMvvm.Binding.Observers
             }
         }
 
-        private void SetLastMember(IBindingPropertyInfo? lastMember, Exception? exception)
+        private void SetLastMember(IBindingMemberInfo? lastMember, Exception? exception)
         {
             _lastMember = lastMember;
             _exception = exception;
             OnLastMemberChanged();
         }
 
-        private void Subscribe(object source, IBindingPropertyInfo? lastMember)
+        private void Subscribe(object source, IBindingMemberInfo? lastMember)
         {
             _lastMemberUnsubscriber?.Dispose();
-            _lastMemberUnsubscriber = lastMember?.TryObserve(source, this) ?? Default.Disposable;
+            _lastMemberUnsubscriber = (lastMember as IBindingPropertyInfo)?.TryObserve(source, this) ?? Default.Disposable;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool CheckFlag(byte flag)
         {
             return (_state & flag) == flag;

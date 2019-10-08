@@ -1,5 +1,6 @@
 ﻿using System;
 using MugenMvvm.Binding.Interfaces.Members;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 
 // ReSharper disable once CheckNamespace
@@ -11,9 +12,7 @@ namespace MugenMvvm.Binding
 
         public static object? GetParent(object? target, IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null)
         {
-            if (target == null)
-                return null;
-            return ObjectBindableMembers.Parent.GetValueOrDefault(target, null, metadata, provider);
+            return target?.GetBindableMemberValue(BindableMembers.Object.Parent, null, MemberFlags.All, metadata, provider);
         }
 
         public static object? FindByName(object target, string elementName, IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null)
@@ -24,7 +23,7 @@ namespace MugenMvvm.Binding
             while (target != null)
             {
                 args[0] = elementName;
-                var result = ObjectBindableMembers.FindByNameMethod.GetValueOrDefault(target, args, metadata, provider);
+                var result = target.TryInvokeBindableMethod(BindableMembers.Object.FindByNameMethod, args, MemberFlags.All, metadata, provider);
                 if (result != null)
                     return result;
                 target = GetParent(target)!;

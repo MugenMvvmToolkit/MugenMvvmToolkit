@@ -1,7 +1,5 @@
 ﻿using System;
-using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
-using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -14,14 +12,11 @@ namespace MugenMvvm.Binding.Observers
         private object? _listeners;
         private IWeakReference? _source;
 
-        protected const byte IgnoreAttachedMembersFlag = 1;
         protected const byte ObservableFlag = 1 << 1;
         protected const byte OptionalFlag = 1 << 2;
         protected const byte HasStablePathFlag = 1 << 3;
         protected const byte InitializedFlag = 1 << 4;
 
-        private static readonly IReadOnlyMetadataContext IgnoreAttachedMembersMetadata =
-            MugenExtensions.GetSingleValueMetadataContext(BindingMemberMetadata.IgnoreAttachedMembers, true);
         private static readonly IMemberPathObserverListener[] DisposedItems = new IMemberPathObserverListener[0];
 
         #endregion
@@ -78,7 +73,7 @@ namespace MugenMvvm.Binding.Observers
                 _listeners = listeners;
             }
             else
-                _listeners = new[] { (IMemberPathObserverListener)_listeners, listener };
+                _listeners = new[] {(IMemberPathObserverListener) _listeners, listener};
 
             OnListenerAdded(listener);
         }
@@ -165,11 +160,6 @@ namespace MugenMvvm.Binding.Observers
             {
                 ;
             }
-        }
-
-        protected static IBindingPropertyInfo? GetMember(Type type, string path, bool ignoreAttached)
-        {
-            return MugenBindingService.MemberProvider.GetMember(type, path, ignoreAttached ? IgnoreAttachedMembersMetadata : null) as IBindingPropertyInfo;
         }
 
         private bool RemoveListenerInternal(IMemberPathObserverListener listener)

@@ -37,7 +37,6 @@ namespace MugenMvvm.Binding.Observers
         public MemberObserver GetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(type, nameof(type));
-            Should.NotBeNull(member, nameof(member));
             return GetMemberObserverInternal(type, member, metadata);
         }
 

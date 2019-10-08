@@ -3,6 +3,7 @@ using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Metadata;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members
@@ -35,8 +36,6 @@ namespace MugenMvvm.Binding.Members
 
         #region Properties
 
-        public bool IsAttached => true;
-
         public string Name => string.Empty;
 
         public Type Type => typeof(object);
@@ -44,6 +43,8 @@ namespace MugenMvvm.Binding.Members
         public object? Member => null;
 
         public BindingMemberType MemberType => BindingMemberType.Property;
+
+        public MemberFlags AccessModifiers => MemberFlags.StaticPublic;
 
         public bool CanRead => true;
 

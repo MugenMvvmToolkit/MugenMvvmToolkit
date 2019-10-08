@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Metadata;
+using MugenMvvm.Enums;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm.Binding
@@ -47,24 +48,6 @@ namespace MugenMvvm.Binding
             var types = new HashSet<Type>(SelfAndBaseClasses(type));
             AddInterface(types, type, true);
             return types;
-        }
-
-        private static IEnumerable<Type> SelfAndBaseClasses(Type type)
-        {
-            while (type != null)
-            {
-                yield return type;
-                type = type.GetBaseTypeUnified();
-            }
-        }
-
-        private static void AddInterface(HashSet<Type> types, Type type, bool isFirstCall)
-        {
-            if (!isFirstCall && type.IsInterfaceUnified() && types.Contains(type))
-                return;
-            types.Add(type);
-            foreach (var t in type.GetInterfacesUnified())
-                AddInterface(types, t, false);
         }
 
         internal static string[]? GetIndexerValuesRaw(string path)
@@ -127,6 +110,33 @@ namespace MugenMvvm.Binding
         internal static string RemoveBounds(this string st) //todo Span?
         {
             return st.Substring(1, st.Length - 2);
+        }
+
+        internal static MemberFlags GetAccessModifiers(this MethodBase? method)
+        {
+            if (method == null)
+                return MemberFlags.Instance;
+            if (method.IsStatic)
+                return method.IsPublic ? MemberFlags.StaticPublic : MemberFlags.StaticNonPublic;
+            return method.IsPublic ? MemberFlags.InstancePublic : MemberFlags.InstanceNonPublic;
+        }
+
+        private static IEnumerable<Type> SelfAndBaseClasses(Type type)
+        {
+            while (type != null)
+            {
+                yield return type;
+                type = type.GetBaseTypeUnified();
+            }
+        }
+
+        private static void AddInterface(HashSet<Type> types, Type type, bool isFirstCall)
+        {
+            if (!isFirstCall && type.IsInterfaceUnified() && types.Contains(type))
+                return;
+            types.Add(type);
+            foreach (var t in type.GetInterfacesUnified())
+                AddInterface(types, t, false);
         }
 
         #endregion
