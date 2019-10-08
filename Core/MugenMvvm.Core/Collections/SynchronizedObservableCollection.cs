@@ -9,12 +9,6 @@ namespace MugenMvvm.Collections
 {
     public class SynchronizedObservableCollection<T> : ObservableCollectionBase<T>, IList
     {
-        #region Fields
-
-        private static readonly bool IsValueType = typeof(T).IsValueTypeUnified();
-
-        #endregion
-
         #region Constructors
 
         protected SynchronizedObservableCollection(IList<T> list, IComponentCollectionProvider? componentCollectionProvider = null)
@@ -356,7 +350,7 @@ namespace MugenMvvm.Collections
         protected virtual void SetInternal(int index, T item)
         {
             var oldItem = Items[index];
-            if (!IsValueType && ReferenceEquals(oldItem, item))
+            if (IsNullableType && ReferenceEquals(oldItem, item))
                 return;
             if (!OnReplacing(oldItem, item, index))
                 return;

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -20,11 +19,6 @@ namespace MugenMvvm
         #endregion
 
         #region Methods
-
-        public static IReadOnlyMetadataContext GetSingleValueMetadataContext<T>(IMetadataContextKey<T> key, T value)
-        {
-            return new SingleValueMetadataContext<T>(key, value);
-        }
 
         public static bool LazyInitialize(this IMetadataContextProvider? provider, [EnsuresNotNull] ref IMetadataContext? metadataContext,
             object? target, IEnumerable<MetadataContextValue>? values = null)
@@ -153,68 +147,6 @@ namespace MugenMvvm
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));
             return metadataContext.AddOrUpdate(contextKey, addValue, updateValueFactory, updateValueFactory, (ctx, v, cV, s1, _) => s1(ctx, v, cV));
-        }
-
-        #endregion
-
-        #region Nested types
-
-        private sealed class SingleValueMetadataContext<TValue> : IReadOnlyMetadataContext
-        {
-            #region Fields
-
-            private readonly IMetadataContextKey<TValue> _key;
-            private readonly TValue _value;
-
-            #endregion
-
-            #region Constructors
-
-            public SingleValueMetadataContext(IMetadataContextKey<TValue> key, TValue value)
-            {
-                Should.NotBeNull(key, nameof(key));
-                _key = key;
-                _value = value;
-            }
-
-            #endregion
-
-            #region Properties
-
-            public int Count => 1;
-
-            #endregion
-
-            #region Implementation of interfaces
-
-            public IEnumerator<MetadataContextValue> GetEnumerator()
-            {
-                yield return MetadataContextValue.Create(_key, _value);
-            }
-
-            IEnumerator IEnumerable.GetEnumerator()
-            {
-                return GetEnumerator();
-            }
-
-            public bool TryGet<T>(IMetadataContextKey<T> contextKey, out T value, T defaultValue = default)
-            {
-                if (_key.Equals(contextKey))
-                {
-                    value = ConvertGenericValue<TValue, T>(_value);
-                    return true;
-                }
-
-                value = contextKey.GetDefaultValue(this, defaultValue);
-                return false;
-            }
-
-            public bool Contains(IMetadataContextKey contextKey)
-            {
-                return _key.Equals(contextKey);
-            }
-
-            #endregion
         }
 
         #endregion

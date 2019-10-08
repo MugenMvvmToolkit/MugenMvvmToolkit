@@ -272,20 +272,20 @@ namespace MugenMvvm
         {
             if (field == null)
                 return false;
-            return (flags.HasFlag(MemberFlags.Static) && field.IsStatic ||
-                    flags.HasFlag(MemberFlags.Instance) && !field.IsStatic) &&
-                   (flags.HasFlag(MemberFlags.NonPublic) && !field.IsPublic ||
-                    flags.HasFlag(MemberFlags.Public) && field.IsPublic);
+            return (flags.HasFlagEx(MemberFlags.Static) && field.IsStatic ||
+                    flags.HasFlagEx(MemberFlags.Instance) && !field.IsStatic) &&
+                   (flags.HasFlagEx(MemberFlags.NonPublic) && !field.IsPublic ||
+                    flags.HasFlagEx(MemberFlags.Public) && field.IsPublic);
         }
 
         private static bool FilterMethod(MethodBase method, MemberFlags flags)
         {
             if (method == null)
                 return false;
-            return (flags.HasFlag(MemberFlags.Static) && method.IsStatic ||
-                    flags.HasFlag(MemberFlags.Instance) && !method.IsStatic) &&
-                   (flags.HasFlag(MemberFlags.NonPublic) && !method.IsPublic ||
-                    flags.HasFlag(MemberFlags.Public) && method.IsPublic);
+            return (flags.HasFlagEx(MemberFlags.Static) && method.IsStatic ||
+                    flags.HasFlagEx(MemberFlags.Instance) && !method.IsStatic) &&
+                   (flags.HasFlagEx(MemberFlags.NonPublic) && !method.IsPublic ||
+                    flags.HasFlagEx(MemberFlags.Public) && method.IsPublic);
         }
 
         private static bool FilterMethod(MethodBase method, Type[] types)

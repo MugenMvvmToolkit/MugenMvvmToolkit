@@ -79,9 +79,9 @@ namespace MugenMvvm.Messaging
             if (message is IBusyToken busyToken)
             {
                 var messageMode = BusyMessageHandlerType;
-                if (messageMode.HasFlag(BusyMessageHandlerType.Handle))
+                if (messageMode.HasFlagEx(BusyMessageHandlerType.Handle))
                     viewModel.TryGetService<IBusyIndicatorProvider>()?.Begin(busyToken);
-                if (messageMode.HasFlag(BusyMessageHandlerType.NotifySubscribers))
+                if (messageMode.HasFlagEx(BusyMessageHandlerType.NotifySubscribers))
                     messenger?.Publish(messageContext);
             }
             else if (BroadcastAllMessages || message is IBroadcastMessage || message is PropertyChangedEventArgs)

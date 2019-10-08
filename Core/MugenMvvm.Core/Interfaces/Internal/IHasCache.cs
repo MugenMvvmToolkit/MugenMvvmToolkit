@@ -2,6 +2,6 @@
 {
     public interface IHasCache
     {
-        void ClearCache();
+        void Invalidate();
     }
 }

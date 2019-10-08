@@ -172,7 +172,6 @@ namespace MugenMvvm.Collections.Components
 
         private int GetInsertIndex(T item)
         {
-            Should.NotBeNull(item, nameof(item));
             var num = _items.BinarySearch(new OrderedItem(-1, item), _comparer);
             if (num >= 0)
                 return num;

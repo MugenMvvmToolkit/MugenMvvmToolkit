@@ -16,6 +16,24 @@ namespace MugenMvvm
     {
         #region Methods
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool HasFlagEx(this BatchUpdateCollectionMode value, BatchUpdateCollectionMode flag)
+        {
+            return (value & flag) == flag;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool HasFlagEx(this BusyMessageHandlerType value, BusyMessageHandlerType flag)
+        {
+            return (value & flag) == flag;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool HasFlagEx(this MemberFlags value, MemberFlags flag)
+        {
+            return (value & flag) == flag;
+        }
+
         public static TTo ConvertGenericValue<TFrom, TTo>(TFrom value)
         {
             return ((Func<TFrom, TTo>)(object)GenericConverter<TFrom>.Convert).Invoke(value);

@@ -14,18 +14,12 @@ namespace MugenMvvm.Enums
         #region Fields
 
         private string? _name;
-        private static readonly bool NullCheckRequired;
-        private static Func<TValue, TEnumeration>? _flagEnumConverter;
+        private static readonly bool NullCheckRequired = default(TValue) == null;
         private static Dictionary<TValue, TEnumeration> _enumerations = new Dictionary<TValue, TEnumeration>();
 
         #endregion
 
         #region Constructors
-
-        static EnumBase()
-        {
-            NullCheckRequired = default(TValue) == null;
-        }
 
 #pragma warning disable CS8618
         //note serialization only
@@ -39,7 +33,7 @@ namespace MugenMvvm.Enums
             Value = value;
             _name = name;
             if (!_enumerations.ContainsKey(value))
-                _enumerations[value] = (TEnumeration) this;
+                _enumerations[value] = (TEnumeration)this;
         }
 
         protected EnumBase(TValue value)
@@ -136,13 +130,7 @@ namespace MugenMvvm.Enums
                 return false;
             }
 
-            if (_enumerations.TryGetValue(value, out result))
-                return true;
-
-            if (_flagEnumConverter == null)
-                return false;
-            result = _flagEnumConverter(value);
-            return true;
+            return _enumerations.TryGetValue(value, out result);
         }
 
         public static TEnumeration Parse(TValue value)
@@ -169,12 +157,6 @@ namespace MugenMvvm.Enums
         public static void SetEnum(TValue value, TEnumeration enumeration)
         {
             _enumerations[value] = enumeration;
-        }
-
-        protected static void SetIsFlagEnum(Func<TValue, TEnumeration> flagEnumConverter)
-        {
-            Should.NotBeNull(flagEnumConverter, nameof(flagEnumConverter));
-            _flagEnumConverter = flagEnumConverter;
         }
 
         private static bool IsNull(TValue value)

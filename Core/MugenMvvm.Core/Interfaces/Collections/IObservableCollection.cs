@@ -9,7 +9,7 @@ namespace MugenMvvm.Interfaces.Collections
     {
         IEnumerable<T> DecorateItems();
 
-        IDisposable BeginBatchUpdate(BatchUpdateCollectionMode mode = null);
+        IDisposable BeginBatchUpdate(BatchUpdateCollectionMode mode = BatchUpdateCollectionMode.Both);
 
         void Move(int oldIndex, int newIndex);
 

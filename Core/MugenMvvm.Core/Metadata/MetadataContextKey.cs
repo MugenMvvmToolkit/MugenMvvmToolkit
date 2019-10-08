@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -43,7 +44,7 @@ namespace MugenMvvm.Metadata
 
         public static IMetadataContextKey<T> FromMember<T>(Type declaredType, string fieldOrPropertyName, bool serializable = false)
         {
-            var key = declaredType.Name + declaredType.FullName.Length + fieldOrPropertyName;
+            var key = declaredType.Name + declaredType.FullName.Length.ToString(CultureInfo.InvariantCulture) + fieldOrPropertyName;
             if (serializable)
             {
                 return new SerializableMetadataContextKey<T>(key, declaredType, fieldOrPropertyName)
@@ -65,7 +66,7 @@ namespace MugenMvvm.Metadata
             Should.NotBeNull(declaredType, nameof(declaredType));
             Should.NotBeNull(fieldOrPropertyName, nameof(fieldOrPropertyName));
             if (string.IsNullOrEmpty(key))
-                key = declaredType.Name + declaredType.FullName.Length + fieldOrPropertyName;
+                key = declaredType.Name + declaredType.FullName.Length.ToString(CultureInfo.InvariantCulture) + fieldOrPropertyName;
             return new Builder<T>(key, declaredType, fieldOrPropertyName);
         }
 

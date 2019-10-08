@@ -351,7 +351,7 @@ namespace MugenMvvm.Internal.Components
             //and create a typed expression of them
             for (var i = 0; i < paramsInfo.Length; i++)
             {
-                Expression index = Expression.Constant(i);
+                Expression index = Expression.Constant(i, typeof(int));
                 var paramType = paramsInfo[i].ParameterType;
                 Expression paramAccessorExp = Expression.ArrayIndex(parameterExpression, index);
                 var paramCastExp = paramAccessorExp.ConvertIfNeed(paramType, false);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
 using MugenMvvm.Components;
@@ -152,7 +153,7 @@ namespace MugenMvvm.Views.Components
             public MappingInfo(int id, IReadOnlyMetadataContext? metadata, Func<object, IReadOnlyMetadataContext?, Type?>? getViewModelType,
                 Func<IViewModelBase, IReadOnlyMetadataContext?, Type?>? getViewType, Type? viewModelType, Type? viewType, bool exactlyEqual, string? name)
             {
-                Id = "map-" + id;
+                Id = "map-" + id.ToString(CultureInfo.InvariantCulture);
                 Metadata = metadata.DefaultIfNull();
                 _getViewModelType = getViewModelType;
                 _getViewType = getViewType;

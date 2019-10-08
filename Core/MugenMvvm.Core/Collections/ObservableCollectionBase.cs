@@ -18,6 +18,8 @@ namespace MugenMvvm.Collections
         private IComponentCollection<IComponent<IObservableCollection<T>>>? _components;
         private readonly IComponentCollectionProvider? _componentCollectionProvider;
 
+        protected static readonly bool IsNullableType = default(T) == null;
+
         #endregion
 
         #region Constructors
@@ -63,12 +65,10 @@ namespace MugenMvvm.Collections
             return DecorateItems(null);
         }
 
-        public IDisposable BeginBatchUpdate(BatchUpdateCollectionMode mode = null)
+        public IDisposable BeginBatchUpdate(BatchUpdateCollectionMode mode = BatchUpdateCollectionMode.Both)
         {
-            if (mode == null)
-                mode = BatchUpdateCollectionMode.Both;
-            var hasListeners = mode.HasFlag(BatchUpdateCollectionMode.Listeners);
-            var hasDecorators = mode.HasFlag(BatchUpdateCollectionMode.DecoratorListeners);
+            var hasListeners = mode.HasFlagEx(BatchUpdateCollectionMode.Listeners);
+            var hasDecorators = mode.HasFlagEx(BatchUpdateCollectionMode.DecoratorListeners);
             if (!hasListeners && !hasDecorators)
                 return Default.Disposable;
 
@@ -540,7 +540,7 @@ namespace MugenMvvm.Collections
                 return true;
 
             if (value == null)
-                return default(T)! == null;
+                return IsNullableType;
 
             return false;
         }

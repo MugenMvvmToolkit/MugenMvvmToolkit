@@ -1024,7 +1024,7 @@ namespace MugenMvvm.IoC
                     var cachedProperties = new StringOrdinalLightDictionary<PropertyInfoCache>(3);
                     foreach (var propertyInfo in Type.GetPropertiesUnified(PropertyMemberFlags))
                     {
-                        var method = propertyInfo.GetSetMethodUnified(PropertyMemberFlags.HasFlag(MemberFlags.NonPublic));
+                        var method = propertyInfo.GetSetMethodUnified(PropertyMemberFlags.HasFlagEx(MemberFlags.NonPublic));
                         if (method != null)
                             cachedProperties[propertyInfo.Name] = new PropertyInfoCache(propertyInfo);
                     }
@@ -1091,7 +1091,7 @@ namespace MugenMvvm.IoC
             {
                 if (constructor.IsStatic)
                     return false;
-                return constructor.IsPublic || memberFlags.HasFlag(MemberFlags.NonPublic);
+                return constructor.IsPublic || memberFlags.HasFlagEx(MemberFlags.NonPublic);
             }
 
             public ParameterInfoCache[] GetParameters()

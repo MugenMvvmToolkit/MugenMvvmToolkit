@@ -339,6 +339,7 @@ namespace MugenMvvm
 
         public static bool IsStatic(this MemberInfo member)
         {
+            Should.NotBeNull(member, nameof(member));
             if (member is PropertyInfo propertyInfo)
             {
                 var method = propertyInfo.CanRead
@@ -347,8 +348,14 @@ namespace MugenMvvm
                 return method != null && method.IsStatic;
             }
 
-            if (member is MethodInfo methodInfo)
-                return methodInfo.IsStatic;
+            if (member is EventInfo eventInfo)
+            {
+                var method = (eventInfo.AddMethod ?? eventInfo.RemoveMethod);
+                return method != null && method.IsStatic;
+            }
+
+            if (member is MethodBase m)
+                return m.IsStatic;
             return member is FieldInfo fieldInfo && fieldInfo.IsStatic;
         }
 
