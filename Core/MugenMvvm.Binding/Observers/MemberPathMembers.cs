@@ -4,6 +4,7 @@ using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Metadata;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Observers
 {
@@ -67,7 +68,7 @@ namespace MugenMvvm.Binding.Observers
             get
             {
                 if (_lastMember == null)
-                    return (Exception?)_penultimateValue;
+                    return (Exception?) _penultimateValue;
                 return null;
             }
         }
@@ -109,7 +110,7 @@ namespace MugenMvvm.Binding.Observers
                 if (_lastMember == null)
                     return ConstantBindingMemberInfo.UnsetArray;
                 if (_members == null)
-                    return new[] { _lastMember };
+                    return new[] {_lastMember};
                 return _members;
             }
         }
@@ -122,6 +123,16 @@ namespace MugenMvvm.Binding.Observers
         {
             if (Error != null)
                 throw Error!;
+        }
+
+        public object? GetLastMemberValue(IReadOnlyMetadataContext? metadata = null)
+        {
+            return ((IBindingPropertyInfo) LastMember).GetValue(PenultimateValue, metadata);
+        }
+
+        public void SetLastMemberValue(object? value, IReadOnlyMetadataContext? metadata = null)
+        {
+            ((IBindingPropertyInfo) LastMember).SetValue(PenultimateValue, value, metadata);
         }
 
         #endregion

@@ -95,7 +95,6 @@ namespace MugenMvvm.Binding.Observers
                 throw Error!;
         }
 
-
         public object? GetLastMemberValue(IReadOnlyMetadataContext? metadata = null)
         {
             return ((IBindingPropertyInfo)LastMember).GetValue(PenultimateValue, metadata);
