@@ -14,7 +14,6 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Internal.Components
 {
-    // ReSharper disable FieldCanBeMadeReadOnly.Local
     public sealed class ExpressionReflectionDelegateProviderComponent : IReflectionDelegateProviderComponent, IActivatorReflectionDelegateProviderComponent,
         IMemberReflectionDelegateProviderComponent, IMethodReflectionDelegateProviderComponent, IHasPriority
     {
@@ -410,12 +409,12 @@ namespace MugenMvvm.Internal.Components
         }
 
         [StructLayout(LayoutKind.Auto)]
-        private struct MemberInfoDelegateCacheKey
+        private readonly struct MemberInfoDelegateCacheKey
         {
             #region Fields
 
-            public MemberInfo Member;
-            public Type DelegateType;
+            public readonly MemberInfo Member;
+            public readonly Type DelegateType;
 
             #endregion
 

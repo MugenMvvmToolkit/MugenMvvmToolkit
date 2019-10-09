@@ -449,12 +449,12 @@ namespace MugenMvvm.Collections.Components
 
             #region Implementation of interfaces
 
-            public void Execute(object? state)
+            void IThreadDispatcherHandler.Execute(object? state)
             {
                 ((BindableCollectionWrapperBase<T>)state!).AddEventInternal(ref this);
             }
 
-            public void Raise(BindableCollectionWrapperBase<T> listener, bool batch)
+            public readonly void Raise(BindableCollectionWrapperBase<T> listener, bool batch)
             {
                 switch (Action)
                 {

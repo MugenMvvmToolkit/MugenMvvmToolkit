@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Xml.Serialization;
@@ -95,9 +94,15 @@ namespace MugenMvvm.Collections
         {
             get
             {
-                var entry = FindEntry(key);
-                if (entry >= 0)
-                    return _entries[entry].Value;
+                if (_buckets == null)
+                    RestoreState();
+                var hashCode = GetHashCode(key) & int.MaxValue;
+                for (var i = _buckets![hashCode % _buckets.Length]; i >= 0; i = _entries[i].Next)
+                {
+                    if (_entries[i].HashCode == hashCode && Equals(_entries[i].Key, key))
+                        return _entries[i].Value;
+                }
+
                 ExceptionManager.ThrowKeyNotFound();
                 return default!;
             }
@@ -144,7 +149,15 @@ namespace MugenMvvm.Collections
 
         public bool ContainsKey(TKey key)
         {
-            return FindEntry(key) >= 0;
+            if (_buckets == null)
+                RestoreState();
+            var hashCode = GetHashCode(key) & int.MaxValue;
+            for (var i = _buckets![hashCode % _buckets.Length]; i >= 0; i = _entries[i].Next)
+            {
+                if (_entries[i].HashCode == hashCode && Equals(_entries[i].Key, key))
+                    return true;
+            }
+            return false;
         }
 
         public bool Remove(TKey key)
@@ -182,14 +195,19 @@ namespace MugenMvvm.Collections
 
         public bool TryGetValue(TKey key, out TValue value)
         {
-            var entry = FindEntry(key);
-            if (entry >= 0)
+            if (_buckets == null)
+                RestoreState();
+            var hashCode = GetHashCode(key) & int.MaxValue;
+            for (var i = _buckets![hashCode % _buckets.Length]; i >= 0; i = _entries[i].Next)
             {
-                value = _entries[entry].Value;
-                return true;
+                if (_entries[i].HashCode == hashCode && Equals(_entries[i].Key, key))
+                {
+                    value = _entries[i].Value;
+                    return true;
+                }
             }
 
-            value = default!;
+            value = default;
             return false;
         }
 
@@ -268,21 +286,6 @@ namespace MugenMvvm.Collections
             _entries = new Entry[prime];
             _freeList = -1;
             _count = 0;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private int FindEntry(TKey key)
-        {
-            if (_buckets == null)
-                RestoreState();
-            var hashCode = GetHashCode(key) & int.MaxValue;
-            for (var i = _buckets![hashCode % _buckets.Length]; i >= 0; i = _entries[i].Next)
-            {
-                if (_entries[i].HashCode == hashCode && Equals(_entries[i].Key, key))
-                    return i;
-            }
-
-            return -1;
         }
 
         private void Insert(TKey key, TValue value, bool add)
