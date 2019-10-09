@@ -206,12 +206,12 @@ namespace MugenMvvm.Binding
             if (constant?.Value is Type value)
             {
                 type = value;
-                target = null;
+                target = null!;
             }
             return type;
         }
 
-        internal static object TryParseEnum(this Type type, string name)
+        internal static object? TryParseEnum(this Type type, string name)
         {
             if (!type.IsEnumUnified())
                 return null;

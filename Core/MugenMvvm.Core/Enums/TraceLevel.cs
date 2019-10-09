@@ -3,7 +3,9 @@ using MugenMvvm.Attributes;
 
 namespace MugenMvvm.Enums
 {
+#pragma warning disable 660,661
     public class TraceLevel : EnumBase<TraceLevel, string>
+#pragma warning restore 660,661
     {
         #region Fields
 

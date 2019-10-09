@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Internal;
@@ -66,6 +67,12 @@ namespace MugenMvvm
             return FalseObject;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsNullable<T>()
+        {
+            return NullableChecker<T>.IsNullableType;
+        }
+
         internal static PropertyChangedEventArgs GetOrCreatePropertyChangedArgs(string propertyName)
         {
             if (string.IsNullOrEmpty(propertyName))
@@ -88,7 +95,11 @@ namespace MugenMvvm
 
         private sealed class EmptyContext : IReadOnlyMetadataContext, IDisposable, INavigationProvider, IWeakReference
         {
+            #region Fields
+
             public static readonly EmptyContext Instance = new EmptyContext();
+
+            #endregion
 
             #region Constructors
 
@@ -168,7 +179,7 @@ namespace MugenMvvm
 
             #endregion
 
-            #region Constructors
+            #region Methods
 
             private static Task<T> GetTask()
             {
@@ -176,6 +187,15 @@ namespace MugenMvvm
                 tcs.SetCanceled();
                 return tcs.Task;
             }
+
+            #endregion
+        }
+
+        private static class NullableChecker<T>
+        {
+            #region Fields
+
+            public static readonly bool IsNullableType = default(T)! == null;
 
             #endregion
         }

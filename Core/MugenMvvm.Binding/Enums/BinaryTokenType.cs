@@ -6,7 +6,9 @@ using MugenMvvm.Enums;
 namespace MugenMvvm.Binding.Enums
 {
     //https://docs.microsoft.com/en-us/dotnet/csharp/language-reference/operators/index
+#pragma warning disable 660,661
     public class BinaryTokenType : EnumBase<BinaryTokenType, string>
+#pragma warning restore 660,661
     {
         #region Fields
 

@@ -49,7 +49,7 @@ namespace MugenMvvm.Binding
                 return defaultValue;
             if (propertyInfo is IBindingPropertyInfo<TSource, TValue> p)
                 return p.GetValue(source, metadata);
-            return (TValue)propertyInfo.GetValue(source, metadata);
+            return (TValue)propertyInfo.GetValue(source, metadata)!;
         }
 
         public static void SetBindableMemberValue<TSource, TValue>(this TSource source,

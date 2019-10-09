@@ -45,7 +45,7 @@ namespace MugenMvvm.Binding.Observers.Components
             return ((IBindingEventInfo)member).TrySubscribe(source, listener, metadata);
         }
 
-        public MemberObserver TryGetMemberObserver(Type type, in MethodInfo member, IReadOnlyMetadataContext metadata)
+        public MemberObserver TryGetMemberObserver(Type type, in MethodInfo member, IReadOnlyMetadataContext? metadata)
         {
             var observableMember = TryGetEvent(type, member.Name, member.GetAccessModifiers(), metadata);
             if (observableMember != null)
@@ -54,7 +54,7 @@ namespace MugenMvvm.Binding.Observers.Components
             return default;
         }
 
-        public MemberObserver TryGetMemberObserver(Type type, in PropertyInfo member, IReadOnlyMetadataContext metadata)
+        public MemberObserver TryGetMemberObserver(Type type, in PropertyInfo member, IReadOnlyMetadataContext? metadata)
         {
             var observableMember = TryGetEvent(type, member.Name, (member.GetGetMethodUnified(true) ?? member.GetSetMethodUnified(true)).GetAccessModifiers(), metadata);
             if (observableMember != null)

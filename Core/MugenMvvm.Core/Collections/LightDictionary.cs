@@ -207,7 +207,7 @@ namespace MugenMvvm.Collections
                 }
             }
 
-            value = default;
+            value = default!;
             return false;
         }
 

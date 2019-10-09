@@ -11,7 +11,7 @@ namespace MugenMvvm
 
         public static void ThrowEnumIsNotValid<T>(T value)
         {
-            throw new ArgumentException(EnumIsNotValidFormat2.Format(value.ToString(), value.GetType()), nameof(value));
+            throw new ArgumentException(EnumIsNotValidFormat2.Format(value!.ToString(), value!.GetType()), nameof(value));
         }
 
         public static void ThrowCapacityLessThanCollection(string paramName)
@@ -26,7 +26,7 @@ namespace MugenMvvm
 
         public static void ThrowEnumOutOfRange<T>(string paramName, T @enum)
         {
-            throw new ArgumentOutOfRangeException(paramName, UnhandledEnumFormat1.Format(@enum.ToString()));
+            throw new ArgumentOutOfRangeException(paramName, UnhandledEnumFormat1.Format(@enum!.ToString()));
         }
 
         public static void ThrowCommandCannotBeExecuted()

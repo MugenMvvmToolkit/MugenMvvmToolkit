@@ -4,7 +4,9 @@ using MugenMvvm.Enums;
 
 namespace MugenMvvm.Binding.Enums
 {
+#pragma warning disable 660,661
     public class BindingState : EnumBase<BindingState, int>
+#pragma warning restore 660,661
     {
         #region Fields
 

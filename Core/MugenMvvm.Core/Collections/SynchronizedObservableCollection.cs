@@ -350,7 +350,7 @@ namespace MugenMvvm.Collections
         protected virtual void SetInternal(int index, T item)
         {
             var oldItem = Items[index];
-            if (IsNullableType && ReferenceEquals(oldItem, item))
+            if (Default.IsNullable<T>() && ReferenceEquals(oldItem, item))
                 return;
             if (!OnReplacing(oldItem, item, index))
                 return;

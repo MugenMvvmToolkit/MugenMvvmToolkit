@@ -18,8 +18,6 @@ namespace MugenMvvm.Collections
         private IComponentCollection<IComponent<IObservableCollection<T>>>? _components;
         private readonly IComponentCollectionProvider? _componentCollectionProvider;
 
-        protected static readonly bool IsNullableType = default(T) == null;
-
         #endregion
 
         #region Constructors
@@ -540,7 +538,7 @@ namespace MugenMvvm.Collections
                 return true;
 
             if (value == null)
-                return IsNullableType;
+                return Default.IsNullable<T>();
 
             return false;
         }

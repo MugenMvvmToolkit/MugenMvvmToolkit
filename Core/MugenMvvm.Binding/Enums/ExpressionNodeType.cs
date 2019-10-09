@@ -4,7 +4,9 @@ using MugenMvvm.Enums;
 
 namespace MugenMvvm.Binding.Enums
 {
+#pragma warning disable 660,661
     public class ExpressionNodeType : EnumBase<ExpressionNodeType, int>
+#pragma warning restore 660,661
     {
         #region Fields
 

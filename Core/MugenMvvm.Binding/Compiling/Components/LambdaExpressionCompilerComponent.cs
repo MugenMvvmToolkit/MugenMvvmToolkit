@@ -19,7 +19,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             if (!(expression is ILambdaExpressionNode lambdaExpression))
                 return null;
 
-            var method = context.GetCurrentLambdaMethod();
+            var method = context.CurrentLambdaMethod;
             if (method == null)
                 return null;
 

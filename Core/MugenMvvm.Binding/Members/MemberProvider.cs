@@ -139,7 +139,7 @@ namespace MugenMvvm.Binding.Members
                 }
             }
 
-            result = (IReadOnlyList<IBindingMemberInfo>)list ?? Default.EmptyArray<IBindingMemberInfo>();
+            result = (IReadOnlyList<IBindingMemberInfo>?)list ?? Default.EmptyArray<IBindingMemberInfo>();
             TempMembersCache[cacheKey] = result;
             return result;
         }

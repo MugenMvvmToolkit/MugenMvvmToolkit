@@ -67,7 +67,7 @@ namespace MugenMvvm.Metadata
             Should.NotBeNull(fieldOrPropertyName, nameof(fieldOrPropertyName));
             if (string.IsNullOrEmpty(key))
                 key = declaredType.Name + declaredType.FullName.Length.ToString(CultureInfo.InvariantCulture) + fieldOrPropertyName;
-            return new Builder<T>(key, declaredType, fieldOrPropertyName);
+            return new Builder<T>(key!, declaredType, fieldOrPropertyName);
         }
 
         public sealed override bool Equals(object obj)
@@ -308,7 +308,7 @@ namespace MugenMvvm.Metadata
             public IMemento? GetMemento()
             {
                 if (_memento == null && _type != null && !string.IsNullOrEmpty(_fieldOrPropertyName))
-                    _memento = StaticMemberMemento.Create(this, _type, _fieldOrPropertyName);
+                    _memento = StaticMemberMemento.Create(this, _type, _fieldOrPropertyName!);
                 return _memento;
             }
 

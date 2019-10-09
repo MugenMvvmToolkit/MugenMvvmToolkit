@@ -168,7 +168,7 @@ namespace MugenMvvm.Metadata.Components
 
             IEnumerator IEnumerable.GetEnumerator()
             {
-                return GetEnumerator();
+                return GetEnumerator();//todo remove
             }
 
             IEnumerator<MetadataContextValue> IEnumerable<MetadataContextValue>.GetEnumerator()

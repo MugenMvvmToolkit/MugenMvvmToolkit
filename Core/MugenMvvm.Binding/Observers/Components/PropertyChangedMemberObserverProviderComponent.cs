@@ -49,7 +49,7 @@ namespace MugenMvvm.Binding.Observers.Components
                 .Add(listener, (string)member);
         }
 
-        public MemberObserver TryGetMemberObserver(Type type, in PropertyInfo member, IReadOnlyMetadataContext metadata)
+        public MemberObserver TryGetMemberObserver(Type type, in PropertyInfo member, IReadOnlyMetadataContext? metadata)
         {
             if (typeof(INotifyPropertyChanged).IsAssignableFromUnified(type) && !member.IsStatic())
                 return new MemberObserver(this, member.Name);

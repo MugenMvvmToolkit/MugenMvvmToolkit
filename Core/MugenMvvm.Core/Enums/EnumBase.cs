@@ -14,7 +14,6 @@ namespace MugenMvvm.Enums
         #region Fields
 
         private string? _name;
-        private static readonly bool NullCheckRequired = default(TValue) == null;
         private static Dictionary<TValue, TEnumeration> _enumerations = new Dictionary<TValue, TEnumeration>();
 
         #endregion
@@ -124,7 +123,7 @@ namespace MugenMvvm.Enums
 
         public static bool TryParse(TValue value, out TEnumeration result)
         {
-            if (NullCheckRequired && IsNull(value))
+            if (Default.IsNullable<TValue>() && IsNull(value))
             {
                 result = default!;
                 return false;

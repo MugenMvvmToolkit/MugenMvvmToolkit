@@ -9,7 +9,9 @@ namespace MugenMvvm.Binding.Enums
 {
     [Serializable]
     [DataContract(Namespace = BuildConstants.DataContractNamespace)]
+#pragma warning disable 660,661
     public class BindingLifecycleState : EnumBase<BindingLifecycleState, string>
+#pragma warning restore 660,661
     {
         #region Fields
 

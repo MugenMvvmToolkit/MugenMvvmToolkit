@@ -8,7 +8,9 @@ namespace MugenMvvm.Enums
 {
     [Serializable]
     [DataContract(Namespace = BuildConstants.DataContractNamespace)]
+#pragma warning disable 660,661
     public class NavigationCallbackType : EnumBase<NavigationCallbackType, int>
+#pragma warning restore 660,661
     {
         #region Fields
 
