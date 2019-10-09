@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 
 namespace MugenMvvm.Binding.Resources
 {
-    public struct KnownType
+    [StructLayout(LayoutKind.Auto)]
+    public readonly struct KnownType
     {
         #region Fields
 

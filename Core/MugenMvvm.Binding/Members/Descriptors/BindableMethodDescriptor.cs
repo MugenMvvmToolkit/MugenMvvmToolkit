@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 
-namespace MugenMvvm.Binding.Members
+namespace MugenMvvm.Binding.Members.Descriptors
 {
     [StructLayout(LayoutKind.Auto)]
     public readonly struct BindableMethodDescriptor<TSource> where TSource : class

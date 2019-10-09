@@ -13,20 +13,24 @@ namespace MugenMvvm.Binding.Members
     {
         #region Fields
 
-        private readonly MemberObserver _observer;
-        private readonly PropertyInfo _propertyInfo;
+        private readonly IObserverProvider? _observerProvider;
 
+        private readonly PropertyInfo _propertyInfo;
+        private readonly Type _reflectedType;
         private Func<object?, object?> _getterFunc;
+
+        private MemberObserver? _observer;
         private Action<object?, object?> _setterFunc;
 
         #endregion
 
         #region Constructors
 
-        public BindingPropertyInfo(string name, PropertyInfo propertyInfo, MemberObserver observer)
+        public BindingPropertyInfo(string name, PropertyInfo propertyInfo, Type reflectedType, IObserverProvider? observerProvider)
         {
             _propertyInfo = propertyInfo;
-            _observer = observer;
+            _reflectedType = reflectedType;
+            _observerProvider = observerProvider;
             Name = name;
             Type = _propertyInfo.PropertyType;
 
@@ -81,7 +85,9 @@ namespace MugenMvvm.Binding.Members
 
         public IDisposable? TryObserve(object? source, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
-            return _observer.TryObserve(source, listener, metadata);
+            if (_observer == null)
+                _observer = _observerProvider.GetMemberObserver(_reflectedType, _propertyInfo);
+            return _observer.Value.TryObserve(source, listener, metadata);
         }
 
         public object? GetValue(object? source, IReadOnlyMetadataContext? metadata = null)

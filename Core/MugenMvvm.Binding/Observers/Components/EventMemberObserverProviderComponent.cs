@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
@@ -11,7 +12,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
-    public class ObservableEventMemberObserverProviderComponent : IMemberObserverProviderComponent<string>, MemberObserver.IHandler, IHasPriority
+    public class EventMemberObserverProviderComponent : IMemberObserverProviderComponent<PropertyInfo>, IMemberObserverProviderComponent<MethodInfo>, MemberObserver.IHandler, IHasPriority
     {
         #region Fields
 
@@ -22,7 +23,7 @@ namespace MugenMvvm.Binding.Observers.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ObservableEventMemberObserverProviderComponent(IMemberProvider? memberProvider = null)
+        public EventMemberObserverProviderComponent(IMemberProvider? memberProvider = null)
         {
             _memberProvider = memberProvider;
         }
@@ -39,18 +40,27 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Implementation of interfaces
 
-        public MemberObserver TryGetMemberObserver(Type type, in string member, IReadOnlyMetadataContext? metadata)
+        IDisposable? MemberObserver.IHandler.TryObserve(object? source, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
-            var observableMember = TryGetEvent(type, member, MemberFlags.InstancePublic, metadata);
+            return ((IBindingEventInfo)member).TrySubscribe(source, listener, metadata);
+        }
+
+        public MemberObserver TryGetMemberObserver(Type type, in MethodInfo member, IReadOnlyMetadataContext metadata)
+        {
+            var observableMember = TryGetEvent(type, member.Name, member.GetAccessModifiers(), metadata);
             if (observableMember != null)
                 return new MemberObserver(this, observableMember);
 
             return default;
         }
 
-        IDisposable? MemberObserver.IHandler.TryObserve(object? source, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
+        public MemberObserver TryGetMemberObserver(Type type, in PropertyInfo member, IReadOnlyMetadataContext metadata)
         {
-            return ((IBindingEventInfo)member).TrySubscribe(source, listener, metadata);
+            var observableMember = TryGetEvent(type, member.Name, (member.GetGetMethodUnified(true) ?? member.GetSetMethodUnified(true)).GetAccessModifiers(), metadata);
+            if (observableMember != null)
+                return new MemberObserver(this, observableMember);
+
+            return default;
         }
 
         #endregion

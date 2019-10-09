@@ -139,7 +139,7 @@ namespace MugenMvvm.Binding.Members
                 }
             }
 
-            result = (IReadOnlyList<IBindingMemberInfo>) list ?? Default.EmptyArray<IBindingMemberInfo>();
+            result = (IReadOnlyList<IBindingMemberInfo>)list ?? Default.EmptyArray<IBindingMemberInfo>();
             TempMembersCache[cacheKey] = result;
             return result;
         }
@@ -148,6 +148,9 @@ namespace MugenMvvm.Binding.Members
         {
             TempCache.Clear();
             TempMembersCache.Clear();
+            var components = Components.GetItems();
+            for (int i = 0; i < components.Length; i++)
+                (components[i] as IHasCache)?.Invalidate();
         }
 
         protected IBindingMemberInfo? SelectMember(IReadOnlyList<IBindingMemberInfo> members, BindingMemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
@@ -218,8 +221,8 @@ namespace MugenMvvm.Binding.Members
                 if (name == null)
                     name = string.Empty;
                 Name = name;
-                MemberType = (byte) memberType;
-                MemberFlags = (byte) memberFlags;
+                MemberType = (byte)memberType;
+                MemberFlags = (byte)memberFlags;
             }
 
             #endregion

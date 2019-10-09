@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Compiling.Components;
@@ -58,6 +59,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Nested types
 
+        [StructLayout(LayoutKind.Auto)]
         private readonly struct CacheKey
         {
             #region Fields

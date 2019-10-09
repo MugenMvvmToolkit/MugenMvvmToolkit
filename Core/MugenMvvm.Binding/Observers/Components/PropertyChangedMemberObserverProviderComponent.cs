@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Reflection;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Observers;
@@ -11,7 +12,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
-    public sealed class PropertyChangedMemberObserverProviderComponent : IMemberObserverProviderComponent<string>, MemberObserver.IHandler, IHasPriority
+    public sealed class PropertyChangedMemberObserverProviderComponent : IMemberObserverProviderComponent<string>, IMemberObserverProviderComponent<PropertyInfo>, MemberObserver.IHandler, IHasPriority //todo add static property changed listener
     {
         #region Fields
 
@@ -32,18 +33,11 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Properties
 
-        public int Priority { get; set; }
+        public int Priority { get; set; } = 1;
 
         #endregion
 
         #region Implementation of interfaces
-
-        public MemberObserver TryGetMemberObserver(Type type, in string member, IReadOnlyMetadataContext? metadata)
-        {
-            if (typeof(INotifyPropertyChanged).IsAssignableFromUnified(type))
-                return new MemberObserver(this, member);
-            return default;
-        }
 
         IDisposable? MemberObserver.IHandler.TryObserve(object? source, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
@@ -53,6 +47,20 @@ namespace MugenMvvm.Binding.Observers.Components
                 .ServiceIfNull()
                 .GetOrAdd((INotifyPropertyChanged)source, BindingInternalConstants.PropertyChangedObserverMember, null, null, CreateWeakPropertyListenerDelegate)
                 .Add(listener, (string)member);
+        }
+
+        public MemberObserver TryGetMemberObserver(Type type, in PropertyInfo member, IReadOnlyMetadataContext metadata)
+        {
+            if (typeof(INotifyPropertyChanged).IsAssignableFromUnified(type) && !member.IsStatic())
+                return new MemberObserver(this, member.Name);
+            return default;
+        }
+
+        public MemberObserver TryGetMemberObserver(Type type, in string member, IReadOnlyMetadataContext? metadata)
+        {
+            if (typeof(INotifyPropertyChanged).IsAssignableFromUnified(type))
+                return new MemberObserver(this, member);
+            return default;
         }
 
         #endregion

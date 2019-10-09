@@ -13,7 +13,6 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    // ReSharper disable FieldCanBeMadeReadOnly.Local
     public sealed class ReflectionMemberProviderComponent : IMemberProviderComponent, IHasPriority
     {
         #region Fields
@@ -37,8 +36,6 @@ namespace MugenMvvm.Binding.Members.Components
         #region Properties
 
         public int Priority { get; set; }
-
-        private IObserverProvider ObserverProvider => _bindingObserverProvider.ServiceIfNull();
 
         #endregion
 
@@ -64,9 +61,9 @@ namespace MugenMvvm.Binding.Members.Components
         {
             var indexerArgs = BindingMugenExtensions.GetIndexerValuesRaw(name);
             var types = BindingMugenExtensions.SelfAndBaseTypes(type);
-            bool hasProperty = false;
-            bool hasEvent = false;
-            bool hasField = false;
+            var hasProperty = false;
+            var hasEvent = false;
+            var hasField = false;
             var result = new List<IBindingMemberInfo>();
             foreach (var t in types)
             {
@@ -77,7 +74,7 @@ namespace MugenMvvm.Binding.Members.Components
                         var property = t.GetPropertyUnified(name, MemberFlags.All);
                         if (property != null)
                         {
-                            result.Add(new BindingPropertyInfo(name, property, ObserverProvider.GetMemberObserver(type, property, metadata)));
+                            result.Add(new BindingPropertyInfo(name, property, type, _bindingObserverProvider));
                             hasProperty = true;
                         }
                     }
@@ -127,7 +124,7 @@ namespace MugenMvvm.Binding.Members.Components
 
                         if (candidate != null)
                         {
-                            result.Add(new IndexerBindingPropertyInfo(name, candidate, indexParameters!, indexerArgs, ObserverProvider.GetMemberObserver(type, candidate, metadata)));
+                            result.Add(new IndexerBindingPropertyInfo(name, candidate, indexParameters!, indexerArgs, type, _bindingObserverProvider));
                             hasProperty = true;
                         }
                         else if (t.IsArray && t.GetArrayRank() == indexerArgs.Length)
@@ -143,7 +140,7 @@ namespace MugenMvvm.Binding.Members.Components
                     var eventInfo = t.GetEventUnified(name, MemberFlags.All);
                     if (eventInfo != null)
                     {
-                        var memberObserver = ObserverProvider.GetMemberObserver(type, eventInfo, metadata);
+                        var memberObserver = _bindingObserverProvider.ServiceIfNull().GetMemberObserver(type, eventInfo, metadata);
                         if (!memberObserver.IsEmpty)
                         {
                             result.Add(new BindingEventInfo(name, eventInfo, memberObserver));
@@ -157,7 +154,7 @@ namespace MugenMvvm.Binding.Members.Components
                     var field = t.GetFieldUnified(name, MemberFlags.All);
                     if (field != null)
                     {
-                        result.Add(new BindingFieldInfo(name, field, ObserverProvider.GetMemberObserver(type, field, metadata)));
+                        result.Add(new BindingFieldInfo(name, field, type, _bindingObserverProvider));
                         hasField = true;
                     }
                 }
@@ -176,12 +173,12 @@ namespace MugenMvvm.Binding.Members.Components
         #region Nested types
 
         [StructLayout(LayoutKind.Auto)]
-        private struct CacheKey
+        private readonly struct CacheKey
         {
             #region Fields
 
-            public string Name;
-            public Type Type;
+            public readonly string Name;
+            public readonly Type Type;
 
             #endregion
 

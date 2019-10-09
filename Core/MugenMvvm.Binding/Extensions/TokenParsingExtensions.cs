@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Components;
 
@@ -284,6 +285,7 @@ namespace MugenMvvm.Binding
 
         #region Nested types
 
+        [StructLayout(LayoutKind.Auto)]
         public ref struct PositionState
         {
             #region Fields

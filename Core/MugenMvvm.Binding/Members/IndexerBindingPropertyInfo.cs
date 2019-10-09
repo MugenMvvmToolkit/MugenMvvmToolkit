@@ -15,9 +15,11 @@ namespace MugenMvvm.Binding.Members
 
         private readonly object?[]? _indexerValues;
 
-        private readonly MemberObserver _observer;
         private readonly PropertyInfo _propertyInfo;
+        private readonly Type _reflectedType;
+        private readonly IObserverProvider? _observerProvider;
 
+        private MemberObserver? _observer;
         private Func<object?, object?[], object?> _getterIndexerFunc;
         private Func<object?, object?[], object?> _setterIndexerFunc;
 
@@ -25,10 +27,12 @@ namespace MugenMvvm.Binding.Members
 
         #region Constructors
 
-        public IndexerBindingPropertyInfo(string name, PropertyInfo propertyInfo, ParameterInfo[] indexParameters, string[] indexerValues, MemberObserver observer)
+        public IndexerBindingPropertyInfo(string name, PropertyInfo propertyInfo,
+            ParameterInfo[] indexParameters, string[] indexerValues, Type reflectedType, IObserverProvider? observerProvider)
         {
             _propertyInfo = propertyInfo;
-            _observer = observer;
+            _reflectedType = reflectedType;
+            _observerProvider = observerProvider;
             Name = name;
             Type = _propertyInfo.PropertyType;
             _indexerValues = BindingMugenExtensions.GetIndexerValues(indexerValues!, indexParameters);
@@ -84,7 +88,9 @@ namespace MugenMvvm.Binding.Members
 
         public IDisposable? TryObserve(object? source, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
-            return _observer.TryObserve(source, listener, metadata);
+            if (_observer == null)
+                _observer = _observerProvider.GetMemberObserver(_reflectedType, _propertyInfo);
+            return _observer.Value.TryObserve(source, listener, metadata);
         }
 
         public object? GetValue(object? source, IReadOnlyMetadataContext? metadata = null)
