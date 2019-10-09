@@ -44,20 +44,20 @@ namespace MugenMvvm.Binding.Members.Components
         public IReadOnlyList<IBindingMemberInfo> TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
         {
             var cacheKey = new CacheKey(type, name);
-            if (!_cache.TryGetValue(cacheKey, out var info))
+            if (!_cache.TryGetValue(cacheKey, out var list))
             {
-                info = GetMemberInternal(type, name, metadata);
-                _cache[cacheKey] = info;
+                list = GetMembers(type, name, metadata);
+                _cache[cacheKey] = list;
             }
 
-            return info;
+            return list;
         }
 
         #endregion
 
         #region Methods
 
-        private List<IBindingMemberInfo> GetMemberInternal(Type type, string name, IReadOnlyMetadataContext? metadata)
+        private List<IBindingMemberInfo> GetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
         {
             var indexerArgs = BindingMugenExtensions.GetIndexerValuesRaw(name);
             var types = BindingMugenExtensions.SelfAndBaseTypes(type);
