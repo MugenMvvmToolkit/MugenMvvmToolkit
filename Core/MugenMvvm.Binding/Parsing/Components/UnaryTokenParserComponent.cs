@@ -55,7 +55,18 @@ namespace MugenMvvm.Binding.Parsing.Components
                 if (context.IsToken(value.Value, position))
                 {
                     context.SetPosition(position + value.Value.Length);
-                    return new UnaryExpressionNode(value, context.Parse());
+                    if (value == UnaryTokenType.DynamicExpression || value == UnaryTokenType.StaticExpression)
+                        return new UnaryExpressionNode(value, context.Parse());
+
+                    IExpressionNode? operand = null;
+                    while (true)
+                    {
+                        operand = context.Parse(operand);
+                        var p = context.SkipWhitespacesPosition();
+                        if (!context.IsToken('.', p) && !context.IsToken('[', p))
+                            break;
+                    }
+                    return new UnaryExpressionNode(value, operand);
                 }
             }
 
