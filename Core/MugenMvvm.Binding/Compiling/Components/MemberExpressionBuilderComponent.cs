@@ -68,7 +68,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             var member = _memberProvider
                 .ServiceIfNull()
-                .GetMember(type, memberExpression.MemberName, BindingMemberType.Property | BindingMemberType.Field, flags);
+                .GetMember(type, memberExpression.MemberName, BindingMemberType.Property | BindingMemberType.Field, flags, context.GetMetadataOrDefault());
 
             if (member == null)
             {

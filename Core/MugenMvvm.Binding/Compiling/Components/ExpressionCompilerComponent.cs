@@ -57,7 +57,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Nested types
 
-        public interface IContext //: IMetadataOwner<IMetadataContext>
+        public interface IContext : IMetadataOwner<IMetadataContext>
         {
             ParameterExpression MetadataExpression { get; }
 

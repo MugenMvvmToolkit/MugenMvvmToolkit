@@ -119,7 +119,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         private Expression? TryBuildExpression(ExpressionCompilerComponent.IContext context, string methodName, in TargetData targetData, ArgumentData[] args, Type[] typeArgs)
         {
-            var methods = FindBestMethods(targetData, GetMethods(targetData.Type, methodName, targetData.IsStatic, null), args, typeArgs);
+            var methods = FindBestMethods(targetData, GetMethods(targetData.Type, methodName, targetData.IsStatic, null, context.GetMetadataOrDefault()), args, typeArgs);
             var expression = TryGenerateMethodCall(context, methods, targetData, args);
             if (expression != null)
                 return expression;
@@ -655,11 +655,11 @@ namespace MugenMvvm.Binding.Compiling.Components
             return true;
         }
 
-        private MethodData[] GetMethods(Type type, string methodName, bool isStatic, Type[]? typeArgs)
+        private MethodData[] GetMethods(Type type, string methodName, bool isStatic, Type[]? typeArgs, IReadOnlyMetadataContext? metadata)
         {
             var members = _memberProvider
                 .ServiceIfNull()
-                .GetMembers(type, methodName, BindingMemberType.Method, isStatic ? MemberFlags & ~MemberFlags.Instance : MemberFlags);
+                .GetMembers(type, methodName, BindingMemberType.Method, isStatic ? MemberFlags & ~MemberFlags.Instance : MemberFlags, metadata);
 
             int count = 0;
             for (int i = 0; i < members.Count; i++)
@@ -714,7 +714,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 if (!type.EqualsEx(_type) || TryGetValue(types, out var method))
                 {
                     _type = type;
-                    var methods = _component.GetMethods(type, methodName, false, typeArgs);
+                    var methods = _component.GetMethods(type, methodName, false, typeArgs, metadata);
                     var resultIndex = TrySelectMethod(methods, out _);
                     method = resultIndex >= 0 ? methods[resultIndex] : default;
                     this[types] = method;

@@ -20,6 +20,13 @@ namespace MugenMvvm
 
         #region Methods
 
+        public static IReadOnlyMetadataContext GetMetadataOrDefault(this IMetadataOwner<IReadOnlyMetadataContext>? owner, IReadOnlyMetadataContext? defaultValue = null)
+        {
+            if (owner.HasMetadata)
+                return owner.Metadata;
+            return defaultValue ?? Default.Metadata;
+        }
+
         public static bool LazyInitialize(this IMetadataContextProvider? provider, [EnsuresNotNull] ref IMetadataContext? metadataContext,
             object? target, IEnumerable<MetadataContextValue>? values = null)
         {
@@ -75,7 +82,7 @@ namespace MugenMvvm
             return value;
         }
 
-        public static MetadataContextKey.Builder<T> NotNull<T>(this MetadataContextKey.Builder<T> builder) where T : class ?
+        public static MetadataContextKey.Builder<T> NotNull<T>(this MetadataContextKey.Builder<T> builder) where T : class?
         {
             if (_notNullValidateAction == null)
                 _notNullValidateAction = (ctx, k, value) => Should.NotBeNull(value, nameof(value));
