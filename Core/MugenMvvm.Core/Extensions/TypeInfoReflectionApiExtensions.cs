@@ -147,7 +147,7 @@ namespace MugenMvvm
             return type.GetTypeInfo().ImplementedInterfaces;
         }
 
-        public static IEnumerable<Type> GetGenericArguments(Type type)
+        public static Type[] GetGenericArguments(Type type)
         {
             return type.GenericTypeArguments;
         }
@@ -217,6 +217,16 @@ namespace MugenMvvm
         public static bool ContainsGenericParameters(Type type)
         {
             return type.GetTypeInfo().ContainsGenericParameters;
+        }
+
+        public static GenericParameterAttributes GetGenericParameterAttributes(Type type)
+        {
+            return type.GetTypeInfo().GenericParameterAttributes;
+        }
+
+        public static Type[] GetGenericParameterConstraints(Type type)
+        {
+            return type.GetTypeInfo().GetGenericParameterConstraints();
         }
 
         public static MethodInfo? GetGetMethod(PropertyInfo propertyInfo, bool nonPublic)

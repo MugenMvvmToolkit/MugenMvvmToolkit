@@ -47,7 +47,9 @@ namespace MugenMvvm
 
         public static Func<Type, Type>? GetBaseType { get; set; }
 
-        public static Func<Type, IEnumerable<Type>>? GetGenericArguments { get; set; }
+        public static Func<Type, Type[]>? GetGenericArguments { get; set; }
+
+        public static Func<Type, Type[]>? GetGenericParameterConstraints { get; set; }
 
         public static Func<Type, bool>? IsClass { get; set; }
 
@@ -66,6 +68,8 @@ namespace MugenMvvm
         public static Func<Type, bool>? IsGenericTypeDefinition { get; set; }
 
         public static Func<Type, bool>? ContainsGenericParameters { get; set; }
+
+        public static Func<Type, GenericParameterAttributes>? GetGenericParameterAttributes { get; set; }
 
         public static Func<PropertyInfo, bool, MethodInfo?>? GetGetMethod { get; set; }
 
@@ -191,7 +195,7 @@ namespace MugenMvvm
             return GetInterfaces(type);
         }
 
-        public static IEnumerable<Type> GetGenericArgumentsUnified(this Type type)
+        public static Type[] GetGenericArgumentsUnified(this Type type)
         {
             Should.NotBeNull(type, nameof(type));
             if (GetGenericArguments == null)
@@ -303,6 +307,22 @@ namespace MugenMvvm
             if (ContainsGenericParameters == null)
                 return TypeInfoReflectionApiExtensions.ContainsGenericParameters(type);
             return ContainsGenericParameters(type);
+        }
+
+        public static GenericParameterAttributes GetGenericParameterAttributesUnified(this Type type)
+        {
+            Should.NotBeNull(type, nameof(type));
+            if (GetGenericParameterAttributes == null)
+                return TypeInfoReflectionApiExtensions.GetGenericParameterAttributes(type);
+            return GetGenericParameterAttributes(type);
+        }
+
+        public static Type[] GetGenericParameterConstraintsUnified(this Type type)
+        {
+            Should.NotBeNull(type, nameof(type));
+            if (GetGenericParameterConstraints == null)
+                return TypeInfoReflectionApiExtensions.GetGenericParameterConstraints(type);
+            return GetGenericParameterConstraints(type);
         }
 
         public static MethodInfo? GetGetMethodUnified(this PropertyInfo propertyInfo, bool nonPublic)

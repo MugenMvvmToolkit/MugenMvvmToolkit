@@ -8,7 +8,7 @@ using MugenMvvm.Messaging;
 
 namespace MugenMvvm.Interfaces.Messaging
 {
-    public interface IMessenger : IMessagePublisher, IComponentOwner<IMessenger>, IComponent<IMugenApplication>, IDisposable
+    public interface IMessenger : IMessagePublisher, IComponentOwner<IMessenger>, IComponent<IMugenApplication>, IDisposable//todo opt struct message, in T
     {
         bool Subscribe(object subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null);
 

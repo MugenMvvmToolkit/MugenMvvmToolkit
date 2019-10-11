@@ -90,7 +90,7 @@ namespace MugenMvvm
             field.SetValue(target, value);
         }
 
-        [Preserve]
+        [Preserve(Conditional = true)]
         internal static void InitializeArray<T>(T[] target, object[] source)
         {
             for (var i = 0; i < target.Length; i++)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
 using MugenMvvm.Collections.Internal;
 using MugenMvvm.Enums;
@@ -87,6 +88,7 @@ namespace MugenMvvm.Components
             return result;
         }
 
+        [Preserve(Conditional = true)]
         private static object AttachDetachIml<T>(object owner, object target, bool attach, bool preBind, IReadOnlyMetadataContext? metadata) where T : class
         {
             if (attach)
