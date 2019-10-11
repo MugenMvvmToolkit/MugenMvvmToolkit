@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members
 {
-    internal sealed class BindingFieldInfo : IBindingPropertyInfo
+    public sealed class BindingFieldInfo : IBindingPropertyInfo
     {
         #region Fields
 

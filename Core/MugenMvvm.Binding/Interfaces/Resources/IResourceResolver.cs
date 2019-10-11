@@ -12,11 +12,11 @@ namespace MugenMvvm.Binding.Interfaces.Resources
     {
         IComponent<IBinding>? TryGetComponent(string name, IReadOnlyMetadataContext? metadata = null);
 
-        IResourceValue? TryGetResourceValue(string name, IReadOnlyMetadataContext? metadata);
+        IResourceValue? TryGetResourceValue(string name, IReadOnlyMetadataContext? metadata = null);
 
-        IValueConverter? TryGetConverter(string name, IReadOnlyMetadataContext? metadata);
+        IValueConverter? TryGetConverter(string name, IReadOnlyMetadataContext? metadata = null);
 
-        Type? TryGetType(string name, IReadOnlyMetadataContext? metadata);
+        Type? TryGetType(string name, IReadOnlyMetadataContext? metadata = null);
 
         IReadOnlyList<KnownType> GetKnownTypes();
     }

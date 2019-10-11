@@ -49,6 +49,11 @@ namespace MugenMvvm.Binding
             throw new InvalidOperationException(ExpressionNodeCannotBeNullFormat1.Format(ownerType));
         }
 
+        public static void ThrowCannotResolveType(string typeName)
+        {
+            throw new InvalidOperationException(string.Format(CannotResolveTypeFormat1, typeName));
+        }
+
         #endregion
     }
 }

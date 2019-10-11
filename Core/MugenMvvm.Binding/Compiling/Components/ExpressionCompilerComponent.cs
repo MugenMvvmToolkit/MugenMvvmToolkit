@@ -3,6 +3,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Compiling.Components;
+using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
@@ -15,7 +16,7 @@ namespace MugenMvvm.Binding.Compiling.Components
     {
         #region Fields
 
-        private readonly ComponentTracker<ICompiler, IExpressionCompiler> _componentTracker;
+        private readonly ComponentTracker<IExpressionBuilder, IExpressionCompiler> _componentTracker;
         private readonly IMetadataContextProvider? _metadataContextProvider;
 
         #endregion
@@ -25,7 +26,7 @@ namespace MugenMvvm.Binding.Compiling.Components
         public ExpressionCompilerComponent(IMetadataContextProvider? metadataContextProvider = null)
         {
             _metadataContextProvider = metadataContextProvider;
-            _componentTracker = new ComponentTracker<ICompiler, IExpressionCompiler>();
+            _componentTracker = new ComponentTracker<IExpressionBuilder, IExpressionCompiler>();
         }
 
         #endregion
@@ -62,18 +63,20 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             MethodInfo? CurrentLambdaMethod { get; } //todo keep prev value
 
-            void SetCurrentLambdaType(Type? lambdaType);
+            void SetCurrentLambdaParameter(IBindingParameterInfo parameter);
+
+            void ClearCurrentLambdaParameter(IBindingParameterInfo parameter);
 
             ParameterExpression? GetParameterExpression(IParameterExpression parameterExpression);
 
             void SetParameterExpression(IParameterExpression parameterExpression, ParameterExpression? value);
 
-            Expression Compile(IExpressionNode expression);
+            Expression Build(IExpressionNode expression);
         }
 
-        public interface ICompiler : IComponent<IExpressionCompiler>
+        public interface IExpressionBuilder : IComponent<IExpressionCompiler>
         {
-            Expression? TryCompile(IContext context, IExpressionNode expression);
+            Expression? TryBuild(IContext context, IExpressionNode expression);
         }
 
         #endregion

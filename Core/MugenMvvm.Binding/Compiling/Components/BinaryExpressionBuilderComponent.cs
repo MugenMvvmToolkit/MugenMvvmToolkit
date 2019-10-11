@@ -8,7 +8,7 @@ using MugenMvvm.Enums;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public sealed class BinaryExpressionCompilerComponent : ExpressionCompilerComponent.ICompiler
+    public sealed class BinaryExpressionBuilderComponent : ExpressionCompilerComponent.IExpressionBuilder
     {
         #region Fields
 
@@ -21,7 +21,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Constructors
 
-        public BinaryExpressionCompilerComponent(Dictionary<BinaryTokenType, Func<Expression, Expression, Expression>>? binaryTokenMapping = null)
+        public BinaryExpressionBuilderComponent(Dictionary<BinaryTokenType, Func<Expression, Expression, Expression>>? binaryTokenMapping = null)
         {
             if (binaryTokenMapping == null)
             {
@@ -62,10 +62,10 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Implementation of interfaces
 
-        public Expression? TryCompile(ExpressionCompilerComponent.IContext context, IExpressionNode expression)
+        public Expression? TryBuild(ExpressionCompilerComponent.IContext context, IExpressionNode expression)
         {
             if (expression is IBinaryExpressionNode binaryExpression && BinaryTokenMapping.TryGetValue(binaryExpression.Token, out var func))
-                return func(context.Compile(binaryExpression.Left), context.Compile(binaryExpression.Right));
+                return func(context.Build(binaryExpression.Left), context.Build(binaryExpression.Right));
             return null;
         }
 

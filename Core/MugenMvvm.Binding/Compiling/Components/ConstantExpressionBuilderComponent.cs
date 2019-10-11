@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public sealed class ParameterExpressionCompilerComponent : ExpressionCompilerComponent.ICompiler, IHasPriority
+    public sealed class ConstantExpressionBuilderComponent : ExpressionCompilerComponent.IExpressionBuilder, IHasPriority
     {
         #region Properties
 
@@ -14,10 +14,10 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Implementation of interfaces
 
-        public Expression? TryCompile(ExpressionCompilerComponent.IContext context, IExpressionNode expression)
+        public Expression? TryBuild(ExpressionCompilerComponent.IContext context, IExpressionNode expression)
         {
-            if (expression is IParameterExpression parameter)
-                return context.GetParameterExpression(parameter);
+            if (expression is IConstantExpressionNode constant)
+                return Expression.Constant(constant.Value, constant.Type);
             return null;
         }
 

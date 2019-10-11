@@ -1,27 +1,34 @@
 ﻿using System.Linq.Expressions;
 using System.Reflection;
+using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public class MemberExpressionCompilerComponent : ExpressionCompilerComponent.ICompiler, IHasPriority
+    public sealed class MemberExpressionBuilderComponent : ExpressionCompilerComponent.IExpressionBuilder, IHasPriority
     {
         #region Fields
 
         private readonly IMemberProvider? _memberProvider;
-        private static readonly MethodInfo GetValueMethod = typeof(IBindingPropertyInfo).GetMethodOrThrow(nameof(IBindingPropertyInfo.GetValue), MemberFlags.InstancePublic);
+        private readonly Expression _thisExpression;
+
+        private static readonly MethodInfo GetValuePropertyMethod =
+            typeof(IBindingPropertyInfo).GetMethodOrThrow(nameof(IBindingPropertyInfo.GetValue), MemberFlags.InstancePublic);
+        private static readonly MethodInfo GetValueDynamicMethod = typeof(MemberExpressionBuilderComponent).GetMethodOrThrow(nameof(GetValueDynamic), MemberFlags.InstancePublic);
 
         #endregion
 
         #region Constructors
 
-        public MemberExpressionCompilerComponent(IMemberProvider? memberProvider = null)
+        public MemberExpressionBuilderComponent(IMemberProvider? memberProvider = null)
         {
             _memberProvider = memberProvider;
+            _thisExpression = Expression.Constant(this, typeof(MemberExpressionBuilderComponent));
         }
 
         #endregion
@@ -36,12 +43,12 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Implementation of interfaces
 
-        public Expression? TryCompile(ExpressionCompilerComponent.IContext context, IExpressionNode expression)
+        public Expression? TryBuild(ExpressionCompilerComponent.IContext context, IExpressionNode expression)
         {
             if (!(expression is IMemberExpressionNode memberExpression) || memberExpression.Target == null)
                 return null;
 
-            var target = context.Compile(memberExpression.Target);
+            var target = context.Build(memberExpression.Target);
             var result = TryCompile(target, memberExpression.Member);
             if (result != null)
                 return result;
@@ -65,8 +72,13 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             if (member == null)
             {
-                BindingExceptionManager.ThrowInvalidBindingMember(type, memberExpression.MemberName);
-                return null;
+                if (target == null)
+                    BindingExceptionManager.ThrowInvalidBindingMember(type, memberExpression.MemberName);
+
+                return Expression.Call(_thisExpression, GetValueDynamicMethod,
+                    target.ConvertIfNeed(typeof(object), false),
+                    Expression.Constant(memberExpression.Member, typeof(string)),
+                    context.MetadataExpression);
             }
 
             result = TryCompile(target, member.Member);
@@ -80,13 +92,26 @@ namespace MugenMvvm.Binding.Compiling.Components
             }
 
             var methodCall = Expression.Call(Expression.Constant(propertyInfo, typeof(IBindingPropertyInfo)),
-                GetValueMethod, target.ConvertIfNeed(typeof(object), false), context.MetadataExpression);
+                GetValuePropertyMethod, target.ConvertIfNeed(typeof(object), false), context.MetadataExpression);
             return Expression.Convert(methodCall, propertyInfo.Type);
         }
 
         #endregion
 
         #region Methods
+
+        [Preserve(Conditional = true)]
+        public object? GetValueDynamic(object? source, string member, IReadOnlyMetadataContext? metadata)
+        {
+            if (source == null)
+                return null;
+            var property = MugenBindingService
+                .MemberProvider
+                .GetMember(source.GetType(), member, BindingMemberType.Property | BindingMemberType.Field, MemberFlags & ~MemberFlags.Static, metadata) as IBindingPropertyInfo;
+            if (property == null)
+                BindingExceptionManager.ThrowInvalidBindingMember(source.GetType(), member);
+            return property!.GetValue(source, metadata);
+        }
 
         private static Expression? TryCompile(Expression? target, object? member)
         {

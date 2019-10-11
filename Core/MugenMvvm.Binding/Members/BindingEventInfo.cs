@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members
 {
-    internal sealed class BindingEventInfo : IBindingEventInfo
+    public sealed class BindingEventInfo : IBindingEventInfo
     {
         #region Fields
 

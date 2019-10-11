@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public sealed class ConditionExpressionCompilerComponent : ExpressionCompilerComponent.ICompiler, IHasPriority
+    public sealed class ConditionExpressionBuilderComponent : ExpressionCompilerComponent.IExpressionBuilder, IHasPriority
     {
         #region Properties
 
@@ -14,15 +14,15 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Implementation of interfaces
 
-        public Expression? TryCompile(ExpressionCompilerComponent.IContext context, IExpressionNode expression)
+        public Expression? TryBuild(ExpressionCompilerComponent.IContext context, IExpressionNode expression)
         {
             if (!(expression is IConditionExpressionNode condition))
                 return null;
 
-            var ifTrue = context.Compile(condition.IfTrue);
-            var ifFalse = context.Compile(condition.IfFalse);
+            var ifTrue = context.Build(condition.IfTrue);
+            var ifFalse = context.Build(condition.IfFalse);
             BindingMugenExtensions.Convert(ref ifTrue, ref ifFalse, true);
-            return Expression.Condition(context.Compile(condition.Condition).ConvertIfNeed(typeof(bool), true), ifTrue, ifFalse);
+            return Expression.Condition(context.Build(condition.Condition).ConvertIfNeed(typeof(bool), true), ifTrue, ifFalse);
         }
 
         #endregion

@@ -19,6 +19,11 @@ namespace MugenMvvm.Binding
 
         #region Methods
 
+        internal static bool HasFlagEx(this GenericParameterAttributes attributes, GenericParameterAttributes flag)
+        {
+            return (attributes & flag) == flag;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsNullOrUnsetValue(this object? value)
         {

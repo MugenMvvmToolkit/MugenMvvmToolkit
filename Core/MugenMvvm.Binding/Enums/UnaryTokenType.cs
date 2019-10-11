@@ -5,7 +5,7 @@ using MugenMvvm.Enums;
 namespace MugenMvvm.Binding.Enums
 {
 #pragma warning disable 660,661
-    public class UnaryTokenType : EnumBase<BinaryTokenType, string>
+    public class UnaryTokenType : EnumBase<UnaryTokenType, string>
 #pragma warning restore 660,661
     {
         #region Fields

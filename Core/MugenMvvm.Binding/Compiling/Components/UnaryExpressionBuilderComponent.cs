@@ -7,11 +7,11 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public sealed class UnaryExpressionCompilerComponent : ExpressionCompilerComponent.ICompiler, IHasPriority
+    public sealed class UnaryExpressionBuilderComponent : ExpressionCompilerComponent.IExpressionBuilder, IHasPriority
     {
         #region Constructors
 
-        public UnaryExpressionCompilerComponent(Dictionary<UnaryTokenType, Func<Expression, Expression>>? unaryTokenMapping = null)
+        public UnaryExpressionBuilderComponent(Dictionary<UnaryTokenType, Func<Expression, Expression>>? unaryTokenMapping = null)
         {
             if (unaryTokenMapping == null)
             {
@@ -39,10 +39,10 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Implementation of interfaces
 
-        public Expression? TryCompile(ExpressionCompilerComponent.IContext context, IExpressionNode expression)
+        public Expression? TryBuild(ExpressionCompilerComponent.IContext context, IExpressionNode expression)
         {
             if (expression is IUnaryExpressionNode unaryExpressionNode && UnaryTokenMapping.TryGetValue(unaryExpressionNode.Token, out var func))
-                return func(context.Compile(unaryExpressionNode.Operand));
+                return func(context.Build(unaryExpressionNode.Operand));
             return null;
         }
 

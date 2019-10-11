@@ -22,6 +22,8 @@
 
         internal const string ExpressionNodeCannotBeNullFormat1 = "The expression node on type '{0}' cannot be null";
 
+        internal const string CannotResolveTypeFormat1 = "Cannot resolve type '{0}'";
+
         #endregion
     }
 }

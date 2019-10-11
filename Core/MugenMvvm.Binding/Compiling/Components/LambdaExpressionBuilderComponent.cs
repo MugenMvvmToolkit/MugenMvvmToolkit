@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public sealed class LambdaExpressionCompilerComponent : ExpressionCompilerComponent.ICompiler, IHasPriority
+    public sealed class LambdaExpressionBuilderComponent : ExpressionCompilerComponent.IExpressionBuilder, IHasPriority
     {
         #region Properties
 
@@ -14,7 +14,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Implementation of interfaces
 
-        public Expression? TryCompile(ExpressionCompilerComponent.IContext context, IExpressionNode expression)
+        public Expression? TryBuild(ExpressionCompilerComponent.IContext context, IExpressionNode expression)
         {
             if (!(expression is ILambdaExpressionNode lambdaExpression))
                 return null;
@@ -41,7 +41,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                     context.SetParameterExpression(lambdaExpression.Parameters[i], parameter);
                 }
 
-                return Expression.Lambda(context.Compile(lambdaExpression.Body), lambdaParameters);
+                return Expression.Lambda(context.Build(lambdaExpression.Body), lambdaParameters);
             }
             finally
             {
