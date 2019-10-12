@@ -170,7 +170,7 @@ namespace MugenMvvm
 
         #region Nested types
 
-        private sealed class GenericConverter<T>
+        private static class GenericConverter<T>
         {
             #region Fields
 
