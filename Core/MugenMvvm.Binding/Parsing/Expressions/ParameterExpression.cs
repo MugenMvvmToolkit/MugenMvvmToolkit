@@ -5,7 +5,7 @@ using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 
 namespace MugenMvvm.Binding.Parsing.Expressions
 {
-    public sealed class ParameterExpression : ExpressionNodeBase, IParameterExpression
+    public class ParameterExpression : ExpressionNodeBase, IParameterExpression
     {
         #region Constructors
 

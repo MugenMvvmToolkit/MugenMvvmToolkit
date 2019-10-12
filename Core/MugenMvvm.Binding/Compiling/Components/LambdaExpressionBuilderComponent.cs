@@ -1,5 +1,7 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq.Expressions;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Compiling.Components
@@ -19,7 +21,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             if (!(expression is ILambdaExpressionNode lambdaExpression))
                 return null;
 
-            var method = context.CurrentLambdaMethod;
+            var method = context.TryGetLambdaParameter()?.ParameterType.GetMethodUnified(nameof(Action.Invoke), MemberFlags.InstancePublic);
             if (method == null)
                 return null;
 
@@ -46,7 +48,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             finally
             {
                 for (var i = 0; i < lambdaParameters.Length; i++)
-                    context.SetParameterExpression(lambdaExpression.Parameters[i], null);
+                    context.ClearParameterExpression(lambdaExpression.Parameters[i]);
             }
         }
 

@@ -1,4 +1,6 @@
-﻿using MugenMvvm.Binding.Enums;
+﻿using System;
+using MugenMvvm.Binding.Compiling;
+using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Observers;
@@ -30,14 +32,17 @@ namespace MugenMvvm.Binding.Core
         public object? GetValue()
         {
             var sources = (IMemberPathObserver[])SourceRaw;
-            var values = new object?[sources.Length];
+            var values = new ExpressionValue[sources.Length];
             for (var i = 0; i < sources.Length; i++)
             {
                 var members = sources[i].GetLastMember(Metadata);
                 var value = members.GetLastMemberValue(Metadata);
                 if (value.IsUnsetValueOrDoNothing())
                     return value;
-                values[i] = value;
+                if (value == null)
+                    values[i] = new ExpressionValue(members.LastMember.Type, null);
+                else
+                    values[i] = new ExpressionValue(value.GetType(), value);
             }
 
             return _expression!.Invoke(values, Metadata);

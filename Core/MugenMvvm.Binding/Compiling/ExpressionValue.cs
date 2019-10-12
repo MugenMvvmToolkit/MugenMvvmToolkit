@@ -1,24 +1,24 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace MugenMvvm.Binding.Resources
+namespace MugenMvvm.Binding.Compiling
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct KnownType
+    public readonly struct ExpressionValue
     {
         #region Fields
 
-        public readonly string Alias;
         public readonly Type Type;
+        public readonly object? Value;
 
         #endregion
 
         #region Constructors
 
-        public KnownType(Type type, string alias)
+        public ExpressionValue(Type type, object value)
         {
             Type = type;
-            Alias = alias;
+            Value = value;
         }
 
         #endregion

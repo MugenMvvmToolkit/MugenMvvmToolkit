@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using MugenMvvm.Binding.Resources;
+﻿using System;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Resources.Components
 {
     public interface ITypeResolverComponent : IComponent<IResourceResolver>
     {
-        IReadOnlyList<KnownType> GetKnownTypes();
+        Type? TryGetType(string name, IReadOnlyMetadataContext? metadata);
     }
 }

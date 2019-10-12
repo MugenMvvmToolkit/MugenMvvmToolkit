@@ -140,7 +140,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 Expression.Constant(methodName, typeof(string)),
                 Expression.NewArrayInit(typeof(object), arrayArgs),
                 Expression.Constant(typeArgs, typeof(Type[])),
-                context.MetadataExpression);
+                context.MetadataParameter);
         }
 
         private Type[] GetTypes(IReadOnlyList<string>? types)
@@ -232,14 +232,14 @@ namespace MugenMvvm.Binding.Compiling.Components
                         if (data.IsLambda)
                         {
                             var lambdaParameter = method.Parameters[index];
-                            context.SetCurrentLambdaParameter(lambdaParameter);
+                            context.SetLambdaParameter(lambdaParameter);
                             try
                             {
                                 data = data.UpdateExpression(context.Build(data.Node));
                             }
                             finally
                             {
-                                context.ClearCurrentLambdaParameter(lambdaParameter);
+                                context.ClearLambdaParameter(lambdaParameter);
                             }
 
                             args[i] = data;
@@ -269,7 +269,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             var invokeArgs = new Expression[3];
             invokeArgs[0] = (result.IsExtensionMethod ? null : target.Expression).ConvertIfNeed(typeof(object), false);
             invokeArgs[1] = Expression.NewArrayInit(typeof(object), resultArgs.Select(expression => expression.ConvertIfNeed(typeof(object), false)));
-            invokeArgs[2] = context.MetadataExpression;
+            invokeArgs[2] = context.MetadataParameter;
             return Expression.Call(Expression.Constant(result.Method, typeof(IBindingMethodInfo)), InvokeMethod, invokeArgs);
         }
 
@@ -767,10 +767,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 unchecked
                 {
                     for (var index = 0; index < key.Length; index++)
-                    {
-                        var type = key[index];
-                        hash += type == null ? 0 : type.GetHashCode() * 397;
-                    }
+                        hash = hash * 397 ^ key[index].GetHashCode();
                 }
 
                 return hash;

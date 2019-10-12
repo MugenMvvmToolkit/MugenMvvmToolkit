@@ -78,7 +78,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 return Expression.Call(_thisExpression, GetValueDynamicMethod,
                     target.ConvertIfNeed(typeof(object), false),
                     Expression.Constant(memberExpression.Member, typeof(string)),
-                    context.MetadataExpression);
+                    context.MetadataParameter);
             }
 
             result = TryCompile(target, member.Member);
@@ -92,7 +92,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             }
 
             var methodCall = Expression.Call(Expression.Constant(propertyInfo, typeof(IBindingPropertyInfo)),
-                GetValuePropertyMethod, target.ConvertIfNeed(typeof(object), false), context.MetadataExpression);
+                GetValuePropertyMethod, target.ConvertIfNeed(typeof(object), false), context.MetadataParameter);
             return Expression.Convert(methodCall, propertyInfo.Type);
         }
 

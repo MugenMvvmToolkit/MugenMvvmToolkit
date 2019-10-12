@@ -1,9 +1,10 @@
-﻿using MugenMvvm.Interfaces.Metadata;
+﻿using MugenMvvm.Binding.Compiling;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Compiling
 {
     public interface ICompiledExpression
     {
-        object? Invoke(object?[] values, IReadOnlyMetadataContext? metadata);
+        object? Invoke(ExpressionValue[] values, IReadOnlyMetadataContext? metadata);
     }
 }

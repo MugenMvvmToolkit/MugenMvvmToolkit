@@ -10,4 +10,8 @@
     <ProjectReference Include="..\MugenMvvm.Core\MugenMvvm.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Resources\" />
+  </ItemGroup>
+
 </Project>
