@@ -159,7 +159,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 Should.NotBeNull(values, nameof(values));
                 if (!TryGetValue(values, out var invoker))
                 {
-                    invoker = Compile(values);
+                    invoker = CompileExpression(values);
                     var types = new Type[values.Length];
                     for (var i = 0; i < values.Length; i++)
                         types[i] = values[i].Type;
@@ -235,7 +235,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             IExpressionNode IExpressionVisitor.Visit(IExpressionNode node)
             {
                 if (node.NodeType == ExpressionNodeType.BindingParameter)
-                    _parametersDict[(IParameterExpression) node] = null;
+                    _parametersDict[(IParameterExpression)node] = null;
                 return node;
             }
 
@@ -243,11 +243,11 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             #region Methods
 
-            private DelegateInvoker Compile(ExpressionValue[] values)
+            private DelegateInvoker CompileExpression(ExpressionValue[] values)
             {
                 try
                 {
-                    var parameters = new ParameterExpression[values.Length + 1];
+                    var parameters = new ParameterExpression[_values.Length];
                     foreach (var value in _parametersDict)
                     {
                         var parameterExpression = value.Key;
@@ -287,8 +287,8 @@ namespace MugenMvvm.Binding.Compiling.Components
                 var typesY = y as Type[];
                 if (typesX == null && typesY == null)
                 {
-                    var valuesX = (ExpressionValue[]) x;
-                    var valuesY = (ExpressionValue[]) y;
+                    var valuesX = (ExpressionValue[])x;
+                    var valuesY = (ExpressionValue[])y;
                     if (valuesX.Length != valuesY.Length)
                         return false;
                     for (var i = 0; i < valuesX.Length; i++)
@@ -301,9 +301,9 @@ namespace MugenMvvm.Binding.Compiling.Components
                 }
 
                 if (typesX == null)
-                    return Equals(typesY!, (ExpressionValue[]) x);
+                    return Equals(typesY!, (ExpressionValue[])x);
                 if (typesY == null)
-                    return Equals(typesX!, (ExpressionValue[]) y);
+                    return Equals(typesX!, (ExpressionValue[])y);
 
                 if (typesX.Length != typesY.Length)
                     return false;
@@ -328,7 +328,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                     }
                     else
                     {
-                        var types = (Type[]) key;
+                        var types = (Type[])key;
                         for (var index = 0; index < types.Length; index++)
                             hash = hash * 397 ^ types[index].GetHashCode();
                     }
