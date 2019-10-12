@@ -22,7 +22,7 @@ namespace MugenMvvm
 
         public static IReadOnlyMetadataContext GetMetadataOrDefault(this IMetadataOwner<IReadOnlyMetadataContext>? owner, IReadOnlyMetadataContext? defaultValue = null)
         {
-            if (owner.HasMetadata)
+            if (owner != null && owner.HasMetadata)
                 return owner.Metadata;
             return defaultValue ?? Default.Metadata;
         }

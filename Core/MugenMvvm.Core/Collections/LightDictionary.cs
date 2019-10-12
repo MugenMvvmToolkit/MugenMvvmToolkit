@@ -55,10 +55,10 @@ namespace MugenMvvm.Collections
         protected LightDictionary(bool initialize)
         {
             if (initialize)
-                Initialize(0);
+                Initialize(3);
         }
 
-        public LightDictionary() : this(0)
+        public LightDictionary() : this(3)
         {
         }
 

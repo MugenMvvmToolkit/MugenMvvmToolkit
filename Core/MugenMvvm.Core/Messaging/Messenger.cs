@@ -245,7 +245,7 @@ namespace MugenMvvm.Messaging
 
             protected override bool Equals(ThreadExecutionMode x, ThreadExecutionMode y)
             {
-                return x.Equals(y);
+                return x == y;
             }
 
             protected override int GetHashCode(ThreadExecutionMode key)
@@ -339,7 +339,7 @@ namespace MugenMvvm.Messaging
                         return ctx;
 
                     Interlocked.CompareExchange(ref _metadata, _metadata.ToNonReadonly(this, _messenger._metadataContextProvider), null);
-                    return (IMetadataContext) _metadata!;
+                    return (IMetadataContext)_metadata!;
                 }
             }
 
