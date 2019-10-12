@@ -67,11 +67,8 @@ namespace MugenMvvm.Binding.Parsing.Components
                 args = Default.EmptyArray<IParameterExpression>();
                 context.MoveNext(2);
             }
-            else
+            else if (context.IsToken('('))
             {
-                if (!context.IsToken('('))
-                    return null;
-
                 var stringArgs = context.MoveNext().SkipWhitespaces().ParseStringArguments(")", false);
                 if (stringArgs == null)
                     return null;
@@ -79,6 +76,18 @@ namespace MugenMvvm.Binding.Parsing.Components
                 args = new IParameterExpression[stringArgs.Count];
                 for (int i = 0; i < args.Length; i++)
                     args[i] = new ParameterExpression(stringArgs[i], i);
+            }
+            else
+            {
+                if (!context.IsIdentifier(out var end))
+                    return null;
+
+                var position = context.SkipWhitespacesPosition(end);
+                if (!context.IsToken("=>", position))
+                    return null;
+
+                args = new IParameterExpression[] { new ParameterExpression(context.GetValue(context.Position, end), 0) };
+                context.SetPosition(position);
             }
 
 
