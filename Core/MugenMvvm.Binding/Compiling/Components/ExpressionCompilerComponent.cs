@@ -59,12 +59,12 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Methods
 
-        protected override void OnAttachedInternal(IExpressionCompiler owner, IReadOnlyMetadataContext metadata)
+        protected override void OnAttachedInternal(IExpressionCompiler owner, IReadOnlyMetadataContext? metadata)
         {
             ComponentTracker.Attach(owner);
         }
 
-        protected override void OnDetachedInternal(IExpressionCompiler owner, IReadOnlyMetadataContext metadata)
+        protected override void OnDetachedInternal(IExpressionCompiler owner, IReadOnlyMetadataContext? metadata)
         {
             ComponentTracker.Detach();
         }
@@ -113,7 +113,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             private readonly IReadOnlyMetadataContext? _inputMetadata;
 
             private List<IBindingParameterInfo>? _lambdaParameters;
-            private IMetadataContext _metadata;
+            private IMetadataContext? _metadata;
 
             private static readonly ParameterExpression MetadataParameterExpression = Expression.Parameter(typeof(IReadOnlyMetadataContext), "metadata");
 
@@ -146,7 +146,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 }
             }
 
-            public ParameterExpression? MetadataParameter => MetadataParameterExpression;
+            public ParameterExpression MetadataParameter => MetadataParameterExpression;
 
             bool IExpressionVisitor.IsPostOrder => false;
 
@@ -301,9 +301,9 @@ namespace MugenMvvm.Binding.Compiling.Components
                 }
 
                 if (typesX == null)
-                    return Equals(typesY, (ExpressionValue[]) x);
+                    return Equals(typesY!, (ExpressionValue[]) x);
                 if (typesY == null)
-                    return Equals(typesX, (ExpressionValue[]) y);
+                    return Equals(typesX!, (ExpressionValue[]) y);
 
                 if (typesX.Length != typesY.Length)
                     return false;

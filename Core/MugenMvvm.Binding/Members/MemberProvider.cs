@@ -133,7 +133,7 @@ namespace MugenMvvm.Binding.Members
 
                 for (var j = 0; j < members.Count; j++)
                 {
-                    var member = members[i];
+                    var member = members[j];
                     if (memberTypes.HasFlagEx(member.MemberType) && flags.HasFlagEx(member.AccessModifiers))
                         list.Add(member);
                 }

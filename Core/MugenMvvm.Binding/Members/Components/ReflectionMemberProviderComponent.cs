@@ -25,7 +25,7 @@ namespace MugenMvvm.Binding.Members.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ReflectionMemberProviderComponent(IObserverProvider? bindingObserverProvider = null)
+        public ReflectionMemberProviderComponent(IObserverProvider? bindingObserverProvider = null)//todo add reflectionprovider
         {
             _bindingObserverProvider = bindingObserverProvider;
             _cache = new CacheDictionary();
@@ -163,7 +163,11 @@ namespace MugenMvvm.Binding.Members.Components
                     break;
             }
 
-            //todo add methods
+            foreach (var methodInfo in type.GetMethodsUnified(MemberFlags.All))
+            {
+                if (methodInfo.Name.Equals(name))
+                    result.Add(new BindingMethodInfo(name, methodInfo, type, _bindingObserverProvider));
+            }
 
             return result;
         }

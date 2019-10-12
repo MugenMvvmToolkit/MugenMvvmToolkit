@@ -40,7 +40,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
                     var parameter = Expression.Parameter(parameters[i].ParameterType, lambdaExpression.Parameters[i].Name);
                     lambdaParameters[i] = parameter;
-                    context.SetParameterExpression(lambdaExpression.Parameters[i], parameter);
+                    context.SetParameterExpression(parameterExp, parameter);
                 }
 
                 return Expression.Lambda(context.Build(lambdaExpression.Body), lambdaParameters);

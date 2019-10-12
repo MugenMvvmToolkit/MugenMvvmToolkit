@@ -27,6 +27,9 @@ namespace MugenMvvm.Binding.Members
 
         public BindingFieldInfo(string name, FieldInfo fieldInfo, Type reflectedType, IObserverProvider? observerProvider)
         {
+            Should.NotBeNull(name, nameof(name));
+            Should.NotBeNull(fieldInfo, nameof(fieldInfo));
+            Should.NotBeNull(reflectedType, nameof(reflectedType));
             _fieldInfo = fieldInfo;
             _reflectedType = reflectedType;
             _observerProvider = observerProvider;

@@ -22,6 +22,8 @@ namespace MugenMvvm.Binding.Members
 
         public BindingEventInfo(string name, EventInfo eventInfo, MemberObserver observer)
         {
+            Should.NotBeNull(name, nameof(name));
+            Should.NotBeNull(eventInfo, nameof(eventInfo));
             _eventInfo = eventInfo;
             _observer = observer;
             Name = name;

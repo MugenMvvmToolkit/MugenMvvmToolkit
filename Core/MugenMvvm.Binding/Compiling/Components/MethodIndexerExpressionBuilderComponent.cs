@@ -114,7 +114,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 args[i] = new ArgumentData(node, node.NodeType == ExpressionNodeType.Lambda ? null : context.Build(indexExpression.Arguments[i]), null);
             }
 
-            return TryBuildExpression(context, "get_Item", targetData, args, Default.EmptyArray<Type>());
+            return TryBuildExpression(context, type.EqualsEx(typeof(string)) ? "get_Chars" : "get_Item", targetData, args, Default.EmptyArray<Type>());
         }
 
         private Expression? TryBuildExpression(ExpressionCompilerComponent.IContext context, string methodName, in TargetData targetData, ArgumentData[] args, Type[] typeArgs)
@@ -128,13 +128,14 @@ namespace MugenMvvm.Binding.Compiling.Components
                 return null;
 
             var arrayArgs = new Expression[args.Length];
-            for (int i = 0; i < args.Length; i++)
+            for (var i = 0; i < args.Length; i++)
             {
                 var data = args[i];
                 if (data.IsLambda || data.Expression == null)
                     return null;
                 arrayArgs[i] = data.Expression.ConvertIfNeed(typeof(object), false);
             }
+
             return Expression.Call(Expression.Constant(new MethodInvoker(this), typeof(MethodInvoker)), MethodInvokerInvokeMethod,
                 targetData.Expression,
                 Expression.Constant(methodName, typeof(string)),
@@ -179,7 +180,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                     var hasParams = false;
                     if (parameters.Length != 0)
                     {
-                        hasParams = parameters[parameters.Length - 1].IsParamArray;
+                        hasParams = parameters[parameters.Length - 1].IsParamsArray;
                         if (hasParams)
                             requiredCount -= 1;
                     }
@@ -208,6 +209,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                     ;
                 }
             }
+
             return methods;
         }
 
@@ -252,7 +254,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 }
                 catch
                 {
-                    ;
+                    methods[i] = default;
                 }
             }
 
@@ -296,7 +298,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                     if (parameters.Length != 0)
                     {
                         lastIndex = parameters.Length - 1;
-                        hasParams = parameters[lastIndex].IsParamArray;
+                        hasParams = parameters[lastIndex].IsParamsArray;
                     }
 
                     float notExactlyEqual = 0;
@@ -378,6 +380,10 @@ namespace MugenMvvm.Binding.Compiling.Components
                 }
             }
 
+            //note maybe it's better to use dynamic invoker in this case?
+            if (resultNotExactlyEqual >= NotExactlyEqualUnsafeCastWeight)
+                return -1;
+
             return result;
         }
 
@@ -412,7 +418,7 @@ namespace MugenMvvm.Binding.Compiling.Components
         private static Expression[] ConvertParameters(in MethodData method, bool hasParams)
         {
             var parameters = method.Parameters;
-            var args = (Expression[])method.Args!;
+            var args = (Expression[]) method.Args!;
             var result = new Expression[parameters.Length];
             for (var i = 0; i < parameters.Length; i++)
             {
@@ -448,7 +454,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return result;
         }
 
-        private static object?[]? ConvertParameters(in MethodData method, object?[] args, bool hasParams)
+        private static object?[] ConvertParameters(in MethodData method, object?[] args, bool hasParams)
         {
             var parameters = method.Parameters!;
             var result = args.Length == parameters.Length ? args : new object?[parameters.Length];
@@ -480,6 +486,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                         ArraySize[0] = j - i;
                         array.SetValue(args[j], ArraySize);
                     }
+
                     result[i] = array;
                 }
                 else
@@ -661,17 +668,20 @@ namespace MugenMvvm.Binding.Compiling.Components
                 .ServiceIfNull()
                 .GetMembers(type, methodName, BindingMemberType.Method, isStatic ? MemberFlags & ~MemberFlags.Instance : MemberFlags, metadata);
 
-            int count = 0;
-            for (int i = 0; i < members.Count; i++)
+            var count = 0;
+            for (var i = 0; i < members.Count; i++)
             {
-                if (members[i] is IBindingMethodInfo method && (isStatic || MemberFlags.Instance.HasFlagEx(method.AccessModifiers) || method.IsExtensionMethod))
+                if (members[i] is IBindingMethodInfo method && (isStatic || method.AccessModifiers.HasFlagEx(MemberFlags.Instance) || method.IsExtensionMethod))
                     ++count;
             }
+
+            if (count == 0)
+                return Default.EmptyArray<MethodData>();
 
             var methods = new MethodData[count];
             for (var i = 0; i < methods.Length; i++)
             {
-                if (members[i] is IBindingMethodInfo method && (isStatic || MemberFlags.Instance.HasFlagEx(method.AccessModifiers) || method.IsExtensionMethod))
+                if (members[i] is IBindingMethodInfo method && (isStatic || method.AccessModifiers.HasFlagEx(MemberFlags.Instance) || method.IsExtensionMethod))
                 {
                     var m = typeArgs == null ? method : ApplyTypeArgs(method, typeArgs);
                     if (m != null)
@@ -707,7 +717,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             #region Methods
 
-            public object? Invoke(object target, string methodName, object?[]? args, Type[] typeArgs, IReadOnlyMetadataContext? metadata)
+            public object? Invoke(object target, string methodName, object?[] args, Type[] typeArgs, IReadOnlyMetadataContext? metadata)
             {
                 var type = target.GetType();
                 var types = GetArgTypes(args);
@@ -715,6 +725,9 @@ namespace MugenMvvm.Binding.Compiling.Components
                 {
                     _type = type;
                     var methods = _component.GetMethods(type, methodName, false, typeArgs, metadata);
+                    Type[]? instanceArgs = null, extArgs = null;
+                    for (var i = 0; i < methods.Length; i++)
+                        methods[i] = methods[i].WithArgs(target, args, ref instanceArgs, ref extArgs);
                     var resultIndex = TrySelectMethod(methods, out _);
                     method = resultIndex >= 0 ? methods[resultIndex] : default;
                     this[types] = method;
@@ -722,8 +735,6 @@ namespace MugenMvvm.Binding.Compiling.Components
 
                 if (method.IsEmpty)
                     BindingExceptionManager.ThrowInvalidBindingMember(type, methodName);
-                if (args == null)
-                    args = Default.EmptyArray<object>();
                 if (method.Method.IsExtensionMethod)
                 {
                     var newArgs = new object?[args.Length + 1];
@@ -731,7 +742,8 @@ namespace MugenMvvm.Binding.Compiling.Components
                     Array.Copy(args, 0, newArgs, 1, args.Length);
                     args = newArgs;
                 }
-                return method.Method.Invoke(target, ConvertParameters(method, args, method.Parameters.LastOrDefault()?.IsParamArray ?? false), metadata);
+
+                return method.Method.Invoke(target, ConvertParameters(method, args, method.Parameters.LastOrDefault()?.IsParamsArray ?? false), metadata);
             }
 
             private static Type[] GetArgTypes(object?[]? args)
@@ -875,7 +887,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             #region Properties
 
-            public bool IsEmpty => true;
+            public bool IsEmpty => Method == null;
 
             public bool IsExtensionMethod => Method?.IsExtensionMethod ?? false;
 
@@ -889,9 +901,11 @@ namespace MugenMvvm.Binding.Compiling.Components
             {
                 get
                 {
+                    if (Args == null)
+                        return 0;
                     if (Args is Expression[] expressions)
                         return expressions.Length;
-                    return ((Type[])Args!).Length;
+                    return ((Type[]) Args!).Length;
                 }
             }
 
@@ -903,7 +917,37 @@ namespace MugenMvvm.Binding.Compiling.Components
             {
                 if (Args is Expression[] expressions)
                     return expressions[index].Type;
-                return ((Type[])Args!)[index];
+                return ((Type[]) Args!)[index];
+            }
+
+            public MethodData WithArgs(object target, object?[] args, ref Type[]? instanceArgs, ref Type[]? extArgs)
+            {
+                if (IsExtensionMethod)
+                {
+                    if (extArgs == null)
+                    {
+                        extArgs = new Type[args.Length + 1];
+                        extArgs[0] = target.GetType();
+                        for (var i = 0; i < args.Length; i++)
+                            extArgs[i + 1] = args[i]?.GetType() ?? typeof(object);
+                    }
+
+                    return new MethodData(Method, null, extArgs);
+                }
+
+                if (instanceArgs == null)
+                {
+                    if (args.Length == 0)
+                        instanceArgs = Default.EmptyArray<Type>();
+                    else
+                    {
+                        instanceArgs = new Type[args.Length];
+                        for (var i = 0; i < args.Length; i++)
+                            instanceArgs[i] = args[i]?.GetType() ?? typeof(object);
+                    }
+                }
+
+                return new MethodData(Method, null, instanceArgs);
             }
 
             public MethodData TryResolve(ArgumentData[] args, Expression[] expressions)

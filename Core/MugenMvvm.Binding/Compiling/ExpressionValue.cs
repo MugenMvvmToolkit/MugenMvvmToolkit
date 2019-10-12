@@ -15,7 +15,7 @@ namespace MugenMvvm.Binding.Compiling
 
         #region Constructors
 
-        public ExpressionValue(Type type, object value)
+        public ExpressionValue(Type type, object? value)
         {
             Type = type;
             Value = value;

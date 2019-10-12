@@ -30,6 +30,11 @@ namespace MugenMvvm.Binding.Members
         public IndexerBindingPropertyInfo(string name, PropertyInfo propertyInfo,
             ParameterInfo[] indexParameters, string[] indexerValues, Type reflectedType, IObserverProvider? observerProvider)
         {
+            Should.NotBeNull(name, nameof(name));
+            Should.NotBeNull(propertyInfo, nameof(propertyInfo));
+            Should.NotBeNull(indexParameters, nameof(indexParameters));
+            Should.NotBeNull(indexerValues, nameof(indexerValues));
+            Should.NotBeNull(reflectedType, nameof(reflectedType));
             _propertyInfo = propertyInfo;
             _reflectedType = reflectedType;
             _observerProvider = observerProvider;

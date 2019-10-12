@@ -99,7 +99,7 @@ namespace MugenMvvm.Binding
             var methodInfo = provider
                 .ServiceIfNull()
                 .GetMember(source.GetType(), methodMember.Name, BindingMemberType.Method, flags, metadata) as IBindingMethodInfo;
-            return methodInfo?.Invoke(source, args);
+            return methodInfo?.Invoke(source, args ?? Default.EmptyArray<object>());
         }
 
         public static WeakEventListener ToWeak(this IEventListener listener)

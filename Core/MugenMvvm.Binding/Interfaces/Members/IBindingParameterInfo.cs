@@ -4,7 +4,7 @@ namespace MugenMvvm.Binding.Interfaces.Members
 {
     public interface IBindingParameterInfo
     {
-        bool IsParamArray { get; }
+        bool IsParamsArray { get; }
 
         bool HasDefaultValue { get; }
 
