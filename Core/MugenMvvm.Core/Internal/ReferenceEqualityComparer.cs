@@ -24,7 +24,7 @@ namespace MugenMvvm.Internal
 
         #endregion
 
-        #region Implementation of IEqualityComparer<in object>
+        #region Implementation of interfaces
 
         bool IEqualityComparer<object>.Equals(object x, object y)
         {
