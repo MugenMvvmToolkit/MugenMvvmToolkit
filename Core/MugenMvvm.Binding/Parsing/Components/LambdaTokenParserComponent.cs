@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using MugenMvvm.Binding.Constants;
+﻿using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Collections.Internal;

@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using MugenMvvm.Attributes;
-using MugenMvvm.Collections;
 using MugenMvvm.Collections.Internal;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
-using MugenMvvm.Internal;
 using MugenMvvm.Messaging.Components;
 
 namespace MugenMvvm.Messaging

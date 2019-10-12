@@ -1,5 +1,4 @@
-﻿using System;
-using MugenMvvm.Binding.Compiling;
+﻿using MugenMvvm.Binding.Compiling;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Core;

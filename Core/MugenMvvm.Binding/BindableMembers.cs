@@ -1,5 +1,4 @@
-﻿using MugenMvvm.Binding.Members;
-using MugenMvvm.Binding.Members.Descriptors;
+﻿using MugenMvvm.Binding.Members.Descriptors;
 
 namespace MugenMvvm.Binding
 {
