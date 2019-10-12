@@ -16,28 +16,26 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Binding.Core
 {
-    public class Binding : IBinding, IComponentCollection<IComponent<IBinding>>, IMemberPathObserverListener, IReadOnlyMetadataContext//todo use byte state
+    public class Binding : IBinding, IComponentCollection<IComponent<IBinding>>, IMemberPathObserverListener, IReadOnlyMetadataContext
     {
         #region Fields
 
         private object? _components;
         private byte _sourceObserverCount;
-        private short _state;
+        private byte _state;
         private byte _targetObserverCount;
 
-        private const short TargetUpdatingFlag = 1;
-        private const short SourceUpdatingFlag = 1 << 1;
+        private const byte TargetUpdatingFlag = 1;
+        private const byte SourceUpdatingFlag = 1 << 1;
 
-        private const short HasTargetValueInterceptorFlag = 1 << 2;
-        private const short HasSourceValueInterceptorFlag = 1 << 3;
+        private const byte HasTargetValueInterceptorFlag = 1 << 2;
+        private const byte HasSourceValueInterceptorFlag = 1 << 3;
 
-        private const short HasTargetListenerFlag = 1 << 4;
-        private const short HasSourceListenerFlag = 1 << 5;
+        private const byte HasTargetListenerFlag = 1 << 4;
+        private const byte HasSourceListenerFlag = 1 << 5;
 
-        private const short HasTargetValueSetterFlag = 1 << 6;
-        private const short HasSourceValueSetterFlag = 1 << 7;
-
-        private const short DisposedFlag = 1 << 8;
+        private const byte HasTargetValueSetterFlag = 1 << 6;
+        private const byte HasSourceValueSetterFlag = 1 << 7;
 
         #endregion
 
@@ -87,7 +85,7 @@ namespace MugenMvvm.Binding.Core
 
         protected virtual IReadOnlyMetadataContext Metadata => this;
 
-        public BindingState State => CheckFlag(DisposedFlag) ? BindingState.Disposed : BindingState.Attached;
+        public BindingState State => _targetObserverCount == byte.MaxValue ? BindingState.Disposed : BindingState.Attached;
 
         public IMemberPathObserver Target { get; }
 
@@ -97,7 +95,7 @@ namespace MugenMvvm.Binding.Core
             {
                 if (SourceRaw is IMemberPathObserver[] array)
                     return array;
-                return new ItemOrList<IMemberPathObserver, IMemberPathObserver[]>((IMemberPathObserver)SourceRaw);
+                return new ItemOrList<IMemberPathObserver, IMemberPathObserver[]>((IMemberPathObserver) SourceRaw);
             }
         }
 
@@ -108,6 +106,180 @@ namespace MugenMvvm.Binding.Core
         #endregion
 
         #region Implementation of interfaces
+
+        public void Dispose()
+        {
+            var targetObserverCount = _targetObserverCount;
+            if (targetObserverCount == byte.MaxValue)
+                return;
+            _targetObserverCount = byte.MaxValue;
+            OnDispose();
+            MugenBindingService.BindingManager.OnLifecycleChanged(this, BindingLifecycleState.Disposed, Metadata);
+            if (targetObserverCount != 0)
+                Target.RemoveListener(this);
+            Target.Dispose();
+            if (SourceRaw is IMemberPathObserver source)
+            {
+                if (_sourceObserverCount != 0)
+                    source.RemoveListener(this);
+                source.Dispose();
+            }
+            else
+            {
+                var sources = (IMemberPathObserver[]) SourceRaw;
+                for (var i = 0; i < sources.Length; i++)
+                {
+                    var observer = sources[i];
+                    if (_sourceObserverCount != 0)
+                        observer.RemoveListener(this);
+                    observer.Dispose();
+                }
+            }
+
+            Components.Clear();
+        }
+
+        public void UpdateTarget()
+        {
+            try
+            {
+                if (CheckFlag(TargetUpdatingFlag))
+                    return;
+
+                SetFlag(TargetUpdatingFlag);
+                var success = UpdateTargetInternal(out var newValue);
+                if (CheckFlag(HasTargetListenerFlag))
+                {
+                    if (success)
+                        OnTargetUpdated(newValue);
+                    else
+                        OnTargetUpdateCanceled();
+                }
+            }
+            catch (Exception e)
+            {
+                if (CheckFlag(HasTargetListenerFlag))
+                    OnTargetUpdateFailed(e);
+            }
+            finally
+            {
+                ClearFlag(TargetUpdatingFlag);
+            }
+        }
+
+        public void UpdateSource()
+        {
+            try
+            {
+                if (CheckFlag(SourceUpdatingFlag))
+                    return;
+
+                SetFlag(SourceUpdatingFlag);
+                var success = UpdateSourceInternal(out var newValue);
+                if (CheckFlag(HasSourceListenerFlag))
+                {
+                    if (success)
+                        OnSourceUpdated(newValue);
+                    else
+                        OnSourceUpdateCanceled();
+                }
+            }
+            catch (Exception e)
+            {
+                if (CheckFlag(HasSourceListenerFlag))
+                    OnSourceUpdateFailed(e);
+            }
+            finally
+            {
+                ClearFlag(SourceUpdatingFlag);
+            }
+        }
+
+        bool IComponentCollection<IComponent<IBinding>>.Add(IComponent<IBinding> component, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(component, nameof(component));
+            if (State == BindingState.Disposed)
+                return false;
+
+            var defaultListener = CallbackInvokerComponentCollectionComponent.GetComponentCollectionListener<IComponent<IBinding>>();
+            if (!defaultListener.OnAdding(this, component, metadata))
+                return false;
+
+            if (_components == null)
+                _components = component;
+            else if (_components is IComponent<IBinding>[] items)
+            {
+                MugenExtensions.AddOrdered(ref items, component, this);
+                _components = items;
+            }
+            else
+            {
+                _components = MugenExtensions.GetComponentPriority(_components, this) >= MugenExtensions.GetComponentPriority(component, this)
+                    ? new[] {(IComponent<IBinding>) _components, component}
+                    : new[] {component, (IComponent<IBinding>) _components};
+            }
+
+            OnComponentAdded(component);
+            defaultListener.OnAdded(this, component, metadata);
+            return true;
+        }
+
+        bool IComponentCollection<IComponent<IBinding>>.Remove(IComponent<IBinding> component, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(component, nameof(component));
+            if (State == BindingState.Disposed)
+                return false;
+
+            var defaultListener = CallbackInvokerComponentCollectionComponent.GetComponentCollectionListener<IComponent<IBinding>>();
+            if (!defaultListener.OnRemoving(this, component, metadata) || !RemoveComponent(component))
+                return false;
+
+            OnComponentRemoved(component);
+            defaultListener.OnRemoved(this, component, metadata);
+            return true;
+        }
+
+        bool IComponentCollection<IComponent<IBinding>>.Clear(IReadOnlyMetadataContext? metadata)
+        {
+            var defaultListener = CallbackInvokerComponentCollectionComponent.GetComponentCollectionListener<IComponent<IBinding>>();
+            if (!defaultListener.OnClearing(this, metadata))
+                return false;
+
+            var components = _components;
+            _components = null;
+            ItemOrList<IComponent<IBinding>?, IComponent<IBinding>[]> oldItems;
+            if (components is IComponent<IBinding>[] array)
+            {
+                oldItems = array;
+                if (State != BindingState.Disposed)
+                {
+                    for (var i = 0; i < array.Length; i++)
+                        OnComponentRemoved(array[i]);
+                }
+            }
+            else
+            {
+                var component = (IComponent<IBinding>?) components;
+                oldItems = new ItemOrList<IComponent<IBinding>?, IComponent<IBinding>[]>(component);
+                if (State != BindingState.Disposed)
+                {
+                    if (component != null)
+                        OnComponentRemoved(component);
+                }
+            }
+
+            defaultListener.OnCleared(this, oldItems, metadata);
+            return true;
+        }
+
+        IComponent<IBinding>[] IComponentCollection<IComponent<IBinding>>.GetItems()
+        {
+            if (_components == null)
+                return Default.EmptyArray<IComponent<IBinding>>();
+            if (_components is IComponent<IBinding>[] components)
+                return components;
+            return new[] {(IComponent<IBinding>) _components};
+        }
 
         void IMemberPathObserverListener.OnPathMembersChanged(IMemberPathObserver observer)
         {
@@ -187,169 +359,6 @@ namespace MugenMvvm.Binding.Core
             }
         }
 
-        bool IComponentCollection<IComponent<IBinding>>.Add(IComponent<IBinding> component, IReadOnlyMetadataContext? metadata)
-        {
-            Should.NotBeNull(component, nameof(component));
-
-            var defaultListener = CallbackInvokerComponentCollectionComponent.GetComponentCollectionListener<IComponent<IBinding>>();
-            if (!defaultListener.OnAdding(this, component, metadata))
-                return false;
-
-            if (_components == null)
-                _components = component;
-            else if (_components is IComponent<IBinding>[] items)
-            {
-                MugenExtensions.AddOrdered(ref items, component, this);
-                _components = items;
-            }
-            else
-            {
-                _components = MugenExtensions.GetComponentPriority(_components, this) >= MugenExtensions.GetComponentPriority(component, this)
-                    ? new[] { (IComponent<IBinding>)_components, component }
-                    : new[] { component, (IComponent<IBinding>)_components };
-            }
-
-            OnComponentAdded(component);
-            defaultListener.OnAdded(this, component, metadata);
-            return true;
-        }
-
-        bool IComponentCollection<IComponent<IBinding>>.Remove(IComponent<IBinding> component, IReadOnlyMetadataContext? metadata)
-        {
-            Should.NotBeNull(component, nameof(component));
-
-            var defaultListener = CallbackInvokerComponentCollectionComponent.GetComponentCollectionListener<IComponent<IBinding>>();
-            if (!defaultListener.OnRemoving(this, component, metadata) || !RemoveComponent(component))
-                return false;
-
-            OnComponentRemoved(component);
-            defaultListener.OnRemoved(this, component, metadata);
-            return true;
-        }
-
-        bool IComponentCollection<IComponent<IBinding>>.Clear(IReadOnlyMetadataContext? metadata)
-        {
-            var defaultListener = CallbackInvokerComponentCollectionComponent.GetComponentCollectionListener<IComponent<IBinding>>();
-            if (!defaultListener.OnClearing(this, metadata))
-                return false;
-
-            var components = _components;
-            _components = null;
-            ItemOrList<IComponent<IBinding>?, IComponent<IBinding>[]> oldItems;
-            if (components is IComponent<IBinding>[] array)
-            {
-                oldItems = array;
-                for (var i = 0; i < array.Length; i++)
-                    OnComponentRemoved(array[i]);
-            }
-            else
-            {
-                var component = (IComponent<IBinding>?)components;
-                oldItems = new ItemOrList<IComponent<IBinding>?, IComponent<IBinding>[]>(component);
-                if (component != null)
-                    OnComponentRemoved(component);
-            }
-
-            defaultListener.OnCleared(this, oldItems, metadata);
-            return true;
-        }
-
-        IComponent<IBinding>[] IComponentCollection<IComponent<IBinding>>.GetItems()
-        {
-            if (_components == null)
-                return Default.EmptyArray<IComponent<IBinding>>();
-            if (_components is IComponent<IBinding>[] components)
-                return components;
-            return new[] { (IComponent<IBinding>)_components };
-        }
-
-        public void Dispose()
-        {
-            if (CheckFlag(DisposedFlag))
-                return;
-            SetFlag(DisposedFlag);
-            OnDispose();
-            MugenBindingService.BindingManager.OnLifecycleChanged(this, BindingLifecycleState.Disposed, Metadata);
-            if (_targetObserverCount != 0)
-                Target.RemoveListener(this);
-            Target.Dispose();
-            if (SourceRaw is IMemberPathObserver source)
-            {
-                if (_sourceObserverCount != 0)
-                    source.RemoveListener(this);
-                source.Dispose();
-            }
-            else
-            {
-                var sources = (IMemberPathObserver[])SourceRaw;
-                for (var i = 0; i < sources.Length; i++)
-                {
-                    var observer = sources[i];
-                    if (_sourceObserverCount != 0)
-                        observer.RemoveListener(this);
-                    observer.Dispose();
-                }
-            }
-
-            Components.Clear();
-        }
-
-        public void UpdateTarget()
-        {
-            try
-            {
-                if (CheckFlag(TargetUpdatingFlag))
-                    return;
-
-                SetFlag(TargetUpdatingFlag);
-                var success = UpdateTargetInternal(out var newValue);
-                if (CheckFlag(HasTargetListenerFlag))
-                {
-                    if (success)
-                        OnTargetUpdated(newValue);
-                    else
-                        OnTargetUpdateCanceled();
-                }
-            }
-            catch (Exception e)
-            {
-                if (CheckFlag(HasTargetListenerFlag))
-                    OnTargetUpdateFailed(e);
-            }
-            finally
-            {
-                ClearFlag(TargetUpdatingFlag);
-            }
-        }
-
-        public void UpdateSource()
-        {
-            try
-            {
-                if (CheckFlag(SourceUpdatingFlag))
-                    return;
-
-                SetFlag(SourceUpdatingFlag);
-                var success = UpdateSourceInternal(out var newValue);
-                if (CheckFlag(HasSourceListenerFlag))
-                {
-                    if (success)
-                        OnSourceUpdated(newValue);
-                    else
-                        OnSourceUpdateCanceled();
-                }
-            }
-            catch (Exception e)
-            {
-                if (CheckFlag(HasSourceListenerFlag))
-                    OnSourceUpdateFailed(e);
-            }
-            finally
-            {
-                ClearFlag(SourceUpdatingFlag);
-            }
-        }
-
         IEnumerator<MetadataContextValue> IEnumerable<MetadataContextValue>.GetEnumerator()
         {
             yield return MetadataContextValue.Create(BindingMetadata.Binding, this);
@@ -357,14 +366,14 @@ namespace MugenMvvm.Binding.Core
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return ((IReadOnlyMetadataContext)this).GetEnumerator();
+            return ((IReadOnlyMetadataContext) this).GetEnumerator();
         }
 
         bool IReadOnlyMetadataContext.TryGet<T>(IMetadataContextKey<T> contextKey, out T value, T defaultValue)
         {
             if (BindingMetadata.Binding.Equals(contextKey))
             {
-                value = (T)(object)this;
+                value = (T) (object) this;
                 return true;
             }
 
@@ -383,7 +392,7 @@ namespace MugenMvvm.Binding.Core
 
         protected virtual object? GetSourceValue(in MemberPathLastMember targetMember)
         {
-            return ((IMemberPathObserver)SourceRaw).GetLastMember(Metadata).GetLastMemberValue(Metadata);
+            return ((IMemberPathObserver) SourceRaw).GetLastMember(Metadata).GetLastMemberValue(Metadata);
         }
 
         protected virtual bool UpdateSourceInternal(out object? newValue)
@@ -607,21 +616,21 @@ namespace MugenMvvm.Binding.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected bool CheckFlag(short flag)
+        protected bool CheckFlag(byte flag)
         {
             return (_state & flag) == flag;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void SetFlag(short flag)
+        protected void SetFlag(byte flag)
         {
             _state |= flag;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void ClearFlag(short flag)
+        protected void ClearFlag(byte flag)
         {
-            _state = (byte)(_state & ~flag);
+            _state = (byte) (_state & ~flag);
         }
 
         private bool RemoveComponent(IComponent<IBinding> component)
@@ -684,7 +693,7 @@ namespace MugenMvvm.Binding.Core
                 source.AddListener(this);
             else
             {
-                var observers = (IMemberPathObserver[])SourceRaw;
+                var observers = (IMemberPathObserver[]) SourceRaw;
                 for (var i = 0; i < observers.Length; i++)
                     observers[i].AddListener(this);
             }
@@ -692,8 +701,6 @@ namespace MugenMvvm.Binding.Core
 
         private void OnComponentRemoved(IComponent<IBinding> component)
         {
-            if (CheckFlag(DisposedFlag))
-                return;
             if (component is IBindingTargetObserverListener && --_targetObserverCount == 0)
                 Target.RemoveListener(this);
             if (component is IBindingSourceObserverListener && --_sourceObserverCount == 0)
@@ -702,7 +709,7 @@ namespace MugenMvvm.Binding.Core
                     source.RemoveListener(this);
                 else
                 {
-                    var observers = (IMemberPathObserver[])SourceRaw;
+                    var observers = (IMemberPathObserver[]) SourceRaw;
                     for (var i = 0; i < observers.Length; i++)
                         observers[i].RemoveListener(this);
                 }
