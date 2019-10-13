@@ -1,8 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using MugenMvvm.Attributes;
-using MugenMvvm.Collections.Internal;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
@@ -14,14 +13,12 @@ namespace MugenMvvm.Messaging
     {
         #region Fields
 
+        private readonly Type _handlerType;
         private readonly int _hashCode;
         private readonly bool _isWeak;
         private readonly object _target;
 
-        private static readonly MethodInfo InvokeMethodInfo = GetInvokeMethod();
-
-        private static readonly TypeLightDictionary<Func<object?, object?[], object?>> MessageTypeToDelegate =
-            new TypeLightDictionary<Func<object?, object?[], object?>>(23);
+        private static readonly CacheDictionary Cache = new CacheDictionary();
 
         #endregion
 
@@ -31,8 +28,9 @@ namespace MugenMvvm.Messaging
         {
             Should.NotBeNull(handler, nameof(handler));
             _isWeak = isWeak;
-            _target = isWeak ? (object)handler.ToWeakReference() : handler;
+            _target = isWeak ? (object) handler.ToWeakReference() : handler;
             _hashCode = handler.GetHashCode();
+            _handlerType = handler.GetType();
         }
 
         #endregion
@@ -44,7 +42,7 @@ namespace MugenMvvm.Messaging
             get
             {
                 if (_isWeak)
-                    return ((IWeakReference)_target).Target;
+                    return ((IWeakReference) _target).Target;
                 return _target;
             }
         }
@@ -53,40 +51,31 @@ namespace MugenMvvm.Messaging
 
         #region Implementation of interfaces
 
+        public bool CanHandle(IMessageContext messageContext)
+        {
+            return GetHandlers(_handlerType, messageContext.Message) != null;
+        }
+
         public MessengerResult Handle(IMessageContext messageContext)
         {
             var target = Target;
             if (target == null)
                 return MessengerResult.Invalid;
 
-            Func<object?, object?[], object?> func;
-            lock (MessageTypeToDelegate)
-            {
-                var msgType = messageContext.Message.GetType();
-                if (!MessageTypeToDelegate.TryGetValue(msgType, out func))
-                {
-                    func = InvokeMethodInfo.MakeGenericMethod(msgType).GetMethodInvoker();
-                    MessageTypeToDelegate[msgType] = func;
-                }
-            }
-
-            if (func.Invoke(null, new[] { target, messageContext }) == null)
+            var handlers = GetHandlers(_handlerType, messageContext.Message);
+            if (handlers == null)
                 return MessengerResult.Ignored;
+
+            var args = new[] {messageContext.Message, messageContext};
+            for (var i = 0; i < handlers.Count; i++)
+                handlers[i].Invoke(target, args);
+
             return MessengerResult.Handled;
         }
 
         #endregion
 
         #region Methods
-
-        private static MethodInfo GetInvokeMethod()
-        {
-            var m = typeof(MessengerHandlerSubscriber)
-                .GetMethodsUnified(MemberFlags.StaticOnly)
-                .FirstOrDefault(info => nameof(Invoke).Equals(info.Name));
-            Should.BeSupported(m != null, nameof(InvokeMethodInfo));
-            return m!;
-        }
 
         public override bool Equals(object obj)
         {
@@ -106,15 +95,85 @@ namespace MugenMvvm.Messaging
             return _hashCode;
         }
 
-        [Preserve(Conditional = true)]
-        internal static object? Invoke<T>(object target, IMessageContext messageContext)
+        private static List<Func<object?, object?[], object?>>? GetHandlers(Type handlerType, object message)
         {
-            if (!(target is IMessengerHandler<T> handler))
-                return null;
+            var key = new CacheKey(handlerType, message.GetType());
+            lock (Cache)
+            {
+                if (!Cache.TryGetValue(key, out var items))
+                {
+                    var interfaces = key.HandlerType
+                        .GetInterfacesUnified()
+                        .Where(x => x.IsGenericTypeUnified() && x.GetGenericTypeDefinition().EqualsEx(typeof(IMessengerHandler<>)));
+                    foreach (var @interface in interfaces)
+                    {
+                        var typeMessage = @interface.GetGenericArgumentsUnified()[0];
+                        var method = @interface.GetMethodUnified(nameof(IMessengerHandler<object>.Handle), MemberFlags.InstancePublic);
+                        if (typeMessage.IsAssignableFromUnified(key.MessageType))
+                        {
+                            if (items == null)
+                                items = new List<Func<object, object[], object>>(2);
+                            items.Add(method.GetMethodInvoker());
+                        }
+                    }
 
-            handler.Handle((T)messageContext.Message, messageContext);
-            return handler;
+                    Cache[key] = items;
+                }
 
+                return items;
+            }
+        }
+
+        #endregion
+
+        #region Nested types
+
+        private readonly struct CacheKey
+        {
+            #region Fields
+
+            public readonly Type HandlerType;
+            public readonly Type MessageType;
+
+            #endregion
+
+            #region Constructors
+
+            public CacheKey(Type handlerType, Type messageType)
+            {
+                HandlerType = handlerType;
+                MessageType = messageType;
+            }
+
+            #endregion
+        }
+
+        private sealed class CacheDictionary : LightDictionary<CacheKey, List<Func<object?, object?[], object?>>?>
+        {
+            #region Constructors
+
+            public CacheDictionary() : base(59)
+            {
+            }
+
+            #endregion
+
+            #region Methods
+
+            protected override int GetHashCode(CacheKey key)
+            {
+                unchecked
+                {
+                    return key.HandlerType.GetHashCode() * 397 ^ key.MessageType.GetHashCode();
+                }
+            }
+
+            protected override bool Equals(CacheKey x, CacheKey y)
+            {
+                return x.HandlerType.EqualsEx(y.HandlerType) && x.MessageType.EqualsEx(y.MessageType);
+            }
+
+            #endregion
         }
 
         #endregion

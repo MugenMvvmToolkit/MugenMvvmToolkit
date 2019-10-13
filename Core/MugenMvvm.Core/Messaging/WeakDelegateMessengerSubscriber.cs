@@ -41,9 +41,14 @@ namespace MugenMvvm.Messaging
 
         #region Implementation of interfaces
 
+        public bool CanHandle(IMessageContext messageContext)
+        {
+            return messageContext.Message is TMessage;
+        }
+
         public MessengerResult Handle(IMessageContext messageContext)
         {
-            var target = (TTarget?)_reference.Target;
+            var target = (TTarget?) _reference.Target;
             if (target == null)
                 return MessengerResult.Invalid;
 
@@ -52,7 +57,6 @@ namespace MugenMvvm.Messaging
 
             _action(target, m, messageContext);
             return MessengerResult.Handled;
-
         }
 
         #endregion

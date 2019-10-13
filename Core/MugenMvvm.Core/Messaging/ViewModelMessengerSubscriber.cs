@@ -19,7 +19,7 @@ using MugenMvvm.Serialization;
 
 namespace MugenMvvm.Messaging
 {
-    public sealed class ViewModelMessengerSubscriber : MessengerHandlerComponent.IMessengerSubscriber, IMetadataContextListener, IHasMemento//todo review memento
+    public sealed class ViewModelMessengerSubscriber : MessengerHandlerComponent.IMessengerSubscriber, IMetadataContextListener, IHasMemento //todo review memento
     {
         #region Fields
 
@@ -47,7 +47,7 @@ namespace MugenMvvm.Messaging
 
         #region Properties
 
-        private IViewModelBase? Target => (IViewModelBase?)_reference.Target;
+        private IViewModelBase? Target => (IViewModelBase?) _reference.Target;
 
         private bool BroadcastAllMessages { get; set; }
 
@@ -63,6 +63,14 @@ namespace MugenMvvm.Messaging
             if (viewModel == null)
                 return null;
             return new ViewModelMessengerSubscriberMemento(viewModel);
+        }
+
+        public bool CanHandle(IMessageContext messageContext)
+        {
+            if (BroadcastAllMessages)
+                return true;
+            var message = messageContext.Message;
+            return message is IBusyToken || message is IBroadcastMessage || message is PropertyChangedEventArgs;
         }
 
         public MessengerResult Handle(IMessageContext messageContext)
