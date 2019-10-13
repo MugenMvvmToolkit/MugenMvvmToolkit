@@ -246,7 +246,7 @@ namespace MugenMvvm.Serialization
 
             #region Properties
 
-            public bool HasMetadata => _metadata != null;
+            public bool HasMetadata => _metadata != null && _metadata.Count != 0;
 
             public IMetadataContext Metadata
             {
