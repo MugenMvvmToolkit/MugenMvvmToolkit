@@ -53,8 +53,8 @@ namespace MugenMvvm.ViewModels.Components
             {
                 var messenger = new Messenger(_threadDispatcher, _componentCollectionProvider, _metadataContextProvider);
                 messenger.Components.Add(MessengerHandlerComponent.Instance);
-                messenger.Components.Add(ViewModelMessengerSubscriberDecoratorComponent.Instance);
-                messenger.Components.Add(MessengerHandlerSubscriberDecoratorComponent.InstanceWeak);
+                messenger.Components.Add(ViewModelMessengerSubscriberComponent.Instance);
+                messenger.Components.Add(MessengerHandlerSubscriberComponent.InstanceWeak);
                 return messenger;
             }
 

@@ -161,6 +161,11 @@ namespace MugenMvvm.Commands.Components
 
             #region Implementation of interfaces
 
+            public bool CanHandle(IMessageContext messageContext)
+            {
+                return true;
+            }
+
             public MessengerResult Handle(IMessageContext messageContext)
             {
                 var mediator = (ConditionEventCommandMediatorComponent?)_reference?.Target;

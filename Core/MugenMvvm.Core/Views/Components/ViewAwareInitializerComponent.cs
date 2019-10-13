@@ -17,8 +17,8 @@ namespace MugenMvvm.Views.Components
     {
         #region Fields
 
-        private static readonly MethodInfo UpdateViewMethodInfo = GetUpdateViewMethod();
-        private static readonly MethodInfo UpdateViewModelMethodInfo = GetUpdateViewModelMethod();
+        private static readonly MethodInfo UpdateViewMethodInfo = typeof(ViewAwareInitializerComponent).GetMethodOrThrow(nameof(UpdateView), MemberFlags.StaticOnly);
+        private static readonly MethodInfo UpdateViewModelMethodInfo = typeof(ViewAwareInitializerComponent).GetMethodOrThrow(nameof(UpdateViewModel), MemberFlags.StaticOnly);
 
         private static readonly TypeLightDictionary<Func<object?, object?[], object?>?> TypeToInitializeDelegate =
             new TypeLightDictionary<Func<object?, object?[], object?>?>(17);
@@ -63,24 +63,6 @@ namespace MugenMvvm.Views.Components
         #endregion
 
         #region Methods
-
-        private static MethodInfo GetUpdateViewMethod()
-        {
-            var m = typeof(MessengerHandlerSubscriber)
-                .GetMethodsUnified(MemberFlags.StaticOnly)
-                .FirstOrDefault(info => nameof(UpdateView).Equals(info.Name));
-            Should.BeSupported(m != null, nameof(UpdateViewMethodInfo));
-            return m!;
-        }
-
-        private static MethodInfo GetUpdateViewModelMethod()
-        {
-            var m = typeof(MessengerHandlerSubscriber)
-                .GetMethodsUnified(MemberFlags.StaticOnly)
-                .FirstOrDefault(info => nameof(UpdateViewModel).Equals(info.Name));
-            Should.BeSupported(m != null, nameof(UpdateViewModelMethodInfo));
-            return m!;
-        }
 
         private Func<object?, object?[], object?>? GetUpdateViewMethod(IViewModelBase viewModel, object view)
         {
