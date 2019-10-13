@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading;
 
 namespace MugenMvvm.Threading
 {
-    public class SynchronizationContextThreadDispatcher : ThreadDispatcherBase
+    public sealed class SynchronizationContextThreadDispatcher : IThreadDispatcher
     {
         #region Fields
 
@@ -25,94 +26,89 @@ namespace MugenMvvm.Threading
 
         #endregion
 
-        #region Methods
+        #region Implementation of interfaces
 
-        protected override Task? ExecuteOnMainThreadAsync(IThreadDispatcherHandler handler, object? state, bool includeTaskResult, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public bool CanExecuteInline(ThreadExecutionMode executionMode)
         {
-            if (includeTaskResult)
-            {
-                var closure = new Closure(handler);
-                _synchronizationContext.Post(closure.Execute, state);
-                return closure.Task;
-            }
-
-            if (state == null)
-                _synchronizationContext.Post(o => ((IThreadDispatcherHandler) o).Execute(null), handler);
-            else
-                _synchronizationContext.Post(handler.Execute, state);
-            return Default.CompletedTask;
+            Should.NotBeNull(executionMode, nameof(executionMode));
+            return executionMode == ThreadExecutionMode.Current || executionMode == ThreadExecutionMode.Main && IsOnMainThread();
         }
 
-        protected override Task? ExecuteOnMainThreadAsync(Action<object?> action, object? state, bool includeTaskResult, CancellationToken cancellationToken,
-            IReadOnlyMetadataContext? metadata)
+        public void Execute(IThreadDispatcherHandler handler, ThreadExecutionMode executionMode, object? state, CancellationToken cancellationToken = default,
+            IReadOnlyMetadataContext? metadata = null)
         {
-            if (includeTaskResult)
+            Should.NotBeNull(handler, nameof(handler));
+            if (CanExecuteInline(executionMode))
             {
-                var closure = new Closure(action);
-                _synchronizationContext.Post(closure.Execute, state);
-                return closure.Task;
+                if (!cancellationToken.IsCancellationRequested)
+                    handler.Execute(state);
+                return;
             }
 
-            if (state == null)
-                _synchronizationContext.Post(o => ((Action<object?>) o).Invoke(null), action);
-            else
-                _synchronizationContext.Post(new SendOrPostCallback(action), state);
-            return Default.CompletedTask;
+            if (executionMode == ThreadExecutionMode.Main || executionMode == ThreadExecutionMode.MainAsync)
+            {
+                if (state == null)
+                    _synchronizationContext.Post(o => ((IThreadDispatcherHandler) o).Execute(null), handler);
+                else
+                    _synchronizationContext.Post(handler.Execute, state);
+                return;
+            }
+
+            if (executionMode == ThreadExecutionMode.Background)
+            {
+                //todo THREADPOOL
+                if (state == null)
+                    Task.Factory.StartNew(o => ((IThreadDispatcherHandler) o).Execute(null), handler, cancellationToken);
+                else
+                    Task.Factory.StartNew(handler.Execute, state, cancellationToken);
+                return;
+            }
+
+            ExceptionManager.ThrowEnumOutOfRange(nameof(executionMode), executionMode);
         }
 
-        protected override bool IsOnMainThread()
+        public void Execute(Action<object?> action, ThreadExecutionMode executionMode, object? state, CancellationToken cancellationToken = default,
+            IReadOnlyMetadataContext? metadata = null)
         {
-            if (_mainThreadId == null)
-                return SynchronizationContext.Current == _synchronizationContext;
-            return _mainThreadId == Environment.CurrentManagedThreadId;
+            Should.NotBeNull(action, nameof(action));
+            if (CanExecuteInline(executionMode))
+            {
+                if (!cancellationToken.IsCancellationRequested)
+                    action.Invoke(state);
+                return;
+            }
+
+            if (executionMode == ThreadExecutionMode.Main || executionMode == ThreadExecutionMode.MainAsync)
+            {
+                if (state == null)
+                    _synchronizationContext.Post(o => ((Action<object?>) o).Invoke(null), action);
+                else
+                    _synchronizationContext.Post(new SendOrPostCallback(action), state);
+                return;
+            }
+
+            if (executionMode == ThreadExecutionMode.Background)
+            {
+                //todo THREADPOOL
+                if (state == null)
+                    Task.Factory.StartNew(o => ((Action<object?>) o).Invoke(null), action, cancellationToken);
+                else
+                    Task.Factory.StartNew(action, state, cancellationToken);
+                return;
+            }
+
+            ExceptionManager.ThrowEnumOutOfRange(nameof(executionMode), executionMode);
         }
 
         #endregion
 
-        #region Nested types
+        #region Methods
 
-        protected sealed class Closure : TaskCompletionSource<object?>
+        private bool IsOnMainThread()
         {
-            #region Fields
-
-            private object? _handler;
-
-            #endregion
-
-            #region Constructors
-
-            public Closure(Action<object> action)
-            {
-                _handler = action;
-            }
-
-            public Closure(IThreadDispatcherHandler handler)
-            {
-                _handler = handler;
-            }
-
-            #endregion
-
-            #region Methods
-
-            public void Execute(object? state)
-            {
-                try
-                {
-                    if (_handler is IThreadDispatcherHandler handler)
-                        handler.Execute(state);
-                    else
-                        ((Action<object?>?) _handler)!.Invoke(state);
-                    _handler = null;
-                    TrySetResult(null);
-                }
-                catch (Exception e)
-                {
-                    TrySetException(e);
-                }
-            }
-
-            #endregion
+            if (_mainThreadId == null)
+                return SynchronizationContext.Current == _synchronizationContext;
+            return _mainThreadId == Environment.CurrentManagedThreadId;
         }
 
         #endregion
