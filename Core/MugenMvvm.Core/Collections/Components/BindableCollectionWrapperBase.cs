@@ -137,7 +137,7 @@ namespace MugenMvvm.Collections.Components
             if (ThreadDispatcher.CanExecuteInline(ExecutionMode))
                 OnBeginBatchUpdateImpl();
             else
-                ThreadDispatcher.Execute(o => ((BindableCollectionWrapperBase<T>)o!).OnBeginBatchUpdateImpl(), ExecutionMode, this);
+                ThreadDispatcher.Execute(ExecutionMode, o => ((BindableCollectionWrapperBase<T>)o!).OnBeginBatchUpdateImpl(), this);
         }
 
         protected void OnEndBatchUpdate()
@@ -145,7 +145,7 @@ namespace MugenMvvm.Collections.Components
             if (ThreadDispatcher.CanExecuteInline(ExecutionMode))
                 OnEndBatchUpdateImpl();
             else
-                ThreadDispatcher.Execute(o => ((BindableCollectionWrapperBase<T>)o!).OnEndBatchUpdateImpl(), ExecutionMode, this);
+                ThreadDispatcher.Execute(ExecutionMode, o => ((BindableCollectionWrapperBase<T>)o!).OnEndBatchUpdateImpl(), this);
         }
 
         protected void OnItemChanged(T item, int index, object? args)
@@ -339,7 +339,7 @@ namespace MugenMvvm.Collections.Components
             if (ThreadDispatcher.CanExecuteInline(ExecutionMode))
                 AddEventInternal(ref collectionChangedEvent);
             else
-                ThreadDispatcher.Execute(collectionChangedEvent, ExecutionMode, this);
+                ThreadDispatcher.Execute(ExecutionMode, collectionChangedEvent, this);
         }
 
         private void OnBeginBatchUpdateImpl()

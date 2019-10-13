@@ -204,7 +204,7 @@ namespace MugenMvvm.Messaging
             if (dictionary != null)
             {
                 foreach (var dispatcherExecutor in dictionary)
-                    threadDispatcher.Execute(dispatcherExecutor.Value, dispatcherExecutor.Key, messageContext);
+                    threadDispatcher.Execute(dispatcherExecutor.Key, dispatcherExecutor.Value, messageContext);
             }
         }
 
@@ -278,7 +278,7 @@ namespace MugenMvvm.Messaging
 
             public void Execute(object? state)
             {
-                var messageContext = (IMessageContext) state!;
+                var messageContext = (IMessageContext)state!;
                 var handlers = _messenger._handlerComponents;
                 var listeners = _messenger._listeners;
                 for (var i = 0; i < Count; i++)
@@ -339,7 +339,7 @@ namespace MugenMvvm.Messaging
                         return ctx;
 
                     Interlocked.CompareExchange(ref _metadata, _metadata.ToNonReadonly(this, _messenger._metadataContextProvider), null);
-                    return (IMetadataContext) _metadata!;
+                    return (IMetadataContext)_metadata!;
                 }
             }
 

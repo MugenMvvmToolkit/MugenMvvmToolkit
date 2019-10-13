@@ -180,7 +180,7 @@ namespace MugenMvvm.Views
                 _view = view;
                 _metadata = metadata.ToNonReadonly(initializer, initializer.MetadataContextProvider);
                 _isView = isView;
-                initializer.ThreadDispatcher.Execute(this, initializer.InitializeExecutionMode, null, metadata: metadata);
+                initializer.ThreadDispatcher.Execute(initializer.InitializeExecutionMode, this);
             }
 
             #endregion
@@ -233,7 +233,7 @@ namespace MugenMvvm.Views
                 _viewInfo = viewInfo;
                 _viewModel = viewModel;
                 _metadata = metadata.ToNonReadonly(initializer, initializer.MetadataContextProvider);
-                initializer.ThreadDispatcher.Execute(this, initializer.CleanupExecutionMode, null, metadata: metadata);
+                initializer.ThreadDispatcher.Execute(initializer.CleanupExecutionMode, this);
             }
 
             #endregion

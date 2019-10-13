@@ -11,10 +11,10 @@ namespace MugenMvvm.Interfaces.Threading
     {
         bool CanExecuteInline(ThreadExecutionMode executionMode);
 
-        void Execute(IThreadDispatcherHandler handler, ThreadExecutionMode executionMode, object? state,
+        void Execute(ThreadExecutionMode executionMode, IThreadDispatcherHandler handler, object? state = null,
             CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null);
 
-        void Execute(Action<object?> action, ThreadExecutionMode executionMode, object? state,
+        void Execute(ThreadExecutionMode executionMode, Action<object?> action, object? state = null,
             CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null);
     }
 }

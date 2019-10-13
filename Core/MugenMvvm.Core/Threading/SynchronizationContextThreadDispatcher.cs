@@ -21,7 +21,7 @@ namespace MugenMvvm.Threading
         public SynchronizationContextThreadDispatcher(SynchronizationContext synchronizationContext)
         {
             _synchronizationContext = synchronizationContext;
-            synchronizationContext.Post(state => ((SynchronizationContextThreadDispatcher) state)._mainThreadId = Environment.CurrentManagedThreadId, this);
+            synchronizationContext.Post(state => ((SynchronizationContextThreadDispatcher)state)._mainThreadId = Environment.CurrentManagedThreadId, this);
         }
 
         #endregion
@@ -34,8 +34,8 @@ namespace MugenMvvm.Threading
             return executionMode == ThreadExecutionMode.Current || executionMode == ThreadExecutionMode.Main && IsOnMainThread();
         }
 
-        public void Execute(IThreadDispatcherHandler handler, ThreadExecutionMode executionMode, object? state, CancellationToken cancellationToken = default,
-            IReadOnlyMetadataContext? metadata = null)
+        public void Execute(ThreadExecutionMode executionMode, IThreadDispatcherHandler handler, object? state = null,
+            CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(handler, nameof(handler));
             if (CanExecuteInline(executionMode))
@@ -48,7 +48,7 @@ namespace MugenMvvm.Threading
             if (executionMode == ThreadExecutionMode.Main || executionMode == ThreadExecutionMode.MainAsync)
             {
                 if (state == null)
-                    _synchronizationContext.Post(o => ((IThreadDispatcherHandler) o).Execute(null), handler);
+                    _synchronizationContext.Post(o => ((IThreadDispatcherHandler)o).Execute(null), handler);
                 else
                     _synchronizationContext.Post(handler.Execute, state);
                 return;
@@ -58,7 +58,7 @@ namespace MugenMvvm.Threading
             {
                 //todo THREADPOOL
                 if (state == null)
-                    Task.Factory.StartNew(o => ((IThreadDispatcherHandler) o).Execute(null), handler, cancellationToken);
+                    Task.Factory.StartNew(o => ((IThreadDispatcherHandler)o).Execute(null), handler, cancellationToken);
                 else
                     Task.Factory.StartNew(handler.Execute, state, cancellationToken);
                 return;
@@ -67,8 +67,8 @@ namespace MugenMvvm.Threading
             ExceptionManager.ThrowEnumOutOfRange(nameof(executionMode), executionMode);
         }
 
-        public void Execute(Action<object?> action, ThreadExecutionMode executionMode, object? state, CancellationToken cancellationToken = default,
-            IReadOnlyMetadataContext? metadata = null)
+        public void Execute(ThreadExecutionMode executionMode, Action<object?> action, object? state = null,
+            CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(action, nameof(action));
             if (CanExecuteInline(executionMode))
@@ -81,7 +81,7 @@ namespace MugenMvvm.Threading
             if (executionMode == ThreadExecutionMode.Main || executionMode == ThreadExecutionMode.MainAsync)
             {
                 if (state == null)
-                    _synchronizationContext.Post(o => ((Action<object?>) o).Invoke(null), action);
+                    _synchronizationContext.Post(o => ((Action<object?>)o).Invoke(null), action);
                 else
                     _synchronizationContext.Post(new SendOrPostCallback(action), state);
                 return;
@@ -91,7 +91,7 @@ namespace MugenMvvm.Threading
             {
                 //todo THREADPOOL
                 if (state == null)
-                    Task.Factory.StartNew(o => ((Action<object?>) o).Invoke(null), action, cancellationToken);
+                    Task.Factory.StartNew(o => ((Action<object?>)o).Invoke(null), action, cancellationToken);
                 else
                     Task.Factory.StartNew(action, state, cancellationToken);
                 return;

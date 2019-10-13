@@ -128,7 +128,7 @@ namespace MugenMvvm.Presenters
 
             if (IsOpen)
             {
-                ThreadDispatcher.Execute(RefreshCallback, ExecutionMode, metadata);
+                ThreadDispatcher.Execute(ExecutionMode, RefreshCallback, metadata);
                 return PresenterResult.ViewModelResult(this, NavigationType, ViewModel);
             }
 
@@ -166,7 +166,7 @@ namespace MugenMvvm.Presenters
             _closingContext = NavigationDispatcher.GetNavigationContext(ViewModel, this, NavigationType, NavigationMode.Back, metadata);
             NavigationDispatcher.OnNavigating(_closingContext, (dispatcher, context) =>
             {
-                ThreadDispatcher.Execute(CloseViewCallback, ExecutionMode, context);
+                ThreadDispatcher.Execute(ExecutionMode, CloseViewCallback, context);
                 return false;
             }, (dispatcher, context, arg3) => _closingContext = null);
             return PresenterResult.ViewModelResult(this, NavigationType, ViewModel);
@@ -257,20 +257,7 @@ namespace MugenMvvm.Presenters
             var navigationContext = (INavigationContext)state;
             UpdateView(task.Result.ViewInfo, true, navigationContext.Metadata);
 
-            ThreadDispatcher.Execute(o =>
-            {
-                try
-                {
-                    _showingContext = (INavigationContext)o!;
-                    ShowView(_showingContext.Metadata);
-                }
-                catch (Exception e)
-                {
-                    _showingContext = null;
-                    NavigationDispatcher.OnNavigationFailed((INavigationContext)o!, e);
-                    throw;
-                }
-            }, ExecutionMode, navigationContext);
+            ThreadDispatcher.Execute(ExecutionMode, ViewInitializedCallback, navigationContext);
         }
 
         private void ShowAfterWaitNavigation(Task task, object state)
@@ -300,6 +287,21 @@ namespace MugenMvvm.Presenters
                 ViewInfo?.CleanupAsync(ViewModel, navigationContext.Metadata);
                 ViewInfo = null;
                 View = null;
+            }
+        }
+
+        private void ViewInitializedCallback(object? state)
+        {
+            try
+            {
+                _showingContext = (INavigationContext)state!;
+                ShowView(_showingContext.Metadata);
+            }
+            catch (Exception e)
+            {
+                _showingContext = null;
+                NavigationDispatcher.OnNavigationFailed((INavigationContext)state!, e);
+                throw;
             }
         }
 
