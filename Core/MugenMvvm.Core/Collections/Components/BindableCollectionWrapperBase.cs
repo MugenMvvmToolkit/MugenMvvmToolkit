@@ -247,12 +247,7 @@ namespace MugenMvvm.Collections.Components
             if (IsSuspended)
             {
                 if (IsLockRequired)
-                {
-                    lock (Events)
-                    {
-                        AddEventRaw(ref collectionChangedEvent);
-                    }
-                }
+                    AddEventWithLock(ref collectionChangedEvent);
                 else
                     AddEventRaw(ref collectionChangedEvent);
             }
@@ -412,6 +407,14 @@ namespace MugenMvvm.Collections.Components
                 default:
                     ExceptionManager.ThrowEnumOutOfRange(nameof(e.Action), e.Action);
                     return false;
+            }
+        }
+
+        private void AddEventWithLock(ref CollectionChangedEvent collectionChangedEvent)
+        {
+            lock (Events)
+            {
+                AddEventRaw(ref collectionChangedEvent);
             }
         }
 
