@@ -56,7 +56,7 @@ namespace MugenMvvm
                 _createPropertyChangedHandlerDelegate = CreateHandler;
             return CreateWeakDelegate(target, invokeAction, _unsubscribePropertyChangedDelegate, _createPropertyChangedHandlerDelegate);
         }
-
+        //todo review usage with provider
         public static bool CanCreateDelegate(this Type delegateType, MethodInfo method, IReflectionDelegateProvider? provider = null)
         {
             return provider.ServiceIfNull().CanCreateDelegate(delegateType, method);

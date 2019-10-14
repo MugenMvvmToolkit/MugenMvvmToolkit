@@ -1,6 +1,6 @@
 ﻿namespace MugenMvvm.Interfaces.Threading
 {
-    public interface IThreadDispatcherHandler//todo cache
+    public interface IThreadDispatcherHandler
     {
         void Execute(object? state);
     }

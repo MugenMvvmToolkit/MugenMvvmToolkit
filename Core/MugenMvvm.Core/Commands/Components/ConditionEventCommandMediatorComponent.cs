@@ -15,7 +15,7 @@ using MugenMvvm.Messaging.Components;
 
 namespace MugenMvvm.Commands.Components
 {
-    public sealed class ConditionEventCommandMediatorComponent : IConditionEventCommandMediatorComponent, IThreadDispatcherHandler, ISuspendable, IDisposable, IHasPriority
+    public sealed class ConditionEventCommandMediatorComponent : IConditionEventCommandMediatorComponent, IHasStateThreadDispatcherHandler, ISuspendable, IDisposable, IHasPriority
     {
         #region Fields
 
@@ -73,6 +73,8 @@ namespace MugenMvvm.Commands.Components
 
         public int Priority { get; set; }
 
+        object IHasStateThreadDispatcherHandler.State { get; set; }
+
         #endregion
 
         #region Implementation of interfaces
@@ -110,15 +112,15 @@ namespace MugenMvvm.Commands.Components
             _subscriber = null;
         }
 
+        void IThreadDispatcherHandler.Execute(object? state)
+        {
+            _canExecuteChanged?.Invoke(_command, EventArgs.Empty);
+        }
+
         public IDisposable Suspend()
         {
             Interlocked.Increment(ref _suspendCount);
             return WeakActionToken.Create(this, @this => @this.EndSuspendNotifications());
-        }
-
-        void IThreadDispatcherHandler.Execute(object? state)
-        {
-            _canExecuteChanged?.Invoke(_command, EventArgs.Empty);
         }
 
         #endregion
@@ -168,7 +170,7 @@ namespace MugenMvvm.Commands.Components
 
             public MessengerResult Handle(IMessageContext messageContext)
             {
-                var mediator = (ConditionEventCommandMediatorComponent?)_reference?.Target;
+                var mediator = (ConditionEventCommandMediatorComponent?) _reference?.Target;
                 if (mediator == null)
                     return MessengerResult.Invalid;
                 mediator.Handle(messageContext.Message);
@@ -192,7 +194,7 @@ namespace MugenMvvm.Commands.Components
 
             private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
             {
-                var mediator = (ConditionEventCommandMediatorComponent?)_reference?.Target;
+                var mediator = (ConditionEventCommandMediatorComponent?) _reference?.Target;
                 if (mediator == null)
                 {
                     if (sender is INotifyPropertyChanged propertyChanged)

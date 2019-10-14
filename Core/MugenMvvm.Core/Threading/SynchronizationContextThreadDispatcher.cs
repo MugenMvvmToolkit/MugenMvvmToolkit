@@ -50,7 +50,19 @@ namespace MugenMvvm.Threading
                 if (state == null)
                     _synchronizationContext.Post(o => ((IThreadDispatcherHandler)o).Execute(null), handler);
                 else
-                    _synchronizationContext.Post(handler.Execute, state);
+                {
+                    if (handler is IHasStateThreadDispatcherHandler hasState)
+                    {
+                        if (!(hasState.State is SendOrPostCallback sendOrPostCallback))
+                        {
+                            sendOrPostCallback = handler.Execute;
+                            hasState.State = sendOrPostCallback;
+                        }
+                        _synchronizationContext.Post(sendOrPostCallback, state);
+                    }
+                    else
+                        _synchronizationContext.Post(handler.Execute, state);
+                }
                 return;
             }
 

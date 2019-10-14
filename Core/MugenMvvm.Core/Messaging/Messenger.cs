@@ -257,7 +257,7 @@ namespace MugenMvvm.Messaging
             #endregion
         }
 
-        private sealed class MessageThreadExecutor : List<object>, IThreadDispatcherHandler
+        private sealed class MessageThreadExecutor : List<object>, IHasStateThreadDispatcherHandler
         {
             #region Fields
 
@@ -274,11 +274,17 @@ namespace MugenMvvm.Messaging
 
             #endregion
 
+            #region Properties
+
+            object IHasStateThreadDispatcherHandler.State { get; set; }
+
+            #endregion
+
             #region Implementation of interfaces
 
             public void Execute(object? state)
             {
-                var messageContext = (IMessageContext)state!;
+                var messageContext = (IMessageContext) state!;
                 var handlers = _messenger._handlerComponents;
                 var listeners = _messenger._listeners;
                 for (var i = 0; i < Count; i++)
@@ -339,7 +345,7 @@ namespace MugenMvvm.Messaging
                         return ctx;
 
                     Interlocked.CompareExchange(ref _metadata, _metadata.ToNonReadonly(this, _messenger._metadataContextProvider), null);
-                    return (IMetadataContext)_metadata!;
+                    return (IMetadataContext) _metadata!;
                 }
             }
 
