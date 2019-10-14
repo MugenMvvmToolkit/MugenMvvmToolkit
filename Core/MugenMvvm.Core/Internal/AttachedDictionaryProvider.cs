@@ -31,9 +31,10 @@ namespace MugenMvvm.Internal
         public IAttachedDictionary GetOrAddAttachedDictionary(object item, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(item, nameof(item));
-            for (var i = 0; i < _components.Length; i++)
+            var components = _components;
+            for (var i = 0; i < components.Length; i++)
             {
-                if (_components[i].TryGetOrAddAttachedDictionary(item, metadata, out var dict))
+                if (components[i].TryGetOrAddAttachedDictionary(item, metadata, out var dict))
                     return dict!;
             }
 
@@ -44,9 +45,10 @@ namespace MugenMvvm.Internal
         public IAttachedDictionary? GetAttachedDictionary(object item, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(item, nameof(item));
-            for (var i = 0; i < _components.Length; i++)
+            var components = _components;
+            for (var i = 0; i < components.Length; i++)
             {
-                if (_components[i].TryGetAttachedDictionary(item, metadata, out var dict))
+                if (components[i].TryGetAttachedDictionary(item, metadata, out var dict))
                     return dict;
             }
 

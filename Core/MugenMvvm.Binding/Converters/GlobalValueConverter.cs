@@ -44,7 +44,8 @@ namespace MugenMvvm.Binding.Converters
 
         public object? Convert(object? value, Type targetType, IBindingMemberInfo? member = null, IReadOnlyMetadataContext? metadata = null)
         {
-            if (_converters.Length == 0)
+            var converters = _converters;
+            if (converters.Length == 0)
             {
                 if (value == null)
                     return targetType.GetDefaultValue();
@@ -53,8 +54,8 @@ namespace MugenMvvm.Binding.Converters
                 return System.Convert.ChangeType(value, targetType);
             }
 
-            for (var i = 0; i < _converters.Length; i++)
-                value = _converters[i].Convert(value, targetType, member, metadata);
+            for (var i = 0; i < converters.Length; i++)
+                value = converters[i].Convert(value, targetType, member, metadata);
             return value;
         }
 

@@ -100,9 +100,10 @@ namespace MugenMvvm.Binding.Members
             if (TempCache.TryGetValue(cacheKey, out var result))
                 return result;
 
-            for (var i = 0; i < MemberProviders.Length; i++)
+            var memberProviders = MemberProviders;
+            for (var i = 0; i < memberProviders.Length; i++)
             {
-                var members = MemberProviders[i].TryGetMembers(type, name, metadata);
+                var members = memberProviders[i].TryGetMembers(type, name, metadata);
                 if (members == null || members.Count == 0)
                     continue;
                 result = SelectMember(members, memberTypes, flags, metadata);
@@ -122,9 +123,10 @@ namespace MugenMvvm.Binding.Members
                 return result;
 
             List<IBindingMemberInfo>? list = null;
-            for (var i = 0; i < MemberProviders.Length; i++)
+            var memberProviders = MemberProviders;
+            for (var i = 0; i < memberProviders.Length; i++)
             {
-                var members = MemberProviders[i].TryGetMembers(type, name, metadata);
+                var members = memberProviders[i].TryGetMembers(type, name, metadata);
                 if (members == null || members.Count == 0)
                     continue;
 

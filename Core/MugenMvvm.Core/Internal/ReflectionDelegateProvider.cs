@@ -58,9 +58,10 @@ namespace MugenMvvm.Internal
         {
             Should.NotBeNull(delegateType, nameof(delegateType));
             Should.NotBeNull(method, nameof(method));
-            for (var i = 0; i < _delegateComponents.Length; i++)
+            var components = _delegateComponents;
+            for (var i = 0; i < components.Length; i++)
             {
-                if (_delegateComponents[i].CanCreateDelegate(delegateType, method))
+                if (components[i].CanCreateDelegate(delegateType, method))
                     return true;
             }
 
@@ -71,9 +72,10 @@ namespace MugenMvvm.Internal
         {
             Should.NotBeNull(delegateType, nameof(delegateType));
             Should.NotBeNull(method, nameof(method));
-            for (var i = 0; i < _delegateComponents.Length; i++)
+            var components = _delegateComponents;
+            for (var i = 0; i < components.Length; i++)
             {
-                var value = _delegateComponents[i].TryCreateDelegate(delegateType, target, method);
+                var value = components[i].TryCreateDelegate(delegateType, target, method);
                 if (value != null)
                     return value;
             }
@@ -84,9 +86,10 @@ namespace MugenMvvm.Internal
         public Func<object?[], object> GetActivator(ConstructorInfo constructor)
         {
             Should.NotBeNull(constructor, nameof(constructor));
-            for (var i = 0; i < _activatorComponents.Length; i++)
+            var components = _activatorComponents;
+            for (var i = 0; i < components.Length; i++)
             {
-                var value = _activatorComponents[i].TryGetActivator(constructor);
+                var value = components[i].TryGetActivator(constructor);
                 if (value != null)
                     return value;
             }
@@ -98,9 +101,10 @@ namespace MugenMvvm.Internal
         public Func<object?, object?[], object?> GetMethodInvoker(MethodInfo method)
         {
             Should.NotBeNull(method, nameof(method));
-            for (var i = 0; i < _methodComponents.Length; i++)
+            var components = _methodComponents;
+            for (var i = 0; i < components.Length; i++)
             {
-                var value = _methodComponents[i].TryGetMethodInvoker(method);
+                var value = components[i].TryGetMethodInvoker(method);
                 if (value != null)
                     return value;
             }
@@ -113,9 +117,10 @@ namespace MugenMvvm.Internal
         {
             Should.NotBeNull(delegateType, nameof(delegateType));
             Should.NotBeNull(method, nameof(method));
-            for (var i = 0; i < _methodComponents.Length; i++)
+            var components = _methodComponents;
+            for (var i = 0; i < components.Length; i++)
             {
-                var value = _methodComponents[i].TryGetMethodInvoker(delegateType, method);
+                var value = components[i].TryGetMethodInvoker(delegateType, method);
                 if (value != null)
                     return value;
             }
@@ -127,9 +132,10 @@ namespace MugenMvvm.Internal
         public Func<object?, TType> GetMemberGetter<TType>(MemberInfo member)
         {
             Should.NotBeNull(member, nameof(member));
-            for (var i = 0; i < _memberComponents.Length; i++)
+            var components = _memberComponents;
+            for (var i = 0; i < components.Length; i++)
             {
-                var value = _memberComponents[i].TryGetMemberGetter<TType>(member);
+                var value = components[i].TryGetMemberGetter<TType>(member);
                 if (value != null)
                     return value;
             }
@@ -141,9 +147,10 @@ namespace MugenMvvm.Internal
         public Action<object?, TType> GetMemberSetter<TType>(MemberInfo member)
         {
             Should.NotBeNull(member, nameof(member));
-            for (var i = 0; i < _memberComponents.Length; i++)
+            var components = _memberComponents;
+            for (var i = 0; i < components.Length; i++)
             {
-                var value = _memberComponents[i].TryGetMemberSetter<TType>(member);
+                var value = components[i].TryGetMemberSetter<TType>(member);
                 if (value != null)
                     return value;
             }

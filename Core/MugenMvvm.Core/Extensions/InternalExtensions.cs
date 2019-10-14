@@ -21,6 +21,7 @@ namespace MugenMvvm
             return MugenService.WeakReferenceProvider.GetWeakReference(item);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static T ServiceIfNull<T>(this T? service) where T : class
         {
             return service ?? Service<T>.Instance;

@@ -30,7 +30,7 @@ namespace MugenMvvm.ViewModels
 
         #region Properties
 
-        protected IMetadataContextProvider MetadataContextProvider => _metadataContextProvider.ServiceIfNull();
+        protected IMetadataContextProvider MetadataContextProvider => _metadataContextProvider.ServiceIfNull();//todo review usage
 
         #endregion
 
@@ -69,7 +69,7 @@ namespace MugenMvvm.ViewModels
             //            if (lifecycleState != ViewModelLifecycleState.Finalized)
             //                viewModel.Metadata.Set(ViewModelMetadata.LifecycleState, lifecycleState);//todo move to component
             IReadOnlyMetadataContext? result = null;
-            var components = Components.GetItems();
+            var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 var m = (components[i] as IViewModelLifecycleDispatcherComponent)?.OnLifecycleChanged(viewModel, lifecycleState, metadata);

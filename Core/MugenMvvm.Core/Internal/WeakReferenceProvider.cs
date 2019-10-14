@@ -56,9 +56,10 @@ namespace MugenMvvm.Internal
                     return weakReference;
             }
 
-            for (var i = 0; i < _providers.Length; i++)
+            var providers = _providers;
+            for (var i = 0; i < providers.Length; i++)
             {
-                var weakReference = _providers[i].TryGetWeakReference(item, metadata);
+                var weakReference = providers[i].TryGetWeakReference(item, metadata);
                 if (weakReference != null)
                 {
                     if (holder != null)

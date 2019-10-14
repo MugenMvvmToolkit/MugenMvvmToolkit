@@ -137,9 +137,10 @@ namespace MugenMvvm.Messaging
         {
             Should.NotBeNull(message, nameof(message));
             IMessageContext? ctx = null;
-            for (var i = 0; i < _contextProviders.Length; i++)
+            var providers = _contextProviders;
+            for (var i = 0; i < providers.Length; i++)
             {
-                ctx = _contextProviders[i].TryGetMessengerContext(sender, message, metadata);
+                ctx = providers[i].TryGetMessengerContext(sender, message, metadata);
                 if (ctx != null)
                     break;
             }
@@ -173,9 +174,10 @@ namespace MugenMvvm.Messaging
                     foreach (var subscriber in _subscribers)
                     {
                         var canHandle = false;
-                        for (var i = 0; i < _handlerComponents.Length; i++)
+                        var handlerComponents = _handlerComponents;
+                        for (var i = 0; i < handlerComponents.Length; i++)
                         {
-                            if (_handlerComponents[i].CanHandle(subscriber.Subscriber, messageContext))
+                            if (handlerComponents[i].CanHandle(subscriber.Subscriber, messageContext))
                             {
                                 canHandle = true;
                                 break;
@@ -284,7 +286,7 @@ namespace MugenMvvm.Messaging
 
             public void Execute(object? state)
             {
-                var messageContext = (IMessageContext) state!;
+                var messageContext = (IMessageContext)state!;
                 var handlers = _messenger._handlerComponents;
                 var listeners = _messenger._listeners;
                 for (var i = 0; i < Count; i++)
@@ -345,7 +347,7 @@ namespace MugenMvvm.Messaging
                         return ctx;
 
                     Interlocked.CompareExchange(ref _metadata, _metadata.ToNonReadonly(this, _messenger._metadataContextProvider), null);
-                    return (IMetadataContext) _metadata!;
+                    return (IMetadataContext)_metadata!;
                 }
             }
 

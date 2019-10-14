@@ -44,9 +44,10 @@ namespace MugenMvvm.Binding.Compiling
         {
             Should.NotBeNull(expression, nameof(expression));
 
-            for (var i = 0; i < _compilers.Length; i++)
+            var compilers = _compilers;
+            for (var i = 0; i < compilers.Length; i++)
             {
-                var compiledExpression = _compilers[i].TryCompile(expression, metadata);
+                var compiledExpression = compilers[i].TryCompile(expression, metadata);
                 if (compiledExpression != null)
                     return compiledExpression;
             }

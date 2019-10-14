@@ -92,9 +92,10 @@ namespace MugenMvvm.Binding.Observers
 
         protected virtual MemberObserver GetMemberObserverInternal<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata)
         {
-            for (var i = 0; i < MemberObserverProviders.Length; i++)
+            var providers = MemberObserverProviders;
+            for (var i = 0; i < providers.Length; i++)
             {
-                if (MemberObserverProviders[i] is IMemberObserverProviderComponent<TMember> component)
+                if (providers[i] is IMemberObserverProviderComponent<TMember> component)
                 {
                     var observer = component.TryGetMemberObserver(type, member, metadata);
                     if (!observer.IsEmpty)
@@ -107,9 +108,10 @@ namespace MugenMvvm.Binding.Observers
 
         protected virtual IMemberPath? TryGetMemberPathInternal<TPath>(in TPath path, IReadOnlyMetadataContext? metadata)
         {
-            for (var i = 0; i < PathProviders.Length; i++)
+            var providers = PathProviders;
+            for (var i = 0; i < providers.Length; i++)
             {
-                var memberPath = (PathProviders[i] as IMemberPathProviderComponent<TPath>)?.TryGetMemberPath(path, metadata);
+                var memberPath = (providers[i] as IMemberPathProviderComponent<TPath>)?.TryGetMemberPath(path, metadata);
                 if (memberPath != null)
                     return memberPath;
             }
@@ -119,9 +121,10 @@ namespace MugenMvvm.Binding.Observers
 
         protected virtual IMemberPathObserver? TryGetMemberPathObserverInternal(object source, IMemberPath path, IReadOnlyMetadataContext? metadata)
         {
-            for (var i = 0; i < PathObserverProviders.Length; i++)
+            var providers = PathObserverProviders;
+            for (var i = 0; i < providers.Length; i++)
             {
-                var observer = PathObserverProviders[i].TryGetMemberPathObserver(source, path, metadata);
+                var observer = providers[i].TryGetMemberPathObserver(source, path, metadata);
                 if (observer != null)
                     return observer;
             }

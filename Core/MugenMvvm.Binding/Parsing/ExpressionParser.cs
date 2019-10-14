@@ -43,9 +43,10 @@ namespace MugenMvvm.Binding.Parsing
 
         public ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> Parse<TExpression>(in TExpression expression, IReadOnlyMetadataContext? metadata = null)
         {
-            for (var i = 0; i < _parsers.Length; i++)
+            var parsers = _parsers;
+            for (var i = 0; i < parsers.Length; i++)
             {
-                var component = _parsers[i] as IExpressionParserComponent<TExpression>;
+                var component = parsers[i] as IExpressionParserComponent<TExpression>;
                 if (component == null)
                     continue;
                 var result = component.TryParse(expression, metadata);
