@@ -35,7 +35,7 @@ namespace MugenMvvm.Messaging
             IComponentCollectionProvider? componentCollectionProvider = null,
             IMetadataContextProvider? metadataContextProvider = null) : base(componentCollectionProvider)
         {
-            _cache = new TypeLightDictionary<ThreadExecutionModeDictionary>(3);
+            _cache = new TypeLightDictionary<ThreadExecutionModeDictionary?>(3);
             _threadDispatcher = threadDispatcher;
             _metadataContextProvider = metadataContextProvider;
             _subscribers = new HashSet<MessengerSubscriberInfo>(this);
@@ -133,7 +133,7 @@ namespace MugenMvvm.Messaging
             }
         }
 
-        public IMessageContext Publish(object sender, object message, IReadOnlyMetadataContext? metadata = null)
+        public IMessageContext Publish(object? sender, object message, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(message, nameof(message));
             IMessageContext? ctx = null;
@@ -276,7 +276,7 @@ namespace MugenMvvm.Messaging
 
             #region Properties
 
-            object IHasStateThreadDispatcherHandler.State { get; set; }
+            object? IHasStateThreadDispatcherHandler.State { get; set; }
 
             #endregion
 

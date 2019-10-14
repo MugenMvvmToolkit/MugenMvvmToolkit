@@ -22,7 +22,7 @@ namespace MugenMvvm.Messaging.Components
 
         #region Implementation of interfaces
 
-        public object TryGetSubscriber(object subscriber, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata)
+        public object? TryGetSubscriber(object subscriber, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata)
         {
             if (subscriber is IViewModelBase vm)
                 return ViewModelMessengerSubscriber.TryGetSubscriber(vm, true);

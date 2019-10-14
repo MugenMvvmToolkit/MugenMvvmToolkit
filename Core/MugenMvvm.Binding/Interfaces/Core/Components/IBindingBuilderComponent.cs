@@ -11,7 +11,7 @@ namespace MugenMvvm.Binding.Interfaces.Core.Components
 
     public interface IBindingBuilderComponent<TExpression> : IBindingBuilderComponent
     {
-        ItemOrList<IBinding, IReadOnlyList<IBinding>> TryBuildBinding(in TExpression expression, object target, in ItemOrList<object?, IReadOnlyList<object>> sources,
+        ItemOrList<IBinding, IReadOnlyList<IBinding>> TryBuildBinding(in TExpression expression, object target, ItemOrList<object?, IReadOnlyList<object>> sources,
             IReadOnlyMetadataContext? metadata);
     }
 }

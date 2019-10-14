@@ -11,7 +11,7 @@ namespace MugenMvvm.Binding.Interfaces.Core
     {
         ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>> BuildBindingExpression<T>(in T expression, IReadOnlyMetadataContext? metadata = null);
 
-        ItemOrList<IBinding, IReadOnlyList<IBinding>> BuildBinding<T>(in T expression, object target, in ItemOrList<object?, IReadOnlyList<object?>> sources = default,
+        ItemOrList<IBinding, IReadOnlyList<IBinding>> BuildBinding<T>(in T expression, object target, ItemOrList<object?, IReadOnlyList<object?>> sources = default,
             IReadOnlyMetadataContext? metadata = null);
 
         ItemOrList<IBinding?, IReadOnlyList<IBinding>> GetBindings(object target, string? path = null, IReadOnlyMetadataContext? metadata = null);

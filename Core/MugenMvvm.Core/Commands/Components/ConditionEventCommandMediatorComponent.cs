@@ -73,7 +73,7 @@ namespace MugenMvvm.Commands.Components
 
         public int Priority { get; set; }
 
-        object IHasStateThreadDispatcherHandler.State { get; set; }
+        object? IHasStateThreadDispatcherHandler.State { get; set; }
 
         #endregion
 

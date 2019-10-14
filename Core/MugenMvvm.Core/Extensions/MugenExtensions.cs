@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -8,6 +9,7 @@ using MugenMvvm.Interfaces.IoC;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
+using MugenMvvm.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm
@@ -15,6 +17,13 @@ namespace MugenMvvm
     public static partial class MugenExtensions
     {
         #region Methods
+
+        public static bool IsEmpty<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
+            where TItem : class
+            where TList : class, IEnumerable<TItem>
+        {
+            return itemOrList.Item == null && itemOrList.List == null;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasFlagEx(this BatchUpdateCollectionMode value, BatchUpdateCollectionMode flag)

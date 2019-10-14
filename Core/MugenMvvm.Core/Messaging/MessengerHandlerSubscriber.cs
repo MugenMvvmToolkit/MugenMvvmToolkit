@@ -28,7 +28,7 @@ namespace MugenMvvm.Messaging
         {
             Should.NotBeNull(handler, nameof(handler));
             _isWeak = isWeak;
-            _target = isWeak ? (object) handler.ToWeakReference() : handler;
+            _target = isWeak ? (object)handler.ToWeakReference() : handler;
             _hashCode = handler.GetHashCode();
             _handlerType = handler.GetType();
         }
@@ -42,7 +42,7 @@ namespace MugenMvvm.Messaging
             get
             {
                 if (_isWeak)
-                    return ((IWeakReference) _target).Target;
+                    return ((IWeakReference)_target).Target;
                 return _target;
             }
         }
@@ -66,7 +66,7 @@ namespace MugenMvvm.Messaging
             if (handlers == null)
                 return MessengerResult.Ignored;
 
-            var args = new[] {messageContext.Message, messageContext};
+            var args = new[] { messageContext.Message, messageContext };
             for (var i = 0; i < handlers.Count; i++)
                 handlers[i].Invoke(target, args);
 
@@ -109,10 +109,10 @@ namespace MugenMvvm.Messaging
                     {
                         var typeMessage = @interface.GetGenericArgumentsUnified()[0];
                         var method = @interface.GetMethodUnified(nameof(IMessengerHandler<object>.Handle), MemberFlags.InstancePublic);
-                        if (typeMessage.IsAssignableFromUnified(key.MessageType))
+                        if (method != null && typeMessage.IsAssignableFromUnified(key.MessageType))
                         {
                             if (items == null)
-                                items = new List<Func<object, object[], object>>(2);
+                                items = new List<Func<object?, object?[], object?>>(2);
                             items.Add(method.GetMethodInvoker());
                         }
                     }

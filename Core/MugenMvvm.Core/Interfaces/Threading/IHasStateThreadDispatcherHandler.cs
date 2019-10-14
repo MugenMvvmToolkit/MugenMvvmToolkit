@@ -2,6 +2,6 @@
 {
     public interface IHasStateThreadDispatcherHandler : IThreadDispatcherHandler
     {
-        object State { get; set; }
+        object? State { get; set; }
     }
 }
