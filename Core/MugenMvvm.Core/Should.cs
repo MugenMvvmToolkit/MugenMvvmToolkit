@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using MugenMvvm.Constants;
@@ -31,7 +32,7 @@ namespace MugenMvvm
                 throw new ArgumentException(MessageConstants.ArgumentCannotBeNull.Format(paramName), paramName);
         }
 
-        public static void BeSupported([AssertionCondition(AssertionConditionType.IS_TRUE)] [AssertsTrue]
+        public static void BeSupported([AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)]
             bool isSupported, string error)
         {
             if (!isSupported)
@@ -40,7 +41,7 @@ namespace MugenMvvm
 
         [DebuggerStepThrough]
         [AssertionMethod]
-        public static void BeValid(string paramName, [AssertionCondition(AssertionConditionType.IS_TRUE)] [AssertsTrue]
+        public static void BeValid(string paramName, [AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)]
             bool validation)
         {
             if (!validation)
@@ -71,7 +72,7 @@ namespace MugenMvvm
 
         [DebuggerStepThrough]
         [AssertionMethod]
-        public static void MethodBeSupported([AssertionCondition(AssertionConditionType.IS_TRUE)] [AssertsTrue]
+        public static void MethodBeSupported([AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)]
             bool isSupported, string methodName)
         {
             BeSupported(isSupported, MessageConstants.ShouldMethodBeSupportedFormat1.Format(methodName));

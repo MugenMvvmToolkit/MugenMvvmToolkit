@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -140,7 +141,7 @@ namespace MugenMvvm
             }
         }
 
-        public static bool TryGet<T>(this IIocContainer iocContainer, [NotNullWhenTrue] out T service, IReadOnlyMetadataContext? metadata = null)
+        public static bool TryGet<T>(this IIocContainer iocContainer, [NotNullWhen(true)] out T service, IReadOnlyMetadataContext? metadata = null)
         {
             var tryGet = iocContainer.TryGet(typeof(T), out var objService, metadata);
             if (tryGet)
@@ -153,7 +154,7 @@ namespace MugenMvvm
             return false;
         }
 
-        public static bool TryGet(this IIocContainer iocContainer, Type serviceType, [NotNullWhenTrue] out object? service, IReadOnlyMetadataContext? metadata = null)
+        public static bool TryGet(this IIocContainer iocContainer, Type serviceType, [NotNullWhen(true)] out object? service, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(iocContainer, nameof(iocContainer));
             Should.NotBeNull(serviceType, nameof(serviceType));

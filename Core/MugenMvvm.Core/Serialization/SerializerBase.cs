@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -144,8 +145,8 @@ namespace MugenMvvm.Serialization
                 (components[i] as ISerializerListener)?.OnDeserialized(this, instance, CurrentSerializationContext!);
         }
 
-        protected virtual bool TryGetSurrogateSerializerHandler(Type type, [NotNullWhenTrue] out ISurrogateProviderComponent? provider,
-            [NotNullWhenTrue] out Type? surrogateType)
+        protected virtual bool TryGetSurrogateSerializerHandler(Type type, [NotNullWhen(true)] out ISurrogateProviderComponent? provider,
+            [NotNullWhen(true)] out Type? surrogateType)
         {
             var components = GetComponents();
             for (var i = 0; i < components.Length; i++)

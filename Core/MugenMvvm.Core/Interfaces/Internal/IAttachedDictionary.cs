@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Delegates;
 
@@ -10,7 +11,7 @@ namespace MugenMvvm.Interfaces.Internal
         IReadOnlyList<KeyValuePair<string, object?>> GetValues<TItem>(TItem item, Func<TItem, string, object?, bool>? predicate)
             where TItem : class;
 
-        bool TryGetValue<TItem, TValue>(TItem item, string path, [NotNullWhenTrue] out TValue value)
+        bool TryGetValue<TItem, TValue>(TItem item, string path, [NotNullWhen(true)] out TValue value)
             where TItem : class;
 
         bool Contains<TItem>(TItem item, string path);

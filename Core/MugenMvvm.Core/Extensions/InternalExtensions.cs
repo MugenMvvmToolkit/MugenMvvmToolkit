@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -52,12 +53,12 @@ namespace MugenMvvm
             return result;
         }
 
-        internal static bool LazyInitialize<T>([EnsuresNotNull] ref T? item, T value) where T : class
+        internal static bool LazyInitialize<T>([NotNullIfNotNull("value")] ref T? item, T value) where T : class
         {
             return Interlocked.CompareExchange(ref item, value, null) == null;
         }
 
-        internal static bool LazyInitializeDisposable<T>([EnsuresNotNull] ref T? item, T value) where T : class, IDisposable
+        internal static bool LazyInitializeDisposable<T>([NotNullIfNotNull("value")] ref T? item, T value) where T : class, IDisposable
         {
             if (!LazyInitialize(ref item, value))
             {
