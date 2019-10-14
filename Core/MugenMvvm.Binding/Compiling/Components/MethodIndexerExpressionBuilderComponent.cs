@@ -258,7 +258,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 }
             }
 
-            var resultIndex = TrySelectMethod(methods, out var resultHasParams);
+            var resultIndex = TrySelectMethod(methods, arguments, out var resultHasParams);
             if (resultIndex < 0)
                 return null;
 
@@ -275,7 +275,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return Expression.Call(Expression.Constant(result.Method, typeof(IBindingMethodInfo)), InvokeMethod, invokeArgs);
         }
 
-        private static int TrySelectMethod(MethodData[] methods, out bool resultHasParams)
+        private static int TrySelectMethod(MethodData[] methods, ArgumentData[]? args, out bool resultHasParams)
         {
             var result = -1;
             resultHasParams = true;
@@ -380,8 +380,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 }
             }
 
-            //note maybe it's better to use dynamic invoker in this case?
-            if (resultNotExactlyEqual >= NotExactlyEqualUnsafeCastWeight)
+            if (result != -1 && args != null && resultNotExactlyEqual >= NotExactlyEqualUnsafeCastWeight && args.All(data => !data.IsLambda))
                 return -1;
 
             return result;
@@ -418,7 +417,7 @@ namespace MugenMvvm.Binding.Compiling.Components
         private static Expression[] ConvertParameters(in MethodData method, bool hasParams)
         {
             var parameters = method.Parameters;
-            var args = (Expression[]) method.Args!;
+            var args = (Expression[])method.Args!;
             var result = new Expression[parameters.Length];
             for (var i = 0; i < parameters.Length; i++)
             {
@@ -728,7 +727,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                     Type[]? instanceArgs = null, extArgs = null;
                     for (var i = 0; i < methods.Length; i++)
                         methods[i] = methods[i].WithArgs(target, args, ref instanceArgs, ref extArgs);
-                    var resultIndex = TrySelectMethod(methods, out _);
+                    var resultIndex = TrySelectMethod(methods, null, out _);
                     method = resultIndex >= 0 ? methods[resultIndex] : default;
                     this[types] = method;
                 }
@@ -905,7 +904,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                         return 0;
                     if (Args is Expression[] expressions)
                         return expressions.Length;
-                    return ((Type[]) Args!).Length;
+                    return ((Type[])Args!).Length;
                 }
             }
 
@@ -917,7 +916,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             {
                 if (Args is Expression[] expressions)
                     return expressions[index].Type;
-                return ((Type[]) Args!)[index];
+                return ((Type[])Args!)[index];
             }
 
             public MethodData WithArgs(object target, object?[] args, ref Type[]? instanceArgs, ref Type[]? extArgs)
