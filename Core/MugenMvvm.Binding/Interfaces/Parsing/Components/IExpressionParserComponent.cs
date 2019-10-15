@@ -10,7 +10,7 @@ namespace MugenMvvm.Binding.Interfaces.Parsing.Components
     {
     }
 
-    public interface IExpressionParserComponent<TExpression> : IExpressionParserComponent
+    public interface IExpressionParserComponent<TExpression> : IExpressionParserComponent//todo remove
     {
         ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> TryParse(in TExpression expression, IReadOnlyMetadataContext? metadata);
     }

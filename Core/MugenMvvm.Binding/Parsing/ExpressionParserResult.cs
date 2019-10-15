@@ -13,24 +13,25 @@ namespace MugenMvvm.Binding.Parsing
 
         public readonly IReadOnlyMetadataContext Metadata;
         public readonly ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> Parameters;
-        public readonly IExpressionNode? Source;
+        public readonly IExpressionNode Source;
         public readonly IExpressionNode Target;
 
         #endregion
 
         #region Constructors
 
-        public ExpressionParserResult(IExpressionNode target, IExpressionNode? source, ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> parameters,
+        public ExpressionParserResult(IExpressionNode target, IExpressionNode source, ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> parameters,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(source, nameof(source));
             Target = target;
             Source = source;
             Parameters = parameters;
             Metadata = metadata ?? Default.Metadata;
         }
 
-        public ExpressionParserResult(IExpressionNode target, IExpressionNode? source, ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> parameters,
+        public ExpressionParserResult(IExpressionNode target, IExpressionNode source, ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> parameters,
             IMetadataOwner<IReadOnlyMetadataContext> context)
             : this(target, source, parameters, context.HasMetadata ? context.Metadata : Default.Metadata)
         {

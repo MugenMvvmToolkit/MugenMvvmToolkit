@@ -48,7 +48,7 @@ namespace MugenMvvm.Binding.Core
         public ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>> BuildBindingExpression<T>(in T expression, IReadOnlyMetadataContext? metadata = null)
         {
             var result = BuildBindingExpressionInternal(expression, metadata);
-            if (result.IsEmpty())
+            if (result.IsNullOrEmpty())
                 BindingExceptionManager.ThrowCannotParseExpression(expression);
             return default;
         }
@@ -58,7 +58,7 @@ namespace MugenMvvm.Binding.Core
         {
             Should.NotBeNull(target, nameof(target));
             var result = BuildBindingInternal(expression, target, sources, metadata);
-            if (result.IsEmpty())
+            if (result.IsNullOrEmpty())
                 BindingExceptionManager.ThrowCannotParseExpression(expression);
             return default;
         }
@@ -116,12 +116,9 @@ namespace MugenMvvm.Binding.Core
             var builders = ExpressionBuilders;
             for (var i = 0; i < builders.Length; i++)
             {
-                if (builders[i] is IBindingExpressionBuilderComponent<T> builder)
-                {
-                    var result = builder.TryBuildBindingExpression(expression, metadata);
-                    if (!result.IsEmpty())
-                        return result;
-                }
+                var result = builders[i].TryBuildBindingExpression(expression, metadata);
+                if (!result.IsNullOrEmpty())
+                    return result!;
             }
 
             return default;
@@ -134,12 +131,9 @@ namespace MugenMvvm.Binding.Core
             var builders = BindingBuilders;
             for (var i = 0; i < builders.Length; i++)
             {
-                if (builders[i] is IBindingBuilderComponent<T> builder)
-                {
-                    var result = builder.TryBuildBinding(expression, target, sources, metadata);
-                    if (!result.IsEmpty())
-                        return result;
-                }
+                var result = builders[i].TryBuildBinding(expression, target, sources, metadata);
+                if (!result.IsNullOrEmpty())
+                    return result;
             }
 
             return default;
@@ -158,14 +152,22 @@ namespace MugenMvvm.Binding.Core
             for (var i = 0; i < holders.Length; i++)
             {
                 var bindings = holders[i].TryGetBindings(target, path, metadata);
-                if (bindings.IsEmpty())
+                if (bindings.IsNullOrEmpty())
                     continue;
 
-                if (bindings.IsList)
+                if (bindings.List == null)
                 {
-                    if (bindings.List.Count == 0)
-                        continue;
-
+                    if (item == null)
+                        item = bindings.Item;
+                    else
+                    {
+                        if (list == null)
+                            list = new List<IBinding> { item };
+                        list.Add(bindings.Item!);
+                    }
+                }
+                else
+                {
                     if (list == null)
                     {
                         list = new List<IBinding>();
@@ -175,22 +177,11 @@ namespace MugenMvvm.Binding.Core
 
                     list.AddRange(bindings.List);
                 }
-                else
-                {
-                    if (item == null)
-                        item = bindings.Item;
-                    else
-                    {
-                        if (list == null)
-                            list = new List<IBinding> { item };
-                        list.Add(bindings.Item);
-                    }
-                }
             }
 
             if (list == null)
-                return new ItemOrList<IBinding, IReadOnlyList<IBinding>>(item);
-            return new ItemOrList<IBinding, IReadOnlyList<IBinding>>(list);
+                return new ItemOrList<IBinding?, IReadOnlyList<IBinding>>(item);
+            return new ItemOrList<IBinding?, IReadOnlyList<IBinding>>(list);
         }
 
         protected virtual IReadOnlyMetadataContext? OnLifecycleChangedInternal(IBinding binding, BindingLifecycleState lifecycle, IReadOnlyMetadataContext? metadata = null)

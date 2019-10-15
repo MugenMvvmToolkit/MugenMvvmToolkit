@@ -23,7 +23,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         public override ExpressionNodeType NodeType => ExpressionNodeType.Parameter;
 
-        public int Index { get; }
+        public int Index { get; protected set; }
 
         public string Name { get; }
 

@@ -1,7 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text;
+using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Enums;
 
@@ -18,6 +22,51 @@ namespace MugenMvvm.Binding
         #endregion
 
         #region Methods
+
+        internal static bool TryBuildBindingMember(this IExpressionNode? target, StringBuilder builder, out IExpressionNode? firstExpression)
+        {
+            Should.NotBeNull(builder, nameof(builder));
+            firstExpression = null;
+            builder.Clear();
+            if (target == null)
+                return false;
+            while (target != null)
+            {
+                firstExpression = target;
+                if (target is IMemberExpressionNode memberExpressionNode)
+                {
+                    var memberName = memberExpressionNode.MemberName.Trim();
+                    builder.Insert(0, memberName);
+                    if (memberExpressionNode.Target != null)
+                        builder.Insert(0, '.');
+                    target = memberExpressionNode.Target;
+                }
+                else
+                {
+                    if (!(target is IIndexExpressionNode indexExpressionNode) ||
+                        indexExpressionNode.Arguments.Any(arg => arg.NodeType != ExpressionNodeType.Constant))
+                        return false;
+
+                    IEnumerable<string> args = indexExpressionNode
+                        .Arguments
+                        .Cast<IConstantExpressionNode>()
+                        .Select(node => node.Value.ToStringValue());
+                    builder.Insert(0, "[" + string.Join(",", args).Trim() + "]");
+                    target = indexExpressionNode.Target;
+                }
+            }
+
+            return true;
+        }
+
+        internal static string ToStringValue(this object? o)
+        {
+            if (o == null)
+                return "null";
+            if (o is string)
+                return "\"" + o + "\"";
+            return o.ToString();
+        }
 
         internal static bool HasFlagEx(this GenericParameterAttributes attributes, GenericParameterAttributes flag)
         {

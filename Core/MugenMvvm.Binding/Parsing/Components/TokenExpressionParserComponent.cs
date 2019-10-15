@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -12,13 +14,17 @@ using MugenMvvm.Internal;
 namespace MugenMvvm.Binding.Parsing.Components
 {
     //todo use span/memory?
-    public class TokenExpressionParserComponent : AttachableComponentBase<IExpressionParser>, IExpressionParserComponent<string>, IHasPriority
+    public class TokenExpressionParserComponent : AttachableComponentBase<IExpressionParser>, IExpressionParserComponent<string>, IHasPriority,
+        IComponentCollectionChangedListener<IComponent<IExpressionParser>>
     {
         #region Fields
 
-        private readonly ComponentTracker<IParser, IExpressionParser> _componentTracker;
+        private static readonly MemberExpressionNode EmptyMember = new MemberExpressionNode(null, string.Empty);
+
         private readonly IMetadataContextProvider? _metadataContextProvider;
         private readonly TokenParserContext _parserContext;
+
+        protected IParser[] Parsers;
 
         public static readonly HashSet<char> TargetDelimiters = new HashSet<char> { ',', ';', ' ' };
         public static readonly HashSet<char> Delimiters = new HashSet<char> { ',', ';' };
@@ -27,11 +33,11 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Constructors
 
-        public TokenExpressionParserComponent(IMetadataContextProvider? metadataContextProvider = null)
+        public TokenExpressionParserComponent(IMetadataContextProvider? metadataContextProvider = null)//todo review input parameter usage
         {
             _metadataContextProvider = metadataContextProvider;
             _parserContext = new TokenParserContext(this);
-            _componentTracker = new ComponentTracker<IParser, IExpressionParser>();
+            Parsers = Default.EmptyArray<IParser>();
         }
 
         #endregion
@@ -43,6 +49,24 @@ namespace MugenMvvm.Binding.Parsing.Components
         #endregion
 
         #region Implementation of interfaces
+
+        void IComponentCollectionChangedListener<IComponent<IExpressionParser>>.OnAdded(IComponentCollection<IComponent<IExpressionParser>> collection,
+            IComponent<IExpressionParser> component, IReadOnlyMetadataContext? metadata)
+        {
+            OnComponentAdded(collection, component, metadata);
+        }
+
+        void IComponentCollectionChangedListener<IComponent<IExpressionParser>>.OnRemoved(IComponentCollection<IComponent<IExpressionParser>> collection,
+            IComponent<IExpressionParser> component, IReadOnlyMetadataContext? metadata)
+        {
+            OnComponentRemoved(collection, component, metadata);
+        }
+
+        void IComponentCollectionChangedListener<IComponent<IExpressionParser>>.OnCleared(IComponentCollection<IComponent<IExpressionParser>> collection,
+            ItemOrList<IComponent<IExpressionParser>?, IComponent<IExpressionParser>[]> oldItems, IReadOnlyMetadataContext? metadata)
+        {
+            OnComponentCleared(collection, oldItems, metadata);
+        }
 
         public ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> TryParse(in string expression, IReadOnlyMetadataContext? metadata)
         {
@@ -56,18 +80,38 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         protected override void OnAttachedInternal(IExpressionParser owner, IReadOnlyMetadataContext? metadata)
         {
-            _componentTracker.Attach(owner);
+            Parsers = owner.Components.GetItems().OfType<IParser>().ToArray();
+            owner.Components.Components.Add(this);
         }
 
         protected override void OnDetachedInternal(IExpressionParser owner, IReadOnlyMetadataContext? metadata)
         {
-            _componentTracker.Detach();
+            owner.Components.Components.Remove(this);
+            Parsers = Default.EmptyArray<IParser>();
         }
 
         protected virtual ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> ParseInternal(in string expression, IReadOnlyMetadataContext? metadata)
         {
             _parserContext.Initialize(expression, metadata);
             return ParseInternal(_parserContext);
+        }
+
+        protected virtual void OnComponentAdded(IComponentCollection<IComponent<IExpressionParser>> collection,
+            IComponent<IExpressionParser> component, IReadOnlyMetadataContext? metadata)
+        {
+            MugenExtensions.ComponentTrackerOnAdded(ref Parsers, Owner, collection, component, metadata);
+        }
+
+        protected virtual void OnComponentRemoved(IComponentCollection<IComponent<IExpressionParser>> collection,
+            IComponent<IExpressionParser> component, IReadOnlyMetadataContext? metadata)
+        {
+            MugenExtensions.ComponentTrackerOnRemoved(ref Parsers, collection, component, metadata);
+        }
+
+        protected virtual void OnComponentCleared(IComponentCollection<IComponent<IExpressionParser>> collection,
+            ItemOrList<IComponent<IExpressionParser>?, IComponent<IExpressionParser>[]> oldItems, IReadOnlyMetadataContext? metadata)
+        {
+            MugenExtensions.ComponentTrackerOnCleared(ref Parsers, collection, oldItems, metadata);
         }
 
         protected ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> ParseInternal(IContext context)
@@ -127,7 +171,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             {
                 if (context.IsToken(';'))
                     context.MoveNext();
-                return new ExpressionParserResult(target, source, parameters ?? new ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>>(parameter), context);
+                return new ExpressionParserResult(target, source ?? EmptyMember, parameters ?? new ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>>(parameter), context);
             }
 
             BindingExceptionManager.ThrowCannotParseExpression(this);
@@ -221,7 +265,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
             public IExpressionNode? TryParse(IExpressionNode? expression = null)
             {
-                var components = _parser._componentTracker.GetComponents();
+                var components = _parser.Parsers;
                 for (var i = 0; i < components.Length; i++)
                 {
                     var result = components[i].TryParse(this, expression);
@@ -250,7 +294,8 @@ namespace MugenMvvm.Binding.Parsing.Components
 
             public override string ToString()
             {
-                return $"Position '{Position.ToString()}' CurrentToken '{GetToken(Position)}' PrevToken '{GetToken(Position - 1)}' NextToken '{GetToken(Position + 1)}' Source '{_source}'";
+                return
+                    $"Position '{Position.ToString()}' CurrentToken '{GetToken(Position)}' PrevToken '{GetToken(Position - 1)}' NextToken '{GetToken(Position + 1)}' Source '{_source}'";
             }
 
             private string GetToken(int position)

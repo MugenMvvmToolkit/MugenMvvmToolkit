@@ -18,16 +18,19 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public class ExpressionCompilerComponent : AttachableComponentBase<IExpressionCompiler>, IExpressionCompilerComponent, IHasPriority
+    public class ExpressionCompilerComponent : AttachableComponentBase<IExpressionCompiler>, IExpressionCompilerComponent, IHasPriority,
+        IComponentCollectionChangedListener<IComponent<IExpressionCompiler>>
     {
         #region Fields
 
-        protected readonly ComponentTracker<IExpressionBuilder, IExpressionCompiler> ComponentTracker;
         protected readonly IReflectionDelegateProvider? DelegateProvider;
         protected readonly IMetadataContextProvider? MetadataContextProvider;
+
+        protected IExpressionBuilder[] Builders;
 
         #endregion
 
@@ -37,7 +40,7 @@ namespace MugenMvvm.Binding.Compiling.Components
         {
             MetadataContextProvider = metadataContextProvider;
             DelegateProvider = delegateProvider;
-            ComponentTracker = new ComponentTracker<IExpressionBuilder, IExpressionCompiler>();
+            Builders = Default.EmptyArray<IExpressionBuilder>();
         }
 
         #endregion
@@ -50,6 +53,24 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Implementation of interfaces
 
+        void IComponentCollectionChangedListener<IComponent<IExpressionCompiler>>.OnAdded(IComponentCollection<IComponent<IExpressionCompiler>> collection,
+            IComponent<IExpressionCompiler> component, IReadOnlyMetadataContext? metadata)
+        {
+            OnComponentAdded(collection, component, metadata);
+        }
+
+        void IComponentCollectionChangedListener<IComponent<IExpressionCompiler>>.OnRemoved(IComponentCollection<IComponent<IExpressionCompiler>> collection,
+            IComponent<IExpressionCompiler> component, IReadOnlyMetadataContext? metadata)
+        {
+            OnComponentRemoved(collection, component, metadata);
+        }
+
+        void IComponentCollectionChangedListener<IComponent<IExpressionCompiler>>.OnCleared(IComponentCollection<IComponent<IExpressionCompiler>> collection,
+            ItemOrList<IComponent<IExpressionCompiler>?, IComponent<IExpressionCompiler>[]> oldItems, IReadOnlyMetadataContext? metadata)
+        {
+            OnComponentCleared(collection, oldItems, metadata);
+        }
+
         public ICompiledExpression? TryCompile(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
         {
             return Compile(expression, metadata);
@@ -61,17 +82,37 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         protected override void OnAttachedInternal(IExpressionCompiler owner, IReadOnlyMetadataContext? metadata)
         {
-            ComponentTracker.Attach(owner);
+            Builders = owner.Components.GetItems().OfType<IExpressionBuilder>().ToArray();
+            owner.Components.Components.Add(this);
         }
 
         protected override void OnDetachedInternal(IExpressionCompiler owner, IReadOnlyMetadataContext? metadata)
         {
-            ComponentTracker.Detach();
+            owner.Components.Components.Remove(this);
+            Builders = Default.EmptyArray<IExpressionBuilder>();
         }
 
         protected virtual ICompiledExpression Compile(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
         {
             return new CompiledExpression(this, expression, metadata);
+        }
+
+        protected virtual void OnComponentAdded(IComponentCollection<IComponent<IExpressionCompiler>> collection,
+            IComponent<IExpressionCompiler> component, IReadOnlyMetadataContext? metadata)
+        {
+            MugenExtensions.ComponentTrackerOnAdded(ref Builders, Owner, collection, component, metadata);
+        }
+
+        protected virtual void OnComponentRemoved(IComponentCollection<IComponent<IExpressionCompiler>> collection,
+            IComponent<IExpressionCompiler> component, IReadOnlyMetadataContext? metadata)
+        {
+            MugenExtensions.ComponentTrackerOnRemoved(ref Builders, collection, component, metadata);
+        }
+
+        protected virtual void OnComponentCleared(IComponentCollection<IComponent<IExpressionCompiler>> collection,
+            ItemOrList<IComponent<IExpressionCompiler>?, IComponent<IExpressionCompiler>[]> oldItems, IReadOnlyMetadataContext? metadata)
+        {
+            MugenExtensions.ComponentTrackerOnCleared(ref Builders, collection, oldItems, metadata);
         }
 
         #endregion
@@ -108,9 +149,9 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             private readonly ExpressionCompilerComponent _compiler;
             private readonly IExpressionNode _expression;
+            private readonly IReadOnlyMetadataContext? _inputMetadata;
             private readonly ParameterDictionary _parametersDict;
             private readonly object?[] _values;
-            private readonly IReadOnlyMetadataContext? _inputMetadata;
 
             private List<IBindingParameterInfo>? _lambdaParameters;
             private IMetadataContext? _metadata;
@@ -220,7 +261,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             public Expression Build(IExpressionNode expression)
             {
-                var components = _compiler.ComponentTracker.GetComponents();
+                var components = _compiler.Builders;
                 foreach (var component in components)
                 {
                     var compile = component.TryBuild(this, expression);
@@ -234,7 +275,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             IExpressionNode IExpressionVisitor.Visit(IExpressionNode node)
             {
-                if (node.NodeType == ExpressionNodeType.BindingParameter)
+                if (node.NodeType == ExpressionNodeType.BindingMember)
                     _parametersDict[(IParameterExpression)node] = null;
                 return node;
             }
@@ -251,11 +292,11 @@ namespace MugenMvvm.Binding.Compiling.Components
                     foreach (var value in _parametersDict)
                     {
                         var parameterExpression = value.Key;
-                        if (parameterExpression.NodeType == ExpressionNodeType.BindingParameter)
+                        if (parameterExpression.NodeType == ExpressionNodeType.BindingMember)
                         {
                             var parameter = Expression.Parameter(values[parameterExpression.Index].Type, parameterExpression.Name);
                             parameters[parameterExpression.Index] = parameter;
-                            _parametersDict[value.Key] = parameter;
+                            _parametersDict[parameterExpression] = parameter;
                         }
                     }
 
@@ -367,7 +408,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             protected override int GetHashCode(IParameterExpression key)
             {
-                if (key.NodeType == ExpressionNodeType.BindingParameter)
+                if (key.NodeType == ExpressionNodeType.BindingMember)
                 {
                     unchecked
                     {
@@ -380,7 +421,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             protected override bool Equals(IParameterExpression x, IParameterExpression y)
             {
-                if (x.NodeType == ExpressionNodeType.BindingParameter && y.NodeType == ExpressionNodeType.BindingParameter)
+                if (x.NodeType == ExpressionNodeType.BindingMember && y.NodeType == ExpressionNodeType.BindingMember)
                     return x.Index == y.Index && x.Name == y.Name;
                 return ReferenceEquals(x, y);
             }

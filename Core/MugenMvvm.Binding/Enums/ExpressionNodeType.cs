@@ -19,7 +19,8 @@ namespace MugenMvvm.Binding.Enums
         public static readonly ExpressionNodeType Unary = new ExpressionNodeType(7);
         public static readonly ExpressionNodeType Lambda = new ExpressionNodeType(8);
         public static readonly ExpressionNodeType Parameter = new ExpressionNodeType(9);
-        public static readonly ExpressionNodeType BindingParameter = new ExpressionNodeType(10);
+        public static readonly ExpressionNodeType BindingMember = new ExpressionNodeType(10);
+        public static readonly ExpressionNodeType BindingComponent = new ExpressionNodeType(11);
 
         #endregion
 

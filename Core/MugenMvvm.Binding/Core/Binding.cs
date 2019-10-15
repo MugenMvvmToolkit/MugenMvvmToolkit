@@ -390,6 +390,39 @@ namespace MugenMvvm.Binding.Core
 
         #region Methods
 
+        public void SetComponents(ItemOrList<IComponent<IBinding>, IComponent<IBinding>[]> components, IReadOnlyMetadataContext? metadata)
+        {
+            if (_components != null)
+                ExceptionManager.ThrowObjectInitialized(this);
+            var defaultListener = CallbackInvokerComponentCollectionComponent.GetComponentCollectionListener<IComponent<IBinding>>();
+            if (components.List == null)
+            {
+                var component = components.Item;
+                if (defaultListener.OnAdding(this, component, metadata))
+                {
+                    OnComponentAdded(component);
+                    defaultListener.OnAdded(this, component, metadata);
+                }
+
+                _components = component;
+            }
+            else
+            {
+                var list = components.List;
+                for (var i = 0; i < list.Length; i++)
+                {
+                    var component = list[i];
+                    if (!defaultListener.OnAdding(this, component, metadata))
+                        continue;
+
+                    OnComponentAdded(component);
+                    defaultListener.OnAdded(this, component, metadata);
+                }
+
+                _components = list;
+            }
+        }
+
         protected virtual object? GetSourceValue(in MemberPathLastMember targetMember)
         {
             return ((IMemberPathObserver) SourceRaw).GetLastMember(Metadata).GetLastMemberValue(Metadata);
