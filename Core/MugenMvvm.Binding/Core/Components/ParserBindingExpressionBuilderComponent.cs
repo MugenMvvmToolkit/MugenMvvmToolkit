@@ -307,6 +307,7 @@ namespace MugenMvvm.Binding.Core.Components
 
             public IBinding Build(object target, object? source = null, IReadOnlyMetadataContext? metadata = null)
             {
+                //todo register, call lifecycle, add runtime components?
                 var binding = new Binding(_targetExpression.GetObserver(target, source, metadata), _sourceExpression.GetObserver(target, source, metadata));
                 if (!_components.IsNull())
                     binding.SetComponents(GetComponents(_components!, binding, target, source, metadata), metadata);
