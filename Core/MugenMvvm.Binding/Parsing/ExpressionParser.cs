@@ -46,10 +46,7 @@ namespace MugenMvvm.Binding.Parsing
             var parsers = _parsers;
             for (var i = 0; i < parsers.Length; i++)
             {
-                if (!(parsers[i] is IExpressionParserComponent<TExpression> component))
-                    continue;
-
-                var result = component.TryParse(expression, metadata);
+                var result = parsers[i].TryParse(expression, metadata);
                 if (!result.Item.IsEmpty || result.IsList)
                     return result;
             }

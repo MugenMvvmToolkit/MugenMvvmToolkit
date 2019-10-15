@@ -63,20 +63,22 @@ namespace MugenMvvm.Binding.Core.Components
         public ItemOrList<IBindingExpression?, IReadOnlyList<IBindingExpression>> TryBuildBindingExpression<TExpression>(in TExpression expression,
             IReadOnlyMetadataContext? metadata)
         {
-            var list = _parser.ServiceIfNull().Parse(expression, metadata);
-            if (list.Item.IsEmpty)
+            var parserResult = _parser.ServiceIfNull().Parse(expression, metadata);
+            var list = parserResult.List;
+            if (list != null)
             {
-                var bindingExpressions = new IBindingExpression[list.List.Count];
+                var bindingExpressions = new IBindingExpression[list.Count];
                 for (var i = 0; i < bindingExpressions.Length; i++)
                 {
-                    var item = list.List[i];
-                    MugenExtensions.AddOrdered(bindingExpressions, GetBindingExpression(item.Target, item.Source, item.Parameters, metadata), null);
+                    var result = list[i];
+                    MugenExtensions.AddOrdered(bindingExpressions, GetBindingExpression(result.Target, result.Source, result.Parameters, metadata), null);
                 }
 
                 return bindingExpressions;
             }
 
-            return new ItemOrList<IBindingExpression?, IReadOnlyList<IBindingExpression>>(GetBindingExpression(list.Item.Target, list.Item.Source, list.Item.Parameters, metadata));
+            var item = parserResult.Item;
+            return new ItemOrList<IBindingExpression?, IReadOnlyList<IBindingExpression>>(GetBindingExpression(item.Target, item.Source, item.Parameters, metadata));
         }
 
         void IComponentCollectionChangedListener<IComponent<IBindingManager>>.OnAdded(IComponentCollection<IComponent<IBindingManager>> collection,
@@ -153,7 +155,7 @@ namespace MugenMvvm.Binding.Core.Components
                     }
                     else
                     {
-                        var list = parameters.List;
+                        var list = parameters.List!;
                         for (var i = 0; i < list.Count; i++)
                         {
                             var expression = GetComponentExpression(list[i]);

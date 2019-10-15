@@ -14,26 +14,26 @@ using MugenMvvm.Internal;
 namespace MugenMvvm.Binding.Parsing.Components
 {
     //todo use span/memory?
-    public class TokenExpressionParserComponent : AttachableComponentBase<IExpressionParser>, IExpressionParserComponent<string>, IHasPriority,
+    public class TokenExpressionParserComponent : AttachableComponentBase<IExpressionParser>, IExpressionParserComponent, IExpressionParserComponentInternal<string>, IHasPriority,
         IComponentCollectionChangedListener<IComponent<IExpressionParser>>
     {
         #region Fields
-
-        private static readonly MemberExpressionNode EmptyMember = new MemberExpressionNode(null, string.Empty);
 
         private readonly IMetadataContextProvider? _metadataContextProvider;
         private readonly TokenParserContext _parserContext;
 
         protected IParser[] Parsers;
 
-        public static readonly HashSet<char> TargetDelimiters = new HashSet<char> { ',', ';', ' ' };
-        public static readonly HashSet<char> Delimiters = new HashSet<char> { ',', ';' };
+        private static readonly MemberExpressionNode EmptyMember = new MemberExpressionNode(null, string.Empty);
+
+        public static readonly HashSet<char> TargetDelimiters = new HashSet<char> {',', ';', ' '};
+        public static readonly HashSet<char> Delimiters = new HashSet<char> {',', ';'};
 
         #endregion
 
         #region Constructors
 
-        public TokenExpressionParserComponent(IMetadataContextProvider? metadataContextProvider = null)//todo review input parameter usage
+        public TokenExpressionParserComponent(IMetadataContextProvider? metadataContextProvider = null) //todo review input parameter usage
         {
             _metadataContextProvider = metadataContextProvider;
             _parserContext = new TokenParserContext(this);
@@ -68,7 +68,14 @@ namespace MugenMvvm.Binding.Parsing.Components
             OnComponentCleared(collection, oldItems, metadata);
         }
 
-        public ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> TryParse(in string expression, IReadOnlyMetadataContext? metadata)
+        ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> IExpressionParserComponent.TryParse<TExpression>(in TExpression expression,
+            IReadOnlyMetadataContext? metadata)
+        {
+            return TryParseInternal(expression, metadata);
+        }
+
+        ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> IExpressionParserComponentInternal<string>.TryParse(in string expression,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(expression, nameof(expression));
             return ParseInternal(expression, metadata);
@@ -88,6 +95,14 @@ namespace MugenMvvm.Binding.Parsing.Components
         {
             owner.Components.Components.Remove(this);
             Parsers = Default.EmptyArray<IParser>();
+        }
+
+        protected virtual ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> TryParseInternal<TExpression>(in TExpression expression,
+            IReadOnlyMetadataContext? metadata)
+        {
+            if (this is IExpressionParserComponentInternal<TExpression> parser)
+                return parser.TryParse(expression, metadata);
+            return default;
         }
 
         protected virtual ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> ParseInternal(in string expression, IReadOnlyMetadataContext? metadata)
@@ -128,7 +143,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 else
                 {
                     if (result == null)
-                        result = new List<ExpressionParserResult> { itemResult };
+                        result = new List<ExpressionParserResult> {itemResult};
                     result.Add(r);
                 }
             }
@@ -162,7 +177,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 else
                 {
                     if (parameters == null)
-                        parameters = new List<IExpressionNode> { parameter };
+                        parameters = new List<IExpressionNode> {parameter};
                     parameters.Add(param);
                 }
             }
@@ -171,7 +186,8 @@ namespace MugenMvvm.Binding.Parsing.Components
             {
                 if (context.IsToken(';'))
                     context.MoveNext();
-                return new ExpressionParserResult(target, source ?? EmptyMember, parameters ?? new ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>>(parameter), context);
+                return new ExpressionParserResult(target, source ?? EmptyMember, parameters ?? new ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>>(parameter),
+                    context);
             }
 
             BindingExceptionManager.ThrowCannotParseExpression(this);
@@ -236,7 +252,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                         return ctx;
 
                     Interlocked.CompareExchange(ref _metadata, _metadata.ToNonReadonly(this, _parser._metadataContextProvider), null);
-                    return (IMetadataContext)_metadata!;
+                    return (IMetadataContext) _metadata!;
                 }
             }
 
