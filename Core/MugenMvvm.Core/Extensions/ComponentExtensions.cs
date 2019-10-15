@@ -69,9 +69,9 @@ namespace MugenMvvm
             return item == null && LazyInitialize(ref item, provider.ServiceIfNull().GetComponentCollection<T>(target, metadata));
         }
 
-        public static int GetComponentPriority(object component, object owner)
+        public static int GetComponentPriority(object component, object? owner)
         {
-            if (component is IHasComponentPriority c)
+            if (owner != null && component is IHasComponentPriority c)
                 return c.GetPriority(owner);
             if (component is IHasPriority p)
                 return p.Priority;

@@ -19,11 +19,18 @@ namespace MugenMvvm
     {
         #region Methods
 
-        public static bool IsEmpty<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
-            where TItem : class
-            where TList : class, IEnumerable<TItem>
+        public static bool IsNull<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
+            where TItem : class?
+            where TList : class?, IEnumerable<TItem>
         {
             return itemOrList.Item == null && itemOrList.List == null;
+        }
+
+        public static bool IsNullOrEmpty<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
+            where TItem : class?
+            where TList : class?, IReadOnlyList<TItem>
+        {
+            return itemOrList.Item == null && (itemOrList.List == null || itemOrList.List.Count == 0);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

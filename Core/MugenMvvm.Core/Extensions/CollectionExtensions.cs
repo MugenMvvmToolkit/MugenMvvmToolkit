@@ -21,7 +21,7 @@ namespace MugenMvvm
             return array;
         }
 
-        public static void AddOrdered<T>(ref T[] items, T component, object owner) where T : class
+        public static void AddOrdered<T>(ref T[] items, T component, object? owner) where T : class
         {
             var array = new T[items.Length + 1];
             var added = false;
@@ -83,6 +83,27 @@ namespace MugenMvvm
             if (array != null)
                 items = array;
             return array != null;
+        }
+
+        internal static void AddOrdered<T>(T[] items, T component, object? owner) where T : class
+        {
+            var priority = GetComponentPriority(component, owner);
+            for (int i = 0; i < items.Length; i++)
+            {
+                var oldItem = items[i];
+                if (oldItem == null)
+                {
+                    items[i] = component;
+                    break;
+                }
+                var compareTo = priority.CompareTo(GetComponentPriority(oldItem, owner));
+                if (compareTo > 0)
+                {
+                    Array.Copy(items, i, items, i + 1, items.Length - i - 1);
+                    items[i] = component;
+                    break;
+                }
+            }
         }
 
         #endregion
